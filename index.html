@@ -3,188 +3,2197 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>K-Talk 13명 최종방</title>
+<title>K-Talk 방송방</title>
 <script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script>
+
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#090711;color:#fff;font-family:Arial,sans-serif}
-.wrap{max-width:520px;margin:auto;padding:14px}
-.top{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.brand{font-size:24px;font-weight:900;color:#ffd76a}
-.sub{font-size:12px;color:#aaa;margin-top:4px}
-.on{background:#ff2e6d;padding:7px 10px;border-radius:10px;font-weight:800}
-.main{margin-top:12px;position:relative;background:#15151c;border-radius:16px;overflow:hidden;aspect-ratio:16/10}
-.main video,.slot video{width:100%;height:100%;object-fit:cover}
-.placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#aaa;text-align:center;padding:20px}
-.controls{display:flex;gap:8px;margin-top:12px}
-button{flex:1;border:0;border-radius:12px;padding:12px;font-weight:900;color:#fff;font-size:15px}
-.start{background:#8d46ff}.stop{background:#333}
-.status{margin-top:10px;padding:10px;background:#1c1524;border-radius:10px;color:#ffd76a;font-size:13px}
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:10px}
-.slot{height:80px;background:#211829;border:1px solid #4a3457;border-radius:11px;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;font-size:11px;text-align:center}
-.slot.me{border:2px solid #ffd700}
-.label{position:absolute;left:4px;bottom:4px;background:#000a;padding:2px 5px;border-radius:6px;font-size:10px}
-.badge{display:inline-block;background:#ffd700;color:#111;font-weight:900;padding:5px 9px;border-radius:8px;margin-bottom:7px}
+:root{
+  --bg:#050507;
+  --panel:#0b0910;
+  --line:#4c2058;
+  --purple:#a13ac0;
+  --pink:#ff2d73;
+  --yellow:#ffd34f;
+  --text:#fff;
+  --muted:#aaa;
+}
+html,body{
+  margin:0;
+  background:#050507;
+  color:#fff;
+  font-family:Arial,"Noto Sans KR",sans-serif;
+  overflow-x:hidden
+}
+#fit{
+  position:relative;
+  width:100%;
+  overflow:hidden;
+  background:#050507
+}
+#app{
+  width:720px;
+  height:760px;
+  margin:0;
+  padding:6px 8px 58px;
+  transform-origin:top left;
+  background:#050507
+}
+.header{
+  height:40px;
+  display:grid;
+  grid-template-columns:150px 1fr 120px;
+  align-items:center;
+  gap:8px
+}
+.live{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-weight:800;
+  font-size:13px
+}
+.livebadge{
+  background:#ff164f;
+  border-radius:6px;
+  padding:7px 10px;
+  box-shadow:0 0 14px #ff164f66
+}
+.brand{text-align:center;line-height:1.08}
+.brand b{font-size:24px;color:#ffd050}
+.brand small{
+  display:block;
+  font-size:11px;
+  color:#ddd;
+  margin-top:3px
+}
+.headicons{text-align:right;color:#ddd;font-size:15px}
+
+.notice{
+  height:28px;
+  border:1px solid #4c2058;
+  border-radius:7px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  font-weight:800;
+  margin-bottom:7px
+}
+.notice .y{color:#ffd850}
+.notice .p{color:#ff52d0}
+
+.top{
+  display:grid;
+  grid-template-columns:320px 1fr;
+  gap:7px
+}
+.host{
+  height:350px;
+  border:1px solid #6e277c;
+  border-radius:8px;
+  overflow:hidden;
+  position:relative;
+  background:radial-gradient(circle at 50% 30%,#5d256a 0,#211026 34%,#09080a 75%)
+}
+#hostVideo{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  background:#0b0a0d
+}
+.hostEmpty{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:110px;
+  opacity:.25
+}
+.hostStatus{
+  position:absolute;
+  top:10px;
+  left:10px;
+  font-size:12px;
+  color:#ff395f;
+  font-weight:900;
+  z-index:4
+}
+.attend{
+  position:absolute;
+  top:12px;
+  right:15px;
+  z-index:4;
+  padding:9px 18px;
+  border-radius:22px;
+  border:2px solid #e852e7;
+  background:#7d1d78;
+  color:#fff;
+  font-weight:900;
+  font-size:14px
+}
+.hostBtns{
+  position:absolute;
+  left:12px;
+  bottom:46px;
+  display:flex;
+  gap:8px;
+  z-index:5
+}
+.hostBtns button{
+  height:44px;
+  min-width:44px;
+  padding:0 12px;
+  border:1px solid #9b9b9b;
+  border-radius:14px;
+  background:#08080ac9;
+  color:#fff;
+  font-size:22px;
+  font-weight:900
+}
+.hostBtns .me{font-size:13px}
+.waveWrap{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  height:42px;
+  z-index:4;
+  background:linear-gradient(to top,rgba(0,0,0,.86),rgba(0,0,0,.1))
+}
+#wave{display:block;width:100%;height:42px}
+
+.guests{
+  height:350px;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  grid-template-rows:repeat(4,1fr);
+  gap:5px
+}
+.guest{
+  position:relative;
+  border:1px solid #413b45;
+  border-radius:8px;
+  background:#0b0a0d;
+  overflow:hidden;
+  min-width:0
+}
+.guest video{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover
+}
+.gshade{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(transparent 45%,rgba(0,0,0,.82))
+}
+.badge{
+  position:absolute;
+  top:5px;
+  left:5px;
+  z-index:3;
+  min-width:24px;
+  height:24px;
+  border-radius:5px;
+  padding:3px;
+  text-align:center;
+  font-weight:900;
+  font-size:13px
+}
+.b1{background:#ffc62d;color:#111}
+.b2{background:#ed2a68}
+.b3{background:#f27a25}
+.b4{background:#28aadc}
+.b5{background:#6c28df}
+.b6{background:#16b95f}
+.b7,.b8,.b9,.b10,.b11,.b12{background:#666}
+
+.mute{
+  position:absolute;
+  right:5px;
+  top:4px;
+  z-index:4;
+  font-size:14px
+}
+.gname{
+  position:absolute;
+  left:7px;
+  bottom:23px;
+  z-index:4;
+  font-size:11px;
+  font-weight:900
+}
+.gheart{
+  position:absolute;
+  left:7px;
+  bottom:6px;
+  z-index:4;
+  color:#ff557b;
+  font-size:10px
+}
+.grose{
+  position:absolute;
+  right:7px;
+  bottom:5px;
+  z-index:4;
+  font-size:17px
+}
+.emptyAvatar{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:34px;
+  color:#333
+}
+
+.bottom{
+  display:grid;
+  grid-template-columns:320px 1fr;
+  gap:7px;
+  margin-top:5px
+}
+.panel{
+  border:1px solid #4e235a;
+  border-radius:8px;
+  background:#08080b;
+  overflow:hidden
+}
+.chatpanel{height:225px}
+.tabs{
+  height:29px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  align-items:center;
+  text-align:center;
+  border-bottom:1px solid #472052;
+  font-size:12px;
+  font-weight:900
+}
+.tabs span:first-child{color:#eb69ff}
+.chatlog{
+  height:154px;
+  overflow:hidden;
+  padding:8px 10px;
+  font-size:11px;
+  line-height:1.55
+}
+.chatlog b{margin-right:5px}
+.c1{color:#4dd8ff}
+.c2{color:#66e689}
+.c3{color:#65aaff}
+.c4{color:#d36aff}
+.c5{color:#ffd05e}
+
+.chatinput{
+  height:42px;
+  padding:6px;
+  display:grid;
+  grid-template-columns:1fr 55px 36px;
+  gap:5px
+}
+.chatinput input{
+  min-width:0;
+  border:1px solid #2d2931;
+  border-radius:6px;
+  background:#121116;
+  color:#fff;
+  padding:7px;
+  font-size:10px
+}
+.chatinput button{
+  border:0;
+  border-radius:6px;
+  background:#8427da;
+  color:#fff;
+  font-weight:900;
+  font-size:11px
+}
+.chatinput .giftSend{
+  background:#35143b;
+  font-size:17px
+}
+
+.rightarea{
+  height:225px;
+  display:grid;
+  grid-template-rows:72px 70px 1fr;
+  gap:5px
+}
+.giftpanel{
+  border:1px solid #4e235a;
+  border-radius:8px;
+  background:#08080b;
+  padding:5px
+}
+.ptitle{font-size:12px;margin-bottom:5px}
+.gifts{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  text-align:center;
+  gap:2px
+}
+.gift{
+  font-size:9px;
+  line-height:1.15;
+  cursor:pointer
+}
+.gift .ico{
+  display:block;
+  font-size:22px;
+  line-height:23px
+}
+.price{
+  color:#ffd14a;
+  font-weight:900;
+  margin-top:2px
+}
+
+.roseRow{
+  display:grid;
+  grid-template-columns:1fr 110px;
+  gap:6px
+}
+.rosePanel{
+  border:1px solid #5a2365;
+  border-radius:8px;
+  background:#08080b;
+  padding:5px;
+  margin-top:4px
+}
+.roseTitle{
+  font-size:10px;
+  color:#ffd15e;
+  font-weight:900;
+  margin-bottom:4px
+}
+.roseItems{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:4px;
+  text-align:center
+}
+.roseItem{
+  font-size:9px;
+  cursor:pointer
+}
+.roseItem .r{
+  display:block;
+  font-size:23px;
+  line-height:24px
+}
+.giftBox{
+  border:2px solid #8c2fa5;
+  border-radius:9px;
+  background:linear-gradient(135deg,#311039,#120b17);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  text-align:left;
+  margin-top:4px;
+  cursor:pointer
+}
+.giftBox .box{font-size:34px}
+.giftBox b{
+  font-size:13px;
+  color:#ff83ed
+}
+.giftBox small{
+  display:block;
+  color:#ddd;
+  font-size:8px;
+  margin-top:3px
+}
+
+.event{
+  border:1px solid #6b2779;
+  border-radius:8px;
+  background:#0b0810;
+  padding:4px;
+  display:grid;
+  grid-template-columns:1fr 70px;
+  gap:4px
+}
+.event h3{
+  margin:0;
+  color:#ef7eff;
+  font-size:13px;
+  text-align:center
+}
+.event p{
+  margin:2px 0 4px;
+  font-size:8px;
+  text-align:center
+}
+.times{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:4px
+}
+.time{
+  border:1px solid #403247;
+  border-radius:6px;
+  background:#171219;
+  text-align:center;
+  font-size:8px;
+  padding:4px
+}
+.time b{
+  display:block;
+  font-size:10px
+}
+.time button{
+  margin-top:3px;
+  border:0;
+  border-radius:4px;
+  background:#7e288f;
+  color:#fff;
+  font-size:8px;
+  padding:3px 5px
+}
+.machine{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:40px
+}
+
+.footer{
+  position:absolute;
+  left:8px;
+  right:8px;
+  bottom:0;
+  height:52px;
+  border-top:1px solid #221f26;
+  background:#08080a;
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  align-items:center
+}
+.nav{
+  text-align:center;
+  font-size:9px
+}
+.nav span{
+  display:block;
+  font-size:17px;
+  margin-bottom:1px
+}
+.charge span{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  margin:-24px auto 1px;
+  background:#ff1763;
+  border:2px solid #ff4b87;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:23px
+}
+
+#toast{
+  position:fixed;
+  left:50%;
+  bottom:20px;
+  transform:translateX(-50%);
+  padding:9px 14px;
+  background:#111;
+  border:1px solid #555;
+  border-radius:9px;
+  display:none;
+  z-index:300;
+  color:#fff;
+  font-size:12px
+}
+
+.aiVoiceChip{
+  position:absolute;
+  right:10px;
+  top:86px;
+  z-index:30;
+  background:#151019;
+  border:1px solid #6d2b77;
+  border-radius:14px;
+  padding:5px 8px;
+  font-size:9px;
+  color:#f5b5ff;
+  font-weight:900
+}
+
+/* ===== K-Talk 추가 기능 ===== */
+
+#kxTopBrand{
+  text-align:center;
+  background:linear-gradient(180deg,#08080d,#101018);
+  border-bottom:1px solid #6e5517;
+  padding:7px 8px 5px
+}
+#kxTopBrand .kxBrand{
+  font-size:25px;
+  font-weight:1000;
+  color:#ffd45a;
+  letter-spacing:.5px
+}
+#kxTopBrand .kxLed{
+  margin:5px auto 0;
+  max-width:720px;
+  overflow:hidden;
+  white-space:nowrap;
+  border:1px solid #7c5a1a;
+  border-radius:8px;
+  background:#070707;
+  color:#ffe873;
+  font-weight:900;
+  font-size:12px;
+  padding:6px 8px
+}
+#kxTopBrand .kxLed span{
+  display:inline-block;
+  animation:kxTicker 15s linear infinite
+}
+@keyframes kxTicker{
+  from{transform:translateX(100%)}
+  to{transform:translateX(-100%)}
+}
+
+#kxControlDock{
+  max-width:720px;
+  margin:5px auto;
+  padding:0 4px
+}
+.kxRow{
+  display:flex;
+  gap:5px;
+  flex-wrap:wrap;
+  align-items:center
+}
+.kxViewerBtn,.kxPill{
+  border:1px solid #5c5363;
+  background:#141720;
+  color:#fff;
+  border-radius:999px;
+  padding:6px 9px;
+  font-weight:800;
+  cursor:pointer
+}
+.kxMoneyBadge{
+  position:absolute;
+  top:5px;
+  left:34px;
+  z-index:9;
+  background:#09090dcc;
+  border:1px solid #d7a928;
+  color:#ffe57d;
+  padding:3px 6px;
+  border-radius:8px;
+  font-size:10px;
+  font-weight:900
+}
+.kxLevelBadge{
+  display:inline-block;
+  background:#31244b;
+  border:1px solid #7556ae;
+  color:#e7d9ff;
+  padding:2px 6px;
+  border-radius:8px;
+  font-size:10px;
+  font-weight:900
+}
+.kxModal{
+  position:fixed;
+  inset:0;
+  z-index:200;
+  background:#000b;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:16px
+}
+.kxModal.on{display:flex}
+.kxCard{
+  width:min(94vw,520px);
+  max-height:82vh;
+  overflow:auto;
+  background:#0c1018;
+  border:1px solid #74602e;
+  border-radius:16px;
+  padding:14px;
+  color:#fff
+}
+.kxCard h3{
+  margin:0 0 10px;
+  color:#ffd65c
+}
+.kxClose{
+  float:right;
+  border:0;
+  background:#2b1c1c;
+  color:#fff;
+  border-radius:8px;
+  padding:6px 10px
+}
+.kxGrid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px
+}
+.kxGift{
+  border:1px solid #5d4f69;
+  background:#171421;
+  border-radius:12px;
+  padding:10px;
+  text-align:center
+}
+.kxGift b{
+  display:block;
+  margin-top:4px
+}
+.kxGift small{
+  display:block;
+  color:#cdbfe4;
+  margin-top:2px
+}
+.kxGift .owned{
+  color:#ffe27a;
+  font-weight:900
+}
+.kxFollow{
+  background:#e32b47;
+  border:0;
+  color:#fff;
+  border-radius:10px;
+  padding:8px 14px;
+  font-weight:900
+}
+.kxSubscribe{
+  border:1px solid #a67a22;
+  background:#2b220e;
+  color:#ffe189;
+  border-radius:10px;
+  padding:8px 10px;
+  font-weight:900
+}
+.kxTreasure{
+  border:1px solid #9a7428;
+  background:#2b1d08;
+  color:#ffe27b;
+  border-radius:10px;
+  padding:9px 11px;
+  font-weight:900
+}
+.kxSmall{
+  font-size:11px;
+  color:#b9c0cc;
+  line-height:1.45
+}
+.kxRank{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:6px;
+  margin:6px 0
+}
+.kxRank div{
+  background:#151622;
+  border:1px solid #464b61;
+  border-radius:8px;
+  padding:5px;
+  text-align:center;
+  font-weight:900;
+  font-size:10px
+}
+.kxProgress{
+  display:flex;
+  gap:5px;
+  flex-wrap:wrap;
+  margin:5px 0
+}
+.kxProgress span{
+  background:#16171d;
+  border:1px solid #4f5665;
+  border-radius:7px;
+  padding:4px 7px;
+  font-size:9px
+}
+
+/* 배경·보정·효과 */
+#kxCameraFxBar{
+  max-width:720px;
+  margin:5px auto;
+  padding:0 4px;
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  align-items:center
+}
+#kxCameraFxBar button{
+  border:1px solid #665c77;
+  background:#16131d;
+  color:#fff;
+  border-radius:10px;
+  padding:7px 10px;
+  font-weight:900
+}
+#kxBeautyPanel,
+#kxBackgroundPanel,
+#kxEffectPanel{
+  display:none;
+  max-width:720px;
+  margin:5px auto;
+  padding:10px;
+  border:1px solid #4f4658;
+  border-radius:12px;
+  background:#0e1017;
+  color:#fff
+}
+#kxBeautyPanel.on,
+#kxBackgroundPanel.on,
+#kxEffectPanel.on{display:block}
+.kxFxGrid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:7px
+}
+.kxFxChoice{
+  border:1px solid #534e61;
+  background:#171923;
+  color:#fff;
+  border-radius:10px;
+  padding:10px;
+  min-height:48px;
+  font-weight:900
+}
+.kxRangeRow{
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  gap:8px;
+  align-items:center
+}
+.kxRangeRow input[type="range"]{width:100%}
+
 </style>
 </head>
+
 <body>
-<div class="wrap">
-  <div class="badge">최종 · 최대 13명</div>
 
-  <div class="top">
-    <div>
-      <div class="brand">👑 K-Talk</div>
-      <div class="sub">13명 화상채팅 · 접속 순서 무관</div>
+<div id="kxTopBrand">
+  <div class="kxBrand">👑 K-Talk</div>
+  <div class="kxLed">
+    <span id="kxLedText">K-Talk LIVE · 즐거운 방송 되세요</span>
+  </div>
+</div>
+
+<div id="kxControlDock">
+  <div class="kxRow">
+    <button class="kxViewerBtn" type="button" id="kxViewerBtn">
+      👥 <span id="kxViewerCount">1</span>명
+    </button>
+    <button class="kxPill" type="button" id="kxGiftBoxBtn">🎁 선물상자</button>
+    <button class="kxPill" type="button" id="kxShareBtn">공유</button>
+    <button class="kxPill" type="button" id="kxMatchBtn">🔴 매치 🔵</button>
+    <button class="kxPill" type="button" id="kxAdBtn">광고문의</button>
+  </div>
+
+  <div class="kxRank">
+    <div>A <span id="kxRankA">1위</span></div>
+    <div>B <span id="kxRankB">2위</span></div>
+    <div>C <span id="kxRankC">3위</span></div>
+    <div>D <span id="kxRankD">4위</span></div>
+  </div>
+
+  <div class="kxProgress">
+    <span>100 달성</span>
+    <span>200 달성</span>
+    <span>300 달성</span>
+    <span>400 달성</span>
+    <span>500 달성</span>
+  </div>
+</div>
+
+<div id="fit">
+<div id="app">
+
+<div class="aiVoiceChip" id="aiVoiceChip">🔊 AI 음성 ON</div>
+
+<div class="header">
+  <div class="live">
+    <span class="livebadge">● ON AIR</span>
+    <span id="timer">00:00:00</span>
+  </div>
+
+  <div class="brand">
+    <b>♛ K-Talk</b>
+    <small>화상 방송방 · 최대 13명</small>
+  </div>
+
+  <div class="headicons">
+    👤 <span id="peopleCount">1</span>　🔔　⋮
+  </div>
+</div>
+
+<div class="notice">
+  <span class="y">★ 출석체크 눌러주세요 ★</span>
+  &nbsp;&nbsp;
+  신청곡 5,000원
+  &nbsp;&nbsp;
+  <span class="p">★ 광고 문의 ★</span>
+</div>
+
+<div class="top">
+
+  <div class="host">
+    <div class="hostEmpty" id="hostEmpty">🎤</div>
+
+    <video
+      id="hostVideo"
+      autoplay
+      playsinline
+      muted>
+    </video>
+
+    <div class="hostStatus">● ON AIR</div>
+
+    <button
+      class="attend"
+      onclick="attendance()">
+      💗 출석체크
+    </button>
+
+    <div class="hostBtns">
+      <button class="me">👑 호스트</button>
+      <button onclick="startRoom()">📷</button>
+      <button onclick="toggleMic()">🎤</button>
     </div>
-    <div class="on">ON AIR</div>
+
+    <div class="waveWrap">
+      <canvas id="wave"></canvas>
+    </div>
   </div>
 
-  <div class="main">
-    <div id="ph" class="placeholder">아래 ‘방송 시작’을 누르세요</div>
-    <video id="localVideo" autoplay playsinline muted></video>
+  <div id="guests" class="guests"></div>
+
+</div>
+
+<div class="bottom">
+
+  <div class="panel chatpanel">
+
+    <div class="tabs">
+      <span>채팅</span>
+      <span>
+        참가자
+        (<span id="tabCount">1</span>)
+      </span>
+    </div>
+
+    <div class="chatlog" id="chatlog">
+      <div>
+        <b class="c5">채팅방 관리자</b>
+        좋은 방송 감사합니다! 💜
+      </div>
+      <div>
+        <b class="c2">민수</b>
+        즐겁게 듣고 있어요! ❤️
+      </div>
+      <div>
+        <b class="c3">이태훈</b>
+        신청곡 너무 좋아요 👍
+      </div>
+      <div>
+        <b class="c4">시청★</b>
+        신청곡 이벤트도 최고!
+      </div>
+      <div>
+        <b class="c1">감성남자님</b>
+        선물! 🎁
+      </div>
+      <div>
+        <b class="c2">해피걸</b>
+        노래 최고예요! 👏
+      </div>
+    </div>
+
+    <div class="chatinput">
+      <input
+        id="msg"
+        placeholder="메시지를 입력하세요..."
+        onkeydown="if(event.key==='Enter')sendMsg()">
+
+      <button onclick="sendMsg()">
+        전송
+      </button>
+
+      <button
+        class="giftSend"
+        onclick="openGiftBox()">
+        🎁
+      </button>
+    </div>
+
   </div>
 
-  <div class="controls">
-    <button class="start" onclick="startRoom()">📹 방송 시작</button>
-    <button class="stop" onclick="stopRoom()">방송 종료</button>
+  <div class="rightarea">
+
+    <div class="giftpanel">
+
+      <div class="ptitle">
+        선물 / 후원
+      </div>
+
+      <div class="gifts">
+
+        <div
+          class="gift"
+          onclick="gift('장미',100)">
+          <span class="ico">🌹</span>
+          장미
+          <div class="price">🪙100</div>
+        </div>
+
+        <div
+          class="gift"
+          onclick="gift('하트',300)">
+          <span class="ico">❤️</span>
+          하트
+          <div class="price">🪙300</div>
+        </div>
+
+        <div
+          class="gift"
+          onclick="gift('별',500)">
+          <span class="ico">⭐</span>
+          별
+          <div class="price">🪙500</div>
+        </div>
+
+        <div
+          class="gift"
+          onclick="gift('풍선',1000)">
+          <span class="ico">🎈</span>
+          풍선
+          <div class="price">🪙1,000</div>
+        </div>
+
+        <div
+          class="gift"
+          onclick="gift('슈퍼하트',10000)">
+          <span class="ico">❤️‍🔥</span>
+          슈퍼하트
+          <div class="price">🪙10,000</div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="roseRow">
+
+      <div class="rosePanel">
+
+        <div class="roseTitle">
+          🌹 장미 선물
+        </div>
+
+        <div class="roseItems">
+
+          <div
+            class="roseItem"
+            onclick="gift('장미 1송이',10)">
+            <span class="r">🌹</span>
+            장미 1송이
+            <div class="price">🪙10</div>
+          </div>
+
+          <div
+            class="roseItem"
+            onclick="gift('장미 5송이',50)">
+            <span class="r">🌹🌹</span>
+            장미 5송이
+            <div class="price">🪙50</div>
+          </div>
+
+          <div
+            class="roseItem"
+            onclick="gift('장미 10송이',100)">
+            <span class="r">💐</span>
+            장미 10송이
+            <div class="price">🪙100</div>
+          </div>
+
+        </div>
+      </div>
+
+      <div
+        class="giftBox"
+        onclick="openGiftBox()">
+
+        <div class="box">🎁</div>
+
+        <div>
+          <b>선물 상자</b>
+          <small>
+            다른 선물을 선택할 수 있어요!
+          </small>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="event">
+
+      <div>
+
+        <h3>
+          제비뽑기 이벤트
+        </h3>
+
+        <p>
+          하루 3번의 행운!
+          선물을 뽑아보세요!
+        </p>
+
+        <div class="times">
+
+          <div class="time">
+            <b>☀️ 아침</b>
+            09:00
+            <button onclick="drawPrize()">
+              뽑기
+            </button>
+          </div>
+
+          <div class="time">
+            <b>☀️ 점심</b>
+            13:00
+            <button onclick="drawPrize()">
+              뽑기
+            </button>
+          </div>
+
+          <div class="time">
+            <b>🌙 저녁</b>
+            20:00
+            <button onclick="drawPrize()">
+              뽑기
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="machine">
+        🎰
+      </div>
+
+    </div>
+
   </div>
 
-  <div id="status" class="status">대기 중</div>
-  <div id="grid" class="grid"></div>
+</div>
+
+<div class="footer">
+  <div class="nav">
+    <span>🏠</span>
+    홈
+  </div>
+
+  <div class="nav">
+    <span>👤</span>
+    마이페이지
+  </div>
+
+  <div class="nav charge">
+    <span>🪙</span>
+    충전하기
+  </div>
+
+  <div class="nav">
+    <span>🔔</span>
+    알림
+  </div>
+
+  <div class="nav">
+    <span>⚙️</span>
+    설정
+  </div>
+</div>
+
+</div>
+</div>
+
+<div id="toast"></div>
+
+<!-- 현재 입장자 -->
+<div class="kxModal" id="kxViewerModal">
+  <div class="kxCard">
+
+    <button
+      class="kxClose"
+      type="button"
+      data-kxclose="kxViewerModal">
+      닫기
+    </button>
+
+    <h3>
+      현재 입장자
+    </h3>
+
+    <div id="kxViewerList">
+      <div>호스트 · HOST · 방송중</div>
+    </div>
+
+    <p class="kxSmall">
+      호스트와 운영진은 현재 방에 들어와 있는 사람을 확인할 수 있습니다.
+    </p>
+
+  </div>
+</div>
+
+<!-- 프로필 -->
+<div class="kxModal" id="kxProfileModal">
+
+  <div class="kxCard">
+
+    <button
+      class="kxClose"
+      type="button"
+      data-kxclose="kxProfileModal">
+      닫기
+    </button>
+
+    <h3 id="kxProfileName">
+      프로필
+    </h3>
+
+    <div class="kxRow">
+
+      <span class="kxLevelBadge">
+        Lv. 12
+      </span>
+
+      <button
+        class="kxFollow"
+        type="button"
+        id="kxFollowBtn">
+        팔로우
+      </button>
+
+    </div>
+
+    <p class="kxSmall">
+      좋아하는 호스트를 구독할 수 있습니다.
+    </p>
+
+    <div class="kxRow">
+
+      <button
+        class="kxSubscribe"
+        type="button"
+        data-sub="5000">
+        5,000원
+      </button>
+
+      <button
+        class="kxSubscribe"
+        type="button"
+        data-sub="10000">
+        10,000원
+      </button>
+
+      <button
+        class="kxSubscribe"
+        type="button"
+        data-sub="15000">
+        15,000원
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- 선물 상자 -->
+<div class="kxModal" id="kxGiftModal">
+
+  <div class="kxCard">
+
+    <button
+      class="kxClose"
+      type="button"
+      data-kxclose="kxGiftModal">
+      닫기
+    </button>
+
+    <h3>
+      🎁 선물상자
+    </h3>
+
+    <div class="kxSmall">
+      가격과 보유 개수를 함께 표시합니다.
+    </div>
+
+    <h4>작은 선물</h4>
+
+    <div class="kxGrid">
+
+      <div class="kxGift">
+        💗
+        <b>하트 2개</b>
+        <small>60원</small>
+        <span class="owned">
+          보유 18
+        </span>
+      </div>
+
+      <div class="kxGift">
+        ⭐
+        <b>별</b>
+        <small>500</small>
+        <span class="owned">
+          보유 12
+        </span>
+      </div>
+
+      <div class="kxGift">
+        🎈
+        <b>풍선</b>
+        <small>1,000</small>
+        <span class="owned">
+          보유 7
+        </span>
+      </div>
+
+    </div>
+
+    <h4>중간 선물</h4>
+
+    <div class="kxGrid">
+
+      <div class="kxGift">
+        💎
+        <b>다이아</b>
+        <small>10,000</small>
+        <span class="owned">
+          보유 3
+        </span>
+      </div>
+
+      <div class="kxGift">
+        🏎️
+        <b>스포츠카</b>
+        <small>20,000</small>
+        <span class="owned">
+          보유 2
+        </span>
+      </div>
+
+      <div class="kxGift">
+        🐋
+        <b>고래</b>
+        <small>30,000</small>
+        <span class="owned">
+          보유 1
+        </span>
+      </div>
+
+    </div>
+
+    <h4>큰 선물</h4>
+
+    <div class="kxGrid">
+
+      <div class="kxGift">
+        🚀
+        <b>우주선</b>
+        <small>50,000</small>
+        <span class="owned">
+          보유 1
+        </span>
+      </div>
+
+      <div class="kxGift">
+        🏰
+        <b>황금성</b>
+        <small>100,000</small>
+        <span class="owned">
+          보유 0
+        </span>
+      </div>
+
+      <div class="kxGift">
+        🎁
+        <b>스페셜</b>
+        <small>별도</small>
+        <span class="owned">
+          보유 2
+        </span>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- 보물상자 -->
+<div class="kxModal" id="kxTreasureModal">
+
+  <div class="kxCard">
+
+    <button
+      class="kxClose"
+      type="button"
+      data-kxclose="kxTreasureModal">
+      닫기
+    </button>
+
+    <h3>
+      보물상자 이벤트
+    </h3>
+
+    <div class="kxRow">
+
+      <button
+        class="kxTreasure"
+        type="button"
+        data-treasure="50">
+        50개
+      </button>
+
+      <button
+        class="kxTreasure"
+        type="button"
+        data-treasure="100">
+        100개
+      </button>
+
+      <button
+        class="kxTreasure"
+        type="button"
+        data-treasure="150">
+        150개
+      </button>
+
+    </div>
+
+    <p class="kxSmall">
+      모든 방 LED에 표시되고,
+      LED를 누르면 해당 방으로 이동합니다.
+      3분 카운트다운 후 보상이 시작됩니다.
+    </p>
+
+    <div
+      id="kxTreasureCountdown"
+      style="font-size:25px;font-weight:1000;color:#ffe16d">
+    </div>
+
+  </div>
+</div>
+
+<!-- 광고 -->
+<div class="kxModal" id="kxAdModal">
+
+  <div class="kxCard">
+
+    <button
+      class="kxClose"
+      type="button"
+      data-kxclose="kxAdModal">
+      닫기
+    </button>
+
+    <h3>
+      광고 이용 안내
+    </h3>
+
+    <p>
+      LED 광고:
+      <b>월 300,000원</b>
+    </p>
+
+    <p>
+      결제일부터 1개월 이용
+    </p>
+
+    <p>
+      상업용 쇼츠/동영상은
+      광고 심사 후 유료 등록
+    </p>
+
+    <p>
+      판매 방송:
+      사업자 확인 후
+      <b>월 300,000원</b>
+    </p>
+
+  </div>
+</div>
+
+<!-- 배경 / 얼굴 보정 / 효과 -->
+
+<div id="kxCameraFxBar">
+
+  <button
+    type="button"
+    id="kxBackgroundBtn">
+    🖼️ 배경
+  </button>
+
+  <button
+    type="button"
+    id="kxBeautyBtn">
+    ✨ 자연 보정
+  </button>
+
+  <button
+    type="button"
+    id="kxEffectsBtn">
+    🎭 효과
+  </button>
+
+  <button
+    type="button"
+    id="kxOriginalBtn">
+    ↩ 원본
+  </button>
+
+</div>
+
+<div id="kxBeautyPanel">
+
+  <div class="kxRangeRow">
+
+    <b>
+      자연 보정
+    </b>
+
+    <input
+      id="kxBeautyRange"
+      type="range"
+      min="0"
+      max="100"
+      value="0"
+      step="1">
+
+    <span id="kxBeautyValue">
+      0
+    </span>
+
+  </div>
+
+  <div class="kxSmall">
+    0은 원본,
+    숫자를 올릴수록 자연스럽게 보정합니다.
+  </div>
+
+</div>
+
+<div id="kxBackgroundPanel">
+
+  <div class="kxSmall">
+    방송 중 원하는 배경을 고르세요.
+  </div>
+
+  <div class="kxFxGrid">
+
+    <button
+      class="kxFxChoice"
+      type="button"
+      data-bg="none">
+      원본 배경
+    </button>
+
+    <button
+      class="kxFxChoice"
+      type="button"
+      data-bg="stage">
+      가요무대
+    </button>
+
+    <button
+      class="kxFxChoice"
+      type="button"
+      data-bg="concert">
+      콘서트 무대
+    </button>
+
+    <button
+      class="kxFxChoice"
+      type="button"
+      data-bg="club">
+      클럽 무대
+    </button>
+
+    <button
+      class="kxFxChoice"
+      type="button"
+      data-bg="outdoor-stage">
+      야외 공연장
+    </button>
+
+    <button
+      class="kxFxChoice"
+      type="button"
+      data-bg="sea">
+      바다
+    </button>
+
+    <button
+      class="kxFxChoice"
+      type="button"
+      data-bg="beach">
+      해변
+    </button>
+
+    <button
+      class="kxFxChoice"
+      type="button"
+      data-bg="night">
+      야경
+    </button>
+
+    <button
+      class="kxFxChoice"
+      type="button"
+      data-bg="cafe">
+      카페
+    </button>
+
+  </div>
+</div>
+
+<div id="kxEffectPanel">
+
+  <div class="kxSmall">
+    방송 중 원하는 효과를 고르세요.
+  </div>
+
+  <div class="kxFxGrid">
+
+    <button
+      class="kxFxChoice"
+      type="button"
+      data-fx="natural">
+      자연스러운 분위기
+    </button>
+
+    <button
+      class="kxFxChoice"
+      type="button"
+      data-fx="bright">
+      밝은 느낌
+    </button>
+
+    <button
+      class="kxFxChoice"
+      type="button"
+      data-fx="warm">
+      따뜻한 색감
+    </button>
+
+    <button
+      class="kxFxChoice"
+      type="button"
+      data-fx="funny">
+      재미있는 얼굴
+    </button>
+
+    <button
+      class="kxFxChoice"
+      type="button"
+      data-fx="party">
+      파티 효과
+    </button>
+
+    <button
+      class="kxFxChoice"
+      type="button"
+      data-fx="sparkle">
+      반짝이 효과
+    </button>
+
+  </div>
 </div>
 
 <script>
+
+/* =========================
+   기본 설정
+========================= */
+
 const MAX_USERS = 13;
-const BASE = 'ktalk-final13-v20260816-slot-';
+const BASE = 'ktalk-compact-v20260817-slot-';
 
 let localStream = null;
 let peer = null;
 let mySlot = 0;
 let syncTimer = null;
+let micOn = true;
+
+let audioContext = null;
+let analyser = null;
+let sourceNode = null;
+let waveRAF = null;
+
+let aiVoiceEnabled = true;
+let aiVoiceStarted = false;
 
 const calls = new Map();
 const pending = new Map();
-const lastSeen = new Map();
 const retryAfter = new Map();
 
 function $(id){
   return document.getElementById(id);
 }
 
-function setStatus(t){
-  $('status').textContent = t;
+function toast(text){
+
+  const box = $('toast');
+
+  if(!box) return;
+
+  box.textContent = text;
+  box.style.display = 'block';
+
+  clearTimeout(window.__toastTimer);
+
+  window.__toastTimer =
+    setTimeout(()=>{
+      box.style.display = 'none';
+    },1800);
 }
 
-function slotName(slot){
-  return slot === 1 ? '진행자' : '참가자 ' + slot;
+/* =========================
+   화면 크기 맞추기
+========================= */
+
+function fitScreen(){
+
+  const app = $('app');
+  const fit = $('fit');
+
+  if(!app || !fit) return;
+
+  const baseW = 720;
+  const baseH = 760;
+
+  const safeH =
+    Math.max(
+      320,
+      window.innerHeight - 4
+    );
+
+  const scale =
+    Math.min(
+      window.innerWidth / baseW,
+      safeH / baseH,
+      1
+    );
+
+  app.style.transform =
+    `scale(${scale})`;
+
+  fit.style.width =
+    (baseW * scale) + 'px';
+
+  fit.style.height =
+    (baseH * scale) + 'px';
+
+  fit.style.margin =
+    '0 auto';
 }
 
-function buildGrid(){
-  const grid = $('grid');
-  grid.innerHTML = '';
+window.addEventListener(
+  'resize',
+  fitScreen
+);
 
-  for(let i=1;i<=MAX_USERS;i++){
-    const d = document.createElement('div');
-    d.className = 'slot';
-    d.id = 'slot-' + i;
-    d.textContent = slotName(i);
-    grid.appendChild(d);
+/* =========================
+   AI 음성
+========================= */
+
+function getKoreanVoice(){
+
+  if(
+    !window.speechSynthesis
+  ) return null;
+
+  const voices =
+    speechSynthesis.getVoices();
+
+  return (
+    voices.find(
+      v => /^ko[-_]/i.test(v.lang)
+    )
+    ||
+    voices.find(
+      v => /Korean|한국/i.test(v.name)
+    )
+    ||
+    voices[0]
+    ||
+    null
+  );
+}
+
+function speakAI(
+  text,
+  priority = false
+){
+
+  if(
+    !aiVoiceEnabled
+    ||
+    !text
+    ||
+    !('speechSynthesis' in window)
+  ) return;
+
+  if(
+    window.__kxSongMode
+  ) return;
+
+  try{
+
+    if(priority)
+      speechSynthesis.cancel();
+
+    const u =
+      new SpeechSynthesisUtterance(text);
+
+    u.lang = 'ko-KR';
+    u.rate = 1.0;
+    u.pitch = 1.0;
+    u.volume = 1.0;
+
+    const voice =
+      getKoreanVoice();
+
+    if(voice)
+      u.voice = voice;
+
+    speechSynthesis.speak(u);
+
+  }catch(e){}
+}
+
+function startAIVoice(){
+
+  if(aiVoiceStarted) return;
+
+  aiVoiceStarted = true;
+
+  speakAI(
+    '안녕하세요. 케이 톡 방송방에 오신 것을 환영합니다.',
+    true
+  );
+}
+
+document.addEventListener(
+  'click',
+  startAIVoice,
+  {once:true}
+);
+
+document.addEventListener(
+  'touchstart',
+  startAIVoice,
+  {once:true}
+);
+
+$('aiVoiceChip')
+?.addEventListener(
+  'click',
+  e => {
+
+    e.stopPropagation();
+
+    aiVoiceEnabled =
+      !aiVoiceEnabled;
+
+    $('aiVoiceChip').textContent =
+      aiVoiceEnabled
+      ?
+      '🔊 AI 음성 ON'
+      :
+      '🔇 AI 음성 OFF';
+
+    if(!aiVoiceEnabled){
+
+      try{
+        speechSynthesis.cancel();
+      }catch(e){}
+
+    }else{
+
+      speakAI(
+        'AI 음성 읽기가 켜졌습니다.',
+        true
+      );
+    }
   }
-}
+);
 
-buildGrid();
+/* =========================
+   게스트 12칸
+========================= */
 
-function getSlotFromPeerId(id){
-  const m = String(id || '').match(/slot-(\d+)$/);
-  return m ? Number(m[1]) : 0;
+function buildGuests(){
+
+  const area =
+    $('guests');
+
+  if(!area) return;
+
+  area.innerHTML = '';
+
+  for(
+    let slot = 2;
+    slot <= 13;
+    slot++
+  ){
+
+    const d =
+      document.createElement('div');
+
+    d.className = 'guest';
+
+    d.id =
+      'slot-' + slot;
+
+    const shown =
+      slot - 1;
+
+    d.innerHTML = `
+      <div class="emptyAvatar">👤</div>
+      <div class="gshade"></div>
+
+      <div class="badge b${shown}">
+        ${shown}
+      </div>
+
+      <div class="kxMoneyBadge">
+        🪙 0
+      </div>
+
+      <div class="mute">
+        🔇
+      </div>
+
+      <div class="gname">
+        게스트${shown}
+      </div>
+
+      <div class="gheart">
+        ♡ 0
+      </div>
+
+      <div class="grose">
+        🌹
+      </div>
+    `;
+
+    area.appendChild(d);
+  }
 }
 
 function resetSlot(slot){
-  const box = $('slot-' + slot);
-  if(!box) return;
 
-  box.className = 'slot' + (slot === mySlot ? ' me' : '');
-  box.innerHTML =
-    slot === mySlot
-      ? slotName(slot) + '<br>· 나 ·'
-      : slotName(slot);
+  if(slot === 1){
+
+    const v =
+      $('hostVideo');
+
+    if(v)
+      v.srcObject = null;
+
+    const e =
+      $('hostEmpty');
+
+    if(e)
+      e.style.display = 'flex';
+
+    return;
+  }
+
+  const d =
+    $('slot-' + slot);
+
+  if(!d) return;
+
+  const shown =
+    slot - 1;
+
+  d.innerHTML = `
+    <div class="emptyAvatar">👤</div>
+    <div class="gshade"></div>
+
+    <div class="badge b${shown}">
+      ${shown}
+    </div>
+
+    <div class="kxMoneyBadge">
+      🪙 0
+    </div>
+
+    <div class="mute">
+      🔇
+    </div>
+
+    <div class="gname">
+      게스트${shown}
+    </div>
+
+    <div class="gheart">
+      ♡ 0
+    </div>
+
+    <div class="grose">
+      🌹
+    </div>
+  `;
 }
 
-function renderRemote(slot, stream){
-  if(!slot || slot === mySlot) return;
+function renderStream(
+  slot,
+  stream
+){
 
-  const box = $('slot-' + slot);
-  if(!box) return;
+  if(slot === 1){
 
-  box.innerHTML = '';
+    $('hostVideo').srcObject =
+      stream;
 
-  const v = document.createElement('video');
+    $('hostVideo').muted =
+      true;
+
+    $('hostEmpty').style.display =
+      'none';
+
+    return;
+  }
+
+  const d =
+    $('slot-' + slot);
+
+  if(!d) return;
+
+  const shown =
+    slot - 1;
+
+  d.innerHTML = '';
+
+  const v =
+    document.createElement('video');
+
   v.autoplay = true;
   v.playsInline = true;
   v.srcObject = stream;
+  v.muted = (slot === mySlot);
 
-  const lab = document.createElement('div');
-  lab.className = 'label';
-  lab.textContent = slotName(slot);
+  const shade =
+    document.createElement('div');
 
-  box.appendChild(v);
-  box.appendChild(lab);
+  shade.className =
+    'gshade';
 
-  lastSeen.set(slot, Date.now());
+  d.append(
+    v,
+    shade
+  );
+
+  d.insertAdjacentHTML(
+    'beforeend',
+    `
+    <div class="badge b${shown}">
+      ${shown}
+    </div>
+
+    <div class="kxMoneyBadge">
+      🪙 0
+    </div>
+
+    <div class="mute">
+      🔇
+    </div>
+
+    <div class="gname">
+      게스트${shown}
+    </div>
+
+    <div class="gheart">
+      ♡ 0
+    </div>
+
+    <div class="grose">
+      🌹
+    </div>
+    `
+  );
 }
 
-function closeSlot(slot, reset=true){
-  const call = calls.get(slot);
+function getSlot(id){
 
-  if(call){
-    try{
-      call.close();
-    }catch(e){}
-  }
+  const m =
+    String(id || '')
+    .match(/slot-(\d+)$/);
 
-  calls.delete(slot);
-  pending.delete(slot);
-  lastSeen.delete(slot);
-
-  if(reset){
-    resetSlot(slot);
-  }
+  return m
+    ?
+    Number(m[1])
+    :
+    0;
 }
 
-function attachCall(slot, call){
-  if(!slot || slot === mySlot || !call) return;
+/* =========================
+   PeerJS 연결
+========================= */
 
-  const old = calls.get(slot);
+function claimSlot(slot){
 
-  if(old && old !== call){
+  return new Promise(
+    resolve => {
+
+      const p =
+        new Peer(
+          BASE + slot,
+          {
+            debug:0,
+            config:{
+              iceServers:[
+                {
+                  urls:
+                  'stun:stun.l.google.com:19302'
+                },
+                {
+                  urls:
+                  'stun:stun1.l.google.com:19302'
+                }
+              ]
+            }
+          }
+        );
+
+      let done = false;
+
+      const finish = value => {
+
+        if(done) return;
+
+        done = true;
+
+        resolve(value);
+      };
+
+      p.on(
+        'open',
+        () => finish(p)
+      );
+
+      p.on(
+        'error',
+        () => {
+
+          try{
+            p.destroy();
+          }catch(e){}
+
+          finish(null);
+        }
+      );
+
+      setTimeout(
+        () => {
+
+          if(!done){
+
+            try{
+              p.destroy();
+            }catch(e){}
+
+            finish(null);
+          }
+
+        },
+        2200
+      );
+    }
+  );
+}
+
+function attachCall(
+  slot,
+  call
+){
+
+  if(
+    !slot
+    ||
+    slot === mySlot
+    ||
+    !call
+  ) return;
+
+  const old =
+    calls.get(slot);
+
+  if(
+    old
+    &&
+    old !== call
+  ){
+
     try{
       old.close();
     }catch(e){}
   }
 
-  calls.set(slot, call);
+  calls.set(
+    slot,
+    call
+  );
+
   pending.delete(slot);
-  lastSeen.set(slot, Date.now());
 
-  call.on('stream', remoteStream => {
-    calls.set(slot, call);
-    pending.delete(slot);
-    lastSeen.set(slot, Date.now());
+  call.on(
+    'stream',
+    stream => {
 
-    renderRemote(slot, remoteStream);
+      calls.set(
+        slot,
+        call
+      );
 
-    setStatus(
-      '✅ 연결됨 · 내 번호 ' +
-      mySlot +
-      ' · 최대 13명'
-    );
-  });
-
-  call.on('close', () => {
-    if(calls.get(slot) === call){
-      calls.delete(slot);
       pending.delete(slot);
-      lastSeen.delete(slot);
+
+      renderStream(
+        slot,
+        stream
+      );
+
+      updateCount();
+    }
+  );
+
+  call.on(
+    'close',
+    () => {
+
+      if(
+        calls.get(slot) === call
+      )
+        calls.delete(slot);
+
+      pending.delete(slot);
 
       resetSlot(slot);
 
@@ -192,14 +2201,21 @@ function attachCall(slot, call){
         slot,
         Date.now() + 1200
       );
-    }
-  });
 
-  call.on('error', () => {
-    if(calls.get(slot) === call){
-      calls.delete(slot);
+      updateCount();
+    }
+  );
+
+  call.on(
+    'error',
+    () => {
+
+      if(
+        calls.get(slot) === call
+      )
+        calls.delete(slot);
+
       pending.delete(slot);
-      lastSeen.delete(slot);
 
       resetSlot(slot);
 
@@ -207,292 +2223,205 @@ function attachCall(slot, call){
         slot,
         Date.now() + 1200
       );
+
+      updateCount();
     }
-  });
-}
-
-function claimSlot(slot){
-  return new Promise(resolve => {
-
-    const p = new Peer(
-      BASE + slot,
-      {
-        debug:0,
-        config:{
-          iceServers:[
-            {
-              urls:'stun:stun.l.google.com:19302'
-            },
-            {
-              urls:'stun:stun1.l.google.com:19302'
-            }
-          ]
-        }
-      }
-    );
-
-    let finished = false;
-
-    const done = value => {
-      if(finished) return;
-
-      finished = true;
-      resolve(value);
-    };
-
-    p.on('open', () => {
-      done(p);
-    });
-
-    p.on('error', () => {
-      try{
-        p.destroy();
-      }catch(e){}
-
-      done(null);
-    });
-
-    setTimeout(() => {
-      if(!finished){
-        try{
-          p.destroy();
-        }catch(e){}
-
-        done(null);
-      }
-    },2200);
-  });
+  );
 }
 
 function shouldDial(slot){
-  if(!peer || !localStream || !mySlot){
-    return false;
-  }
 
-  if(slot <= 0 || slot >= mySlot){
+  if(
+    !peer
+    ||
+    !localStream
+    ||
+    !mySlot
+  )
     return false;
-  }
 
-  if(calls.has(slot) || pending.has(slot)){
+  if(
+    slot <= 0
+    ||
+    slot >= mySlot
+  )
     return false;
-  }
+
+  if(
+    calls.has(slot)
+    ||
+    pending.has(slot)
+  )
+    return false;
 
   if(
     (retryAfter.get(slot) || 0)
-    > Date.now()
-  ){
+    >
+    Date.now()
+  )
     return false;
-  }
 
   return true;
 }
 
 function dial(slot){
-  if(!shouldDial(slot)) return;
 
-  pending.set(slot, Date.now());
+  if(!shouldDial(slot))
+    return;
 
-  let call = null;
+  pending.set(
+    slot,
+    Date.now()
+  );
+
+  let call;
 
   try{
-    call = peer.call(
-      BASE + slot,
-      localStream,
-      {
-        metadata:{
-          slot:mySlot
-        }
-      }
-    );
-  }catch(e){
-    pending.delete(slot);
 
-    retryAfter.set(
-      slot,
-      Date.now() + 1500
-    );
+    call =
+      peer.call(
+        BASE + slot,
+        localStream,
+        {
+          metadata:{
+            slot:mySlot
+          }
+        }
+      );
+
+  }catch(e){
+
+    pending.delete(slot);
 
     return;
   }
 
   if(!call){
-    pending.delete(slot);
 
-    retryAfter.set(
-      slot,
-      Date.now() + 1500
-    );
+    pending.delete(slot);
 
     return;
   }
 
-  let gotStream = false;
+  attachCall(
+    slot,
+    call
+  );
 
-  call.on('stream', remoteStream => {
-    gotStream = true;
-
-    attachCall(slot, call);
-    renderRemote(slot, remoteStream);
-  });
-
-  call.on('close', () => {
-    if(calls.get(slot) === call){
-      calls.delete(slot);
-    }
-
-    pending.delete(slot);
-    lastSeen.delete(slot);
-
-    resetSlot(slot);
-
-    retryAfter.set(
-      slot,
-      Date.now() + 1200
-    );
-  });
-
-  call.on('error', () => {
-    if(calls.get(slot) === call){
-      calls.delete(slot);
-    }
-
-    pending.delete(slot);
-    lastSeen.delete(slot);
-
-    resetSlot(slot);
-
-    retryAfter.set(
-      slot,
-      Date.now() + 1200
-    );
-  });
-
-  setTimeout(() => {
-    if(!gotStream){
-
-      try{
-        call.close();
-      }catch(e){}
-
-      if(calls.get(slot) === call){
-        calls.delete(slot);
-      }
-
-      pending.delete(slot);
-
-      retryAfter.set(
-        slot,
-        Date.now() + 1500
-      );
-
-      resetSlot(slot);
-    }
-  },7000);
-}
-
-function syncPeers(){
-  if(!peer || !localStream || !mySlot){
-    return;
-  }
-
-  for(let slot=1;slot<mySlot;slot++){
-    if(shouldDial(slot)){
-      dial(slot);
-    }
-  }
-
-  for(const [slot,call] of calls.entries()){
-
-    const pc =
-      call &&
-      call.peerConnection;
-
-    const state =
-      pc
-        ? pc.connectionState
-        : '';
-
-    if(state === 'connected'){
-      lastSeen.set(
-        slot,
-        Date.now()
-      );
-
-      continue;
-    }
-
-    if(
-      state === 'failed' ||
-      state === 'closed'
-    ){
-      closeSlot(slot);
-
-      retryAfter.set(
-        slot,
-        Date.now() + 1200
-      );
-
-      continue;
-    }
-
-    if(state === 'disconnected'){
-
-      const since =
-        lastSeen.get(slot) ||
-        Date.now();
+  setTimeout(
+    () => {
 
       if(
-        Date.now() - since
-        > 4500
+        pending.has(slot)
       ){
-        closeSlot(slot);
+
+        try{
+          call.close();
+        }catch(e){}
+
+        pending.delete(slot);
 
         retryAfter.set(
           slot,
-          Date.now() + 1200
+          Date.now() + 1500
         );
       }
-    }
-  }
 
-  for(
-    const [slot,started]
-    of pending.entries()
-  ){
-    if(
-      Date.now() - started
-      > 9000
-    ){
-      pending.delete(slot);
-
-      retryAfter.set(
-        slot,
-        Date.now() + 1200
-      );
-    }
-  }
+    },
+    7000
+  );
 }
 
+function syncPeers(){
+
+  if(
+    !peer
+    ||
+    !localStream
+    ||
+    !mySlot
+  )
+    return;
+
+  for(
+    let slot = 1;
+    slot < mySlot;
+    slot++
+  ){
+
+    if(
+      shouldDial(slot)
+    )
+      dial(slot);
+  }
+
+  updateCount();
+}
+
+/* =========================
+   접속 인원
+========================= */
+
+function updateCount(){
+
+  const n =
+    Math.min(
+      MAX_USERS,
+      1 + calls.size
+    );
+
+  if($('peopleCount'))
+    $('peopleCount')
+    .textContent = n;
+
+  if($('tabCount'))
+    $('tabCount')
+    .textContent = n;
+
+  if($('kxViewerCount'))
+    $('kxViewerCount')
+    .textContent = n;
+}
+
+/* =========================
+   방송 시작
+========================= */
+
 async function startRoom(){
-  if(localStream || peer){
+
+  if(
+    localStream
+    ||
+    peer
+  ){
+
+    toast(
+      '이미 방송에 연결되어 있습니다.'
+    );
+
     return;
   }
 
   try{
+
     localStream =
       await navigator.mediaDevices
-        .getUserMedia({
+      .getUserMedia(
+        {
           video:{
             facingMode:'user',
+
             width:{
-              ideal:640
+              ideal:1280
             },
+
             height:{
-              ideal:360
+              ideal:720
             },
+
             frameRate:{
-              ideal:15,
-              max:20
+              ideal:24,
+              max:30
             }
           },
 
@@ -501,17 +2430,10 @@ async function startRoom(){
             noiseSuppression:true,
             autoGainControl:true
           }
-        });
-
-    $('localVideo').srcObject =
-      localStream;
-
-    $('ph').style.display =
-      'none';
+        }
+      );
 
   }catch(e){
-
-    localStream = null;
 
     alert(
       '카메라와 마이크를 허용해 주세요.'
@@ -520,21 +2442,20 @@ async function startRoom(){
     return;
   }
 
-  setStatus(
-    '13명 방 연결 중...'
-  );
-
   for(
-    let i=1;
-    i<=MAX_USERS;
-    i++
+    let slot = 1;
+    slot <= MAX_USERS;
+    slot++
   ){
+
     const p =
-      await claimSlot(i);
+      await claimSlot(slot);
 
     if(p){
+
       peer = p;
-      mySlot = i;
+      mySlot = slot;
+
       break;
     }
   }
@@ -542,51 +2463,43 @@ async function startRoom(){
   if(!peer){
 
     localStream
-      .getTracks()
-      .forEach(
-        t => t.stop()
-      );
+    .getTracks()
+    .forEach(
+      t => t.stop()
+    );
 
     localStream = null;
 
-    $('localVideo').srcObject =
-      null;
-
-    $('ph').style.display =
-      'flex';
-
-    setStatus(
-      '⛔ 이 방은 최대 13명입니다.'
-    );
-
     alert(
-      '현재 13명이 접속 중입니다.'
+      '현재 방이 가득 찼습니다.'
     );
 
     return;
   }
 
-  for(
-    let i=1;
-    i<=MAX_USERS;
-    i++
-  ){
-    resetSlot(i);
-  }
+  renderStream(
+    mySlot,
+    localStream
+  );
+
+  if(mySlot === 1)
+    setupWave(localStream);
 
   peer.on(
     'call',
     call => {
 
       const slot =
-        getSlotFromPeerId(
+        getSlot(
           call.peer
         );
 
       if(
-        !slot ||
+        !slot
+        ||
         slot === mySlot
       ){
+
         try{
           call.close();
         }catch(e){}
@@ -611,31 +2524,9 @@ async function startRoom(){
     'disconnected',
     () => {
 
-      setStatus(
-        '연결 복구 중...'
-      );
-
       try{
         peer.reconnect();
       }catch(e){}
-    }
-  );
-
-  peer.on(
-    'error',
-    err => {
-
-      if(
-        err &&
-        (
-          err.type === 'peer-unavailable' ||
-          err.type === 'network'
-        )
-      ){
-        return;
-      }
-
-      console.log(err);
     }
   );
 
@@ -647,18 +2538,73 @@ async function startRoom(){
       2000
     );
 
-  setStatus(
-    mySlot === 1
-      ? '✅ 진행자 입장 완료 · 최대 13명'
-      : '✅ 참가자 ' +
-        mySlot +
-        ' 입장 완료 · 최대 13명'
+  updateCount();
+
+  if(mySlot === 1){
+
+    toast(
+      '호스트로 입장했습니다.'
+    );
+
+    speakAI(
+      '호스트 방송을 시작합니다.'
+    );
+
+  }else{
+
+    toast(
+      '게스트로 입장했습니다.'
+    );
+
+    speakAI(
+      '게스트가 입장했습니다.'
+    );
+  }
+}
+
+/* =========================
+   마이크
+========================= */
+
+function toggleMic(){
+
+  if(!localStream){
+
+    startRoom();
+
+    return;
+  }
+
+  const track =
+    localStream
+    .getAudioTracks()[0];
+
+  if(!track)
+    return;
+
+  micOn =
+    !micOn;
+
+  track.enabled =
+    micOn;
+
+  toast(
+    micOn
+    ?
+    '마이크 켜짐'
+    :
+    '마이크 꺼짐'
   );
 }
+
+/* =========================
+   방송 종료
+========================= */
 
 function stopRoom(){
 
   if(syncTimer){
+
     clearInterval(
       syncTimer
     );
@@ -667,63 +2613,1555 @@ function stopRoom(){
   }
 
   for(
-    const slot
-    of Array.from(
-      calls.keys()
-    )
+    const call
+    of calls.values()
   ){
-    closeSlot(
-      slot,
-      false
-    );
+
+    try{
+      call.close();
+    }catch(e){}
   }
 
   calls.clear();
   pending.clear();
-  lastSeen.clear();
   retryAfter.clear();
 
   try{
-    if(peer){
-      peer.destroy();
-    }
+    peer && peer.destroy();
   }catch(e){}
 
   if(localStream){
+
     localStream
-      .getTracks()
-      .forEach(
-        t => t.stop()
-      );
+    .getTracks()
+    .forEach(
+      track => track.stop()
+    );
   }
 
   localStream = null;
   peer = null;
   mySlot = 0;
 
-  $('localVideo').srcObject =
-    null;
-
-  $('ph').style.display =
-    'flex';
-
   for(
-    let i=1;
-    i<=MAX_USERS;
-    i++
-  ){
-    resetSlot(i);
-  }
+    let slot = 1;
+    slot <= 13;
+    slot++
+  )
+    resetSlot(slot);
 
-  setStatus(
-    '대기 중'
-  );
+  stopWave();
+  updateCount();
 }
 
 window.addEventListener(
   'beforeunload',
   stopRoom
 );
+
+/* =========================
+   파장
+========================= */
+
+function setupWave(stream){
+
+  stopWave();
+
+  const AC =
+    window.AudioContext
+    ||
+    window.webkitAudioContext;
+
+  if(!AC) return;
+
+  audioContext =
+    new AC();
+
+  analyser =
+    audioContext
+    .createAnalyser();
+
+  analyser.fftSize =
+    256;
+
+  analyser.smoothingTimeConstant =
+    .72;
+
+  sourceNode =
+    audioContext
+    .createMediaStreamSource(
+      stream
+    );
+
+  sourceNode.connect(
+    analyser
+  );
+
+  if(
+    audioContext.state
+    ===
+    'suspended'
+  )
+    audioContext.resume();
+
+  drawWave();
+}
+
+function prepCanvas(){
+
+  const c =
+    $('wave');
+
+  const r =
+    c.getBoundingClientRect();
+
+  const d =
+    window.devicePixelRatio
+    ||
+    1;
+
+  c.width =
+    Math.max(
+      1,
+      Math.round(r.width*d)
+    );
+
+  c.height =
+    Math.max(
+      1,
+      Math.round(r.height*d)
+    );
+
+  return [
+    c,
+    c.getContext('2d'),
+    d
+  ];
+}
+
+function drawIdleWave(){
+
+  if(waveRAF) return;
+
+  const animate = () => {
+
+    const [
+      canvas,
+      ctx,
+      d
+    ] = prepCanvas();
+
+    const w =
+      canvas.width;
+
+    const h =
+      canvas.height;
+
+    const bars =
+      58;
+
+    const bw =
+      w / bars;
+
+    ctx.clearRect(
+      0,
+      0,
+      w,
+      h
+    );
+
+    for(
+      let i = 0;
+      i < bars;
+      i++
+    ){
+
+      const bh =
+        (
+          6
+          +
+          Math.abs(
+            Math.sin(
+              Date.now()/220
+              +
+              i*.58
+            )
+          )*7
+        )*d;
+
+      const g =
+        ctx.createLinearGradient(
+          0,
+          h,
+          0,
+          0
+        );
+
+      g.addColorStop(
+        0,
+        '#6b38ff'
+      );
+
+      g.addColorStop(
+        .25,
+        '#00d8ff'
+      );
+
+      g.addColorStop(
+        .5,
+        '#45f08a'
+      );
+
+      g.addColorStop(
+        .72,
+        '#ffe44d'
+      );
+
+      g.addColorStop(
+        1,
+        '#ff3e72'
+      );
+
+      ctx.fillStyle = g;
+
+      ctx.fillRect(
+        i*bw+1,
+        h-bh,
+        Math.max(
+          2,
+          bw-2.4
+        ),
+        bh
+      );
+    }
+
+    waveRAF =
+      requestAnimationFrame(
+        animate
+      );
+  };
+
+  animate();
+}
+
+function drawWave(){
+
+  const data =
+    new Uint8Array(
+      analyser.frequencyBinCount
+    );
+
+  const animate = () => {
+
+    const [
+      canvas,
+      ctx
+    ] = prepCanvas();
+
+    const w =
+      canvas.width;
+
+    const h =
+      canvas.height;
+
+    const bars =
+      58;
+
+    const bw =
+      w / bars;
+
+    analyser
+    .getByteFrequencyData(
+      data
+    );
+
+    ctx.clearRect(
+      0,
+      0,
+      w,
+      h
+    );
+
+    for(
+      let i = 0;
+      i < bars;
+      i++
+    ){
+
+      const value =
+        data[
+          Math.floor(
+            i
+            *
+            data.length
+            /
+            bars
+          )
+        ]
+        /
+        255;
+
+      const bh =
+        Math.max(
+          5,
+          value
+          *
+          h
+          *
+          .92
+        );
+
+      const g =
+        ctx.createLinearGradient(
+          0,
+          h,
+          0,
+          0
+        );
+
+      g.addColorStop(
+        0,
+        '#6b38ff'
+      );
+
+      g.addColorStop(
+        .25,
+        '#00d8ff'
+      );
+
+      g.addColorStop(
+        .5,
+        '#45f08a'
+      );
+
+      g.addColorStop(
+        .72,
+        '#ffe44d'
+      );
+
+      g.addColorStop(
+        1,
+        '#ff3e72'
+      );
+
+      ctx.fillStyle = g;
+
+      ctx.fillRect(
+        i*bw+1,
+        h-bh,
+        Math.max(
+          2,
+          bw-2.4
+        ),
+        bh
+      );
+    }
+
+    waveRAF =
+      requestAnimationFrame(
+        animate
+      );
+  };
+
+  animate();
+}
+
+function stopWave(){
+
+  if(waveRAF){
+
+    cancelAnimationFrame(
+      waveRAF
+    );
+
+    waveRAF = null;
+  }
+
+  try{
+    sourceNode
+    &&
+    sourceNode.disconnect();
+  }catch(e){}
+
+  try{
+    audioContext
+    &&
+    audioContext.close();
+  }catch(e){}
+
+  analyser = null;
+  sourceNode = null;
+  audioContext = null;
+
+  setTimeout(
+    drawIdleWave,
+    30
+  );
+}
+
+/* =========================
+   방송 시간
+========================= */
+
+let seconds = 0;
+
+setInterval(
+  () => {
+
+    seconds++;
+
+    const h =
+      String(
+        Math.floor(
+          seconds / 3600
+        )
+      )
+      .padStart(
+        2,
+        '0'
+      );
+
+    const m =
+      String(
+        Math.floor(
+          seconds % 3600 / 60
+        )
+      )
+      .padStart(
+        2,
+        '0'
+      );
+
+    const s =
+      String(
+        seconds % 60
+      )
+      .padStart(
+        2,
+        '0'
+      );
+
+    if($('timer'))
+      $('timer')
+      .textContent =
+      `${h}:${m}:${s}`;
+
+  },
+  1000
+);
+
+/* =========================
+   출석 체크
+========================= */
+
+const attendanceRewards =
+  [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ];
+
+function attendance(){
+
+  const day =
+    (
+      (
+        new Date()
+        .getDay()
+        +
+        6
+      )
+      %
+      7
+    )
+    +
+    1;
+
+  const reward =
+    attendanceRewards[
+      day - 1
+    ];
+
+  toast(
+    `출석 ${day}일차 · 장미 ${reward}송이`
+  );
+
+  speakAI(
+    `출석 ${day}일차, 장미 ${reward}송이 지급`
+  );
+}
+
+/* =========================
+   채팅
+========================= */
+
+function sendMsg(){
+
+  const input =
+    $('msg');
+
+  if(!input) return;
+
+  const text =
+    input.value.trim();
+
+  if(!text) return;
+
+  const div =
+    document.createElement(
+      'div'
+    );
+
+  div.innerHTML =
+    '<b class="c1">나</b> '
+    +
+    text;
+
+  $('chatlog')
+  .appendChild(
+    div
+  );
+
+  input.value =
+    '';
+
+  speakAI(
+    '채팅, ' + text
+  );
+}
+
+/* =========================
+   선물
+========================= */
+
+function gift(
+  name,
+  coin
+){
+
+  const msg =
+    name
+    +
+    (
+      coin
+      ?
+      ' · '
+      +
+      coin
+      +
+      '코인'
+      :
+      ''
+    );
+
+  toast(msg);
+
+  speakAI(
+    '선물이 도착했습니다. '
+    +
+    name
+  );
+}
+
+function openGiftBox(){
+
+  const modal =
+    $('kxGiftModal');
+
+  if(modal)
+    modal
+    .classList
+    .add('on');
+}
+
+/* =========================
+   제비뽑기
+========================= */
+
+function drawPrize(){
+
+  const prizes =
+    [
+      '꽝',
+      '장미 1개',
+      '장미 2개',
+      '장미 3개',
+      '장미 4개',
+      '장미 5개',
+      '꽝'
+    ];
+
+  const prize =
+    prizes[
+      Math.floor(
+        Math.random()
+        *
+        prizes.length
+      )
+    ];
+
+  toast(
+    '제비뽑기: '
+    +
+    prize
+  );
+}
+
+/* =========================
+   K-Talk 운영 기준
+========================= */
+
+window.KTALK_PENDING_CONFIG = {
+
+  newMemberReward:{
+    roses:200
+  },
+
+  friendInvite:{
+    requiredDays:5,
+    requiredHoursPerDay:2,
+    inviterRewardRoses:300,
+    invitedUserExtraReward:0,
+    oncePerFriend:true
+  },
+
+  attendance:{
+    rewards:[
+      1,2,3,4,5,6,7
+    ],
+    reset:'MONDAY'
+  },
+
+  likes:{
+    stepLikes:2000,
+    rosesPerStep:1,
+    maxRoses:10,
+    maxRewardLikes:20000
+  },
+
+  moderation:{
+    strikeLimit:3,
+    suspensionDays:7
+  },
+
+  settlement:{
+
+    general:{
+      member:35,
+      company:65
+    },
+
+    subscriber:{
+      member:40,
+      company:60
+    },
+
+    companyPartner:{
+      member:50,
+      company:50,
+      subscriptionFee:19900
+    },
+
+    agency:{
+      company:40,
+      remainingForAgencyAndHost:60
+    }
+  },
+
+  subscriptions:[
+    5000,
+    10000,
+    15000
+  ],
+
+  seller:{
+    monthlyFee:300000,
+    requiresBusinessVerification:true
+  },
+
+  ads:{
+    ledMonthlyFee:300000,
+    term:'ONE_MONTH'
+  },
+
+  treasure:{
+    amounts:[
+      50,
+      100,
+      150
+    ],
+    countdownSeconds:180
+  },
+
+  authProviders:[
+    'Kakao',
+    'Naver',
+    'Google'
+  ],
+
+  adultVerificationRequired:true,
+
+  songMode:{
+    guestMicsAutoMute:true,
+    hostAdminManualMic:true,
+    restoreGuestMicsAfterSong:true,
+    aiSpeechDuringSong:false
+  },
+
+  room13:{
+    totalPeople:13,
+    host:1,
+    guests:12,
+    guestGrid:'3x4'
+  },
+
+  giftMission:{
+    stages:[
+      5,
+      10,
+      50
+    ],
+    allBroadcastRooms:true
+  },
+
+  camera:{
+    preferredWidth:1280,
+    preferredHeight:720,
+    beautyMin:0,
+    beautyMax:100
+  }
+
+};
+
+/* =========================
+   입장자 팝업
+========================= */
+
+$('kxViewerBtn')
+?.addEventListener(
+  'click',
+  () => {
+
+    $('kxViewerModal')
+    ?.classList
+    .add('on');
+  }
+);
+
+/* =========================
+   모달 닫기
+========================= */
+
+document
+.querySelectorAll(
+  '[data-kxclose]'
+)
+.forEach(
+  button => {
+
+    button
+    .addEventListener(
+      'click',
+      () => {
+
+        const id =
+          button.dataset
+          .kxclose;
+
+        $(id)
+        ?.classList
+        .remove('on');
+      }
+    );
+  }
+);
+
+document
+.querySelectorAll(
+  '.kxModal'
+)
+.forEach(
+  modal => {
+
+    modal
+    .addEventListener(
+      'click',
+      event => {
+
+        if(
+          event.target
+          ===
+          modal
+        )
+          modal
+          .classList
+          .remove('on');
+      }
+    );
+  }
+);
+
+/* =========================
+   선물상자 버튼
+========================= */
+
+$('kxGiftBoxBtn')
+?.addEventListener(
+  'click',
+  openGiftBox
+);
+
+/* =========================
+   광고
+========================= */
+
+$('kxAdBtn')
+?.addEventListener(
+  'click',
+  () => {
+
+    $('kxAdModal')
+    ?.classList
+    .add('on');
+  }
+);
+
+/* =========================
+   공유 / 매치
+========================= */
+
+$('kxShareBtn')
+?.addEventListener(
+  'click',
+  () => {
+
+    toast(
+      '공유 기능'
+    );
+  }
+);
+
+$('kxMatchBtn')
+?.addEventListener(
+  'click',
+  () => {
+
+    toast(
+      '빨강 / 파랑 매치전'
+    );
+  }
+);
+
+/* =========================
+   팔로우
+========================= */
+
+$('kxFollowBtn')
+?.addEventListener(
+  'click',
+  event => {
+
+    const button =
+      event.currentTarget;
+
+    button.textContent =
+      button.textContent
+      ===
+      '팔로우'
+      ?
+      '팔로잉'
+      :
+      '팔로우';
+  }
+);
+
+/* =========================
+   구독
+========================= */
+
+document
+.querySelectorAll(
+  '[data-sub]'
+)
+.forEach(
+  button => {
+
+    button
+    .addEventListener(
+      'click',
+      () => {
+
+        const value =
+          Number(
+            button.dataset.sub
+          );
+
+        toast(
+          value
+          .toLocaleString()
+          +
+          '원 구독 선택'
+        );
+      }
+    );
+  }
+);
+
+/* =========================
+   보물상자
+========================= */
+
+document
+.querySelectorAll(
+  '[data-treasure]'
+)
+.forEach(
+  button => {
+
+    button
+    .addEventListener(
+      'click',
+      () => {
+
+        const amount =
+          Number(
+            button.dataset
+            .treasure
+          );
+
+        let remain =
+          180;
+
+        const led =
+          $('kxLedText');
+
+        if(led){
+
+          led.textContent =
+            '🎁 보물상자 '
+            +
+            amount
+            +
+            '개 오픈! 눌러서 해당 방으로 이동 · 3분 후 시작';
+
+          led.style.cursor =
+            'pointer';
+        }
+
+        const box =
+          $('kxTreasureCountdown');
+
+        clearInterval(
+          window.__kxTreasureTimer
+        );
+
+        const tick = () => {
+
+          const m =
+            Math.floor(
+              remain / 60
+            );
+
+          const s =
+            String(
+              remain % 60
+            )
+            .padStart(
+              2,
+              '0'
+            );
+
+          if(box)
+            box.textContent =
+              `${m}:${s}`;
+
+          if(remain-- <= 0){
+
+            clearInterval(
+              window.__kxTreasureTimer
+            );
+
+            if(box)
+              box.textContent =
+                '보상 시작';
+          }
+        };
+
+        tick();
+
+        window.__kxTreasureTimer =
+          setInterval(
+            tick,
+            1000
+          );
+      }
+    );
+  }
+);
+
+/* =========================
+   큰 선물 LED
+========================= */
+
+window.kxShowBigGiftLed =
+function(
+  nickname,
+  host,
+  giftName
+){
+
+  const led =
+    $('kxLedText');
+
+  if(!led) return;
+
+  led.textContent =
+    nickname
+    +
+    '님이 '
+    +
+    host
+    +
+    '에게 큰 선물 '
+    +
+    giftName
+    +
+    '!';
+
+  /* 큰 선물은 알림만.
+     눌러도 방 이동 없음 */
+  led.style.cursor =
+    'default';
+};
+
+/* =========================
+   노래 시작 / 종료
+========================= */
+
+window.kxStartSongMode =
+function(){
+
+  window.__kxSongMode =
+    true;
+
+  const led =
+    $('kxLedText');
+
+  if(led)
+    led.textContent =
+      '🎵 노래 중 · 게스트 마이크 자동 잠금 · AI 음성 안내 일시정지';
+
+  /*
+    실제 서비스 서버 연결 후
+    게스트 마이크 자동 잠금 처리
+  */
+};
+
+window.kxEndSongMode =
+function(){
+
+  window.__kxSongMode =
+    false;
+
+  const led =
+    $('kxLedText');
+
+  if(led)
+    led.textContent =
+      'K-Talk LIVE · 노래 종료 · 마이크 원래 상태 복구';
+
+  speakAI(
+    '노래가 끝났습니다.'
+  );
+};
+
+/* =========================
+   배경 / 보정 / 효과
+========================= */
+
+const beautyPanel =
+  $('kxBeautyPanel');
+
+const backgroundPanel =
+  $('kxBackgroundPanel');
+
+const effectPanel =
+  $('kxEffectPanel');
+
+function closeFxPanels(){
+
+  beautyPanel
+  ?.classList
+  .remove('on');
+
+  backgroundPanel
+  ?.classList
+  .remove('on');
+
+  effectPanel
+  ?.classList
+  .remove('on');
+}
+
+$('kxBeautyBtn')
+?.addEventListener(
+  'click',
+  () => {
+
+    const open =
+      beautyPanel
+      ?.classList
+      .contains('on');
+
+    closeFxPanels();
+
+    if(!open)
+      beautyPanel
+      ?.classList
+      .add('on');
+  }
+);
+
+$('kxBackgroundBtn')
+?.addEventListener(
+  'click',
+  () => {
+
+    const open =
+      backgroundPanel
+      ?.classList
+      .contains('on');
+
+    closeFxPanels();
+
+    if(!open)
+      backgroundPanel
+      ?.classList
+      .add('on');
+  }
+);
+
+$('kxEffectsBtn')
+?.addEventListener(
+  'click',
+  () => {
+
+    const open =
+      effectPanel
+      ?.classList
+      .contains('on');
+
+    closeFxPanels();
+
+    if(!open)
+      effectPanel
+      ?.classList
+      .add('on');
+  }
+);
+
+$('kxBeautyRange')
+?.addEventListener(
+  'input',
+  event => {
+
+    const value =
+      Number(
+        event.target.value
+      );
+
+    $('kxBeautyValue')
+    .textContent =
+      value;
+
+    window.__kxBeautyStrength =
+      value;
+
+    /*
+      실제 영상 보정 엔진 연결 자리
+    */
+  }
+);
+
+document
+.querySelectorAll(
+  '[data-bg]'
+)
+.forEach(
+  button => {
+
+    button
+    .addEventListener(
+      'click',
+      () => {
+
+        window.__kxSelectedBackground =
+          button.dataset.bg;
+
+        toast(
+          '배경: '
+          +
+          button.textContent
+          .trim()
+        );
+
+        /*
+          실제 배경 분리/합성 엔진
+          연결 자리
+        */
+      }
+    );
+  }
+);
+
+document
+.querySelectorAll(
+  '[data-fx]'
+)
+.forEach(
+  button => {
+
+    button
+    .addEventListener(
+      'click',
+      () => {
+
+        const fx =
+          button.dataset.fx;
+
+        if(
+          window.__kxSelectedEffect
+          ===
+          fx
+        ){
+
+          window.__kxSelectedEffect =
+            null;
+
+          toast(
+            '효과 해제'
+          );
+
+        }else{
+
+          window.__kxSelectedEffect =
+            fx;
+
+          toast(
+            '효과 적용: '
+            +
+            button.textContent
+            .trim()
+          );
+        }
+      }
+    );
+  }
+);
+
+$('kxOriginalBtn')
+?.addEventListener(
+  'click',
+  () => {
+
+    window.__kxBeautyStrength =
+      0;
+
+    window.__kxSelectedBackground =
+      'none';
+
+    window.__kxSelectedEffect =
+      null;
+
+    if($('kxBeautyRange'))
+      $('kxBeautyRange').value =
+        0;
+
+    if($('kxBeautyValue'))
+      $('kxBeautyValue')
+      .textContent =
+        '0';
+
+    closeFxPanels();
+
+    toast(
+      '원본 화면으로 복귀'
+    );
+  }
+);
+
+/* =========================
+   호스트/게스트 프로필
+========================= */
+
+function bindProfileTargets(){
+
+  const targets =
+    document
+    .querySelectorAll(
+      '.host,.guest'
+    );
+
+  targets
+  .forEach(
+    (
+      element,
+      index
+    ) => {
+
+      if(
+        element.dataset
+        .kxProfileBound
+      )
+        return;
+
+      element.dataset
+      .kxProfileBound =
+        '1';
+
+      element
+      .addEventListener(
+        'click',
+        event => {
+
+          if(
+            event.target
+            .closest(
+              'button,input,video'
+            )
+          )
+            return;
+
+          if(
+            $('kxProfileName')
+          ){
+
+            $('kxProfileName')
+            .textContent =
+              index === 0
+              ?
+              '호스트 프로필'
+              :
+              '게스트 '
+              +
+              index
+              +
+              ' 프로필';
+          }
+
+          $('kxProfileModal')
+          ?.classList
+          .add('on');
+        }
+      );
+    }
+  );
+}
+
+/* =========================
+   중요한 AI 알림
+========================= */
+
+window.kxImportantAIEvent =
+function(
+  type,
+  nickname,
+  detail
+){
+
+  if(
+    window.__kxSongMode
+  )
+    return;
+
+  let text = '';
+
+  if(type === 'join'){
+
+    text =
+      nickname
+      +
+      '님 어서 오세요';
+
+  }else if(
+    type === 'gift'
+  ){
+
+    text =
+      nickname
+      +
+      '님이 '
+      +
+      detail
+      +
+      ' 선물을 보내주셨습니다';
+
+  }else if(
+    type === 'bigGift'
+  ){
+
+    text =
+      '축하합니다. '
+      +
+      nickname
+      +
+      '님이 큰 선물 '
+      +
+      detail
+      +
+      '을 보내주셨습니다';
+  }
+
+  if(text)
+    speakAI(
+      text
+    );
+};
+
+/* =========================
+   쇼츠 광고 판별
+========================= */
+
+window.kxCheckShortsAd =
+function(text){
+
+  const commercial =
+    /(판매|구매|가격|할인|문의|주문|사업자|상품|광고|홍보)/i
+    .test(
+      String(
+        text || ''
+      )
+    );
+
+  if(commercial){
+
+    alert(
+      '이 영상은 광고·판매 목적 콘텐츠로 보입니다. 광고 이용을 신청해 주세요.'
+    );
+
+    $('kxAdModal')
+    ?.classList
+    .add('on');
+  }
+
+  return commercial;
+};
+
+/* =========================
+   서버 연결 예정 기능
+========================= */
+
+window.KTALK_BACKEND_TODO = [
+
+  '카카오/네이버/Google 가입',
+
+  '성인 인증',
+
+  '현재 접속 인원 실시간 저장',
+
+  '호스트/운영진 입장자 목록',
+
+  '호스트/게스트 받은 머니 숫자',
+
+  '팔로우/레벨/구독 저장',
+
+  '신규 가입 장미 200송이',
+
+  '친구 추천 5일 매일 2시간 완료 시 초대한 사람 장미 300송이',
+
+  '좋아요 2,000개마다 장미 1송이, 최대 10송이',
+
+  '출석 월요일 1송이부터 일요일 7송이',
+
+  '선물 보유 개수와 결제',
+
+  '작은/중간/큰 선물',
+
+  '보물상자 50/100/150 및 3분 카운트다운',
+
+  '보물상자 LED 클릭 시 해당 방 이동',
+
+  '큰 선물 LED 알림만 표시',
+
+  '큰 선물 화면 하단 애니메이션',
+
+  'A/B/C/D 실시간 순위',
+
+  '선물 미션 5개 → 10개 → 50개',
+
+  '모든 방송방 선물 미션 적용',
+
+  'AI 중요 채팅/닉네임/선물 읽기',
+
+  '노래 중 AI 음성 읽기 정지',
+
+  '노래 중 게스트 마이크 자동 잠금',
+
+  '노래 종료 후 마이크 원래 상태 복원',
+
+  '아래 대기석 → 호스트/운영진 승인 → 게스트 자리 이동',
+
+  '쇼츠 업로드 및 효과/필터',
+
+  '상업성 쇼츠 AI 광고 안내',
+
+  '판매자 사업자 확인 및 월 30만원',
+
+  'LED 광고 월 30만원',
+
+  '일반회원 정산 35% / 회사 65%',
+
+  '구독회원 40% / 회사 60%',
+
+  '회사 직접 파트너 50% / 회사 50%',
+
+  '소속사는 회사 40%, 나머지는 소속사 자체 배분',
+
+  '접속/퇴장/동시접속 통계',
+
+  '카메라 HD 화질',
+
+  '카메라 좌우 반전 설정',
+
+  '배경 가요무대/콘서트/바다/해변/야경/카페',
+
+  '자연 보정 0~100',
+
+  '재미있는 효과와 필터',
+
+  '저작권 관리',
+
+  'AI 유해 콘텐츠 감지',
+
+  '누적 3회 제재 시 7일 정지'
+
+];
+
+/* =========================
+   시작
+========================= */
+
+window.addEventListener(
+  'load',
+  () => {
+
+    buildGuests();
+
+    fitScreen();
+
+    drawIdleWave();
+
+    bindProfileTargets();
+
+    updateCount();
+  }
+);
+
 </script>
+
 </body>
-</html>
+  </html>
