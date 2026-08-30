@@ -6,11 +6,11 @@
 <title>K-Talk LIVE</title>
 <link rel="stylesheet" href="styles.css" />
 <style>
-.app:has(.refSolo) .header,.app:has(.refSolo) .bottom{display:none!important}
-.app:has(.refSolo){height:100dvh!important;min-height:100dvh!important;overflow:hidden!important;background:#000!important}
-#screen:has(.refSolo){height:100dvh!important;min-height:100dvh!important;padding:0!important;margin:0!important;overflow:hidden!important}
-#screen:has(.refSolo) .refSolo{height:100dvh!important;min-height:100dvh!important;border-radius:0!important;padding:0!important;margin:0!important}
-#screen:has(.refSolo) .refStage{border-radius:0!important}
+.app:has(.refSolo) .header,.app:has(.refSolo) .bottom,.app:has(.approvedSolo) .header,.app:has(.approvedSolo) .bottom{display:none!important}
+.app:has(.refSolo),.app:has(.approvedSolo){height:100dvh!important;min-height:100dvh!important;overflow:hidden!important;background:#000!important}
+#screen:has(.refSolo),#screen:has(.approvedSolo){height:100dvh!important;min-height:100dvh!important;padding:0!important;margin:0!important;overflow:hidden!important}
+#screen:has(.refSolo) .refSolo,#screen:has(.approvedSolo) .approvedSolo{height:100dvh!important;min-height:100dvh!important;border-radius:0!important;padding:0!important;margin:0!important}
+#screen:has(.refSolo) .refStage,#screen:has(.approvedSolo) .approvedStage{border-radius:0!important}
 </style>
 </head>
 <body>
@@ -35,20 +35,6 @@
 </div>
 <div id="sheet" class="sheet"><div class="sheet-inner"><div class="sheet-head"><h3 id="sheetTitle">메뉴</h3><button onclick="closeSheet()">닫기</button></div><div id="sheetBody"></div></div></div>
 <script src="app.js"></script>
-<script>
-(function(){
-  function fixRoseLabels(){
-    const gifts=document.querySelectorAll('.refGift b');
-    if(gifts[0]) gifts[0].textContent='장미 1송이';
-    if(gifts[1]) gifts[1].textContent='장미 50송이';
-    if(gifts[2]) gifts[2].textContent='장미 100송이';
-    const rewards=document.querySelectorAll('.refReward i');
-    const likes=['♥ 3,000','♥ 6,000','♥ 9,000','♥ 12,000','♥ 15,000'];
-    rewards.forEach((el,i)=>{if(i<5) el.innerHTML='<b>'+likes[i]+'</b><strong style="font-size:9px;color:#fff">장미 '+(i+1)+'송이</strong>';});
-  }
-  fixRoseLabels();
-  new MutationObserver(fixRoseLabels).observe(document.getElementById('screen'),{childList:true,subtree:true});
-})();
-</script>
+<script src="solo-ui.js"></script>
 </body>
 </html>
