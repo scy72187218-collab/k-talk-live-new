@@ -90,16 +90,18 @@ button,input{font:inherit}
   border:1px solid rgba(255,255,255,.10);border-radius:14px;background:rgba(8,8,13,.52);backdrop-filter:blur(9px);
   color:#fff;padding:9px 4px 8px;text-align:center
 }
-.gift span{display:block;font-size:33px;line-height:1}
-.gift b{display:block;margin-top:6px;font-size:10px}
+.gift-art{display:block;width:100%;height:74px;margin:0 auto;filter:drop-shadow(0 5px 8px rgba(0,0,0,.35))}
+.gift b{display:block;margin-top:5px;font-size:10px}
 .gift small{display:block;color:#ff79b3;font-size:8px;margin-top:2px}
 .reward-strip{
-  position:absolute;left:14px;right:14px;bottom:72px;z-index:5;display:flex;gap:6px;overflow:hidden
+  position:absolute;left:14px;right:14px;bottom:72px;z-index:5;display:grid;grid-template-columns:.86fr repeat(5,1fr);gap:4px;overflow:hidden;
+  padding:5px;border:1px solid rgba(255,255,255,.08);border-radius:13px;background:rgba(5,5,9,.42)
 }
 .reward{
-  flex:1;border:1px solid rgba(255,255,255,.09);border-radius:12px;background:rgba(5,5,9,.56);color:#fff;padding:8px 5px;text-align:center
+  min-width:0;border:1px solid rgba(255,255,255,.09);border-radius:10px;background:rgba(5,5,9,.56);color:#fff;padding:6px 3px;text-align:center
 }
-.reward b{display:block;font-size:9px}.reward small{display:block;color:#aaa;font-size:7px;margin-top:2px}
+.reward.label{display:grid;place-items:center;border-color:transparent;background:transparent;color:#ff6aa9;font-weight:900}
+.reward b{display:block;font-size:7.5px;white-space:nowrap}.reward small{display:block;color:#aaa;font-size:6.5px;margin-top:2px}.reward .mini-rose{font-size:13px;line-height:1.1}
 .start-live{
   position:absolute;left:14px;right:14px;bottom:12px;z-index:8;border:0;border-radius:16px;
   padding:14px 10px;background:linear-gradient(135deg,#ff315f,#ff3f8f 54%,#8a5cff);
@@ -115,6 +117,60 @@ button,input{font:inherit}
 </head>
 <body>
 <main class="room1">
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <linearGradient id="petalRed" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff2e45"/><stop offset=".55" stop-color="#c80725"/><stop offset="1" stop-color="#7f071d"/></linearGradient>
+      <linearGradient id="leafGreen" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#73c86f"/><stop offset="1" stop-color="#1c6b34"/></linearGradient>
+      <linearGradient id="wrapPink" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffd1e7"/><stop offset="1" stop-color="#e66aa4"/></linearGradient>
+      <linearGradient id="giftPink" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff77c4"/><stop offset=".55" stop-color="#e51f91"/><stop offset="1" stop-color="#9a0c72"/></linearGradient>
+    </defs>
+    <symbol id="roseOne" viewBox="0 0 120 120">
+      <path d="M61 53 C61 72 59 92 55 112" fill="none" stroke="#3e8c42" stroke-width="5" stroke-linecap="round"/>
+      <path d="M57 78 C40 65 31 70 31 84 C43 88 52 85 59 80" fill="url(#leafGreen)"/>
+      <path d="M58 92 C72 80 83 82 86 94 C76 101 66 100 57 96" fill="url(#leafGreen)"/>
+      <ellipse cx="60" cy="44" rx="24" ry="18" fill="url(#petalRed)"/>
+      <ellipse cx="45" cy="40" rx="15" ry="14" transform="rotate(-28 45 40)" fill="#e51d36"/>
+      <ellipse cx="74" cy="38" rx="16" ry="14" transform="rotate(25 74 38)" fill="#f52d43"/>
+      <ellipse cx="60" cy="31" rx="15" ry="13" fill="#ff4052"/>
+      <ellipse cx="60" cy="43" rx="11" ry="9" fill="#8c061c"/>
+      <path d="M51 34 Q60 44 69 34 Q64 51 60 53 Q56 50 51 34" fill="#b30922"/>
+    </symbol>
+    <symbol id="rose50" viewBox="0 0 140 120">
+      <g>
+        <use href="#roseOne" x="-6" y="-17" width="84" height="84"/>
+        <use href="#roseOne" x="28" y="-19" width="84" height="84"/>
+        <use href="#roseOne" x="60" y="-14" width="80" height="80"/>
+        <use href="#roseOne" x="10" y="4" width="80" height="80"/>
+        <use href="#roseOne" x="47" y="5" width="82" height="82"/>
+      </g>
+      <path d="M39 65 L69 116 L100 65 Z" fill="#2e7d3c" opacity=".85"/>
+      <path d="M48 77 Q70 88 92 77 L86 109 Q70 119 54 109 Z" fill="#b2192d"/>
+      <path d="M69 87 C51 76 39 86 50 98 C60 99 66 94 69 89" fill="#f03750"/>
+      <path d="M70 87 C89 76 102 86 90 99 C80 99 74 94 70 89" fill="#dc1634"/>
+    </symbol>
+    <symbol id="rose100" viewBox="0 0 150 120">
+      <path d="M27 63 Q75 42 123 63 L106 116 L75 101 L44 116 Z" fill="url(#wrapPink)" opacity=".95"/>
+      <g>
+        <use href="#roseOne" x="-3" y="-24" width="74" height="74"/>
+        <use href="#roseOne" x="23" y="-29" width="74" height="74"/>
+        <use href="#roseOne" x="50" y="-30" width="74" height="74"/>
+        <use href="#roseOne" x="78" y="-25" width="74" height="74"/>
+        <use href="#roseOne" x="10" y="-6" width="74" height="74"/>
+        <use href="#roseOne" x="38" y="-8" width="74" height="74"/>
+        <use href="#roseOne" x="67" y="-5" width="74" height="74"/>
+      </g>
+      <path d="M75 82 C54 70 43 83 55 95 C65 95 71 90 75 85" fill="#ef3659"/>
+      <path d="M76 82 C97 69 108 83 95 96 C85 96 80 90 76 85" fill="#d91a43"/>
+    </symbol>
+    <symbol id="giftBox" viewBox="0 0 120 120">
+      <rect x="24" y="45" width="72" height="62" rx="8" fill="url(#giftPink)"/>
+      <rect x="17" y="36" width="86" height="22" rx="7" fill="#ff67b9"/>
+      <rect x="54" y="36" width="14" height="71" fill="#ffb2dc"/>
+      <path d="M61 36 C45 16 25 17 28 31 C31 42 48 42 61 36 Z" fill="#ff9dd2"/>
+      <path d="M61 36 C77 16 98 18 95 32 C91 42 74 42 61 36 Z" fill="#ff8acb"/>
+      <circle cx="61" cy="36" r="8" fill="#ffd1e9"/>
+    </symbol>
+  </svg>
   <section class="video"></section>
 
   <div class="topbar">
@@ -152,17 +208,19 @@ button,input{font:inherit}
   </div>
 
   <div class="gift-dock">
-    <button class="gift"><span>🌹</span><b>장미 1개</b></button>
-    <button class="gift"><span>💐</span><b>장미 50개</b></button>
-    <button class="gift"><span>🌹</span><b>장미 100개</b></button>
-    <button class="gift"><span>🎁</span><b>선물 상자</b><small>큰 선물 보기</small></button>
+    <button class="gift"><svg class="gift-art" viewBox="0 0 120 120"><use href="#roseOne"/></svg><b>장미 1개</b></button>
+    <button class="gift"><svg class="gift-art" viewBox="0 0 140 120"><use href="#rose50"/></svg><b>장미 50개</b></button>
+    <button class="gift"><svg class="gift-art" viewBox="0 0 150 120"><use href="#rose100"/></svg><b>장미 100개</b></button>
+    <button class="gift"><svg class="gift-art" viewBox="0 0 120 120"><use href="#giftBox"/></svg><b>선물 상자</b><small>큰 선물 보기</small></button>
   </div>
 
   <div class="reward-strip">
-    <div class="reward"><b>좋아요 보상</b><small>참여 보상</small></div>
-    <div class="reward"><b>♥ 3,000</b><small>달성</small></div>
-    <div class="reward"><b>♥ 6,000</b><small>달성</small></div>
-    <div class="reward"><b>♥ 9,000</b><small>달성</small></div>
+    <div class="reward label"><b>좋아요<br>보상</b></div>
+    <div class="reward"><b>♥ 3,000</b><span class="mini-rose">🌹</span><small>지급 완료</small></div>
+    <div class="reward"><b>♥ 6,000</b><span class="mini-rose">🌹</span><small>지급 완료</small></div>
+    <div class="reward"><b>♥ 9,000</b><span class="mini-rose">🌹</span><small>지급 완료</small></div>
+    <div class="reward"><b>♥ 12,000</b><span class="mini-rose">🌹</span><small>지급 완료</small></div>
+    <div class="reward"><b>♥ 15,000</b><span class="mini-rose">🌹</span><small>지급 완료</small></div>
   </div>
 
   <button class="start-live" id="startLive" onclick="startRoom()">● 방송 시작</button>
