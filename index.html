@@ -77,6 +77,44 @@ main{height:calc(100dvh - 132px);overflow:hidden;padding:6px 8px 74px}.card{back
 .liveFeedBadge{position:absolute;left:12px;top:10px;display:flex;gap:6px;align-items:center;z-index:4}
 .liveType{padding:5px 8px;border-radius:999px;background:rgba(0,0,0,.48);border:1px solid rgba(255,255,255,.08);font-size:10px;font-weight:800}
 .liveJoinHint{position:absolute;left:12px;bottom:55px;z-index:4;font-size:11px;color:#d5d5dc;background:rgba(0,0,0,.3);padding:6px 9px;border-radius:999px}
+
+.roomSelect{height:100%;display:grid;grid-template-columns:1fr 1fr;gap:9px;align-content:start;padding:4px}
+.roomPreview{min-height:130px;border:1px solid rgba(255,255,255,.07);border-radius:16px;background:linear-gradient(145deg,#17171f,#0b0b10);color:#fff;padding:11px;text-align:left;position:relative;overflow:hidden}
+.roomPreview b{display:block;font-size:15px;margin-bottom:4px}.roomPreview small{color:#aaa}
+.roomMiniGrid{display:grid;gap:3px;margin-top:9px}.roomMiniGrid.one{grid-template-columns:1fr}.roomMiniGrid.thirteen{grid-template-columns:repeat(3,1fr)}.roomMiniGrid.nine{grid-template-columns:repeat(4,1fr)}.roomMiniGrid.six{grid-template-columns:repeat(3,1fr)}
+.roomMiniGrid i{height:18px;border-radius:4px;background:rgba(255,255,255,.09);display:block}.roomMiniGrid i.hostMini{background:rgba(244,200,90,.2);outline:1px solid rgba(244,200,90,.3)}
+.liveRoom{height:100%;display:flex;flex-direction:column;gap:7px;overflow:hidden}
+.roomBar{display:flex;align-items:center;gap:7px;padding:7px 8px;border-radius:12px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.055)}
+.roomBar .back{width:34px;height:34px;border-radius:50%;border:0;background:rgba(255,255,255,.07);color:#fff}
+.roomBarTitle{flex:1;min-width:0}.roomBarTitle b{display:block;font-size:14px}.roomBarTitle small{color:#aaa;font-size:10px}
+.roomLed{padding:6px 8px;border-radius:10px;text-align:center;color:#f2d574;font-size:11px;font-weight:800;background:rgba(244,200,90,.03);border:1px solid rgba(244,200,90,.14)}
+.roomStage{flex:1;min-height:0;display:grid;gap:6px;position:relative}
+.roomStage.solo{grid-template-columns:1fr}
+.roomStage.general{grid-template-columns:1.12fr 1.88fr}
+.roomStage.subscriber{grid-template-columns:1.1fr 1.9fr}
+.roomStage.secret{grid-template-columns:1.15fr 1.85fr}
+.hostPanel{min-height:0;border-radius:14px;background:radial-gradient(circle at 50% 28%,#2b2432,#13131b 62%,#0b0b10);border:1px solid rgba(244,200,90,.13);position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.hostPanel .hostIcon{font-size:52px;opacity:.5}
+.hostName{position:absolute;left:8px;bottom:8px;font-size:11px;font-weight:900;color:#f6d878}
+.hostTag{position:absolute;left:8px;top:8px;background:#ff365f;color:#fff;border-radius:999px;padding:3px 7px;font-size:9px;font-weight:900}
+.guestGrid{display:grid;gap:4px;min-width:0;min-height:0}
+.guestGrid.g12{grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(4,1fr)}
+.guestGrid.g8{grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(4,1fr)}
+.guestGrid.g5{grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(3,1fr)}
+.guestTile{border-radius:9px;background:linear-gradient(145deg,#1b1b24,#111117);border:1px solid rgba(255,255,255,.055);display:grid;place-items:center;color:#8e8e99;font-size:10px;min-height:0;overflow:hidden}
+.roomChat{position:absolute;left:8px;bottom:8px;max-width:68%;display:grid;gap:4px;z-index:3}
+.roomChat div{background:rgba(0,0,0,.35);backdrop-filter:blur(6px);padding:4px 7px;border-radius:999px;font-size:9px;color:#eee}
+.roomRightActions{position:absolute;right:8px;bottom:8px;display:flex;flex-direction:column;gap:6px;z-index:4}
+.roomRightActions button{width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.35);color:#fff;font-size:14px}
+.roomTools{display:flex;gap:6px;overflow:hidden}
+.roomTools button{flex:1;min-width:0;border:0;border-radius:10px;background:rgba(255,255,255,.055);color:#ddd;padding:7px 4px;font-size:9px}
+.roomGiftStrip{display:flex;gap:5px;overflow:auto;padding-bottom:1px}
+.roomGift{min-width:64px;border:1px solid rgba(244,200,90,.12);border-radius:10px;background:rgba(244,200,90,.025);color:#eee;padding:6px 7px;text-align:center;font-size:9px}
+.roomGift span{display:block;font-size:18px;margin-bottom:2px}
+.secretGate{position:absolute;inset:auto 8px 8px 8px;background:rgba(0,0,0,.56);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:8px;z-index:6}
+.secretGate input{width:100%;border:0;border-radius:9px;background:rgba(255,255,255,.08);color:#fff;padding:8px;font-size:11px}
+.secretGate button{width:100%;margin-top:5px;border:0;border-radius:9px;background:#f3f3f5;color:#111;padding:7px;font-weight:900;font-size:10px}
+@media(max-width:380px){.roomStage.general,.roomStage.subscriber,.roomStage.secret{grid-template-columns:1fr 1.7fr}.hostPanel .hostIcon{font-size:42px}}
 </style>
 </head>
 <body>
@@ -166,16 +204,40 @@ function media(kind){
  view.innerHTML='<section class="hero"><div class="heroIcon">▶</div><div class="profileline"><div class="crown">♛ 태권</div><div>'+label+'을 올리면 이곳에 표시됩니다.</div></div><div class="actions"><button class="round" data-action="like">♡<small>좋아요</small></button><button class="round" data-action="messages">💬<small>댓글</small></button><button class="round" data-action="save">☆<small>저장</small></button><button class="round" data-action="share">↗<small>공유</small></button></div></section><section class="card"><button class="btn primary" style="width:100%" onclick="uploadMedia(\''+kind+'\')">'+label+' 올리기</button><div class="notice">동영상·쇼츠에는 선물과 보상을 표시하지 않습니다.</div></section>';
 }
 function rooms(){
- var list=[['1','1인 방송','호스트 1명'],['2','일반방','총 13명 · 호스트 포함'],['3','구독자방','총 9명 · 호스트 포함'],['4','비밀방','총 6명 · 호스트 포함']];
- var buttons=list.map(function(r){return '<button class="broadcast-btn" onclick="enterRoom(\''+r[0]+'\')">'+r[0]+'번 · '+r[1]+' <span style="opacity:.8;font-weight:600">('+r[2]+')</span></button>'}).join('');
- view.innerHTML='<section class="card"><h2 class="title">방송방 선택</h2><div class="notice">방을 보는 사람은 원하는 방을 바로 누릅니다. 방 안에는 방송 시작 버튼이 없습니다.</div>'+buttons+'</section>';
+ var cards=[
+  ['1','1인 방송','호스트 1명','one',1],
+  ['2','일반방','총 13명','thirteen',13],
+  ['3','구독자방','총 9명','nine',9],
+  ['4','비밀방','총 6명','six',6]
+ ];
+ var html=cards.map(function(r){
+   var count=r[4],mini='';
+   for(var i=0;i<count;i++) mini+='<i class="'+(i===0?'hostMini':'')+'"></i>';
+   return '<button class="roomPreview" onclick="enterRoom(\''+r[0]+'\')"><b>'+r[0]+'번 · '+r[1]+'</b><small>'+r[2]+' · 호스트 포함</small><span class="roomMiniGrid '+r[3]+'">'+mini+'</span></button>';
+ }).join('');
+ view.innerHTML='<section class="roomSelect">'+html+'</section>';
 }
 function enterRoom(id){
  if((id==='3'||id==='4')&&!state.joined){showJoin('이 방은 가입 후 이용할 수 있습니다.');return}
- var info=id==='1'?['1인 방송',1]:id==='2'?['일반방',13]:id==='3'?['구독자방',9]:['비밀방',6];
- var guests=info[1]-1,cls=guests>=10?'cols3':'cols2',tiles='';
- for(var i=1;i<=guests;i++)tiles+='<div class="tile">참여자 '+i+'</div>';
- view.innerHTML='<section class="card"><div class="row"><button class="btn" onclick="rooms()">←</button><div class="grow"><b>'+info[0]+'</b><div class="muted">총 '+info[1]+'명 · 호스트 포함</div></div><button class="btn" data-action="messages">✉ 쪽지</button></div></section><section class="card"><div class="tile host"><div><div style="font-size:38px">♛</div><b>호스트 태권</b><div class="muted">카메라·마이크 직접 제어</div></div></div>'+(guests?'<div class="roomgrid '+cls+'">'+tiles+'</div>':'')+'</section><section class="card"><div class="row wrap"><button class="btn blue" id="camBtn" onclick="toggleCamera()">📷 카메라 열기</button><button class="btn" id="aiBtn" onclick="toggleAI()">🔊 AI 읽기 켜짐</button><button class="btn" id="songBtn" onclick="songMode()">🎵 노래 모드</button><button class="btn" data-action="report">🚩 신고</button></div><div class="notice">노래 중에는 호스트·운영진이 자기 마이크를 직접 관리하고 다른 참여자 마이크는 자동 잠금, 노래 종료 후 자동 해제됩니다.</div></section><section class="card"><h3 class="title">선물</h3><div class="gifts"><button class="gift"><b>🌹</b>장미 1</button><button class="gift"><b>🌹</b>장미 10</button><button class="gift"><b>🌹</b>장미 50</button><button class="gift"><b>🎁</b>보물상자</button><button class="gift"><b>💖</b>하트 100</button><button class="gift"><b>💞</b>하트 500</button><button class="gift"><b>💗</b>하트 1000</button></div></section>';
+ var cfg=id==='1'?{name:'1인 방송',total:1,kind:'solo',guests:0,grid:''}:id==='2'?{name:'일반방',total:13,kind:'general',guests:12,grid:'g12'}:id==='3'?{name:'구독자방',total:9,kind:'subscriber',guests:8,grid:'g8'}:{name:'비밀방',total:6,kind:'secret',guests:5,grid:'g5'};
+ var guests='';
+ for(var i=1;i<=cfg.guests;i++) guests+='<div class="guestTile">참여자 '+i+'</div>';
+ var gate=id==='4'?'<div class="secretGate"><input placeholder="비밀번호 입력"><button>비밀방 입장</button></div>':'';
+ var sub=id==='3'?'<span class="badge">구독자 전용</span>':'';
+ view.innerHTML=
+ '<section class="liveRoom">'+
+   '<div class="roomBar"><button class="back" onclick="rooms()">←</button><div class="roomBarTitle"><b>'+cfg.name+' '+sub+'</b><small>총 '+cfg.total+'명 · 호스트 포함</small></div><button class="btn" data-action="messages" style="padding:7px 9px;font-size:10px">✉ 쪽지</button></div>'+
+   '<div class="roomLed">♛ K-Talk · 신곡 광고 신청하세요! 🎵 🎤</div>'+
+   '<div class="roomStage '+cfg.kind+'">'+
+     '<div class="hostPanel"><div class="hostTag">ON AIR</div><div class="hostIcon">🎙️</div><div class="hostName">♛ 태권 · HOST</div></div>'+
+     (cfg.guests?'<div class="guestGrid '+cfg.grid+'">'+guests+'</div>':'')+
+     '<div class="roomChat"><div>하늘별 · 안녕하세요 💕</div><div>미소 · 오늘 방송 좋아요!</div><div>행복이 · 응원합니다 👍</div></div>'+
+     '<div class="roomRightActions"><button data-action="like">♡</button><button data-action="messages">💬</button><button data-action="report">⚑</button></div>'+
+     gate+
+   '</div>'+
+   '<div class="roomTools"><button id="camBtn" onclick="toggleCamera()">📷 카메라</button><button id="aiBtn" onclick="toggleAI()">🔊 AI 읽기</button><button id="songBtn" onclick="songMode()">🎵 노래</button><button>🎤 마이크</button></div>'+
+   '<div class="roomGiftStrip"><button class="roomGift"><span>🌹</span>장미 1</button><button class="roomGift"><span>🌹</span>장미 10</button><button class="roomGift"><span>🌹</span>장미 50</button><button class="roomGift"><span>🎁</span>보물상자</button><button class="roomGift"><span>💖</span>하트 100</button><button class="roomGift"><span>💞</span>하트 500</button><button class="roomGift"><span>👑</span>프리미엄</button></div>'+
+ '</section>';
 }
 async function toggleCamera(){
  var b=document.getElementById('camBtn');
