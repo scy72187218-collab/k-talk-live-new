@@ -1,34 +1,104 @@
-const state={joined:false,adult:false,stream:null,raffle:3,saved:false,mic:true,ai:true};
-const screen=document.getElementById('screen'),creator=document.getElementById('creator'),camera=document.getElementById('camera'),sheet=document.getElementById('sheet'),sheetTitle=document.getElementById('sheetTitle'),sheetBody=document.getElementById('sheetBody');
-function activate(name){document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===name))}
-document.addEventListener('click',e=>{const t=e.target.closest('[data-tab]');if(t){activate(t.dataset.tab);render(t.dataset.tab);return}const b=e.target.closest('[data-bottom]');if(b){const k=b.dataset.bottom;if(k==='home'){activate('home');home()}if(k==='friends')friends();if(k==='plus')openCreator();if(k==='help')openMenu();if(k==='profile')openProfile();return}})
-function render(name){if(name==='home')home();if(name==='shorts'||name==='video')media(name);if(name==='profile')openProfile()}
-function home(){screen.innerHTML=`<style>
-#screen{padding:0!important;height:calc(100dvh - 184px)!important}.refSolo{height:100%;display:flex;flex-direction:column;gap:6px;background:#050507;color:#fff}.refStage{position:relative;flex:1;min-height:0;overflow:hidden;border-radius:14px;background:#19141b url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=900&q=85') center 32%/cover no-repeat}.refStage:after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.05),transparent 40%,rgba(0,0,0,.72) 90%)}.refTop{position:absolute;z-index:4;top:10px;left:10px;right:10px;display:flex;align-items:center;gap:7px}.refAvatar{width:34px;height:34px;border-radius:50%;border:1px solid #fff8;background:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=85') center/cover}.refName{font-size:10px;font-weight:900;line-height:1.15}.refName small{display:block;font-size:8px;color:#eee;margin-top:2px}.refOn{padding:5px 9px;border-radius:10px;background:#ff375f;font-size:8px;font-weight:900}.refViews{padding:6px 9px;border-radius:999px;background:#0008;font-size:9px;font-weight:900}.refClose{margin-left:auto;border:0;background:none;color:#fff;font-size:26px}.refMeta{position:absolute;z-index:4;top:55px;left:10px;right:10px;display:flex;justify-content:space-between}.refMeta span{padding:6px 9px;border-radius:999px;background:#0008;font-size:8px}.refSide{position:absolute;z-index:5;right:10px;bottom:165px;display:grid;gap:8px}.refSide button{width:45px;height:45px;border-radius:50%;border:1px solid #ffffff26;background:#141217bb;color:#fff;font-size:17px}.refSide small{display:block;font-size:7px;color:#ddd}.refChat{position:absolute;z-index:5;left:10px;bottom:180px;display:grid;gap:5px;max-width:72%}.refChat span{width:max-content;max-width:100%;padding:5px 8px;border-radius:999px;background:#0008;font-size:8px}.refGiftToast{position:absolute;z-index:5;left:10px;bottom:148px;padding:6px 9px;border:1px solid #ff4d9166;border-radius:999px;background:#0009;color:#ff6fa8;font-size:8px;font-weight:900}.refInput{position:absolute;z-index:5;left:10px;right:70px;bottom:108px;height:34px;border:1px solid #ffffff55;border-radius:999px;background:#0006;display:flex;align-items:center;padding:0 11px;font-size:8px;color:#bbb}.refGiftRow{position:absolute;z-index:6;left:8px;right:8px;bottom:8px;height:92px;display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.refGift{border:1px solid #ffffff28;border-radius:10px;background:#09090dcc;color:#fff;display:grid;place-items:center;padding:4px 2px;text-align:center}.refGift strong{font-size:28px;line-height:1}.refGift b{font-size:8px}.refGift em{font-style:normal;color:#ff69a8;font-size:7px}.refReward{flex:0 0 48px;border:1px solid #ffffff1c;border-radius:12px;background:#08080b;display:grid;grid-template-columns:.85fr repeat(5,1fr);gap:3px;padding:5px}.refReward span{display:grid;place-items:center;color:#ff69a8;font-size:8px;font-weight:900}.refReward i{font-style:normal;display:grid;place-items:center;border-left:1px solid #ffffff16;font-size:7px;text-align:center}.refReward b{font-size:8px}.refStart{flex:0 0 54px;border:0;border-radius:16px;background:linear-gradient(135deg,#ff315f,#ff3f8f 55%,#8b5cff);color:#fff;font-size:18px;font-weight:950}
-</style><section class="refSolo"><div class="refStage"><div class="refTop"><div class="refAvatar"></div><div class="refName">K-Talk LIVE 👑<small>1인 방송</small></div><span class="refOn">ON AIR</span><span class="refViews">◉ 1,234</span><button class="refClose">×</button></div><div class="refMeta"><span>🔥 실시간 랭킹 12위</span><span>방송 시간 00:32:45</span></div><div class="refSide"><button onclick="needJoin('좋아요를 누르려면 가입해 주세요.')">💗<small>12.5K</small></button><button onclick="openComments()">💬<small>356</small></button><button onclick="shareApp()">↗<small>128</small></button><button onclick="openGifts()">🎁</button></div><div class="refChat"><span><b>민수</b>　안녕하세요 💕</span><span><b>지호</b>　오늘 노래 너무 좋아요!</span><span><b>사랑해</b>　응원합니다 👍</span></div><div class="refGiftToast">🎁 K-Talk에서 장미 3,000개를 선물했습니다!</div><div class="refInput">메시지 입력...</div><div class="refGiftRow"><button class="refGift" onclick="openGifts()"><strong>🌹</strong><b>장미 1개</b></button><button class="refGift" onclick="openGifts()"><strong>💐</strong><b>장미 50개</b></button><button class="refGift" onclick="openGifts()"><strong>💐</strong><b>장미 100개</b></button><button class="refGift" onclick="openGifts()"><strong>🎁</strong><b>보물상자</b><em>큰 선물 보기</em></button></div></div><div class="refReward"><span>좋아요<br>보상</span><i><b>♥ 3,000</b>🌹</i><i><b>♥ 6,000</b>🌹</i><i><b>♥ 9,000</b>🌹</i><i><b>♥ 12,000</b>🌹</i><i><b>♥ 15,000</b>🌹</i></div><button class="refStart" onclick="openCreator()">● 방송 시작</button></section>`}
-function friends(){const data=[{name:'하늘별',on:true,room:'방송 중'},{name:'미소',on:true,room:'방송 중'},{name:'행복이',on:true,room:'방송 중'},{name:'달빛',on:false,room:'대기'},{name:'바다',on:false,room:'대기'},{name:'좋은날',on:false,room:'대기'}];const top=data.map(x=>'<button class="friend-story '+(x.on?'on':'off')+'" onclick="'+(x.on?'home()':'void(0)')+'"><span>'+x.name[0]+'</span><small>'+x.name+'</small></button>').join('');const rows=data.map(x=>'<div class="friend-row"><div class="friend-avatar '+(x.on?'on':'off')+'">'+x.name[0]+'</div><div class="friend-info"><b>'+x.name+'</b><span>'+(x.on?'🔴 방송 중':'🔵 방송 안 함')+'</span></div><button onclick="'+(x.on?'home()':'openMessages()')+'">'+(x.on?'방송 보기':'쪽지')+'</button></div>').join('');screen.innerHTML='<section class="friends-page"><div class="friends-head"><b>친구</b><button>⌕</button></div><div class="friends-stories">'+top+'</div><div class="friends-label"><b>팔로우한 사람</b><span>방송 중은 빨강 · 방송 안 함은 파랑</span></div><div class="friends-list">'+rows+'</div></section>';}
-function media(type){const label=type==='shorts'?'쇼츠':'동영상';screen.innerHTML='<section class="media"><div class="play">▶</div><div class="host-meta"><b>♛ 태권</b><span>'+label+'을 올리면 이곳에 표시됩니다.</span></div><div class="right-actions"><button onclick="needJoin(\'좋아요를 누르려면 가입해 주세요.\')">♡<small>좋아요</small></button><button onclick="openComments()">💬<small>댓글</small></button><button onclick="toggleSave(this)">☆<small>저장</small></button><button onclick="shareApp()">↗<small>공유</small></button></div></section>'}
-async function openCreator(){creator.classList.add('show');try{state.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});camera.srcObject=state.stream}catch(e){}}
-function closeCreator(){creator.classList.remove('show');if(state.stream){state.stream.getTracks().forEach(t=>t.stop());state.stream=null;camera.srcObject=null}}
-function startBroadcast(){if(!state.joined){closeCreator();needJoin('방송을 시작하려면 먼저 가입과 성인 인증이 필요합니다.');return}closeCreator();home()}
-function showSheet(title,html){sheetTitle.innerHTML=title;sheetBody.innerHTML=html;sheet.classList.add('show')}function closeSheet(){sheet.classList.remove('show')}
-function needJoin(msg){showSheet('가입하기','<div class="note">'+msg+'</div><button class="act social naver" onclick="join(\'네이버\')">네이버로 계속하기</button><button class="act social kakao" onclick="join(\'카카오\')">카카오로 계속하기</button><button class="act social google" onclick="join(\'Google\')">Google로 계속하기</button><div class="note">실제 서비스에서는 소셜 로그인과 휴대폰 성인 인증 연결 후 완료됩니다.</div>')}
-function join(p){state.joined=true;showSheet('성인 인증','<div class="rowbox"><b>'+p+' 로그인 연결</b><div class="note">로그인 완료 후 휴대폰 본인인증을 진행합니다.</div></div><button class="act" onclick="finishJoin()">휴대폰 본인인증 완료</button>')}
-function finishJoin(){state.adult=true;closeSheet()}
-function openMenu(){showSheet('K-Talk 사용방법·혜택','<div class="aux-grid"><button class="aux-card" onclick="openGifts()"><b>🎁 선물·보물상자</b><small>장미부터 큰 선물</small></button><button class="aux-card" onclick="openCharge()"><b>🌹 장미 충전</b><small>충전 수량·구독 할인</small></button><button class="aux-card" onclick="openSubs()"><b>👑 구독·VIP</b><small>구독 등급과 혜택</small></button><button class="aux-card" onclick="openRaffle()"><b>🎯 제비뽑기</b><small>하루 3회</small></button><button class="aux-card" onclick="openMessages()"><b>✉ 쪽지</b><small>받고 보내기</small></button><button class="aux-card" onclick="openProfile()"><b>♛ 프로필</b><small>팔로우·링크·콘텐츠</small></button><button class="aux-card" onclick="openAI()"><b>🔊 AI 읽기</b><small>닉네임·채팅 읽기</small></button><button class="aux-card" onclick="openSong()"><b>🎵 노래·배경</b><small>무대·산·바다</small></button><button class="aux-card" onclick="report()"><b>🚩 신고 게시판</b><small>회사 관리자 처리</small></button><button class="aux-card" onclick="openAd()"><b>📣 광고·판매자</b><small>광고/사업자 등록</small></button></div>')}
-function giftSend(name,cost){alert(name+' · '+cost+'개 선물을 선택했습니다. 보내기 완료!')}
-function openGifts(){const gifts=[['🌹','장미','1'],['💐','꽃다발','5'],['🎁','보물상자','10'],['🎡','관람차','50'],['🎆','불꽃놀이','100'],['🏎️','럭셔리 자동차','200'],['🦄','유니콘','300'],['🦁','황금 사자','500'],['🦋','별빛 나비','700'],['✈️','로열 비행기','1,000'],['🏰','골든 캐슬','1,500'],['🏆','챔피언 트로피','2,000'],['🎸','스타 기타','2,500'],['🌌','갤럭시 무대','3,000'],['💎👑','다이아 왕관','3,500'],['🚀','우주선','4,000']];showSheet('🎁 K-Talk 선물','<div class="gift-grid">'+gifts.map(g=>'<button class="gift-big" onclick="giftSend(\''+g[1]+'\',\''+g[2]+'\')"><span>'+g[0]+'</span><b>'+g[1]+'</b><small style="display:block;margin-top:4px;color:#ffd86b;font-weight:900">🌹 '+g[2]+'개</small></button>').join('')+'</div><div class="note" style="text-align:center">원하는 선물을 누르면 선택해서 보낼 수 있습니다.</div>')}
-function openTreasure(){showSheet('🎁 보물상자','<div class="premium-grid"><button class="premium"><span>🎁</span><b>보물상자 50</b></button><button class="premium"><span>🎁</span><b>보물상자 100</b></button><button class="premium"><span>🎁</span><b>보물상자 150</b></button><button class="premium"><span>💖</span><b>하트 100</b></button><button class="premium"><span>💞</span><b>하트 500</b></button><button class="premium"><span>💗</span><b>하트 1000</b></button></div><div class="note">방송 시작 전에 하트 배경 효과를 선택하면 방송 뒤에 자동으로 표시되게 연결하는 자리입니다.</div>')}
-function openCharge(){showSheet('🌹 장미 충전','<div class="rowbox"><b>장미 1개 = 30원 기준</b></div>'+[[100,110],[200,210],[300,310],[500,510],[1000,1010],[2000,2010]].map(x=>'<div class="rowbox"><b>'+x[0]+'개</b> · 서비스 포함 '+x[1]+'개</div>').join('')+'<div class="rowbox"><b>10만원 · 4,000개</b></div><div class="note">구독자는 500개 이상 충전 시 15% 할인 기준.</div>')}
-function openSubs(){showSheet('👑 구독·회원 혜택','<div class="rowbox"><b>일반 구독자</b><br>월 5,000원</div><div class="rowbox"><b>중회원</b><br>월 14,900원</div><div class="rowbox"><b>VIP</b><br>월 19,900원</div><div class="note">구독자는 비밀방·구독자방 이용 허용, 500개 이상 충전 시 15% 할인 기준.</div>')}
-function openRaffle(){showSheet('🎯 제비뽑기','<div class="raffle">꽝 · 1 · 2 · 3 · 4 · 5</div><button class="act" onclick="raffle()">제비뽑기</button><div class="note">아침·점심·저녁 하루 3회. 꽝 2칸, 장미 1~5개.</div>')}
-function raffle(){if(state.raffle<=0)return alert('오늘 참여 횟수를 모두 사용했습니다.');state.raffle--;const p=[0,0,1,2,3,4,5],x=p[Math.floor(Math.random()*p.length)];alert(x?'장미 '+x+'개 당첨!':'꽝입니다.')}
-function openMessages(){if(!state.joined){needJoin('쪽지를 확인하고 보내려면 가입해 주세요.');return}showSheet('✉ 쪽지','<div class="rowbox"><b>하늘별</b><br>방송 잘 보고 있어요.</div><div class="rowbox"><b>미소</b><br>오늘 방송하시나요?</div><input class="form" placeholder="쪽지 내용을 입력하세요"><button class="act">쪽지 보내기</button>')}
-function openComments(){if(!state.joined){needJoin('댓글을 쓰려면 가입해 주세요.');return}showSheet('💬 댓글','<div class="rowbox"><b>하늘별</b> 안녕하세요 💕</div><div class="rowbox"><b>미소</b> 오늘 방송 좋아요!</div><input class="form" placeholder="댓글 입력"><button class="act">댓글 보내기</button>')}
-function openProfile(){showSheet('♛ 태권 프로필','<div class="profile-pic">태</div><div style="text-align:center"><h3 style="margin:8px 0 2px;color:#ffe07a">♛ 태권</h3><div class="note">K-Talk LIVE</div></div><div class="stats"><div><b>0</b><span>팔로워</span></div><div><b>30</b><span>팔로잉</span></div><div><b>Lv.1</b><span>레벨</span></div></div><input class="form" placeholder="홈페이지·블로그·SNS 링크"><button class="act">프로필 링크 저장</button><div class="aux-grid"><button class="aux-card" onclick="activate(\'video\');closeSheet();media(\'video\')"><b>동영상</b><small>내 동영상</small></button><button class="aux-card" onclick="activate(\'shorts\');closeSheet();media(\'shorts\')"><b>쇼츠</b><small>내 쇼츠</small></button></div>')}
-function openAI(){showSheet('🔊 AI 읽기','<div class="rowbox"><b>AI 읽기 보조</b><div class="note">닉네임 → 채팅 내용 → 선물 알림 순서로 자연스럽게 읽습니다. 오타·띄어쓰기는 문맥으로 보정하고, 불확실하면 임의로 추측하지 않습니다.</div></div><button class="act" onclick="state.ai=!state.ai;this.textContent=state.ai?'AI 읽기 켜짐':'AI 읽기 꺼짐'">AI 읽기 켜짐</button>')}
-function openSong(){showSheet('🎵 노래·배경','<div class="rowbox"><b>노래 모드</b><div class="note">노래 시작 시 일반 참여자 마이크 자동 잠금, 노래 종료 후 자동 해제. 호스트·운영진은 직접 관리.</div></div><div class="aux-grid"><button class="aux-card"><b>🎤 무대</b><small>콘서트 무대</small></button><button class="aux-card"><b>🏔️ 산</b><small>자연 배경</small></button><button class="aux-card"><b>🌊 바다</b><small>바다 배경</small></button><button class="aux-card"><b>🌃 야경</b><small>도시 야경</small></button><button class="aux-card"><b>🌸 꽃밭</b><small>꽃 배경</small></button><button class="aux-card"><b>🌌 우주</b><small>별빛 무대</small></button></div>')}
-function report(){showSheet('🚩 회사 관리 신고 게시판','<input class="form" placeholder="신고 대상 닉네임"><select class="form"><option>위험한 행동</option><option>욕설·괴롭힘</option><option>사칭</option><option>불법 판매</option><option>기타</option></select><input class="form" placeholder="신고 내용"><button class="act">신고 접수</button><div class="note">접수 → 확인 중 → 경고/이용정지 → 처리 완료</div>')}
-function openAd(){showSheet('📣 광고·판매자 등록','<div class="rowbox"><b>광고</b><br>한 달 300,000원</div><div class="rowbox"><b>물건 판매자</b><br>사업자등록증 확인 · 매월 1일~말일 300,000원</div><div class="note">결제·환불 정책은 실제 서비스 약관과 관련 법규에 맞춰 별도 고지하도록 연결합니다.</div><button class="act">광고 문의</button>')}
-function toggleSave(btn){state.saved=!state.saved;btn.style.color=state.saved?'#ffe07a':'#fff'}function toggleMic(btn){state.mic=!state.mic;btn.textContent=state.mic?'🎤 마이크':'🔇 마이크'}function shareApp(){if(navigator.share)navigator.share({title:'K-Talk LIVE',text:'K-Talk LIVE 방송을 확인해 보세요'}).catch(()=>{});else alert('공유 메뉴를 열었습니다.')}
+var state={joined:false,adult:false,stream:null,raffle:3,saved:false,mic:true,ai:true};
+var screen=document.getElementById('screen');
+var creator=document.getElementById('creator');
+var camera=document.getElementById('camera');
+var sheet=document.getElementById('sheet');
+var sheetTitle=document.getElementById('sheetTitle');
+var sheetBody=document.getElementById('sheetBody');
+
+window.activate=function(name){
+  document.querySelectorAll('[data-tab]').forEach(function(b){b.classList.toggle('active',b.dataset.tab===name);});
+};
+
+window.showSheet=function(title,html){
+  sheetTitle.innerHTML=title;
+  sheetBody.innerHTML=html;
+  sheet.classList.add('show');
+};
+window.closeSheet=function(){sheet.classList.remove('show');};
+
+window.home=function(){
+  document.body.classList.remove('kt-home');
+  screen.innerHTML='<section class="media"><div class="play">▶</div><div class="host-meta"><b>♛ K-Talk</b><span>홈 동영상 보기</span></div><div class="right-actions"><button onclick="needJoin(\'좋아요를 누르려면 가입해 주세요.\')">♡<small>좋아요</small></button><button onclick="openComments()">💬<small>댓글</small></button><button onclick="openGifts()">🎁<small>선물</small></button><button onclick="shareApp()">↗<small>공유</small></button></div></section>';
+};
+
+window.media=function(type){
+  document.body.classList.remove('kt-home');
+  var label=type==='shorts'?'쇼츠':'동영상';
+  screen.innerHTML='<section class="media"><div class="play">▶</div><div class="host-meta"><b>♛ K-Talk</b><span>'+label+' 보기 화면</span></div><div class="right-actions"><button onclick="needJoin(\'좋아요를 누르려면 가입해 주세요.\')">♡<small>좋아요</small></button><button onclick="openComments()">💬<small>댓글</small></button><button onclick="openGifts()">🎁<small>선물</small></button><button onclick="shareApp()">↗<small>공유</small></button></div></section>';
+};
+
+window.friends=function(){
+  document.body.classList.remove('kt-home');
+  screen.innerHTML='<section class="friends-page"><div class="friends-head"><b>방송목록</b></div><div class="friends-list"><div class="friend-row"><div class="friend-info"><b>현재 방송목록</b><span>방송이 시작되면 여기에 표시됩니다.</span></div></div></div></section>';
+};
+
+window.openCreator=function(){
+  creator.classList.add('show');
+};
+window.closeCreator=function(){
+  creator.classList.remove('show');
+  if(state.stream){state.stream.getTracks().forEach(function(t){t.stop();});state.stream=null;if(camera)camera.srcObject=null;}
+};
+window.startBroadcast=function(){
+  alert('라이브 시작 버튼이 정상 작동합니다. 현재는 시험 모드입니다.');
+};
+
+window.prepTap=function(el,name){
+  if(el){el.classList.add('test-active');setTimeout(function(){el.classList.remove('test-active');},180);}
+  alert(name+' 버튼이 정상 작동합니다.');
+};
+window.prepBottomTap=function(el,name){
+  document.querySelectorAll('.prep-bottom span').forEach(function(s){s.classList.remove('on');});
+  if(el)el.classList.add('on');
+  alert(name+' 메뉴가 정상 작동합니다.');
+};
+
+window.needJoin=function(msg){
+  showSheet('가입하기','<div class="note">'+msg+'</div><button class="act social naver" onclick="join(\'네이버\')">네이버로 계속하기</button><button class="act social kakao" onclick="join(\'카카오\')">카카오로 계속하기</button><button class="act social google" onclick="join(\'Google\')">Google로 계속하기</button><div class="note">현재는 화면 작동 확인용 테스트입니다.</div>');
+};
+window.join=function(provider){
+  showSheet('로그인 확인','<div class="rowbox"><b>'+provider+' 로그인 버튼 작동 확인</b></div><button class="act" onclick="closeSheet()">확인</button>');
+};
+window.finishJoin=function(){closeSheet();};
+
+window.openMenu=function(){
+  showSheet('K-Talk 사용방법·혜택','<div class="aux-grid"><button class="aux-card" onclick="openGifts()"><b>🎁 선물·보물상자</b><small>선물 보기</small></button><button class="aux-card" onclick="openCharge()"><b>🌹 장미 충전</b><small>충전 화면</small></button><button class="aux-card" onclick="openSubs()"><b>👑 구독·VIP</b><small>회원 혜택</small></button><button class="aux-card" onclick="openRaffle()"><b>🎯 제비뽑기</b><small>이벤트</small></button><button class="aux-card" onclick="openMessages()"><b>✉ 쪽지</b><small>메시지</small></button><button class="aux-card" onclick="openProfile()"><b>♛ 프로필</b><small>내 정보</small></button></div>');
+};
+
+window.giftSend=function(name,cost){alert(name+' · '+cost+'개 선물을 선택했습니다.');};
+window.openGifts=function(){
+  var gifts=[['🌹','장미','1'],['💐','꽃다발','5'],['🎁','보물상자','10'],['🎡','관람차','50'],['🎆','불꽃놀이','100'],['🏎️','럭셔리 자동차','200'],['🦄','유니콘','300'],['🦁','황금 사자','500'],['🦋','별빛 나비','700'],['✈️','로열 비행기','1,000'],['🏰','골든 캐슬','1,500'],['🏆','챔피언 트로피','2,000'],['🎸','스타 기타','2,500'],['🌌','갤럭시 무대','3,000'],['💎','다이아 왕관','3,500'],['🚀','우주선','4,000']];
+  var html='<div class="gift-grid">'+gifts.map(function(g){return '<button class="gift-big" onclick="giftSend(\''+g[1]+'\',\''+g[2]+'\')"><span>'+g[0]+'</span><b>'+g[1]+'</b><small style="display:block;margin-top:4px;color:#ffd86b;font-weight:900">🌹 '+g[2]+'개</small></button>';}).join('')+'</div>';
+  showSheet('🎁 K-Talk 선물',html);
+};
+window.openTreasure=function(){
+  showSheet('🎁 보물상자','<div class="premium-grid"><button class="premium" onclick="alert(\'보물상자 50 선택\')"><span>🎁</span><b>보물상자 50</b></button><button class="premium" onclick="alert(\'보물상자 100 선택\')"><span>🎁</span><b>보물상자 100</b></button><button class="premium" onclick="alert(\'보물상자 150 선택\')"><span>🎁</span><b>보물상자 150</b></button></div>');
+};
+window.openCharge=function(){
+  showSheet('🌹 장미 충전','<div class="rowbox"><b>장미 1개 = 30원 기준</b></div><div class="rowbox"><b>100개</b> · 서비스 포함 110개</div><div class="rowbox"><b>200개</b> · 서비스 포함 210개</div><div class="rowbox"><b>300개</b> · 서비스 포함 310개</div><div class="rowbox"><b>500개</b> · 서비스 포함 510개</div><div class="rowbox"><b>1,000개</b> · 서비스 포함 1,010개</div><div class="rowbox"><b>2,000개</b> · 서비스 포함 2,010개</div>');
+};
+window.openSubs=function(){showSheet('👑 구독·회원 혜택','<div class="rowbox"><b>구독·VIP 안내</b><br>회원 혜택 화면입니다.</div>');};
+window.openRaffle=function(){showSheet('🎯 제비뽑기','<div class="raffle">꽝 · 1 · 2 · 3 · 4 · 5</div><button class="act" onclick="raffle()">제비뽑기</button>');};
+window.raffle=function(){if(state.raffle<=0){alert('오늘 참여 횟수를 모두 사용했습니다.');return;}state.raffle--;var p=[0,0,1,2,3,4,5];var x=p[Math.floor(Math.random()*p.length)];alert(x?'장미 '+x+'개 당첨!':'꽝입니다.');};
+window.openMessages=function(){showSheet('✉ 쪽지','<div class="rowbox"><b>쪽지 화면</b><br>메시지 기능 버튼이 정상 작동합니다.</div>');};
+window.openComments=function(){showSheet('💬 댓글','<div class="rowbox"><b>댓글 화면</b><br>댓글 버튼이 정상 작동합니다.</div>');};
+window.openProfile=function(){showSheet('♛ 프로필','<div class="profile-pic">K</div><div style="text-align:center"><h3 style="color:#ffe07a">K-Talk</h3></div>');};
+window.openAI=function(){showSheet('🔊 AI 읽기','<div class="rowbox"><b>AI 읽기 보조</b></div>');};
+window.openSong=function(){showSheet('🎵 노래·배경','<div class="rowbox"><b>노래·배경 설정</b></div>');};
+window.report=function(){showSheet('🚩 신고 게시판','<div class="rowbox"><b>신고 접수 화면</b></div>');};
+window.openAd=function(){showSheet('📣 광고·판매자 등록','<div class="rowbox"><b>광고 문의 화면</b></div>');};
+window.toggleSave=function(btn){state.saved=!state.saved;if(btn)btn.style.color=state.saved?'#ffe07a':'#fff';};
+window.toggleMic=function(btn){state.mic=!state.mic;if(btn)btn.textContent=state.mic?'🎤 마이크':'🔇 마이크';};
+window.shareApp=function(){if(navigator.share){navigator.share({title:'K-Talk LIVE',text:'K-Talk LIVE'}).catch(function(){});}else{alert('공유 버튼이 정상 작동합니다.');}};
+
+window.render=function(name){if(name==='home')home();else if(name==='shorts'||name==='video')media(name);else if(name==='profile')openProfile();};
+
+document.addEventListener('click',function(e){
+  var tab=e.target.closest('[data-tab]');
+  if(tab){activate(tab.dataset.tab);render(tab.dataset.tab);return;}
+  var bottom=e.target.closest('[data-bottom]');
+  if(bottom){var k=bottom.dataset.bottom;if(k==='home'){activate('home');home();}else if(k==='friends'){friends();}else if(k==='plus'){openCreator();}else if(k==='help'){openMenu();}else if(k==='profile'){openProfile();}}
+});
+
 home();
