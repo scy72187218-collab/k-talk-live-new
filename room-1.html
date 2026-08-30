@@ -6,229 +6,241 @@
 <title>K-Talk LIVE · 1번 1인 방송</title>
 <style>
 :root{
-  --bg:#050507;--panel:rgba(12,12,18,.76);--line:rgba(255,255,255,.09);
-  --gold:#ffd96d;--pink:#ff3f8f;--red:#ff375f;--blue:#43aaff;--text:#fff;--muted:#c0c0cb;
+  --gold:#ffd86e;--pink:#ff4b94;--pink2:#ff2f66;--purple:#8d5cff;
+  --line:rgba(255,255,255,.12);--soft:rgba(5,5,10,.55)
 }
 *{box-sizing:border-box}
-html,body{margin:0;height:100%;overflow:hidden;background:#000;color:var(--text);font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif}
+html,body{margin:0;height:100%;overflow:hidden;background:#000;color:#fff;font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif}
 button,input{font:inherit}
-.room1{
-  width:min(520px,100%);height:100dvh;margin:auto;position:relative;overflow:hidden;
+body{display:grid;place-items:center}
+.room{
+  width:min(520px,100%);height:100dvh;position:relative;overflow:hidden;
   background:
-    radial-gradient(circle at 20% 15%,rgba(255,61,140,.14),transparent 28%),
-    radial-gradient(circle at 82% 25%,rgba(72,167,255,.10),transparent 30%),
-    linear-gradient(180deg,#17131c,#09090d 55%,#040406);
+    radial-gradient(circle at 18% 18%,rgba(150,74,255,.22),transparent 30%),
+    radial-gradient(circle at 84% 24%,rgba(255,128,74,.18),transparent 28%),
+    linear-gradient(160deg,#251a2d,#12131d 56%,#07070b 100%);
 }
-.video{
-  position:absolute;inset:0;
-  background:
-    radial-gradient(circle at 52% 38%,rgba(255,213,165,.16),transparent 20%),
-    radial-gradient(circle at 25% 28%,rgba(167,89,255,.22),transparent 30%),
-    radial-gradient(circle at 78% 30%,rgba(255,139,74,.16),transparent 28%),
-    linear-gradient(160deg,#2a2031,#16131c 58%,#09090c);
+.room:after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(0,0,0,.03),rgba(0,0,0,.08) 52%,rgba(0,0,0,.48) 100%)
 }
-.video:before{
-  content:"호스트 영상 영역";position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);
-  color:rgba(255,255,255,.18);font-weight:800;letter-spacing:-.3px;font-size:22px
-}
-.topbar{
-  position:absolute;left:14px;right:14px;top:max(14px,env(safe-area-inset-top));
-  display:flex;align-items:center;gap:9px;z-index:5;
+
+/* top */
+.top{
+  position:absolute;z-index:5;left:18px;right:18px;top:max(16px,env(safe-area-inset-top));
+  display:flex;align-items:center;gap:11px
 }
 .avatar{
-  width:46px;height:46px;border-radius:50%;display:grid;place-items:center;
-  background:linear-gradient(145deg,#33323d,#17171d);border:2px solid rgba(255,255,255,.7);
-  color:#fff;font-weight:900;
+  width:58px;height:58px;border-radius:50%;display:grid;place-items:center;
+  border:2px solid #d8d8dc;background:linear-gradient(145deg,#383840,#17171b);
+  font-size:20px;font-weight:950
 }
-.host-title{min-width:0}
-.host-title b{font-size:13px}
-.host-title small{display:block;color:#ddd;font-size:10px;margin-top:2px}
-.crown{color:var(--gold);margin-left:2px}
-.onair{padding:5px 9px;border-radius:999px;background:linear-gradient(135deg,#ff315f,#ff4c85);font-size:10px;font-weight:900;box-shadow:0 0 16px rgba(255,49,95,.32)}
-.views{padding:5px 8px;border-radius:999px;background:rgba(0,0,0,.42);font-size:10px}
+.host{min-width:0}
+.host b{display:block;font-size:18px;line-height:1.05;letter-spacing:-.4px}
+.host small{display:block;margin-top:6px;font-size:13px;color:#eee}
+.crown{color:var(--gold);margin-left:4px}
+.onair{
+  margin-left:auto;padding:10px 14px;border-radius:21px;background:linear-gradient(135deg,#ff365e,#ff4f96);
+  font-size:14px;font-weight:950;line-height:1.05;text-align:center;box-shadow:0 0 22px rgba(255,54,94,.22)
+}
+.views{
+  padding:10px 14px;border-radius:21px;background:rgba(4,4,9,.58);font-size:14px;white-space:nowrap
+}
 .close{
-  margin-left:auto;width:36px;height:36px;border:0;border-radius:50%;background:rgba(0,0,0,.36);color:#fff;font-size:22px
+  width:52px;height:52px;border:0;border-radius:50%;background:rgba(5,5,10,.55);
+  color:#fff;font-size:29px;line-height:1
 }
-.rank{
-  position:absolute;left:15px;top:75px;z-index:5;padding:6px 10px;border-radius:999px;background:rgba(0,0,0,.40);
-  font-size:10px;backdrop-filter:blur(8px)
+.rank,.time{
+  position:absolute;z-index:5;top:92px;padding:8px 12px;border-radius:999px;
+  background:rgba(5,5,10,.50);backdrop-filter:blur(10px);font-size:12px
 }
-.time{
-  position:absolute;right:14px;top:75px;z-index:5;padding:6px 10px;border-radius:999px;background:rgba(0,0,0,.40);
-  font-size:10px;backdrop-filter:blur(8px)
-}
+.rank{left:18px}.time{right:18px}
+
+/* side */
 .side{
-  position:absolute;right:13px;bottom:270px;z-index:5;display:flex;flex-direction:column;gap:9px
+  position:absolute;z-index:6;right:18px;bottom:340px;display:flex;flex-direction:column;gap:14px
 }
 .side button{
-  width:52px;height:52px;border-radius:50%;border:1px solid rgba(255,255,255,.10);
-  background:rgba(10,10,16,.48);backdrop-filter:blur(8px);color:#fff;font-size:22px
+  width:58px;height:58px;border-radius:50%;border:1px solid rgba(255,255,255,.09);
+  background:rgba(7,7,12,.48);color:#fff;font-size:25px;backdrop-filter:blur(10px)
 }
-.side small{display:block;font-size:8px;margin-top:1px;color:#ddd}
-.comments{
-  position:absolute;left:15px;right:85px;bottom:335px;z-index:5;display:grid;gap:6px
+.side small{display:block;font-size:9px;color:#ddd;margin-top:1px}
+
+/* chat */
+.chat{
+  position:absolute;z-index:6;left:18px;right:95px;bottom:365px;display:grid;gap:7px
 }
-.comment{
-  width:max-content;max-width:100%;padding:6px 9px;border-radius:999px;background:rgba(0,0,0,.38);backdrop-filter:blur(8px);
-  font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+.msg{
+  width:max-content;max-width:100%;padding:7px 11px;border-radius:999px;
+  background:rgba(5,5,10,.45);backdrop-filter:blur(9px);font-size:11px
 }
-.comment b{color:#fff}
-.gift-alert{
-  position:absolute;left:15px;right:85px;bottom:295px;z-index:5;padding:8px 10px;border-radius:12px;
-  border:1px solid rgba(255,74,145,.34);background:rgba(26,10,18,.52);color:#ff86b8;font-size:10px;font-weight:800
+.msg b{margin-right:10px}
+.alert{
+  position:absolute;z-index:6;left:18px;right:94px;bottom:315px;
+  padding:10px 12px;border-radius:14px;border:1px solid rgba(255,74,145,.36);
+  background:rgba(13,8,15,.58);color:#ff75ae;font-size:11px;font-weight:900
 }
-.message{
-  position:absolute;left:15px;right:72px;bottom:248px;z-index:5;display:flex;align-items:center;gap:8px;
-  border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:7px 10px;background:rgba(0,0,0,.30);backdrop-filter:blur(8px)
+.messagebar{
+  position:absolute;z-index:6;left:18px;right:94px;bottom:263px;
+  display:flex;align-items:center;gap:8px;padding:9px 11px;border:1px solid rgba(255,255,255,.28);
+  border-radius:999px;background:rgba(5,5,9,.34);backdrop-filter:blur(9px)
 }
-.message input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:#fff;font-size:11px}
-.message button{border:0;background:none;color:#fff;font-size:19px}
-.gift-dock{
-  position:absolute;left:14px;right:14px;bottom:132px;z-index:5;display:grid;grid-template-columns:repeat(4,1fr);gap:7px
+.messagebar input{flex:1;min-width:0;border:0;outline:0;background:none;color:#fff;font-size:12px}
+.messagebar button{border:0;background:none;color:#fff;font-size:21px}
+
+/* gifts */
+.giftbox{
+  position:absolute;z-index:6;left:14px;right:14px;bottom:118px;padding:9px;
+  border:1px solid rgba(255,255,255,.13);border-radius:18px;background:rgba(7,7,12,.34);
+  backdrop-filter:blur(8px)
 }
+.gifts{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
 .gift{
-  border:1px solid rgba(255,255,255,.10);border-radius:14px;background:rgba(8,8,13,.52);backdrop-filter:blur(9px);
-  color:#fff;padding:9px 4px 8px;text-align:center
+  min-height:118px;border:1px solid rgba(255,255,255,.12);border-radius:14px;
+  background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(0,0,0,.12));
+  color:#fff;padding:7px 4px;text-align:center
 }
-.gift-art{display:block;width:100%;height:74px;margin:0 auto;filter:drop-shadow(0 5px 8px rgba(0,0,0,.35))}
-.gift b{display:block;margin-top:5px;font-size:10px}
-.gift small{display:block;color:#ff79b3;font-size:8px;margin-top:2px}
-.reward-strip{
-  position:absolute;left:14px;right:14px;bottom:72px;z-index:5;display:grid;grid-template-columns:.86fr repeat(5,1fr);gap:4px;overflow:hidden;
-  padding:5px;border:1px solid rgba(255,255,255,.08);border-radius:13px;background:rgba(5,5,9,.42)
+.gift-art{width:100%;height:76px;display:block;filter:drop-shadow(0 5px 7px rgba(0,0,0,.35))}
+.gift b{display:block;font-size:11px;margin-top:3px;white-space:nowrap}
+.gift small{display:block;font-size:8px;color:#ff69aa;margin-top:2px}
+.rewards{
+  margin-top:8px;display:grid;grid-template-columns:.78fr repeat(5,1fr);gap:4px;
+  padding:5px;border:1px solid rgba(255,255,255,.10);border-radius:12px;background:rgba(4,4,8,.28)
 }
 .reward{
-  min-width:0;border:1px solid rgba(255,255,255,.09);border-radius:10px;background:rgba(5,5,9,.56);color:#fff;padding:6px 3px;text-align:center
+  min-width:0;min-height:61px;border:1px solid rgba(255,255,255,.08);border-radius:10px;
+  background:rgba(0,0,0,.18);display:grid;place-items:center;text-align:center;padding:4px 2px
 }
-.reward.label{display:grid;place-items:center;border-color:transparent;background:transparent;color:#ff6aa9;font-weight:900}
-.reward b{display:block;font-size:7.5px;white-space:nowrap}.reward small{display:block;color:#aaa;font-size:6.5px;margin-top:2px}.reward .mini-rose{font-size:13px;line-height:1.1}
-.start-live{
-  position:absolute;left:14px;right:14px;bottom:12px;z-index:8;border:0;border-radius:16px;
-  padding:14px 10px;background:linear-gradient(135deg,#ff315f,#ff3f8f 54%,#8a5cff);
-  color:#fff;font-size:16px;font-weight:950;letter-spacing:-.3px;
-  box-shadow:0 8px 26px rgba(255,49,95,.28),0 0 18px rgba(138,92,255,.15)
+.reward.label{border-color:transparent;background:transparent;color:#ff68aa;font-weight:950;font-size:11px}
+.reward b{font-size:8px;white-space:nowrap}.reward span{font-size:14px;line-height:1}.reward small{font-size:6.5px;color:#bdbdc6}
+.start{
+  position:absolute;z-index:7;left:18px;right:18px;bottom:max(14px,env(safe-area-inset-bottom));
+  border:0;border-radius:22px;padding:16px 10px;
+  background:linear-gradient(100deg,#ff2d5f,#ff4f96 55%,#8d5cff);
+  color:#fff;font-weight:950;font-size:19px;letter-spacing:-.3px;
+  box-shadow:0 10px 30px rgba(255,45,95,.28)
 }
-.start-live.started{background:linear-gradient(135deg,#2a2a33,#17171d);box-shadow:none;color:#ffd96d}
+.start.active{background:linear-gradient(100deg,#2f3038,#17181e);color:#ffe071;box-shadow:none}
+
+/* svg defs hidden */
+svg.defs{position:absolute;width:0;height:0;overflow:hidden}
+
 @media(max-height:760px){
-  .side{bottom:245px}.comments{bottom:305px}.gift-alert{bottom:269px}.message{bottom:224px}.gift-dock{bottom:120px}.reward-strip{bottom:66px}
-  .gift{padding:7px 3px 6px}.gift span{font-size:27px}.start-live{padding:12px 8px}
+  .rank,.time{top:82px}.side{bottom:315px}.chat{bottom:340px}.alert{bottom:292px}.messagebar{bottom:244px}
+  .giftbox{bottom:106px}.gift{min-height:105px}.gift-art{height:66px}.reward{min-height:54px}
+  .start{padding:14px 10px}
 }
 </style>
 </head>
 <body>
-<main class="room1">
-  <svg width="0" height="0" style="position:absolute">
-    <defs>
-      <linearGradient id="petalRed" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff2e45"/><stop offset=".55" stop-color="#c80725"/><stop offset="1" stop-color="#7f071d"/></linearGradient>
-      <linearGradient id="leafGreen" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#73c86f"/><stop offset="1" stop-color="#1c6b34"/></linearGradient>
-      <linearGradient id="wrapPink" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffd1e7"/><stop offset="1" stop-color="#e66aa4"/></linearGradient>
-      <linearGradient id="giftPink" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff77c4"/><stop offset=".55" stop-color="#e51f91"/><stop offset="1" stop-color="#9a0c72"/></linearGradient>
-    </defs>
-    <symbol id="roseOne" viewBox="0 0 120 120">
-      <path d="M61 53 C61 72 59 92 55 112" fill="none" stroke="#3e8c42" stroke-width="5" stroke-linecap="round"/>
-      <path d="M57 78 C40 65 31 70 31 84 C43 88 52 85 59 80" fill="url(#leafGreen)"/>
-      <path d="M58 92 C72 80 83 82 86 94 C76 101 66 100 57 96" fill="url(#leafGreen)"/>
-      <ellipse cx="60" cy="44" rx="24" ry="18" fill="url(#petalRed)"/>
-      <ellipse cx="45" cy="40" rx="15" ry="14" transform="rotate(-28 45 40)" fill="#e51d36"/>
-      <ellipse cx="74" cy="38" rx="16" ry="14" transform="rotate(25 74 38)" fill="#f52d43"/>
-      <ellipse cx="60" cy="31" rx="15" ry="13" fill="#ff4052"/>
-      <ellipse cx="60" cy="43" rx="11" ry="9" fill="#8c061c"/>
-      <path d="M51 34 Q60 44 69 34 Q64 51 60 53 Q56 50 51 34" fill="#b30922"/>
-    </symbol>
-    <symbol id="rose50" viewBox="0 0 140 120">
-      <g>
-        <use href="#roseOne" x="-6" y="-17" width="84" height="84"/>
-        <use href="#roseOne" x="28" y="-19" width="84" height="84"/>
-        <use href="#roseOne" x="60" y="-14" width="80" height="80"/>
-        <use href="#roseOne" x="10" y="4" width="80" height="80"/>
-        <use href="#roseOne" x="47" y="5" width="82" height="82"/>
-      </g>
-      <path d="M39 65 L69 116 L100 65 Z" fill="#2e7d3c" opacity=".85"/>
-      <path d="M48 77 Q70 88 92 77 L86 109 Q70 119 54 109 Z" fill="#b2192d"/>
-      <path d="M69 87 C51 76 39 86 50 98 C60 99 66 94 69 89" fill="#f03750"/>
-      <path d="M70 87 C89 76 102 86 90 99 C80 99 74 94 70 89" fill="#dc1634"/>
-    </symbol>
-    <symbol id="rose100" viewBox="0 0 150 120">
-      <path d="M27 63 Q75 42 123 63 L106 116 L75 101 L44 116 Z" fill="url(#wrapPink)" opacity=".95"/>
-      <g>
-        <use href="#roseOne" x="-3" y="-24" width="74" height="74"/>
-        <use href="#roseOne" x="23" y="-29" width="74" height="74"/>
-        <use href="#roseOne" x="50" y="-30" width="74" height="74"/>
-        <use href="#roseOne" x="78" y="-25" width="74" height="74"/>
-        <use href="#roseOne" x="10" y="-6" width="74" height="74"/>
-        <use href="#roseOne" x="38" y="-8" width="74" height="74"/>
-        <use href="#roseOne" x="67" y="-5" width="74" height="74"/>
-      </g>
-      <path d="M75 82 C54 70 43 83 55 95 C65 95 71 90 75 85" fill="#ef3659"/>
-      <path d="M76 82 C97 69 108 83 95 96 C85 96 80 90 76 85" fill="#d91a43"/>
-    </symbol>
-    <symbol id="giftBox" viewBox="0 0 120 120">
-      <rect x="24" y="45" width="72" height="62" rx="8" fill="url(#giftPink)"/>
-      <rect x="17" y="36" width="86" height="22" rx="7" fill="#ff67b9"/>
-      <rect x="54" y="36" width="14" height="71" fill="#ffb2dc"/>
-      <path d="M61 36 C45 16 25 17 28 31 C31 42 48 42 61 36 Z" fill="#ff9dd2"/>
-      <path d="M61 36 C77 16 98 18 95 32 C91 42 74 42 61 36 Z" fill="#ff8acb"/>
-      <circle cx="61" cy="36" r="8" fill="#ffd1e9"/>
-    </symbol>
-  </svg>
-  <section class="video"></section>
+<main class="room">
+<svg class="defs" aria-hidden="true">
+<defs>
+  <linearGradient id="redPetal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff4658"/><stop offset=".55" stop-color="#d2102f"/><stop offset="1" stop-color="#7d071c"/></linearGradient>
+  <linearGradient id="greenLeaf" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#80d477"/><stop offset="1" stop-color="#216b38"/></linearGradient>
+  <linearGradient id="pinkWrap" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffd2e9"/><stop offset="1" stop-color="#e96fa9"/></linearGradient>
+  <linearGradient id="pinkGift" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff77c9"/><stop offset=".55" stop-color="#e52398"/><stop offset="1" stop-color="#9d0b74"/></linearGradient>
+</defs>
+<symbol id="roseOne" viewBox="0 0 120 120">
+  <path d="M60 52 C60 72 59 94 55 113" fill="none" stroke="#3c8942" stroke-width="5" stroke-linecap="round"/>
+  <path d="M57 77 C41 64 31 70 31 84 C43 89 52 85 58 80" fill="url(#greenLeaf)"/>
+  <path d="M57 94 C72 80 84 82 86 95 C76 102 66 100 57 97" fill="url(#greenLeaf)"/>
+  <ellipse cx="60" cy="43" rx="24" ry="18" fill="url(#redPetal)"/>
+  <ellipse cx="45" cy="40" rx="15" ry="14" transform="rotate(-28 45 40)" fill="#e51d36"/>
+  <ellipse cx="74" cy="38" rx="16" ry="14" transform="rotate(25 74 38)" fill="#f52d43"/>
+  <ellipse cx="60" cy="30" rx="15" ry="13" fill="#ff4052"/>
+  <ellipse cx="60" cy="43" rx="11" ry="9" fill="#8c061c"/>
+  <path d="M51 34 Q60 44 69 34 Q64 51 60 53 Q56 50 51 34" fill="#b30922"/>
+</symbol>
+<symbol id="rose50" viewBox="0 0 140 120">
+  <use href="#roseOne" x="-6" y="-19" width="84" height="84"/>
+  <use href="#roseOne" x="27" y="-20" width="84" height="84"/>
+  <use href="#roseOne" x="58" y="-17" width="82" height="82"/>
+  <use href="#roseOne" x="9" y="3" width="80" height="80"/>
+  <use href="#roseOne" x="46" y="4" width="82" height="82"/>
+  <path d="M39 65 L69 116 L100 65 Z" fill="#2e7d3c" opacity=".88"/>
+  <path d="M48 77 Q70 88 92 77 L86 109 Q70 119 54 109 Z" fill="#b2192d"/>
+  <path d="M69 87 C51 76 39 86 50 98 C60 99 66 94 69 89" fill="#f03750"/>
+  <path d="M70 87 C89 76 102 86 90 99 C80 99 74 94 70 89" fill="#dc1634"/>
+</symbol>
+<symbol id="rose100" viewBox="0 0 150 120">
+  <path d="M27 63 Q75 42 123 63 L106 116 L75 101 L44 116 Z" fill="url(#pinkWrap)"/>
+  <use href="#roseOne" x="-3" y="-24" width="74" height="74"/>
+  <use href="#roseOne" x="23" y="-29" width="74" height="74"/>
+  <use href="#roseOne" x="50" y="-30" width="74" height="74"/>
+  <use href="#roseOne" x="78" y="-25" width="74" height="74"/>
+  <use href="#roseOne" x="10" y="-6" width="74" height="74"/>
+  <use href="#roseOne" x="38" y="-8" width="74" height="74"/>
+  <use href="#roseOne" x="67" y="-5" width="74" height="74"/>
+  <path d="M75 82 C54 70 43 83 55 95 C65 95 71 90 75 85" fill="#ef3659"/>
+  <path d="M76 82 C97 69 108 83 95 96 C85 96 80 90 76 85" fill="#d91a43"/>
+</symbol>
+<symbol id="giftBox" viewBox="0 0 120 120">
+  <rect x="24" y="45" width="72" height="62" rx="8" fill="url(#pinkGift)"/>
+  <rect x="17" y="36" width="86" height="22" rx="7" fill="#ff67b9"/>
+  <rect x="54" y="36" width="14" height="71" fill="#ffb2dc"/>
+  <path d="M61 36 C45 16 25 17 28 31 C31 42 48 42 61 36 Z" fill="#ff9dd2"/>
+  <path d="M61 36 C77 16 98 18 95 32 C91 42 74 42 61 36 Z" fill="#ff8acb"/>
+  <circle cx="61" cy="36" r="8" fill="#ffd1e9"/>
+</symbol>
+</svg>
 
-  <div class="topbar">
-    <div class="avatar">태</div>
-    <div class="host-title">
-      <b>K-Talk LIVE <span class="crown">♛</span></b>
-      <small>1인 방송</small>
-    </div>
-    <span class="onair">ON AIR</span>
-    <span class="views">◉ 1,234</span>
-    <button class="close">×</button>
-  </div>
+<div class="top">
+  <div class="avatar">태</div>
+  <div class="host"><b>K-Talk LIVE <span class="crown">♛</span></b><small>1인 방송</small></div>
+  <div class="onair">ON<br>AIR</div>
+  <div class="views">◉ 1,234</div>
+  <button class="close">×</button>
+</div>
 
-  <div class="rank">🔥 실시간 랭킹 12위</div>
-  <div class="time">방송 시간 00:32:45</div>
+<div class="rank">🔥 실시간 랭킹 12위</div>
+<div class="time">방송 시간 00:32:45</div>
 
-  <div class="side">
-    <button>♥<small>12.5K</small></button>
-    <button>💬<small>356</small></button>
-    <button>↗<small>128</small></button>
-    <button>🎁</button>
-  </div>
+<div class="side">
+  <button>♥<small>12.5K</small></button>
+  <button>💬<small>356</small></button>
+  <button>↗<small>128</small></button>
+  <button>🎁</button>
+</div>
 
-  <div class="comments">
-    <div class="comment"><b>민수</b>　안녕하세요 💕</div>
-    <div class="comment"><b>지호</b>　오늘 노래 너무 좋아요!</div>
-    <div class="comment"><b>사랑해</b>　응원합니다 👍</div>
-  </div>
+<div class="chat">
+  <div class="msg"><b>민수</b>안녕하세요 💕</div>
+  <div class="msg"><b>지호</b>오늘 노래 너무 좋아요!</div>
+  <div class="msg"><b>사랑해</b>응원합니다 👍</div>
+</div>
 
-  <div class="gift-alert">🎁 K-Talk에서 장미 3,000개를 선물했습니다!</div>
+<div class="alert">🎁 K-Talk에서 장미 3,000개를 선물했습니다!</div>
 
-  <div class="message">
-    <input placeholder="메시지 입력...">
-    <button>☺</button>
-  </div>
+<div class="messagebar">
+  <input placeholder="메시지 입력...">
+  <button>☺</button>
+</div>
 
-  <div class="gift-dock">
+<section class="giftbox">
+  <div class="gifts">
     <button class="gift"><svg class="gift-art" viewBox="0 0 120 120"><use href="#roseOne"/></svg><b>장미 1개</b></button>
     <button class="gift"><svg class="gift-art" viewBox="0 0 140 120"><use href="#rose50"/></svg><b>장미 50개</b></button>
     <button class="gift"><svg class="gift-art" viewBox="0 0 150 120"><use href="#rose100"/></svg><b>장미 100개</b></button>
     <button class="gift"><svg class="gift-art" viewBox="0 0 120 120"><use href="#giftBox"/></svg><b>선물 상자</b><small>큰 선물 보기</small></button>
   </div>
 
-  <div class="reward-strip">
-    <div class="reward label"><b>좋아요<br>보상</b></div>
-    <div class="reward"><b>♥ 3,000</b><span class="mini-rose">🌹</span><small>지급 완료</small></div>
-    <div class="reward"><b>♥ 6,000</b><span class="mini-rose">🌹</span><small>지급 완료</small></div>
-    <div class="reward"><b>♥ 9,000</b><span class="mini-rose">🌹</span><small>지급 완료</small></div>
-    <div class="reward"><b>♥ 12,000</b><span class="mini-rose">🌹</span><small>지급 완료</small></div>
-    <div class="reward"><b>♥ 15,000</b><span class="mini-rose">🌹</span><small>지급 완료</small></div>
+  <div class="rewards">
+    <div class="reward label">좋아요<br>보상</div>
+    <div class="reward"><b>♥ 3,000</b><span>🌹</span><small>지급 완료</small></div>
+    <div class="reward"><b>♥ 6,000</b><span>🌹</span><small>지급 완료</small></div>
+    <div class="reward"><b>♥ 9,000</b><span>🌹</span><small>지급 완료</small></div>
+    <div class="reward"><b>♥ 12,000</b><span>🌹</span><small>지급 완료</small></div>
+    <div class="reward"><b>♥ 15,000</b><span>🌹</span><small>지급 완료</small></div>
   </div>
+</section>
 
-  <button class="start-live" id="startLive" onclick="startRoom()">● 방송 시작</button>
+<button class="start" id="startBtn" onclick="startBroadcast()">● 방송 시작</button>
 </main>
+
 <script>
-function startRoom(){
-  const b=document.getElementById('startLive');
-  b.classList.add('started');
+function startBroadcast(){
+  const b=document.getElementById('startBtn');
+  b.classList.add('active');
   b.textContent='● 방송 중입니다';
 }
 </script>
