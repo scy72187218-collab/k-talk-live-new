@@ -13,15 +13,13 @@
 #screen:has(.refSolo) .refStage{border-radius:0!important}
 .refGift{background:#09090ddd!important;border:1px solid #ffffff32!important;border-radius:16px!important;box-shadow:inset 0 0 20px #ffffff08,0 5px 16px #0008!important}
 .refGift strong{display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;height:58px!important;font-size:0!important}
-.refGift strong img{max-width:78px!important;max-height:58px!important;object-fit:contain!important;filter:drop-shadow(0 4px 5px #0008)!important}
-.refGift b{font-size:11px!important;color:#fff!important}
-.refGift em{font-size:9px!important;color:#ff5b99!important}
+.giftPhoto{display:block;width:78px;height:58px;background:url('gifts-reference.jpg') no-repeat;background-size:400% 100%;border-radius:8px}
+.giftPhoto0{background-position:0% 50%}.giftPhoto1{background-position:33.333% 50%}.giftPhoto2{background-position:66.666% 50%}.giftPhoto3{background-position:100% 50%}
+.refGift b{font-size:11px!important;color:#fff!important}.refGift em{font-size:9px!important;color:#ff5b99!important}
 .refReward{min-height:74px!important;grid-template-columns:74px repeat(5,1fr)!important;background:#08080be8!important;border:1px solid #ffffff26!important;border-radius:16px!important;padding:7px!important}
 .refReward>span{font-size:11px!important;line-height:1.15!important;color:#ff5f99!important}
 .refReward i{display:flex!important;flex-direction:column!important;gap:2px!important;font-size:8px!important;border-left:1px solid #ffffff20!important;padding:2px 0!important}
-.refReward i b{font-size:10px!important;color:#fff!important}
-.refReward i img{width:24px!important;height:28px!important;object-fit:contain!important}
-.refReward i .rewardText{font-size:8px!important;font-weight:700!important;color:#ddd!important;white-space:nowrap!important}
+.refReward i b{font-size:10px!important;color:#fff!important}.refReward i .giftPhoto{width:24px;height:28px;background-size:400% 100%}.refReward i .rewardText{font-size:8px!important;font-weight:700!important;color:#ddd!important;white-space:nowrap!important}
 </style>
 </head>
 <body>
@@ -51,20 +49,12 @@
   function applyApprovedGifts(){
     const gifts=document.querySelectorAll('.refGift');
     if(gifts.length>=4){
-      const art=['rose-single.svg','rose-bouquet-50.svg','rose-bouquet-100.svg','gift-box.svg'];
       const labels=['장미 1송이','장미 50송이','장미 100송이','선물 상자'];
-      gifts.forEach((g,i)=>{
-        if(i<4){
-          const strong=g.querySelector('strong'); if(strong) strong.innerHTML='<img src="'+art[i]+'" alt="">';
-          const b=g.querySelector('b'); if(b) b.textContent=labels[i];
-        }
-      });
+      gifts.forEach((g,i)=>{if(i<4){const strong=g.querySelector('strong');if(strong)strong.innerHTML='<span class="giftPhoto giftPhoto'+i+'"></span>';const b=g.querySelector('b');if(b)b.textContent=labels[i];}});
     }
     const rewards=document.querySelectorAll('.refReward i');
     const likes=['♥ 3,000','♥ 6,000','♥ 9,000','♥ 12,000','♥ 15,000'];
-    rewards.forEach((el,i)=>{
-      if(i<5) el.innerHTML='<b>'+likes[i]+'</b><img src="rose-single.svg" alt=""><span class="rewardText">지급 완료</span>';
-    });
+    rewards.forEach((el,i)=>{if(i<5)el.innerHTML='<b>'+likes[i]+'</b><span class="giftPhoto giftPhoto0"></span><span class="rewardText">지급 완료</span>';});
   }
   applyApprovedGifts();
   new MutationObserver(applyApprovedGifts).observe(document.getElementById('screen'),{childList:true,subtree:true});
