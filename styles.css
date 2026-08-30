@@ -68,3 +68,7 @@ body.kt-home .kt-bottom button{font-size:8px!important}
 body.kt-home .kt-bottom b{font-size:17px!important;margin-bottom:1px!important}
 body.kt-home .kt-bottom .livebtn b{width:36px!important;height:36px!important;margin:-17px auto 1px!important;border-radius:12px!important;font-size:15px!important}
 @media(max-height:700px){body.kt-home .kt-room{min-height:94px!important}body.kt-home .kt-room small{display:none!important}body.kt-home .kt-short{min-height:48px!important}body.kt-home .kt-wide button{min-height:36px!important}body.kt-home .kt-notice-copy span{display:none!important}}
+
+/* 가운데 라이브룸: 동그란 + 버튼 */
+body.kt-home .kt-bottom .livebtn b{border-radius:50%!important;font-size:0!important}
+body.kt-home .kt-bottom .livebtn b::before{content:'＋';font-size:25px!important;font-weight:400!important;line-height:1!important}
