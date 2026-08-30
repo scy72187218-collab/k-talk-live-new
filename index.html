@@ -21,6 +21,10 @@
 .refReward>span{font-size:11px!important;line-height:1.15!important;color:#ff5f99!important}
 .refReward i{display:flex!important;flex-direction:column!important;gap:2px!important;font-size:8px!important;border-left:1px solid #ffffff20!important;padding:2px 0!important}
 .refReward i b{font-size:10px!important;color:#fff!important}.refReward i .giftPhoto{width:24px;height:28px;background-size:400% 100%}.refReward i .rewardText{font-size:8px!important;font-weight:700!important;color:#ddd!important;white-space:nowrap!important}
+.creator .shade{pointer-events:none!important}
+.creator-top,.creator-tools,.creator-bottom{z-index:3!important;pointer-events:auto!important}
+.creator button,.creator .modes span,.creator .fx,.creator-foot span{pointer-events:auto!important;touch-action:manipulation!important}
+.creator .test-active{outline:2px solid #fff!important;transform:scale(.96)}
 </style>
 </head>
 <body>
@@ -39,7 +43,7 @@
 </div>
 <div id="creator" class="creator">
   <video id="camera" autoplay playsinline muted></video><div class="shade"></div>
-  <div class="creator-top"><button class="circle" onclick="closeCreator()">×</button><button class="sound">♪ 사운드 추가</button><button class="circle">↻</button></div>
+  <div class="creator-top"><button class="circle" onclick="closeCreator()">×</button><button class="sound">♪ 사운드 추가</button><button class="circle creator-rotate">↻</button></div>
   <div class="creator-tools"><button>✦</button><button>◔</button><button>▦</button><button>☺</button></div>
   <div class="creator-bottom"><div class="modes"><span>10분</span><span>60초</span><span>15초</span><span class="on">라이브</span></div><div class="recordrow"><div class="fx">✨</div><button class="record" onclick="startBroadcast()"></button><div class="fx">🎭</div></div><div class="creator-foot"><span>게시</span><span>창작하기</span><span class="on">라이브</span></div></div>
 </div>
@@ -48,9 +52,22 @@
 <script>
 (function(){
   window.startBroadcast=function(){
-    closeCreator();
-    home();
+    alert('시험용 방송 버튼이 정상 작동합니다. 실제 외부 송출은 하지 않습니다.');
   };
+
+  function tapFeedback(el,msg){
+    el.classList.add('test-active');
+    setTimeout(()=>el.classList.remove('test-active'),180);
+    if(msg) alert(msg);
+  }
+
+  document.querySelector('.sound')?.addEventListener('click',function(){tapFeedback(this,'사운드 추가 버튼 정상 작동');});
+  document.querySelector('.creator-rotate')?.addEventListener('click',function(){tapFeedback(this,'카메라 전환 버튼 정상 작동');});
+  document.querySelectorAll('.creator-tools button').forEach((btn,i)=>btn.addEventListener('click',function(){tapFeedback(this,['효과 버튼 정상 작동','타이머 버튼 정상 작동','화면 설정 버튼 정상 작동','필터 버튼 정상 작동'][i]);}));
+  document.querySelectorAll('.modes span').forEach(el=>el.addEventListener('click',function(){document.querySelectorAll('.modes span').forEach(x=>x.classList.remove('on'));this.classList.add('on');tapFeedback(this);}));
+  document.querySelectorAll('.fx').forEach((el,i)=>el.addEventListener('click',function(){tapFeedback(this,i===0?'효과 버튼 정상 작동':'필터 버튼 정상 작동');}));
+  document.querySelectorAll('.creator-foot span').forEach(el=>el.addEventListener('click',function(){document.querySelectorAll('.creator-foot span').forEach(x=>x.classList.remove('on'));this.classList.add('on');tapFeedback(this);}));
+
   function applyApprovedGifts(){
     const gifts=document.querySelectorAll('.refGift');
     if(gifts.length>=4){
