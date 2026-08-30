@@ -47,6 +47,10 @@
 <script src="app.js"></script>
 <script>
 (function(){
+  window.startBroadcast=function(){
+    closeCreator();
+    home();
+  };
   function applyApprovedGifts(){
     const gifts=document.querySelectorAll('.refGift');
     if(gifts.length>=4){
