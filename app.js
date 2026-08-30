@@ -32,3 +32,31 @@ function report(){showSheet('🚩 회사 관리 신고 게시판','<input class=
 function openAd(){showSheet('📣 광고·판매자 등록','<div class="rowbox"><b>광고</b><br>한 달 300,000원</div><div class="rowbox"><b>물건 판매자</b><br>사업자등록증 확인 · 매월 1일~말일 300,000원</div><div class="note">결제·환불 정책은 실제 서비스 약관과 관련 법규에 맞춰 별도 고지하도록 연결합니다.</div><button class="act">광고 문의</button>')}
 function toggleSave(btn){state.saved=!state.saved;btn.style.color=state.saved?'#ffe07a':'#fff'}function toggleMic(btn){state.mic=!state.mic;btn.textContent=state.mic?'🎤 마이크':'🔇 마이크'}function shareApp(){if(navigator.share)navigator.share({title:'K-Talk LIVE',text:'K-Talk LIVE 방송을 확인해 보세요'}).catch(()=>{});else alert('공유 메뉴를 열었습니다.')}
 home();
+
+setTimeout(()=>{
+  function videoFeed(label='추천 동영상'){
+    document.body.classList.remove('kt-home');
+    screen.innerHTML=`<style>
+      #screen{padding:0!important;height:calc(100dvh - 184px)!important;overflow:hidden!important;background:#000!important}
+      .ktFeed{position:relative;width:100%;height:100%;overflow:hidden;background:#000;color:#fff}
+      .ktFeed video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#08080b}
+      .ktFeedShade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.08),transparent 42%,rgba(0,0,0,.7) 100%);pointer-events:none}
+      .ktFeedLabel{position:absolute;top:12px;left:12px;padding:7px 10px;border-radius:999px;background:#0008;border:1px solid #ffffff2b;font-size:11px;font-weight:900}
+      .ktFeedInfo{position:absolute;left:14px;right:82px;bottom:18px;z-index:3;text-shadow:0 1px 4px #000}
+      .ktFeedInfo b{display:block;font-size:17px;color:#ffe07a}.ktFeedInfo span{display:block;margin-top:5px;font-size:11px;line-height:1.4;color:#fff}
+      .ktFeedActions{position:absolute;right:10px;bottom:18px;z-index:4;display:grid;gap:10px}
+      .ktFeedActions button{width:50px;height:50px;border-radius:50%;border:1px solid #ffffff30;background:#08080bbb;color:#fff;font-size:19px;box-shadow:0 2px 12px #0008}
+      .ktFeedActions small{display:block;font-size:7px;margin-top:1px;color:#eee}
+      .ktFeedTap{position:absolute;inset:0;border:0;background:transparent;z-index:2}
+      .ktFeedPlay{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:1;font-size:62px;opacity:0;transition:.15s;pointer-events:none;text-shadow:0 2px 15px #000}
+      .ktFeed.paused .ktFeedPlay{opacity:.9}
+    </style><section class="ktFeed"><video id="ktFeedVideo" autoplay muted loop playsinline preload="auto" poster="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80"><source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4"></video><div class="ktFeedShade"></div><div class="ktFeedLabel">▶ ${label}</div><div class="ktFeedPlay">▶</div><button class="ktFeedTap" aria-label="동영상 재생 또는 일시정지" onclick="toggleFeedVideo()"></button><div class="ktFeedInfo"><b>♛ K-Talk</b><span>화면을 한 번 누르면 재생·일시정지됩니다.<br>쇼츠와 동영상은 위 메뉴에서 볼 수 있습니다.</span></div><div class="ktFeedActions"><button onclick="needJoin('좋아요를 누르려면 가입해 주세요.')">♡<small>좋아요</small></button><button onclick="openComments()">💬<small>댓글</small></button><button onclick="openGifts()">🎁<small>선물</small></button><button onclick="shareApp()">↗<small>공유</small></button></div></section>`;
+    const v=document.getElementById('ktFeedVideo');
+    if(v){v.play().catch(()=>{});}
+  }
+  window.toggleFeedVideo=function(){const v=document.getElementById('ktFeedVideo'),wrap=document.querySelector('.ktFeed');if(!v)return;if(v.paused){v.play().catch(()=>{});if(wrap)wrap.classList.remove('paused')}else{v.pause();if(wrap)wrap.classList.add('paused')}};
+  window.home=function(){videoFeed('추천 동영상')};
+  window.media=function(type){videoFeed(type==='shorts'?'쇼츠':'동영상')};
+  activate('home');
+  window.home();
+},0);
