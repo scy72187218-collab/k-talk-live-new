@@ -52,6 +52,31 @@ main{height:calc(100dvh - 132px);overflow:hidden;padding:6px 8px 74px}.card{back
 .choiceGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.roomChoice{border:1px solid rgba(255,255,255,.075);background:rgba(255,255,255,.045);color:#eee;border-radius:13px;padding:11px 8px;font-weight:800;font-size:12px}.roomChoice.active{border-color:rgba(255,63,130,.6);background:rgba(255,63,130,.1);color:#fff}
 .chips{display:flex;gap:7px;overflow:auto}.chip{white-space:nowrap;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.045);color:#ddd;border-radius:999px;padding:7px 10px;font-size:11px}
 .startBroadcast{width:100%;margin-top:14px;border:0;border-radius:14px;padding:13px 12px;background:#f2f2f4;color:#111;font-weight:900;letter-spacing:-.2px}
+
+.creatorView{position:fixed;inset:0;z-index:55;background:#050507;color:#fff;display:none;overflow:hidden}
+.creatorView.show{display:block}
+.creatorCamera{position:absolute;inset:0;background:radial-gradient(circle at 50% 38%,#d8d8d8 0,#888 36%,#2e2e33 74%,#101014 100%);display:flex;align-items:center;justify-content:center}
+.creatorCamera:before{content:"카메라 미리보기";font-size:13px;color:rgba(255,255,255,.72);padding:8px 12px;border-radius:999px;background:rgba(0,0,0,.28);backdrop-filter:blur(8px)}
+.creatorTop{position:absolute;left:16px;right:16px;top:18px;display:flex;align-items:center;justify-content:space-between;z-index:2}
+.creatorClose,.creatorIcon{width:44px;height:44px;border:0;border-radius:50%;background:rgba(0,0,0,.34);backdrop-filter:blur(10px);color:#fff;font-size:22px}
+.soundBtn{border:0;border-radius:999px;background:rgba(0,0,0,.36);color:#fff;padding:10px 16px;font-weight:800}
+.creatorTools{position:absolute;right:14px;top:92px;display:flex;flex-direction:column;gap:12px;z-index:2}
+.creatorTool{width:46px;height:46px;border:0;border-radius:50%;background:rgba(0,0,0,.28);color:#fff;font-size:20px;backdrop-filter:blur(8px)}
+.creatorBottom{position:absolute;left:0;right:0;bottom:0;padding:0 16px calc(18px + env(safe-area-inset-bottom));z-index:3;background:linear-gradient(transparent,rgba(0,0,0,.58) 28%,rgba(0,0,0,.88))}
+.creatorModes{display:flex;justify-content:center;gap:22px;margin-bottom:12px;color:#d7d7dc;font-weight:800;font-size:14px}
+.creatorModes button{border:0;background:none;color:inherit;font-weight:inherit;padding:5px 2px}
+.creatorModes button.active{color:#fff;border-bottom:2px solid #fff}
+.creatorRooms{display:flex;gap:7px;overflow:auto;padding:7px 0 13px}
+.creatorRooms button{white-space:nowrap;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.28);color:#fff;border-radius:999px;padding:8px 11px;font-size:12px}
+.creatorRooms button.active{background:#fff;color:#111;border-color:#fff;font-weight:900}
+.recordWrap{display:flex;align-items:center;justify-content:center;gap:18px}
+.recordBtn{width:82px;height:82px;border-radius:50%;border:6px solid rgba(255,255,255,.9);background:#ff2d55;box-shadow:0 0 0 4px rgba(255,45,85,.24)}
+.effectThumb{width:52px;height:52px;border-radius:50%;border:2px solid rgba(255,255,255,.75);background:linear-gradient(135deg,#222,#8f6dff);display:grid;place-items:center;font-size:20px}
+.creatorFooterTabs{display:flex;justify-content:center;gap:38px;margin-top:16px;color:#ccc;font-weight:800}
+.creatorFooterTabs span.active{color:#fff}
+.liveFeedBadge{position:absolute;left:12px;top:10px;display:flex;gap:6px;align-items:center;z-index:4}
+.liveType{padding:5px 8px;border-radius:999px;background:rgba(0,0,0,.48);border:1px solid rgba(255,255,255,.08);font-size:10px;font-weight:800}
+.liveJoinHint{position:absolute;left:12px;bottom:55px;z-index:4;font-size:11px;color:#d5d5dc;background:rgba(0,0,0,.3);padding:6px 9px;border-radius:999px}
 </style>
 </head>
 <body>
@@ -76,9 +101,41 @@ main{height:calc(100dvh - 132px);overflow:hidden;padding:6px 8px 74px}.card{back
 <button class="nav" data-view="profile"><b>♙</b>내 정보</button>
 </nav>
 </div>
+
+<div id="creatorView" class="creatorView">
+  <div class="creatorCamera"></div>
+  <div class="creatorTop">
+    <button class="creatorClose" onclick="closeCreator()">×</button>
+    <button class="soundBtn">♪ 사운드 추가</button>
+    <button class="creatorIcon">↻</button>
+  </div>
+  <div class="creatorTools">
+    <button class="creatorTool">✦</button>
+    <button class="creatorTool">◔</button>
+    <button class="creatorTool">▦</button>
+    <button class="creatorTool">☺</button>
+  </div>
+  <div class="creatorBottom">
+    <div class="creatorModes">
+      <button>10분</button><button>60초</button><button>15초</button><button class="active">라이브</button>
+    </div>
+    <div class="creatorRooms">
+      <button class="active" data-create-room="1" onclick="chooseCreatorRoom('1',this)">1인 방송</button>
+      <button data-create-room="2" onclick="chooseCreatorRoom('2',this)">13명 방송</button>
+      <button data-create-room="3" onclick="chooseCreatorRoom('3',this)">구독자방</button>
+      <button data-create-room="4" onclick="chooseCreatorRoom('4',this)">비밀방</button>
+    </div>
+    <div class="recordWrap">
+      <div class="effectThumb">✨</div>
+      <button class="recordBtn" onclick="creatorStart()"></button>
+      <div class="effectThumb">🎭</div>
+    </div>
+    <div class="creatorFooterTabs"><span>게시</span><span>창작하기</span><span class="active">라이브</span></div>
+  </div>
+</div>
 <div id="sheet" class="sheet hidden"><div class="sheetin"><div class="sheethead"><h3 id="sheetTitle">메뉴</h3><button id="sheetClose" class="close">닫기</button></div><div id="sheetBody"></div></div></div>
 <script>
-var state={joined:false,adult:false,camera:false,ai:true,following:30,raffle:3,selectedRoom:'1'};
+var state={joined:false,adult:false,camera:false,ai:true,following:30,raffle:3,selectedRoom:'1'}; var creatorView=document.getElementById('creatorView');
 var view=document.getElementById('view'),sheet=document.getElementById('sheet'),sheetTitle=document.getElementById('sheetTitle'),sheetBody=document.getElementById('sheetBody');
 function showSheet(t,h){sheetTitle.textContent=t;sheetBody.innerHTML=h;sheet.classList.remove('hidden')}
 function closeSheet(){sheet.classList.add('hidden')}
@@ -87,11 +144,11 @@ sheet.onclick=function(e){if(e.target===sheet)closeSheet()};
 document.addEventListener('click',function(e){
  var v=e.target.closest('[data-view]');if(v){setView(v.dataset.view);return}
  var a=e.target.closest('[data-action]');if(!a)return;
- if(a.dataset.action==='broadcast')openBroadcast();
- if(a.dataset.action==='messages')openMessages();
+ if(a.dataset.action==='broadcast')openCreator();
+ if(a.dataset.action==='messages'){if(!state.joined)showJoin('댓글·쪽지를 사용하려면 가입해 주세요.');else openMessages();}
  if(a.dataset.action==='help')openHelp();
  if(a.dataset.action==='report')openReport();
- if(a.dataset.action==='like')a.style.color=a.style.color?'':'#ff5575';
+ if(a.dataset.action==='like'){if(!state.joined){showJoin('좋아요를 누르려면 가입해 주세요.')}else{a.style.color=a.style.color?'':'#ff5575'}};
  if(a.dataset.action==='save')a.style.color=a.style.color?'':'#6fb4ff';
  if(a.dataset.action==='share'){if(navigator.share){navigator.share({title:'K-Talk LIVE',text:'K-Talk 방송을 확인해 보세요'}).catch(function(){})}else{alert('공유 기능을 열었습니다.')}}
 });
@@ -100,9 +157,9 @@ function setView(n){
  if(n==='home')home();if(n==='shorts'||n==='video')media(n);if(n==='rooms')rooms();if(n==='profile')profile();
 }
 function home(){
- var ps=[['하늘별',1],['미소',1],['태권',0],['달빛',0],['행복이',1],['바다',0],['좋은날',0]];
+ var ps=[['하늘별',1],['미소',1],['태권',0],['달빛',0],['행복이',1]];
  var people=ps.map(function(p){return '<div class="person"><div class="avatar '+(p[1]?'on':'off')+'">'+p[0].charAt(0)+'</div><small>'+p[0]+'</small></div>'}).join('');
- view.innerHTML='<section class="homeStage"><div class="hero"><div class="heroIcon">🎙️</div><div class="profileline"><div class="crown">♛ 태권</div><div class="muted">현재 방송 중</div></div><div class="actions"><button class="round" data-action="like">♡<small>좋아요</small></button><button class="round" data-action="messages">💬<small>댓글</small></button><button class="round" data-action="save">☆<small>저장</small></button><button class="round" data-action="share">↗<small>공유</small></button></div></div><div class="homeTop"><div class="onair" style="position:static">ON AIR</div><div class="statusPills"><span class="statusPill"><span class="dot red"></span>방송중</span><span class="statusPill"><span class="dot blue"></span>대기</span></div></div><div class="followStrip"><div class="people">'+people+'</div></div>'+(state.joined?'':'<button class="joinCta" onclick="showJoin(\'방송을 보면서 가입하면 댓글·팔로우·쪽지·선물을 이용할 수 있습니다.\')">가입하고 참여하기</button>')+'<div class="miniLinks"><button class="btn grow" data-action="help">사용방법·혜택</button><button class="btn grow" data-action="report">신고 게시판</button></div></section>';
+ view.innerHTML='<section class="homeStage"><div class="hero"><div class="liveFeedBadge"><span class="onair" style="position:static">ON AIR</span><span class="liveType">1인 방송</span></div><div class="followStrip"><div class="people">'+people+'</div></div><div class="heroIcon">🎙️</div><div class="profileline"><div class="crown">♛ 태권</div><div class="muted">현재 방송 중</div></div><div class="actions"><button class="round" data-action="like">♡<small>좋아요</small></button><button class="round" data-action="messages">💬<small>댓글</small></button><button class="round" data-action="save">☆<small>저장</small></button><button class="round" data-action="share">↗<small>공유</small></button></div><div class="liveJoinHint">방송을 보다가 참여 기능을 누르면 가입 안내</div></div><div class="miniLinks"><button class="btn grow" data-action="help">사용방법·혜택</button><button class="btn grow" data-action="report">신고</button></div></section>';
 }
 function media(kind){
  var label=kind==='shorts'?'쇼츠':'동영상';
@@ -126,6 +183,13 @@ async function toggleCamera(){
 }
 function toggleAI(){state.ai=!state.ai;document.getElementById('aiBtn').textContent=state.ai?'🔊 AI 읽기 켜짐':'🔇 AI 읽기 꺼짐'}
 function songMode(){var b=document.getElementById('songBtn');b.classList.toggle('gold');b.textContent=b.classList.contains('gold')?'🎵 노래 중 · 참여자 마이크 잠금':'🎵 노래 모드'}
+function openCreator(){creatorView.classList.add('show')}
+function closeCreator(){creatorView.classList.remove('show')}
+function chooseCreatorRoom(id,btn){state.selectedRoom=id;document.querySelectorAll('[data-create-room]').forEach(function(b){b.classList.toggle('active',b===btn)})}
+function creatorStart(){
+ if(!state.joined){closeCreator();showJoin('방송을 시작하려면 먼저 가입과 성인 인증이 필요합니다.');return}
+ closeCreator();startBroadcast(state.selectedRoom)
+}
 function openBroadcast(){
  if(!state.joined){showJoin('방송하려면 먼저 가입과 성인 인증이 필요합니다.');return}
  showSheet('방송 준비','<div class="prepHero"><div class="prepCam">◉</div></div><div class="prepSection"><span class="prepLabel">방 선택</span><div class="choiceGrid"><button class="roomChoice active" data-roomchoice="1" onclick="selectBroadcastRoom(\'1\',this)">1인 방송</button><button class="roomChoice" data-roomchoice="2" onclick="selectBroadcastRoom(\'2\',this)">일반방 13명</button><button class="roomChoice" data-roomchoice="3" onclick="selectBroadcastRoom(\'3\',this)">구독자방 9명</button><button class="roomChoice" data-roomchoice="4" onclick="selectBroadcastRoom(\'4\',this)">비밀방 6명</button></div></div><div class="prepSection"><span class="prepLabel">보정</span><input class="field" type="range" min="1" max="100" value="50"></div><div class="prepSection"><span class="prepLabel">배경</span><div class="chips"><button class="chip">기본</button><button class="chip">무대</button><button class="chip">콘서트</button><button class="chip">산</button><button class="chip">바다</button><button class="chip">야경</button></div></div><div class="prepSection"><span class="prepLabel">효과</span><div class="chips"><button class="chip">효과 없음</button><button class="chip">하트 100</button><button class="chip">하트 500</button><button class="chip">하트 1000</button></div></div><button class="startBroadcast" onclick="startSelectedBroadcast()">방송 시작</button>');
