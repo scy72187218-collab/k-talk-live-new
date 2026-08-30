@@ -58,7 +58,7 @@ button,input{font:inherit}
   font-size:10px;backdrop-filter:blur(8px)
 }
 .side{
-  position:absolute;right:13px;bottom:205px;z-index:5;display:flex;flex-direction:column;gap:10px
+  position:absolute;right:13px;bottom:270px;z-index:5;display:flex;flex-direction:column;gap:9px
 }
 .side button{
   width:52px;height:52px;border-radius:50%;border:1px solid rgba(255,255,255,.10);
@@ -66,7 +66,7 @@ button,input{font:inherit}
 }
 .side small{display:block;font-size:8px;margin-top:1px;color:#ddd}
 .comments{
-  position:absolute;left:15px;right:85px;bottom:245px;z-index:5;display:grid;gap:6px
+  position:absolute;left:15px;right:85px;bottom:335px;z-index:5;display:grid;gap:6px
 }
 .comment{
   width:max-content;max-width:100%;padding:6px 9px;border-radius:999px;background:rgba(0,0,0,.38);backdrop-filter:blur(8px);
@@ -74,17 +74,17 @@ button,input{font:inherit}
 }
 .comment b{color:#fff}
 .gift-alert{
-  position:absolute;left:15px;right:85px;bottom:206px;z-index:5;padding:8px 10px;border-radius:12px;
+  position:absolute;left:15px;right:85px;bottom:295px;z-index:5;padding:8px 10px;border-radius:12px;
   border:1px solid rgba(255,74,145,.34);background:rgba(26,10,18,.52);color:#ff86b8;font-size:10px;font-weight:800
 }
 .message{
-  position:absolute;left:15px;right:72px;bottom:160px;z-index:5;display:flex;align-items:center;gap:8px;
+  position:absolute;left:15px;right:72px;bottom:248px;z-index:5;display:flex;align-items:center;gap:8px;
   border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:7px 10px;background:rgba(0,0,0,.30);backdrop-filter:blur(8px)
 }
 .message input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:#fff;font-size:11px}
 .message button{border:0;background:none;color:#fff;font-size:19px}
 .gift-dock{
-  position:absolute;left:14px;right:14px;bottom:62px;z-index:5;display:grid;grid-template-columns:repeat(4,1fr);gap:7px
+  position:absolute;left:14px;right:14px;bottom:132px;z-index:5;display:grid;grid-template-columns:repeat(4,1fr);gap:7px
 }
 .gift{
   border:1px solid rgba(255,255,255,.10);border-radius:14px;background:rgba(8,8,13,.52);backdrop-filter:blur(9px);
@@ -94,15 +94,22 @@ button,input{font:inherit}
 .gift b{display:block;margin-top:6px;font-size:10px}
 .gift small{display:block;color:#ff79b3;font-size:8px;margin-top:2px}
 .reward-strip{
-  position:absolute;left:14px;right:14px;bottom:8px;z-index:5;display:flex;gap:6px;overflow:hidden
+  position:absolute;left:14px;right:14px;bottom:72px;z-index:5;display:flex;gap:6px;overflow:hidden
 }
 .reward{
   flex:1;border:1px solid rgba(255,255,255,.09);border-radius:12px;background:rgba(5,5,9,.56);color:#fff;padding:8px 5px;text-align:center
 }
 .reward b{display:block;font-size:9px}.reward small{display:block;color:#aaa;font-size:7px;margin-top:2px}
+.start-live{
+  position:absolute;left:14px;right:14px;bottom:12px;z-index:8;border:0;border-radius:16px;
+  padding:14px 10px;background:linear-gradient(135deg,#ff315f,#ff3f8f 54%,#8a5cff);
+  color:#fff;font-size:16px;font-weight:950;letter-spacing:-.3px;
+  box-shadow:0 8px 26px rgba(255,49,95,.28),0 0 18px rgba(138,92,255,.15)
+}
+.start-live.started{background:linear-gradient(135deg,#2a2a33,#17171d);box-shadow:none;color:#ffd96d}
 @media(max-height:760px){
-  .side{bottom:190px}.comments{bottom:226px}.gift-alert{bottom:190px}.message{bottom:148px}.gift-dock{bottom:58px}
-  .gift span{font-size:29px}
+  .side{bottom:245px}.comments{bottom:305px}.gift-alert{bottom:269px}.message{bottom:224px}.gift-dock{bottom:120px}.reward-strip{bottom:66px}
+  .gift{padding:7px 3px 6px}.gift span{font-size:27px}.start-live{padding:12px 8px}
 }
 </style>
 </head>
@@ -157,6 +164,15 @@ button,input{font:inherit}
     <div class="reward"><b>♥ 6,000</b><small>달성</small></div>
     <div class="reward"><b>♥ 9,000</b><small>달성</small></div>
   </div>
+
+  <button class="start-live" id="startLive" onclick="startRoom()">● 방송 시작</button>
 </main>
+<script>
+function startRoom(){
+  const b=document.getElementById('startLive');
+  b.classList.add('started');
+  b.textContent='● 방송 중입니다';
+}
+</script>
 </body>
 </html>
