@@ -22,9 +22,12 @@
 .refReward i{display:flex!important;flex-direction:column!important;gap:2px!important;font-size:8px!important;border-left:1px solid #ffffff20!important;padding:2px 0!important}
 .refReward i b{font-size:10px!important;color:#fff!important}.refReward i .giftPhoto{width:24px;height:28px;background-size:400% 100%}.refReward i .rewardText{font-size:8px!important;font-weight:700!important;color:#ddd!important;white-space:nowrap!important}
 .creator .shade{pointer-events:none!important}
-.creator-top,.creator-tools,.creator-bottom{z-index:3!important;pointer-events:auto!important}
-.creator button,.creator .modes span,.creator .fx,.creator-foot span{pointer-events:auto!important;touch-action:manipulation!important}
+.creator-top,.creator-tools,.creator-bottom,.live-prep{z-index:3!important;pointer-events:auto!important}
+.creator button,.creator .modes span,.creator .fx,.creator-foot span,.live-prep button,.live-prep input{pointer-events:auto!important;touch-action:manipulation!important}
 .creator .test-active{outline:2px solid #fff!important;transform:scale(.96)}
+.creator-top,.creator-tools,.creator-bottom{display:none!important}
+.live-prep{position:absolute;inset:0;padding:18px 14px 20px;display:flex;flex-direction:column;color:#fff}
+.prep-top{display:flex;align-items:center;gap:10px}.prep-close,.prep-mini{width:44px;height:44px;border:0;border-radius:50%;background:rgba(0,0,0,.38);color:#fff;font-size:24px}.prep-title{flex:1;text-align:center;font-size:18px;font-weight:900;text-shadow:0 2px 8px #000}.prep-topic{margin:38px 8px 0;padding:14px;border-radius:16px;background:rgba(0,0,0,.28);backdrop-filter:blur(8px)}.prep-topic input{width:100%;border:0;outline:0;background:transparent;color:#fff;font-size:22px;font-weight:900}.prep-topic input::placeholder{color:#fff}.prep-grid{margin-top:auto;display:grid;grid-template-columns:repeat(5,1fr);gap:14px 8px;padding:14px 4px;border-radius:18px;background:rgba(0,0,0,.24);backdrop-filter:blur(7px)}.prep-item{border:0;background:none;color:#fff;text-align:center;font-size:11px;font-weight:800}.prep-item b{display:grid;place-items:center;width:52px;height:52px;margin:auto auto 5px;border-radius:50%;background:rgba(0,0,0,.28);font-size:24px}.prep-card{margin-top:14px;padding:12px;border-radius:18px;background:rgba(0,0,0,.35);backdrop-filter:blur(8px)}.prep-card-top{display:flex;align-items:center;justify-content:space-between;font-weight:900}.prep-card-top button{border:0;border-radius:999px;padding:8px 11px;background:rgba(255,255,255,.14);color:#fff}.prep-start{width:100%;margin-top:12px;padding:17px;border:0;border-radius:999px;background:linear-gradient(135deg,#ff315f,#ff3f8f 58%,#8b5cff);color:#fff;font-size:20px;font-weight:950}.prep-bottom{display:flex;justify-content:space-around;margin-top:12px;font-weight:900}.prep-bottom span{opacity:.62}.prep-bottom .on{opacity:1;border-bottom:3px solid #fff;padding-bottom:5px}
 </style>
 </head>
 <body>
@@ -46,28 +49,37 @@
   <div class="creator-top"><button class="circle" onclick="closeCreator()">×</button><button class="sound">♪ 사운드 추가</button><button class="circle creator-rotate">↻</button></div>
   <div class="creator-tools"><button>✦</button><button>◔</button><button>▦</button><button>☺</button></div>
   <div class="creator-bottom"><div class="modes"><span>10분</span><span>60초</span><span>15초</span><span class="on">라이브</span></div><div class="recordrow"><div class="fx">✨</div><button class="record" onclick="startBroadcast()"></button><div class="fx">🎭</div></div><div class="creator-foot"><span>게시</span><span>창작하기</span><span class="on">라이브</span></div></div>
+  <div class="live-prep">
+    <div class="prep-top"><button class="prep-close" onclick="closeCreator()">×</button><div class="prep-title">K-Talk 라이브 준비</div><button class="prep-mini" onclick="prepTap(this,'라이브 보상')">★</button></div>
+    <div class="prep-topic"><input id="liveTitle" value="오늘 라이브 제목을 입력하세요" aria-label="라이브 제목"></div>
+    <div class="prep-grid">
+      <button class="prep-item" onclick="prepTap(this,'카메라 전환')"><b>↻</b>전환</button>
+      <button class="prep-item" onclick="prepTap(this,'뷰티')"><b>✦</b>뷰티</button>
+      <button class="prep-item" onclick="prepTap(this,'편집효과')"><b>✺</b>편집효과</button>
+      <button class="prep-item" onclick="prepTap(this,'설정')"><b>⚙</b>설정</button>
+      <button class="prep-item" onclick="prepTap(this,'멀티게스트')"><b>▦</b>멀티게스트</button>
+      <button class="prep-item" onclick="prepTap(this,'서비스')"><b>□</b>서비스</button>
+      <button class="prep-item" onclick="prepTap(this,'팬클럽')"><b>♡</b>팬클럽</button>
+      <button class="prep-item" onclick="prepTap(this,'소통하기')"><b>☵</b>소통하기</button>
+      <button class="prep-item" onclick="prepTap(this,'공유')"><b>↗</b>공유</button>
+      <button class="prep-item" onclick="prepTap(this,'프로모션')"><b>♨</b>프로모션</button>
+    </div>
+    <div class="prep-card"><div class="prep-card-top"><span>🎯 라이브 목표</span><button onclick="prepTap(this,'목표 설정')">목표 설정</button></div><button class="prep-start" onclick="startBroadcast()">● 라이브 시작</button></div>
+    <div class="prep-bottom"><span>게시</span><span>창작하기</span><span class="on">라이브</span></div>
+  </div>
 </div>
 <div id="sheet" class="sheet"><div class="sheet-inner"><div class="sheet-head"><h3 id="sheetTitle">메뉴</h3><button onclick="closeSheet()">닫기</button></div><div id="sheetBody"></div></div></div>
 <script src="app.js"></script>
 <script>
 (function(){
   window.startBroadcast=function(){
-    alert('시험용 방송 버튼이 정상 작동합니다. 실제 외부 송출은 하지 않습니다.');
+    alert('라이브 시작 버튼이 정상 작동합니다. 현재는 시험 모드라 실제 외부 송출은 하지 않습니다.');
   };
-
-  function tapFeedback(el,msg){
+  window.prepTap=function(el,name){
     el.classList.add('test-active');
     setTimeout(()=>el.classList.remove('test-active'),180);
-    if(msg) alert(msg);
-  }
-
-  document.querySelector('.sound')?.addEventListener('click',function(){tapFeedback(this,'사운드 추가 버튼 정상 작동');});
-  document.querySelector('.creator-rotate')?.addEventListener('click',function(){tapFeedback(this,'카메라 전환 버튼 정상 작동');});
-  document.querySelectorAll('.creator-tools button').forEach((btn,i)=>btn.addEventListener('click',function(){tapFeedback(this,['효과 버튼 정상 작동','타이머 버튼 정상 작동','화면 설정 버튼 정상 작동','필터 버튼 정상 작동'][i]);}));
-  document.querySelectorAll('.modes span').forEach(el=>el.addEventListener('click',function(){document.querySelectorAll('.modes span').forEach(x=>x.classList.remove('on'));this.classList.add('on');tapFeedback(this);}));
-  document.querySelectorAll('.fx').forEach((el,i)=>el.addEventListener('click',function(){tapFeedback(this,i===0?'효과 버튼 정상 작동':'필터 버튼 정상 작동');}));
-  document.querySelectorAll('.creator-foot span').forEach(el=>el.addEventListener('click',function(){document.querySelectorAll('.creator-foot span').forEach(x=>x.classList.remove('on'));this.classList.add('on');tapFeedback(this);}));
-
+    alert(name+' 버튼이 정상 작동합니다.');
+  };
   function applyApprovedGifts(){
     const gifts=document.querySelectorAll('.refGift');
     if(gifts.length>=4){
