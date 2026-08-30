@@ -35,5 +35,20 @@
 </div>
 <div id="sheet" class="sheet"><div class="sheet-inner"><div class="sheet-head"><h3 id="sheetTitle">메뉴</h3><button onclick="closeSheet()">닫기</button></div><div id="sheetBody"></div></div></div>
 <script src="app.js"></script>
+<script>
+(function(){
+  function fixRoseLabels(){
+    const gifts=document.querySelectorAll('.refGift b');
+    if(gifts[0]) gifts[0].textContent='장미 1송이';
+    if(gifts[1]) gifts[1].textContent='장미 50송이';
+    if(gifts[2]) gifts[2].textContent='장미 100송이';
+    const rewards=document.querySelectorAll('.refReward i');
+    const likes=['♥ 3,000','♥ 6,000','♥ 9,000','♥ 12,000','♥ 15,000'];
+    rewards.forEach((el,i)=>{if(i<5) el.innerHTML='<b>'+likes[i]+'</b><strong style="font-size:9px;color:#fff">장미 '+(i+1)+'송이</strong>';});
+  }
+  fixRoseLabels();
+  new MutationObserver(fixRoseLabels).observe(document.getElementById('screen'),{childList:true,subtree:true});
+})();
+</script>
 </body>
 </html>
