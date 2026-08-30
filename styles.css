@@ -35,3 +35,36 @@ radial-gradient(circle at 28% 22%,rgba(255,63,143,.28),transparent 27%),radial-g
 .friend-avatar.on{border-color:var(--red);box-shadow:0 0 14px rgba(255,54,95,.18)}
 .friend-info{flex:1;min-width:0}.friend-info b{display:block;font-size:12px}.friend-info span{display:block;margin-top:3px;font-size:9px;color:#aaa}
 .friend-row>button{border:1px solid rgba(255,255,255,.08);border-radius:999px;background:rgba(255,255,255,.06);color:#fff;padding:7px 10px;font-size:9px;font-weight:800}
+
+/* 한 화면 맞춤 + 13명방 실제 얼굴 사진 */
+body.kt-home #screen{overflow:hidden!important}
+body.kt-home .kt-dashboard{height:100dvh!important;min-height:0!important;overflow:hidden!important;padding:6px 8px calc(58px + env(safe-area-inset-bottom))!important}
+body.kt-home .kt-dash-top{margin-bottom:5px!important;gap:5px!important}
+body.kt-home .kt-dash-logo{font-size:19px!important}
+body.kt-home .kt-pill{height:28px!important;padding:0 7px!important;font-size:10px!important}
+body.kt-home .kt-iconbtn{width:29px!important;height:29px!important;font-size:14px!important}
+body.kt-home .kt-notice{padding:7px 9px!important;margin-bottom:6px!important;border-radius:14px!important}
+body.kt-home .kt-notice-icon{width:34px!important;flex-basis:34px!important;font-size:21px!important}
+body.kt-home .kt-notice-copy b{font-size:11px!important;margin-bottom:2px!important}
+body.kt-home .kt-notice-copy span{font-size:9px!important;line-height:1.2!important}
+body.kt-home .kt-room-grid{gap:5px!important}
+body.kt-home .kt-room{min-height:108px!important;border-radius:13px!important;padding:7px 4px 6px!important}
+body.kt-home .kt-room .ri{font-size:28px!important;margin-bottom:4px!important}
+body.kt-home .kt-room b{font-size:12px!important;letter-spacing:-.4px!important}
+body.kt-home .kt-room small{margin-top:3px!important;font-size:8px!important;line-height:1.2!important}
+body.kt-home .kt-room .enter{width:90%!important;padding:5px 2px!important;border-radius:8px!important;font-size:9px!important}
+body.kt-home .kt-room-grid .kt-room:first-child .ri{font-size:0!important;width:48px!important;height:48px!important;border-radius:50%!important;background:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=180&q=80') center/cover no-repeat!important;border:2px solid #c486ff!important;box-shadow:0 0 12px #9b55ff88!important}
+body.kt-home .kt-shortcuts{gap:5px!important;margin-top:5px!important}
+body.kt-home .kt-short{min-height:55px!important;border-radius:11px!important;padding:5px 3px!important}
+body.kt-home .kt-short strong{font-size:18px!important;margin-bottom:2px!important}
+body.kt-home .kt-short b{font-size:9px!important}
+body.kt-home .kt-short small{margin-top:1px!important;font-size:7px!important;line-height:1.15!important}
+body.kt-home .kt-wide{gap:5px!important;margin-top:5px!important}
+body.kt-home .kt-wide button{min-height:42px!important;border-radius:11px!important;padding:6px 9px!important}
+body.kt-home .kt-wide b{font-size:11px!important}
+body.kt-home .kt-wide small{margin-top:1px!important;font-size:8px!important}
+body.kt-home .kt-bottom{height:52px!important;padding:4px 6px calc(4px + env(safe-area-inset-bottom))!important}
+body.kt-home .kt-bottom button{font-size:8px!important}
+body.kt-home .kt-bottom b{font-size:17px!important;margin-bottom:1px!important}
+body.kt-home .kt-bottom .livebtn b{width:36px!important;height:36px!important;margin:-17px auto 1px!important;border-radius:12px!important;font-size:15px!important}
+@media(max-height:700px){body.kt-home .kt-room{min-height:94px!important}body.kt-home .kt-room small{display:none!important}body.kt-home .kt-short{min-height:48px!important}body.kt-home .kt-wide button{min-height:36px!important}body.kt-home .kt-notice-copy span{display:none!important}}
