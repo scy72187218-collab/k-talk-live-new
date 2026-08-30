@@ -23,7 +23,7 @@
 .refReward i b{font-size:10px!important;color:#fff!important}.refReward i .giftPhoto{width:24px;height:28px;background-size:400% 100%}.refReward i .rewardText{font-size:8px!important;font-weight:700!important;color:#ddd!important;white-space:nowrap!important}
 .creator .shade{pointer-events:none!important}
 .creator-top,.creator-tools,.creator-bottom,.live-prep{z-index:3!important;pointer-events:auto!important}
-.creator button,.creator .modes span,.creator .fx,.creator-foot span,.live-prep button,.live-prep input{pointer-events:auto!important;touch-action:manipulation!important}
+.creator button,.creator .modes span,.creator .fx,.creator-foot span,.live-prep button,.live-prep input,.prep-bottom span{pointer-events:auto!important;touch-action:manipulation!important}
 .creator .test-active{outline:2px solid #fff!important;transform:scale(.96)}
 .creator-top,.creator-tools,.creator-bottom{display:none!important}
 .creator{background:radial-gradient(circle at 22% 16%,rgba(255,63,143,.26),transparent 28%),radial-gradient(circle at 82% 26%,rgba(53,169,255,.22),transparent 30%),radial-gradient(circle at 50% 82%,rgba(139,92,255,.28),transparent 38%),linear-gradient(155deg,#171421,#0a0b12 60%,#08070d)!important}
@@ -35,7 +35,7 @@
 .prep-topic{margin:34px 6px 0!important;padding:13px 16px!important;border-radius:20px!important;background:rgba(20,20,26,.34)!important;border:1px solid rgba(255,255,255,.10)!important;backdrop-filter:blur(18px)!important;box-shadow:0 10px 28px rgba(0,0,0,.14)!important}.prep-topic input{font-size:18px!important;font-weight:760!important;letter-spacing:-.3px!important}.prep-topic input::placeholder{color:rgba(255,255,255,.72)!important}
 .prep-grid{margin-top:auto!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:16px 6px!important;padding:16px 8px!important;border-radius:24px!important;background:rgba(18,18,24,.34)!important;border:1px solid rgba(255,255,255,.09)!important;backdrop-filter:blur(18px)!important;box-shadow:0 14px 36px rgba(0,0,0,.16)!important}.prep-item{font-size:10px!important;font-weight:720!important;letter-spacing:-.2px!important;opacity:.96}.prep-item b{width:48px!important;height:48px!important;margin-bottom:7px!important;background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.07))!important;border:1px solid rgba(255,255,255,.10)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 7px 18px rgba(0,0,0,.16)!important;font-size:21px!important}.prep-item:active b{transform:scale(.94)!important}
 .prep-card{margin-top:12px!important;padding:14px!important;border-radius:24px!important;background:rgba(14,14,20,.46)!important;border:1px solid rgba(255,255,255,.10)!important;backdrop-filter:blur(20px)!important;box-shadow:0 14px 34px rgba(0,0,0,.20)!important}.prep-card-top{font-size:15px!important;letter-spacing:-.2px!important}.prep-card-top button{padding:8px 13px!important;background:rgba(255,255,255,.10)!important;border:1px solid rgba(255,255,255,.10)!important;font-size:12px!important}.prep-start{margin-top:12px!important;padding:15px!important;border-radius:18px!important;background:linear-gradient(135deg,#ff315f 0%,#ff3f8f 55%,#9b63ff 100%)!important;box-shadow:0 12px 30px rgba(255,49,95,.26)!important;font-size:18px!important;letter-spacing:-.3px!important}
-.prep-bottom{margin-top:13px!important;padding:0 18px!important;font-size:14px!important}.prep-bottom span{opacity:.50!important}.prep-bottom .on{opacity:1!important;border-bottom:2px solid #fff!important;padding-bottom:6px!important}
+.prep-bottom{margin-top:13px!important;padding:0 18px!important;font-size:14px!important}.prep-bottom span{opacity:.50!important;cursor:pointer!important;padding:6px 10px!important;border-radius:10px!important}.prep-bottom span:active{background:rgba(255,255,255,.10)!important;transform:scale(.96)!important}.prep-bottom .on{opacity:1!important;border-bottom:2px solid #fff!important;padding-bottom:6px!important}
 @media(max-height:760px){.prep-topic{margin-top:20px!important}.prep-grid{gap:11px 4px!important;padding:12px 6px!important}.prep-item b{width:44px!important;height:44px!important}.prep-card{padding:11px!important}.prep-start{padding:13px!important}.prep-bottom{margin-top:9px!important}}
 </style>
 </head>
@@ -74,7 +74,7 @@
       <button class="prep-item" onclick="prepTap(this,'프로모션')"><b>♨</b>프로모션</button>
     </div>
     <div class="prep-card"><div class="prep-card-top"><span>🎯 라이브 목표</span><button onclick="prepTap(this,'목표 설정')">목표 설정</button></div><button class="prep-start" onclick="startBroadcast()">● 라이브 시작</button></div>
-    <div class="prep-bottom"><span>게시</span><span>창작하기</span><span class="on">라이브</span></div>
+    <div class="prep-bottom"><span onclick="prepBottomTap(this,'게시')">게시</span><span onclick="prepBottomTap(this,'창작하기')">창작하기</span><span class="on" onclick="prepBottomTap(this,'라이브')">라이브</span></div>
   </div>
 </div>
 <div id="sheet" class="sheet"><div class="sheet-inner"><div class="sheet-head"><h3 id="sheetTitle">메뉴</h3><button onclick="closeSheet()">닫기</button></div><div id="sheetBody"></div></div></div>
@@ -96,6 +96,11 @@
     el.classList.add('test-active');
     setTimeout(()=>el.classList.remove('test-active'),180);
     alert(name+' 버튼이 정상 작동합니다.');
+  };
+  window.prepBottomTap=function(el,name){
+    document.querySelectorAll('.prep-bottom span').forEach(s=>s.classList.remove('on'));
+    el.classList.add('on');
+    alert(name+' 메뉴가 정상 작동합니다.');
   };
   function applyApprovedGifts(){
     const gifts=document.querySelectorAll('.refGift');
