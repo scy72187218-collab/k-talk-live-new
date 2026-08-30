@@ -18,11 +18,10 @@
 .refGift em{font-size:9px!important;color:#ff5b99!important}
 .refReward{min-height:74px!important;grid-template-columns:74px repeat(5,1fr)!important;background:#08080be8!important;border:1px solid #ffffff26!important;border-radius:16px!important;padding:7px!important}
 .refReward>span{font-size:11px!important;line-height:1.15!important;color:#ff5f99!important}
-.refReward i{position:relative!important;display:flex!important;flex-direction:column!important;gap:2px!important;font-size:8px!important;border-left:1px solid #ffffff20!important;padding-bottom:17px!important}
+.refReward i{display:flex!important;flex-direction:column!important;gap:2px!important;font-size:8px!important;border-left:1px solid #ffffff20!important;padding:2px 0!important}
 .refReward i b{font-size:10px!important;color:#fff!important}
 .refReward i img{width:24px!important;height:28px!important;object-fit:contain!important}
-.refReward i .rewardText{font-size:8px!important;font-weight:900!important;color:#fff!important;white-space:nowrap!important}
-.refReward i .rewardBadge{position:absolute!important;left:50%!important;bottom:-1px!important;transform:translateX(-50%)!important;width:21px!important;height:21px!important;border-radius:50%!important;background:#ff3f7e!important;color:#fff!important;display:grid!important;place-items:center!important;font-size:9px!important;font-weight:900!important}
+.refReward i .rewardText{font-size:8px!important;font-weight:700!important;color:#ddd!important;white-space:nowrap!important}
 </style>
 </head>
 <body>
@@ -64,7 +63,7 @@
     const rewards=document.querySelectorAll('.refReward i');
     const likes=['♥ 3,000','♥ 6,000','♥ 9,000','♥ 12,000','♥ 15,000'];
     rewards.forEach((el,i)=>{
-      if(i<5) el.innerHTML='<b>'+likes[i]+'</b><img src="rose-single.svg" alt=""><span class="rewardText">장미 '+(i+1)+'송이</span><span class="rewardBadge">'+(i+1)+'</span>';
+      if(i<5) el.innerHTML='<b>'+likes[i]+'</b><img src="rose-single.svg" alt=""><span class="rewardText">지급 완료</span>';
     });
   }
   applyApprovedGifts();
