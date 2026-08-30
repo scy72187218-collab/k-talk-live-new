@@ -3,273 +3,128 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>K-Talk LIVE</title>
+<title>K-Talk LIVE NEW</title>
 <style>
-:root{--bg:#07070c;--panel:#11111a;--line:#2b2b38;--text:#fff;--muted:#aaa;--pink:#ff3b8d;--red:#ff334f;--blue:#318cff;--gold:#ffd76a}
-*{box-sizing:border-box}html,body{height:100%;overflow:hidden}body{margin:0;background:#000;color:var(--text);font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif}button,input,select{font:inherit}
-#app{max-width:520px;margin:auto;height:100dvh;min-height:0;overflow:hidden;background:linear-gradient(#090910,#050508)}
-.top{position:relative;z-index:20;background:rgba(5,5,8,.96);border-bottom:1px solid #1e1e28}.brand{display:flex;justify-content:space-between;align-items:center;padding:7px 12px 5px}.logo{font-weight:900;color:var(--gold);font-size:18px}.live{background:var(--red);padding:4px 8px;border-radius:999px;font-size:11px;font-weight:900}
-.led{margin:0 10px 6px;padding:7px 8px;border:1px solid rgba(255,215,106,.28);border-radius:10px;text-align:center;color:var(--gold);font-weight:800;font-size:13px}.tabs{display:flex;gap:5px;overflow:hidden;padding:0 8px 7px}.tab{flex:1;min-width:0;border:0;background:#171722;color:#ddd;padding:7px 5px;border-radius:999px;white-space:nowrap;font-size:12px}.tab.active{background:#fff;color:#000;font-weight:900}
-main{height:calc(100dvh - 132px);overflow:hidden;padding:6px 8px 74px}.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px}.title{font-size:17px;font-weight:900;margin:0 0 10px}.muted{color:var(--muted);font-size:13px}.row{display:flex;gap:8px;align-items:center}.wrap{flex-wrap:wrap}.grow{flex:1}
-.status{display:grid;grid-template-columns:1fr 1fr;gap:10px}.status>div{padding:12px;border-radius:13px;background:#0c0c14}.redbox{border:1px solid rgba(255,51,79,.45)}.bluebox{border:1px solid rgba(49,140,255,.45)}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}.dot.red{background:var(--red)}.dot.blue{background:var(--blue)}
-.people{display:flex;gap:6px;overflow:hidden}.person{min-width:44px;text-align:center}.avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;margin:auto;background:#242435;border:2px solid #333;font-weight:900;font-size:12px}.avatar.on{border-color:var(--red)}.avatar.off{border-color:var(--blue)}.badge{display:inline-block;margin-top:2px;padding:2px 5px;border-radius:999px;background:#292938;font-size:9px}.homeStage{position:relative;height:100%;min-height:0;max-height:none;border-radius:14px;overflow:hidden;background:radial-gradient(circle at 50% 35%,#28283e,#09090f 64%)}.homeStage .hero{height:100%;border-radius:0}.homeTop{position:absolute;left:8px;right:8px;top:8px;z-index:4;display:flex;align-items:center;gap:6px}.statusPills{display:flex;gap:5px}.statusPill{padding:4px 7px;border-radius:999px;background:rgba(10,10,16,.78);font-size:10px;font-weight:800}.followStrip{position:absolute;left:8px;right:70px;top:44px;z-index:4;padding:5px 6px;border-radius:10px;background:rgba(8,8,12,.68);backdrop-filter:blur(8px)}.followStrip .people{gap:5px}.followStrip .person{min-width:38px}.followStrip .avatar{width:29px;height:29px;font-size:10px}.followStrip small{font-size:9px}.followStrip .badge{display:none}.joinCta{position:absolute;left:10px;right:70px;bottom:54px;z-index:5;border:0;border-radius:10px;padding:8px 10px;background:rgba(255,59,141,.92);color:#fff;font-weight:900;text-align:center;font-size:14px}.miniLinks{position:absolute;left:10px;right:10px;bottom:8px;z-index:5;display:flex;gap:7px}.miniLinks .btn{padding:7px 8px;font-size:11px;background:rgba(25,25,35,.88)}
-.hero{height:430px;border-radius:18px;background:radial-gradient(circle at 50% 35%,#28283e,#09090f 64%);position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}.heroIcon{font-size:72px;opacity:.75}.onair{position:absolute;left:12px;top:12px;background:var(--red);padding:5px 8px;border-radius:8px;font-size:11px;font-weight:900}.profileline{position:absolute;left:12px;bottom:98px;right:70px}.crown{color:var(--gold);font-weight:900}
-.actions{position:absolute;right:8px;bottom:58px;display:flex;flex-direction:column;gap:7px}.round{width:40px;height:40px;border-radius:50%;border:0;background:rgba(20,20,29,.9);color:#fff;font-size:17px}.round small{display:block;font-size:8px;color:#ccc}
-.btn{border:0;border-radius:12px;padding:12px 14px;font-weight:850;background:#242433;color:#fff}.btn.primary{background:var(--pink)}.btn.blue{background:#16477e}.btn.gold{background:#695318}
-.broadcast-btn{width:100%;border:0;border-radius:14px;padding:14px 12px;margin-top:8px;font-weight:900;color:#fff;background:linear-gradient(135deg,#ff3b8d,#8b5cff)}
-.roomgrid{display:grid;gap:7px}.cols3{grid-template-columns:repeat(3,1fr)}.cols2{grid-template-columns:repeat(2,1fr)}.tile{aspect-ratio:1/.82;background:#181824;border:1px solid #2b2b39;border-radius:12px;display:grid;place-items:center;text-align:center}.host{aspect-ratio:1.7/1;background:linear-gradient(145deg,#251f16,#11111a);border-color:rgba(255,215,106,.3);margin-bottom:8px}
-.gifts{display:flex;gap:8px;overflow:auto}.gift{min-width:76px;border:1px solid #313142;background:#15151f;color:#fff;border-radius:12px;padding:9px}.gift b{display:block;font-size:18px}
-.bottom{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(520px,100%);height:68px;display:grid;grid-template-columns:repeat(5,1fr);background:rgba(7,7,12,.98);border-top:1px solid #22222e;padding:5px 5px calc(5px + env(safe-area-inset-bottom));z-index:30}.nav{border:0;background:transparent;color:#bbb;font-size:10px}.nav b{display:block;font-size:19px;color:#fff}.nav.plus b{width:44px;height:34px;display:grid;place-items:center;margin:auto;border-radius:11px;background:linear-gradient(90deg,#20d7ff,#ff3b8d)}
-.sheet{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:60;display:flex;align-items:flex-end;justify-content:center}.sheet.hidden{display:none}.sheetin{width:min(520px,100%);max-height:88vh;overflow:auto;background:#11111a;border-radius:22px 22px 0 0;padding:16px 14px 28px}.sheethead{display:flex;justify-content:space-between;align-items:center}.close{border:0;background:#292938;color:#fff;border-radius:10px;padding:8px 11px}.field{width:100%;background:#0d0d14;color:#fff;border:1px solid #30303e;border-radius:11px;padding:12px;margin-top:8px}.notice{padding:10px 12px;border-radius:11px;background:#151522;color:#ddd;font-size:13px;margin:8px 0}
-
-/* refined premium UI */
-:root{--panel:rgba(18,18,24,.72);--line:rgba(255,255,255,.08);--muted:#b7b7c1;--pink:#ff3f82;--gold:#f4c85a}
-#app{background:#050507}
-.top{background:linear-gradient(180deg,rgba(5,5,7,.98),rgba(5,5,7,.88));border-bottom:1px solid rgba(255,255,255,.05)}
-.brand{padding:8px 14px 6px}.logo{font-size:19px;letter-spacing:-.5px;color:#f5d26f}.live{background:#ff365f;border-radius:999px;padding:4px 10px;box-shadow:0 0 18px rgba(255,54,95,.16)}
-.led{margin:0 12px 7px;padding:7px 10px;border-color:rgba(244,200,90,.16);background:rgba(244,200,90,.025);font-size:12px;letter-spacing:-.2px;color:#f6d878}
-.tabs{gap:7px;padding:0 10px 8px}.tab{background:rgba(255,255,255,.055);color:#cfcfd6;padding:7px 7px;font-size:11.5px}.tab.active{background:#f4f4f6;color:#111;box-shadow:none}
-.homeStage{border-radius:18px;background:radial-gradient(circle at 50% 38%,#20202b 0,#101016 54%,#08080c 100%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.03)}
-.homeTop{top:10px;left:10px}.onair{background:rgba(255,54,95,.92);border-radius:999px;padding:5px 9px;box-shadow:0 8px 20px rgba(255,54,95,.12)}
-.statusPill{background:rgba(10,10,14,.58);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.06);font-weight:700;color:#ddd}
-.followStrip{top:47px;left:10px;right:70px;background:rgba(9,9,13,.42);border:1px solid rgba(255,255,255,.04);box-shadow:none}
-.followStrip .avatar{background:rgba(255,255,255,.07);border-width:1.5px}.followStrip .avatar.on{border-color:#ff4667}.followStrip .avatar.off{border-color:#4a9cff}
-.heroIcon{font-size:62px;opacity:.38;filter:grayscale(1)}
-.profileline{left:14px;bottom:94px}.profileline .crown{font-size:16px;color:#f5d26f}.profileline .muted{color:#b9b9c1}
-.actions{right:9px;bottom:64px;gap:8px}.round{width:38px;height:38px;background:rgba(10,10,14,.48);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.07);box-shadow:none}.round small{font-size:7.5px;color:#d5d5da}
-.joinCta{left:14px;right:74px;bottom:55px;background:rgba(255,255,255,.08);border:1px solid rgba(255,63,130,.45);backdrop-filter:blur(14px);font-size:13px;letter-spacing:-.2px;padding:9px 10px}
-.miniLinks{left:14px;right:14px;bottom:10px}.miniLinks .btn{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.055);font-weight:700;color:#e7e7ea;border-radius:11px}
-.bottom{background:rgba(5,5,8,.96);border-top:1px solid rgba(255,255,255,.06);backdrop-filter:blur(14px)}.nav{color:#9e9ea8}.nav b{font-weight:500}.nav.plus b{background:linear-gradient(135deg,#40cfff,#ff4c8f);box-shadow:0 5px 22px rgba(255,76,143,.18)}
-.card{background:rgba(255,255,255,.045);border-color:rgba(255,255,255,.06);box-shadow:none}
-.btn{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.06);font-weight:750}
-.broadcast-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);box-shadow:none;border-radius:13px;transition:.15s}.broadcast-btn:active{transform:scale(.985);background:rgba(255,255,255,.12)}
-.sheet{background:rgba(0,0,0,.62);backdrop-filter:blur(4px)}.sheetin{background:linear-gradient(180deg,#121218,#09090d);border-top:1px solid rgba(255,255,255,.08);box-shadow:0 -18px 60px rgba(0,0,0,.45);border-radius:24px 24px 0 0}.sheethead h3{font-size:18px;letter-spacing:-.4px}.close{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.06)}
-.field{background:rgba(255,255,255,.055);border-color:rgba(255,255,255,.08);color:#fff}
-.notice{background:rgba(255,255,255,.045);color:#c7c7ce;border:1px solid rgba(255,255,255,.04)}
-.prepHero{height:180px;border-radius:18px;background:radial-gradient(circle at 50% 35%,#252536,#111119 62%,#0b0b10);display:grid;place-items:center;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.05)}
-.prepHero:after{content:"카메라 미리보기";position:absolute;left:12px;bottom:10px;color:#bdbdc7;font-size:11px}
-.prepCam{font-size:48px;opacity:.58}.prepSection{margin-top:13px}.prepLabel{display:block;color:#d9d9df;font-size:12px;font-weight:800;margin-bottom:7px}
-.choiceGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.roomChoice{border:1px solid rgba(255,255,255,.075);background:rgba(255,255,255,.045);color:#eee;border-radius:13px;padding:11px 8px;font-weight:800;font-size:12px}.roomChoice.active{border-color:rgba(255,63,130,.6);background:rgba(255,63,130,.1);color:#fff}
-.chips{display:flex;gap:7px;overflow:auto}.chip{white-space:nowrap;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.045);color:#ddd;border-radius:999px;padding:7px 10px;font-size:11px}
-.startBroadcast{width:100%;margin-top:14px;border:0;border-radius:14px;padding:13px 12px;background:#f2f2f4;color:#111;font-weight:900;letter-spacing:-.2px}
-
-.creatorView{position:fixed;inset:0;z-index:55;background:#050507;color:#fff;display:none;overflow:hidden}
-.creatorView.show{display:block}
-.creatorCamera{position:absolute;inset:0;background:radial-gradient(circle at 50% 38%,#d8d8d8 0,#888 36%,#2e2e33 74%,#101014 100%);display:flex;align-items:center;justify-content:center}
-.creatorCamera:before{content:"카메라 미리보기";font-size:13px;color:rgba(255,255,255,.72);padding:8px 12px;border-radius:999px;background:rgba(0,0,0,.28);backdrop-filter:blur(8px)}
-.creatorTop{position:absolute;left:16px;right:16px;top:18px;display:flex;align-items:center;justify-content:space-between;z-index:2}
-.creatorClose,.creatorIcon{width:44px;height:44px;border:0;border-radius:50%;background:rgba(0,0,0,.34);backdrop-filter:blur(10px);color:#fff;font-size:22px}
-.soundBtn{border:0;border-radius:999px;background:rgba(0,0,0,.36);color:#fff;padding:10px 16px;font-weight:800}
-.creatorTools{position:absolute;right:14px;top:92px;display:flex;flex-direction:column;gap:12px;z-index:2}
-.creatorTool{width:46px;height:46px;border:0;border-radius:50%;background:rgba(0,0,0,.28);color:#fff;font-size:20px;backdrop-filter:blur(8px)}
-.creatorBottom{position:absolute;left:0;right:0;bottom:0;padding:0 16px calc(18px + env(safe-area-inset-bottom));z-index:3;background:linear-gradient(transparent,rgba(0,0,0,.58) 28%,rgba(0,0,0,.88))}
-.creatorModes{display:flex;justify-content:center;gap:22px;margin-bottom:12px;color:#d7d7dc;font-weight:800;font-size:14px}
-.creatorModes button{border:0;background:none;color:inherit;font-weight:inherit;padding:5px 2px}
-.creatorModes button.active{color:#fff;border-bottom:2px solid #fff}
-.creatorRooms{display:flex;gap:7px;overflow:auto;padding:7px 0 13px}
-.creatorRooms button{white-space:nowrap;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.28);color:#fff;border-radius:999px;padding:8px 11px;font-size:12px}
-.creatorRooms button.active{background:#fff;color:#111;border-color:#fff;font-weight:900}
-.recordWrap{display:flex;align-items:center;justify-content:center;gap:18px}
-.recordBtn{width:82px;height:82px;border-radius:50%;border:6px solid rgba(255,255,255,.9);background:#ff2d55;box-shadow:0 0 0 4px rgba(255,45,85,.24)}
-.effectThumb{width:52px;height:52px;border-radius:50%;border:2px solid rgba(255,255,255,.75);background:linear-gradient(135deg,#222,#8f6dff);display:grid;place-items:center;font-size:20px}
-.creatorFooterTabs{display:flex;justify-content:center;gap:38px;margin-top:16px;color:#ccc;font-weight:800}
-.creatorFooterTabs span.active{color:#fff}
-.liveFeedBadge{position:absolute;left:12px;top:10px;display:flex;gap:6px;align-items:center;z-index:4}
-.liveType{padding:5px 8px;border-radius:999px;background:rgba(0,0,0,.48);border:1px solid rgba(255,255,255,.08);font-size:10px;font-weight:800}
-.liveJoinHint{position:absolute;left:12px;bottom:55px;z-index:4;font-size:11px;color:#d5d5dc;background:rgba(0,0,0,.3);padding:6px 9px;border-radius:999px}
-
-.roomSelect{height:100%;display:grid;grid-template-columns:1fr 1fr;gap:9px;align-content:start;padding:4px}
-.roomPreview{min-height:130px;border:1px solid rgba(255,255,255,.07);border-radius:16px;background:linear-gradient(145deg,#17171f,#0b0b10);color:#fff;padding:11px;text-align:left;position:relative;overflow:hidden}
-.roomPreview b{display:block;font-size:15px;margin-bottom:4px}.roomPreview small{color:#aaa}
-.roomMiniGrid{display:grid;gap:3px;margin-top:9px}.roomMiniGrid.one{grid-template-columns:1fr}.roomMiniGrid.thirteen{grid-template-columns:repeat(3,1fr)}.roomMiniGrid.nine{grid-template-columns:repeat(4,1fr)}.roomMiniGrid.six{grid-template-columns:repeat(3,1fr)}
-.roomMiniGrid i{height:18px;border-radius:4px;background:rgba(255,255,255,.09);display:block}.roomMiniGrid i.hostMini{background:rgba(244,200,90,.2);outline:1px solid rgba(244,200,90,.3)}
-.liveRoom{height:100%;display:flex;flex-direction:column;gap:7px;overflow:hidden}
-.roomBar{display:flex;align-items:center;gap:7px;padding:7px 8px;border-radius:12px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.055)}
-.roomBar .back{width:34px;height:34px;border-radius:50%;border:0;background:rgba(255,255,255,.07);color:#fff}
-.roomBarTitle{flex:1;min-width:0}.roomBarTitle b{display:block;font-size:14px}.roomBarTitle small{color:#aaa;font-size:10px}
-.roomLed{padding:6px 8px;border-radius:10px;text-align:center;color:#f2d574;font-size:11px;font-weight:800;background:rgba(244,200,90,.03);border:1px solid rgba(244,200,90,.14)}
-.roomStage{flex:1;min-height:0;display:grid;gap:6px;position:relative}
-.roomStage.solo{grid-template-columns:1fr}
-.roomStage.general{grid-template-columns:1.12fr 1.88fr}
-.roomStage.subscriber{grid-template-columns:1.1fr 1.9fr}
-.roomStage.secret{grid-template-columns:1.15fr 1.85fr}
-.hostPanel{min-height:0;border-radius:14px;background:radial-gradient(circle at 50% 28%,#2b2432,#13131b 62%,#0b0b10);border:1px solid rgba(244,200,90,.13);position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
-.hostPanel .hostIcon{font-size:52px;opacity:.5}
-.hostName{position:absolute;left:8px;bottom:8px;font-size:11px;font-weight:900;color:#f6d878}
-.hostTag{position:absolute;left:8px;top:8px;background:#ff365f;color:#fff;border-radius:999px;padding:3px 7px;font-size:9px;font-weight:900}
-.guestGrid{display:grid;gap:4px;min-width:0;min-height:0}
-.guestGrid.g12{grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(4,1fr)}
-.guestGrid.g8{grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(4,1fr)}
-.guestGrid.g5{grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(3,1fr)}
-.guestTile{border-radius:9px;background:linear-gradient(145deg,#1b1b24,#111117);border:1px solid rgba(255,255,255,.055);display:grid;place-items:center;color:#8e8e99;font-size:10px;min-height:0;overflow:hidden}
-.roomChat{position:absolute;left:8px;bottom:8px;max-width:68%;display:grid;gap:4px;z-index:3}
-.roomChat div{background:rgba(0,0,0,.35);backdrop-filter:blur(6px);padding:4px 7px;border-radius:999px;font-size:9px;color:#eee}
-.roomRightActions{position:absolute;right:8px;bottom:8px;display:flex;flex-direction:column;gap:6px;z-index:4}
-.roomRightActions button{width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.35);color:#fff;font-size:14px}
-.roomTools{display:flex;gap:6px;overflow:hidden}
-.roomTools button{flex:1;min-width:0;border:0;border-radius:10px;background:rgba(255,255,255,.055);color:#ddd;padding:7px 4px;font-size:9px}
-.roomGiftStrip{display:flex;gap:5px;overflow:auto;padding-bottom:1px}
-.roomGift{min-width:64px;border:1px solid rgba(244,200,90,.12);border-radius:10px;background:rgba(244,200,90,.025);color:#eee;padding:6px 7px;text-align:center;font-size:9px}
-.roomGift span{display:block;font-size:18px;margin-bottom:2px}
-.secretGate{position:absolute;inset:auto 8px 8px 8px;background:rgba(0,0,0,.56);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:8px;z-index:6}
-.secretGate input{width:100%;border:0;border-radius:9px;background:rgba(255,255,255,.08);color:#fff;padding:8px;font-size:11px}
-.secretGate button{width:100%;margin-top:5px;border:0;border-radius:9px;background:#f3f3f5;color:#111;padding:7px;font-weight:900;font-size:10px}
-@media(max-width:380px){.roomStage.general,.roomStage.subscriber,.roomStage.secret{grid-template-columns:1fr 1.7fr}.hostPanel .hostIcon{font-size:42px}}
+:root{--bg:#050507;--panel:#101016;--soft:#171720;--line:rgba(255,255,255,.08);--txt:#fff;--muted:#aaa;--gold:#f5d36e;--pink:#ff3b82;--red:#ff365f;--blue:#3d8dff}
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#000;color:var(--txt);font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif}button,input{font:inherit}
+#app{max-width:520px;height:100dvh;margin:auto;background:var(--bg);position:relative;overflow:hidden}
+.header{height:112px;padding:8px 12px 0;background:linear-gradient(#070709,#050507);border-bottom:1px solid rgba(255,255,255,.05)}
+.headline{display:flex;align-items:center;justify-content:space-between}.logo{font-weight:900;color:var(--gold);font-size:21px}.live{background:var(--red);padding:4px 9px;border-radius:999px;font-size:11px;font-weight:900}
+.led{margin-top:7px;padding:7px 9px;text-align:center;border:1px solid rgba(245,211,110,.16);border-radius:11px;color:var(--gold);font-size:12px;font-weight:800}
+.topnav{display:flex;gap:6px;margin-top:7px}.topnav button{flex:1;border:0;border-radius:999px;padding:7px 4px;background:rgba(255,255,255,.05);color:#ccc;font-size:11px}.topnav button.on{background:#fff;color:#111;font-weight:900}
+#screen{height:calc(100dvh - 180px);padding:7px 8px;overflow:hidden}
+.bottom{position:absolute;left:0;right:0;bottom:0;height:68px;display:grid;grid-template-columns:repeat(5,1fr);align-items:center;background:rgba(5,5,8,.97);border-top:1px solid rgba(255,255,255,.06)}
+.bottom button{border:0;background:none;color:#bbb;font-size:10px}.bottom b{display:block;color:#fff;font-size:19px;margin-bottom:2px}.bottom .plus b{width:46px;height:36px;margin:0 auto 2px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,#39d2ff,#ff4e95);font-size:28px}
+.stage{height:100%;border-radius:18px;position:relative;overflow:hidden;background:radial-gradient(circle at 50% 34%,#252535,#121219 60%,#09090d)}
+.feedBadge{position:absolute;top:10px;left:10px;display:flex;gap:6px;z-index:4}.pill{padding:4px 8px;border-radius:999px;background:rgba(0,0,0,.38);border:1px solid rgba(255,255,255,.07);font-size:10px;font-weight:800}.pill.red{background:rgba(255,54,95,.9)}
+.followbar{position:absolute;top:47px;left:10px;right:68px;display:flex;gap:7px;padding:5px 6px;border-radius:11px;background:rgba(0,0,0,.30);backdrop-filter:blur(8px);z-index:4}
+.person{text-align:center;min-width:36px}.av{width:29px;height:29px;border-radius:50%;display:grid;place-items:center;background:#222;border:1.5px solid var(--blue);font-size:10px;font-weight:900}.av.on{border-color:var(--red)}.person small{font-size:8px;color:#ddd}
+.hostfake{position:absolute;inset:0;display:grid;place-items:center;color:#777;font-size:72px}
+.side{position:absolute;right:9px;bottom:74px;display:flex;flex-direction:column;gap:8px;z-index:4}.side button{width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.07);background:rgba(0,0,0,.35);color:#fff;font-size:17px}.side small{display:block;font-size:7px;color:#ddd}
+.hostinfo{position:absolute;left:14px;bottom:88px;z-index:4}.hostinfo b{color:var(--gold);font-size:16px}.hostinfo span{display:block;color:#bbb;font-size:11px;margin-top:2px}
+.joinhint{position:absolute;left:14px;right:70px;bottom:52px;border:1px solid rgba(255,59,130,.4);background:rgba(255,255,255,.055);color:#fff;border-radius:11px;padding:8px;text-align:center;font-size:11px;font-weight:800}
+.minirow{position:absolute;left:12px;right:12px;bottom:9px;display:flex;gap:7px}.minirow button{flex:1;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.05);color:#ddd;border-radius:10px;padding:7px;font-size:10px}
+.roomShell{height:100%;display:flex;flex-direction:column;gap:6px}
+.roomHead{display:flex;align-items:center;gap:7px;padding:6px 7px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.055);border-radius:11px}.roomHead button{width:32px;height:32px;border-radius:50%;border:0;background:rgba(255,255,255,.06);color:#fff}.roomHead .title{flex:1}.roomHead b{display:block;font-size:13px}.roomHead small{font-size:9px;color:#aaa}
+.roomLED{padding:6px 8px;text-align:center;border:1px solid rgba(245,211,110,.13);border-radius:9px;color:var(--gold);font-size:10px;font-weight:800;background:rgba(245,211,110,.025)}
+.roomBody{flex:1;min-height:0;display:grid;gap:5px;position:relative}.roomBody.solo{grid-template-columns:1fr}.roomBody.r13{grid-template-columns:1.1fr 1.9fr}.roomBody.r9{grid-template-columns:1.08fr 1.92fr}.roomBody.r6{grid-template-columns:1.12fr 1.88fr}
+.hostBox{border-radius:13px;position:relative;display:grid;place-items:center;background:radial-gradient(circle at 50% 32%,#2d2734,#14141b 64%,#0b0b0f);border:1px solid rgba(245,211,110,.13);overflow:hidden}.hostBox .mic{font-size:52px;opacity:.45}.hostBox .name{position:absolute;left:8px;bottom:8px;color:var(--gold);font-size:10px;font-weight:900}.hostBox .onair{position:absolute;left:8px;top:8px;background:var(--red);padding:3px 6px;border-radius:999px;font-size:8px;font-weight:900}
+.guestGrid{display:grid;gap:4px;min-height:0}.g12{grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(4,1fr)}.g8{grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(4,1fr)}.g5{grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(3,1fr)}.guest{border-radius:8px;background:linear-gradient(145deg,#1a1a23,#0f0f14);border:1px solid rgba(255,255,255,.05);display:grid;place-items:center;color:#777;font-size:9px}
+.chat{position:absolute;left:8px;bottom:8px;max-width:67%;display:grid;gap:3px;z-index:5}.chat span{padding:4px 6px;border-radius:999px;background:rgba(0,0,0,.38);font-size:8px}
+.roomActions{position:absolute;right:8px;bottom:8px;display:flex;flex-direction:column;gap:5px;z-index:5}.roomActions button{width:31px;height:31px;border-radius:50%;border:1px solid rgba(255,255,255,.07);background:rgba(0,0,0,.36);color:#fff}
+.tools{display:flex;gap:5px}.tools button{flex:1;border:0;border-radius:9px;padding:6px 3px;background:rgba(255,255,255,.055);color:#ddd;font-size:8px}
+.gifts{display:flex;gap:5px;overflow:auto}.gift{min-width:60px;border:1px solid rgba(245,211,110,.12);background:rgba(245,211,110,.025);border-radius:9px;color:#eee;padding:5px;text-align:center;font-size:8px}.gift strong{display:block;font-size:17px}
+.secret{position:absolute;left:8px;right:8px;bottom:8px;z-index:7;background:rgba(0,0,0,.56);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.08);border-radius:11px;padding:7px}.secret input{width:100%;border:0;border-radius:8px;background:rgba(255,255,255,.08);color:#fff;padding:7px;font-size:10px}.secret button{width:100%;margin-top:5px;border:0;border-radius:8px;padding:7px;background:#fff;color:#111;font-size:9px;font-weight:900}
+.mediaStage{height:100%;border-radius:18px;position:relative;overflow:hidden;background:radial-gradient(circle at 50% 35%,#242434,#111118 62%,#09090d)}.play{position:absolute;inset:0;display:grid;place-items:center;font-size:70px;color:#777}.mediaStage .hostinfo{bottom:68px}.mediaStage .side{bottom:48px}
+.creator{position:fixed;inset:0;z-index:80;background:#000;display:none}.creator.show{display:block}.creator video{width:100%;height:100%;object-fit:cover;background:linear-gradient(#aaa,#333)}
+.creatorShade{position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,.18),transparent 30%,transparent 58%,rgba(0,0,0,.82))}
+.creatorTop{position:absolute;left:14px;right:14px;top:18px;display:flex;justify-content:space-between;align-items:center}.roundx{width:44px;height:44px;border:0;border-radius:50%;background:rgba(0,0,0,.35);color:#fff;font-size:22px}.sound{border:0;border-radius:999px;padding:10px 15px;background:rgba(0,0,0,.35);color:#fff;font-weight:800}
+.creatorTools{position:absolute;right:14px;top:90px;display:flex;flex-direction:column;gap:11px}.creatorTools button{width:46px;height:46px;border-radius:50%;border:0;background:rgba(0,0,0,.30);color:#fff;font-size:19px}
+.creatorBottom{position:absolute;left:14px;right:14px;bottom:18px}.modes{display:flex;justify-content:center;gap:20px;color:#ddd;font-weight:800;font-size:13px}.modes .sel{color:#fff;border-bottom:2px solid #fff;padding-bottom:4px}
+.roomChips{display:flex;gap:6px;overflow:auto;margin:11px 0}.roomChips button{white-space:nowrap;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.26);color:#fff;border-radius:999px;padding:8px 10px;font-size:11px}.roomChips button.on{background:#fff;color:#111;font-weight:900}
+.recordRow{display:flex;align-items:center;justify-content:center;gap:18px}.fx{width:52px;height:52px;border-radius:50%;border:2px solid rgba(255,255,255,.7);background:linear-gradient(135deg,#251c3c,#7e5cff);display:grid;place-items:center;font-size:19px}.record{width:82px;height:82px;border-radius:50%;border:6px solid rgba(255,255,255,.95);background:#ff2d55;box-shadow:0 0 0 4px rgba(255,45,85,.22)}
+.footmodes{display:flex;justify-content:center;gap:38px;margin-top:14px;font-weight:800;color:#bbb}.footmodes .on{color:#fff}
+.sheet{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.65);display:none;align-items:flex-end}.sheet.show{display:flex}.sheetin{width:100%;max-width:520px;margin:auto;background:#111118;border-radius:22px 22px 0 0;padding:14px}.sheethead{display:flex;justify-content:space-between;align-items:center}.sheethead button{border:0;background:#222;color:#fff;border-radius:9px;padding:7px 9px}.joinbtn{width:100%;border:0;border-radius:12px;padding:12px;margin-top:8px;font-weight:900;color:#fff}.naver{background:#03c75a}.kakao{background:#fee500;color:#111}.google{background:#fff;color:#111}.notice{margin-top:9px;color:#aaa;font-size:11px;line-height:1.5}
 </style>
 </head>
 <body>
 <div id="app">
-<header class="top">
-<div class="brand"><div class="logo">♛ K-Talk</div><div class="live">LIVE</div></div>
-<div class="led">♛ K-Talk · 신곡 광고 신청하세요! 🎵 🎤</div>
-<div class="tabs">
-<button class="tab active" data-view="home">홈</button>
-<button class="tab" data-view="shorts">쇼츠</button>
-<button class="tab" data-view="video">동영상</button>
-<button class="tab" data-view="rooms">방송방</button>
-<button class="tab" data-view="profile">프로필</button>
-</div>
-</header>
-<main id="view"></main>
-<nav class="bottom">
-<button class="nav" data-view="home"><b>⌂</b>홈</button>
-<button class="nav" data-action="messages"><b>✉</b>쪽지</button>
-<button class="nav plus" data-action="broadcast"><b>＋</b>방송하기</button>
-<button class="nav" data-action="help"><b>?</b>사용방법</button>
-<button class="nav" data-view="profile"><b>♙</b>내 정보</button>
-</nav>
+  <header class="header">
+    <div class="headline"><div class="logo">♛ K-Talk</div><div class="live">LIVE</div></div>
+    <div class="led">♛ K-Talk · 신곡 광고 신청하세요! 🎵 🎤</div>
+    <div class="topnav">
+      <button class="on" data-top="home">홈</button><button data-top="shorts">쇼츠</button><button data-top="video">동영상</button><button data-top="rooms">방송방</button><button data-top="profile">프로필</button>
+    </div>
+  </header>
+  <main id="screen"></main>
+  <nav class="bottom">
+    <button data-nav="home"><b>⌂</b>홈</button><button data-nav="msg"><b>✉</b>쪽지</button><button class="plus" data-nav="plus"><b>＋</b>방송하기</button><button data-nav="help"><b>?</b>사용방법</button><button data-nav="profile"><b>♙</b>내 정보</button>
+  </nav>
 </div>
 
-<div id="creatorView" class="creatorView">
-  <div class="creatorCamera"></div>
-  <div class="creatorTop">
-    <button class="creatorClose" onclick="closeCreator()">×</button>
-    <button class="soundBtn">♪ 사운드 추가</button>
-    <button class="creatorIcon">↻</button>
-  </div>
-  <div class="creatorTools">
-    <button class="creatorTool">✦</button>
-    <button class="creatorTool">◔</button>
-    <button class="creatorTool">▦</button>
-    <button class="creatorTool">☺</button>
-  </div>
+<div id="creator" class="creator">
+  <video id="camVideo" autoplay playsinline muted></video><div class="creatorShade"></div>
+  <div class="creatorTop"><button class="roundx" onclick="closeCreator()">×</button><button class="sound">♪ 사운드 추가</button><button class="roundx">↻</button></div>
+  <div class="creatorTools"><button>✦</button><button>◔</button><button>▦</button><button>☺</button></div>
   <div class="creatorBottom">
-    <div class="creatorModes">
-      <button>10분</button><button>60초</button><button>15초</button><button class="active">라이브</button>
+    <div class="modes"><span>10분</span><span>60초</span><span>15초</span><span class="sel">라이브</span></div>
+    <div class="roomChips">
+      <button class="on" data-room="1">1인 방송</button><button data-room="2">13명 방송</button><button data-room="3">구독자방</button><button data-room="4">비밀방</button>
     </div>
-    <div class="creatorRooms">
-      <button class="active" data-create-room="1" onclick="chooseCreatorRoom('1',this)">1인 방송</button>
-      <button data-create-room="2" onclick="chooseCreatorRoom('2',this)">13명 방송</button>
-      <button data-create-room="3" onclick="chooseCreatorRoom('3',this)">구독자방</button>
-      <button data-create-room="4" onclick="chooseCreatorRoom('4',this)">비밀방</button>
-    </div>
-    <div class="recordWrap">
-      <div class="effectThumb">✨</div>
-      <button class="recordBtn" onclick="creatorStart()"></button>
-      <div class="effectThumb">🎭</div>
-    </div>
-    <div class="creatorFooterTabs"><span>게시</span><span>창작하기</span><span class="active">라이브</span></div>
+    <div class="recordRow"><div class="fx">✨</div><button class="record" onclick="startSelected()"></button><div class="fx">🎭</div></div>
+    <div class="footmodes"><span>게시</span><span>창작하기</span><span class="on">라이브</span></div>
   </div>
 </div>
-<div id="sheet" class="sheet hidden"><div class="sheetin"><div class="sheethead"><h3 id="sheetTitle">메뉴</h3><button id="sheetClose" class="close">닫기</button></div><div id="sheetBody"></div></div></div>
+
+<div id="sheet" class="sheet"><div class="sheetin"><div class="sheethead"><h3 id="sheetTitle">가입하기</h3><button onclick="closeSheet()">닫기</button></div><div id="sheetBody"></div></div></div>
+
 <script>
-var state={joined:false,adult:false,camera:false,ai:true,following:30,raffle:3,selectedRoom:'1'}; var creatorView=document.getElementById('creatorView');
-var view=document.getElementById('view'),sheet=document.getElementById('sheet'),sheetTitle=document.getElementById('sheetTitle'),sheetBody=document.getElementById('sheetBody');
-function showSheet(t,h){sheetTitle.textContent=t;sheetBody.innerHTML=h;sheet.classList.remove('hidden')}
-function closeSheet(){sheet.classList.add('hidden')}
-document.getElementById('sheetClose').onclick=closeSheet;
-sheet.onclick=function(e){if(e.target===sheet)closeSheet()};
-document.addEventListener('click',function(e){
- var v=e.target.closest('[data-view]');if(v){setView(v.dataset.view);return}
- var a=e.target.closest('[data-action]');if(!a)return;
- if(a.dataset.action==='broadcast')openCreator();
- if(a.dataset.action==='messages'){if(!state.joined)showJoin('댓글·쪽지를 사용하려면 가입해 주세요.');else openMessages();}
- if(a.dataset.action==='help')openHelp();
- if(a.dataset.action==='report')openReport();
- if(a.dataset.action==='like'){if(!state.joined){showJoin('좋아요를 누르려면 가입해 주세요.')}else{a.style.color=a.style.color?'':'#ff5575'}};
- if(a.dataset.action==='save')a.style.color=a.style.color?'':'#6fb4ff';
- if(a.dataset.action==='share'){if(navigator.share){navigator.share({title:'K-Talk LIVE',text:'K-Talk 방송을 확인해 보세요'}).catch(function(){})}else{alert('공유 기능을 열었습니다.')}}
+const S={joined:false,adult:false,room:'1',stream:null};
+const screen=document.getElementById('screen'),creator=document.getElementById('creator'),video=document.getElementById('camVideo'),sheet=document.getElementById('sheet'),sheetTitle=document.getElementById('sheetTitle'),sheetBody=document.getElementById('sheetBody');
+
+document.addEventListener('click',e=>{
+ const t=e.target.closest('[data-top]'); if(t){document.querySelectorAll('[data-top]').forEach(x=>x.classList.toggle('on',x===t)); render(t.dataset.top); return}
+ const n=e.target.closest('[data-nav]'); if(n){const k=n.dataset.nav;if(k==='home')render('home');if(k==='plus')openCreator();if(k==='profile')render('profile');if(k==='msg')needJoin('쪽지를 사용하려면 가입해 주세요.');if(k==='help')help();return}
+ const r=e.target.closest('[data-room]'); if(r){S.room=r.dataset.room;document.querySelectorAll('[data-room]').forEach(x=>x.classList.toggle('on',x===r))}
 });
-function setView(n){
- document.querySelectorAll('.tab').forEach(function(b){b.classList.toggle('active',b.dataset.view===n)});
- if(n==='home')home();if(n==='shorts'||n==='video')media(n);if(n==='rooms')rooms();if(n==='profile')profile();
-}
+
+function render(which){if(which==='home')home();else if(which==='shorts'||which==='video')media(which);else if(which==='rooms')rooms();else if(which==='profile')profile()}
 function home(){
- var ps=[['하늘별',1],['미소',1],['태권',0],['달빛',0],['행복이',1]];
- var people=ps.map(function(p){return '<div class="person"><div class="avatar '+(p[1]?'on':'off')+'">'+p[0].charAt(0)+'</div><small>'+p[0]+'</small></div>'}).join('');
- view.innerHTML='<section class="homeStage"><div class="hero"><div class="liveFeedBadge"><span class="onair" style="position:static">ON AIR</span><span class="liveType">1인 방송</span></div><div class="followStrip"><div class="people">'+people+'</div></div><div class="heroIcon">🎙️</div><div class="profileline"><div class="crown">♛ 태권</div><div class="muted">현재 방송 중</div></div><div class="actions"><button class="round" data-action="like">♡<small>좋아요</small></button><button class="round" data-action="messages">💬<small>댓글</small></button><button class="round" data-action="save">☆<small>저장</small></button><button class="round" data-action="share">↗<small>공유</small></button></div><div class="liveJoinHint">방송을 보다가 참여 기능을 누르면 가입 안내</div></div><div class="miniLinks"><button class="btn grow" data-action="help">사용방법·혜택</button><button class="btn grow" data-action="report">신고</button></div></section>';
+ const ps=[['하늘별',1],['미소',1],['태권',0],['달빛',0],['행복이',1]];
+ screen.innerHTML='<section class="stage"><div class="feedBadge"><span class="pill red">ON AIR</span><span class="pill">1인 방송</span></div><div class="followbar">'+ps.map(p=>'<div class="person"><div class="av '+(p[1]?'on':'')+'">'+p[0][0]+'</div><small>'+p[0]+'</small></div>').join('')+'</div><div class="hostfake">🎙️</div><div class="hostinfo"><b>♛ 태권</b><span>현재 방송 중</span></div><div class="side"><button onclick="needJoin(\'좋아요를 누르려면 가입해 주세요.\')">♡<small>좋아요</small></button><button onclick="needJoin(\'댓글을 쓰려면 가입해 주세요.\')">💬<small>댓글</small></button><button>☆<small>저장</small></button><button>↗<small>공유</small></button></div><button class="joinhint" onclick="needJoin(\'방송을 보면서 가입하면 댓글·팔로우·쪽지·선물을 이용할 수 있습니다.\')">방송 보다가 가입하고 참여하기</button><div class="minirow"><button onclick="help()">사용방법·혜택</button><button onclick="report()">신고</button></div></section>';
 }
-function media(kind){
- var label=kind==='shorts'?'쇼츠':'동영상';
- view.innerHTML='<section class="hero"><div class="heroIcon">▶</div><div class="profileline"><div class="crown">♛ 태권</div><div>'+label+'을 올리면 이곳에 표시됩니다.</div></div><div class="actions"><button class="round" data-action="like">♡<small>좋아요</small></button><button class="round" data-action="messages">💬<small>댓글</small></button><button class="round" data-action="save">☆<small>저장</small></button><button class="round" data-action="share">↗<small>공유</small></button></div></section><section class="card"><button class="btn primary" style="width:100%" onclick="uploadMedia(\''+kind+'\')">'+label+' 올리기</button><div class="notice">동영상·쇼츠에는 선물과 보상을 표시하지 않습니다.</div></section>';
+function media(type){
+ const lab=type==='shorts'?'쇼츠':'동영상';
+ screen.innerHTML='<section class="mediaStage"><div class="play">▶</div><div class="hostinfo"><b>♛ 태권</b><span>'+lab+'을 올리면 이곳에 표시됩니다.</span></div><div class="side"><button>♡<small>좋아요</small></button><button>💬<small>댓글</small></button><button>☆<small>저장</small></button><button>↗<small>공유</small></button></div></section>';
 }
 function rooms(){
- var cards=[
-  ['1','1인 방송','호스트 1명','one',1],
-  ['2','일반방','총 13명','thirteen',13],
-  ['3','구독자방','총 9명','nine',9],
-  ['4','비밀방','총 6명','six',6]
- ];
- var html=cards.map(function(r){
-   var count=r[4],mini='';
-   for(var i=0;i<count;i++) mini+='<i class="'+(i===0?'hostMini':'')+'"></i>';
-   return '<button class="roomPreview" onclick="enterRoom(\''+r[0]+'\')"><b>'+r[0]+'번 · '+r[1]+'</b><small>'+r[2]+' · 호스트 포함</small><span class="roomMiniGrid '+r[3]+'">'+mini+'</span></button>';
- }).join('');
- view.innerHTML='<section class="roomSelect">'+html+'</section>';
+ screen.innerHTML='<section class="roomShell"><div class="roomHead"><div class="title"><b>저장된 방송방 1~4</b><small>원하는 방을 눌러 확인</small></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:1">'+roomCard('1','1인 방송',1)+roomCard('2','13명 방송',13)+roomCard('3','구독자방',9)+roomCard('4','비밀방',6)+'</div></section>';
+}
+function roomCard(id,name,count){
+ let boxes='';for(let i=0;i<count;i++)boxes+='<i style="height:14px;border-radius:4px;background:'+(i===0?'rgba(245,211,110,.22)':'rgba(255,255,255,.08)')+'"></i>';
+ let cols=count===13?3:count===9?4:count===6?3:1;
+ return '<button onclick="enterRoom(\''+id+'\')" style="border:1px solid rgba(255,255,255,.07);border-radius:15px;background:linear-gradient(145deg,#17171f,#0b0b10);color:#fff;padding:10px;text-align:left"><b>'+id+'번 · '+name+'</b><small style="display:block;color:#aaa;margin-top:3px">총 '+count+'명 · 호스트 포함</small><span style="display:grid;grid-template-columns:repeat('+cols+',1fr);gap:3px;margin-top:9px">'+boxes+'</span></button>';
 }
 function enterRoom(id){
- if((id==='3'||id==='4')&&!state.joined){showJoin('이 방은 가입 후 이용할 수 있습니다.');return}
- var cfg=id==='1'?{name:'1인 방송',total:1,kind:'solo',guests:0,grid:''}:id==='2'?{name:'일반방',total:13,kind:'general',guests:12,grid:'g12'}:id==='3'?{name:'구독자방',total:9,kind:'subscriber',guests:8,grid:'g8'}:{name:'비밀방',total:6,kind:'secret',guests:5,grid:'g5'};
- var guests='';
- for(var i=1;i<=cfg.guests;i++) guests+='<div class="guestTile">참여자 '+i+'</div>';
- var gate=id==='4'?'<div class="secretGate"><input placeholder="비밀번호 입력"><button>비밀방 입장</button></div>':'';
- var sub=id==='3'?'<span class="badge">구독자 전용</span>':'';
- view.innerHTML=
- '<section class="liveRoom">'+
-   '<div class="roomBar"><button class="back" onclick="rooms()">←</button><div class="roomBarTitle"><b>'+cfg.name+' '+sub+'</b><small>총 '+cfg.total+'명 · 호스트 포함</small></div><button class="btn" data-action="messages" style="padding:7px 9px;font-size:10px">✉ 쪽지</button></div>'+
-   '<div class="roomLed">♛ K-Talk · 신곡 광고 신청하세요! 🎵 🎤</div>'+
-   '<div class="roomStage '+cfg.kind+'">'+
-     '<div class="hostPanel"><div class="hostTag">ON AIR</div><div class="hostIcon">🎙️</div><div class="hostName">♛ 태권 · HOST</div></div>'+
-     (cfg.guests?'<div class="guestGrid '+cfg.grid+'">'+guests+'</div>':'')+
-     '<div class="roomChat"><div>하늘별 · 안녕하세요 💕</div><div>미소 · 오늘 방송 좋아요!</div><div>행복이 · 응원합니다 👍</div></div>'+
-     '<div class="roomRightActions"><button data-action="like">♡</button><button data-action="messages">💬</button><button data-action="report">⚑</button></div>'+
-     gate+
-   '</div>'+
-   '<div class="roomTools"><button id="camBtn" onclick="toggleCamera()">📷 카메라</button><button id="aiBtn" onclick="toggleAI()">🔊 AI 읽기</button><button id="songBtn" onclick="songMode()">🎵 노래</button><button>🎤 마이크</button></div>'+
-   '<div class="roomGiftStrip"><button class="roomGift"><span>🌹</span>장미 1</button><button class="roomGift"><span>🌹</span>장미 10</button><button class="roomGift"><span>🌹</span>장미 50</button><button class="roomGift"><span>🎁</span>보물상자</button><button class="roomGift"><span>💖</span>하트 100</button><button class="roomGift"><span>💞</span>하트 500</button><button class="roomGift"><span>👑</span>프리미엄</button></div>'+
- '</section>';
+ if((id==='3'||id==='4')&&!S.joined){needJoin('이 방은 가입 후 이용할 수 있습니다.');return}
+ const cfg=id==='1'?['1인 방송',1,'solo',0,'']:id==='2'?['13명 방송',13,'r13',12,'g12']:id==='3'?['구독자방',9,'r9',8,'g8']:['비밀방',6,'r6',5,'g5'];
+ let guests='';for(let i=1;i<=cfg[3];i++)guests+='<div class="guest">참여자 '+i+'</div>';
+ const gate=id==='4'?'<div class="secret"><input placeholder="비밀번호 입력"><button>비밀방 입장</button></div>':'';
+ screen.innerHTML='<section class="roomShell"><div class="roomHead"><button onclick="rooms()">←</button><div class="title"><b>'+cfg[0]+'</b><small>총 '+cfg[1]+'명 · 호스트 포함</small></div><button>✉</button></div><div class="roomLED">♛ K-Talk · 신곡 광고 신청하세요! 🎵 🎤</div><div class="roomBody '+cfg[2]+'"><div class="hostBox"><span class="onair">ON AIR</span><span class="mic">🎙️</span><span class="name">♛ 태권 · HOST</span></div>'+(cfg[3]?'<div class="guestGrid '+cfg[4]+'">'+guests+'</div>':'')+'<div class="chat"><span>하늘별 · 안녕하세요 💕</span><span>미소 · 오늘 방송 좋아요!</span><span>행복이 · 응원합니다 👍</span></div><div class="roomActions"><button>♡</button><button>💬</button><button>⚑</button></div>'+gate+'</div><div class="tools"><button>📷 카메라</button><button>🔊 AI 읽기</button><button>🎵 노래</button><button>🎤 마이크</button></div><div class="gifts"><button class="gift"><strong>🌹</strong>장미 1</button><button class="gift"><strong>🌹</strong>장미 10</button><button class="gift"><strong>🌹</strong>장미 50</button><button class="gift"><strong>🎁</strong>보물상자</button><button class="gift"><strong>💖</strong>하트100</button><button class="gift"><strong>💞</strong>하트500</button><button class="gift"><strong>👑</strong>프리미엄</button></div></section>';
 }
-async function toggleCamera(){
- var b=document.getElementById('camBtn');
- try{if(!state.camera){state.stream=await navigator.mediaDevices.getUserMedia({video:true,audio:false});state.camera=true;b.textContent='📷 카메라 닫기'}else{state.stream.getTracks().forEach(function(t){t.stop()});state.camera=false;b.textContent='📷 카메라 열기'}}catch(e){alert('카메라 권한을 허용해 주세요.')}
+async function openCreator(){
+ creator.classList.add('show');
+ try{S.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});video.srcObject=S.stream}catch(e){video.removeAttribute('src');}
 }
-function toggleAI(){state.ai=!state.ai;document.getElementById('aiBtn').textContent=state.ai?'🔊 AI 읽기 켜짐':'🔇 AI 읽기 꺼짐'}
-function songMode(){var b=document.getElementById('songBtn');b.classList.toggle('gold');b.textContent=b.classList.contains('gold')?'🎵 노래 중 · 참여자 마이크 잠금':'🎵 노래 모드'}
-function openCreator(){creatorView.classList.add('show')}
-function closeCreator(){creatorView.classList.remove('show')}
-function chooseCreatorRoom(id,btn){state.selectedRoom=id;document.querySelectorAll('[data-create-room]').forEach(function(b){b.classList.toggle('active',b===btn)})}
-function creatorStart(){
- if(!state.joined){closeCreator();showJoin('방송을 시작하려면 먼저 가입과 성인 인증이 필요합니다.');return}
- closeCreator();startBroadcast(state.selectedRoom)
-}
-function openBroadcast(){
- if(!state.joined){showJoin('방송하려면 먼저 가입과 성인 인증이 필요합니다.');return}
- showSheet('방송 준비','<div class="prepHero"><div class="prepCam">◉</div></div><div class="prepSection"><span class="prepLabel">방 선택</span><div class="choiceGrid"><button class="roomChoice active" data-roomchoice="1" onclick="selectBroadcastRoom(\'1\',this)">1인 방송</button><button class="roomChoice" data-roomchoice="2" onclick="selectBroadcastRoom(\'2\',this)">일반방 13명</button><button class="roomChoice" data-roomchoice="3" onclick="selectBroadcastRoom(\'3\',this)">구독자방 9명</button><button class="roomChoice" data-roomchoice="4" onclick="selectBroadcastRoom(\'4\',this)">비밀방 6명</button></div></div><div class="prepSection"><span class="prepLabel">보정</span><input class="field" type="range" min="1" max="100" value="50"></div><div class="prepSection"><span class="prepLabel">배경</span><div class="chips"><button class="chip">기본</button><button class="chip">무대</button><button class="chip">콘서트</button><button class="chip">산</button><button class="chip">바다</button><button class="chip">야경</button></div></div><div class="prepSection"><span class="prepLabel">효과</span><div class="chips"><button class="chip">효과 없음</button><button class="chip">하트 100</button><button class="chip">하트 500</button><button class="chip">하트 1000</button></div></div><button class="startBroadcast" onclick="startSelectedBroadcast()">방송 시작</button>');
-}
-function selectBroadcastRoom(id,btn){state.selectedRoom=id;document.querySelectorAll('[data-roomchoice]').forEach(function(b){b.classList.toggle('active',b===btn)})}
-function startSelectedBroadcast(){startBroadcast(state.selectedRoom)}
-function startBroadcast(id){closeSheet();setView('rooms');enterRoom(id);alert('방송 시작 알림 30명 공유는 서버 연결 후 실제 발송됩니다.')}
-function showJoin(msg){showSheet('가입하기','<div class="notice">'+msg+'</div><button class="broadcast-btn" onclick="joinStep(\'네이버\')">네이버로 계속하기</button><button class="broadcast-btn" onclick="joinStep(\'카카오\')">카카오로 계속하기</button><button class="broadcast-btn" onclick="joinStep(\'Google\')">Google로 계속하기</button><div class="notice">실제 소셜 로그인·성인 인증은 각 서비스 키를 연결해야 합니다.</div>')}
-function joinStep(p){state.joined=true;showSheet('성인 인증','<div class="notice">'+p+' 로그인 연결 자리입니다.</div><button class="broadcast-btn" onclick="finishAdult()">휴대폰 본인인증 완료 처리</button>')}
-function finishAdult(){state.adult=true;closeSheet();alert('가입 흐름이 완료되었습니다.')}
-function openMessages(){showSheet('쪽지','<div class="notice"><b>하늘별</b><br>방송 잘 보고 있어요.</div><div class="notice"><b>미소</b><br>오늘도 방송하시나요?</div><input class="field" id="msg" placeholder="쪽지 내용을 입력하세요"><button class="broadcast-btn" onclick="sendMsg()">쪽지 보내기</button>')}
-function sendMsg(){var i=document.getElementById('msg');if(!i.value.trim())return alert('내용을 입력해 주세요.');i.value='';alert('쪽지 전송 화면이 작동합니다. 실제 전송은 서버 연결 후 활성화됩니다.')}
-function openHelp(){showSheet('K-Talk 사용방법·혜택','<div class="notice"><b>처음 오셨나요?</b><br>동영상·쇼츠·방송은 먼저 볼 수 있습니다. ＋방송하기를 누르면 미가입자는 가입 → 성인 인증 → 프로필 설정 순서입니다.<br><br>빨간색 = 방송 중 / 파란색 = 방송 안 함<br>방 종류: 1인 / 일반 13명 / 구독자 9명 / 비밀 6명<br>쇼츠·동영상: 좋아요·댓글·저장·공유만 표시<br>방송방: 쪽지·카메라·AI 읽기·선물·신고</div><div class="notice"><b>구독</b><br>일반 5,000원 · 중회원 14,900원 · VIP 19,900원<br>500개 이상 충전 시 구독자 15% 할인</div><div class="notice"><b>레벨</b><br>Lv1 1,000 · Lv2 2,000 · Lv3 3,000 · Lv4 4,000 · Lv5 5,000 · Lv6 6,500 · Lv7 8,000 · Lv8 9,500 · Lv9 11,000 · Lv10 12,500 장미 누적</div><button class="broadcast-btn" onclick="raffle()">제비뽑기 · 하루 3회</button>')}
-function raffle(){if(state.raffle<=0)return alert('오늘 참여 횟수를 모두 사용했습니다.');state.raffle--;var p=[0,0,1,2,3,4,5],x=p[Math.floor(Math.random()*p.length)];alert(x?'장미 '+x+'개 당첨!':'꽝입니다. 다음 기회에!')}
-function openReport(){showSheet('회사 관리 신고 게시판','<input class="field" id="target" placeholder="신고 대상 닉네임"><select class="field"><option>위험한 행동</option><option>욕설·괴롭힘</option><option>사칭</option><option>불법 판매</option><option>기타</option></select><input class="field" placeholder="신고 내용을 적어 주세요"><button class="broadcast-btn" onclick="submitReport()">신고 접수</button><div class="notice">접수 → 확인 중 → 경고/이용정지 → 처리 완료</div>')}
-function submitReport(){if(!document.getElementById('target').value.trim())return alert('신고 대상을 입력해 주세요.');alert('신고가 접수되었습니다.');closeSheet()}
-function profile(){view.innerHTML='<section class="card" style="text-align:center"><div class="avatar" style="width:86px;height:86px;font-size:28px;border-color:var(--gold)">태</div><h2><span class="crown">♛</span> 태권</h2><div class="muted">K-Talk LIVE 프로필</div><div class="row" style="justify-content:center;margin-top:10px"><b>팔로워 0</b><b>팔로잉 '+state.following+'</b><b>Lv.1</b></div></section><section class="card"><h3 class="title">프로필 링크</h3><input class="field" placeholder="홈페이지·블로그·SNS 주소"><button class="broadcast-btn" onclick="alert(\'링크 저장은 서버 연결 후 계정에 저장됩니다.\')">링크 저장</button></section><section class="card"><h3 class="title">내 콘텐츠</h3><div class="row"><button class="btn grow" onclick="setView(\'video\')">동영상</button><button class="btn grow" onclick="setView(\'shorts\')">쇼츠</button><button class="btn grow" onclick="setView(\'rooms\')">방송</button></div></section><section class="card"><h3 class="title">정산 기준</h3><div class="notice">일반 회원 30% / 회사 70% · 구독자 35% / 회사 65% · 소속사 60% / 회사 40%. 한 방송 30분 이상 정상 종료 시 일반·구독자 호스트 +5%p 기준.</div></section>'}
-function uploadMedia(k){var label=k==='shorts'?'쇼츠':'동영상';showSheet(label+' 올리기','<input class="field" type="file" accept="video/*"><label class="muted">보정 강도 1~100</label><input class="field" type="range" min="1" max="100" value="50"><select class="field"><option>기본 피부 보정</option><option>밝기 보정</option><option>얼굴 또렷하게</option><option>눈 강조</option><option>윤곽 보정</option><option>반짝이</option><option>하트</option><option>별빛</option><option>무대 조명</option><option>재미 필터</option></select><button class="broadcast-btn" onclick="alert(\'실제 영상 업로드 저장소 연결 후 게시됩니다.\')">미리보기 후 올리기</button>')}
+function closeCreator(){creator.classList.remove('show');if(S.stream){S.stream.getTracks().forEach(t=>t.stop());S.stream=null;video.srcObject=null}}
+function startSelected(){if(!S.joined){closeCreator();needJoin('방송을 시작하려면 먼저 가입과 성인 인증이 필요합니다.');return}closeCreator();enterRoom(S.room)}
+function needJoin(msg){sheetTitle.textContent='가입하기';sheetBody.innerHTML='<div class="notice">'+msg+'</div><button class="joinbtn naver" onclick="join(\'naver\')">네이버로 계속하기</button><button class="joinbtn kakao" onclick="join(\'kakao\')">카카오로 계속하기</button><button class="joinbtn google" onclick="join(\'google\')">Google로 계속하기</button><div class="notice">실제 소셜 로그인과 성인 인증은 서비스 키 연결 후 작동합니다.</div>';sheet.classList.add('show')}
+function join(p){S.joined=true;sheetTitle.textContent='성인 인증';sheetBody.innerHTML='<div class="notice">'+p+' 로그인 연결 자리입니다.</div><button class="joinbtn google" onclick="finishJoin()">휴대폰 본인인증 완료 처리</button>'}
+function finishJoin(){S.adult=true;closeSheet();alert('가입 흐름이 완료되었습니다.')}
+function closeSheet(){sheet.classList.remove('show')}
+function help(){sheetTitle.textContent='K-Talk 사용방법';sheetBody.innerHTML='<div class="notice">방송은 먼저 볼 수 있습니다. 댓글·쪽지·선물·방송 시작 같은 기능을 누르면 가입 안내가 뜹니다.<br><br>1번 1인방 / 2번 13명방 / 3번 구독자방 9명 / 4번 비밀방 6명 / 5번 쇼츠·동영상 화면입니다.</div>';sheet.classList.add('show')}
+function report(){sheetTitle.textContent='신고';sheetBody.innerHTML='<input style="width:100%;padding:10px;border-radius:10px;border:0;background:#222;color:#fff" placeholder="신고 대상"><div class="notice">회사 관리자 신고 게시판 연결 자리입니다.</div>';sheet.classList.add('show')}
+function profile(){screen.innerHTML='<section class="stage" style="padding:18px"><div style="text-align:center"><div style="width:86px;height:86px;border-radius:50%;margin:auto;display:grid;place-items:center;border:2px solid var(--gold);font-size:30px">태</div><h2 style="margin:10px 0 2px;color:var(--gold)">♛ 태권</h2><div style="color:#aaa;font-size:12px">K-Talk LIVE 프로필</div></div><div style="display:flex;justify-content:center;gap:18px;margin-top:14px;font-size:12px"><b>팔로워 0</b><b>팔로잉 30</b><b>Lv.1</b></div><input style="width:100%;margin-top:18px;padding:11px;border:1px solid var(--line);border-radius:10px;background:#111;color:#fff" placeholder="홈페이지·블로그·SNS 링크"></section>'}
 home();
 </script>
 </body>
