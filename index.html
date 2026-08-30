@@ -20,6 +20,43 @@
   <button data-bottom="home"><b>⌂</b>홈</button><button data-bottom="message"><b>✉</b>쪽지</button><button class="plus" data-bottom="plus"><b>＋</b>방송하기</button><button data-bottom="help"><b>?</b>사용방법</button><button data-bottom="profile"><b>♙</b>내 정보</button>
 </nav>
 </div>
+<div id="broadcastMenu" class="broadcast-menu">
+  <div class="broadcast-menu-bg"></div>
+  <div class="broadcast-menu-panel">
+    <div class="broadcast-menu-head">
+      <div>
+        <div class="broadcast-crown">♛</div>
+        <h2>방송 시작하기</h2>
+        <p>방송할 방을 선택하세요</p>
+      </div>
+      <button class="broadcast-close" onclick="closeBroadcastMenu()">×</button>
+    </div>
+    <div class="broadcast-options">
+      <button class="broadcast-option gold" onclick="selectRoomAndCamera('1')">
+        <span class="bo-icon">◉</span><b>1인 방송</b><small>혼자 방송하기</small>
+      </button>
+      <button class="broadcast-option orange" onclick="selectRoomAndCamera('2')">
+        <span class="bo-icon">▦</span><b>13명 방송</b><small>호스트 포함 총 13명</small>
+      </button>
+      <button class="broadcast-option purple" onclick="selectRoomAndCamera('3')">
+        <span class="bo-icon">♛</span><b>구독자방</b><small>구독자 전용 방송</small>
+      </button>
+      <button class="broadcast-option blue" onclick="selectRoomAndCamera('4')">
+        <span class="bo-icon">🔒</span><b>비밀방</b><small>비밀번호 방송</small>
+      </button>
+      <button class="broadcast-option pink" onclick="openMediaFromBroadcast('shorts')">
+        <span class="bo-icon">▣</span><b>쇼츠 올리기</b><small>짧은 동영상 등록</small>
+      </button>
+      <button class="broadcast-option cyan" onclick="openMediaFromBroadcast('video')">
+        <span class="bo-icon">▶</span><b>동영상 올리기</b><small>내 동영상 등록</small>
+      </button>
+    </div>
+    <div class="broadcast-menu-bottom">
+      <button onclick="openMenu()">사용방법·혜택</button>
+      <button onclick="openAd()">광고 문의</button>
+    </div>
+  </div>
+</div>
 <div id="creator" class="creator">
   <video id="camera" autoplay playsinline muted></video><div class="shade"></div>
   <div class="creator-top"><button class="circle" onclick="closeCreator()">×</button><button class="sound">♪ 사운드 추가</button><button class="circle">↻</button></div>
