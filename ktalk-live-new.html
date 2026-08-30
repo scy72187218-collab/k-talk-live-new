@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>K-Talk LIVE NEW</title>
+<style>
+:root{--bg:#050507;--panel:#101016;--soft:#171720;--line:rgba(255,255,255,.08);--txt:#fff;--muted:#aaa;--gold:#f5d36e;--pink:#ff3b82;--red:#ff365f;--blue:#3d8dff}
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#000;color:var(--txt);font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif}button,input{font:inherit}
+#app{max-width:520px;height:100dvh;margin:auto;background:var(--bg);position:relative;overflow:hidden}
+.header{height:112px;padding:8px 12px 0;background:linear-gradient(#070709,#050507);border-bottom:1px solid rgba(255,255,255,.05)}
+.headline{display:flex;align-items:center;justify-content:space-between}.logo{font-weight:900;color:var(--gold);font-size:21px}.live{background:var(--red);padding:4px 9px;border-radius:999px;font-size:11px;font-weight:900}
+.led{margin-top:7px;padding:7px 9px;text-align:center;border:1px solid rgba(245,211,110,.16);border-radius:11px;color:var(--gold);font-size:12px;font-weight:800}
+.topnav{display:flex;gap:6px;margin-top:7px}.topnav button{flex:1;border:0;border-radius:999px;padding:7px 4px;background:rgba(255,255,255,.05);color:#ccc;font-size:11px}.topnav button.on{background:#fff;color:#111;font-weight:900}
+#screen{height:calc(100dvh - 180px);padding:7px 8px;overflow:hidden}
+.bottom{position:absolute;left:0;right:0;bottom:0;height:68px;display:grid;grid-template-columns:repeat(5,1fr);align-items:center;background:rgba(5,5,8,.97);border-top:1px solid rgba(255,255,255,.06)}
+.bottom button{border:0;background:none;color:#bbb;font-size:10px}.bottom b{display:block;color:#fff;font-size:19px;margin-bottom:2px}.bottom .plus b{width:46px;height:36px;margin:0 auto 2px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,#39d2ff,#ff4e95);font-size:28px}
+.stage{height:100%;border-radius:18px;position:relative;overflow:hidden;background:radial-gradient(circle at 50% 34%,#252535,#121219 60%,#09090d)}
+.feedBadge{position:absolute;top:10px;left:10px;display:flex;gap:6px;z-index:4}.pill{padding:4px 8px;border-radius:999px;background:rgba(0,0,0,.38);border:1px solid rgba(255,255,255,.07);font-size:10px;font-weight:800}.pill.red{background:rgba(255,54,95,.9)}
+.followbar{position:absolute;top:47px;left:10px;right:68px;display:flex;gap:7px;padding:5px 6px;border-radius:11px;background:rgba(0,0,0,.30);backdrop-filter:blur(8px);z-index:4}
+.person{text-align:center;min-width:36px}.av{width:29px;height:29px;border-radius:50%;display:grid;place-items:center;background:#222;border:1.5px solid var(--blue);font-size:10px;font-weight:900}.av.on{border-color:var(--red)}.person small{font-size:8px;color:#ddd}
+.hostfake{position:absolute;inset:0;display:grid;place-items:center;color:#777;font-size:72px}
+.side{position:absolute;right:9px;bottom:74px;display:flex;flex-direction:column;gap:8px;z-index:4}.side button{width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.07);background:rgba(0,0,0,.35);color:#fff;font-size:17px}.side small{display:block;font-size:7px;color:#ddd}
+.hostinfo{position:absolute;left:14px;bottom:88px;z-index:4}.hostinfo b{color:var(--gold);font-size:16px}.hostinfo span{display:block;color:#bbb;font-size:11px;margin-top:2px}
+.joinhint{position:absolute;left:14px;right:70px;bottom:52px;border:1px solid rgba(255,59,130,.4);background:rgba(255,255,255,.055);color:#fff;border-radius:11px;padding:8px;text-align:center;font-size:11px;font-weight:800}
+.minirow{position:absolute;left:12px;right:12px;bottom:9px;display:flex;gap:7px}.minirow button{flex:1;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.05);color:#ddd;border-radius:10px;padding:7px;font-size:10px}
+.roomShell{height:100%;display:flex;flex-direction:column;gap:6px}
+.roomHead{display:flex;align-items:center;gap:7px;padding:6px 7px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.055);border-radius:11px}.roomHead button{width:32px;height:32px;border-radius:50%;border:0;background:rgba(255,255,255,.06);color:#fff}.roomHead .title{flex:1}.roomHead b{display:block;font-size:13px}.roomHead small{font-size:9px;color:#aaa}
+.roomLED{padding:6px 8px;text-align:center;border:1px solid rgba(245,211,110,.13);border-radius:9px;color:var(--gold);font-size:10px;font-weight:800;background:rgba(245,211,110,.025)}
+.roomBody{flex:1;min-height:0;display:grid;gap:5px;position:relative}.roomBody.solo{grid-template-columns:1fr}.roomBody.r13{grid-template-columns:1.1fr 1.9fr}.roomBody.r9{grid-template-columns:1.08fr 1.92fr}.roomBody.r6{grid-template-columns:1.12fr 1.88fr}
+.hostBox{border-radius:13px;position:relative;display:grid;place-items:center;background:radial-gradient(circle at 50% 32%,#2d2734,#14141b 64%,#0b0b0f);border:1px solid rgba(245,211,110,.13);overflow:hidden}.hostBox .mic{font-size:52px;opacity:.45}.hostBox .name{position:absolute;left:8px;bottom:8px;color:var(--gold);font-size:10px;font-weight:900}.hostBox .onair{position:absolute;left:8px;top:8px;background:var(--red);padding:3px 6px;border-radius:999px;font-size:8px;font-weight:900}
+.guestGrid{display:grid;gap:4px;min-height:0}.g12{grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(4,1fr)}.g8{grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(4,1fr)}.g5{grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(3,1fr)}.guest{border-radius:8px;background:linear-gradient(145deg,#1a1a23,#0f0f14);border:1px solid rgba(255,255,255,.05);display:grid;place-items:center;color:#777;font-size:9px}
+.chat{position:absolute;left:8px;bottom:8px;max-width:67%;display:grid;gap:3px;z-index:5}.chat span{padding:4px 6px;border-radius:999px;background:rgba(0,0,0,.38);font-size:8px}
+.roomActions{position:absolute;right:8px;bottom:8px;display:flex;flex-direction:column;gap:5px;z-index:5}.roomActions button{width:31px;height:31px;border-radius:50%;border:1px solid rgba(255,255,255,.07);background:rgba(0,0,0,.36);color:#fff}
+.tools{display:flex;gap:5px}.tools button{flex:1;border:0;border-radius:9px;padding:6px 3px;background:rgba(255,255,255,.055);color:#ddd;font-size:8px}
+.gifts{display:flex;gap:5px;overflow:auto}.gift{min-width:60px;border:1px solid rgba(245,211,110,.12);background:rgba(245,211,110,.025);border-radius:9px;color:#eee;padding:5px;text-align:center;font-size:8px}.gift strong{display:block;font-size:17px}
+.secret{position:absolute;left:8px;right:8px;bottom:8px;z-index:7;background:rgba(0,0,0,.56);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.08);border-radius:11px;padding:7px}.secret input{width:100%;border:0;border-radius:8px;background:rgba(255,255,255,.08);color:#fff;padding:7px;font-size:10px}.secret button{width:100%;margin-top:5px;border:0;border-radius:8px;padding:7px;background:#fff;color:#111;font-size:9px;font-weight:900}
+.mediaStage{height:100%;border-radius:18px;position:relative;overflow:hidden;background:radial-gradient(circle at 50% 35%,#242434,#111118 62%,#09090d)}.play{position:absolute;inset:0;display:grid;place-items:center;font-size:70px;color:#777}.mediaStage .hostinfo{bottom:68px}.mediaStage .side{bottom:48px}
+.creator{position:fixed;inset:0;z-index:80;background:#000;display:none}.creator.show{display:block}.creator video{width:100%;height:100%;object-fit:cover;background:linear-gradient(#aaa,#333)}
+.creatorShade{position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,.18),transparent 30%,transparent 58%,rgba(0,0,0,.82))}
+.creatorTop{position:absolute;left:14px;right:14px;top:18px;display:flex;justify-content:space-between;align-items:center}.roundx{width:44px;height:44px;border:0;border-radius:50%;background:rgba(0,0,0,.35);color:#fff;font-size:22px}.sound{border:0;border-radius:999px;padding:10px 15px;background:rgba(0,0,0,.35);color:#fff;font-weight:800}
+.creatorTools{position:absolute;right:14px;top:90px;display:flex;flex-direction:column;gap:11px}.creatorTools button{width:46px;height:46px;border-radius:50%;border:0;background:rgba(0,0,0,.30);color:#fff;font-size:19px}
+.creatorBottom{position:absolute;left:14px;right:14px;bottom:18px}.modes{display:flex;justify-content:center;gap:20px;color:#ddd;font-weight:800;font-size:13px}.modes .sel{color:#fff;border-bottom:2px solid #fff;padding-bottom:4px}
+.roomChips{display:flex;gap:6px;overflow:auto;margin:11px 0}.roomChips button{white-space:nowrap;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.26);color:#fff;border-radius:999px;padding:8px 10px;font-size:11px}.roomChips button.on{background:#fff;color:#111;font-weight:900}
+.recordRow{display:flex;align-items:center;justify-content:center;gap:18px}.fx{width:52px;height:52px;border-radius:50%;border:2px solid rgba(255,255,255,.7);background:linear-gradient(135deg,#251c3c,#7e5cff);display:grid;place-items:center;font-size:19px}.record{width:82px;height:82px;border-radius:50%;border:6px solid rgba(255,255,255,.95);background:#ff2d55;box-shadow:0 0 0 4px rgba(255,45,85,.22)}
+.footmodes{display:flex;justify-content:center;gap:38px;margin-top:14px;font-weight:800;color:#bbb}.footmodes .on{color:#fff}
+.sheet{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.65);display:none;align-items:flex-end}.sheet.show{display:flex}.sheetin{width:100%;max-width:520px;margin:auto;background:#111118;border-radius:22px 22px 0 0;padding:14px}.sheethead{display:flex;justify-content:space-between;align-items:center}.sheethead button{border:0;background:#222;color:#fff;border-radius:9px;padding:7px 9px}.joinbtn{width:100%;border:0;border-radius:12px;padding:12px;margin-top:8px;font-weight:900;color:#fff}.naver{background:#03c75a}.kakao{background:#fee500;color:#111}.google{background:#fff;color:#111}.notice{margin-top:9px;color:#aaa;font-size:11px;line-height:1.5}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="header">
+    <div class="headline"><div class="logo">♛ K-Talk</div><div class="live">LIVE</div></div>
+    <div class="led">♛ K-Talk · 신곡 광고 신청하세요! 🎵 🎤</div>
+    <div class="topnav">
+      <button class="on" data-top="home">홈</button><button data-top="shorts">쇼츠</button><button data-top="video">동영상</button><button data-top="rooms">방송방</button><button data-top="profile">프로필</button>
+    </div>
+  </header>
+  <main id="screen"></main>
+  <nav class="bottom">
+    <button data-nav="home"><b>⌂</b>홈</button><button data-nav="msg"><b>✉</b>쪽지</button><button class="plus" data-nav="plus"><b>＋</b>방송하기</button><button data-nav="help"><b>?</b>사용방법</button><button data-nav="profile"><b>♙</b>내 정보</button>
+  </nav>
+</div>
+
+<div id="creator" class="creator">
+  <video id="camVideo" autoplay playsinline muted></video><div class="creatorShade"></div>
+  <div class="creatorTop"><button class="roundx" onclick="closeCreator()">×</button><button class="sound">♪ 사운드 추가</button><button class="roundx">↻</button></div>
+  <div class="creatorTools"><button>✦</button><button>◔</button><button>▦</button><button>☺</button></div>
+  <div class="creatorBottom">
+    <div class="modes"><span>10분</span><span>60초</span><span>15초</span><span class="sel">라이브</span></div>
+    <div class="roomChips">
+      <button class="on" data-room="1">1인 방송</button><button data-room="2">13명 방송</button><button data-room="3">구독자방</button><button data-room="4">비밀방</button>
+    </div>
+    <div class="recordRow"><div class="fx">✨</div><button class="record" onclick="startSelected()"></button><div class="fx">🎭</div></div>
+    <div class="footmodes"><span>게시</span><span>창작하기</span><span class="on">라이브</span></div>
+  </div>
+</div>
+
+<div id="sheet" class="sheet"><div class="sheetin"><div class="sheethead"><h3 id="sheetTitle">가입하기</h3><button onclick="closeSheet()">닫기</button></div><div id="sheetBody"></div></div></div>
+
+<script>
+const S={joined:false,adult:false,room:'1',stream:null};
+const screen=document.getElementById('screen'),creator=document.getElementById('creator'),video=document.getElementById('camVideo'),sheet=document.getElementById('sheet'),sheetTitle=document.getElementById('sheetTitle'),sheetBody=document.getElementById('sheetBody');
+
+document.addEventListener('click',e=>{
+ const t=e.target.closest('[data-top]'); if(t){document.querySelectorAll('[data-top]').forEach(x=>x.classList.toggle('on',x===t)); render(t.dataset.top); return}
+ const n=e.target.closest('[data-nav]'); if(n){const k=n.dataset.nav;if(k==='home')render('home');if(k==='plus')openCreator();if(k==='profile')render('profile');if(k==='msg')needJoin('쪽지를 사용하려면 가입해 주세요.');if(k==='help')help();return}
+ const r=e.target.closest('[data-room]'); if(r){S.room=r.dataset.room;document.querySelectorAll('[data-room]').forEach(x=>x.classList.toggle('on',x===r))}
+});
+
+function render(which){if(which==='home')home();else if(which==='shorts'||which==='video')media(which);else if(which==='rooms')rooms();else if(which==='profile')profile()}
+function home(){
+ const ps=[['하늘별',1],['미소',1],['태권',0],['달빛',0],['행복이',1]];
+ screen.innerHTML='<section class="stage"><div class="feedBadge"><span class="pill red">ON AIR</span><span class="pill">1인 방송</span></div><div class="followbar">'+ps.map(p=>'<div class="person"><div class="av '+(p[1]?'on':'')+'">'+p[0][0]+'</div><small>'+p[0]+'</small></div>').join('')+'</div><div class="hostfake">🎙️</div><div class="hostinfo"><b>♛ 태권</b><span>현재 방송 중</span></div><div class="side"><button onclick="needJoin(\'좋아요를 누르려면 가입해 주세요.\')">♡<small>좋아요</small></button><button onclick="needJoin(\'댓글을 쓰려면 가입해 주세요.\')">💬<small>댓글</small></button><button>☆<small>저장</small></button><button>↗<small>공유</small></button></div><button class="joinhint" onclick="needJoin(\'방송을 보면서 가입하면 댓글·팔로우·쪽지·선물을 이용할 수 있습니다.\')">방송 보다가 가입하고 참여하기</button><div class="minirow"><button onclick="help()">사용방법·혜택</button><button onclick="report()">신고</button></div></section>';
+}
+function media(type){
+ const lab=type==='shorts'?'쇼츠':'동영상';
+ screen.innerHTML='<section class="mediaStage"><div class="play">▶</div><div class="hostinfo"><b>♛ 태권</b><span>'+lab+'을 올리면 이곳에 표시됩니다.</span></div><div class="side"><button>♡<small>좋아요</small></button><button>💬<small>댓글</small></button><button>☆<small>저장</small></button><button>↗<small>공유</small></button></div></section>';
+}
+function rooms(){
+ screen.innerHTML='<section class="roomShell"><div class="roomHead"><div class="title"><b>저장된 방송방 1~4</b><small>원하는 방을 눌러 확인</small></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:1">'+roomCard('1','1인 방송',1)+roomCard('2','13명 방송',13)+roomCard('3','구독자방',9)+roomCard('4','비밀방',6)+'</div></section>';
+}
+function roomCard(id,name,count){
+ let boxes='';for(let i=0;i<count;i++)boxes+='<i style="height:14px;border-radius:4px;background:'+(i===0?'rgba(245,211,110,.22)':'rgba(255,255,255,.08)')+'"></i>';
+ let cols=count===13?3:count===9?4:count===6?3:1;
+ return '<button onclick="enterRoom(\''+id+'\')" style="border:1px solid rgba(255,255,255,.07);border-radius:15px;background:linear-gradient(145deg,#17171f,#0b0b10);color:#fff;padding:10px;text-align:left"><b>'+id+'번 · '+name+'</b><small style="display:block;color:#aaa;margin-top:3px">총 '+count+'명 · 호스트 포함</small><span style="display:grid;grid-template-columns:repeat('+cols+',1fr);gap:3px;margin-top:9px">'+boxes+'</span></button>';
+}
+function enterRoom(id){
+ if((id==='3'||id==='4')&&!S.joined){needJoin('이 방은 가입 후 이용할 수 있습니다.');return}
+ const cfg=id==='1'?['1인 방송',1,'solo',0,'']:id==='2'?['13명 방송',13,'r13',12,'g12']:id==='3'?['구독자방',9,'r9',8,'g8']:['비밀방',6,'r6',5,'g5'];
+ let guests='';for(let i=1;i<=cfg[3];i++)guests+='<div class="guest">참여자 '+i+'</div>';
+ const gate=id==='4'?'<div class="secret"><input placeholder="비밀번호 입력"><button>비밀방 입장</button></div>':'';
+ screen.innerHTML='<section class="roomShell"><div class="roomHead"><button onclick="rooms()">←</button><div class="title"><b>'+cfg[0]+'</b><small>총 '+cfg[1]+'명 · 호스트 포함</small></div><button>✉</button></div><div class="roomLED">♛ K-Talk · 신곡 광고 신청하세요! 🎵 🎤</div><div class="roomBody '+cfg[2]+'"><div class="hostBox"><span class="onair">ON AIR</span><span class="mic">🎙️</span><span class="name">♛ 태권 · HOST</span></div>'+(cfg[3]?'<div class="guestGrid '+cfg[4]+'">'+guests+'</div>':'')+'<div class="chat"><span>하늘별 · 안녕하세요 💕</span><span>미소 · 오늘 방송 좋아요!</span><span>행복이 · 응원합니다 👍</span></div><div class="roomActions"><button>♡</button><button>💬</button><button>⚑</button></div>'+gate+'</div><div class="tools"><button>📷 카메라</button><button>🔊 AI 읽기</button><button>🎵 노래</button><button>🎤 마이크</button></div><div class="gifts"><button class="gift"><strong>🌹</strong>장미 1</button><button class="gift"><strong>🌹</strong>장미 10</button><button class="gift"><strong>🌹</strong>장미 50</button><button class="gift"><strong>🎁</strong>보물상자</button><button class="gift"><strong>💖</strong>하트100</button><button class="gift"><strong>💞</strong>하트500</button><button class="gift"><strong>👑</strong>프리미엄</button></div></section>';
+}
+async function openCreator(){
+ creator.classList.add('show');
+ try{S.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});video.srcObject=S.stream}catch(e){video.removeAttribute('src');}
+}
+function closeCreator(){creator.classList.remove('show');if(S.stream){S.stream.getTracks().forEach(t=>t.stop());S.stream=null;video.srcObject=null}}
+function startSelected(){if(!S.joined){closeCreator();needJoin('방송을 시작하려면 먼저 가입과 성인 인증이 필요합니다.');return}closeCreator();enterRoom(S.room)}
+function needJoin(msg){sheetTitle.textContent='가입하기';sheetBody.innerHTML='<div class="notice">'+msg+'</div><button class="joinbtn naver" onclick="join(\'naver\')">네이버로 계속하기</button><button class="joinbtn kakao" onclick="join(\'kakao\')">카카오로 계속하기</button><button class="joinbtn google" onclick="join(\'google\')">Google로 계속하기</button><div class="notice">실제 소셜 로그인과 성인 인증은 서비스 키 연결 후 작동합니다.</div>';sheet.classList.add('show')}
+function join(p){S.joined=true;sheetTitle.textContent='성인 인증';sheetBody.innerHTML='<div class="notice">'+p+' 로그인 연결 자리입니다.</div><button class="joinbtn google" onclick="finishJoin()">휴대폰 본인인증 완료 처리</button>'}
+function finishJoin(){S.adult=true;closeSheet();alert('가입 흐름이 완료되었습니다.')}
+function closeSheet(){sheet.classList.remove('show')}
+function help(){sheetTitle.textContent='K-Talk 사용방법';sheetBody.innerHTML='<div class="notice">방송은 먼저 볼 수 있습니다. 댓글·쪽지·선물·방송 시작 같은 기능을 누르면 가입 안내가 뜹니다.<br><br>1번 1인방 / 2번 13명방 / 3번 구독자방 9명 / 4번 비밀방 6명 / 5번 쇼츠·동영상 화면입니다.</div>';sheet.classList.add('show')}
+function report(){sheetTitle.textContent='신고';sheetBody.innerHTML='<input style="width:100%;padding:10px;border-radius:10px;border:0;background:#222;color:#fff" placeholder="신고 대상"><div class="notice">회사 관리자 신고 게시판 연결 자리입니다.</div>';sheet.classList.add('show')}
+function profile(){screen.innerHTML='<section class="stage" style="padding:18px"><div style="text-align:center"><div style="width:86px;height:86px;border-radius:50%;margin:auto;display:grid;place-items:center;border:2px solid var(--gold);font-size:30px">태</div><h2 style="margin:10px 0 2px;color:var(--gold)">♛ 태권</h2><div style="color:#aaa;font-size:12px">K-Talk LIVE 프로필</div></div><div style="display:flex;justify-content:center;gap:18px;margin-top:14px;font-size:12px"><b>팔로워 0</b><b>팔로잉 30</b><b>Lv.1</b></div><input style="width:100%;margin-top:18px;padding:11px;border:1px solid var(--line);border-radius:10px;background:#111;color:#fff" placeholder="홈페이지·블로그·SNS 링크"></section>'}
+home();
+</script>
+</body>
+</html>
