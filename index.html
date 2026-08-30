@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>K-Talk LIVE</title>
+<style>
+:root{--bg:#07070c;--panel:#11111a;--line:#2b2b38;--text:#fff;--muted:#aaa;--pink:#ff3b8d;--red:#ff334f;--blue:#318cff;--gold:#ffd76a}
+*{box-sizing:border-box}body{margin:0;background:#000;color:var(--text);font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif}button,input,select{font:inherit}
+#app{max-width:520px;margin:auto;min-height:100vh;background:linear-gradient(#090910,#050508)}
+.top{position:sticky;top:0;z-index:20;background:rgba(5,5,8,.96);border-bottom:1px solid #1e1e28}.brand{display:flex;justify-content:space-between;align-items:center;padding:12px 14px 8px}.logo{font-weight:900;color:var(--gold);font-size:22px}.live{background:var(--red);padding:5px 9px;border-radius:999px;font-size:12px;font-weight:900}
+.led{margin:0 12px 10px;padding:10px;border:1px solid rgba(255,215,106,.28);border-radius:12px;text-align:center;color:var(--gold);font-weight:800}.tabs{display:flex;gap:6px;overflow:auto;padding:0 10px 10px}.tab{border:0;background:#171722;color:#ddd;padding:9px 12px;border-radius:999px;white-space:nowrap}.tab.active{background:#fff;color:#000;font-weight:900}
+main{padding:12px 12px 92px}.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px}.title{font-size:17px;font-weight:900;margin:0 0 10px}.muted{color:var(--muted);font-size:13px}.row{display:flex;gap:8px;align-items:center}.wrap{flex-wrap:wrap}.grow{flex:1}
+.status{display:grid;grid-template-columns:1fr 1fr;gap:10px}.status>div{padding:12px;border-radius:13px;background:#0c0c14}.redbox{border:1px solid rgba(255,51,79,.45)}.bluebox{border:1px solid rgba(49,140,255,.45)}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}.dot.red{background:var(--red)}.dot.blue{background:var(--blue)}
+.people{display:flex;gap:10px;overflow:auto}.person{min-width:70px;text-align:center}.avatar{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;margin:auto;background:#242435;border:2px solid #333;font-weight:900}.avatar.on{border-color:var(--red)}.avatar.off{border-color:var(--blue)}.badge{display:inline-block;margin-top:4px;padding:3px 7px;border-radius:999px;background:#292938;font-size:10px}
+.hero{height:430px;border-radius:18px;background:radial-gradient(circle at 50% 35%,#28283e,#09090f 64%);position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}.heroIcon{font-size:100px;opacity:.75}.onair{position:absolute;left:12px;top:12px;background:var(--red);padding:6px 9px;border-radius:8px;font-size:12px;font-weight:900}.profileline{position:absolute;left:14px;bottom:14px;right:76px}.crown{color:var(--gold);font-weight:900}
+.actions{position:absolute;right:10px;bottom:18px;display:flex;flex-direction:column;gap:10px}.round{width:46px;height:46px;border-radius:50%;border:0;background:rgba(20,20,29,.9);color:#fff;font-size:20px}.round small{display:block;font-size:9px;color:#ccc}
+.btn{border:0;border-radius:12px;padding:12px 14px;font-weight:850;background:#242433;color:#fff}.btn.primary{background:var(--pink)}.btn.blue{background:#16477e}.btn.gold{background:#695318}
+.broadcast-btn{width:100%;border:0;border-radius:14px;padding:14px 12px;margin-top:8px;font-weight:900;color:#fff;background:linear-gradient(135deg,#ff3b8d,#8b5cff)}
+.roomgrid{display:grid;gap:7px}.cols3{grid-template-columns:repeat(3,1fr)}.cols2{grid-template-columns:repeat(2,1fr)}.tile{aspect-ratio:1/.82;background:#181824;border:1px solid #2b2b39;border-radius:12px;display:grid;place-items:center;text-align:center}.host{aspect-ratio:1.7/1;background:linear-gradient(145deg,#251f16,#11111a);border-color:rgba(255,215,106,.3);margin-bottom:8px}
+.gifts{display:flex;gap:8px;overflow:auto}.gift{min-width:76px;border:1px solid #313142;background:#15151f;color:#fff;border-radius:12px;padding:9px}.gift b{display:block;font-size:18px}
+.bottom{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(520px,100%);display:grid;grid-template-columns:repeat(5,1fr);background:rgba(7,7,12,.98);border-top:1px solid #22222e;padding:8px 6px calc(8px + env(safe-area-inset-bottom));z-index:30}.nav{border:0;background:transparent;color:#bbb;font-size:11px}.nav b{display:block;font-size:22px;color:#fff}.nav.plus b{width:48px;height:38px;display:grid;place-items:center;margin:auto;border-radius:12px;background:linear-gradient(90deg,#20d7ff,#ff3b8d)}
+.sheet{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:60;display:flex;align-items:flex-end;justify-content:center}.sheet.hidden{display:none}.sheetin{width:min(520px,100%);max-height:88vh;overflow:auto;background:#11111a;border-radius:22px 22px 0 0;padding:16px 14px 28px}.sheethead{display:flex;justify-content:space-between;align-items:center}.close{border:0;background:#292938;color:#fff;border-radius:10px;padding:8px 11px}.field{width:100%;background:#0d0d14;color:#fff;border:1px solid #30303e;border-radius:11px;padding:12px;margin-top:8px}.notice{padding:10px 12px;border-radius:11px;background:#151522;color:#ddd;font-size:13px;margin:8px 0}
+</style>
+</head>
+<body>
+<div id="app">
+<header class="top">
+<div class="brand"><div class="logo">♛ K-Talk</div><div class="live">LIVE</div></div>
+<div class="led">♛ K-Talk · 신곡 광고 신청하세요! 🎵 🎤</div>
+<div class="tabs">
+<button class="tab active" data-view="home">홈</button>
+<button class="tab" data-view="shorts">쇼츠</button>
+<button class="tab" data-view="video">동영상</button>
+<button class="tab" data-view="rooms">방송방</button>
+<button class="tab" data-view="profile">프로필</button>
+</div>
+</header>
+<main id="view"></main>
+<nav class="bottom">
+<button class="nav" data-view="home"><b>⌂</b>홈</button>
+<button class="nav" data-action="messages"><b>✉</b>쪽지</button>
+<button class="nav plus" data-action="broadcast"><b>＋</b>방송하기</button>
+<button class="nav" data-action="help"><b>?</b>사용방법</button>
+<button class="nav" data-view="profile"><b>♙</b>내 정보</button>
+</nav>
+</div>
+<div id="sheet" class="sheet hidden"><div class="sheetin"><div class="sheethead"><h3 id="sheetTitle">메뉴</h3><button id="sheetClose" class="close">닫기</button></div><div id="sheetBody"></div></div></div>
+<script>
+var state={joined:false,adult:false,camera:false,ai:true,following:30,raffle:3};
+var view=document.getElementById('view'),sheet=document.getElementById('sheet'),sheetTitle=document.getElementById('sheetTitle'),sheetBody=document.getElementById('sheetBody');
+function showSheet(t,h){sheetTitle.textContent=t;sheetBody.innerHTML=h;sheet.classList.remove('hidden')}
+function closeSheet(){sheet.classList.add('hidden')}
+document.getElementById('sheetClose').onclick=closeSheet;
+sheet.onclick=function(e){if(e.target===sheet)closeSheet()};
+document.addEventListener('click',function(e){
+ var v=e.target.closest('[data-view]');if(v){setView(v.dataset.view);return}
+ var a=e.target.closest('[data-action]');if(!a)return;
+ if(a.dataset.action==='broadcast')openBroadcast();
+ if(a.dataset.action==='messages')openMessages();
+ if(a.dataset.action==='help')openHelp();
+ if(a.dataset.action==='report')openReport();
+ if(a.dataset.action==='like')a.style.color=a.style.color?'':'#ff5575';
+ if(a.dataset.action==='save')a.style.color=a.style.color?'':'#6fb4ff';
+ if(a.dataset.action==='share'){if(navigator.share){navigator.share({title:'K-Talk LIVE',text:'K-Talk 방송을 확인해 보세요'}).catch(function(){})}else{alert('공유 기능을 열었습니다.')}}
+});
+function setView(n){
+ document.querySelectorAll('.tab').forEach(function(b){b.classList.toggle('active',b.dataset.view===n)});
+ if(n==='home')home();if(n==='shorts'||n==='video')media(n);if(n==='rooms')rooms();if(n==='profile')profile();
+}
+function home(){
+ var ps=[['하늘별',1],['미소',1],['태권',0],['달빛',0],['행복이',1],['바다',0],['좋은날',0]];
+ var people=ps.map(function(p){return '<div class="person"><div class="avatar '+(p[1]?'on':'off')+'">'+p[0].charAt(0)+'</div><small>'+p[0]+'</small><div class="badge">'+(p[1]?'방송중':'대기')+'</div></div>'}).join('');
+ view.innerHTML='<section class="card"><h2 class="title">방송 상태</h2><div class="status"><div class="redbox"><b><span class="dot red"></span>방송 중</b><div class="muted">빨간색 표시</div></div><div class="bluebox"><b><span class="dot blue"></span>방송 안 함</b><div class="muted">파란색 표시</div></div></div></section><section class="card"><h2 class="title">팔로우한 사람</h2><div class="people">'+people+'</div></section><section class="hero"><div class="onair">ON AIR</div><div class="heroIcon">🎙️</div><div class="profileline"><div class="crown">♛ 태권</div><div class="muted">현재 방송 중</div></div><div class="actions"><button class="round" data-action="like">♡<small>좋아요</small></button><button class="round" data-action="messages">💬<small>댓글</small></button><button class="round" data-action="save">☆<small>저장</small></button><button class="round" data-action="share">↗<small>공유</small></button></div></section><section class="card"><div class="row"><button class="btn grow" data-action="help">사용방법·혜택</button><button class="btn grow" data-action="report">신고 게시판</button></div></section>';
+}
+function media(kind){
+ var label=kind==='shorts'?'쇼츠':'동영상';
+ view.innerHTML='<section class="hero"><div class="heroIcon">▶</div><div class="profileline"><div class="crown">♛ 태권</div><div>'+label+'을 올리면 이곳에 표시됩니다.</div></div><div class="actions"><button class="round" data-action="like">♡<small>좋아요</small></button><button class="round" data-action="messages">💬<small>댓글</small></button><button class="round" data-action="save">☆<small>저장</small></button><button class="round" data-action="share">↗<small>공유</small></button></div></section><section class="card"><button class="btn primary" style="width:100%" onclick="uploadMedia(\''+kind+'\')">'+label+' 올리기</button><div class="notice">동영상·쇼츠에는 선물과 보상을 표시하지 않습니다.</div></section>';
+}
+function rooms(){
+ var list=[['1','1인 방송','호스트 1명'],['2','일반방','총 13명 · 호스트 포함'],['3','구독자방','총 9명 · 호스트 포함'],['4','비밀방','총 6명 · 호스트 포함']];
+ var buttons=list.map(function(r){return '<button class="broadcast-btn" onclick="enterRoom(\''+r[0]+'\')">'+r[0]+'번 · '+r[1]+' <span style="opacity:.8;font-weight:600">('+r[2]+')</span></button>'}).join('');
+ view.innerHTML='<section class="card"><h2 class="title">방송방 선택</h2><div class="notice">방을 보는 사람은 원하는 방을 바로 누릅니다. 방 안에는 방송 시작 버튼이 없습니다.</div>'+buttons+'</section>';
+}
+function enterRoom(id){
+ if((id==='3'||id==='4')&&!state.joined){showJoin('이 방은 가입 후 이용할 수 있습니다.');return}
+ var info=id==='1'?['1인 방송',1]:id==='2'?['일반방',13]:id==='3'?['구독자방',9]:['비밀방',6];
+ var guests=info[1]-1,cls=guests>=10?'cols3':'cols2',tiles='';
+ for(var i=1;i<=guests;i++)tiles+='<div class="tile">참여자 '+i+'</div>';
+ view.innerHTML='<section class="card"><div class="row"><button class="btn" onclick="rooms()">←</button><div class="grow"><b>'+info[0]+'</b><div class="muted">총 '+info[1]+'명 · 호스트 포함</div></div><button class="btn" data-action="messages">✉ 쪽지</button></div></section><section class="card"><div class="tile host"><div><div style="font-size:38px">♛</div><b>호스트 태권</b><div class="muted">카메라·마이크 직접 제어</div></div></div>'+(guests?'<div class="roomgrid '+cls+'">'+tiles+'</div>':'')+'</section><section class="card"><div class="row wrap"><button class="btn blue" id="camBtn" onclick="toggleCamera()">📷 카메라 열기</button><button class="btn" id="aiBtn" onclick="toggleAI()">🔊 AI 읽기 켜짐</button><button class="btn" id="songBtn" onclick="songMode()">🎵 노래 모드</button><button class="btn" data-action="report">🚩 신고</button></div><div class="notice">노래 중에는 호스트·운영진이 자기 마이크를 직접 관리하고 다른 참여자 마이크는 자동 잠금, 노래 종료 후 자동 해제됩니다.</div></section><section class="card"><h3 class="title">선물</h3><div class="gifts"><button class="gift"><b>🌹</b>장미 1</button><button class="gift"><b>🌹</b>장미 10</button><button class="gift"><b>🌹</b>장미 50</button><button class="gift"><b>🎁</b>보물상자</button><button class="gift"><b>💖</b>하트 100</button><button class="gift"><b>💞</b>하트 500</button><button class="gift"><b>💗</b>하트 1000</button></div></section>';
+}
+async function toggleCamera(){
+ var b=document.getElementById('camBtn');
+ try{if(!state.camera){state.stream=await navigator.mediaDevices.getUserMedia({video:true,audio:false});state.camera=true;b.textContent='📷 카메라 닫기'}else{state.stream.getTracks().forEach(function(t){t.stop()});state.camera=false;b.textContent='📷 카메라 열기'}}catch(e){alert('카메라 권한을 허용해 주세요.')}
+}
+function toggleAI(){state.ai=!state.ai;document.getElementById('aiBtn').textContent=state.ai?'🔊 AI 읽기 켜짐':'🔇 AI 읽기 꺼짐'}
+function songMode(){var b=document.getElementById('songBtn');b.classList.toggle('gold');b.textContent=b.classList.contains('gold')?'🎵 노래 중 · 참여자 마이크 잠금':'🎵 노래 모드'}
+function openBroadcast(){
+ if(!state.joined){showJoin('방송하려면 먼저 가입과 성인 인증이 필요합니다.');return}
+ showSheet('방송하기','<div class="notice">모든 방송하기 버튼은 같은 모양·크기·동작으로 통일했습니다.</div><label class="muted">보정 강도 1~100</label><input class="field" type="range" min="1" max="100" value="50"><select class="field"><option>기본 배경</option><option>무대</option><option>콘서트장</option><option>클럽</option><option>산</option><option>바다</option><option>호수</option><option>도시 야경</option><option>꽃밭</option><option>카페</option><option>별빛·우주</option></select><select class="field"><option>하트 효과 없음</option><option>하트 100</option><option>하트 500</option><option>하트 1000</option></select><button class="broadcast-btn" onclick="startBroadcast(\'1\')">1번 · 1인 방송 시작</button><button class="broadcast-btn" onclick="startBroadcast(\'2\')">2번 · 일반방 방송 시작</button><button class="broadcast-btn" onclick="startBroadcast(\'3\')">3번 · 구독자방 방송 시작</button><button class="broadcast-btn" onclick="startBroadcast(\'4\')">4번 · 비밀방 방송 시작</button>');
+}
+function startBroadcast(id){closeSheet();setView('rooms');enterRoom(id);alert('방송 시작 알림 30명 공유는 서버 연결 후 실제 발송됩니다.')}
+function showJoin(msg){showSheet('가입하기','<div class="notice">'+msg+'</div><button class="broadcast-btn" onclick="joinStep(\'네이버\')">네이버로 계속하기</button><button class="broadcast-btn" onclick="joinStep(\'카카오\')">카카오로 계속하기</button><button class="broadcast-btn" onclick="joinStep(\'Google\')">Google로 계속하기</button><div class="notice">실제 소셜 로그인·성인 인증은 각 서비스 키를 연결해야 합니다.</div>')}
+function joinStep(p){state.joined=true;showSheet('성인 인증','<div class="notice">'+p+' 로그인 연결 자리입니다.</div><button class="broadcast-btn" onclick="finishAdult()">휴대폰 본인인증 완료 처리</button>')}
+function finishAdult(){state.adult=true;closeSheet();alert('가입 흐름이 완료되었습니다.')}
+function openMessages(){showSheet('쪽지','<div class="notice"><b>하늘별</b><br>방송 잘 보고 있어요.</div><div class="notice"><b>미소</b><br>오늘도 방송하시나요?</div><input class="field" id="msg" placeholder="쪽지 내용을 입력하세요"><button class="broadcast-btn" onclick="sendMsg()">쪽지 보내기</button>')}
+function sendMsg(){var i=document.getElementById('msg');if(!i.value.trim())return alert('내용을 입력해 주세요.');i.value='';alert('쪽지 전송 화면이 작동합니다. 실제 전송은 서버 연결 후 활성화됩니다.')}
+function openHelp(){showSheet('K-Talk 사용방법·혜택','<div class="notice"><b>처음 오셨나요?</b><br>동영상·쇼츠·방송은 먼저 볼 수 있습니다. ＋방송하기를 누르면 미가입자는 가입 → 성인 인증 → 프로필 설정 순서입니다.<br><br>빨간색 = 방송 중 / 파란색 = 방송 안 함<br>방 종류: 1인 / 일반 13명 / 구독자 9명 / 비밀 6명<br>쇼츠·동영상: 좋아요·댓글·저장·공유만 표시<br>방송방: 쪽지·카메라·AI 읽기·선물·신고</div><div class="notice"><b>구독</b><br>일반 5,000원 · 중회원 14,900원 · VIP 19,900원<br>500개 이상 충전 시 구독자 15% 할인</div><div class="notice"><b>레벨</b><br>Lv1 1,000 · Lv2 2,000 · Lv3 3,000 · Lv4 4,000 · Lv5 5,000 · Lv6 6,500 · Lv7 8,000 · Lv8 9,500 · Lv9 11,000 · Lv10 12,500 장미 누적</div><button class="broadcast-btn" onclick="raffle()">제비뽑기 · 하루 3회</button>')}
+function raffle(){if(state.raffle<=0)return alert('오늘 참여 횟수를 모두 사용했습니다.');state.raffle--;var p=[0,0,1,2,3,4,5],x=p[Math.floor(Math.random()*p.length)];alert(x?'장미 '+x+'개 당첨!':'꽝입니다. 다음 기회에!')}
+function openReport(){showSheet('회사 관리 신고 게시판','<input class="field" id="target" placeholder="신고 대상 닉네임"><select class="field"><option>위험한 행동</option><option>욕설·괴롭힘</option><option>사칭</option><option>불법 판매</option><option>기타</option></select><input class="field" placeholder="신고 내용을 적어 주세요"><button class="broadcast-btn" onclick="submitReport()">신고 접수</button><div class="notice">접수 → 확인 중 → 경고/이용정지 → 처리 완료</div>')}
+function submitReport(){if(!document.getElementById('target').value.trim())return alert('신고 대상을 입력해 주세요.');alert('신고가 접수되었습니다.');closeSheet()}
+function profile(){view.innerHTML='<section class="card" style="text-align:center"><div class="avatar" style="width:86px;height:86px;font-size:28px;border-color:var(--gold)">태</div><h2><span class="crown">♛</span> 태권</h2><div class="muted">K-Talk LIVE 프로필</div><div class="row" style="justify-content:center;margin-top:10px"><b>팔로워 0</b><b>팔로잉 '+state.following+'</b><b>Lv.1</b></div></section><section class="card"><h3 class="title">프로필 링크</h3><input class="field" placeholder="홈페이지·블로그·SNS 주소"><button class="broadcast-btn" onclick="alert(\'링크 저장은 서버 연결 후 계정에 저장됩니다.\')">링크 저장</button></section><section class="card"><h3 class="title">내 콘텐츠</h3><div class="row"><button class="btn grow" onclick="setView(\'video\')">동영상</button><button class="btn grow" onclick="setView(\'shorts\')">쇼츠</button><button class="btn grow" onclick="setView(\'rooms\')">방송</button></div></section><section class="card"><h3 class="title">정산 기준</h3><div class="notice">일반 회원 30% / 회사 70% · 구독자 35% / 회사 65% · 소속사 60% / 회사 40%. 한 방송 30분 이상 정상 종료 시 일반·구독자 호스트 +5%p 기준.</div></section>'}
+function uploadMedia(k){var label=k==='shorts'?'쇼츠':'동영상';showSheet(label+' 올리기','<input class="field" type="file" accept="video/*"><label class="muted">보정 강도 1~100</label><input class="field" type="range" min="1" max="100" value="50"><select class="field"><option>기본 피부 보정</option><option>밝기 보정</option><option>얼굴 또렷하게</option><option>눈 강조</option><option>윤곽 보정</option><option>반짝이</option><option>하트</option><option>별빛</option><option>무대 조명</option><option>재미 필터</option></select><button class="broadcast-btn" onclick="alert(\'실제 영상 업로드 저장소 연결 후 게시됩니다.\')">미리보기 후 올리기</button>')}
+home();
+</script>
+</body>
+</html>
