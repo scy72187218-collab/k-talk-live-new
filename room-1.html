@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>K-Talk LIVE · 1번 1인 방송</title>
+<style>
+:root{
+  --bg:#050507;--panel:rgba(12,12,18,.76);--line:rgba(255,255,255,.09);
+  --gold:#ffd96d;--pink:#ff3f8f;--red:#ff375f;--blue:#43aaff;--text:#fff;--muted:#c0c0cb;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#000;color:var(--text);font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif}
+button,input{font:inherit}
+.room1{
+  width:min(520px,100%);height:100dvh;margin:auto;position:relative;overflow:hidden;
+  background:
+    radial-gradient(circle at 20% 15%,rgba(255,61,140,.14),transparent 28%),
+    radial-gradient(circle at 82% 25%,rgba(72,167,255,.10),transparent 30%),
+    linear-gradient(180deg,#17131c,#09090d 55%,#040406);
+}
+.video{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(circle at 52% 38%,rgba(255,213,165,.16),transparent 20%),
+    radial-gradient(circle at 25% 28%,rgba(167,89,255,.22),transparent 30%),
+    radial-gradient(circle at 78% 30%,rgba(255,139,74,.16),transparent 28%),
+    linear-gradient(160deg,#2a2031,#16131c 58%,#09090c);
+}
+.video:before{
+  content:"호스트 영상 영역";position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);
+  color:rgba(255,255,255,.18);font-weight:800;letter-spacing:-.3px;font-size:22px
+}
+.topbar{
+  position:absolute;left:14px;right:14px;top:max(14px,env(safe-area-inset-top));
+  display:flex;align-items:center;gap:9px;z-index:5;
+}
+.avatar{
+  width:46px;height:46px;border-radius:50%;display:grid;place-items:center;
+  background:linear-gradient(145deg,#33323d,#17171d);border:2px solid rgba(255,255,255,.7);
+  color:#fff;font-weight:900;
+}
+.host-title{min-width:0}
+.host-title b{font-size:13px}
+.host-title small{display:block;color:#ddd;font-size:10px;margin-top:2px}
+.crown{color:var(--gold);margin-left:2px}
+.onair{padding:5px 9px;border-radius:999px;background:linear-gradient(135deg,#ff315f,#ff4c85);font-size:10px;font-weight:900;box-shadow:0 0 16px rgba(255,49,95,.32)}
+.views{padding:5px 8px;border-radius:999px;background:rgba(0,0,0,.42);font-size:10px}
+.close{
+  margin-left:auto;width:36px;height:36px;border:0;border-radius:50%;background:rgba(0,0,0,.36);color:#fff;font-size:22px
+}
+.rank{
+  position:absolute;left:15px;top:75px;z-index:5;padding:6px 10px;border-radius:999px;background:rgba(0,0,0,.40);
+  font-size:10px;backdrop-filter:blur(8px)
+}
+.time{
+  position:absolute;right:14px;top:75px;z-index:5;padding:6px 10px;border-radius:999px;background:rgba(0,0,0,.40);
+  font-size:10px;backdrop-filter:blur(8px)
+}
+.side{
+  position:absolute;right:13px;bottom:205px;z-index:5;display:flex;flex-direction:column;gap:10px
+}
+.side button{
+  width:52px;height:52px;border-radius:50%;border:1px solid rgba(255,255,255,.10);
+  background:rgba(10,10,16,.48);backdrop-filter:blur(8px);color:#fff;font-size:22px
+}
+.side small{display:block;font-size:8px;margin-top:1px;color:#ddd}
+.comments{
+  position:absolute;left:15px;right:85px;bottom:245px;z-index:5;display:grid;gap:6px
+}
+.comment{
+  width:max-content;max-width:100%;padding:6px 9px;border-radius:999px;background:rgba(0,0,0,.38);backdrop-filter:blur(8px);
+  font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+.comment b{color:#fff}
+.gift-alert{
+  position:absolute;left:15px;right:85px;bottom:206px;z-index:5;padding:8px 10px;border-radius:12px;
+  border:1px solid rgba(255,74,145,.34);background:rgba(26,10,18,.52);color:#ff86b8;font-size:10px;font-weight:800
+}
+.message{
+  position:absolute;left:15px;right:72px;bottom:160px;z-index:5;display:flex;align-items:center;gap:8px;
+  border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:7px 10px;background:rgba(0,0,0,.30);backdrop-filter:blur(8px)
+}
+.message input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:#fff;font-size:11px}
+.message button{border:0;background:none;color:#fff;font-size:19px}
+.gift-dock{
+  position:absolute;left:14px;right:14px;bottom:62px;z-index:5;display:grid;grid-template-columns:repeat(4,1fr);gap:7px
+}
+.gift{
+  border:1px solid rgba(255,255,255,.10);border-radius:14px;background:rgba(8,8,13,.52);backdrop-filter:blur(9px);
+  color:#fff;padding:9px 4px 8px;text-align:center
+}
+.gift span{display:block;font-size:33px;line-height:1}
+.gift b{display:block;margin-top:6px;font-size:10px}
+.gift small{display:block;color:#ff79b3;font-size:8px;margin-top:2px}
+.reward-strip{
+  position:absolute;left:14px;right:14px;bottom:8px;z-index:5;display:flex;gap:6px;overflow:hidden
+}
+.reward{
+  flex:1;border:1px solid rgba(255,255,255,.09);border-radius:12px;background:rgba(5,5,9,.56);color:#fff;padding:8px 5px;text-align:center
+}
+.reward b{display:block;font-size:9px}.reward small{display:block;color:#aaa;font-size:7px;margin-top:2px}
+@media(max-height:760px){
+  .side{bottom:190px}.comments{bottom:226px}.gift-alert{bottom:190px}.message{bottom:148px}.gift-dock{bottom:58px}
+  .gift span{font-size:29px}
+}
+</style>
+</head>
+<body>
+<main class="room1">
+  <section class="video"></section>
+
+  <div class="topbar">
+    <div class="avatar">태</div>
+    <div class="host-title">
+      <b>K-Talk LIVE <span class="crown">♛</span></b>
+      <small>1인 방송</small>
+    </div>
+    <span class="onair">ON AIR</span>
+    <span class="views">◉ 1,234</span>
+    <button class="close">×</button>
+  </div>
+
+  <div class="rank">🔥 실시간 랭킹 12위</div>
+  <div class="time">방송 시간 00:32:45</div>
+
+  <div class="side">
+    <button>♥<small>12.5K</small></button>
+    <button>💬<small>356</small></button>
+    <button>↗<small>128</small></button>
+    <button>🎁</button>
+  </div>
+
+  <div class="comments">
+    <div class="comment"><b>민수</b>　안녕하세요 💕</div>
+    <div class="comment"><b>지호</b>　오늘 노래 너무 좋아요!</div>
+    <div class="comment"><b>사랑해</b>　응원합니다 👍</div>
+  </div>
+
+  <div class="gift-alert">🎁 K-Talk에서 장미 3,000개를 선물했습니다!</div>
+
+  <div class="message">
+    <input placeholder="메시지 입력...">
+    <button>☺</button>
+  </div>
+
+  <div class="gift-dock">
+    <button class="gift"><span>🌹</span><b>장미 1개</b></button>
+    <button class="gift"><span>💐</span><b>장미 50개</b></button>
+    <button class="gift"><span>🌹</span><b>장미 100개</b></button>
+    <button class="gift"><span>🎁</span><b>선물 상자</b><small>큰 선물 보기</small></button>
+  </div>
+
+  <div class="reward-strip">
+    <div class="reward"><b>좋아요 보상</b><small>참여 보상</small></div>
+    <div class="reward"><b>♥ 3,000</b><small>달성</small></div>
+    <div class="reward"><b>♥ 6,000</b><small>달성</small></div>
+    <div class="reward"><b>♥ 9,000</b><small>달성</small></div>
+  </div>
+</main>
+</body>
+</html>
