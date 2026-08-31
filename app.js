@@ -144,3 +144,14 @@ setTimeout(function(){
     if(oldPrepBottom)oldPrepBottom(el,name);
   };
 },0);
+
+setTimeout(function(){
+  var previousPrepTap=window.prepTap;
+  window.prepTap=function(el,name){
+    if(name==='목표 설정'){
+      if(el){el.classList.add('test-active');setTimeout(function(){el.classList.remove('test-active');},180);}
+      return;
+    }
+    if(previousPrepTap)previousPrepTap(el,name);
+  };
+},0);
