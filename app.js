@@ -96,28 +96,37 @@ window.openGifts=function(){
 window.openTreasure=function(){showSheet('🎁 보물상자','<div class="premium-grid"><button class="premium" onclick="alert(\'보물상자 50 선택\')"><span>🎁</span><b>보물상자 50</b></button><button class="premium" onclick="alert(\'보물상자 100 선택\')"><span>🎁</span><b>보물상자 100</b></button><button class="premium" onclick="alert(\'보물상자 150 선택\')"><span>🎁</span><b>보물상자 150</b></button></div>');};
 window.selectCoinCharge=function(amount,base,bonus){
   var total=base+bonus;
-  alert(Number(amount).toLocaleString('ko-KR')+'원 · 장미 '+base.toLocaleString('ko-KR')+'개 + 보너스 '+bonus.toLocaleString('ko-KR')+'개 = 총 '+total.toLocaleString('ko-KR')+'개를 선택했습니다.');
+  alert(Number(amount).toLocaleString('ko-KR')+'원 · 기본 장미 '+base.toLocaleString('ko-KR')+'개 · 보너스 '+bonus.toLocaleString('ko-KR')+'개 · 총 '+total.toLocaleString('ko-KR')+'개');
 };
 window.openCharge=function(){
   var packs=[
-    {amount:9000,base:300},
-    {amount:15000,base:500},
-    {amount:30000,base:1000},
-    {amount:45000,base:1500},
-    {amount:60000,base:2000},
-    {amount:75000,base:2500},
-    {amount:90000,base:3000},
-    {amount:100000,base:3333}
+    {base:300},
+    {base:500},
+    {base:1000},
+    {base:1500},
+    {base:2000},
+    {base:2500},
+    {base:3000},
+    {base:3300}
   ];
-  var html='<div class="coin-charge-note">🌹 장미 충전 <b>최대 100,000원</b><br><span style="display:block;margin-top:6px;color:#ffd86b">장미 1개 = 30원 · 500개마다 보너스 +10개</span></div>'
-    +'<div class="coin-charge-grid">'+packs.map(function(p,i){
-      var bonus=Math.floor(p.base/500)*10;
+  var html='<div class="coin-charge-note">'
+    +'<div style="font-size:16px;font-weight:950;color:#fff">🌹 장미 충전</div>'
+    +'<div style="margin-top:7px;color:#ffe17b;font-weight:950">장미 1개 = 30원</div>'
+    +'<div style="margin-top:5px;color:#ffd86b">500개부터 500개마다 <b style="color:#fff">보너스 +10개</b></div>'
+    +'<div style="margin-top:5px;color:#bbb">최대 충전 100,000원</div>'
+    +'</div>'
+    +'<div class="coin-charge-grid">'+packs.map(function(p){
+      var amount=p.base*30;
+      var bonus=p.base>=500?Math.floor(p.base/500)*10:0;
       var total=p.base+bonus;
-      return '<button class="coin-charge-card" onclick="selectCoinCharge('+p.amount+','+p.base+','+bonus+')">'
+      return '<button class="coin-charge-card" onclick="selectCoinCharge('+amount+','+p.base+','+bonus+')">'
         +'<span class="coin-art">🌹</span>'
-        +'<b>'+p.amount.toLocaleString('ko-KR')+'원</b>'
-        +'<small>기본 '+p.base.toLocaleString('ko-KR')+'개 + 보너스 '+bonus.toLocaleString('ko-KR')+'개</small>'
-        +'<small style="color:#ffe17b;font-weight:950">총 '+total.toLocaleString('ko-KR')+'개</small>'
+        +'<b>'+p.base.toLocaleString('ko-KR')+'개</b>'
+        +'<small style="font-size:13px;color:#fff">'+amount.toLocaleString('ko-KR')+'원</small>'
+        +(bonus>0
+          ?'<span class="charge-bonus-badge">🎁 보너스 +'+bonus.toLocaleString('ko-KR')+'개</span>'
+          :'<span class="charge-bonus-none">보너스 없음</span>')
+        +'<small style="color:#ffe17b;font-weight:950">총 '+total.toLocaleString('ko-KR')+'개 지급</small>'
         +'</button>';
     }).join('')+'</div>';
   showSheet('🌹 장미 충전',html);
