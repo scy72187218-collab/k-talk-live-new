@@ -64,12 +64,27 @@ window.openSubs=function(){
   showSheet('👑 구독·VIP 혜택','<div class="rowbox"><b>💎 구독자 혜택</b><br>구독자는 구독자 전용방을 이용할 수 있고 일반방과 1인 방송 등 이용 가능한 방을 확인할 수 있습니다.</div><div class="rowbox"><b>🌹 장미 충전 할인</b><br>구독자는 500개 이상 충전할 때 할인 혜택을 적용하는 방식으로 안내합니다. 실제 할인율과 결제 조건은 결제 화면에서 명확하게 표시해야 합니다.</div><div class="rowbox"><b>🔓 이용 가능한 방</b><br>일반 13명방 · 1인 방송 · 구독자 전용방을 이용할 수 있으며 비밀번호방은 방장이 정한 비밀번호가 있어야 입장할 수 있습니다. 기타 제한 방은 해당 이용 조건을 충족해야 합니다.</div><div class="rowbox"><b>👑 VIP 안내</b><br>VIP 전용 혜택과 입장 권한은 회원 등급 확인 후 적용되도록 구성합니다.</div>');
 };
 
-window.showHostCrown=function(kind){var old=document.getElementById('hostGiftCrown');if(old)old.remove();var badge=document.createElement('div');badge.id='hostGiftCrown';badge.textContent=kind==='다이아 왕관'?'💎👑':'👑';badge.style.cssText='position:fixed;z-index:9999;top:86px;left:50%;transform:translateX(-50%);font-size:52px;filter:drop-shadow(0 0 15px #ffd85a);pointer-events:none';document.body.appendChild(badge);setTimeout(function(){if(badge&&badge.parentNode)badge.remove();},6000);};
-window.giftSend=function(name,cost){if(name==='킹 크라운'||name==='다이아 왕관'){showHostCrown(name);}alert(name+' · '+cost+'개 선물을 선택했습니다.');};
+window.showHostCrown=function(kind){var old=document.getElementById('hostGiftCrown');if(old)old.remove();var badge=document.createElement('div');badge.id='hostGiftCrown';badge.textContent=(kind==='다이아 왕관'||kind==='다이아몬드 왕관')?'💎👑':'👑';badge.style.cssText='position:fixed;z-index:9999;top:86px;left:50%;transform:translateX(-50%);font-size:52px;filter:drop-shadow(0 0 15px #ffd85a);pointer-events:none';document.body.appendChild(badge);setTimeout(function(){if(badge&&badge.parentNode)badge.remove();},6000);};
+window.giftSend=function(name,cost){if(name.indexOf('왕관')>-1||name.indexOf('크라운')>-1){showHostCrown(name);}alert(name+' · '+cost+'개 선물을 선택했습니다.');};
 window.openGifts=function(){
-  var gifts=[['🌹','장미','1'],['💐','꽃다발','5'],['🎁','보물상자','10'],['❤️','하트 목걸이','30'],['💍','다이아 반지','50'],['👠','크리스탈 구두','100'],['🎂','케이크','100'],['⌚','명품 시계','200'],['🧴','명품 향수','200'],['🏎️','스포츠카','300'],['🚘','럭셔리 자동차','500'],['🛥️','요트','700'],['✈️','전용기','1,000'],['👑','킹 크라운','1,500'],['💎','다이아 왕관','2,000'],['🏰','황금 성','3,000'],['🎆','불꽃놀이','3,000'],['🗼','에펠탑','5,000'],['🌌','갤럭시 무대','10,000'],['🪽','천사 날개','20,000'],['🐉','황금 드래곤','30,000'],['🔥','불사조','50,000'],['🚂','황금 기차','70,000'],['🌍','황금 지구','100,000'],['🏝️','럭셔리 리조트','150,000']];
-  var html='<div class="gift-grid gift-grid-25">'+gifts.map(function(g,i){return '<button class="gift-big gift-no-'+(i+1)+'" onclick="giftSend(\''+g[1]+'\',\''+g[2]+'\')"><span>'+g[0]+'</span><b>'+g[1]+'</b><small style="display:block;margin-top:4px;color:#ffd86b;font-weight:900">🌹 '+g[2]+'개</small></button>';}).join('')+'</div>';
-  showSheet('🎁 K-Talk 선물 · 25종',html);
+  var gifts=[
+    ['장미','1'],['장미 꽃다발','5'],['장미 박스','10'],['장미 20송이','20'],['장미 50송이','50'],
+    ['장미 100송이','100'],['장미 200송이','200'],['장미 300송이','300'],['장미 400송이','400'],['장미 500송이','500'],
+    ['로열 장미','1,000'],['보라 장미','2,000'],['핑크 장미','3,000'],['레전드 장미','5,000'],['황금 장미','10,000'],
+    ['킹 크라운','100'],['다이아 왕관','200'],['럭셔리 자동차','300'],['로열 요트','400'],['골든 캐슬','500'],
+    ['갤럭시 무대','1,000'],['프리미엄 로즈','1'],['로즈 부케','5'],['로즈 박스','10'],['골든 부케','50'],
+    ['로열 하트','100'],['황금 왕관','200'],['사랑 하트','300'],['다이아 하트','500'],['K-Talk 카드','700'],
+    ['VIP 크라운','1,000'],['골드 패키지','1,500'],['로열 패키지','2,000'],['프리미엄 캐슬','3,000'],['프라이빗 제트','5,000']
+  ];
+  var xPos=[0,16.667,33.333,50,66.667,83.333,100];
+  var yPos=[0,25,50,75,100];
+  var html='<div class="gift-grid gift-grid-35">'+gifts.map(function(g,i){
+    var col=i%7,row=Math.floor(i/7);
+    var pos=xPos[col]+'% '+yPos[row]+'%';
+    var pic='background-image:url(\'k-talk-gifts-35.jpg\')!important;background-size:700% 500%!important;background-position:'+pos+'!important;background-repeat:no-repeat!important;background-color:#080808!important;';
+    return '<button class="gift-big gift-no-'+(i+1)+'" onclick="giftSend(\''+g[0]+'\',\''+g[1]+'\')"><span style="'+pic+'"></span><b>'+g[0]+'</b><small style="display:block;margin-top:4px;color:#ffd86b;font-weight:900">🌹 '+g[1]+'개</small></button>';
+  }).join('')+'</div>';
+  showSheet('🎁 K-Talk 선물 · 35종',html);
 };
 window.openTreasure=function(){showSheet('🎁 보물상자','<div class="premium-grid"><button class="premium" onclick="alert(\'보물상자 50 선택\')"><span>🎁</span><b>보물상자 50</b></button><button class="premium" onclick="alert(\'보물상자 100 선택\')"><span>🎁</span><b>보물상자 100</b></button><button class="premium" onclick="alert(\'보물상자 150 선택\')"><span>🎁</span><b>보물상자 150</b></button></div>');};
 window.openCharge=function(){showSheet('🌹 장미 충전','<div class="rowbox"><b>장미 1개 = 30원 기준</b></div><div class="rowbox"><b>100개</b> · 서비스 포함 110개</div><div class="rowbox"><b>200개</b> · 서비스 포함 210개</div><div class="rowbox"><b>300개</b> · 서비스 포함 310개</div><div class="rowbox"><b>500개</b> · 서비스 포함 510개</div><div class="rowbox"><b>1,000개</b> · 서비스 포함 1,010개</div><div class="rowbox"><b>2,000개</b> · 서비스 포함 2,010개</div>');};
