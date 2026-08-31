@@ -25,7 +25,19 @@ state.cameraFacing=state.cameraFacing||'user';
 state.beautyOn=!!state.beautyOn;
 state.effectOn=!!state.effectOn;
 
-window.openCreator=function(){creator.classList.add('show');setTimeout(function(){if(window.ensureLiveCamera)ensureLiveCamera(state.cameraFacing||'user');},0);};
+window.openCreator=function(){
+  creator.classList.add('show');
+  setTimeout(function(){
+    var live=state.stream&&state.stream.getTracks&&state.stream.getTracks().some(function(t){return t.readyState==='live';});
+    if(live){
+      camera.srcObject=state.stream;
+      creator.classList.add('camera-on');
+      try{camera.play();}catch(e){}
+    }else if(window.ensureLiveCamera){
+      ensureLiveCamera(state.cameraFacing||'user');
+    }
+  },0);
+};
 window.closeCreator=function(){
   creator.classList.remove('show','camera-on');
   if(state.stream){state.stream.getTracks().forEach(function(t){t.stop();});state.stream=null;if(camera)camera.srcObject=null;}
@@ -33,7 +45,13 @@ window.closeCreator=function(){
 
 window.ensureLiveCamera=async function(facing){
   try{
-    if(state.stream){state.stream.getTracks().forEach(function(t){t.stop();});state.stream=null;}
+    var live=state.stream&&state.stream.getTracks&&state.stream.getTracks().some(function(t){return t.readyState==='live';});
+    if(live){
+      camera.srcObject=state.stream;
+      creator.classList.add('camera-on');
+      try{await camera.play();}catch(e){}
+      return true;
+    }
     state.cameraFacing=facing||state.cameraFacing||'user';
     state.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:state.cameraFacing}},audio:true});
     camera.srcObject=state.stream;
@@ -42,7 +60,7 @@ window.ensureLiveCamera=async function(facing){
     try{await camera.play();}catch(e){}
     return true;
   }catch(e){
-    showSheet('카메라·마이크','<div class="rowbox"><b>카메라/마이크 권한을 허용해 주세요.</b><br>허용하면 라이브 화면을 확인할 수 있습니다.</div><button class="act" onclick="closeSheet()">확인</button>');
+    creator.classList.remove('camera-on');
     return false;
   }
 };
@@ -51,10 +69,8 @@ window.startBroadcast=function(){ };
 
 window.prepTap=async function(el,name){
   if(el){el.classList.add('test-active');setTimeout(function(){el.classList.remove('test-active');},180);}
-  if(name==='뷰티'){
-    state.beautyOn=!state.beautyOn;
-    creator.classList.toggle('beauty-on',state.beautyOn);
-    if(el)el.classList.toggle('prep-on',state.beautyOn);
+  if(name==='보정'||name==='뷰티'){
+    openBeautyPanel();
     return;
   }
   if(name==='편집효과'){
@@ -68,6 +84,31 @@ window.prepTap=async function(el,name){
   if(name==='팬클럽'){ if(window.openSubs)openSubs(); return; }
   if(name==='공유'){ if(window.shareApp)shareApp(); return; }
   if(name==='라이브 보상'){ showSheet('★ 라이브 보상','<div class="rowbox"><b>라이브 보상</b><br>방송 참여 보상과 이벤트를 확인하는 곳입니다.</div>'); return; }
+};
+
+window.openBeautyPanel=function(){
+  var html='<div class="beauty-choice-grid">'
+    +'<button onclick="setBeautyMode(\'natural\',\'\')"><b>✨</b><span>자연 보정</span></button>'
+    +'<button onclick="setBeautyMode(\'bright\',\'\')"><b>☀️</b><span>밝게</span></button>'
+    +'<button onclick="setBeautyMode(\'soft\',\'\')"><b>🌸</b><span>부드럽게</span></button>'
+    +'<button onclick="setBeautyMode(\'glow\',\'\')"><b>💖</b><span>화사하게</span></button>'
+    +'<button onclick="setBeautyMode(\'natural\',\'🐰\')"><b>🐰</b><span>토끼 캐릭터</span></button>'
+    +'<button onclick="setBeautyMode(\'natural\',\'🐱\')"><b>🐱</b><span>고양이 캐릭터</span></button>'
+    +'<button onclick="setBeautyMode(\'natural\',\'👑\')"><b>👑</b><span>왕관 캐릭터</span></button>'
+    +'<button onclick="setBeautyMode(\'off\',\'\')"><b>↺</b><span>보정 해제</span></button>'
+    +'</div>';
+  showSheet('✨ 보정 · 캐릭터',html);
+};
+
+window.setBeautyMode=function(mode,char){
+  state.beautyMode=mode;
+  creator.classList.remove('beauty-natural','beauty-bright','beauty-soft','beauty-glow');
+  if(mode!=='off')creator.classList.add('beauty-'+mode);
+  if(char)creator.setAttribute('data-beauty-char',char);
+  else creator.removeAttribute('data-beauty-char');
+  closeSheet();
+  var btn=[].slice.call(document.querySelectorAll('.prep-item')).find(function(b){return b.textContent.indexOf('보정')>-1;});
+  if(btn)btn.classList.toggle('prep-on',mode!=='off'||!!char);
 };
 
 window.selectPrepRoom=function(el,type,label,max){
