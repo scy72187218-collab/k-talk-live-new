@@ -13,7 +13,7 @@
       +neonCard('#d0a2ff','#803cff','radial-gradient(circle,#8f52ff,#321064)','❔','사이트 사용방법','처음부터 쉽게 보기','openSiteGuide()')
       +neonCard('#ff8fc8','#ff2d8a','radial-gradient(circle,#ff4d9f,#68123f)','🚩','신고 게시판','신고·문의 접수','report()')
       +neonCard('#75e4ff','#1bbfff','radial-gradient(circle,#35d4ff,#0b4264)','📣','광고 문의','광고·판매자 문의','openAd()')
-      +neonCard('#ffe071','#ffb500','radial-gradient(circle,#ffd85a,#6b4200)','💼','투자자 안내','사업·투자 안내','openInvestorInfo()')
+      +neonCard('#ffe071','#ffb500','radial-gradient(circle,#ffd85a,#6b4200)','💼','투자자 안내','방송 수익 정산 안내','openInvestorInfo()')
       +neonCard('#c3b7ff','#6558ff','radial-gradient(circle,#8b7dff,#30276a)','👑','구독·VIP 혜택','할인·입장 가능 방','openSubs()')
       +neonCard('#ffb09a','#ff633f','radial-gradient(circle,#ff8a62,#682310)','🎁','선물·보물상자','선물 종류 확인','openGifts()')
       +neonCard('#ff9baa','#ff405d','radial-gradient(circle,#ff6d82,#681724)','🌹','장미 충전','충전 수량 확인','openCharge()')
@@ -45,6 +45,11 @@
   };
 
   window.openInvestorInfo=function(){
-    showSheet('💼 투자자 안내','<div class="rowbox"><b>K-Talk 사업·투자 안내</b><br>사업 구조, 투자 조건, 정산 방식, 비용과 위험을 계약 전에 충분히 확인해야 합니다.</div><div class="note">투자에는 손실 위험이 있으며 원금이나 수익을 확정적으로 보장할 수 없습니다.</div>');
+    showSheet('💼 투자자 안내',
+      '<div class="rowbox"><b>📅 정산일</b><br>투자자 수익금 정산은 매달 1일 진행하는 방식으로 안내합니다.</div>'+
+      '<div class="rowbox"><b>📡 정산 대상</b><br>K-Talk 방송에서 발생한 방송 관련 수익만 투자자 수익 분배 대상에 포함합니다.</div>'+
+      '<div class="rowbox"><b>🚫 제외 수익</b><br>광고 수익, 상품 판매 수익, 외부 업체와 별도로 체결한 계약에서 발생한 수익은 투자자 분배 대상에서 제외합니다.</div>'+
+      '<div class="rowbox"><b>💰 수익금 분배</b><br>방송 수익을 기준으로 계약서에 정한 지분과 정산 기준에 따라 분배합니다. 실제 금액은 해당 월의 방송 실적에 따라 달라질 수 있습니다.</div>'+
+      '<div class="note">투자는 손실 위험이 있으며 원금이나 수익을 확정적으로 보장할 수 없습니다. 실제 투자 모집 전에는 계약 조건과 관련 법률을 전문가에게 확인하는 것이 필요합니다.</div>');
   };
 })();
