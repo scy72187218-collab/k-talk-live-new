@@ -71,7 +71,7 @@
   }
   function rateFor(type){return type==='subscriber'?0.40:0.35;}
   function labelFor(type){return type==='subscriber'?'구독자':'일반회원';}
-  function hostNet(){return total()*session.rate;}
+  function hostNet(){return Math.round(total()*session.rate);}
 
   window.setKTalkMemberType=function(type){
     var v=type==='subscriber'?'subscriber':'general';
@@ -127,7 +127,7 @@
       +'<div class="rowbox"><b>선물 총액</b><br>'+money(gross)+'</div>'
       +'<div class="rowbox"><b>내 정산율</b><br>'+ratePct+'%</div>'
       +'<div class="rowbox" style="border:2px solid #ffd85a88"><b style="color:#ffe075">👑 내가 실제로 번 돈</b><br><span style="font-size:30px;font-weight:950;color:#ffe075">'+money(mine)+'</span></div>'
-      +'<div class="note">일반회원 35% · 구독자 40% 기준입니다. 소속사 가입 회원 정산은 나중에 별도로 연결합니다.</div>'
+      +'<div class="note">계산식: 받은 장미 × 30원 × 정산율. 일반회원 35% · 구독자 40%이며 1원 미만은 반올림합니다. 소속사 가입 회원 정산은 나중에 별도로 연결합니다.</div>'
       +'<button class="act" onclick="closeSheet();home()">확인</button>'
     );
   };
