@@ -51,48 +51,83 @@
 })();
 </script>
 
-<!-- KTALK_HOST_EARNINGS_V2 -->
+<!-- KTALK_HOST_EARNINGS_V3 -->
 <script>
 (function(){
-  var RATE_HOST=0.40, RATE_COMPANY=0.45, RATE_OPERATOR=0.05, RATE_AGENCY=0.10, ROSE_WON=30;
-  var session={active:false,start:0,roses:0,gifts:0,title:''};
+  var ROSE_WON=30;
+  var session={active:false,start:0,roses:0,gifts:0,title:'',memberType:'general',rate:0.35};
+
   function money(n){return Math.round(n||0).toLocaleString('ko-KR')+'원';}
   function total(){return session.roses*ROSE_WON;}
-  function hostNet(){return total()*RATE_HOST;}
+  function currentMemberType(){
+    try{
+      var saved=localStorage.getItem('ktalk_member_type');
+      if(saved==='subscriber')return 'subscriber';
+    }catch(e){}
+    if(window.state){
+      if(state.memberType==='subscriber'||state.subscribed===true||state.subscriptionActive===true)return 'subscriber';
+    }
+    return 'general';
+  }
+  function rateFor(type){return type==='subscriber'?0.40:0.35;}
+  function labelFor(type){return type==='subscriber'?'구독자':'일반회원';}
+  function hostNet(){return total()*session.rate;}
+
+  window.setKTalkMemberType=function(type){
+    var v=type==='subscriber'?'subscriber':'general';
+    try{localStorage.setItem('ktalk_member_type',v);}catch(e){}
+    if(window.state)state.memberType=v;
+    return v;
+  };
+
   function updateEarn(){
-    var a=document.getElementById('earnNet'),b=document.getElementById('earnRoses');
+    var a=document.getElementById('earnNet'),b=document.getElementById('earnRoses'),r=document.getElementById('earnRate');
     if(a)a.textContent=money(hostNet());
     if(b)b.textContent=session.roses.toLocaleString('ko-KR')+'송이';
+    if(r)r.textContent=labelFor(session.memberType)+' · '+Math.round(session.rate*100)+'%';
   }
+
   window.startBroadcast=function(){
     var t=document.getElementById('liveTitle');
-    session={active:true,start:Date.now(),roses:0,gifts:0,title:t&&t.value?t.value:'K-Talk LIVE'};
+    var memberType=currentMemberType();
+    session={
+      active:true,
+      start:Date.now(),
+      roses:0,
+      gifts:0,
+      title:t&&t.value?t.value:'K-Talk LIVE',
+      memberType:memberType,
+      rate:rateFor(memberType)
+    };
     if(window.closeCreator)window.closeCreator();
     document.body.classList.remove('kt-home');
     screen.innerHTML='<section style="height:100%;padding:14px;color:#fff;background:linear-gradient(180deg,#120b1c,#030305)">'
       +'<div style="display:flex;justify-content:space-between;align-items:center;padding:12px;border:1px solid #ffffff22;border-radius:16px"><b>🔴 '+session.title+'</b><span style="color:#ff6788;font-weight:900">방송 중</span></div>'
-      +'<div style="margin-top:12px;padding:18px;border-radius:20px;background:#ffffff0b;border:1px solid #ffffff18"><small style="color:#bbb">지금까지 실제 내 정산금</small><div id="earnNet" style="font-size:34px;font-weight:950;color:#ffe075;margin-top:6px">0원</div><div style="margin-top:10px">🌹 받은 장미 <b id="earnRoses">0송이</b></div></div>'
+      +'<div style="margin-top:12px;padding:18px;border-radius:20px;background:#ffffff0b;border:1px solid #ffffff18"><small style="color:#bbb">지금까지 내가 번 돈</small><div id="earnNet" style="font-size:34px;font-weight:950;color:#ffe075;margin-top:6px">0원</div><div id="earnRate" style="margin-top:5px;color:#8fe8ff;font-weight:900"></div><div style="margin-top:10px">🌹 받은 장미 <b id="earnRoses">0송이</b></div></div>'
       +'<div style="height:48%;min-height:190px;margin-top:12px;border-radius:22px;display:grid;place-items:center;font-size:78px;background:radial-gradient(circle,#532061,#12101a 55%,#08080c)">🎙️</div>'
       +'<button onclick="endBroadcastEarnings()" style="width:100%;margin-top:12px;padding:15px;border:0;border-radius:17px;background:linear-gradient(135deg,#ff315f,#ff4e91);color:#fff;font-weight:950;font-size:17px">■ 방송 종료</button>'
       +'</section>';
     updateEarn();
   };
+
   var oldGiftSend=window.giftSend;
   window.giftSend=function(name,cost){
     var n=parseInt(String(cost).replace(/,/g,''),10)||0;
     if(session.active&&n>0){session.roses+=n;session.gifts++;updateEarn();}
     if(oldGiftSend)oldGiftSend(name,cost);
   };
+
   window.endBroadcastEarnings=function(){
     if(!session.active)return;
-    var gross=total(), company=gross*RATE_COMPANY, operator=gross*RATE_OPERATOR, agency=gross*RATE_AGENCY, mine=hostNet();
+    var gross=total(), mine=hostNet(), ratePct=Math.round(session.rate*100);
     session.active=false;
     showSheet('💰 방송 수익 정산',
-      '<div class="rowbox"><b>🌹 받은 장미</b><br>'+session.roses.toLocaleString('ko-KR')+'송이</div>'
+      '<div class="rowbox"><b>회원 구분</b><br>'+labelFor(session.memberType)+'</div>'
+      +'<div class="rowbox"><b>🌹 받은 장미</b><br>'+session.roses.toLocaleString('ko-KR')+'송이</div>'
       +'<div class="rowbox"><b>선물 총액</b><br>'+money(gross)+'</div>'
-      +'<div class="rowbox"><b>회사 수수료</b><br>- '+money(company)+'</div>'
-      +'<div class="rowbox"><b>운영·기타 정산 몫</b><br>- '+money(operator+agency)+'</div>'
-      +'<div class="rowbox" style="border:2px solid #ffd85a88"><b style="color:#ffe075">👑 내가 실제로 번 돈</b><br><span style="font-size:30px;font-weight:950;color:#ffe075">'+money(mine)+'</span><br><small>현재 호스트 40% 정산 기준</small></div>'
+      +'<div class="rowbox"><b>내 정산율</b><br>'+ratePct+'%</div>'
+      +'<div class="rowbox" style="border:2px solid #ffd85a88"><b style="color:#ffe075">👑 내가 실제로 번 돈</b><br><span style="font-size:30px;font-weight:950;color:#ffe075">'+money(mine)+'</span></div>'
+      +'<div class="note">일반회원 35% · 구독자 40% 기준입니다. 소속사 가입 회원 정산은 나중에 별도로 연결합니다.</div>'
       +'<button class="act" onclick="closeSheet();home()">확인</button>'
     );
   };
