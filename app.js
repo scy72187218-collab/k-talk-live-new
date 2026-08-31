@@ -96,6 +96,7 @@ window.selectCoinCharge=function(amount,base,bonus){
 };
 window.openCharge=function(){
   var packs=[
+    {amount:9000,base:300},
     {amount:15000,base:500},
     {amount:30000,base:1000},
     {amount:45000,base:1500},
