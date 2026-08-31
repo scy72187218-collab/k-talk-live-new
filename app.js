@@ -27,16 +27,12 @@ state.effectOn=!!state.effectOn;
 
 window.openCreator=function(){
   creator.classList.add('show');
-  setTimeout(function(){
-    var live=state.stream&&state.stream.getTracks&&state.stream.getTracks().some(function(t){return t.readyState==='live';});
-    if(live){
-      camera.srcObject=state.stream;
-      creator.classList.add('camera-on');
-      try{camera.play();}catch(e){}
-    }else if(window.ensureLiveCamera){
-      ensureLiveCamera(state.cameraFacing||'user');
-    }
-  },0);
+  var live=state.stream&&state.stream.getTracks&&state.stream.getTracks().some(function(t){return t.readyState==='live';});
+  if(live){
+    camera.srcObject=state.stream;
+    creator.classList.add('camera-on');
+    try{camera.play();}catch(e){}
+  }
 };
 window.closeCreator=function(){
   creator.classList.remove('show','camera-on');
@@ -65,7 +61,10 @@ window.ensureLiveCamera=async function(facing){
   }
 };
 
-window.startBroadcast=function(){ };
+window.startBroadcast=async function(){
+  var ok=await ensureLiveCamera(state.cameraFacing||'user');
+  if(!ok)return;
+};
 
 window.prepTap=async function(el,name){
   if(el){el.classList.add('test-active');setTimeout(function(){el.classList.remove('test-active');},180);}
