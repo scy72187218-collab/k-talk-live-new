@@ -90,19 +90,32 @@ window.openGifts=function(){
   showSheet('🎁 K-Talk 선물 · 40종',html);
 };
 window.openTreasure=function(){showSheet('🎁 보물상자','<div class="premium-grid"><button class="premium" onclick="alert(\'보물상자 50 선택\')"><span>🎁</span><b>보물상자 50</b></button><button class="premium" onclick="alert(\'보물상자 100 선택\')"><span>🎁</span><b>보물상자 100</b></button><button class="premium" onclick="alert(\'보물상자 150 선택\')"><span>🎁</span><b>보물상자 150</b></button></div>');};
-window.selectCoinCharge=function(amount){
-  alert(Number(amount).toLocaleString('ko-KR')+'원 충전을 선택했습니다.');
+window.selectCoinCharge=function(amount,base,bonus){
+  var total=base+bonus;
+  alert(Number(amount).toLocaleString('ko-KR')+'원 · 장미 '+base.toLocaleString('ko-KR')+'개 + 보너스 '+bonus.toLocaleString('ko-KR')+'개 = 총 '+total.toLocaleString('ko-KR')+'개를 선택했습니다.');
 };
 window.openCharge=function(){
-  var amounts=[5000,10000,20000,30000,50000,100000];
-  var html='<div class="coin-charge-note">🪙 K-Talk 코인 충전 <b>최대 100,000원</b></div>'
-    +'<div class="coin-charge-grid">'+amounts.map(function(a,i){
-      return '<button class="coin-charge-card" onclick="selectCoinCharge('+a+')">'
-        +'<span class="coin-art">'+(i===5?'💎':'🪙')+'</span>'
-        +'<b>'+a.toLocaleString('ko-KR')+'원</b>'
-        +'<small>'+(i===5?'최대 충전':'충전하기')+'</small></button>';
+  var packs=[
+    {amount:15000,base:500},
+    {amount:30000,base:1000},
+    {amount:45000,base:1500},
+    {amount:60000,base:2000},
+    {amount:75000,base:2500},
+    {amount:90000,base:3000},
+    {amount:100000,base:3333}
+  ];
+  var html='<div class="coin-charge-note">🌹 장미 충전 <b>최대 100,000원</b><br><span style="display:block;margin-top:6px;color:#ffd86b">장미 1개 = 30원 · 500개마다 보너스 +10개</span></div>'
+    +'<div class="coin-charge-grid">'+packs.map(function(p,i){
+      var bonus=Math.floor(p.base/500)*10;
+      var total=p.base+bonus;
+      return '<button class="coin-charge-card" onclick="selectCoinCharge('+p.amount+','+p.base+','+bonus+')">'
+        +'<span class="coin-art">🌹</span>'
+        +'<b>'+p.amount.toLocaleString('ko-KR')+'원</b>'
+        +'<small>기본 '+p.base.toLocaleString('ko-KR')+'개 + 보너스 '+bonus.toLocaleString('ko-KR')+'개</small>'
+        +'<small style="color:#ffe17b;font-weight:950">총 '+total.toLocaleString('ko-KR')+'개</small>'
+        +'</button>';
     }).join('')+'</div>';
-  showSheet('🪙 코인 충전',html);
+  showSheet('🌹 장미 충전',html);
 };
 window.openRaffle=function(){showSheet('🎯 제비뽑기','<div class="raffle">꽝 · 1 · 2 · 3 · 4 · 5</div><button class="act" onclick="raffle()">제비뽑기</button>');};
 window.raffle=function(){if(state.raffle<=0){alert('오늘 참여 횟수를 모두 사용했습니다.');return;}state.raffle--;var p=[0,0,1,2,3,4,5];var x=p[Math.floor(Math.random()*p.length)];alert(x?'장미 '+x+'개 당첨!':'꽝입니다.');};
