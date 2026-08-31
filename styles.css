@@ -97,3 +97,21 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
 .gift-grid .gift-big:nth-child(14)>span{background-position:33.333% 100%!important}
 .gift-grid .gift-big:nth-child(15)>span{background-position:66.667% 100%!important}
 .gift-grid .gift-big:nth-child(16)>span{background-position:100% 100%!important}
+
+/* Gift images: keep every gift visible on mobile even when SVG emoji fonts fail */
+.gift-big>span.gift-live-icon{
+  width:100%!important;
+  height:92px!important;
+  margin:0 auto 6px!important;
+  border-radius:12px!important;
+  display:grid!important;
+  place-items:center!important;
+  font-family:"Noto Color Emoji","Apple Color Emoji","Segoe UI Emoji",sans-serif!important;
+  font-size:52px!important;
+  line-height:1!important;
+  background-image:none!important;
+  background:radial-gradient(circle at 50% 42%,rgba(255,216,107,.22),rgba(64,42,22,.12) 46%,#080808 76%)!important;
+  box-shadow:0 0 0 2px #c8a85b,inset 0 0 20px #0008,0 0 10px #d7b75b33!important;
+  filter:none!important;
+}
+.gift-grid .gift-big:nth-child(n)>span.gift-live-icon{background-position:center!important}
