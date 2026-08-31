@@ -154,13 +154,15 @@
     };
     saveMyLastEarnings(summary);
     session.active=false;
-    showSheet('💰 내 방송 수익',
-      '<div class="rowbox"><b>회원 구분</b><br>'+labelFor(summary.memberType)+'</div>'
-      +'<div class="rowbox"><b>🌹 받은 장미</b><br>'+summary.roses.toLocaleString('ko-KR')+'송이</div>'
-      +'<div class="rowbox"><b>선물 총액</b><br>'+money(summary.gross)+'</div>'
-      +'<div class="rowbox"><b>내 정산율</b><br>'+summary.rate+'%</div>'
-      +'<div class="rowbox" style="border:2px solid #ffd85a88;background:#3a2b071f"><b style="color:#ffe075">👑 내가 실제로 번 돈</b><br><span style="font-size:34px;font-weight:950;color:#ffe075">'+money(summary.mine)+'</span></div>'
-      +'<div class="note">방송을 끝내는 즉시 본인 화면에만 표시됩니다. 계산식: 받은 장미 × 30원 × 정산율. 일반회원 35% · 구독자 40%.</div>'
+    showSheet('💰 방송 종료 · 내 수익',
+      '<div class="rowbox" style="text-align:center;border:2px solid #ffd85a88;background:#3a2b071f;padding:20px 12px">'
+      +'<div style="font-size:15px;color:#fff3b0;font-weight:900">회사 수수료 차감 후</div>'
+      +'<div style="margin-top:5px;font-size:16px;font-weight:950;color:#ffe075">내가 받는 금액</div>'
+      +'<div style="margin-top:8px;font-size:40px;font-weight:950;color:#ffe075">'+money(summary.mine)+'</div>'
+      +'</div>'
+      +'<div class="rowbox"><b>🌹 받은 장미</b><br>'+summary.roses.toLocaleString('ko-KR')+'송이 × 30원</div>'
+      +'<div class="rowbox"><b>회원 구분 · 내 정산율</b><br>'+labelFor(summary.memberType)+' · '+summary.rate+'%</div>'
+      +'<div class="note">방송을 끝내는 즉시 본인 화면에 표시됩니다. 일반회원은 총 선물금액의 35%, 구독자는 40%가 본인 수익으로 계산됩니다.</div>'
       +'<button class="act" onclick="closeSheet();home()">확인</button>'
     );
   };
