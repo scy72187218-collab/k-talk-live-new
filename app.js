@@ -23,9 +23,9 @@ window.friends=function(){document.body.classList.remove('kt-home');screen.inner
 
 window.openCreator=function(){creator.classList.add('show');};
 window.closeCreator=function(){creator.classList.remove('show');if(state.stream){state.stream.getTracks().forEach(function(t){t.stop();});state.stream=null;if(camera)camera.srcObject=null;}};
-window.startBroadcast=function(){alert('라이브 시작 버튼이 정상 작동합니다. 현재는 시험 모드입니다.');};
-window.prepTap=function(el,name){if(el){el.classList.add('test-active');setTimeout(function(){el.classList.remove('test-active');},180);}alert(name+' 버튼이 정상 작동합니다.');};
-window.prepBottomTap=function(el,name){document.querySelectorAll('.prep-bottom span').forEach(function(s){s.classList.remove('on');});if(el)el.classList.add('on');alert(name+' 메뉴가 정상 작동합니다.');};
+window.startBroadcast=function(){ };
+window.prepTap=function(el,name){if(el){el.classList.add('test-active');setTimeout(function(){el.classList.remove('test-active');},180);}};
+window.prepBottomTap=function(el,name){document.querySelectorAll('.prep-bottom span').forEach(function(s){s.classList.remove('on');});if(el)el.classList.add('on');};
 
 window.needJoin=function(msg){showSheet('가입하기','<div class="note">'+msg+'</div><button class="act social naver" onclick="join(\'네이버\')">네이버로 계속하기</button><button class="act social kakao" onclick="join(\'카카오\')">카카오로 계속하기</button><button class="act social google" onclick="join(\'Google\')">Google로 계속하기</button><div class="note">현재는 화면 작동 확인용 테스트입니다.</div>');};
 window.join=function(provider){showSheet('로그인 확인','<div class="rowbox"><b>'+provider+' 로그인 버튼 작동 확인</b></div><button class="act" onclick="closeSheet()">확인</button>');};
