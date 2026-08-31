@@ -76,13 +76,17 @@ window.openGifts=function(){
     ['로열 하트','100'],['황금 왕관','200'],['사랑 하트','300'],['다이아 하트','500'],['K-Talk 카드','700'],
     ['VIP 크라운','1,000'],['골드 패키지','1,500'],['로열 패키지','2,000'],['프리미엄 캐슬','3,000'],['프라이빗 제트','5,000']
   ];
-  var xPos=[0,16.667,33.333,50,66.667,83.333,100];
-  var yPos=[0,25,50,75,100];
+  var icons=[
+    '🌹','💐','🎁','🌹','💐',
+    '💐','🌹','💐','🌹','💐',
+    '🌹','🌹','🌹','🌹','🌟',
+    '👑','💎','🏎️','🛥️','🏰',
+    '🌌','🌹','💐','🎁','💐',
+    '❤️','👑','💕','💎','🎴',
+    '👑','🎁','💎','🏰','✈️'
+  ];
   var html='<div class="gift-grid gift-grid-35">'+gifts.map(function(g,i){
-    var col=i%7,row=Math.floor(i/7);
-    var pos=xPos[col]+'% '+yPos[row]+'%';
-    var pic='background-image:url(\'k-talk-gifts-35.jpg\')!important;background-size:700% 500%!important;background-position:'+pos+'!important;background-repeat:no-repeat!important;background-color:#080808!important;';
-    return '<button class="gift-big gift-no-'+(i+1)+'" onclick="giftSend(\''+g[0]+'\',\''+g[1]+'\')"><span style="'+pic+'"></span><b>'+g[0]+'</b><small style="display:block;margin-top:4px;color:#ffd86b;font-weight:900">🌹 '+g[1]+'개</small></button>';
+    return '<button class="gift-big gift-no-'+(i+1)+'" onclick="giftSend(\''+g[0]+'\',\''+g[1]+'\')"><span class="gift-live-icon">'+icons[i]+'</span><b>'+g[0]+'</b><small style="display:block;margin-top:4px;color:#ffd86b;font-weight:900">🌹 '+g[1]+'개</small></button>';
   }).join('')+'</div>';
   showSheet('🎁 K-Talk 선물 · 35종',html);
 };
