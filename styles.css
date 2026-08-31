@@ -239,3 +239,12 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   display:inline-block;margin:8px auto 5px;padding:5px 8px;border-radius:999px;
   border:1px solid #ffffff22;background:#ffffff0a;color:#aaa;font-size:11px;font-weight:850
 }
+
+
+/* 라이브 준비 버튼 작동 표시 */
+.prep-item.prep-on b{
+  border-color:#ff5fa9!important;
+  background:linear-gradient(180deg,rgba(255,95,169,.32),rgba(123,87,255,.22))!important;
+  box-shadow:0 0 18px rgba(255,95,169,.38)!important;
+}
+.prep-item.prep-on{color:#ffe8f6!important}
