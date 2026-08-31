@@ -57,7 +57,26 @@ window.join=function(provider){showSheet('로그인 확인','<div class="rowbox"
 window.finishJoin=function(){closeSheet();};
 
 window.openMenu=function(){
-  showSheet('K-Talk 사용방법·혜택','<div class="aux-grid"><button class="aux-card" onclick="openGifts()"><b>🎁 선물·보물상자</b><small>선물 보기</small></button><button class="aux-card" onclick="openCharge()"><b>🌹 장미 충전</b><small>충전 화면</small></button><button class="aux-card" onclick="openSubs()"><b>👑 구독·VIP</b><small>회원 혜택</small></button><button class="aux-card" onclick="openRaffle()"><b>🎯 제비뽑기</b><small>이벤트</small></button><button class="aux-card" onclick="openMessages()"><b>✉ 쪽지</b><small>메시지</small></button><button class="aux-card" onclick="openProfile()"><b>♛ 프로필</b><small>내 정보</small></button></div>');
+  var card='display:flex;min-height:118px;border-radius:22px;padding:16px 14px;align-items:center;gap:12px;text-align:left;color:#fff;background:linear-gradient(145deg,#10111b,#07070d);font-weight:900;box-shadow:inset 0 0 24px rgba(255,255,255,.03);';
+  var icon='width:54px;height:54px;border-radius:50%;display:grid;place-items:center;font-size:28px;flex:0 0 54px;';
+  var txt='display:block;font-size:17px;line-height:1.15;margin-bottom:5px;';
+  var sub='display:block;font-size:11px;color:#c9c9d1;font-weight:700;';
+  var html='<div style="padding:4px 2px 10px"><div style="text-align:center;font-size:23px;font-weight:950;color:#fff;margin:6px 0 16px;text-shadow:0 0 16px #ff43c9">♛ K-Talk 안내</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'
+    +'<button style="'+card+'border:1.5px solid #a95cff;box-shadow:0 0 18px #7d36ff55,inset 0 0 24px #8d45ff1f" onclick="openSiteGuide()"><span style="'+icon+'background:radial-gradient(circle,#8f52ff,#321064);box-shadow:0 0 20px #9b55ff88">❔</span><span><b style="'+txt+'color:#d7b2ff">사이트 사용방법</b><small style="'+sub+'">처음부터 쉽게 보기</small></span></button>'
+    +'<button style="'+card+'border:1.5px solid #ff3b9c;box-shadow:0 0 18px #ff2d8a55,inset 0 0 24px #ff3b9c1f" onclick="report()"><span style="'+icon+'background:radial-gradient(circle,#ff4d9f,#68123f);box-shadow:0 0 20px #ff3b9c88">🚩</span><span><b style="'+txt+'color:#ff9dca">신고 게시판</b><small style="'+sub+'">신고·문의 접수</small></span></button>'
+    +'<button style="'+card+'border:1.5px solid #27c6ff;box-shadow:0 0 18px #1bbfff55,inset 0 0 24px #27c6ff1f" onclick="openAd()"><span style="'+icon+'background:radial-gradient(circle,#35d4ff,#0b4264);box-shadow:0 0 20px #27c6ff88">📣</span><span><b style="'+txt+'color:#75e4ff">광고 문의</b><small style="'+sub+'">광고·판매자 문의</small></span></button>'
+    +'<button style="'+card+'border:1.5px solid #ffbd22;box-shadow:0 0 18px #ffb50055,inset 0 0 24px #ffbd221f" onclick="openInvestorInfo()"><span style="'+icon+'background:radial-gradient(circle,#ffd85a,#6b4200);box-shadow:0 0 20px #ffbd2288">💼</span><span><b style="'+txt+'color:#ffe071">투자자 안내</b><small style="'+sub+'">사업·투자 관련 안내</small></span></button>'
+    +'<button style="'+card+'border:1.5px solid #7b6cff;box-shadow:0 0 18px #6558ff55,inset 0 0 24px #7b6cff1f" onclick="openSubs()"><span style="'+icon+'background:radial-gradient(circle,#8b7dff,#30276a);box-shadow:0 0 20px #7b6cff88">👑</span><span><b style="'+txt+'color:#b9b1ff">구독·VIP</b><small style="'+sub+'">회원 혜택 보기</small></span></button>'
+    +'<button style="'+card+'border:1.5px solid #37df71;box-shadow:0 0 18px #2bd36555,inset 0 0 24px #37df711f" onclick="openProfile()"><span style="'+icon+'background:radial-gradient(circle,#52ef8a,#16542d);box-shadow:0 0 20px #37df7188">♛</span><span><b style="'+txt+'color:#8ff6ad">프로필</b><small style="'+sub+'">내 정보 확인</small></span></button>'
+    +'</div></div>';
+  showSheet('K-Talk 사용방법·혜택',html);
+};
+
+window.openSiteGuide=function(){
+  showSheet('❔ 사이트 사용방법','<div class="rowbox"><b>1. 홈</b><br>동영상과 쇼츠를 바로 볼 수 있습니다.</div><div class="rowbox"><b>2. 방송하기</b><br>아래 ＋ 버튼을 눌러 라이브 준비 화면으로 들어갑니다.</div><div class="rowbox"><b>3. 방송목록</b><br>현재 방송 중인 방을 확인합니다.</div><div class="rowbox"><b>4. 채팅·내 정보</b><br>하단 메뉴에서 채팅과 프로필을 이용합니다.</div>');
+};
+window.openInvestorInfo=function(){
+  showSheet('💼 투자자 안내','<div class="rowbox"><b>K-Talk 사업·투자 안내</b><br>투자 조건과 위험, 정산 방식은 계약 전 충분히 확인해야 합니다.</div><div class="note">투자에는 손실 위험이 있으며 원금이나 수익은 보장되지 않을 수 있습니다.</div>');
 };
 
 window.showHostCrown=function(kind){
@@ -102,8 +121,8 @@ window.openComments=function(){showSheet('💬 댓글','<div class="rowbox"><b>�
 window.openProfile=function(){showSheet('♛ 프로필','<div class="profile-pic">K</div><div style="text-align:center"><h3 style="color:#ffe07a">K-Talk</h3></div>');};
 window.openAI=function(){showSheet('🔊 AI 읽기','<div class="rowbox"><b>AI 읽기 보조</b></div>');};
 window.openSong=function(){showSheet('🎵 노래·배경','<div class="rowbox"><b>노래·배경 설정</b></div>');};
-window.report=function(){showSheet('🚩 신고 게시판','<div class="rowbox"><b>신고 접수 화면</b></div>');};
-window.openAd=function(){showSheet('📣 광고·판매자 등록','<div class="rowbox"><b>광고 문의 화면</b></div>');};
+window.report=function(){showSheet('🚩 신고 게시판','<div class="rowbox"><b>신고 접수 화면</b><br>신고 대상과 내용을 입력해 접수하는 화면으로 연결할 수 있습니다.</div>');};
+window.openAd=function(){showSheet('📣 광고 문의','<div class="rowbox"><b>광고 문의 화면</b><br>광고·판매자 등록 문의를 확인하는 화면입니다.</div>');};
 window.toggleSave=function(btn){state.saved=!state.saved;if(btn)btn.style.color=state.saved?'#ffe07a':'#fff';};
 window.toggleMic=function(btn){state.mic=!state.mic;if(btn)btn.textContent=state.mic?'🎤 마이크':'🔇 마이크';};
 window.shareApp=function(){if(navigator.share){navigator.share({title:'K-Talk LIVE',text:'K-Talk LIVE'}).catch(function(){});}else{alert('공유 버튼이 정상 작동합니다.');}};
