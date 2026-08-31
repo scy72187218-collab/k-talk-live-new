@@ -21,11 +21,84 @@ window.media=function(type){
 };
 window.friends=function(){document.body.classList.remove('kt-home');screen.innerHTML='<section class="friends-page"><div class="friends-head"><b>방송목록</b></div><div class="friends-list"><div class="friend-row"><div class="friend-info"><b>현재 방송목록</b><span>방송이 시작되면 여기에 표시됩니다.</span></div></div></div></section>';};
 
+state.cameraFacing=state.cameraFacing||'user';
+state.beautyOn=!!state.beautyOn;
+state.effectOn=!!state.effectOn;
+
 window.openCreator=function(){creator.classList.add('show');};
-window.closeCreator=function(){creator.classList.remove('show');if(state.stream){state.stream.getTracks().forEach(function(t){t.stop();});state.stream=null;if(camera)camera.srcObject=null;}};
+window.closeCreator=function(){
+  creator.classList.remove('show','camera-on');
+  if(state.stream){state.stream.getTracks().forEach(function(t){t.stop();});state.stream=null;if(camera)camera.srcObject=null;}
+};
+
+window.ensureLiveCamera=async function(facing){
+  try{
+    if(state.stream){state.stream.getTracks().forEach(function(t){t.stop();});state.stream=null;}
+    state.cameraFacing=facing||state.cameraFacing||'user';
+    state.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:state.cameraFacing}},audio:true});
+    camera.srcObject=state.stream;
+    camera.muted=true;
+    creator.classList.add('camera-on');
+    try{await camera.play();}catch(e){}
+    return true;
+  }catch(e){
+    showSheet('카메라·마이크','<div class="rowbox"><b>카메라/마이크 권한을 허용해 주세요.</b><br>허용하면 라이브 화면을 확인할 수 있습니다.</div><button class="act" onclick="closeSheet()">확인</button>');
+    return false;
+  }
+};
+
 window.startBroadcast=function(){ };
-window.prepTap=function(el,name){if(el){el.classList.add('test-active');setTimeout(function(){el.classList.remove('test-active');},180);}};
-window.prepBottomTap=function(el,name){document.querySelectorAll('.prep-bottom span').forEach(function(s){s.classList.remove('on');});if(el)el.classList.add('on');};
+
+window.prepTap=async function(el,name){
+  if(el){el.classList.add('test-active');setTimeout(function(){el.classList.remove('test-active');},180);}
+  if(name==='카메라 전환'){
+    var next=state.cameraFacing==='user'?'environment':'user';
+    var ok=await ensureLiveCamera(next);
+    if(ok && el){el.classList.toggle('prep-on',true);}
+    return;
+  }
+  if(name==='뷰티'){
+    state.beautyOn=!state.beautyOn;
+    creator.classList.toggle('beauty-on',state.beautyOn);
+    if(el)el.classList.toggle('prep-on',state.beautyOn);
+    return;
+  }
+  if(name==='편집효과'){
+    state.effectOn=!state.effectOn;
+    creator.classList.toggle('effect-on',state.effectOn);
+    if(el)el.classList.toggle('prep-on',state.effectOn);
+    return;
+  }
+  if(name==='설정'){
+    showSheet('⚙ 라이브 설정','<div class="rowbox"><b>카메라 · 마이크 설정</b><br>라이브 시작 전에 카메라와 마이크 권한을 확인합니다.</div><button class="act" onclick="closeSheet();ensureLiveCamera(state.cameraFacing)">카메라·마이크 켜기</button>');
+    return;
+  }
+  if(name==='멀티게스트'){ if(window.openRoomTypeChooser)openRoomTypeChooser(); return; }
+  if(name==='서비스'){ showSheet('서비스','<div class="rowbox"><b>K-Talk 라이브 서비스</b><br>라이브 방송 기능을 이용할 수 있습니다.</div>'); return; }
+  if(name==='팬클럽'){ if(window.openSubs)openSubs(); return; }
+  if(name==='소통하기'){ if(window.openMessages)openMessages(); return; }
+  if(name==='공유'){ if(window.shareApp)shareApp(); return; }
+  if(name==='프로모션'){ if(window.openAd)openAd(); return; }
+  if(name==='라이브 보상'){ showSheet('★ 라이브 보상','<div class="rowbox"><b>라이브 보상</b><br>방송 참여 보상과 이벤트를 확인하는 곳입니다.</div>'); return; }
+  if(name==='목표 설정'){
+    showSheet('🎯 라이브 목표','<input id="liveGoalInput" class="form" placeholder="예: 장미 500개 받기"><button class="act" onclick="setLiveGoal()">목표 저장</button>');
+    return;
+  }
+};
+
+window.setLiveGoal=function(){
+  var v=document.getElementById('liveGoalInput');
+  var goal=v&&v.value.trim()?v.value.trim():'목표 없음';
+  state.liveGoal=goal;
+  closeSheet();
+  var btn=document.querySelector('.prep-card-top button');
+  if(btn)btn.textContent=goal==='목표 없음'?'목표 설정':'목표 완료';
+};
+
+window.prepBottomTap=function(el,name){
+  document.querySelectorAll('.prep-bottom span').forEach(function(s){s.classList.remove('on');});
+  if(el)el.classList.add('on');
+};
 
 window.needJoin=function(msg){showSheet('가입하기','<div class="note">'+msg+'</div><button class="act social naver" onclick="join(\'네이버\')">네이버로 계속하기</button><button class="act social kakao" onclick="join(\'카카오\')">카카오로 계속하기</button><button class="act social google" onclick="join(\'Google\')">Google로 계속하기</button><div class="note">현재는 화면 작동 확인용 테스트입니다.</div>');};
 window.join=function(provider){showSheet('로그인 확인','<div class="rowbox"><b>'+provider+' 로그인 버튼 작동 확인</b></div><button class="act" onclick="closeSheet()">확인</button>');};
@@ -159,4 +232,3 @@ setTimeout(function(){
   window.prepBottomTap=function(el,name){document.querySelectorAll('.prep-bottom span').forEach(function(s){s.classList.remove('on');});if(el)el.classList.add('on');if(name==='라이브'){openRoomTypeChooser();return;}if(oldPrepBottom)oldPrepBottom(el,name);};
 },0);
 
-setTimeout(function(){var previousPrepTap=window.prepTap;window.prepTap=function(el,name){if(name==='목표 설정'){if(el){el.classList.add('test-active');setTimeout(function(){el.classList.remove('test-active');},180);}return;}if(previousPrepTap)previousPrepTap(el,name);};},0);
