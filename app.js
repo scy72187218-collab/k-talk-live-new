@@ -8,7 +8,7 @@ var sheetBody=document.getElementById('sheetBody');
 
 window.activate=function(name){document.querySelectorAll('[data-tab]').forEach(function(b){b.classList.toggle('active',b.dataset.tab===name);});};
 window.showSheet=function(title,html){sheetTitle.innerHTML=title;sheetBody.innerHTML=html;sheet.classList.add('show');};
-window.closeSheet=function(){sheet.classList.remove('show');};
+window.closeSheet=function(){sheet.classList.remove('show');sheet.classList.remove('gift-exact');};
 
 window.home=function(){
   document.body.classList.remove('kt-home');
@@ -82,12 +82,16 @@ window.giftSendByIndex=function(i){
   giftSend(g[0],g[1]);
 };
 window.openGifts=function(){
-  var html='<div class="gift-grid gift-grid-40">'+window.ktalkGifts.map(function(g,i){
-    return '<button class="gift-big premium40 gift-no-'+(i+1)+'" onclick="giftSendByIndex('+i+')" aria-label="'+g[0]+' '+g[1]+'개">'
-      +'<span class="gift-premium-art art-'+(i+1)+'"></span>'
-      +'<b>'+g[0]+'</b><small>🌹 '+g[1]+'개</small></button>';
-  }).join('')+'</div>';
-  showSheet('🎁 K-Talk 선물 · 40종',html);
+  var buttons=window.ktalkGifts.map(function(g,i){
+    return '<button class="gift-exact-hit" onclick="giftSendByIndex('+i+')" aria-label="'+g[0]+'"></button>';
+  }).join('');
+  var html='<div class="gift-exact-wrap">'
+    +'<img class="gift-exact-img" src="gift-panel-exact.svg?v=20260831-1527" alt="K-Talk 선물 40종">'
+    +'<button class="gift-exact-close" onclick="closeSheet()" aria-label="닫기"></button>'
+    +'<div class="gift-exact-hotspots">'+buttons+'</div>'
+    +'</div>';
+  showSheet('',html);
+  sheet.classList.add('gift-exact');
 };
 window.openTreasure=function(){showSheet('🎁 보물상자','<div class="premium-grid"><button class="premium" onclick="alert(\'보물상자 50 선택\')"><span>🎁</span><b>보물상자 50</b></button><button class="premium" onclick="alert(\'보물상자 100 선택\')"><span>🎁</span><b>보물상자 100</b></button><button class="premium" onclick="alert(\'보물상자 150 선택\')"><span>🎁</span><b>보물상자 150</b></button></div>');};
 window.selectCoinCharge=function(amount,base,bonus){
