@@ -23,7 +23,7 @@
 <div class="live-prep"><div class="prep-top"><button class="prep-close" onclick="closeCreator()">×</button><div class="prep-title">K-Talk 라이브 준비</div><button class="prep-mini" onclick="prepTap(this,'라이브 보상')">★</button></div><div class="prep-topic"><input id="liveTitle" value="오늘 라이브 제목을 입력하세요" aria-label="라이브 제목"></div><div class="prep-grid"><button class="prep-item" onclick="prepTap(this,'카메라 전환')"><b>↻</b>전환</button><button class="prep-item" onclick="prepTap(this,'뷰티')"><b>✦</b>뷰티</button><button class="prep-item" onclick="prepTap(this,'편집효과')"><b>✺</b>편집효과</button><button class="prep-item" onclick="prepTap(this,'설정')"><b>⚙</b>설정</button><button class="prep-item" onclick="prepTap(this,'멀티게스트')"><b>▦</b>멀티게스트</button><button class="prep-item" onclick="prepTap(this,'서비스')"><b>□</b>서비스</button><button class="prep-item" onclick="prepTap(this,'팬클럽')"><b>♡</b>팬클럽</button><button class="prep-item" onclick="prepTap(this,'소통하기')"><b>☵</b>소통하기</button><button class="prep-item" onclick="prepTap(this,'공유')"><b>↗</b>공유</button><button class="prep-item" onclick="prepTap(this,'프로모션')"><b>♨</b>프로모션</button></div><div class="prep-card"><div class="prep-card-top"><span>🎯 라이브 목표</span><button onclick="prepTap(this,'목표 설정')">목표 설정</button></div><button class="prep-start" onclick="startBroadcast()">● 라이브 시작</button></div><div class="prep-bottom"><span onclick="prepBottomTap(this,'게시')">게시</span><span onclick="prepBottomTap(this,'창작하기')">창작하기</span><span class="on" onclick="prepBottomTap(this,'라이브')">라이브</span></div></div>
 </div>
 <div id="sheet" class="sheet"><div class="sheet-inner"><div class="sheet-head"><h3 id="sheetTitle">메뉴</h3><button onclick="closeSheet()">닫기</button></div><div id="sheetBody"></div></div></div>
-<script src="app.js?v=20260831-1532"></script>
+<script src="app.js?v=20260831-1547"></script>
 <script>
 (function(){
  const originalFriends=window.friends,originalProfile=window.openProfile,originalMenu=window.openMenu;
@@ -33,9 +33,9 @@
  if(originalMenu)window.openMenu=function(){leaveDash();return originalMenu()};
  window.openCreator=function(){creator.classList.add('show');if(state.stream){state.stream.getTracks().forEach(t=>t.stop());state.stream=null;camera.srcObject=null;}};
  window.closeCreator=function(){creator.classList.remove('show');if(state.stream){state.stream.getTracks().forEach(t=>t.stop());state.stream=null;camera.srcObject=null;}};
- window.startBroadcast=function(){alert('라이브 시작 버튼이 정상 작동합니다. 현재는 시험 모드라 실제 외부 송출은 하지 않습니다.');};
- window.prepTap=function(el,name){el.classList.add('test-active');setTimeout(()=>el.classList.remove('test-active'),180);alert(name+' 버튼이 정상 작동합니다.');};
- window.prepBottomTap=function(el,name){document.querySelectorAll('.prep-bottom span').forEach(s=>s.classList.remove('on'));el.classList.add('on');alert(name+' 메뉴가 정상 작동합니다.');};
+ window.startBroadcast=function(){};
+ window.prepTap=function(el,name){if(el){el.classList.add('test-active');setTimeout(()=>el.classList.remove('test-active'),180);}};
+ window.prepBottomTap=function(el,name){document.querySelectorAll('.prep-bottom span').forEach(s=>s.classList.remove('on'));if(el)el.classList.add('on');};
  window.openRoomPrep=function(name,max){document.getElementById('liveTitle').value=name+' · 최대 '+max+'명';openCreator();};
  window.openLiveRoom=function(){showSheet('라이브룸','<div class="aux-grid"><button class="aux-card" onclick="closeSheet();openRoomPrep(\'일반 13명방\',13)"><b>👥 일반 13명방</b><small>최대 13명</small></button><button class="aux-card" onclick="closeSheet();openRoomPrep(\'1인 방송\',1)"><b>🎙️ 1인 방송</b><small>나만의 방송</small></button><button class="aux-card" onclick="closeSheet();openRoomPrep(\'비밀방\',7)"><b>🔒 비밀방</b><small>호스트 1 + 게스트 6</small></button><button class="aux-card" onclick="closeSheet();openRoomPrep(\'구독자 전용방\',10)"><b>👑 구독자 전용방</b><small>최대 10명</small></button></div>');};
  window.openProfileVideos=function(){leaveDash();if(originalProfile)originalProfile();};
