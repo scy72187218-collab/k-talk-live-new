@@ -33,16 +33,12 @@ window.friends=function(){
   screen.innerHTML='<section class="friends-page"><div class="friends-head"><b>방송목록</b></div><div class="friends-list"><div class="friend-row"><div class="friend-info"><b>현재 방송목록</b><span>방송이 시작되면 여기에 표시됩니다.</span></div></div></div></section>';
 };
 
-window.openCreator=function(){
-  creator.classList.add('show');
-};
+window.openCreator=function(){creator.classList.add('show');};
 window.closeCreator=function(){
   creator.classList.remove('show');
   if(state.stream){state.stream.getTracks().forEach(function(t){t.stop();});state.stream=null;if(camera)camera.srcObject=null;}
 };
-window.startBroadcast=function(){
-  alert('라이브 시작 버튼이 정상 작동합니다. 현재는 시험 모드입니다.');
-};
+window.startBroadcast=function(){alert('라이브 시작 버튼이 정상 작동합니다. 현재는 시험 모드입니다.');};
 
 window.prepTap=function(el,name){
   if(el){el.classList.add('test-active');setTimeout(function(){el.classList.remove('test-active');},180);}
@@ -57,21 +53,41 @@ window.prepBottomTap=function(el,name){
 window.needJoin=function(msg){
   showSheet('가입하기','<div class="note">'+msg+'</div><button class="act social naver" onclick="join(\'네이버\')">네이버로 계속하기</button><button class="act social kakao" onclick="join(\'카카오\')">카카오로 계속하기</button><button class="act social google" onclick="join(\'Google\')">Google로 계속하기</button><div class="note">현재는 화면 작동 확인용 테스트입니다.</div>');
 };
-window.join=function(provider){
-  showSheet('로그인 확인','<div class="rowbox"><b>'+provider+' 로그인 버튼 작동 확인</b></div><button class="act" onclick="closeSheet()">확인</button>');
-};
+window.join=function(provider){showSheet('로그인 확인','<div class="rowbox"><b>'+provider+' 로그인 버튼 작동 확인</b></div><button class="act" onclick="closeSheet()">확인</button>');};
 window.finishJoin=function(){closeSheet();};
 
 window.openMenu=function(){
   showSheet('K-Talk 사용방법·혜택','<div class="aux-grid"><button class="aux-card" onclick="openGifts()"><b>🎁 선물·보물상자</b><small>선물 보기</small></button><button class="aux-card" onclick="openCharge()"><b>🌹 장미 충전</b><small>충전 화면</small></button><button class="aux-card" onclick="openSubs()"><b>👑 구독·VIP</b><small>회원 혜택</small></button><button class="aux-card" onclick="openRaffle()"><b>🎯 제비뽑기</b><small>이벤트</small></button><button class="aux-card" onclick="openMessages()"><b>✉ 쪽지</b><small>메시지</small></button><button class="aux-card" onclick="openProfile()"><b>♛ 프로필</b><small>내 정보</small></button></div>');
 };
 
-window.giftSend=function(name,cost){alert(name+' · '+cost+'개 선물을 선택했습니다.');};
-window.openGifts=function(){
-  var gifts=[['🌹','장미','1'],['💐','꽃다발','5'],['🎁','보물상자','10'],['🎡','관람차','50'],['🎆','불꽃놀이','100'],['🏎️','럭셔리 자동차','200'],['🦄','유니콘','300'],['🦁','황금 사자','500'],['🦋','별빛 나비','700'],['✈️','로열 비행기','1,000'],['🏰','골든 캐슬','1,500'],['🏆','챔피언 트로피','2,000'],['🎸','스타 기타','2,500'],['🌌','갤럭시 무대','3,000'],['💎','다이아 왕관','3,500'],['🚀','우주선','4,000']];
-  var html='<div class="gift-grid">'+gifts.map(function(g){return '<button class="gift-big" onclick="giftSend(\''+g[1]+'\',\''+g[2]+'\')"><span>'+g[0]+'</span><b>'+g[1]+'</b><small style="display:block;margin-top:4px;color:#ffd86b;font-weight:900">🌹 '+g[2]+'개</small></button>';}).join('')+'</div>';
-  showSheet('🎁 K-Talk 선물',html);
+window.showHostCrown=function(kind){
+  var old=document.getElementById('hostGiftCrown');
+  if(old)old.remove();
+  var badge=document.createElement('div');
+  badge.id='hostGiftCrown';
+  badge.textContent=kind==='다이아 왕관'?'💎👑':'👑';
+  badge.style.cssText='position:fixed;z-index:9999;top:86px;left:50%;transform:translateX(-50%);font-size:52px;filter:drop-shadow(0 0 15px #ffd85a);pointer-events:none;animation:crownGiftPop .35s ease-out';
+  document.body.appendChild(badge);
+  setTimeout(function(){if(badge&&badge.parentNode)badge.remove();},6000);
 };
+
+window.giftSend=function(name,cost){
+  if(name==='킹 크라운'||name==='다이아 왕관'){showHostCrown(name);}
+  alert(name+' · '+cost+'개 선물을 선택했습니다.');
+};
+
+window.openGifts=function(){
+  var gifts=[
+    ['🌹','장미','1'],['💐','꽃다발','5'],['🎁','보물상자','10'],['❤️','하트 목걸이','30'],['💍','다이아 반지','50'],
+    ['👠','크리스탈 구두','100'],['🎂','케이크','100'],['⌚','명품 시계','200'],['🧴','명품 향수','200'],['🏎️','스포츠카','300'],
+    ['🚘','럭셔리 자동차','500'],['🛥️','요트','700'],['✈️','전용기','1,000'],['👑','킹 크라운','1,500'],['💎','다이아 왕관','2,000'],
+    ['🏰','황금 성','3,000'],['🎆','불꽃놀이','3,000'],['🗼','에펠탑','5,000'],['🌌','갤럭시 무대','10,000'],['🪽','천사 날개','20,000'],
+    ['🐉','황금 드래곤','30,000'],['🔥','불사조','50,000'],['🚂','황금 기차','70,000'],['🌍','황금 지구','100,000'],['🏝️','럭셔리 리조트','150,000']
+  ];
+  var html='<div class="gift-grid gift-grid-25">'+gifts.map(function(g,i){return '<button class="gift-big gift-no-'+(i+1)+'" onclick="giftSend(\''+g[1]+'\',\''+g[2]+'\')"><span>'+g[0]+'</span><b>'+g[1]+'</b><small style="display:block;margin-top:4px;color:#ffd86b;font-weight:900">🌹 '+g[2]+'개</small></button>';}).join('')+'</div>';
+  showSheet('🎁 K-Talk 선물 · 25종',html);
+};
+
 window.openTreasure=function(){
   showSheet('🎁 보물상자','<div class="premium-grid"><button class="premium" onclick="alert(\'보물상자 50 선택\')"><span>🎁</span><b>보물상자 50</b></button><button class="premium" onclick="alert(\'보물상자 100 선택\')"><span>🎁</span><b>보물상자 100</b></button><button class="premium" onclick="alert(\'보물상자 150 선택\')"><span>🎁</span><b>보물상자 150</b></button></div>');
 };
@@ -109,49 +125,30 @@ setTimeout(function(){
     showSheet('라이브 방송 선택','<div class="aux-grid"><button class="aux-card" onclick="selectLiveRoom(\'1인 방송\',1,\'solo\')"><b>🎙️ 1인 방송</b><small>나만의 라이브</small></button><button class="aux-card" onclick="selectLiveRoom(\'일반 13명방\',13,\'group\')"><b>👥 일반 13명방</b><small>최대 13명</small></button><button class="aux-card" onclick="selectLiveRoom(\'VIP 방송\',10,\'vip\')"><b>💎 VIP 방송</b><small>VIP 권한 확인 후 이용</small></button><button class="aux-card" onclick="openPasswordRoomSetup()"><b>🔒 비밀번호방</b><small>방장이 비밀번호 설정</small></button></div><div class="note">방 종류를 고른 다음 라이브 준비 화면으로 이동합니다.</div>');
   };
   window.selectLiveRoom=function(name,max,type){
-    state.liveRoomType=type;
-    state.liveRoomName=name;
-    state.liveRoomMax=max;
-    closeSheet();
-    directCreator();
-    var title=document.getElementById('liveTitle');
-    if(title)title.value=name+' · 최대 '+max+'명';
-    if(type==='vip'){
-      setTimeout(function(){alert('VIP 방송은 실제 서비스에서 VIP 권한 확인 후 시작되도록 연결됩니다.');},80);
-    }
+    state.liveRoomType=type;state.liveRoomName=name;state.liveRoomMax=max;closeSheet();directCreator();
+    var title=document.getElementById('liveTitle');if(title)title.value=name+' · 최대 '+max+'명';
+    if(type==='vip'){setTimeout(function(){alert('VIP 방송은 실제 서비스에서 VIP 권한 확인 후 시작되도록 연결됩니다.');},80);}
   };
   window.openPasswordRoomSetup=function(){
     showSheet('🔒 비밀번호방 설정','<div class="note">방에 들어올 때 사용할 비밀번호를 설정하세요.</div><input id="roomPasswordInput" class="form" type="password" inputmode="numeric" maxlength="8" placeholder="비밀번호 입력"><button class="act" onclick="confirmPasswordRoom()">비밀번호 설정하고 계속</button>');
   };
   window.confirmPasswordRoom=function(){
-    var input=document.getElementById('roomPasswordInput');
-    var pw=input?input.value.trim():'';
+    var input=document.getElementById('roomPasswordInput');var pw=input?input.value.trim():'';
     if(pw.length<4){alert('비밀번호를 4자리 이상 입력해 주세요.');return;}
-    state.roomPassword=pw;
-    state.liveRoomType='password';
-    state.liveRoomName='비밀번호방';
-    state.liveRoomMax=7;
-    closeSheet();
-    directCreator();
-    var title=document.getElementById('liveTitle');
-    if(title)title.value='비밀번호방 · 호스트 1 + 게스트 6';
+    state.roomPassword=pw;state.liveRoomType='password';state.liveRoomName='비밀번호방';state.liveRoomMax=7;closeSheet();directCreator();
+    var title=document.getElementById('liveTitle');if(title)title.value='비밀번호방 · 호스트 1 + 게스트 6';
   };
   var oldPrepBottom=window.prepBottomTap;
   window.prepBottomTap=function(el,name){
-    document.querySelectorAll('.prep-bottom span').forEach(function(s){s.classList.remove('on');});
-    if(el)el.classList.add('on');
-    if(name==='라이브'){openRoomTypeChooser();return;}
-    if(oldPrepBottom)oldPrepBottom(el,name);
+    document.querySelectorAll('.prep-bottom span').forEach(function(s){s.classList.remove('on');});if(el)el.classList.add('on');
+    if(name==='라이브'){openRoomTypeChooser();return;}if(oldPrepBottom)oldPrepBottom(el,name);
   };
 },0);
 
 setTimeout(function(){
   var previousPrepTap=window.prepTap;
   window.prepTap=function(el,name){
-    if(name==='목표 설정'){
-      if(el){el.classList.add('test-active');setTimeout(function(){el.classList.remove('test-active');},180);}
-      return;
-    }
+    if(name==='목표 설정'){if(el){el.classList.add('test-active');setTimeout(function(){el.classList.remove('test-active');},180);}return;}
     if(previousPrepTap)previousPrepTap(el,name);
   };
 },0);
