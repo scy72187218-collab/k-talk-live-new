@@ -77,8 +77,23 @@ body.kt-home .kt-bottom .livebtn b::before{content:'＋';font-size:25px!importan
 body.kt-home .kt-dashboard{display:flex!important;flex-direction:column!important;justify-content:space-between!important;gap:5px!important}
 body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,body.kt-home .kt-shortcuts,body.kt-home .kt-wide{flex:0 0 auto!important}
 
-/* 선물창: 그림 아이콘 대신 실제 같은 선물 이미지 */
+/* 선물창: 선명한 4x4 벡터 스프라이트 사용 */
 .gift-big{min-height:150px!important;padding:7px 5px 8px!important;background:linear-gradient(180deg,#15130f,#0a0908)!important;border-color:#7d6732!important;box-shadow:inset 0 0 18px #d6ad4a14!important}
-.gift-big>span{width:100%!important;height:92px!important;margin:0 auto 6px!important;border-radius:9px!important;font-size:0!important;background-image:url('k-talk-real-gifts.jpg')!important;background-size:500% 500%!important;background-repeat:no-repeat!important;background-color:#080808!important;box-shadow:0 0 0 1px #8f7438,inset 0 0 14px #0007!important}
+.gift-big>span{width:100%!important;height:92px!important;margin:0 auto 6px!important;border-radius:9px!important;font-size:0!important;background-image:url('gifts-hd.svg')!important;background-size:400% 400%!important;background-repeat:no-repeat!important;background-color:#080808!important;box-shadow:0 0 0 1px #8f7438,inset 0 0 14px #0007!important}
 .gift-big b{font-size:12px!important;color:#fff!important;margin-top:1px!important}.gift-big small{font-size:12px!important;color:#ffd75f!important}
-.gift-grid .gift-big:nth-child(1)>span{background-position:0% 0%!important}.gift-grid .gift-big:nth-child(2)>span{background-position:25% 0%!important}.gift-grid .gift-big:nth-child(3)>span{background-position:50% 0%!important}.gift-grid .gift-big:nth-child(4)>span{background-position:75% 0%!important}.gift-grid .gift-big:nth-child(5)>span{background-position:100% 0%!important}.gift-grid .gift-big:nth-child(6)>span{background-position:0% 25%!important}.gift-grid .gift-big:nth-child(7)>span{background-position:25% 25%!important}.gift-grid .gift-big:nth-child(8)>span{background-position:50% 25%!important}.gift-grid .gift-big:nth-child(9)>span{background-position:75% 25%!important}.gift-grid .gift-big:nth-child(10)>span{background-position:100% 25%!important}.gift-grid .gift-big:nth-child(11)>span{background-position:0% 50%!important}.gift-grid .gift-big:nth-child(12)>span{background-position:25% 50%!important}.gift-grid .gift-big:nth-child(13)>span{background-position:50% 50%!important}.gift-grid .gift-big:nth-child(14)>span{background-position:75% 50%!important}.gift-grid .gift-big:nth-child(15)>span{background-position:100% 50%!important}.gift-grid .gift-big:nth-child(16)>span{background-position:0% 75%!important}
+.gift-grid .gift-big:nth-child(1)>span{background-position:0% 0%!important}
+.gift-grid .gift-big:nth-child(2)>span{background-position:33.333% 0%!important}
+.gift-grid .gift-big:nth-child(3)>span{background-position:66.667% 0%!important}
+.gift-grid .gift-big:nth-child(4)>span{background-position:100% 0%!important}
+.gift-grid .gift-big:nth-child(5)>span{background-position:0% 33.333%!important}
+.gift-grid .gift-big:nth-child(6)>span{background-position:33.333% 33.333%!important}
+.gift-grid .gift-big:nth-child(7)>span{background-position:66.667% 33.333%!important}
+.gift-grid .gift-big:nth-child(8)>span{background-position:100% 33.333%!important}
+.gift-grid .gift-big:nth-child(9)>span{background-position:0% 66.667%!important}
+.gift-grid .gift-big:nth-child(10)>span{background-position:33.333% 66.667%!important}
+.gift-grid .gift-big:nth-child(11)>span{background-position:66.667% 66.667%!important}
+.gift-grid .gift-big:nth-child(12)>span{background-position:100% 66.667%!important}
+.gift-grid .gift-big:nth-child(13)>span{background-position:0% 100%!important}
+.gift-grid .gift-big:nth-child(14)>span{background-position:33.333% 100%!important}
+.gift-grid .gift-big:nth-child(15)>span{background-position:66.667% 100%!important}
+.gift-grid .gift-big:nth-child(16)>span{background-position:100% 100%!important}
