@@ -66,28 +66,24 @@ window.openSubs=function(){
 
 window.showHostCrown=function(kind){var old=document.getElementById('hostGiftCrown');if(old)old.remove();var badge=document.createElement('div');badge.id='hostGiftCrown';badge.textContent=(kind==='다이아 왕관'||kind==='다이아몬드 왕관')?'💎👑':'👑';badge.style.cssText='position:fixed;z-index:9999;top:86px;left:50%;transform:translateX(-50%);font-size:52px;filter:drop-shadow(0 0 15px #ffd85a);pointer-events:none';document.body.appendChild(badge);setTimeout(function(){if(badge&&badge.parentNode)badge.remove();},6000);};
 window.giftSend=function(name,cost){if(name.indexOf('왕관')>-1||name.indexOf('크라운')>-1){showHostCrown(name);}alert(name+' · '+cost+'개 선물을 선택했습니다.');};
+window.ktalkGifts=[
+  ['장미','1','🌹'],['장미 꽃다발','5','💐'],['장미 박스','10','🎁'],['장미 20송이','20','🌹'],['장미 50송이','50','💐'],
+  ['장미 100송이','100','💐'],['장미 200송이','200','🌹'],['장미 300송이','300','💐'],['장미 400송이','400','🌹'],['장미 500송이','500','💐'],
+  ['로열 장미','1,000','🌹'],['보라 장미','2,000','🌹'],['핑크 장미','3,000','🌹'],['레전드 장미','5,000','🌹'],['황금 장미','10,000','🌟'],
+  ['킹 크라운','100','👑'],['다이아 왕관','200','💎'],['럭셔리 자동차','300','🏎️'],['로열 요트','400','🛥️'],['골든 캐슬','500','🏰'],
+  ['갤럭시 무대','1,000','🌌'],['프리미엄 로즈','1','🌹'],['로즈 부케','5','💐'],['로즈 박스','10','🎁'],['골든 부케','50','💐'],
+  ['로열 하트','100','❤️'],['황금 왕관','200','👑'],['사랑 하트','300','💕'],['다이아 하트','500','💎'],['K-Talk 카드','700','🎴'],
+  ['VIP 크라운','1,000','👑'],['골드 패키지','1,500','🎁'],['로열 패키지','2,000','💎'],['프리미엄 캐슬','3,000','🏰'],['프라이빗 제트','5,000','✈️']
+];
+window.giftSendByIndex=function(i){
+  var g=window.ktalkGifts[i];
+  if(!g)return;
+  giftSend(g[0],g[1]);
+};
 window.openGifts=function(){
-  var gifts=[
-    ['장미','1'],['장미 꽃다발','5'],['장미 박스','10'],['장미 20송이','20'],['장미 50송이','50'],
-    ['장미 100송이','100'],['장미 200송이','200'],['장미 300송이','300'],['장미 400송이','400'],['장미 500송이','500'],
-    ['로열 장미','1,000'],['보라 장미','2,000'],['핑크 장미','3,000'],['레전드 장미','5,000'],['황금 장미','10,000'],
-    ['킹 크라운','100'],['다이아 왕관','200'],['럭셔리 자동차','300'],['로열 요트','400'],['골든 캐슬','500'],
-    ['갤럭시 무대','1,000'],['프리미엄 로즈','1'],['로즈 부케','5'],['로즈 박스','10'],['골든 부케','50'],
-    ['로열 하트','100'],['황금 왕관','200'],['사랑 하트','300'],['다이아 하트','500'],['K-Talk 카드','700'],
-    ['VIP 크라운','1,000'],['골드 패키지','1,500'],['로열 패키지','2,000'],['프리미엄 캐슬','3,000'],['프라이빗 제트','5,000']
-  ];
-  var icons=[
-    '🌹','💐','🎁','🌹','💐',
-    '💐','🌹','💐','🌹','💐',
-    '🌹','🌹','🌹','🌹','🌟',
-    '👑','💎','🏎️','🛥️','🏰',
-    '🌌','🌹','💐','🎁','💐',
-    '❤️','👑','💕','💎','🎴',
-    '👑','🎁','💎','🏰','✈️'
-  ];
-  var html='<div class="gift-grid gift-grid-35">'+gifts.map(function(g,i){
-    return '<button class="gift-big gift-no-'+(i+1)+'" onclick="giftSend(\\''+g[0]+'\\',\\''+g[1]+'\\')" aria-label="'+g[0]+' '+g[1]+'개">'
-      +'<span class="gift-live-icon" style="display:grid!important;place-items:center!important;width:100%!important;height:92px!important;margin:0 auto 6px!important;border-radius:12px!important;font-size:52px!important;line-height:1!important;background-image:none!important;background:radial-gradient(circle at 50% 42%,rgba(255,216,107,.22),rgba(64,42,22,.12) 46%,#080808 76%)!important;box-shadow:0 0 0 2px #c8a85b,inset 0 0 20px #0008,0 0 10px #d7b75b33!important">'+icons[i]+'</span>'
+  var html='<div class="gift-grid gift-grid-35">'+window.ktalkGifts.map(function(g,i){
+    return '<button class="gift-big gift-no-'+(i+1)+'" onclick="giftSendByIndex('+i+')" aria-label="'+g[0]+' '+g[1]+'개">'
+      +'<span class="gift-live-icon">'+g[2]+'</span>'
       +'<b>'+g[0]+'</b><small style="display:block;margin-top:4px;color:#ffd86b;font-weight:900">🌹 '+g[1]+'개</small></button>';
   }).join('')+'</div>';
   showSheet('🎁 K-Talk 선물 · 35종',html);
