@@ -66,14 +66,18 @@ window.openMenu=function(){
     +'<button style="'+card+'border:1.5px solid #ff3b9c;box-shadow:0 0 18px #ff2d8a55,inset 0 0 24px #ff3b9c1f" onclick="report()"><span style="'+icon+'background:radial-gradient(circle,#ff4d9f,#68123f);box-shadow:0 0 20px #ff3b9c88">🚩</span><span><b style="'+txt+'color:#ff9dca">신고 게시판</b><small style="'+sub+'">신고·문의 접수</small></span></button>'
     +'<button style="'+card+'border:1.5px solid #27c6ff;box-shadow:0 0 18px #1bbfff55,inset 0 0 24px #27c6ff1f" onclick="openAd()"><span style="'+icon+'background:radial-gradient(circle,#35d4ff,#0b4264);box-shadow:0 0 20px #27c6ff88">📣</span><span><b style="'+txt+'color:#75e4ff">광고 문의</b><small style="'+sub+'">광고·판매자 문의</small></span></button>'
     +'<button style="'+card+'border:1.5px solid #ffbd22;box-shadow:0 0 18px #ffb50055,inset 0 0 24px #ffbd221f" onclick="openInvestorInfo()"><span style="'+icon+'background:radial-gradient(circle,#ffd85a,#6b4200);box-shadow:0 0 20px #ffbd2288">💼</span><span><b style="'+txt+'color:#ffe071">투자자 안내</b><small style="'+sub+'">사업·투자 관련 안내</small></span></button>'
-    +'<button style="'+card+'border:1.5px solid #7b6cff;box-shadow:0 0 18px #6558ff55,inset 0 0 24px #7b6cff1f" onclick="openSubs()"><span style="'+icon+'background:radial-gradient(circle,#8b7dff,#30276a);box-shadow:0 0 20px #7b6cff88">👑</span><span><b style="'+txt+'color:#b9b1ff">구독·VIP</b><small style="'+sub+'">회원 혜택 보기</small></span></button>'
+    +'<button style="'+card+'border:1.5px solid #7b6cff;box-shadow:0 0 18px #6558ff55,inset 0 0 24px #7b6cff1f" onclick="openSubs()"><span style="'+icon+'background:radial-gradient(circle,#8b7dff,#30276a);box-shadow:0 0 20px #7b6cff88">👑</span><span><b style="'+txt+'color:#b9b1ff">구독·VIP 혜택</b><small style="'+sub+'">할인·입장 가능 방 안내</small></span></button>'
+    +'<button style="'+card+'border:1.5px solid #ff6b45;box-shadow:0 0 18px #ff633f55,inset 0 0 24px #ff6b451f" onclick="openGifts()"><span style="'+icon+'background:radial-gradient(circle,#ff8a62,#682310);box-shadow:0 0 20px #ff6b4588">🎁</span><span><b style="'+txt+'color:#ffb09a">선물·보물상자</b><small style="'+sub+'">선물 종류 확인</small></span></button>'
+    +'<button style="'+card+'border:1.5px solid #ff4864;box-shadow:0 0 18px #ff405d55,inset 0 0 24px #ff48641f" onclick="openCharge()"><span style="'+icon+'background:radial-gradient(circle,#ff6d82,#681724);box-shadow:0 0 20px #ff486488">🌹</span><span><b style="'+txt+'color:#ff9baa">장미 충전</b><small style="'+sub+'">충전 수량 확인</small></span></button>'
+    +'<button style="'+card+'border:1.5px solid #45d8d1;box-shadow:0 0 18px #31cfc755,inset 0 0 24px #45d8d11f" onclick="openRaffle()"><span style="'+icon+'background:radial-gradient(circle,#5fe3dc,#145452);box-shadow:0 0 20px #45d8d188">🎯</span><span><b style="'+txt+'color:#91f3ee">제비뽑기</b><small style="'+sub+'">이벤트 참여</small></span></button>'
+    +'<button style="'+card+'border:1.5px solid #5ba6ff;box-shadow:0 0 18px #4a9aff55,inset 0 0 24px #5ba6ff1f" onclick="openMessages()"><span style="'+icon+'background:radial-gradient(circle,#79b8ff,#153968);box-shadow:0 0 20px #5ba6ff88">✉</span><span><b style="'+txt+'color:#a8d0ff">쪽지</b><small style="'+sub+'">메시지 확인</small></span></button>'
     +'<button style="'+card+'border:1.5px solid #37df71;box-shadow:0 0 18px #2bd36555,inset 0 0 24px #37df711f" onclick="openProfile()"><span style="'+icon+'background:radial-gradient(circle,#52ef8a,#16542d);box-shadow:0 0 20px #37df7188">♛</span><span><b style="'+txt+'color:#8ff6ad">프로필</b><small style="'+sub+'">내 정보 확인</small></span></button>'
     +'</div></div>';
   showSheet('K-Talk 사용방법·혜택',html);
 };
 
 window.openSiteGuide=function(){
-  showSheet('❔ 사이트 사용방법','<div class="rowbox"><b>1. 홈</b><br>동영상과 쇼츠를 바로 볼 수 있습니다.</div><div class="rowbox"><b>2. 방송하기</b><br>아래 ＋ 버튼을 눌러 라이브 준비 화면으로 들어갑니다.</div><div class="rowbox"><b>3. 방송목록</b><br>현재 방송 중인 방을 확인합니다.</div><div class="rowbox"><b>4. 채팅·내 정보</b><br>하단 메뉴에서 채팅과 프로필을 이용합니다.</div>');
+  showSheet('❔ 사이트 사용방법','<div class="rowbox"><b>1. 홈</b><br>동영상과 쇼츠를 바로 볼 수 있습니다.</div><div class="rowbox"><b>2. 방송하기</b><br>아래 ＋ 버튼을 눌러 라이브 준비 화면으로 들어갑니다.</div><div class="rowbox"><b>3. 방송목록</b><br>현재 방송 중인 방을 확인합니다.</div><div class="rowbox"><b>4. 채팅·내 정보</b><br>하단 메뉴에서 채팅과 프로필을 이용합니다.</div><div class="rowbox"><b>5. 이용 가능한 방송방</b><br>일반 13명방, 1인 방송, 비밀번호방, 구독자 전용방 등이 있으며 방별 조건에 따라 입장할 수 있습니다.</div>');
 };
 window.openInvestorInfo=function(){
   showSheet('💼 투자자 안내','<div class="rowbox"><b>K-Talk 사업·투자 안내</b><br>투자 조건과 위험, 정산 방식은 계약 전 충분히 확인해야 합니다.</div><div class="note">투자에는 손실 위험이 있으며 원금이나 수익은 보장되지 않을 수 있습니다.</div>');
@@ -113,7 +117,9 @@ window.openTreasure=function(){
 window.openCharge=function(){
   showSheet('🌹 장미 충전','<div class="rowbox"><b>장미 1개 = 30원 기준</b></div><div class="rowbox"><b>100개</b> · 서비스 포함 110개</div><div class="rowbox"><b>200개</b> · 서비스 포함 210개</div><div class="rowbox"><b>300개</b> · 서비스 포함 310개</div><div class="rowbox"><b>500개</b> · 서비스 포함 510개</div><div class="rowbox"><b>1,000개</b> · 서비스 포함 1,010개</div><div class="rowbox"><b>2,000개</b> · 서비스 포함 2,010개</div>');
 };
-window.openSubs=function(){showSheet('👑 구독·회원 혜택','<div class="rowbox"><b>구독·VIP 안내</b><br>회원 혜택 화면입니다.</div>');};
+window.openSubs=function(){
+  showSheet('👑 구독·VIP 혜택','<div class="rowbox"><b>일반 구독</b><br>장미 충전 5% 할인 혜택 · 구독자 전용방 이용</div><div class="rowbox"><b>중회원</b><br>장미 충전 10% 할인 혜택 · 구독자 전용방과 비밀번호방 이용 가능</div><div class="rowbox"><b>VIP</b><br>장미 충전 15% 할인 혜택 · 일반 13명방, 1인 방송, 비밀번호방, 구독자 전용방 등 이용 가능</div><div class="note">실제 입장은 각 방의 비밀번호·초대·운영 설정 등 이용 조건을 함께 따릅니다.</div>');
+};
 window.openRaffle=function(){showSheet('🎯 제비뽑기','<div class="raffle">꽝 · 1 · 2 · 3 · 4 · 5</div><button class="act" onclick="raffle()">제비뽑기</button>');};
 window.raffle=function(){if(state.raffle<=0){alert('오늘 참여 횟수를 모두 사용했습니다.');return;}state.raffle--;var p=[0,0,1,2,3,4,5];var x=p[Math.floor(Math.random()*p.length)];alert(x?'장미 '+x+'개 당첨!':'꽝입니다.');};
 window.openMessages=function(){showSheet('✉ 쪽지','<div class="rowbox"><b>쪽지 화면</b><br>메시지 기능 버튼이 정상 작동합니다.</div>');};
