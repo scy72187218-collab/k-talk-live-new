@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1600" viewBox="0 0 1600 1600">
+<defs>
+  <radialGradient id="bg" cx="50%" cy="38%" r="72%"><stop offset="0" stop-color="#2a2035"/><stop offset=".55" stop-color="#121018"/><stop offset="1" stop-color="#050506"/></radialGradient>
+  <radialGradient id="pink" cx="50%" cy="45%" r="60%"><stop offset="0" stop-color="#ff4fa3" stop-opacity=".42"/><stop offset="1" stop-color="#ff4fa3" stop-opacity="0"/></radialGradient>
+  <radialGradient id="gold" cx="50%" cy="45%" r="60%"><stop offset="0" stop-color="#ffd05a" stop-opacity=".42"/><stop offset="1" stop-color="#ffd05a" stop-opacity="0"/></radialGradient>
+  <radialGradient id="blue" cx="50%" cy="45%" r="60%"><stop offset="0" stop-color="#3cc8ff" stop-opacity=".42"/><stop offset="1" stop-color="#3cc8ff" stop-opacity="0"/></radialGradient>
+  <filter id="glow"><feGaussianBlur stdDeviation="9" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<g font-family="Noto Color Emoji, Apple Color Emoji, Segoe UI Emoji, sans-serif" text-anchor="middle" dominant-baseline="middle">
+<!-- row 1 -->
+<g transform="translate(0 0)"><rect width="400" height="400" rx="34" fill="url(#bg)"/><circle cx="200" cy="190" r="150" fill="url(#pink)"/><text x="200" y="190" font-size="215" filter="url(#glow)">🌹</text></g>
+<g transform="translate(400 0)"><rect width="400" height="400" rx="34" fill="url(#bg)"/><circle cx="200" cy="190" r="150" fill="url(#pink)"/><text x="200" y="190" font-size="210" filter="url(#glow)">💐</text></g>
+<g transform="translate(800 0)"><rect width="400" height="400" rx="34" fill="url(#bg)"/><circle cx="200" cy="190" r="150" fill="url(#gold)"/><text x="200" y="190" font-size="215" filter="url(#glow)">🎁</text></g>
+<g transform="translate(1200 0)"><rect width="400" height="400" rx="34" fill="url(#bg)"/><circle cx="200" cy="190" r="150" fill="url(#blue)"/><text x="200" y="190" font-size="210" filter="url(#glow)">🎡</text></g>
+<!-- row 2 -->
+<g transform="translate(0 400)"><rect width="400" height="400" rx="34" fill="url(#bg)"/><circle cx="200" cy="190" r="150" fill="url(#gold)"/><text x="200" y="190" font-size="210" filter="url(#glow)">🎆</text></g>
+<g transform="translate(400 400)"><rect width="400" height="400" rx="34" fill="url(#bg)"/><circle cx="200" cy="190" r="150" fill="url(#pink)"/><text x="200" y="190" font-size="205" filter="url(#glow)">🏎️</text></g>
+<g transform="translate(800 400)"><rect width="400" height="400" rx="34" fill="url(#bg)"/><circle cx="200" cy="190" r="150" fill="url(#blue)"/><text x="200" y="190" font-size="210" filter="url(#glow)">🦄</text></g>
+<g transform="translate(1200 400)"><rect width="400" height="400" rx="34" fill="url(#bg)"/><circle cx="200" cy="190" r="150" fill="url(#gold)"/><text x="200" y="190" font-size="210" filter="url(#glow)">🦁</text></g>
+<!-- row 3 -->
+<g transform="translate(0 800)"><rect width="400" height="400" rx="34" fill="url(#bg)"/><circle cx="200" cy="190" r="150" fill="url(#pink)"/><text x="200" y="190" font-size="210" filter="url(#glow)">🦋</text></g>
+<g transform="translate(400 800)"><rect width="400" height="400" rx="34" fill="url(#bg)"/><circle cx="200" cy="190" r="150" fill="url(#blue)"/><text x="200" y="190" font-size="205" filter="url(#glow)">✈️</text></g>
+<g transform="translate(800 800)"><rect width="400" height="400" rx="34" fill="url(#bg)"/><circle cx="200" cy="190" r="150" fill="url(#gold)"/><text x="200" y="190" font-size="210" filter="url(#glow)">🏰</text></g>
+<g transform="translate(1200 800)"><rect width="400" height="400" rx="34" fill="url(#bg)"/><circle cx="200" cy="190" r="150" fill="url(#gold)"/><text x="200" y="190" font-size="210" filter="url(#glow)">🏆</text></g>
+<!-- row 4 -->
+<g transform="translate(0 1200)"><rect width="400" height="400" rx="34" fill="url(#bg)"/><circle cx="200" cy="190" r="150" fill="url(#pink)"/><text x="200" y="190" font-size="210" filter="url(#glow)">🎸</text></g>
+<g transform="translate(400 1200)"><rect width="400" height="400" rx="34" fill="url(#bg)"/><circle cx="200" cy="190" r="150" fill="url(#blue)"/><text x="200" y="190" font-size="210" filter="url(#glow)">🌌</text></g>
+<g transform="translate(800 1200)"><rect width="400" height="400" rx="34" fill="url(#bg)"/><circle cx="200" cy="190" r="150" fill="url(#gold)"/><text x="200" y="190" font-size="210" filter="url(#glow)">💎</text></g>
+<g transform="translate(1200 1200)"><rect width="400" height="400" rx="34" fill="url(#bg)"/><circle cx="200" cy="190" r="150" fill="url(#blue)"/><text x="200" y="190" font-size="210" filter="url(#glow)">🚀</text></g>
+</g>
+</svg>
