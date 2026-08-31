@@ -276,3 +276,46 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   background:linear-gradient(135deg,#ff315f,#b14cff 65%,#704cff);
   box-shadow:0 0 16px rgba(255,71,171,.35);
 }
+
+
+/* 보정 선택 + 캐릭터 오버레이 */
+.beauty-choice-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:9px;
+  margin-top:12px;
+}
+.beauty-choice-grid button{
+  min-height:92px;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:16px;
+  background:linear-gradient(145deg,#171722,#0b0b10);
+  color:#fff;
+  padding:12px 8px;
+  font-weight:900;
+}
+.beauty-choice-grid button b{
+  display:block;
+  font-size:32px;
+  margin-bottom:7px;
+}
+.beauty-choice-grid button span{
+  display:block;
+  font-size:13px;
+}
+.creator.beauty-natural video{filter:brightness(1.05) saturate(1.04) contrast(.98)!important}
+.creator.beauty-bright video{filter:brightness(1.16) saturate(1.03) contrast(.96)!important}
+.creator.beauty-soft video{filter:brightness(1.08) saturate(.94) contrast(.91)!important}
+.creator.beauty-glow video{filter:brightness(1.13) saturate(1.12) contrast(.97)!important}
+.creator[data-beauty-char]::after{
+  content:attr(data-beauty-char);
+  position:absolute;
+  z-index:2;
+  top:13%;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:88px;
+  line-height:1;
+  filter:drop-shadow(0 4px 14px rgba(0,0,0,.45));
+  pointer-events:none;
+}
