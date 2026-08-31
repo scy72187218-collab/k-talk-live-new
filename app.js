@@ -102,3 +102,45 @@ document.addEventListener('click',function(e){
 });
 
 home();
+
+setTimeout(function(){
+  var directCreator=window.openCreator;
+  window.openRoomTypeChooser=function(){
+    showSheet('라이브 방송 선택','<div class="aux-grid"><button class="aux-card" onclick="selectLiveRoom(\'1인 방송\',1,\'solo\')"><b>🎙️ 1인 방송</b><small>나만의 라이브</small></button><button class="aux-card" onclick="selectLiveRoom(\'일반 13명방\',13,\'group\')"><b>👥 일반 13명방</b><small>최대 13명</small></button><button class="aux-card" onclick="selectLiveRoom(\'VIP 방송\',10,\'vip\')"><b>💎 VIP 방송</b><small>VIP 권한 확인 후 이용</small></button><button class="aux-card" onclick="openPasswordRoomSetup()"><b>🔒 비밀번호방</b><small>방장이 비밀번호 설정</small></button></div><div class="note">방 종류를 고른 다음 라이브 준비 화면으로 이동합니다.</div>');
+  };
+  window.selectLiveRoom=function(name,max,type){
+    state.liveRoomType=type;
+    state.liveRoomName=name;
+    state.liveRoomMax=max;
+    closeSheet();
+    directCreator();
+    var title=document.getElementById('liveTitle');
+    if(title)title.value=name+' · 최대 '+max+'명';
+    if(type==='vip'){
+      setTimeout(function(){alert('VIP 방송은 실제 서비스에서 VIP 권한 확인 후 시작되도록 연결됩니다.');},80);
+    }
+  };
+  window.openPasswordRoomSetup=function(){
+    showSheet('🔒 비밀번호방 설정','<div class="note">방에 들어올 때 사용할 비밀번호를 설정하세요.</div><input id="roomPasswordInput" class="form" type="password" inputmode="numeric" maxlength="8" placeholder="비밀번호 입력"><button class="act" onclick="confirmPasswordRoom()">비밀번호 설정하고 계속</button>');
+  };
+  window.confirmPasswordRoom=function(){
+    var input=document.getElementById('roomPasswordInput');
+    var pw=input?input.value.trim():'';
+    if(pw.length<4){alert('비밀번호를 4자리 이상 입력해 주세요.');return;}
+    state.roomPassword=pw;
+    state.liveRoomType='password';
+    state.liveRoomName='비밀번호방';
+    state.liveRoomMax=7;
+    closeSheet();
+    directCreator();
+    var title=document.getElementById('liveTitle');
+    if(title)title.value='비밀번호방 · 호스트 1 + 게스트 6';
+  };
+  var oldPrepBottom=window.prepBottomTap;
+  window.prepBottomTap=function(el,name){
+    document.querySelectorAll('.prep-bottom span').forEach(function(s){s.classList.remove('on');});
+    if(el)el.classList.add('on');
+    if(name==='라이브'){openRoomTypeChooser();return;}
+    if(oldPrepBottom)oldPrepBottom(el,name);
+  };
+},0);
