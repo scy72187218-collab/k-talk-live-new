@@ -25,7 +25,7 @@ state.cameraFacing=state.cameraFacing||'user';
 state.beautyOn=!!state.beautyOn;
 state.effectOn=!!state.effectOn;
 
-window.openCreator=function(){creator.classList.add('show');};
+window.openCreator=function(){creator.classList.add('show');setTimeout(function(){if(window.ensureLiveCamera)ensureLiveCamera(state.cameraFacing||'user');},0);};
 window.closeCreator=function(){
   creator.classList.remove('show','camera-on');
   if(state.stream){state.stream.getTracks().forEach(function(t){t.stop();});state.stream=null;if(camera)camera.srcObject=null;}
@@ -51,12 +51,6 @@ window.startBroadcast=function(){ };
 
 window.prepTap=async function(el,name){
   if(el){el.classList.add('test-active');setTimeout(function(){el.classList.remove('test-active');},180);}
-  if(name==='카메라 전환'){
-    var next=state.cameraFacing==='user'?'environment':'user';
-    var ok=await ensureLiveCamera(next);
-    if(ok && el){el.classList.toggle('prep-on',true);}
-    return;
-  }
   if(name==='뷰티'){
     state.beautyOn=!state.beautyOn;
     creator.classList.toggle('beauty-on',state.beautyOn);
@@ -69,30 +63,24 @@ window.prepTap=async function(el,name){
     if(el)el.classList.toggle('prep-on',state.effectOn);
     return;
   }
-  if(name==='설정'){
-    showSheet('⚙ 라이브 설정','<div class="rowbox"><b>카메라 · 마이크 설정</b><br>라이브 시작 전에 카메라와 마이크 권한을 확인합니다.</div><button class="act" onclick="closeSheet();ensureLiveCamera(state.cameraFacing)">카메라·마이크 켜기</button>');
-    return;
-  }
   if(name==='멀티게스트'){ if(window.openRoomTypeChooser)openRoomTypeChooser(); return; }
   if(name==='서비스'){ showSheet('서비스','<div class="rowbox"><b>K-Talk 라이브 서비스</b><br>라이브 방송 기능을 이용할 수 있습니다.</div>'); return; }
   if(name==='팬클럽'){ if(window.openSubs)openSubs(); return; }
-  if(name==='소통하기'){ if(window.openMessages)openMessages(); return; }
   if(name==='공유'){ if(window.shareApp)shareApp(); return; }
-  if(name==='프로모션'){ if(window.openAd)openAd(); return; }
   if(name==='라이브 보상'){ showSheet('★ 라이브 보상','<div class="rowbox"><b>라이브 보상</b><br>방송 참여 보상과 이벤트를 확인하는 곳입니다.</div>'); return; }
-  if(name==='목표 설정'){
-    showSheet('🎯 라이브 목표','<input id="liveGoalInput" class="form" placeholder="예: 장미 500개 받기"><button class="act" onclick="setLiveGoal()">목표 저장</button>');
-    return;
-  }
 };
 
-window.setLiveGoal=function(){
-  var v=document.getElementById('liveGoalInput');
-  var goal=v&&v.value.trim()?v.value.trim():'목표 없음';
-  state.liveGoal=goal;
-  closeSheet();
-  var btn=document.querySelector('.prep-card-top button');
-  if(btn)btn.textContent=goal==='목표 없음'?'목표 설정':'목표 완료';
+window.selectPrepRoom=function(el,type,label,max){
+  state.liveRoomType=type;
+  state.liveRoomName=label;
+  state.liveRoomMax=max;
+  document.querySelectorAll('.room-switch').forEach(function(b){b.classList.remove('on');});
+  if(el)el.classList.add('on');
+  var title=document.getElementById('liveTitle');
+  if(title && (!title.value || title.value==='오늘 라이브 제목을 입력하세요' || title.dataset.autoRoom==='1')){
+    title.value=label;
+    title.dataset.autoRoom='1';
+  }
 };
 
 window.prepBottomTap=function(el,name){
@@ -229,6 +217,6 @@ setTimeout(function(){
   window.openPasswordRoomSetup=function(){showSheet('🔒 비밀번호방 설정','<div class="note">방에 들어올 때 사용할 비밀번호를 설정하세요.</div><input id="roomPasswordInput" class="form" type="password" inputmode="numeric" maxlength="8" placeholder="비밀번호 입력"><button class="act" onclick="confirmPasswordRoom()">비밀번호 설정하고 계속</button>');};
   window.confirmPasswordRoom=function(){var input=document.getElementById('roomPasswordInput');var pw=input?input.value.trim():'';if(pw.length<4){alert('비밀번호를 4자리 이상 입력해 주세요.');return;}state.roomPassword=pw;state.liveRoomType='password';state.liveRoomName='비밀번호방';state.liveRoomMax=7;closeSheet();directCreator();var title=document.getElementById('liveTitle');if(title)title.value='비밀번호방 · 호스트 1 + 게스트 6';};
   var oldPrepBottom=window.prepBottomTap;
-  window.prepBottomTap=function(el,name){document.querySelectorAll('.prep-bottom span').forEach(function(s){s.classList.remove('on');});if(el)el.classList.add('on');if(name==='라이브'){openRoomTypeChooser();return;}if(oldPrepBottom)oldPrepBottom(el,name);};
+  window.prepBottomTap=function(el,name){if(oldPrepBottom)oldPrepBottom(el,name);};
 },0);
 
