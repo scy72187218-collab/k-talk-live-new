@@ -86,7 +86,9 @@ window.openGifts=function(){
     '👑','🎁','💎','🏰','✈️'
   ];
   var html='<div class="gift-grid gift-grid-35">'+gifts.map(function(g,i){
-    return '<button class="gift-big gift-no-'+(i+1)+'" onclick="giftSend(\''+g[0]+'\',\''+g[1]+'\')"><span class="gift-live-icon">'+icons[i]+'</span><b>'+g[0]+'</b><small style="display:block;margin-top:4px;color:#ffd86b;font-weight:900">🌹 '+g[1]+'개</small></button>';
+    return '<button class="gift-big gift-no-'+(i+1)+'" onclick="giftSend(\\''+g[0]+'\\',\\''+g[1]+'\\')" aria-label="'+g[0]+' '+g[1]+'개">'
+      +'<span class="gift-live-icon" style="display:grid!important;place-items:center!important;width:100%!important;height:92px!important;margin:0 auto 6px!important;border-radius:12px!important;font-size:52px!important;line-height:1!important;background-image:none!important;background:radial-gradient(circle at 50% 42%,rgba(255,216,107,.22),rgba(64,42,22,.12) 46%,#080808 76%)!important;box-shadow:0 0 0 2px #c8a85b,inset 0 0 20px #0008,0 0 10px #d7b75b33!important">'+icons[i]+'</span>'
+      +'<b>'+g[0]+'</b><small style="display:block;margin-top:4px;color:#ffd86b;font-weight:900">🌹 '+g[1]+'개</small></button>';
   }).join('')+'</div>';
   showSheet('🎁 K-Talk 선물 · 35종',html);
 };
