@@ -1585,3 +1585,33 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   box-shadow:0 8px 20px #0007
 }
 .creator.creator-review .kt-creator-sound-play{pointer-events:auto}
+
+
+/* 안내 팝업 글씨 크게 · 굵게 (가독성 강화) */
+.sheet .sheet-head h3{
+  font-size:20px!important;
+  font-weight:950!important;
+  line-height:1.3!important
+}
+.sheet .sheet-head button{
+  padding:9px 12px!important;
+  font-size:15px!important;
+  font-weight:950!important
+}
+.sheet .rowbox{
+  padding:14px!important;
+  margin-top:10px!important;
+  border-radius:14px!important;
+  font-size:14px!important;
+  line-height:1.65!important;
+  font-weight:800!important;
+  color:#f0f0f3!important
+}
+.sheet .rowbox b{
+  display:inline-block!important;
+  margin-bottom:3px!important;
+  color:#fff!important;
+  font-size:16px!important;
+  line-height:1.35!important;
+  font-weight:950!important
+}
