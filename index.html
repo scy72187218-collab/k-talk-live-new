@@ -30,7 +30,94 @@
 <div class="live-prep"><div class="prep-top"><button class="prep-close" onclick="closeCreator()">×</button><div class="prep-title">K-Talk 라이브 준비</div><button class="prep-mini prep-reward" onclick="prepTap(this,'코인 리워드')">★ 코인 리워드</button></div><div class="prep-topic"><input id="liveTitle" value="오늘 라이브 제목을 입력하세요" aria-label="라이브 제목"></div><div class="prep-grid"><button class="prep-item" onclick="prepTap(this,'전환')"><b>↻</b>전환</button><button class="prep-item" onclick="prepTap(this,'보정')"><b>✦</b>보정</button><button class="prep-item" onclick="prepTap(this,'편집효과')"><b>✺</b>편집효과</button><button class="prep-item" onclick="prepTap(this,'설정')"><b>⚙</b>설정</button><button class="prep-item" onclick="prepTap(this,'멀티게스트')"><b>▦</b>멀티게스트</button><button class="prep-item" onclick="prepTap(this,'서비스')"><b>▣</b>서비스+</button><button class="prep-item" onclick="prepTap(this,'팬클럽')"><b>♡</b>팬클럽</button><button class="prep-item" onclick="prepTap(this,'소통하기')"><b>☵</b>소통하기</button><button class="prep-item" onclick="prepTap(this,'공유')"><b>↗</b>공유</button></div><div class="prep-goal"><label for="liveGoal">방송 목표</label><input id="liveGoal" type="text" value="" placeholder="오늘 방송 목표를 입력하세요" aria-label="방송 목표"></div><div class="prep-card"><div class="room-switch-row"><button class="room-switch on" onclick="selectPrepRoom(this,'solo','1인 방송',1)">1인 방송</button><button class="room-switch" onclick="selectPrepRoom(this,'group','13명 방송',13)">13명 방송</button><button class="room-switch" onclick="selectPrepRoom(this,'subscriber','구독자 방송',10)">구독자 방송</button><button class="room-switch" onclick="selectPrepRoom(this,'password','비밀방',7)">비밀방</button></div><button class="prep-start" onclick="startBroadcast()">● 라이브 시작</button></div><div class="prep-bottom"><span onclick="prepBottomTap(this,'게시')">게시</span><span onclick="prepBottomTap(this,'창작하기')">창작하기</span><span class="on" onclick="prepBottomTap(this,'라이브')">라이브</span></div></div>
 </div>
 <div id="sheet" class="sheet"><div class="sheet-inner"><div class="sheet-head"><h3 id="sheetTitle">메뉴</h3><button onclick="closeSheet()">닫기</button></div><div id="sheetBody"></div></div></div>
-<script src="app.js?v=20260901-video-delete42"></script>
+<script src="app.js?v=20260901-gift-inline43"></script>
+<style id="ktGiftFinalInlineStyle">
+#sheet.kt-gift-force{background:rgba(0,0,0,.92)!important;backdrop-filter:blur(8px)!important}
+#sheet.kt-gift-force .sheet-inner{width:min(100%,560px)!important;max-height:97dvh!important;padding:0!important;overflow:auto!important;border-radius:26px 26px 0 0!important;border:1px solid #6f2c5f!important;border-bottom:0!important;background:radial-gradient(circle at 10% 0%,rgba(194,50,190,.17),transparent 24%),radial-gradient(circle at 90% 4%,rgba(93,55,166,.14),transparent 26%),linear-gradient(180deg,#09070d,#050407 58%,#020203)!important;box-shadow:0 -16px 55px #000e!important}
+#sheet.kt-gift-force .sheet-head{display:none!important}
+#sheet.kt-gift-force #sheetBody{padding:0!important}
+.ktgf{padding:12px 10px 14px;color:#fff}
+.ktgf *{box-sizing:border-box}
+.ktgf button{font-family:inherit;touch-action:manipulation;pointer-events:auto!important}
+.ktgf-head{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:94px;padding:8px 4px 15px;border-bottom:1px solid #81355f55}
+.ktgf-brand{display:flex;align-items:center;gap:12px;min-width:0}
+.ktgf-logo{width:66px;height:66px;flex:0 0 66px;display:grid;place-items:center;border-radius:20px;font-size:38px;background:linear-gradient(145deg,#78247d,#2c1134);border:1px solid #dc5bc8;box-shadow:0 0 24px #e156c33d,inset 0 0 18px #ffffff0d}
+.ktgf-brand h2{margin:0;color:#ffe27c;font-size:28px;line-height:1;font-weight:950;letter-spacing:-1px;white-space:nowrap;text-shadow:0 0 12px #f2c15325}
+.ktgf-brand p{margin:8px 0 0;color:#f0d8bc;font-size:11px;font-weight:900;white-space:nowrap}
+.ktgf-close{flex:0 0 auto;min-width:86px;height:52px;border-radius:18px;border:1px solid #a14587;background:linear-gradient(180deg,#1d101f,#0d0910);color:#fff;font-size:18px;font-weight:950}
+.ktgf-main{display:grid;grid-template-columns:96px minmax(0,1fr);gap:10px;margin-top:12px;align-items:start}
+.ktgf-side{display:flex;flex-direction:column;gap:5px;padding:6px;border-radius:20px;border:1px solid #57294a;background:linear-gradient(180deg,#0d0910,#060507);box-shadow:inset 0 0 24px #000c}
+.ktgf-cat{min-height:82px;padding:7px 3px;border-radius:17px;border:1px solid transparent;background:transparent;color:#d8a8dc;font-weight:950}
+.ktgf-cat i{display:block;font-style:normal;font-size:30px;line-height:1}
+.ktgf-cat span{display:block;margin-top:7px;font-size:10.5px;line-height:1.15;font-weight:950}
+.ktgf-cat.on{color:#fff;border-color:#ff60c8;background:radial-gradient(circle at 50% 20%,rgba(255,85,207,.19),transparent 45%),linear-gradient(145deg,#491435,#1b0c1a);box-shadow:0 0 18px #ff53bf45,inset 0 0 15px #ff64c41c}
+.ktgf-cat.vip{color:#ffd968}.ktgf-cat.vip.on{color:#fff1a4;border-color:#ffd658;background:linear-gradient(145deg,#342408,#130e04)}
+.ktgf-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;align-content:start}
+.ktgf-card{position:relative;min-width:0;height:158px;padding:7px 4px 8px;border-radius:14px;border:1px solid #815536;background:radial-gradient(circle at 50% 27%,rgba(115,42,87,.19),transparent 43%),linear-gradient(180deg,#100b10,#070607);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;text-align:center;box-shadow:inset 0 0 20px #000d,0 0 10px #d5922812;overflow:hidden}
+.ktgf-card.hide{display:none!important}.ktgf-card:active{transform:scale(.97);border-color:#ff68c8}
+.ktgf-no{position:absolute;left:5px;top:5px;min-width:21px;height:21px;padding:0 4px;display:grid;place-items:center;border-radius:7px;background:#531a48;border:1px solid #873773;color:#ffd8f5;font-size:10px;font-weight:950;z-index:2}
+.ktgf-art{width:100%;height:90px;margin:0 auto 7px;display:grid;place-items:center;border-radius:13px;font-family:"Noto Color Emoji","Apple Color Emoji","Segoe UI Emoji",sans-serif;font-size:55px;line-height:1;background:radial-gradient(circle at 50% 43%,rgba(126,47,105,.43),rgba(52,21,47,.58) 48%,#080608 80%);box-shadow:inset 0 0 18px #000b,0 0 0 1px #6f452d;filter:drop-shadow(0 4px 8px #0009)}
+.ktgf-card b{width:100%;min-height:28px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9.5px;line-height:1.15;font-weight:950;word-break:keep-all}
+.ktgf-card strong{display:block;margin-top:5px;color:#ffd65e;font-size:13px;line-height:1;font-weight:950;white-space:nowrap}
+.ktgf-foot{display:flex;align-items:center;justify-content:center;margin-top:12px;padding:10px;border-radius:14px;border:1px solid #663052;background:#100a0f;color:#d8c6d3;font-size:10px;font-weight:900}
+@media(max-width:410px){
+  .ktgf{padding:10px 7px 12px}.ktgf-head{min-height:80px;padding-bottom:12px}.ktgf-brand{gap:8px}.ktgf-logo{width:54px;height:54px;flex-basis:54px;font-size:31px;border-radius:17px}.ktgf-brand h2{font-size:22px}.ktgf-brand p{font-size:9px;margin-top:5px}.ktgf-close{min-width:72px;height:46px;font-size:16px;padding:0 12px}
+  .ktgf-main{grid-template-columns:76px minmax(0,1fr);gap:6px}.ktgf-side{padding:4px;gap:4px}.ktgf-cat{min-height:70px;border-radius:14px}.ktgf-cat i{font-size:23px}.ktgf-cat span{font-size:8.5px;margin-top:5px}
+  .ktgf-grid{gap:4px}.ktgf-card{height:132px;padding:5px 2px 6px;border-radius:11px}.ktgf-art{height:72px;font-size:42px;margin-bottom:5px;border-radius:10px}.ktgf-no{min-width:18px;height:18px;font-size:8px}.ktgf-card b{font-size:7.8px;min-height:24px}.ktgf-card strong{font-size:10.5px;margin-top:4px}
+}
+</style>
+<script>
+(function(){
+  var gifts=[
+    ['장미',1,'🌹'],['하트',30,'💖'],['꽃다발',50,'💐'],['풍선',80,'💗'],['보물상자',100,'🎁'],
+    ['왕관',200,'👑'],['다이아 왕관',300,'♛'],['럭셔리 자동차',500,'🏎️'],['요트',700,'🛥️'],['성',1000,'🏰'],
+    ['초콜릿',10,'🍫'],['향수',20,'🧴'],['케이크',40,'🎂'],['불꽃놀이',60,'🎆'],['백조',120,'🦢'],
+    ['트로피',150,'🏆'],['별빛',180,'⭐'],['하트 폭죽',250,'💥'],['다이아 하트',400,'💎'],['럭셔리 무대',600,'🎇'],
+    ['달',800,'🌕'],['별 패키지',1200,'🌟'],['골드 패키지',1500,'🎁'],['프리미엄 반지',2000,'💍'],['VIP 크라운',3000,'👑']
+  ];
+  var picks={
+    '꽃/하트':[0,1,2,3,12],
+    '프리미엄':[5,6,9,23,24],
+    '연출/특수':[10,11,13,14,16,17],
+    '럭셔리':[7,8,18,19,20],
+    '보물/패키지':[4,21,22],
+    'VIP 전용':[24]
+  };
+  window.ktGiftFilterFinal=function(cat,btn){
+    document.querySelectorAll('.ktgf-cat').forEach(function(b){b.classList.remove('on')});
+    if(btn)btn.classList.add('on');
+    document.querySelectorAll('.ktgf-card').forEach(function(card){
+      var i=parseInt(card.dataset.i,10);
+      var show=cat==='전체'||(picks[cat]&&picks[cat].indexOf(i)>-1);
+      card.classList.toggle('hide',!show);
+    });
+  };
+  window.openGifts=function(){
+    var cards=gifts.map(function(g,i){
+      return '<button type="button" class="ktgf-card" data-i="'+i+'" onclick="giftSendByIndex('+i+')">'
+        +'<span class="ktgf-no">'+(i+1)+'</span><span class="ktgf-art">'+g[2]+'</span><b>'+g[0]+'</b><strong>'+g[1].toLocaleString('ko-KR')+'개</strong></button>';
+    }).join('');
+    var html='<div class="ktgf"><div class="ktgf-head"><div class="ktgf-brand"><span class="ktgf-logo">🎁</span><div><h2>K-Talk 선물상자</h2><p>✦ 마음을 전하는 특별한 선물 ✦</p></div></div><button type="button" class="ktgf-close" onclick="closeSheet()">닫기</button></div>'
+      +'<div class="ktgf-main"><aside class="ktgf-side">'
+      +'<button type="button" class="ktgf-cat on" onclick="ktGiftFilterFinal(\'전체\',this)"><i>🎁</i><span>전체</span></button>'
+      +'<button type="button" class="ktgf-cat" onclick="ktGiftFilterFinal(\'꽃/하트\',this)"><i>🌹</i><span>꽃/하트</span></button>'
+      +'<button type="button" class="ktgf-cat" onclick="ktGiftFilterFinal(\'프리미엄\',this)"><i>👑</i><span>프리미엄</span></button>'
+      +'<button type="button" class="ktgf-cat" onclick="ktGiftFilterFinal(\'연출/특수\',this)"><i>✨</i><span>연출/특수</span></button>'
+      +'<button type="button" class="ktgf-cat" onclick="ktGiftFilterFinal(\'럭셔리\',this)"><i>💎</i><span>럭셔리</span></button>'
+      +'<button type="button" class="ktgf-cat" onclick="ktGiftFilterFinal(\'보물/패키지\',this)"><i>🧰</i><span>보물/패키지</span></button>'
+      +'<button type="button" class="ktgf-cat vip" onclick="ktGiftFilterFinal(\'VIP 전용\',this)"><i>👑</i><span>VIP 전용</span></button>'
+      +'</aside><section><div class="ktgf-grid">'+cards+'</div></section></div>'
+      +'<div class="ktgf-foot">💗 선물은 라이브 방송 중에만 보낼 수 있습니다.</div></div>';
+    showSheet('',html);
+    sheet.classList.add('kt-gift-force');
+  };
+  var oldClose=window.closeSheet;
+  window.closeSheet=function(){
+    try{sheet.classList.remove('kt-gift-force');}catch(e){}
+    return oldClose?oldClose():undefined;
+  };
+})();
+</script>
 <script>
 (function(){
  const originalFriends=window.friends,originalProfile=window.openProfile,originalMenu=window.openMenu,originalCloseCreator=window.closeCreator;
