@@ -424,3 +424,30 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
 }
 .kt-switch.on{background:#46d781}
 .kt-switch.on:after{left:21px}
+
+
+/* 멀티게스트 간단 3가지 레이아웃 */
+.kt-multi-layouts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:4px 0 8px}
+.kt-multi-layouts button{
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:16px;
+  background:linear-gradient(145deg,#171721,#0b0b10);
+  color:#fff;
+  padding:10px 6px;
+  min-height:150px;
+  font-weight:900;
+}
+.kt-multi-layouts button.on{border-color:#ff58ad;box-shadow:0 0 14px rgba(255,88,173,.35)}
+.kt-multi-layouts b{display:block;font-size:13px;margin-top:8px}
+.kt-multi-layouts small{display:block;color:#bfc0c8;font-size:9px;line-height:1.35;margin-top:4px}
+.layout-preview{height:82px;border-radius:12px;background:#f0f0f3;display:grid;gap:4px;padding:7px}
+.layout-preview i{display:block;background:#cfd0d7;border-radius:5px}
+.layout-preview.grid{grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(3,1fr)}
+.layout-preview.side{grid-template-columns:repeat(2,1fr)}
+.layout-preview.spot{grid-template-columns:repeat(3,1fr);grid-template-rows:1.5fr .8fr}
+.layout-preview.spot i:first-child{grid-column:1/4}
+@media(max-width:390px){
+  .kt-multi-layouts{gap:6px}
+  .kt-multi-layouts button{padding:8px 4px;min-height:140px}
+  .layout-preview{height:76px}
+}
