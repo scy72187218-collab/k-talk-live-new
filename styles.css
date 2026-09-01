@@ -1322,3 +1322,54 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   font-size:13px;font-weight:900;box-shadow:0 12px 32px #0008,0 0 24px #ff4fa355
 }
 .kt-like-reward-toast b{display:block;margin-top:4px;color:#ffe477;font-size:16px}
+
+
+/* 게스트 얼굴 프로필 + 좋아요 보상 */
+.kt-live-guests{
+  display:flex;gap:7px;overflow-x:auto;padding:5px 4px 2px;
+  scrollbar-width:none
+}
+.kt-live-guests::-webkit-scrollbar{display:none}
+.kt-live-guests button{
+  flex:0 0 auto;width:46px;border:0;background:transparent;color:#fff;padding:0;
+  text-align:center
+}
+.kt-live-guests span{
+  width:39px;height:39px;margin:0 auto 3px;border-radius:50%;
+  display:grid;place-items:center;font-size:22px;
+  background:linear-gradient(145deg,#2a2033,#111018);
+  border:2px solid #ff66b5;
+  box-shadow:0 0 10px #ff4fa433
+}
+.kt-live-guests small{
+  display:block;font-size:8px;color:#eee;font-weight:850;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+.kt-guest-profile{display:grid;gap:10px;padding:4px 0 8px}
+.kt-guest-avatar{
+  width:82px;height:82px;margin:0 auto;border-radius:50%;
+  display:grid;place-items:center;font-size:42px;
+  background:linear-gradient(145deg,#34243f,#121019);
+  border:3px solid #ff69b9;box-shadow:0 0 20px #ff4fa34d
+}
+.kt-guest-name{text-align:center}
+.kt-guest-name b{display:block;color:#fff;font-size:18px;font-weight:950}
+.kt-guest-name small{display:block;margin-top:3px;color:#aaa;font-size:10px}
+.kt-guest-like-box{
+  padding:12px;border-radius:16px;background:linear-gradient(145deg,#241020,#121018);
+  border:1px solid #ff62b04d;text-align:center
+}
+.kt-guest-like-box strong{display:block;color:#ffd5ec;font-size:20px;font-weight:950}
+.kt-guest-like-box span{display:block;margin-top:5px;color:#fff;font-size:12px;font-weight:900}
+.kt-guest-like-box small{display:block;margin-top:5px;color:#ffe274;font-size:10px;font-weight:850}
+.kt-guest-progress{
+  height:10px;border-radius:999px;overflow:hidden;background:#ffffff12;border:1px solid #ffffff14
+}
+.kt-guest-progress div{
+  height:100%;background:linear-gradient(90deg,#ff4f9c,#ff79cc,#ffd35c)
+}
+.kt-guest-stats{
+  display:flex;justify-content:space-between;gap:8px;padding:9px 10px;border-radius:12px;
+  background:#ffffff08;color:#ddd;font-size:10px;font-weight:850
+}
+.kt-guest-stats b{color:#ffe36e}
