@@ -73,9 +73,7 @@ window.prepTap=async function(el,name){
     return;
   }
   if(name==='편집효과'){
-    state.effectOn=!state.effectOn;
-    creator.classList.toggle('effect-on',state.effectOn);
-    if(el)el.classList.toggle('prep-on',state.effectOn);
+    openEditEffectPanel();
     return;
   }
   if(name==='전환'){
@@ -98,17 +96,26 @@ window.prepTap=async function(el,name){
 };
 
 window.openBeautyPanel=function(){
-  var html='<div class="beauty-choice-grid">'
-    +'<button onclick="setBeautyMode(\'natural\',\'\')"><b>✨</b><span>자연 보정</span></button>'
-    +'<button onclick="setBeautyMode(\'bright\',\'\')"><b>☀️</b><span>밝게</span></button>'
-    +'<button onclick="setBeautyMode(\'soft\',\'\')"><b>🌸</b><span>부드럽게</span></button>'
-    +'<button onclick="setBeautyMode(\'glow\',\'\')"><b>💖</b><span>화사하게</span></button>'
-    +'<button onclick="setBeautyMode(\'natural\',\'🐰\')"><b>🐰</b><span>토끼 캐릭터</span></button>'
-    +'<button onclick="setBeautyMode(\'natural\',\'🐱\')"><b>🐱</b><span>고양이 캐릭터</span></button>'
-    +'<button onclick="setBeautyMode(\'natural\',\'👑\')"><b>👑</b><span>왕관 캐릭터</span></button>'
-    +'<button onclick="setBeautyMode(\'off\',\'\')"><b>↺</b><span>보정 해제</span></button>'
+  var html='<div class="kt-beauty-panel">'
+    +'<div class="kt-panel-tabs"><button class="on">Beauty</button><button onclick="openEditEffectPanel()">편집효과</button><button onclick="resetBeautyAll()">↺ 초기화</button></div>'
+    +'<div class="kt-beauty-presets">'
+      +'<button onclick="setBeautyMode(\'soft\',\'\')"><b>💧</b><span>부드럽게</span></button>'
+      +'<button onclick="setBeautyMode(\'natural\',\'\')"><b>☺</b><span>자연</span></button>'
+      +'<button onclick="setBeautyMode(\'bright\',\'\')"><b>☀</b><span>밝게</span></button>'
+      +'<button onclick="setBeautyMode(\'glow\',\'\')"><b>✨</b><span>화사하게</span></button>'
+    +'</div>'
+    +'<div class="kt-slider-row"><span>피부</span><input type="range" min="0" max="100" value="'+(state.beautySkin||35)+'" oninput="setBeautySlider(\'skin\',this.value)"><b id="beautySkinVal">'+(state.beautySkin||35)+'</b></div>'
+    +'<div class="kt-slider-row"><span>밝기</span><input type="range" min="0" max="100" value="'+(state.beautyBright||25)+'" oninput="setBeautySlider(\'bright\',this.value)"><b id="beautyBrightVal">'+(state.beautyBright||25)+'</b></div>'
+    +'<div class="kt-slider-row"><span>선명도</span><input type="range" min="0" max="100" value="'+(state.beautySharp||20)+'" oninput="setBeautySlider(\'sharp\',this.value)"><b id="beautySharpVal">'+(state.beautySharp||20)+'</b></div>'
+    +'<div class="kt-beauty-face-row">'
+      +'<button onclick="setBeautySticker(\'✨\')"><b>✨</b><span>반짝임</span></button>'
+      +'<button onclick="setBeautySticker(\'👓\')"><b>👓</b><span>안경</span></button>'
+      +'<button onclick="setBeautySticker(\'👑\')"><b>👑</b><span>왕관</span></button>'
+      +'<button onclick="setBeautySticker(\'😄\')"><b>😄</b><span>웃긴표정</span></button>'
+      +'<button onclick="setBeautySticker(\'\')"><b>⊘</b><span>없음</span></button>'
+    +'</div>'
     +'</div>';
-  showSheet('✨ 보정 · 캐릭터',html);
+  showSheet('뷰티',html);
 };
 
 window.setBeautyMode=function(mode,char){
@@ -116,10 +123,60 @@ window.setBeautyMode=function(mode,char){
   creator.classList.remove('beauty-natural','beauty-bright','beauty-soft','beauty-glow');
   if(mode!=='off')creator.classList.add('beauty-'+mode);
   if(char)creator.setAttribute('data-beauty-char',char);
-  else creator.removeAttribute('data-beauty-char');
-  closeSheet();
+  else if(mode==='off')creator.removeAttribute('data-beauty-char');
   var btn=[].slice.call(document.querySelectorAll('.prep-item')).find(function(b){return b.textContent.indexOf('보정')>-1;});
   if(btn)btn.classList.toggle('prep-on',mode!=='off'||!!char);
+};
+
+window.setBeautySticker=function(char){
+  if(char)creator.setAttribute('data-beauty-char',char);
+  else creator.removeAttribute('data-beauty-char');
+};
+
+window.setBeautySlider=function(kind,value){
+  value=parseInt(value||0,10);
+  if(kind==='skin')state.beautySkin=value;
+  if(kind==='bright')state.beautyBright=value;
+  if(kind==='sharp')state.beautySharp=value;
+  var skin=state.beautySkin||0, bright=state.beautyBright||0, sharp=state.beautySharp||0;
+  var brightness=(1+bright/260).toFixed(2);
+  var saturation=(1+sharp/350).toFixed(2);
+  var contrast=(1+sharp/500).toFixed(2);
+  var blur=(skin/180).toFixed(2);
+  if(camera)camera.style.filter='brightness('+brightness+') saturate('+saturation+') contrast('+contrast+') blur('+blur+'px)';
+  var val=document.getElementById(kind==='skin'?'beautySkinVal':kind==='bright'?'beautyBrightVal':'beautySharpVal');
+  if(val)val.textContent=value;
+};
+
+window.resetBeautyAll=function(){
+  state.beautyMode='off';state.beautySkin=0;state.beautyBright=0;state.beautySharp=0;
+  creator.classList.remove('beauty-natural','beauty-bright','beauty-soft','beauty-glow');
+  creator.removeAttribute('data-beauty-char');
+  if(camera)camera.style.filter='';
+  openBeautyPanel();
+};
+
+window.openEditEffectPanel=function(){
+  var effects=[
+    ['✨','반짝임','glow'],['🌸','꽃빛','soft'],['🌈','무지개','rainbow'],['🧊','쿨톤','cool'],['🔥','웜톤','warm'],
+    ['😺','고양이','cat'],['🐰','토끼','rabbit'],['👑','왕관','crown'],['🤓','안경','glasses'],['😂','웃긴표정','funny'],
+    ['🌙','야간','night'],['🎞️','영화','cinema'],['🖤','흑백','mono'],['💖','핑크','pink'],['💙','블루','blue'],
+    ['⭐','스타','star'],['🎉','파티','party'],['🪩','디스코','disco'],['☁️','소프트','dream'],['↺','효과해제','off']
+  ];
+  var html='<div class="kt-effect-panel"><div class="kt-panel-tabs"><button onclick="openBeautyPanel()">Beauty</button><button class="on">편집효과</button><button onclick="setEditEffect(\'off\')">↺ 초기화</button></div><div class="kt-effect-grid">'
+    +effects.map(function(e){return '<button onclick="setEditEffect(\''+e[2]+'\')"><b>'+e[0]+'</b><span>'+e[1]+'</span></button>';}).join('')
+    +'</div></div>';
+  showSheet('편집효과',html);
+};
+
+window.setEditEffect=function(name){
+  state.editEffect=name;
+  creator.classList.remove('fx-glow','fx-soft','fx-rainbow','fx-cool','fx-warm','fx-night','fx-cinema','fx-mono','fx-pink','fx-blue','fx-star','fx-party','fx-disco','fx-dream');
+  creator.removeAttribute('data-beauty-char');
+  if(name==='off'){ if(camera)camera.style.removeProperty('filter'); return; }
+  var stickerMap={cat:'😺',rabbit:'🐰',crown:'👑',glasses:'🤓',funny:'😂'};
+  if(stickerMap[name]){creator.setAttribute('data-beauty-char',stickerMap[name]);return;}
+  creator.classList.add('fx-'+name);
 };
 
 window.selectPrepRoom=function(el,type,label,max){
