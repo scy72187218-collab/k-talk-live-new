@@ -447,6 +447,19 @@ window.openMyVideoPicker=function(){
   }
 };
 
+window.playCreatorPreviewWithSound=function(){
+  var preview=document.getElementById('ktCreatorPreview');
+  var btn=document.getElementById('ktCreatorSoundPlay');
+  if(!preview)return;
+  preview.muted=false;
+  preview.volume=1;
+  var p=preview.play();
+  if(p&&p.then){
+    p.then(function(){if(btn)btn.style.display='none';})
+     .catch(function(){if(btn){btn.style.display='flex';btn.textContent='▶ 음악 재생';}});
+  }
+};
+
 window.handleMyVideoPick=function(input){
   var file=input&&input.files&&input.files[0];
   if(!file)return;
@@ -463,25 +476,41 @@ window.handleMyVideoPick=function(input){
   var fallback=document.getElementById('ktCreatorPreviewFallback');
   if(fallback)fallback.style.display='none';
   if(preview){
+    var soundBtn=document.getElementById('ktCreatorSoundPlay');
     preview.pause();
-    preview.muted=true;
+    preview.muted=false;
+    preview.volume=1;
     preview.controls=true;
     preview.playsInline=true;
     preview.onerror=function(){
       preview.style.display='none';
+      if(soundBtn)soundBtn.style.display='none';
       if(fallback)fallback.style.display='grid';
     };
     preview.onloadeddata=function(){
-      try{
-        var t=(isFinite(preview.duration)&&preview.duration>0)?Math.min(0.12,Math.max(0.02,preview.duration/20)):0.05;
-        preview.currentTime=t;
-      }catch(e){}
-      preview.pause();
       preview.style.display='block';
+      preview.muted=false;
+      preview.volume=1;
+      var p=preview.play();
+      if(p&&p.catch){
+        p.then(function(){
+          if(soundBtn)soundBtn.style.display='none';
+        }).catch(function(){
+          if(soundBtn){
+            soundBtn.style.display='flex';
+            soundBtn.textContent='▶ 음악 재생';
+          }
+        });
+      }
     };
-    preview.onseeked=function(){
-      preview.pause();
-      preview.style.display='block';
+    preview.onplay=function(){
+      if(soundBtn)soundBtn.style.display='none';
+    };
+    preview.onpause=function(){
+      if(!preview.ended&&soundBtn){
+        soundBtn.style.display='flex';
+        soundBtn.textContent='▶ 재생';
+      }
     };
     preview.src=ktCreatorBlobUrl;
     preview.load();
