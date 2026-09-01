@@ -600,3 +600,47 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
 }
 .kt-sub-benefit-list b{font-size:14px;color:#fff}
 .kt-sub-benefit-list small{font-size:10px;line-height:1.45;color:#b7b8c1;margin-top:3px}
+
+
+/* K-Talk 이용방법 · 혜택 한 페이지 */
+.kt-guide-page{padding:2px 0 14px}
+.kt-guide-hero{
+  display:flex;align-items:center;gap:12px;padding:15px;border-radius:20px;
+  background:linear-gradient(135deg,#4b226d,#23103f 48%,#10121c);
+  border:1px solid rgba(199,132,255,.24);box-shadow:0 8px 26px rgba(0,0,0,.22)
+}
+.kt-guide-hero>span{
+  width:56px;height:56px;border-radius:18px;display:grid;place-items:center;
+  background:linear-gradient(135deg,#ffce55,#ff8b4d);color:#3b2100;font-size:30px;font-weight:950
+}
+.kt-guide-hero b{display:block;font-size:18px;color:#fff}
+.kt-guide-hero small{display:block;margin-top:5px;color:#d2c8df;font-size:11px;line-height:1.45}
+.kt-guide-title{margin:16px 2px 8px;font-size:14px;font-weight:950;color:#fff}
+.kt-guide-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.kt-guide-cards>div,.kt-guide-cards>button{
+  min-height:110px;border:1px solid rgba(255,255,255,.08);border-radius:18px;
+  background:linear-gradient(145deg,#181821,#0b0b10);color:#fff;padding:12px;text-align:left
+}
+.kt-guide-cards span{font-size:27px}
+.kt-guide-cards b{display:block;margin-top:7px;font-size:14px;font-weight:950}
+.kt-guide-cards small{display:block;margin-top:4px;font-size:10px;line-height:1.45;color:#b8bac4}
+.kt-guide-list{display:grid;gap:8px}
+.kt-guide-list>div,.kt-guide-list>button{
+  width:100%;min-height:76px;display:grid;grid-template-columns:48px 1fr auto;align-items:center;gap:10px;
+  border:1px solid rgba(255,255,255,.08);border-radius:17px;background:#ffffff07;color:#fff;
+  padding:10px 12px;text-align:left
+}
+.kt-guide-list>div>span,.kt-guide-list>button>span{
+  width:44px;height:44px;border-radius:14px;display:grid;place-items:center;
+  background:linear-gradient(145deg,#252532,#121218);font-size:23px
+}
+.kt-guide-list section b{display:block;font-size:14px;font-weight:950}
+.kt-guide-list section small{display:block;margin-top:4px;font-size:10px;line-height:1.45;color:#b8bac4}
+.kt-guide-list em{
+  min-width:44px;padding:6px 7px;border-radius:999px;background:#ffffff0f;color:#ffe071;
+  font-style:normal;font-size:10px;font-weight:950;text-align:center
+}
+.kt-guide-note{
+  margin-top:12px;padding:10px 12px;border-radius:14px;background:#ffcf3a12;
+  border:1px solid #ffcf3a28;color:#c8c1a6;font-size:9px;line-height:1.5
+}
