@@ -644,3 +644,71 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   margin-top:12px;padding:10px 12px;border-radius:14px;background:#ffcf3a12;
   border:1px solid #ffcf3a28;color:#c8c1a6;font-size:9px;line-height:1.5
 }
+
+
+/* 카메라 보면서 뷰티/편집효과 선택 */
+.sheet.camera-effect-sheet{
+  background:transparent!important;
+  backdrop-filter:none!important;
+  align-items:flex-end!important;
+  pointer-events:none;
+}
+.sheet.camera-effect-sheet .sheet-inner{
+  pointer-events:auto;
+  width:100%;
+  max-width:520px;
+  max-height:58dvh;
+  margin:0 auto!important;
+  border-radius:24px 24px 0 0!important;
+  background:linear-gradient(180deg,rgba(20,18,31,.96),rgba(7,7,12,.98))!important;
+  box-shadow:0 -12px 34px rgba(0,0,0,.35);
+}
+.sheet.camera-effect-sheet .sheet-head{
+  position:sticky;
+  top:0;
+  z-index:2;
+  padding-bottom:8px;
+  background:linear-gradient(180deg,rgba(20,18,31,.98),rgba(20,18,31,.88));
+}
+.sheet.camera-effect-sheet .sheet-head h3{font-size:18px!important}
+.sheet.camera-effect-sheet .kt-effect-grid{
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  gap:8px!important;
+}
+.sheet.camera-effect-sheet .kt-effect-grid button{
+  min-height:78px!important;
+  padding:8px 3px!important;
+}
+.sheet.camera-effect-sheet .kt-effect-grid button.on{
+  border-color:#ff4f98!important;
+  box-shadow:0 0 0 2px rgba(255,79,152,.32),0 0 15px rgba(255,79,152,.22)!important;
+}
+.sheet.camera-effect-sheet .kt-effect-grid button b{font-size:26px!important}
+.sheet.camera-effect-sheet .kt-effect-grid button span{font-size:10px!important}
+
+/* 얼굴 장식 위치 */
+.creator[data-beauty-char="🕶️"]::after{
+  top:31%!important;
+  font-size:64px!important;
+}
+.creator[data-beauty-char="👓"]::after{
+  top:31%!important;
+  font-size:60px!important;
+}
+.creator[data-beauty-char="🧔"]::after{
+  top:39%!important;
+  font-size:58px!important;
+}
+.creator[data-beauty-char="👑"]::after{
+  top:8%!important;
+  font-size:58px!important;
+}
+.creator[data-beauty-char="😺"]::after,
+.creator[data-beauty-char="🐰"]::after{
+  top:9%!important;
+  font-size:58px!important;
+}
+.creator[data-beauty-char="😂"]::after{
+  top:34%!important;
+  font-size:52px!important;
+}
