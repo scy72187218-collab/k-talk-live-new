@@ -693,7 +693,9 @@ window.postCreatorRecording=async function(){
       name:ktImportedVideoName||('K-Talk 동영상 '+new Date().toLocaleString('ko-KR')),
       type:ktCreatorBlob.type||'video/webm',
       blob:ktCreatorBlob,
-      createdAt:Date.now()
+      createdAt:Date.now(),
+      posted:true,
+      postedAt:Date.now()
     };
     store.put(item);
     await new Promise(function(resolve,reject){
@@ -702,10 +704,10 @@ window.postCreatorRecording=async function(){
       tx.onabort=function(){reject(tx.error||new Error('save abort'));};
     });
     db.close();
-    ktSpeak('내 동영상에 올렸습니다.');
-    alert('✅ 내 동영상에 올렸습니다.');
+    ktSpeak('동영상을 게시했습니다.');
+    alert('✅ 동영상을 게시했습니다.');
     closeCreator();
-    if(window.openMyVideoLibrary)openMyVideoLibrary();
+    if(window.home)home();
   }catch(e){
     alert('이 기기에서는 동영상을 보관하지 못했습니다.');
   }
@@ -786,6 +788,8 @@ window.postStoredVideo=async function(id,btn){
       }
       ktSpeak('동영상을 올렸습니다.');
       alert('✅ 동영상을 올렸습니다.');
+      try{closeSheet();}catch(e){}
+      if(window.home)home();
     };
     tx.onerror=function(){db.close();alert('동영상을 올리지 못했습니다.');};
   }catch(e){alert('동영상을 올리지 못했습니다.');}
