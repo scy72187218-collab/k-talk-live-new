@@ -5,6 +5,55 @@ var camera=document.getElementById('camera');
 var sheet=document.getElementById('sheet');
 var sheetTitle=document.getElementById('sheetTitle');
 var sheetBody=document.getElementById('sheetBody');
+var ktPersonCanvas=document.getElementById('ktPersonCanvas');
+var ktPersonSegmenter=null;
+var ktPersonSegmentationRunning=false;
+var ktPersonFrameBusy=false;
+
+window.stopPersonSegmentation=function(){
+  ktPersonSegmentationRunning=false;
+  ktPersonFrameBusy=false;
+  state.personSegmentationReady=false;
+  if(creator)creator.classList.remove('person-segment-on');
+};
+
+window.startPersonSegmentation=async function(){
+  if(!camera||!ktPersonCanvas||!window.SelfieSegmentation)return false;
+  try{
+    if(!ktPersonSegmenter){
+      ktPersonSegmenter=new SelfieSegmentation({locateFile:function(file){return 'https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/'+file;}});
+      ktPersonSegmenter.setOptions({modelSelection:1});
+      ktPersonSegmenter.onResults(function(results){
+        var w=Math.max(1,creator.clientWidth),h=Math.max(1,creator.clientHeight),dpr=Math.min(1.5,window.devicePixelRatio||1);
+        ktPersonCanvas.width=Math.round(w*dpr);ktPersonCanvas.height=Math.round(h*dpr);
+        var ctx=ktPersonCanvas.getContext('2d');
+        var sw=results.image.width||camera.videoWidth,sh=results.image.height||camera.videoHeight;
+        if(!ctx||!sw||!sh)return;
+        var person=document.createElement('canvas');person.width=sw;person.height=sh;
+        var pc=person.getContext('2d');
+        pc.drawImage(results.segmentationMask,0,0,sw,sh);
+        pc.globalCompositeOperation='source-in';pc.drawImage(results.image,0,0,sw,sh);
+        var cw=ktPersonCanvas.width,ch=ktPersonCanvas.height,cover=Math.max(cw/sw,ch/sh);
+        var bw=sw*cover,bh=sh*cover,bx=(cw-bw)/2,by=(ch-bh)/2;
+        ctx.clearRect(0,0,cw,ch);ctx.filter='blur(26px) brightness(.72)';ctx.drawImage(results.image,bx,by,bw,bh);ctx.filter='none';
+        var personScale=cover*.6,pw=sw*personScale,ph=sh*personScale,px=(cw-pw)/2,py=(ch-ph)/2;
+        ctx.drawImage(person,px,py,pw,ph);
+        creator.classList.add('person-segment-on');state.personSegmentationReady=true;
+      });
+    }
+    ktPersonSegmentationRunning=true;
+    async function frame(){
+      if(!ktPersonSegmentationRunning||!creator.classList.contains('show'))return;
+      if(!ktPersonFrameBusy&&camera.readyState>=2){
+        ktPersonFrameBusy=true;
+        try{await ktPersonSegmenter.send({image:camera});}catch(e){}
+        ktPersonFrameBusy=false;
+      }
+      requestAnimationFrame(frame);
+    }
+    frame();return true;
+  }catch(e){return false;}
+};
 
 state.aiVoiceOn=true;
 try{
@@ -284,6 +333,7 @@ window.openCreator=async function(){
   }
 };
 window.closeCreator=function(){
+  stopPersonSegmentation();
   if(ktCreatorRecording)stopCreatorRecording();
   creator.classList.remove('show','camera-on','creator-recording','creator-review');
   try{
@@ -352,6 +402,7 @@ window.ktAttachCreatorCamera=async function(stream){
   }catch(e){}
 
   try{await camera.play();}catch(e){}
+  startPersonSegmentation();
   setTimeout(function(){
     try{
       if(camera.paused||camera.readyState<2)camera.play().catch(function(){});
@@ -484,7 +535,7 @@ window.stopEffectRecordingCanvas=function(){
 
 window.makeEffectRecordingStream=function(){
   var selected=state.appliedEditEffect||state.pendingEditEffect||'off';
-  if(selected==='off'||!camera||!camera.videoWidth)return state.stream;
+  if((selected==='off'&&!state.personSegmentationReady)||!camera||!camera.videoWidth)return state.stream;
 
   var canvas=document.createElement('canvas');
   canvas.width=1080;canvas.height=1920;
@@ -494,12 +545,13 @@ window.makeEffectRecordingStream=function(){
 
   function draw(){
     if(!ktCreatorRecording&&ktCreatorRecorder&&ktCreatorRecorder.state==='inactive')return;
-    var sw=camera.videoWidth||1920,sh=camera.videoHeight||1080;
+    var source=(state.personSegmentationReady&&ktPersonCanvas&&ktPersonCanvas.width)?ktPersonCanvas:camera;
+    var sw=source.width||source.videoWidth||1920,sh=source.height||source.videoHeight||1080;
     var scale=Math.max(canvas.width/sw,canvas.height/sh);
     var dw=sw*scale,dh=sh*scale,dx=(canvas.width-dw)/2,dy=(canvas.height-dh)/2;
     ctx.save();ctx.clearRect(0,0,canvas.width,canvas.height);
     ctx.translate(canvas.width,0);ctx.scale(-1,1);
-    try{ctx.drawImage(camera,dx,dy,dw,dh);}catch(e){}
+    try{ctx.drawImage(source,dx,dy,dw,dh);}catch(e){}
     ctx.restore();
 
     var anchor=document.getElementById('ktFaceAnchor');
