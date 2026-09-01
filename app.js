@@ -224,6 +224,7 @@ window.showSheet=function(title,html){
 };
 window.closeSheet=function(){
   ktStopSheetMedia();
+  try{creator.classList.remove('beauty-preview-open');}catch(e){}
   try{sheetBody.innerHTML='';}catch(e){}
   sheet.classList.remove('show');
   sheet.classList.remove('gift-exact');
@@ -868,6 +869,8 @@ window.prepTap=async function(el,name){
 };
 
 window.openBeautyPanel=function(){
+  creator.classList.add('beauty-preview-open');
+  try{if(window.ensureLiveCamera)ensureLiveCamera(state.cameraFacing||'user').catch(function(){});}catch(e){}
   var controls=[['skin','💧','부드럽게',state.beautySkin||35],['face','☺','얼굴형',state.beautyFace||50],['eyes','◉','눈',state.beautyEyes||50],['nose','♢','코',state.beautyNose||50],['mouth','💋','입술',state.beautyMouth||50],['tone','✨','피부',state.beautyTone||35],['bright','☀','밝기',state.beautyBright||25],['sharp','✦','선명도',state.beautySharp||20]];
   var selected=state.beautyControl||'skin';
   var active=controls.filter(function(c){return c[0]===selected;})[0]||controls[0];
