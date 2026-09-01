@@ -3304,3 +3304,46 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
     height:52px!important;
   }
 }
+
+
+/* 2026-09-02 내 프로필 등록 */
+.kt-my-profile{padding:2px 0 8px}
+.kt-my-profile-photo{
+  width:132px;height:132px;margin:8px auto 20px;
+  display:block;position:relative;overflow:visible;
+  border-radius:50%;border:3px solid #ffd86b;
+  background:radial-gradient(circle,#3a3145,#15151c);
+  color:#fff;font-size:48px;font-weight:900;
+  box-shadow:0 0 24px #ffd86b26;
+}
+.kt-my-profile-photo img{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;border-radius:50%;
+}
+.kt-my-profile-photo>span{
+  position:absolute;inset:0;display:grid;place-items:center;
+}
+.kt-my-profile-photo em{
+  position:absolute;left:50%;bottom:-12px;transform:translateX(-50%);
+  min-width:86px;padding:7px 10px;border-radius:999px;
+  background:#252631;border:1px solid #ffffff2e;
+  color:#fff;font-style:normal;font-size:10px;font-weight:950;
+  white-space:nowrap;z-index:2;
+}
+.kt-my-profile label{
+  display:block;margin-top:10px;color:#ffe07a;
+  font-size:12px;font-weight:950;
+}
+.kt-my-profile .form{
+  display:block;width:100%;margin-top:6px;
+  font-size:15px!important;min-height:50px!important;
+}
+.kt-profile-video-btn{
+  width:100%;margin-top:9px;min-height:48px;
+  border-radius:13px;border:1px solid #7d67ff77;
+  background:#19172a;color:#fff;font-size:14px;font-weight:950;
+}
+.kt-profile-note{
+  display:block;text-align:center;margin-top:10px;
+  color:#aaa;font-size:10px;line-height:1.45;
+}
