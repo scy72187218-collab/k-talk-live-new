@@ -1303,22 +1303,22 @@ window.ktalkGifts=[
   ['다이아 왕관','300','♛','프리미엄'],
   ['럭셔리 자동차','500','🏎️','럭셔리'],
   ['요트','700','🛥️','럭셔리'],
-  ['성','1000','🏰','럭셔리'],
-  ['초콜릿','10','🍫','꽃/하트'],
-  ['향수','20','🧴','꽃/하트'],
+  ['성','1000','🏰','프리미엄'],
+  ['초콜릿','10','🍫','연출/특수'],
+  ['향수','20','🧴','연출/특수'],
   ['케이크','40','🎂','꽃/하트'],
   ['불꽃놀이','60','🎆','연출/특수'],
   ['백조','120','🦢','연출/특수'],
-  ['트로피','150','🏆','프리미엄'],
+  ['트로피','150','🏆','연출/특수'],
   ['별빛','180','⭐','연출/특수'],
   ['하트 폭죽','250','💥','연출/특수'],
-  ['다이아 하트','400','💎','프리미엄'],
+  ['다이아 하트','400','💎','럭셔리'],
   ['럭셔리 무대','600','🎇','럭셔리'],
   ['달','800','🌕','럭셔리'],
   ['별 패키지','1200','🌟','보물/패키지'],
   ['골드 패키지','1500','🎁','보물/패키지'],
   ['프리미엄 반지','2000','💍','프리미엄'],
-  ['VIP 크라운','3000','👑','프리미엄']
+  ['VIP 크라운','3000','👑','VIP 전용']
 ];
 
 window.giftSendByIndex=function(i){
@@ -1333,7 +1333,9 @@ window.filterGift25=function(category,btn){
   [].slice.call(document.querySelectorAll('.kt-gift25-cat')).forEach(function(b){b.classList.remove('on');});
   if(btn)btn.classList.add('on');
   [].slice.call(wrap.querySelectorAll('.kt-gift25-card')).forEach(function(card){
-    card.style.display=(category==='전체'||card.getAttribute('data-cat')===category)?'flex':'none';
+    var cat=card.getAttribute('data-cat');
+    var show=category==='전체'||cat===category||(category==='프리미엄'&&cat==='VIP 전용');
+    card.style.display=show?'flex':'none';
   });
 };
 
@@ -1359,6 +1361,7 @@ window.openGifts=function(){
         +'<button class="kt-gift25-cat" onclick="filterGift25(\'연출/특수\',this)">✨<span>연출/특수</span></button>'
         +'<button class="kt-gift25-cat" onclick="filterGift25(\'럭셔리\',this)">💎<span>럭셔리</span></button>'
         +'<button class="kt-gift25-cat" onclick="filterGift25(\'보물/패키지\',this)">🧰<span>보물/패키지</span></button>'
+        +'<button class="kt-gift25-cat vip" onclick="filterGift25(\'VIP 전용\',this)">👑<span>VIP 전용</span></button>'
       +'</aside>'
       +'<div class="kt-gift25-grid">'+cards+'</div>'
     +'</div>'
