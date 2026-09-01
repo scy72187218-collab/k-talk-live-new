@@ -2902,3 +2902,69 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
 .sheet.camera-effect-sheet .kt-beauty-face-row{
   display:none!important;
 }
+
+
+/* 2026-09-02 뷰티 패널: 어깨 아래까지 더 낮게 */
+.sheet.camera-effect-sheet .sheet-inner{
+  max-height:36dvh!important;
+  padding:7px 9px calc(6px + env(safe-area-inset-bottom))!important;
+  border-radius:16px 16px 0 0!important;
+}
+.sheet.camera-effect-sheet .sheet-head{
+  min-height:34px!important;
+  padding:2px 7px!important;
+}
+.sheet.camera-effect-sheet .sheet-head h3{
+  font-size:14px!important;
+}
+.sheet.camera-effect-sheet .sheet-head button{
+  width:32px!important;
+  height:32px!important;
+  font-size:14px!important;
+}
+.sheet.camera-effect-sheet .kt-panel-tabs{
+  margin:1px 0 6px!important;
+}
+.sheet.camera-effect-sheet .kt-panel-tabs button{
+  height:30px!important;
+  font-size:10px!important;
+}
+.sheet.camera-effect-sheet .kt-beauty-controls{
+  gap:5px!important;
+  margin:0 -1px 5px!important;
+  padding:1px 1px 3px!important;
+}
+.sheet.camera-effect-sheet .kt-beauty-controls button{
+  flex-basis:51px!important;
+  min-height:52px!important;
+  padding:3px 2px!important;
+  border-radius:11px!important;
+}
+.sheet.camera-effect-sheet .kt-beauty-controls button b{
+  width:28px!important;
+  height:28px!important;
+  font-size:15px!important;
+}
+.sheet.camera-effect-sheet .kt-beauty-controls button span{
+  font-size:8px!important;
+}
+.sheet.camera-effect-sheet .kt-beauty-one-slider{
+  margin:0!important;
+  padding:5px 7px!important;
+}
+.sheet.camera-effect-sheet .kt-beauty-one-slider>div{
+  margin-bottom:2px!important;
+  font-size:10px!important;
+}
+.sheet.camera-effect-sheet .kt-beauty-range-line{
+  grid-template-columns:28px minmax(0,1fr) 28px!important;
+  gap:5px!important;
+}
+.sheet.camera-effect-sheet .kt-beauty-range-line button{
+  width:28px!important;
+  height:28px!important;
+  font-size:18px!important;
+}
+.sheet.camera-effect-sheet .kt-beauty-one-slider input[type=range]{
+  height:20px!important;
+}
