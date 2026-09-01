@@ -1373,3 +1373,26 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   background:#ffffff08;color:#ddd;font-size:10px;font-weight:850
 }
 .kt-guest-stats b{color:#ffe36e}
+
+/* 게스트 프로필 사진 옆 하트 하나 */
+.kt-guest-profile-top{
+  display:grid;
+  grid-template-columns:82px minmax(0,1fr) 58px;
+  gap:10px;
+  align-items:center
+}
+.kt-guest-profile-top .kt-guest-avatar{margin:0}
+.kt-guest-profile-top .kt-guest-name{text-align:left}
+.kt-guest-heart{
+  width:54px;height:54px;border-radius:50%;
+  border:2px solid #ff66b5;
+  background:linear-gradient(145deg,#381329,#160b13);
+  color:#fff;font-size:28px;line-height:1;
+  box-shadow:0 0 16px #ff4fa455;
+  display:grid;place-items:center
+}
+.kt-guest-heart:active{transform:scale(.92)}
+.kt-guest-heart.done{opacity:.45;filter:grayscale(.45)}
+.kt-guest-like-note{
+  text-align:center;color:#d8d8df;font-size:10px;font-weight:850
+}
