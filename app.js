@@ -2470,7 +2470,7 @@ window.ktProfileStorageKey=function(){
   return 'ktalk_profile_v1:'+ktProfileAccountKey();
 };
 window.ktProfileLoad=function(){
-  var base={name:'',bio:'',photo:''};
+  var base={name:'',bio:'',photo:'',followers:0,likes:0,link:''};
   try{
     var raw=localStorage.getItem(ktProfileStorageKey());
     if(raw){
@@ -2478,6 +2478,9 @@ window.ktProfileLoad=function(){
       base.name=String(p.name||'');
       base.bio=String(p.bio||'');
       base.photo=String(p.photo||'');
+      base.followers=parseInt(p.followers||0,10)||0;
+      base.likes=parseInt(p.likes||0,10)||0;
+      base.link=String(p.link||'');
     }
   }catch(e){}
   if(!base.name){
@@ -2507,17 +2510,38 @@ window.ktProfileRender=function(){
   var photo=p.photo
     ?'<img src="'+p.photo+'" alt="프로필 사진">'
     :'<span>'+ktProfileEscape(initial)+'</span>';
+  var linkText=p.link?ktProfileEscape(p.link):'링크를 등록해 주세요';
   return '<div class="kt-my-profile">'
-    +'<button type="button" class="kt-my-profile-photo" onclick="document.getElementById(\'ktProfilePhotoInput\').click()" aria-label="프로필 사진 바꾸기">'+photo+'<em>사진 변경</em></button>'
-    +'<input id="ktProfilePhotoInput" type="file" accept="image/*" hidden onchange="ktProfilePickPhoto(this)">'
+    +'<div class="kt-profile-hero">'
+      +'<div class="kt-profile-photo-wrap">'
+        +'<button type="button" class="kt-my-profile-photo" onclick="document.getElementById(\'ktProfilePhotoInput\').click()" aria-label="프로필 사진 바꾸기">'+photo+'<em>사진 변경</em></button>'
+        +'<input id="ktProfilePhotoInput" type="file" accept="image/*" hidden onchange="ktProfilePickPhoto(this)">'
+      +'</div>'
+      +'<div class="kt-profile-maininfo"><b>'+ktProfileEscape(p.name)+'</b><small>'+ktProfileEscape(p.bio||'소개를 입력해 주세요')+'</small></div>'
+    +'</div>'
+    +'<div class="kt-profile-stats">'
+      +'<div><b>'+(p.followers||0).toLocaleString('ko-KR')+'</b><small>팔로워</small></div>'
+      +'<div><b>'+(p.likes||0).toLocaleString('ko-KR')+'</b><small>좋아요</small></div>'
+    +'</div>'
+    +'<button class="kt-profile-public-link" type="button" onclick="ktOpenProfileLink()"><span>🔗</span><b>'+linkText+'</b><em>›</em></button>'
     +'<label>닉네임<input id="ktProfileName" class="form" maxlength="20" value="'+ktProfileEscape(p.name)+'" placeholder="닉네임"></label>'
     +'<label>소개<input id="ktProfileBio" class="form" maxlength="60" value="'+ktProfileEscape(p.bio)+'" placeholder="간단한 소개를 입력하세요"></label>'
+    +'<label>프로필 링크<input id="ktProfileLink" class="form" maxlength="180" value="'+ktProfileEscape(p.link||'')+'" placeholder="https:// 또는 사이트 주소"></label>'
     +'<button class="act" type="button" onclick="ktProfileSave()">프로필 저장</button>'
     +'<button class="kt-profile-switch-btn" type="button" onclick="openAccountChooser()">⇄ 계정 선택</button>'
     +'<button class="kt-profile-video-btn" type="button" onclick="closeSheet();setTimeout(openMyVideoLibrary,80)">🎬 내 동영상 보기</button>'
-    +'<small class="kt-profile-note">선택한 계정마다 사진과 이름을 따로 저장합니다.</small>'
+    +'<small class="kt-profile-note">프로필 사진은 누르지 않아도 바로 보이게 표시됩니다.</small>'
     +'</div>';
 };
+
+window.ktOpenProfileLink=function(){
+  var p=ktProfileLoad();
+  var url=String(p.link||'').trim();
+  if(!url){alert('프로필 링크를 먼저 입력해 주세요.');return;}
+  if(!/^https?:\/\//i.test(url))url='https://'+url;
+  try{window.open(url,'_blank','noopener');}catch(e){location.href=url;}
+};
+
 window.openProfileDirect=function(){
   var info=ktCurrentSubAccountInfo();
   showSheet('♛ '+info.name+' 프로필',ktProfileRender());
@@ -2529,10 +2553,12 @@ window.ktProfileSave=function(){
   var old=ktProfileLoad();
   var nameEl=document.getElementById('ktProfileName');
   var bioEl=document.getElementById('ktProfileBio');
+  var linkEl=document.getElementById('ktProfileLink');
   var name=String(nameEl?nameEl.value:'').trim();
   var bio=String(bioEl?bioEl.value:'').trim();
+  var link=String(linkEl?linkEl.value:'').trim();
   if(!name){alert('닉네임을 입력해 주세요.');return;}
-  var data={name:name,bio:bio,photo:old.photo||''};
+  var data={name:name,bio:bio,photo:old.photo||'',followers:old.followers||0,likes:old.likes||0,link:link};
   try{localStorage.setItem(ktProfileStorageKey(),JSON.stringify(data));}catch(e){
     alert('프로필을 저장하지 못했습니다. 다시 눌러 주세요.');return;
   }
@@ -2561,8 +2587,10 @@ window.ktProfilePickPhoto=function(input){
         p.photo=photo;
         var nameEl=document.getElementById('ktProfileName');
         var bioEl=document.getElementById('ktProfileBio');
+        var linkEl=document.getElementById('ktProfileLink');
         if(nameEl&&nameEl.value.trim())p.name=nameEl.value.trim();
         if(bioEl)p.bio=bioEl.value.trim();
+        if(linkEl)p.link=linkEl.value.trim();
         localStorage.setItem(ktProfileStorageKey(),JSON.stringify(p));
         openProfileDirect();
       }catch(e){alert('사진을 등록하지 못했습니다. 다른 사진으로 다시 해 주세요.');}
@@ -2573,6 +2601,15 @@ window.ktProfilePickPhoto=function(input){
   reader.onerror=function(){alert('사진을 읽지 못했습니다.');};
   reader.readAsDataURL(file);
 };
+window.ktAddProfileFollower=function(n){
+  var p=ktProfileLoad();p.followers=Math.max(0,(p.followers||0)+(parseInt(n||1,10)||1));
+  try{localStorage.setItem(ktProfileStorageKey(),JSON.stringify(p));}catch(e){}
+};
+window.ktAddProfileLike=function(n){
+  var p=ktProfileLoad();p.likes=Math.max(0,(p.likes||0)+(parseInt(n||1,10)||1));
+  try{localStorage.setItem(ktProfileStorageKey(),JSON.stringify(p));}catch(e){}
+};
+
 window.openAI=function(){
   var html='<div class="rowbox"><b>🗣️ AI 음성 안내</b><br>선물 · 보물상자 · 당첨 보상 · 주요 알림을 한국어 음성으로 읽어줍니다.</div>'
     +'<div class="rowbox"><b>현재 상태</b><br>'+(state.aiVoiceOn?'켜짐':'꺼짐')+'</div>'
