@@ -260,6 +260,7 @@ window.openCreator=async function(){
   }
 };
 window.closeCreator=function(){
+  if(window.stopKTBackgroundPreview)stopKTBackgroundPreview();
   if(ktCreatorAutoStopTimer){clearTimeout(ktCreatorAutoStopTimer);ktCreatorAutoStopTimer=null;}
   if(ktCreatorRecording)stopCreatorRecording();
   creator.classList.remove('show','camera-on','creator-recording','creator-review');
@@ -315,6 +316,7 @@ window.ktAttachCreatorCamera=async function(stream){
   setTimeout(function(){
     try{
       if(camera.paused||camera.readyState<2)camera.play().catch(function(){});
+      if(state.selectedBackground)applySelectedBackgroundPreview();
     }catch(e){}
   },250);
   return true;
@@ -998,63 +1000,142 @@ window.ensureFaceEffectLayer=function(){
 
 window.ktFaceDetector=null;
 window.ktFaceTrackTimer=null;
+window.ktFaceMesh=null;
+window.ktFaceMeshBusy=false;
+window.ktScriptLoads=window.ktScriptLoads||{};
 
-window.placeFaceAnchorFallback=function(){
+window.ktLoadExternalScript=function(src){
+  if(window.ktScriptLoads[src])return window.ktScriptLoads[src];
+  window.ktScriptLoads[src]=new Promise(function(resolve,reject){
+    var old=document.querySelector('script[data-kt-src="'+src+'"]');
+    if(old){resolve();return;}
+    var s=document.createElement('script');
+    s.src=src;
+    s.async=true;
+    s.setAttribute('data-kt-src',src);
+    s.onload=function(){resolve();};
+    s.onerror=function(){reject(new Error('script load failed'));};
+    document.head.appendChild(s);
+  });
+  return window.ktScriptLoads[src];
+};
+
+window.hideFaceAnchor=function(){
   var anchor=document.getElementById('ktFaceAnchor');
-  if(!anchor||!camera)return;
+  if(anchor)anchor.style.opacity='0';
+};
+
+window.updateFaceAnchorFromBox=function(box,normalized){
+  var anchor=document.getElementById('ktFaceAnchor');
+  if(!anchor||!camera||!camera.videoWidth||!camera.videoHeight)return;
   var cr=creator.getBoundingClientRect();
   var vr=camera.getBoundingClientRect();
-  var w=Math.min(vr.width*.46,220);
-  var h=w*1.18;
-  var cx=(vr.left-cr.left)+(vr.width*.50);
-  var cy=(vr.top-cr.top)+(vr.height*.39);
+  var vw=camera.videoWidth, vh=camera.videoHeight;
+  var scale=Math.max(vr.width/vw,vr.height/vh);
+  var drawW=vw*scale, drawH=vh*scale;
+  var offX=(vr.width-drawW)/2;
+  var offY=(vr.height-drawH)/2;
+
+  var x1,y1,x2,y2;
+  if(normalized){
+    x1=box.x1*drawW+offX;
+    x2=box.x2*drawW+offX;
+    y1=box.y1*drawH+offY;
+    y2=box.y2*drawH+offY;
+  }else{
+    x1=box.x*scale+offX;
+    x2=(box.x+box.width)*scale+offX;
+    y1=box.y*scale+offY;
+    y2=(box.y+box.height)*scale+offY;
+  }
+
+  if((state.cameraFacing||'user')!=='environment'){
+    var mx1=vr.width-x2, mx2=vr.width-x1;
+    x1=mx1;x2=mx2;
+  }
+
+  var bw=Math.abs(x2-x1), bh=Math.abs(y2-y1);
+  if(bw<35||bh<35){hideFaceAnchor();return;}
+
+  var cx=(vr.left-cr.left)+Math.min(x1,x2)+(bw/2);
+  var cy=(vr.top-cr.top)+Math.min(y1,y2)+(bh/2);
+  var aw=Math.max(105,bw*1.22);
+  var ah=Math.max(128,bh*1.30);
+
   anchor.style.left=cx+'px';
   anchor.style.top=cy+'px';
-  anchor.style.width=w+'px';
-  anchor.style.height=h+'px';
+  anchor.style.width=aw+'px';
+  anchor.style.height=ah+'px';
+  anchor.style.opacity='1';
+};
+
+window.ensureKTFaceMesh=async function(){
+  if(window.ktFaceMesh)return true;
+  try{
+    if(!window.FaceMesh){
+      await ktLoadExternalScript('https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js');
+    }
+    if(!window.FaceMesh)return false;
+    window.ktFaceMesh=new FaceMesh({
+      locateFile:function(file){
+        return 'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/'+file;
+      }
+    });
+    window.ktFaceMesh.setOptions({
+      maxNumFaces:1,
+      refineLandmarks:true,
+      minDetectionConfidence:.55,
+      minTrackingConfidence:.55
+    });
+    window.ktFaceMesh.onResults(function(results){
+      try{
+        var list=results&&results.multiFaceLandmarks;
+        if(!list||!list.length){hideFaceAnchor();return;}
+        var lm=list[0],minX=1,minY=1,maxX=0,maxY=0;
+        lm.forEach(function(p){
+          if(p.x<minX)minX=p.x;if(p.x>maxX)maxX=p.x;
+          if(p.y<minY)minY=p.y;if(p.y>maxY)maxY=p.y;
+        });
+        updateFaceAnchorFromBox({x1:minX,y1:minY,x2:maxX,y2:maxY},true);
+      }catch(e){hideFaceAnchor();}
+    });
+    return true;
+  }catch(e){return false;}
+};
+
+window.placeFaceAnchorFallback=function(){
+  /* 얼굴을 못 찾으면 효과를 화면 가운데 띄우지 않고 숨깁니다. */
+  hideFaceAnchor();
 };
 
 window.trackFaceOnce=async function(){
   var anchor=document.getElementById('ktFaceAnchor');
   if(!anchor||!camera||!camera.videoWidth||!camera.videoHeight){
-    placeFaceAnchorFallback();
+    hideFaceAnchor();
     return;
   }
 
-  if(!('FaceDetector' in window)){
-    placeFaceAnchorFallback();
-    return;
+  if('FaceDetector' in window){
+    try{
+      if(!window.ktFaceDetector)window.ktFaceDetector=new FaceDetector({fastMode:true,maxDetectedFaces:1});
+      var faces=await window.ktFaceDetector.detect(camera);
+      if(faces&&faces.length){
+        updateFaceAnchorFromBox(faces[0].boundingBox,false);
+        return;
+      }
+    }catch(e){}
   }
 
+  if(window.ktFaceMeshBusy)return;
+  var ready=await ensureKTFaceMesh();
+  if(!ready){hideFaceAnchor();return;}
   try{
-    if(!window.ktFaceDetector)window.ktFaceDetector=new FaceDetector({fastMode:true,maxDetectedFaces:1});
-    var faces=await window.ktFaceDetector.detect(camera);
-    if(!faces||!faces.length){placeFaceAnchorFallback();return;}
-
-    var box=faces[0].boundingBox;
-    var cr=creator.getBoundingClientRect();
-    var vr=camera.getBoundingClientRect();
-    var vw=camera.videoWidth, vh=camera.videoHeight;
-    var scale=Math.max(vr.width/vw,vr.height/vh);
-    var drawW=vw*scale, drawH=vh*scale;
-    var offX=(vr.width-drawW)/2;
-    var offY=(vr.height-drawH)/2;
-    var bw=box.width*scale, bh=box.height*scale;
-    var bx=offX+(box.x*scale);
-    if((state.cameraFacing||'user')!=='environment'){
-      bx=vr.width-offX-((box.x+box.width)*scale);
-    }
-    var by=offY+(box.y*scale);
-
-    var cx=(vr.left-cr.left)+bx+(bw/2);
-    var cy=(vr.top-cr.top)+by+(bh/2);
-
-    anchor.style.left=cx+'px';
-    anchor.style.top=cy+'px';
-    anchor.style.width=Math.max(120,bw)+'px';
-    anchor.style.height=Math.max(145,bh)+'px';
+    window.ktFaceMeshBusy=true;
+    await window.ktFaceMesh.send({image:camera});
   }catch(e){
-    placeFaceAnchorFallback();
+    hideFaceAnchor();
+  }finally{
+    window.ktFaceMeshBusy=false;
   }
 };
 
@@ -1064,12 +1145,13 @@ window.startKTFaceTracking=function(){
   trackFaceOnce();
   window.ktFaceTrackTimer=setInterval(function(){
     if(creator&&creator.classList.contains('show'))trackFaceOnce();
-  },150);
+  },120);
 };
 
 window.stopKTFaceTracking=function(){
   clearInterval(window.ktFaceTrackTimer);
   window.ktFaceTrackTimer=null;
+  hideFaceAnchor();
 };
 
 window.renderFaceEffect=function(name){
@@ -1114,6 +1196,7 @@ window.renderFaceEffect=function(name){
     butterfly:'<div class="fx-butterfly-mask"><span>🦋</span><span>🦋</span></div>'
   };
   anchor.innerHTML=markup[name]||'';
+  anchor.style.opacity='0';
   startKTFaceTracking();
 };
 
@@ -1196,6 +1279,156 @@ window.renderEditEffectItems=function(mode){
   syncEditEffectButtons();
 };
 
+window.ktSegmentation=null;
+window.ktSegTarget=null;
+window.ktSegRAF=0;
+window.ktSegBusy=false;
+
+window.ensureKTBackgroundCanvas=function(){
+  var canvas=document.getElementById('ktBackgroundCanvas');
+  if(!canvas){
+    canvas=document.createElement('canvas');
+    canvas.id='ktBackgroundCanvas';
+    canvas.className='kt-background-canvas';
+    creator.insertBefore(canvas,creator.firstChild);
+  }
+  return canvas;
+};
+
+window.drawKTBackgroundScene=function(ctx,w,h,key){
+  ctx.save();
+  var g;
+  if(key==='beach'){
+    g=ctx.createLinearGradient(0,0,0,h);
+    g.addColorStop(0,'#75d6ff');g.addColorStop(.48,'#bdeaff');g.addColorStop(.49,'#178dc6');g.addColorStop(.68,'#0b6f9f');g.addColorStop(.69,'#e6c987');g.addColorStop(1,'#b98a49');
+    ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+    ctx.fillStyle='#ffe680';ctx.beginPath();ctx.arc(w*.78,h*.18,Math.min(w,h)*.075,0,Math.PI*2);ctx.fill();
+  }else if(key==='mountain'){
+    g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,'#8ed6ff');g.addColorStop(1,'#d9f1ff');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+    ctx.fillStyle='#496b57';ctx.beginPath();ctx.moveTo(0,h*.82);ctx.lineTo(w*.28,h*.35);ctx.lineTo(w*.52,h*.82);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#294735';ctx.beginPath();ctx.moveTo(w*.28,h*.82);ctx.lineTo(w*.67,h*.28);ctx.lineTo(w,h*.82);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#f4f6f7';ctx.beginPath();ctx.moveTo(w*.56,h*.45);ctx.lineTo(w*.67,h*.28);ctx.lineTo(w*.78,h*.46);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#23442f';ctx.fillRect(0,h*.80,w,h*.20);
+  }else if(key==='city'){
+    g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,'#11122f');g.addColorStop(.6,'#30245d');g.addColorStop(1,'#0b0b18');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+    for(var i=0;i<9;i++){
+      var bw=w/10, bh=h*(.18+((i%4)*.06)), x=i*w/9-bw*.2, y=h-bh;
+      ctx.fillStyle=i%2?'#12172d':'#19162b';ctx.fillRect(x,y,bw,bh);
+      ctx.fillStyle='#ffd96a';
+      for(var yy=y+12;yy<h-8;yy+=18)for(var xx=x+8;xx<x+bw-5;xx+=14)ctx.fillRect(xx,yy,4,6);
+    }
+  }else if(key==='garden'){
+    g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,'#b6e7ff');g.addColorStop(.45,'#dff6ff');g.addColorStop(.46,'#66a94e');g.addColorStop(1,'#2c6d35');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+    for(var j=0;j<28;j++){
+      var fx=(j*73)%w, fy=h*(.58+((j*37)%40)/100);
+      ctx.fillStyle=['#ff7aa2','#ffd85d','#fff','#ce7cff'][j%4];
+      ctx.beginPath();ctx.arc(fx,fy,6+(j%3),0,Math.PI*2);ctx.fill();
+    }
+  }else if(key==='cafe'){
+    g=ctx.createLinearGradient(0,0,w,h);g.addColorStop(0,'#70462f');g.addColorStop(1,'#281713');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+    ctx.fillStyle='#d0a26e';ctx.fillRect(0,h*.72,w,h*.28);
+    ctx.fillStyle='#f5c86a';ctx.beginPath();ctx.arc(w*.25,h*.20,28,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(w*.75,h*.20,28,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#3f271c';ctx.fillRect(w*.10,h*.33,w*.80,12);
+  }else if(key==='yacht'){
+    g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,'#8bdcff');g.addColorStop(.48,'#d9f6ff');g.addColorStop(.49,'#1c9acb');g.addColorStop(1,'#07597f');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+    ctx.fillStyle='#f7f7f7';ctx.beginPath();ctx.moveTo(w*.22,h*.68);ctx.lineTo(w*.78,h*.68);ctx.lineTo(w*.68,h*.79);ctx.lineTo(w*.31,h*.79);ctx.closePath();ctx.fill();
+    ctx.fillRect(w*.39,h*.55,w*.27,h*.13);ctx.fillStyle='#355c75';ctx.fillRect(w*.45,h*.58,w*.15,h*.055);
+  }else if(key==='club'){
+    g=ctx.createRadialGradient(w*.5,h*.38,10,w*.5,h*.5,Math.max(w,h)*.75);g.addColorStop(0,'#8a3dff');g.addColorStop(.35,'#321063');g.addColorStop(1,'#06040d');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+    ctx.strokeStyle='#ff4fd8';ctx.lineWidth=4;
+    for(var k=0;k<8;k++){ctx.beginPath();ctx.arc(w*.5,h*.42,30+k*24,0,Math.PI*2);ctx.stroke();}
+    ctx.fillStyle='#20202c';ctx.fillRect(0,h*.76,w,h*.24);
+  }else{
+    /* 무대 */
+    g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,'#0b0713');g.addColorStop(.7,'#180b2c');g.addColorStop(1,'#040306');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+    var rg=ctx.createRadialGradient(w*.5,h*.28,5,w*.5,h*.40,w*.55);rg.addColorStop(0,'rgba(255,92,230,.95)');rg.addColorStop(.25,'rgba(132,78,255,.35)');rg.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=rg;ctx.fillRect(0,0,w,h);
+    ctx.fillStyle='#17111f';ctx.fillRect(0,h*.76,w,h*.24);
+    ctx.fillStyle='#3b2a4f';for(var q=0;q<5;q++)ctx.fillRect(w*(.10+q*.19),h*.70,w*.10,h*.06);
+  }
+  ctx.restore();
+};
+
+window.ensureKTSegmentation=async function(){
+  if(window.ktSegmentation)return true;
+  try{
+    if(!window.SelfieSegmentation){
+      await ktLoadExternalScript('https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js');
+    }
+    if(!window.SelfieSegmentation)return false;
+    window.ktSegmentation=new SelfieSegmentation({
+      locateFile:function(file){
+        return 'https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/'+file;
+      }
+    });
+    window.ktSegmentation.setOptions({modelSelection:1});
+    window.ktSegmentation.onResults(function(results){
+      var t=window.ktSegTarget;
+      if(!t||!t.canvas||!t.video||!results)return;
+      var rect=t.video.getBoundingClientRect();
+      var w=Math.max(1,Math.round(rect.width)),h=Math.max(1,Math.round(rect.height));
+      if(t.canvas.width!==w)t.canvas.width=w;
+      if(t.canvas.height!==h)t.canvas.height=h;
+      var ctx=t.canvas.getContext('2d');
+      ctx.clearRect(0,0,w,h);
+
+      ctx.save();
+      if(t.mirror){ctx.translate(w,0);ctx.scale(-1,1);}
+      ctx.drawImage(results.segmentationMask,0,0,w,h);
+      ctx.globalCompositeOperation='source-in';
+      ctx.drawImage(results.image,0,0,w,h);
+      ctx.restore();
+
+      ctx.globalCompositeOperation='destination-over';
+      drawKTBackgroundScene(ctx,w,h,t.key);
+      ctx.globalCompositeOperation='source-over';
+      t.canvas.style.display='block';
+    });
+    return true;
+  }catch(e){return false;}
+};
+
+window.ktRunSegmentationLoop=function(){
+  cancelAnimationFrame(window.ktSegRAF);
+  async function loop(){
+    var t=window.ktSegTarget;
+    if(!t||!t.video||!t.video.isConnected||!t.key){return;}
+    if(t.video.readyState>=2&&!window.ktSegBusy){
+      try{
+        window.ktSegBusy=true;
+        await window.ktSegmentation.send({image:t.video});
+      }catch(e){}finally{window.ktSegBusy=false;}
+    }
+    window.ktSegRAF=requestAnimationFrame(loop);
+  }
+  window.ktSegRAF=requestAnimationFrame(loop);
+};
+
+window.applySelectedBackgroundPreview=async function(){
+  if(!state.selectedBackground)return;
+  var canvas=ensureKTBackgroundCanvas();
+  var ok=await ensureKTSegmentation();
+  if(!ok){
+    canvas.style.display='none';
+    ktSpeak('이 기기에서는 배경 분리 기능을 불러오지 못했습니다.');
+    return;
+  }
+  window.ktSegTarget={
+    video:camera,
+    canvas:canvas,
+    key:state.selectedBackground,
+    mirror:(state.cameraFacing||'user')!=='environment'
+  };
+  ktRunSegmentationLoop();
+};
+
+window.stopKTBackgroundPreview=function(){
+  cancelAnimationFrame(window.ktSegRAF);
+  window.ktSegRAF=0;
+  window.ktSegTarget=null;
+  var canvas=document.getElementById('ktBackgroundCanvas');
+  if(canvas)canvas.style.display='none';
+};
+
 window.renderEditBackgroundItems=function(){
   var wrap=document.querySelector('#ktLiveEffects .kt-live-effects-scroll');
   if(!wrap)return;
@@ -1223,7 +1456,8 @@ window.selectEditBackground=function(btn,key,label){
   if(btn)btn.classList.add('on');
   creator.setAttribute('data-kt-background',key);
   try{localStorage.setItem('ktalk_selected_background',key);}catch(e){}
-  ktSpeak(label+' 배경을 선택했습니다.');
+  applySelectedBackgroundPreview();
+  ktSpeak(label+' 배경을 적용했습니다.');
 };
 
 window.switchEditEffectTab=function(btn,mode){
