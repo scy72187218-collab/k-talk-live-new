@@ -7,8 +7,8 @@ var sheetTitle=document.getElementById('sheetTitle');
 var sheetBody=document.getElementById('sheetBody');
 
 window.activate=function(name){document.querySelectorAll('[data-tab]').forEach(function(b){b.classList.toggle('active',b.dataset.tab===name);});};
-window.showSheet=function(title,html){sheetTitle.innerHTML=title;sheetBody.innerHTML=html;sheet.classList.add('show');};
-window.closeSheet=function(){sheet.classList.remove('show');sheet.classList.remove('gift-exact');};
+window.showSheet=function(title,html){sheet.classList.remove('camera-effect-sheet');sheetTitle.innerHTML=title;sheetBody.innerHTML=html;sheet.classList.add('show');};
+window.closeSheet=function(){sheet.classList.remove('show');sheet.classList.remove('gift-exact');sheet.classList.remove('camera-effect-sheet');};
 
 window.home=function(){
   document.body.classList.remove('kt-home');
@@ -116,6 +116,7 @@ window.openBeautyPanel=function(){
     +'</div>'
     +'</div>';
   showSheet('뷰티',html);
+  sheet.classList.add('camera-effect-sheet');
 };
 
 window.setBeautyMode=function(mode,char){
@@ -159,24 +160,60 @@ window.resetBeautyAll=function(){
 window.openEditEffectPanel=function(){
   var effects=[
     ['✨','반짝임','glow'],['🌸','꽃빛','soft'],['🌈','무지개','rainbow'],['🧊','쿨톤','cool'],['🔥','웜톤','warm'],
-    ['😺','고양이','cat'],['🐰','토끼','rabbit'],['👑','왕관','crown'],['🤓','안경','glasses'],['😂','웃긴표정','funny'],
-    ['🌙','야간','night'],['🎞️','영화','cinema'],['🖤','흑백','mono'],['💖','핑크','pink'],['💙','블루','blue'],
-    ['⭐','스타','star'],['🎉','파티','party'],['🪩','디스코','disco'],['☁️','소프트','dream'],['↺','효과해제','off']
+    ['🕶️','선글라스','sunglasses'],['👓','안경','glasses'],['🧔','수염','beard'],['👑','왕관','crown'],['😂','웃긴표정','funny'],
+    ['😺','고양이','cat'],['🐰','토끼','rabbit'],['🌙','야간','night'],['🎞️','영화','cinema'],['🖤','흑백','mono'],
+    ['💖','핑크','pink'],['💙','블루','blue'],['⭐','스타','star'],['🎉','파티','party'],['☁️','소프트','dream'],
+    ['↺','효과해제','off']
   ];
   var html='<div class="kt-effect-panel"><div class="kt-panel-tabs"><button onclick="openBeautyPanel()">Beauty</button><button class="on">편집효과</button><button onclick="setEditEffect(\'off\')">↺ 초기화</button></div><div class="kt-effect-grid">'
-    +effects.map(function(e){return '<button onclick="setEditEffect(\''+e[2]+'\')"><b>'+e[0]+'</b><span>'+e[1]+'</span></button>';}).join('')
+    +effects.map(function(e){return '<button data-effect="'+e[2]+'" onclick="setEditEffect(\''+e[2]+'\')"><b>'+e[0]+'</b><span>'+e[1]+'</span></button>';}).join('')
     +'</div></div>';
   showSheet('편집효과',html);
+  sheet.classList.add('camera-effect-sheet');
+  syncEditEffectButtons();
+};
+
+window.syncEditEffectButtons=function(){
+  document.querySelectorAll('.kt-effect-grid button[data-effect]').forEach(function(btn){
+    var n=btn.getAttribute('data-effect');
+    btn.classList.toggle('on',n===state.editFilter||n===state.editSticker);
+  });
 };
 
 window.setEditEffect=function(name){
-  state.editEffect=name;
-  creator.classList.remove('fx-glow','fx-soft','fx-rainbow','fx-cool','fx-warm','fx-night','fx-cinema','fx-mono','fx-pink','fx-blue','fx-star','fx-party','fx-disco','fx-dream');
-  creator.removeAttribute('data-beauty-char');
-  if(name==='off'){ if(camera)camera.style.removeProperty('filter'); return; }
-  var stickerMap={cat:'😺',rabbit:'🐰',crown:'👑',glasses:'🤓',funny:'😂'};
-  if(stickerMap[name]){creator.setAttribute('data-beauty-char',stickerMap[name]);return;}
-  creator.classList.add('fx-'+name);
+  var filterClasses=['fx-glow','fx-soft','fx-rainbow','fx-cool','fx-warm','fx-night','fx-cinema','fx-mono','fx-pink','fx-blue','fx-star','fx-party','fx-disco','fx-dream'];
+  var stickerMap={sunglasses:'🕶️',glasses:'👓',beard:'🧔',cat:'😺',rabbit:'🐰',crown:'👑',funny:'😂'};
+
+  if(name==='off'){
+    state.editFilter='';
+    state.editSticker='';
+    creator.classList.remove.apply(creator.classList,filterClasses);
+    creator.removeAttribute('data-beauty-char');
+    if(camera)camera.style.removeProperty('filter');
+    syncEditEffectButtons();
+    return;
+  }
+
+  if(stickerMap[name]){
+    if(state.editSticker===name){
+      state.editSticker='';
+      creator.removeAttribute('data-beauty-char');
+    }else{
+      state.editSticker=name;
+      creator.setAttribute('data-beauty-char',stickerMap[name]);
+    }
+    syncEditEffectButtons();
+    return;
+  }
+
+  creator.classList.remove.apply(creator.classList,filterClasses);
+  if(state.editFilter===name){
+    state.editFilter='';
+  }else{
+    state.editFilter=name;
+    creator.classList.add('fx-'+name);
+  }
+  syncEditEffectButtons();
 };
 
 window.toggleLiveSetting=function(btn){
