@@ -189,8 +189,24 @@ window.activate=function(name){document.querySelectorAll('[data-tab]').forEach(f
 window.ktStopSheetMedia=function(){
   try{
     [].slice.call(sheetBody.querySelectorAll('video,audio')).forEach(function(m){
-      try{m.pause();m.removeAttribute('src');m.load();}catch(e){}
+      try{
+        m.pause();
+        m.muted=true;
+        m.currentTime=0;
+        m.removeAttribute('autoplay');
+        m.removeAttribute('src');
+        m.srcObject=null;
+        m.load();
+      }catch(e){}
     });
+  }catch(e){}
+  try{
+    var preview=document.getElementById('ktCreatorPreview');
+    if(preview){
+      preview.pause();
+      preview.muted=true;
+      try{preview.currentTime=0;}catch(e){}
+    }
   }catch(e){}
   if(typeof ktLibraryPlayUrl!=='undefined'&&ktLibraryPlayUrl){
     try{URL.revokeObjectURL(ktLibraryPlayUrl);}catch(e){}
@@ -207,6 +223,7 @@ window.showSheet=function(title,html){
 };
 window.closeSheet=function(){
   ktStopSheetMedia();
+  try{sheetBody.innerHTML='';}catch(e){}
   sheet.classList.remove('show');
   sheet.classList.remove('gift-exact');
   sheet.classList.remove('gift-shop25');
@@ -718,7 +735,7 @@ window.playStoredVideo=async function(id){
       ktLibraryPlayUrl=URL.createObjectURL(item.blob);
       var safeName=String(item.name||'내 동영상').replace(/</g,'&lt;');
       showSheet('동영상 재생','<div class="kt-myvideo-player">'
-        +'<video controls autoplay playsinline src="'+ktLibraryPlayUrl+'"></video>'
+        +'<video id="ktLibraryPlayer" controls autoplay playsinline src="'+ktLibraryPlayUrl+'"></video>'
         +'<b>'+safeName+'</b>'
         +'<div class="kt-myvideo-player-actions">'
           +'<button class="back" onclick="openMyVideoLibrary()">← 내 동영상</button>'
@@ -759,28 +776,47 @@ window.postStoredVideo=async function(id,btn){
 window.deleteStoredVideo=async function(id,btn){
   try{
     ktStopSheetMedia();
+    if(btn){
+      btn.disabled=true;
+      btn.textContent='삭제 중...';
+    }
+
     var db=await ktOpenVideoDB();
-    var tx=db.transaction('videos','readwrite');
-    var store=tx.objectStore('videos');
-    var req=store.delete(id);
-    req.onerror=function(){
-      try{db.close();}catch(e){}
-      alert('삭제하지 못했습니다.');
-    };
-    tx.oncomplete=function(){
-      try{db.close();}catch(e){}
-      try{
-        var row=btn&&btn.closest?btn.closest('.kt-myvideo-row'):null;
-        if(row)row.remove();
-      }catch(e){}
-      setTimeout(function(){openMyVideoLibrary();},80);
-    };
-    tx.onabort=function(){
-      try{db.close();}catch(e){}
-      alert('삭제하지 못했습니다.');
-    };
+    await new Promise(function(resolve,reject){
+      var tx=db.transaction('videos','readwrite');
+      var store=tx.objectStore('videos');
+      store.delete(id);
+      tx.oncomplete=resolve;
+      tx.onerror=function(){reject(tx.error||new Error('delete error'));};
+      tx.onabort=function(){reject(tx.error||new Error('delete abort'));};
+    });
+
+    var gone=await new Promise(function(resolve,reject){
+      var tx=db.transaction('videos','readonly');
+      var req=tx.objectStore('videos').get(id);
+      req.onsuccess=function(){resolve(!req.result);};
+      req.onerror=function(){reject(req.error||new Error('verify error'));};
+    });
+
+    try{db.close();}catch(e){}
+
+    if(!gone){
+      throw new Error('delete verify failed');
+    }
+
+    try{
+      var row=btn&&btn.closest?btn.closest('.kt-myvideo-row'):null;
+      if(row)row.remove();
+    }catch(e){}
+
+    ktSpeak('동영상을 삭제했습니다.');
+    setTimeout(function(){openMyVideoLibrary();},60);
   }catch(e){
-    alert('삭제하지 못했습니다.');
+    if(btn){
+      btn.disabled=false;
+      btn.textContent='삭제';
+    }
+    alert('삭제하지 못했습니다. 다시 한 번 눌러 주세요.');
   }
 };
 
