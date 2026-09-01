@@ -451,3 +451,26 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   .kt-multi-layouts button{padding:8px 4px;min-height:140px}
   .layout-preview{height:76px}
 }
+
+
+/* 공유 패널 */
+.kt-share-panel{padding:2px 0 12px}
+.kt-share-follow-title{font-size:14px;font-weight:950;color:#fff;margin:2px 0 10px}
+.kt-share-follow,.kt-share-apps{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.kt-share-follow button,.kt-share-apps button{border:0;background:none;color:#fff;padding:0;text-align:center;min-width:0}
+.kt-share-follow span,.kt-share-apps span{
+  width:58px;height:58px;margin:0 auto 7px;border-radius:50%;
+  display:grid;place-items:center;font-size:28px;
+}
+.kt-share-follow span{background:linear-gradient(145deg,#2c2d38,#15151b);border:1px solid rgba(255,255,255,.12)}
+.kt-share-follow b,.kt-share-apps b{display:block;font-size:10px;line-height:1.2;color:#e8e8ed;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kt-share-divider{height:1px;background:rgba(255,255,255,.10);margin:14px 0}
+.kt-share-apps .kakao{background:#fee500;color:#181600;font-size:12px;font-weight:950}
+.kt-share-apps .facebook{background:#1877f2;color:#fff;font-size:34px;font-family:Arial;font-weight:900}
+.kt-share-apps .copy{background:#3557dd;color:#fff;font-size:25px}
+.kt-share-apps .messenger{background:#4b76ff;color:#fff;font-size:25px}
+.kt-share-apps .instagram{background:linear-gradient(135deg,#f9ce34,#ee2a7b,#6228d7);color:#fff;font-size:30px}
+@media(max-width:390px){
+  .kt-share-follow,.kt-share-apps{gap:5px}
+  .kt-share-follow span,.kt-share-apps span{width:52px;height:52px}
+}
