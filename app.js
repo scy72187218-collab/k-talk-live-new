@@ -698,7 +698,8 @@ window.postCreatorRecording=async function(){
       postedAt:Date.now(),
       ownerId:(window.ktVideoOwner?ktVideoOwner().id:'local'),
       ownerName:(window.ktVideoOwner?ktVideoOwner().name:'내 계정'),
-      ownerSubAccount:(window.ktVideoOwner?ktVideoOwner().subAccount||'':'')
+      ownerSubAccount:(window.ktVideoOwner?ktVideoOwner().subAccount||'':''),
+      ownerPhoto:(window.ktProfileLoad?ktProfileLoad().photo||'':'')
     };
     store.put(item);
     await new Promise(function(resolve,reject){
@@ -789,6 +790,7 @@ window.postStoredVideo=async function(id,btn){
       item.ownerId=owner.id;
       item.ownerName=owner.name;
       item.ownerSubAccount=owner.subAccount||'';
+      try{item.ownerPhoto=(window.ktProfileLoad?ktProfileLoad().photo||'':'');}catch(e){}
       store.put(item);
     };
     tx.oncomplete=function(){
@@ -2418,19 +2420,38 @@ window.selectKTalkSubAccount=function(key){
   closeSheet();
   setTimeout(function(){openProfileDirect();},60);
 };
+window.ktSubProfileCard=function(key){
+  var info=ktSubAccountInfo(key);
+  var p={name:info.name,photo:''};
+  try{
+    var raw=localStorage.getItem('ktalk_profile_v1:sub:'+key);
+    if(raw){
+      var x=JSON.parse(raw)||{};
+      if(x.name)p.name=String(x.name);
+      if(x.photo)p.photo=String(x.photo);
+    }
+  }catch(e){}
+  var initial=(p.name||info.name||'K').trim().charAt(0)||'K';
+  var avatar=p.photo
+    ?'<span class="kt-account-avatar '+key+' has-photo"><img src="'+p.photo+'" alt="'+ktProfileEscape(p.name)+' 프로필"></span>'
+    :'<span class="kt-account-avatar '+key+'">'+ktProfileEscape(initial)+'</span>';
+  return {name:p.name,avatar:avatar};
+};
 window.openAccountChooser=function(){
   var current=ktGetSelectedSubAccount();
+  var t=ktSubProfileCard('taekwon1');
+  var h=ktSubProfileCard('haine2');
   var html='<div class="kt-account-choice">'
     +'<div class="kt-account-choice-title">사용할 계정을 선택하세요</div>'
     +'<div class="kt-account-split">'
       +'<button class="kt-account-half '+(current==='taekwon1'?'on':'')+'" onclick="selectKTalkSubAccount(\'taekwon1\')">'
-        +'<span class="kt-account-avatar taekwon">T</span><b>K-톡 태권1</b><small>태권1 계정으로 들어가기</small>'
+        +t.avatar+'<b>'+ktProfileEscape(t.name)+'</b><small>태권1 계정으로 들어가기</small>'
       +'</button>'
       +'<button class="kt-account-half '+(current==='haine2'?'on':'')+'" onclick="selectKTalkSubAccount(\'haine2\')">'
-        +'<span class="kt-account-avatar haine">H</span><b>K-톡 하이네2</b><small>하이네2 계정으로 들어가기</small>'
+        +h.avatar+'<b>'+ktProfileEscape(h.name)+'</b><small>하이네2 계정으로 들어가기</small>'
       +'</button>'
     +'</div>'
-    +'<div class="kt-account-note">두 계정의 프로필 사진 · 이름 · 소개는 각각 따로 저장됩니다.</div>'
+    +'<div class="kt-account-note">사진은 가운데 맞춰 표시되고 살짝 움직이게 했습니다.</div>'
     +'</div>';
   showSheet('계정 선택',html);
 };
