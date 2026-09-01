@@ -332,6 +332,14 @@ window.ktAttachCreatorCamera=async function(stream){
   applyBaseCameraLook();
 
   try{
+    var videoTrack=stream.getVideoTracks&&stream.getVideoTracks()[0];
+    var caps=videoTrack&&videoTrack.getCapabilities?videoTrack.getCapabilities():null;
+    if(caps&&caps.zoom&&typeof caps.zoom.min==='number'){
+      await videoTrack.applyConstraints({advanced:[{zoom:caps.zoom.min}]});
+    }
+  }catch(e){}
+
+  try{
     await new Promise(function(resolve){
       var done=false;
       function finish(){if(done)return;done=true;resolve();}
@@ -479,15 +487,10 @@ window.makeEffectRecordingStream=function(){
   function draw(){
     if(!ktCreatorRecording&&ktCreatorRecorder&&ktCreatorRecorder.state==='inactive')return;
     var sw=camera.videoWidth||1920,sh=camera.videoHeight||1080;
-    var bgScale=Math.max(canvas.width/sw,canvas.height/sh);
-    var bgW=sw*bgScale,bgH=sh*bgScale,bgX=(canvas.width-bgW)/2,bgY=(canvas.height-bgH)/2;
-    var scale=Math.min(canvas.width/sw,canvas.height/sh)*.5312;
+    var scale=Math.max(canvas.width/sw,canvas.height/sh);
     var dw=sw*scale,dh=sh*scale,dx=(canvas.width-dw)/2,dy=(canvas.height-dh)/2;
     ctx.save();ctx.clearRect(0,0,canvas.width,canvas.height);
     ctx.translate(canvas.width,0);ctx.scale(-1,1);
-    ctx.filter='blur(28px) brightness(.55)';
-    try{ctx.drawImage(camera,bgX,bgY,bgW,bgH);}catch(e){}
-    ctx.filter='none';
     try{ctx.drawImage(camera,dx,dy,dw,dh);}catch(e){}
     ctx.restore();
 
