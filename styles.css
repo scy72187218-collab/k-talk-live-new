@@ -500,3 +500,28 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
 }
 .kt-communication-panel b{font-size:17px;font-weight:950}
 .kt-communication-panel em{font-style:normal;font-size:24px;color:#cfd0d8}
+
+
+/* K-Talk 고유 팬클럽 화면 */
+.kt-fanclub{padding:2px 0 10px}
+.kt-fan-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.kt-fan-head>div b{display:block;font-size:18px;color:#ffe07a}
+.kt-fan-head>div span{display:block;margin-top:3px;font-size:11px;color:#b9bbc5}
+.kt-fan-head button{width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.12);background:#ffffff0c;color:#fff;font-weight:950}
+.kt-fan-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px;border-radius:18px;background:linear-gradient(145deg,#181821,#0b0b10);border:1px solid rgba(255,255,255,.08)}
+.kt-fan-stats div{text-align:center}
+.kt-fan-stats b{display:block;font-size:24px;color:#fff}
+.kt-fan-stats span{display:block;margin-top:3px;font-size:11px;color:#bfc0c9}
+.kt-fan-grow{width:100%;margin-top:10px;display:grid;grid-template-columns:54px 1fr 22px;align-items:center;gap:10px;padding:12px;border:0;border-radius:18px;background:linear-gradient(135deg,#ffcf4d,#ff9f3b);color:#261900;text-align:left}
+.kt-fan-grow>span{width:48px;height:48px;border-radius:14px;background:#ffffff70;display:grid;place-items:center;font-size:28px}
+.kt-fan-grow b{display:block;font-size:16px;font-weight:950}
+.kt-fan-grow small{display:block;margin-top:3px;font-size:10px;color:#5b3811}
+.kt-fan-grow em{font-style:normal;font-size:26px}
+.kt-fan-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.kt-fan-tabs button{height:40px;border:0;border-radius:12px;background:#ffffff0b;color:#aeb0ba;font-weight:900}
+.kt-fan-tabs button.on{background:#ffffff18;color:#fff;border-bottom:2px solid #ffd45f}
+.kt-fan-list{margin-top:10px}
+.kt-fan-empty{min-height:150px;border-radius:18px;border:1px dashed rgba(255,255,255,.12);display:grid;place-items:center;text-align:center;padding:22px;background:#ffffff06}
+.kt-fan-empty span{font-size:34px}
+.kt-fan-empty b{font-size:14px;color:#fff;margin-top:6px}
+.kt-fan-empty small{font-size:11px;color:#9fa1aa;margin-top:3px}
