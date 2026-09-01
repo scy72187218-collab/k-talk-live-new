@@ -1094,3 +1094,20 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   transform:rotate(-5deg);
   box-shadow:0 3px 7px #0005
 }
+
+/* 혜택센터 상단 - 순정산만 표시 */
+.kt-benefit-headrow{display:grid;grid-template-columns:1fr auto;gap:7px;align-items:center;margin-bottom:7px}
+.kt-benefit-headrow .kt-benefit-banner{margin:0!important}
+.kt-benefit-reward-btn{
+  height:36px;padding:0 11px;border-radius:12px;border:1px solid #b454ff88;
+  background:linear-gradient(135deg,#2a1435,#14101d);color:#fff;font-size:11px;font-weight:950;
+  box-shadow:0 0 14px #9a35ff2f;white-space:nowrap
+}
+.kt-benefit-net-note{
+  margin:-1px 0 7px;padding:7px 9px;border-radius:11px;
+  background:#ffffff08;border:1px solid #ffffff12;color:#d8f3ff;
+  text-align:center;font-size:10px;font-weight:950
+}
+.kt-benefit-top strong{font-weight:950!important}
+.kt-benefit-room-grid b{font-weight:950!important}
+.kt-benefit-room-grid small{font-weight:800!important;color:#e0e1e8!important}
