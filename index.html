@@ -34,11 +34,9 @@
  window.openCreator=async function(){
    creator.classList.remove('live-prep-open');
    creator.classList.add('show');
-   if(window.ensureLiveCamera){
-     try{await ensureLiveCamera(state.cameraFacing||'user');}catch(e){}
-   }
    const live=state.stream&&state.stream.getTracks&&state.stream.getTracks().some(t=>t.readyState==='live');
    if(live){camera.srcObject=state.stream;creator.classList.add('camera-on');camera.play().catch(()=>{});}
+   else{creator.classList.remove('camera-on');}
  };
  window.openTikLivePrep=function(){creator.classList.add('live-prep-open');};
  window.closeTikLivePrep=function(){creator.classList.remove('live-prep-open');};
