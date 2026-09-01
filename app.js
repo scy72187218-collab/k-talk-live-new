@@ -364,7 +364,46 @@ window.openMessages=function(){showSheet('✉ 쪽지','<div class="rowbox"><b>�
 window.openComments=function(){showSheet('💬 댓글','<div class="rowbox"><b>댓글 화면</b><br>댓글 버튼이 정상 작동합니다.</div>');};
 window.openProfile=function(){showSheet('♛ 프로필','<div class="profile-pic">K</div><div style="text-align:center"><h3 style="color:#ffe07a">K-Talk</h3></div>');};
 window.openAI=function(){showSheet('🔊 AI 읽기','<div class="rowbox"><b>AI 읽기 보조</b></div>');};
-window.openSong=function(){showSheet('🎵 노래·배경','<div class="rowbox"><b>노래·배경 설정</b></div>');};
+window.setCreatorMode=function(el,name){
+  document.querySelectorAll('.creator-foot span').forEach(function(s){s.classList.remove('on');});
+  if(el)el.classList.add('on');
+  if(name==='게시'||name==='창작하기'){
+    if(window.creator)creator.classList.remove('live-prep-open');
+  }
+};
+
+window.selectCreatorSound=function(name){
+  state.creatorSound=name;
+  var btn=document.getElementById('creatorSoundBtn');
+  if(btn)btn.textContent='♪ '+name;
+  closeSheet();
+};
+
+window.openSoundPanel=function(){
+  var tracks=[
+    ['오늘의 설렘','K-Talk 추천','2:10'],
+    ['밤하늘 산책','K-Talk Music','1:00'],
+    ['신나는 하루','Various Creators','1:00'],
+    ['웃으며 시작','K-Talk 추천','1:15'],
+    ['감성 드라이브','K-Talk Music','2:00'],
+    ['따뜻한 오후','Various Creators','1:30']
+  ];
+  var list=tracks.map(function(t,i){
+    return '<button class="kt-sound-row" onclick="selectCreatorSound(\''+t[0]+'\')">'
+      +'<span class="kt-sound-cover">'+(i+1)+'</span>'
+      +'<span class="kt-sound-info"><b>'+t[0]+'</b><small>'+t[1]+' · '+t[2]+'</small></span>'
+      +'<span class="kt-sound-play">▶</span>'
+      +'</button>';
+  }).join('');
+  var html='<div class="kt-sound-panel">'
+    +'<div class="kt-sound-search">⌕ <input placeholder="사운드 검색" aria-label="사운드 검색"></div>'
+    +'<div class="kt-sound-tabs"><button>인기</button><button class="on">맞춤 추천</button><button>즐겨찾기</button><button>최근</button></div>'
+    +'<div class="kt-sound-list">'+list+'</div>'
+    +'</div>';
+  showSheet('사운드 추가',html);
+};
+
+window.openSong=function(){openSoundPanel();};
 window.report=function(){showSheet('🚩 신고 게시판','<div class="rowbox"><b>신고 접수 화면</b></div>');};
 window.openAd=function(){showSheet('📣 광고·판매자 등록','<div class="rowbox"><b>광고 문의 화면</b></div>');};
 window.toggleSave=function(btn){state.saved=!state.saved;if(btn)btn.style.color=state.saved?'#ffe07a':'#fff';};
