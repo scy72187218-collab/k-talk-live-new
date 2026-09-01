@@ -474,3 +474,29 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   .kt-share-follow,.kt-share-apps{gap:5px}
   .kt-share-follow span,.kt-share-apps span{width:52px;height:52px}
 }
+
+
+/* 소통하기 3개 메뉴 */
+.kt-communication-panel{display:grid;gap:10px;padding:4px 0 10px}
+.kt-communication-panel button{
+  min-height:78px;
+  display:grid;
+  grid-template-columns:64px 1fr 24px;
+  align-items:center;
+  gap:10px;
+  width:100%;
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:18px;
+  background:rgba(255,255,255,.055);
+  color:#fff;
+  text-align:left;
+  padding:10px 14px;
+}
+.kt-communication-panel span{
+  width:54px;height:54px;border-radius:50%;
+  display:grid;place-items:center;
+  background:rgba(255,255,255,.08);
+  font-size:28px;
+}
+.kt-communication-panel b{font-size:17px;font-weight:950}
+.kt-communication-panel em{font-style:normal;font-size:24px;color:#cfd0d8}
