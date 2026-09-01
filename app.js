@@ -304,6 +304,7 @@ window.applyBaseCameraLook=function(){
 
 window.ktAttachCreatorCamera=async function(stream){
   if(!camera||!stream)return false;
+  var cameraBg=document.getElementById('cameraBg');
   try{
     camera.pause();
     camera.srcObject=null;
@@ -319,6 +320,14 @@ window.ktAttachCreatorCamera=async function(stream){
     camera.disablePictureInPicture=true;
   }catch(e){}
   camera.srcObject=stream;
+  if(cameraBg){
+    cameraBg.autoplay=true;
+    cameraBg.muted=true;
+    cameraBg.defaultMuted=true;
+    cameraBg.playsInline=true;
+    cameraBg.srcObject=stream;
+    try{cameraBg.play().catch(function(){});}catch(e){}
+  }
   creator.classList.add('camera-on');
   applyBaseCameraLook();
 
@@ -389,8 +398,9 @@ window.ensureLiveCamera=async function(facing){
       state.stream=await navigator.mediaDevices.getUserMedia({
         video:{
           facingMode:state.cameraFacing,
-          width:{ideal:1920},
-          height:{ideal:1080},
+          width:{ideal:1080},
+          height:{ideal:1920},
+          aspectRatio:{ideal:0.5625},
           frameRate:{ideal:30,max:30}
         },
         audio:{
@@ -403,7 +413,7 @@ window.ensureLiveCamera=async function(facing){
       });
     }catch(firstErr){
       state.stream=await navigator.mediaDevices.getUserMedia({
-        video:{width:{ideal:1920},height:{ideal:1080},frameRate:{ideal:30,max:30}},
+        video:{width:{ideal:1080},height:{ideal:1920},aspectRatio:{ideal:0.5625},frameRate:{ideal:30,max:30}},
         audio:{
           echoCancellation:true,
           noiseSuppression:true,
@@ -469,11 +479,16 @@ window.makeEffectRecordingStream=function(){
 
   function draw(){
     if(!ktCreatorRecording&&ktCreatorRecorder&&ktCreatorRecorder.state==='inactive')return;
-    var sw=camera.videoWidth||1920,sh=camera.videoHeight||1080;
-    var scale=Math.min(canvas.width/sw,canvas.height/sh)*.664;
+    var sw=camera.videoWidth||1080,sh=camera.videoHeight||1920;
+    var bgScale=Math.max(canvas.width/sw,canvas.height/sh);
+    var bgW=sw*bgScale,bgH=sh*bgScale,bgX=(canvas.width-bgW)/2,bgY=(canvas.height-bgH)/2;
+    var scale=Math.min(canvas.width/sw,canvas.height/sh)*.5312;
     var dw=sw*scale,dh=sh*scale,dx=(canvas.width-dw)/2,dy=(canvas.height-dh)/2;
     ctx.save();ctx.clearRect(0,0,canvas.width,canvas.height);
     ctx.translate(canvas.width,0);ctx.scale(-1,1);
+    ctx.filter='blur(28px) brightness(.55)';
+    try{ctx.drawImage(camera,bgX,bgY,bgW,bgH);}catch(e){}
+    ctx.filter='none';
     try{ctx.drawImage(camera,dx,dy,dw,dh);}catch(e){}
     ctx.restore();
 

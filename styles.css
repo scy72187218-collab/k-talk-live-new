@@ -1485,8 +1485,10 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   width:100%!important;height:100%!important;
   object-fit:contain!important;background:#000!important
 }
-.creator.camera-on:not(.creator-recording) video#camera{object-fit:contain!important;background:#000!important;transform:scaleX(-1) scale(.664)!important}
-.creator.creator-recording video#camera{transform:scaleX(-1) scale(.664)!important}
+.creator video#cameraBg{display:none!important}
+.creator.camera-on video#cameraBg{display:block!important;position:absolute!important;inset:-4%!important;width:108%!important;height:108%!important;object-fit:cover!important;transform:scaleX(-1)!important;filter:blur(22px) brightness(.55)!important;z-index:0!important;background:#000!important}
+.creator.camera-on:not(.creator-recording) video#camera{object-fit:contain!important;background:transparent!important;transform:scaleX(-1) scale(.5312)!important;z-index:1!important}
+.creator.creator-recording video#camera{transform:scaleX(-1) scale(.5312)!important;background:transparent!important;z-index:1!important}
 .creator.creator-review .creator-top,
 .creator.creator-review .creator-tools,
 .creator.creator-review .creator-bottom,
