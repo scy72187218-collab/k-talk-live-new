@@ -863,7 +863,7 @@ window.openTreasure=function(){
   };
   var html='<div class="kt-treasure-shop">'
     +'<div class="kt-treasure-help"><b>🗝️ 보물상자</b><span>호스트 머리 위에 2분 30초 동안 표시됩니다.<br>시간이 끝나면 누구든지 눌러 받을 수 있습니다.</span></div>'
-    +'<div class="kt-treasure-picks">'+chest(50)+chest(100)+chest(150)+'</div>'
+    +'<div class="kt-treasure-picks">'+chest(10)+chest(50)+chest(100)+'</div>'
     +'</div>';
   showSheet('보물상자 올리기',html);
 };
