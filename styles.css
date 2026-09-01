@@ -368,6 +368,8 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
 .kt-beauty-one-slider{margin:4px 0 12px;padding:12px 14px;border-radius:16px;background:#ffffff0b;border:1px solid rgba(255,255,255,.08)}
 .kt-beauty-one-slider>div{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;color:#fff;font-size:13px;font-weight:950}
 .kt-beauty-one-slider b{color:#ffd86b;font-size:14px}
+.kt-beauty-range-line{display:grid;grid-template-columns:38px minmax(0,1fr) 38px;align-items:center;gap:8px}
+.kt-beauty-range-line button{width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:#262631;color:#fff;font-size:24px;font-weight:950;line-height:1;pointer-events:auto!important;touch-action:manipulation}
 .kt-beauty-one-slider input[type=range]{width:100%;height:30px;accent-color:#ff4f98}
 .kt-slider-row{display:grid;grid-template-columns:54px 1fr 34px;align-items:center;gap:8px;margin:10px 0;padding:9px 10px;border-radius:14px;background:#ffffff0a}
 .kt-slider-row span{font-size:12px;font-weight:900;color:#fff}
