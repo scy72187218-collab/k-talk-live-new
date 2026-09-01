@@ -301,39 +301,67 @@ window.startCreatorRecording=async function(){
   ktCreatorBlob=null;
   if(ktCreatorBlobUrl){try{URL.revokeObjectURL(ktCreatorBlobUrl);}catch(e){} ktCreatorBlobUrl='';}
 
-  var opts={};
   try{
-    if(MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus'))opts.mimeType='video/webm;codecs=vp9,opus';
-    else if(MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus'))opts.mimeType='video/webm;codecs=vp8,opus';
-    else if(MediaRecorder.isTypeSupported('video/mp4'))opts.mimeType='video/mp4';
-  }catch(e){}
-
-  try{
-    ktCreatorRecorder=new MediaRecorder(state.stream,opts);
+    /* 브라우저가 자기 기기에서 가장 안정적인 영상 형식을 직접 선택하게 합니다. */
+    ktCreatorRecorder=new MediaRecorder(state.stream);
   }catch(e){
-    try{ktCreatorRecorder=new MediaRecorder(state.stream);}catch(err){alert('동영상 촬영을 시작할 수 없습니다.');return;}
+    try{
+      ktCreatorRecorder=new MediaRecorder(state.stream,{mimeType:'video/webm;codecs=vp8,opus'});
+    }catch(err){
+      alert('동영상 촬영을 시작할 수 없습니다.');
+      return;
+    }
   }
 
   ktCreatorRecorder.ondataavailable=function(e){
     if(e.data&&e.data.size)ktCreatorChunks.push(e.data);
   };
+
   ktCreatorRecorder.onstop=function(){
-    var type=(ktCreatorRecorder&&ktCreatorRecorder.mimeType)||'video/webm';
+    ktCreatorRecording=false;
+    var firstType=(ktCreatorChunks[0]&&ktCreatorChunks[0].type)||'';
+    var type=firstType||(ktCreatorRecorder&&ktCreatorRecorder.mimeType)||'video/webm';
     ktCreatorBlob=new Blob(ktCreatorChunks,{type:type});
+
+    if(!ktCreatorBlob || ktCreatorBlob.size<1500){
+      creator.classList.remove('creator-recording','creator-review');
+      creator.classList.add('camera-on');
+      alert('영상이 너무 짧게 촬영되었습니다. 1초 이상 찍은 뒤 화면을 눌러 종료해 주세요.');
+      return;
+    }
+
     ktCreatorBlobUrl=URL.createObjectURL(ktCreatorBlob);
     var preview=document.getElementById('ktCreatorPreview');
+    var fallback=document.getElementById('ktCreatorPreviewFallback');
+
+    if(fallback)fallback.style.display='none';
     if(preview){
+      preview.pause();
+      preview.muted=true;
+      preview.controls=false;
+      preview.playsInline=true;
+      preview.onerror=function(){
+        preview.style.display='none';
+        if(fallback)fallback.style.display='grid';
+      };
+      preview.onloadedmetadata=function(){
+        try{
+          if(isFinite(preview.duration)&&preview.duration>0){
+            preview.currentTime=Math.min(.08,Math.max(.01,preview.duration/10));
+          }
+        }catch(e){}
+      };
       preview.src=ktCreatorBlobUrl;
+      preview.load();
       preview.style.display='block';
-      preview.play().catch(function(){});
     }
+
     creator.classList.remove('creator-recording');
     creator.classList.add('creator-review');
-    ktCreatorRecording=false;
   };
 
   try{
-    ktCreatorRecorder.start(250);
+    ktCreatorRecorder.start(500);
     ktCreatorRecording=true;
     creator.classList.remove('creator-review','live-prep-open');
     creator.classList.add('creator-recording','camera-on');
@@ -346,14 +374,19 @@ window.startCreatorRecording=async function(){
 window.stopCreatorRecording=function(){
   if(!ktCreatorRecording||!ktCreatorRecorder)return;
   try{
-    if(ktCreatorRecorder.state!=='inactive')ktCreatorRecorder.stop();
+    if(ktCreatorRecorder.state!=='inactive'){
+      try{ktCreatorRecorder.requestData();}catch(e){}
+      ktCreatorRecorder.stop();
+    }
   }catch(e){}
 };
 
 window.deleteCreatorRecording=function(){
   try{
     var p=document.getElementById('ktCreatorPreview');
-    if(p){p.pause();p.removeAttribute('src');p.load();p.style.display='none';}
+    var f=document.getElementById('ktCreatorPreviewFallback');
+    if(p){p.pause();p.onerror=null;p.onloadedmetadata=null;p.removeAttribute('src');p.load();p.style.display='none';}
+    if(f)f.style.display='none';
   }catch(e){}
   if(ktCreatorBlobUrl){try{URL.revokeObjectURL(ktCreatorBlobUrl);}catch(e){}}
   ktCreatorBlobUrl='';
