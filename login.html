@@ -20,8 +20,8 @@
   </div>
   <button class="login" onclick="loginNext()">로그인</button>
   <section class="adult"><b>🔒 성인 인증</b><p>실제 서비스에서는 휴대폰 본인확인 또는 공인 연령확인 업체를 연결해 성인으로 확인된 계정만 성인 전용 기능에 들어갈 수 있게 해야 합니다.</p><button onclick="adultVerify()">성인 인증 진행</button></section>
-  <button class="preview" onclick="preview()">화면 테스트 미리보기</button>
-  <div class="note">테스트 미리보기는 화면 확인용이며 성인 인증을 통과한 것으로 처리하지 않습니다.</div>
+  <button class="preview" onclick="preview()">관리자 안전 미리보기로 바로 들어가기</button>
+  <div class="note">관리자 미리보기는 성인 기능이 없는 화면 확인용입니다. 한 번 들어가면 이 기기에서는 다음부터 바로 열립니다.</div>
 </main>
 <div id="sheet" class="sheet"><div class="panel"><h3 id="title">안내</h3><p id="msg"></p><button onclick="closeSheet()">확인</button></div></div>
 <script>
@@ -31,7 +31,8 @@ function show(title,msg){document.getElementById('title').textContent=title;docu
 function closeSheet(){document.getElementById('sheet').classList.remove('show')}
 function loginNext(){if(!provider){show('로그인','카카오, 네이버, Google, Facebook, WeChat 중 하나를 먼저 선택해 주세요.');return}show('로그인 연결',provider+' 로그인 화면을 실제로 연결하려면 해당 서비스의 OAuth 설정이 필요합니다.');}
 function adultVerify(){show('성인 인증','성인 인증은 실제 본인확인/연령확인 업체가 성인으로 확인한 경우에만 통과하도록 연결해야 합니다. 현재 화면에서는 인증을 우회하거나 임의로 통과시키지 않습니다.');}
-function preview(){location.href='index.html';}
+function preview(){try{localStorage.setItem('ktalk_admin_preview','1')}catch(e){} location.href='admin-preview.html';}
+try{if(localStorage.getItem('ktalk_admin_preview')==='1')location.replace('admin-preview.html')}catch(e){}
 </script>
 </body>
 </html>
