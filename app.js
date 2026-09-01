@@ -269,7 +269,26 @@ window.openInvestorInfo=function(){
   showSheet('💼 투자자 안내','<div class="rowbox"><b>📅 정산일</b><br>투자자 수익금 정산은 매달 1일 진행하는 방식으로 안내합니다.</div><div class="rowbox"><b>📡 정산 대상</b><br>K-Talk 방송에서 발생한 방송 관련 수익만 투자자 수익 분배 대상에 포함합니다.</div><div class="rowbox"><b>🚫 제외 수익</b><br>광고 수익, 상품 판매 수익, 외부 업체와 별도로 체결한 계약에서 발생한 수익은 투자자 분배 대상에서 제외합니다.</div><div class="rowbox"><b>💰 수익금 분배</b><br>방송 수익을 기준으로 계약서에 정한 지분과 정산 기준에 따라 분배하며 실제 금액은 해당 월의 방송 실적에 따라 달라질 수 있습니다.</div><div class="note">투자에는 손실 위험이 있으며 원금이나 수익을 확정적으로 보장할 수 없습니다.</div>');
 };
 window.openSubs=function(){
-  showSheet('👑 구독·VIP 혜택','<div class="rowbox"><b>💎 구독자 혜택</b><br>구독자는 구독자 전용방을 이용할 수 있고 일반방과 1인 방송 등 이용 가능한 방을 확인할 수 있습니다.</div><div class="rowbox"><b>🌹 장미 충전 할인</b><br>구독자는 500개 이상 충전할 때 할인 혜택을 적용하는 방식으로 안내합니다. 실제 할인율과 결제 조건은 결제 화면에서 명확하게 표시해야 합니다.</div><div class="rowbox"><b>🔓 이용 가능한 방</b><br>일반 13명방 · 1인 방송 · 구독자 전용방을 이용할 수 있으며 비밀번호방은 방장이 정한 비밀번호가 있어야 입장할 수 있습니다. 기타 제한 방은 해당 이용 조건을 충족해야 합니다.</div><div class="rowbox"><b>👑 VIP 안내</b><br>VIP 전용 혜택과 입장 권한은 회원 등급 확인 후 적용되도록 구성합니다.</div>');
+  var html='<div class="kt-fanclub">'
+    +'<div class="kt-fan-head"><div><b>👑 K-Talk 팬클럽</b><span>내 방송을 응원하는 팬 모임</span></div><button onclick="openFanHelp()">?</button></div>'
+    +'<div class="kt-fan-stats">'
+      +'<div><b>0</b><span>팬</span></div>'
+      +'<div><b>0</b><span>응원</span></div>'
+      +'<div><b>0</b><span>슈퍼팬</span></div>'
+    +'</div>'
+    +'<button class="kt-fan-grow" onclick="openFanGrow()"><span>🌱</span><div><b>팬클럽 성장하기</b><small>방송 참여와 선물로 팬클럽을 키워보세요</small></div><em>›</em></button>'
+    +'<div class="kt-fan-tabs"><button class="on">모든 팬</button><button>팬클럽 도구</button></div>'
+    +'<div class="kt-fan-list">'
+      +'<div class="kt-fan-empty"><span>💛</span><b>아직 등록된 팬이 없습니다</b><small>팬이 참여하면 여기에 표시됩니다.</small></div>'
+    +'</div>'
+    +'</div>';
+  showSheet('팬클럽',html);
+};
+window.openFanGrow=function(){
+  showSheet('🌱 팬클럽 성장하기','<div class="rowbox"><b>팬클럽 성장</b><br>방송 참여, 응원, 선물 활동으로 팬클럽을 키우는 화면입니다.</div><div class="rowbox"><b>등급 안내</b><br>팬 · 열성팬 · 슈퍼팬처럼 단계별로 구성할 수 있습니다.</div>');
+};
+window.openFanHelp=function(){
+  showSheet('팬클럽 안내','<div class="rowbox"><b>K-Talk 팬클럽</b><br>팬 관리와 팬클럽 혜택을 확인하는 공간입니다.</div>');
 };
 
 window.showHostCrown=function(kind){var old=document.getElementById('hostGiftCrown');if(old)old.remove();var badge=document.createElement('div');badge.id='hostGiftCrown';badge.textContent=(kind==='다이아 왕관'||kind==='다이아몬드 왕관')?'💎👑':'👑';badge.style.cssText='position:fixed;z-index:9999;top:86px;left:50%;transform:translateX(-50%);font-size:52px;filter:drop-shadow(0 0 15px #ffd85a);pointer-events:none';document.body.appendChild(badge);setTimeout(function(){if(badge&&badge.parentNode)badge.remove();},6000);};
