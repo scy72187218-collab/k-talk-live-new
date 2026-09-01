@@ -38,10 +38,10 @@ body{min-height:100dvh;padding:18px}
   <section class="accounts">
     <h3>👑 관리자 테스트 계정</h3>
     <div class="accountrow">
-      <button id="acct-taekwon-1" class="accountbtn" onclick="selectAdminAccount('taekwon-1','K-톡태권')">태권 1</button>
-      <button id="acct-haine-2" class="accountbtn" onclick="selectAdminAccount('haine-2','K-톡하이네')">하이네 2</button>
+      <button id="acct-taekwon-1" class="accountbtn" onclick="selectAdminAccount('taekwon-1','K-톡 태권1')">K-톡 태권1</button>
+      <button id="acct-haine-2" class="accountbtn" onclick="selectAdminAccount('haine-2','K-톡 하이네2')">K-톡 하이네2</button>
     </div>
-    <div id="accountNow" class="accountnow">현재 계정: 태권 1</div>
+    <div id="accountNow" class="accountnow">현재 계정: K-톡 태권1</div>
   </section>
   <section class="grid">
     <button class="card" onclick="alert('화면 구성 확인용입니다.')"><span>🏠</span><b>홈 화면</b><small>메뉴와 배치 확인</small></button>
@@ -76,13 +76,13 @@ function selectAdminAccount(id,name){
   const btn=document.getElementById('acct-'+id);
   if(btn)btn.classList.add('on');
   const now=document.getElementById('accountNow');
-  if(now)now.textContent='현재 계정: '+(id==='haine-2'?'하이네 2':'태권 1');
+  if(now)now.textContent='현재 계정: '+(id==='haine-2'?'K-톡 하이네2':'K-톡 태권1');
 }
 (function(){
   let id='taekwon-1';
   try{id=localStorage.getItem('ktalk_admin_test_account_id')||'taekwon-1'}catch(e){}
   if(id!=='haine-2')id='taekwon-1';
-  selectAdminAccount(id,id==='haine-2'?'K-톡하이네':'K-톡태권');
+  selectAdminAccount(id,id==='haine-2'?'K-톡 하이네2':'K-톡 태권1');
 })();
 function testGift(name,count){
   testGiftTotal+=Number(count)||0;
