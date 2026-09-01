@@ -154,13 +154,16 @@
  async function showVideoHome(label){
    leaveDash();
    document.body.classList.add('kt-video-mode');
-   screen.innerHTML=`<section class="video-home"><video id="homeVideo" autoplay muted loop playsinline preload="auto" webkit-playsinline></video><div id="homeVideoEmpty" style="position:absolute;inset:0;display:grid;place-items:center;background:radial-gradient(circle at 50% 40%,#25212c,#050506 70%);color:#ddd;font-size:16px;font-weight:900">게시된 내 동영상을 불러오는 중...</div><div class="vh-shade"></div><div class="vh-tabs"><span>LIVE</span><span>커뮤니티</span><span>팔로잉</span><span class="on">추천</span><button aria-label="검색">⌕</button></div><div class="vh-title"><div class="vh-owner-line"><span id="homeOwnerAvatar" class="vh-owner-avatar">K</span><b id="homeOwnerName">K-Talk</b></div><span id="homeVideoTitle">${label||'추천 동영상'} · 화면을 눌러 재생하거나 멈출 수 있습니다.</span></div><div class="vh-actions"><button onclick="needJoin('좋아요를 누르려면 가입해 주세요.')">♡<small>좋아요</small></button><button onclick="openComments()">💬<small>댓글</small></button><button onclick="openGifts()">🎁<small>선물</small></button><button onclick="shareApp()">↗<small>공유</small></button></div></section>`;
+   screen.innerHTML=`<section class="video-home"><video id="homeVideo" autoplay loop playsinline preload="auto" webkit-playsinline></video><button id="homeSoundBtn" class="vh-sound-btn" type="button" aria-label="소리 켜기">🔊</button><div id="homeVideoEmpty" style="position:absolute;inset:0;display:grid;place-items:center;background:radial-gradient(circle at 50% 40%,#25212c,#050506 70%);color:#ddd;font-size:16px;font-weight:900">게시된 내 동영상을 불러오는 중...</div><div class="vh-shade"></div><div class="vh-tabs"><span>LIVE</span><span>커뮤니티</span><span>팔로잉</span><span class="on">추천</span><button aria-label="검색">⌕</button></div><div class="vh-title"><div class="vh-owner-line"><span id="homeOwnerAvatar" class="vh-owner-avatar">K</span><b id="homeOwnerName">K-Talk</b></div><span id="homeVideoTitle">${label||'추천 동영상'} · 화면을 눌러 재생하거나 멈출 수 있습니다.</span></div><div class="vh-actions"><button onclick="needJoin('좋아요를 누르려면 가입해 주세요.')">♡<small>좋아요</small></button><button onclick="openComments()">💬<small>댓글</small></button><button onclick="openGifts()">🎁<small>선물</small></button><button onclick="shareApp()">↗<small>공유</small></button></div></section>`;
    const v=document.getElementById('homeVideo');
    const empty=document.getElementById('homeVideoEmpty');
    if(v){
      try{
-       v.defaultMuted=true;
-       v.muted=true;
+       var savedSound='on';
+       try{savedSound=localStorage.getItem('ktalk_home_sound')||'on';}catch(e){}
+       v.defaultMuted=false;
+       v.muted=(savedSound!=='on');
+       v.volume=1;
        v.playsInline=true;
        v.preload='auto';
        v.removeAttribute('poster');
@@ -169,14 +172,54 @@
      }catch(e){}
      var ktHomeLastTime=-1;
      var ktHomeStallCount=0;
+     var soundBtn=document.getElementById('homeSoundBtn');
+     var syncSoundBtn=function(){
+       if(!soundBtn)return;
+       soundBtn.textContent=v.muted?'🔇':'🔊';
+       soundBtn.setAttribute('aria-label',v.muted?'소리 켜기':'소리 끄기');
+     };
+     var enableHomeSound=function(){
+       try{
+         v.defaultMuted=false;
+         v.muted=false;
+         v.removeAttribute('muted');
+         v.volume=1;
+         localStorage.setItem('ktalk_home_sound','on');
+       }catch(e){}
+       syncSoundBtn();
+       try{
+         var p=v.play();
+         if(p&&p.catch)p.catch(function(){});
+       }catch(e){}
+     };
      var ktHomeKick=function(){
        try{
          if(v.readyState>=2){
            var p=v.play();
-           if(p&&p.catch)p.catch(function(){});
+           if(p&&p.catch)p.catch(function(){
+             /* 자동재생이 막히면 영상은 계속 보이게 하고, 화면을 누르면 소리가 켜집니다. */
+             try{v.muted=true;}catch(e){}
+             syncSoundBtn();
+             try{var mp=v.play();if(mp&&mp.catch)mp.catch(function(){});}catch(e){}
+           });
          }
        }catch(e){}
      };
+     syncSoundBtn();
+     if(soundBtn){
+       soundBtn.onclick=function(ev){
+         ev.stopPropagation();
+         try{
+           if(v.muted){
+             enableHomeSound();
+           }else{
+             v.muted=true;
+             localStorage.setItem('ktalk_home_sound','off');
+             syncSoundBtn();
+           }
+         }catch(e){}
+       };
+     }
      v.addEventListener('loadedmetadata',function(){
        try{v.currentTime=0;}catch(e){}
        setTimeout(ktHomeKick,80);
@@ -187,6 +230,10 @@
      v.addEventListener('stalled',function(){setTimeout(ktHomeKick,220);});
      v.addEventListener('click',function(){
        try{
+         if(v.muted){
+           enableHomeSound();
+           return;
+         }
          if(v.paused)ktHomeKick();
          else v.pause();
        }catch(e){}
@@ -243,8 +290,17 @@
          setTimeout(function(){
            try{
              v.currentTime=0;
+             var wantSound=true;
+             try{wantSound=(localStorage.getItem('ktalk_home_sound')||'on')==='on';}catch(e){}
+             v.defaultMuted=false;
+             v.muted=!wantSound;
+             v.volume=1;
+             if(typeof syncSoundBtn==='function')syncSoundBtn();
              var pp=v.play();
-             if(pp&&pp.catch)pp.catch(function(){});
+             if(pp&&pp.catch)pp.catch(function(){
+               try{v.muted=true;if(typeof syncSoundBtn==='function')syncSoundBtn();}catch(e){}
+               try{var mp=v.play();if(mp&&mp.catch)mp.catch(function(){});}catch(e){}
+             });
            }catch(e){}
          },120);
        }else if(empty){
