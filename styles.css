@@ -3641,3 +3641,24 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   font-size:19px!important;
   box-shadow:0 3px 10px rgba(0,0,0,.35)!important;
 }
+
+
+/* 2026-09-02 프로필 사진 위치 위로 보정 */
+/* 원본 사진의 위/아래 검은 여백이 원 안으로 들어오지 않도록 더 확대하고,
+   얼굴 중심을 조금 위로 잡습니다. */
+.kt-account-avatar.has-photo img{
+  object-fit:cover!important;
+  object-position:50% 38%!important;
+  transform:scale(1.14)!important;
+  animation:ktAccountPhotoPanUp 5.5s ease-in-out infinite alternate!important;
+}
+.kt-my-profile-photo img,
+.vh-owner-avatar img{
+  object-fit:cover!important;
+  object-position:50% 38%!important;
+  transform:scale(1.12)!important;
+}
+@keyframes ktAccountPhotoPanUp{
+  0%{object-position:50% 37%;transform:scale(1.13)}
+  100%{object-position:50% 40%;transform:scale(1.15)}
+}
