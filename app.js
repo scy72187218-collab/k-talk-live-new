@@ -1713,9 +1713,19 @@ window.openFanHelp=function(){
 
 window.showHostCrown=function(kind){var old=document.getElementById('hostGiftCrown');if(old)old.remove();var badge=document.createElement('div');badge.id='hostGiftCrown';badge.textContent=(kind==='다이아 왕관'||kind==='다이아몬드 왕관')?'💎👑':'👑';badge.style.cssText='position:fixed;z-index:9999;top:86px;left:50%;transform:translateX(-50%);font-size:52px;filter:drop-shadow(0 0 15px #ffd85a);pointer-events:none';document.body.appendChild(badge);setTimeout(function(){if(badge&&badge.parentNode)badge.remove();},6000);};
 window.giftSend=function(name,cost,sender){
+  cost=Math.max(0,parseInt(cost||0,10)||0);
+  var balance=ktGetRoseBalance();
+  if(cost>balance){
+    alert('장미가 부족합니다.\n현재 '+balance.toLocaleString('ko-KR')+'개 · 필요한 장미 '+cost.toLocaleString('ko-KR')+'개');
+    if(window.openCharge)setTimeout(openCharge,80);
+    return false;
+  }
+  ktSetRoseBalance(balance-cost);
   if(name.indexOf('왕관')>-1||name.indexOf('크라운')>-1){showHostCrown(name);}
   ktAnnounceEvent('gift',{sender:sender||'',name:name,count:cost});
-  alert(name+' · '+cost+'개 선물을 선택했습니다.');
+  if(window.addMyEarnedRoses)addMyEarnedRoses(cost);
+  alert('✅ '+name+' 선물 완료\n장미 '+cost.toLocaleString('ko-KR')+'개 사용 · 남은 장미 '+ktGetRoseBalance().toLocaleString('ko-KR')+'개');
+  return true;
 };
 window.ktalkGifts=[
   ['장미','1','🌹','꽃/하트'],
@@ -2057,10 +2067,50 @@ window.addEventListener('storage',function(e){
 });
 
 setTimeout(function(){ktUpdateTreasureLed();ktRenderTreasure();},300);
+window.ktGetRoseBalance=function(){
+  try{return Math.max(0,parseInt(localStorage.getItem('ktalk_rose_balance')||'0',10)||0);}catch(e){return Math.max(0,parseInt(state.roseBalance||0,10)||0);}
+};
+window.ktSetRoseBalance=function(n){
+  n=Math.max(0,parseInt(n||0,10)||0);
+  state.roseBalance=n;
+  try{localStorage.setItem('ktalk_rose_balance',String(n));}catch(e){}
+  var ids=['ktRoseBalance','ktRoseBalanceDash'];
+  ids.forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=n.toLocaleString('ko-KR');});
+  return n;
+};
+window.ktAddRoseBalance=function(n){
+  n=parseInt(n||0,10)||0;
+  if(n<=0)return ktGetRoseBalance();
+  return ktSetRoseBalance(ktGetRoseBalance()+n);
+};
+window.ktApplyVerifiedPayment=function(orderId,base,bonus){
+  orderId=String(orderId||'').trim();
+  base=Math.max(0,parseInt(base||0,10)||0);
+  bonus=Math.max(0,parseInt(bonus||0,10)||0);
+  if(!orderId||base<=0)return false;
+  var used={};
+  try{used=JSON.parse(localStorage.getItem('ktalk_paid_orders')||'{}')||{};}catch(e){}
+  if(used[orderId])return false;
+  used[orderId]={base:base,bonus:bonus,at:Date.now()};
+  try{localStorage.setItem('ktalk_paid_orders',JSON.stringify(used));}catch(e){}
+  ktAddRoseBalance(base+bonus);
+  ktSpeak('결제가 확인되어 장미가 바로 지급되었습니다.');
+  alert('✅ 결제 확인 완료\n장미 '+(base+bonus).toLocaleString('ko-KR')+'개가 바로 들어왔습니다.');
+  return true;
+};
+window.ktStartPayment=function(amount,base,bonus){
+  var total=base+bonus;
+  try{localStorage.setItem('ktalk_pending_charge',JSON.stringify({amount:amount,base:base,bonus:bonus,total:total,createdAt:Date.now()}));}catch(e){}
+  var html='<div class="rowbox"><b>🌹 장미 '+total.toLocaleString('ko-KR')+'개</b><br>'
+    +Number(amount).toLocaleString('ko-KR')+'원 · 기본 '+base.toLocaleString('ko-KR')+'개 · 보너스 '+bonus.toLocaleString('ko-KR')+'개<br><br>'
+    +'<b>결제 완료가 서버에서 확인되면 자동으로 바로 지급됩니다.</b><br>'
+    +'<small>실제 결제사를 연결하기 전에는 돈이 결제되거나 장미가 임의 지급되지 않습니다.</small></div>';
+  showSheet('결제 확인',html);
+};
 window.selectCoinCharge=function(amount,base,bonus){
   var total=base+bonus;
   ktSpeak('장미 '+base.toLocaleString('ko-KR')+'개, 보너스 '+bonus.toLocaleString('ko-KR')+'개, 총 '+total.toLocaleString('ko-KR')+'개입니다.');
-  alert(Number(amount).toLocaleString('ko-KR')+'원 · 기본 장미 '+base.toLocaleString('ko-KR')+'개 · 보너스 '+bonus.toLocaleString('ko-KR')+'개 · 총 '+total.toLocaleString('ko-KR')+'개');
+  ktStartPayment(Number(amount),base,bonus);
 };
 window.openCharge=function(){
   var packs=[
@@ -2075,6 +2125,7 @@ window.openCharge=function(){
   ];
   var html='<div class="coin-charge-note">'
     +'<div style="font-size:16px;font-weight:950;color:#fff">🌹 장미 충전</div>'
+    +'<div style="margin-top:7px;color:#9dffb9;font-weight:950">현재 보유 장미 <span id="ktRoseBalance">'+ktGetRoseBalance().toLocaleString('ko-KR')+'</span>개</div>'
     +'<div style="margin-top:7px;color:#ffe17b;font-weight:950">장미 1개 = 30원</div>'
     +'<div style="margin-top:5px;color:#ffd86b">500개부터 500개마다 <b style="color:#fff">보너스 +10개</b></div>'
     +'<div style="margin-top:5px;color:#bbb">최대 충전 100,000원</div>'
