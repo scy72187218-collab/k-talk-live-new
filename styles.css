@@ -3471,3 +3471,117 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   .kt-account-avatar,
   .kt-account-avatar.has-photo img{animation:none!important}
 }
+
+
+/* 2026-09-02 프로필 사진 상시 표시 + 팔로워 좋아요 링크 */
+.kt-profile-hero{
+  display:grid;
+  grid-template-columns:92px 1fr;
+  gap:12px;
+  align-items:center;
+  margin-bottom:10px;
+}
+.kt-profile-photo-wrap{
+  display:grid;
+  place-items:center;
+}
+.kt-my-profile-photo{
+  width:88px!important;
+  height:88px!important;
+  border-radius:50%!important;
+  overflow:hidden!important;
+  padding:0!important;
+  position:relative!important;
+}
+.kt-my-profile-photo img{
+  width:100%!important;
+  height:100%!important;
+  display:block!important;
+  object-fit:cover!important;
+  object-position:50% 50%!important;
+}
+.kt-my-profile-photo em{
+  position:absolute!important;
+  left:0!important;
+  right:0!important;
+  bottom:0!important;
+  padding:4px 2px!important;
+  background:rgba(0,0,0,.62)!important;
+  color:#fff!important;
+  font-style:normal!important;
+  font-size:8px!important;
+  font-weight:900!important;
+}
+.kt-profile-maininfo b{
+  display:block;
+  color:#fff;
+  font-size:18px;
+  font-weight:950;
+  margin-bottom:5px;
+}
+.kt-profile-maininfo small{
+  display:block;
+  color:#cdd0da;
+  font-size:11px;
+  line-height:1.35;
+}
+.kt-profile-stats{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin:8px 0;
+}
+.kt-profile-stats div{
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:14px;
+  padding:10px 8px;
+  text-align:center;
+  background:rgba(255,255,255,.045);
+}
+.kt-profile-stats b{
+  display:block;
+  color:#fff;
+  font-size:18px;
+  font-weight:950;
+}
+.kt-profile-stats small{
+  display:block;
+  margin-top:2px;
+  color:#c3c6d0;
+  font-size:10px;
+  font-weight:850;
+}
+.kt-profile-public-link{
+  width:100%;
+  min-height:44px;
+  margin:8px 0 10px;
+  padding:0 12px;
+  border:1px solid rgba(114,177,255,.32);
+  border-radius:13px;
+  background:linear-gradient(135deg,rgba(29,42,66,.84),rgba(23,23,35,.92));
+  color:#fff;
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;
+  gap:8px;
+  text-align:left;
+}
+.kt-profile-public-link span{font-size:16px}
+.kt-profile-public-link b{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:11px;
+  font-weight:900;
+  color:#cfe7ff;
+}
+.kt-profile-public-link em{
+  font-style:normal;
+  font-size:20px;
+  color:#fff;
+}
+@media(max-width:390px){
+  .kt-profile-hero{grid-template-columns:80px 1fr}
+  .kt-my-profile-photo{width:76px!important;height:76px!important}
+  .kt-profile-maininfo b{font-size:16px}
+}
