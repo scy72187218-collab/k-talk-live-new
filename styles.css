@@ -3622,3 +3622,22 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   color:#fff!important;
   text-shadow:0 1px 3px rgba(0,0,0,.75)!important;
 }
+
+
+/* 2026-09-02 홈 동영상 소리 버튼 */
+.vh-sound-btn{
+  position:absolute!important;
+  right:18px!important;
+  top:92px!important;
+  z-index:8!important;
+  width:42px!important;
+  height:42px!important;
+  border-radius:50%!important;
+  border:1px solid rgba(255,255,255,.22)!important;
+  background:rgba(0,0,0,.46)!important;
+  color:#fff!important;
+  display:grid!important;
+  place-items:center!important;
+  font-size:19px!important;
+  box-shadow:0 3px 10px rgba(0,0,0,.35)!important;
+}
