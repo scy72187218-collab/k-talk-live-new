@@ -667,12 +667,14 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   pointer-events:auto;
   width:100%;
   max-width:520px;
-  max-height:58dvh;
+  max-height:50dvh;
   margin:0 auto!important;
   border-radius:24px 24px 0 0!important;
   background:linear-gradient(180deg,rgba(20,18,31,.96),rgba(7,7,12,.98))!important;
   box-shadow:0 -12px 34px rgba(0,0,0,.35);
 }
+.creator.beauty-preview-open .live-prep{display:none!important}
+.creator.beauty-preview-open video#camera{display:block!important;position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important}
 .sheet.camera-effect-sheet .sheet-head{
   position:sticky;
   top:0;
