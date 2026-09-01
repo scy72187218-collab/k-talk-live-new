@@ -709,9 +709,9 @@ window.openMyVideoLibrary=async function(){
       }else{
         html+='<div class="kt-myvideo-list">'+items.map(function(v){
           var d=new Date(v.createdAt);
-          return '<div class="kt-myvideo-row">'
-            +'<button class="play" onclick="playStoredVideo(\''+v.id+'\')"><span>▶</span><b>'+String(v.name||'내 동영상').replace(/</g,'&lt;')+'</b><small>'+d.toLocaleDateString('ko-KR')+(v.posted?' · 게시됨':'')+'</small></button>'
-            +'<div class="kt-myvideo-row-actions"><button class="upload" onclick="postStoredVideo(\''+v.id+'\',this)">'+(v.posted?'✓ 올림':'올리기')+'</button><button class="trash" onclick="deleteStoredVideo(\''+v.id+'\',this)">삭제</button></div>'
+          return '<div class="kt-myvideo-row" data-video-id="'+v.id+'">'
+            +'<button type="button" class="play" onclick="playStoredVideo(\''+v.id+'\')"><span>▶</span><b>'+String(v.name||'내 동영상').replace(/</g,'&lt;')+'</b><small>'+d.toLocaleDateString('ko-KR')+(v.posted?' · 게시됨':'')+'</small></button>'
+            +'<div class="kt-myvideo-row-actions"><button type="button" class="upload" onclick="event.stopPropagation();postStoredVideo(\''+v.id+'\',this);return false;">'+(v.posted?'✓ 올림':'올리기')+'</button><button type="button" class="trash" onclick="event.stopPropagation();deleteStoredVideo(\''+v.id+'\',this);return false;">삭제</button></div>'
             +'</div>';
         }).join('')+'</div>';
       }
@@ -786,8 +786,7 @@ window.deleteStoredVideo=async function(id,btn){
     var db=await ktOpenVideoDB();
     await new Promise(function(resolve,reject){
       var tx=db.transaction('videos','readwrite');
-      var store=tx.objectStore('videos');
-      store.delete(id);
+      tx.objectStore('videos').delete(id);
       tx.oncomplete=resolve;
       tx.onerror=function(){reject(tx.error||new Error('delete error'));};
       tx.onabort=function(){reject(tx.error||new Error('delete abort'));};
@@ -801,18 +800,17 @@ window.deleteStoredVideo=async function(id,btn){
     });
 
     try{db.close();}catch(e){}
+    if(!gone)throw new Error('delete verify failed');
 
-    if(!gone){
-      throw new Error('delete verify failed');
+    var row=btn&&btn.closest?btn.closest('.kt-myvideo-row'):null;
+    if(row)row.remove();
+
+    var list=document.querySelector('.kt-myvideo-list');
+    if(list&&!list.querySelector('.kt-myvideo-row')){
+      list.innerHTML='<div class="rowbox"><b>동영상이 모두 삭제되었습니다.</b></div>';
     }
 
-    try{
-      var row=btn&&btn.closest?btn.closest('.kt-myvideo-row'):null;
-      if(row)row.remove();
-    }catch(e){}
-
     ktSpeak('동영상을 삭제했습니다.');
-    setTimeout(function(){openMyVideoLibrary();},60);
   }catch(e){
     if(btn){
       btn.disabled=false;
