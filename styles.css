@@ -3151,3 +3151,70 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   .kt-live-effect-item span{width:49px!important;height:49px!important;font-size:22px!important}
   .kt-live-effect-item small{font-size:7.4px!important}
 }
+
+
+/* 2026-09-02 편집효과 탭 버튼/뒷배경 8종 */
+#ktLiveEffects .kt-live-effects-tabs{
+  display:grid!important;
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  gap:5px!important;
+}
+#ktLiveEffects .kt-live-effects-tabs button{
+  min-width:0!important;
+  height:38px!important;
+  padding:0 4px!important;
+  border-radius:18px!important;
+  font-size:10px!important;
+  font-weight:900!important;
+  line-height:1.05!important;
+  white-space:normal!important;
+}
+#ktLiveEffects .kt-live-effects-tabs button.on{
+  background:#fff!important;
+  color:#111!important;
+}
+.kt-bg-choice{
+  min-width:0!important;
+  border:0!important;
+  background:transparent!important;
+  color:#fff!important;
+  padding:0!important;
+  text-align:center!important;
+}
+.kt-bg-choice .kt-bg-thumb{
+  width:54px!important;
+  height:54px!important;
+  margin:0 auto 5px!important;
+  border-radius:15px!important;
+  display:grid!important;
+  place-items:center!important;
+  font-size:26px!important;
+  border:2px solid #666!important;
+  box-shadow:inset 0 0 14px #0007,0 2px 8px #0008!important;
+  overflow:hidden!important;
+}
+.kt-bg-choice small{
+  display:block!important;
+  font-size:8px!important;
+  font-weight:900!important;
+  color:#fff!important;
+  min-height:18px!important;
+}
+.kt-bg-choice.on .kt-bg-thumb{
+  border-color:#ff4fae!important;
+  box-shadow:0 0 0 3px #fff,0 0 0 6px #ff4fae!important;
+}
+.kt-bg-thumb.bg-stage{background:radial-gradient(circle at 50% 25%,#7657ff 0 12%,#1d123f 38%,#050509 72%)!important}
+.kt-bg-thumb.bg-beach{background:linear-gradient(#69c9ff 0 44%,#0b8fc5 45% 67%,#e7c88a 68%)!important}
+.kt-bg-thumb.bg-mountain{background:linear-gradient(#7ec9f0 0 35%,#6c8b6a 36% 62%,#26392d 63%)!important}
+.kt-bg-thumb.bg-city{background:linear-gradient(#0c0c29,#2b1d58 55%,#0b0a14)!important}
+.kt-bg-thumb.bg-garden{background:linear-gradient(#b5e5ff 0 38%,#5fa64b 39% 65%,#2e6a30 66%)!important}
+.kt-bg-thumb.bg-cafe{background:linear-gradient(135deg,#7b4b2c,#2b1711 70%)!important}
+.kt-bg-thumb.bg-yacht{background:linear-gradient(#8ad5ff 0 45%,#1d8ec0 46% 74%,#e8e8e8 75%)!important}
+.kt-bg-thumb.bg-club{background:radial-gradient(circle,#e050ff 0 10%,#351565 30%,#080611 72%)!important}
+
+@media(max-width:390px){
+  #ktLiveEffects .kt-live-effects-tabs button{font-size:9px!important;height:36px!important}
+  .kt-bg-choice .kt-bg-thumb{width:49px!important;height:49px!important;font-size:23px!important}
+  .kt-bg-choice small{font-size:7.4px!important}
+}
