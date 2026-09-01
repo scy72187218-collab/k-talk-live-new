@@ -3662,3 +3662,43 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   0%{object-position:50% 37%;transform:scale(1.13)}
   100%{object-position:50% 40%;transform:scale(1.15)}
 }
+
+
+/* 2026-09-02 동영상 화면 뒤로가기/새 영상 */
+.vh-back-btn{
+  position:absolute!important;
+  left:14px!important;
+  top:58px!important;
+  z-index:9!important;
+  width:44px!important;
+  height:44px!important;
+  border-radius:50%!important;
+  border:1px solid rgba(255,255,255,.24)!important;
+  background:rgba(0,0,0,.52)!important;
+  color:#fff!important;
+  font-size:27px!important;
+  font-weight:900!important;
+  display:grid!important;
+  place-items:center!important;
+  box-shadow:0 3px 12px rgba(0,0,0,.35)!important;
+}
+.vh-upload-btn{
+  position:absolute!important;
+  left:68px!important;
+  top:61px!important;
+  z-index:9!important;
+  min-width:106px!important;
+  height:38px!important;
+  padding:0 13px!important;
+  border-radius:19px!important;
+  border:1px solid rgba(255,255,255,.24)!important;
+  background:linear-gradient(135deg,rgba(76,67,255,.88),rgba(223,55,206,.88))!important;
+  color:#fff!important;
+  font-size:11px!important;
+  font-weight:950!important;
+  box-shadow:0 3px 12px rgba(0,0,0,.35)!important;
+}
+@media(max-width:390px){
+  .vh-back-btn{top:54px!important;left:10px!important;width:40px!important;height:40px!important;font-size:24px!important}
+  .vh-upload-btn{top:56px!important;left:58px!important;min-width:96px!important;height:36px!important;font-size:10px!important}
+}
