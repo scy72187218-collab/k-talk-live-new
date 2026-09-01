@@ -1126,6 +1126,7 @@ window.applyEditEffect=function(){
   renderFaceEffect(state.appliedEditEffect);
   var tray=document.getElementById('ktLiveEffects');
   if(tray)tray.classList.remove('show');
+  if(state.effectReturnBeauty){state.effectReturnBeauty=false;openBeautyPanel();}
 };
 
 window.closeEditEffectPanel=function(){
@@ -1133,9 +1134,15 @@ window.closeEditEffectPanel=function(){
   renderFaceEffect(state.pendingEditEffect);
   var tray=document.getElementById('ktLiveEffects');
   if(tray)tray.classList.remove('show');
+  if(state.effectReturnBeauty){state.effectReturnBeauty=false;openBeautyPanel();}
 };
 
 window.openEditEffectPanel=function(){
+  state.effectReturnBeauty=!!(sheet&&sheet.classList.contains('show')&&sheet.classList.contains('camera-effect-sheet'));
+  if(state.effectReturnBeauty){
+    sheet.classList.remove('show');
+    sheet.classList.remove('camera-effect-sheet');
+  }
   var tray=document.getElementById('ktLiveEffects');
   if(!tray){
     tray=document.createElement('div');
