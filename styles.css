@@ -2615,3 +2615,193 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
 .kt-myvideo-player-delete:active{
   transform:scale(.99)
 }
+
+
+/* 2026-09-02 선물상자 두번째 참고화면 스타일 */
+.sheet.gift-final-v1{
+  background:rgba(0,0,0,.94)!important;
+  backdrop-filter:blur(8px)!important
+}
+.sheet.gift-final-v1 .sheet-inner{
+  width:min(100%,540px)!important;
+  max-height:98dvh!important;
+  border-radius:22px 22px 0 0!important;
+  border:1px solid #7a2e63!important;
+  border-bottom:0!important;
+  background:
+    radial-gradient(circle at 12% 0%,rgba(149,36,133,.17),transparent 25%),
+    radial-gradient(circle at 91% 3%,rgba(76,45,145,.14),transparent 24%),
+    linear-gradient(180deg,#09060b 0%,#050407 58%,#020203 100%)!important;
+  box-shadow:0 -18px 58px #000f,0 0 34px #d346a31a!important
+}
+.kt-gift-final{
+  padding:10px 8px 13px!important
+}
+.kt-gift-final-head{
+  min-height:86px!important;
+  padding:6px 3px 13px!important;
+  border-bottom:1px solid #81355f66!important
+}
+.kt-gift-final-brand{
+  gap:10px!important
+}
+.kt-gift-final-logo{
+  width:60px!important;
+  height:60px!important;
+  flex-basis:60px!important;
+  border-radius:18px!important;
+  font-size:35px!important;
+  background:
+    radial-gradient(circle at 34% 24%,rgba(255,114,240,.36),transparent 28%),
+    linear-gradient(145deg,#7e2487,#2a102f)!important;
+  border:1px solid #df57cc!important;
+  box-shadow:0 0 25px #d94ec73d,inset 0 0 18px #ffffff12!important
+}
+.kt-gift-final-brand h2{
+  font-size:26px!important;
+  color:#ffe27a!important;
+  text-shadow:0 0 13px #f2bd4f28!important
+}
+.kt-gift-final-brand p{
+  margin-top:6px!important;
+  font-size:10.5px!important;
+  color:#f0d8b8!important
+}
+.kt-gift-final-close{
+  min-width:78px!important;
+  height:48px!important;
+  border-radius:16px!important;
+  border:1px solid #a9438d!important;
+  background:linear-gradient(180deg,#1b0f1d,#0b080d)!important;
+  font-size:17px!important
+}
+.kt-gift-final-main{
+  grid-template-columns:90px minmax(0,1fr)!important;
+  gap:8px!important;
+  margin-top:10px!important
+}
+.kt-gift-final-side{
+  gap:4px!important;
+  padding:5px!important;
+  border-radius:18px!important;
+  border:1px solid #5a294c!important;
+  background:linear-gradient(180deg,#0c080e,#050406)!important
+}
+.kt-gift-final-cat{
+  min-height:76px!important;
+  padding:6px 3px!important;
+  border-radius:15px!important;
+  color:#d7a3dc!important
+}
+.kt-gift-final-cat i{
+  font-size:27px!important
+}
+.kt-gift-final-cat span{
+  margin-top:6px!important;
+  font-size:10px!important
+}
+.kt-gift-final-cat.on{
+  border-color:#ff5ec8!important;
+  background:
+    radial-gradient(circle at 50% 22%,rgba(255,77,204,.24),transparent 46%),
+    linear-gradient(145deg,#4b1438,#190a18)!important;
+  box-shadow:0 0 20px #ff4fc044,inset 0 0 16px #ff75d31c!important
+}
+.kt-gift-final-grid{
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  gap:5px!important
+}
+.kt-gift-final-card{
+  height:148px!important;
+  min-height:148px!important;
+  padding:5px 3px 7px!important;
+  border-radius:12px!important;
+  border:1px solid #79502f!important;
+  background:
+    radial-gradient(circle at 50% 26%,rgba(149,43,110,.19),transparent 42%),
+    linear-gradient(180deg,#0e090e,#050405)!important;
+  box-shadow:
+    inset 0 0 21px #000e,
+    0 0 0 1px #2f160d66,
+    0 0 12px #c68a2412!important
+}
+.kt-gift-final-card:active{
+  border-color:#ff67cb!important;
+  box-shadow:0 0 18px #ff59c33d,inset 0 0 18px #000d!important
+}
+.kt-gift-final-no{
+  left:4px!important;
+  top:4px!important;
+  min-width:20px!important;
+  height:20px!important;
+  border-radius:6px!important;
+  background:linear-gradient(180deg,#6a1d5c,#43163c)!important;
+  border:1px solid #9c3a86!important;
+  color:#ffe0f8!important;
+  font-size:9px!important;
+  box-shadow:0 0 8px #ff65d33a!important
+}
+.kt-gift-final-art{
+  height:84px!important;
+  margin:0 auto 5px!important;
+  border-radius:11px!important;
+  font-size:51px!important;
+  background:
+    radial-gradient(circle at 50% 44%,rgba(110,36,88,.40) 0%,rgba(43,17,39,.52) 48%,#070507 80%)!important;
+  box-shadow:
+    inset 0 0 18px #000c,
+    0 0 0 1px #72432b,
+    0 0 12px #c55e8b18!important;
+  filter:drop-shadow(0 4px 9px #0009)!important
+}
+.kt-gift-final-card:nth-child(5n+2) .kt-gift-final-art{
+  background:radial-gradient(circle at 50% 44%,rgba(91,59,196,.42),rgba(31,20,53,.60) 50%,#060406 80%)!important
+}
+.kt-gift-final-card:nth-child(5n+3) .kt-gift-final-art{
+  background:radial-gradient(circle at 50% 44%,rgba(190,109,27,.34),rgba(52,31,12,.58) 50%,#060406 80%)!important
+}
+.kt-gift-final-card b{
+  min-height:25px!important;
+  font-size:9px!important;
+  line-height:1.14!important;
+  font-weight:950!important;
+  color:#fff!important
+}
+.kt-gift-final-card strong{
+  margin-top:4px!important;
+  font-size:12px!important;
+  color:#ffd45d!important;
+  font-weight:950!important;
+  text-shadow:0 0 8px #d4932428!important
+}
+.kt-gift-final-pager{
+  margin-top:9px!important
+}
+.kt-gift-final-foot{
+  margin-top:8px!important;
+  padding:8px 9px!important
+}
+@media(max-width:410px){
+  .kt-gift-final{padding:8px 5px 10px!important}
+  .kt-gift-final-head{min-height:74px!important;padding-bottom:10px!important}
+  .kt-gift-final-brand{gap:7px!important}
+  .kt-gift-final-logo{width:48px!important;height:48px!important;flex-basis:48px!important;font-size:29px!important;border-radius:15px!important}
+  .kt-gift-final-brand h2{font-size:21px!important}
+  .kt-gift-final-brand p{font-size:8.5px!important;margin-top:4px!important}
+  .kt-gift-final-close{min-width:66px!important;height:42px!important;font-size:15px!important;padding:0 10px!important}
+  .kt-gift-final-main{grid-template-columns:70px minmax(0,1fr)!important;gap:5px!important;margin-top:8px!important}
+  .kt-gift-final-side{padding:3px!important;gap:3px!important}
+  .kt-gift-final-cat{min-height:62px!important;border-radius:12px!important;padding:5px 2px!important}
+  .kt-gift-final-cat i{font-size:21px!important}
+  .kt-gift-final-cat span{font-size:7.8px!important;margin-top:4px!important}
+  .kt-gift-final-grid{gap:3px!important}
+  .kt-gift-final-card{height:119px!important;min-height:119px!important;padding:4px 2px 5px!important;border-radius:9px!important}
+  .kt-gift-final-art{height:63px!important;font-size:38px!important;margin-bottom:4px!important;border-radius:8px!important}
+  .kt-gift-final-no{min-width:16px!important;height:16px!important;font-size:7px!important;left:3px!important;top:3px!important}
+  .kt-gift-final-card b{font-size:7.2px!important;min-height:21px!important}
+  .kt-gift-final-card strong{font-size:9.5px!important;margin-top:3px!important}
+  .kt-gift-final-pager{margin-top:7px!important}
+  .kt-gift-final-foot{padding:7px!important;margin-top:7px!important}
+  .kt-gift-final-foot span{font-size:7.5px!important}
+  .kt-gift-final-foot button{font-size:8px!important;min-height:32px!important}
+}
