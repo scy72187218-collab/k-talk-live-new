@@ -15,6 +15,12 @@ body{min-height:100dvh;padding:18px}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .card{min-height:118px;border:1px solid #ffffff1c;border-radius:20px;background:linear-gradient(145deg,#171922,#0c0d12);padding:16px;text-align:left;color:#fff}
 .card b{display:block;font-size:17px;margin-bottom:7px}.card span{font-size:28px;display:block;margin-bottom:10px}.card small{color:#bfc2ca;line-height:1.4}
+.giftbox{margin-top:14px;padding:14px;border-radius:20px;background:#101118;border:1px solid #ffffff18}
+.giftbox h3{margin:0 0 5px;font-size:17px}.giftbox p{margin:0 0 11px;color:#bfc2ca;font-size:12px}
+.gifts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.gift{min-height:82px;border:1px solid #ffffff1c;border-radius:16px;background:#191b24;color:#fff;font-weight:900}
+.gift span{display:block;font-size:28px;margin-bottom:5px}.gift small{display:block;color:#d4d6dc;font-size:10px}
+.counter{margin-top:10px;padding:10px 12px;border-radius:14px;background:#0a0b10;color:#ffe27a;font-size:13px;font-weight:900;text-align:center}
 .full{width:100%;margin-top:14px;height:54px;border:0;border-radius:17px;background:linear-gradient(135deg,#ff2c78,#a44cff);color:#fff;font-size:16px;font-weight:950}
 .out{width:100%;margin-top:9px;height:46px;border-radius:15px;border:1px solid #ffffff22;background:#181a22;color:#ddd;font-weight:900}
 </style>
@@ -22,15 +28,37 @@ body{min-height:100dvh;padding:18px}
 <body>
 <main class="wrap">
   <div class="head"><div class="brand"><span class="c">♛</span> <span class="k">K-Talk</span> <span class="l">관리자</span></div><div class="badge">안전 미리보기</div></div>
-  <div class="note"><b>관리자 화면 확인 모드</b><br>성인 기능, 라이브 방송, 비밀방, 선물 전송은 이 화면에서 작동하지 않습니다. 메뉴 배치와 화면 구성만 확인할 수 있습니다.</div>
+  <div class="note"><b>관리자 화면 확인 모드</b><br>성인 기능과 실제 결제는 작동하지 않습니다. 장미·선물은 관리자 테스트용으로 모두 눌러 확인할 수 있습니다.</div>
   <section class="grid">
     <button class="card" onclick="alert('화면 구성 확인용입니다.')"><span>🏠</span><b>홈 화면</b><small>메뉴와 배치 확인</small></button>
     <button class="card" onclick="alert('화면 구성 확인용입니다.')"><span>🎬</span><b>내 동영상</b><small>동영상 메뉴 위치 확인</small></button>
     <button class="card" onclick="alert('화면 구성 확인용입니다.')"><span>✨</span><b>뷰티·편집효과</b><small>버튼과 메뉴 구성 확인</small></button>
     <button class="card" onclick="alert('화면 구성 확인용입니다.')"><span>⚙️</span><b>설정</b><small>설정 화면 구성 확인</small></button>
   </section>
+  <section class="giftbox">
+    <h3>🌹 관리자 장미·선물 테스트</h3>
+    <p>작은 선물부터 큰 선물까지 전부 버튼을 눌러 테스트할 수 있습니다.</p>
+    <div class="gifts">
+      <button class="gift" onclick="testGift('장미 1송이',1)"><span>🌹</span>장미 1<small>테스트 보내기</small></button>
+      <button class="gift" onclick="testGift('장미 50송이',50)"><span>💐</span>장미 50<small>테스트 보내기</small></button>
+      <button class="gift" onclick="testGift('장미 100송이',100)"><span>🌹</span>장미 100<small>큰 선물 테스트</small></button>
+      <button class="gift" onclick="testGift('보물상자 500',500)"><span>🧰</span>보물상자<small>500 테스트</small></button>
+      <button class="gift" onclick="testGift('VIP 왕관 1000',1000)"><span>👑</span>VIP 왕관<small>1000 테스트</small></button>
+      <button class="gift" onclick="testGift('대형 선물 5000',5000)"><span>🎁</span>대형 선물<small>5000 테스트</small></button>
+    </div>
+    <div id="giftCounter" class="counter">테스트 사용 합계: 0</div>
+  </section>
   <button class="full" onclick="location.href='index.html'">일반 화면 보기</button>
   <button class="out" onclick="try{localStorage.removeItem('ktalk_admin_preview')}catch(e){} location.href='login.html'">관리자 미리보기 자동입장 끄기</button>
 </main>
+<script>
+let testGiftTotal=0;
+function testGift(name,count){
+  testGiftTotal+=Number(count)||0;
+  const el=document.getElementById('giftCounter');
+  if(el)el.textContent='테스트 사용 합계: '+testGiftTotal.toLocaleString('ko-KR');
+  alert('✅ '+name+' 테스트가 작동했습니다. 실제 결제나 전송은 되지 않습니다.');
+}
+</script>
 </body>
 </html>
