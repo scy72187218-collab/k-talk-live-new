@@ -496,12 +496,26 @@ window.playCreatorPreviewWithSound=function(){
   var preview=document.getElementById('ktCreatorPreview');
   var btn=document.getElementById('ktCreatorSoundPlay');
   if(!preview)return;
-  preview.muted=false;
-  preview.volume=1;
+  try{
+    preview.defaultMuted=false;
+    preview.muted=false;
+    preview.removeAttribute('muted');
+    preview.volume=1;
+  }catch(e){}
   var p=preview.play();
   if(p&&p.then){
-    p.then(function(){if(btn)btn.style.display='none';})
-     .catch(function(){if(btn){btn.style.display='flex';btn.textContent='▶ 음악 재생';}});
+    p.then(function(){
+      if(btn){
+        btn.style.display='flex';
+        btn.textContent='🔊 소리 켜짐';
+        setTimeout(function(){if(!preview.paused)btn.style.display='none';},900);
+      }
+    }).catch(function(){
+      if(btn){
+        btn.style.display='flex';
+        btn.textContent='🔊 눌러서 소리 재생';
+      }
+    });
   }
 };
 
@@ -523,38 +537,57 @@ window.handleMyVideoPick=function(input){
   if(preview){
     var soundBtn=document.getElementById('ktCreatorSoundPlay');
     preview.pause();
-    preview.muted=false;
-    preview.volume=1;
+    try{
+      preview.defaultMuted=false;
+      preview.muted=false;
+      preview.removeAttribute('muted');
+      preview.volume=1;
+    }catch(e){}
     preview.controls=true;
     preview.playsInline=true;
+    preview.preload='metadata';
     preview.onerror=function(){
       preview.style.display='none';
       if(soundBtn)soundBtn.style.display='none';
       if(fallback)fallback.style.display='grid';
     };
-    preview.onloadeddata=function(){
+    preview.onloadedmetadata=function(){
+      try{
+        var t=(isFinite(preview.duration)&&preview.duration>0)?Math.min(0.08,Math.max(0.02,preview.duration/30)):0.03;
+        preview.currentTime=t;
+      }catch(e){}
+      preview.pause();
       preview.style.display='block';
-      preview.muted=false;
-      preview.volume=1;
-      var p=preview.play();
-      if(p&&p.catch){
-        p.then(function(){
-          if(soundBtn)soundBtn.style.display='none';
-        }).catch(function(){
-          if(soundBtn){
-            soundBtn.style.display='flex';
-            soundBtn.textContent='▶ 음악 재생';
-          }
-        });
+      if(soundBtn){
+        soundBtn.style.display='flex';
+        soundBtn.textContent='🔊 눌러서 소리 재생';
+      }
+    };
+    preview.onloadeddata=function(){
+      preview.pause();
+      preview.style.display='block';
+      if(soundBtn){
+        soundBtn.style.display='flex';
+        soundBtn.textContent='🔊 눌러서 소리 재생';
       }
     };
     preview.onplay=function(){
-      if(soundBtn)soundBtn.style.display='none';
+      try{
+        preview.defaultMuted=false;
+        preview.muted=false;
+        preview.removeAttribute('muted');
+        preview.volume=1;
+      }catch(e){}
+      if(soundBtn){
+        soundBtn.style.display='flex';
+        soundBtn.textContent='🔊 소리 켜짐';
+        setTimeout(function(){if(!preview.paused)soundBtn.style.display='none';},900);
+      }
     };
     preview.onpause=function(){
       if(!preview.ended&&soundBtn){
         soundBtn.style.display='flex';
-        soundBtn.textContent='▶ 재생';
+        soundBtn.textContent='🔊 눌러서 소리 재생';
       }
     };
     preview.src=ktCreatorBlobUrl;
