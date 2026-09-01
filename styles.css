@@ -3218,3 +3218,24 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   .kt-bg-choice .kt-bg-thumb{width:49px!important;height:49px!important;font-size:23px!important}
   .kt-bg-choice small{font-size:7.4px!important}
 }
+
+
+/* 2026-09-02 실제 얼굴추적/배경분리 캔버스 */
+#ktBackgroundCanvas.kt-background-canvas{
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  display:none;
+  z-index:2!important;
+  pointer-events:none!important;
+  object-fit:cover!important;
+  background:#000;
+}
+.creator .shade{z-index:3!important}
+.creator-top,.creator-tools,.creator-bottom,.live-prep{z-index:12!important}
+#ktFaceEffectLayer{z-index:13!important}
+.kt-face-anchor{
+  transition:left .08s linear,top .08s linear,width .08s linear,height .08s linear,opacity .08s linear;
+  will-change:left,top,width,height,opacity;
+}
