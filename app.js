@@ -904,14 +904,25 @@ window.setBeautyControlValue=function(value){
   var labels={skin:'부드럽게',face:'얼굴형',eyes:'눈',nose:'코',mouth:'입술',tone:'피부',bright:'밝기',sharp:'선명도'};
   var keys={skin:'beautySkin',face:'beautyFace',eyes:'beautyEyes',nose:'beautyNose',mouth:'beautyMouth',tone:'beautyTone',bright:'beautyBright',sharp:'beautySharp'};
   state[keys[kind]]=value;
-  if(kind==='skin'||kind==='bright'||kind==='sharp')setBeautySlider(kind,value);
-  if(kind==='tone'){
-    state.beautySkin=value;
-    setBeautySlider('skin',value);
-  }
+  applyBeautyPreview();
   var n=document.getElementById('beautyControlName'),v=document.getElementById('beautyControlValue');
   if(n)n.textContent=labels[kind]||'뷰티';
   if(v)v.textContent=value;
+};
+
+window.applyBeautyPreview=function(){
+  if(!camera)return;
+  var skin=Number(state.beautySkin||1),bright=Number(state.beautyBright||1),sharp=Number(state.beautySharp||1);
+  var face=Number(state.beautyFace||50),eyes=Number(state.beautyEyes||50),nose=Number(state.beautyNose||50);
+  var mouth=Number(state.beautyMouth||50),tone=Number(state.beautyTone||1);
+  var brightness=.96+(bright*.0024)+(eyes-50)*.0007;
+  var saturation=.94+(sharp*.0016)+(mouth-50)*.0032;
+  var contrast=.94+(sharp*.0015)+(eyes-50)*.0012+(nose-50)*.0009;
+  var blur=Math.max(0,(skin-1)*.006);
+  var sepia=Math.max(0,(tone-50)*.0025);
+  var faceScale=1+(face-50)*.0012;
+  camera.style.setProperty('filter','brightness('+brightness.toFixed(3)+') saturate('+saturation.toFixed(3)+') contrast('+contrast.toFixed(3)+') blur('+blur.toFixed(2)+'px) sepia('+sepia.toFixed(3)+')','important');
+  camera.style.setProperty('transform','scaleX(-1) scale('+faceScale.toFixed(3)+')','important');
 };
 
 window.adjustBeautyControl=function(step){
@@ -942,12 +953,7 @@ window.setBeautySlider=function(kind,value){
   if(kind==='skin')state.beautySkin=value;
   if(kind==='bright')state.beautyBright=value;
   if(kind==='sharp')state.beautySharp=value;
-  var skin=state.beautySkin||0, bright=state.beautyBright||0, sharp=state.beautySharp||0;
-  var brightness=(1+bright/260).toFixed(2);
-  var saturation=(1+sharp/350).toFixed(2);
-  var contrast=(1+sharp/500).toFixed(2);
-  var blur=(skin/180).toFixed(2);
-  if(camera)camera.style.filter='brightness('+brightness+') saturate('+saturation+') contrast('+contrast+') blur('+blur+'px)';
+  applyBeautyPreview();
   var val=document.getElementById(kind==='skin'?'beautySkinVal':kind==='bright'?'beautyBrightVal':'beautySharpVal');
   if(val)val.textContent=value;
 };
@@ -956,7 +962,7 @@ window.resetBeautyAll=function(){
   state.beautyMode='off';state.beautyControl='skin';state.beautySkin=1;state.beautyFace=50;state.beautyEyes=50;state.beautyNose=50;state.beautyMouth=50;state.beautyTone=1;state.beautyBright=1;state.beautySharp=1;
   creator.classList.remove('beauty-natural','beauty-bright','beauty-soft','beauty-glow');
   creator.removeAttribute('data-beauty-char');
-  if(camera)camera.style.filter='brightness(1.12) contrast(.95) saturate(1.02)';
+  if(camera){camera.style.removeProperty('filter');camera.style.removeProperty('transform');}
   openBeautyPanel();
 };
 
