@@ -766,8 +766,223 @@ window.openGifts=function(){
   showSheet('',html);
   sheet.classList.add('gift-exact');
 };
-window.selectTreasure=function(n){ktAnnounceEvent('gift',{name:'보물상자',count:n});alert('보물상자 '+n+' 선택');};
-window.openTreasure=function(){showSheet('🎁 보물상자','<div class="premium-grid"><button class="premium" onclick="selectTreasure(50)"><span>🎁</span><b>보물상자 50</b></button><button class="premium" onclick="selectTreasure(100)"><span>🎁</span><b>보물상자 100</b></button><button class="premium" onclick="selectTreasure(150)"><span>🎁</span><b>보물상자 150</b></button></div>');};
+window.ktTreasureTimer=null;
+
+window.ktTreasureArt=function(){
+  return '<span class="kt-chest-art"><i class="kt-chest-lid"></i><i class="kt-chest-body"></i><b class="kt-chest-lock">◆</b><em class="kt-chest-shine">✦</em></span>';
+};
+
+window.ktTreasureFormat=function(ms){
+  var s=Math.max(0,Math.ceil(ms/1000));
+  var m=Math.floor(s/60);
+  s=s%60;
+  return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+};
+
+window.ktGetTreasure=function(){
+  try{
+    var raw=localStorage.getItem('ktalk_active_treasure');
+    return raw?JSON.parse(raw):null;
+  }catch(e){return state.activeTreasure||null;}
+};
+
+window.ktGetTreasureQueue=function(){
+  try{
+    var raw=localStorage.getItem('ktalk_treasure_queue');
+    return raw?JSON.parse(raw):[];
+  }catch(e){return state.treasureQueue||[];}
+};
+
+window.ktSaveTreasureQueue=function(q){
+  state.treasureQueue=q||[];
+  try{localStorage.setItem('ktalk_treasure_queue',JSON.stringify(state.treasureQueue));}catch(e){}
+};
+
+window.ktSaveTreasure=function(t){
+  state.activeTreasure=t||null;
+  try{
+    if(t)localStorage.setItem('ktalk_active_treasure',JSON.stringify(t));
+    else localStorage.removeItem('ktalk_active_treasure');
+  }catch(e){}
+  ktRenderTreasure();
+  ktUpdateTreasureLed();
+};
+
+window.ktStartNextTreasure=function(){
+  var q=ktGetTreasureQueue();
+  if(!q.length){ktSaveTreasure(null);return;}
+  var next=q.shift();
+  ktSaveTreasureQueue(q);
+  next.placedAt=Date.now();
+  next.unlockAt=Date.now()+150000;
+  next.claimed=false;
+  ktSaveTreasure(next);
+  ktSpeak('새 보물상자가 올라왔습니다. 2분 30초 후 받을 수 있습니다.');
+};
+
+window.placeTreasureChest=function(n,sender,roomTitle){
+  n=parseInt(n,10)||50;
+  var title=roomTitle||(state.currentLiveRoomTitle||state.currentViewRoomTitle||'K-Talk LIVE');
+  var item={
+    id:'treasure-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),
+    amount:n,
+    sender:sender||'게스트',
+    roomTitle:title,
+    placedAt:Date.now(),
+    unlockAt:Date.now()+150000,
+    claimed:false
+  };
+  var current=ktGetTreasure();
+  if(current&&!current.claimed){
+    var q=ktGetTreasureQueue();
+    q.push(item);
+    ktSaveTreasureQueue(q);
+    ktUpdateTreasureLed();
+    ktRenderTreasure();
+    ktSpeak('보물상자가 대기열에 추가되었습니다.');
+    alert('보물상자가 호스트 방에 추가되었습니다. 앞 상자가 끝나면 이어서 열립니다.');
+    return;
+  }
+  ktSaveTreasure(item);
+  ktSpeak('보물상자가 올라왔습니다. 2분 30초 후 누구든지 받을 수 있습니다.');
+  alert('보물상자가 호스트 방에 올라갔습니다. 2분 30초 후 받을 수 있습니다.');
+};
+
+window.selectTreasure=function(n){
+  closeSheet();
+  placeTreasureChest(n,'게스트',state.currentLiveRoomTitle||state.currentViewRoomTitle||'K-Talk LIVE');
+};
+
+window.openTreasure=function(){
+  var chest=function(n){
+    return '<button class="kt-treasure-pick" onclick="selectTreasure('+n+')">'
+      +ktTreasureArt()
+      +'<b>보물상자 '+n+'</b>'
+      +'<small>호스트 방에 올리기</small>'
+      +'</button>';
+  };
+  var html='<div class="kt-treasure-shop">'
+    +'<div class="kt-treasure-help"><b>🗝️ 보물상자</b><span>호스트 머리 위에 2분 30초 동안 표시됩니다.<br>시간이 끝나면 누구든지 눌러 받을 수 있습니다.</span></div>'
+    +'<div class="kt-treasure-picks">'+chest(50)+chest(100)+chest(150)+'</div>'
+    +'</div>';
+  showSheet('보물상자 올리기',html);
+};
+
+window.ktTreasureStatus=function(t){
+  if(!t)return null;
+  var left=t.unlockAt-Date.now();
+  return {left:left,ready:left<=0};
+};
+
+window.ktUpdateTreasureLed=function(){
+  var led=document.getElementById('globalLed');
+  if(!led)return;
+  var t=ktGetTreasure();
+  if(!t){
+    led.classList.remove('treasure-on','treasure-ready');
+    led.innerHTML='♛ K-Talk · 신곡 광고 신청하세요! 🎵 🎤';
+    return;
+  }
+  var st=ktTreasureStatus(t);
+  var q=ktGetTreasureQueue();
+  led.classList.add('treasure-on');
+  led.classList.toggle('treasure-ready',st.ready);
+  led.innerHTML=st.ready
+    ?'🗝️ 보물상자 열렸습니다! 지금 누르면 방으로 이동'+(q.length?' · 대기 '+q.length+'개':'')
+    :'🗝️ 보물상자 떴습니다 · '+ktTreasureFormat(st.left)+' · 누르면 방으로 이동'+(q.length?' · 대기 '+q.length+'개':'');
+};
+
+window.handleLedClick=function(){
+  var t=ktGetTreasure();
+  if(t){goToTreasureRoom();return;}
+  if(window.openAd)openAd();
+};
+
+window.goToTreasureRoom=function(){
+  var t=ktGetTreasure();
+  if(!t){if(window.openAd)openAd();return;}
+  if(document.getElementById('ktLiveTreasureZone')){
+    var z=document.getElementById('ktLiveTreasureZone');
+    z.classList.add('attention');
+    setTimeout(function(){z.classList.remove('attention');},1200);
+    ktRenderTreasure();
+    return;
+  }
+  state.currentViewRoomTitle=t.roomTitle;
+  document.body.classList.remove('kt-home');
+  screen.innerHTML='<section class="kt-treasure-view-room">'
+    +'<div class="kt-view-room-head"><b>🔴 '+t.roomTitle+'</b><button onclick="home()">나가기</button></div>'
+    +'<div class="kt-view-host"><div class="kt-view-host-avatar">♛</div><b>HOST LIVE</b><span>보물상자 이벤트 진행 중</span></div>'
+    +'<div id="ktViewerTreasureZone" class="kt-live-treasure-zone viewer-zone"></div>'
+    +'<div class="kt-view-room-note">상단 보물상자가 열릴 때까지 기다린 뒤 눌러서 받으세요.</div>'
+    +'</section>';
+  ktRenderTreasure();
+};
+
+window.claimTreasureChest=function(){
+  var t=ktGetTreasure();
+  if(!t)return;
+  var st=ktTreasureStatus(t);
+  if(!st.ready){
+    var msg='아직 '+ktTreasureFormat(st.left)+' 남았습니다.';
+    ktSpeak(msg);
+    alert(msg);
+    return;
+  }
+  t.claimed=true;
+  t.claimedAt=Date.now();
+  ktSpeak('보물상자 '+t.amount+'개를 받았습니다.');
+  alert('🎉 보물상자 '+t.amount+'개를 받았습니다!');
+  ktSaveTreasure(null);
+  setTimeout(function(){ktStartNextTreasure();},900);
+};
+
+window.ktRenderTreasure=function(){
+  clearInterval(window.ktTreasureTimer);
+  var t=ktGetTreasure();
+  var zones=[
+    document.getElementById('ktLiveTreasureZone'),
+    document.getElementById('ktViewerTreasureZone')
+  ].filter(Boolean);
+  if(!zones.length){ktUpdateTreasureLed();return;}
+  if(!t){
+    zones.forEach(function(z){z.innerHTML='';});
+    ktUpdateTreasureLed();
+    return;
+  }
+  var render=function(){
+    var active=ktGetTreasure();
+    if(!active){zones.forEach(function(z){z.innerHTML='';});clearInterval(window.ktTreasureTimer);ktUpdateTreasureLed();return;}
+    var st=ktTreasureStatus(active);
+    var q=ktGetTreasureQueue();
+    zones.forEach(function(z){
+      z.innerHTML='<button class="kt-live-treasure '+(st.ready?'ready':'locked')+'" onclick="claimTreasureChest()">'
+        +'<span class="kt-treasure-caption">'+(st.ready?'지금 받기':'기다려 주세요')+'</span>'
+        +ktTreasureArt()
+        +'<strong>'+active.amount+'개</strong>'
+        +'<b class="kt-treasure-time">'+(st.ready?'열림!':ktTreasureFormat(st.left))+'</b>'
+        +(q.length?'<small>다음 상자 '+q.length+'개 대기</small>':'')
+        +'</button>';
+    });
+    ktUpdateTreasureLed();
+    if(st.ready&&!active.readyAnnounced){
+      active.readyAnnounced=true;
+      try{localStorage.setItem('ktalk_active_treasure',JSON.stringify(active));}catch(e){}
+      ktSpeak('보물상자가 열렸습니다. 지금 눌러서 받을 수 있습니다.');
+    }
+  };
+  render();
+  window.ktTreasureTimer=setInterval(render,1000);
+};
+
+window.addEventListener('storage',function(e){
+  if(e.key==='ktalk_active_treasure'||e.key==='ktalk_treasure_queue'){
+    ktRenderTreasure();
+    ktUpdateTreasureLed();
+  }
+});
+
+setTimeout(function(){ktUpdateTreasureLed();ktRenderTreasure();},300);
 window.selectCoinCharge=function(amount,base,bonus){
   var total=base+bonus;
   ktSpeak('장미 '+base.toLocaleString('ko-KR')+'개, 보너스 '+bonus.toLocaleString('ko-KR')+'개, 총 '+total.toLocaleString('ko-KR')+'개입니다.');
