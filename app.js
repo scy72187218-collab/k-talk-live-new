@@ -697,7 +697,8 @@ window.postCreatorRecording=async function(){
       posted:true,
       postedAt:Date.now(),
       ownerId:(window.ktVideoOwner?ktVideoOwner().id:'local'),
-      ownerName:(window.ktVideoOwner?ktVideoOwner().name:'내 계정')
+      ownerName:(window.ktVideoOwner?ktVideoOwner().name:'내 계정'),
+      ownerSubAccount:(window.ktVideoOwner?ktVideoOwner().subAccount||'':'')
     };
     store.put(item);
     await new Promise(function(resolve,reject){
@@ -787,6 +788,7 @@ window.postStoredVideo=async function(id,btn){
       var owner=window.ktVideoOwner?ktVideoOwner():{id:'local',name:'내 계정'};
       item.ownerId=owner.id;
       item.ownerName=owner.name;
+      item.ownerSubAccount=owner.subAccount||'';
       store.put(item);
     };
     tx.oncomplete=function(){
@@ -2274,12 +2276,27 @@ window.ktCurrentAccountId=function(){
   return String(id||'').trim();
 };
 window.ktVideoOwner=function(){
+  var sub=window.ktGetSelectedSubAccount?ktGetSelectedSubAccount():'';
+  if(sub){
+    var info=window.ktSubAccountInfo?ktSubAccountInfo(sub):{key:sub,name:sub};
+    var p=null;
+    try{
+      var raw=localStorage.getItem('ktalk_profile_v1:sub:'+sub);
+      if(raw)p=JSON.parse(raw)||null;
+    }catch(e){}
+    return {
+      id:'sub:'+sub,
+      name:(p&&p.name?String(p.name):String(info.name||sub)),
+      subAccount:sub
+    };
+  }
   var name=window.ktCurrentVerifiedAccountName?ktCurrentVerifiedAccountName():'';
   var id=window.ktCurrentAccountId?ktCurrentAccountId():'';
   return {id:id||name||'local',name:name||'내 계정'};
 };
 window.ktIsNoChargeGiftAccount=function(){
-  var n=ktCurrentVerifiedAccountName().replace(/\s+/g,'');
+  var owner=window.ktVideoOwner?ktVideoOwner():{name:''};
+  var n=String(owner.name||ktCurrentVerifiedAccountName()||'').replace(/\s+/g,'');
   return n==='하이네'||n==='K-톡하이네'||n==='K-톡하이네2'||n==='태권이'||n==='K-톡태권'||n==='K-톡태권1';
 };
 window.ktRoseBalanceLabel=function(){
