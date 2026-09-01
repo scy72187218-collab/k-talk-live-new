@@ -223,8 +223,9 @@ window.openBenefitHub=function(){
       +'<button onclick="openBenefitAlerts()"><span>🔔</span><b>알림</b><small>받은 혜택 · 지급 안내</small></button>'
     +'</div>'
     +'<div class="kt-benefit-section"><div class="kt-benefit-section-title">빠른 이용</div>'
+      +'<button onclick="openSubscriberBenefits()">💎 구독자 혜택 <em>›</em></button>'
       +'<button onclick="openSubs()">👑 팬클럽 혜택 <em>›</em></button>'
-      +'<button onclick="openCharge()">🪙 장미 충전 <em>›</em></button>'
+      +'<button onclick="openCharge()">🪙 장미·코인 충전 <em>›</em></button>'
       +'<button onclick="openRewardCenter()">🎯 오늘 받을 수 있는 보상 <em>›</em></button>'
     +'</div>'
     +'</div>';
@@ -233,6 +234,20 @@ window.openBenefitHub=function(){
 
 window.openReceiveBenefits=function(){
   showSheet('🎉 혜택 받기','<div class="rowbox"><b>오늘의 출석 보상</b><br>출석 · 이벤트 · 방송 참여 보상을 확인하는 곳입니다.</div><div class="rowbox"><b>받을 수 있는 혜택</b><br>받을 수 있는 보상이 생기면 이곳에 표시됩니다.</div>');
+};
+
+window.openSubscriberBenefits=function(){
+  var html='<div class="kt-subscriber-benefits">'
+    +'<div class="kt-sub-hero"><span>💎</span><div><b>K-Talk 구독자 혜택</b><small>충전부터 방송방 이용까지 한 번에</small></div></div>'
+    +'<div class="kt-sub-benefit-list">'
+      +'<div><span>🪙</span><b>장미·코인 충전 혜택</b><small>구독자는 충전할 때 일반회원보다 추가 혜택을 받을 수 있습니다.</small></div>'
+      +'<div><span>🚪</span><b>모든 방송방 입장</b><small>1인 방송 · 13명 방송 · 구독자방 · 비밀방 등 이용 가능한 방에 자유롭게 들어갈 수 있습니다.</small></div>'
+      +'<div><span>🎥</span><b>모든 방송방 만들기</b><small>구독자는 방송 종류를 골라 직접 방을 만들 수 있습니다.</small></div>'
+      +'<div><span>👑</span><b>구독자 전용 혜택</b><small>구독자 전용방과 팬클럽 · 이벤트 · 보상 기능을 이용할 수 있습니다.</small></div>'
+    +'</div>'
+    +'<button class="act" onclick="openCharge()">🪙 충전 혜택 보러가기</button>'
+    +'</div>';
+  showSheet('💎 구독자 혜택',html);
 };
 
 window.openGiveBenefits=function(){
