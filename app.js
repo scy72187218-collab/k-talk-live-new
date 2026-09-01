@@ -299,6 +299,7 @@ window.startCreatorRecording=async function(){
 
   ktCreatorChunks=[];
   ktCreatorBlob=null;
+  ktImportedVideoName='';
   if(ktCreatorBlobUrl){try{URL.revokeObjectURL(ktCreatorBlobUrl);}catch(e){} ktCreatorBlobUrl='';}
 
   try{
@@ -433,6 +434,144 @@ window.saveCreatorRecording=async function(){
     if(e&&e.name==='AbortError')return;
     alert('동영상 저장을 완료하지 못했습니다.');
   }
+};
+
+var ktImportedVideoName='';
+var ktLibraryPlayUrl='';
+
+window.openMyVideoPicker=function(){
+  var input=document.getElementById('ktMyVideoInput');
+  if(input){
+    input.value='';
+    input.click();
+  }
+};
+
+window.handleMyVideoPick=function(input){
+  var file=input&&input.files&&input.files[0];
+  if(!file)return;
+  if(!String(file.type||'').startsWith('video/')){
+    alert('동영상 파일을 선택해 주세요.');
+    return;
+  }
+  if(ktCreatorBlobUrl){try{URL.revokeObjectURL(ktCreatorBlobUrl);}catch(e){}}
+  ktCreatorBlob=file;
+  ktImportedVideoName=file.name||('내 동영상 '+Date.now());
+  ktCreatorBlobUrl=URL.createObjectURL(file);
+
+  var preview=document.getElementById('ktCreatorPreview');
+  var fallback=document.getElementById('ktCreatorPreviewFallback');
+  if(fallback)fallback.style.display='none';
+  if(preview){
+    preview.pause();
+    preview.muted=false;
+    preview.controls=true;
+    preview.src=ktCreatorBlobUrl;
+    preview.load();
+    preview.style.display='block';
+    preview.play().catch(function(){});
+  }
+  creator.classList.remove('creator-recording','live-prep-open');
+  creator.classList.add('show','creator-review');
+};
+
+function ktOpenVideoDB(){
+  return new Promise(function(resolve,reject){
+    if(!('indexedDB' in window)){reject(new Error('indexedDB unavailable'));return;}
+    var req=indexedDB.open('KTALK_VIDEO_DB',1);
+    req.onupgradeneeded=function(){
+      var db=req.result;
+      if(!db.objectStoreNames.contains('videos')){
+        db.createObjectStore('videos',{keyPath:'id'});
+      }
+    };
+    req.onsuccess=function(){resolve(req.result);};
+    req.onerror=function(){reject(req.error||new Error('db error'));};
+  });
+}
+
+window.postCreatorRecording=async function(){
+  if(!ktCreatorBlob){alert('올릴 동영상이 없습니다.');return;}
+  try{
+    var db=await ktOpenVideoDB();
+    var tx=db.transaction('videos','readwrite');
+    var store=tx.objectStore('videos');
+    var item={
+      id:'video-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),
+      name:ktImportedVideoName||('K-Talk 동영상 '+new Date().toLocaleString('ko-KR')),
+      type:ktCreatorBlob.type||'video/webm',
+      blob:ktCreatorBlob,
+      createdAt:Date.now()
+    };
+    store.put(item);
+    await new Promise(function(resolve,reject){
+      tx.oncomplete=resolve;
+      tx.onerror=function(){reject(tx.error||new Error('save error'));};
+      tx.onabort=function(){reject(tx.error||new Error('save abort'));};
+    });
+    db.close();
+    ktSpeak('내 동영상에 올렸습니다.');
+    alert('✅ 내 동영상에 올렸습니다.');
+    closeCreator();
+    if(window.openMyVideoLibrary)openMyVideoLibrary();
+  }catch(e){
+    alert('이 기기에서는 동영상을 보관하지 못했습니다.');
+  }
+};
+
+window.openMyVideoLibrary=async function(){
+  try{
+    var db=await ktOpenVideoDB();
+    var tx=db.transaction('videos','readonly');
+    var req=tx.objectStore('videos').getAll();
+    req.onsuccess=function(){
+      var items=(req.result||[]).sort(function(a,b){return b.createdAt-a.createdAt;});
+      var html='<div class="kt-myvideo-head"><b>🎬 내 동영상</b><button onclick="closeSheet();openCreator();setTimeout(openMyVideoPicker,120)">＋ 휴대폰 동영상 올리기</button></div>';
+      if(!items.length){
+        html+='<div class="rowbox"><b>아직 올린 동영상이 없습니다.</b><br>휴대폰에 찍어 놓은 동영상을 선택해서 올릴 수 있습니다.</div>';
+      }else{
+        html+='<div class="kt-myvideo-list">'+items.map(function(v){
+          var d=new Date(v.createdAt);
+          return '<div class="kt-myvideo-row">'
+            +'<button class="play" onclick="playStoredVideo(\''+v.id+'\')"><span>▶</span><b>'+String(v.name||'내 동영상').replace(/</g,'&lt;')+'</b><small>'+d.toLocaleDateString('ko-KR')+'</small></button>'
+            +'<button class="trash" onclick="deleteStoredVideo(\''+v.id+'\')">삭제</button>'
+            +'</div>';
+        }).join('')+'</div>';
+      }
+      showSheet('내 동영상',html);
+      db.close();
+    };
+    req.onerror=function(){db.close();alert('내 동영상을 불러오지 못했습니다.');};
+  }catch(e){
+    showSheet('내 동영상','<div class="rowbox"><b>휴대폰 동영상 선택</b><br>이 브라우저에서는 목록 저장이 제한될 수 있습니다.</div><button class="act" onclick="closeSheet();openCreator();setTimeout(openMyVideoPicker,120)">휴대폰 동영상 선택</button>');
+  }
+};
+
+window.playStoredVideo=async function(id){
+  try{
+    var db=await ktOpenVideoDB();
+    var tx=db.transaction('videos','readonly');
+    var req=tx.objectStore('videos').get(id);
+    req.onsuccess=function(){
+      var item=req.result;
+      db.close();
+      if(!item||!item.blob){alert('동영상을 찾지 못했습니다.');return;}
+      if(ktLibraryPlayUrl){try{URL.revokeObjectURL(ktLibraryPlayUrl);}catch(e){}}
+      ktLibraryPlayUrl=URL.createObjectURL(item.blob);
+      showSheet('동영상 재생','<div class="kt-myvideo-player"><video controls autoplay playsinline src="'+ktLibraryPlayUrl+'"></video><b>'+String(item.name||'내 동영상').replace(/</g,'&lt;')+'</b></div>');
+    };
+    req.onerror=function(){db.close();alert('동영상을 재생하지 못했습니다.');};
+  }catch(e){alert('동영상을 재생하지 못했습니다.');}
+};
+
+window.deleteStoredVideo=async function(id){
+  try{
+    var db=await ktOpenVideoDB();
+    var tx=db.transaction('videos','readwrite');
+    tx.objectStore('videos').delete(id);
+    tx.oncomplete=function(){db.close();openMyVideoLibrary();};
+    tx.onerror=function(){db.close();alert('삭제하지 못했습니다.');};
+  }catch(e){alert('삭제하지 못했습니다.');}
 };
 
 window.prepTap=async function(el,name){
