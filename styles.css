@@ -331,10 +331,10 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   display:block;
   font-size:13px;
 }
-.creator.beauty-natural video{filter:brightness(1.05) saturate(1.04) contrast(.98)!important}
-.creator.beauty-bright video{filter:brightness(1.16) saturate(1.03) contrast(.96)!important}
-.creator.beauty-soft video{filter:brightness(1.08) saturate(.94) contrast(.91)!important}
-.creator.beauty-glow video{filter:brightness(1.13) saturate(1.12) contrast(.97)!important}
+.creator.beauty-natural video{filter:brightness(1.10) saturate(1.02) contrast(.95)!important}
+.creator.beauty-bright video{filter:brightness(1.18) saturate(1.02) contrast(.94)!important}
+.creator.beauty-soft video{filter:brightness(1.12) saturate(.96) contrast(.93)!important}
+.creator.beauty-glow video{filter:brightness(1.15) saturate(1.08) contrast(.95)!important}
 .creator[data-beauty-char]::after{
   content:attr(data-beauty-char);
   position:absolute;
