@@ -1330,18 +1330,26 @@ window.giftSendByIndex=function(i){
 window.filterGift25=function(category,btn){
   var wrap=document.querySelector('.kt-gift25-grid');
   if(!wrap)return;
+  var picks={
+    '꽃/하트':[0,1,2,3,12],
+    '프리미엄':[5,6,18,23,24],
+    '연출/특수':[13,14,16,17,19],
+    '럭셔리':[7,8,9,19,20],
+    '보물/패키지':[4,21,22,20,24],
+    'VIP 전용':[6,23,24]
+  };
   [].slice.call(document.querySelectorAll('.kt-gift25-cat')).forEach(function(b){b.classList.remove('on');});
   if(btn)btn.classList.add('on');
   [].slice.call(wrap.querySelectorAll('.kt-gift25-card')).forEach(function(card){
-    var cat=card.getAttribute('data-cat');
-    var show=category==='전체'||cat===category||(category==='프리미엄'&&cat==='VIP 전용');
+    var idx=parseInt(card.getAttribute('data-index'),10);
+    var show=category==='전체'||(picks[category]&&picks[category].indexOf(idx)>-1);
     card.style.display=show?'flex':'none';
   });
 };
 
 window.openGifts=function(){
   var cards=window.ktalkGifts.map(function(g,i){
-    return '<button class="kt-gift25-card" data-cat="'+g[3]+'" onclick="giftSendByIndex('+i+')">'
+    return '<button class="kt-gift25-card" data-index="'+i+'" data-cat="'+g[3]+'" onclick="giftSendByIndex('+i+')">'
       +'<span class="kt-gift25-no">'+(i+1)+'</span>'
       +'<span class="kt-gift25-art">'+g[2]+'</span>'
       +'<b>'+g[0]+'</b>'
