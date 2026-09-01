@@ -382,3 +382,45 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
 .creator.fx-party video{filter:saturate(1.55) contrast(1.08)!important}
 .creator.fx-disco video{filter:saturate(1.6) hue-rotate(55deg)!important}
 .creator.fx-dream video{filter:brightness(1.12) saturate(.9) contrast(.88)!important}
+
+
+/* 간단 라이브 설정 */
+.kt-live-settings{display:grid;gap:8px;padding:2px 0 8px}
+.kt-setting-row{
+  min-height:58px;
+  display:grid;
+  grid-template-columns:34px 1fr auto;
+  align-items:center;
+  gap:10px;
+  width:100%;
+  padding:10px 12px;
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:15px;
+  background:rgba(255,255,255,.055);
+  color:#fff;
+  text-align:left;
+}
+.kt-setting-row>span{font-size:21px;text-align:center}
+.kt-setting-row>b{font-size:14px;font-weight:900}
+.kt-setting-row>em{font-style:normal;color:#cfd0d8;font-size:13px}
+.kt-switch{
+  width:44px;
+  height:26px;
+  border:0;
+  border-radius:999px;
+  background:#666a;
+  position:relative;
+}
+.kt-switch:after{
+  content:"";
+  position:absolute;
+  top:3px;
+  left:3px;
+  width:20px;
+  height:20px;
+  border-radius:50%;
+  background:#fff;
+  transition:.18s;
+}
+.kt-switch.on{background:#46d781}
+.kt-switch.on:after{left:21px}
