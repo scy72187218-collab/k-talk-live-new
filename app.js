@@ -52,6 +52,50 @@ window.ktAnnounceEvent=function(type,data){
   }
 };
 
+window.ktTodayKey=function(){
+  var d=new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+};
+
+window.ktAttendanceHeartCount=function(){
+  try{return parseInt(localStorage.getItem('ktalk_attendance_hearts')||'0',10)||0;}catch(e){return state.attendanceHearts||0;}
+};
+
+window.ktAttendanceCheckedToday=function(){
+  try{return localStorage.getItem('ktalk_attendance_date')===ktTodayKey();}catch(e){return state.attendanceDate===ktTodayKey();}
+};
+
+window.ktRenderAttendance=function(){
+  var btn=document.getElementById('ktAttendanceHeart');
+  if(!btn)return;
+  var done=ktAttendanceCheckedToday();
+  btn.classList.toggle('done',done);
+  var label=btn.querySelector('.kt-attendance-label');
+  var sub=btn.querySelector('.kt-attendance-sub');
+  if(label)label.textContent=done?'출석 완료':'출석체크';
+  if(sub)sub.textContent=done?'오늘 보상 받음':'하트 1개 · 30원';
+};
+
+window.ktAttendanceCheck=function(){
+  if(ktAttendanceCheckedToday()){
+    ktSpeak('오늘 출석 보상은 이미 받았습니다.');
+    alert('오늘 출석 보상은 이미 받았습니다.');
+    ktRenderAttendance();
+    return;
+  }
+  var count=ktAttendanceHeartCount()+1;
+  state.attendanceHearts=count;
+  state.attendanceDate=ktTodayKey();
+  try{
+    localStorage.setItem('ktalk_attendance_hearts',String(count));
+    localStorage.setItem('ktalk_attendance_date',ktTodayKey());
+  }catch(e){}
+  ktAnnounceEvent('reward',{text:'출석 체크 완료. 하트 1개, 30원 상당 보상을 받았습니다.'});
+  alert('💗 출석 완료! 하트 1개(30원) 받았습니다.');
+  ktRenderAttendance();
+};
+
+
 
 window.activate=function(name){document.querySelectorAll('[data-tab]').forEach(function(b){b.classList.toggle('active',b.dataset.tab===name);});};
 window.showSheet=function(title,html){sheet.classList.remove('camera-effect-sheet');sheetTitle.innerHTML=title;sheetBody.innerHTML=html;sheet.classList.add('show');};
