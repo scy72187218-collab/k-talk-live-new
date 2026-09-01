@@ -720,3 +720,112 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   backface-visibility:hidden;
   transform:scaleX(-1) translateZ(0);
 }
+
+
+/* 라이브 카메라 위에서 바로 쓰는 편집효과 */
+.kt-live-effects{
+  position:absolute;
+  left:0;right:0;bottom:0;
+  z-index:14;
+  display:none;
+  padding:12px 12px calc(16px + env(safe-area-inset-bottom));
+  background:linear-gradient(180deg,rgba(10,10,16,.12),rgba(6,6,10,.92) 20%,rgba(5,5,8,.98));
+  border-radius:24px 24px 0 0;
+  box-shadow:0 -12px 32px rgba(0,0,0,.28);
+}
+.kt-live-effects.show{display:block}
+.kt-live-effects-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.kt-live-effects-head b{font-size:18px;color:#fff}
+.kt-live-effects-head button{
+  width:38px;height:38px;border:0;border-radius:50%;
+  background:rgba(255,255,255,.12);color:#fff;font-size:20px
+}
+.kt-live-effects-tabs{display:flex;gap:8px;margin-bottom:10px}
+.kt-live-effects-tabs button{
+  height:32px;padding:0 13px;border:0;border-radius:999px;
+  background:rgba(255,255,255,.08);color:#c7c8cf;font-size:11px;font-weight:900
+}
+.kt-live-effects-tabs button.on{background:#fff;color:#111}
+.kt-live-effects-scroll{
+  display:flex;gap:10px;overflow-x:auto;
+  scrollbar-width:none;padding:2px 2px 4px
+}
+.kt-live-effects-scroll::-webkit-scrollbar{display:none}
+.kt-live-effect-item{
+  flex:0 0 74px;border:0;background:transparent;color:#fff;text-align:center;padding:0
+}
+.kt-live-effect-item span{
+  width:66px;height:66px;margin:0 auto 6px;border-radius:50%;
+  display:grid;place-items:center;
+  border:3px solid rgba(255,255,255,.35);
+  background:linear-gradient(145deg,#292934,#111119);
+  font-size:29px;box-shadow:0 5px 16px rgba(0,0,0,.25)
+}
+.kt-live-effect-item small{display:block;font-size:10px;color:#f0f0f4;font-weight:850}
+.kt-live-effect-item.on span{
+  border-color:#fff;
+  box-shadow:0 0 0 3px #ff3e91,0 0 18px rgba(255,62,145,.38)
+}
+
+/* 얼굴 위 효과 레이어 */
+.kt-face-effect-layer{
+  position:absolute;inset:0;z-index:5;pointer-events:none;overflow:hidden
+}
+.ef-sunglasses{
+  position:absolute;top:31%;left:50%;transform:translateX(-50%);
+  width:188px;height:68px
+}
+.ef-sunglasses i{
+  position:absolute;top:0;width:78px;height:54px;
+  border:5px solid #d9c18a;border-radius:18px 18px 28px 28px;
+  background:linear-gradient(135deg,#111 8%,#1f3c5d 48%,#050607 80%);
+  box-shadow:inset 0 0 10px rgba(255,255,255,.12),0 4px 8px rgba(0,0,0,.3)
+}
+.ef-sunglasses i:first-child{left:5px;transform:rotate(3deg)}
+.ef-sunglasses i:nth-child(2){right:5px;transform:rotate(-3deg)}
+.ef-sunglasses b{
+  position:absolute;left:82px;top:18px;width:24px;height:8px;
+  border-top:4px solid #d9c18a;border-radius:50%
+}
+
+.ef-beard{
+  position:absolute;top:43%;left:50%;transform:translateX(-50%);
+  color:#17100c;font-size:78px;font-weight:900;line-height:1;
+  text-shadow:0 2px 3px rgba(0,0,0,.35)
+}
+.ef-rollers{
+  position:absolute;top:12%;left:50%;transform:translateX(-50%);
+  width:250px;height:155px
+}
+.ef-rollers i{
+  position:absolute;width:58px;height:34px;border-radius:10px;
+  border:5px solid #ff98c8;
+  background:repeating-linear-gradient(90deg,#ffd4e7 0 7px,#ff98c8 7px 11px);
+  box-shadow:0 3px 8px rgba(0,0,0,.2)
+}
+.ef-rollers i:nth-child(1){left:90px;top:4px}
+.ef-rollers i:nth-child(2){left:25px;top:40px;transform:rotate(-18deg)}
+.ef-rollers i:nth-child(3){right:25px;top:40px;transform:rotate(18deg)}
+.ef-rollers i:nth-child(4){left:72px;top:62px}
+.ef-rollers i:nth-child(5){right:72px;top:62px}
+.ef-rollers i:nth-child(6){left:96px;top:102px}
+.ef-crown,.ef-rabbit{
+  position:absolute;top:10%;left:50%;transform:translateX(-50%);font-size:74px
+}
+.ef-cat{
+  position:absolute;top:10%;left:50%;transform:translateX(-50%);font-size:74px
+}
+.ef-flowers{
+  position:absolute;top:9%;left:50%;transform:translateX(-50%);
+  width:260px;display:flex;justify-content:space-around;font-size:46px
+}
+.ef-sparkle span,.ef-party span{
+  position:absolute;font-size:34px;filter:drop-shadow(0 3px 8px rgba(0,0,0,.25))
+}
+.ef-sparkle span:nth-child(1),.ef-party span:nth-child(1){top:18%;left:14%}
+.ef-sparkle span:nth-child(2),.ef-party span:nth-child(2){top:26%;right:12%}
+.ef-sparkle span:nth-child(3),.ef-party span:nth-child(3){bottom:30%;left:18%}
+.ef-sparkle span:nth-child(4){bottom:24%;right:18%}
+
+.creator .creator-bottom{transition:.18s}
+.creator:has(.kt-live-effects.show) .creator-bottom{opacity:.15;pointer-events:none!important}
