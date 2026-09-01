@@ -214,7 +214,14 @@ window.openCreator=function(){
   }
 };
 window.closeCreator=function(){
-  creator.classList.remove('show','camera-on');
+  if(ktCreatorRecording)stopCreatorRecording();
+  creator.classList.remove('show','camera-on','creator-recording','creator-review');
+  try{
+    var p=document.getElementById('ktCreatorPreview');
+    if(p){p.pause();p.removeAttribute('src');p.load();p.style.display='none';}
+  }catch(e){}
+  if(ktCreatorBlobUrl){try{URL.revokeObjectURL(ktCreatorBlobUrl);}catch(e){}}
+  ktCreatorBlobUrl='';ktCreatorBlob=null;ktCreatorChunks=[];
   if(state.stream){state.stream.getTracks().forEach(function(t){t.stop();});state.stream=null;if(camera)camera.srcObject=null;}
 };
 
@@ -273,6 +280,104 @@ window.ensureLiveCamera=async function(facing){
 window.startBroadcast=async function(){
   var ok=await ensureLiveCamera(state.cameraFacing||'user');
   if(!ok)return;
+};
+
+var ktCreatorRecorder=null;
+var ktCreatorChunks=[];
+var ktCreatorBlob=null;
+var ktCreatorBlobUrl='';
+var ktCreatorRecording=false;
+
+window.startCreatorRecording=async function(){
+  if(ktCreatorRecording){ stopCreatorRecording(); return; }
+  if(!('MediaRecorder' in window)){
+    alert('이 기기에서는 동영상 촬영 기능을 사용할 수 없습니다.');
+    return;
+  }
+  var ok=await ensureLiveCamera(state.cameraFacing||'user');
+  if(!ok)return;
+
+  ktCreatorChunks=[];
+  ktCreatorBlob=null;
+  if(ktCreatorBlobUrl){try{URL.revokeObjectURL(ktCreatorBlobUrl);}catch(e){} ktCreatorBlobUrl='';}
+
+  var opts={};
+  try{
+    if(MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus'))opts.mimeType='video/webm;codecs=vp9,opus';
+    else if(MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus'))opts.mimeType='video/webm;codecs=vp8,opus';
+    else if(MediaRecorder.isTypeSupported('video/mp4'))opts.mimeType='video/mp4';
+  }catch(e){}
+
+  try{
+    ktCreatorRecorder=new MediaRecorder(state.stream,opts);
+  }catch(e){
+    try{ktCreatorRecorder=new MediaRecorder(state.stream);}catch(err){alert('동영상 촬영을 시작할 수 없습니다.');return;}
+  }
+
+  ktCreatorRecorder.ondataavailable=function(e){
+    if(e.data&&e.data.size)ktCreatorChunks.push(e.data);
+  };
+  ktCreatorRecorder.onstop=function(){
+    var type=(ktCreatorRecorder&&ktCreatorRecorder.mimeType)||'video/webm';
+    ktCreatorBlob=new Blob(ktCreatorChunks,{type:type});
+    ktCreatorBlobUrl=URL.createObjectURL(ktCreatorBlob);
+    var preview=document.getElementById('ktCreatorPreview');
+    if(preview){
+      preview.src=ktCreatorBlobUrl;
+      preview.style.display='block';
+      preview.play().catch(function(){});
+    }
+    creator.classList.remove('creator-recording');
+    creator.classList.add('creator-review');
+    ktCreatorRecording=false;
+  };
+
+  try{
+    ktCreatorRecorder.start(250);
+    ktCreatorRecording=true;
+    creator.classList.remove('creator-review','live-prep-open');
+    creator.classList.add('creator-recording','camera-on');
+  }catch(e){
+    ktCreatorRecording=false;
+    alert('동영상 촬영을 시작할 수 없습니다.');
+  }
+};
+
+window.stopCreatorRecording=function(){
+  if(!ktCreatorRecording||!ktCreatorRecorder)return;
+  try{
+    if(ktCreatorRecorder.state!=='inactive')ktCreatorRecorder.stop();
+  }catch(e){}
+};
+
+window.deleteCreatorRecording=function(){
+  try{
+    var p=document.getElementById('ktCreatorPreview');
+    if(p){p.pause();p.removeAttribute('src');p.load();p.style.display='none';}
+  }catch(e){}
+  if(ktCreatorBlobUrl){try{URL.revokeObjectURL(ktCreatorBlobUrl);}catch(e){}}
+  ktCreatorBlobUrl='';
+  ktCreatorBlob=null;
+  ktCreatorChunks=[];
+  creator.classList.remove('creator-review');
+  creator.classList.add('camera-on');
+  try{if(camera&&state.stream){camera.srcObject=state.stream;camera.play().catch(function(){});}}catch(e){}
+};
+
+window.saveCreatorRecording=function(){
+  if(!ktCreatorBlob||!ktCreatorBlobUrl){alert('저장할 동영상이 없습니다.');return;}
+  try{
+    var ext=(ktCreatorBlob.type||'').indexOf('mp4')>-1?'mp4':'webm';
+    var a=document.createElement('a');
+    a.href=ktCreatorBlobUrl;
+    a.download='K-Talk_'+Date.now()+'.'+ext;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    ktSpeak('동영상을 저장했습니다.');
+  }catch(e){
+    alert('동영상 저장을 완료하지 못했습니다.');
+  }
 };
 
 window.prepTap=async function(el,name){
