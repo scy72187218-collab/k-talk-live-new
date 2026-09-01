@@ -78,10 +78,22 @@ window.prepTap=async function(el,name){
     if(el)el.classList.toggle('prep-on',state.effectOn);
     return;
   }
+  if(name==='전환'){
+    state.cameraFacing=(state.cameraFacing==='environment')?'user':'environment';
+    try{
+      if(state.stream){state.stream.getTracks().forEach(function(t){t.stop();});state.stream=null;}
+      if(camera)camera.srcObject=null;
+      await ensureLiveCamera(state.cameraFacing);
+    }catch(e){}
+    return;
+  }
+  if(name==='설정'){ showSheet('⚙ 라이브 설정','<div class="rowbox"><b>카메라 · 마이크 · 방송 설정</b><br>방송 전 필요한 설정을 확인할 수 있습니다.</div>'); return; }
   if(name==='멀티게스트'){ if(window.openRoomTypeChooser)openRoomTypeChooser(); return; }
-  if(name==='서비스'){ showSheet('서비스','<div class="rowbox"><b>K-Talk 라이브 서비스</b><br>라이브 방송 기능을 이용할 수 있습니다.</div>'); return; }
+  if(name==='서비스'){ showSheet('서비스+','<div class="rowbox"><b>K-Talk 라이브 서비스+</b><br>라이브 방송 관련 기능을 이용할 수 있습니다.</div>'); return; }
   if(name==='팬클럽'){ if(window.openSubs)openSubs(); return; }
+  if(name==='소통하기'){ showSheet('💬 소통하기','<div class="rowbox"><b>채팅 · 시청자 소통</b><br>방송 중 시청자와 소통하는 기능입니다.</div>'); return; }
   if(name==='공유'){ if(window.shareApp)shareApp(); return; }
+  if(name==='프로모션'){ showSheet('🔥 프로모션','<div class="rowbox"><b>방송 홍보</b><br>방송을 더 많은 사람에게 알리는 기능입니다.</div>'); return; }
   if(name==='라이브 보상'){ showSheet('★ 라이브 보상','<div class="rowbox"><b>라이브 보상</b><br>방송 참여 보상과 이벤트를 확인하는 곳입니다.</div>'); return; }
 };
 
