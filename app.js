@@ -313,6 +313,7 @@ window.ktAttachCreatorCamera=async function(stream){
   }catch(e){}
 
   try{await camera.play();}catch(e){}
+  try{if(window.applyBeautyPreview)applyBeautyPreview();}catch(e){}
   setTimeout(function(){
     try{
       if(camera.paused||camera.readyState<2)camera.play().catch(function(){});
@@ -393,6 +394,53 @@ var ktCreatorBlob=null;
 var ktCreatorBlobUrl='';
 var ktCreatorRecording=false;
 var ktCreatorAutoStopTimer=null;
+var ktCreatorRecordTicker=null;
+var ktCreatorRecordStartedAt=0;
+var ktCreatorRecordLimit=600;
+
+window.ktFormatRecordTime=function(sec){
+  sec=Math.max(0,Math.floor(sec||0));
+  var m=Math.floor(sec/60),s=sec%60;
+  return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+};
+window.ktUpdateRecordHUD=function(){
+  var hud=document.getElementById('ktCreatorRecordHUD');
+  var timer=document.getElementById('ktCreatorRecordTimer');
+  var ring=document.getElementById('ktCreatorRecordRing');
+  var max=document.getElementById('ktCreatorRecordMax');
+  if(!hud)return;
+  var elapsed=Math.max(0,(Date.now()-ktCreatorRecordStartedAt)/1000);
+  var limit=Math.max(1,ktCreatorRecordLimit||600);
+  var pct=Math.min(100,(elapsed/limit)*100);
+  hud.style.display='block';
+  if(timer)timer.textContent=ktFormatRecordTime(elapsed);
+  if(max)max.textContent='/ '+ktFormatRecordTime(limit);
+  if(ring)ring.style.setProperty('--record-pct',pct.toFixed(2)+'%');
+};
+window.ktStartRecordHUD=function(limit){
+  ktCreatorRecordLimit=Math.max(1,parseInt(limit||600,10));
+  ktCreatorRecordStartedAt=Date.now();
+  if(ktCreatorRecordTicker){clearInterval(ktCreatorRecordTicker);ktCreatorRecordTicker=null;}
+  ktUpdateRecordHUD();
+  ktCreatorRecordTicker=setInterval(ktUpdateRecordHUD,120);
+};
+window.ktStopRecordHUD=function(){
+  if(ktCreatorRecordTicker){clearInterval(ktCreatorRecordTicker);ktCreatorRecordTicker=null;}
+  var hud=document.getElementById('ktCreatorRecordHUD');
+  if(hud)hud.style.display='none';
+};
+window.cancelCreatorRecording=function(){
+  if(ktCreatorRecording){
+    try{if(ktCreatorRecorder&&ktCreatorRecorder.state!=='inactive')ktCreatorRecorder.stop();}catch(e){}
+    ktCreatorRecording=false;
+  }
+  if(ktCreatorAutoStopTimer){clearTimeout(ktCreatorAutoStopTimer);ktCreatorAutoStopTimer=null;}
+  ktStopRecordHUD();
+  ktCreatorChunks=[];
+  ktCreatorBlob=null;
+  creator.classList.remove('creator-recording','creator-review');
+  if(window.closeCreator)closeCreator();
+};
 
 window.startCreatorRecording=async function(){
   if(ktCreatorRecording){ stopCreatorRecording(); return; }
@@ -426,6 +474,7 @@ window.startCreatorRecording=async function(){
 
   ktCreatorRecorder.onstop=function(){
     if(ktCreatorAutoStopTimer){clearTimeout(ktCreatorAutoStopTimer);ktCreatorAutoStopTimer=null;}
+    ktStopRecordHUD();
     ktCreatorRecording=false;
     var firstType=(ktCreatorChunks[0]&&ktCreatorChunks[0].type)||'';
     var type=firstType||(ktCreatorRecorder&&ktCreatorRecorder.mimeType)||'video/webm';
@@ -475,6 +524,7 @@ window.startCreatorRecording=async function(){
     creator.classList.add('creator-recording','camera-on');
     if(ktCreatorAutoStopTimer){clearTimeout(ktCreatorAutoStopTimer);ktCreatorAutoStopTimer=null;}
     var limit=Math.max(1,parseInt(state.creatorDuration||600,10));
+    ktStartRecordHUD(limit);
     ktCreatorAutoStopTimer=setTimeout(function(){
       if(ktCreatorRecording)stopCreatorRecording();
     },limit*1000);
@@ -486,6 +536,7 @@ window.startCreatorRecording=async function(){
 
 window.stopCreatorRecording=function(){
   if(ktCreatorAutoStopTimer){clearTimeout(ktCreatorAutoStopTimer);ktCreatorAutoStopTimer=null;}
+  ktStopRecordHUD();
   if(!ktCreatorRecording||!ktCreatorRecorder)return;
   try{
     if(ktCreatorRecorder.state!=='inactive'){
@@ -497,6 +548,7 @@ window.stopCreatorRecording=function(){
 
 window.deleteCreatorRecording=function(){
   if(ktCreatorAutoStopTimer){clearTimeout(ktCreatorAutoStopTimer);ktCreatorAutoStopTimer=null;}
+  ktStopRecordHUD();
   try{
     var p=document.getElementById('ktCreatorPreview');
     var f=document.getElementById('ktCreatorPreviewFallback');
@@ -902,25 +954,34 @@ window.prepTap=async function(el,name){
 window.openBeautyPanel=function(){
   creator.classList.add('beauty-preview-open');
   try{var lp=creator.querySelector('.live-prep');if(lp)lp.style.setProperty('display','none','important');}catch(e){}
-  try{if(window.ensureLiveCamera)ensureLiveCamera(state.cameraFacing||'user').catch(function(){});}catch(e){}
-  var controls=[['skin','💧','부드럽게',state.beautySkin||35],['face','☺','얼굴형',state.beautyFace||50],['eyes','◉','눈',state.beautyEyes||50],['nose','♢','코',state.beautyNose||50],['mouth','💋','입술',state.beautyMouth||50],['tone','✨','피부',state.beautyTone||35],['bright','☀','밝기',state.beautyBright||25],['sharp','✦','선명도',state.beautySharp||20]];
+  try{
+    if(window.ensureLiveCamera){
+      ensureLiveCamera(state.cameraFacing||'user').then(function(){
+        setTimeout(function(){if(window.applyBeautyPreview)applyBeautyPreview();},120);
+      }).catch(function(){});
+    }
+  }catch(e){}
+  var controls=[
+    ['skin','💧','부드럽게',state.beautySkin||25],
+    ['bright','☀','밝기',state.beautyBright||35],
+    ['sharp','✦','선명도',state.beautySharp||30],
+    ['tone','🌤','따뜻함',state.beautyTone||35],
+    ['contrast','◐','명암',state.beautyContrast||35],
+    ['color','🎨','색감',state.beautyColor||35]
+  ];
   var selected=state.beautyControl||'skin';
-  var active=controls.filter(function(c){return c[0]===selected;})[0]||controls[0];
-  var controlButtons=controls.map(function(c){return '<button class="'+(c[0]===selected?'on':'')+'" onclick="selectBeautyControl(\''+c[0]+'\')"><b>'+c[1]+'</b><span>'+c[2]+'</span></button>';}).join('');
+  var active=controls.filter(function(x){return x[0]===selected;})[0]||controls[0];
+  var controlButtons=controls.map(function(x){
+    return '<button class="'+(x[0]===selected?'on':'')+'" onclick="selectBeautyControl(\''+x[0]+'\')"><b>'+x[1]+'</b><span>'+x[2]+'</span></button>';
+  }).join('');
   var html='<div class="kt-beauty-panel">'
     +'<div class="kt-panel-tabs"><button class="on">Beauty</button><button onclick="openEditEffectPanel()">편집효과</button><button onclick="resetBeautyAll()">↺ 초기화</button></div>'
     +'<div class="kt-beauty-controls">'+controlButtons+'</div>'
-    +'<div class="kt-beauty-one-slider"><div><span id="beautyControlName">'+active[2]+'</span><b id="beautyControlValue">'+active[3]+'</b></div><div class="kt-beauty-range-line"><button type="button" onclick="adjustBeautyControl(-1)" aria-label="줄이기">−</button><input id="beautyControlRange" type="range" min="1" max="100" value="'+active[3]+'" oninput="setBeautyControlValue(this.value)"><button type="button" onclick="adjustBeautyControl(1)" aria-label="늘리기">＋</button></div></div>'
-    +'<div class="kt-beauty-face-row">'
-      +'<button onclick="setBeautySticker(\'✨\')"><b>✨</b><span>반짝임</span></button>'
-      +'<button onclick="setBeautySticker(\'👓\')"><b>👓</b><span>안경</span></button>'
-      +'<button onclick="setBeautySticker(\'👑\')"><b>👑</b><span>왕관</span></button>'
-      +'<button onclick="setBeautySticker(\'😄\')"><b>😄</b><span>웃긴표정</span></button>'
-      +'<button onclick="setBeautySticker(\'\')"><b>⊘</b><span>없음</span></button>'
-    +'</div>'
+    +'<div class="kt-beauty-one-slider"><div><span id="beautyControlName">'+active[2]+'</span><b id="beautyControlValue">'+active[3]+'</b></div><div class="kt-beauty-range-line"><button type="button" onclick="adjustBeautyControl(-2)">−</button><input id="beautyControlRange" type="range" min="0" max="100" value="'+active[3]+'" oninput="setBeautyControlValue(this.value)"><button type="button" onclick="adjustBeautyControl(2)">＋</button></div></div>'
     +'</div>';
   showSheet('뷰티',html);
   sheet.classList.add('camera-effect-sheet');
+  setTimeout(function(){if(window.applyBeautyPreview)applyBeautyPreview();},80);
 };
 
 window.selectBeautyControl=function(kind){
@@ -930,9 +991,9 @@ window.selectBeautyControl=function(kind){
 
 window.setBeautyControlValue=function(value){
   var kind=state.beautyControl||'skin';
-  value=Math.max(1,Math.min(100,parseInt(value||1,10)));
-  var labels={skin:'부드럽게',face:'얼굴형',eyes:'눈',nose:'코',mouth:'입술',tone:'피부',bright:'밝기',sharp:'선명도'};
-  var keys={skin:'beautySkin',face:'beautyFace',eyes:'beautyEyes',nose:'beautyNose',mouth:'beautyMouth',tone:'beautyTone',bright:'beautyBright',sharp:'beautySharp'};
+  value=Math.max(0,Math.min(100,parseInt(value||0,10)));
+  var labels={skin:'부드럽게',bright:'밝기',sharp:'선명도',tone:'따뜻함',contrast:'명암',color:'색감'};
+  var keys={skin:'beautySkin',bright:'beautyBright',sharp:'beautySharp',tone:'beautyTone',contrast:'beautyContrast',color:'beautyColor'};
   state[keys[kind]]=value;
   applyBeautyPreview();
   var n=document.getElementById('beautyControlName'),v=document.getElementById('beautyControlValue');
@@ -942,23 +1003,30 @@ window.setBeautyControlValue=function(value){
 
 window.applyBeautyPreview=function(){
   if(!camera)return;
-  var skin=Number(state.beautySkin||1),bright=Number(state.beautyBright||1),sharp=Number(state.beautySharp||1);
-  var face=Number(state.beautyFace||50),eyes=Number(state.beautyEyes||50),nose=Number(state.beautyNose||50);
-  var mouth=Number(state.beautyMouth||50),tone=Number(state.beautyTone||1);
-  var brightness=.96+(bright*.0024)+(eyes-50)*.0007;
-  var saturation=.94+(sharp*.0016)+(mouth-50)*.0032;
-  var contrast=.94+(sharp*.0015)+(eyes-50)*.0012+(nose-50)*.0009;
-  var blur=Math.max(0,(skin-1)*.006);
-  var sepia=Math.max(0,(tone-50)*.0025);
-  var faceScale=1+(face-50)*.0012;
-  camera.style.setProperty('filter','brightness('+brightness.toFixed(3)+') saturate('+saturation.toFixed(3)+') contrast('+contrast.toFixed(3)+') blur('+blur.toFixed(2)+'px) sepia('+sepia.toFixed(3)+')','important');
-  camera.style.setProperty('transform','scaleX(-1) scale('+faceScale.toFixed(3)+')','important');
+  var skin=Number(state.beautySkin||0);
+  var bright=Number(state.beautyBright||0);
+  var sharp=Number(state.beautySharp||0);
+  var tone=Number(state.beautyTone||0);
+  var contrastCtl=Number(state.beautyContrast||0);
+  var color=Number(state.beautyColor||0);
+
+  var brightness=.96+(bright*.0040);
+  var saturation=.92+(color*.0040);
+  var contrast=.92+(contrastCtl*.0030)+(sharp*.0010);
+  var blur=Math.max(0,skin*.0065);
+  var sepia=Math.max(0,tone*.0018);
+
+  camera.style.setProperty('filter',
+    'brightness('+brightness.toFixed(3)+') saturate('+saturation.toFixed(3)+') contrast('+contrast.toFixed(3)+') blur('+blur.toFixed(2)+'px) sepia('+sepia.toFixed(3)+')',
+    'important'
+  );
+  camera.style.setProperty('transform','scaleX(-1)','important');
 };
 
 window.adjustBeautyControl=function(step){
   var range=document.getElementById('beautyControlRange');
   if(!range)return;
-  var next=Math.max(1,Math.min(100,parseInt(range.value||1,10)+step));
+  var next=Math.max(0,Math.min(100,parseInt(range.value||0,10)+step));
   range.value=next;
   setBeautyControlValue(next);
 };
@@ -989,10 +1057,20 @@ window.setBeautySlider=function(kind,value){
 };
 
 window.resetBeautyAll=function(){
-  state.beautyMode='off';state.beautyControl='skin';state.beautySkin=1;state.beautyFace=50;state.beautyEyes=50;state.beautyNose=50;state.beautyMouth=50;state.beautyTone=1;state.beautyBright=1;state.beautySharp=1;
+  state.beautyMode='off';
+  state.beautyControl='skin';
+  state.beautySkin=0;
+  state.beautyBright=0;
+  state.beautySharp=0;
+  state.beautyTone=0;
+  state.beautyContrast=0;
+  state.beautyColor=0;
   creator.classList.remove('beauty-natural','beauty-bright','beauty-soft','beauty-glow');
   creator.removeAttribute('data-beauty-char');
-  if(camera){camera.style.removeProperty('filter');camera.style.removeProperty('transform');}
+  if(camera){
+    camera.style.setProperty('filter','brightness(1.08) contrast(.96) saturate(1.01)','important');
+    camera.style.setProperty('transform','scaleX(-1)','important');
+  }
   openBeautyPanel();
 };
 
