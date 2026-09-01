@@ -1723,7 +1723,6 @@ window.giftSend=function(name,cost,sender){
   ktSetRoseBalance(balance-cost);
   if(name.indexOf('왕관')>-1||name.indexOf('크라운')>-1){showHostCrown(name);}
   ktAnnounceEvent('gift',{sender:sender||'',name:name,count:cost});
-  if(window.addMyEarnedRoses)addMyEarnedRoses(cost);
   alert('✅ '+name+' 선물 완료\n장미 '+cost.toLocaleString('ko-KR')+'개 사용 · 남은 장미 '+ktGetRoseBalance().toLocaleString('ko-KR')+'개');
   return true;
 };
