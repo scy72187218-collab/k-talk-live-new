@@ -868,17 +868,14 @@ window.prepTap=async function(el,name){
 };
 
 window.openBeautyPanel=function(){
+  var controls=[['skin','💧','부드럽게',state.beautySkin||35],['face','☺','얼굴형',state.beautyFace||50],['eyes','◉','눈',state.beautyEyes||50],['nose','♢','코',state.beautyNose||50],['mouth','💋','입술',state.beautyMouth||50],['tone','✨','피부',state.beautyTone||35],['bright','☀','밝기',state.beautyBright||25],['sharp','✦','선명도',state.beautySharp||20]];
+  var selected=state.beautyControl||'skin';
+  var active=controls.filter(function(c){return c[0]===selected;})[0]||controls[0];
+  var controlButtons=controls.map(function(c){return '<button class="'+(c[0]===selected?'on':'')+'" onclick="selectBeautyControl(\''+c[0]+'\')"><b>'+c[1]+'</b><span>'+c[2]+'</span></button>';}).join('');
   var html='<div class="kt-beauty-panel">'
     +'<div class="kt-panel-tabs"><button class="on">Beauty</button><button onclick="openEditEffectPanel()">편집효과</button><button onclick="resetBeautyAll()">↺ 초기화</button></div>'
-    +'<div class="kt-beauty-presets">'
-      +'<button onclick="setBeautyMode(\'soft\',\'\')"><b>💧</b><span>부드럽게</span></button>'
-      +'<button onclick="setBeautyMode(\'natural\',\'\')"><b>☺</b><span>자연</span></button>'
-      +'<button onclick="setBeautyMode(\'bright\',\'\')"><b>☀</b><span>밝게</span></button>'
-      +'<button onclick="setBeautyMode(\'glow\',\'\')"><b>✨</b><span>화사하게</span></button>'
-    +'</div>'
-    +'<div class="kt-slider-row"><span>피부</span><input type="range" min="0" max="100" value="'+(state.beautySkin||35)+'" oninput="setBeautySlider(\'skin\',this.value)"><b id="beautySkinVal">'+(state.beautySkin||35)+'</b></div>'
-    +'<div class="kt-slider-row"><span>밝기</span><input type="range" min="0" max="100" value="'+(state.beautyBright||25)+'" oninput="setBeautySlider(\'bright\',this.value)"><b id="beautyBrightVal">'+(state.beautyBright||25)+'</b></div>'
-    +'<div class="kt-slider-row"><span>선명도</span><input type="range" min="0" max="100" value="'+(state.beautySharp||20)+'" oninput="setBeautySlider(\'sharp\',this.value)"><b id="beautySharpVal">'+(state.beautySharp||20)+'</b></div>'
+    +'<div class="kt-beauty-controls">'+controlButtons+'</div>'
+    +'<div class="kt-beauty-one-slider"><div><span id="beautyControlName">'+active[2]+'</span><b id="beautyControlValue">'+active[3]+'</b></div><input id="beautyControlRange" type="range" min="1" max="100" value="'+active[3]+'" oninput="setBeautyControlValue(this.value)"></div>'
     +'<div class="kt-beauty-face-row">'
       +'<button onclick="setBeautySticker(\'✨\')"><b>✨</b><span>반짝임</span></button>'
       +'<button onclick="setBeautySticker(\'👓\')"><b>👓</b><span>안경</span></button>'
@@ -889,6 +886,27 @@ window.openBeautyPanel=function(){
     +'</div>';
   showSheet('뷰티',html);
   sheet.classList.add('camera-effect-sheet');
+};
+
+window.selectBeautyControl=function(kind){
+  state.beautyControl=kind;
+  openBeautyPanel();
+};
+
+window.setBeautyControlValue=function(value){
+  var kind=state.beautyControl||'skin';
+  value=Math.max(1,Math.min(100,parseInt(value||1,10)));
+  var labels={skin:'부드럽게',face:'얼굴형',eyes:'눈',nose:'코',mouth:'입술',tone:'피부',bright:'밝기',sharp:'선명도'};
+  var keys={skin:'beautySkin',face:'beautyFace',eyes:'beautyEyes',nose:'beautyNose',mouth:'beautyMouth',tone:'beautyTone',bright:'beautyBright',sharp:'beautySharp'};
+  state[keys[kind]]=value;
+  if(kind==='skin'||kind==='bright'||kind==='sharp')setBeautySlider(kind,value);
+  if(kind==='tone'){
+    state.beautySkin=value;
+    setBeautySlider('skin',value);
+  }
+  var n=document.getElementById('beautyControlName'),v=document.getElementById('beautyControlValue');
+  if(n)n.textContent=labels[kind]||'뷰티';
+  if(v)v.textContent=value;
 };
 
 window.setBeautyMode=function(mode,char){
@@ -922,7 +940,7 @@ window.setBeautySlider=function(kind,value){
 };
 
 window.resetBeautyAll=function(){
-  state.beautyMode='off';state.beautySkin=0;state.beautyBright=0;state.beautySharp=0;
+  state.beautyMode='off';state.beautyControl='skin';state.beautySkin=1;state.beautyFace=50;state.beautyEyes=50;state.beautyNose=50;state.beautyMouth=50;state.beautyTone=1;state.beautyBright=1;state.beautySharp=1;
   creator.classList.remove('beauty-natural','beauty-bright','beauty-soft','beauty-glow');
   creator.removeAttribute('data-beauty-char');
   if(camera)camera.style.filter='brightness(1.12) contrast(.95) saturate(1.02)';
@@ -1932,4 +1950,3 @@ setTimeout(function(){
   var oldPrepBottom=window.prepBottomTap;
   window.prepBottomTap=function(el,name){if(oldPrepBottom)oldPrepBottom(el,name);};
 },0);
-
