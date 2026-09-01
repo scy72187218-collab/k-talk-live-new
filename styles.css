@@ -1983,3 +1983,52 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   .kt-gift25-card b{font-size:8px!important;min-height:23px!important}
   .kt-gift25-card strong{font-size:10.5px!important}
 }
+
+
+/* 내 동영상 올리기 버튼 */
+.kt-myvideo-row-actions{
+  display:flex;
+  flex-direction:column;
+  gap:6px
+}
+.kt-myvideo-row-actions .upload{
+  border:1px solid #7b63ff88;
+  border-radius:10px;
+  padding:8px 9px;
+  background:linear-gradient(135deg,#39235c,#6d4bff);
+  color:#fff;
+  font-size:9px;
+  font-weight:950
+}
+.kt-myvideo-row-actions .upload.done{
+  background:#183625;
+  border-color:#49cf8377;
+  color:#b8ffd2
+}
+.kt-myvideo-player-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-top:12px
+}
+.kt-myvideo-player-actions button{
+  min-height:48px;
+  border-radius:14px;
+  font-size:13px;
+  font-weight:950
+}
+.kt-myvideo-player-actions .back{
+  border:1px solid #ffffff28;
+  background:#15151b;
+  color:#fff
+}
+.kt-myvideo-player-actions .upload{
+  border:0;
+  background:linear-gradient(135deg,#6b55ff,#ff43a3);
+  color:#fff;
+  box-shadow:0 8px 20px #8a4dff33
+}
+.kt-myvideo-player-actions .upload.done{
+  background:#1d4a31;
+  box-shadow:none
+}
