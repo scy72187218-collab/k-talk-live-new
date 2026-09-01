@@ -3212,6 +3212,8 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
 .kt-bg-thumb.bg-cafe{background:linear-gradient(135deg,#7b4b2c,#2b1711 70%)!important}
 .kt-bg-thumb.bg-yacht{background:linear-gradient(#8ad5ff 0 45%,#1d8ec0 46% 74%,#e8e8e8 75%)!important}
 .kt-bg-thumb.bg-club{background:radial-gradient(circle,#e050ff 0 10%,#351565 30%,#080611 72%)!important}
+.kt-bg-thumb.bg-sunset{background:linear-gradient(#ff8a62 0 35%,#ffbd66 36% 52%,#66599a 53% 72%,#1f3764 73%)!important}
+.kt-bg-thumb.bg-waterfall{background:linear-gradient(90deg,#2e6d42 0 29%,#bfefff 30% 69%,#2f7043 70%)!important}
 
 @media(max-width:390px){
   #ktLiveEffects .kt-live-effects-tabs button{font-size:9px!important;height:36px!important}
