@@ -24,12 +24,28 @@
   var testFaceDetector=null;
 
   function testEffectMarkup(name){
-    if(name==='sunglasses')return '<div class="fx-sunglasses-mask"><i></i><i></i><b></b></div>';
-    if(name==='glasses')return '<div class="fx-glasses-mask"><i></i><i></i><b></b></div>';
-    if(name==='beard')return '<div class="fx-beard-mask"><span>〰</span><b></b></div>';
-    if(name==='cap')return '<div class="fx-cap-mask"><i></i><b></b></div>';
-    if(name==='sparkle')return '<div class="fx-sparkles-mask"><span>✦</span><span>✧</span><span>✦</span><span>✧</span></div>';
-    return '';
+    var markup={
+      sunglasses:'<div class="fx-sunglasses-mask"><i></i><i></i><b></b></div>',
+      glasses:'<div class="fx-glasses-mask"><i></i><i></i><b></b></div>',
+      mustache:'<div class="fx-mustache-mask"><span>〰</span></div>',
+      beard:'<div class="fx-beard-mask"><span>〰</span><b></b></div>',
+      cap:'<div class="fx-cap-mask"><i></i><b></b></div>',
+      pirate:'<div class="fx-pirate-mask"><i></i><b></b></div>',
+      crown:'<div class="fx-crown-mask">👑</div>',
+      cat:'<div class="fx-animal-ears cat"><i></i><i></i></div>',
+      dog:'<div class="fx-animal-ears dog"><i></i><i></i></div>',
+      rabbit:'<div class="fx-animal-ears rabbit"><i></i><i></i></div>',
+      blush:'<div class="fx-cheek-mask blush"><i></i><i></i></div>',
+      heart:'<div class="fx-cheek-mask heart"><i>♥</i><i>♥</i></div>',
+      sparkle:'<div class="fx-sparkles-mask"><span>✦</span><span>✧</span><span>✦</span><span>✧</span></div>',
+      tears:'<div class="fx-tears-mask"><i></i><i></i></div>',
+      halo:'<div class="fx-halo-mask"></div>',
+      fire:'<div class="fx-fire-mask">🔥🔥🔥</div>',
+      facepaint:'<div class="fx-facepaint-mask"><i></i><i></i></div>',
+      mask:'<div class="fx-eye-mask"></div>',
+      butterfly:'<div class="fx-butterfly-mask"><span>🦋</span><span>🦋</span></div>'
+    };
+    return markup[name]||'';
   }
 
   function applyTestVideoFilter(name){
@@ -95,7 +111,7 @@
     clearInterval(testFaceTimer);
     if(name!=='off'&&['mono','warm','cool','soft'].indexOf(name)===-1){
       trackTestFaceOnce();
-      testFaceTimer=setInterval(trackTestFaceOnce,260);
+      testFaceTimer=setInterval(trackTestFaceOnce,150);
     }
   }
 
