@@ -944,7 +944,22 @@ window.ktRenderTreasure=function(){
     document.getElementById('ktLiveTreasureZone'),
     document.getElementById('ktViewerTreasureZone')
   ].filter(Boolean);
-  if(!zones.length){ktUpdateTreasureLed();return;}
+  if(!zones.length){
+    ktUpdateTreasureLed();
+    if(t){
+      window.ktTreasureTimer=setInterval(function(){
+        ktUpdateTreasureLed();
+        var active=ktGetTreasure();
+        if(!active)clearInterval(window.ktTreasureTimer);
+        else if(ktTreasureStatus(active).ready&&!active.readyAnnounced){
+          active.readyAnnounced=true;
+          try{localStorage.setItem('ktalk_active_treasure',JSON.stringify(active));}catch(e){}
+          ktSpeak('보물상자가 열렸습니다. 지금 눌러서 받을 수 있습니다.');
+        }
+      },1000);
+    }
+    return;
+  }
   if(!t){
     zones.forEach(function(z){z.innerHTML='';});
     ktUpdateTreasureLed();
