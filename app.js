@@ -92,7 +92,7 @@ window.prepTap=async function(el,name){
   if(name==='소통하기'){ openCommunicationPanel(); return; }
   if(name==='공유'){ if(window.shareApp)shareApp(); return; }
   if(name==='프로모션'){ showSheet('🔥 프로모션','<div class="rowbox"><b>방송 홍보</b><br>방송을 더 많은 사람에게 알리는 기능입니다.</div>'); return; }
-  if(name==='라이브 보상'){ showSheet('★ 라이브 보상','<div class="rowbox"><b>라이브 보상</b><br>방송 참여 보상과 이벤트를 확인하는 곳입니다.</div>'); return; }
+  if(name==='라이브 보상'){ openBenefitHub(); return; }
 };
 
 window.openBeautyPanel=function(){
@@ -205,6 +205,50 @@ window.openCommunicationPanel=function(){
     +'<button onclick="openTextVote()"><span>☰</span><b>텍스트 투표</b><em>›</em></button>'
     +'</div>';
   showSheet('소통하기',html);
+};
+
+window.openBenefitHub=function(){
+  var html='<div class="kt-benefit-hub">'
+    +'<div class="kt-benefit-summary">'
+      +'<div><span>🌹</span><b>내 장미</b><strong>0</strong></div>'
+      +'<div><span>🎁</span><b>받은 보상</b><strong>0</strong></div>'
+      +'<div><span>💰</span><b>판매·정산</b><strong>0원</strong></div>'
+    +'</div>'
+    +'<div class="kt-benefit-grid">'
+      +'<button onclick="openReceiveBenefits()"><span>🎉</span><b>혜택 받기</b><small>출석 · 이벤트 · 보상</small></button>'
+      +'<button onclick="openGiveBenefits()"><span>💝</span><b>혜택 주기</b><small>팬에게 보상 보내기</small></button>'
+      +'<button onclick="openGifts()"><span>🌹</span><b>장미 주기</b><small>장미 · 선물 보내기</small></button>'
+      +'<button onclick="openSellerCenter()"><span>🏷️</span><b>판매</b><small>상품 · 광고 등록</small></button>'
+      +'<button onclick="openRewardCenter()"><span>🏆</span><b>보상</b><small>미션 · 랭킹 · 이벤트</small></button>'
+      +'<button onclick="openBenefitAlerts()"><span>🔔</span><b>알림</b><small>받은 혜택 · 지급 안내</small></button>'
+    +'</div>'
+    +'<div class="kt-benefit-section"><div class="kt-benefit-section-title">빠른 이용</div>'
+      +'<button onclick="openSubs()">👑 팬클럽 혜택 <em>›</em></button>'
+      +'<button onclick="openCharge()">🪙 장미 충전 <em>›</em></button>'
+      +'<button onclick="openRewardCenter()">🎯 오늘 받을 수 있는 보상 <em>›</em></button>'
+    +'</div>'
+    +'</div>';
+  showSheet('혜택 · 보상 센터',html);
+};
+
+window.openReceiveBenefits=function(){
+  showSheet('🎉 혜택 받기','<div class="rowbox"><b>오늘의 출석 보상</b><br>출석 · 이벤트 · 방송 참여 보상을 확인하는 곳입니다.</div><div class="rowbox"><b>받을 수 있는 혜택</b><br>받을 수 있는 보상이 생기면 이곳에 표시됩니다.</div>');
+};
+
+window.openGiveBenefits=function(){
+  showSheet('💝 혜택 주기','<div class="rowbox"><b>팬에게 혜택 보내기</b><br>장미 · 이벤트 보상 · 팬클럽 혜택을 선택해서 줄 수 있습니다.</div><button class="act" onclick="openGifts()">🌹 장미·선물 보내기</button>');
+};
+
+window.openSellerCenter=function(){
+  showSheet('🏷️ 판매 센터','<div class="rowbox"><b>상품 · 광고 등록</b><br>판매할 상품이나 광고를 등록하고 관리하는 곳입니다.</div><div class="rowbox"><b>정산 확인</b><br>판매가 발생하면 정산 내역을 확인할 수 있습니다.</div>');
+};
+
+window.openRewardCenter=function(){
+  showSheet('🏆 보상 센터','<div class="rowbox"><b>방송 참여 보상</b><br>출석 · 미션 · 랭킹 · 이벤트 보상을 한곳에서 확인합니다.</div><div class="rowbox"><b>지급 내역</b><br>받은 장미와 보상 내역이 여기에 표시됩니다.</div>');
+};
+
+window.openBenefitAlerts=function(){
+  showSheet('🔔 혜택 알림','<div class="rowbox"><b>새 알림 없음</b><br>혜택 지급 · 장미 수령 · 판매 정산 알림을 한곳에서 확인합니다.</div>');
 };
 
 window.openViewerMission=function(){
