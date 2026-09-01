@@ -85,7 +85,7 @@ window.prepTap=async function(el,name){
     }catch(e){}
     return;
   }
-  if(name==='설정'){ showSheet('⚙ 라이브 설정','<div class="rowbox"><b>카메라 · 마이크 · 방송 설정</b><br>방송 전 필요한 설정을 확인할 수 있습니다.</div>'); return; }
+  if(name==='설정'){ openLiveSettings(); return; }
   if(name==='멀티게스트'){ if(window.openRoomTypeChooser)openRoomTypeChooser(); return; }
   if(name==='서비스'){ showSheet('서비스+','<div class="rowbox"><b>K-Talk 라이브 서비스+</b><br>라이브 방송 관련 기능을 이용할 수 있습니다.</div>'); return; }
   if(name==='팬클럽'){ if(window.openSubs)openSubs(); return; }
@@ -177,6 +177,25 @@ window.setEditEffect=function(name){
   var stickerMap={cat:'😺',rabbit:'🐰',crown:'👑',glasses:'🤓',funny:'😂'};
   if(stickerMap[name]){creator.setAttribute('data-beauty-char',stickerMap[name]);return;}
   creator.classList.add('fx-'+name);
+};
+
+window.toggleLiveSetting=function(btn){
+  if(!btn)return;
+  btn.classList.toggle('on');
+  btn.setAttribute('aria-pressed',btn.classList.contains('on')?'true':'false');
+};
+
+window.openLiveSettings=function(){
+  var html='<div class="kt-live-settings">'
+    +'<button class="kt-setting-row"><span>🌐</span><b>시청 가능 범위</b><em>모두 ›</em></button>'
+    +'<button class="kt-setting-row"><span>🎥</span><b>라이브 화질</b><em>1080p ›</em></button>'
+    +'<div class="kt-setting-row"><span>🔊</span><b>노이즈 억제</b><button class="kt-switch" onclick="toggleLiveSetting(this)" aria-pressed="false"></button></div>'
+    +'<div class="kt-setting-row"><span>🚀</span><b>안정적 방송</b><button class="kt-switch on" onclick="toggleLiveSetting(this)" aria-pressed="true"></button></div>'
+    +'<button class="kt-setting-row"><span>💬</span><b>댓글 안전</b><em>›</em></button>'
+    +'<button class="kt-setting-row"><span>👤</span><b>모더레이터</b><em>›</em></button>'
+    +'<div class="kt-setting-row"><span>🎁</span><b>라이브 선물</b><button class="kt-switch on" onclick="toggleLiveSetting(this)" aria-pressed="true"></button></div>'
+    +'</div>';
+  showSheet('⚙ 설정',html);
 };
 
 window.selectPrepRoom=function(el,type,label,max){
