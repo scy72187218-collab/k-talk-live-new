@@ -2251,3 +2251,324 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   .kt-gift25-card b{font-size:8px!important;min-height:24px!important}
   .kt-gift25-card strong{font-size:10.5px!important;margin-top:4px!important}
 }
+
+
+/* K-Talk 선물상자 최종 승인안 - 기능형 */
+.sheet.gift-final-v1{
+  background:rgba(0,0,0,.92)!important;
+  backdrop-filter:blur(8px)!important
+}
+.sheet.gift-final-v1 .sheet-inner{
+  width:min(100%,560px)!important;
+  max-height:97dvh!important;
+  padding:0!important;
+  overflow:auto!important;
+  border-radius:26px 26px 0 0!important;
+  border:1px solid #6f2c5f!important;
+  border-bottom:0!important;
+  background:
+    radial-gradient(circle at 10% 0%,rgba(194,50,190,.17),transparent 24%),
+    radial-gradient(circle at 90% 4%,rgba(93,55,166,.14),transparent 26%),
+    linear-gradient(180deg,#09070d 0%,#050407 58%,#020203 100%)!important;
+  box-shadow:0 -16px 55px #000e,0 0 32px #c03f9b1c!important
+}
+.sheet.gift-final-v1 .sheet-head{display:none!important}
+.sheet.gift-final-v1 #sheetBody{padding:0!important}
+
+.kt-gift-final{
+  padding:12px 10px 14px;
+  color:#fff;
+  min-height:100%;
+  pointer-events:auto!important
+}
+.kt-gift-final button{
+  pointer-events:auto!important;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent
+}
+.kt-gift-final-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  min-height:94px;
+  padding:8px 4px 15px;
+  border-bottom:1px solid #81355f55
+}
+.kt-gift-final-brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-width:0
+}
+.kt-gift-final-logo{
+  width:66px;
+  height:66px;
+  flex:0 0 66px;
+  display:grid;
+  place-items:center;
+  border-radius:20px;
+  font-size:38px;
+  background:linear-gradient(145deg,#78247d,#2c1134);
+  border:1px solid #dc5bc8;
+  box-shadow:0 0 24px #e156c33d,inset 0 0 18px #ffffff0d
+}
+.kt-gift-final-brand h2{
+  margin:0;
+  color:#ffe27c;
+  font-size:28px;
+  line-height:1;
+  font-weight:950;
+  letter-spacing:-1px;
+  white-space:nowrap;
+  text-shadow:0 0 12px #f2c15325
+}
+.kt-gift-final-brand p{
+  margin:8px 0 0;
+  color:#f0d8bc;
+  font-size:11px;
+  font-weight:900;
+  white-space:nowrap
+}
+.kt-gift-final-close{
+  flex:0 0 auto;
+  min-width:86px;
+  height:52px;
+  border-radius:18px;
+  border:1px solid #a14587;
+  background:linear-gradient(180deg,#1d101f,#0d0910);
+  color:#fff;
+  font-size:18px;
+  font-weight:950;
+  box-shadow:0 0 18px #e251bf1f,inset 0 0 12px #ffffff08
+}
+
+.kt-gift-final-main{
+  display:grid;
+  grid-template-columns:96px minmax(0,1fr);
+  gap:10px;
+  margin-top:12px;
+  align-items:start
+}
+.kt-gift-final-side{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  padding:6px;
+  border-radius:20px;
+  border:1px solid #57294a;
+  background:linear-gradient(180deg,#0d0910,#060507);
+  box-shadow:inset 0 0 24px #000c
+}
+.kt-gift-final-cat{
+  min-height:82px;
+  padding:7px 3px;
+  border-radius:17px;
+  border:1px solid transparent;
+  background:transparent;
+  color:#d8a8dc;
+  font-weight:950
+}
+.kt-gift-final-cat i{
+  display:block;
+  font-style:normal;
+  font-size:30px;
+  line-height:1
+}
+.kt-gift-final-cat span{
+  display:block;
+  margin-top:7px;
+  font-size:10.5px;
+  line-height:1.15;
+  font-weight:950
+}
+.kt-gift-final-cat.on{
+  color:#fff;
+  border-color:#ff60c8;
+  background:
+    radial-gradient(circle at 50% 20%,rgba(255,85,207,.19),transparent 45%),
+    linear-gradient(145deg,#491435,#1b0c1a);
+  box-shadow:0 0 18px #ff53bf45,inset 0 0 15px #ff64c41c
+}
+.kt-gift-final-cat.vip{
+  color:#ffd968
+}
+.kt-gift-final-cat.vip.on{
+  color:#fff1a4;
+  border-color:#ffd658;
+  background:linear-gradient(145deg,#342408,#130e04);
+  box-shadow:0 0 18px #ffd84a2e
+}
+
+.kt-gift-final-content{
+  min-width:0
+}
+.kt-gift-final-current{
+  display:none
+}
+.kt-gift-final-grid{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:7px;
+  align-content:start
+}
+.kt-gift-final-card{
+  position:relative;
+  min-width:0;
+  height:158px;
+  padding:7px 4px 8px;
+  border-radius:14px;
+  border:1px solid #815536;
+  background:
+    radial-gradient(circle at 50% 27%,rgba(115,42,87,.19),transparent 43%),
+    linear-gradient(180deg,#100b10,#070607);
+  color:#fff;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  text-align:center;
+  box-shadow:inset 0 0 20px #000d,0 0 10px #d5922812;
+  overflow:hidden
+}
+.kt-gift-final-card.is-hidden{
+  display:none!important
+}
+.kt-gift-final-card:active{
+  transform:scale(.97);
+  border-color:#ff68c8;
+  box-shadow:0 0 16px #ff5bc638,inset 0 0 18px #000c
+}
+.kt-gift-final-no{
+  position:absolute;
+  left:5px;
+  top:5px;
+  min-width:21px;
+  height:21px;
+  padding:0 4px;
+  display:grid;
+  place-items:center;
+  border-radius:7px;
+  background:#531a48;
+  border:1px solid #873773;
+  color:#ffd8f5;
+  font-size:10px;
+  font-weight:950;
+  z-index:2
+}
+.kt-gift-final-art{
+  width:100%;
+  height:90px;
+  margin:0 auto 7px;
+  display:grid;
+  place-items:center;
+  border-radius:13px;
+  font-family:"Noto Color Emoji","Apple Color Emoji","Segoe UI Emoji",sans-serif;
+  font-size:55px;
+  line-height:1;
+  background:
+    radial-gradient(circle at 50% 43%,rgba(126,47,105,.43),rgba(52,21,47,.58) 48%,#080608 80%);
+  box-shadow:inset 0 0 18px #000b,0 0 0 1px #6f452d;
+  filter:drop-shadow(0 4px 8px #0009)
+}
+.kt-gift-final-card:nth-child(5n+2) .kt-gift-final-art{
+  background:radial-gradient(circle at 50% 43%,rgba(111,66,205,.42),rgba(35,23,58,.62) 50%,#070507 80%)
+}
+.kt-gift-final-card:nth-child(5n+3) .kt-gift-final-art{
+  background:radial-gradient(circle at 50% 43%,rgba(193,117,29,.34),rgba(55,35,15,.60) 50%,#070507 80%)
+}
+.kt-gift-final-card b{
+  width:100%;
+  min-height:28px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  font-size:9.5px;
+  line-height:1.15;
+  font-weight:950;
+  word-break:keep-all
+}
+.kt-gift-final-card strong{
+  display:block;
+  margin-top:5px;
+  color:#ffd65e;
+  font-size:13px;
+  line-height:1;
+  font-weight:950;
+  white-space:nowrap;
+  text-shadow:0 0 8px #d99b2825
+}
+
+.kt-gift-final-pager{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:22px;
+  margin-top:12px
+}
+.kt-gift-final-pager button{
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  border:1px solid #70415f;
+  background:#120c12;
+  color:#fff;
+  font-size:26px;
+  line-height:1
+}
+.kt-gift-final-pager b{
+  color:#ff77d5;
+  font-size:13px;
+  font-weight:950
+}
+.kt-gift-final-foot{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:8px;
+  align-items:center;
+  margin-top:10px;
+  padding:9px 10px;
+  border-radius:14px;
+  border:1px solid #663052;
+  background:linear-gradient(180deg,#120b11,#0b080b)
+}
+.kt-gift-final-foot span{
+  color:#d8c6d3;
+  font-size:10px;
+  font-weight:900
+}
+.kt-gift-final-foot button{
+  min-height:36px;
+  padding:0 12px;
+  border-radius:11px;
+  border:1px solid #a7448c;
+  background:#180c17;
+  color:#ff94df;
+  font-size:10px;
+  font-weight:950
+}
+
+@media(max-width:410px){
+  .kt-gift-final{padding:10px 7px 12px}
+  .kt-gift-final-head{min-height:80px;padding-bottom:12px}
+  .kt-gift-final-brand{gap:8px}
+  .kt-gift-final-logo{width:54px;height:54px;flex-basis:54px;font-size:31px;border-radius:17px}
+  .kt-gift-final-brand h2{font-size:22px}
+  .kt-gift-final-brand p{font-size:9px;margin-top:5px}
+  .kt-gift-final-close{min-width:72px;height:46px;font-size:16px;padding:0 12px}
+  .kt-gift-final-main{grid-template-columns:76px minmax(0,1fr);gap:6px}
+  .kt-gift-final-side{padding:4px;gap:4px}
+  .kt-gift-final-cat{min-height:70px;border-radius:14px}
+  .kt-gift-final-cat i{font-size:23px}
+  .kt-gift-final-cat span{font-size:8.5px;margin-top:5px}
+  .kt-gift-final-grid{gap:4px}
+  .kt-gift-final-card{height:132px;padding:5px 2px 6px;border-radius:11px}
+  .kt-gift-final-art{height:72px;font-size:42px;margin-bottom:5px;border-radius:10px}
+  .kt-gift-final-no{min-width:18px;height:18px;font-size:8px}
+  .kt-gift-final-card b{font-size:7.8px;min-height:24px}
+  .kt-gift-final-card strong{font-size:10.5px;margin-top:4px}
+  .kt-gift-final-foot{grid-template-columns:1fr auto;padding:8px}
+  .kt-gift-final-foot span{font-size:8px}
+  .kt-gift-final-foot button{font-size:9px;padding:0 9px}
+}
