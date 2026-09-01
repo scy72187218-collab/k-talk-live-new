@@ -695,7 +695,9 @@ window.postCreatorRecording=async function(){
       blob:ktCreatorBlob,
       createdAt:Date.now(),
       posted:true,
-      postedAt:Date.now()
+      postedAt:Date.now(),
+      ownerId:(window.ktVideoOwner?ktVideoOwner().id:'local'),
+      ownerName:(window.ktVideoOwner?ktVideoOwner().name:'내 계정')
     };
     store.put(item);
     await new Promise(function(resolve,reject){
@@ -719,8 +721,12 @@ window.openMyVideoLibrary=async function(){
     var tx=db.transaction('videos','readonly');
     var req=tx.objectStore('videos').getAll();
     req.onsuccess=function(){
-      var items=(req.result||[]).sort(function(a,b){return b.createdAt-a.createdAt;});
-      var html='<div class="kt-myvideo-head"><b>🎬 내 동영상</b><button onclick="closeSheet();openCreator();setTimeout(openMyVideoPicker,120)">＋ 휴대폰 동영상 올리기</button></div>';
+      var owner=window.ktVideoOwner?ktVideoOwner():{id:'',name:'내 계정'};
+      var items=(req.result||[]).filter(function(v){
+        if(!owner.id)return true;
+        return !v.ownerId || String(v.ownerId)===String(owner.id);
+      }).sort(function(a,b){return b.createdAt-a.createdAt;});
+      var html='<div class="kt-myvideo-head"><b>🎬 '+String(owner.name||'내 계정').replace(/</g,'&lt;')+' 동영상</b><button onclick="closeSheet();openCreator();setTimeout(openMyVideoPicker,120)">＋ 휴대폰 동영상 올리기</button></div>';
       if(!items.length){
         html+='<div class="rowbox"><b>아직 올린 동영상이 없습니다.</b><br>휴대폰에 찍어 놓은 동영상을 선택해서 올릴 수 있습니다.</div>';
       }else{
@@ -778,6 +784,9 @@ window.postStoredVideo=async function(id,btn){
       if(!item){db.close();alert('동영상을 찾지 못했습니다.');return;}
       item.posted=true;
       item.postedAt=Date.now();
+      var owner=window.ktVideoOwner?ktVideoOwner():{id:'local',name:'내 계정'};
+      item.ownerId=owner.id;
+      item.ownerName=owner.name;
       store.put(item);
     };
     tx.oncomplete=function(){
@@ -2080,8 +2089,25 @@ window.ktCurrentVerifiedAccountName=function(){
     else if(state&&state.currentUser&&(state.currentUser.nickname||state.currentUser.name))name=state.currentUser.nickname||state.currentUser.name;
     else if(state&&(state.accountName||state.userName))name=state.accountName||state.userName;
     else if(localStorage.getItem('ktalk_account_verified')==='1')name=localStorage.getItem('ktalk_account_name')||'';
+    else if(localStorage.getItem('ktalk_admin_test_account_name'))name=localStorage.getItem('ktalk_admin_test_account_name')||'';
   }catch(e){}
   return String(name||'').trim();
+};
+window.ktCurrentAccountId=function(){
+  var id='';
+  try{
+    if(window.KTALK_AUTH_USER&&(KTALK_AUTH_USER.id||KTALK_AUTH_USER.uid))id=KTALK_AUTH_USER.id||KTALK_AUTH_USER.uid;
+    else if(state&&state.currentUser&&(state.currentUser.id||state.currentUser.uid))id=state.currentUser.id||state.currentUser.uid;
+    else if(state&&(state.accountId||state.userId))id=state.accountId||state.userId;
+    else if(localStorage.getItem('ktalk_account_verified')==='1')id=localStorage.getItem('ktalk_account_id')||localStorage.getItem('ktalk_account_name')||'';
+    else if(localStorage.getItem('ktalk_admin_test_account_id'))id=localStorage.getItem('ktalk_admin_test_account_id')||'';
+  }catch(e){}
+  return String(id||'').trim();
+};
+window.ktVideoOwner=function(){
+  var name=window.ktCurrentVerifiedAccountName?ktCurrentVerifiedAccountName():'';
+  var id=window.ktCurrentAccountId?ktCurrentAccountId():'';
+  return {id:id||name||'local',name:name||'내 계정'};
 };
 window.ktIsNoChargeGiftAccount=function(){
   var n=ktCurrentVerifiedAccountName().replace(/\s+/g,'');
