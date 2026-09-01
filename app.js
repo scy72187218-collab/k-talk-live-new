@@ -192,16 +192,17 @@ window.ensureFaceEffectLayer=function(){
   if(!layer){
     layer=document.createElement('div');
     layer.id='ktFaceEffectLayer';
-    layer.className='kt-face-effect-layer';
     creator.appendChild(layer);
   }
+  layer.className='kt-face-effect-layer';
+  layer.style.cssText='position:fixed!important;inset:0!important;z-index:12!important;display:block!important;pointer-events:none!important;overflow:hidden!important;';
   return layer;
 };
 
 window.renderFaceEffect=function(name){
   var layer=ensureFaceEffectLayer();
-  layer.className='kt-face-effect-layer';
   layer.innerHTML='';
+  layer.style.display='block';
   creator.removeAttribute('data-beauty-char');
 
   var filterClasses=['fx-glow','fx-soft','fx-rainbow','fx-cool','fx-warm','fx-night','fx-cinema','fx-mono','fx-pink','fx-blue','fx-star','fx-party','fx-disco','fx-dream'];
@@ -217,24 +218,37 @@ window.renderFaceEffect=function(name){
   state.editFilter='';
   state.editSticker=name;
 
+  var center='position:absolute;left:50%;transform:translateX(-50%);pointer-events:none;user-select:none;';
   if(name==='sunglasses'){
-    layer.innerHTML='<div class="ef-sunglasses"><i></i><i></i><b></b></div>';
-  }else if(name==='beard'){
-    layer.innerHTML='<div class="ef-beard">〰</div>';
+    layer.innerHTML='<div style="'+center+'top:34%;font-size:112px;line-height:1;filter:drop-shadow(0 5px 8px rgba(0,0,0,.38));">🕶️</div>';
   }else if(name==='rollers'){
-    layer.innerHTML='<div class="ef-rollers"><i></i><i></i><i></i><i></i><i></i><i></i></div>';
+    layer.innerHTML='<div style="'+center+'top:17%;width:280px;height:180px;">'
+      +'<i style="position:absolute;left:108px;top:0;width:64px;height:36px;border-radius:10px;border:5px solid #ff7fba;background:repeating-linear-gradient(90deg,#ffd1e5 0 8px,#ff8dc2 8px 13px);"></i>'
+      +'<i style="position:absolute;left:20px;top:52px;width:62px;height:36px;border-radius:10px;border:5px solid #ff7fba;background:repeating-linear-gradient(90deg,#ffd1e5 0 8px,#ff8dc2 8px 13px);transform:rotate(-18deg)"></i>'
+      +'<i style="position:absolute;right:20px;top:52px;width:62px;height:36px;border-radius:10px;border:5px solid #ff7fba;background:repeating-linear-gradient(90deg,#ffd1e5 0 8px,#ff8dc2 8px 13px);transform:rotate(18deg)"></i>'
+      +'<i style="position:absolute;left:62px;top:72px;width:62px;height:36px;border-radius:10px;border:5px solid #ff7fba;background:repeating-linear-gradient(90deg,#ffd1e5 0 8px,#ff8dc2 8px 13px);"></i>'
+      +'<i style="position:absolute;right:62px;top:72px;width:62px;height:36px;border-radius:10px;border:5px solid #ff7fba;background:repeating-linear-gradient(90deg,#ffd1e5 0 8px,#ff8dc2 8px 13px);"></i>'
+      +'<i style="position:absolute;left:109px;top:118px;width:62px;height:36px;border-radius:10px;border:5px solid #ff7fba;background:repeating-linear-gradient(90deg,#ffd1e5 0 8px,#ff8dc2 8px 13px);"></i>'
+      +'</div>';
+  }else if(name==='beard'){
+    layer.innerHTML='<div style="'+center+'top:42%;font-size:82px;line-height:1;filter:drop-shadow(0 3px 5px rgba(0,0,0,.35));">🥸</div>';
   }else if(name==='crown'){
-    layer.innerHTML='<div class="ef-crown">👑</div>';
+    layer.innerHTML='<div style="'+center+'top:16%;font-size:88px;line-height:1;">👑</div>';
   }else if(name==='cat'){
-    layer.innerHTML='<div class="ef-cat"><span>🐱</span></div>';
+    layer.innerHTML='<div style="'+center+'top:20%;font-size:94px;line-height:1;">🐱</div>';
   }else if(name==='rabbit'){
-    layer.innerHTML='<div class="ef-rabbit">🐰</div>';
+    layer.innerHTML='<div style="'+center+'top:17%;font-size:100px;line-height:1;">🐰</div>';
   }else if(name==='flowers'){
-    layer.innerHTML='<div class="ef-flowers"><span>🌸</span><span>🌺</span><span>🌼</span><span>🌸</span></div>';
+    layer.innerHTML='<div style="'+center+'top:17%;width:300px;text-align:center;font-size:46px;letter-spacing:6px;">🌸 🌺 🌼 🌸</div>';
   }else if(name==='sparkle'){
-    layer.innerHTML='<div class="ef-sparkle"><span>✦</span><span>✨</span><span>✧</span><span>⭐</span></div>';
+    layer.innerHTML='<div style="position:absolute;top:21%;left:12%;font-size:38px;">✨</div>'
+      +'<div style="position:absolute;top:29%;right:11%;font-size:34px;">✦</div>'
+      +'<div style="position:absolute;top:47%;left:18%;font-size:30px;">⭐</div>'
+      +'<div style="position:absolute;top:52%;right:17%;font-size:30px;">✨</div>';
   }else if(name==='party'){
-    layer.innerHTML='<div class="ef-party"><span>🎉</span><span>✨</span><span>🎊</span></div>';
+    layer.innerHTML='<div style="position:absolute;top:18%;left:12%;font-size:42px;">🎉</div>'
+      +'<div style="position:absolute;top:25%;right:12%;font-size:38px;">🎊</div>'
+      +'<div style="position:absolute;top:50%;left:18%;font-size:32px;">✨</div>';
   }else if(name==='mono'){
     state.editFilter='mono';
     creator.classList.add('fx-mono');
