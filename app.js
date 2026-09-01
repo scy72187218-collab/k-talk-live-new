@@ -1155,6 +1155,101 @@ window.closeEditEffectPanel=function(){
   if(state.effectReturnBeauty){state.effectReturnBeauty=false;openBeautyPanel();}
 };
 
+window.ktEditEffects=[
+  ['⊘','해제','off','all'],
+  ['🕶️','선글라스','sunglasses','unisex'],
+  ['👓','안경','glasses','unisex'],
+  ['👨','콧수염','mustache','unisex'],
+  ['🧔','턱수염','beard','unisex'],
+  ['🧢','캡모자','cap','unisex'],
+  ['🏴‍☠️','해적안대','pirate','fun'],
+  ['👑','왕관','crown','unisex'],
+  ['🐱','고양이귀','cat','fun'],
+  ['🐶','강아지귀','dog','fun'],
+  ['🐰','토끼귀','rabbit','fun'],
+  ['😊','볼터치','blush','fun'],
+  ['💗','하트볼','heart','fun'],
+  ['✨','별빛','sparkle','unisex'],
+  ['💧','눈물','tears','fun'],
+  ['😇','후광','halo','fun'],
+  ['🔥','불꽃','fire','fun'],
+  ['🎨','페이스페인트','facepaint','fun'],
+  ['🎭','마스크','mask','unisex'],
+  ['🦋','나비','butterfly','fun']
+];
+
+window.renderEditEffectItems=function(mode){
+  var wrap=document.querySelector('#ktLiveEffects .kt-live-effects-scroll');
+  if(!wrap)return;
+  var effects=window.ktEditEffects||[];
+  if(mode==='unisex'){
+    effects=effects.filter(function(e){return e[2]==='off'||e[3]==='unisex';});
+  }else if(mode==='fun'){
+    effects=effects.filter(function(e){return e[2]==='off'||e[3]==='fun';});
+  }
+  wrap.innerHTML=effects.map(function(e){
+    return '<button class="kt-live-effect-item" data-effect="'+e[2]+'" onclick="previewEditEffect(\''+e[2]+'\')">'
+      +'<span>'+e[0]+'</span><small>'+e[1]+'</small></button>';
+  }).join('');
+  var bar=document.querySelector('#ktLiveEffects .kt-effect-applybar');
+  if(bar)bar.style.display='';
+  syncEditEffectButtons();
+};
+
+window.renderEditBackgroundItems=function(){
+  var wrap=document.querySelector('#ktLiveEffects .kt-live-effects-scroll');
+  if(!wrap)return;
+  var backgrounds=[
+    ['🎤','무대','stage'],
+    ['🏖️','바닷가','beach'],
+    ['⛰️','산','mountain'],
+    ['🌃','도시야경','city'],
+    ['🌸','꽃정원','garden'],
+    ['☕','카페','cafe'],
+    ['🛥️','요트','yacht'],
+    ['🎶','클럽무대','club']
+  ];
+  wrap.innerHTML=backgrounds.map(function(b){
+    return '<button class="kt-bg-choice '+(state.selectedBackground===b[2]?'on':'')+'" onclick="selectEditBackground(this,\''+b[2]+'\',\''+b[1]+'\')">'
+      +'<span class="kt-bg-thumb bg-'+b[2]+'">'+b[0]+'</span><small>'+b[1]+'</small></button>';
+  }).join('');
+  var bar=document.querySelector('#ktLiveEffects .kt-effect-applybar');
+  if(bar)bar.style.display='none';
+};
+
+window.selectEditBackground=function(btn,key,label){
+  state.selectedBackground=key;
+  document.querySelectorAll('#ktLiveEffects .kt-bg-choice').forEach(function(b){b.classList.remove('on');});
+  if(btn)btn.classList.add('on');
+  creator.setAttribute('data-kt-background',key);
+  try{localStorage.setItem('ktalk_selected_background',key);}catch(e){}
+  ktSpeak(label+' 배경을 선택했습니다.');
+};
+
+window.switchEditEffectTab=function(btn,mode){
+  document.querySelectorAll('#ktLiveEffects .kt-live-effects-tabs button').forEach(function(b){b.classList.remove('on');});
+  if(btn)btn.classList.add('on');
+  if(mode==='beauty'){
+    var tray=document.getElementById('ktLiveEffects');
+    if(tray)tray.classList.remove('show');
+    openBeautyPanel();
+    return;
+  }
+  if(mode==='background'){
+    renderEditBackgroundItems();
+    return;
+  }
+  if(mode==='unisex'){
+    renderEditEffectItems('unisex');
+    return;
+  }
+  if(mode==='fun'){
+    renderEditEffectItems('fun');
+    return;
+  }
+  renderEditEffectItems('all');
+};
+
 window.openEditEffectPanel=function(){
   state.effectReturnBeauty=!!(sheet&&sheet.classList.contains('show')&&sheet.classList.contains('camera-effect-sheet'));
   if(state.effectReturnBeauty){
@@ -1171,41 +1266,23 @@ window.openEditEffectPanel=function(){
 
   if(!state.appliedEditEffect)state.appliedEditEffect='off';
   state.pendingEditEffect=state.appliedEditEffect;
-
-  var effects=[
-    ['⊘','해제','off'],
-    ['🕶️','선글라스','sunglasses'],
-    ['👓','안경','glasses'],
-    ['👨','콧수염','mustache'],
-    ['🧔','턱수염','beard'],
-    ['🧢','캡모자','cap'],
-    ['🏴‍☠️','해적안대','pirate'],
-    ['👑','왕관','crown'],
-    ['🐱','고양이귀','cat'],
-    ['🐶','강아지귀','dog'],
-    ['🐰','토끼귀','rabbit'],
-    ['😊','볼터치','blush'],
-    ['💗','하트볼','heart'],
-    ['✨','별빛','sparkle'],
-    ['💧','눈물','tears'],
-    ['😇','후광','halo'],
-    ['🔥','불꽃','fire'],
-    ['🎨','페이스페인트','facepaint'],
-    ['🎭','마스크','mask'],
-    ['🦋','나비','butterfly']
-  ];
+  if(!state.selectedBackground){
+    try{state.selectedBackground=localStorage.getItem('ktalk_selected_background')||'';}catch(e){}
+  }
 
   tray.innerHTML='<div class="kt-live-effects-head"><b>편집효과</b><button onclick="closeEditEffectPanel()">✕</button></div>'
-    +'<div class="kt-live-effects-tabs"><button class="on">추천</button><button>얼굴보정</button><button>뒷배경</button><button>남녀공용</button><button>재미</button></div>'
-    +'<div class="kt-live-effects-scroll">'
-    +effects.map(function(e){
-      return '<button class="kt-live-effect-item" data-effect="'+e[2]+'" onclick="previewEditEffect(\''+e[2]+'\')">'
-        +'<span>'+e[0]+'</span><small>'+e[1]+'</small></button>';
-    }).join('')
+    +'<div class="kt-live-effects-tabs">'
+      +'<button class="on" onclick="switchEditEffectTab(this,\'all\')">추천</button>'
+      +'<button onclick="switchEditEffectTab(this,\'beauty\')">얼굴보정</button>'
+      +'<button onclick="switchEditEffectTab(this,\'background\')">뒷배경</button>'
+      +'<button onclick="switchEditEffectTab(this,\'unisex\')">남녀공용</button>'
+      +'<button onclick="switchEditEffectTab(this,\'fun\')">재미</button>'
     +'</div>'
+    +'<div class="kt-live-effects-scroll"></div>'
     +'<div class="kt-effect-applybar"><span>선택: <b id="ktEffectSelected">효과</b></span><button onclick="applyEditEffect()">✓ 적용</button></div>';
 
   tray.classList.add('show');
+  renderEditEffectItems('all');
   ensureFaceEffectLayer();
   renderFaceEffect(state.pendingEditEffect);
   syncEditEffectButtons();
