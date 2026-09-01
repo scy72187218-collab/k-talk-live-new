@@ -340,7 +340,20 @@ home();
 
 setTimeout(function(){
   var directCreator=window.openCreator;
-  window.openRoomTypeChooser=function(){showSheet('라이브 방송 선택','<div class="aux-grid"><button class="aux-card" onclick="selectLiveRoom(\'1인 방송\',1,\'solo\')"><b>🎙️ 1인 방송</b><small>나만의 라이브</small></button><button class="aux-card" onclick="selectLiveRoom(\'일반 13명방\',13,\'group\')"><b>👥 일반 13명방</b><small>최대 13명</small></button><button class="aux-card" onclick="selectLiveRoom(\'VIP 방송\',10,\'vip\')"><b>💎 VIP 방송</b><small>VIP 권한 확인 후 이용</small></button><button class="aux-card" onclick="openPasswordRoomSetup()"><b>🔒 비밀번호방</b><small>방장이 비밀번호 설정</small></button></div>');};
+  window.openRoomTypeChooser=function(){
+    var html='<div class="kt-multi-layouts">'
+      +'<button onclick="selectMultiGuestLayout(this,\'grid\')"><span class="layout-preview grid"><i></i><i></i><i></i><i></i><i></i><i></i></span><b>격자형</b><small>여러 명을 한눈에</small></button>'
+      +'<button onclick="selectMultiGuestLayout(this,\'side\')"><span class="layout-preview side"><i></i><i></i></span><b>나란히</b><small>두 화면을 크게</small></button>'
+      +'<button onclick="selectMultiGuestLayout(this,\'spotlight\')"><span class="layout-preview spot"><i></i><i></i><i></i><i></i></span><b>스포트라이트</b><small>호스트 크게 · 게스트 아래</small></button>'
+      +'</div>';
+    showSheet('멀티 게스트 설정',html);
+  };
+  window.selectMultiGuestLayout=function(el,type){
+    state.multiGuestLayout=type;
+    document.querySelectorAll('.kt-multi-layouts button').forEach(function(b){b.classList.remove('on');});
+    if(el)el.classList.add('on');
+    setTimeout(function(){closeSheet();},120);
+  };
   window.selectLiveRoom=function(name,max,type){state.liveRoomType=type;state.liveRoomName=name;state.liveRoomMax=max;closeSheet();directCreator();var title=document.getElementById('liveTitle');if(title)title.value=name+' · 최대 '+max+'명';};
   window.openPasswordRoomSetup=function(){showSheet('🔒 비밀번호방 설정','<div class="note">방에 들어올 때 사용할 비밀번호를 설정하세요.</div><input id="roomPasswordInput" class="form" type="password" inputmode="numeric" maxlength="8" placeholder="비밀번호 입력"><button class="act" onclick="confirmPasswordRoom()">비밀번호 설정하고 계속</button>');};
   window.confirmPasswordRoom=function(){var input=document.getElementById('roomPasswordInput');var pw=input?input.value.trim():'';if(pw.length<4){alert('비밀번호를 4자리 이상 입력해 주세요.');return;}state.roomPassword=pw;state.liveRoomType='password';state.liveRoomName='비밀번호방';state.liveRoomMax=7;closeSheet();directCreator();var title=document.getElementById('liveTitle');if(title)title.value='비밀번호방 · 호스트 1 + 게스트 6';};
