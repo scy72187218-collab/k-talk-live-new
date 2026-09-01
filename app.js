@@ -206,15 +206,10 @@ state.effectOn=!!state.effectOn;
 
 window.openCreator=async function(){
   creator.classList.add('show');
-  creator.classList.remove('creator-review','creator-recording');
-  var live=state.stream&&state.stream.getVideoTracks&&state.stream.getVideoTracks().some(function(t){return t.readyState==='live';});
-  if(live){
-    camera.srcObject=state.stream;
-    creator.classList.add('camera-on');
-    try{await camera.play();}catch(e){}
-    return;
-  }
-  if(window.ensureCreatorPreviewCamera){
+  creator.classList.remove('creator-review','creator-recording','live-prep-open');
+  if(window.ensureLiveCamera){
+    try{await ensureLiveCamera(state.cameraFacing||'user');}catch(e){}
+  }else if(window.ensureCreatorPreviewCamera){
     try{await ensureCreatorPreviewCamera(state.cameraFacing||'user');}catch(e){}
   }
 };
@@ -279,29 +274,10 @@ window.ktAttachCreatorCamera=async function(stream){
 };
 
 window.ensureCreatorPreviewCamera=async function(facing){
-  try{
-    var live=state.stream&&state.stream.getVideoTracks&&state.stream.getVideoTracks().some(function(t){return t.readyState==='live';});
-    if(live){
-      return await ktAttachCreatorCamera(state.stream);
-    }
-
-    state.cameraFacing=facing||state.cameraFacing||'user';
-
-    /* 인앱 브라우저에서도 잘 뜨도록 미리보기는 가장 단순한 카메라 요청을 사용합니다. */
-    try{
-      state.stream=await navigator.mediaDevices.getUserMedia({
-        video:{facingMode:state.cameraFacing},
-        audio:false
-      });
-    }catch(firstErr){
-      state.stream=await navigator.mediaDevices.getUserMedia({video:true,audio:false});
-    }
-
-    return await ktAttachCreatorCamera(state.stream);
-  }catch(e){
-    creator.classList.remove('camera-on');
-    return false;
+  if(window.ensureLiveCamera){
+    return await ensureLiveCamera(facing||state.cameraFacing||'user');
   }
+  return false;
 };
 
 window.ensureLiveCamera=async function(facing){
