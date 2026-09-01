@@ -397,18 +397,40 @@ window.deleteCreatorRecording=function(){
   try{if(camera&&state.stream){camera.srcObject=state.stream;camera.play().catch(function(){});}}catch(e){}
 };
 
-window.saveCreatorRecording=function(){
+window.saveCreatorRecording=async function(){
   if(!ktCreatorBlob||!ktCreatorBlobUrl){alert('저장할 동영상이 없습니다.');return;}
   try{
     var ext=(ktCreatorBlob.type||'').indexOf('mp4')>-1?'mp4':'webm';
+    var filename='K-Talk_'+Date.now()+'.'+ext;
+    var file=new File([ktCreatorBlob],filename,{type:ktCreatorBlob.type||('video/'+ext)});
+
+    if(window.showSaveFilePicker){
+      var handle=await showSaveFilePicker({
+        suggestedName:filename,
+        types:[{description:'K-Talk 동영상',accept:{[file.type]:['.'+ext]}}]
+      });
+      var writable=await handle.createWritable();
+      await writable.write(ktCreatorBlob);
+      await writable.close();
+      ktSpeak('동영상을 저장했습니다.');
+      return;
+    }
+
+    if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({files:[file],title:'K-Talk 동영상'});
+      return;
+    }
+
     var a=document.createElement('a');
     a.href=ktCreatorBlobUrl;
-    a.download='K-Talk_'+Date.now()+'.'+ext;
+    a.download=filename;
+    a.rel='noopener';
     document.body.appendChild(a);
     a.click();
     a.remove();
     ktSpeak('동영상을 저장했습니다.');
   }catch(e){
+    if(e&&e.name==='AbortError')return;
     alert('동영상 저장을 완료하지 못했습니다.');
   }
 };
