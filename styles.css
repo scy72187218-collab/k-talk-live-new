@@ -1563,3 +1563,25 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
 .kt-myvideo-player b{
   display:block;margin-top:9px;color:#fff;font-size:12px;font-weight:900
 }
+
+
+/* 사진첩 동영상 음악 재생 */
+.kt-creator-sound-play{
+  display:none;
+  position:absolute;
+  left:50%;
+  bottom:96px;
+  transform:translateX(-50%);
+  z-index:34;
+  min-width:132px;
+  height:46px;
+  padding:0 16px;
+  border-radius:999px;
+  border:1px solid #ffffff55;
+  background:#0d0d12dc;
+  color:#fff;
+  font-size:13px;
+  font-weight:950;
+  box-shadow:0 8px 20px #0007
+}
+.creator.creator-review .kt-creator-sound-play{pointer-events:auto}
