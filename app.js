@@ -489,11 +489,11 @@ window.makeEffectRecordingStream=function(){
     var sw=camera.videoWidth||1920,sh=camera.videoHeight||1080;
     var bgScale=Math.max(canvas.width/sw,canvas.height/sh);
     var bgW=sw*bgScale,bgH=sh*bgScale,bgX=(canvas.width-bgW)/2,bgY=(canvas.height-bgH)/2;
-    var scale=Math.min(canvas.width/sw,canvas.height/sh)*.7;
+    var scale=Math.min(canvas.width/sw,canvas.height/sh)*.49;
     var dw=sw*scale,dh=sh*scale,dx=(canvas.width-dw)/2,dy=(canvas.height-dh)/2;
     ctx.save();ctx.clearRect(0,0,canvas.width,canvas.height);
     ctx.translate(canvas.width,0);ctx.scale(-1,1);
-    ctx.filter='blur(24px) brightness(.62)';
+    ctx.filter='blur(42px) brightness(.38)';
     try{ctx.drawImage(camera,bgX,bgY,bgW,bgH);}catch(e){}
     ctx.filter='none';
     try{ctx.drawImage(camera,dx,dy,dw,dh);}catch(e){}
