@@ -3426,3 +3426,48 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   .kt-account-avatar{width:68px;height:68px;font-size:28px}
   .kt-account-half b{font-size:14px}
 }
+
+
+/* 2026-09-02 계정 사진 가운데 정렬 + 살짝 움직임 */
+.kt-account-avatar{
+  position:relative!important;
+  overflow:hidden!important;
+  display:grid!important;
+  place-items:center!important;
+  transform-origin:center center!important;
+  animation:ktAccountFloat 3.2s ease-in-out infinite!important;
+}
+.kt-account-avatar.has-photo{
+  background:#111!important;
+}
+.kt-account-avatar.has-photo img{
+  width:100%!important;
+  height:100%!important;
+  display:block!important;
+  object-fit:cover!important;
+  object-position:50% 50%!important;
+  border-radius:50%!important;
+  transform:scale(1.04)!important;
+  animation:ktAccountPhotoPan 5s ease-in-out infinite alternate!important;
+}
+.kt-account-half:nth-child(2) .kt-account-avatar{
+  animation-delay:.45s!important;
+}
+@keyframes ktAccountFloat{
+  0%,100%{transform:translateY(0) scale(1)}
+  50%{transform:translateY(-4px) scale(1.02)}
+}
+@keyframes ktAccountPhotoPan{
+  0%{object-position:50% 48%;transform:scale(1.04)}
+  100%{object-position:50% 52%;transform:scale(1.07)}
+}
+.kt-my-profile-photo img{
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  object-position:50% 50%!important;
+}
+@media (prefers-reduced-motion:reduce){
+  .kt-account-avatar,
+  .kt-account-avatar.has-photo img{animation:none!important}
+}
