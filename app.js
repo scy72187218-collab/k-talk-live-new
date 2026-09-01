@@ -6,6 +6,53 @@ var sheet=document.getElementById('sheet');
 var sheetTitle=document.getElementById('sheetTitle');
 var sheetBody=document.getElementById('sheetBody');
 
+state.aiVoiceOn=true;
+try{
+  var savedVoice=localStorage.getItem('ktalk_ai_voice');
+  if(savedVoice==='off')state.aiVoiceOn=false;
+}catch(e){}
+
+window.ktSpeak=function(text){
+  if(!state.aiVoiceOn||!text||!('speechSynthesis' in window))return;
+  try{
+    var u=new SpeechSynthesisUtterance(String(text));
+    u.lang='ko-KR';
+    u.rate=1.02;
+    u.pitch=1;
+    u.volume=1;
+    var voices=speechSynthesis.getVoices?speechSynthesis.getVoices():[];
+    var ko=voices.find(function(v){return /^ko(-|_)/i.test(v.lang||'');});
+    if(ko)u.voice=ko;
+    speechSynthesis.speak(u);
+  }catch(e){}
+};
+
+window.toggleAIVoice=function(btn){
+  state.aiVoiceOn=!state.aiVoiceOn;
+  try{localStorage.setItem('ktalk_ai_voice',state.aiVoiceOn?'on':'off');}catch(e){}
+  if(btn){
+    btn.classList.toggle('on',state.aiVoiceOn);
+    btn.setAttribute('aria-pressed',state.aiVoiceOn?'true':'false');
+  }
+  if(state.aiVoiceOn)ktSpeak('에이아이 음성 안내를 켰습니다.');
+};
+
+window.ktAnnounceEvent=function(type,data){
+  data=data||{};
+  if(type==='gift'){
+    var who=data.sender?data.sender+'님이 ':'';
+    var count=data.count?String(data.count).replace(/,/g,'')+'개 ':'';
+    ktSpeak(who+(data.name||'선물')+' '+count+'선물했습니다.');
+  }else if(type==='reward'){
+    ktSpeak(data.text||'보상이 지급되었습니다.');
+  }else if(type==='join'){
+    ktSpeak((data.name?data.name+'님, ':'')+'K-Talk에 오신 것을 환영합니다.');
+  }else if(type==='notice'){
+    ktSpeak(data.text||'알림이 있습니다.');
+  }
+};
+
+
 window.activate=function(name){document.querySelectorAll('[data-tab]').forEach(function(b){b.classList.toggle('active',b.dataset.tab===name);});};
 window.showSheet=function(title,html){sheet.classList.remove('camera-effect-sheet');sheetTitle.innerHTML=title;sheetBody.innerHTML=html;sheet.classList.add('show');};
 window.closeSheet=function(){sheet.classList.remove('show');sheet.classList.remove('gift-exact');sheet.classList.remove('camera-effect-sheet');};
@@ -424,6 +471,7 @@ window.openLiveSettings=function(){
     +'<button class="kt-setting-row"><span>🌐</span><b>시청 가능 범위</b><em>모두 ›</em></button>'
     +'<button class="kt-setting-row"><span>🎥</span><b>라이브 화질</b><em>1080p ›</em></button>'
     +'<div class="kt-setting-row"><span>🔊</span><b>노이즈 억제</b><button class="kt-switch" onclick="toggleLiveSetting(this)" aria-pressed="false"></button></div>'
+    +'<div class="kt-setting-row"><span>🗣️</span><b>AI 음성 안내</b><button class="kt-switch '+(state.aiVoiceOn?'on':'')+'" onclick="toggleAIVoice(this)" aria-pressed="'+(state.aiVoiceOn?'true':'false')+'"></button></div>'
     +'<div class="kt-setting-row"><span>🚀</span><b>안정적 방송</b><button class="kt-switch on" onclick="toggleLiveSetting(this)" aria-pressed="true"></button></div>'
     +'<button class="kt-setting-row"><span>💬</span><b>댓글 안전</b><em>›</em></button>'
     +'<button class="kt-setting-row"><span>👤</span><b>모더레이터</b><em>›</em></button>'
@@ -686,7 +734,11 @@ window.openFanHelp=function(){
 };
 
 window.showHostCrown=function(kind){var old=document.getElementById('hostGiftCrown');if(old)old.remove();var badge=document.createElement('div');badge.id='hostGiftCrown';badge.textContent=(kind==='다이아 왕관'||kind==='다이아몬드 왕관')?'💎👑':'👑';badge.style.cssText='position:fixed;z-index:9999;top:86px;left:50%;transform:translateX(-50%);font-size:52px;filter:drop-shadow(0 0 15px #ffd85a);pointer-events:none';document.body.appendChild(badge);setTimeout(function(){if(badge&&badge.parentNode)badge.remove();},6000);};
-window.giftSend=function(name,cost){if(name.indexOf('왕관')>-1||name.indexOf('크라운')>-1){showHostCrown(name);}alert(name+' · '+cost+'개 선물을 선택했습니다.');};
+window.giftSend=function(name,cost,sender){
+  if(name.indexOf('왕관')>-1||name.indexOf('크라운')>-1){showHostCrown(name);}
+  ktAnnounceEvent('gift',{sender:sender||'',name:name,count:cost});
+  alert(name+' · '+cost+'개 선물을 선택했습니다.');
+};
 window.ktalkGifts=[
   ['장미','1'],['장미 꽃다발','5'],['장미 박스','10'],['장미 20송이','20'],['장미 50송이','50'],
   ['장미 100송이','100'],['장미 200송이','200'],['장미 300송이','300'],['장미 400송이','400'],['장미 500송이','500'],
@@ -714,9 +766,11 @@ window.openGifts=function(){
   showSheet('',html);
   sheet.classList.add('gift-exact');
 };
-window.openTreasure=function(){showSheet('🎁 보물상자','<div class="premium-grid"><button class="premium" onclick="alert(\'보물상자 50 선택\')"><span>🎁</span><b>보물상자 50</b></button><button class="premium" onclick="alert(\'보물상자 100 선택\')"><span>🎁</span><b>보물상자 100</b></button><button class="premium" onclick="alert(\'보물상자 150 선택\')"><span>🎁</span><b>보물상자 150</b></button></div>');};
+window.selectTreasure=function(n){ktAnnounceEvent('gift',{name:'보물상자',count:n});alert('보물상자 '+n+' 선택');};
+window.openTreasure=function(){showSheet('🎁 보물상자','<div class="premium-grid"><button class="premium" onclick="selectTreasure(50)"><span>🎁</span><b>보물상자 50</b></button><button class="premium" onclick="selectTreasure(100)"><span>🎁</span><b>보물상자 100</b></button><button class="premium" onclick="selectTreasure(150)"><span>🎁</span><b>보물상자 150</b></button></div>');};
 window.selectCoinCharge=function(amount,base,bonus){
   var total=base+bonus;
+  ktSpeak('장미 '+base.toLocaleString('ko-KR')+'개, 보너스 '+bonus.toLocaleString('ko-KR')+'개, 총 '+total.toLocaleString('ko-KR')+'개입니다.');
   alert(Number(amount).toLocaleString('ko-KR')+'원 · 기본 장미 '+base.toLocaleString('ko-KR')+'개 · 보너스 '+bonus.toLocaleString('ko-KR')+'개 · 총 '+total.toLocaleString('ko-KR')+'개');
 };
 window.openCharge=function(){
@@ -753,11 +807,17 @@ window.openCharge=function(){
   showSheet('🌹 장미 충전',html);
 };
 window.openRaffle=function(){showSheet('🎯 제비뽑기','<div class="raffle">꽝 · 1 · 2 · 3 · 4 · 5</div><button class="act" onclick="raffle()">제비뽑기</button>');};
-window.raffle=function(){if(state.raffle<=0){alert('오늘 참여 횟수를 모두 사용했습니다.');return;}state.raffle--;var p=[0,0,1,2,3,4,5];var x=p[Math.floor(Math.random()*p.length)];alert(x?'장미 '+x+'개 당첨!':'꽝입니다.');};
+window.raffle=function(){if(state.raffle<=0){ktSpeak('오늘 참여 횟수를 모두 사용했습니다.');alert('오늘 참여 횟수를 모두 사용했습니다.');return;}state.raffle--;var p=[0,0,1,2,3,4,5];var x=p[Math.floor(Math.random()*p.length)];var msg=x?'장미 '+x+'개 당첨!':'꽝입니다.';ktAnnounceEvent('reward',{text:msg});alert(msg);};
 window.openMessages=function(){showSheet('✉ 쪽지','<div class="rowbox"><b>쪽지 화면</b><br>메시지 기능 버튼이 정상 작동합니다.</div>');};
 window.openComments=function(){showSheet('💬 댓글','<div class="rowbox"><b>댓글 화면</b><br>댓글 버튼이 정상 작동합니다.</div>');};
 window.openProfile=function(){showSheet('♛ 프로필','<div class="profile-pic">K</div><div style="text-align:center"><h3 style="color:#ffe07a">K-Talk</h3></div>');};
-window.openAI=function(){showSheet('🔊 AI 읽기','<div class="rowbox"><b>AI 읽기 보조</b></div>');};
+window.openAI=function(){
+  var html='<div class="rowbox"><b>🗣️ AI 음성 안내</b><br>선물 · 보물상자 · 당첨 보상 · 주요 알림을 한국어 음성으로 읽어줍니다.</div>'
+    +'<div class="rowbox"><b>현재 상태</b><br>'+(state.aiVoiceOn?'켜짐':'꺼짐')+'</div>'
+    +'<button class="act" onclick="toggleAIVoice();closeSheet();openAI()">'+(state.aiVoiceOn?'AI 음성 끄기':'AI 음성 켜기')+'</button>'
+    +'<button class="act" onclick="ktSpeak(\'K-Talk AI 음성 안내 테스트입니다.\')">🔊 음성 테스트</button>';
+  showSheet('🔊 AI 읽기',html);
+};
 window.setCreatorMode=function(el,name){
   document.querySelectorAll('.creator-foot span').forEach(function(s){s.classList.remove('on');});
   if(el)el.classList.add('on');
