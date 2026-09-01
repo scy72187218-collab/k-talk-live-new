@@ -165,7 +165,8 @@
      const tx=db.transaction('videos','readonly');
      const req=tx.objectStore('videos').getAll();
      req.onsuccess=function(){
-       const items=(req.result||[]).filter(x=>x&&x.posted&&x.blob).sort((a,b)=>(b.postedAt||b.createdAt||0)-(a.postedAt||a.createdAt||0));
+       const owner=window.ktVideoOwner?ktVideoOwner():{id:'',name:'내 계정'};
+       const items=(req.result||[]).filter(x=>x&&x.posted&&x.blob&&(!owner.id||!x.ownerId||String(x.ownerId)===String(owner.id))).sort((a,b)=>(b.postedAt||b.createdAt||0)-(a.postedAt||a.createdAt||0));
        const item=items[0];
        if(item&&v){
          if(window.ktHomeVideoUrl){try{URL.revokeObjectURL(window.ktHomeVideoUrl)}catch(e){}}
@@ -174,7 +175,7 @@
          v.style.display='block';
          if(empty)empty.style.display='none';
          const t=document.getElementById('homeVideoTitle');
-         if(t)t.textContent=(item.name||label||'내 동영상')+' · 화면을 눌러 재생하거나 멈출 수 있습니다.';
+         if(t)t.textContent=(item.ownerName?item.ownerName+' · ':'')+(item.name||label||'내 동영상')+' · 화면을 눌러 재생하거나 멈출 수 있습니다.';
          v.load();
          v.play().catch(()=>{});
        }else if(empty){
