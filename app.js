@@ -195,6 +195,7 @@ window.ensureFaceEffectLayer=function(){
     layer.className='kt-face-effect-layer';
     creator.appendChild(layer);
   }
+  layer.style.cssText='position:absolute!important;inset:0!important;z-index:9!important;display:block!important;pointer-events:none!important;overflow:hidden!important;';
   var anchor=document.getElementById('ktFaceAnchor');
   if(!anchor){
     anchor=document.createElement('div');
