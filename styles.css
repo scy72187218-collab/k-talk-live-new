@@ -252,8 +252,36 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
 
 /* 라이브 준비: 불필요 버튼 제거 후 6개 정렬 + 방 선택 4개 */
 .creator .prep-grid{
-  grid-template-columns:repeat(3,minmax(0,1fr))!important;
-  gap:14px 8px!important;
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  gap:8px 3px!important;
+}
+.prep-item{
+  font-size:9px!important;
+  padding:1px!important;
+}
+.prep-item b{
+  width:40px!important;
+  height:40px!important;
+  margin:0 auto 4px!important;
+  font-size:18px!important;
+}
+.prep-topic{
+  margin-top:10px!important;
+}
+.prep-goal{
+  margin-top:6px!important;
+  padding:8px 10px!important;
+}
+.prep-card{
+  margin-top:6px!important;
+  padding:8px!important;
+}
+.prep-start{
+  margin-top:6px!important;
+  padding:12px!important;
+}
+.prep-bottom{
+  margin-top:5px!important;
 }
 .room-switch-row{
   display:grid;
