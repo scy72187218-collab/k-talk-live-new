@@ -1304,3 +1304,21 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
 .kt-attendance-heart.done:before,.kt-attendance-heart.done:after{border-color:#73ef9d;filter:drop-shadow(0 0 5px #62ef91)}
 .kt-attendance-heart.done .kt-attendance-label{color:#b7ffd0}
 .kt-attendance-heart.done .kt-attendance-sub{color:#d8ffe4}
+
+
+/* 호스트 좋아요 장미 보상 */
+.kt-like-milestones{
+  position:absolute;left:50%;top:37%;transform:translateX(-50%);
+  z-index:6;width:min(88vw,390px);padding:7px 10px;border-radius:999px;
+  background:#100913d9;border:1px solid #ff63b44d;color:#ffd6ef;
+  text-align:center;font-size:9px;font-weight:900;box-shadow:0 0 12px #ff4fa31e
+}
+.kt-like-milestones b{color:#ffe477;font-weight:950}
+.kt-like-reward-toast{
+  position:fixed;left:50%;top:18%;transform:translateX(-50%);z-index:10050;
+  width:min(86vw,360px);padding:13px 16px;border-radius:18px;
+  background:linear-gradient(135deg,#321126f2,#15101df2);
+  border:2px solid #ff65b788;color:#fff;text-align:center;
+  font-size:13px;font-weight:900;box-shadow:0 12px 32px #0008,0 0 24px #ff4fa355
+}
+.kt-like-reward-toast b{display:block;margin-top:4px;color:#ffe477;font-size:16px}
