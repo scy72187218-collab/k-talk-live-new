@@ -1570,21 +1570,26 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   display:none;
   position:absolute;
   left:50%;
-  bottom:96px;
+  bottom:104px;
   transform:translateX(-50%);
-  z-index:34;
-  min-width:132px;
-  height:46px;
-  padding:0 16px;
+  z-index:40;
+  min-width:174px;
+  height:50px;
+  padding:0 18px;
   border-radius:999px;
-  border:1px solid #ffffff55;
-  background:#0d0d12dc;
+  border:2px solid #ffffff88;
+  background:#111118ee;
   color:#fff;
-  font-size:13px;
+  font-size:14px;
   font-weight:950;
-  box-shadow:0 8px 20px #0007
+  box-shadow:0 8px 24px #0009,0 0 16px #ffffff1f;
+  align-items:center;
+  justify-content:center
 }
-.creator.creator-review .kt-creator-sound-play{pointer-events:auto}
+.creator.creator-review .kt-creator-sound-play{
+  pointer-events:auto!important;
+  touch-action:manipulation!important
+}
 
 
 /* 안내 팝업 글씨 크게 · 굵게 (가독성 강화) */
