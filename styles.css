@@ -1054,3 +1054,43 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   color:#fff;font-size:14px;font-weight:950;
   box-shadow:0 0 16px rgba(255,55,149,.30)
 }
+
+
+/* 자연스러운 얼굴 효과 */
+.fx-glasses-mask{
+  position:absolute;
+  left:50%;top:32%;
+  width:92%;height:31%;
+  transform:translate(-50%,-50%)
+}
+.fx-glasses-mask i{
+  position:absolute;top:0;width:43%;height:86%;
+  border:4px solid #31343b;border-radius:18px 18px 24px 24px;
+  background:rgba(255,255,255,.05);
+  box-shadow:inset 0 0 5px #ffffff16,0 2px 5px #0005
+}
+.fx-glasses-mask i:first-child{left:3%;transform:rotate(1deg)}
+.fx-glasses-mask i:nth-child(2){right:3%;transform:rotate(-1deg)}
+.fx-glasses-mask b{
+  position:absolute;left:44%;top:35%;width:12%;height:9%;
+  border-top:4px solid #31343b;border-radius:50%
+}
+.fx-cap-mask{
+  position:absolute;
+  left:50%;top:-25%;
+  width:112%;height:48%;
+  transform:translateX(-50%)
+}
+.fx-cap-mask i{
+  position:absolute;left:18%;top:0;width:64%;height:64%;
+  border-radius:55% 55% 30% 30%;
+  background:linear-gradient(180deg,#20242b,#0e1116);
+  box-shadow:0 4px 10px #0005
+}
+.fx-cap-mask b{
+  position:absolute;left:46%;top:50%;width:48%;height:18%;
+  border-radius:50% 45% 60% 30%;
+  background:#15181e;
+  transform:rotate(-5deg);
+  box-shadow:0 3px 7px #0005
+}
