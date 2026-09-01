@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>K-Talk 관리자 안전 미리보기</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif;background:#07080c;color:#fff}
+body{min-height:100dvh;padding:18px}
+.wrap{width:min(520px,100%);margin:0 auto}
+.head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:18px}
+.brand{font-size:24px;font-weight:950}.brand .c{color:#ffd54a}.brand .k{color:#ff5acc}.brand .l{color:#65aaff}
+.badge{padding:8px 11px;border-radius:999px;background:#14321d;border:1px solid #49cf76;color:#9dffb9;font-size:12px;font-weight:900}
+.note{padding:15px 16px;border-radius:18px;background:#11131a;border:1px solid #ffffff18;color:#d7d9df;font-size:13px;line-height:1.5;margin-bottom:14px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.card{min-height:118px;border:1px solid #ffffff1c;border-radius:20px;background:linear-gradient(145deg,#171922,#0c0d12);padding:16px;text-align:left;color:#fff}
+.card b{display:block;font-size:17px;margin-bottom:7px}.card span{font-size:28px;display:block;margin-bottom:10px}.card small{color:#bfc2ca;line-height:1.4}
+.full{width:100%;margin-top:14px;height:54px;border:0;border-radius:17px;background:linear-gradient(135deg,#ff2c78,#a44cff);color:#fff;font-size:16px;font-weight:950}
+.out{width:100%;margin-top:9px;height:46px;border-radius:15px;border:1px solid #ffffff22;background:#181a22;color:#ddd;font-weight:900}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="head"><div class="brand"><span class="c">♛</span> <span class="k">K-Talk</span> <span class="l">관리자</span></div><div class="badge">안전 미리보기</div></div>
+  <div class="note"><b>관리자 화면 확인 모드</b><br>성인 기능, 라이브 방송, 비밀방, 선물 전송은 이 화면에서 작동하지 않습니다. 메뉴 배치와 화면 구성만 확인할 수 있습니다.</div>
+  <section class="grid">
+    <button class="card" onclick="alert('화면 구성 확인용입니다.')"><span>🏠</span><b>홈 화면</b><small>메뉴와 배치 확인</small></button>
+    <button class="card" onclick="alert('화면 구성 확인용입니다.')"><span>🎬</span><b>내 동영상</b><small>동영상 메뉴 위치 확인</small></button>
+    <button class="card" onclick="alert('화면 구성 확인용입니다.')"><span>✨</span><b>뷰티·편집효과</b><small>버튼과 메뉴 구성 확인</small></button>
+    <button class="card" onclick="alert('화면 구성 확인용입니다.')"><span>⚙️</span><b>설정</b><small>설정 화면 구성 확인</small></button>
+  </section>
+  <button class="full" onclick="location.href='index.html'">일반 화면 보기</button>
+  <button class="out" onclick="try{localStorage.removeItem('ktalk_admin_preview')}catch(e){} location.href='login.html'">관리자 미리보기 자동입장 끄기</button>
+</main>
+</body>
+</html>
