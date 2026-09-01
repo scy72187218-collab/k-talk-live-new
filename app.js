@@ -192,23 +192,105 @@ window.ensureFaceEffectLayer=function(){
   if(!layer){
     layer=document.createElement('div');
     layer.id='ktFaceEffectLayer';
+    layer.className='kt-face-effect-layer';
     creator.appendChild(layer);
   }
-  layer.className='kt-face-effect-layer';
-  layer.style.cssText='position:fixed!important;inset:0!important;z-index:12!important;display:block!important;pointer-events:none!important;overflow:hidden!important;';
+  var anchor=document.getElementById('ktFaceAnchor');
+  if(!anchor){
+    anchor=document.createElement('div');
+    anchor.id='ktFaceAnchor';
+    anchor.className='kt-face-anchor';
+    layer.appendChild(anchor);
+  }
   return layer;
+};
+
+window.ktFaceDetector=null;
+window.ktFaceTrackTimer=null;
+
+window.placeFaceAnchorFallback=function(){
+  var anchor=document.getElementById('ktFaceAnchor');
+  if(!anchor||!camera)return;
+  var cr=creator.getBoundingClientRect();
+  var vr=camera.getBoundingClientRect();
+  var w=Math.min(vr.width*.46,220);
+  var h=w*1.18;
+  var cx=(vr.left-cr.left)+(vr.width*.50);
+  var cy=(vr.top-cr.top)+(vr.height*.39);
+  anchor.style.left=cx+'px';
+  anchor.style.top=cy+'px';
+  anchor.style.width=w+'px';
+  anchor.style.height=h+'px';
+};
+
+window.trackFaceOnce=async function(){
+  var anchor=document.getElementById('ktFaceAnchor');
+  if(!anchor||!camera||!camera.videoWidth||!camera.videoHeight){
+    placeFaceAnchorFallback();
+    return;
+  }
+
+  if(!('FaceDetector' in window)){
+    placeFaceAnchorFallback();
+    return;
+  }
+
+  try{
+    if(!window.ktFaceDetector)window.ktFaceDetector=new FaceDetector({fastMode:true,maxDetectedFaces:1});
+    var faces=await window.ktFaceDetector.detect(camera);
+    if(!faces||!faces.length){placeFaceAnchorFallback();return;}
+
+    var box=faces[0].boundingBox;
+    var cr=creator.getBoundingClientRect();
+    var vr=camera.getBoundingClientRect();
+    var vw=camera.videoWidth, vh=camera.videoHeight;
+    var scale=Math.max(vr.width/vw,vr.height/vh);
+    var drawW=vw*scale, drawH=vh*scale;
+    var offX=(vr.width-drawW)/2;
+    var offY=(vr.height-drawH)/2;
+    var bw=box.width*scale, bh=box.height*scale;
+    var bx=offX+(box.x*scale);
+    if((state.cameraFacing||'user')!=='environment'){
+      bx=vr.width-offX-((box.x+box.width)*scale);
+    }
+    var by=offY+(box.y*scale);
+
+    var cx=(vr.left-cr.left)+bx+(bw/2);
+    var cy=(vr.top-cr.top)+by+(bh/2);
+
+    anchor.style.left=cx+'px';
+    anchor.style.top=cy+'px';
+    anchor.style.width=Math.max(120,bw)+'px';
+    anchor.style.height=Math.max(145,bh)+'px';
+  }catch(e){
+    placeFaceAnchorFallback();
+  }
+};
+
+window.startKTFaceTracking=function(){
+  ensureFaceEffectLayer();
+  clearInterval(window.ktFaceTrackTimer);
+  trackFaceOnce();
+  window.ktFaceTrackTimer=setInterval(function(){
+    if(creator&&creator.classList.contains('show'))trackFaceOnce();
+  },260);
+};
+
+window.stopKTFaceTracking=function(){
+  clearInterval(window.ktFaceTrackTimer);
+  window.ktFaceTrackTimer=null;
 };
 
 window.renderFaceEffect=function(name){
   var layer=ensureFaceEffectLayer();
-  layer.innerHTML='';
-  layer.style.display='block';
-  creator.removeAttribute('data-beauty-char');
+  var anchor=document.getElementById('ktFaceAnchor');
+  anchor.innerHTML='';
+  anchor.className='kt-face-anchor';
 
   var filterClasses=['fx-glow','fx-soft','fx-rainbow','fx-cool','fx-warm','fx-night','fx-cinema','fx-mono','fx-pink','fx-blue','fx-star','fx-party','fx-disco','fx-dream'];
   creator.classList.remove.apply(creator.classList,filterClasses);
 
-  if(!name || name==='off'){
+  if(!name||name==='off'){
     state.editFilter='';
     state.editSticker='';
     if(camera)camera.style.filter='brightness(1.12) contrast(.95) saturate(1.02)';
@@ -218,37 +300,24 @@ window.renderFaceEffect=function(name){
   state.editFilter='';
   state.editSticker=name;
 
-  var center='position:absolute;left:50%;transform:translateX(-50%);pointer-events:none;user-select:none;';
   if(name==='sunglasses'){
-    layer.innerHTML='<div style="'+center+'top:34%;font-size:112px;line-height:1;filter:drop-shadow(0 5px 8px rgba(0,0,0,.38));">🕶️</div>';
+    anchor.innerHTML='<div class="fx-sunglasses-mask"><i></i><i></i><b></b></div>';
   }else if(name==='rollers'){
-    layer.innerHTML='<div style="'+center+'top:17%;width:280px;height:180px;">'
-      +'<i style="position:absolute;left:108px;top:0;width:64px;height:36px;border-radius:10px;border:5px solid #ff7fba;background:repeating-linear-gradient(90deg,#ffd1e5 0 8px,#ff8dc2 8px 13px);"></i>'
-      +'<i style="position:absolute;left:20px;top:52px;width:62px;height:36px;border-radius:10px;border:5px solid #ff7fba;background:repeating-linear-gradient(90deg,#ffd1e5 0 8px,#ff8dc2 8px 13px);transform:rotate(-18deg)"></i>'
-      +'<i style="position:absolute;right:20px;top:52px;width:62px;height:36px;border-radius:10px;border:5px solid #ff7fba;background:repeating-linear-gradient(90deg,#ffd1e5 0 8px,#ff8dc2 8px 13px);transform:rotate(18deg)"></i>'
-      +'<i style="position:absolute;left:62px;top:72px;width:62px;height:36px;border-radius:10px;border:5px solid #ff7fba;background:repeating-linear-gradient(90deg,#ffd1e5 0 8px,#ff8dc2 8px 13px);"></i>'
-      +'<i style="position:absolute;right:62px;top:72px;width:62px;height:36px;border-radius:10px;border:5px solid #ff7fba;background:repeating-linear-gradient(90deg,#ffd1e5 0 8px,#ff8dc2 8px 13px);"></i>'
-      +'<i style="position:absolute;left:109px;top:118px;width:62px;height:36px;border-radius:10px;border:5px solid #ff7fba;background:repeating-linear-gradient(90deg,#ffd1e5 0 8px,#ff8dc2 8px 13px);"></i>'
-      +'</div>';
+    anchor.innerHTML='<div class="fx-rollers-mask"><i></i><i></i><i></i><i></i><i></i><i></i></div>';
   }else if(name==='beard'){
-    layer.innerHTML='<div style="'+center+'top:42%;font-size:82px;line-height:1;filter:drop-shadow(0 3px 5px rgba(0,0,0,.35));">🥸</div>';
+    anchor.innerHTML='<div class="fx-beard-mask"><span>〰</span><b></b></div>';
   }else if(name==='crown'){
-    layer.innerHTML='<div style="'+center+'top:16%;font-size:88px;line-height:1;">👑</div>';
+    anchor.innerHTML='<div class="fx-crown-mask">👑</div>';
   }else if(name==='cat'){
-    layer.innerHTML='<div style="'+center+'top:20%;font-size:94px;line-height:1;">🐱</div>';
+    anchor.innerHTML='<div class="fx-ears-mask"><span>🐱</span></div>';
   }else if(name==='rabbit'){
-    layer.innerHTML='<div style="'+center+'top:17%;font-size:100px;line-height:1;">🐰</div>';
+    anchor.innerHTML='<div class="fx-ears-mask rabbit"><span>🐰</span></div>';
   }else if(name==='flowers'){
-    layer.innerHTML='<div style="'+center+'top:17%;width:300px;text-align:center;font-size:46px;letter-spacing:6px;">🌸 🌺 🌼 🌸</div>';
+    anchor.innerHTML='<div class="fx-flowers-mask"><span>🌸</span><span>🌺</span><span>🌼</span><span>🌸</span></div>';
   }else if(name==='sparkle'){
-    layer.innerHTML='<div style="position:absolute;top:21%;left:12%;font-size:38px;">✨</div>'
-      +'<div style="position:absolute;top:29%;right:11%;font-size:34px;">✦</div>'
-      +'<div style="position:absolute;top:47%;left:18%;font-size:30px;">⭐</div>'
-      +'<div style="position:absolute;top:52%;right:17%;font-size:30px;">✨</div>';
+    anchor.innerHTML='<div class="fx-sparkles-mask"><span>✨</span><span>✦</span><span>⭐</span><span>✨</span></div>';
   }else if(name==='party'){
-    layer.innerHTML='<div style="position:absolute;top:18%;left:12%;font-size:42px;">🎉</div>'
-      +'<div style="position:absolute;top:25%;right:12%;font-size:38px;">🎊</div>'
-      +'<div style="position:absolute;top:50%;left:18%;font-size:32px;">✨</div>';
+    anchor.innerHTML='<div class="fx-party-mask"><span>🎉</span><span>✨</span><span>🎊</span></div>';
   }else if(name==='mono'){
     state.editFilter='mono';
     creator.classList.add('fx-mono');
@@ -262,24 +331,42 @@ window.renderFaceEffect=function(name){
     state.editFilter='dream';
     creator.classList.add('fx-dream');
   }
+
+  startKTFaceTracking();
 };
 
 window.syncEditEffectButtons=function(){
   document.querySelectorAll('.kt-live-effect-item[data-effect]').forEach(function(btn){
     var n=btn.getAttribute('data-effect');
-    btn.classList.toggle('on',n===state.editSticker||n===state.editFilter||(n==='soft'&&state.editFilter==='dream'));
+    btn.classList.toggle('on',n===state.pendingEditEffect);
   });
+  var label=document.getElementById('ktEffectSelected');
+  if(label){
+    var map={off:'해제',sunglasses:'선글라스',rollers:'헤어롤',beard:'수염',crown:'왕관',cat:'고양이',rabbit:'토끼',flowers:'꽃',sparkle:'반짝임',party:'파티',warm:'웜톤',cool:'쿨톤',soft:'소프트',mono:'흑백'};
+    label.textContent=map[state.pendingEditEffect||'off']||'효과';
+  }
 };
 
-window.setEditEffect=function(name){
-  if((state.editSticker===name)||(state.editFilter===name)||(name==='soft'&&state.editFilter==='dream')){
-    name='off';
-  }
+window.previewEditEffect=function(name){
+  state.pendingEditEffect=name;
   renderFaceEffect(name);
   syncEditEffectButtons();
 };
 
+window.setEditEffect=function(name){
+  previewEditEffect(name);
+};
+
+window.applyEditEffect=function(){
+  state.appliedEditEffect=state.pendingEditEffect||'off';
+  renderFaceEffect(state.appliedEditEffect);
+  var tray=document.getElementById('ktLiveEffects');
+  if(tray)tray.classList.remove('show');
+};
+
 window.closeEditEffectPanel=function(){
+  state.pendingEditEffect=state.appliedEditEffect||'off';
+  renderFaceEffect(state.pendingEditEffect);
   var tray=document.getElementById('ktLiveEffects');
   if(tray)tray.classList.remove('show');
 };
@@ -292,6 +379,9 @@ window.openEditEffectPanel=function(){
     tray.className='kt-live-effects';
     creator.appendChild(tray);
   }
+
+  if(!state.appliedEditEffect)state.appliedEditEffect='off';
+  state.pendingEditEffect=state.appliedEditEffect;
 
   var effects=[
     ['↺','해제','off'],
@@ -314,13 +404,15 @@ window.openEditEffectPanel=function(){
     +'<div class="kt-live-effects-tabs"><button class="on">추천</button><button>얼굴</button><button>분위기</button></div>'
     +'<div class="kt-live-effects-scroll">'
     +effects.map(function(e){
-      return '<button class="kt-live-effect-item" data-effect="'+e[2]+'" onclick="setEditEffect(\''+e[2]+'\')">'
+      return '<button class="kt-live-effect-item" data-effect="'+e[2]+'" onclick="previewEditEffect(\''+e[2]+'\')">'
         +'<span>'+e[0]+'</span><small>'+e[1]+'</small></button>';
     }).join('')
-    +'</div>';
+    +'</div>'
+    +'<div class="kt-effect-applybar"><span>선택: <b id="ktEffectSelected">효과</b></span><button onclick="applyEditEffect()">✓ 적용</button></div>';
 
   tray.classList.add('show');
   ensureFaceEffectLayer();
+  renderFaceEffect(state.pendingEditEffect);
   syncEditEffectButtons();
 };
 
