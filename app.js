@@ -339,32 +339,73 @@ window.openCommunicationPanel=function(){
 };
 
 window.openBenefitHub=function(){
-  var html='<div class="kt-benefit-hub">'
-    +'<div class="kt-benefit-summary">'
+  var html='<div class="kt-benefit-home">'
+    +'<div class="kt-benefit-banner">📢 K-Talk 혜택 · 보상 · 사용방법을 한 번에 확인하세요</div>'
+    +'<div class="kt-benefit-top">'
       +'<div><span>🌹</span><b>내 장미</b><strong>0</strong></div>'
       +'<div><span>🎁</span><b>받은 보상</b><strong>0</strong></div>'
-      +'<div><span>💰</span><b>판매·정산</b><strong>0원</strong></div>'
+      +'<div><span>🪙</span><b>내 코인</b><strong>0</strong></div>'
     +'</div>'
-    +'<div class="kt-benefit-grid">'
-      +'<button onclick="openReceiveBenefits()"><span>🎉</span><b>혜택 받기</b><small>출석 · 이벤트 · 보상</small></button>'
-      +'<button onclick="openGiveBenefits()"><span>💝</span><b>혜택 주기</b><small>팬에게 보상 보내기</small></button>'
-      +'<button onclick="openGifts()"><span>🌹</span><b>장미 주기</b><small>장미 · 선물 보내기</small></button>'
-      +'<button onclick="openSellerCenter()"><span>🏷️</span><b>판매</b><small>상품 · 광고 등록</small></button>'
-      +'<button onclick="openRewardCenter()"><span>🏆</span><b>보상</b><small>미션 · 랭킹 · 이벤트</small></button>'
-      +'<button onclick="openBenefitAlerts()"><span>🔔</span><b>알림</b><small>받은 혜택 · 지급 안내</small></button>'
+    +'<div class="kt-benefit-room-grid">'
+      +'<button class="pink" onclick="openWeeklyBroadcastReward()"><span>📅</span><b>7일 방송 보상</b><small>7일 방송하면 코인 10개</small><em>›</em></button>'
+      +'<button class="purple" onclick="openRaffleGuide()"><span>🎯</span><b>제비뽑기</b><small>아침 · 점심 · 저녁 하루 3번</small><em>›</em></button>'
+      +'<button class="gold" onclick="openAttendanceBenefits()"><span>✅</span><b>출석 · 참여</b><small>출석과 참여 보상 안내</small><em>›</em></button>'
+      +'<button class="violet" onclick="openSubscriberBenefits()"><span>💎</span><b>구독자 혜택</b><small>충전 · 모든 방 입장 · 방 만들기</small><em>›</em></button>'
+      +'<button class="blue" onclick="openChargeBenefits()"><span>🪙</span><b>장미 · 코인 충전</b><small>충전 방법과 추가 혜택</small><em>›</em></button>'
+      +'<button class="cyan" onclick="openRoomBenefits()"><span>🚪</span><b>방 이용 혜택</b><small>방 입장 · 방송방 만들기</small><em>›</em></button>'
+      +'<button class="pink" onclick="openGifts()"><span>🌹</span><b>장미 · 선물</b><small>장미와 선물 보내기</small><em>›</em></button>'
+      +'<button class="purple" onclick="openGiveBenefits()"><span>💝</span><b>혜택 주기</b><small>팬에게 보상 보내기</small><em>›</em></button>'
+      +'<button class="gold" onclick="openRewardCenter()"><span>🏆</span><b>미션 · 랭킹</b><small>이벤트와 순위 보상</small><em>›</em></button>'
+      +'<button class="violet" onclick="openSubs()"><span>👑</span><b>팬클럽 혜택</b><small>팬 · 응원 · 슈퍼팬 관리</small><em>›</em></button>'
+      +'<button class="blue" onclick="openSellerCenter()"><span>🏷️</span><b>판매 · 정산</b><small>상품 · 광고 · 정산 확인</small><em>›</em></button>'
+      +'<button class="cyan" onclick="openBenefitAlerts()"><span>🔔</span><b>혜택 알림</b><small>지급 · 수령 · 정산 알림</small><em>›</em></button>'
     +'</div>'
-    +'<div class="kt-benefit-section"><div class="kt-benefit-section-title">빠른 이용</div>'
-      +'<button onclick="openSubscriberBenefits()">💎 구독자 혜택 <em>›</em></button>'
-      +'<button onclick="openSubs()">👑 팬클럽 혜택 <em>›</em></button>'
-      +'<button onclick="openCharge()">🪙 장미·코인 충전 <em>›</em></button>'
-      +'<button onclick="openRewardCenter()">🎯 오늘 받을 수 있는 보상 <em>›</em></button>'
-    +'</div>'
+    +'<button class="kt-benefit-guide-btn" onclick="openSiteGuide()">❔ 전체 사용방법 · 혜택 자세히 보기</button>'
     +'</div>';
   showSheet('혜택 · 보상 센터',html);
 };
 
+window.openWeeklyBroadcastReward=function(){
+  showSheet('📅 7일 방송 보상',
+    '<div class="rowbox"><b>보상</b><br>일주일 동안 방송하면 코인 10개를 보상으로 받습니다.</div>'
+    +'<div class="rowbox"><b>사용 방법</b><br>라이브 방송을 진행하고 7일 방송 조건을 채우면 보상 대상에 표시됩니다.</div>'
+    +'<div class="rowbox"><b>확인 위치</b><br>혜택 · 보상 센터 → 7일 방송 보상에서 진행 상태와 지급 여부를 확인합니다.</div>');
+};
+
+window.openRaffleGuide=function(){
+  showSheet('🎯 제비뽑기',
+    '<div class="rowbox"><b>하루 3번 참여</b><br>아침 1회 · 점심 1회 · 저녁 1회 참여할 수 있습니다.</div>'
+    +'<div class="rowbox"><b>사용 방법</b><br>각 시간대에 제비뽑기 버튼을 눌러 참여합니다. 이미 참여한 시간대는 다시 참여할 수 없습니다.</div>'
+    +'<div class="rowbox"><b>당첨 보상</b><br>꽝 또는 장미 1~5개 중 하나가 나오는 방식입니다.</div>'
+    +'<button class="act" onclick="openRaffle()">🎯 제비뽑기 바로가기</button>');
+};
+
+window.openAttendanceBenefits=function(){
+  showSheet('✅ 출석 · 참여 보상',
+    '<div class="rowbox"><b>출석 보상</b><br>매일 접속하고 출석하면 출석 보상을 받을 수 있습니다.</div>'
+    +'<div class="rowbox"><b>방송 참여 보상</b><br>라이브 방송 참여, 미션, 이벤트 조건을 달성하면 받을 수 있는 보상이 표시됩니다.</div>'
+    +'<div class="rowbox"><b>받는 방법</b><br>혜택 · 보상 센터에서 받을 수 있는 보상을 확인한 뒤 보상 버튼을 눌러 받습니다.</div>');
+};
+
+window.openChargeBenefits=function(){
+  showSheet('🪙 장미 · 코인 충전 혜택',
+    '<div class="rowbox"><b>기본 충전</b><br>장미와 코인을 필요한 수량만큼 충전해서 선물과 방송 기능에 사용할 수 있습니다.</div>'
+    +'<div class="rowbox"><b>구독자 추가 혜택</b><br>구독자는 충전할 때 일반회원보다 추가 혜택을 받을 수 있습니다.</div>'
+    +'<div class="rowbox"><b>사용 방법</b><br>충전 수량을 고르고 결제 전 최종 지급 수량과 혜택을 확인합니다.</div>'
+    +'<button class="act" onclick="openCharge()">🪙 충전 화면 열기</button>');
+};
+
+window.openRoomBenefits=function(){
+  showSheet('🚪 방송방 이용 혜택',
+    '<div class="rowbox"><b>방 입장</b><br>1인 방송 · 일반 13명방 · 구독자방 · 비밀방 등 이용 가능한 방을 선택해서 들어갑니다.</div>'
+    +'<div class="rowbox"><b>구독자 혜택</b><br>구독자는 이용 가능한 방송방에 자유롭게 들어가고 원하는 방송 종류를 직접 만들 수 있습니다.</div>'
+    +'<div class="rowbox"><b>방 만들기</b><br>라이브 준비 화면에서 방송 종류를 선택하고 라이브 시작을 누르면 됩니다.</div>');
+};
+
 window.openReceiveBenefits=function(){
-  showSheet('🎉 혜택 받기','<div class="rowbox"><b>오늘의 출석 보상</b><br>출석 · 이벤트 · 방송 참여 보상을 확인하는 곳입니다.</div><div class="rowbox"><b>받을 수 있는 혜택</b><br>받을 수 있는 보상이 생기면 이곳에 표시됩니다.</div>');
+  showSheet('🎉 혜택 받기',
+    '<div class="rowbox"><b>받을 수 있는 혜택</b><br>출석 · 7일 방송 · 제비뽑기 · 미션 · 이벤트 · 랭킹 보상을 확인합니다.</div>'
+    +'<div class="rowbox"><b>받는 방법</b><br>혜택 · 보상 센터에서 원하는 항목을 눌러 조건을 확인하고 받을 수 있는 보상을 수령합니다.</div>');
 };
 
 window.openSubscriberBenefits=function(){
@@ -382,19 +423,32 @@ window.openSubscriberBenefits=function(){
 };
 
 window.openGiveBenefits=function(){
-  showSheet('💝 혜택 주기','<div class="rowbox"><b>팬에게 혜택 보내기</b><br>장미 · 이벤트 보상 · 팬클럽 혜택을 선택해서 줄 수 있습니다.</div><button class="act" onclick="openGifts()">🌹 장미·선물 보내기</button>');
+  showSheet('💝 혜택 주기',
+    '<div class="rowbox"><b>팬에게 혜택 보내기</b><br>장미 · 선물 · 이벤트 보상을 팬에게 보낼 수 있습니다.</div>'
+    +'<div class="rowbox"><b>사용 방법</b><br>보낼 혜택을 고르고 받을 사람을 선택한 다음 보내기를 누릅니다.</div>'
+    +'<button class="act" onclick="openGifts()">🌹 장미·선물 보내기</button>');
 };
 
 window.openSellerCenter=function(){
-  showSheet('🏷️ 판매 센터','<div class="rowbox"><b>상품 · 광고 등록</b><br>판매할 상품이나 광고를 등록하고 관리하는 곳입니다.</div><div class="rowbox"><b>정산 확인</b><br>판매가 발생하면 정산 내역을 확인할 수 있습니다.</div>');
+  showSheet('🏷️ 판매 · 정산',
+    '<div class="rowbox"><b>판매 등록</b><br>상품이나 광고를 등록하고 판매 내역을 관리합니다.</div>'
+    +'<div class="rowbox"><b>정산 확인</b><br>판매가 발생하면 판매 금액과 정산 내역을 확인할 수 있습니다.</div>'
+    +'<div class="rowbox"><b>사용 방법</b><br>판매 항목 등록 → 판매 내역 확인 → 정산 확인 순서로 이용합니다.</div>');
 };
 
 window.openRewardCenter=function(){
-  showSheet('🏆 보상 센터','<div class="rowbox"><b>방송 참여 보상</b><br>출석 · 미션 · 랭킹 · 이벤트 보상을 한곳에서 확인합니다.</div><div class="rowbox"><b>지급 내역</b><br>받은 장미와 보상 내역이 여기에 표시됩니다.</div>');
+  showSheet('🏆 미션 · 랭킹 · 이벤트',
+    '<div class="rowbox"><b>미션 보상</b><br>방송 참여와 시청자 미션을 달성하면 받을 수 있는 보상이 표시됩니다.</div>'
+    +'<div class="rowbox"><b>랭킹 보상</b><br>매치전과 랭킹 결과에 따라 정해진 보상을 받을 수 있습니다.</div>'
+    +'<div class="rowbox"><b>이벤트 보상</b><br>진행 중인 이벤트가 있으면 조건과 지급 보상을 이곳에서 확인합니다.</div>'
+    +'<div class="rowbox"><b>지급 내역</b><br>받은 장미 · 코인 · 이벤트 보상 내역을 확인합니다.</div>');
 };
 
 window.openBenefitAlerts=function(){
-  showSheet('🔔 혜택 알림','<div class="rowbox"><b>새 알림 없음</b><br>혜택 지급 · 장미 수령 · 판매 정산 알림을 한곳에서 확인합니다.</div>');
+  showSheet('🔔 혜택 알림',
+    '<div class="rowbox"><b>혜택 지급</b><br>코인 · 장미 · 이벤트 보상이 지급되면 알림으로 확인합니다.</div>'
+    +'<div class="rowbox"><b>선물 수령</b><br>받은 장미와 선물 알림을 확인합니다.</div>'
+    +'<div class="rowbox"><b>판매 정산</b><br>판매 금액과 정산 완료 알림을 확인합니다.</div>');
 };
 
 window.openViewerMission=function(){
