@@ -443,12 +443,13 @@ window.openCommunicationPanel=function(){
 
 window.openBenefitHub=function(){
   var html='<div class="kt-benefit-home">'
-    +'<div class="kt-benefit-banner">📢 K-Talk 혜택 · 보상 · 사용방법을 한 번에 확인하세요</div>'
+    +'<div class="kt-benefit-headrow"><div class="kt-benefit-banner">📢 K-Talk 혜택 · 보상 · 사용방법을 한 번에 확인하세요</div><button class="kt-benefit-reward-btn" onclick="openReceiveBenefits()">🎁 보상 혜택</button></div>'
     +'<div class="kt-benefit-top">'
-      +'<div><span>🌹</span><b>내 장미</b><strong>0</strong></div>'
-      +'<div><span>🎁</span><b>받은 보상</b><strong>0</strong></div>'
-      +'<div><span>🪙</span><b>내 코인</b><strong>0</strong></div>'
+      +'<div><span>🌹</span><b>내 장미</b><strong>10,000개</strong></div>'
+      +'<div><span>🎁</span><b>받은 보상</b><strong>200개</strong></div>'
+      +'<div><span>💰</span><b>정산 금액</b><strong>105,000원</strong></div>'
     +'</div>'
+    +'<div class="kt-benefit-net-note">🔒 회사 수수료 차감 후 본인 정산 금액만 표시합니다</div>'
     +'<div class="kt-benefit-room-grid">'
       +'<button class="pink" onclick="openWeeklyBroadcastReward()"><span>📅</span><b>7일 방송 보상</b><small>7일 방송하면 코인 10개</small><em>›</em></button>'
       +'<button class="purple" onclick="openRaffleGuide()"><span>🎯</span><b>제비뽑기</b><small>아침 · 점심 · 저녁 하루 3번</small><em>›</em></button>'
