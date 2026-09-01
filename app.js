@@ -204,13 +204,18 @@ state.cameraFacing=state.cameraFacing||'user';
 state.beautyOn=!!state.beautyOn;
 state.effectOn=!!state.effectOn;
 
-window.openCreator=function(){
+window.openCreator=async function(){
   creator.classList.add('show');
-  var live=state.stream&&state.stream.getTracks&&state.stream.getTracks().some(function(t){return t.readyState==='live';});
+  creator.classList.remove('creator-review','creator-recording');
+  var live=state.stream&&state.stream.getVideoTracks&&state.stream.getVideoTracks().some(function(t){return t.readyState==='live';});
   if(live){
     camera.srcObject=state.stream;
     creator.classList.add('camera-on');
-    try{camera.play();}catch(e){}
+    try{await camera.play();}catch(e){}
+    return;
+  }
+  if(window.ensureCreatorPreviewCamera){
+    try{await ensureCreatorPreviewCamera(state.cameraFacing||'user');}catch(e){}
   }
 };
 window.closeCreator=function(){
@@ -232,15 +237,55 @@ window.applyBaseCameraLook=function(){
   }
 };
 
+window.ensureCreatorPreviewCamera=async function(facing){
+  try{
+    var live=state.stream&&state.stream.getVideoTracks&&state.stream.getVideoTracks().some(function(t){return t.readyState==='live';});
+    if(live){
+      camera.srcObject=state.stream;
+      camera.muted=true;
+      creator.classList.add('camera-on');
+      applyBaseCameraLook();
+      try{await camera.play();}catch(e){}
+      return true;
+    }
+    state.cameraFacing=facing||state.cameraFacing||'user';
+    state.stream=await navigator.mediaDevices.getUserMedia({
+      video:{
+        facingMode:{ideal:state.cameraFacing},
+        width:{ideal:1280},
+        height:{ideal:720},
+        frameRate:{ideal:30,max:30}
+      },
+      audio:false
+    });
+    camera.srcObject=state.stream;
+    camera.muted=true;
+    camera.setAttribute('playsinline','');
+    creator.classList.add('camera-on');
+    applyBaseCameraLook();
+    try{await camera.play();}catch(e){}
+    return true;
+  }catch(e){
+    creator.classList.remove('camera-on');
+    return false;
+  }
+};
+
 window.ensureLiveCamera=async function(facing){
   try{
-    var live=state.stream&&state.stream.getTracks&&state.stream.getTracks().some(function(t){return t.readyState==='live';});
-    if(live){
+    var videoLive=state.stream&&state.stream.getVideoTracks&&state.stream.getVideoTracks().some(function(t){return t.readyState==='live';});
+    var audioLive=state.stream&&state.stream.getAudioTracks&&state.stream.getAudioTracks().some(function(t){return t.readyState==='live';});
+    if(videoLive&&audioLive){
       camera.srcObject=state.stream;
       creator.classList.add('camera-on');
       applyBaseCameraLook();
       try{await camera.play();}catch(e){}
       return true;
+    }
+    if(state.stream){
+      try{state.stream.getTracks().forEach(function(t){t.stop();});}catch(e){}
+      state.stream=null;
+      if(camera)camera.srcObject=null;
     }
     state.cameraFacing=facing||state.cameraFacing||'user';
     state.stream=await navigator.mediaDevices.getUserMedia({
