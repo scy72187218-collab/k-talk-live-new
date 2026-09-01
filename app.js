@@ -1451,56 +1451,77 @@ window.giftSendByIndex=function(i){
 };
 
 window.filterGift25=function(category,btn){
-  var wrap=document.querySelector('.kt-gift25-grid');
+  var wrap=document.querySelector('.kt-gift-final-grid');
   if(!wrap)return;
   var picks={
     '꽃/하트':[0,1,2,3,12],
-    '프리미엄':[5,6,18,23,24],
-    '연출/특수':[13,14,16,17,19],
-    '럭셔리':[7,8,9,19,20],
-    '보물/패키지':[4,21,22,20,24],
-    'VIP 전용':[6,23,24]
+    '프리미엄':[5,6,9,23,24],
+    '연출/특수':[10,11,13,14,16,17],
+    '럭셔리':[7,8,18,19,20],
+    '보물/패키지':[4,21,22],
+    'VIP 전용':[24]
   };
-  [].slice.call(document.querySelectorAll('.kt-gift25-cat')).forEach(function(b){b.classList.remove('on');});
+  [].slice.call(document.querySelectorAll('.kt-gift-final-cat')).forEach(function(b){b.classList.remove('on');});
   if(btn)btn.classList.add('on');
-  [].slice.call(wrap.querySelectorAll('.kt-gift25-card')).forEach(function(card){
+
+  [].slice.call(wrap.querySelectorAll('.kt-gift-final-card')).forEach(function(card){
     var idx=parseInt(card.getAttribute('data-index'),10);
     var show=category==='전체'||(picks[category]&&picks[category].indexOf(idx)>-1);
-    card.style.display=show?'flex':'none';
+    card.classList.toggle('is-hidden',!show);
   });
+
+  var title=document.querySelector('.kt-gift-final-current');
+  if(title)title.textContent=category;
+};
+
+window.openGiftHistory=function(){
+  var html='<div class="rowbox"><b>🎁 선물 내역</b><br>보낸 선물 내역은 실제 회원 계정과 서버가 연결되면 여기에 표시됩니다.</div>';
+  showSheet('선물 내역',html);
 };
 
 window.openGifts=function(){
   var cards=window.ktalkGifts.map(function(g,i){
-    return '<button class="kt-gift25-card" data-index="'+i+'" data-cat="'+g[3]+'" onclick="giftSendByIndex('+i+')">'
-      +'<span class="kt-gift25-no">'+(i+1)+'</span>'
-      +'<span class="kt-gift25-art">'+g[2]+'</span>'
+    return '<button type="button" class="kt-gift-final-card" data-index="'+i+'" onclick="giftSendByIndex('+i+')">'
+      +'<span class="kt-gift-final-no">'+(i+1)+'</span>'
+      +'<span class="kt-gift-final-art">'+g[2]+'</span>'
       +'<b>'+g[0]+'</b>'
       +'<strong>'+String(g[1]).replace(/\B(?=(\d{3})+(?!\d))/g,',')+'개</strong>'
       +'</button>';
   }).join('');
-  var html='<div class="kt-gift25-wrap">'
-    +'<div class="kt-gift25-top">'
-      +'<div class="kt-gift25-title"><span>🎁</span><div><b>K-Talk 선물상자</b><small>마음을 전하는 특별한 선물</small></div></div>'
-      +'<button class="kt-gift25-close" onclick="closeSheet()">닫기</button>'
+
+  var html='<div class="kt-gift-final">'
+    +'<div class="kt-gift-final-head">'
+      +'<div class="kt-gift-final-brand">'
+        +'<span class="kt-gift-final-logo">🎁</span>'
+        +'<div><h2>K-Talk 선물상자</h2><p>✦ 마음을 전하는 특별한 선물 ✦</p></div>'
+      +'</div>'
+      +'<button type="button" class="kt-gift-final-close" onclick="closeSheet()">닫기</button>'
     +'</div>'
-    +'<div class="kt-gift25-body">'
-      +'<aside class="kt-gift25-side">'
-        +'<button class="kt-gift25-cat on" onclick="filterGift25(\'전체\',this)">🎁<span>전체</span></button>'
-        +'<button class="kt-gift25-cat" onclick="filterGift25(\'꽃/하트\',this)">🌹<span>꽃/하트</span></button>'
-        +'<button class="kt-gift25-cat" onclick="filterGift25(\'프리미엄\',this)">👑<span>프리미엄</span></button>'
-        +'<button class="kt-gift25-cat" onclick="filterGift25(\'연출/특수\',this)">✨<span>연출/특수</span></button>'
-        +'<button class="kt-gift25-cat" onclick="filterGift25(\'럭셔리\',this)">💎<span>럭셔리</span></button>'
-        +'<button class="kt-gift25-cat" onclick="filterGift25(\'보물/패키지\',this)">🧰<span>보물/패키지</span></button>'
-        +'<button class="kt-gift25-cat vip" onclick="filterGift25(\'VIP 전용\',this)">👑<span>VIP 전용</span></button>'
+    +'<div class="kt-gift-final-main">'
+      +'<aside class="kt-gift-final-side">'
+        +'<button type="button" class="kt-gift-final-cat on" onclick="filterGift25(\'전체\',this)"><i>🎁</i><span>전체</span></button>'
+        +'<button type="button" class="kt-gift-final-cat" onclick="filterGift25(\'꽃/하트\',this)"><i>🌹</i><span>꽃/하트</span></button>'
+        +'<button type="button" class="kt-gift-final-cat" onclick="filterGift25(\'프리미엄\',this)"><i>👑</i><span>프리미엄</span></button>'
+        +'<button type="button" class="kt-gift-final-cat" onclick="filterGift25(\'연출/특수\',this)"><i>✨</i><span>연출/특수</span></button>'
+        +'<button type="button" class="kt-gift-final-cat" onclick="filterGift25(\'럭셔리\',this)"><i>💎</i><span>럭셔리</span></button>'
+        +'<button type="button" class="kt-gift-final-cat" onclick="filterGift25(\'보물/패키지\',this)"><i>🧰</i><span>보물/패키지</span></button>'
+        +'<button type="button" class="kt-gift-final-cat vip" onclick="filterGift25(\'VIP 전용\',this)"><i>👑</i><span>VIP 전용</span></button>'
       +'</aside>'
-      +'<div class="kt-gift25-grid">'+cards+'</div>'
+      +'<section class="kt-gift-final-content">'
+        +'<div class="kt-gift-final-current">전체</div>'
+        +'<div class="kt-gift-final-grid">'+cards+'</div>'
+      +'</section>'
     +'</div>'
-    +'<div class="kt-gift25-note">💗 선물은 라이브 방송 중에 보낼 수 있습니다.</div>'
-    +'</div>';
+    +'<div class="kt-gift-final-pager"><button type="button" aria-label="이전">‹</button><b>1 / 1</b><button type="button" aria-label="다음">›</button></div>'
+    +'<div class="kt-gift-final-foot">'
+      +'<span>💗 선물은 라이브 방송 중에만 보낼 수 있습니다.</span>'
+      +'<button type="button" onclick="openGiftHistory()">☷ 선물 내역</button>'
+    +'</div>'
+  +'</div>';
+
   showSheet('',html);
   sheet.classList.remove('gift-exact');
-  sheet.classList.add('gift-shop25');
+  sheet.classList.add('gift-shop25','gift-final-v1');
 };
 
 window.ktTreasureTimer=null;
