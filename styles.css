@@ -541,3 +541,32 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
 .kt-sound-info b{display:block;font-size:14px}
 .kt-sound-info small{display:block;margin-top:3px;color:#aeb0ba;font-size:10px}
 .kt-sound-play{font-size:17px;color:#fff;text-align:center}
+
+
+/* 혜택 · 보상 · 판매 · 장미 통합 센터 */
+.kt-benefit-hub{padding:2px 0 12px}
+.kt-benefit-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kt-benefit-summary>div{
+  min-height:92px;border-radius:16px;padding:10px 6px;text-align:center;
+  background:linear-gradient(145deg,#1b1b25,#0b0b10);border:1px solid rgba(255,255,255,.09)
+}
+.kt-benefit-summary span{display:block;font-size:24px}
+.kt-benefit-summary b{display:block;margin-top:5px;font-size:10px;color:#bfc1ca}
+.kt-benefit-summary strong{display:block;margin-top:5px;font-size:17px;color:#ffe075}
+.kt-benefit-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+.kt-benefit-grid button{
+  min-height:106px;border:1px solid rgba(255,255,255,.09);border-radius:17px;
+  background:linear-gradient(145deg,#161620,#09090e);color:#fff;padding:11px;text-align:left
+}
+.kt-benefit-grid span{font-size:28px}
+.kt-benefit-grid b{display:block;margin-top:7px;font-size:15px;font-weight:950}
+.kt-benefit-grid small{display:block;margin-top:3px;color:#aeb0ba;font-size:10px}
+.kt-benefit-section{margin-top:10px;padding:10px;border-radius:17px;background:#ffffff07;border:1px solid rgba(255,255,255,.08)}
+.kt-benefit-section-title{font-size:13px;font-weight:950;color:#ffd75f;margin:1px 2px 7px}
+.kt-benefit-section button{
+  width:100%;height:46px;display:flex;align-items:center;justify-content:space-between;
+  border:0;border-bottom:1px solid rgba(255,255,255,.07);background:transparent;color:#fff;
+  font-size:13px;font-weight:900;text-align:left
+}
+.kt-benefit-section button:last-child{border-bottom:0}
+.kt-benefit-section em{font-style:normal;color:#aeb0ba;font-size:20px}
