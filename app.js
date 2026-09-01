@@ -377,6 +377,7 @@ window.openBenefitHub=function(){
     +'<button class="kt-benefit-guide-btn" onclick="openSiteGuide()">❔ 전체 사용방법 · 혜택 자세히 보기</button>'
     +'</div>';
   showSheet('혜택 · 보상 센터',html);
+  sheet.classList.add('benefit-center-sheet');
 };
 
 window.openWeeklyBroadcastReward=function(){
