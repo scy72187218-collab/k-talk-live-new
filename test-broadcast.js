@@ -25,14 +25,10 @@
 
   function testEffectMarkup(name){
     if(name==='sunglasses')return '<div class="fx-sunglasses-mask"><i></i><i></i><b></b></div>';
-    if(name==='rollers')return '<div class="fx-rollers-mask"><i></i><i></i><i></i><i></i><i></i><i></i></div>';
+    if(name==='glasses')return '<div class="fx-glasses-mask"><i></i><i></i><b></b></div>';
     if(name==='beard')return '<div class="fx-beard-mask"><span>〰</span><b></b></div>';
-    if(name==='crown')return '<div class="fx-crown-mask">👑</div>';
-    if(name==='cat')return '<div class="fx-ears-mask"><span>🐱</span></div>';
-    if(name==='rabbit')return '<div class="fx-ears-mask rabbit"><span>🐰</span></div>';
-    if(name==='flowers')return '<div class="fx-flowers-mask"><span>🌸</span><span>🌺</span><span>🌼</span><span>🌸</span></div>';
-    if(name==='sparkle')return '<div class="fx-sparkles-mask"><span>✨</span><span>✦</span><span>⭐</span><span>✨</span></div>';
-    if(name==='party')return '<div class="fx-party-mask"><span>🎉</span><span>✨</span><span>🎊</span></div>';
+    if(name==='cap')return '<div class="fx-cap-mask"><i></i><b></b></div>';
+    if(name==='sparkle')return '<div class="fx-sparkles-mask"><span>✦</span><span>✧</span><span>✦</span><span>✧</span></div>';
     return '';
   }
 
@@ -44,6 +40,8 @@
     else if(name==='warm')v.style.filter='brightness(1.12) contrast(.95) saturate(1.10) sepia(.12)';
     else if(name==='cool')v.style.filter='brightness(1.10) contrast(.95) saturate(.98) hue-rotate(170deg)';
     else if(name==='soft')v.style.filter='brightness(1.14) contrast(.92) saturate(.98)';
+    else if(name==='studio')v.style.filter='brightness(1.16) contrast(.94) saturate(.98)';
+    else if(name==='night')v.style.filter='brightness(.88) contrast(1.04) saturate(.92)';
     else v.style.filter=base;
   }
 
