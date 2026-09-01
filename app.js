@@ -1002,6 +1002,8 @@ window.ktFaceDetector=null;
 window.ktFaceTrackTimer=null;
 window.ktFaceMesh=null;
 window.ktFaceMeshBusy=false;
+window.ktMPFaceDetection=null;
+window.ktMPFaceBusy=false;
 window.ktScriptLoads=window.ktScriptLoads||{};
 
 window.ktLoadExternalScript=function(src){
@@ -1069,6 +1071,40 @@ window.updateFaceAnchorFromBox=function(box,normalized){
   anchor.style.opacity='1';
 };
 
+window.ensureKTMPFaceDetection=async function(){
+  if(window.ktMPFaceDetection)return true;
+  try{
+    if(!window.FaceDetection){
+      await ktLoadExternalScript('https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/face_detection.js');
+    }
+    if(!window.FaceDetection)return false;
+    window.ktMPFaceDetection=new FaceDetection({
+      locateFile:function(file){
+        return 'https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/'+file;
+      }
+    });
+    window.ktMPFaceDetection.setOptions({
+      model:'short',
+      minDetectionConfidence:.45
+    });
+    window.ktMPFaceDetection.onResults(function(results){
+      try{
+        var ds=results&&results.detections;
+        if(!ds||!ds.length){hideFaceAnchor();return;}
+        var rb=ds[0].locationData&&ds[0].locationData.relativeBoundingBox;
+        if(!rb){hideFaceAnchor();return;}
+        updateFaceAnchorFromBox({
+          x1:rb.xMin,
+          y1:rb.yMin,
+          x2:rb.xMin+rb.width,
+          y2:rb.yMin+rb.height
+        },true);
+      }catch(e){hideFaceAnchor();}
+    });
+    return true;
+  }catch(e){return false;}
+};
+
 window.ensureKTFaceMesh=async function(){
   if(window.ktFaceMesh)return true;
   try{
@@ -1124,6 +1160,19 @@ window.trackFaceOnce=async function(){
         return;
       }
     }catch(e){}
+  }
+
+  if(!window.ktMPFaceBusy){
+    var mpReady=await ensureKTMPFaceDetection();
+    if(mpReady){
+      try{
+        window.ktMPFaceBusy=true;
+        await window.ktMPFaceDetection.send({image:camera});
+        return;
+      }catch(e){}finally{
+        window.ktMPFaceBusy=false;
+      }
+    }
   }
 
   if(window.ktFaceMeshBusy)return;
@@ -1283,6 +1332,9 @@ window.ktSegmentation=null;
 window.ktSegTarget=null;
 window.ktSegRAF=0;
 window.ktSegBusy=false;
+window.ktBodyPixNet=null;
+window.ktBodyPixBusy=false;
+window.ktBodyPixMaskCanvas=null;
 
 window.ensureKTBackgroundCanvas=function(){
   var canvas=document.getElementById('ktBackgroundCanvas');
@@ -1348,16 +1400,88 @@ window.drawKTBackgroundScene=function(ctx,w,h,key){
   ctx.restore();
 };
 
+window.ensureKTBodyPix=async function(){
+  if(window.ktBodyPixNet)return true;
+  try{
+    if(!window.tf){
+      await ktLoadExternalScript('https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js');
+    }
+    if(!window.bodyPix){
+      await ktLoadExternalScript('https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.2.0/dist/body-pix.min.js');
+    }
+    if(!window.bodyPix)return false;
+    window.ktBodyPixNet=await bodyPix.load({
+      architecture:'MobileNetV1',
+      outputStride:16,
+      multiplier:.50,
+      quantBytes:2
+    });
+    return !!window.ktBodyPixNet;
+  }catch(e){return false;}
+};
+
+window.ktDrawBodyPixFrame=async function(){
+  var t=window.ktSegTarget;
+  if(!t||!t.canvas||!t.video||!window.ktBodyPixNet||window.ktBodyPixBusy)return;
+  try{
+    window.ktBodyPixBusy=true;
+    var seg=await window.ktBodyPixNet.segmentPerson(t.video,{
+      internalResolution:'low',
+      segmentationThreshold:.68,
+      maxDetections:1,
+      scoreThreshold:.25,
+      nmsRadius:20
+    });
+    if(!seg||!seg.data)return;
+
+    var rect=t.video.getBoundingClientRect();
+    var w=Math.max(1,Math.round(rect.width)),h=Math.max(1,Math.round(rect.height));
+    if(t.canvas.width!==w)t.canvas.width=w;
+    if(t.canvas.height!==h)t.canvas.height=h;
+    var ctx=t.canvas.getContext('2d');
+    ctx.clearRect(0,0,w,h);
+
+    var mw=seg.width||t.video.videoWidth||w;
+    var mh=seg.height||t.video.videoHeight||h;
+    if(!window.ktBodyPixMaskCanvas)window.ktBodyPixMaskCanvas=document.createElement('canvas');
+    var mc=window.ktBodyPixMaskCanvas;
+    if(mc.width!==mw)mc.width=mw;
+    if(mc.height!==mh)mc.height=mh;
+    var mctx=mc.getContext('2d');
+    var img=mctx.createImageData(mw,mh);
+    for(var n=0;n<seg.data.length;n++){
+      var a=seg.data[n]?255:0;
+      var o=n*4;
+      img.data[o]=255;img.data[o+1]=255;img.data[o+2]=255;img.data[o+3]=a;
+    }
+    mctx.putImageData(img,0,0);
+
+    ctx.save();
+    if(t.mirror){ctx.translate(w,0);ctx.scale(-1,1);}
+    ctx.drawImage(mc,0,0,w,h);
+    ctx.globalCompositeOperation='source-in';
+    ctx.drawImage(t.video,0,0,w,h);
+    ctx.restore();
+
+    ctx.globalCompositeOperation='destination-over';
+    drawKTBackgroundScene(ctx,w,h,t.key);
+    ctx.globalCompositeOperation='source-over';
+    t.canvas.style.display='block';
+  }catch(e){}finally{
+    window.ktBodyPixBusy=false;
+  }
+};
+
 window.ensureKTSegmentation=async function(){
   if(window.ktSegmentation)return true;
   try{
     if(!window.SelfieSegmentation){
-      await ktLoadExternalScript('https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js');
+      await ktLoadExternalScript('https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1.1675465747/selfie_segmentation.js');
     }
     if(!window.SelfieSegmentation)return false;
     window.ktSegmentation=new SelfieSegmentation({
       locateFile:function(file){
-        return 'https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/'+file;
+        return 'https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1.1675465747/'+file;
       }
     });
     window.ktSegmentation.setOptions({modelSelection:1});
@@ -1389,14 +1513,20 @@ window.ensureKTSegmentation=async function(){
 
 window.ktRunSegmentationLoop=function(){
   cancelAnimationFrame(window.ktSegRAF);
-  async function loop(){
+  var last=0;
+  async function loop(ts){
     var t=window.ktSegTarget;
-    if(!t||!t.video||!t.video.isConnected||!t.key){return;}
-    if(t.video.readyState>=2&&!window.ktSegBusy){
-      try{
-        window.ktSegBusy=true;
-        await window.ktSegmentation.send({image:t.video});
-      }catch(e){}finally{window.ktSegBusy=false;}
+    if(!t||!t.video||!t.video.isConnected||!t.key)return;
+    if(ts-last>90 && t.video.readyState>=2){
+      last=ts;
+      if(window.ktSegmentation&&!window.ktSegBusy){
+        try{
+          window.ktSegBusy=true;
+          await window.ktSegmentation.send({image:t.video});
+        }catch(e){}finally{window.ktSegBusy=false;}
+      }else if(window.ktBodyPixNet){
+        await ktDrawBodyPixFrame();
+      }
     }
     window.ktSegRAF=requestAnimationFrame(loop);
   }
@@ -1406,18 +1536,29 @@ window.ktRunSegmentationLoop=function(){
 window.applySelectedBackgroundPreview=async function(){
   if(!state.selectedBackground)return;
   var canvas=ensureKTBackgroundCanvas();
-  var ok=await ensureKTSegmentation();
-  if(!ok){
-    canvas.style.display='none';
-    ktSpeak('이 기기에서는 배경 분리 기능을 불러오지 못했습니다.');
-    return;
-  }
+  canvas.style.display='block';
+  var ctx=canvas.getContext('2d');
+  var r=camera.getBoundingClientRect();
+  canvas.width=Math.max(1,Math.round(r.width));
+  canvas.height=Math.max(1,Math.round(r.height));
+  drawKTBackgroundScene(ctx,canvas.width,canvas.height,state.selectedBackground);
+
   window.ktSegTarget={
     video:camera,
     canvas:canvas,
     key:state.selectedBackground,
     mirror:(state.cameraFacing||'user')!=='environment'
   };
+
+  var ok=await ensureKTSegmentation();
+  if(!ok){
+    ok=await ensureKTBodyPix();
+  }
+  if(!ok){
+    canvas.style.display='none';
+    ktSpeak('배경 분리 기능을 불러오지 못했습니다.');
+    return;
+  }
   ktRunSegmentationLoop();
 };
 
@@ -1457,7 +1598,7 @@ window.selectEditBackground=function(btn,key,label){
   creator.setAttribute('data-kt-background',key);
   try{localStorage.setItem('ktalk_selected_background',key);}catch(e){}
   applySelectedBackgroundPreview();
-  ktSpeak(label+' 배경을 적용했습니다.');
+  ktSpeak(label+' 배경을 적용 중입니다.');
 };
 
 window.switchEditEffectTab=function(btn,mode){
