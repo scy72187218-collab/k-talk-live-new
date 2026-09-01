@@ -2373,7 +2373,54 @@ window.openRaffle=function(){showSheet('🎯 제비뽑기','<div class="raffle">
 window.raffle=function(){if(state.raffle<=0){ktSpeak('오늘 참여 횟수를 모두 사용했습니다.');alert('오늘 참여 횟수를 모두 사용했습니다.');return;}state.raffle--;var p=[0,0,1,2,3,4,5];var x=p[Math.floor(Math.random()*p.length)];var msg=x?'장미 '+x+'개 당첨!':'꽝입니다.';ktAnnounceEvent('reward',{text:msg});alert(msg);};
 window.openMessages=function(){showSheet('✉ 쪽지','<div class="rowbox"><b>쪽지 화면</b><br>메시지 기능 버튼이 정상 작동합니다.</div>');};
 window.openComments=function(){showSheet('💬 댓글','<div class="rowbox"><b>댓글 화면</b><br>댓글 버튼이 정상 작동합니다.</div>');};
+window.ktGetSelectedSubAccount=function(){
+  try{
+    var key=localStorage.getItem('ktalk_sub_account')||'';
+    if(key==='taekwon1'||key==='haine2')return key;
+  }catch(e){}
+  return '';
+};
+window.ktSubAccountInfo=function(key){
+  if(key==='haine2')return {key:'haine2',name:'K-톡 하이네2',icon:'H'};
+  return {key:'taekwon1',name:'K-톡 태권1',icon:'T'};
+};
+window.ktCurrentSubAccountInfo=function(){
+  return ktSubAccountInfo(ktGetSelectedSubAccount()||'taekwon1');
+};
+window.selectKTalkSubAccount=function(key){
+  if(key!=='taekwon1'&&key!=='haine2')return;
+  try{localStorage.setItem('ktalk_sub_account',key);}catch(e){}
+  state.ktSubAccount=key;
+  var info=ktSubAccountInfo(key);
+  var storage='ktalk_profile_v1:sub:'+key;
+  try{
+    if(!localStorage.getItem(storage)){
+      localStorage.setItem(storage,JSON.stringify({name:info.name,bio:'',photo:''}));
+    }
+  }catch(e){}
+  closeSheet();
+  setTimeout(function(){openProfileDirect();},60);
+};
+window.openAccountChooser=function(){
+  var current=ktGetSelectedSubAccount();
+  var html='<div class="kt-account-choice">'
+    +'<div class="kt-account-choice-title">사용할 계정을 선택하세요</div>'
+    +'<div class="kt-account-split">'
+      +'<button class="kt-account-half '+(current==='taekwon1'?'on':'')+'" onclick="selectKTalkSubAccount(\'taekwon1\')">'
+        +'<span class="kt-account-avatar taekwon">T</span><b>K-톡 태권1</b><small>태권1 계정으로 들어가기</small>'
+      +'</button>'
+      +'<button class="kt-account-half '+(current==='haine2'?'on':'')+'" onclick="selectKTalkSubAccount(\'haine2\')">'
+        +'<span class="kt-account-avatar haine">H</span><b>K-톡 하이네2</b><small>하이네2 계정으로 들어가기</small>'
+      +'</button>'
+    +'</div>'
+    +'<div class="kt-account-note">두 계정의 프로필 사진 · 이름 · 소개는 각각 따로 저장됩니다.</div>'
+    +'</div>';
+  showSheet('계정 선택',html);
+};
+
 window.ktProfileAccountKey=function(){
+  var sub=ktGetSelectedSubAccount();
+  if(sub)return 'sub:'+sub;
   try{
     var owner=window.ktVideoOwner?ktVideoOwner():null;
     if(owner&&owner.id)return String(owner.id);
@@ -2397,9 +2444,13 @@ window.ktProfileLoad=function(){
   }catch(e){}
   if(!base.name){
     try{
-      var owner=window.ktVideoOwner?ktVideoOwner():null;
-      if(owner&&owner.name&&owner.name!=='내 계정')base.name=owner.name;
-      else if(window.ktCurrentVerifiedAccountName&&ktCurrentVerifiedAccountName())base.name=ktCurrentVerifiedAccountName();
+      var sub=ktGetSelectedSubAccount();
+      if(sub)base.name=ktSubAccountInfo(sub).name;
+      else{
+        var owner=window.ktVideoOwner?ktVideoOwner():null;
+        if(owner&&owner.name&&owner.name!=='내 계정')base.name=owner.name;
+        else if(window.ktCurrentVerifiedAccountName&&ktCurrentVerifiedAccountName())base.name=ktCurrentVerifiedAccountName();
+      }
     }catch(e){}
   }
   if(base.name==='태권이'||base.name==='K-톡태권')base.name='K-톡 태권1';
@@ -2424,12 +2475,17 @@ window.ktProfileRender=function(){
     +'<label>닉네임<input id="ktProfileName" class="form" maxlength="20" value="'+ktProfileEscape(p.name)+'" placeholder="닉네임"></label>'
     +'<label>소개<input id="ktProfileBio" class="form" maxlength="60" value="'+ktProfileEscape(p.bio)+'" placeholder="간단한 소개를 입력하세요"></label>'
     +'<button class="act" type="button" onclick="ktProfileSave()">프로필 저장</button>'
+    +'<button class="kt-profile-switch-btn" type="button" onclick="openAccountChooser()">⇄ 계정 선택</button>'
     +'<button class="kt-profile-video-btn" type="button" onclick="closeSheet();setTimeout(openMyVideoLibrary,80)">🎬 내 동영상 보기</button>'
-    +'<small class="kt-profile-note">사진과 이름은 현재 이 계정 프로필에 저장됩니다.</small>'
+    +'<small class="kt-profile-note">선택한 계정마다 사진과 이름을 따로 저장합니다.</small>'
     +'</div>';
 };
+window.openProfileDirect=function(){
+  var info=ktCurrentSubAccountInfo();
+  showSheet('♛ '+info.name+' 프로필',ktProfileRender());
+};
 window.openProfile=function(){
-  showSheet('♛ 프로필',ktProfileRender());
+  openAccountChooser();
 };
 window.ktProfileSave=function(){
   var old=ktProfileLoad();
@@ -2444,7 +2500,7 @@ window.ktProfileSave=function(){
   }
   ktSpeak('프로필을 저장했습니다.');
   alert('✅ 프로필을 저장했습니다.');
-  openProfile();
+  openProfileDirect();
 };
 window.ktProfilePickPhoto=function(input){
   var file=input&&input.files&&input.files[0];
@@ -2470,7 +2526,7 @@ window.ktProfilePickPhoto=function(input){
         if(nameEl&&nameEl.value.trim())p.name=nameEl.value.trim();
         if(bioEl)p.bio=bioEl.value.trim();
         localStorage.setItem(ktProfileStorageKey(),JSON.stringify(p));
-        openProfile();
+        openProfileDirect();
       }catch(e){alert('사진을 등록하지 못했습니다. 다른 사진으로 다시 해 주세요.');}
     };
     img.onerror=function(){alert('사진을 읽지 못했습니다.');};
