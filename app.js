@@ -667,8 +667,8 @@ window.openMyVideoLibrary=async function(){
         html+='<div class="kt-myvideo-list">'+items.map(function(v){
           var d=new Date(v.createdAt);
           return '<div class="kt-myvideo-row">'
-            +'<button class="play" onclick="playStoredVideo(\''+v.id+'\')"><span>▶</span><b>'+String(v.name||'내 동영상').replace(/</g,'&lt;')+'</b><small>'+d.toLocaleDateString('ko-KR')+'</small></button>'
-            +'<button class="trash" onclick="deleteStoredVideo(\''+v.id+'\')">삭제</button>'
+            +'<button class="play" onclick="playStoredVideo(\''+v.id+'\')"><span>▶</span><b>'+String(v.name||'내 동영상').replace(/</g,'&lt;')+'</b><small>'+d.toLocaleDateString('ko-KR')+(v.posted?' · 게시됨':'')+'</small></button>'
+            +'<div class="kt-myvideo-row-actions"><button class="upload" onclick="postStoredVideo(\''+v.id+'\',this)">'+(v.posted?'✓ 올림':'올리기')+'</button><button class="trash" onclick="deleteStoredVideo(\''+v.id+'\')">삭제</button></div>'
             +'</div>';
         }).join('')+'</div>';
       }
@@ -692,10 +692,44 @@ window.playStoredVideo=async function(id){
       if(!item||!item.blob){alert('동영상을 찾지 못했습니다.');return;}
       if(ktLibraryPlayUrl){try{URL.revokeObjectURL(ktLibraryPlayUrl);}catch(e){}}
       ktLibraryPlayUrl=URL.createObjectURL(item.blob);
-      showSheet('동영상 재생','<div class="kt-myvideo-player"><video controls autoplay playsinline src="'+ktLibraryPlayUrl+'"></video><b>'+String(item.name||'내 동영상').replace(/</g,'&lt;')+'</b></div>');
+      var safeName=String(item.name||'내 동영상').replace(/</g,'&lt;');
+      showSheet('동영상 재생','<div class="kt-myvideo-player">'
+        +'<video controls autoplay playsinline src="'+ktLibraryPlayUrl+'"></video>'
+        +'<b>'+safeName+'</b>'
+        +'<div class="kt-myvideo-player-actions">'
+          +'<button class="back" onclick="openMyVideoLibrary()">← 내 동영상</button>'
+          +'<button class="upload" onclick="postStoredVideo(\''+id+'\',this)">⬆ 동영상 올리기</button>'
+        +'</div>'
+      +'</div>');
     };
     req.onerror=function(){db.close();alert('동영상을 재생하지 못했습니다.');};
   }catch(e){alert('동영상을 재생하지 못했습니다.');}
+};
+
+window.postStoredVideo=async function(id,btn){
+  try{
+    var db=await ktOpenVideoDB();
+    var tx=db.transaction('videos','readwrite');
+    var store=tx.objectStore('videos');
+    var req=store.get(id);
+    req.onsuccess=function(){
+      var item=req.result;
+      if(!item){db.close();alert('동영상을 찾지 못했습니다.');return;}
+      item.posted=true;
+      item.postedAt=Date.now();
+      store.put(item);
+    };
+    tx.oncomplete=function(){
+      db.close();
+      if(btn){
+        btn.textContent='✓ 올리기 완료';
+        btn.classList.add('done');
+      }
+      ktSpeak('동영상을 올렸습니다.');
+      alert('✅ 동영상을 올렸습니다.');
+    };
+    tx.onerror=function(){db.close();alert('동영상을 올리지 못했습니다.');};
+  }catch(e){alert('동영상을 올리지 못했습니다.');}
 };
 
 window.deleteStoredVideo=async function(id){
