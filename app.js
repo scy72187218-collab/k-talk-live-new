@@ -1053,7 +1053,7 @@ window.startKTFaceTracking=function(){
   trackFaceOnce();
   window.ktFaceTrackTimer=setInterval(function(){
     if(creator&&creator.classList.contains('show'))trackFaceOnce();
-  },260);
+  },150);
 };
 
 window.stopKTFaceTracking=function(){
@@ -1062,54 +1062,47 @@ window.stopKTFaceTracking=function(){
 };
 
 window.renderFaceEffect=function(name){
-  var layer=ensureFaceEffectLayer();
+  ensureFaceEffectLayer();
   var anchor=document.getElementById('ktFaceAnchor');
+  if(!anchor)return;
   anchor.innerHTML='';
   anchor.className='kt-face-anchor';
 
   var filterClasses=['fx-glow','fx-soft','fx-rainbow','fx-cool','fx-warm','fx-night','fx-cinema','fx-mono','fx-pink','fx-blue','fx-star','fx-party','fx-disco','fx-dream'];
   creator.classList.remove.apply(creator.classList,filterClasses);
 
+  state.editFilter='';
+  state.editSticker=name||'off';
+
   if(!name||name==='off'){
-    state.editFilter='';
     state.editSticker='';
     if(camera)camera.style.filter='brightness(1.12) contrast(.95) saturate(1.02)';
+    stopKTFaceTracking();
     return;
   }
 
-  state.editFilter='';
-  state.editSticker=name;
-
-  if(name==='sunglasses'){
-    anchor.innerHTML='<div class="fx-sunglasses-mask"><i></i><i></i><b></b></div>';
-  }else if(name==='glasses'){
-    anchor.innerHTML='<div class="fx-glasses-mask"><i></i><i></i><b></b></div>';
-  }else if(name==='beard'){
-    anchor.innerHTML='<div class="fx-beard-mask"><span>〰</span><b></b></div>';
-  }else if(name==='cap'){
-    anchor.innerHTML='<div class="fx-cap-mask"><i></i><b></b></div>';
-  }else if(name==='sparkle'){
-    anchor.innerHTML='<div class="fx-sparkles-mask"><span>✦</span><span>✧</span><span>✦</span><span>✧</span></div>';
-  }else if(name==='mono'){
-    state.editFilter='mono';
-    creator.classList.add('fx-mono');
-  }else if(name==='warm'){
-    state.editFilter='warm';
-    creator.classList.add('fx-warm');
-  }else if(name==='cool'){
-    state.editFilter='cool';
-    creator.classList.add('fx-cool');
-  }else if(name==='soft'){
-    state.editFilter='dream';
-    creator.classList.add('fx-dream');
-  }else if(name==='studio'){
-    state.editFilter='studio';
-    if(camera)camera.style.filter='brightness(1.16) contrast(.94) saturate(.98)';
-  }else if(name==='night'){
-    state.editFilter='night';
-    creator.classList.add('fx-night');
-  }
-
+  var markup={
+    sunglasses:'<div class="fx-sunglasses-mask"><i></i><i></i><b></b></div>',
+    glasses:'<div class="fx-glasses-mask"><i></i><i></i><b></b></div>',
+    mustache:'<div class="fx-mustache-mask"><span>〰</span></div>',
+    beard:'<div class="fx-beard-mask"><span>〰</span><b></b></div>',
+    cap:'<div class="fx-cap-mask"><i></i><b></b></div>',
+    pirate:'<div class="fx-pirate-mask"><i></i><b></b></div>',
+    crown:'<div class="fx-crown-mask">👑</div>',
+    cat:'<div class="fx-animal-ears cat"><i></i><i></i></div>',
+    dog:'<div class="fx-animal-ears dog"><i></i><i></i></div>',
+    rabbit:'<div class="fx-animal-ears rabbit"><i></i><i></i></div>',
+    blush:'<div class="fx-cheek-mask blush"><i></i><i></i></div>',
+    heart:'<div class="fx-cheek-mask heart"><i>♥</i><i>♥</i></div>',
+    sparkle:'<div class="fx-sparkles-mask"><span>✦</span><span>✧</span><span>✦</span><span>✧</span></div>',
+    tears:'<div class="fx-tears-mask"><i></i><i></i></div>',
+    halo:'<div class="fx-halo-mask"></div>',
+    fire:'<div class="fx-fire-mask">🔥🔥🔥</div>',
+    facepaint:'<div class="fx-facepaint-mask"><i></i><i></i></div>',
+    mask:'<div class="fx-eye-mask"></div>',
+    butterfly:'<div class="fx-butterfly-mask"><span>🦋</span><span>🦋</span></div>'
+  };
+  anchor.innerHTML=markup[name]||'';
   startKTFaceTracking();
 };
 
@@ -1120,7 +1113,7 @@ window.syncEditEffectButtons=function(){
   });
   var label=document.getElementById('ktEffectSelected');
   if(label){
-    var map={off:'해제',sunglasses:'선글라스',glasses:'안경',beard:'수염',cap:'캡모자',sparkle:'별빛',warm:'웜톤',cool:'쿨톤',soft:'소프트',studio:'스튜디오',night:'야간',mono:'흑백'};
+    var map={off:'해제',sunglasses:'선글라스',glasses:'안경',mustache:'콧수염',beard:'턱수염',cap:'캡모자',pirate:'해적안대',crown:'왕관',cat:'고양이귀',dog:'강아지귀',rabbit:'토끼귀',blush:'볼터치',heart:'하트볼',sparkle:'별빛',tears:'눈물',halo:'후광',fire:'불꽃',facepaint:'페이스페인트',mask:'마스크',butterfly:'나비'};
     label.textContent=map[state.pendingEditEffect||'off']||'효과';
   }
 };
@@ -1169,22 +1162,30 @@ window.openEditEffectPanel=function(){
   state.pendingEditEffect=state.appliedEditEffect;
 
   var effects=[
-    ['↺','해제','off'],
+    ['⊘','해제','off'],
     ['🕶️','선글라스','sunglasses'],
     ['👓','안경','glasses'],
-    ['〰','수염','beard'],
+    ['👨','콧수염','mustache'],
+    ['🧔','턱수염','beard'],
     ['🧢','캡모자','cap'],
-    ['✦','별빛','sparkle'],
-    ['☀️','웜톤','warm'],
-    ['🧊','쿨톤','cool'],
-    ['☁️','소프트','soft'],
-    ['💡','스튜디오','studio'],
-    ['🌙','야간','night'],
-    ['◐','흑백','mono']
+    ['🏴‍☠️','해적안대','pirate'],
+    ['👑','왕관','crown'],
+    ['🐱','고양이귀','cat'],
+    ['🐶','강아지귀','dog'],
+    ['🐰','토끼귀','rabbit'],
+    ['😊','볼터치','blush'],
+    ['💗','하트볼','heart'],
+    ['✨','별빛','sparkle'],
+    ['💧','눈물','tears'],
+    ['😇','후광','halo'],
+    ['🔥','불꽃','fire'],
+    ['🎨','페이스페인트','facepaint'],
+    ['🎭','마스크','mask'],
+    ['🦋','나비','butterfly']
   ];
 
   tray.innerHTML='<div class="kt-live-effects-head"><b>편집효과</b><button onclick="closeEditEffectPanel()">✕</button></div>'
-    +'<div class="kt-live-effects-tabs"><button class="on">추천</button><button>얼굴</button><button>분위기</button></div>'
+    +'<div class="kt-live-effects-tabs"><button class="on">추천</button><button>남녀공용</button><button>재미</button></div>'
     +'<div class="kt-live-effects-scroll">'
     +effects.map(function(e){
       return '<button class="kt-live-effect-item" data-effect="'+e[2]+'" onclick="previewEditEffect(\''+e[2]+'\')">'
