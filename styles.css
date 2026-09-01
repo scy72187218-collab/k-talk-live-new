@@ -3585,3 +3585,40 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   .kt-my-profile-photo{width:76px!important;height:76px!important}
   .kt-profile-maininfo b{font-size:16px}
 }
+
+
+/* 2026-09-02 동영상 프로필 사진 상시 표시 */
+.vh-owner-line{
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  margin-bottom:4px!important;
+}
+.vh-owner-avatar{
+  width:38px!important;
+  height:38px!important;
+  border-radius:50%!important;
+  overflow:hidden!important;
+  display:grid!important;
+  place-items:center!important;
+  flex:0 0 38px!important;
+  border:2px solid rgba(255,255,255,.92)!important;
+  background:linear-gradient(135deg,#5b45ff,#d43fff)!important;
+  color:#fff!important;
+  font-size:15px!important;
+  font-weight:950!important;
+  box-shadow:0 2px 10px rgba(0,0,0,.45)!important;
+}
+.vh-owner-avatar img{
+  width:100%!important;
+  height:100%!important;
+  display:block!important;
+  object-fit:cover!important;
+  object-position:50% 50%!important;
+}
+.vh-owner-line b{
+  font-size:14px!important;
+  font-weight:950!important;
+  color:#fff!important;
+  text-shadow:0 1px 3px rgba(0,0,0,.75)!important;
+}
