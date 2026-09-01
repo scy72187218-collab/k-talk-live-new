@@ -464,14 +464,30 @@ window.handleMyVideoPick=function(input){
   if(fallback)fallback.style.display='none';
   if(preview){
     preview.pause();
-    preview.muted=false;
+    preview.muted=true;
     preview.controls=true;
+    preview.playsInline=true;
+    preview.onerror=function(){
+      preview.style.display='none';
+      if(fallback)fallback.style.display='grid';
+    };
+    preview.onloadeddata=function(){
+      try{
+        var t=(isFinite(preview.duration)&&preview.duration>0)?Math.min(0.12,Math.max(0.02,preview.duration/20)):0.05;
+        preview.currentTime=t;
+      }catch(e){}
+      preview.pause();
+      preview.style.display='block';
+    };
+    preview.onseeked=function(){
+      preview.pause();
+      preview.style.display='block';
+    };
     preview.src=ktCreatorBlobUrl;
     preview.load();
     preview.style.display='block';
-    preview.play().catch(function(){});
   }
-  creator.classList.remove('creator-recording','live-prep-open');
+  creator.classList.remove('creator-recording','live-prep-open','camera-on');
   creator.classList.add('show','creator-review');
 };
 
