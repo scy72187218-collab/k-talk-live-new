@@ -72,7 +72,7 @@
 
     screen.innerHTML='<section style="height:100dvh;min-height:620px;position:relative;overflow:hidden;background:#050309;color:#fff">'
       +'<div style="position:absolute;inset:0;background:radial-gradient(circle at 25% 20%,#4c124f55,transparent 32%),radial-gradient(circle at 80% 30%,#0f497755,transparent 30%),#050309"></div>'
-      +'<video id="ktTestVideo" autoplay playsinline muted style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#09070d"></video>'
+      +'<video id="ktTestVideo" autoplay playsinline muted style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#09070d;transform:scaleX(-1)"></video>'
       +'<div style="position:absolute;inset:0;background:linear-gradient(180deg,#00000055,transparent 35%,#00000022 58%,#000000dd 100%);pointer-events:none"></div>'
       +'<div style="position:absolute;left:12px;right:12px;top:12px;z-index:3;display:flex;align-items:center;gap:8px">'
       +'<span style="padding:7px 10px;border-radius:999px;background:#ff315f;font-size:12px;font-weight:950">● TEST LIVE</span>'
