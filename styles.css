@@ -347,3 +347,38 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   filter:drop-shadow(0 4px 14px rgba(0,0,0,.45));
   pointer-events:none;
 }
+
+
+/* K-Talk 뷰티 / 편집효과 패널 */
+.kt-beauty-panel,.kt-effect-panel{padding-bottom:8px}
+.kt-panel-tabs{display:flex;align-items:center;gap:8px;margin:4px 0 12px}
+.kt-panel-tabs button{flex:1;height:40px;border:0;border-radius:12px;background:#20202a;color:#cfcfd8;font-size:13px;font-weight:900}
+.kt-panel-tabs button.on{background:#fff;color:#111}
+.kt-beauty-presets{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.kt-beauty-presets button,.kt-beauty-face-row button,.kt-effect-grid button{border:1px solid rgba(255,255,255,.10);border-radius:14px;background:linear-gradient(145deg,#1a1a24,#0b0b10);color:#fff;font-weight:900}
+.kt-beauty-presets button{min-height:86px;padding:10px 5px}
+.kt-beauty-presets b,.kt-beauty-face-row b,.kt-effect-grid b{display:block;font-size:28px;line-height:1;margin-bottom:7px}
+.kt-beauty-presets span,.kt-beauty-face-row span,.kt-effect-grid span{display:block;font-size:11px;color:#e7e7ec}
+.kt-slider-row{display:grid;grid-template-columns:54px 1fr 34px;align-items:center;gap:8px;margin:10px 0;padding:9px 10px;border-radius:14px;background:#ffffff0a}
+.kt-slider-row span{font-size:12px;font-weight:900;color:#fff}
+.kt-slider-row b{font-size:11px;color:#ffd86b;text-align:right}
+.kt-slider-row input[type=range]{width:100%;accent-color:#ff4f98}
+.kt-beauty-face-row{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:12px}
+.kt-beauty-face-row button{min-height:76px;padding:8px 4px}
+.kt-effect-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.kt-effect-grid button{min-height:82px;padding:8px 3px}
+.kt-effect-grid b{font-size:27px}
+.creator.fx-glow video{filter:brightness(1.12) saturate(1.12) contrast(.98) drop-shadow(0 0 5px rgba(255,255,255,.18))!important}
+.creator.fx-soft video{filter:brightness(1.08) saturate(.94) contrast(.91)!important}
+.creator.fx-rainbow video{filter:saturate(1.45) hue-rotate(18deg)!important}
+.creator.fx-cool video{filter:brightness(1.04) saturate(.95) hue-rotate(8deg)!important}
+.creator.fx-warm video{filter:brightness(1.06) saturate(1.16) sepia(.12)!important}
+.creator.fx-night video{filter:brightness(.82) contrast(1.16) saturate(.88)!important}
+.creator.fx-cinema video{filter:contrast(1.18) saturate(.88) sepia(.08)!important}
+.creator.fx-mono video{filter:grayscale(1) contrast(1.08)!important}
+.creator.fx-pink video{filter:brightness(1.08) saturate(1.18) hue-rotate(325deg)!important}
+.creator.fx-blue video{filter:brightness(1.04) saturate(1.14) hue-rotate(175deg)!important}
+.creator.fx-star video{filter:brightness(1.12) contrast(1.05)!important}
+.creator.fx-party video{filter:saturate(1.55) contrast(1.08)!important}
+.creator.fx-disco video{filter:saturate(1.6) hue-rotate(55deg)!important}
+.creator.fx-dream video{filter:brightness(1.12) saturate(.9) contrast(.88)!important}
