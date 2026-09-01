@@ -331,7 +331,42 @@ window.report=function(){showSheet('🚩 신고 게시판','<div class="rowbox">
 window.openAd=function(){showSheet('📣 광고·판매자 등록','<div class="rowbox"><b>광고 문의 화면</b></div>');};
 window.toggleSave=function(btn){state.saved=!state.saved;if(btn)btn.style.color=state.saved?'#ffe07a':'#fff';};
 window.toggleMic=function(btn){state.mic=!state.mic;if(btn)btn.textContent=state.mic?'🎤 마이크':'🔇 마이크';};
-window.shareApp=function(){if(navigator.share){navigator.share({title:'K-Talk LIVE',text:'K-Talk LIVE'}).catch(function(){});}else{alert('공유 버튼이 정상 작동합니다.');}};
+window.shareToTarget=async function(target){
+  var url=location.href;
+  if(target==='copy'){
+    try{await navigator.clipboard.writeText(url);alert('링크를 복사했습니다.');}catch(e){alert(url);}
+    return;
+  }
+  if(navigator.share){
+    try{await navigator.share({title:'K-Talk LIVE',text:'K-Talk LIVE 방송을 함께 보세요.',url:url});}catch(e){}
+  }else{
+    try{await navigator.clipboard.writeText(url);alert('링크를 복사했습니다.');}catch(e){alert(url);}
+  }
+};
+window.shareWithFollow=function(name){
+  alert(name+'님에게 공유할 준비가 되었습니다.');
+};
+window.shareApp=function(){
+  var html='<div class="kt-share-panel">'
+    +'<div class="kt-share-follow-title">팔로우한 사람</div>'
+    +'<div class="kt-share-follow">'
+      +'<button onclick="shareWithFollow(\'친구1\')"><span>🙂</span><b>친구1</b></button>'
+      +'<button onclick="shareWithFollow(\'친구2\')"><span>😊</span><b>친구2</b></button>'
+      +'<button onclick="shareWithFollow(\'친구3\')"><span>😎</span><b>친구3</b></button>'
+      +'<button onclick="shareWithFollow(\'친구4\')"><span>👩</span><b>친구4</b></button>'
+      +'<button onclick="shareWithFollow(\'친구5\')"><span>👨</span><b>친구5</b></button>'
+    +'</div>'
+    +'<div class="kt-share-divider"></div>'
+    +'<div class="kt-share-apps">'
+      +'<button onclick="shareToTarget(\'kakao\')"><span class="kakao">TALK</span><b>카카오톡</b></button>'
+      +'<button onclick="shareToTarget(\'facebook\')"><span class="facebook">f</span><b>Facebook</b></button>'
+      +'<button onclick="shareToTarget(\'copy\')"><span class="copy">🔗</span><b>링크 복사</b></button>'
+      +'<button onclick="shareToTarget(\'messenger\')"><span class="messenger">✉</span><b>Messenger</b></button>'
+      +'<button onclick="shareToTarget(\'instagram\')"><span class="instagram">◎</span><b>Instagram</b></button>'
+    +'</div>'
+    +'</div>';
+  showSheet('공유',html);
+};
 window.render=function(name){if(name==='home')home();else if(name==='shorts'||name==='video')media(name);else if(name==='profile')openProfile();};
 
 document.addEventListener('click',function(e){var tab=e.target.closest('[data-tab]');if(tab){activate(tab.dataset.tab);render(tab.dataset.tab);return;}var bottom=e.target.closest('[data-bottom]');if(bottom){var k=bottom.dataset.bottom;if(k==='home'){activate('home');home();}else if(k==='friends'){friends();}else if(k==='plus'){openCreator();}else if(k==='help'){openMenu();}else if(k==='profile'){openProfile();}}});
