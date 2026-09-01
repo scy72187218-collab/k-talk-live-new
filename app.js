@@ -187,62 +187,126 @@ window.resetBeautyAll=function(){
   openBeautyPanel();
 };
 
-window.openEditEffectPanel=function(){
-  var effects=[
-    ['✨','반짝임','glow'],['🌸','꽃빛','soft'],['🌈','무지개','rainbow'],['🧊','쿨톤','cool'],['🔥','웜톤','warm'],
-    ['🕶️','선글라스','sunglasses'],['👓','안경','glasses'],['🧔','수염','beard'],['👑','왕관','crown'],['😂','웃긴표정','funny'],
-    ['😺','고양이','cat'],['🐰','토끼','rabbit'],['🌙','야간','night'],['🎞️','영화','cinema'],['🖤','흑백','mono'],
-    ['💖','핑크','pink'],['💙','블루','blue'],['⭐','스타','star'],['🎉','파티','party'],['☁️','소프트','dream'],
-    ['↺','효과해제','off']
-  ];
-  var html='<div class="kt-effect-panel"><div class="kt-panel-tabs"><button onclick="openBeautyPanel()">Beauty</button><button class="on">편집효과</button><button onclick="setEditEffect(\'off\')">↺ 초기화</button></div><div class="kt-effect-grid">'
-    +effects.map(function(e){return '<button data-effect="'+e[2]+'" onclick="setEditEffect(\''+e[2]+'\')"><b>'+e[0]+'</b><span>'+e[1]+'</span></button>';}).join('')
-    +'</div></div>';
-  showSheet('편집효과',html);
-  sheet.classList.add('camera-effect-sheet');
-  syncEditEffectButtons();
+window.ensureFaceEffectLayer=function(){
+  var layer=document.getElementById('ktFaceEffectLayer');
+  if(!layer){
+    layer=document.createElement('div');
+    layer.id='ktFaceEffectLayer';
+    layer.className='kt-face-effect-layer';
+    creator.appendChild(layer);
+  }
+  return layer;
+};
+
+window.renderFaceEffect=function(name){
+  var layer=ensureFaceEffectLayer();
+  layer.className='kt-face-effect-layer';
+  layer.innerHTML='';
+  creator.removeAttribute('data-beauty-char');
+
+  var filterClasses=['fx-glow','fx-soft','fx-rainbow','fx-cool','fx-warm','fx-night','fx-cinema','fx-mono','fx-pink','fx-blue','fx-star','fx-party','fx-disco','fx-dream'];
+  creator.classList.remove.apply(creator.classList,filterClasses);
+
+  if(!name || name==='off'){
+    state.editFilter='';
+    state.editSticker='';
+    if(camera)camera.style.filter='brightness(1.08) contrast(1.04) saturate(1.03)';
+    return;
+  }
+
+  state.editFilter='';
+  state.editSticker=name;
+
+  if(name==='sunglasses'){
+    layer.innerHTML='<div class="ef-sunglasses"><i></i><i></i><b></b></div>';
+  }else if(name==='beard'){
+    layer.innerHTML='<div class="ef-beard">〰</div>';
+  }else if(name==='rollers'){
+    layer.innerHTML='<div class="ef-rollers"><i></i><i></i><i></i><i></i><i></i><i></i></div>';
+  }else if(name==='crown'){
+    layer.innerHTML='<div class="ef-crown">👑</div>';
+  }else if(name==='cat'){
+    layer.innerHTML='<div class="ef-cat"><span>🐱</span></div>';
+  }else if(name==='rabbit'){
+    layer.innerHTML='<div class="ef-rabbit">🐰</div>';
+  }else if(name==='flowers'){
+    layer.innerHTML='<div class="ef-flowers"><span>🌸</span><span>🌺</span><span>🌼</span><span>🌸</span></div>';
+  }else if(name==='sparkle'){
+    layer.innerHTML='<div class="ef-sparkle"><span>✦</span><span>✨</span><span>✧</span><span>⭐</span></div>';
+  }else if(name==='party'){
+    layer.innerHTML='<div class="ef-party"><span>🎉</span><span>✨</span><span>🎊</span></div>';
+  }else if(name==='mono'){
+    state.editFilter='mono';
+    creator.classList.add('fx-mono');
+  }else if(name==='warm'){
+    state.editFilter='warm';
+    creator.classList.add('fx-warm');
+  }else if(name==='cool'){
+    state.editFilter='cool';
+    creator.classList.add('fx-cool');
+  }else if(name==='soft'){
+    state.editFilter='dream';
+    creator.classList.add('fx-dream');
+  }
 };
 
 window.syncEditEffectButtons=function(){
-  document.querySelectorAll('.kt-effect-grid button[data-effect]').forEach(function(btn){
+  document.querySelectorAll('.kt-live-effect-item[data-effect]').forEach(function(btn){
     var n=btn.getAttribute('data-effect');
-    btn.classList.toggle('on',n===state.editFilter||n===state.editSticker);
+    btn.classList.toggle('on',n===state.editSticker||n===state.editFilter||(n==='soft'&&state.editFilter==='dream'));
   });
 };
 
 window.setEditEffect=function(name){
-  var filterClasses=['fx-glow','fx-soft','fx-rainbow','fx-cool','fx-warm','fx-night','fx-cinema','fx-mono','fx-pink','fx-blue','fx-star','fx-party','fx-disco','fx-dream'];
-  var stickerMap={sunglasses:'🕶️',glasses:'👓',beard:'🧔',cat:'😺',rabbit:'🐰',crown:'👑',funny:'😂'};
+  if((state.editSticker===name)||(state.editFilter===name)||(name==='soft'&&state.editFilter==='dream')){
+    name='off';
+  }
+  renderFaceEffect(name);
+  syncEditEffectButtons();
+};
 
-  if(name==='off'){
-    state.editFilter='';
-    state.editSticker='';
-    creator.classList.remove.apply(creator.classList,filterClasses);
-    creator.removeAttribute('data-beauty-char');
-    if(camera)camera.style.filter='brightness(1.08) contrast(1.04) saturate(1.03)';
-    syncEditEffectButtons();
-    return;
+window.closeEditEffectPanel=function(){
+  var tray=document.getElementById('ktLiveEffects');
+  if(tray)tray.classList.remove('show');
+};
+
+window.openEditEffectPanel=function(){
+  var tray=document.getElementById('ktLiveEffects');
+  if(!tray){
+    tray=document.createElement('div');
+    tray.id='ktLiveEffects';
+    tray.className='kt-live-effects';
+    creator.appendChild(tray);
   }
 
-  if(stickerMap[name]){
-    if(state.editSticker===name){
-      state.editSticker='';
-      creator.removeAttribute('data-beauty-char');
-    }else{
-      state.editSticker=name;
-      creator.setAttribute('data-beauty-char',stickerMap[name]);
-    }
-    syncEditEffectButtons();
-    return;
-  }
+  var effects=[
+    ['↺','해제','off'],
+    ['🕶️','선글라스','sunglasses'],
+    ['🎀','헤어롤','rollers'],
+    ['〰','수염','beard'],
+    ['👑','왕관','crown'],
+    ['🐱','고양이','cat'],
+    ['🐰','토끼','rabbit'],
+    ['🌸','꽃','flowers'],
+    ['✨','반짝임','sparkle'],
+    ['🎉','파티','party'],
+    ['☀️','웜톤','warm'],
+    ['🧊','쿨톤','cool'],
+    ['☁️','소프트','soft'],
+    ['🖤','흑백','mono']
+  ];
 
-  creator.classList.remove.apply(creator.classList,filterClasses);
-  if(state.editFilter===name){
-    state.editFilter='';
-  }else{
-    state.editFilter=name;
-    creator.classList.add('fx-'+name);
-  }
+  tray.innerHTML='<div class="kt-live-effects-head"><b>편집효과</b><button onclick="closeEditEffectPanel()">✕</button></div>'
+    +'<div class="kt-live-effects-tabs"><button class="on">추천</button><button>얼굴</button><button>분위기</button></div>'
+    +'<div class="kt-live-effects-scroll">'
+    +effects.map(function(e){
+      return '<button class="kt-live-effect-item" data-effect="'+e[2]+'" onclick="setEditEffect(\''+e[2]+'\')">'
+        +'<span>'+e[0]+'</span><small>'+e[1]+'</small></button>';
+    }).join('')
+    +'</div>';
+
+  tray.classList.add('show');
+  ensureFaceEffectLayer();
   syncEditEffectButtons();
 };
 
