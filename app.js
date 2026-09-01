@@ -122,7 +122,7 @@ window.prepTap=async function(el,name){
   if(name==='소통하기'){ openCommunicationPanel(); return; }
   if(name==='공유'){ if(window.shareApp)shareApp(); return; }
   if(name==='프로모션'){ showSheet('🔥 프로모션','<div class="rowbox"><b>방송 홍보</b><br>방송을 더 많은 사람에게 알리는 기능입니다.</div>'); return; }
-  if(name==='라이브 보상'){ openBenefitHub(); return; }
+  if(name==='라이브 보상'||name==='코인 리워드'){ openBenefitHub(); return; }
 };
 
 window.openBeautyPanel=function(){
