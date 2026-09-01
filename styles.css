@@ -829,3 +829,68 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
 
 .creator .creator-bottom{transition:.18s}
 .creator:has(.kt-live-effects.show) .creator-bottom{opacity:.15;pointer-events:none!important}
+
+
+/* 혜택·보상 센터 - 네온 카드 한 화면 */
+.kt-benefit-home{padding:2px 0 10px}
+.kt-benefit-banner{
+  margin:2px 0 10px;padding:11px 12px;border-radius:15px;
+  color:#ffe37b;font-size:11px;font-weight:950;text-align:center;
+  background:linear-gradient(135deg,#2b0d38,#12111d);
+  border:1px solid #b454ff66;
+  box-shadow:0 0 16px #9a35ff33
+}
+.kt-benefit-top{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:9px
+}
+.kt-benefit-top>div{
+  min-height:74px;border-radius:16px;display:grid;place-items:center;text-align:center;
+  padding:7px;background:linear-gradient(145deg,#151521,#09090e);
+  border:1px solid rgba(255,255,255,.09)
+}
+.kt-benefit-top span{font-size:21px}
+.kt-benefit-top b{font-size:9px;color:#bfc0ca}
+.kt-benefit-top strong{font-size:16px;color:#ffe071}
+.kt-benefit-room-grid{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px
+}
+.kt-benefit-room-grid button{
+  position:relative;min-height:103px;border-radius:17px;padding:9px 7px 8px;
+  text-align:left;color:#fff;background:linear-gradient(145deg,#171420,#09090e);
+  border:1px solid rgba(255,255,255,.11);overflow:hidden
+}
+.kt-benefit-room-grid button:before{
+  content:"";position:absolute;inset:0;opacity:.18;pointer-events:none
+}
+.kt-benefit-room-grid .pink{border-color:#ff4ea8aa;box-shadow:0 0 14px #ff2f9138}
+.kt-benefit-room-grid .pink:before{background:radial-gradient(circle at 20% 10%,#ff2f91,transparent 48%)}
+.kt-benefit-room-grid .purple{border-color:#a65cffaa;box-shadow:0 0 14px #8e42ff35}
+.kt-benefit-room-grid .purple:before{background:radial-gradient(circle at 20% 10%,#8e42ff,transparent 48%)}
+.kt-benefit-room-grid .gold{border-color:#ffbd4daa;box-shadow:0 0 14px #ffae2d35}
+.kt-benefit-room-grid .gold:before{background:radial-gradient(circle at 20% 10%,#ffae2d,transparent 48%)}
+.kt-benefit-room-grid .violet{border-color:#d14dffaa;box-shadow:0 0 14px #c43cff35}
+.kt-benefit-room-grid .violet:before{background:radial-gradient(circle at 20% 10%,#c43cff,transparent 48%)}
+.kt-benefit-room-grid .blue{border-color:#4c7dffaa;box-shadow:0 0 14px #3772ff35}
+.kt-benefit-room-grid .blue:before{background:radial-gradient(circle at 20% 10%,#3772ff,transparent 48%)}
+.kt-benefit-room-grid .cyan{border-color:#35dff0aa;box-shadow:0 0 14px #18c9e835}
+.kt-benefit-room-grid .cyan:before{background:radial-gradient(circle at 20% 10%,#18c9e8,transparent 48%)}
+.kt-benefit-room-grid span{position:relative;z-index:1;display:block;font-size:24px}
+.kt-benefit-room-grid b{
+  position:relative;z-index:1;display:block;margin-top:5px;font-size:12px;font-weight:950;line-height:1.2
+}
+.kt-benefit-room-grid small{
+  position:relative;z-index:1;display:block;margin-top:4px;color:#c1c2ca;font-size:8px;line-height:1.35
+}
+.kt-benefit-room-grid em{
+  position:absolute;right:8px;bottom:7px;font-style:normal;font-size:18px;color:#fff9
+}
+.kt-benefit-guide-btn{
+  width:100%;height:44px;margin-top:9px;border:1px solid #ffffff18;border-radius:14px;
+  background:linear-gradient(135deg,#24192f,#101019);color:#ffe071;font-size:11px;font-weight:950
+}
+@media(max-width:390px){
+  .kt-benefit-room-grid{gap:5px}
+  .kt-benefit-room-grid button{min-height:96px;padding:8px 6px}
+  .kt-benefit-room-grid b{font-size:11px}
+  .kt-benefit-room-grid small{font-size:7.5px}
+}
