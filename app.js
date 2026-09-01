@@ -248,9 +248,33 @@ window.friends=function(){document.body.classList.remove('kt-home');screen.inner
 state.cameraFacing=state.cameraFacing||'user';
 state.beautyOn=!!state.beautyOn;
 state.effectOn=!!state.effectOn;
-state.creatorDuration=state.creatorDuration||600;
+
+window.ktStopBackgroundMedia=function(){
+  try{
+    document.querySelectorAll('video,audio').forEach(function(media){
+      if(media===camera||media.id==='ktCreatorPreview')return;
+      try{
+        media.pause();
+        media.muted=true;
+        media.volume=0;
+      }catch(e){}
+    });
+  }catch(e){}
+  try{window.ktStopSheetMedia&&window.ktStopSheetMedia();}catch(e){}
+  try{window.speechSynthesis&&window.speechSynthesis.cancel();}catch(e){}
+};
+
+if(!window.__ktCreatorMediaStopInstalled){
+  window.__ktCreatorMediaStopInstalled=true;
+  document.addEventListener('play',function(e){
+    var media=e.target;
+    if(!creator.classList.contains('show')||media===camera||media.id==='ktCreatorPreview')return;
+    try{media.pause();media.muted=true;media.volume=0;}catch(err){}
+  },true);
+}
 
 window.openCreator=async function(){
+  ktStopBackgroundMedia();
   creator.classList.add('show');
   creator.classList.remove('creator-review','creator-recording','live-prep-open');
   if(window.ensureLiveCamera){
@@ -260,8 +284,6 @@ window.openCreator=async function(){
   }
 };
 window.closeCreator=function(){
-  if(window.stopKTBackgroundPreview)stopKTBackgroundPreview();
-  if(ktCreatorAutoStopTimer){clearTimeout(ktCreatorAutoStopTimer);ktCreatorAutoStopTimer=null;}
   if(ktCreatorRecording)stopCreatorRecording();
   creator.classList.remove('show','camera-on','creator-recording','creator-review');
   try{
@@ -313,11 +335,9 @@ window.ktAttachCreatorCamera=async function(stream){
   }catch(e){}
 
   try{await camera.play();}catch(e){}
-  try{if(window.applyBeautyPreview)applyBeautyPreview();}catch(e){}
   setTimeout(function(){
     try{
       if(camera.paused||camera.readyState<2)camera.play().catch(function(){});
-      if(state.selectedBackground)applySelectedBackgroundPreview();
     }catch(e){}
   },250);
   return true;
@@ -339,7 +359,16 @@ window.ensureLiveCamera=async function(facing){
     if(videoLive){
       if(!audioLive){
         try{
-          var audioStream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});
+          var audioStream=await navigator.mediaDevices.getUserMedia({
+            audio:{
+              echoCancellation:true,
+              noiseSuppression:true,
+              autoGainControl:true,
+              sampleRate:{ideal:48000},
+              channelCount:{ideal:1}
+            },
+            video:false
+          });
           var at=audioStream.getAudioTracks&&audioStream.getAudioTracks()[0];
           if(at)state.stream.addTrack(at);
         }catch(e){}
@@ -358,11 +387,31 @@ window.ensureLiveCamera=async function(facing){
 
     try{
       state.stream=await navigator.mediaDevices.getUserMedia({
-        video:{facingMode:state.cameraFacing},
-        audio:true
+        video:{
+          facingMode:state.cameraFacing,
+          width:{ideal:1920},
+          height:{ideal:1080},
+          frameRate:{ideal:30,max:30}
+        },
+        audio:{
+          echoCancellation:true,
+          noiseSuppression:true,
+          autoGainControl:true,
+          sampleRate:{ideal:48000},
+          channelCount:{ideal:1}
+        }
       });
     }catch(firstErr){
-      state.stream=await navigator.mediaDevices.getUserMedia({video:true,audio:true});
+      state.stream=await navigator.mediaDevices.getUserMedia({
+        video:{width:{ideal:1920},height:{ideal:1080},frameRate:{ideal:30,max:30}},
+        audio:{
+          echoCancellation:true,
+          noiseSuppression:true,
+          autoGainControl:true,
+          sampleRate:{ideal:48000},
+          channelCount:{ideal:1}
+        }
+      });
     }
 
     var track=state.stream.getVideoTracks&&state.stream.getVideoTracks()[0];
@@ -393,59 +442,74 @@ var ktCreatorChunks=[];
 var ktCreatorBlob=null;
 var ktCreatorBlobUrl='';
 var ktCreatorRecording=false;
-var ktCreatorAutoStopTimer=null;
-var ktCreatorRecordTicker=null;
-var ktCreatorRecordStartedAt=0;
-var ktCreatorRecordLimit=600;
-var ktCreatorCancelled=false;
+var ktAutoPlayReview=false;
+var ktEffectRecordCanvas=null;
+var ktEffectRecordFrame=0;
+var ktEffectRecordStream=null;
 
-window.ktFormatRecordTime=function(sec){
-  sec=Math.max(0,Math.floor(sec||0));
-  var m=Math.floor(sec/60),s=sec%60;
-  return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
-};
-window.ktUpdateRecordHUD=function(){
-  var hud=document.getElementById('ktCreatorRecordHUD');
-  var timer=document.getElementById('ktCreatorRecordTimer');
-  var ring=document.getElementById('ktCreatorRecordRing');
-  var max=document.getElementById('ktCreatorRecordMax');
-  if(!hud)return;
-  var elapsed=Math.max(0,(Date.now()-ktCreatorRecordStartedAt)/1000);
-  var limit=Math.max(1,ktCreatorRecordLimit||600);
-  var pct=Math.min(100,(elapsed/limit)*100);
-  hud.style.display='block';
-  if(timer)timer.textContent=ktFormatRecordTime(elapsed);
-  if(max)max.textContent='/ '+ktFormatRecordTime(limit);
-  if(ring)ring.style.setProperty('--record-pct',pct.toFixed(2)+'%');
-};
-window.ktStartRecordHUD=function(limit){
-  ktCreatorRecordLimit=Math.max(1,parseInt(limit||600,10));
-  ktCreatorRecordStartedAt=Date.now();
-  if(ktCreatorRecordTicker){clearInterval(ktCreatorRecordTicker);ktCreatorRecordTicker=null;}
-  ktUpdateRecordHUD();
-  ktCreatorRecordTicker=setInterval(ktUpdateRecordHUD,120);
-};
-window.ktStopRecordHUD=function(){
-  if(ktCreatorRecordTicker){clearInterval(ktCreatorRecordTicker);ktCreatorRecordTicker=null;}
-  var hud=document.getElementById('ktCreatorRecordHUD');
-  if(hud)hud.style.display='none';
-};
-window.cancelCreatorRecording=function(){
-  ktCreatorCancelled=true;
-  if(ktCreatorRecording){
-    try{if(ktCreatorRecorder&&ktCreatorRecorder.state!=='inactive')ktCreatorRecorder.stop();}catch(e){}
-    ktCreatorRecording=false;
+window.stopEffectRecordingCanvas=function(){
+  if(ktEffectRecordFrame)cancelAnimationFrame(ktEffectRecordFrame);
+  ktEffectRecordFrame=0;
+  if(ktEffectRecordStream){
+    try{ktEffectRecordStream.getVideoTracks().forEach(function(t){t.stop();});}catch(e){}
   }
-  if(ktCreatorAutoStopTimer){clearTimeout(ktCreatorAutoStopTimer);ktCreatorAutoStopTimer=null;}
-  ktStopRecordHUD();
-  ktCreatorChunks=[];
-  ktCreatorBlob=null;
-  creator.classList.remove('creator-recording','creator-review');
-  if(window.closeCreator)closeCreator();
+  ktEffectRecordStream=null;
+  ktEffectRecordCanvas=null;
+};
+
+window.makeEffectRecordingStream=function(){
+  var selected=state.appliedEditEffect||state.pendingEditEffect||'off';
+  if(selected==='off'||!camera||!camera.videoWidth)return state.stream;
+
+  var canvas=document.createElement('canvas');
+  canvas.width=1080;canvas.height=1920;
+  var ctx=canvas.getContext('2d');
+  if(!ctx||!canvas.captureStream)return state.stream;
+  ktEffectRecordCanvas=canvas;
+
+  function draw(){
+    if(!ktCreatorRecording&&ktCreatorRecorder&&ktCreatorRecorder.state==='inactive')return;
+    var sw=camera.videoWidth||1920,sh=camera.videoHeight||1080;
+    var scale=Math.min(canvas.width/sw,canvas.height/sh)*.664;
+    var dw=sw*scale,dh=sh*scale,dx=(canvas.width-dw)/2,dy=(canvas.height-dh)/2;
+    ctx.save();ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.translate(canvas.width,0);ctx.scale(-1,1);
+    try{ctx.drawImage(camera,dx,dy,dw,dh);}catch(e){}
+    ctx.restore();
+
+    var anchor=document.getElementById('ktFaceAnchor');
+    var cr=creator.getBoundingClientRect();
+    var ar=anchor&&anchor.getBoundingClientRect();
+    var cx=canvas.width*.5,cy=canvas.height*.38,fw=canvas.width*.32,fh=fw*1.18;
+    if(ar&&cr.width&&cr.height){
+      cx=((ar.left-cr.left)+(ar.width/2))/cr.width*canvas.width;
+      cy=((ar.top-cr.top)+(ar.height/2))/cr.height*canvas.height;
+      fw=ar.width/cr.width*canvas.width;fh=ar.height/cr.height*canvas.height;
+    }
+    var icons={puppy:'🐶',cat:'😺',bunny:'🐰',heart:'💕',flower:'🌸🌼🌸',sparkle:'✨',angel:'😇',party:'🎉🥳🎉'};
+    ctx.textAlign='center';ctx.textBaseline='middle';ctx.shadowColor='rgba(0,0,0,.42)';ctx.shadowBlur=12;
+    if(selected==='sunglasses'){
+      ctx.font=Math.max(76,fw*.64)+'px sans-serif';ctx.fillText('🕶️',cx,cy-fh*.12);
+    }else if(selected==='cap'){
+      ctx.font=Math.max(84,fw*.68)+'px sans-serif';ctx.fillText('🧢',cx,cy-fh*.58);
+    }else if(icons[selected]){
+      ctx.font=Math.max(78,fw*.58)+'px sans-serif';
+      var iy=(selected==='flower'||selected==='angel'||selected==='party')?cy-fh*.57:selected==='heart'?cy-fh*.42:cy;
+      ctx.fillText(icons[selected],cx,iy);
+    }
+    ctx.shadowBlur=0;
+    ktEffectRecordFrame=requestAnimationFrame(draw);
+  }
+  draw();
+  var canvasStream=canvas.captureStream(30);
+  try{state.stream.getAudioTracks().forEach(function(t){canvasStream.addTrack(t);});}catch(e){}
+  ktEffectRecordStream=canvasStream;
+  return canvasStream;
 };
 
 window.startCreatorRecording=async function(){
   if(ktCreatorRecording){ stopCreatorRecording(); return; }
+  ktStopBackgroundMedia();
   if(!('MediaRecorder' in window)){
     alert('이 기기에서는 동영상 촬영 기능을 사용할 수 없습니다.');
     return;
@@ -453,7 +517,6 @@ window.startCreatorRecording=async function(){
   var ok=await ensureLiveCamera(state.cameraFacing||'user');
   if(!ok)return;
 
-  ktCreatorCancelled=false;
   ktCreatorChunks=[];
   ktCreatorBlob=null;
   ktImportedVideoName='';
@@ -461,10 +524,10 @@ window.startCreatorRecording=async function(){
 
   try{
     /* 브라우저가 자기 기기에서 가장 안정적인 영상 형식을 직접 선택하게 합니다. */
-    ktCreatorRecorder=new MediaRecorder(state.stream);
+    ktCreatorRecorder=new MediaRecorder(makeEffectRecordingStream());
   }catch(e){
     try{
-      ktCreatorRecorder=new MediaRecorder(state.stream,{mimeType:'video/webm;codecs=vp8,opus'});
+      ktCreatorRecorder=new MediaRecorder(makeEffectRecordingStream(),{mimeType:'video/webm;codecs=vp8,opus'});
     }catch(err){
       alert('동영상 촬영을 시작할 수 없습니다.');
       return;
@@ -476,16 +539,8 @@ window.startCreatorRecording=async function(){
   };
 
   ktCreatorRecorder.onstop=function(){
-    if(ktCreatorAutoStopTimer){clearTimeout(ktCreatorAutoStopTimer);ktCreatorAutoStopTimer=null;}
-    ktStopRecordHUD();
     ktCreatorRecording=false;
-    if(ktCreatorCancelled){
-      ktCreatorCancelled=false;
-      ktCreatorChunks=[];
-      ktCreatorBlob=null;
-      creator.classList.remove('creator-recording','creator-review');
-      return;
-    }
+    stopEffectRecordingCanvas();
     var firstType=(ktCreatorChunks[0]&&ktCreatorChunks[0].type)||'';
     var type=firstType||(ktCreatorRecorder&&ktCreatorRecorder.mimeType)||'video/webm';
     ktCreatorBlob=new Blob(ktCreatorChunks,{type:type});
@@ -504,8 +559,8 @@ window.startCreatorRecording=async function(){
     if(fallback)fallback.style.display='none';
     if(preview){
       preview.pause();
-      preview.muted=true;
-      preview.controls=false;
+      preview.muted=!ktAutoPlayReview;
+      preview.controls=true;
       preview.playsInline=true;
       preview.onerror=function(){
         preview.style.display='none';
@@ -521,10 +576,19 @@ window.startCreatorRecording=async function(){
       preview.src=ktCreatorBlobUrl;
       preview.load();
       preview.style.display='block';
+      if(ktAutoPlayReview){
+        preview.oncanplay=function(){
+          preview.oncanplay=null;
+          preview.muted=false;
+          preview.volume=1;
+          preview.play().catch(function(){});
+        };
+      }
     }
 
     creator.classList.remove('creator-recording');
     creator.classList.add('creator-review');
+    ktAutoPlayReview=false;
   };
 
   try{
@@ -532,12 +596,6 @@ window.startCreatorRecording=async function(){
     ktCreatorRecording=true;
     creator.classList.remove('creator-review','live-prep-open');
     creator.classList.add('creator-recording','camera-on');
-    if(ktCreatorAutoStopTimer){clearTimeout(ktCreatorAutoStopTimer);ktCreatorAutoStopTimer=null;}
-    var limit=Math.max(1,parseInt(state.creatorDuration||600,10));
-    ktStartRecordHUD(limit);
-    ktCreatorAutoStopTimer=setTimeout(function(){
-      if(ktCreatorRecording)stopCreatorRecording();
-    },limit*1000);
   }catch(e){
     ktCreatorRecording=false;
     alert('동영상 촬영을 시작할 수 없습니다.');
@@ -545,8 +603,6 @@ window.startCreatorRecording=async function(){
 };
 
 window.stopCreatorRecording=function(){
-  if(ktCreatorAutoStopTimer){clearTimeout(ktCreatorAutoStopTimer);ktCreatorAutoStopTimer=null;}
-  ktStopRecordHUD();
   if(!ktCreatorRecording||!ktCreatorRecorder)return;
   try{
     if(ktCreatorRecorder.state!=='inactive'){
@@ -556,9 +612,13 @@ window.stopCreatorRecording=function(){
   }catch(e){}
 };
 
+window.confirmCreatorRecording=function(){
+  if(!ktCreatorRecording)return;
+  ktAutoPlayReview=true;
+  stopCreatorRecording();
+};
+
 window.deleteCreatorRecording=function(){
-  if(ktCreatorAutoStopTimer){clearTimeout(ktCreatorAutoStopTimer);ktCreatorAutoStopTimer=null;}
-  ktStopRecordHUD();
   try{
     var p=document.getElementById('ktCreatorPreview');
     var f=document.getElementById('ktCreatorPreviewFallback');
@@ -744,6 +804,35 @@ function ktOpenVideoDB(){
   });
 }
 
+window.saveCreatorDraft=async function(){
+  if(!ktCreatorBlob){alert('임시 저장할 동영상이 없습니다.');return;}
+  try{
+    var db=await ktOpenVideoDB();
+    var tx=db.transaction('videos','readwrite');
+    tx.objectStore('videos').put({
+      id:'draft-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),
+      name:'임시 저장 동영상 '+new Date().toLocaleString('ko-KR'),
+      type:ktCreatorBlob.type||'video/webm',blob:ktCreatorBlob,createdAt:Date.now(),draft:true
+    });
+    await new Promise(function(resolve,reject){tx.oncomplete=resolve;tx.onerror=function(){reject(tx.error);};tx.onabort=function(){reject(tx.error);};});
+    db.close();
+    alert('✅ 임시 저장했습니다.');
+  }catch(e){alert('이 기기에서는 임시 저장하지 못했습니다.');}
+};
+
+window.shareCreatorRecording=async function(){
+  if(!ktCreatorBlob){alert('보낼 동영상이 없습니다.');return;}
+  try{
+    var ext=(ktCreatorBlob.type||'').indexOf('mp4')>-1?'mp4':'webm';
+    var file=new File([ktCreatorBlob],'K-Talk_'+Date.now()+'.'+ext,{type:ktCreatorBlob.type||('video/'+ext)});
+    if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+      await navigator.share({files:[file],title:'K-Talk 동영상',text:'친구에게 보내는 K-Talk 동영상입니다.'});
+    }else{
+      alert('이 휴대폰에서는 공유 기능을 사용할 수 없습니다. 저장한 뒤 친구에게 보내 주세요.');
+    }
+  }catch(e){if(!e||e.name!=='AbortError')alert('동영상을 보내지 못했습니다.');}
+};
+
 window.postCreatorRecording=async function(){
   if(!ktCreatorBlob){alert('올릴 동영상이 없습니다.');return;}
   try{
@@ -755,13 +844,7 @@ window.postCreatorRecording=async function(){
       name:ktImportedVideoName||('K-Talk 동영상 '+new Date().toLocaleString('ko-KR')),
       type:ktCreatorBlob.type||'video/webm',
       blob:ktCreatorBlob,
-      createdAt:Date.now(),
-      posted:true,
-      postedAt:Date.now(),
-      ownerId:(window.ktVideoOwner?ktVideoOwner().id:'local'),
-      ownerName:(window.ktVideoOwner?ktVideoOwner().name:'내 계정'),
-      ownerSubAccount:(window.ktVideoOwner?ktVideoOwner().subAccount||'':''),
-      ownerPhoto:(window.ktProfileLoad?ktProfileLoad().photo||'':'')
+      createdAt:Date.now()
     };
     store.put(item);
     await new Promise(function(resolve,reject){
@@ -770,10 +853,10 @@ window.postCreatorRecording=async function(){
       tx.onabort=function(){reject(tx.error||new Error('save abort'));};
     });
     db.close();
-    ktSpeak('동영상을 게시했습니다.');
-    alert('✅ 동영상을 게시했습니다.');
+    ktSpeak('내 동영상에 올렸습니다.');
+    alert('✅ 내 동영상에 올렸습니다.');
     closeCreator();
-    if(window.home)home();
+    if(window.openMyVideoLibrary)openMyVideoLibrary();
   }catch(e){
     alert('이 기기에서는 동영상을 보관하지 못했습니다.');
   }
@@ -785,12 +868,8 @@ window.openMyVideoLibrary=async function(){
     var tx=db.transaction('videos','readonly');
     var req=tx.objectStore('videos').getAll();
     req.onsuccess=function(){
-      var owner=window.ktVideoOwner?ktVideoOwner():{id:'',name:'내 계정'};
-      var items=(req.result||[]).filter(function(v){
-        if(!owner.id)return true;
-        return !v.ownerId || String(v.ownerId)===String(owner.id);
-      }).sort(function(a,b){return b.createdAt-a.createdAt;});
-      var html='<div class="kt-myvideo-head"><b>🎬 '+String(owner.name||'내 계정').replace(/</g,'&lt;')+' 동영상</b><button onclick="closeSheet();openCreator();setTimeout(openMyVideoPicker,120)">＋ 휴대폰 동영상 올리기</button></div>';
+      var items=(req.result||[]).sort(function(a,b){return b.createdAt-a.createdAt;});
+      var html='<div class="kt-myvideo-head"><b>🎬 내 동영상</b><button onclick="closeSheet();openCreator();setTimeout(openMyVideoPicker,120)">＋ 휴대폰 동영상 올리기</button></div>';
       if(!items.length){
         html+='<div class="rowbox"><b>아직 올린 동영상이 없습니다.</b><br>휴대폰에 찍어 놓은 동영상을 선택해서 올릴 수 있습니다.</div>';
       }else{
@@ -848,11 +927,6 @@ window.postStoredVideo=async function(id,btn){
       if(!item){db.close();alert('동영상을 찾지 못했습니다.');return;}
       item.posted=true;
       item.postedAt=Date.now();
-      var owner=window.ktVideoOwner?ktVideoOwner():{id:'local',name:'내 계정'};
-      item.ownerId=owner.id;
-      item.ownerName=owner.name;
-      item.ownerSubAccount=owner.subAccount||'';
-      try{item.ownerPhoto=(window.ktProfileLoad?ktProfileLoad().photo||'':'');}catch(e){}
       store.put(item);
     };
     tx.oncomplete=function(){
@@ -863,8 +937,6 @@ window.postStoredVideo=async function(id,btn){
       }
       ktSpeak('동영상을 올렸습니다.');
       alert('✅ 동영상을 올렸습니다.');
-      try{closeSheet();}catch(e){}
-      if(window.home)home();
     };
     tx.onerror=function(){db.close();alert('동영상을 올리지 못했습니다.');};
   }catch(e){alert('동영상을 올리지 못했습니다.');}
@@ -964,34 +1036,18 @@ window.prepTap=async function(el,name){
 window.openBeautyPanel=function(){
   creator.classList.add('beauty-preview-open');
   try{var lp=creator.querySelector('.live-prep');if(lp)lp.style.setProperty('display','none','important');}catch(e){}
-  try{
-    if(window.ensureLiveCamera){
-      ensureLiveCamera(state.cameraFacing||'user').then(function(){
-        setTimeout(function(){if(window.applyBeautyPreview)applyBeautyPreview();},120);
-      }).catch(function(){});
-    }
-  }catch(e){}
-  var controls=[
-    ['skin','💧','부드럽게',state.beautySkin||25],
-    ['bright','☀','밝기',state.beautyBright||35],
-    ['sharp','✦','선명도',state.beautySharp||30],
-    ['tone','🌤','따뜻함',state.beautyTone||35],
-    ['contrast','◐','명암',state.beautyContrast||35],
-    ['color','🎨','색감',state.beautyColor||35]
-  ];
+  try{if(window.ensureLiveCamera)ensureLiveCamera(state.cameraFacing||'user').catch(function(){});}catch(e){}
+  var controls=[['skin','💧','부드럽게',state.beautySkin||35],['face','☺','얼굴형',state.beautyFace||50],['eyes','◉','눈',state.beautyEyes||50],['nose','♢','코',state.beautyNose||50],['mouth','💋','입술',state.beautyMouth||50],['tone','✨','피부',state.beautyTone||35],['bright','☀','밝기',state.beautyBright||25],['sharp','✦','선명도',state.beautySharp||20]];
   var selected=state.beautyControl||'skin';
-  var active=controls.filter(function(x){return x[0]===selected;})[0]||controls[0];
-  var controlButtons=controls.map(function(x){
-    return '<button class="'+(x[0]===selected?'on':'')+'" onclick="selectBeautyControl(\''+x[0]+'\')"><b>'+x[1]+'</b><span>'+x[2]+'</span></button>';
-  }).join('');
+  var active=controls.filter(function(c){return c[0]===selected;})[0]||controls[0];
+  var controlButtons=controls.map(function(c){return '<button class="'+(c[0]===selected?'on':'')+'" onclick="selectBeautyControl(\''+c[0]+'\')"><b>'+c[1]+'</b><span>'+c[2]+'</span></button>';}).join('');
   var html='<div class="kt-beauty-panel">'
     +'<div class="kt-panel-tabs"><button class="on">Beauty</button><button onclick="openEditEffectPanel()">편집효과</button><button onclick="resetBeautyAll()">↺ 초기화</button></div>'
     +'<div class="kt-beauty-controls">'+controlButtons+'</div>'
-    +'<div class="kt-beauty-one-slider"><div><span id="beautyControlName">'+active[2]+'</span><b id="beautyControlValue">'+active[3]+'</b></div><div class="kt-beauty-range-line"><button type="button" onclick="adjustBeautyControl(-2)">−</button><input id="beautyControlRange" type="range" min="0" max="100" value="'+active[3]+'" oninput="setBeautyControlValue(this.value)"><button type="button" onclick="adjustBeautyControl(2)">＋</button></div></div>'
+    +'<div class="kt-beauty-one-slider"><div><span id="beautyControlName">'+active[2]+'</span><b id="beautyControlValue">'+active[3]+'</b></div><div class="kt-beauty-range-line"><button type="button" onclick="adjustBeautyControl(-1)" aria-label="줄이기">−</button><input id="beautyControlRange" type="range" min="1" max="100" value="'+active[3]+'" oninput="setBeautyControlValue(this.value)"><button type="button" onclick="adjustBeautyControl(1)" aria-label="늘리기">＋</button></div></div>'
     +'</div>';
   showSheet('뷰티',html);
   sheet.classList.add('camera-effect-sheet');
-  setTimeout(function(){if(window.applyBeautyPreview)applyBeautyPreview();},80);
 };
 
 window.selectBeautyControl=function(kind){
@@ -1001,9 +1057,9 @@ window.selectBeautyControl=function(kind){
 
 window.setBeautyControlValue=function(value){
   var kind=state.beautyControl||'skin';
-  value=Math.max(0,Math.min(100,parseInt(value||0,10)));
-  var labels={skin:'부드럽게',bright:'밝기',sharp:'선명도',tone:'따뜻함',contrast:'명암',color:'색감'};
-  var keys={skin:'beautySkin',bright:'beautyBright',sharp:'beautySharp',tone:'beautyTone',contrast:'beautyContrast',color:'beautyColor'};
+  value=Math.max(1,Math.min(100,parseInt(value||1,10)));
+  var labels={skin:'부드럽게',face:'얼굴형',eyes:'눈',nose:'코',mouth:'입술',tone:'피부',bright:'밝기',sharp:'선명도'};
+  var keys={skin:'beautySkin',face:'beautyFace',eyes:'beautyEyes',nose:'beautyNose',mouth:'beautyMouth',tone:'beautyTone',bright:'beautyBright',sharp:'beautySharp'};
   state[keys[kind]]=value;
   applyBeautyPreview();
   var n=document.getElementById('beautyControlName'),v=document.getElementById('beautyControlValue');
@@ -1013,30 +1069,23 @@ window.setBeautyControlValue=function(value){
 
 window.applyBeautyPreview=function(){
   if(!camera)return;
-  var skin=Number(state.beautySkin||0);
-  var bright=Number(state.beautyBright||0);
-  var sharp=Number(state.beautySharp||0);
-  var tone=Number(state.beautyTone||0);
-  var contrastCtl=Number(state.beautyContrast||0);
-  var color=Number(state.beautyColor||0);
-
-  var brightness=.96+(bright*.0040);
-  var saturation=.92+(color*.0040);
-  var contrast=.92+(contrastCtl*.0030)+(sharp*.0010);
-  var blur=Math.max(0,skin*.0065);
-  var sepia=Math.max(0,tone*.0018);
-
-  camera.style.setProperty('filter',
-    'brightness('+brightness.toFixed(3)+') saturate('+saturation.toFixed(3)+') contrast('+contrast.toFixed(3)+') blur('+blur.toFixed(2)+'px) sepia('+sepia.toFixed(3)+')',
-    'important'
-  );
-  camera.style.setProperty('transform','scaleX(-1)','important');
+  var skin=Number(state.beautySkin||1),bright=Number(state.beautyBright||1),sharp=Number(state.beautySharp||1);
+  var face=Number(state.beautyFace||50),eyes=Number(state.beautyEyes||50),nose=Number(state.beautyNose||50);
+  var mouth=Number(state.beautyMouth||50),tone=Number(state.beautyTone||1);
+  var brightness=.96+(bright*.0024)+(eyes-50)*.0007;
+  var saturation=.94+(sharp*.0016)+(mouth-50)*.0032;
+  var contrast=.94+(sharp*.0015)+(eyes-50)*.0012+(nose-50)*.0009;
+  var blur=Math.max(0,(skin-1)*.006);
+  var sepia=Math.max(0,(tone-50)*.0025);
+  var faceScale=1+(face-50)*.0012;
+  camera.style.setProperty('filter','brightness('+brightness.toFixed(3)+') saturate('+saturation.toFixed(3)+') contrast('+contrast.toFixed(3)+') blur('+blur.toFixed(2)+'px) sepia('+sepia.toFixed(3)+')','important');
+  camera.style.setProperty('transform','scaleX(-1) scale('+faceScale.toFixed(3)+')','important');
 };
 
 window.adjustBeautyControl=function(step){
   var range=document.getElementById('beautyControlRange');
   if(!range)return;
-  var next=Math.max(0,Math.min(100,parseInt(range.value||0,10)+step));
+  var next=Math.max(1,Math.min(100,parseInt(range.value||1,10)+step));
   range.value=next;
   setBeautyControlValue(next);
 };
@@ -1067,20 +1116,10 @@ window.setBeautySlider=function(kind,value){
 };
 
 window.resetBeautyAll=function(){
-  state.beautyMode='off';
-  state.beautyControl='skin';
-  state.beautySkin=0;
-  state.beautyBright=0;
-  state.beautySharp=0;
-  state.beautyTone=0;
-  state.beautyContrast=0;
-  state.beautyColor=0;
+  state.beautyMode='off';state.beautyControl='skin';state.beautySkin=1;state.beautyFace=50;state.beautyEyes=50;state.beautyNose=50;state.beautyMouth=50;state.beautyTone=1;state.beautyBright=1;state.beautySharp=1;
   creator.classList.remove('beauty-natural','beauty-bright','beauty-soft','beauty-glow');
   creator.removeAttribute('data-beauty-char');
-  if(camera){
-    camera.style.setProperty('filter','brightness(1.08) contrast(.96) saturate(1.01)','important');
-    camera.style.setProperty('transform','scaleX(-1)','important');
-  }
+  if(camera){camera.style.removeProperty('filter');camera.style.removeProperty('transform');}
   openBeautyPanel();
 };
 
@@ -1105,191 +1144,63 @@ window.ensureFaceEffectLayer=function(){
 
 window.ktFaceDetector=null;
 window.ktFaceTrackTimer=null;
-window.ktFaceMesh=null;
-window.ktFaceMeshBusy=false;
-window.ktMPFaceDetection=null;
-window.ktMPFaceBusy=false;
-window.ktScriptLoads=window.ktScriptLoads||{};
-
-window.ktLoadExternalScript=function(src){
-  if(window.ktScriptLoads[src])return window.ktScriptLoads[src];
-  window.ktScriptLoads[src]=new Promise(function(resolve,reject){
-    var old=document.querySelector('script[data-kt-src="'+src+'"]');
-    if(old){resolve();return;}
-    var s=document.createElement('script');
-    s.src=src;
-    s.async=true;
-    s.setAttribute('data-kt-src',src);
-    s.onload=function(){resolve();};
-    s.onerror=function(){reject(new Error('script load failed'));};
-    document.head.appendChild(s);
-  });
-  return window.ktScriptLoads[src];
-};
-
-window.hideFaceAnchor=function(){
-  var anchor=document.getElementById('ktFaceAnchor');
-  if(anchor)anchor.style.opacity='0';
-};
-
-window.updateFaceAnchorFromBox=function(box,normalized){
-  var anchor=document.getElementById('ktFaceAnchor');
-  if(!anchor||!camera||!camera.videoWidth||!camera.videoHeight)return;
-  var cr=creator.getBoundingClientRect();
-  var vr=camera.getBoundingClientRect();
-  var vw=camera.videoWidth, vh=camera.videoHeight;
-  var scale=Math.max(vr.width/vw,vr.height/vh);
-  var drawW=vw*scale, drawH=vh*scale;
-  var offX=(vr.width-drawW)/2;
-  var offY=(vr.height-drawH)/2;
-
-  var x1,y1,x2,y2;
-  if(normalized){
-    x1=box.x1*drawW+offX;
-    x2=box.x2*drawW+offX;
-    y1=box.y1*drawH+offY;
-    y2=box.y2*drawH+offY;
-  }else{
-    x1=box.x*scale+offX;
-    x2=(box.x+box.width)*scale+offX;
-    y1=box.y*scale+offY;
-    y2=(box.y+box.height)*scale+offY;
-  }
-
-  if((state.cameraFacing||'user')!=='environment'){
-    var mx1=vr.width-x2, mx2=vr.width-x1;
-    x1=mx1;x2=mx2;
-  }
-
-  var bw=Math.abs(x2-x1), bh=Math.abs(y2-y1);
-  if(bw<35||bh<35){hideFaceAnchor();return;}
-
-  var cx=(vr.left-cr.left)+Math.min(x1,x2)+(bw/2);
-  var cy=(vr.top-cr.top)+Math.min(y1,y2)+(bh/2);
-  var aw=Math.max(105,bw*1.22);
-  var ah=Math.max(128,bh*1.30);
-
-  anchor.style.left=cx+'px';
-  anchor.style.top=cy+'px';
-  anchor.style.width=aw+'px';
-  anchor.style.height=ah+'px';
-  anchor.style.opacity='1';
-};
-
-window.ensureKTMPFaceDetection=async function(){
-  if(window.ktMPFaceDetection)return true;
-  try{
-    if(!window.FaceDetection){
-      await ktLoadExternalScript('https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/face_detection.js');
-    }
-    if(!window.FaceDetection)return false;
-    window.ktMPFaceDetection=new FaceDetection({
-      locateFile:function(file){
-        return 'https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/'+file;
-      }
-    });
-    window.ktMPFaceDetection.setOptions({
-      model:'short',
-      minDetectionConfidence:.45
-    });
-    window.ktMPFaceDetection.onResults(function(results){
-      try{
-        var ds=results&&results.detections;
-        if(!ds||!ds.length){hideFaceAnchor();return;}
-        var rb=ds[0].locationData&&ds[0].locationData.relativeBoundingBox;
-        if(!rb){hideFaceAnchor();return;}
-        updateFaceAnchorFromBox({
-          x1:rb.xMin,
-          y1:rb.yMin,
-          x2:rb.xMin+rb.width,
-          y2:rb.yMin+rb.height
-        },true);
-      }catch(e){hideFaceAnchor();}
-    });
-    return true;
-  }catch(e){return false;}
-};
-
-window.ensureKTFaceMesh=async function(){
-  if(window.ktFaceMesh)return true;
-  try{
-    if(!window.FaceMesh){
-      await ktLoadExternalScript('https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js');
-    }
-    if(!window.FaceMesh)return false;
-    window.ktFaceMesh=new FaceMesh({
-      locateFile:function(file){
-        return 'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/'+file;
-      }
-    });
-    window.ktFaceMesh.setOptions({
-      maxNumFaces:1,
-      refineLandmarks:true,
-      minDetectionConfidence:.55,
-      minTrackingConfidence:.55
-    });
-    window.ktFaceMesh.onResults(function(results){
-      try{
-        var list=results&&results.multiFaceLandmarks;
-        if(!list||!list.length){hideFaceAnchor();return;}
-        var lm=list[0],minX=1,minY=1,maxX=0,maxY=0;
-        lm.forEach(function(p){
-          if(p.x<minX)minX=p.x;if(p.x>maxX)maxX=p.x;
-          if(p.y<minY)minY=p.y;if(p.y>maxY)maxY=p.y;
-        });
-        updateFaceAnchorFromBox({x1:minX,y1:minY,x2:maxX,y2:maxY},true);
-      }catch(e){hideFaceAnchor();}
-    });
-    return true;
-  }catch(e){return false;}
-};
 
 window.placeFaceAnchorFallback=function(){
-  /* 얼굴을 못 찾으면 효과를 화면 가운데 띄우지 않고 숨깁니다. */
-  hideFaceAnchor();
+  var anchor=document.getElementById('ktFaceAnchor');
+  if(!anchor||!camera)return;
+  var cr=creator.getBoundingClientRect();
+  var vr=camera.getBoundingClientRect();
+  var w=Math.min(vr.width*.46,220);
+  var h=w*1.18;
+  var cx=(vr.left-cr.left)+(vr.width*.50);
+  var cy=(vr.top-cr.top)+(vr.height*.39);
+  anchor.style.left=cx+'px';
+  anchor.style.top=cy+'px';
+  anchor.style.width=w+'px';
+  anchor.style.height=h+'px';
 };
 
 window.trackFaceOnce=async function(){
   var anchor=document.getElementById('ktFaceAnchor');
   if(!anchor||!camera||!camera.videoWidth||!camera.videoHeight){
-    hideFaceAnchor();
+    placeFaceAnchorFallback();
     return;
   }
 
-  if('FaceDetector' in window){
-    try{
-      if(!window.ktFaceDetector)window.ktFaceDetector=new FaceDetector({fastMode:true,maxDetectedFaces:1});
-      var faces=await window.ktFaceDetector.detect(camera);
-      if(faces&&faces.length){
-        updateFaceAnchorFromBox(faces[0].boundingBox,false);
-        return;
-      }
-    }catch(e){}
+  if(!('FaceDetector' in window)){
+    placeFaceAnchorFallback();
+    return;
   }
 
-  if(!window.ktMPFaceBusy){
-    var mpReady=await ensureKTMPFaceDetection();
-    if(mpReady){
-      try{
-        window.ktMPFaceBusy=true;
-        await window.ktMPFaceDetection.send({image:camera});
-        return;
-      }catch(e){}finally{
-        window.ktMPFaceBusy=false;
-      }
-    }
-  }
-
-  if(window.ktFaceMeshBusy)return;
-  var ready=await ensureKTFaceMesh();
-  if(!ready){hideFaceAnchor();return;}
   try{
-    window.ktFaceMeshBusy=true;
-    await window.ktFaceMesh.send({image:camera});
+    if(!window.ktFaceDetector)window.ktFaceDetector=new FaceDetector({fastMode:true,maxDetectedFaces:1});
+    var faces=await window.ktFaceDetector.detect(camera);
+    if(!faces||!faces.length){placeFaceAnchorFallback();return;}
+
+    var box=faces[0].boundingBox;
+    var cr=creator.getBoundingClientRect();
+    var vr=camera.getBoundingClientRect();
+    var vw=camera.videoWidth, vh=camera.videoHeight;
+    var scale=Math.max(vr.width/vw,vr.height/vh);
+    var drawW=vw*scale, drawH=vh*scale;
+    var offX=(vr.width-drawW)/2;
+    var offY=(vr.height-drawH)/2;
+    var bw=box.width*scale, bh=box.height*scale;
+    var bx=offX+(box.x*scale);
+    if((state.cameraFacing||'user')!=='environment'){
+      bx=vr.width-offX-((box.x+box.width)*scale);
+    }
+    var by=offY+(box.y*scale);
+
+    var cx=(vr.left-cr.left)+bx+(bw/2);
+    var cy=(vr.top-cr.top)+by+(bh/2);
+
+    anchor.style.left=cx+'px';
+    anchor.style.top=cy+'px';
+    anchor.style.width=Math.max(120,bw)+'px';
+    anchor.style.height=Math.max(145,bh)+'px';
   }catch(e){
-    hideFaceAnchor();
-  }finally{
-    window.ktFaceMeshBusy=false;
+    placeFaceAnchorFallback();
   }
 };
 
@@ -1299,58 +1210,81 @@ window.startKTFaceTracking=function(){
   trackFaceOnce();
   window.ktFaceTrackTimer=setInterval(function(){
     if(creator&&creator.classList.contains('show'))trackFaceOnce();
-  },120);
+  },260);
 };
 
 window.stopKTFaceTracking=function(){
   clearInterval(window.ktFaceTrackTimer);
   window.ktFaceTrackTimer=null;
-  hideFaceAnchor();
 };
 
 window.renderFaceEffect=function(name){
-  ensureFaceEffectLayer();
+  var layer=ensureFaceEffectLayer();
   var anchor=document.getElementById('ktFaceAnchor');
-  if(!anchor)return;
   anchor.innerHTML='';
   anchor.className='kt-face-anchor';
 
   var filterClasses=['fx-glow','fx-soft','fx-rainbow','fx-cool','fx-warm','fx-night','fx-cinema','fx-mono','fx-pink','fx-blue','fx-star','fx-party','fx-disco','fx-dream'];
   creator.classList.remove.apply(creator.classList,filterClasses);
 
-  state.editFilter='';
-  state.editSticker=name||'off';
-
   if(!name||name==='off'){
+    state.editFilter='';
     state.editSticker='';
     if(camera)camera.style.filter='brightness(1.12) contrast(.95) saturate(1.02)';
-    stopKTFaceTracking();
     return;
   }
 
-  var markup={
-    sunglasses:'<div class="fx-sunglasses-mask"><i></i><i></i><b></b></div>',
-    glasses:'<div class="fx-glasses-mask"><i></i><i></i><b></b></div>',
-    mustache:'<div class="fx-mustache-mask"><span>〰</span></div>',
-    beard:'<div class="fx-beard-mask"><span>〰</span><b></b></div>',
-    cap:'<div class="fx-cap-mask"><i></i><b></b></div>',
-    pirate:'<div class="fx-pirate-mask"><i></i><b></b></div>',
-    crown:'<div class="fx-crown-mask">👑</div>',
-    cat:'<div class="fx-animal-ears cat"><i></i><i></i></div>',
-    dog:'<div class="fx-animal-ears dog"><i></i><i></i></div>',
-    rabbit:'<div class="fx-animal-ears rabbit"><i></i><i></i></div>',
-    blush:'<div class="fx-cheek-mask blush"><i></i><i></i></div>',
-    heart:'<div class="fx-cheek-mask heart"><i>♥</i><i>♥</i></div>',
-    sparkle:'<div class="fx-sparkles-mask"><span>✦</span><span>✧</span><span>✦</span><span>✧</span></div>',
-    tears:'<div class="fx-tears-mask"><i></i><i></i></div>',
-    halo:'<div class="fx-halo-mask"></div>',
-    fire:'<div class="fx-fire-mask">🔥🔥🔥</div>',
-    facepaint:'<div class="fx-facepaint-mask"><i></i><i></i></div>',
-    mask:'<div class="fx-eye-mask"></div>',
-    butterfly:'<div class="fx-butterfly-mask"><span>🦋</span><span>🦋</span></div>'
-  };
-  anchor.innerHTML=markup[name]||'';
-  anchor.style.opacity='0';
+  state.editFilter='';
+  state.editSticker=name;
+
+  if(name==='sunglasses'){
+    anchor.innerHTML='<div class="fx-sunglasses-mask"><i></i><i></i><b></b></div>';
+  }else if(name==='glasses'){
+    anchor.innerHTML='<div class="fx-glasses-mask"><i></i><i></i><b></b></div>';
+  }else if(name==='beard'){
+    anchor.innerHTML='<div class="fx-beard-mask"><span>〰</span><b></b></div>';
+  }else if(name==='cap'){
+    anchor.innerHTML='<div class="fx-cap-mask"><i></i><b></b></div>';
+  }else if(name==='sparkle'){
+    anchor.innerHTML='<div class="fx-sparkles-mask"><span>✦</span><span>✧</span><span>✦</span><span>✧</span></div>';
+  }else if(name==='puppy'){
+    anchor.innerHTML='<div class="fx-emoji-mask">🐶</div>';
+  }else if(name==='cat'){
+    anchor.innerHTML='<div class="fx-emoji-mask">😺</div>';
+  }else if(name==='bunny'){
+    anchor.innerHTML='<div class="fx-emoji-mask">🐰</div>';
+  }else if(name==='heart'){
+    anchor.innerHTML='<div class="fx-emoji-mask fx-hearts">💕</div>';
+  }else if(name==='flower'){
+    anchor.innerHTML='<div class="fx-emoji-mask fx-crown-mask">🌸🌼🌸</div>';
+  }else if(name==='angel'){
+    anchor.innerHTML='<div class="fx-emoji-mask fx-crown-mask">😇</div>';
+  }else if(name==='clown'){
+    anchor.innerHTML='<div class="fx-emoji-mask">🤡</div>';
+  }else if(name==='cartoon'){
+    anchor.innerHTML='<div class="fx-emoji-mask">🤩</div>';
+  }else if(name==='party'){
+    anchor.innerHTML='<div class="fx-emoji-mask fx-crown-mask">🎉🥳🎉</div>';
+  }else if(name==='mono'){
+    state.editFilter='mono';
+    creator.classList.add('fx-mono');
+  }else if(name==='warm'){
+    state.editFilter='warm';
+    creator.classList.add('fx-warm');
+  }else if(name==='cool'){
+    state.editFilter='cool';
+    creator.classList.add('fx-cool');
+  }else if(name==='soft'){
+    state.editFilter='dream';
+    creator.classList.add('fx-dream');
+  }else if(name==='studio'){
+    state.editFilter='studio';
+    if(camera)camera.style.filter='brightness(1.16) contrast(.94) saturate(.98)';
+  }else if(name==='night'){
+    state.editFilter='night';
+    creator.classList.add('fx-night');
+  }
+
   startKTFaceTracking();
 };
 
@@ -1361,7 +1295,7 @@ window.syncEditEffectButtons=function(){
   });
   var label=document.getElementById('ktEffectSelected');
   if(label){
-    var map={off:'해제',sunglasses:'선글라스',glasses:'안경',mustache:'콧수염',beard:'턱수염',cap:'캡모자',pirate:'해적안대',crown:'왕관',cat:'고양이귀',dog:'강아지귀',rabbit:'토끼귀',blush:'볼터치',heart:'하트볼',sparkle:'별빛',tears:'눈물',halo:'후광',fire:'불꽃',facepaint:'페이스페인트',mask:'마스크',butterfly:'나비'};
+    var map={off:'해제',sunglasses:'선글라스',cap:'모자',puppy:'강아지',cat:'고양이',bunny:'토끼',heart:'하트',flower:'꽃장식',sparkle:'별빛',angel:'천사',party:'파티'};
     label.textContent=map[state.pendingEditEffect||'off']||'효과';
   }
 };
@@ -1392,282 +1326,12 @@ window.closeEditEffectPanel=function(){
   if(state.effectReturnBeauty){state.effectReturnBeauty=false;openBeautyPanel();}
 };
 
-window.ktEffectFaceSprite='data:image/jpeg;base64,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';
-window.ktEffectGender={sunglasses:'male',mustache:'male',beard:'male',cap:'male',pirate:'male',crown:'male',sparkle:'male',fire:'male',facepaint:'male',mask:'male',glasses:'female',cat:'female',dog:'female',rabbit:'female',blush:'female',heart:'female',tears:'female',halo:'female',butterfly:'female'};
-
-window.ktEditEffects=[
-  ['⊘','해제','off','all'],
-  ['🕶️','선글라스','sunglasses','unisex'],
-  ['👓','안경','glasses','unisex'],
-  ['👨','콧수염','mustache','unisex'],
-  ['🧔','턱수염','beard','unisex'],
-  ['🧢','캡모자','cap','unisex'],
-  ['🏴‍☠️','해적안대','pirate','fun'],
-  ['👑','왕관','crown','unisex'],
-  ['🐱','고양이귀','cat','fun'],
-  ['🐶','강아지귀','dog','fun'],
-  ['🐰','토끼귀','rabbit','fun'],
-  ['😊','볼터치','blush','fun'],
-  ['💗','하트볼','heart','fun'],
-  ['✨','별빛','sparkle','unisex'],
-  ['💧','눈물','tears','fun'],
-  ['😇','후광','halo','fun'],
-  ['🔥','불꽃','fire','fun'],
-  ['🎨','페이스페인트','facepaint','fun'],
-  ['🎭','마스크','mask','unisex'],
-  ['🦋','나비','butterfly','fun']
-];
-
-window.renderEditEffectItems=function(mode){
-  var wrap=document.querySelector('#ktLiveEffects .kt-live-effects-scroll');
-  if(!wrap)return;
-  var effects=window.ktEditEffects||[];
-  if(mode==='unisex'){
-    effects=effects.filter(function(e){return e[2]==='off'||e[3]==='unisex';});
-  }else if(mode==='fun'){
-    effects=effects.filter(function(e){return e[2]==='off'||e[3]==='fun';});
-  }
-  wrap.innerHTML=effects.map(function(e){
-    var key=e[2];
-    if(key==='off'){
-      return '<button class="kt-live-effect-item" data-effect="'+key+'" onclick="previewEditEffect(\''+key+'\')">'
-        +'<span class="kt-effect-off">⊘</span><small>'+e[1]+'</small></button>';
-    }
-    var gender=(window.ktEffectGender&&window.ktEffectGender[key])||'male';
-    return '<button class="kt-live-effect-item" data-effect="'+key+'" onclick="previewEditEffect(\''+key+'\')">'
-      +'<span class="kt-effect-face-preview '+gender+'"><i>'+e[0]+'</i></span><small>'+e[1]+'</small></button>';
-  }).join('');
-  var tray=document.getElementById('ktLiveEffects');
-  if(tray&&window.ktEffectFaceSprite){
-    tray.style.setProperty('--kt-effect-face-sprite','url("'+window.ktEffectFaceSprite+'")');
-  }
-  var bar=document.querySelector('#ktLiveEffects .kt-effect-applybar');
-  if(bar)bar.style.display='';
-  syncEditEffectButtons();
-};
-
-window.ktBgPreviewTimer=null;
-window.ktBgSegmentation=null;
-window.ktBgSegBusy=false;
-window.ktBgSegLoadPromise=null;
-
-window.ktEnsureBackgroundCanvas=function(){
-  var canvas=document.getElementById('ktBackgroundCanvas');
-  if(!canvas){
-    canvas=document.createElement('canvas');
-    canvas.id='ktBackgroundCanvas';
-    canvas.className='kt-background-canvas';
-    if(camera&&camera.parentNode)camera.parentNode.insertBefore(canvas,camera.nextSibling);
-  }
-  return canvas;
-};
-
-window.ktDrawBackgroundScene=function(ctx,key,w,h){
-  ctx.save();
-  var g;
-  if(key==='stage'){
-    g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,'#15102d');g.addColorStop(.55,'#32175b');g.addColorStop(1,'#050509');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
-    for(var i=0;i<4;i++){var x=w*(.18+i*.22);var rg=ctx.createRadialGradient(x,h*.1,4,x,h*.35,w*.18);rg.addColorStop(0,'rgba(255,255,255,.55)');rg.addColorStop(1,'rgba(123,73,255,0)');ctx.fillStyle=rg;ctx.fillRect(0,0,w,h);}
-    ctx.fillStyle='#1a0f25';ctx.fillRect(0,h*.78,w,h*.22);
-  }else if(key==='beach'){
-    g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,'#7ed7ff');g.addColorStop(.48,'#d8f4ff');g.addColorStop(.49,'#1597c7');g.addColorStop(.72,'#0878a4');g.addColorStop(.73,'#e7cb8e');g.addColorStop(1,'#cba96e');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
-    ctx.fillStyle='#fff4';for(var y=h*.53;y<h*.7;y+=18){ctx.fillRect(0,y,w,3);}
-    ctx.fillStyle='#ffdf68';ctx.beginPath();ctx.arc(w*.82,h*.18,w*.08,0,Math.PI*2);ctx.fill();
-  }else if(key==='mountain'){
-    g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,'#8ed6ff');g.addColorStop(.5,'#d7f1ff');g.addColorStop(1,'#244a2d');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
-    ctx.fillStyle='#5f805f';ctx.beginPath();ctx.moveTo(0,h*.72);ctx.lineTo(w*.28,h*.38);ctx.lineTo(w*.52,h*.66);ctx.lineTo(w*.72,h*.3);ctx.lineTo(w,h*.7);ctx.lineTo(w,h);ctx.lineTo(0,h);ctx.closePath();ctx.fill();
-    ctx.fillStyle='#dce8dc';ctx.beginPath();ctx.moveTo(w*.22,h*.46);ctx.lineTo(w*.28,h*.38);ctx.lineTo(w*.35,h*.48);ctx.closePath();ctx.fill();
-  }else if(key==='city'){
-    g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,'#09122b');g.addColorStop(.58,'#23215a');g.addColorStop(1,'#080912');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
-    ctx.fillStyle='#f5e7a5';ctx.beginPath();ctx.arc(w*.8,h*.16,w*.055,0,Math.PI*2);ctx.fill();
-    for(var b=0;b<11;b++){var bw=w*.07,bx=b*w*.095,bh=h*(.18+((b%4)*.055));ctx.fillStyle=b%2?'#171b32':'#202642';ctx.fillRect(bx,h*.78-bh,bw,bh);ctx.fillStyle='#ffd75e';for(var yy=h*.8-bh;yy<h*.74;yy+=18)for(var xx=bx+7;xx<bx+bw-5;xx+=15)ctx.fillRect(xx,yy,4,6);}
-  }else if(key==='garden'){
-    g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,'#b8e8ff');g.addColorStop(.45,'#8ed37e');g.addColorStop(1,'#245126');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
-    var flowers=['#ff5f9d','#ffd85a','#ad73ff','#fff'];for(var f=0;f<55;f++){ctx.fillStyle=flowers[f%flowers.length];ctx.beginPath();ctx.arc((f*67)%w,h*(.58+((f*37)%35)/100),3+(f%4),0,Math.PI*2);ctx.fill();}
-  }else if(key==='cafe'){
-    g=ctx.createLinearGradient(0,0,w,h);g.addColorStop(0,'#7c5137');g.addColorStop(.55,'#4a2c20');g.addColorStop(1,'#1b1210');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
-    ctx.fillStyle='#2c1c17';ctx.fillRect(0,h*.68,w,h*.32);ctx.fillStyle='#c59462';ctx.fillRect(0,h*.64,w,h*.055);
-    ctx.fillStyle='#f6d28d';ctx.fillRect(w*.12,h*.16,w*.23,h*.23);ctx.fillRect(w*.65,h*.12,w*.22,h*.28);
-  }else if(key==='yacht'){
-    g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,'#89d8ff');g.addColorStop(.52,'#dff7ff');g.addColorStop(.53,'#188ebd');g.addColorStop(1,'#075e83');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
-    ctx.fillStyle='#f8f8f8';ctx.beginPath();ctx.moveTo(w*.18,h*.68);ctx.lineTo(w*.75,h*.68);ctx.lineTo(w*.66,h*.76);ctx.lineTo(w*.28,h*.78);ctx.closePath();ctx.fill();
-    ctx.fillStyle='#1d4e6b';ctx.fillRect(w*.38,h*.59,w*.24,h*.08);
-  }else if(key==='club'){
-    g=ctx.createRadialGradient(w*.5,h*.3,10,w*.5,h*.4,w*.75);g.addColorStop(0,'#7c2cff');g.addColorStop(.35,'#25124d');g.addColorStop(1,'#050508');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
-    ['#ff3dd5','#32d9ff','#9b63ff'].forEach(function(col,i){ctx.strokeStyle=col;ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(w*(.15+i*.3),h*.15);ctx.lineTo(w*(.35+i*.18),h*.8);ctx.stroke();});
-  }else if(key==='sunset'){
-    g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,'#ff8f6a');g.addColorStop(.38,'#ffbf6d');g.addColorStop(.52,'#b75e8d');g.addColorStop(.53,'#3e5c9a');g.addColorStop(1,'#14264f');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
-    ctx.fillStyle='#ffe075';ctx.beginPath();ctx.arc(w*.5,h*.41,w*.1,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#ffffff3b';for(var sy=h*.58;sy<h*.9;sy+=22){ctx.fillRect(w*.18,sy,w*.64,3);}
-  }else if(key==='waterfall'){
-    g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,'#83c8dd');g.addColorStop(.32,'#3f815a');g.addColorStop(1,'#11382b');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
-    ctx.fillStyle='#1c5035';ctx.fillRect(0,h*.28,w*.3,h*.72);ctx.fillRect(w*.7,h*.25,w*.3,h*.75);
-    g=ctx.createLinearGradient(w*.4,0,w*.6,0);g.addColorStop(0,'#bfefff');g.addColorStop(.5,'#ffffff');g.addColorStop(1,'#9dd9ee');ctx.fillStyle=g;ctx.fillRect(w*.38,h*.25,w*.24,h*.63);
-    ctx.fillStyle='#5cc6d8';ctx.beginPath();ctx.ellipse(w*.5,h*.9,w*.34,h*.07,0,0,Math.PI*2);ctx.fill();
-  }else{
-    ctx.fillStyle='#111';ctx.fillRect(0,0,w,h);
-  }
-  ctx.restore();
-};
-
-window.ktDrawVideoCover=function(ctx,video,w,h){
-  var vw=video.videoWidth||w,vh=video.videoHeight||h;
-  var scale=Math.max(w/vw,h/vh);
-  var dw=vw*scale,dh=vh*scale;
-  ctx.drawImage(video,(w-dw)/2,(h-dh)/2,dw,dh);
-};
-
-window.ktCompositeBackgroundResult=function(results){
-  var canvas=ktEnsureBackgroundCanvas();
-  if(!canvas||!camera)return;
-  var w=camera.videoWidth||720,h=camera.videoHeight||1280;
-  if(!w||!h)return;
-  if(canvas.width!==w)canvas.width=w;
-  if(canvas.height!==h)canvas.height=h;
-  var ctx=canvas.getContext('2d');
-  ctx.save();
-  ctx.clearRect(0,0,w,h);
-  try{
-    ctx.drawImage(results.segmentationMask,0,0,w,h);
-    ctx.globalCompositeOperation='source-in';
-    ktDrawVideoCover(ctx,results.image,w,h);
-    ctx.globalCompositeOperation='destination-over';
-    ktDrawBackgroundScene(ctx,state.selectedBackground,w,h);
-  }catch(e){
-    ctx.globalCompositeOperation='source-over';
-    ktDrawBackgroundScene(ctx,state.selectedBackground,w,h);
-    ctx.globalAlpha=.78;
-    ktDrawVideoCover(ctx,camera,w,h);
-  }
-  ctx.restore();
-  canvas.style.display='block';
-  canvas.style.transform=(state.cameraFacing||'user')==='environment'?'none':'scaleX(-1)';
-  camera.style.opacity='0';
-};
-
-window.ktLoadBackgroundSegmentation=function(){
-  if(window.ktBgSegLoadPromise)return window.ktBgSegLoadPromise;
-  window.ktBgSegLoadPromise=new Promise(function(resolve){
-    function start(){
-      try{
-        if(typeof SelfieSegmentation!=='function'){resolve(null);return;}
-        var seg=new SelfieSegmentation({locateFile:function(file){return 'https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/'+file;}});
-        seg.setOptions({modelSelection:1});
-        seg.onResults(ktCompositeBackgroundResult);
-        window.ktBgSegmentation=seg;
-        resolve(seg);
-      }catch(e){resolve(null);}
-    }
-    if(typeof SelfieSegmentation==='function'){start();return;}
-    var s=document.createElement('script');
-    s.src='https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js';
-    s.async=true;
-    s.onload=start;
-    s.onerror=function(){resolve(null);};
-    document.head.appendChild(s);
+window.switchEditEffectTab=function(tab,btn){
+  document.querySelectorAll('.kt-live-effects-tabs button').forEach(function(b){b.classList.toggle('on',b===btn);});
+  document.querySelectorAll('.kt-live-effect-item[data-cat]').forEach(function(item){
+    var cat=item.getAttribute('data-cat');
+    item.style.display=(tab==='all'||cat===tab||item.getAttribute('data-effect')==='off')?'block':'none';
   });
-  return window.ktBgSegLoadPromise;
-};
-
-window.ktFallbackBackgroundFrame=function(){
-  if(!state.selectedBackground||!camera||camera.readyState<2)return;
-  var canvas=ktEnsureBackgroundCanvas();
-  var w=camera.videoWidth||720,h=camera.videoHeight||1280;
-  if(canvas.width!==w)canvas.width=w;
-  if(canvas.height!==h)canvas.height=h;
-  var ctx=canvas.getContext('2d');
-  ctx.clearRect(0,0,w,h);
-  ktDrawBackgroundScene(ctx,state.selectedBackground,w,h);
-  ctx.save();
-  ctx.globalAlpha=.72;
-  ktDrawVideoCover(ctx,camera,w,h);
-  ctx.restore();
-  canvas.style.display='block';
-  canvas.style.transform=(state.cameraFacing||'user')==='environment'?'none':'scaleX(-1)';
-  camera.style.opacity='0';
-};
-
-window.applySelectedBackgroundPreview=async function(){
-  if(!state.selectedBackground)return;
-  var canvas=ktEnsureBackgroundCanvas();
-  if(canvas)canvas.style.display='block';
-  if(window.ktBgPreviewTimer){clearInterval(window.ktBgPreviewTimer);window.ktBgPreviewTimer=null;}
-  ktFallbackBackgroundFrame();
-  var seg=await ktLoadBackgroundSegmentation();
-  window.ktBgPreviewTimer=setInterval(function(){
-    if(!state.selectedBackground||!camera||camera.readyState<2)return;
-    if(seg&&!window.ktBgSegBusy){
-      window.ktBgSegBusy=true;
-      Promise.resolve(seg.send({image:camera})).catch(function(){ktFallbackBackgroundFrame();}).finally(function(){window.ktBgSegBusy=false;});
-    }else if(!seg){
-      ktFallbackBackgroundFrame();
-    }
-  },110);
-};
-
-window.stopKTBackgroundPreview=function(){
-  if(window.ktBgPreviewTimer){clearInterval(window.ktBgPreviewTimer);window.ktBgPreviewTimer=null;}
-  window.ktBgSegBusy=false;
-  var canvas=document.getElementById('ktBackgroundCanvas');
-  if(canvas){canvas.style.display='none';canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height);}
-  if(camera)camera.style.opacity='';
-};
-
-window.renderEditBackgroundItems=function(){
-  var wrap=document.querySelector('#ktLiveEffects .kt-live-effects-scroll');
-  if(!wrap)return;
-  var backgrounds=[
-    ['🎤','무대','stage'],
-    ['🏖️','바닷가','beach'],
-    ['⛰️','산','mountain'],
-    ['🌃','도시야경','city'],
-    ['🌸','꽃정원','garden'],
-    ['☕','카페','cafe'],
-    ['🛥️','요트','yacht'],
-    ['🎶','클럽무대','club'],
-    ['🌅','노을바다','sunset'],
-    ['💦','폭포','waterfall']
-  ];
-  wrap.innerHTML=backgrounds.map(function(b){
-    return '<button class="kt-bg-choice '+(state.selectedBackground===b[2]?'on':'')+'" onclick="selectEditBackground(this,\''+b[2]+'\',\''+b[1]+'\')">'
-      +'<span class="kt-bg-thumb bg-'+b[2]+'">'+b[0]+'</span><small>'+b[1]+'</small></button>';
-  }).join('');
-  var bar=document.querySelector('#ktLiveEffects .kt-effect-applybar');
-  if(bar)bar.style.display='none';
-};
-
-window.selectEditBackground=function(btn,key,label){
-  state.selectedBackground=key;
-  document.querySelectorAll('#ktLiveEffects .kt-bg-choice').forEach(function(b){b.classList.remove('on');});
-  if(btn)btn.classList.add('on');
-  creator.setAttribute('data-kt-background',key);
-  try{localStorage.setItem('ktalk_selected_background',key);}catch(e){}
-  applySelectedBackgroundPreview();
-  ktSpeak(label+' 배경을 적용 중입니다.');
-};
-
-window.switchEditEffectTab=function(btn,mode){
-  document.querySelectorAll('#ktLiveEffects .kt-live-effects-tabs button').forEach(function(b){b.classList.remove('on');});
-  if(btn)btn.classList.add('on');
-  if(mode==='beauty'){
-    var tray=document.getElementById('ktLiveEffects');
-    if(tray)tray.classList.remove('show');
-    openBeautyPanel();
-    return;
-  }
-  if(mode==='background'){
-    renderEditBackgroundItems();
-    return;
-  }
-  if(mode==='unisex'){
-    renderEditEffectItems('unisex');
-    return;
-  }
-  if(mode==='fun'){
-    renderEditEffectItems('fun');
-    return;
-  }
-  renderEditEffectItems('all');
 };
 
 window.openEditEffectPanel=function(){
@@ -1686,23 +1350,31 @@ window.openEditEffectPanel=function(){
 
   if(!state.appliedEditEffect)state.appliedEditEffect='off';
   state.pendingEditEffect=state.appliedEditEffect;
-  if(!state.selectedBackground){
-    try{state.selectedBackground=localStorage.getItem('ktalk_selected_background')||'';}catch(e){}
-  }
+
+  var effects=[
+    ['🕶️','선글라스','sunglasses','face'],
+    ['🧢','모자','cap','face'],
+    ['🐶','강아지','puppy','face'],
+    ['😺','고양이','cat','face'],
+    ['🐰','토끼','bunny','face'],
+    ['💕','하트','heart','mood'],
+    ['🌸','꽃장식','flower','mood'],
+    ['✦','별빛','sparkle','mood'],
+    ['😇','천사','angel','face'],
+    ['🥳','파티','party','mood']
+  ];
 
   tray.innerHTML='<div class="kt-live-effects-head"><b>편집효과</b><button onclick="closeEditEffectPanel()">✕</button></div>'
-    +'<div class="kt-live-effects-tabs">'
-      +'<button class="on" onclick="switchEditEffectTab(this,\'all\')">추천</button>'
-      +'<button onclick="switchEditEffectTab(this,\'beauty\')">얼굴보정</button>'
-      +'<button onclick="switchEditEffectTab(this,\'background\')">뒷배경</button>'
-      +'<button onclick="switchEditEffectTab(this,\'unisex\')">남녀공용</button>'
-      +'<button onclick="switchEditEffectTab(this,\'fun\')">재미</button>'
+    +'<div class="kt-live-effects-tabs"><button class="on" onclick="switchEditEffectTab(\'all\',this)">추천</button><button onclick="switchEditEffectTab(\'face\',this)">얼굴</button><button onclick="switchEditEffectTab(\'mood\',this)">분위기</button></div>'
+    +'<div class="kt-live-effects-scroll">'
+    +effects.map(function(e){
+      return '<button class="kt-live-effect-item" data-effect="'+e[2]+'" data-cat="'+e[3]+'" onclick="previewEditEffect(\''+e[2]+'\')">'
+        +'<span>'+e[0]+'</span><small>'+e[1]+'</small></button>';
+    }).join('')
     +'</div>'
-    +'<div class="kt-live-effects-scroll"></div>'
-    +'<div class="kt-effect-applybar"><span>선택: <b id="ktEffectSelected">효과</b></span><button onclick="applyEditEffect()">✓ 적용</button></div>';
+    +'<div class="kt-effect-applybar"><button class="kt-effect-off" onclick="previewEditEffect(\'off\')">↺ 효과 해제</button><span>선택: <b id="ktEffectSelected">효과</b></span><button onclick="applyEditEffect()">✓ 적용</button></div>';
 
   tray.classList.add('show');
-  renderEditEffectItems('all');
   ensureFaceEffectLayer();
   renderFaceEffect(state.pendingEditEffect);
   syncEditEffectButtons();
@@ -1983,25 +1655,9 @@ window.openFanHelp=function(){
 
 window.showHostCrown=function(kind){var old=document.getElementById('hostGiftCrown');if(old)old.remove();var badge=document.createElement('div');badge.id='hostGiftCrown';badge.textContent=(kind==='다이아 왕관'||kind==='다이아몬드 왕관')?'💎👑':'👑';badge.style.cssText='position:fixed;z-index:9999;top:86px;left:50%;transform:translateX(-50%);font-size:52px;filter:drop-shadow(0 0 15px #ffd85a);pointer-events:none';document.body.appendChild(badge);setTimeout(function(){if(badge&&badge.parentNode)badge.remove();},6000);};
 window.giftSend=function(name,cost,sender){
-  cost=Math.max(0,parseInt(cost||0,10)||0);
-  var freeAccount=window.ktIsNoChargeGiftAccount&&ktIsNoChargeGiftAccount();
-  if(!freeAccount){
-    var balance=ktGetRoseBalance();
-    if(cost>balance){
-      alert('장미가 부족합니다.\n현재 '+balance.toLocaleString('ko-KR')+'개 · 필요한 장미 '+cost.toLocaleString('ko-KR')+'개');
-      if(window.openCharge)setTimeout(openCharge,80);
-      return false;
-    }
-    ktSetRoseBalance(balance-cost);
-  }
   if(name.indexOf('왕관')>-1||name.indexOf('크라운')>-1){showHostCrown(name);}
   ktAnnounceEvent('gift',{sender:sender||'',name:name,count:cost});
-  if(freeAccount){
-    alert('✅ '+name+' 선물 완료\n관리자 무결제 계정 · 장미 차감 없음');
-  }else{
-    alert('✅ '+name+' 선물 완료\n장미 '+cost.toLocaleString('ko-KR')+'개 사용 · 남은 장미 '+ktGetRoseBalance().toLocaleString('ko-KR')+'개');
-  }
-  return true;
+  alert(name+' · '+cost+'개 선물을 선택했습니다.');
 };
 window.ktalkGifts=[
   ['장미','1','🌹','꽃/하트'],
@@ -2343,106 +1999,12 @@ window.addEventListener('storage',function(e){
 });
 
 setTimeout(function(){ktUpdateTreasureLed();ktRenderTreasure();},300);
-window.ktCurrentVerifiedAccountName=function(){
-  var name='';
-  try{
-    if(window.KTALK_AUTH_USER&&(KTALK_AUTH_USER.nickname||KTALK_AUTH_USER.name))name=KTALK_AUTH_USER.nickname||KTALK_AUTH_USER.name;
-    else if(state&&state.currentUser&&(state.currentUser.nickname||state.currentUser.name))name=state.currentUser.nickname||state.currentUser.name;
-    else if(state&&(state.accountName||state.userName))name=state.accountName||state.userName;
-    else if(localStorage.getItem('ktalk_account_verified')==='1')name=localStorage.getItem('ktalk_account_name')||'';
-    else if(localStorage.getItem('ktalk_admin_test_account_name'))name=localStorage.getItem('ktalk_admin_test_account_name')||'';
-  }catch(e){}
-  return String(name||'').trim();
-};
-window.ktCurrentAccountId=function(){
-  var id='';
-  try{
-    if(window.KTALK_AUTH_USER&&(KTALK_AUTH_USER.id||KTALK_AUTH_USER.uid))id=KTALK_AUTH_USER.id||KTALK_AUTH_USER.uid;
-    else if(state&&state.currentUser&&(state.currentUser.id||state.currentUser.uid))id=state.currentUser.id||state.currentUser.uid;
-    else if(state&&(state.accountId||state.userId))id=state.accountId||state.userId;
-    else if(localStorage.getItem('ktalk_account_verified')==='1')id=localStorage.getItem('ktalk_account_id')||localStorage.getItem('ktalk_account_name')||'';
-    else if(localStorage.getItem('ktalk_admin_test_account_id'))id=localStorage.getItem('ktalk_admin_test_account_id')||'';
-  }catch(e){}
-  return String(id||'').trim();
-};
-window.ktVideoOwner=function(){
-  var sub=window.ktGetSelectedSubAccount?ktGetSelectedSubAccount():'';
-  if(sub){
-    var info=window.ktSubAccountInfo?ktSubAccountInfo(sub):{key:sub,name:sub};
-    var p=null;
-    try{
-      var raw=localStorage.getItem('ktalk_profile_v1:sub:'+sub);
-      if(raw)p=JSON.parse(raw)||null;
-    }catch(e){}
-    return {
-      id:'sub:'+sub,
-      name:(p&&p.name?String(p.name):String(info.name||sub)),
-      subAccount:sub
-    };
-  }
-  var name=window.ktCurrentVerifiedAccountName?ktCurrentVerifiedAccountName():'';
-  var id=window.ktCurrentAccountId?ktCurrentAccountId():'';
-  return {id:id||name||'local',name:name||'내 계정'};
-};
-window.ktIsNoChargeGiftAccount=function(){
-  var owner=window.ktVideoOwner?ktVideoOwner():{name:''};
-  var n=String(owner.name||ktCurrentVerifiedAccountName()||'').replace(/\s+/g,'');
-  return n==='하이네'||n==='K-톡하이네'||n==='K-톡하이네2'||n==='태권이'||n==='K-톡태권'||n==='K-톡태권1';
-};
-window.ktRoseBalanceLabel=function(){
-  return ktIsNoChargeGiftAccount()?'무제한':ktGetRoseBalance().toLocaleString('ko-KR');
-};
-window.ktGetRoseBalance=function(){
-  try{return Math.max(0,parseInt(localStorage.getItem('ktalk_rose_balance')||'0',10)||0);}catch(e){return Math.max(0,parseInt(state.roseBalance||0,10)||0);}
-};
-window.ktSetRoseBalance=function(n){
-  n=Math.max(0,parseInt(n||0,10)||0);
-  state.roseBalance=n;
-  try{localStorage.setItem('ktalk_rose_balance',String(n));}catch(e){}
-  var ids=['ktRoseBalance','ktRoseBalanceDash'];
-  ids.forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=window.ktRoseBalanceLabel?ktRoseBalanceLabel():n.toLocaleString('ko-KR');});
-  return n;
-};
-window.ktAddRoseBalance=function(n){
-  n=parseInt(n||0,10)||0;
-  if(n<=0)return ktGetRoseBalance();
-  return ktSetRoseBalance(ktGetRoseBalance()+n);
-};
-window.ktApplyVerifiedPayment=function(orderId,base,bonus){
-  orderId=String(orderId||'').trim();
-  base=Math.max(0,parseInt(base||0,10)||0);
-  bonus=Math.max(0,parseInt(bonus||0,10)||0);
-  if(!orderId||base<=0)return false;
-  var used={};
-  try{used=JSON.parse(localStorage.getItem('ktalk_paid_orders')||'{}')||{};}catch(e){}
-  if(used[orderId])return false;
-  used[orderId]={base:base,bonus:bonus,at:Date.now()};
-  try{localStorage.setItem('ktalk_paid_orders',JSON.stringify(used));}catch(e){}
-  ktAddRoseBalance(base+bonus);
-  ktSpeak('결제가 확인되어 장미가 바로 지급되었습니다.');
-  alert('✅ 결제 확인 완료\n장미 '+(base+bonus).toLocaleString('ko-KR')+'개가 바로 들어왔습니다.');
-  return true;
-};
-window.ktStartPayment=function(amount,base,bonus){
-  var total=base+bonus;
-  try{localStorage.setItem('ktalk_pending_charge',JSON.stringify({amount:amount,base:base,bonus:bonus,total:total,createdAt:Date.now()}));}catch(e){}
-  var html='<div class="rowbox"><b>🌹 장미 '+total.toLocaleString('ko-KR')+'개</b><br>'
-    +Number(amount).toLocaleString('ko-KR')+'원 · 기본 '+base.toLocaleString('ko-KR')+'개 · 보너스 '+bonus.toLocaleString('ko-KR')+'개<br><br>'
-    +'<b>결제 완료가 서버에서 확인되면 자동으로 바로 지급됩니다.</b><br>'
-    +'<small>실제 결제사를 연결하기 전에는 돈이 결제되거나 장미가 임의 지급되지 않습니다.</small></div>';
-  showSheet('결제 확인',html);
-};
 window.selectCoinCharge=function(amount,base,bonus){
   var total=base+bonus;
   ktSpeak('장미 '+base.toLocaleString('ko-KR')+'개, 보너스 '+bonus.toLocaleString('ko-KR')+'개, 총 '+total.toLocaleString('ko-KR')+'개입니다.');
-  ktStartPayment(Number(amount),base,bonus);
+  alert(Number(amount).toLocaleString('ko-KR')+'원 · 기본 장미 '+base.toLocaleString('ko-KR')+'개 · 보너스 '+bonus.toLocaleString('ko-KR')+'개 · 총 '+total.toLocaleString('ko-KR')+'개');
 };
 window.openCharge=function(){
-  if(window.ktIsNoChargeGiftAccount&&ktIsNoChargeGiftAccount()){
-    var who=ktCurrentVerifiedAccountName();
-    showSheet('🌹 관리자 선물 사용','<div class="rowbox"><b>👑 '+who+' 계정</b><br>이 계정은 장미·선물을 결제 없이 바로 사용할 수 있습니다.<br><br><b>보유 장미: 무제한</b></div><button class="act" onclick="closeSheet();setTimeout(openGifts,80)">🎁 선물함 바로 열기</button>');
-    return;
-  }
   var packs=[
     {base:300},
     {base:500},
@@ -2455,7 +2017,6 @@ window.openCharge=function(){
   ];
   var html='<div class="coin-charge-note">'
     +'<div style="font-size:16px;font-weight:950;color:#fff">🌹 장미 충전</div>'
-    +'<div style="margin-top:7px;color:#9dffb9;font-weight:950">현재 보유 장미 <span id="ktRoseBalance">'+(window.ktRoseBalanceLabel?ktRoseBalanceLabel():ktGetRoseBalance().toLocaleString('ko-KR'))+'</span>'+(window.ktIsNoChargeGiftAccount&&ktIsNoChargeGiftAccount()?'':'개')+'</div>'
     +'<div style="margin-top:7px;color:#ffe17b;font-weight:950">장미 1개 = 30원</div>'
     +'<div style="margin-top:5px;color:#ffd86b">500개부터 500개마다 <b style="color:#fff">보너스 +10개</b></div>'
     +'<div style="margin-top:5px;color:#bbb">최대 충전 100,000원</div>'
@@ -2480,224 +2041,7 @@ window.openRaffle=function(){showSheet('🎯 제비뽑기','<div class="raffle">
 window.raffle=function(){if(state.raffle<=0){ktSpeak('오늘 참여 횟수를 모두 사용했습니다.');alert('오늘 참여 횟수를 모두 사용했습니다.');return;}state.raffle--;var p=[0,0,1,2,3,4,5];var x=p[Math.floor(Math.random()*p.length)];var msg=x?'장미 '+x+'개 당첨!':'꽝입니다.';ktAnnounceEvent('reward',{text:msg});alert(msg);};
 window.openMessages=function(){showSheet('✉ 쪽지','<div class="rowbox"><b>쪽지 화면</b><br>메시지 기능 버튼이 정상 작동합니다.</div>');};
 window.openComments=function(){showSheet('💬 댓글','<div class="rowbox"><b>댓글 화면</b><br>댓글 버튼이 정상 작동합니다.</div>');};
-window.ktGetSelectedSubAccount=function(){
-  try{
-    var key=localStorage.getItem('ktalk_sub_account')||'';
-    if(key==='taekwon1'||key==='haine2')return key;
-  }catch(e){}
-  return '';
-};
-window.ktSubAccountInfo=function(key){
-  if(key==='haine2')return {key:'haine2',name:'K-톡 하이네2',icon:'H'};
-  return {key:'taekwon1',name:'K-톡 태권1',icon:'T'};
-};
-window.ktCurrentSubAccountInfo=function(){
-  return ktSubAccountInfo(ktGetSelectedSubAccount()||'taekwon1');
-};
-window.selectKTalkSubAccount=function(key){
-  if(key!=='taekwon1'&&key!=='haine2')return;
-  try{localStorage.setItem('ktalk_sub_account',key);}catch(e){}
-  state.ktSubAccount=key;
-  var info=ktSubAccountInfo(key);
-  var storage='ktalk_profile_v1:sub:'+key;
-  try{
-    if(!localStorage.getItem(storage)){
-      localStorage.setItem(storage,JSON.stringify({name:info.name,bio:'',photo:''}));
-    }
-  }catch(e){}
-  closeSheet();
-  setTimeout(function(){openProfileDirect();},60);
-};
-window.ktSubProfileCard=function(key){
-  var info=ktSubAccountInfo(key);
-  var p={name:info.name,photo:''};
-  try{
-    var raw=localStorage.getItem('ktalk_profile_v1:sub:'+key);
-    if(raw){
-      var x=JSON.parse(raw)||{};
-      if(x.name)p.name=String(x.name);
-      if(x.photo)p.photo=String(x.photo);
-    }
-  }catch(e){}
-  var initial=(p.name||info.name||'K').trim().charAt(0)||'K';
-  var avatar=p.photo
-    ?'<span class="kt-account-avatar '+key+' has-photo"><img src="'+p.photo+'" alt="'+ktProfileEscape(p.name)+' 프로필"></span>'
-    :'<span class="kt-account-avatar '+key+'">'+ktProfileEscape(initial)+'</span>';
-  return {name:p.name,avatar:avatar};
-};
-window.openAccountChooser=function(){
-  var current=ktGetSelectedSubAccount();
-  var t=ktSubProfileCard('taekwon1');
-  var h=ktSubProfileCard('haine2');
-  var html='<div class="kt-account-choice">'
-    +'<div class="kt-account-choice-title">사용할 계정을 선택하세요</div>'
-    +'<div class="kt-account-split">'
-      +'<button class="kt-account-half '+(current==='taekwon1'?'on':'')+'" onclick="selectKTalkSubAccount(\'taekwon1\')">'
-        +t.avatar+'<b>'+ktProfileEscape(t.name)+'</b><small>태권1 계정으로 들어가기</small>'
-      +'</button>'
-      +'<button class="kt-account-half '+(current==='haine2'?'on':'')+'" onclick="selectKTalkSubAccount(\'haine2\')">'
-        +h.avatar+'<b>'+ktProfileEscape(h.name)+'</b><small>하이네2 계정으로 들어가기</small>'
-      +'</button>'
-    +'</div>'
-    +'<div class="kt-account-note">사진은 가운데 맞춰 표시되고 살짝 움직이게 했습니다.</div>'
-    +'</div>';
-  showSheet('계정 선택',html);
-};
-
-window.ktProfileAccountKey=function(){
-  var sub=ktGetSelectedSubAccount();
-  if(sub)return 'sub:'+sub;
-  try{
-    var owner=window.ktVideoOwner?ktVideoOwner():null;
-    if(owner&&owner.id)return String(owner.id);
-    if(owner&&owner.name)return String(owner.name);
-  }catch(e){}
-  return 'local';
-};
-window.ktProfileStorageKey=function(){
-  return 'ktalk_profile_v1:'+ktProfileAccountKey();
-};
-window.ktProfileLoad=function(){
-  var base={name:'',bio:'',photo:'',followers:0,likes:0,link:''};
-  try{
-    var raw=localStorage.getItem(ktProfileStorageKey());
-    if(raw){
-      var p=JSON.parse(raw)||{};
-      base.name=String(p.name||'');
-      base.bio=String(p.bio||'');
-      base.photo=String(p.photo||'');
-      base.followers=parseInt(p.followers||0,10)||0;
-      base.likes=parseInt(p.likes||0,10)||0;
-      base.link=String(p.link||'');
-    }
-  }catch(e){}
-  if(!base.name){
-    try{
-      var sub=ktGetSelectedSubAccount();
-      if(sub)base.name=ktSubAccountInfo(sub).name;
-      else{
-        var owner=window.ktVideoOwner?ktVideoOwner():null;
-        if(owner&&owner.name&&owner.name!=='내 계정')base.name=owner.name;
-        else if(window.ktCurrentVerifiedAccountName&&ktCurrentVerifiedAccountName())base.name=ktCurrentVerifiedAccountName();
-      }
-    }catch(e){}
-  }
-  if(base.name==='태권이'||base.name==='K-톡태권')base.name='K-톡 태권1';
-  if(base.name==='하이네'||base.name==='K-톡하이네')base.name='K-톡 하이네2';
-  if(!base.name)base.name='K-Talk';
-  return base;
-};
-window.ktProfileEscape=function(s){
-  return String(s==null?'':s).replace(/[&<>"']/g,function(ch){
-    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
-  });
-};
-window.ktProfileRender=function(){
-  var p=ktProfileLoad();
-  var initial=(p.name||'K').trim().charAt(0)||'K';
-  var photo=p.photo
-    ?'<img src="'+p.photo+'" alt="프로필 사진">'
-    :'<span>'+ktProfileEscape(initial)+'</span>';
-  var linkText=p.link?ktProfileEscape(p.link):'링크를 등록해 주세요';
-  return '<div class="kt-my-profile">'
-    +'<div class="kt-profile-hero">'
-      +'<div class="kt-profile-photo-wrap">'
-        +'<button type="button" class="kt-my-profile-photo" onclick="document.getElementById(\'ktProfilePhotoInput\').click()" aria-label="프로필 사진 바꾸기">'+photo+'<em>사진 변경</em></button>'
-        +'<input id="ktProfilePhotoInput" type="file" accept="image/*" hidden onchange="ktProfilePickPhoto(this)">'
-      +'</div>'
-      +'<div class="kt-profile-maininfo"><b>'+ktProfileEscape(p.name)+'</b><small>'+ktProfileEscape(p.bio||'소개를 입력해 주세요')+'</small></div>'
-    +'</div>'
-    +'<div class="kt-profile-stats">'
-      +'<div><b>'+(p.followers||0).toLocaleString('ko-KR')+'</b><small>팔로워</small></div>'
-      +'<div><b>'+(p.likes||0).toLocaleString('ko-KR')+'</b><small>좋아요</small></div>'
-    +'</div>'
-    +'<button class="kt-profile-public-link" type="button" onclick="ktOpenProfileLink()"><span>🔗</span><b>'+linkText+'</b><em>›</em></button>'
-    +'<label>닉네임<input id="ktProfileName" class="form" maxlength="20" value="'+ktProfileEscape(p.name)+'" placeholder="닉네임"></label>'
-    +'<label>소개<input id="ktProfileBio" class="form" maxlength="60" value="'+ktProfileEscape(p.bio)+'" placeholder="간단한 소개를 입력하세요"></label>'
-    +'<label>프로필 링크<input id="ktProfileLink" class="form" maxlength="180" value="'+ktProfileEscape(p.link||'')+'" placeholder="https:// 또는 사이트 주소"></label>'
-    +'<button class="act" type="button" onclick="ktProfileSave()">프로필 저장</button>'
-    +'<button class="kt-profile-switch-btn" type="button" onclick="openAccountChooser()">⇄ 계정 선택</button>'
-    +'<button class="kt-profile-video-btn" type="button" onclick="closeSheet();setTimeout(openMyVideoLibrary,80)">🎬 내 동영상 보기</button>'
-    +'<small class="kt-profile-note">프로필 사진은 누르지 않아도 바로 보이게 표시됩니다.</small>'
-    +'</div>';
-};
-
-window.ktOpenProfileLink=function(){
-  var p=ktProfileLoad();
-  var url=String(p.link||'').trim();
-  if(!url){alert('프로필 링크를 먼저 입력해 주세요.');return;}
-  if(!/^https?:\/\//i.test(url))url='https://'+url;
-  try{window.open(url,'_blank','noopener');}catch(e){location.href=url;}
-};
-
-window.openProfileDirect=function(){
-  var info=ktCurrentSubAccountInfo();
-  showSheet('♛ '+info.name+' 프로필',ktProfileRender());
-};
-window.openProfile=function(){
-  openAccountChooser();
-};
-window.ktProfileSave=function(){
-  var old=ktProfileLoad();
-  var nameEl=document.getElementById('ktProfileName');
-  var bioEl=document.getElementById('ktProfileBio');
-  var linkEl=document.getElementById('ktProfileLink');
-  var name=String(nameEl?nameEl.value:'').trim();
-  var bio=String(bioEl?bioEl.value:'').trim();
-  var link=String(linkEl?linkEl.value:'').trim();
-  if(!name){alert('닉네임을 입력해 주세요.');return;}
-  var data={name:name,bio:bio,photo:old.photo||'',followers:old.followers||0,likes:old.likes||0,link:link};
-  try{localStorage.setItem(ktProfileStorageKey(),JSON.stringify(data));}catch(e){
-    alert('프로필을 저장하지 못했습니다. 다시 눌러 주세요.');return;
-  }
-  ktSpeak('프로필을 저장했습니다.');
-  alert('✅ 프로필을 저장했습니다.');
-  openProfileDirect();
-};
-window.ktProfilePickPhoto=function(input){
-  var file=input&&input.files&&input.files[0];
-  if(!file)return;
-  if(!/^image\//i.test(file.type||'')){alert('사진 파일을 선택해 주세요.');return;}
-  var reader=new FileReader();
-  reader.onload=function(){
-    var img=new Image();
-    img.onload=function(){
-      try{
-        var size=420;
-        var canvas=document.createElement('canvas');
-        canvas.width=size;canvas.height=size;
-        var ctx=canvas.getContext('2d');
-        var scale=Math.max(size/img.width,size/img.height);
-        var w=img.width*scale,h=img.height*scale;
-        ctx.drawImage(img,(size-w)/2,(size-h)/2,w,h);
-        var photo=canvas.toDataURL('image/jpeg',0.84);
-        var p=ktProfileLoad();
-        p.photo=photo;
-        var nameEl=document.getElementById('ktProfileName');
-        var bioEl=document.getElementById('ktProfileBio');
-        var linkEl=document.getElementById('ktProfileLink');
-        if(nameEl&&nameEl.value.trim())p.name=nameEl.value.trim();
-        if(bioEl)p.bio=bioEl.value.trim();
-        if(linkEl)p.link=linkEl.value.trim();
-        localStorage.setItem(ktProfileStorageKey(),JSON.stringify(p));
-        openProfileDirect();
-      }catch(e){alert('사진을 등록하지 못했습니다. 다른 사진으로 다시 해 주세요.');}
-    };
-    img.onerror=function(){alert('사진을 읽지 못했습니다.');};
-    img.src=reader.result;
-  };
-  reader.onerror=function(){alert('사진을 읽지 못했습니다.');};
-  reader.readAsDataURL(file);
-};
-window.ktAddProfileFollower=function(n){
-  var p=ktProfileLoad();p.followers=Math.max(0,(p.followers||0)+(parseInt(n||1,10)||1));
-  try{localStorage.setItem(ktProfileStorageKey(),JSON.stringify(p));}catch(e){}
-};
-window.ktAddProfileLike=function(n){
-  var p=ktProfileLoad();p.likes=Math.max(0,(p.likes||0)+(parseInt(n||1,10)||1));
-  try{localStorage.setItem(ktProfileStorageKey(),JSON.stringify(p));}catch(e){}
-};
-
+window.openProfile=function(){showSheet('♛ 프로필','<div class="profile-pic">K</div><div style="text-align:center"><h3 style="color:#ffe07a">K-Talk</h3></div>');};
 window.openAI=function(){
   var html='<div class="rowbox"><b>🗣️ AI 음성 안내</b><br>선물 · 보물상자 · 당첨 보상 · 주요 알림을 한국어 음성으로 읽어줍니다.</div>'
     +'<div class="rowbox"><b>현재 상태</b><br>'+(state.aiVoiceOn?'켜짐':'꺼짐')+'</div>'
@@ -2705,16 +2049,6 @@ window.openAI=function(){
     +'<button class="act" onclick="ktSpeak(\'K-Talk AI 음성 안내 테스트입니다.\')">🔊 음성 테스트</button>';
   showSheet('🔊 AI 읽기',html);
 };
-window.setCreatorDuration=function(el,seconds){
-  seconds=parseInt(seconds||600,10);
-  if([15,60,600].indexOf(seconds)<0)seconds=600;
-  state.creatorDuration=seconds;
-  document.querySelectorAll('.creator-bottom .modes span').forEach(function(s){
-    if(s.textContent.trim()!=='라이브')s.classList.remove('on');
-  });
-  if(el)el.classList.add('on');
-};
-
 window.setCreatorMode=function(el,name){
   document.querySelectorAll('.creator-foot span').forEach(function(s){s.classList.remove('on');});
   if(el)el.classList.add('on');
