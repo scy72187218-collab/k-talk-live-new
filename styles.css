@@ -1615,3 +1615,149 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   line-height:1.35!important;
   font-weight:950!important
 }
+
+
+/* K-Talk 선물상자 25종 - 네온 골드, 금액표시 없음 */
+.sheet.gift-shop25{
+  background:rgba(0,0,0,.88)!important;
+  backdrop-filter:blur(8px)!important
+}
+.sheet.gift-shop25 .sheet-inner{
+  width:min(100%,520px)!important;
+  max-height:96dvh!important;
+  padding:0!important;
+  overflow:auto!important;
+  border-radius:24px 24px 0 0!important;
+  background:
+    radial-gradient(circle at 18% 3%,rgba(255,55,170,.14),transparent 22%),
+    radial-gradient(circle at 88% 14%,rgba(138,79,255,.13),transparent 24%),
+    linear-gradient(180deg,#08070b,#030304)!important;
+  border-top:1px solid #6f355c!important;
+  box-shadow:0 -10px 40px #000b!important
+}
+.sheet.gift-shop25 .sheet-head{display:none!important}
+.sheet.gift-shop25 #sheetBody{padding:0!important}
+
+.kt-gift25-wrap{
+  min-height:100%;
+  color:#fff;
+  padding:12px 10px 14px;
+  background:linear-gradient(180deg,rgba(255,255,255,.015),transparent)
+}
+.kt-gift25-top{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:4px 2px 12px;
+  border-bottom:1px solid #8d47704f
+}
+.kt-gift25-title{display:flex;align-items:center;gap:9px;min-width:0}
+.kt-gift25-title>span{
+  width:48px;height:48px;flex:0 0 48px;border-radius:15px;
+  display:grid;place-items:center;font-size:27px;
+  background:linear-gradient(145deg,#5e1d72,#271029);
+  border:1px solid #d45bc879;
+  box-shadow:0 0 18px #bb4dce40
+}
+.kt-gift25-title b{
+  display:block;font-size:21px;line-height:1.08;font-weight:950;
+  color:#ffe079;text-shadow:0 0 10px #e4ad3844;
+  white-space:nowrap
+}
+.kt-gift25-title small{
+  display:block;margin-top:4px;font-size:10px;font-weight:850;color:#e9d6b0
+}
+.kt-gift25-close{
+  flex:0 0 auto;height:40px;padding:0 14px;border-radius:13px;
+  border:1px solid #a6468c70;background:#160d18;color:#fff;
+  font-size:14px;font-weight:950
+}
+
+.kt-gift25-body{
+  display:grid;
+  grid-template-columns:76px minmax(0,1fr);
+  gap:8px;
+  margin-top:10px
+}
+.kt-gift25-side{
+  display:flex;flex-direction:column;gap:6px;
+  padding:5px;border-radius:15px;
+  background:#0a080c;border:1px solid #5c344b75
+}
+.kt-gift25-cat{
+  min-height:64px;padding:6px 3px;border-radius:12px;
+  border:1px solid transparent;background:transparent;color:#cfa9d6;
+  font-size:20px;font-weight:900
+}
+.kt-gift25-cat span{
+  display:block;margin-top:3px;font-size:9px;line-height:1.15;font-weight:950
+}
+.kt-gift25-cat.on{
+  color:#fff1fb;border-color:#ff64c4;
+  background:linear-gradient(145deg,#441334,#1b0c19);
+  box-shadow:0 0 15px #ff54bf33,inset 0 0 12px #ff69ca14
+}
+
+.kt-gift25-grid{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:6px
+}
+.kt-gift25-card{
+  position:relative;min-width:0;min-height:116px;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+  padding:7px 3px 6px;border-radius:12px;
+  border:1px solid #7b4b376e;
+  background:
+    radial-gradient(circle at 50% 35%,rgba(255,181,73,.10),transparent 35%),
+    linear-gradient(180deg,#100c10,#070709);
+  color:#fff;text-align:center;
+  box-shadow:inset 0 0 14px #0008,0 0 8px #d79d2b0c
+}
+.kt-gift25-card:active{
+  transform:scale(.97);
+  border-color:#ff6ec7;
+  box-shadow:0 0 14px #ff55bf35
+}
+.kt-gift25-no{
+  position:absolute;left:4px;top:4px;
+  min-width:17px;height:17px;padding:0 3px;border-radius:6px;
+  display:grid;place-items:center;
+  background:#4a1d40;color:#ffd6f4;
+  font-size:8px;font-weight:950
+}
+.kt-gift25-art{
+  width:48px;height:48px;margin:3px auto 4px;
+  display:grid;place-items:center;border-radius:12px;
+  font-family:"Noto Color Emoji","Apple Color Emoji","Segoe UI Emoji",sans-serif;
+  font-size:35px;line-height:1;
+  background:radial-gradient(circle,#3e253e 0,#170d17 63%,#080708 100%);
+  filter:drop-shadow(0 0 5px rgba(255,210,100,.23))
+}
+.kt-gift25-card b{
+  display:block;width:100%;
+  min-height:25px;
+  font-size:8.5px;line-height:1.16;font-weight:950;color:#fff;
+  overflow:hidden
+}
+.kt-gift25-card strong{
+  display:block;margin-top:3px;
+  font-size:10.5px;line-height:1;font-weight:950;color:#ffd65d;
+  white-space:nowrap
+}
+.kt-gift25-note{
+  margin-top:10px;padding:9px 10px;border-radius:13px;
+  border:1px solid #6c365260;background:#120b11;color:#d8c7d4;
+  text-align:center;font-size:10px;font-weight:900
+}
+
+@media(max-width:410px){
+  .kt-gift25-wrap{padding:10px 7px 12px}
+  .kt-gift25-body{grid-template-columns:66px minmax(0,1fr);gap:5px}
+  .kt-gift25-side{gap:4px;padding:4px}
+  .kt-gift25-cat{min-height:58px;font-size:18px}
+  .kt-gift25-cat span{font-size:8px}
+  .kt-gift25-grid{gap:4px}
+  .kt-gift25-card{min-height:104px;padding:6px 2px 5px;border-radius:10px}
+  .kt-gift25-art{width:42px;height:42px;font-size:31px}
+  .kt-gift25-card b{font-size:7.7px;min-height:22px}
+  .kt-gift25-card strong{font-size:9.5px}
+}
