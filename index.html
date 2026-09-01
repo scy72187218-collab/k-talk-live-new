@@ -154,11 +154,64 @@
  async function showVideoHome(label){
    leaveDash();
    document.body.classList.add('kt-video-mode');
-   screen.innerHTML=`<section class="video-home"><video id="homeVideo" autoplay muted loop playsinline></video><div id="homeVideoEmpty" style="position:absolute;inset:0;display:grid;place-items:center;background:radial-gradient(circle at 50% 40%,#25212c,#050506 70%);color:#ddd;font-size:16px;font-weight:900">게시된 내 동영상을 불러오는 중...</div><div class="vh-shade"></div><div class="vh-tabs"><span>LIVE</span><span>커뮤니티</span><span>팔로잉</span><span class="on">추천</span><button aria-label="검색">⌕</button></div><div class="vh-title"><div class="vh-owner-line"><span id="homeOwnerAvatar" class="vh-owner-avatar">K</span><b id="homeOwnerName">K-Talk</b></div><span id="homeVideoTitle">${label||'추천 동영상'} · 화면을 눌러 재생하거나 멈출 수 있습니다.</span></div><div class="vh-actions"><button onclick="needJoin('좋아요를 누르려면 가입해 주세요.')">♡<small>좋아요</small></button><button onclick="openComments()">💬<small>댓글</small></button><button onclick="openGifts()">🎁<small>선물</small></button><button onclick="shareApp()">↗<small>공유</small></button></div></section>`;
+   screen.innerHTML=`<section class="video-home"><video id="homeVideo" autoplay muted loop playsinline preload="auto" webkit-playsinline></video><div id="homeVideoEmpty" style="position:absolute;inset:0;display:grid;place-items:center;background:radial-gradient(circle at 50% 40%,#25212c,#050506 70%);color:#ddd;font-size:16px;font-weight:900">게시된 내 동영상을 불러오는 중...</div><div class="vh-shade"></div><div class="vh-tabs"><span>LIVE</span><span>커뮤니티</span><span>팔로잉</span><span class="on">추천</span><button aria-label="검색">⌕</button></div><div class="vh-title"><div class="vh-owner-line"><span id="homeOwnerAvatar" class="vh-owner-avatar">K</span><b id="homeOwnerName">K-Talk</b></div><span id="homeVideoTitle">${label||'추천 동영상'} · 화면을 눌러 재생하거나 멈출 수 있습니다.</span></div><div class="vh-actions"><button onclick="needJoin('좋아요를 누르려면 가입해 주세요.')">♡<small>좋아요</small></button><button onclick="openComments()">💬<small>댓글</small></button><button onclick="openGifts()">🎁<small>선물</small></button><button onclick="shareApp()">↗<small>공유</small></button></div></section>`;
    const v=document.getElementById('homeVideo');
    const empty=document.getElementById('homeVideoEmpty');
    if(v){
-     v.addEventListener('click',function(){if(v.paused)v.play().catch(()=>{});else v.pause();});
+     try{
+       v.defaultMuted=true;
+       v.muted=true;
+       v.playsInline=true;
+       v.preload='auto';
+       v.removeAttribute('poster');
+       v.style.backgroundImage='none';
+       v.disablePictureInPicture=true;
+     }catch(e){}
+     var ktHomeLastTime=-1;
+     var ktHomeStallCount=0;
+     var ktHomeKick=function(){
+       try{
+         if(v.readyState>=2){
+           var p=v.play();
+           if(p&&p.catch)p.catch(function(){});
+         }
+       }catch(e){}
+     };
+     v.addEventListener('loadedmetadata',function(){
+       try{v.currentTime=0;}catch(e){}
+       setTimeout(ktHomeKick,80);
+     });
+     v.addEventListener('loadeddata',function(){setTimeout(ktHomeKick,50);});
+     v.addEventListener('canplay',function(){setTimeout(ktHomeKick,30);});
+     v.addEventListener('waiting',function(){setTimeout(ktHomeKick,180);});
+     v.addEventListener('stalled',function(){setTimeout(ktHomeKick,220);});
+     v.addEventListener('click',function(){
+       try{
+         if(v.paused)ktHomeKick();
+         else v.pause();
+       }catch(e){}
+     });
+     window.ktHomePlaybackWatch=setInterval(function(){
+       if(!v||!v.isConnected){clearInterval(window.ktHomePlaybackWatch);return;}
+       try{
+         if(v.paused||v.ended)return;
+         var now=Number(v.currentTime||0);
+         if(ktHomeLastTime>=0&&Math.abs(now-ktHomeLastTime)<.015&&v.readyState>=2){
+           ktHomeStallCount++;
+           if(ktHomeStallCount>=2){
+             var dur=isFinite(v.duration)?v.duration:0;
+             if(dur>.3){
+               v.currentTime=Math.min(Math.max(.05,now+.12),Math.max(.05,dur-.08));
+             }
+             ktHomeKick();
+             ktHomeStallCount=0;
+           }
+         }else{
+           ktHomeStallCount=0;
+         }
+         ktHomeLastTime=now;
+       }catch(e){}
+     },900);
    }
    try{
      const db=await ktOpenVideoDB();
@@ -187,7 +240,13 @@
            }
          }
          v.load();
-         v.play().catch(()=>{});
+         setTimeout(function(){
+           try{
+             v.currentTime=0;
+             var pp=v.play();
+             if(pp&&pp.catch)pp.catch(function(){});
+           }catch(e){}
+         },120);
        }else if(empty){
          empty.textContent='아직 게시된 동영상이 없습니다. ＋ 버튼에서 내 동영상을 올려 주세요.';
        }
