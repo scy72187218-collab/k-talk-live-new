@@ -39,20 +39,50 @@ window.closeCreator=function(){
   if(state.stream){state.stream.getTracks().forEach(function(t){t.stop();});state.stream=null;if(camera)camera.srcObject=null;}
 };
 
+window.applyBaseCameraLook=function(){
+  if(!camera)return;
+  if(!state.editFilter && !state.beautyMode){
+    camera.style.filter='brightness(1.08) contrast(1.04) saturate(1.03)';
+  }
+};
+
 window.ensureLiveCamera=async function(facing){
   try{
     var live=state.stream&&state.stream.getTracks&&state.stream.getTracks().some(function(t){return t.readyState==='live';});
     if(live){
       camera.srcObject=state.stream;
       creator.classList.add('camera-on');
+      applyBaseCameraLook();
       try{await camera.play();}catch(e){}
       return true;
     }
     state.cameraFacing=facing||state.cameraFacing||'user';
-    state.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:state.cameraFacing}},audio:true});
+    state.stream=await navigator.mediaDevices.getUserMedia({
+      video:{
+        facingMode:{ideal:state.cameraFacing},
+        width:{ideal:1920},
+        height:{ideal:1080},
+        frameRate:{ideal:30,max:60}
+      },
+      audio:true
+    });
     camera.srcObject=state.stream;
     camera.muted=true;
+    camera.setAttribute('playsinline','');
     creator.classList.add('camera-on');
+
+    var track=state.stream.getVideoTracks&&state.stream.getVideoTracks()[0];
+    if(track){
+      try{track.contentHint='detail';}catch(e){}
+      try{
+        var caps=track.getCapabilities?track.getCapabilities():{};
+        var adv={};
+        if(caps.focusMode&&caps.focusMode.indexOf('continuous')>-1)adv.focusMode='continuous';
+        if(Object.keys(adv).length)await track.applyConstraints({advanced:[adv]});
+      }catch(e){}
+    }
+
+    applyBaseCameraLook();
     try{await camera.play();}catch(e){}
     return true;
   }catch(e){
@@ -153,7 +183,7 @@ window.resetBeautyAll=function(){
   state.beautyMode='off';state.beautySkin=0;state.beautyBright=0;state.beautySharp=0;
   creator.classList.remove('beauty-natural','beauty-bright','beauty-soft','beauty-glow');
   creator.removeAttribute('data-beauty-char');
-  if(camera)camera.style.filter='';
+  if(camera)camera.style.filter='brightness(1.08) contrast(1.04) saturate(1.03)';
   openBeautyPanel();
 };
 
@@ -189,7 +219,7 @@ window.setEditEffect=function(name){
     state.editSticker='';
     creator.classList.remove.apply(creator.classList,filterClasses);
     creator.removeAttribute('data-beauty-char');
-    if(camera)camera.style.removeProperty('filter');
+    if(camera)camera.style.filter='brightness(1.08) contrast(1.04) saturate(1.03)';
     syncEditEffectButtons();
     return;
   }
