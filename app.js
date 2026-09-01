@@ -89,7 +89,7 @@ window.prepTap=async function(el,name){
   if(name==='멀티게스트'){ if(window.openRoomTypeChooser)openRoomTypeChooser(); return; }
   if(name==='서비스'){ showSheet('서비스+','<div class="rowbox"><b>K-Talk 라이브 서비스+</b><br>라이브 방송 관련 기능을 이용할 수 있습니다.</div>'); return; }
   if(name==='팬클럽'){ if(window.openSubs)openSubs(); return; }
-  if(name==='소통하기'){ showSheet('💬 소통하기','<div class="rowbox"><b>채팅 · 시청자 소통</b><br>방송 중 시청자와 소통하는 기능입니다.</div>'); return; }
+  if(name==='소통하기'){ openCommunicationPanel(); return; }
   if(name==='공유'){ if(window.shareApp)shareApp(); return; }
   if(name==='프로모션'){ showSheet('🔥 프로모션','<div class="rowbox"><b>방송 홍보</b><br>방송을 더 많은 사람에게 알리는 기능입니다.</div>'); return; }
   if(name==='라이브 보상'){ showSheet('★ 라이브 보상','<div class="rowbox"><b>라이브 보상</b><br>방송 참여 보상과 이벤트를 확인하는 곳입니다.</div>'); return; }
@@ -196,6 +196,25 @@ window.openLiveSettings=function(){
     +'<div class="kt-setting-row"><span>🎁</span><b>라이브 선물</b><button class="kt-switch on" onclick="toggleLiveSetting(this)" aria-pressed="true"></button></div>'
     +'</div>';
   showSheet('⚙ 설정',html);
+};
+
+window.openCommunicationPanel=function(){
+  var html='<div class="kt-communication-panel">'
+    +'<button onclick="openViewerMission()"><span>🎁</span><b>시청자 미션</b><em>›</em></button>'
+    +'<button onclick="openGuideBook()"><span>📖</span><b>가이드 북</b><em>›</em></button>'
+    +'<button onclick="openTextVote()"><span>☰</span><b>텍스트 투표</b><em>›</em></button>'
+    +'</div>';
+  showSheet('소통하기',html);
+};
+
+window.openViewerMission=function(){
+  showSheet('🎁 시청자 미션','<div class="rowbox"><b>시청자 미션</b><br>방송 중 시청자에게 간단한 미션을 안내할 수 있습니다.</div>');
+};
+window.openGuideBook=function(){
+  showSheet('📖 가이드 북','<div class="rowbox"><b>가이드 북</b><br>방송 진행에 필요한 간단한 안내를 확인할 수 있습니다.</div>');
+};
+window.openTextVote=function(){
+  showSheet('☰ 텍스트 투표','<div class="rowbox"><b>텍스트 투표</b><br>질문과 선택지를 만들어 시청자 의견을 받을 수 있습니다.</div>');
 };
 
 window.selectPrepRoom=function(el,type,label,max){
