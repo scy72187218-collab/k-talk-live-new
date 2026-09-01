@@ -42,7 +42,7 @@ window.closeCreator=function(){
 window.applyBaseCameraLook=function(){
   if(!camera)return;
   if(!state.editFilter && !state.beautyMode){
-    camera.style.filter='brightness(1.08) contrast(1.04) saturate(1.03)';
+    camera.style.filter='brightness(1.12) contrast(.95) saturate(1.02)';
   }
 };
 
@@ -183,7 +183,7 @@ window.resetBeautyAll=function(){
   state.beautyMode='off';state.beautySkin=0;state.beautyBright=0;state.beautySharp=0;
   creator.classList.remove('beauty-natural','beauty-bright','beauty-soft','beauty-glow');
   creator.removeAttribute('data-beauty-char');
-  if(camera)camera.style.filter='brightness(1.08) contrast(1.04) saturate(1.03)';
+  if(camera)camera.style.filter='brightness(1.12) contrast(.95) saturate(1.02)';
   openBeautyPanel();
 };
 
@@ -211,7 +211,7 @@ window.renderFaceEffect=function(name){
   if(!name || name==='off'){
     state.editFilter='';
     state.editSticker='';
-    if(camera)camera.style.filter='brightness(1.08) contrast(1.04) saturate(1.03)';
+    if(camera)camera.style.filter='brightness(1.12) contrast(.95) saturate(1.02)';
     return;
   }
 
