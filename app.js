@@ -217,6 +217,7 @@ window.showSheet=function(title,html){
   ktStopSheetMedia();
   sheet.classList.remove('camera-effect-sheet');
   sheet.classList.remove('gift-shop25');
+  sheet.classList.remove('gift-final-v1');
   sheetTitle.innerHTML=title;
   sheetBody.innerHTML=html;
   sheet.classList.add('show');
@@ -227,6 +228,7 @@ window.closeSheet=function(){
   sheet.classList.remove('show');
   sheet.classList.remove('gift-exact');
   sheet.classList.remove('gift-shop25');
+  sheet.classList.remove('gift-final-v1');
   sheet.classList.remove('camera-effect-sheet');
 };
 
