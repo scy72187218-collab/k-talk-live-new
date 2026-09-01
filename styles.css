@@ -1266,3 +1266,41 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   position:absolute;left:12px;right:12px;bottom:18px;padding:10px 12px;border-radius:12px;
   background:#08080ccc;border:1px solid #ffffff1c;text-align:center;color:#ddd;font-size:10px;font-weight:850
 }
+
+
+/* 모든 라이브방 호스트 위 출석체크 */
+.kt-attendance-wrap{
+  position:absolute;left:50%;top:31%;transform:translate(-50%,-50%);
+  z-index:7;pointer-events:auto
+}
+.kt-attendance-heart{
+  position:relative;min-width:126px;height:48px;padding:0 18px;
+  border-radius:24px 24px 20px 20px;
+  border:2px solid #ff5bc8;
+  background:linear-gradient(180deg,#231026ee,#0d0712ee);
+  color:#fff;box-shadow:0 0 14px #ff4fcf88,inset 0 0 13px #ff79dc22;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-weight:950
+}
+.kt-attendance-heart:before,
+.kt-attendance-heart:after{
+  content:"";
+  position:absolute;top:9px;width:29px;height:17px;
+  border:3px solid #ff5bc8;border-left:0;border-bottom:0;
+  filter:drop-shadow(0 0 5px #ff4fcf)
+}
+.kt-attendance-heart:before{left:-20px;transform:skewX(-28deg) rotate(-8deg)}
+.kt-attendance-heart:after{right:-20px;transform:scaleX(-1) skewX(-28deg) rotate(-8deg)}
+.kt-attendance-heart .kt-attendance-label{font-size:14px;line-height:1;color:#ffd9f6}
+.kt-attendance-heart .kt-attendance-sub{margin-top:4px;font-size:9px;color:#ffe57b}
+.kt-attendance-heart .kt-attendance-miniheart{
+  position:absolute;left:50%;bottom:-10px;transform:translateX(-50%);
+  font-size:16px;filter:drop-shadow(0 0 6px #ff50bd)
+}
+.kt-attendance-heart.done{
+  border-color:#9bffbd;background:linear-gradient(180deg,#123021ee,#0a1510ee);
+  box-shadow:0 0 14px #5dff9b55,inset 0 0 12px #ffffff10
+}
+.kt-attendance-heart.done:before,.kt-attendance-heart.done:after{border-color:#73ef9d;filter:drop-shadow(0 0 5px #62ef91)}
+.kt-attendance-heart.done .kt-attendance-label{color:#b7ffd0}
+.kt-attendance-heart.done .kt-attendance-sub{color:#d8ffe4}
