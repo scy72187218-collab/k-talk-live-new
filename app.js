@@ -186,8 +186,32 @@ window.openGuestProfile=function(id,name,emoji){
 
 
 window.activate=function(name){document.querySelectorAll('[data-tab]').forEach(function(b){b.classList.toggle('active',b.dataset.tab===name);});};
-window.showSheet=function(title,html){sheet.classList.remove('camera-effect-sheet');sheet.classList.remove('gift-shop25');sheetTitle.innerHTML=title;sheetBody.innerHTML=html;sheet.classList.add('show');};
-window.closeSheet=function(){sheet.classList.remove('show');sheet.classList.remove('gift-exact');sheet.classList.remove('gift-shop25');sheet.classList.remove('camera-effect-sheet');};
+window.ktStopSheetMedia=function(){
+  try{
+    [].slice.call(sheetBody.querySelectorAll('video,audio')).forEach(function(m){
+      try{m.pause();m.removeAttribute('src');m.load();}catch(e){}
+    });
+  }catch(e){}
+  if(typeof ktLibraryPlayUrl!=='undefined'&&ktLibraryPlayUrl){
+    try{URL.revokeObjectURL(ktLibraryPlayUrl);}catch(e){}
+    ktLibraryPlayUrl='';
+  }
+};
+window.showSheet=function(title,html){
+  ktStopSheetMedia();
+  sheet.classList.remove('camera-effect-sheet');
+  sheet.classList.remove('gift-shop25');
+  sheetTitle.innerHTML=title;
+  sheetBody.innerHTML=html;
+  sheet.classList.add('show');
+};
+window.closeSheet=function(){
+  ktStopSheetMedia();
+  sheet.classList.remove('show');
+  sheet.classList.remove('gift-exact');
+  sheet.classList.remove('gift-shop25');
+  sheet.classList.remove('camera-effect-sheet');
+};
 
 window.home=function(){
   document.body.classList.remove('kt-home');
@@ -668,7 +692,7 @@ window.openMyVideoLibrary=async function(){
           var d=new Date(v.createdAt);
           return '<div class="kt-myvideo-row">'
             +'<button class="play" onclick="playStoredVideo(\''+v.id+'\')"><span>▶</span><b>'+String(v.name||'내 동영상').replace(/</g,'&lt;')+'</b><small>'+d.toLocaleDateString('ko-KR')+(v.posted?' · 게시됨':'')+'</small></button>'
-            +'<div class="kt-myvideo-row-actions"><button class="upload" onclick="postStoredVideo(\''+v.id+'\',this)">'+(v.posted?'✓ 올림':'올리기')+'</button><button class="trash" onclick="deleteStoredVideo(\''+v.id+'\')">삭제</button></div>'
+            +'<div class="kt-myvideo-row-actions"><button class="upload" onclick="postStoredVideo(\''+v.id+'\',this)">'+(v.posted?'✓ 올림':'올리기')+'</button><button class="trash" onclick="deleteStoredVideo(\''+v.id+'\',this)">삭제</button></div>'
             +'</div>';
         }).join('')+'</div>';
       }
@@ -732,14 +756,32 @@ window.postStoredVideo=async function(id,btn){
   }catch(e){alert('동영상을 올리지 못했습니다.');}
 };
 
-window.deleteStoredVideo=async function(id){
+window.deleteStoredVideo=async function(id,btn){
   try{
+    ktStopSheetMedia();
     var db=await ktOpenVideoDB();
     var tx=db.transaction('videos','readwrite');
-    tx.objectStore('videos').delete(id);
-    tx.oncomplete=function(){db.close();openMyVideoLibrary();};
-    tx.onerror=function(){db.close();alert('삭제하지 못했습니다.');};
-  }catch(e){alert('삭제하지 못했습니다.');}
+    var store=tx.objectStore('videos');
+    var req=store.delete(id);
+    req.onerror=function(){
+      try{db.close();}catch(e){}
+      alert('삭제하지 못했습니다.');
+    };
+    tx.oncomplete=function(){
+      try{db.close();}catch(e){}
+      try{
+        var row=btn&&btn.closest?btn.closest('.kt-myvideo-row'):null;
+        if(row)row.remove();
+      }catch(e){}
+      setTimeout(function(){openMyVideoLibrary();},80);
+    };
+    tx.onabort=function(){
+      try{db.close();}catch(e){}
+      alert('삭제하지 못했습니다.');
+    };
+  }catch(e){
+    alert('삭제하지 못했습니다.');
+  }
 };
 
 window.prepTap=async function(el,name){
