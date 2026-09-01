@@ -525,3 +525,19 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
 .kt-fan-empty span{font-size:34px}
 .kt-fan-empty b{font-size:14px;color:#fff;margin-top:6px}
 .kt-fan-empty small{font-size:11px;color:#9fa1aa;margin-top:3px}
+
+
+/* 사운드 추가 패널 */
+.kt-sound-panel{padding:2px 0 8px}
+.kt-sound-search{height:44px;display:flex;align-items:center;gap:8px;padding:0 12px;border-radius:14px;background:#ffffff0d;border:1px solid rgba(255,255,255,.08);font-size:22px}
+.kt-sound-search input{flex:1;border:0;outline:0;background:transparent;color:#fff;font-size:14px}
+.kt-sound-search input::placeholder{color:#9fa1aa}
+.kt-sound-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin:10px 0}
+.kt-sound-tabs button{height:38px;border:0;border-radius:10px;background:#ffffff09;color:#aeb0ba;font-size:11px;font-weight:900}
+.kt-sound-tabs button.on{background:#ffffff18;color:#fff;border-bottom:2px solid #ff4f98}
+.kt-sound-list{display:grid;gap:5px}
+.kt-sound-row{width:100%;min-height:62px;display:grid;grid-template-columns:52px 1fr 36px;align-items:center;gap:10px;padding:7px 8px;border:0;border-bottom:1px solid rgba(255,255,255,.07);background:transparent;color:#fff;text-align:left}
+.kt-sound-cover{width:48px;height:48px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(135deg,#ff4f98,#875dff);font-size:15px;font-weight:950}
+.kt-sound-info b{display:block;font-size:14px}
+.kt-sound-info small{display:block;margin-top:3px;color:#aeb0ba;font-size:10px}
+.kt-sound-play{font-size:17px;color:#fff;text-align:center}
