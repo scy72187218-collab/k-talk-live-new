@@ -361,11 +361,11 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
 .kt-beauty-presets span,.kt-beauty-face-row span,.kt-effect-grid span{display:block;font-size:11px;color:#e7e7ec}
 .kt-beauty-controls{display:flex;gap:8px;margin:2px -2px 12px;padding:3px 2px 8px;overflow-x:auto;scrollbar-width:none}
 .kt-beauty-controls::-webkit-scrollbar{display:none}
-.kt-beauty-controls button{flex:0 0 68px;min-height:78px;padding:8px 3px;border:1px solid rgba(255,255,255,.12);border-radius:18px;background:linear-gradient(145deg,#20202a,#0b0b10);color:#fff;font-weight:900}
+.kt-beauty-controls button{flex:0 0 62px;min-height:66px;padding:6px 3px;border:1px solid rgba(255,255,255,.14);border-radius:16px;background:linear-gradient(145deg,rgba(38,38,49,.82),rgba(11,11,16,.76));color:#fff;font-weight:900}
 .kt-beauty-controls button.on{border:2px solid #fff;box-shadow:0 0 15px rgba(255,255,255,.25),0 0 18px rgba(255,79,152,.22)}
-.kt-beauty-controls button b{display:grid;place-items:center;width:42px;height:42px;margin:0 auto 5px;border-radius:50%;background:#ffffff13;font-size:23px;line-height:1}
+.kt-beauty-controls button b{display:grid;place-items:center;width:36px;height:36px;margin:0 auto 4px;border-radius:50%;background:#ffffff13;font-size:20px;line-height:1}
 .kt-beauty-controls button span{display:block;font-size:10px;white-space:nowrap;color:#f2f2f5}
-.kt-beauty-one-slider{margin:4px 0 12px;padding:12px 14px;border-radius:16px;background:#ffffff0b;border:1px solid rgba(255,255,255,.08)}
+.kt-beauty-one-slider{margin:3px 0 8px;padding:8px 11px;border-radius:15px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.10)}
 .kt-beauty-one-slider>div{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;color:#fff;font-size:13px;font-weight:950}
 .kt-beauty-one-slider b{color:#ffd86b;font-size:14px}
 .kt-beauty-range-line{display:grid;grid-template-columns:38px minmax(0,1fr) 38px;align-items:center;gap:8px}
@@ -375,8 +375,10 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
 .kt-slider-row span{font-size:12px;font-weight:900;color:#fff}
 .kt-slider-row b{font-size:11px;color:#ffd86b;text-align:right}
 .kt-slider-row input[type=range]{width:100%;accent-color:#ff4f98}
-.kt-beauty-face-row{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:12px}
-.kt-beauty-face-row button{min-height:76px;padding:8px 4px}
+.kt-beauty-face-row{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:6px}
+.kt-beauty-face-row button{min-height:56px;padding:5px 3px;background:rgba(16,16,23,.72)}
+.kt-beauty-face-row button b{font-size:21px!important;margin-bottom:4px!important}
+.kt-beauty-face-row button span{font-size:9px!important}
 .kt-effect-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
 .kt-effect-grid button{min-height:82px;padding:8px 3px}
 .kt-effect-grid b{font-size:27px}
@@ -669,10 +671,10 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   pointer-events:auto;
   width:100%;
   max-width:520px;
-  max-height:50dvh;
+  max-height:52dvh;
   margin:0 auto!important;
   border-radius:24px 24px 0 0!important;
-  background:linear-gradient(180deg,rgba(20,18,31,.96),rgba(7,7,12,.98))!important;
+  background:linear-gradient(180deg,rgba(20,18,31,.82),rgba(7,7,12,.88))!important;
   box-shadow:0 -12px 34px rgba(0,0,0,.35);
 }
 .creator.beauty-preview-open .live-prep{display:none!important}
@@ -681,10 +683,12 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   position:sticky;
   top:0;
   z-index:2;
-  padding-bottom:8px;
-  background:linear-gradient(180deg,rgba(20,18,31,.98),rgba(20,18,31,.88));
+  min-height:48px!important;
+  padding:7px 14px 5px!important;
+  background:linear-gradient(180deg,rgba(20,18,31,.84),rgba(20,18,31,.70));
 }
-.sheet.camera-effect-sheet .sheet-head h3{font-size:18px!important}
+.sheet.camera-effect-sheet .sheet-head h3{font-size:16px!important}
+.sheet.camera-effect-sheet .sheet-head button{width:42px!important;height:42px!important}
 .sheet.camera-effect-sheet .kt-effect-grid{
   grid-template-columns:repeat(5,minmax(0,1fr))!important;
   gap:8px!important;
