@@ -463,6 +463,14 @@ var ktAutoPlayReview=false;
 var ktEffectRecordCanvas=null;
 var ktEffectRecordFrame=0;
 var ktEffectRecordStream=null;
+var ktCreatorDuration=600000;
+var ktCreatorDurationTimer=0;
+
+window.selectCreatorDuration=function(el,duration){
+  ktCreatorDuration=duration;
+  document.querySelectorAll('.creator-bottom .modes span').forEach(function(s){s.classList.remove('on');});
+  if(el)el.classList.add('on');
+};
 
 window.stopEffectRecordingCanvas=function(){
   if(ktEffectRecordFrame)cancelAnimationFrame(ktEffectRecordFrame);
@@ -487,10 +495,15 @@ window.makeEffectRecordingStream=function(){
   function draw(){
     if(!ktCreatorRecording&&ktCreatorRecorder&&ktCreatorRecorder.state==='inactive')return;
     var sw=camera.videoWidth||1920,sh=camera.videoHeight||1080;
-    var scale=Math.max(canvas.width/sw,canvas.height/sh);
+    var bgScale=Math.max(canvas.width/sw,canvas.height/sh);
+    var bgW=sw*bgScale,bgH=sh*bgScale,bgX=(canvas.width-bgW)/2,bgY=(canvas.height-bgH)/2;
+    var scale=Math.min(canvas.width/sw,canvas.height/sh)*.5;
     var dw=sw*scale,dh=sh*scale,dx=(canvas.width-dw)/2,dy=(canvas.height-dh)/2;
     ctx.save();ctx.clearRect(0,0,canvas.width,canvas.height);
     ctx.translate(canvas.width,0);ctx.scale(-1,1);
+    ctx.filter='blur(42px) brightness(.38)';
+    try{ctx.drawImage(camera,bgX,bgY,bgW,bgH);}catch(e){}
+    ctx.filter='none';
     try{ctx.drawImage(camera,dx,dy,dw,dh);}catch(e){}
     ctx.restore();
 
@@ -556,6 +569,7 @@ window.startCreatorRecording=async function(){
   };
 
   ktCreatorRecorder.onstop=function(){
+    if(ktCreatorDurationTimer){clearTimeout(ktCreatorDurationTimer);ktCreatorDurationTimer=0;}
     ktCreatorRecording=false;
     stopEffectRecordingCanvas();
     var firstType=(ktCreatorChunks[0]&&ktCreatorChunks[0].type)||'';
@@ -611,6 +625,8 @@ window.startCreatorRecording=async function(){
   try{
     ktCreatorRecorder.start(500);
     ktCreatorRecording=true;
+    if(ktCreatorDurationTimer)clearTimeout(ktCreatorDurationTimer);
+    ktCreatorDurationTimer=setTimeout(function(){if(ktCreatorRecording)stopCreatorRecording();},ktCreatorDuration);
     creator.classList.remove('creator-review','live-prep-open');
     creator.classList.add('creator-recording','camera-on');
   }catch(e){
@@ -621,6 +637,7 @@ window.startCreatorRecording=async function(){
 
 window.stopCreatorRecording=function(){
   if(!ktCreatorRecording||!ktCreatorRecorder)return;
+  if(ktCreatorDurationTimer){clearTimeout(ktCreatorDurationTimer);ktCreatorDurationTimer=0;}
   try{
     if(ktCreatorRecorder.state!=='inactive'){
       try{ktCreatorRecorder.requestData();}catch(e){}
