@@ -880,7 +880,7 @@ window.openBeautyPanel=function(){
   var html='<div class="kt-beauty-panel">'
     +'<div class="kt-panel-tabs"><button class="on">Beauty</button><button onclick="openEditEffectPanel()">편집효과</button><button onclick="resetBeautyAll()">↺ 초기화</button></div>'
     +'<div class="kt-beauty-controls">'+controlButtons+'</div>'
-    +'<div class="kt-beauty-one-slider"><div><span id="beautyControlName">'+active[2]+'</span><b id="beautyControlValue">'+active[3]+'</b></div><input id="beautyControlRange" type="range" min="1" max="100" value="'+active[3]+'" oninput="setBeautyControlValue(this.value)"></div>'
+    +'<div class="kt-beauty-one-slider"><div><span id="beautyControlName">'+active[2]+'</span><b id="beautyControlValue">'+active[3]+'</b></div><div class="kt-beauty-range-line"><button type="button" onclick="adjustBeautyControl(-1)" aria-label="줄이기">−</button><input id="beautyControlRange" type="range" min="1" max="100" value="'+active[3]+'" oninput="setBeautyControlValue(this.value)"><button type="button" onclick="adjustBeautyControl(1)" aria-label="늘리기">＋</button></div></div>'
     +'<div class="kt-beauty-face-row">'
       +'<button onclick="setBeautySticker(\'✨\')"><b>✨</b><span>반짝임</span></button>'
       +'<button onclick="setBeautySticker(\'👓\')"><b>👓</b><span>안경</span></button>'
@@ -912,6 +912,14 @@ window.setBeautyControlValue=function(value){
   var n=document.getElementById('beautyControlName'),v=document.getElementById('beautyControlValue');
   if(n)n.textContent=labels[kind]||'뷰티';
   if(v)v.textContent=value;
+};
+
+window.adjustBeautyControl=function(step){
+  var range=document.getElementById('beautyControlRange');
+  if(!range)return;
+  var next=Math.max(1,Math.min(100,parseInt(range.value||1,10)+step));
+  range.value=next;
+  setBeautyControlValue(next);
 };
 
 window.setBeautyMode=function(mode,char){
