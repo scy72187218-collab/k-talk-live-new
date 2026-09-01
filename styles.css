@@ -352,7 +352,7 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
 /* K-Talk 뷰티 / 편집효과 패널 */
 .kt-beauty-panel,.kt-effect-panel{padding-bottom:8px}
 .kt-panel-tabs{display:flex;align-items:center;gap:8px;margin:4px 0 12px}
-.kt-panel-tabs button{flex:1;height:40px;border:0;border-radius:12px;background:#20202a;color:#cfcfd8;font-size:13px;font-weight:900}
+.kt-panel-tabs button{position:relative;z-index:5;pointer-events:auto!important;touch-action:manipulation;flex:1;height:40px;border:0;border-radius:12px;background:#20202a;color:#cfcfd8;font-size:13px;font-weight:900}
 .kt-panel-tabs button.on{background:#fff;color:#111}
 .kt-beauty-presets{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
 .kt-beauty-presets button,.kt-beauty-face-row button,.kt-effect-grid button{border:1px solid rgba(255,255,255,.10);border-radius:14px;background:linear-gradient(145deg,#1a1a24,#0b0b10);color:#fff;font-weight:900}
