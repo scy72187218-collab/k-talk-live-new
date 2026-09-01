@@ -1185,7 +1185,7 @@ window.openEditEffectPanel=function(){
   ];
 
   tray.innerHTML='<div class="kt-live-effects-head"><b>편집효과</b><button onclick="closeEditEffectPanel()">✕</button></div>'
-    +'<div class="kt-live-effects-tabs"><button class="on">추천</button><button>얼굴보정</button><button>배경</button><button>남녀공용</button><button>재미</button></div>'
+    +'<div class="kt-live-effects-tabs"><button class="on">추천</button><button>얼굴보정</button><button>뒷배경</button><button>남녀공용</button><button>재미</button></div>'
     +'<div class="kt-live-effects-scroll">'
     +effects.map(function(e){
       return '<button class="kt-live-effect-item" data-effect="'+e[2]+'" onclick="previewEditEffect(\''+e[2]+'\')">'
