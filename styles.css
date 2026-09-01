@@ -1460,3 +1460,31 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
 }
 .creator.creator-review .kt-creator-preview{display:block}
 .creator.creator-review .kt-creator-review-actions{display:grid}
+
+
+/* 촬영 미리보기 오류 시 깨진 플레이어 대신 안내 */
+.kt-creator-preview-fallback{
+  display:none;
+  position:absolute;inset:0;
+  z-index:21;
+  place-content:center;
+  text-align:center;
+  background:#111;
+  color:#fff;
+  padding:24px
+}
+.kt-creator-preview-fallback b{
+  display:block;
+  font-size:24px;
+  font-weight:950
+}
+.kt-creator-preview-fallback span{
+  display:block;
+  margin-top:8px;
+  color:#cfcfd6;
+  font-size:12px;
+  line-height:1.5
+}
+.creator.creator-review .kt-creator-preview-fallback{
+  pointer-events:none
+}
