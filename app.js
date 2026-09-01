@@ -121,13 +121,13 @@ window.ktGuestHourInfo=function(data){
   return {hourIndex:hourIndex,finished:finished,nextAt:nextAt,elapsed:elapsed};
 };
 
-window.addGuestLike=function(id,name){
+window.addGuestLike=function(id,name,emoji){
   var data=ktGetGuestReward(id);
   var info=ktGuestHourInfo(data);
   if(info.finished){
     ktSpeak('게스트 좋아요 보상 5시간이 끝났습니다.');
     alert('게스트 좋아요 보상은 5시간 종료되었습니다.');
-    openGuestProfile(id,name);
+    openGuestProfile(id,name,emoji);
     return;
   }
   if(data.hourIndex!==info.hourIndex){
@@ -147,7 +147,7 @@ window.addGuestLike=function(id,name){
       alert('이번 1시간 보상은 이미 받았습니다. 다음 시간에 다시 받을 수 있습니다.');
     }
   }
-  openGuestProfile(id,name);
+  openGuestProfile(id,name,emoji);
 };
 
 window.openGuestProfile=function(id,name,emoji){
@@ -159,9 +159,17 @@ window.openGuestProfile=function(id,name,emoji){
   var mins=Math.floor(remain/60000);
   var secs=Math.floor((remain%60000)/1000);
   var time=String(mins).padStart(2,'0')+':'+String(secs).padStart(2,'0');
+  var safeId=String(id).replace(/'/g,"\\'");
+  var safeName=String(name).replace(/'/g,"\\'");
+  var safeEmoji=String(emoji).replace(/'/g,"\\'");
   var html='<div class="kt-guest-profile">'
-    +'<div class="kt-guest-avatar">'+emoji+'</div>'
-    +'<div class="kt-guest-name"><b>'+name+'</b><small>게스트 프로필</small></div>'
+    +'<div class="kt-guest-profile-top">'
+      +'<div class="kt-guest-avatar">'+emoji+'</div>'
+      +'<div class="kt-guest-name"><b>'+name+'</b><small>게스트 프로필</small></div>'
+      +(info.finished
+        ?'<button class="kt-guest-heart done" disabled aria-label="좋아요 보상 종료">💗</button>'
+        :'<button class="kt-guest-heart" onclick="addGuestLike(\''+safeId+'\',\''+safeName+'\',\''+safeEmoji+'\')" aria-label="좋아요">💗</button>')
+    +'</div>'
     +'<div class="kt-guest-like-box">'
       +'<strong>💗 '+Math.min(data.likes,30)+' / 30</strong>'
       +'<span>좋아요 30개 달성하면 🌹 장미 1송이</span>'
@@ -169,9 +177,7 @@ window.openGuestProfile=function(id,name,emoji){
     +'</div>'
     +'<div class="kt-guest-progress"><div style="width:'+(Math.min(data.likes,30)/30*100)+'%"></div></div>'
     +'<div class="kt-guest-stats"><span>받은 장미 <b>'+data.roses+'송이</b></span><span>'+(info.finished?'5시간 종료':'이번 시간 '+time+' 남음')+'</span></div>'
-    +(info.finished
-      ?'<button class="act" disabled>좋아요 보상 종료</button>'
-      :'<button class="act" onclick="addGuestLike(\''+String(id).replace(/'/g,"\\'")+'\',\''+String(name).replace(/'/g,"\\'")+'\')">💗 좋아요 눌러주기</button>')
+    +'<div class="kt-guest-like-note">'+(info.finished?'좋아요 보상 5시간 종료':'사진 옆 하트를 눌러주세요')+'</div>'
     +'</div>';
   showSheet('게스트 프로필',html);
 };
