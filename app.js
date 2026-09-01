@@ -397,6 +397,7 @@ var ktCreatorAutoStopTimer=null;
 var ktCreatorRecordTicker=null;
 var ktCreatorRecordStartedAt=0;
 var ktCreatorRecordLimit=600;
+var ktCreatorCancelled=false;
 
 window.ktFormatRecordTime=function(sec){
   sec=Math.max(0,Math.floor(sec||0));
@@ -430,6 +431,7 @@ window.ktStopRecordHUD=function(){
   if(hud)hud.style.display='none';
 };
 window.cancelCreatorRecording=function(){
+  ktCreatorCancelled=true;
   if(ktCreatorRecording){
     try{if(ktCreatorRecorder&&ktCreatorRecorder.state!=='inactive')ktCreatorRecorder.stop();}catch(e){}
     ktCreatorRecording=false;
@@ -451,6 +453,7 @@ window.startCreatorRecording=async function(){
   var ok=await ensureLiveCamera(state.cameraFacing||'user');
   if(!ok)return;
 
+  ktCreatorCancelled=false;
   ktCreatorChunks=[];
   ktCreatorBlob=null;
   ktImportedVideoName='';
@@ -476,6 +479,13 @@ window.startCreatorRecording=async function(){
     if(ktCreatorAutoStopTimer){clearTimeout(ktCreatorAutoStopTimer);ktCreatorAutoStopTimer=null;}
     ktStopRecordHUD();
     ktCreatorRecording=false;
+    if(ktCreatorCancelled){
+      ktCreatorCancelled=false;
+      ktCreatorChunks=[];
+      ktCreatorBlob=null;
+      creator.classList.remove('creator-recording','creator-review');
+      return;
+    }
     var firstType=(ktCreatorChunks[0]&&ktCreatorChunks[0].type)||'';
     var type=firstType||(ktCreatorRecorder&&ktCreatorRecorder.mimeType)||'video/webm';
     ktCreatorBlob=new Blob(ktCreatorChunks,{type:type});
