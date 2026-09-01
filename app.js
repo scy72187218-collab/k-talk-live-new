@@ -248,6 +248,7 @@ window.friends=function(){document.body.classList.remove('kt-home');screen.inner
 state.cameraFacing=state.cameraFacing||'user';
 state.beautyOn=!!state.beautyOn;
 state.effectOn=!!state.effectOn;
+state.creatorDuration=state.creatorDuration||600;
 
 window.openCreator=async function(){
   creator.classList.add('show');
@@ -259,6 +260,7 @@ window.openCreator=async function(){
   }
 };
 window.closeCreator=function(){
+  if(ktCreatorAutoStopTimer){clearTimeout(ktCreatorAutoStopTimer);ktCreatorAutoStopTimer=null;}
   if(ktCreatorRecording)stopCreatorRecording();
   creator.classList.remove('show','camera-on','creator-recording','creator-review');
   try{
@@ -388,6 +390,7 @@ var ktCreatorChunks=[];
 var ktCreatorBlob=null;
 var ktCreatorBlobUrl='';
 var ktCreatorRecording=false;
+var ktCreatorAutoStopTimer=null;
 
 window.startCreatorRecording=async function(){
   if(ktCreatorRecording){ stopCreatorRecording(); return; }
@@ -420,6 +423,7 @@ window.startCreatorRecording=async function(){
   };
 
   ktCreatorRecorder.onstop=function(){
+    if(ktCreatorAutoStopTimer){clearTimeout(ktCreatorAutoStopTimer);ktCreatorAutoStopTimer=null;}
     ktCreatorRecording=false;
     var firstType=(ktCreatorChunks[0]&&ktCreatorChunks[0].type)||'';
     var type=firstType||(ktCreatorRecorder&&ktCreatorRecorder.mimeType)||'video/webm';
@@ -467,6 +471,11 @@ window.startCreatorRecording=async function(){
     ktCreatorRecording=true;
     creator.classList.remove('creator-review','live-prep-open');
     creator.classList.add('creator-recording','camera-on');
+    if(ktCreatorAutoStopTimer){clearTimeout(ktCreatorAutoStopTimer);ktCreatorAutoStopTimer=null;}
+    var limit=Math.max(1,parseInt(state.creatorDuration||600,10));
+    ktCreatorAutoStopTimer=setTimeout(function(){
+      if(ktCreatorRecording)stopCreatorRecording();
+    },limit*1000);
   }catch(e){
     ktCreatorRecording=false;
     alert('동영상 촬영을 시작할 수 없습니다.');
@@ -474,6 +483,7 @@ window.startCreatorRecording=async function(){
 };
 
 window.stopCreatorRecording=function(){
+  if(ktCreatorAutoStopTimer){clearTimeout(ktCreatorAutoStopTimer);ktCreatorAutoStopTimer=null;}
   if(!ktCreatorRecording||!ktCreatorRecorder)return;
   try{
     if(ktCreatorRecorder.state!=='inactive'){
@@ -484,6 +494,7 @@ window.stopCreatorRecording=function(){
 };
 
 window.deleteCreatorRecording=function(){
+  if(ktCreatorAutoStopTimer){clearTimeout(ktCreatorAutoStopTimer);ktCreatorAutoStopTimer=null;}
   try{
     var p=document.getElementById('ktCreatorPreview');
     var f=document.getElementById('ktCreatorPreviewFallback');
@@ -1869,6 +1880,16 @@ window.openAI=function(){
     +'<button class="act" onclick="ktSpeak(\'K-Talk AI 음성 안내 테스트입니다.\')">🔊 음성 테스트</button>';
   showSheet('🔊 AI 읽기',html);
 };
+window.setCreatorDuration=function(el,seconds){
+  seconds=parseInt(seconds||600,10);
+  if([15,60,600].indexOf(seconds)<0)seconds=600;
+  state.creatorDuration=seconds;
+  document.querySelectorAll('.creator-bottom .modes span').forEach(function(s){
+    if(s.textContent.trim()!=='라이브')s.classList.remove('on');
+  });
+  if(el)el.classList.add('on');
+};
+
 window.setCreatorMode=function(el,name){
   document.querySelectorAll('.creator-foot span').forEach(function(s){s.classList.remove('on');});
   if(el)el.classList.add('on');
