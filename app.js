@@ -2280,7 +2280,7 @@ window.ktVideoOwner=function(){
 };
 window.ktIsNoChargeGiftAccount=function(){
   var n=ktCurrentVerifiedAccountName().replace(/\s+/g,'');
-  return n==='하이네'||n==='K-톡하이네'||n==='태권이'||n==='K-톡태권';
+  return n==='하이네'||n==='K-톡하이네'||n==='K-톡하이네2'||n==='태권이'||n==='K-톡태권'||n==='K-톡태권1';
 };
 window.ktRoseBalanceLabel=function(){
   return ktIsNoChargeGiftAccount()?'무제한':ktGetRoseBalance().toLocaleString('ko-KR');
@@ -2402,8 +2402,8 @@ window.ktProfileLoad=function(){
       else if(window.ktCurrentVerifiedAccountName&&ktCurrentVerifiedAccountName())base.name=ktCurrentVerifiedAccountName();
     }catch(e){}
   }
-  if(base.name==='태권이')base.name='K-톡태권';
-  if(base.name==='하이네')base.name='K-톡하이네';
+  if(base.name==='태권이'||base.name==='K-톡태권')base.name='K-톡 태권1';
+  if(base.name==='하이네'||base.name==='K-톡하이네')base.name='K-톡 하이네2';
   if(!base.name)base.name='K-Talk';
   return base;
 };
