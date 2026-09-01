@@ -237,34 +237,67 @@ window.applyBaseCameraLook=function(){
   }
 };
 
+window.ktAttachCreatorCamera=async function(stream){
+  if(!camera||!stream)return false;
+  try{
+    camera.pause();
+    camera.srcObject=null;
+  }catch(e){}
+  try{
+    camera.autoplay=true;
+    camera.muted=true;
+    camera.defaultMuted=true;
+    camera.playsInline=true;
+    camera.setAttribute('autoplay','');
+    camera.setAttribute('muted','');
+    camera.setAttribute('playsinline','');
+    camera.disablePictureInPicture=true;
+  }catch(e){}
+  camera.srcObject=stream;
+  creator.classList.add('camera-on');
+  applyBaseCameraLook();
+
+  try{
+    await new Promise(function(resolve){
+      var done=false;
+      function finish(){if(done)return;done=true;resolve();}
+      if(camera.readyState>=1)finish();
+      else{
+        camera.addEventListener('loadedmetadata',finish,{once:true});
+        setTimeout(finish,500);
+      }
+    });
+  }catch(e){}
+
+  try{await camera.play();}catch(e){}
+  setTimeout(function(){
+    try{
+      if(camera.paused||camera.readyState<2)camera.play().catch(function(){});
+    }catch(e){}
+  },250);
+  return true;
+};
+
 window.ensureCreatorPreviewCamera=async function(facing){
   try{
     var live=state.stream&&state.stream.getVideoTracks&&state.stream.getVideoTracks().some(function(t){return t.readyState==='live';});
     if(live){
-      camera.srcObject=state.stream;
-      camera.muted=true;
-      creator.classList.add('camera-on');
-      applyBaseCameraLook();
-      try{await camera.play();}catch(e){}
-      return true;
+      return await ktAttachCreatorCamera(state.stream);
     }
+
     state.cameraFacing=facing||state.cameraFacing||'user';
-    state.stream=await navigator.mediaDevices.getUserMedia({
-      video:{
-        facingMode:{ideal:state.cameraFacing},
-        width:{ideal:1280},
-        height:{ideal:720},
-        frameRate:{ideal:30,max:30}
-      },
-      audio:false
-    });
-    camera.srcObject=state.stream;
-    camera.muted=true;
-    camera.setAttribute('playsinline','');
-    creator.classList.add('camera-on');
-    applyBaseCameraLook();
-    try{await camera.play();}catch(e){}
-    return true;
+
+    /* 인앱 브라우저에서도 잘 뜨도록 미리보기는 가장 단순한 카메라 요청을 사용합니다. */
+    try{
+      state.stream=await navigator.mediaDevices.getUserMedia({
+        video:{facingMode:state.cameraFacing},
+        audio:false
+      });
+    }catch(firstErr){
+      state.stream=await navigator.mediaDevices.getUserMedia({video:true,audio:false});
+    }
+
+    return await ktAttachCreatorCamera(state.stream);
   }catch(e){
     creator.classList.remove('camera-on');
     return false;
@@ -275,47 +308,49 @@ window.ensureLiveCamera=async function(facing){
   try{
     var videoLive=state.stream&&state.stream.getVideoTracks&&state.stream.getVideoTracks().some(function(t){return t.readyState==='live';});
     var audioLive=state.stream&&state.stream.getAudioTracks&&state.stream.getAudioTracks().some(function(t){return t.readyState==='live';});
-    if(videoLive&&audioLive){
-      camera.srcObject=state.stream;
-      creator.classList.add('camera-on');
-      applyBaseCameraLook();
-      try{await camera.play();}catch(e){}
+
+    /* 이미 화면이 나오고 있으면 카메라는 끊지 않고 마이크만 추가합니다. */
+    if(videoLive){
+      if(!audioLive){
+        try{
+          var audioStream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});
+          var at=audioStream.getAudioTracks&&audioStream.getAudioTracks()[0];
+          if(at)state.stream.addTrack(at);
+        }catch(e){}
+      }
+      await ktAttachCreatorCamera(state.stream);
       return true;
     }
+
     if(state.stream){
       try{state.stream.getTracks().forEach(function(t){t.stop();});}catch(e){}
       state.stream=null;
       if(camera)camera.srcObject=null;
     }
+
     state.cameraFacing=facing||state.cameraFacing||'user';
-    state.stream=await navigator.mediaDevices.getUserMedia({
-      video:{
-        facingMode:{ideal:state.cameraFacing},
-        width:{ideal:1920},
-        height:{ideal:1080},
-        frameRate:{ideal:30,max:60}
-      },
-      audio:true
-    });
-    camera.srcObject=state.stream;
-    camera.muted=true;
-    camera.setAttribute('playsinline','');
-    creator.classList.add('camera-on');
+
+    try{
+      state.stream=await navigator.mediaDevices.getUserMedia({
+        video:{facingMode:state.cameraFacing},
+        audio:true
+      });
+    }catch(firstErr){
+      state.stream=await navigator.mediaDevices.getUserMedia({video:true,audio:true});
+    }
 
     var track=state.stream.getVideoTracks&&state.stream.getVideoTracks()[0];
     if(track){
       try{track.contentHint='detail';}catch(e){}
       try{
         var caps=track.getCapabilities?track.getCapabilities():{};
-        var adv={};
-        if(caps.focusMode&&caps.focusMode.indexOf('continuous')>-1)adv.focusMode='continuous';
-        if(Object.keys(adv).length)await track.applyConstraints({advanced:[adv]});
+        if(caps.focusMode&&caps.focusMode.indexOf('continuous')>-1){
+          await track.applyConstraints({advanced:[{focusMode:'continuous'}]});
+        }
       }catch(e){}
     }
 
-    applyBaseCameraLook();
-    try{await camera.play();}catch(e){}
-    return true;
+    return await ktAttachCreatorCamera(state.stream);
   }catch(e){
     creator.classList.remove('camera-on');
     return false;
