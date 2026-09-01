@@ -137,7 +137,7 @@
     if(window.home)window.home();
   };
 
-  window.startBroadcast=async function(){
+  window.startTestBroadcast=async function(){
     var titleEl=document.getElementById('liveTitle');
     var title=titleEl&&titleEl.value?titleEl.value:'K-Talk 테스트 방송';
     var ok=true;
