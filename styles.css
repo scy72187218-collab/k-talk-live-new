@@ -3261,6 +3261,10 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   background-repeat:no-repeat!important;
   background-position:left center!important;
 }
+/* 남자 얼굴 미리보기를 원 안쪽 중앙으로 아주 조금 오른쪽 보정 */
+#ktLiveEffects .kt-effect-face-preview.male{
+  background-position:2px center!important;
+}
 #ktLiveEffects .kt-effect-face-preview.female{
   background-position:right center!important;
 }
