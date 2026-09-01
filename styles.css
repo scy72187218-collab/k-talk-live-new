@@ -570,3 +570,33 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
 }
 .kt-benefit-section button:last-child{border-bottom:0}
 .kt-benefit-section em{font-style:normal;color:#aeb0ba;font-size:20px}
+
+
+/* 구독자 혜택 */
+.kt-subscriber-benefits{padding:2px 0 10px}
+.kt-sub-hero{
+  display:flex;align-items:center;gap:12px;
+  padding:14px;border-radius:18px;
+  background:linear-gradient(135deg,#35205e,#15111f 60%,#0b0b10);
+  border:1px solid rgba(185,128,255,.22)
+}
+.kt-sub-hero>span{
+  width:52px;height:52px;border-radius:16px;
+  display:grid;place-items:center;
+  background:linear-gradient(135deg,#8d67ff,#ff4f98);
+  font-size:28px
+}
+.kt-sub-hero b{display:block;font-size:17px;color:#fff}
+.kt-sub-hero small{display:block;margin-top:4px;font-size:11px;color:#d7cbea}
+.kt-sub-benefit-list{display:grid;gap:8px;margin-top:10px}
+.kt-sub-benefit-list>div{
+  display:grid;grid-template-columns:46px 1fr;column-gap:10px;
+  padding:11px;border-radius:16px;
+  background:#ffffff08;border:1px solid rgba(255,255,255,.08)
+}
+.kt-sub-benefit-list>div>span{
+  grid-row:1/3;width:42px;height:42px;border-radius:13px;
+  display:grid;place-items:center;background:#ffffff0d;font-size:22px
+}
+.kt-sub-benefit-list b{font-size:14px;color:#fff}
+.kt-sub-benefit-list small{font-size:10px;line-height:1.45;color:#b7b8c1;margin-top:3px}
