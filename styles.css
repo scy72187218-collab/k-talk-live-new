@@ -3043,3 +3043,80 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   font-size:16px!important;
   font-weight:950!important;
 }
+
+
+/* 뷰티 보정 전용 패널 - 다른 화면에는 영향 없음 */
+.sheet.camera-effect-sheet.beauty-control-sheet .sheet-inner{
+  width:calc(100% - 18px)!important;
+  max-width:520px!important;
+  max-height:52dvh!important;
+  padding:10px 12px 12px!important;
+  border:1px solid rgba(255,255,255,.15)!important;
+  border-bottom:0!important;
+  border-radius:24px 24px 0 0!important;
+  background:linear-gradient(180deg,rgba(17,17,22,.98),rgba(7,7,11,.99))!important;
+  box-shadow:0 -8px 30px rgba(0,0,0,.45)!important;
+}
+.sheet.camera-effect-sheet.beauty-control-sheet .sheet-head{
+  display:none!important;
+}
+.sheet.camera-effect-sheet.beauty-control-sheet #sheetBody{
+  padding:0!important;
+}
+.kt-beauty-panel-pro{padding:0 0 4px!important}
+.kt-beauty-pro-tabs{
+  height:46px;display:grid;grid-template-columns:1fr 1fr 1fr auto;align-items:center;
+  gap:4px;margin:0 0 8px;padding:0 4px 3px;border-bottom:1px solid rgba(255,255,255,.09);
+  color:#a9a9b2;font-size:12px;font-weight:900;text-align:center
+}
+.kt-beauty-pro-tabs b{height:43px;display:grid;place-items:center;color:#bf69ff;border-bottom:3px solid #a84bff;font-size:16px}
+.kt-beauty-pro-tabs button{
+  border:0;background:none;color:#aaa;font-size:11px;font-weight:900;padding:6px 3px
+}
+.kt-beauty-controls-pro{
+  display:grid!important;grid-template-columns:repeat(5,1fr)!important;gap:8px!important;
+  overflow:visible!important;margin:4px 0 10px!important;padding:0 2px!important
+}
+.kt-beauty-controls-pro button{
+  min-width:0!important;min-height:72px!important;padding:5px 2px!important;border:0!important;
+  background:transparent!important;box-shadow:none!important;color:#fff!important
+}
+.kt-beauty-controls-pro button b{
+  width:48px!important;height:48px!important;margin:0 auto 5px!important;border-radius:50%!important;
+  border:1px solid rgba(255,255,255,.12)!important;background:#2a2a31!important;font-size:23px!important
+}
+.kt-beauty-controls-pro button span{font-size:11px!important;color:#eee!important}
+.kt-beauty-controls-pro button i{
+  display:block;width:5px;height:5px;margin:5px auto 0;border-radius:50%;background:#eee
+}
+.kt-beauty-controls-pro button.on b{
+  border:2px solid #a851ff!important;box-shadow:0 0 0 3px rgba(168,81,255,.16)!important;background:#332a3d!important
+}
+.kt-beauty-controls-pro button.on span{color:#c678ff!important}
+.kt-beauty-controls-pro button.on i{background:#b953ff}
+.kt-beauty-slider-group{
+  margin:7px 0;padding:8px 10px;border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;background:rgba(255,255,255,.025)
+}
+.kt-beauty-slider-row{
+  display:grid;grid-template-columns:88px minmax(0,1fr) 34px;align-items:center;
+  gap:8px;min-height:38px
+}
+.kt-beauty-slider-row span{font-size:11px;font-weight:900;color:#f3f3f6;white-space:nowrap}
+.kt-beauty-slider-row b{font-size:11px;color:#eee;text-align:right}
+.kt-beauty-slider-row input[type=range]{width:100%;height:28px;accent-color:#ad4cff}
+.kt-beauty-pro-actions{display:grid;grid-template-columns:1fr 1.35fr;gap:10px;margin-top:9px}
+.kt-beauty-pro-actions button{
+  min-height:44px;border:1px solid rgba(255,255,255,.14);border-radius:14px;
+  background:#232329;color:#fff;font-size:14px;font-weight:950
+}
+.kt-beauty-pro-actions button.primary{
+  border:0;background:linear-gradient(135deg,#7547ff,#b44eea);box-shadow:0 7px 18px rgba(135,71,255,.22)
+}
+@media(max-width:390px){
+  .sheet.camera-effect-sheet.beauty-control-sheet .sheet-inner{max-height:55dvh!important}
+  .kt-beauty-controls-pro{gap:4px!important}
+  .kt-beauty-controls-pro button b{width:43px!important;height:43px!important;font-size:20px!important}
+  .kt-beauty-slider-row{grid-template-columns:78px minmax(0,1fr) 30px;gap:6px}
+  .kt-beauty-slider-row span{font-size:10px}
+}
