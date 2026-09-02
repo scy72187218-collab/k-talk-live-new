@@ -1067,29 +1067,31 @@ window.prepTap=async function(el,name){
   if(name==='라이브 보상'||name==='코인 리워드'){ openBenefitHub(); return; }
 };
 
+window.getBeautyControlInfo=function(kind){
+  var map={
+    skin:{label:'피부 부드러움',key:'beautySkin',def:40},
+    face:{label:'얼굴형 조절',key:'beautyFace',def:50},
+    eyes:{label:'눈 조절',key:'beautyEyes',def:50},
+    nose:{label:'코 조절',key:'beautyNose',def:50},
+    mouth:{label:'턱선 슬림',key:'beautyMouth',def:50}
+  };
+  return map[kind]||map.skin;
+};
+
+window.getBeautyControlValue=function(kind){
+  var info=getBeautyControlInfo(kind);
+  var raw=Number(state[info.key]);
+  return raw>0?raw:info.def;
+};
+
 window.openBeautyPanel=function(){
   creator.classList.add('beauty-preview-open');
   try{var lp=creator.querySelector('.live-prep');if(lp)lp.style.setProperty('display','none','important');}catch(e){}
   try{if(window.ensureLiveCamera)ensureLiveCamera(state.cameraFacing||'user').catch(function(){});}catch(e){}
 
-  var skin=Number(state.beautySkin||40);
-  var tone=Number(state.beautyTone||35);
-  var bright=Number(state.beautyBright||30);
-  var sharp=Number(state.beautySharp||25);
-  var face=Number(state.beautyFace||50);
-  var eyes=Number(state.beautyEyes||50);
-  var nose=Number(state.beautyNose||50);
-  var jaw=Number(state.beautyMouth||50);
   var selected=state.beautyControl||'skin';
-
-  function slider(kind,label,value){
-    return '<div class="kt-beauty-slider-row" id="beauty-row-'+kind+'">'
-      +'<span>'+label+'</span>'
-      +'<input type="range" min="1" max="100" value="'+value+'" oninput="setBeautyValue(\''+kind+'\',this.value)">'
-      +'<b id="beautyVal-'+kind+'">'+value+'</b>'
-      +'</div>';
-  }
-
+  var active=getBeautyControlInfo(selected);
+  var activeValue=getBeautyControlValue(selected);
   var controls=[
     ['skin','💧','부드럽게'],
     ['face','☺','얼굴형'],
@@ -1104,17 +1106,12 @@ window.openBeautyPanel=function(){
   var html='<div class="kt-beauty-panel kt-beauty-panel-pro">'
     +'<div class="kt-beauty-pro-tabs"><span>AI 최적화</span><b>Beauty</b><span>메이크업</span><button onclick="resetBeautyAll()">↺ 초기화</button></div>'
     +'<div class="kt-beauty-controls kt-beauty-controls-pro">'+controlButtons+'</div>'
-    +'<div class="kt-beauty-slider-group">'
-      +slider('skin','피부 부드러움',skin)
-      +slider('tone','피부 톤',tone)
-      +slider('bright','피부 미백',bright)
-      +slider('sharp','잡티 보정',sharp)
-    +'</div>'
-    +'<div class="kt-beauty-slider-group">'
-      +slider('face','얼굴형 조절',face)
-      +slider('eyes','눈 조절',eyes)
-      +slider('nose','코 조절',nose)
-      +slider('mouth','턱선 슬림',jaw)
+    +'<div class="kt-beauty-slider-group kt-beauty-single-group">'
+      +'<div class="kt-beauty-slider-row kt-beauty-single-row">'
+        +'<span id="beautySingleLabel">'+active.label+'</span>'
+        +'<input id="beautySingleRange" type="range" min="1" max="100" value="'+activeValue+'" oninput="setBeautyActiveValue(this.value)">'
+        +'<b id="beautySingleValue">'+activeValue+'</b>'
+      +'</div>'
     +'</div>'
     +'<div class="kt-beauty-pro-actions"><button onclick="resetBeautyAll()">초기화</button><button class="primary" onclick="closeSheet()">닫기</button></div>'
     +'</div>';
@@ -1128,8 +1125,20 @@ window.selectBeautyControl=function(kind){
   document.querySelectorAll('.kt-beauty-controls-pro button').forEach(function(btn){
     btn.classList.toggle('on',btn.getAttribute('data-beauty-kind')===kind);
   });
-  var row=document.getElementById('beauty-row-'+kind);
-  if(row){try{row.scrollIntoView({behavior:'smooth',block:'nearest'});}catch(e){}}
+  var info=getBeautyControlInfo(kind);
+  var value=getBeautyControlValue(kind);
+  var label=document.getElementById('beautySingleLabel');
+  var range=document.getElementById('beautySingleRange');
+  var val=document.getElementById('beautySingleValue');
+  if(label)label.textContent=info.label;
+  if(range)range.value=value;
+  if(val)val.textContent=value;
+};
+
+window.setBeautyActiveValue=function(value){
+  setBeautyValue(state.beautyControl||'skin',value);
+  var v=document.getElementById('beautySingleValue');
+  if(v)v.textContent=Math.max(1,Math.min(100,parseInt(value||1,10)));
 };
 
 window.setBeautyValue=function(kind,value){
