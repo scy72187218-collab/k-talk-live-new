@@ -319,3 +319,43 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   filter:drop-shadow(0 4px 14px rgba(0,0,0,.45));
   pointer-events:none;
 }
+
+
+/* 게시물 촬영 화면 - 이전 저장 상태 복구 */
+.creator:not(.live-prep-open) .creator-top{
+  top:18px!important;left:14px!important;right:14px!important;
+}
+.creator:not(.live-prep-open) .circle{
+  width:44px!important;height:44px!important;font-size:21px!important;
+}
+.creator:not(.live-prep-open) .sound{
+  padding:10px 15px!important;font-size:14px!important;border-radius:999px!important;
+}
+.creator:not(.live-prep-open) .creator-tools{
+  top:92px!important;right:14px!important;gap:10px!important;
+}
+.creator:not(.live-prep-open) .creator-tools button{
+  width:45px!important;height:45px!important;font-size:18px!important;
+}
+.creator:not(.live-prep-open) .creator-bottom{
+  left:14px!important;right:14px!important;bottom:18px!important;
+}
+.creator:not(.live-prep-open) .modes{
+  gap:20px!important;font-size:13px!important;font-weight:850!important;
+}
+.creator:not(.live-prep-open) .modes .on{
+  border-bottom:2px solid #fff!important;padding-bottom:4px!important;
+}
+.creator:not(.live-prep-open) .recordrow{
+  gap:18px!important;
+}
+.creator:not(.live-prep-open) .fx{
+  width:52px!important;height:52px!important;font-size:19px!important;
+}
+.creator:not(.live-prep-open) .record{
+  width:82px!important;height:82px!important;border:6px solid #fff!important;
+  box-shadow:0 0 0 4px rgba(255,45,85,.24)!important;
+}
+.creator:not(.live-prep-open) .creator-foot{
+  gap:38px!important;margin-top:14px!important;font-size:14px!important;
+}
