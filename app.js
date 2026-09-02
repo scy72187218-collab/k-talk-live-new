@@ -2215,57 +2215,27 @@ window.ktStopSoundPreview=function(){
 };
 
 window.ktCreatorTracks=[
-  {
-    name:'어머나',
-    source:'유명 트로트 · 정식 음원 연결 필요',
-    time:'',
-    url:'',
-    licensed:false
-  },
-  {
-    name:'사내',
-    source:'유명 트로트 · 정식 음원 연결 필요',
-    time:'',
-    url:'',
-    licensed:false
-  },
-  {
-    name:'트로트 느낌 폴카',
-    source:'CC0 자유음악',
-    time:'0:37',
-    url:'https://upload.wikimedia.org/wikipedia/commons/0/0a/Polyphon_-_Blumen-Polka.ogg'
-  },
-  {
-    name:'신나는 댄스',
-    source:'CC0 자유음악',
-    time:'3:41',
-    url:'https://upload.wikimedia.org/wikipedia/commons/a/ad/Loyalty_Freak_Music_-_02_-_High_Technologic_Beat_Explosion.ogg'
-  },
-  {
-    name:'전자 댄스',
-    source:'CC0 자유음악',
-    time:'2:21',
-    url:'https://upload.wikimedia.org/wikipedia/commons/b/b9/Monplaisir_-_03_-_Dance_of_the_electronic_fairies.ogg'
-  },
-  {
-    name:'밝은 가요 느낌',
-    source:'CC0 자유음악',
-    time:'2:36',
-    url:'https://upload.wikimedia.org/wikipedia/commons/8/84/Monplaisir_-_02_-_Free_To_Use_2.ogg'
-  },
-  {
-    name:'신나는 메들리 느낌',
-    source:'CC0 자유음악',
-    time:'3:12',
-    url:'https://upload.wikimedia.org/wikipedia/commons/b/b6/Monplaisir_-_01_-_Free_To_Use_1.ogg'
-  },
-  {
-    name:'밤 드라이브 비트',
-    source:'CC0 자유음악',
-    time:'1:36',
-    url:'https://upload.wikimedia.org/wikipedia/commons/9/9f/Chill_Beat.ogg'
-  }
-];
+  {name:'통기타 포크 감성 1',source:'Monplaisir · CC0',time:'3:12',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Monplaisir_-_01_-_Free_To_Use_1.ogg'},
+  {name:'밝은 가요 느낌 1',source:'Monplaisir · CC0',time:'2:36',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Monplaisir_-_02_-_Free_To_Use_2.ogg'},
+  {name:'리듬 가요 느낌',source:'Monplaisir · CC0',time:'3:07',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Monplaisir_-_03_-_Free_To_Use_3.ogg'},
+  {name:'짧은 테마송',source:'Monplaisir · CC0',time:'1:22',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Monplaisir_-_01_-_Theme_Song.ogg'},
+  {name:'잔잔한 밤',source:'Monplaisir · CC0',time:'1:18',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Monplaisir_-_03_-_Nor.ogg'},
+  {name:'감성 연주',source:'Monplaisir · CC0',time:'3:57',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Monplaisir_-_03_-_Sane.ogg'},
+  {name:'사랑 분위기',source:'Monplaisir · CC0',time:'1:41',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Monplaisir_-_02_-_Sincere_Love.ogg'},
+  {name:'희망 포크',source:'Monplaisir · CC0',time:'6:06',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Monplaisir_-_01_-_You_cant_fail.ogg'},
+  {name:'깊은 감성',source:'Monplaisir · CC0',time:'2:05',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Monplaisir_-_01_-_Inspiration_profonde.ogg'},
+  {name:'가까이',source:'Monplaisir · CC0',time:'2:17',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Monplaisir_-_02_-_Close_to_you.ogg'},
+  {name:'둘만의 밤',source:'Monplaisir · CC0',time:'3:30',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Monplaisir_-_01_-_Nous_serons_tous_seuls.ogg'},
+  {name:'비 오는 날',source:'Monplaisir · CC0',time:'3:12',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Monplaisir_-_02_-_Rain.ogg'},
+  {name:'신나는 게임 리듬',source:'Monplaisir · CC0',time:'3:09',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Monplaisir_-_14_-_Play_the_game.ogg'},
+  {name:'레벨 업 비트',source:'Monplaisir · CC0',time:'4:30',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Monplaisir_-_08_-_Level_1.ogg'},
+  {name:'라이브 연주',source:'Monplaisir · CC0',time:'4:09',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Monplaisir_-_03_-_Three.ogg'},
+  {name:'피크닉 댄스',source:'Loyalty Freak Music · CC0',time:'3:07',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Loyalty_Freak_Music_-_01_-_Go_to_the_Picnic.ogg'},
+  {name:'롤러 댄스',source:'Loyalty Freak Music · CC0',time:'2:26',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Loyalty_Freak_Music_-_01_-_Roller_Fever.ogg'},
+  {name:'러브 스트리트',source:'Loyalty Freak Music · CC0',time:'2:45',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Loyalty_Freak_Music_-_06_-_Street_of_love.ogg'},
+  {name:'모두 신나게',source:'Loyalty Freak Music · CC0',time:'4:15',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Loyalty_Freak_Music_-_01_-_Everyone_is_so_alive.ogg'},
+  {name:'다시 함께',source:'Loyalty Freak Music · CC0',time:'3:03',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Loyalty_Freak_Music_-_01_-_Once_more_with_you.ogg'}
+]
 
 window.ktPlaySoundPreview=function(index,ev){
   if(ev){try{ev.stopPropagation();ev.preventDefault();}catch(e){}}
@@ -2310,7 +2280,7 @@ window.openSoundPanel=function(){
     return '<button class="kt-sound-row" onclick="selectCreatorSound(\''+t.name+'\')">'
       +'<span class="kt-sound-cover">'+(i+1)+'</span>'
       +'<span class="kt-sound-info"><b>'+t.name+'</b><small>'+t.source+(t.time?' · '+t.time:'')+'</small></span>'
-      +'<span class="kt-sound-play" onclick="ktPlaySoundPreview('+i+',event)">'+(t.url?'▶':'🔒')+'</span>'
+      +'<span class="kt-sound-play" onclick="ktPlaySoundPreview('+i+',event)">▶</span>'
       +'</button>';
   }).join('');
   var html='<div class="kt-sound-panel">'
