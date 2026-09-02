@@ -218,6 +218,7 @@ window.showSheet=function(title,html){
   sheet.classList.remove('camera-effect-sheet');
   sheet.classList.remove('gift-shop25');
   sheet.classList.remove('gift-final-v1');
+  sheet.classList.remove('investor-sheet');
   sheetTitle.innerHTML=title;
   sheetBody.innerHTML=html;
   sheet.classList.add('show');
@@ -232,6 +233,7 @@ window.closeSheet=function(){
   sheet.classList.remove('gift-shop25');
   sheet.classList.remove('gift-final-v1');
   sheet.classList.remove('camera-effect-sheet');
+  sheet.classList.remove('investor-sheet');
 };
 
 window.home=function(){
@@ -1453,7 +1455,8 @@ window.openSiteGuide=function(){
   showSheet('K-Talk 이용방법 · 혜택',html);
 };
 window.openInvestorInfo=function(){
-  showSheet('💼 투자자 안내','<div class="rowbox"><b>📅 정산일</b><br>투자자 수익금 정산은 매달 1일 진행하는 방식으로 안내합니다.</div><div class="rowbox"><b>📡 정산 대상</b><br>K-Talk 방송에서 발생한 방송 관련 수익만 투자자 수익 분배 대상에 포함합니다.</div><div class="rowbox"><b>🚫 제외 수익</b><br>광고 수익, 상품 판매 수익, 외부 업체와 별도로 체결한 계약에서 발생한 수익은 투자자 분배 대상에서 제외합니다.</div><div class="rowbox"><b>💰 수익금 분배</b><br>방송 수익을 기준으로 계약서에 정한 지분과 정산 기준에 따라 분배하며 실제 금액은 해당 월의 방송 실적에 따라 달라질 수 있습니다.</div><div class="note">투자에는 손실 위험이 있으며 원금이나 수익을 확정적으로 보장할 수 없습니다.</div>');
+  showSheet('💼 투자자 안내','<div class="rowbox"><b>📅 정산일</b><br>투자자 수익금 정산은 매달 1일 진행하는 방식으로 안내합니다.</div><div class="rowbox"><b>📡 정산 대상</b><br>K-Talk 방송에서 발생한 방송 관련 수익만 투자자 수익 분배 대상에 포함합니다.</div><div class="rowbox"><b>🚫 제외 수익</b><br>광고 수익, 상품 판매 수익, 외부 업체와 별도로 체결한 계약에서 발생한 수익은 투자자 분배 대상에서 제외합니다.</div><div class="rowbox"><b>💰 수익금 분배</b><br>방송 수익을 기준으로 계약서에 정한 지분과 정산 기준에 따라 분배하며 실제 금액은 해당 월의 방송 실적에 따라 달라질 수 있습니다.</div><div class="rowbox investor-contact"><b>📞 광고 문의</b><br><a href="tel:01075107218">010-7510-7218</a><span><b>사업자 번호</b> 787-48-01170</span></div><div class="note">투자에는 손실 위험이 있으며 원금이나 수익을 확정적으로 보장할 수 없습니다.</div>');
+  sheet.classList.add('investor-sheet');
 };
 window.openSubs=function(){
   var html='<div class="kt-fanclub">'
