@@ -4,174 +4,62 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <title>K-Talk LIVE</title>
-<link rel="stylesheet" href="styles.css?v=20260902-fullscreen-person70" />
+<link rel="stylesheet" href="styles.css?v=20260902-creator-final66" />
 <style>
-*{box-sizing:border-box}body.kt-home{background:#020205!important;overflow:hidden!important}.kt-home .header,.kt-home .bottom{display:none!important}.kt-home #screen{padding:0!important;margin:0!important;height:100dvh!important;min-height:100dvh!important;overflow:auto!important;background:#020205!important}.kt-dashboard{min-height:100dvh;padding:16px 14px calc(92px + env(safe-area-inset-bottom));color:#fff;background:radial-gradient(circle at 18% 12%,#23002f 0,transparent 24%),radial-gradient(circle at 86% 28%,#001d34 0,transparent 23%),linear-gradient(180deg,#05030a,#020205 58%,#000);font-family:system-ui,-apple-system,'Noto Sans KR',sans-serif}.kt-dash-top{display:flex;align-items:center;gap:8px;margin-bottom:14px}.kt-dash-logo{font-size:25px;font-weight:950;letter-spacing:-1px;white-space:nowrap;text-shadow:0 0 10px #ff38cf,0 0 20px #2e8cff}.kt-dash-logo .crown{color:#ffd23f}.kt-dash-logo .talk{color:#ff59d4}.kt-dash-logo .liveword{color:#48a8ff}.kt-dash-actions{margin-left:auto;display:flex;align-items:center;gap:7px}.kt-pill,.kt-iconbtn{border:1px solid #ffffff2b;background:#09090dcc;color:#fff;box-shadow:inset 0 0 14px #ffffff08,0 0 12px #0008}.kt-pill{height:36px;border-radius:999px;padding:0 11px;font-size:13px;font-weight:850}.kt-pill.coin{color:#fff6d5}.kt-pill.vip{color:#78ddff}.kt-iconbtn{width:36px;height:36px;border-radius:50%;font-size:18px}.kt-notice{border:2px solid #c857ff;border-radius:24px;padding:14px 16px;margin-bottom:16px;background:linear-gradient(135deg,#170720dd,#08101add);box-shadow:0 0 0 4px #9f31ff28,inset 0 0 22px #a12cff2c,0 0 22px #7a2dff55}.kt-notice-row{display:flex;align-items:center;gap:11px}.kt-notice-icon{width:50px;flex:0 0 50px;text-align:center;font-size:30px;color:#ff6bcf}.kt-notice-copy{min-width:0}.kt-notice-copy b{display:block;font-size:15px;color:#ffd85a;margin-bottom:6px}.kt-notice-copy span{display:block;font-size:13px;color:#77e7ff;line-height:1.35}.kt-room-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.kt-room{min-height:170px;border-radius:20px;padding:15px 8px 13px;background:linear-gradient(180deg,#101018e8,#06060be8);color:#fff;text-align:center;border:1px solid var(--edge);box-shadow:inset 0 0 24px color-mix(in srgb,var(--edge) 20%,transparent),0 0 15px color-mix(in srgb,var(--edge) 35%,transparent);display:flex;flex-direction:column;align-items:center;justify-content:flex-start}.kt-room .ri{font-size:44px;line-height:1;margin-bottom:10px;filter:drop-shadow(0 0 8px var(--edge))}.kt-room b{font-size:18px;line-height:1.12;color:var(--txt);letter-spacing:-.8px}.kt-room small{display:block;margin-top:9px;font-size:11px;line-height:1.45;color:#ddd}.kt-room .enter{margin-top:auto;width:88%;padding:9px 4px;border:0;border-radius:12px;background:linear-gradient(135deg,color-mix(in srgb,var(--edge) 78%,#fff 0%),color-mix(in srgb,var(--edge) 65%,#000));color:#fff;font-size:13px;font-weight:900;box-shadow:0 0 12px color-mix(in srgb,var(--edge) 42%,transparent)}.purple{--edge:#9b55ff;--txt:#d69cff}.pink{--edge:#ff3b9c;--txt:#ff9bd0}.gold{--edge:#ffbd22;--txt:#ffe26d}.blue{--edge:#36a7ff;--txt:#68c7ff}.green{--edge:#40df35;--txt:#79f069}.cyan{--edge:#19d7ec;--txt:#50e6f6}.kt-shortcuts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}.kt-short{min-height:98px;border:1px solid var(--edge);border-radius:16px;background:#09090ee8;color:#fff;padding:11px 6px;text-align:center;box-shadow:inset 0 0 15px color-mix(in srgb,var(--edge) 16%,transparent)}.kt-short strong{display:block;font-size:27px;line-height:1.05;margin-bottom:7px}.kt-short b{display:block;color:var(--txt);font-size:13px}.kt-short small{display:block;margin-top:4px;color:#ddd;font-size:10px;line-height:1.35}.kt-wide{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.kt-wide button{min-height:78px;border-radius:17px;border:1px solid var(--edge);background:linear-gradient(135deg,#081238,#05070f);color:#fff;text-align:left;padding:14px 17px;box-shadow:inset 0 0 20px color-mix(in srgb,var(--edge) 18%,transparent),0 0 13px color-mix(in srgb,var(--edge) 28%,transparent)}.kt-wide button:last-child{background:linear-gradient(135deg,#4b2f00,#0c0800)}.kt-wide b{display:block;font-size:18px}.kt-wide small{display:block;margin-top:4px;font-size:11px;color:#e8e8e8}.kt-bottom{position:fixed;z-index:50;left:0;right:0;bottom:0;height:78px;padding:8px 8px calc(8px + env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(5,1fr);background:#030307ed;border-top:1px solid #ffffff18;backdrop-filter:blur(14px)}.kt-bottom button{border:0;background:none;color:#cfcfd5;font-size:10px;font-weight:800}.kt-bottom b{display:block;font-size:24px;line-height:1.15;margin-bottom:3px}.kt-bottom .homebtn{color:#d36bff}.kt-bottom .livebtn{color:#ff53bd}.kt-bottom .livebtn b{display:grid;place-items:center;width:46px;height:46px;margin:-25px auto 2px;border-radius:16px;border:1px solid #ff5acf;background:linear-gradient(160deg,#3c123b,#16071d);box-shadow:0 0 18px #ff44c98c;font-size:19px}.creator .shade{pointer-events:none!important}.creator-top,.creator-tools,.creator-bottom,.live-prep{z-index:3!important;pointer-events:auto!important}.creator button,.creator .modes span,.creator .fx,.creator-foot span,.live-prep button,.live-prep input,.prep-bottom span{pointer-events:auto!important;touch-action:manipulation!important}.creator .test-active{outline:2px solid #fff!important;transform:scale(.96)}.creator-top,.creator-tools,.creator-bottom{display:flex!important}.live-prep{display:none!important}.creator.live-prep-open .live-prep{display:flex!important}.creator.live-prep-open .creator-top,.creator.live-prep-open .creator-tools,.creator.live-prep-open .creator-bottom{display:none!important}.creator-top{position:absolute!important;top:18px!important;left:14px!important;right:14px!important;z-index:7!important;display:flex!important;align-items:center!important;gap:12px!important;justify-content:space-between!important}.creator-top .sound{flex:0 1 220px!important;margin:auto!important;height:50px!important;border:0!important;border-radius:18px!important;background:rgba(0,0,0,.35)!important;color:#fff!important;font-size:18px!important;font-weight:900!important}.creator-top .circle{width:48px!important;height:48px!important;border-radius:50%!important;border:0!important;background:rgba(0,0,0,.18)!important;color:#fff!important;font-size:30px!important}.creator-tools{position:absolute!important;right:15px!important;top:112px!important;z-index:7!important;display:flex!important;flex-direction:column!important;gap:16px!important}.creator-tools button{width:52px!important;height:52px!important;border-radius:50%!important;border:0!important;background:rgba(0,0,0,.14)!important;color:#fff!important;font-size:28px!important;text-shadow:0 1px 5px #000!important}.creator-bottom{position:absolute!important;left:0!important;right:0!important;bottom:0!important;z-index:8!important;display:block!important;padding:0 14px calc(16px + env(safe-area-inset-bottom))!important;background:linear-gradient(180deg,transparent,rgba(0,0,0,.3) 35%,rgba(0,0,0,.88) 82%)!important}.creator-bottom .modes{display:flex!important;justify-content:center!important;gap:22px!important;margin:0 0 18px!important;align-items:center!important}.creator-bottom .modes span{color:#fff!important;font-size:20px!important;font-weight:900!important;border:0!important;padding:7px 4px!important;opacity:.9!important}.creator-bottom .modes .on{background:#fff!important;color:#111!important;border-radius:999px!important;padding:8px 18px!important;opacity:1!important}.creator-bottom .recordrow{display:flex!important;justify-content:center!important;align-items:center!important;gap:28px!important;margin-bottom:18px!important}.creator-bottom .record{width:104px!important;height:104px!important;border-radius:50%!important;border:7px solid #fff!important;background:#ff2d55!important;box-shadow:0 0 0 3px rgba(255,45,85,.18)!important}.creator-bottom .fx{width:62px!important;height:62px!important;border-radius:50%!important;display:grid!important;place-items:center!important;border:0!important;background:rgba(255,255,255,.13)!important;color:#fff!important;font-size:28px!important;overflow:hidden!important}.creator-bottom .creator-foot{display:flex!important;justify-content:space-around!important;align-items:center!important;margin-top:0!important;color:#fff!important;font-size:18px!important;font-weight:900!important}.creator-bottom .creator-foot span{opacity:.65!important}.creator-bottom .creator-foot .on{opacity:1!important}.creator.camera-on video{transform:scaleX(-1)!important}.creator{background:radial-gradient(circle at 22% 16%,rgba(255,63,143,.26),transparent 28%),radial-gradient(circle at 82% 26%,rgba(53,169,255,.22),transparent 30%),radial-gradient(circle at 50% 82%,rgba(139,92,255,.28),transparent 38%),linear-gradient(155deg,#171421,#0a0b12 60%,#08070d)!important}.creator:not(.camera-on) video#camera{display:none!important}.creator.camera-on video#camera{display:block!important;position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important}.creator:not(.creator-review) #ktCreatorPreview{display:none!important}.creator.beauty-on video{filter:brightness(1.08) saturate(1.05) contrast(.98)!important}.creator.effect-on video{filter:saturate(1.18) contrast(1.06)!important}.live-prep{position:absolute;inset:0;padding:20px 18px 18px;display:flex;flex-direction:column;color:#fff;background:linear-gradient(180deg,rgba(0,0,0,.10),rgba(0,0,0,.04) 28%,rgba(0,0,0,.58) 72%,rgba(0,0,0,.86))}.prep-top{display:flex;align-items:center;gap:12px}.prep-close,.prep-mini{width:42px;height:42px;border-radius:50%;border:1px solid rgba(255,255,255,.12);background:rgba(12,12,18,.48);color:#fff;font-size:22px}.prep-title{flex:1;text-align:center;font-size:19px;font-weight:900}.prep-topic{margin:18px 4px 0;padding:11px 14px;border-radius:18px;background:rgba(20,20,26,.34);border:1px solid rgba(255,255,255,.10)}.prep-topic input{width:100%;border:0;outline:0;background:transparent;color:#fff;font-size:18px;font-weight:800}.prep-grid{margin-top:12px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px 3px;padding:12px 5px;border-radius:20px;background:rgba(18,18,24,.34);border:1px solid rgba(255,255,255,.09)}.prep-item{border:0;background:none;color:#fff;font-size:9px;font-weight:850;min-width:0;padding:2px}.prep-item b{display:grid;place-items:center;width:42px;height:42px;margin:auto auto 5px;border-radius:50%;background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.07));border:1px solid rgba(255,255,255,.12);font-size:19px}.prep-goal{margin-top:8px;padding:9px 11px;border-radius:16px;background:rgba(14,14,20,.46);border:1px solid rgba(255,255,255,.10)}.prep-goal label{display:block;margin-bottom:5px;color:#ffd85a;font-size:12px;font-weight:900}.prep-goal input{width:100%;padding:9px 11px;border-radius:12px;border:1px solid rgba(255,255,255,.12);outline:0;background:rgba(255,255,255,.08);color:#fff;font-size:14px;font-weight:800}.prep-goal input::placeholder{color:#d8d8df}.prep-card{margin-top:8px;padding:10px;border-radius:20px;background:rgba(14,14,20,.46);border:1px solid rgba(255,255,255,.10)}.prep-card-top{display:flex;align-items:center;justify-content:space-between;font-size:15px;font-weight:900}.prep-card-top button{padding:8px 13px;border-radius:999px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.10);color:#fff}.room-switch-row{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:6px!important}.room-switch{min-height:52px!important;padding:7px 3px!important;font-size:12px!important;border-radius:14px!important}.prep-start{width:100%;margin-top:8px;padding:13px;border:0;border-radius:17px;background:linear-gradient(135deg,#ff315f,#ff3f8f 55%,#9b63ff);color:#fff;font-size:18px;font-weight:950;box-shadow:0 10px 24px rgba(255,49,95,.24)}.prep-bottom{display:flex;justify-content:space-around;margin-top:7px;padding:0 18px;font-size:13px;font-weight:900}.prep-bottom span{opacity:.5;padding:6px 10px;border-radius:10px}.prep-bottom .on{opacity:1;border-bottom:2px solid #fff;padding-bottom:6px}.giftPhoto{display:block;width:48px;height:36px;background:url('gifts-reference.jpg') no-repeat;background-size:400% 100%;border-radius:5px}.giftPhoto0{background-position:0% 50%}.giftPhoto1{background-position:33.333% 50%}.giftPhoto2{background-position:66.666% 50%}.giftPhoto3{background-position:100% 50%}.kt-video-mode .header{display:none!important}.kt-video-mode #screen{height:calc(100dvh - 68px)!important;padding:0!important;background:#000!important}.kt-video-mode .bottom{background:rgba(2,2,5,.94)!important}.video-home{height:100%;position:relative;overflow:hidden;border-radius:0;background:#000}.video-home video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000}.video-home .vh-shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.18),transparent 28%,transparent 58%,rgba(0,0,0,.78))}.video-home .vh-tabs{position:absolute;top:14px;left:10px;right:10px;z-index:5;display:flex;align-items:center;justify-content:center;gap:14px;color:#fff;font-size:13px;font-weight:900;text-shadow:0 2px 6px #000}.video-home .vh-tabs span{opacity:.8;white-space:nowrap}.video-home .vh-tabs .on{opacity:1;border-bottom:2px solid #fff;padding-bottom:6px}.video-home .vh-tabs button{margin-left:auto;width:34px;height:34px;border:0;background:transparent;color:#fff;font-size:25px}.video-home .vh-title{position:absolute;left:14px;bottom:24px;right:82px;z-index:3;text-shadow:0 2px 5px #000}.video-home .vh-title b{display:block;color:#ffe07a;font-size:17px}.video-home .vh-title span{display:block;margin-top:5px;font-size:12px;line-height:1.45}.video-home .vh-actions{position:absolute;right:10px;bottom:26px;z-index:4;display:grid;gap:10px}.video-home .vh-actions button{width:54px;height:54px;border-radius:50%;border:0;background:rgba(8,8,11,.68);color:#fff;font-size:22px;text-shadow:0 1px 4px #000}.video-home .vh-actions small{display:block;font-size:8px;margin-top:2px}@media(max-width:390px){.kt-dashboard{padding-left:10px;padding-right:10px}.kt-room-grid{gap:7px}.kt-room{min-height:160px;padding-left:5px;padding-right:5px}.kt-room b{font-size:16px}.kt-room small{font-size:10px}.kt-dash-logo{font-size:21px}.kt-pill{padding:0 8px}.kt-shortcuts{gap:6px}.kt-short b{font-size:12px}}
- .prep-reward{width:auto!important;min-width:106px!important;padding:0 12px!important;border-radius:14px!important;font-size:12px!important;font-weight:950!important;white-space:nowrap!important;background:linear-gradient(135deg,#3b1b46,#181321)!important;border:1px solid #c35cff99!important;color:#ffe47a!important;box-shadow:0 0 14px #9a35ff33!important}\n</style>
+*{box-sizing:border-box}body.kt-home{background:#020205!important;overflow:hidden!important}.kt-home .header,.kt-home .bottom{display:none!important}.kt-home #screen{padding:0!important;margin:0!important;height:100dvh!important;min-height:100dvh!important;overflow:auto!important;background:#020205!important}.kt-dashboard{min-height:100dvh;padding:16px 14px calc(92px + env(safe-area-inset-bottom));color:#fff;background:radial-gradient(circle at 18% 12%,#23002f 0,transparent 24%),radial-gradient(circle at 86% 28%,#001d34 0,transparent 23%),linear-gradient(180deg,#05030a,#020205 58%,#000);font-family:system-ui,-apple-system,'Noto Sans KR',sans-serif}.kt-dash-top{display:flex;align-items:center;gap:8px;margin-bottom:14px}.kt-dash-logo{font-size:25px;font-weight:950;letter-spacing:-1px;white-space:nowrap;text-shadow:0 0 10px #ff38cf,0 0 20px #2e8cff}.kt-dash-logo .crown{color:#ffd23f}.kt-dash-logo .talk{color:#ff59d4}.kt-dash-logo .liveword{color:#48a8ff}.kt-dash-actions{margin-left:auto;display:flex;align-items:center;gap:7px}.kt-pill,.kt-iconbtn{border:1px solid #ffffff2b;background:#09090dcc;color:#fff;box-shadow:inset 0 0 14px #ffffff08,0 0 12px #0008}.kt-pill{height:36px;border-radius:999px;padding:0 11px;font-size:13px;font-weight:850}.kt-pill.coin{color:#fff6d5}.kt-pill.vip{color:#78ddff}.kt-iconbtn{width:36px;height:36px;border-radius:50%;font-size:18px}.kt-notice{border:2px solid #c857ff;border-radius:24px;padding:14px 16px;margin-bottom:16px;background:linear-gradient(135deg,#170720dd,#08101add);box-shadow:0 0 0 4px #9f31ff28,inset 0 0 22px #a12cff2c,0 0 22px #7a2dff55}.kt-notice-row{display:flex;align-items:center;gap:11px}.kt-notice-icon{width:50px;flex:0 0 50px;text-align:center;font-size:30px;color:#ff6bcf}.kt-notice-copy{min-width:0}.kt-notice-copy b{display:block;font-size:15px;color:#ffd85a;margin-bottom:6px}.kt-notice-copy span{display:block;font-size:13px;color:#77e7ff;line-height:1.35}.kt-room-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.kt-room{min-height:170px;border-radius:20px;padding:15px 8px 13px;background:linear-gradient(180deg,#101018e8,#06060be8);color:#fff;text-align:center;border:1px solid var(--edge);box-shadow:inset 0 0 24px color-mix(in srgb,var(--edge) 20%,transparent),0 0 15px color-mix(in srgb,var(--edge) 35%,transparent);display:flex;flex-direction:column;align-items:center;justify-content:flex-start}.kt-room .ri{font-size:44px;line-height:1;margin-bottom:10px;filter:drop-shadow(0 0 8px var(--edge))}.kt-room b{font-size:18px;line-height:1.12;color:var(--txt);letter-spacing:-.8px}.kt-room small{display:block;margin-top:9px;font-size:11px;line-height:1.45;color:#ddd}.kt-room .enter{margin-top:auto;width:88%;padding:9px 4px;border:0;border-radius:12px;background:linear-gradient(135deg,color-mix(in srgb,var(--edge) 78%,#fff 0%),color-mix(in srgb,var(--edge) 65%,#000));color:#fff;font-size:13px;font-weight:900;box-shadow:0 0 12px color-mix(in srgb,var(--edge) 42%,transparent)}.purple{--edge:#9b55ff;--txt:#d69cff}.pink{--edge:#ff3b9c;--txt:#ff9bd0}.gold{--edge:#ffbd22;--txt:#ffe26d}.blue{--edge:#36a7ff;--txt:#68c7ff}.green{--edge:#40df35;--txt:#79f069}.cyan{--edge:#19d7ec;--txt:#50e6f6}.kt-shortcuts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}.kt-short{min-height:98px;border:1px solid var(--edge);border-radius:16px;background:#09090ee8;color:#fff;padding:11px 6px;text-align:center;box-shadow:inset 0 0 15px color-mix(in srgb,var(--edge) 16%,transparent)}.kt-short strong{display:block;font-size:27px;line-height:1.05;margin-bottom:7px}.kt-short b{display:block;color:var(--txt);font-size:13px}.kt-short small{display:block;margin-top:4px;color:#ddd;font-size:10px;line-height:1.35}.kt-wide{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.kt-wide button{min-height:78px;border-radius:17px;border:1px solid var(--edge);background:linear-gradient(135deg,#081238,#05070f);color:#fff;text-align:left;padding:14px 17px;box-shadow:inset 0 0 20px color-mix(in srgb,var(--edge) 18%,transparent),0 0 13px color-mix(in srgb,var(--edge) 28%,transparent)}.kt-wide button:last-child{background:linear-gradient(135deg,#4b2f00,#0c0800)}.kt-wide b{display:block;font-size:18px}.kt-wide small{display:block;margin-top:4px;font-size:11px;color:#e8e8e8}.kt-bottom{position:fixed;z-index:50;left:0;right:0;bottom:0;height:78px;padding:8px 8px calc(8px + env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(5,1fr);background:#030307ed;border-top:1px solid #ffffff18;backdrop-filter:blur(14px)}.kt-bottom button{border:0;background:none;color:#cfcfd5;font-size:10px;font-weight:800}.kt-bottom b{display:block;font-size:24px;line-height:1.15;margin-bottom:3px}.kt-bottom .homebtn{color:#d36bff}.kt-bottom .livebtn{color:#ff53bd}.kt-bottom .livebtn b{display:grid;place-items:center;width:46px;height:46px;margin:-25px auto 2px;border-radius:16px;border:1px solid #ff5acf;background:linear-gradient(160deg,#3c123b,#16071d);box-shadow:0 0 18px #ff44c98c;font-size:19px}.creator .shade{pointer-events:none!important}.creator-top,.creator-tools,.creator-bottom,.live-prep{z-index:3!important;pointer-events:auto!important}.creator button,.creator .modes span,.creator .fx,.creator-foot span,.live-prep button,.live-prep input,.prep-bottom span{pointer-events:auto!important;touch-action:manipulation!important}.creator .test-active{outline:2px solid #fff!important;transform:scale(.96)}.creator-top,.creator-tools,.creator-bottom{display:none!important}.creator{background:radial-gradient(circle at 22% 16%,rgba(255,63,143,.26),transparent 28%),radial-gradient(circle at 82% 26%,rgba(53,169,255,.22),transparent 30%),radial-gradient(circle at 50% 82%,rgba(139,92,255,.28),transparent 38%),linear-gradient(155deg,#171421,#0a0b12 60%,#08070d)!important}.creator:not(.camera-on) video{display:none!important}.creator.camera-on video{display:block!important;position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important}.creator.beauty-on video{filter:brightness(1.08) saturate(1.05) contrast(.98)!important}.creator.effect-on video{filter:saturate(1.18) contrast(1.06)!important}.live-prep{position:absolute;inset:0;padding:20px 18px 18px;display:flex;flex-direction:column;color:#fff;background:linear-gradient(180deg,rgba(0,0,0,.10),rgba(0,0,0,.04) 28%,rgba(0,0,0,.58) 72%,rgba(0,0,0,.86))}.prep-top{display:flex;align-items:center;gap:12px}.prep-close,.prep-mini{width:42px;height:42px;border-radius:50%;border:1px solid rgba(255,255,255,.12);background:rgba(12,12,18,.48);color:#fff;font-size:22px}.prep-title{flex:1;text-align:center;font-size:19px;font-weight:900}.prep-topic{margin:34px 6px 0;padding:13px 16px;border-radius:20px;background:rgba(20,20,26,.34);border:1px solid rgba(255,255,255,.10)}.prep-topic input{width:100%;border:0;outline:0;background:transparent;color:#fff;font-size:18px;font-weight:800}.prep-grid{margin-top:auto;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px 6px;padding:16px 8px;border-radius:24px;background:rgba(18,18,24,.34);border:1px solid rgba(255,255,255,.09)}.prep-item{border:0;background:none;color:#fff;font-size:10px;font-weight:800}.prep-item b{display:grid;place-items:center;width:48px;height:48px;margin:auto auto 7px;border-radius:50%;background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.07));border:1px solid rgba(255,255,255,.10);font-size:21px}.prep-card{margin-top:12px;padding:14px;border-radius:24px;background:rgba(14,14,20,.46);border:1px solid rgba(255,255,255,.10)}.prep-card-top{display:flex;align-items:center;justify-content:space-between;font-size:15px;font-weight:900}.prep-card-top button{padding:8px 13px;border-radius:999px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.10);color:#fff}.prep-start{width:100%;margin-top:12px;padding:15px;border:0;border-radius:18px;background:linear-gradient(135deg,#ff315f,#ff3f8f 55%,#9b63ff);color:#fff;font-size:18px;font-weight:950;box-shadow:0 12px 30px rgba(255,49,95,.26)}.prep-bottom{display:flex;justify-content:space-around;margin-top:13px;padding:0 18px;font-size:14px;font-weight:900}.prep-bottom span{opacity:.5;padding:6px 10px;border-radius:10px}.prep-bottom .on{opacity:1;border-bottom:2px solid #fff;padding-bottom:6px}.giftPhoto{display:block;width:48px;height:36px;background:url('gifts-reference.jpg') no-repeat;background-size:400% 100%;border-radius:5px}.giftPhoto0{background-position:0% 50%}.giftPhoto1{background-position:33.333% 50%}.giftPhoto2{background-position:66.666% 50%}.giftPhoto3{background-position:100% 50%}.video-home{height:100%;position:relative;overflow:hidden;border-radius:16px;background:#000}.video-home video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000}.video-home .vh-shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.05),transparent 45%,rgba(0,0,0,.72))}.video-home .vh-title{position:absolute;left:14px;bottom:18px;right:78px;z-index:3;text-shadow:0 2px 5px #000}.video-home .vh-title b{display:block;color:#ffe07a;font-size:17px}.video-home .vh-title span{display:block;margin-top:5px;font-size:11px}.video-home .vh-actions{position:absolute;right:10px;bottom:16px;z-index:4;display:grid;gap:9px}.video-home .vh-actions button{width:48px;height:48px;border-radius:50%;border:1px solid #ffffff35;background:#08080bcc;color:#fff;font-size:18px}.video-home .vh-actions small{display:block;font-size:7px}@media(max-width:390px){.kt-dashboard{padding-left:10px;padding-right:10px}.kt-room-grid{gap:7px}.kt-room{min-height:160px;padding-left:5px;padding-right:5px}.kt-room b{font-size:16px}.kt-room small{font-size:10px}.kt-dash-logo{font-size:21px}.kt-pill{padding:0 8px}.kt-shortcuts{gap:6px}.kt-short b{font-size:12px}}
+</style>
 </head>
 <body>
 <div class="app">
-<header class="header"><div class="brand"><div class="logo">♛ K-Talk</div><div class="live">LIVE</div></div><div id="globalLed" class="led" onclick="handleLedClick()">♛ K-Talk · 신곡 광고 신청하세요! 🎵 🎤</div></header>
+<header class="header"><div class="brand"><div class="logo">♛ K-Talk</div><div class="live">LIVE</div></div><div class="led" onclick="openAd()">♛ K-Talk · 신곡 광고 신청하세요! 🎵 🎤</div></header>
 <main id="screen"></main>
-<nav class="bottom"><button data-bottom="home"><b>⌂</b>홈</button><button data-bottom="friends"><b>👥</b>친구</button><button class="plus" onclick="openCreator()"><b>＋</b>방송하기</button><button data-bottom="help"><b>?</b>사용방법</button><button data-bottom="profile"><b>♙</b>프로필</button></nav>
+<nav class="bottom"><button data-bottom="home"><b>⌂</b>홈</button><button data-bottom="friends"><b>👥</b>친구</button><button class="plus" onclick="openCreator()"><b>＋</b>방송하기</button><button data-bottom="help"><b>?</b>사용방법</button><button data-bottom="profile"><b>♙</b>내 정보</button></nav>
 </div>
 <div id="creator" class="creator">
-<canvas id="ktPersonCanvas" aria-hidden="true"></canvas>
-<video id="cameraBg" autoplay playsinline muted aria-hidden="true"></video>
-<video id="camera" autoplay playsinline muted></video>
-<video id="ktCreatorPreview" class="kt-creator-preview" playsinline></video>
-<button id="ktCreatorSoundPlay" class="kt-creator-sound-play" onclick="playCreatorPreviewWithSound()">▶ 음악 재생</button>
-<input id="ktMyVideoInput" type="file" accept="video/*" hidden onchange="handleMyVideoPick(this)">
-<div id="ktCreatorPreviewFallback" class="kt-creator-preview-fallback"><b>촬영 완료</b><span>미리보기 대신 저장하거나 삭제할 수 있습니다.</span></div>
-<button id="ktCreatorStopTap" class="kt-creator-stop-tap" onclick="stopCreatorRecording()" aria-label="촬영 종료"><b>■</b><span>중지</span></button>
-<button id="ktCreatorConfirmTap" class="kt-creator-confirm-tap" onclick="confirmCreatorRecording()" aria-label="촬영 확인">✓<span>확인</span></button>
-<div class="kt-creator-review-actions"><button class="delete" onclick="deleteCreatorRecording()">🗑 삭제</button><button class="retake" onclick="deleteCreatorRecording();setTimeout(startCreatorRecording,150)">↻ 다시 촬영</button><button class="draft" onclick="saveCreatorDraft()">▣ 임시 저장</button><button class="friend" onclick="shareCreatorRecording()">↗ 친구에게 보내기</button><button class="post" onclick="postCreatorRecording()">✓ 게시하기</button></div>
-<div class="shade"></div>
-<div class="creator-top"><button class="circle" onclick="closeCreator()">×</button><button class="sound" id="creatorSoundBtn" onclick="openSoundPanel()">♪ 사운드 추가</button><button class="circle creator-rotate" onclick="if(window.toggleCreatorCamera)toggleCreatorCamera()">↻</button></div>
+<video id="camera" autoplay playsinline muted></video><div class="shade"></div>
+<div class="creator-top"><button class="circle" onclick="closeCreator()">×</button><button class="sound">♪ 사운드 추가</button><button class="circle creator-rotate" onclick="if(window.toggleCreatorCamera)toggleCreatorCamera()">↻</button></div>
 <div class="creator-tools"><button aria-label="플래시">⚡</button><button aria-label="타이머">◔</button><button aria-label="방송 선택" onclick="if(window.openRoomTypeChooser)openRoomTypeChooser()">▦</button><button aria-label="보정" onclick="if(window.prepTap)prepTap(this,'보정')">✨</button><button aria-label="더보기">⌄</button></div>
-<div class="creator-bottom"><div class="modes"><span class="on" onclick="selectCreatorDuration(this,600000)">10분</span><span onclick="selectCreatorDuration(this,60000)">60초</span><span onclick="selectCreatorDuration(this,15000)">15초</span><span onclick="if(window.openTikLivePrep)openTikLivePrep()">라이브</span></div><div class="recordrow"><button class="fx myvideo" onclick="openMyVideoPicker()" aria-label="내 동영상"><span>🎬</span><small>내 동영상</small></button><button class="record" onclick="startCreatorRecording()"></button></div><div class="creator-foot"><span class="on" onclick="setCreatorMode(this,'게시')">게시</span><span onclick="setCreatorMode(this,'창작하기')">창작하기</span><span onclick="if(window.openTikLivePrep)openTikLivePrep()">라이브</span></div></div>
-<div class="live-prep"><div class="prep-top"><button class="prep-close" onclick="closeCreator()">×</button><div class="prep-title">K-Talk 라이브 준비</div><button class="prep-mini prep-reward" onclick="prepTap(this,'코인 리워드')">★ 코인 리워드</button></div><div class="prep-topic"><input id="liveTitle" value="오늘 라이브 제목을 입력하세요" aria-label="라이브 제목"></div><div class="prep-grid"><button class="prep-item" onclick="prepTap(this,'전환')"><b>↻</b>전환</button><button class="prep-item" onclick="prepTap(this,'보정')"><b>✦</b>보정</button><button class="prep-item" onclick="prepTap(this,'편집효과')"><b>✺</b>편집효과</button><button class="prep-item" onclick="prepTap(this,'설정')"><b>⚙</b>설정</button><button class="prep-item" onclick="prepTap(this,'멀티게스트')"><b>▦</b>멀티게스트</button><button class="prep-item" onclick="prepTap(this,'서비스')"><b>▣</b>서비스+</button><button class="prep-item" onclick="prepTap(this,'팬클럽')"><b>♡</b>팬클럽</button><button class="prep-item" onclick="prepTap(this,'소통하기')"><b>☵</b>소통하기</button><button class="prep-item" onclick="prepTap(this,'공유')"><b>↗</b>공유</button></div><div class="prep-goal"><label for="liveGoal">방송 목표</label><input id="liveGoal" type="text" value="" placeholder="오늘 방송 목표를 입력하세요" aria-label="방송 목표"></div><div class="prep-card"><div class="room-switch-row"><button class="room-switch on" onclick="selectPrepRoom(this,'solo','1인 방송',1)">1인 방송</button><button class="room-switch" onclick="selectPrepRoom(this,'group','13명 방송',13)">13명 방송</button><button class="room-switch" onclick="selectPrepRoom(this,'subscriber','구독자 방송',10)">구독자 방송</button><button class="room-switch" onclick="selectPrepRoom(this,'password','비밀방',7)">비밀방</button></div><button class="prep-start" onclick="startBroadcast()">● 라이브 시작</button></div><div class="prep-bottom"><span onclick="prepBottomTap(this,'게시')">게시</span><span onclick="prepBottomTap(this,'창작하기')">창작하기</span><span class="on" onclick="prepBottomTap(this,'라이브')">라이브</span></div></div>
+<div class="creator-bottom"><div class="modes"><span class="on" onclick="if(window.setCreatorDuration)setCreatorDuration(this,600)">10분</span><span onclick="if(window.setCreatorDuration)setCreatorDuration(this,60)">60초</span><span onclick="if(window.setCreatorDuration)setCreatorDuration(this,15)">15초</span><span onclick="if(window.openTikLivePrep)openTikLivePrep()">라이브</span></div><div class="recordrow"><div class="fx">👤</div><button class="record" onclick="if(window.startCreatorRecording)startCreatorRecording();else if(window.startBroadcast)startBroadcast()"></button><div class="fx">🎭</div></div><div class="creator-foot"><span class="on">게시</span><span>창작하기</span><span onclick="if(window.openTikLivePrep)openTikLivePrep()">라이브</span></div></div>
+<div class="live-prep"><div class="prep-top"><button class="prep-close" onclick="closeCreator()">×</button><div class="prep-title">K-Talk 라이브 준비</div><button class="prep-mini" onclick="prepTap(this,'라이브 보상')">★</button></div><div class="prep-topic"><input id="liveTitle" value="오늘 라이브 제목을 입력하세요" aria-label="라이브 제목"></div><div class="prep-grid"><button class="prep-item" onclick="prepTap(this,'보정')"><b>✦</b>보정</button><button class="prep-item" onclick="prepTap(this,'편집효과')"><b>✺</b>편집효과</button><button class="prep-item" onclick="prepTap(this,'멀티게스트')"><b>▦</b>방송 선택</button><button class="prep-item" onclick="prepTap(this,'서비스')"><b>□</b>서비스</button><button class="prep-item" onclick="prepTap(this,'팬클럽')"><b>♡</b>팬클럽</button><button class="prep-item" onclick="prepTap(this,'공유')"><b>↗</b>공유</button></div><div class="prep-card"><div class="room-switch-row"><button class="room-switch on" onclick="selectPrepRoom(this,'solo','1인 방송',1)">1인 방송</button><button class="room-switch" onclick="selectPrepRoom(this,'group','13명 방송',13)">13명 방송</button><button class="room-switch" onclick="selectPrepRoom(this,'subscriber','구독자 방송',10)">구독자 방송</button><button class="room-switch" onclick="selectPrepRoom(this,'password','비밀방',7)">비밀방</button></div><button class="prep-start" onclick="startBroadcast()">● 라이브 시작</button></div><div class="prep-bottom"><span onclick="prepBottomTap(this,'게시')">게시</span><span onclick="prepBottomTap(this,'창작하기')">창작하기</span><span class="on" onclick="prepBottomTap(this,'라이브')">라이브</span></div></div>
 </div>
 <div id="sheet" class="sheet"><div class="sheet-inner"><div class="sheet-head"><h3 id="sheetTitle">메뉴</h3><button onclick="closeSheet()">닫기</button></div><div id="sheetBody"></div></div></div>
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js" crossorigin="anonymous"></script>
-<script src="app.js?v=20260902-fullscreen-person70"></script>
-<style id="ktGiftFinalInlineStyle">
-#sheet.kt-gift-force{background:rgba(0,0,0,.92)!important;backdrop-filter:blur(8px)!important}
-#sheet.kt-gift-force .sheet-inner{width:min(100%,560px)!important;max-height:97dvh!important;padding:0!important;overflow:auto!important;border-radius:26px 26px 0 0!important;border:1px solid #6f2c5f!important;border-bottom:0!important;background:radial-gradient(circle at 10% 0%,rgba(194,50,190,.17),transparent 24%),radial-gradient(circle at 90% 4%,rgba(93,55,166,.14),transparent 26%),linear-gradient(180deg,#09070d,#050407 58%,#020203)!important;box-shadow:0 -16px 55px #000e!important}
-#sheet.kt-gift-force .sheet-head{display:none!important}
-#sheet.kt-gift-force #sheetBody{padding:0!important}
-.ktgf{padding:12px 10px 14px;color:#fff}
-.ktgf *{box-sizing:border-box}
-.ktgf button{font-family:inherit;touch-action:manipulation;pointer-events:auto!important}
-.ktgf-head{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:94px;padding:8px 4px 15px;border-bottom:1px solid #81355f55}
-.ktgf-brand{display:flex;align-items:center;gap:12px;min-width:0}
-.ktgf-logo{width:66px;height:66px;flex:0 0 66px;display:grid;place-items:center;border-radius:20px;font-size:38px;background:linear-gradient(145deg,#78247d,#2c1134);border:1px solid #dc5bc8;box-shadow:0 0 24px #e156c33d,inset 0 0 18px #ffffff0d}
-.ktgf-brand h2{margin:0;color:#ffe27c;font-size:28px;line-height:1;font-weight:950;letter-spacing:-1px;white-space:nowrap;text-shadow:0 0 12px #f2c15325}
-.ktgf-brand p{margin:8px 0 0;color:#f0d8bc;font-size:11px;font-weight:900;white-space:nowrap}
-.ktgf-close{flex:0 0 auto;min-width:86px;height:52px;border-radius:18px;border:1px solid #a14587;background:linear-gradient(180deg,#1d101f,#0d0910);color:#fff;font-size:18px;font-weight:950}
-.ktgf-main{display:grid;grid-template-columns:96px minmax(0,1fr);gap:10px;margin-top:12px;align-items:start}
-.ktgf-side{display:flex;flex-direction:column;gap:5px;padding:6px;border-radius:20px;border:1px solid #57294a;background:linear-gradient(180deg,#0d0910,#060507);box-shadow:inset 0 0 24px #000c}
-.ktgf-cat{min-height:82px;padding:7px 3px;border-radius:17px;border:1px solid transparent;background:transparent;color:#d8a8dc;font-weight:950}
-.ktgf-cat i{display:block;font-style:normal;font-size:30px;line-height:1}
-.ktgf-cat span{display:block;margin-top:7px;font-size:10.5px;line-height:1.15;font-weight:950}
-.ktgf-cat.on{color:#fff;border-color:#ff60c8;background:radial-gradient(circle at 50% 20%,rgba(255,85,207,.19),transparent 45%),linear-gradient(145deg,#491435,#1b0c1a);box-shadow:0 0 18px #ff53bf45,inset 0 0 15px #ff64c41c}
-.ktgf-cat.vip{color:#ffd968}.ktgf-cat.vip.on{color:#fff1a4;border-color:#ffd658;background:linear-gradient(145deg,#342408,#130e04)}
-.ktgf-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;align-content:start}
-.ktgf-card{position:relative;min-width:0;height:158px;padding:7px 4px 8px;border-radius:14px;border:1px solid #815536;background:radial-gradient(circle at 50% 27%,rgba(115,42,87,.19),transparent 43%),linear-gradient(180deg,#100b10,#070607);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;text-align:center;box-shadow:inset 0 0 20px #000d,0 0 10px #d5922812;overflow:hidden}
-.ktgf-card.hide{display:none!important}.ktgf-card:active{transform:scale(.97);border-color:#ff68c8}
-.ktgf-no{position:absolute;left:5px;top:5px;min-width:21px;height:21px;padding:0 4px;display:grid;place-items:center;border-radius:7px;background:#531a48;border:1px solid #873773;color:#ffd8f5;font-size:10px;font-weight:950;z-index:2}
-.ktgf-art{width:100%;height:90px;margin:0 auto 7px;display:grid;place-items:center;border-radius:13px;font-family:"Noto Color Emoji","Apple Color Emoji","Segoe UI Emoji",sans-serif;font-size:55px;line-height:1;background:radial-gradient(circle at 50% 43%,rgba(126,47,105,.43),rgba(52,21,47,.58) 48%,#080608 80%);box-shadow:inset 0 0 18px #000b,0 0 0 1px #6f452d;filter:drop-shadow(0 4px 8px #0009)}
-.ktgf-art{background:none!important;overflow:hidden}
-.ktgf-art svg{display:block;width:100%;height:100%;border-radius:inherit}
-.ktgf-card b{width:100%;min-height:28px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9.5px;line-height:1.15;font-weight:950;word-break:keep-all}
-.ktgf-card strong{display:block;margin-top:5px;color:#ffd65e;font-size:13px;line-height:1;font-weight:950;white-space:nowrap}
-.ktgf-foot{display:flex;align-items:center;justify-content:center;margin-top:12px;padding:10px;border-radius:14px;border:1px solid #663052;background:#100a0f;color:#d8c6d3;font-size:10px;font-weight:900}
-@media(max-width:410px){
-  .ktgf{padding:5px 5px 6px}.ktgf-head{min-height:62px;padding-bottom:6px}.ktgf-brand{gap:6px}.ktgf-logo{width:44px;height:44px;flex-basis:44px;font-size:26px;border-radius:13px}.ktgf-brand h2{font-size:19px}.ktgf-brand p{font-size:7.5px;margin-top:3px}.ktgf-close{min-width:58px;height:38px;font-size:14px;padding:0 8px}
-  .ktgf-main{grid-template-columns:62px minmax(0,1fr);gap:4px;margin-top:5px}.ktgf-side{padding:3px;gap:2px}.ktgf-cat{min-height:57px;padding:3px 1px;border-radius:11px}.ktgf-cat i{font-size:19px}.ktgf-cat span{font-size:7px;margin-top:3px}
-  .ktgf-grid{gap:3px}.ktgf-card{height:92px;padding:2px 1px 3px;border-radius:9px}.ktgf-art{height:50px;font-size:28px;margin-bottom:1px;border-radius:8px}.ktgf-no{display:none}.ktgf-card b{font-size:6.2px;min-height:17px;line-height:1.02}.ktgf-card strong{position:static;display:block;font-size:8.8px;line-height:10px;height:10px;margin:0;color:#ffe06b;overflow:visible}.ktgf-foot{display:none}
-}
-</style>
+<script src="app.js?v=20260902-creator-restore65"></script>
 <script>
 (function(){
-  var gifts=[
-    ['장미',1,'🌹'],['하트',30,'💖'],['꽃다발',50,'💐'],['풍선',80,'💗'],['보물상자',100,'🎁'],
-    ['왕관',200,'👑'],['다이아 왕관',300,'♛'],['럭셔리 자동차',500,'🏎️'],['요트',700,'🛥️'],['성',1000,'🏰'],
-    ['초콜릿',10,'🍫'],['향수',20,'🧴'],['케이크',40,'🎂'],['불꽃놀이',60,'🎆'],['백조',120,'🦢'],
-    ['트로피',150,'🏆'],['별빛',180,'⭐'],['하트 폭죽',250,'💥'],['다이아 하트',400,'💎'],['럭셔리 무대',600,'🎇'],
-    ['달',800,'🌕'],['별 패키지',1200,'🌟'],['골드 패키지',1500,'🎁'],['프리미엄 반지',2000,'💍'],['VIP 크라운',3000,'👑']
-  ];
-  var picks={
-    '꽃/하트':[0,1,2,3,12],
-    '프리미엄':[5,6,9,23,24],
-    '연출/특수':[10,11,13,14,16,17],
-    '럭셔리':[7,8,18,19,20],
-    '보물/패키지':[4,21,22],
-    'VIP 전용':[24]
-  };
-  window.ktGiftFilterFinal=function(cat,btn){
-    document.querySelectorAll('.ktgf-cat').forEach(function(b){b.classList.remove('on')});
-    if(btn)btn.classList.add('on');
-    document.querySelectorAll('.ktgf-card').forEach(function(card){
-      var i=parseInt(card.dataset.i,10);
-      var show=cat==='전체'||(picks[cat]&&picks[cat].indexOf(i)>-1);
-      card.classList.toggle('hide',!show);
-    });
-  };
-  window.openGifts=function(){
-    var cards=gifts.map(function(g,i){
-      var cropX=[175,310,445,580,715][i%5],cropY=[205,475,742,1008,1272][Math.floor(i/5)];
-      return '<button type="button" class="ktgf-card" data-i="'+i+'" onclick="giftSendByIndex('+i+')">'
-        +'<span class="ktgf-no">'+(i+1)+'</span><span class="ktgf-art" role="img" aria-label="'+g[0]+'"><svg viewBox="'+cropX+' '+cropY+' 125 130" preserveAspectRatio="xMidYMid slice"><image href="gift-source.svg?v=1" width="864" height="1536"></image></svg></span><b>'+g[0]+'</b><strong>'+g[1].toLocaleString('ko-KR')+'개</strong></button>';
-    }).join('');
-    var html='<div class="ktgf"><div class="ktgf-head"><div class="ktgf-brand"><span class="ktgf-logo">🎁</span><div><h2>K-Talk 선물상자</h2><p>✦ 마음을 전하는 특별한 선물 ✦</p></div></div><button type="button" class="ktgf-close" onclick="closeSheet()">닫기</button></div>'
-      +'<div class="ktgf-main"><aside class="ktgf-side">'
-      +'<button type="button" class="ktgf-cat on" onclick="ktGiftFilterFinal(\'전체\',this)"><i>🎁</i><span>전체</span></button>'
-      +'<button type="button" class="ktgf-cat" onclick="ktGiftFilterFinal(\'꽃/하트\',this)"><i>🌹</i><span>꽃/하트</span></button>'
-      +'<button type="button" class="ktgf-cat" onclick="ktGiftFilterFinal(\'프리미엄\',this)"><i>👑</i><span>프리미엄</span></button>'
-      +'<button type="button" class="ktgf-cat" onclick="ktGiftFilterFinal(\'연출/특수\',this)"><i>✨</i><span>연출/특수</span></button>'
-      +'<button type="button" class="ktgf-cat" onclick="ktGiftFilterFinal(\'럭셔리\',this)"><i>💎</i><span>럭셔리</span></button>'
-      +'<button type="button" class="ktgf-cat" onclick="ktGiftFilterFinal(\'보물/패키지\',this)"><i>🧰</i><span>보물/패키지</span></button>'
-      +'<button type="button" class="ktgf-cat vip" onclick="ktGiftFilterFinal(\'VIP 전용\',this)"><i>👑</i><span>VIP 전용</span></button>'
-      +'</aside><section><div class="ktgf-grid">'+cards+'</div></section></div>'
-      +'<div class="ktgf-foot">💗 선물은 라이브 방송 중에만 보낼 수 있습니다.</div></div>';
-    showSheet('',html);
-    sheet.classList.add('kt-gift-force');
-  };
-  var oldClose=window.closeSheet;
-  window.closeSheet=function(){
-    try{sheet.classList.remove('kt-gift-force');}catch(e){}
-    return oldClose?oldClose():undefined;
-  };
-})();
-</script>
-<script>
-(function(){
- const originalFriends=window.friends,originalProfile=window.openProfile,originalMenu=window.openMenu,originalCloseCreator=window.closeCreator;
- function leaveDash(){document.body.classList.remove('kt-home','kt-video-mode')}
+ const originalFriends=window.friends,originalProfile=window.openProfile,originalMenu=window.openMenu;
+ function leaveDash(){document.body.classList.remove('kt-home')}
  if(originalFriends)window.friends=function(){leaveDash();return originalFriends()};
  if(originalProfile)window.openProfile=function(){leaveDash();return originalProfile()};
  if(originalMenu)window.openMenu=function(){leaveDash();return originalMenu()};
- window.openCreator=async function(){
-   if(window.ktStopBackgroundMedia)window.ktStopBackgroundMedia();
-   creator.classList.remove('live-prep-open','creator-review','creator-recording');
+ window.openCreator=function(){
    creator.classList.add('show');
-   if(window.ensureLiveCamera){
-     try{await ensureLiveCamera(state.cameraFacing||'user');}catch(e){}
-   }else if(window.ensureCreatorPreviewCamera){
-     try{await ensureCreatorPreviewCamera(state.cameraFacing||'user');}catch(e){}
-   }else{
-     creator.classList.remove('camera-on');
-   }
+   const live=state.stream&&state.stream.getTracks&&state.stream.getTracks().some(t=>t.readyState==='live');
+   if(live){camera.srcObject=state.stream;creator.classList.add('camera-on');camera.play().catch(()=>{});}
  };
- window.openTikLivePrep=function(){creator.classList.add('live-prep-open');};
- window.closeTikLivePrep=function(){creator.classList.remove('live-prep-open');};
- window.closeCreator=function(){if(originalCloseCreator)return originalCloseCreator();creator.classList.remove('show');if(state.stream){state.stream.getTracks().forEach(t=>t.stop());state.stream=null;camera.srcObject=null;}};
+ window.closeCreator=function(){creator.classList.remove('show');if(state.stream){state.stream.getTracks().forEach(t=>t.stop());state.stream=null;camera.srcObject=null;}};
  window.startBroadcast=async function(){
    if(window.ensureLiveCamera)await ensureLiveCamera(state.cameraFacing||'user');
  };
  window.openRoomPrep=function(name,max){document.getElementById('liveTitle').value=name+' · 최대 '+max+'명';openCreator();};
  window.openLiveRoom=function(){showSheet('라이브룸','<div class="aux-grid"><button class="aux-card" onclick="closeSheet();openRoomPrep(\'일반 13명방\',13)"><b>👥 일반 13명방</b><small>최대 13명</small></button><button class="aux-card" onclick="closeSheet();openRoomPrep(\'1인 방송\',1)"><b>🎙️ 1인 방송</b><small>나만의 방송</small></button><button class="aux-card" onclick="closeSheet();openRoomPrep(\'비밀방\',7)"><b>🔒 비밀방</b><small>호스트 1 + 게스트 6</small></button><button class="aux-card" onclick="closeSheet();openRoomPrep(\'구독자 전용방\',10)"><b>👑 구독자 전용방</b><small>최대 10명</small></button></div>');};
- window.openProfileVideos=function(){leaveDash();if(window.openMyVideoLibrary)openMyVideoLibrary();else if(originalProfile)originalProfile();};
+ window.openProfileVideos=function(){leaveDash();if(originalProfile)originalProfile();};
  window.openMatch=function(){showSheet('🏆 매치전','<div class="note">주간 랭킹 매치전 화면입니다.</div>');};
  window.openBroadcastList=function(){leaveDash();if(originalFriends)originalFriends();};
  window.openDashboard=function(){document.body.classList.add('kt-home');screen.innerHTML=`<section class="kt-dashboard"><div class="kt-dash-top"><div class="kt-dash-logo"><span class="crown">♛</span> <span class="talk">K-Talk</span> <span class="liveword">LIVE</span></div><div class="kt-dash-actions"><button class="kt-pill coin" onclick="openCharge()">🪙 코인 1,250 ＋</button><button class="kt-pill vip" onclick="openSubs()">💎 VIP</button><button class="kt-iconbtn" onclick="openMessages()">🔔</button></div></div><button onclick="needJoin('K-Talk 가입/로그인을 진행해 주세요.')" style="width:100%;margin:0 0 14px;padding:15px 18px;border-radius:18px;border:2px solid #ff62cf;background:linear-gradient(135deg,#54105f,#e82891 55%,#763dff);color:#fff;font-size:18px;font-weight:950;box-shadow:0 0 20px #ff40c766,inset 0 0 18px #ffffff18">👤 가입 / 로그인</button><div class="kt-notice"><div class="kt-notice-row"><div class="kt-notice-icon">📣</div><div class="kt-notice-copy"><b>공지 · 장미 100송이 선물!</b><span>오늘의 매치전 1등 상금 500코인! 도전하세요! 🏆</span></div></div></div><div class="kt-room-grid"><button class="kt-room purple" onclick="openRoomPrep('일반 13명방',13)"><span class="ri">👥</span><b>일반 13명방</b><small>최대 13명<br>다양한 사람들과 즐겁게!</small><span class="enter">입장하기 ›</span></button><button class="kt-room pink" onclick="openRoomPrep('1인 방송',1)"><span class="ri">🎙️</span><b>1인 방송</b><small>나만의 방송<br>지금 시작해보세요!</small><span class="enter">입장하기 ›</span></button><button class="kt-room gold" onclick="openRoomPrep('비밀방',7)"><span class="ri">🔒</span><b>비밀방</b><small>호스트 1 + 게스트 6<br>비밀번호로 입장!</small><span class="enter">입장하기 ›</span></button><button class="kt-room blue" onclick="openRoomPrep('구독자 전용방',10)"><span class="ri">♛</span><b>구독자 전용방</b><small>구독자만 입장 가능<br>최대 10명 입장</small><span class="enter">입장하기 ›</span></button><button class="kt-room green" onclick="openMatch()"><span class="ri">🏆</span><b>매치전</b><small>주간 랭킹 경쟁!<br>상위 랭커 도전하세요!</small><span class="enter">바로가기 ›</span></button><button class="kt-room cyan" onclick="openProfileVideos()"><span class="ri">🎬</span><b>내 프로필 동영상</b><small>내가 올린 쇼츠/영상<br>프로필에서 확인하세요!</small><span class="enter">바로가기 ›</span></button></div><div class="kt-shortcuts" style="grid-template-columns:repeat(2,1fr)"><button class="kt-short purple" onclick="openRaffle()"><strong>🎡</strong><b>제비뽑기</b><small>하루 2~3회<br>장미 당첨!</small></button><button class="kt-short pink" onclick="openGifts()"><strong>🎁</strong><b>선물하기</b><small>다양한 선물로<br>마음을 전하세요</small></button></div><div class="kt-wide"><button class="blue" onclick="home();activate('shorts')"><b>▣ 쇼츠 올리기</b><small>쇼츠 · 상품/광고 등록 가능</small></button><button class="gold" onclick="openCharge()"><b>🪙 코인 충전</b><small>100개부터 충전 가능</small></button></div></section><nav class="kt-bottom"><button class="homebtn" onclick="home()"><b>⌂</b>홈</button><button onclick="openBroadcastList()"><b>▣</b>방송목록</button><button class="livebtn" onclick="openCreator()"><b>＋</b>라이브룸</button><button onclick="openMessages()"><b>☵</b>채팅</button><button onclick="openProfile()"><b>♙</b>마이페이지</button></nav>`;};
- function showVideoHome(label){leaveDash();document.body.classList.add('kt-video-mode');screen.innerHTML=`<section class="video-home"><video id="homeVideo" autoplay muted loop playsinline poster="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80"><source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4"></video><div class="vh-shade"></div><div class="vh-tabs"><span>LIVE</span><span>커뮤니티</span><span>팔로잉</span><span class="on">추천</span><button aria-label="검색">⌕</button></div><div class="vh-title"><b>♛ K-Talk</b><span>${label||'추천 동영상'} · 화면을 눌러 재생하거나 멈출 수 있습니다.</span></div><div class="vh-actions"><button onclick="needJoin('좋아요를 누르려면 가입해 주세요.')">♡<small>좋아요</small></button><button onclick="openComments()">💬<small>댓글</small></button><button onclick="openGifts()">🎁<small>선물</small></button><button onclick="shareApp()">↗<small>공유</small></button></div></section>`;const v=document.getElementById('homeVideo');if(v){v.addEventListener('click',function(){if(v.paused)v.play().catch(()=>{});else v.pause();});v.play().catch(()=>{});}}
+ function showVideoHome(label){leaveDash();screen.innerHTML=`<section class="video-home"><video id="homeVideo" autoplay muted loop playsinline controls poster="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80"><source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4"></video><div class="vh-shade"></div><div class="vh-title"><b>♛ K-Talk</b><span>${label||'추천 동영상'} · 화면을 눌러 재생하거나 멈출 수 있습니다.</span></div><div class="vh-actions"><button onclick="needJoin('좋아요를 누르려면 가입해 주세요.')">♡<small>좋아요</small></button><button onclick="openComments()">💬<small>댓글</small></button><button onclick="openGifts()">🎁<small>선물</small></button><button onclick="shareApp()">↗<small>공유</small></button></div></section>`;const v=document.getElementById('homeVideo');if(v)v.play().catch(()=>{});}
  window.home=function(){activate('home');showVideoHome('추천 동영상')};
  window.media=function(type){activate(type);showVideoHome(type==='shorts'?'쇼츠':'동영상')};
- function applyApprovedGifts(){const gifts=document.querySelectorAll('.refGift');if(gifts.length>=4){const labels=['장미 1송이','장미 50송이','장미 100송이','보물상자'];gifts.forEach((g,i)=>{if(i<4){const strong=g.querySelector('strong');if(strong)strong.innerHTML='<span class="giftPhoto giftPhoto'+i+'"></span>';const b=g.querySelector('b');if(b)b.textContent=labels[i];}});}const rewards=document.querySelectorAll('.refReward i');const likes=['♥ 5,000','♥ 10,000','♥ 15,000','♥ 20,000','♥ 25,000'];rewards.forEach((el,i)=>{if(i<5)el.innerHTML='<b>'+likes[i]+'</b><span class="giftPhoto giftPhoto0"></span><span class="rewardText">장미 1송이</span>';});}
+ function applyApprovedGifts(){const gifts=document.querySelectorAll('.refGift');if(gifts.length>=4){const labels=['장미 1송이','장미 50송이','장미 100송이','보물상자'];gifts.forEach((g,i)=>{if(i<4){const strong=g.querySelector('strong');if(strong)strong.innerHTML='<span class="giftPhoto giftPhoto'+i+'"></span>';const b=g.querySelector('b');if(b)b.textContent=labels[i];}});}const rewards=document.querySelectorAll('.refReward i');const likes=['♥ 3,000','♥ 6,000','♥ 9,000','♥ 12,000','♥ 15,000'];rewards.forEach((el,i)=>{if(i<5)el.innerHTML='<b>'+likes[i]+'</b><span class="giftPhoto giftPhoto0"></span><span class="rewardText">지급 완료</span>';});}
  new MutationObserver(applyApprovedGifts).observe(screen,{childList:true,subtree:true});
  home();
 })();
 </script>
 
-<!-- KTALK_PERSONAL_EARNINGS_V4 -->
+<!-- KTALK_HOST_EARNINGS_V3 -->
 <script>
 (function(){
   var ROSE_WON=30;
-  var earnTimer=null;
-  var toastTimer=null;
-  var session={active:false,start:0,roses:0,gifts:0,likes:0,likeRewarded:{},title:'',memberType:'general',rate:0.35};
+  var session={active:false,start:0,roses:0,gifts:0,title:'',memberType:'general',rate:0.35};
 
   function money(n){return Math.round(n||0).toLocaleString('ko-KR')+'원';}
   function total(){return session.roses*ROSE_WON;}
@@ -187,7 +75,7 @@
   }
   function rateFor(type){return type==='subscriber'?0.40:0.35;}
   function labelFor(type){return type==='subscriber'?'구독자':'일반회원';}
-  function myNet(){return Math.round(total()*session.rate);}
+  function hostNet(){return Math.round(total()*session.rate);}
 
   window.setKTalkMemberType=function(type){
     var v=type==='subscriber'?'subscriber':'general';
@@ -197,170 +85,13 @@
   };
 
   function updateEarn(){
-    var net=money(myNet());
-    var roses=session.roses.toLocaleString('ko-KR')+'송이';
-    var rate=labelFor(session.memberType)+' · '+Math.round(session.rate*100)+'%';
-
-    var a=document.getElementById('earnNet');
-    var b=document.getElementById('earnRoses');
-    var r=document.getElementById('earnRate');
-    var h1=document.getElementById('hudEarnNet');
-    var h2=document.getElementById('hudEarnRoses');
-    var h3=document.getElementById('hudEarnRate');
-
-    if(a)a.textContent=net;
-    if(b)b.textContent=roses;
-    if(r)r.textContent=rate;
-    if(h1)h1.textContent=net;
-    if(h2)h2.textContent='🌹 '+roses;
-    if(h3)h3.textContent=rate;
+    var a=document.getElementById('earnNet'),b=document.getElementById('earnRoses'),r=document.getElementById('earnRate');
+    if(a)a.textContent=money(hostNet());
+    if(b)b.textContent=session.roses.toLocaleString('ko-KR')+'송이';
+    if(r)r.textContent=labelFor(session.memberType)+' · '+Math.round(session.rate*100)+'%';
   }
 
-  window.toggleMyEarnings=function(){
-    var d=document.getElementById('myEarnDetail');
-    if(!d)return;
-    d.style.display=d.style.display==='none'?'grid':'none';
-  };
-
-  window.showPrivate30mEarnings=function(){
-    if(!session.active)return;
-    var old=document.getElementById('privateEarnToast');
-    if(old)old.remove();
-
-    var toast=document.createElement('div');
-    toast.id='privateEarnToast';
-    toast.style.cssText='position:fixed;top:78px;left:50%;transform:translateX(-50%);z-index:9998;width:min(92vw,430px);padding:12px 14px;border-radius:16px;border:1px solid #ffe07166;background:rgba(12,10,18,.94);box-shadow:0 10px 30px #0008,0 0 18px #ffd85a22;color:#fff;text-align:center;font-weight:900;pointer-events:none';
-    toast.innerHTML='<div style="font-size:11px;color:#9eeeff">🔒 본인에게만 보이는 30분 수익 확인</div>'
-      +'<div style="margin-top:5px;font-size:18px;color:#ffe071">🌹 '+session.roses.toLocaleString('ko-KR')+'송이 · '+money(myNet())+'</div>';
-    document.body.appendChild(toast);
-
-    clearTimeout(toastTimer);
-    toastTimer=setTimeout(function(){if(toast&&toast.parentNode)toast.remove();},7000);
-  };
-
-  window.addMyEarnedRoses=function(count){
-    var n=parseInt(count,10)||0;
-    if(!session.active||n<=0)return;
-    session.roses+=n;
-    session.gifts++;
-    updateEarn();
-  };
-
-  function updateHostLikeUI(){
-    var a=document.getElementById('hostLikeCount');
-    if(a)a.textContent=(session.likes||0).toLocaleString('ko-KR');
-  }
-
-  function checkHostLikeReward(){
-    var milestones=[5000,10000,15000,20000,25000];
-    milestones.forEach(function(m){
-      if((session.likes||0)>=m && !session.likeRewarded[m]){
-        session.likeRewarded[m]=true;
-        session.roses+=1;
-        updateEarn();
-        if(window.ktAnnounceEvent)ktAnnounceEvent('reward',{text:'좋아요 '+m.toLocaleString('ko-KR')+'개 달성. 호스트에게 장미 1송이를 지급했습니다.'});
-        var toast=document.createElement('div');
-        toast.className='kt-like-reward-toast';
-        toast.innerHTML='💗 좋아요 '+m.toLocaleString('ko-KR')+'개 달성<br><b>🌹 장미 1송이 지급</b>';
-        document.body.appendChild(toast);
-        setTimeout(function(){if(toast&&toast.parentNode)toast.remove();},3200);
-      }
-    });
-  }
-
-  window.addHostLike=function(count){
-    if(!session.active)return;
-    var n=parseInt(count,10)||1;
-    if(n<1)n=1;
-    session.likes=(session.likes||0)+n;
-    if(session.likes>25000)session.likes=25000;
-    updateHostLikeUI();
-    checkHostLikeReward();
-  };
-
-
-  var liveFaceTimer=null;
-  var liveFaceDetector=null;
-
-  function appliedEffectMarkup(){
-    try{
-      var applied=(window.state&&state.appliedEditEffect)||'off';
-      if(window.renderFaceEffect)renderFaceEffect(applied);
-      var a=document.getElementById('ktFaceAnchor');
-      return a?a.innerHTML:'';
-    }catch(e){return '';}
-  }
-
-  function applyLiveVideoFilter(name){
-    var v=document.getElementById('ktLiveVideo');
-    if(!v)return;
-    var base='brightness(1.12) contrast(.95) saturate(1.02)';
-    if(name==='mono')v.style.filter='grayscale(1) contrast(1.05) brightness(1.08)';
-    else if(name==='warm')v.style.filter='brightness(1.12) contrast(.95) saturate(1.10) sepia(.12)';
-    else if(name==='cool')v.style.filter='brightness(1.10) contrast(.95) saturate(.98) hue-rotate(170deg)';
-    else if(name==='soft')v.style.filter='brightness(1.14) contrast(.92) saturate(.98)';
-    else if(name==='studio')v.style.filter='brightness(1.16) contrast(.94) saturate(.98)';
-    else if(name==='night')v.style.filter='brightness(.88) contrast(1.04) saturate(.92)';
-    else v.style.filter=base;
-  }
-
-  function placeLiveFaceFallback(){
-    var layer=document.getElementById('ktLiveEffectLayer');
-    var anchor=document.getElementById('ktLiveFaceAnchor');
-    var v=document.getElementById('ktLiveVideo');
-    if(!layer||!anchor||!v)return;
-    var lr=layer.getBoundingClientRect();
-    var vr=v.getBoundingClientRect();
-    var w=Math.min(vr.width*.44,220);
-    var h=w*1.18;
-    anchor.style.left=((vr.left-lr.left)+(vr.width*.50))+'px';
-    anchor.style.top=((vr.top-lr.top)+(vr.height*.40))+'px';
-    anchor.style.width=w+'px';
-    anchor.style.height=h+'px';
-  }
-
-  async function trackLiveFaceOnce(){
-    var v=document.getElementById('ktLiveVideo');
-    var layer=document.getElementById('ktLiveEffectLayer');
-    var anchor=document.getElementById('ktLiveFaceAnchor');
-    if(!v||!layer||!anchor||!v.videoWidth||!v.videoHeight){placeLiveFaceFallback();return;}
-    if(!('FaceDetector' in window)){placeLiveFaceFallback();return;}
-    try{
-      if(!liveFaceDetector)liveFaceDetector=new FaceDetector({fastMode:true,maxDetectedFaces:1});
-      var faces=await liveFaceDetector.detect(v);
-      if(!faces||!faces.length){placeLiveFaceFallback();return;}
-      var box=faces[0].boundingBox;
-      var lr=layer.getBoundingClientRect();
-      var vr=v.getBoundingClientRect();
-      var scale=Math.max(vr.width/v.videoWidth,vr.height/v.videoHeight);
-      var drawW=v.videoWidth*scale,drawH=v.videoHeight*scale;
-      var offX=(vr.width-drawW)/2,offY=(vr.height-drawH)/2;
-      var bw=box.width*scale,bh=box.height*scale;
-      var bx=offX+(box.x*scale);
-      if((state.cameraFacing||'user')!=='environment'){
-        bx=vr.width-offX-((box.x+box.width)*scale);
-      }
-      var by=offY+(box.y*scale);
-      anchor.style.left=((vr.left-lr.left)+bx+(bw/2))+'px';
-      anchor.style.top=((vr.top-lr.top)+by+(bh/2))+'px';
-      anchor.style.width=Math.max(120,bw)+'px';
-      anchor.style.height=Math.max(145,bh)+'px';
-    }catch(e){placeLiveFaceFallback();}
-  }
-
-  function applySelectedEffectToLive(){
-    var name=(window.state&&state.appliedEditEffect)||'off';
-    var anchor=document.getElementById('ktLiveFaceAnchor');
-    if(anchor)anchor.innerHTML=appliedEffectMarkup();
-    applyLiveVideoFilter(name);
-    clearInterval(liveFaceTimer);
-    if(name!=='off'&&['mono','warm','cool','soft'].indexOf(name)===-1){
-      trackLiveFaceOnce();
-      liveFaceTimer=setInterval(trackLiveFaceOnce,260);
-    }
-  }
-
-  window.startBroadcast=async function(){
+  window.startBroadcast=function(){
     var t=document.getElementById('liveTitle');
     var memberType=currentMemberType();
     session={
@@ -368,108 +99,37 @@
       start:Date.now(),
       roses:0,
       gifts:0,
-      likes:0,
-      likeRewarded:{},
       title:t&&t.value?t.value:'K-Talk LIVE',
       memberType:memberType,
       rate:rateFor(memberType)
     };
-    window.ktGuestRewards={};
-    var liveRoomType=(window.state&&state.liveRoomType)||'solo';
-    var guestStrip='';
-    if(liveRoomType!=='solo'){
-      var guestDefs=[
-        {id:'g4',name:'게스트4',face:'👩'},
-        {id:'g5',name:'게스트5',face:'🧑'},
-        {id:'g6',name:'게스트6',face:'👨'}
-      ];
-      guestStrip='<div class="kt-live-guests">'+guestDefs.map(function(g){
-        return '<button onclick="openGuestProfile(\''+g.id+'\',\''+g.name+'\',\''+g.face+'\')"><span>'+g.face+'</span><small>'+g.name+'</small></button>';
-      }).join('')+'</div>';
-    }
-    if(window.state){
-      state.currentLiveRoomTitle=session.title;
-      state.currentViewRoomTitle=session.title;
-    }
-
-    var ok=true;
-    if(window.ensureLiveCamera){
-      try{ok=await ensureLiveCamera((window.state&&state.cameraFacing)||'user');}catch(e){ok=false;}
-    }
-
-    if(window.creator)creator.classList.remove('show','live-prep-open');
+    if(window.closeCreator)window.closeCreator();
     document.body.classList.remove('kt-home');
-
-    screen.innerHTML='<section style="height:100dvh;min-height:620px;position:relative;overflow:hidden;background:#050309;color:#fff">'
-      +'<video id="ktLiveVideo" autoplay playsinline muted style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#09070d;transform:scaleX(-1);filter:brightness(1.12) contrast(.95) saturate(1.02)"></video>'
-      +'<div style="position:absolute;inset:0;background:linear-gradient(180deg,#00000045,transparent 34%,#00000018 62%,#000000d9 100%);pointer-events:none"></div>'
-      +'<div id="ktLiveEffectLayer" style="position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden"><div id="ktLiveFaceAnchor" class="kt-face-anchor"></div></div>'
-      +'<div id="ktLiveTreasureZone" class="kt-live-treasure-zone"></div>'
-      +'<div class="kt-like-milestones">💗 5천 · 1만 · 1만5천 · 2만 · 2만5천 <b>달성마다 🌹 1송이</b></div>'
-
-      +'<div style="position:absolute;left:10px;right:10px;top:12px;z-index:5;display:grid;gap:7px">'
-        +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 10px;border:1px solid #ffffff22;border-radius:14px;background:#08080b77">'
-          +'<b style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">🔴 '+session.title+'</b>'
-          +'<span style="color:#ff6788;font-weight:900;white-space:nowrap">K-Talk LIVE</span>'
-        +'</div>'
-        +guestStrip
-      +'</div>'
-      +'<button id="myEarnHud" onclick="toggleMyEarnings()" style="position:absolute;left:50%;bottom:68px;transform:translateX(-50%);z-index:6;width:150px;padding:6px 8px;border:1px solid #ffe07155;border-radius:999px;background:linear-gradient(135deg,#241b08e8,#16131ee8);color:#fff;text-align:center;box-shadow:0 4px 12px #0007">'
-        +'<div style="display:flex;align-items:center;justify-content:center;gap:6px">'
-          +'<span style="font-size:9px;color:#8fe8ff;font-weight:950">🔒 내가 번 돈</span>'
-          +'<b id="hudEarnNet" style="font-size:14px;color:#ffe071">0원</b>'
-        +'</div>'
-        +'<div id="myEarnDetail" style="display:none;grid-template-columns:1fr 1fr;gap:4px;margin-top:4px;font-size:8px;color:#ddd">'
-          +'<span id="hudEarnRoses">🌹 0송이</span><span id="hudEarnRate" style="text-align:right">일반회원 · 35%</span>'
-        +'</div>'
-      +'</button>'
-
-      +'<div style="position:absolute;right:10px;bottom:112px;z-index:5;display:grid;gap:9px">'
-        +'<button onclick="addHostLike(1)" style="width:54px;min-height:62px;border-radius:18px;border:1px solid #ff65b788;background:#321024dd;color:#fff;font-size:22px;font-weight:950;line-height:1">💗<small style="display:block;margin-top:4px;font-size:9px;color:#ffd8ef">좋아요</small><b id="hostLikeCount" style="display:block;margin-top:3px;font-size:10px;color:#fff">0</b></button>'
-        +'<button onclick="openGifts()" style="width:54px;height:54px;border-radius:50%;border:1px solid #ffd65a88;background:#2b1c08dd;color:#fff;font-size:23px">🎁</button>'
-        +'<button onclick="if(window.openEditEffectPanel){creator.classList.add(\'show\');openEditEffectPanel();}" style="width:54px;height:54px;border-radius:50%;border:1px solid #ffffff38;background:#09090ddd;color:#fff;font-size:11px;font-weight:900">✨ 효과</button>'
-      +'</div>'
-
-      +'<div style="position:absolute;left:10px;right:10px;bottom:14px;z-index:5;display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px">'
-        +'<button onclick="openGifts()" style="padding:12px 5px;border:1px solid #ffd86b66;border-radius:15px;background:linear-gradient(135deg,#332707,#7a5310);color:#ffe075;font-weight:950;font-size:12px">🎁 선물</button>'
-        +'<button onclick="openTreasure()" style="padding:12px 5px;border:1px solid #f2b94f88;border-radius:15px;background:linear-gradient(135deg,#48260d,#8c5512);color:#fff3a7;font-weight:950;font-size:12px">🗝️ 보물상자</button>'
-        +'<button onclick="endBroadcastEarnings()" style="padding:12px 5px;border:0;border-radius:15px;background:linear-gradient(135deg,#ff315f,#ff4e91);color:#fff;font-weight:950;font-size:12px">■ 방송 종료</button>'
+    screen.innerHTML='<section style="height:100%;padding:14px;color:#fff;background:linear-gradient(180deg,#120b1c,#030305)">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;padding:12px;border:1px solid #ffffff22;border-radius:16px"><b>🔴 '+session.title+'</b><span style="color:#ff6788;font-weight:900">방송 중</span></div>'
+      +'<div style="margin-top:12px;padding:18px;border-radius:20px;background:#ffffff0b;border:1px solid #ffffff18"><small style="color:#bbb">지금까지 내가 번 돈</small><div id="earnNet" style="font-size:34px;font-weight:950;color:#ffe075;margin-top:6px">0원</div><div id="earnRate" style="margin-top:5px;color:#8fe8ff;font-weight:900"></div><div style="margin-top:10px">🌹 받은 장미 <b id="earnRoses">0송이</b></div></div>'
+      +'<div style="height:48%;min-height:190px;margin-top:12px;border-radius:22px;display:grid;place-items:center;font-size:78px;background:radial-gradient(circle,#532061,#12101a 55%,#08080c)">🎙️</div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px">'
+      +'<button onclick="openGifts()" style="padding:15px;border:1px solid #ffd86b66;border-radius:17px;background:linear-gradient(135deg,#332707,#7a5310);color:#ffe075;font-weight:950;font-size:16px">🎁 선물</button>'
+      +'<button onclick="endBroadcastEarnings()" style="padding:15px;border:0;border-radius:17px;background:linear-gradient(135deg,#ff315f,#ff4e91);color:#fff;font-weight:950;font-size:17px">■ 방송 종료</button>'
       +'</div>'
       +'</section>';
-
-    var liveVideo=document.getElementById('ktLiveVideo');
-    if(ok&&liveVideo&&window.state&&state.stream){
-      liveVideo.srcObject=state.stream;
-      try{await liveVideo.play();}catch(e){}
-      applySelectedEffectToLive();
-    }else if(liveVideo){
-      liveVideo.style.display='none';
-    }
-    if(window.ktRenderTreasure)ktRenderTreasure();
-    if(window.ktUpdateTreasureLed)ktUpdateTreasureLed();
-
     updateEarn();
-    clearInterval(earnTimer);
-    earnTimer=setInterval(function(){
-      if(session.active)showPrivate30mEarnings();
-    },30*60*1000);
   };
 
   var oldGiftSend=window.giftSend;
   window.giftSend=function(name,cost){
     var n=parseInt(String(cost).replace(/,/g,''),10)||0;
-    if(session.active&&n>0){
-      session.roses+=n;
-      session.gifts++;
-      updateEarn();
-    }
+    if(session.active&&n>0){session.roses+=n;session.gifts++;updateEarn();}
     if(oldGiftSend)oldGiftSend(name,cost);
   };
 
   function currentMemberKey(){
     var key='local-member';
     try{
-      if(window.state)key=state.userId||state.memberId||state.uid||key;
+      if(window.state){
+        key=state.userId||state.memberId||state.uid||key;
+      }
       if(key==='local-member'){
         key=localStorage.getItem('ktalk_member_key')||key;
         if(key==='local-member'){
@@ -482,25 +142,14 @@
   }
 
   function saveMyLastEarnings(summary){
-    try{localStorage.setItem('ktalk_last_earnings_'+currentMemberKey(),JSON.stringify(summary));}catch(e){}
+    try{
+      localStorage.setItem('ktalk_last_earnings_'+currentMemberKey(),JSON.stringify(summary));
+    }catch(e){}
   }
 
   window.endBroadcastEarnings=function(){
     if(!session.active)return;
-    clearInterval(earnTimer);
-    earnTimer=null;
-    clearInterval(liveFaceTimer);
-    liveFaceTimer=null;
-    try{
-      if(window.state&&state.stream){
-        state.stream.getTracks().forEach(function(t){t.stop();});
-        state.stream=null;
-      }
-    }catch(e){}
-
-    var gross=total();
-    var mine=myNet();
-    var ratePct=Math.round(session.rate*100);
+    var gross=total(), mine=hostNet(), ratePct=Math.round(session.rate*100);
     var summary={
       memberKey:currentMemberKey(),
       endedAt:Date.now(),
@@ -510,16 +159,8 @@
       rate:ratePct,
       mine:mine
     };
-
     saveMyLastEarnings(summary);
     session.active=false;
-    if(window.state){
-      state.currentLiveRoomTitle='';
-      state.currentViewRoomTitle='';
-    }
-    if(window.ktSaveTreasure)ktSaveTreasure(null);
-    if(window.ktSaveTreasureQueue)ktSaveTreasureQueue([]);
-
     showSheet('💰 방송 종료 · 내 수익',
       '<div class="rowbox" style="text-align:center;border:2px solid #ffd85a88;background:#3a2b071f;padding:20px 12px">'
       +'<div style="font-size:15px;color:#fff3b0;font-weight:900">회사 수수료 차감 후</div>'
@@ -528,13 +169,12 @@
       +'</div>'
       +'<div class="rowbox"><b>🌹 받은 장미</b><br>'+summary.roses.toLocaleString('ko-KR')+'송이 × 30원</div>'
       +'<div class="rowbox"><b>회원 구분 · 내 정산율</b><br>'+labelFor(summary.memberType)+' · '+summary.rate+'%</div>'
-      +'<div class="note">이 수익 정보는 본인 화면에서만 확인합니다. 일반회원은 35%, 구독자는 40% 기준으로 계산합니다.</div>'
+      +'<div class="note">방송을 끝내는 즉시 본인 화면에 표시됩니다. 일반회원은 총 선물금액의 35%, 구독자는 40%가 본인 수익으로 계산됩니다.</div>'
       +'<button class="act" onclick="closeSheet();home()">확인</button>'
     );
   };
 })();
 </script>
-<script src="test-broadcast.js?v=20260901-natural12"></script>
 
 </body>
 </html>
