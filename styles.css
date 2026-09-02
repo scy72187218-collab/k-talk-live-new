@@ -2844,3 +2844,86 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   .kt-gift-final-foot span{font-size:7.5px!important}
   .kt-gift-final-foot button{font-size:8px!important;min-height:32px!important}
 }
+
+
+/* 2026-09-02 한 계정 두 프로필 선택 */
+.kt-account-choice{padding:6px 0 2px}
+.kt-account-choice-title{text-align:center;font-size:18px;font-weight:950;color:#fff;margin:4px 0 12px}
+.kt-account-split{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kt-account-half{
+  min-height:220px;border:1px solid rgba(255,255,255,.12);border-radius:22px;
+  background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.025));
+  color:#fff;padding:18px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px
+}
+.kt-account-half.on{border-color:#c257ff;box-shadow:0 0 0 2px rgba(194,87,255,.22),0 0 18px rgba(194,87,255,.20)}
+.kt-account-avatar{
+  width:78px;height:78px;border-radius:50%;display:grid;place-items:center;font-size:32px;font-weight:950;
+  border:2px solid rgba(255,255,255,.65)
+}
+.kt-account-avatar.taekwon{background:linear-gradient(135deg,#3b63ff,#5f35d6)}
+.kt-account-avatar.haine{background:linear-gradient(135deg,#ff5aa7,#9d4cff)}
+.kt-account-half b{font-size:16px;font-weight:950}
+.kt-account-half small{color:#cfd1dc;font-size:10px;line-height:1.35;text-align:center}
+.kt-account-note{margin-top:10px;text-align:center;color:#bfc2cc;font-size:10px}
+.kt-profile-switch-btn{
+  width:100%;min-height:44px;margin-top:8px;border:1px solid rgba(194,87,255,.45);border-radius:13px;
+  background:linear-gradient(135deg,rgba(92,44,118,.55),rgba(31,25,46,.75));
+  color:#ffe075;font-size:13px;font-weight:950
+}
+@media(max-width:390px){
+  .kt-account-half{min-height:190px;padding:14px 8px}
+  .kt-account-avatar{width:68px;height:68px;font-size:28px}
+  .kt-account-half b{font-size:14px}
+}
+
+
+/* 2026-09-02 계정 사진 가운데 정렬 + 살짝 움직임 */
+.kt-account-avatar{
+  position:relative!important;overflow:hidden!important;display:grid!important;place-items:center!important;
+  transform-origin:center center!important;animation:ktAccountFloat 3.2s ease-in-out infinite!important
+}
+.kt-account-avatar.has-photo{background:#111!important}
+.kt-account-avatar.has-photo img{
+  width:100%!important;height:100%!important;display:block!important;object-fit:cover!important;
+  object-position:50% 38%!important;border-radius:50%!important;transform:scale(1.14)!important;
+  animation:ktAccountPhotoPanUp 5.5s ease-in-out infinite alternate!important
+}
+.kt-account-half:nth-child(2) .kt-account-avatar{animation-delay:.45s!important}
+@keyframes ktAccountFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-4px) scale(1.02)}}
+@keyframes ktAccountPhotoPanUp{0%{object-position:50% 37%;transform:scale(1.13)}100%{object-position:50% 40%;transform:scale(1.15)}}
+@media (prefers-reduced-motion:reduce){.kt-account-avatar,.kt-account-avatar.has-photo img{animation:none!important}}
+
+
+/* 2026-09-02 프로필 사진 상시 표시 + 팔로워 좋아요 링크 */
+.kt-profile-hero{display:grid;grid-template-columns:92px 1fr;gap:12px;align-items:center;margin-bottom:10px}
+.kt-profile-photo-wrap{display:grid;place-items:center}
+.kt-my-profile-photo{
+  width:88px!important;height:88px!important;border-radius:50%!important;overflow:hidden!important;padding:0!important;position:relative!important
+}
+.kt-my-profile-photo img{
+  width:100%!important;height:100%!important;display:block!important;object-fit:cover!important;
+  object-position:50% 38%!important;transform:scale(1.12)!important
+}
+.kt-my-profile-photo em{
+  position:absolute!important;left:0!important;right:0!important;bottom:0!important;padding:4px 2px!important;
+  background:rgba(0,0,0,.62)!important;color:#fff!important;font-style:normal!important;font-size:8px!important;font-weight:900!important
+}
+.kt-profile-maininfo b{display:block;color:#fff;font-size:18px;font-weight:950;margin-bottom:5px}
+.kt-profile-maininfo small{display:block;color:#cdd0da;font-size:11px;line-height:1.35}
+.kt-profile-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+.kt-profile-stats div{border:1px solid rgba(255,255,255,.10);border-radius:14px;padding:10px 8px;text-align:center;background:rgba(255,255,255,.045)}
+.kt-profile-stats b{display:block;color:#fff;font-size:18px;font-weight:950}
+.kt-profile-stats small{display:block;margin-top:2px;color:#c3c6d0;font-size:10px;font-weight:850}
+.kt-profile-public-link{
+  width:100%;min-height:44px;margin:8px 0 10px;padding:0 12px;border:1px solid rgba(114,177,255,.32);border-radius:13px;
+  background:linear-gradient(135deg,rgba(29,42,66,.84),rgba(23,23,35,.92));color:#fff;
+  display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;text-align:left
+}
+.kt-profile-public-link span{font-size:16px}
+.kt-profile-public-link b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;font-weight:900;color:#cfe7ff}
+.kt-profile-public-link em{font-style:normal;font-size:20px;color:#fff}
+@media(max-width:390px){
+  .kt-profile-hero{grid-template-columns:80px 1fr}
+  .kt-my-profile-photo{width:76px!important;height:76px!important}
+  .kt-profile-maininfo b{font-size:16px}
+}
