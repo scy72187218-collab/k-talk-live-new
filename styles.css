@@ -2927,3 +2927,36 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   .kt-my-profile-photo{width:76px!important;height:76px!important}
   .kt-profile-maininfo b{font-size:16px}
 }
+
+
+/* 2026-09-02 촬영 화면 꽉차게 + 촬영 버튼 축소 */
+/* 딴 요소는 건드리지 않고 카메라만 휴대폰 화면 끝까지 채움 */
+.creator.camera-on:not(.creator-review) video#camera,
+.creator.creator-recording video#camera,
+.creator.beauty-preview-open video#camera{
+  position:absolute!important;
+  inset:0!important;
+  left:0!important;
+  right:0!important;
+  top:0!important;
+  bottom:0!important;
+  width:100vw!important;
+  max-width:none!important;
+  height:100dvh!important;
+  max-height:none!important;
+  margin:0!important;
+  border-radius:0!important;
+  object-fit:cover!important;
+  object-position:50% 50%!important;
+  background:#000!important;
+}
+
+/* 빨간 촬영/방송 시작 버튼만 작게 */
+.creator-bottom .record{
+  width:66px!important;
+  height:66px!important;
+  min-width:66px!important;
+  min-height:66px!important;
+  border-width:5px!important;
+  box-shadow:0 0 0 3px rgba(255,45,85,.20)!important;
+}
