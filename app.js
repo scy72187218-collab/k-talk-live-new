@@ -2201,7 +2201,50 @@ window.setCreatorMode=function(el,name){
   }
 };
 
+window.ktStopSoundPreview=function(){
+  try{
+    if(window.ktSoundTimer){clearTimeout(window.ktSoundTimer);window.ktSoundTimer=null;}
+    if(window.ktSoundNodes){window.ktSoundNodes.forEach(function(n){try{n.stop();}catch(e){}});}
+    window.ktSoundNodes=[];
+  }catch(e){}
+  document.querySelectorAll('.kt-sound-play').forEach(function(el){el.textContent='▶';});
+};
+
+window.ktPlaySoundPreview=function(index,ev){
+  if(ev){try{ev.stopPropagation();ev.preventDefault();}catch(e){}}
+  ktStopSoundPreview();
+  var Ctx=window.AudioContext||window.webkitAudioContext;
+  if(!Ctx){alert('이 브라우저에서는 사운드 미리듣기를 지원하지 않습니다.');return;}
+  var ctx=window.ktSoundCtx||(window.ktSoundCtx=new Ctx());
+  try{if(ctx.state==='suspended')ctx.resume();}catch(e){}
+  var patterns=[
+    [261.63,329.63,392.00,523.25,392.00,329.63],
+    [220.00,261.63,329.63,392.00,329.63,261.63],
+    [329.63,392.00,493.88,659.25,493.88,392.00],
+    [293.66,369.99,440.00,587.33,440.00,369.99],
+    [196.00,246.94,293.66,392.00,293.66,246.94],
+    [246.94,311.13,369.99,493.88,369.99,311.13]
+  ];
+  var seq=patterns[index%patterns.length], now=ctx.currentTime+.03, nodes=[];
+  seq.concat(seq).forEach(function(freq,i){
+    var osc=ctx.createOscillator(), gain=ctx.createGain();
+    osc.type=index===2?'square':index===4?'triangle':'sine';
+    osc.frequency.value=freq;
+    gain.gain.setValueAtTime(0.0001,now+i*.34);
+    gain.gain.exponentialRampToValueAtTime(.055,now+i*.34+.025);
+    gain.gain.exponentialRampToValueAtTime(0.0001,now+i*.34+.30);
+    osc.connect(gain);gain.connect(ctx.destination);
+    osc.start(now+i*.34);osc.stop(now+i*.34+.32);
+    nodes.push(osc);
+  });
+  window.ktSoundNodes=nodes;
+  var p=document.querySelectorAll('.kt-sound-play')[index];
+  if(p)p.textContent='■';
+  window.ktSoundTimer=setTimeout(function(){ktStopSoundPreview();},4300);
+};
+
 window.selectCreatorSound=function(name){
+  ktStopSoundPreview();
   state.creatorSound=name;
   var btn=document.getElementById('creatorSoundBtn');
   if(btn)btn.textContent='♪ '+name;
@@ -2221,7 +2264,7 @@ window.openSoundPanel=function(){
     return '<button class="kt-sound-row" onclick="selectCreatorSound(\''+t[0]+'\')">'
       +'<span class="kt-sound-cover">'+(i+1)+'</span>'
       +'<span class="kt-sound-info"><b>'+t[0]+'</b><small>'+t[1]+' · '+t[2]+'</small></span>'
-      +'<span class="kt-sound-play">▶</span>'
+      +'<span class="kt-sound-play" onclick="ktPlaySoundPreview('+i+',event)">▶</span>'
       +'</button>';
   }).join('');
   var html='<div class="kt-sound-panel">'
