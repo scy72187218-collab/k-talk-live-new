@@ -2218,25 +2218,37 @@ window.ktPlaySoundPreview=function(index,ev){
   var ctx=window.ktSoundCtx||(window.ktSoundCtx=new Ctx());
   try{if(ctx.state==='suspended')ctx.resume();}catch(e){}
   var patterns=[
-    [261.63,329.63,392.00,523.25,392.00,329.63],
-    [220.00,261.63,329.63,392.00,329.63,261.63],
-    [329.63,392.00,493.88,659.25,493.88,392.00],
-    [293.66,369.99,440.00,587.33,440.00,369.99],
-    [196.00,246.94,293.66,392.00,293.66,246.94],
-    [246.94,311.13,369.99,493.88,369.99,311.13]
+    [293.66,369.99,440.00,587.33,440.00,369.99,329.63,392.00],
+    [329.63,392.00,493.88,659.25,493.88,392.00,369.99,440.00],
+    [261.63,329.63,392.00,523.25,587.33,523.25,392.00,329.63],
+    [220.00,277.18,329.63,440.00,369.99,329.63,277.18,246.94],
+    [392.00,493.88,587.33,783.99,659.25,587.33,493.88,440.00],
+    [246.94,311.13,369.99,493.88,440.00,369.99,311.13,277.18]
   ];
   var seq=patterns[index%patterns.length], now=ctx.currentTime+.03, nodes=[];
+  var step=(index===0||index===3)?0.25:0.28;
   seq.concat(seq).forEach(function(freq,i){
     var osc=ctx.createOscillator(), gain=ctx.createGain();
-    osc.type=index===2?'square':index===4?'triangle':'sine';
+    osc.type=(index===0||index===3)?'sawtooth':index===1?'square':index===4?'triangle':'sine';
     osc.frequency.value=freq;
-    gain.gain.setValueAtTime(0.0001,now+i*.34);
-    gain.gain.exponentialRampToValueAtTime(.055,now+i*.34+.025);
-    gain.gain.exponentialRampToValueAtTime(0.0001,now+i*.34+.30);
+    gain.gain.setValueAtTime(0.0001,now+i*step);
+    gain.gain.exponentialRampToValueAtTime((index===0||index===3)?.038:.048,now+i*step+.018);
+    gain.gain.exponentialRampToValueAtTime(0.0001,now+i*step+step*.82);
     osc.connect(gain);gain.connect(ctx.destination);
-    osc.start(now+i*.34);osc.stop(now+i*.34+.32);
+    osc.start(now+i*step);osc.stop(now+i*step+step*.86);
     nodes.push(osc);
   });
+  for(var k=0;k<16;k++){
+    var bass=ctx.createOscillator(), bg=ctx.createGain();
+    bass.type='sine';
+    bass.frequency.value=(k%4===0)?98:73.42;
+    bg.gain.setValueAtTime(0.0001,now+k*step);
+    bg.gain.exponentialRampToValueAtTime(.035,now+k*step+.01);
+    bg.gain.exponentialRampToValueAtTime(0.0001,now+k*step+.11);
+    bass.connect(bg);bg.connect(ctx.destination);
+    bass.start(now+k*step);bass.stop(now+k*step+.13);
+    nodes.push(bass);
+  }
   window.ktSoundNodes=nodes;
   var p=document.querySelectorAll('.kt-sound-play')[index];
   if(p)p.textContent='■';
@@ -2253,12 +2265,12 @@ window.selectCreatorSound=function(name){
 
 window.openSoundPanel=function(){
   var tracks=[
-    ['오늘의 설렘','K-Talk 추천','2:10'],
-    ['밤하늘 산책','K-Talk Music','1:00'],
-    ['신나는 하루','Various Creators','1:00'],
-    ['웃으며 시작','K-Talk 추천','1:15'],
-    ['감성 드라이브','K-Talk Music','2:00'],
-    ['따뜻한 오후','Various Creators','1:30']
+    ['신나는 트로트','K-Talk 오리지널','자유 사용'],
+    ['댄스 가요','K-Talk 오리지널','자유 사용'],
+    ['밝은 가요','K-Talk 오리지널','자유 사용'],
+    ['감성 트로트','K-Talk 오리지널','자유 사용'],
+    ['신나는 메들리','K-Talk 오리지널','자유 사용'],
+    ['밤 드라이브','K-Talk 오리지널','자유 사용']
   ];
   var list=tracks.map(function(t,i){
     return '<button class="kt-sound-row" onclick="selectCreatorSound(\''+t[0]+'\')">'
