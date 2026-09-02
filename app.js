@@ -298,7 +298,7 @@ window.closeCreator=function(){
 window.applyBaseCameraLook=function(){
   if(!camera)return;
   if(!state.editFilter && !state.beautyMode){
-    camera.style.filter='brightness(1.07) contrast(.96) saturate(1.04) blur(.12px)';
+    camera.style.filter='brightness(1.10) contrast(.94) saturate(1.03) blur(.40px)';
   }
 };
 
@@ -1175,7 +1175,7 @@ window.clearAllFaceEffects=function(){
 
   var filterClasses=['fx-glow','fx-soft','fx-rainbow','fx-cool','fx-warm','fx-night','fx-cinema','fx-mono','fx-pink','fx-blue','fx-star','fx-party','fx-disco','fx-dream'];
   if(creator)creator.classList.remove.apply(creator.classList,filterClasses);
-  if(camera)camera.style.filter='brightness(1.07) contrast(.96) saturate(1.04) blur(.12px)';
+  if(camera)camera.style.filter='brightness(1.10) contrast(.94) saturate(1.03) blur(.40px)';
 };
 
 window.renderFaceEffect=function(){
