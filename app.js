@@ -2215,26 +2215,18 @@ window.ktStopSoundPreview=function(){
 };
 
 window.ktCreatorTracks=[
-  {name:'통기타 포크 감성 1',source:'Monplaisir · CC0',time:'3:12',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Monplaisir_-_01_-_Free_To_Use_1.ogg'},
-  {name:'밝은 가요 느낌 1',source:'Monplaisir · CC0',time:'2:36',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Monplaisir_-_02_-_Free_To_Use_2.ogg'},
-  {name:'리듬 가요 느낌',source:'Monplaisir · CC0',time:'3:07',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Monplaisir_-_03_-_Free_To_Use_3.ogg'},
-  {name:'짧은 테마송',source:'Monplaisir · CC0',time:'1:22',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Monplaisir_-_01_-_Theme_Song.ogg'},
-  {name:'잔잔한 밤',source:'Monplaisir · CC0',time:'1:18',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Monplaisir_-_03_-_Nor.ogg'},
-  {name:'감성 연주',source:'Monplaisir · CC0',time:'3:57',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Monplaisir_-_03_-_Sane.ogg'},
-  {name:'사랑 분위기',source:'Monplaisir · CC0',time:'1:41',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Monplaisir_-_02_-_Sincere_Love.ogg'},
-  {name:'희망 포크',source:'Monplaisir · CC0',time:'6:06',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Monplaisir_-_01_-_You_cant_fail.ogg'},
-  {name:'깊은 감성',source:'Monplaisir · CC0',time:'2:05',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Monplaisir_-_01_-_Inspiration_profonde.ogg'},
-  {name:'가까이',source:'Monplaisir · CC0',time:'2:17',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Monplaisir_-_02_-_Close_to_you.ogg'},
-  {name:'둘만의 밤',source:'Monplaisir · CC0',time:'3:30',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Monplaisir_-_01_-_Nous_serons_tous_seuls.ogg'},
-  {name:'비 오는 날',source:'Monplaisir · CC0',time:'3:12',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Monplaisir_-_02_-_Rain.ogg'},
-  {name:'신나는 게임 리듬',source:'Monplaisir · CC0',time:'3:09',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Monplaisir_-_14_-_Play_the_game.ogg'},
-  {name:'레벨 업 비트',source:'Monplaisir · CC0',time:'4:30',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Monplaisir_-_08_-_Level_1.ogg'},
-  {name:'라이브 연주',source:'Monplaisir · CC0',time:'4:09',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Monplaisir_-_03_-_Three.ogg'},
-  {name:'피크닉 댄스',source:'Loyalty Freak Music · CC0',time:'3:07',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Loyalty_Freak_Music_-_01_-_Go_to_the_Picnic.ogg'},
-  {name:'롤러 댄스',source:'Loyalty Freak Music · CC0',time:'2:26',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Loyalty_Freak_Music_-_01_-_Roller_Fever.ogg'},
-  {name:'러브 스트리트',source:'Loyalty Freak Music · CC0',time:'2:45',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Loyalty_Freak_Music_-_06_-_Street_of_love.ogg'},
-  {name:'모두 신나게',source:'Loyalty Freak Music · CC0',time:'4:15',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Loyalty_Freak_Music_-_01_-_Everyone_is_so_alive.ogg'},
-  {name:'다시 함께',source:'Loyalty Freak Music · CC0',time:'3:03',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Loyalty_Freak_Music_-_01_-_Once_more_with_you.ogg'}
+  {name:'오빠는 풍각쟁이',source:'박향림 · 사람 노래 · 퍼블릭도메인',time:'2:52',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Park_Hyang-rim_-_Oppaneun_punggakjaeng-i.ogg'},
+  {name:'청춘계급',source:'김해송 · 사람 노래 · 퍼블릭도메인',time:'3:08',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Kim_Hae-Song,_Cheong-chun-gye-geup.ogg'},
+  {name:'전화일기',source:'박향림·김해송 · 사람 노래 · 퍼블릭도메인',time:'3:06',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Bak_Hyang_Rim_Kim_Hae_Song_jeonhwa_ilgi.ogg'},
+  {name:'사의 찬미',source:'윤심덕 · 사람 노래 · 퍼블릭도메인',time:'',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Yun_Sim-Deok_-_In_Praise_of_Death.ogg'},
+  {name:'진국명산',source:'송만갑 · 사람 노래 · 퍼블릭도메인',time:'3:28',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Song_Mangab_-_Jingukmyeongsan.ogg'},
+  {name:'Frankie and Johnny',source:'전통 포크 · 사람 노래 · 퍼블릭도메인',time:'3:20',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/FrankieandJohnny_Live.ogg'},
+  {name:'Jesse James',source:'Bentley Ball · 사람 노래 · 퍼블릭도메인',time:'3:00',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Jesse_James_(Bentley_Ball).ogg'},
+  {name:'Au Clair de la Lune',source:'고전 성악 · 사람 노래 · 퍼블릭도메인',time:'2:46',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Au_Clair_de_la_Lune_1913.ogg'},
+  {name:'Old Folks at Home',source:'고전 보컬 · 사람 노래 · 퍼블릭도메인',time:'4:02',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Foster_-_Schumann-Heink_-_Old_Folks_at_Home_(rec._1918).ogg'},
+  {name:'In My Merry Oldsmobile',source:'Billy Murray · 사람 노래 · 퍼블릭도메인',time:'2:51',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Bill_Murray_-_In_My_Merry_Oldsmobile.ogg'},
+  {name:'Avalon',source:'Al Jolson · 사람 노래 · 퍼블릭도메인',time:'2:58',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Al_Jolson_-_Avalon_(1920).ogg'},
+  {name:'I Shall Not Be Moved',source:'전통 포크 · 사람 노래 · 퍼블릭도메인',time:'3:06',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/IShallNotBeMoved.ogg'}
 ]
 
 window.ktPlaySoundPreview=function(index,ev){
