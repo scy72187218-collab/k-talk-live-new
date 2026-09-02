@@ -452,3 +452,83 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   margin-top:7px!important;
   font-size:10px!important;
 }
+
+.sheet.gift-v2-sheet{background:rgba(0,0,0,.82)!important}
+.sheet.gift-v2-sheet .sheet-inner{
+  width:min(100%,560px)!important;
+  max-height:94dvh!important;
+  padding:0!important;
+  overflow:auto!important;
+  border-radius:24px 24px 0 0!important;
+  background:linear-gradient(180deg,#100913,#050406 78%)!important;
+  border-top:1px solid #8d3f83!important;
+}
+.sheet.gift-v2-sheet .sheet-head{display:none!important}
+.gift-v2-wrap{padding:14px 12px 18px;color:#fff}
+.gift-v2-head{
+  display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;
+  padding:10px 8px 13px;border-bottom:1px solid #ffffff16
+}
+.gift-v2-logo{
+  width:58px;height:58px;border-radius:18px;display:grid;place-items:center;
+  font-size:34px;background:radial-gradient(circle at 40% 30%,#ff5ccf,#3b123d 62%,#0b0810);
+  border:1px solid #ff60c988;box-shadow:0 0 18px #ff44cf35
+}
+.gift-v2-head strong{
+  display:block;font-size:24px;font-weight:950;color:#ffe07a;letter-spacing:-.5px
+}
+.gift-v2-head small{
+  display:block;margin-top:3px;font-size:10px;color:#e9d7ec;font-weight:800
+}
+.gift-v2-close{
+  min-width:70px;height:44px;border-radius:15px;border:1px solid #ff64cc66;
+  background:#17101c;color:#fff;font-size:14px;font-weight:950
+}
+.gift-v2-tabs{
+  display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin:12px 0
+}
+.gift-v2-tabs button{
+  height:38px;border-radius:12px;border:1px solid #ffffff14;
+  background:#151019;color:#d8d0da;font-size:9px;font-weight:900;padding:0 3px
+}
+.gift-v2-tabs button.on{
+  color:#ffe47a;border-color:#ff53c988;background:linear-gradient(135deg,#401339,#16101a)
+}
+.gift-v2-grid{
+  display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px
+}
+.gift-v2-card{
+  position:relative;min-width:0;min-height:126px;padding:8px 4px 7px;
+  border-radius:15px;border:1px solid #8b663a;
+  background:radial-gradient(circle at 50% 28%,#4c2a2228,transparent 45%),linear-gradient(180deg,#151015,#070609);
+  color:#fff;box-shadow:inset 0 0 14px #0007,0 2px 8px #0008
+}
+.gift-v2-num{
+  position:absolute;left:5px;top:4px;font-size:10px;font-weight:950;color:#ff9ee0
+}
+.gift-v2-art{
+  width:54px;height:54px;margin:7px auto 6px;border-radius:12px;
+  display:grid;place-items:center;font-size:33px;
+  background:radial-gradient(circle,#5b3528 0,#21151b 58%,#08070a 100%);
+  border:1px solid #ad7a41;box-shadow:0 0 12px #ffbd5b20
+}
+.gift-v2-card b{
+  display:block;font-size:9px;line-height:1.1;font-weight:950;color:#fff;
+  min-height:20px;word-break:keep-all
+}
+.gift-v2-card small{
+  display:block;margin-top:4px;font-size:9px;font-weight:950;color:#ffd85d
+}
+@media(max-width:390px){
+  .gift-v2-wrap{padding:10px 7px 14px}
+  .gift-v2-head{gap:7px}
+  .gift-v2-logo{width:50px;height:50px;font-size:30px}
+  .gift-v2-head strong{font-size:20px}
+  .gift-v2-close{min-width:60px;height:40px;font-size:12px}
+  .gift-v2-tabs{gap:4px}
+  .gift-v2-tabs button{font-size:8px}
+  .gift-v2-grid{gap:5px}
+  .gift-v2-card{min-height:112px;padding:6px 3px}
+  .gift-v2-art{width:47px;height:47px;font-size:29px}
+  .gift-v2-card b,.gift-v2-card small{font-size:8px}
+}
