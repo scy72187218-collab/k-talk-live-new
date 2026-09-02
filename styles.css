@@ -2928,20 +2928,10 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   .kt-profile-maininfo b{font-size:16px}
 }
 
-/* 2026-09-02 최종: 카메라와 UI는 전체화면 유지, 사람 영상만 60% 크기 */
+/* 2026-09-02 최종: 전체화면은 유지하고 AI가 분리한 사람만 60% 크기 */
 .creator.camera-on:not(.creator-review) video#cameraBg,
 .creator.creator-recording video#cameraBg{
-  display:block!important;
-  position:absolute!important;
-  inset:0!important;
-  width:100%!important;
-  height:100%!important;
-  object-fit:cover!important;
-  object-position:50% 50%!important;
-  transform:scaleX(-1)!important;
-  filter:blur(18px) brightness(.78)!important;
-  opacity:1!important;
-  z-index:0!important;
+  display:none!important;
 }
 .creator.camera-on:not(.creator-review) video#camera,
 .creator.creator-recording video#camera{
@@ -2954,11 +2944,18 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   height:100%!important;
   object-fit:cover!important;
   object-position:50% 50%!important;
-  transform:scaleX(-1) scale(.60)!important;
+  transform:scaleX(-1)!important;
   transform-origin:center center!important;
-  background:transparent!important;
+  background:#000!important;
   z-index:1!important;
 }
+.creator #ktPersonCanvas{display:none!important}
+.creator.camera-on.person-segment-on #ktPersonCanvas{
+  display:block!important;position:absolute!important;inset:0!important;
+  width:100%!important;height:100%!important;transform:scaleX(-1)!important;
+  z-index:1!important;background:#000!important
+}
+.creator.camera-on.person-segment-on video#camera{opacity:0!important;pointer-events:none!important}
 
 /* 10분 / 60초 / 15초와 내 동영상 아이콘만 조금 크게 - 위치는 그대로 */
 .creator:not(.creator-review) .creator-bottom{
