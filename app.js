@@ -42,8 +42,8 @@ window.startPersonSegmentation=async function(){
         ctx.drawImage(results.image,bx,by,bw,bh);
         ctx.filter='none';
 
-        /* 참고사진처럼 사람 크기만 기존보다 60% 줄여서 약 40% 크기로 표시 */
-        var personScale=cover*.4,pw=sw*personScale,ph=sh*personScale,px=(cw-pw)/2,py=(ch-ph)/2;
+        /* 사람은 기존보다 30% 줄여서 70% 크기로 표시 */
+        var personScale=cover*.7,pw=sw*personScale,ph=sh*personScale,px=(cw-pw)/2,py=(ch-ph)/2;
         ctx.drawImage(person,px,py,pw,ph);
         creator.classList.add('person-segment-on');state.personSegmentationReady=true;
       });
