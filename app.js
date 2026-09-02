@@ -2269,6 +2269,30 @@ window.selectCreatorSound=function(name){
   closeSheet();
 };
 
+window.ktSoundEscape=function(v){
+  return String(v==null?'':v).replace(/[&<>"']/g,function(ch){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+  });
+};
+
+window.ktPlayRemoteSound=function(url,ev){
+  if(ev){try{ev.stopPropagation();ev.preventDefault();}catch(e){}}
+  ktStopSoundPreview();
+  if(!url)return;
+  var audio=new Audio(url);
+  audio.preload='metadata';
+  audio.volume=.9;
+  window.ktSoundAudio=audio;
+  if(ev&&ev.currentTarget)ev.currentTarget.textContent='■';
+  audio.addEventListener('ended',function(){ktStopSoundPreview();},{once:true});
+  audio.addEventListener('error',function(){
+    ktStopSoundPreview();
+    alert('이 음악은 지금 재생할 수 없습니다.');
+  },{once:true});
+  var p=audio.play();
+  if(p&&p.catch)p.catch(function(){ktStopSoundPreview();});
+};
+
 window.renderCreatorSoundList=function(query){
   var tracks=window.ktCreatorTracks||[];
   var q=String(query||'').trim().toLowerCase();
@@ -2278,24 +2302,66 @@ window.renderCreatorSoundList=function(query){
     if(q&&hay.indexOf(q)===-1)return;
     rows.push('<button class="kt-sound-row" onclick="selectCreatorSound(\''+t.name.replace(/'/g,"\\'")+'\')">'
       +'<span class="kt-sound-cover">'+(i+1)+'</span>'
-      +'<span class="kt-sound-info"><b>'+t.name+'</b><small>'+t.source+(t.time?' · '+t.time:'')+'</small></span>'
+      +'<span class="kt-sound-info"><b>'+ktSoundEscape(t.name)+'</b><small>'+ktSoundEscape(t.source)+(t.time?' · '+ktSoundEscape(t.time):'')+'</small></span>'
       +'<span class="kt-sound-play" onclick="ktPlaySoundPreview('+i+',event)">▶</span>'
       +'</button>');
   });
   var box=document.getElementById('ktSoundList');
-  if(box)box.innerHTML=rows.length?rows.join(''):'<div class="rowbox" style="text-align:center">검색 결과가 없습니다.</div>';
+  if(box)box.innerHTML=rows.length?rows.join(''):'<div class="rowbox" style="text-align:center">사이트 목록에서 찾는 중...</div>';
+};
+
+window.ktSearchFreeMusicOnline=async function(value){
+  var q=String(value||'').trim();
+  if(q.length<2)return;
+  var mapQuery=q;
+  if(q.indexOf('트로트')>-1)mapQuery='Korean trot song vocal';
+  else if(q.indexOf('가요')>-1)mapQuery='Korean song vocal';
+  else if(q.indexOf('팝송')>-1||q.indexOf('팝')>-1)mapQuery='pop song vocal';
+  else if(q.indexOf('댄스')>-1)mapQuery='dance pop vocal song';
+  else if(q.indexOf('포크')>-1)mapQuery='folk song vocal';
+  var url='https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrlimit=18&gsrsearch='+encodeURIComponent(mapQuery+' audio')+'&prop=imageinfo&iiprop=url%7Cmime%7Cextmetadata&format=json&origin=*';
+  try{
+    var res=await fetch(url);
+    if(!res.ok)throw new Error('search');
+    var data=await res.json();
+    var pages=data&&data.query&&data.query.pages?Object.values(data.query.pages):[];
+    var rows=[];
+    pages.forEach(function(p){
+      var ii=p.imageinfo&&p.imageinfo[0];
+      if(!ii||!ii.url||String(ii.mime||'').indexOf('audio/')!==0)return;
+      var title=String(p.title||'').replace(/^File:/,'').replace(/\.(ogg|oga|mp3|wav|flac)$/i,'').replace(/_/g,' ');
+      var meta=ii.extmetadata||{};
+      var lic=(meta.LicenseShortName&&meta.LicenseShortName.value)||'자유 이용 음원';
+      rows.push('<button class="kt-sound-row" onclick="selectCreatorSound(\''+title.replace(/'/g,"\\'")+'\')">'
+        +'<span class="kt-sound-cover">♪</span>'
+        +'<span class="kt-sound-info"><b>'+ktSoundEscape(title)+'</b><small>온라인 자유음악 · '+ktSoundEscape(lic)+'</small></span>'
+        +'<span class="kt-sound-play" onclick="ktPlayRemoteSound(\''+String(ii.url).replace(/'/g,"%27")+'\',event)">▶</span>'
+        +'</button>');
+    });
+    var box=document.getElementById('ktSoundList');
+    var input=document.getElementById('ktSoundSearchInput');
+    if(!box||!input||String(input.value||'').trim()!==q)return;
+    var local=box.innerHTML;
+    var online=rows.length?'<div class="rowbox" style="margin:10px 0 5px"><b>🌐 온라인 자유음악 검색 결과</b></div>'+rows.join(''):'<div class="rowbox" style="text-align:center">온라인 자유음악에서 재생 가능한 결과가 없습니다.</div>';
+    box.innerHTML=local+online;
+  }catch(e){
+    var box=document.getElementById('ktSoundList');
+    if(box)box.innerHTML+='<div class="rowbox" style="text-align:center">온라인 검색을 불러오지 못했습니다.</div>';
+  }
 };
 
 window.filterCreatorSounds=function(value){
   renderCreatorSoundList(value);
+  if(window.ktSoundSearchTimer)clearTimeout(window.ktSoundSearchTimer);
+  window.ktSoundSearchTimer=setTimeout(function(){ktSearchFreeMusicOnline(value);},550);
 };
 
 window.openSoundPanel=function(){
   var html='<div class="kt-sound-panel">'
-    +'<div class="kt-sound-search">⌕ <input id="ktSoundSearchInput" placeholder="노래 제목·가수·장르 검색" aria-label="사운드 검색" oninput="filterCreatorSounds(this.value)"></div>'
+    +'<div class="kt-sound-search">⌕ <input id="ktSoundSearchInput" placeholder="트로트·가요·팝송·제목·가수 검색" aria-label="사운드 검색" oninput="filterCreatorSounds(this.value)"></div>'
     +'<div class="kt-sound-tabs"><button>인기</button><button class="on">맞춤 추천</button><button>즐겨찾기</button><button>최근</button></div>'
     +'<div class="kt-sound-list" id="ktSoundList"></div>'
-    +'<div class="note" style="margin:10px 2px 2px">검색창에서 제목·가수·장르를 입력하고, 오른쪽 ▶ 버튼을 누르면 바로 들을 수 있습니다.</div>'
+    +'<div class="note" style="margin:10px 2px 2px">트로트·가요·팝송처럼 검색하면 사이트 음악과 온라인 자유 이용 음원을 함께 찾아 ▶로 바로 들을 수 있습니다. 저작권이 제한된 상업곡은 검색·재생 대상에서 제외됩니다.</div>'
     +'</div>';
   showSheet('사운드 추가',html);
   setTimeout(function(){renderCreatorSoundList('');},0);
