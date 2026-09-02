@@ -1266,8 +1266,8 @@ window.ensureKTFaceMesh=function(){
         mesh.setOptions({
           maxNumFaces:1,
           refineLandmarks:false,
-          minDetectionConfidence:.42,
-          minTrackingConfidence:.42
+          minDetectionConfidence:.32,
+          minTrackingConfidence:.32
         });
         mesh.onResults(function(results){
           window.ktFaceMeshBusy=false;
@@ -1359,7 +1359,7 @@ window.ktFaceTrackingLoop=function(ts){
     return;
   }
 
-  if(!window.ktFaceLastSendAt||ts-window.ktFaceLastSendAt>=72){
+  if(!window.ktFaceLastSendAt||ts-window.ktFaceLastSendAt>=55){
     window.ktFaceLastSendAt=ts;
     trackFaceOnce();
   }
@@ -1383,24 +1383,67 @@ window.stopKTFaceTracking=function(){
   window.ktFaceSmooth=null;
 };
 
+window.ktRealFaceEffects=[
+  ['🐱','고양이 귀','catEars','animal'],
+  ['😺','고양이 수염','catWhiskers','animal'],
+  ['🐈','고양이 털','catFur','animal'],
+  ['🐶','강아지 귀','puppyEars','animal'],
+  ['🐕','강아지 코','puppyNose','animal'],
+  ['🐰','토끼 귀','bunnyEars','animal'],
+  ['🐻','곰돌이 귀','bearEars','animal'],
+  ['🦊','여우 귀','foxEars','animal'],
+  ['🐯','호랑이 무늬','tigerFace','animal'],
+  ['🐼','판다 눈','pandaFace','animal'],
+  ['👓','안경','glasses','style'],
+  ['🕶️','선글라스','sunglasses','style'],
+  ['🧢','모자','cap','style'],
+  ['👑','왕관','crown','style'],
+  ['🌸','꽃머리','flowers','style'],
+  ['✨','반짝이','sparkle','style'],
+  ['💕','하트','hearts','style'],
+  ['😇','천사링','halo','style'],
+  ['🥸','콧수염','moustache','fun'],
+  ['🧔','수염','beard','fun'],
+  ['⭐','별안경','starGlasses','fun'],
+  ['🥳','파티','partyFace','fun'],
+  ['💡','네온 마스크','neonMask','fun'],
+  ['🌌','갤럭시','galaxyFace','fun'],
+  ['😊','볼터치','blush','fun']
+];
+
 window.ensureRealFaceEffectStyle=function(){
   if(document.getElementById('ktRealFaceEffectStyle'))return;
   var st=document.createElement('style');
   st.id='ktRealFaceEffectStyle';
   st.textContent=
-    '.fx-real-cat-ears{position:absolute;left:50%;top:-17%;width:105%;height:36%;transform:translateX(-50%)}'
-   +'.fx-real-cat-ears i{position:absolute;top:0;width:0;height:0;border-left:27px solid transparent;border-right:27px solid transparent;border-bottom:58px solid #2d2327;filter:drop-shadow(0 3px 4px #0006)}'
-   +'.fx-real-cat-ears i:after{content:"";position:absolute;left:-16px;top:18px;width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-bottom:31px solid #df8eaa}'
-   +'.fx-real-cat-ears i:first-child{left:5%;transform:rotate(-13deg)}.fx-real-cat-ears i:last-child{right:5%;transform:rotate(13deg)}'
-   +'.fx-real-bunny-ears{position:absolute;left:50%;top:-43%;width:78%;height:68%;transform:translateX(-50%)}'
-   +'.fx-real-bunny-ears i{position:absolute;top:0;width:31%;height:100%;border-radius:55% 55% 42% 42%;background:#f1edf2;border:3px solid #c9c4ca;box-shadow:inset 0 0 0 8px #f0a8c2,0 4px 8px #0005}'
-   +'.fx-real-bunny-ears i:first-child{left:7%;transform:rotate(-12deg)}.fx-real-bunny-ears i:last-child{right:7%;transform:rotate(12deg)}'
-   +'.fx-real-blush{position:absolute;left:50%;top:52%;width:86%;height:24%;transform:translate(-50%,-50%)}'
-   +'.fx-real-blush i{position:absolute;top:0;width:27%;height:70%;border-radius:50%;background:radial-gradient(circle,rgba(255,96,139,.52),rgba(255,96,139,0) 72%);filter:blur(2px)}'
-   +'.fx-real-blush i:first-child{left:0}.fx-real-blush i:last-child{right:0}'
-   +'.fx-real-flowers{position:absolute;left:50%;top:-13%;width:116%;transform:translateX(-50%);display:flex;justify-content:space-around;font-size:34px;filter:drop-shadow(0 3px 5px #0005)}'
-   +'.fx-real-crown{position:absolute;left:50%;top:-31%;transform:translateX(-50%);font-size:68px;line-height:1;filter:drop-shadow(0 4px 7px #0007)}'
-   +'.kt-live-effects .kt-real-track-note{margin:2px 8px 8px;padding:7px 9px;border-radius:11px;background:rgba(95,46,130,.28);border:1px solid rgba(193,96,255,.25);color:#e9dcf2;font-size:10px;font-weight:850;text-align:center}';
+    '.kt-face-anchor{transform-origin:50% 50%!important;will-change:left,top,width,height,transform!important}'
+   +'.fx-real-cat-ears,.fx-real-puppy-ears,.fx-real-bear-ears,.fx-real-fox-ears{position:absolute;left:50%;top:-20%;width:108%;height:42%;transform:translateX(-50%)}'
+   +'.fx-real-cat-ears i,.fx-real-fox-ears i{position:absolute;top:0;width:0;height:0;border-left:30px solid transparent;border-right:30px solid transparent;border-bottom:63px solid #33252b;filter:drop-shadow(0 3px 4px #0007)}'
+   +'.fx-real-cat-ears i:after,.fx-real-fox-ears i:after{content:"";position:absolute;left:-18px;top:20px;width:0;height:0;border-left:18px solid transparent;border-right:18px solid transparent;border-bottom:36px solid #e59ab3}'
+   +'.fx-real-cat-ears i:first-child,.fx-real-fox-ears i:first-child{left:4%;transform:rotate(-14deg)}.fx-real-cat-ears i:last-child,.fx-real-fox-ears i:last-child{right:4%;transform:rotate(14deg)}'
+   +'.fx-real-fox-ears i{border-bottom-color:#b85b2e}.fx-real-fox-ears i:after{border-bottom-color:#f2b39d}'
+   +'.fx-real-puppy-ears i{position:absolute;top:5%;width:31%;height:90%;border-radius:60% 40% 70% 55%;background:linear-gradient(#76513d,#3f2a22);box-shadow:0 4px 8px #0007}.fx-real-puppy-ears i:first-child{left:-5%;transform:rotate(25deg)}.fx-real-puppy-ears i:last-child{right:-5%;transform:rotate(-25deg)}'
+   +'.fx-real-bear-ears i{position:absolute;top:12%;width:34%;height:82%;border-radius:50%;background:#7d583f;border:8px solid #b98b67;box-shadow:0 3px 7px #0006}.fx-real-bear-ears i:first-child{left:-1%}.fx-real-bear-ears i:last-child{right:-1%}'
+   +'.fx-real-bunny-ears{position:absolute;left:50%;top:-46%;width:80%;height:73%;transform:translateX(-50%)}'
+   +'.fx-real-bunny-ears i{position:absolute;top:0;width:31%;height:100%;border-radius:55% 55% 42% 42%;background:#f1edf2;border:3px solid #c9c4ca;box-shadow:inset 0 0 0 8px #f0a8c2,0 4px 8px #0005}.fx-real-bunny-ears i:first-child{left:7%;transform:rotate(-12deg)}.fx-real-bunny-ears i:last-child{right:7%;transform:rotate(12deg)}'
+   +'.fx-cat-whiskers{position:absolute;inset:27% 7% 22%;}.fx-cat-whiskers .nose{position:absolute;left:50%;top:46%;width:22px;height:15px;transform:translate(-50%,-50%);background:#d77d91;border-radius:55% 55% 70% 70%}.fx-cat-whiskers i{position:absolute;top:58%;width:42%;height:2px;background:#fff9;box-shadow:0 9px 0 #fff7,0 -9px 0 #fff7}.fx-cat-whiskers i:first-of-type{left:0;transform:rotate(8deg)}.fx-cat-whiskers i:last-of-type{right:0;transform:rotate(-8deg)}'
+   +'.fx-cat-fur{position:absolute;inset:8% 9% 7%;border-radius:48% 48% 44% 44%;background:repeating-radial-gradient(ellipse at 50% 45%,rgba(255,255,255,.08) 0 3px,rgba(85,58,45,.16) 4px 7px,rgba(30,20,16,.06) 8px 11px);mix-blend-mode:soft-light;box-shadow:inset 0 0 34px #6c483a42}.fx-cat-fur:after{content:"";position:absolute;inset:10% 14%;border-radius:50%;background:radial-gradient(ellipse at 50% 55%,transparent 42%,rgba(125,86,59,.18) 70%,transparent 73%)}'
+   +'.fx-animal-nose{position:absolute;left:50%;top:55%;transform:translate(-50%,-50%);width:33px;height:23px;border-radius:55% 55% 70% 70%;background:#21171a;box-shadow:0 3px 5px #0006}.fx-animal-nose:after{content:"";position:absolute;left:50%;top:18px;width:2px;height:22px;background:#332428;transform:translateX(-50%)}'
+   +'.fx-tiger{position:absolute;inset:12% 12% 9%;border-radius:48%;background:repeating-linear-gradient(105deg,transparent 0 18px,rgba(40,20,6,.34) 19px 24px,transparent 25px 42px);mix-blend-mode:multiply;opacity:.72}.fx-tiger:after{content:"";position:absolute;left:42%;top:3%;width:16%;height:26%;background:repeating-linear-gradient(90deg,#2b1708 0 4px,transparent 4px 9px);clip-path:polygon(50% 0,100% 100%,0 100%)}'
+   +'.fx-panda i{position:absolute;top:34%;width:31%;height:23%;border-radius:50%;background:rgba(20,20,23,.7);filter:blur(.2px)}.fx-panda i:first-child{left:14%;transform:rotate(9deg)}.fx-panda i:last-child{right:14%;transform:rotate(-9deg)}'
+   +'.fx-real-blush{position:absolute;left:50%;top:56%;width:86%;height:24%;transform:translate(-50%,-50%)}.fx-real-blush i{position:absolute;top:0;width:28%;height:76%;border-radius:50%;background:radial-gradient(circle,rgba(255,96,139,.55),rgba(255,96,139,0) 72%);filter:blur(2px)}.fx-real-blush i:first-child{left:0}.fx-real-blush i:last-child{right:0}'
+   +'.fx-real-flowers{position:absolute;left:50%;top:-17%;width:118%;transform:translateX(-50%);display:flex;justify-content:space-around;font-size:34px;filter:drop-shadow(0 3px 5px #0005)}'
+   +'.fx-real-crown{position:absolute;left:50%;top:-34%;transform:translateX(-50%);font-size:69px;line-height:1;filter:drop-shadow(0 4px 7px #0007)}'
+   +'.fx-hearts-face{position:absolute;inset:-8% -4%;}.fx-hearts-face span{position:absolute;font-size:28px;filter:drop-shadow(0 2px 4px #0005)}.fx-hearts-face span:nth-child(1){left:2%;top:12%}.fx-hearts-face span:nth-child(2){right:1%;top:5%}.fx-hearts-face span:nth-child(3){left:8%;bottom:5%}.fx-hearts-face span:nth-child(4){right:7%;bottom:12%}'
+   +'.fx-halo{position:absolute;left:50%;top:-25%;width:75%;height:19%;transform:translateX(-50%);border:7px solid #ffe680;border-radius:50%;box-shadow:0 0 18px #ffe680,0 0 34px #fff2a6}'
+   +'.fx-moustache{position:absolute;left:50%;top:63%;width:54%;height:18%;transform:translate(-50%,-50%)}.fx-moustache:before,.fx-moustache:after{content:"";position:absolute;top:10%;width:52%;height:70%;background:#2b1d18;border-radius:80% 20% 70% 30%;box-shadow:0 3px 5px #0007}.fx-moustache:before{left:0;transform:rotate(12deg)}.fx-moustache:after{right:0;transform:scaleX(-1) rotate(12deg)}'
+   +'.fx-star-glasses{position:absolute;left:50%;top:36%;width:92%;transform:translate(-50%,-50%);display:flex;justify-content:space-between;font-size:52px;line-height:1;filter:drop-shadow(0 3px 6px #0007)}'
+   +'.fx-party-face{position:absolute;inset:-16% -8%}.fx-party-face span{position:absolute;font-size:34px}.fx-party-face span:first-child{left:0;top:0}.fx-party-face span:nth-child(2){right:0;top:5%}.fx-party-face span:nth-child(3){left:40%;bottom:0}'
+   +'.fx-neon-mask{position:absolute;inset:11% 8% 8%;border-radius:48%;border:4px solid #6ff;box-shadow:0 0 12px #6ff,0 0 26px #f4f,inset 0 0 20px #3ff4}.fx-neon-mask:after{content:"";position:absolute;inset:18% 13%;border-radius:50%;border:2px solid #ff65dd;box-shadow:0 0 12px #ff65dd}'
+   +'.fx-galaxy{position:absolute;inset:8% 8% 5%;border-radius:48%;background:radial-gradient(circle at 28% 26%,#fff 0 2px,transparent 3px),radial-gradient(circle at 70% 35%,#fff 0 2px,transparent 3px),radial-gradient(circle at 58% 72%,#fff 0 2px,transparent 3px),linear-gradient(145deg,rgba(64,36,147,.32),rgba(28,126,190,.23),rgba(190,54,146,.28));mix-blend-mode:screen;box-shadow:inset 0 0 28px #a676ff4d}'
+   +'.kt-live-effects .kt-real-track-note{margin:2px 8px 8px;padding:7px 9px;border-radius:11px;background:rgba(95,46,130,.28);border:1px solid rgba(193,96,255,.25);color:#e9dcf2;font-size:10px;font-weight:850;text-align:center}'
+   +'.kt-live-effects-tabs{display:flex;gap:6px;padding:0 8px 8px}.kt-live-effects-tabs button{flex:1;min-height:34px;border-radius:10px;border:1px solid #ffffff18;background:#15131c;color:#cfc8d6;font-size:10px;font-weight:900}.kt-live-effects-tabs button.on{border-color:#d861ff;color:#fff;background:#3b1748}'
+   +'.kt-live-effects-scroll{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:6px!important;max-height:235px!important;overflow:auto!important;padding:4px 8px!important}.kt-live-effect-item{min-width:0!important;padding:6px 2px!important}.kt-live-effect-item span{font-size:26px!important}.kt-live-effect-item small{display:block!important;margin-top:3px!important;font-size:8px!important;line-height:1.1!important;white-space:normal!important}.kt-live-effect-item.on{outline:2px solid #ff5fd1!important;background:#37172f!important}';
   document.head.appendChild(st);
 };
 
@@ -1425,32 +1468,41 @@ window.renderFaceEffect=function(name){
   state.editFilter='';
   state.editSticker=name;
 
-  if(name==='sunglasses'){
-    anchor.innerHTML='<div class="fx-sunglasses-mask"><i></i><i></i><b></b></div>';
-  }else if(name==='glasses'){
-    anchor.innerHTML='<div class="fx-glasses-mask"><i></i><i></i><b></b></div>';
-  }else if(name==='cap'){
-    anchor.innerHTML='<div class="fx-cap-mask"><i></i><b></b></div>';
-  }else if(name==='crown'){
-    anchor.innerHTML='<div class="fx-real-crown">👑</div>';
-  }else if(name==='catEars'){
-    anchor.innerHTML='<div class="fx-real-cat-ears"><i></i><i></i></div>';
-  }else if(name==='bunnyEars'){
-    anchor.innerHTML='<div class="fx-real-bunny-ears"><i></i><i></i></div>';
-  }else if(name==='flowers'){
-    anchor.innerHTML='<div class="fx-real-flowers"><span>🌸</span><span>🌼</span><span>🌸</span></div>';
-  }else if(name==='sparkle'){
-    anchor.innerHTML='<div class="fx-sparkles-mask"><span>✦</span><span>✧</span><span>✦</span><span>✧</span></div>';
-  }else if(name==='beard'){
-    anchor.innerHTML='<div class="fx-beard-mask"><span>〰</span><b></b></div>';
-  }else if(name==='blush'){
-    anchor.innerHTML='<div class="fx-real-blush"><i></i><i></i></div>';
-  }else{
+  var html={
+    catEars:'<div class="fx-real-cat-ears"><i></i><i></i></div>',
+    catWhiskers:'<div class="fx-cat-whiskers"><b class="nose"></b><i></i><i></i></div>',
+    catFur:'<div class="fx-real-cat-ears"><i></i><i></i></div><div class="fx-cat-fur"></div><div class="fx-cat-whiskers"><b class="nose"></b><i></i><i></i></div>',
+    puppyEars:'<div class="fx-real-puppy-ears"><i></i><i></i></div>',
+    puppyNose:'<div class="fx-animal-nose"></div>',
+    bunnyEars:'<div class="fx-real-bunny-ears"><i></i><i></i></div>',
+    bearEars:'<div class="fx-real-bear-ears"><i></i><i></i></div>',
+    foxEars:'<div class="fx-real-fox-ears"><i></i><i></i></div>',
+    tigerFace:'<div class="fx-tiger"></div>',
+    pandaFace:'<div class="fx-panda"><i></i><i></i></div>',
+    glasses:'<div class="fx-glasses-mask"><i></i><i></i><b></b></div>',
+    sunglasses:'<div class="fx-sunglasses-mask"><i></i><i></i><b></b></div>',
+    cap:'<div class="fx-cap-mask"><i></i><b></b></div>',
+    crown:'<div class="fx-real-crown">👑</div>',
+    flowers:'<div class="fx-real-flowers"><span>🌸</span><span>🌼</span><span>🌸</span></div>',
+    sparkle:'<div class="fx-sparkles-mask"><span>✦</span><span>✧</span><span>✦</span><span>✧</span></div>',
+    hearts:'<div class="fx-hearts-face"><span>💗</span><span>💕</span><span>💖</span><span>💞</span></div>',
+    halo:'<div class="fx-halo"></div>',
+    moustache:'<div class="fx-moustache"></div>',
+    beard:'<div class="fx-beard-mask"><span>〰</span><b></b></div>',
+    starGlasses:'<div class="fx-star-glasses"><span>⭐</span><span>⭐</span></div>',
+    partyFace:'<div class="fx-party-face"><span>🎉</span><span>🎊</span><span>🥳</span></div>',
+    neonMask:'<div class="fx-neon-mask"></div>',
+    galaxyFace:'<div class="fx-galaxy"></div>',
+    blush:'<div class="fx-real-blush"><i></i><i></i></div>'
+  }[name];
+
+  if(!html){
     state.editSticker='off';
     stopKTFaceTracking();
     return;
   }
 
+  anchor.innerHTML=html;
   startKTFaceTracking();
 };
 
@@ -1461,8 +1513,8 @@ window.syncEditEffectButtons=function(){
   });
   var label=document.getElementById('ktEffectSelected');
   if(label){
-    var map={off:'해제',sunglasses:'선글라스',glasses:'안경',cap:'모자',crown:'왕관',catEars:'고양이 귀',bunnyEars:'토끼 귀',flowers:'꽃머리',sparkle:'반짝이',beard:'수염',blush:'볼터치'};
-    label.textContent=map[state.pendingEditEffect||'off']||'효과';
+    var found=(window.ktRealFaceEffects||[]).find(function(e){return e[2]===state.pendingEditEffect;});
+    label.textContent=state.pendingEditEffect==='off'?'해제':(found?found[1]:'효과');
   }
 };
 
@@ -1514,27 +1566,17 @@ window.openEditEffectPanel=function(){
     creator.appendChild(tray);
   }
 
-  var effects=[
-    ['◉','선글라스','sunglasses'],
-    ['◎','안경','glasses'],
-    ['⌒','모자','cap'],
-    ['♛','왕관','crown'],
-    ['△','고양이 귀','catEars'],
-    ['◯','토끼 귀','bunnyEars'],
-    ['✿','꽃머리','flowers'],
-    ['✦','반짝이','sparkle'],
-    ['〰','수염','beard'],
-    ['●','볼터치','blush']
-  ];
+  var effects=window.ktRealFaceEffects||[];
   var allowed=effects.map(function(e){return e[2];});
   if(!state.appliedEditEffect||allowed.indexOf(state.appliedEditEffect)<0)state.appliedEditEffect='off';
   state.pendingEditEffect=state.appliedEditEffect;
 
-  tray.innerHTML='<div class="kt-live-effects-head"><b>얼굴 따라가는 편집효과</b><button onclick="closeEditEffectPanel()">✕</button></div>'
-    +'<div class="kt-real-track-note">얼굴을 인식해서 움직임과 크기에 맞춰 따라갑니다.</div>'
+  tray.innerHTML='<div class="kt-live-effects-head"><b>얼굴 따라가는 AR 효과 25개</b><button onclick="closeEditEffectPanel()">✕</button></div>'
+    +'<div class="kt-real-track-note">효과를 누르면 얼굴 위치·크기·기울기를 계속 따라갑니다.</div>'
+    +'<div class="kt-live-effects-tabs"><button class="on" onclick="switchEditEffectTab(\'all\',this)">전체</button><button onclick="switchEditEffectTab(\'animal\',this)">동물</button><button onclick="switchEditEffectTab(\'style\',this)">꾸미기</button><button onclick="switchEditEffectTab(\'fun\',this)">재미</button></div>'
     +'<div class="kt-live-effects-scroll">'
     +effects.map(function(e){
-      return '<button class="kt-live-effect-item" data-effect="'+e[2]+'" data-cat="face" onclick="previewEditEffect(\''+e[2]+'\')">'
+      return '<button class="kt-live-effect-item" data-effect="'+e[2]+'" data-cat="'+e[3]+'" onclick="previewEditEffect(\''+e[2]+'\')">'
         +'<span>'+e[0]+'</span><small>'+e[1]+'</small></button>';
     }).join('')
     +'</div>'
