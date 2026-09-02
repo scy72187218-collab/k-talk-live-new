@@ -2215,7 +2215,10 @@ window.ktStopSoundPreview=function(){
 };
 
 window.ktCreatorTracks=[
-  {name:'오빠는 풍각쟁이',source:'박향림 · 사람 노래 · 퍼블릭도메인',time:'2:52',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Park_Hyang-rim_-_Oppaneun_punggakjaeng-i.ogg'},
+  {name:'Like a Child',source:'Toni Willé · 팝송 · CC BY-SA 3.0',time:'3:10',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Like_a_Child_Radio_Version_Toni_Wille.ogg'},
+  {name:'Wikipedia Pop Anthem',source:'Paul Dreifus · 팝송 · CC BY-SA 3.0',time:'3:37',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Wikipedia_Pop_Anthem.ogg'},
+  {name:'Binbataye',source:'Gadadharadas · 인디 팝 · CC BY-SA 3.0',time:'2:36',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Binbataye_Hindi_pop.oga'},
+  {name:'오빠는 풍각쟁이',source:'박향림 · 한국 가요 · 퍼블릭도메인',time:'2:52',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Park_Hyang-rim_-_Oppaneun_punggakjaeng-i.ogg'},
   {name:'청춘계급',source:'김해송 · 사람 노래 · 퍼블릭도메인',time:'3:08',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Kim_Hae-Song,_Cheong-chun-gye-geup.ogg'},
   {name:'전화일기',source:'박향림·김해송 · 사람 노래 · 퍼블릭도메인',time:'3:06',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Bak_Hyang_Rim_Kim_Hae_Song_jeonhwa_ilgi.ogg'},
   {name:'사의 찬미',source:'윤심덕 · 사람 노래 · 퍼블릭도메인',time:'',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Yun_Sim-Deok_-_In_Praise_of_Death.ogg'},
@@ -2279,6 +2282,7 @@ window.openSoundPanel=function(){
     +'<div class="kt-sound-search">⌕ <input placeholder="사운드 검색" aria-label="사운드 검색"></div>'
     +'<div class="kt-sound-tabs"><button>인기</button><button class="on">맞춤 추천</button><button>즐겨찾기</button><button>최근</button></div>'
     +'<div class="kt-sound-list">'+list+'</div>'
+    +'<div class="note" style="margin:10px 2px 2px">팝송은 실제 보컬과 반주가 들어간 자유 이용 음원이며, 곡별 저작자·CC 라이선스 표시는 목록에 함께 표시됩니다.</div>'
     +'</div>';
   showSheet('사운드 추가',html);
 };
