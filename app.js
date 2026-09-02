@@ -36,7 +36,19 @@ window.startPersonSegmentation=async function(){
         var cw=ktPersonCanvas.width,ch=ktPersonCanvas.height,cover=Math.max(cw/sw,ch/sh);
         var bw=sw*cover,bh=sh*cover,bx=(cw-bw)/2,by=(ch-bh)/2;
         ctx.clearRect(0,0,cw,ch);
-        ctx.filter='blur(30px) brightness(.76)';ctx.drawImage(results.image,bx,by,bw,bh);ctx.filter='none';
+
+        /* 원본 배경은 화면에 그대로 꽉 채우고, 큰 원본 사람 자리는 반대쪽 배경으로 가립니다. */
+        ctx.drawImage(results.image,bx,by,bw,bh);
+        var bgFill=document.createElement('canvas');bgFill.width=sw;bgFill.height=sh;
+        var fc=bgFill.getContext('2d');
+        fc.drawImage(results.segmentationMask,0,0,sw,sh);
+        fc.globalCompositeOperation='source-in';
+        fc.filter='blur(10px)';
+        fc.drawImage(results.image,Math.round(sw*.55),0,Math.max(1,Math.round(sw*.45)),sh,0,0,sw,sh);
+        fc.filter='none';
+        ctx.drawImage(bgFill,bx,by,bw,bh);
+
+        /* 다른 UI는 그대로 두고 사람만 원래 크기의 60%로 표시 */
         var personScale=cover*.6,pw=sw*personScale,ph=sh*personScale,px=(cw-pw)/2,py=(ch-ph)/2;
         ctx.drawImage(person,px,py,pw,ph);
         creator.classList.add('person-segment-on');state.personSegmentationReady=true;
