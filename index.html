@@ -538,18 +538,7 @@
 <style id="ktCreatorCompactCameraFinal">
 /* 다른 화면은 건드리지 않고 촬영 화면만 조정 */
 #creator.creator.camera-on:not(.creator-review) video#cameraBg{
-  display:block!important;
-  position:absolute!important;
-  inset:0!important;
-  width:100%!important;
-  height:100%!important;
-  object-fit:cover!important;
-  object-position:center center!important;
-  transform:scaleX(-1) scale(1.06)!important;
-  filter:blur(14px) brightness(.72)!important;
-  opacity:.72!important;
-  z-index:0!important;
-  background:#000!important;
+  display:none!important;
 }
 #creator.creator.camera-on:not(.creator-review) video#camera{
   display:block!important;
@@ -557,11 +546,11 @@
   inset:0!important;
   width:100%!important;
   height:100%!important;
-  object-fit:contain!important;
+  object-fit:cover!important;
   object-position:center center!important;
-  transform:scaleX(-1) scale(.72)!important;
+  transform:scaleX(-1)!important;
   transform-origin:center center!important;
-  background:transparent!important;
+  background:#000!important;
   z-index:2!important;
 }
 
@@ -587,9 +576,9 @@
   margin-bottom:10px!important;
 }
 #creator .creator-bottom .record{
-  width:88px!important;
-  height:88px!important;
-  border-width:5px!important;
+  width:68px!important;
+  height:68px!important;
+  border-width:4px!important;
 }
 #creator .creator-bottom .fx{
   width:52px!important;
