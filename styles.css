@@ -3152,3 +3152,12 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   background:transparent!important;
   z-index:1!important;
 }
+
+
+/* 2026-09-02 사람만 추가 50% 축소 - 다른 UI 변경 없음 */
+.creator.camera-on:not(.creator-review) video#camera{
+  transform:scaleX(-1) scale(.25)!important;
+}
+.creator.creator-recording video#camera{
+  transform:scaleX(-1) scale(.25)!important;
+}
