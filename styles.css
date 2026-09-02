@@ -2931,7 +2931,17 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
 /* 2026-09-02 최종: 전체화면은 유지하고 AI가 분리한 사람만 60% 크기 */
 .creator.camera-on:not(.creator-review) video#cameraBg,
 .creator.creator-recording video#cameraBg{
-  display:none!important;
+  display:block!important;
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  object-position:50% 50%!important;
+  transform:scaleX(-1)!important;
+  filter:blur(24px) brightness(.78)!important;
+  background:#000!important;
+  z-index:0!important;
 }
 .creator.camera-on:not(.creator-review) video#camera,
 .creator.creator-recording video#camera{
@@ -2942,11 +2952,11 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   top:0!important;
   width:100%!important;
   height:100%!important;
-  object-fit:cover!important;
+  object-fit:contain!important;
   object-position:50% 50%!important;
   transform:scaleX(-1)!important;
   transform-origin:center center!important;
-  background:#000!important;
+  background:transparent!important;
   z-index:1!important;
 }
 .creator #ktPersonCanvas{display:none!important}
