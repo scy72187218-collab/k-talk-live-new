@@ -1108,7 +1108,7 @@ window.applyBeautyPreview=function(){
   var sepia=Math.max(0,(tone-50)*.0025);
   var faceScale=1+(face-50)*.0012;
   camera.style.setProperty('filter','brightness('+brightness.toFixed(3)+') saturate('+saturation.toFixed(3)+') contrast('+contrast.toFixed(3)+') blur('+blur.toFixed(2)+'px) sepia('+sepia.toFixed(3)+')','important');
-  camera.style.setProperty('transform','scaleX(-1) scale('+faceScale.toFixed(3)+')','important');
+  camera.style.setProperty('transform','scaleX(-1) scale('+(faceScale*.60).toFixed(3)+')','important');
 };
 
 window.adjustBeautyControl=function(step){
