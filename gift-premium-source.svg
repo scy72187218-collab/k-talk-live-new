@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="625" height="650" viewBox="0 0 625 650">
+<defs>
+  <radialGradient id="bg" cx="50%" cy="38%" r="72%"><stop offset="0" stop-color="#32162d"/><stop offset=".48" stop-color="#160c18"/><stop offset="1" stop-color="#070507"/></radialGradient>
+  <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff6b0"/><stop offset=".25" stop-color="#f8dc68"/><stop offset=".55" stop-color="#c98a16"/><stop offset=".8" stop-color="#ffdf6d"/><stop offset="1" stop-color="#8f5a09"/></linearGradient>
+  <linearGradient id="silver" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff"/><stop offset=".3" stop-color="#cfe9f3"/><stop offset=".55" stop-color="#6d8795"/><stop offset=".8" stop-color="#f7ffff"/><stop offset="1" stop-color="#7b8d98"/></linearGradient>
+  <linearGradient id="diamond" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff"/><stop offset=".2" stop-color="#8ff4ff"/><stop offset=".45" stop-color="#78a9ff"/><stop offset=".7" stop-color="#d88fff"/><stop offset="1" stop-color="#fff4a6"/></linearGradient>
+  <linearGradient id="red" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff7781"/><stop offset=".38" stop-color="#d92340"/><stop offset=".7" stop-color="#7b091a"/><stop offset="1" stop-color="#ff3c55"/></linearGradient>
+  <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#c9fbff"/><stop offset=".3" stop-color="#58d7ff"/><stop offset=".65" stop-color="#2475d6"/><stop offset="1" stop-color="#173988"/></linearGradient>
+  <linearGradient id="purple" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffd2ff"/><stop offset=".35" stop-color="#a968ff"/><stop offset=".7" stop-color="#5b2acb"/><stop offset="1" stop-color="#2b116d"/></linearGradient>
+  <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#000" flood-opacity=".75"/></filter>
+  <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <g id="spark"><path d="M0-8 2-2 8 0 2 2 0 8-2 2-8 0-2-2Z" fill="#ffe67c"/></g>
+
+  <symbol id="ring" viewBox="0 0 120 105">
+    <ellipse cx="59" cy="71" rx="29" ry="18" fill="none" stroke="url(#silver)" stroke-width="12" filter="url(#shadow)"/>
+    <path d="M45 31 59 15 74 31 67 48H51Z" fill="url(#diamond)" stroke="#eaffff" stroke-width="2" filter="url(#glow)"/>
+    <path d="m45 31 14 17 15-17M59 15v33" stroke="#fff" stroke-width="1.5" opacity=".7"/>
+  </symbol>
+  <symbol id="rose" viewBox="0 0 120 105">
+    <path d="M58 90C56 67 60 47 66 32" stroke="#2c9c42" stroke-width="7" stroke-linecap="round"/>
+    <path d="M61 68c-15-8-24-6-30 3 12 9 23 8 32 2M59 55c13-10 23-10 30-3-8 11-18 14-30 8" fill="#42b95c"/>
+    <g filter="url(#shadow)"><path d="M62 45c-20-2-28-13-24-25 8-8 16-9 24-5 7-10 20-9 27 1 8 10 1 23-9 29-6 4-12 5-18 0Z" fill="url(#red)"/><path d="M51 24c8-9 21-9 29 1-3 11-10 16-21 17 5-9 1-14-8-18Z" fill="#ff6b77" opacity=".75"/></g>
+  </symbol>
+  <symbol id="choco" viewBox="0 0 120 105">
+    <g transform="rotate(-10 60 52)" filter="url(#shadow)"><rect x="24" y="18" width="72" height="70" rx="9" fill="#6f321f" stroke="#bc7651" stroke-width="3"/><g fill="#9d5532"><rect x="31" y="25" width="17" height="17" rx="3"/><rect x="52" y="25" width="17" height="17" rx="3"/><rect x="73" y="25" width="17" height="17" rx="3"/><rect x="31" y="46" width="17" height="17" rx="3"/><rect x="52" y="46" width="17" height="17" rx="3"/><rect x="73" y="46" width="17" height="17" rx="3"/><rect x="31" y="67" width="17" height="14" rx="3"/><rect x="52" y="67" width="17" height="14" rx="3"/></g><path d="M76 68h20V88H78c-7-5-8-13-2-20Z" fill="#f7d5dc"/></g>
+  </symbol>
+  <symbol id="trophy" viewBox="0 0 120 105">
+    <g filter="url(#shadow)"><path d="M42 18h37v34c0 13-8 22-19 22S42 65 42 52Z" fill="url(#gold)" stroke="#fff0a6" stroke-width="2"/><path d="M42 28H27c0 18 7 27 21 30M79 28h15c0 18-7 27-21 30" fill="none" stroke="#dca127" stroke-width="7"/><rect x="54" y="72" width="12" height="10" rx="3" fill="#e6b83b"/><rect x="38" y="82" width="45" height="11" rx="5" fill="url(#gold)"/></g>
+  </symbol>
+  <symbol id="carred" viewBox="0 0 120 105">
+    <g filter="url(#shadow)"><path d="M18 63 28 45c5-9 13-15 24-16l24-2c9 0 18 5 24 14l8 13 5 4v18H12V66Z" fill="url(#red)" stroke="#ff8b93" stroke-width="2"/><path d="M39 45c5-7 10-10 17-11l18-1c7 0 12 3 17 10Z" fill="#a9e7ff" opacity=".82"/><ellipse cx="32" cy="77" rx="12" ry="12" fill="#15171c" stroke="#c4cbd0" stroke-width="4"/><ellipse cx="91" cy="77" rx="12" ry="12" fill="#15171c" stroke="#c4cbd0" stroke-width="4"/><rect x="78" y="56" width="21" height="6" rx="3" fill="#fff5a1"/></g>
+  </symbol>
+  <symbol id="watch" viewBox="0 0 120 105">
+    <g filter="url(#shadow)"><rect x="45" y="4" width="30" height="98" rx="12" fill="url(#silver)"/><circle cx="60" cy="53" r="31" fill="#11151b" stroke="url(#silver)" stroke-width="6"/><circle cx="60" cy="53" r="25" fill="url(#purple)" opacity=".25"/><path d="M60 53V34M60 53l15 9" stroke="#fff" stroke-width="4" stroke-linecap="round"/><circle cx="60" cy="53" r="4" fill="#ffe57b"/></g>
+  </symbol>
+  <symbol id="necklace" viewBox="0 0 120 105">
+    <path d="M23 20c6 41 21 64 37 64s31-23 37-64" fill="none" stroke="url(#silver)" stroke-width="6" filter="url(#shadow)"/>
+    <path d="M60 48 76 68 60 91 44 68Z" fill="url(#diamond)" stroke="#fff" stroke-width="2" filter="url(#glow)"/>
+    <path d="m44 68 16 23 16-23M60 48v43" stroke="#fff" opacity=".6"/>
+  </symbol>
+  <symbol id="yacht" viewBox="0 0 120 105">
+    <g filter="url(#shadow)"><path d="M18 66h93l-13 19H35Z" fill="url(#silver)" stroke="#c8f1ff" stroke-width="2"/><path d="M37 48h47l15 18H29Z" fill="#f8fbff"/><path d="M51 33h29l13 15H44Z" fill="#dff2ff"/><rect x="56" y="37" width="18" height="8" rx="2" fill="#2f6f98"/><path d="M22 87c23 8 50 8 81 0" fill="none" stroke="#53d0ff" stroke-width="5" stroke-linecap="round"/></g>
+  </symbol>
+  <symbol id="jet" viewBox="0 0 120 105">
+    <g filter="url(#shadow)"><path d="M14 58 51 50 72 15c3-5 10-6 14-2 3 3 3 7 1 11L73 50l33 9c5 1 7 7 4 11-2 3-5 4-9 3l-33-6-14 22c-2 3-6 4-9 2-3-2-4-6-2-9l8-18-34 4c-5 1-9-2-10-6-1-3 2-4 7-4Z" fill="url(#silver)" stroke="#dff9ff" stroke-width="2"/><path d="M49 50h24" stroke="#399bd8" stroke-width="5"/><circle cx="82" cy="30" r="3" fill="#ffca5b"/></g>
+  </symbol>
+  <symbol id="cargold" viewBox="0 0 120 105">
+    <g filter="url(#shadow)"><path d="M18 63 28 45c5-9 13-15 24-16l24-2c9 0 18 5 24 14l8 13 5 4v18H12V66Z" fill="url(#gold)" stroke="#fff0a6" stroke-width="2"/><path d="M39 45c5-7 10-10 17-11l18-1c7 0 12 3 17 10Z" fill="#b8efff" opacity=".9"/><ellipse cx="32" cy="77" rx="12" ry="12" fill="#15171c" stroke="#d7dce0" stroke-width="4"/><ellipse cx="91" cy="77" rx="12" ry="12" fill="#15171c" stroke="#d7dce0" stroke-width="4"/></g>
+  </symbol>
+  <symbol id="castle" viewBox="0 0 120 105">
+    <g filter="url(#shadow)"><path d="M20 92V38h20v54M80 92V38h20v54M39 92V52h42v40Z" fill="#ece8df" stroke="#c5b9a5" stroke-width="2"/><path d="M17 38 30 20l13 18M77 38 90 20l13 18M39 52 60 31 81 52" fill="#d84b69"/><rect x="52" y="71" width="16" height="21" rx="8" fill="#553332"/><rect x="25" y="50" width="8" height="12" fill="#6fb4e6"/><rect x="87" y="50" width="8" height="12" fill="#6fb4e6"/></g>
+  </symbol>
+  <symbol id="throne" viewBox="0 0 120 105">
+    <g filter="url(#shadow)"><path d="M31 15h58v63H31Z" fill="url(#gold)" stroke="#fff0a1" stroke-width="2"/><path d="M41 26h38v43H41Z" fill="url(#purple)"/><path d="M24 59h17v31H24M79 59h17v31H79" fill="url(#gold)"/><rect x="34" y="74" width="52" height="18" rx="4" fill="url(#gold)"/><circle cx="60" cy="43" r="10" fill="url(#diamond)"/></g>
+  </symbol>
+  <symbol id="rocket" viewBox="0 0 120 105">
+    <g filter="url(#shadow)"><path d="M60 9c27 20 36 48 29 76H31C24 57 33 29 60 9Z" fill="url(#silver)" stroke="#fff" stroke-width="2"/><circle cx="60" cy="43" r="14" fill="url(#blue)" stroke="#e8ffff" stroke-width="3"/><path d="M33 64 17 88l19-5M87 64l16 24-19-5" fill="#dc3555"/><path d="M48 83c-6 9-5 16 12 22 17-6 18-13 12-22Z" fill="#ffb225"/><path d="M54 83c-3 7-2 12 6 17 8-5 9-10 6-17Z" fill="#fff193"/></g>
+  </symbol>
+  <symbol id="dragon" viewBox="0 0 120 105">
+    <g filter="url(#shadow)"><path d="M87 21c-14-10-30-4-37 8-8 13-4 27 10 32-18 1-27 13-24 25 4 15 25 20 40 12 10-6 17-17 15-31-1-9-6-17-15-23 9 0 17-5 21-14Z" fill="#1f9a67" stroke="#72e3ad" stroke-width="2"/><path d="M82 24 105 14 94 38M51 31 35 17 39 42" fill="#e4bd46"/><path d="M76 44c11 0 17 5 19 14-11 1-18-3-22-10" fill="#8ee0b8"/><circle cx="79" cy="31" r="3" fill="#ffdf67"/><path d="M49 76c-12 6-18 14-19 24" fill="none" stroke="#1f9a67" stroke-width="9" stroke-linecap="round"/></g>
+  </symbol>
+  <symbol id="phoenix" viewBox="0 0 120 105">
+    <g filter="url(#shadow)"><path d="M60 63c-23-3-39-18-47-43 21 5 35 16 43 31 3-18 13-32 29-43 3 19-2 34-14 46 16-6 29-4 40 7-17 12-34 15-51 2Z" fill="url(#gold)"/><path d="M60 56c-5 17-3 31 7 43-14-4-22-14-24-30-10 10-18 19-23 29 0-20 10-36 30-47Z" fill="url(#red)"/><path d="M68 38 79 28 73 44" fill="#fff1a0"/><circle cx="72" cy="35" r="2.5" fill="#3a1a0d"/></g>
+  </symbol>
+  <symbol id="stage" viewBox="0 0 120 105">
+    <g filter="url(#shadow)"><path d="M21 82h78v15H21Z" fill="url(#gold)"/><path d="M29 82V31M91 82V31" stroke="#9b68ff" stroke-width="5"/><path d="M35 37 60 17l25 20" fill="none" stroke="#e49aff" stroke-width="5"/><circle cx="60" cy="46" r="18" fill="url(#purple)" opacity=".45"/><path d="M60 28V64M42 46h36M48 34l24 24M72 34 48 58" stroke="#8ef7ff" stroke-width="2.5"/><path d="M36 78 26 55M84 78l10-23" stroke="#ffdf72" stroke-width="5"/></g>
+  </symbol>
+  <symbol id="planet" viewBox="0 0 120 105">
+    <g filter="url(#shadow)"><circle cx="61" cy="50" r="28" fill="url(#purple)"/><path d="M23 68c18-13 48-22 77-20-15 20-43 32-78 30-7 0-8-6 1-10Z" fill="none" stroke="url(#gold)" stroke-width="8"/><circle cx="51" cy="42" r="7" fill="#f1b3ff" opacity=".45"/><circle cx="71" cy="57" r="5" fill="#6b43cf" opacity=".55"/></g>
+  </symbol>
+  <symbol id="palace" viewBox="0 0 120 105">
+    <g filter="url(#shadow)"><rect x="20" y="48" width="80" height="43" fill="#f2ede5" stroke="#ccb98d" stroke-width="2"/><path d="M14 48 60 19l46 29Z" fill="url(#gold)"/><rect x="30" y="59" width="12" height="32" fill="#b43b43"/><rect x="54" y="59" width="12" height="32" fill="#b43b43"/><rect x="78" y="59" width="12" height="32" fill="#b43b43"/><path d="M60 19V7" stroke="#e8c951" stroke-width="3"/><path d="M60 7 77 13 60 18Z" fill="#dc3852"/></g>
+  </symbol>
+  <symbol id="gift" viewBox="0 0 120 105">
+    <g filter="url(#shadow)"><rect x="20" y="36" width="80" height="58" rx="8" fill="url(#gold)"/><rect x="14" y="28" width="92" height="18" rx="7" fill="#f6c744"/><rect x="54" y="28" width="12" height="66" fill="#b9253c"/><path d="M60 28C42 28 32 20 36 11c5-11 22 1 24 17ZM60 28c18 0 28-8 24-17-5-11-22 1-24 17Z" fill="#e53650"/></g>
+  </symbol>
+  <symbol id="crown" viewBox="0 0 120 105">
+    <g filter="url(#shadow)"><path d="M18 77 25 30l22 24 13-38 14 38 21-24 7 47Z" fill="url(#gold)" stroke="#fff0a0" stroke-width="2"/><rect x="22" y="73" width="77" height="17" rx="5" fill="#d89920"/><circle cx="47" cy="56" r="6" fill="#6fe6ff"/><circle cx="74" cy="56" r="6" fill="#e886ff"/><circle cx="60" cy="35" r="6" fill="#ff707f"/></g>
+  </symbol>
+  <symbol id="whale" viewBox="0 0 120 105">
+    <g filter="url(#shadow)"><path d="M12 59c9-27 38-41 72-34 18 4 29 13 33 25-8 1-15 4-22 11 10 1 18 5 23 12-13 5-24 4-33-3-15 13-37 18-58 10C16 76 8 67 12 59Z" fill="url(#blue)" stroke="#9cecff" stroke-width="2"/><path d="M25 67c20 10 43 10 65 1-12 14-34 19-54 12-7-2-11-7-11-13Z" fill="#dffaff"/><circle cx="43" cy="48" r="3" fill="#07111f"/><path d="M62 27c-3-10 1-17 10-22 0 7 4 12 12 16" fill="none" stroke="#71e6ff" stroke-width="5" stroke-linecap="round"/></g>
+  </symbol>
+  <symbol id="kingdom" viewBox="0 0 120 105">
+    <g filter="url(#shadow)"><path d="M13 91V45h23v46M84 91V45h23v46M34 91V56h52v35Z" fill="url(#gold)" stroke="#fff0a1" stroke-width="2"/><path d="M10 45 25 22l14 23M81 45 95 20l15 25M34 56 60 27l26 29" fill="#a52a37"/><rect x="52" y="69" width="16" height="22" rx="8" fill="#452019"/><path d="M60 27V13" stroke="#f7d75a" stroke-width="3"/></g>
+  </symbol>
+  <symbol id="vipbox" viewBox="0 0 120 105">
+    <g filter="url(#shadow)"><rect x="19" y="38" width="82" height="55" rx="9" fill="#7a101f" stroke="#ef6271" stroke-width="2"/><rect x="14" y="28" width="92" height="19" rx="8" fill="url(#gold)"/><path d="M60 28C42 28 33 19 37 10c5-10 21 2 23 18Zm0 0c18 0 27-9 23-18-5-10-21 2-23 18Z" fill="#e53650"/><text x="60" y="72" text-anchor="middle" fill="#ffe981" font-size="24" font-weight="900" font-family="Arial,sans-serif">VIP</text></g>
+  </symbol>
+  <symbol id="star" viewBox="0 0 120 105">
+    <g filter="url(#shadow)"><path d="m60 10 14 28 31 5-23 22 6 31-28-15-28 15 6-31-23-22 31-5Z" fill="url(#gold)" stroke="#fff5ad" stroke-width="2"/><path d="M60 23v48" stroke="#fff" stroke-width="3" opacity=".45"/></g>
+  </symbol>
+  <symbol id="ultimate" viewBox="0 0 120 105">
+    <g filter="url(#shadow)"><path d="M60 11 84 38 60 78 36 38Z" fill="url(#diamond)" stroke="#fff" stroke-width="3"/><path d="m36 38 24 40 24-40M60 11v67" stroke="#fff" opacity=".55"/><path d="M25 88 32 58l15 16 13-23 13 23 15-16 7 30Z" fill="url(#gold)" stroke="#fff0a0" stroke-width="2"/></g>
+  </symbol>
+</defs>
+
+<!-- row 1 -->
+<g transform="translate(0 0)"><rect x="4" y="4" width="117" height="122" rx="14" fill="url(#bg)" stroke="#8b5b37"/><use href="#ring" x="3" y="9" width="119" height="105"/><use href="#spark" transform="translate(99 24) scale(.7)"/></g>
+<g transform="translate(125 0)"><rect x="4" y="4" width="117" height="122" rx="14" fill="url(#bg)" stroke="#8b5b37"/><use href="#rose" x="4" y="9" width="117" height="105"/><use href="#spark" transform="translate(98 28) scale(.65)"/></g>
+<g transform="translate(250 0)"><rect x="4" y="4" width="117" height="122" rx="14" fill="url(#bg)" stroke="#8b5b37"/><use href="#choco" x="4" y="10" width="117" height="105"/><use href="#spark" transform="translate(95 25) scale(.6)"/></g>
+<g transform="translate(375 0)"><rect x="4" y="4" width="117" height="122" rx="14" fill="url(#bg)" stroke="#8b5b37"/><use href="#trophy" x="3" y="9" width="119" height="105"/><use href="#spark" transform="translate(95 27) scale(.65)"/></g>
+<g transform="translate(500 0)"><rect x="4" y="4" width="117" height="122" rx="14" fill="url(#bg)" stroke="#8b5b37"/><use href="#carred" x="2" y="10" width="121" height="105"/><use href="#spark" transform="translate(96 27) scale(.6)"/></g>
+<!-- row 2 -->
+<g transform="translate(0 130)"><rect x="4" y="4" width="117" height="122" rx="14" fill="url(#bg)" stroke="#8b5b37"/><use href="#watch" x="4" y="8" width="117" height="105"/><use href="#spark" transform="translate(94 27) scale(.6)"/></g>
+<g transform="translate(125 130)"><rect x="4" y="4" width="117" height="122" rx="14" fill="url(#bg)" stroke="#8b5b37"/><use href="#necklace" x="4" y="7" width="117" height="105"/><use href="#spark" transform="translate(96 24) scale(.65)"/></g>
+<g transform="translate(250 130)"><rect x="4" y="4" width="117" height="122" rx="14" fill="url(#bg)" stroke="#8b5b37"/><use href="#yacht" x="2" y="10" width="121" height="105"/><use href="#spark" transform="translate(98 27) scale(.6)"/></g>
+<g transform="translate(375 130)"><rect x="4" y="4" width="117" height="122" rx="14" fill="url(#bg)" stroke="#8b5b37"/><use href="#jet" x="2" y="10" width="121" height="105"/><use href="#spark" transform="translate(94 24) scale(.6)"/></g>
+<g transform="translate(500 130)"><rect x="4" y="4" width="117" height="122" rx="14" fill="url(#bg)" stroke="#8b5b37"/><use href="#cargold" x="2" y="10" width="121" height="105"/><use href="#spark" transform="translate(97 25) scale(.6)"/></g>
+<!-- row 3 -->
+<g transform="translate(0 260)"><rect x="4" y="4" width="117" height="122" rx="14" fill="url(#bg)" stroke="#8b5b37"/><use href="#castle" x="3" y="9" width="119" height="105"/><use href="#spark" transform="translate(98 24) scale(.6)"/></g>
+<g transform="translate(125 260)"><rect x="4" y="4" width="117" height="122" rx="14" fill="url(#bg)" stroke="#8b5b37"/><use href="#throne" x="4" y="8" width="117" height="105"/><use href="#spark" transform="translate(95 25) scale(.65)"/></g>
+<g transform="translate(250 260)"><rect x="4" y="4" width="117" height="122" rx="14" fill="url(#bg)" stroke="#8b5b37"/><use href="#rocket" x="3" y="7" width="119" height="108"/><use href="#spark" transform="translate(98 26) scale(.6)"/></g>
+<g transform="translate(375 260)"><rect x="4" y="4" width="117" height="122" rx="14" fill="url(#bg)" stroke="#8b5b37"/><use href="#dragon" x="3" y="8" width="119" height="105"/><use href="#spark" transform="translate(95 23) scale(.6)"/></g>
+<g transform="translate(500 260)"><rect x="4" y="4" width="117" height="122" rx="14" fill="url(#bg)" stroke="#8b5b37"/><use href="#phoenix" x="3" y="8" width="119" height="105"/><use href="#spark" transform="translate(96 24) scale(.6)"/></g>
+<!-- row 4 -->
+<g transform="translate(0 390)"><rect x="4" y="4" width="117" height="122" rx="14" fill="url(#bg)" stroke="#8b5b37"/><use href="#stage" x="3" y="8" width="119" height="105"/><use href="#spark" transform="translate(98 25) scale(.6)"/></g>
+<g transform="translate(125 390)"><rect x="4" y="4" width="117" height="122" rx="14" fill="url(#bg)" stroke="#8b5b37"/><use href="#planet" x="3" y="8" width="119" height="105"/><use href="#spark" transform="translate(98 25) scale(.6)"/></g>
+<g transform="translate(250 390)"><rect x="4" y="4" width="117" height="122" rx="14" fill="url(#bg)" stroke="#8b5b37"/><use href="#palace" x="3" y="8" width="119" height="105"/><use href="#spark" transform="translate(97 24) scale(.6)"/></g>
+<g transform="translate(375 390)"><rect x="4" y="4" width="117" height="122" rx="14" fill="url(#bg)" stroke="#8b5b37"/><use href="#gift" x="3" y="8" width="119" height="105"/><use href="#spark" transform="translate(97 25) scale(.65)"/></g>
+<g transform="translate(500 390)"><rect x="4" y="4" width="117" height="122" rx="14" fill="url(#bg)" stroke="#8b5b37"/><use href="#crown" x="3" y="8" width="119" height="105"/><use href="#spark" transform="translate(97 25) scale(.65)"/></g>
+<!-- row 5 -->
+<g transform="translate(0 520)"><rect x="4" y="4" width="117" height="122" rx="14" fill="url(#bg)" stroke="#8b5b37"/><use href="#whale" x="2" y="10" width="121" height="105"/><use href="#spark" transform="translate(98 27) scale(.6)"/></g>
+<g transform="translate(125 520)"><rect x="4" y="4" width="117" height="122" rx="14" fill="url(#bg)" stroke="#8b5b37"/><use href="#kingdom" x="3" y="8" width="119" height="105"/><use href="#spark" transform="translate(97 24) scale(.6)"/></g>
+<g transform="translate(250 520)"><rect x="4" y="4" width="117" height="122" rx="14" fill="url(#bg)" stroke="#8b5b37"/><use href="#vipbox" x="3" y="8" width="119" height="105"/><use href="#spark" transform="translate(97 24) scale(.65)"/></g>
+<g transform="translate(375 520)"><rect x="4" y="4" width="117" height="122" rx="14" fill="url(#bg)" stroke="#8b5b37"/><use href="#star" x="3" y="8" width="119" height="105"/><use href="#spark" transform="translate(97 24) scale(.65)"/></g>
+<g transform="translate(500 520)"><rect x="4" y="4" width="117" height="122" rx="14" fill="url(#bg)" stroke="#8b5b37"/><use href="#ultimate" x="3" y="8" width="119" height="105"/><use href="#spark" transform="translate(97 24) scale(.7)"/></g>
+</svg>
