@@ -225,6 +225,7 @@ window.showSheet=function(title,html){
 };
 window.closeSheet=function(){
   ktStopSheetMedia();
+  try{if(window.ktStopSoundPreview)window.ktStopSoundPreview();}catch(e){}
   try{creator.classList.remove('beauty-preview-open');}catch(e){}
   try{var lp=creator.querySelector('.live-prep');if(lp)lp.style.removeProperty('display');}catch(e){}
   try{sheetBody.innerHTML='';}catch(e){}
@@ -2203,56 +2204,78 @@ window.setCreatorMode=function(el,name){
 
 window.ktStopSoundPreview=function(){
   try{
-    if(window.ktSoundTimer){clearTimeout(window.ktSoundTimer);window.ktSoundTimer=null;}
-    if(window.ktSoundNodes){window.ktSoundNodes.forEach(function(n){try{n.stop();}catch(e){}});}
-    window.ktSoundNodes=[];
+    if(window.ktSoundAudio){
+      window.ktSoundAudio.pause();
+      window.ktSoundAudio.removeAttribute('src');
+      try{window.ktSoundAudio.load();}catch(e){}
+      window.ktSoundAudio=null;
+    }
   }catch(e){}
   document.querySelectorAll('.kt-sound-play').forEach(function(el){el.textContent='▶';});
 };
 
+window.ktCreatorTracks=[
+  {
+    name:'트로트 느낌 폴카',
+    source:'CC0 자유음악',
+    time:'0:37',
+    url:'https://upload.wikimedia.org/wikipedia/commons/0/0a/Polyphon_-_Blumen-Polka.ogg'
+  },
+  {
+    name:'신나는 댄스',
+    source:'CC0 자유음악',
+    time:'3:41',
+    url:'https://upload.wikimedia.org/wikipedia/commons/a/ad/Loyalty_Freak_Music_-_02_-_High_Technologic_Beat_Explosion.ogg'
+  },
+  {
+    name:'전자 댄스',
+    source:'CC0 자유음악',
+    time:'2:21',
+    url:'https://upload.wikimedia.org/wikipedia/commons/b/b9/Monplaisir_-_03_-_Dance_of_the_electronic_fairies.ogg'
+  },
+  {
+    name:'밝은 가요 느낌',
+    source:'CC0 자유음악',
+    time:'2:36',
+    url:'https://upload.wikimedia.org/wikipedia/commons/8/84/Monplaisir_-_02_-_Free_To_Use_2.ogg'
+  },
+  {
+    name:'신나는 메들리 느낌',
+    source:'CC0 자유음악',
+    time:'3:12',
+    url:'https://upload.wikimedia.org/wikipedia/commons/b/b6/Monplaisir_-_01_-_Free_To_Use_1.ogg'
+  },
+  {
+    name:'밤 드라이브 비트',
+    source:'CC0 자유음악',
+    time:'1:36',
+    url:'https://upload.wikimedia.org/wikipedia/commons/9/9f/Chill_Beat.ogg'
+  }
+];
+
 window.ktPlaySoundPreview=function(index,ev){
   if(ev){try{ev.stopPropagation();ev.preventDefault();}catch(e){}}
   ktStopSoundPreview();
-  var Ctx=window.AudioContext||window.webkitAudioContext;
-  if(!Ctx){alert('이 브라우저에서는 사운드 미리듣기를 지원하지 않습니다.');return;}
-  var ctx=window.ktSoundCtx||(window.ktSoundCtx=new Ctx());
-  try{if(ctx.state==='suspended')ctx.resume();}catch(e){}
-  var patterns=[
-    [293.66,369.99,440.00,587.33,440.00,369.99,329.63,392.00],
-    [329.63,392.00,493.88,659.25,493.88,392.00,369.99,440.00],
-    [261.63,329.63,392.00,523.25,587.33,523.25,392.00,329.63],
-    [220.00,277.18,329.63,440.00,369.99,329.63,277.18,246.94],
-    [392.00,493.88,587.33,783.99,659.25,587.33,493.88,440.00],
-    [246.94,311.13,369.99,493.88,440.00,369.99,311.13,277.18]
-  ];
-  var seq=patterns[index%patterns.length], now=ctx.currentTime+.03, nodes=[];
-  var step=(index===0||index===3)?0.25:0.28;
-  seq.concat(seq).forEach(function(freq,i){
-    var osc=ctx.createOscillator(), gain=ctx.createGain();
-    osc.type=(index===0||index===3)?'sawtooth':index===1?'square':index===4?'triangle':'sine';
-    osc.frequency.value=freq;
-    gain.gain.setValueAtTime(0.0001,now+i*step);
-    gain.gain.exponentialRampToValueAtTime((index===0||index===3)?.038:.048,now+i*step+.018);
-    gain.gain.exponentialRampToValueAtTime(0.0001,now+i*step+step*.82);
-    osc.connect(gain);gain.connect(ctx.destination);
-    osc.start(now+i*step);osc.stop(now+i*step+step*.86);
-    nodes.push(osc);
-  });
-  for(var k=0;k<16;k++){
-    var bass=ctx.createOscillator(), bg=ctx.createGain();
-    bass.type='sine';
-    bass.frequency.value=(k%4===0)?98:73.42;
-    bg.gain.setValueAtTime(0.0001,now+k*step);
-    bg.gain.exponentialRampToValueAtTime(.035,now+k*step+.01);
-    bg.gain.exponentialRampToValueAtTime(0.0001,now+k*step+.11);
-    bass.connect(bg);bg.connect(ctx.destination);
-    bass.start(now+k*step);bass.stop(now+k*step+.13);
-    nodes.push(bass);
-  }
-  window.ktSoundNodes=nodes;
+  var t=(window.ktCreatorTracks||[])[index];
+  if(!t||!t.url)return;
+  var audio=new Audio(t.url);
+  audio.preload='metadata';
+  audio.volume=.9;
+  window.ktSoundAudio=audio;
   var p=document.querySelectorAll('.kt-sound-play')[index];
   if(p)p.textContent='■';
-  window.ktSoundTimer=setTimeout(function(){ktStopSoundPreview();},4300);
+  audio.addEventListener('ended',function(){ktStopSoundPreview();},{once:true});
+  audio.addEventListener('error',function(){
+    ktStopSoundPreview();
+    alert('음악을 불러오지 못했습니다. 잠시 후 다시 눌러 주세요.');
+  },{once:true});
+  var playPromise=audio.play();
+  if(playPromise&&playPromise.catch){
+    playPromise.catch(function(){
+      ktStopSoundPreview();
+      alert('▶ 버튼을 한 번 더 눌러 음악을 재생해 주세요.');
+    });
+  }
 };
 
 window.selectCreatorSound=function(name){
@@ -2264,18 +2287,11 @@ window.selectCreatorSound=function(name){
 };
 
 window.openSoundPanel=function(){
-  var tracks=[
-    ['신나는 트로트','K-Talk 오리지널','자유 사용'],
-    ['댄스 가요','K-Talk 오리지널','자유 사용'],
-    ['밝은 가요','K-Talk 오리지널','자유 사용'],
-    ['감성 트로트','K-Talk 오리지널','자유 사용'],
-    ['신나는 메들리','K-Talk 오리지널','자유 사용'],
-    ['밤 드라이브','K-Talk 오리지널','자유 사용']
-  ];
+  var tracks=window.ktCreatorTracks||[];
   var list=tracks.map(function(t,i){
-    return '<button class="kt-sound-row" onclick="selectCreatorSound(\''+t[0]+'\')">'
+    return '<button class="kt-sound-row" onclick="selectCreatorSound(\''+t.name+'\')">'
       +'<span class="kt-sound-cover">'+(i+1)+'</span>'
-      +'<span class="kt-sound-info"><b>'+t[0]+'</b><small>'+t[1]+' · '+t[2]+'</small></span>'
+      +'<span class="kt-sound-info"><b>'+t.name+'</b><small>'+t.source+' · '+t.time+'</small></span>'
       +'<span class="kt-sound-play" onclick="ktPlaySoundPreview('+i+',event)">▶</span>'
       +'</button>';
   }).join('');
