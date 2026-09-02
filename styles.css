@@ -359,3 +359,46 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
 .creator:not(.live-prep-open) .creator-foot{
   gap:38px!important;margin-top:14px!important;font-size:14px!important;
 }
+
+
+/* 2026-09-02 촬영화면 크기 복구 - 요청한 부분만 */
+/* 라이브 준비 화면은 건드리지 않고, 동영상 촬영 화면만 작게 복구 */
+.creator.show:not(.live-prep-open) video{
+  object-fit:contain!important;
+  object-position:50% 50%!important;
+  background:#000!important;
+}
+.creator.show:not(.live-prep-open) .creator-bottom{
+  left:22px!important;
+  right:22px!important;
+  bottom:24px!important;
+}
+.creator.show:not(.live-prep-open) .modes{
+  gap:16px!important;
+  font-size:11px!important;
+  line-height:1.05!important;
+}
+.creator.show:not(.live-prep-open) .modes span{
+  padding:5px 7px!important;
+  border-radius:12px!important;
+}
+.creator.show:not(.live-prep-open) .recordrow{
+  gap:14px!important;
+  margin-top:8px!important;
+}
+.creator.show:not(.live-prep-open) .record{
+  width:66px!important;
+  height:66px!important;
+  border-width:5px!important;
+  box-shadow:0 0 0 3px rgba(255,45,85,.22)!important;
+}
+.creator.show:not(.live-prep-open) .fx{
+  width:42px!important;
+  height:42px!important;
+  font-size:16px!important;
+}
+.creator.show:not(.live-prep-open) .creator-foot{
+  gap:30px!important;
+  margin-top:10px!important;
+  font-size:12px!important;
+}
