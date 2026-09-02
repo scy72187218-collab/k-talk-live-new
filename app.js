@@ -2215,6 +2215,23 @@ window.ktStopSoundPreview=function(){
 };
 
 window.ktCreatorTracks=[
+  {name:'누이',source:'설운도 · 유명 트로트 · 정식 음원 검색',time:'',url:'',searchOnly:true,query:'설운도 누이'},
+  {name:'사내',source:'나훈아 · 유명 트로트 · 정식 음원 검색',time:'',url:'',searchOnly:true,query:'나훈아 사내'},
+  {name:'아모르 파티',source:'김연자 · 유명 트로트 · 정식 음원 검색',time:'',url:'',searchOnly:true,query:'김연자 아모르 파티'},
+  {name:'어머나',source:'장윤정 · 유명 트로트 · 정식 음원 검색',time:'',url:'',searchOnly:true,query:'장윤정 어머나'},
+  {name:'바다새',source:'유명 가요 · 정식 음원 검색',time:'',url:'',searchOnly:true,query:'바다새 노래'},
+  {name:'사랑의 배터리',source:'홍진영 · 유명 트로트 · 정식 음원 검색',time:'',url:'',searchOnly:true,query:'홍진영 사랑의 배터리'},
+  {name:'무조건',source:'박상철 · 유명 트로트 · 정식 음원 검색',time:'',url:'',searchOnly:true,query:'박상철 무조건'},
+  {name:'안동역에서',source:'진성 · 유명 트로트 · 정식 음원 검색',time:'',url:'',searchOnly:true,query:'진성 안동역에서'},
+  {name:'초혼',source:'장윤정 · 유명 트로트 · 정식 음원 검색',time:'',url:'',searchOnly:true,query:'장윤정 초혼'},
+  {name:'고장난 벽시계',source:'나훈아 · 유명 트로트 · 정식 음원 검색',time:'',url:'',searchOnly:true,query:'나훈아 고장난 벽시계'},
+  {name:'내 나이가 어때서',source:'오승근 · 유명 트로트 · 정식 음원 검색',time:'',url:'',searchOnly:true,query:'오승근 내 나이가 어때서'},
+  {name:'보릿고개',source:'진성 · 유명 트로트 · 정식 음원 검색',time:'',url:'',searchOnly:true,query:'진성 보릿고개'},
+  {name:'찬찬찬',source:'편승엽 · 유명 트로트 · 정식 음원 검색',time:'',url:'',searchOnly:true,query:'편승엽 찬찬찬'},
+  {name:'남행열차',source:'김수희 · 유명 가요 · 정식 음원 검색',time:'',url:'',searchOnly:true,query:'김수희 남행열차'},
+  {name:'서른 즈음에',source:'김광석 · 유명 가요 · 정식 음원 검색',time:'',url:'',searchOnly:true,query:'김광석 서른 즈음에'},
+  {name:'사랑했지만',source:'김광석 · 유명 가요 · 정식 음원 검색',time:'',url:'',searchOnly:true,query:'김광석 사랑했지만'},
+  {name:'이등병의 편지',source:'김광석 · 유명 가요 · 정식 음원 검색',time:'',url:'',searchOnly:true,query:'김광석 이등병의 편지'},
   {name:'Like a Child',source:'Toni Willé · 팝송 · CC BY-SA 3.0',time:'3:10',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Like_a_Child_Radio_Version_Toni_Wille.ogg'},
   {name:'Wikipedia Pop Anthem',source:'Paul Dreifus · 팝송 · CC BY-SA 3.0',time:'3:37',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Wikipedia_Pop_Anthem.ogg'},
   {name:'Binbataye',source:'Gadadharadas · 인디 팝 · CC BY-SA 3.0',time:'2:36',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Binbataye_Hindi_pop.oga'},
@@ -2231,6 +2248,17 @@ window.ktCreatorTracks=[
   {name:'Avalon',source:'Al Jolson · 사람 노래 · 퍼블릭도메인',time:'2:58',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Al_Jolson_-_Avalon_(1920).ogg'},
   {name:'I Shall Not Be Moved',source:'전통 포크 · 사람 노래 · 퍼블릭도메인',time:'3:06',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/IShallNotBeMoved.ogg'}
 ]
+
+window.ktOpenLicensedSongSearch=function(index,ev){
+  if(ev){try{ev.stopPropagation();ev.preventDefault();}catch(e){}}
+  ktStopSoundPreview();
+  var t=(window.ktCreatorTracks||[])[index];
+  if(!t)return;
+  var q=String(t.query||t.name||'').trim();
+  if(!q)return;
+  var url='https://www.youtube.com/results?search_query='+encodeURIComponent(q+' 공식 음원');
+  try{window.open(url,'_blank','noopener');}catch(e){location.href=url;}
+};
 
 window.ktPlaySoundPreview=function(index,ev){
   if(ev){try{ev.stopPropagation();ev.preventDefault();}catch(e){}}
@@ -2303,7 +2331,7 @@ window.renderCreatorSoundList=function(query){
     rows.push('<button class="kt-sound-row" onclick="selectCreatorSound(\''+t.name.replace(/'/g,"\\'")+'\')">'
       +'<span class="kt-sound-cover">'+(i+1)+'</span>'
       +'<span class="kt-sound-info"><b>'+ktSoundEscape(t.name)+'</b><small>'+ktSoundEscape(t.source)+(t.time?' · '+ktSoundEscape(t.time):'')+'</small></span>'
-      +'<span class="kt-sound-play" onclick="ktPlaySoundPreview('+i+',event)">▶</span>'
+      +'<span class="kt-sound-play" onclick="'+(t.searchOnly?'ktOpenLicensedSongSearch('+i+',event)':'ktPlaySoundPreview('+i+',event)')+'">'+(t.searchOnly?'🔎':'▶')+'</span>'
       +'</button>');
   });
   var box=document.getElementById('ktSoundList');
@@ -2361,7 +2389,7 @@ window.openSoundPanel=function(){
     +'<div class="kt-sound-search">⌕ <input id="ktSoundSearchInput" placeholder="트로트·가요·팝송·제목·가수 검색" aria-label="사운드 검색" oninput="filterCreatorSounds(this.value)"></div>'
     +'<div class="kt-sound-tabs"><button>인기</button><button class="on">맞춤 추천</button><button>즐겨찾기</button><button>최근</button></div>'
     +'<div class="kt-sound-list" id="ktSoundList"></div>'
-    +'<div class="note" style="margin:10px 2px 2px">트로트·가요·팝송처럼 검색하면 사이트 음악과 온라인 자유 이용 음원을 함께 찾아 ▶로 바로 들을 수 있습니다. 저작권이 제한된 상업곡은 검색·재생 대상에서 제외됩니다.</div>'
+    +'<div class="note" style="margin:10px 2px 2px">트로트·가요·팝송처럼 검색하면 됩니다. 자유 이용 음원은 ▶로 바로 듣고, 누이·사내·아모르 파티·어머나 같은 유명곡은 🔎를 눌러 정식 음원을 검색해 들을 수 있습니다.</div>'
     +'</div>';
   showSheet('사운드 추가',html);
   setTimeout(function(){renderCreatorSoundList('');},0);
