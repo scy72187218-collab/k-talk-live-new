@@ -1173,6 +1173,9 @@ window.ensureFaceEffectLayer=function(){
 
 window.ktFaceDetector=null;
 window.ktFaceTrackTimer=null;
+window.ktMpFaceDetector=null;
+window.ktMpFaceLoading=null;
+window.ktMpFaceBusy=false;
 
 window.placeFaceAnchorFallback=function(){
   var anchor=document.getElementById('ktFaceAnchor');
@@ -1187,6 +1190,98 @@ window.placeFaceAnchorFallback=function(){
   anchor.style.top=cy+'px';
   anchor.style.width=w+'px';
   anchor.style.height=h+'px';
+  anchor.style.transform='translate(-50%,-50%) rotate(0deg)';
+};
+
+window.placeFaceAnchorNormalized=function(cxN,cyN,wN,hN,angle){
+  var anchor=document.getElementById('ktFaceAnchor');
+  if(!anchor||!camera||!camera.videoWidth||!camera.videoHeight)return;
+  var cr=creator.getBoundingClientRect();
+  var vr=camera.getBoundingClientRect();
+  var vw=camera.videoWidth, vh=camera.videoHeight;
+  var scale=Math.max(vr.width/vw,vr.height/vh);
+  var drawW=vw*scale, drawH=vh*scale;
+  var offX=(vr.width-drawW)/2;
+  var offY=(vr.height-drawH)/2;
+
+  var bw=Math.max(.08,Math.min(.95,wN||.32))*vw;
+  var bh=Math.max(.10,Math.min(.95,hN||.42))*vh;
+  var bx=((cxN||.5)-(wN||.32)/2)*vw;
+  var by=((cyN||.4)-(hN||.42)/2)*vh;
+
+  if((state.cameraFacing||'user')!=='environment'){
+    bx=vw-(bx+bw);
+    angle=-(angle||0);
+  }
+
+  var dx=offX+(bx*scale);
+  var dy=offY+(by*scale);
+  var shownW=bw*scale;
+  var shownH=bh*scale;
+  var centerX=(vr.left-cr.left)+dx+(shownW/2);
+  var centerY=(vr.top-cr.top)+dy+(shownH/2);
+
+  anchor.style.left=centerX+'px';
+  anchor.style.top=centerY+'px';
+  anchor.style.width=Math.max(120,shownW*1.08)+'px';
+  anchor.style.height=Math.max(145,shownH*1.08)+'px';
+  anchor.style.transform='translate(-50%,-50%) rotate('+Math.max(-25,Math.min(25,angle||0))+'deg)';
+};
+
+window.ensureKTMediapipeFace=function(){
+  if(window.ktMpFaceDetector)return Promise.resolve(window.ktMpFaceDetector);
+  if(window.ktMpFaceLoading)return window.ktMpFaceLoading;
+
+  window.ktMpFaceLoading=new Promise(function(resolve,reject){
+    function init(){
+      try{
+        if(typeof window.FaceDetection!=='function')throw new Error('FaceDetection library unavailable');
+        var fd=new window.FaceDetection({
+          locateFile:function(file){
+            return 'https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/'+file;
+          }
+        });
+        fd.setOptions({model:'short',minDetectionConfidence:0.5});
+        fd.onResults(function(results){
+          window.ktMpFaceBusy=false;
+          var det=results&&results.detections&&results.detections[0];
+          if(!det||!det.boundingBox){placeFaceAnchorFallback();return;}
+          var bb=det.boundingBox;
+          var angle=0;
+          var lm=det.landmarks||[];
+          if(lm.length>=2){
+            var dx=(lm[1].x||0)-(lm[0].x||0);
+            var dy=(lm[1].y||0)-(lm[0].y||0);
+            angle=Math.atan2(dy,dx)*180/Math.PI;
+            if(angle>90)angle-=180;
+            if(angle<-90)angle+=180;
+          }
+          placeFaceAnchorNormalized(bb.xCenter,bb.yCenter,bb.width,bb.height,angle);
+        });
+        window.ktMpFaceDetector=fd;
+        resolve(fd);
+      }catch(err){
+        window.ktMpFaceLoading=null;
+        reject(err);
+      }
+    }
+
+    if(typeof window.FaceDetection==='function'){init();return;}
+    var old=document.getElementById('ktMpFaceDetectionScript');
+    if(old){
+      old.addEventListener('load',init,{once:true});
+      old.addEventListener('error',function(){window.ktMpFaceLoading=null;reject(new Error('face library load failed'));},{once:true});
+      return;
+    }
+    var sc=document.createElement('script');
+    sc.id='ktMpFaceDetectionScript';
+    sc.src='https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/face_detection.js';
+    sc.async=true;
+    sc.onload=init;
+    sc.onerror=function(){window.ktMpFaceLoading=null;reject(new Error('face library load failed'));};
+    document.head.appendChild(sc);
+  });
+  return window.ktMpFaceLoading;
 };
 
 window.trackFaceOnce=async function(){
@@ -1196,39 +1291,34 @@ window.trackFaceOnce=async function(){
     return;
   }
 
-  if(!('FaceDetector' in window)){
-    placeFaceAnchorFallback();
-    return;
+  if('FaceDetector' in window){
+    try{
+      if(!window.ktFaceDetector)window.ktFaceDetector=new FaceDetector({fastMode:true,maxDetectedFaces:1});
+      var faces=await window.ktFaceDetector.detect(camera);
+      if(!faces||!faces.length){placeFaceAnchorFallback();return;}
+      var box=faces[0].boundingBox;
+      placeFaceAnchorNormalized(
+        (box.x+box.width/2)/camera.videoWidth,
+        (box.y+box.height/2)/camera.videoHeight,
+        box.width/camera.videoWidth,
+        box.height/camera.videoHeight,
+        0
+      );
+      return;
+    }catch(e){}
   }
 
   try{
-    if(!window.ktFaceDetector)window.ktFaceDetector=new FaceDetector({fastMode:true,maxDetectedFaces:1});
-    var faces=await window.ktFaceDetector.detect(camera);
-    if(!faces||!faces.length){placeFaceAnchorFallback();return;}
-
-    var box=faces[0].boundingBox;
-    var cr=creator.getBoundingClientRect();
-    var vr=camera.getBoundingClientRect();
-    var vw=camera.videoWidth, vh=camera.videoHeight;
-    var scale=Math.max(vr.width/vw,vr.height/vh);
-    var drawW=vw*scale, drawH=vh*scale;
-    var offX=(vr.width-drawW)/2;
-    var offY=(vr.height-drawH)/2;
-    var bw=box.width*scale, bh=box.height*scale;
-    var bx=offX+(box.x*scale);
-    if((state.cameraFacing||'user')!=='environment'){
-      bx=vr.width-offX-((box.x+box.width)*scale);
+    var fd=window.ktMpFaceDetector||await ensureKTMediapipeFace();
+    if(fd&&!window.ktMpFaceBusy){
+      window.ktMpFaceBusy=true;
+      Promise.resolve(fd.send({image:camera})).catch(function(){
+        window.ktMpFaceBusy=false;
+        placeFaceAnchorFallback();
+      });
     }
-    var by=offY+(box.y*scale);
-
-    var cx=(vr.left-cr.left)+bx+(bw/2);
-    var cy=(vr.top-cr.top)+by+(bh/2);
-
-    anchor.style.left=cx+'px';
-    anchor.style.top=cy+'px';
-    anchor.style.width=Math.max(120,bw)+'px';
-    anchor.style.height=Math.max(145,bh)+'px';
   }catch(e){
+    window.ktMpFaceBusy=false;
     placeFaceAnchorFallback();
   }
 };
@@ -1239,16 +1329,39 @@ window.startKTFaceTracking=function(){
   trackFaceOnce();
   window.ktFaceTrackTimer=setInterval(function(){
     if(creator&&creator.classList.contains('show'))trackFaceOnce();
-  },260);
+  },180);
 };
 
 window.stopKTFaceTracking=function(){
   clearInterval(window.ktFaceTrackTimer);
   window.ktFaceTrackTimer=null;
+  window.ktMpFaceBusy=false;
+};
+
+window.ensureRealFaceEffectStyle=function(){
+  if(document.getElementById('ktRealFaceEffectStyle'))return;
+  var st=document.createElement('style');
+  st.id='ktRealFaceEffectStyle';
+  st.textContent=
+    '.fx-real-cat-ears{position:absolute;left:50%;top:-17%;width:105%;height:36%;transform:translateX(-50%)}'
+   +'.fx-real-cat-ears i{position:absolute;top:0;width:0;height:0;border-left:27px solid transparent;border-right:27px solid transparent;border-bottom:58px solid #2d2327;filter:drop-shadow(0 3px 4px #0006)}'
+   +'.fx-real-cat-ears i:after{content:"";position:absolute;left:-16px;top:18px;width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-bottom:31px solid #df8eaa}'
+   +'.fx-real-cat-ears i:first-child{left:5%;transform:rotate(-13deg)}.fx-real-cat-ears i:last-child{right:5%;transform:rotate(13deg)}'
+   +'.fx-real-bunny-ears{position:absolute;left:50%;top:-43%;width:78%;height:68%;transform:translateX(-50%)}'
+   +'.fx-real-bunny-ears i{position:absolute;top:0;width:31%;height:100%;border-radius:55% 55% 42% 42%;background:#f1edf2;border:3px solid #c9c4ca;box-shadow:inset 0 0 0 8px #f0a8c2,0 4px 8px #0005}'
+   +'.fx-real-bunny-ears i:first-child{left:7%;transform:rotate(-12deg)}.fx-real-bunny-ears i:last-child{right:7%;transform:rotate(12deg)}'
+   +'.fx-real-blush{position:absolute;left:50%;top:52%;width:86%;height:24%;transform:translate(-50%,-50%)}'
+   +'.fx-real-blush i{position:absolute;top:0;width:27%;height:70%;border-radius:50%;background:radial-gradient(circle,rgba(255,96,139,.52),rgba(255,96,139,0) 72%);filter:blur(2px)}'
+   +'.fx-real-blush i:first-child{left:0}.fx-real-blush i:last-child{right:0}'
+   +'.fx-real-flowers{position:absolute;left:50%;top:-13%;width:116%;transform:translateX(-50%);display:flex;justify-content:space-around;font-size:34px;filter:drop-shadow(0 3px 5px #0005)}'
+   +'.fx-real-crown{position:absolute;left:50%;top:-31%;transform:translateX(-50%);font-size:68px;line-height:1;filter:drop-shadow(0 4px 7px #0007)}'
+   +'.kt-live-effects .kt-real-track-note{margin:2px 8px 8px;padding:7px 9px;border-radius:11px;background:rgba(95,46,130,.28);border:1px solid rgba(193,96,255,.25);color:#e9dcf2;font-size:10px;font-weight:850;text-align:center}';
+  document.head.appendChild(st);
 };
 
 window.renderFaceEffect=function(name){
-  var layer=ensureFaceEffectLayer();
+  ensureRealFaceEffectStyle();
+  ensureFaceEffectLayer();
   var anchor=document.getElementById('ktFaceAnchor');
   anchor.innerHTML='';
   anchor.className='kt-face-anchor';
@@ -1260,6 +1373,7 @@ window.renderFaceEffect=function(name){
     state.editFilter='';
     state.editSticker='';
     if(camera)camera.style.filter='brightness(1.12) contrast(.95) saturate(1.02)';
+    stopKTFaceTracking();
     return;
   }
 
@@ -1270,48 +1384,26 @@ window.renderFaceEffect=function(name){
     anchor.innerHTML='<div class="fx-sunglasses-mask"><i></i><i></i><b></b></div>';
   }else if(name==='glasses'){
     anchor.innerHTML='<div class="fx-glasses-mask"><i></i><i></i><b></b></div>';
-  }else if(name==='beard'){
-    anchor.innerHTML='<div class="fx-beard-mask"><span>〰</span><b></b></div>';
   }else if(name==='cap'){
     anchor.innerHTML='<div class="fx-cap-mask"><i></i><b></b></div>';
+  }else if(name==='crown'){
+    anchor.innerHTML='<div class="fx-real-crown">👑</div>';
+  }else if(name==='catEars'){
+    anchor.innerHTML='<div class="fx-real-cat-ears"><i></i><i></i></div>';
+  }else if(name==='bunnyEars'){
+    anchor.innerHTML='<div class="fx-real-bunny-ears"><i></i><i></i></div>';
+  }else if(name==='flowers'){
+    anchor.innerHTML='<div class="fx-real-flowers"><span>🌸</span><span>🌼</span><span>🌸</span></div>';
   }else if(name==='sparkle'){
     anchor.innerHTML='<div class="fx-sparkles-mask"><span>✦</span><span>✧</span><span>✦</span><span>✧</span></div>';
-  }else if(name==='puppy'){
-    anchor.innerHTML='<div class="fx-emoji-mask">🐶</div>';
-  }else if(name==='cat'){
-    anchor.innerHTML='<div class="fx-emoji-mask">😺</div>';
-  }else if(name==='bunny'){
-    anchor.innerHTML='<div class="fx-emoji-mask">🐰</div>';
-  }else if(name==='heart'){
-    anchor.innerHTML='<div class="fx-emoji-mask fx-hearts">💕</div>';
-  }else if(name==='flower'){
-    anchor.innerHTML='<div class="fx-emoji-mask fx-crown-mask">🌸🌼🌸</div>';
-  }else if(name==='angel'){
-    anchor.innerHTML='<div class="fx-emoji-mask fx-crown-mask">😇</div>';
-  }else if(name==='clown'){
-    anchor.innerHTML='<div class="fx-emoji-mask">🤡</div>';
-  }else if(name==='cartoon'){
-    anchor.innerHTML='<div class="fx-emoji-mask">🤩</div>';
-  }else if(name==='party'){
-    anchor.innerHTML='<div class="fx-emoji-mask fx-crown-mask">🎉🥳🎉</div>';
-  }else if(name==='mono'){
-    state.editFilter='mono';
-    creator.classList.add('fx-mono');
-  }else if(name==='warm'){
-    state.editFilter='warm';
-    creator.classList.add('fx-warm');
-  }else if(name==='cool'){
-    state.editFilter='cool';
-    creator.classList.add('fx-cool');
-  }else if(name==='soft'){
-    state.editFilter='dream';
-    creator.classList.add('fx-dream');
-  }else if(name==='studio'){
-    state.editFilter='studio';
-    if(camera)camera.style.filter='brightness(1.16) contrast(.94) saturate(.98)';
-  }else if(name==='night'){
-    state.editFilter='night';
-    creator.classList.add('fx-night');
+  }else if(name==='beard'){
+    anchor.innerHTML='<div class="fx-beard-mask"><span>〰</span><b></b></div>';
+  }else if(name==='blush'){
+    anchor.innerHTML='<div class="fx-real-blush"><i></i><i></i></div>';
+  }else{
+    state.editSticker='off';
+    stopKTFaceTracking();
+    return;
   }
 
   startKTFaceTracking();
@@ -1324,7 +1416,7 @@ window.syncEditEffectButtons=function(){
   });
   var label=document.getElementById('ktEffectSelected');
   if(label){
-    var map={off:'해제',sunglasses:'선글라스',cap:'모자',puppy:'강아지',cat:'고양이',bunny:'토끼',heart:'하트',flower:'꽃장식',sparkle:'별빛',angel:'천사',party:'파티'};
+    var map={off:'해제',sunglasses:'선글라스',glasses:'안경',cap:'모자',crown:'왕관',catEars:'고양이 귀',bunnyEars:'토끼 귀',flowers:'꽃머리',sparkle:'반짝이',beard:'수염',blush:'볼터치'};
     label.textContent=map[state.pendingEditEffect||'off']||'효과';
   }
 };
@@ -1377,27 +1469,27 @@ window.openEditEffectPanel=function(){
     creator.appendChild(tray);
   }
 
-  if(!state.appliedEditEffect)state.appliedEditEffect='off';
+  var effects=[
+    ['◉','선글라스','sunglasses'],
+    ['◎','안경','glasses'],
+    ['⌒','모자','cap'],
+    ['♛','왕관','crown'],
+    ['△','고양이 귀','catEars'],
+    ['◯','토끼 귀','bunnyEars'],
+    ['✿','꽃머리','flowers'],
+    ['✦','반짝이','sparkle'],
+    ['〰','수염','beard'],
+    ['●','볼터치','blush']
+  ];
+  var allowed=effects.map(function(e){return e[2];});
+  if(!state.appliedEditEffect||allowed.indexOf(state.appliedEditEffect)<0)state.appliedEditEffect='off';
   state.pendingEditEffect=state.appliedEditEffect;
 
-  var effects=[
-    ['🕶️','선글라스','sunglasses','face'],
-    ['🧢','모자','cap','face'],
-    ['🐶','강아지','puppy','face'],
-    ['😺','고양이','cat','face'],
-    ['🐰','토끼','bunny','face'],
-    ['💕','하트','heart','mood'],
-    ['🌸','꽃장식','flower','mood'],
-    ['✦','별빛','sparkle','mood'],
-    ['😇','천사','angel','face'],
-    ['🥳','파티','party','mood']
-  ];
-
-  tray.innerHTML='<div class="kt-live-effects-head"><b>편집효과</b><button onclick="closeEditEffectPanel()">✕</button></div>'
-    +'<div class="kt-live-effects-tabs"><button class="on" onclick="switchEditEffectTab(\'all\',this)">추천</button><button onclick="switchEditEffectTab(\'face\',this)">얼굴</button><button onclick="switchEditEffectTab(\'mood\',this)">분위기</button></div>'
+  tray.innerHTML='<div class="kt-live-effects-head"><b>얼굴 따라가는 편집효과</b><button onclick="closeEditEffectPanel()">✕</button></div>'
+    +'<div class="kt-real-track-note">얼굴을 인식해서 움직임과 크기에 맞춰 따라갑니다.</div>'
     +'<div class="kt-live-effects-scroll">'
     +effects.map(function(e){
-      return '<button class="kt-live-effect-item" data-effect="'+e[2]+'" data-cat="'+e[3]+'" onclick="previewEditEffect(\''+e[2]+'\')">'
+      return '<button class="kt-live-effect-item" data-effect="'+e[2]+'" data-cat="face" onclick="previewEditEffect(\''+e[2]+'\')">'
         +'<span>'+e[0]+'</span><small>'+e[1]+'</small></button>';
     }).join('')
     +'</div>'
