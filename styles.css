@@ -3094,3 +3094,61 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   margin-top:10px!important;
   font-size:12px!important;
 }
+
+
+/* 2026-09-02 촬영화면 사람 50% 축소 + 전체화면 채움 최종 */
+/* 다른 UI는 건드리지 않고 카메라 화면만 조정 */
+.creator.camera-on:not(.creator-review) video#cameraBg{
+  display:block!important;
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  object-position:50% 50%!important;
+  transform:scaleX(-1) scale(1.06)!important;
+  transform-origin:center center!important;
+  filter:blur(14px) brightness(.78)!important;
+  opacity:1!important;
+  background:#000!important;
+  z-index:0!important;
+}
+.creator.camera-on:not(.creator-review) video#camera{
+  display:block!important;
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  object-position:50% 50%!important;
+  transform:scaleX(-1) scale(.50)!important;
+  transform-origin:center center!important;
+  background:transparent!important;
+  z-index:1!important;
+}
+/* 촬영 중에도 같은 크기로 보이게 */
+.creator.creator-recording video#cameraBg{
+  display:block!important;
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  transform:scaleX(-1) scale(1.06)!important;
+  filter:blur(14px) brightness(.78)!important;
+  opacity:1!important;
+  z-index:0!important;
+}
+.creator.creator-recording video#camera{
+  display:block!important;
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  object-position:50% 50%!important;
+  transform:scaleX(-1) scale(.50)!important;
+  transform-origin:center center!important;
+  background:transparent!important;
+  z-index:1!important;
+}
