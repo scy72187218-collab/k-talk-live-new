@@ -61,10 +61,8 @@
 .ktgf-art{width:100%;height:90px;margin:0 auto 7px;display:grid;place-items:center;border-radius:13px;font-family:"Noto Color Emoji","Apple Color Emoji","Segoe UI Emoji",sans-serif;font-size:55px;line-height:1;background:radial-gradient(circle at 50% 43%,rgba(126,47,105,.43),rgba(52,21,47,.58) 48%,#080608 80%);box-shadow:inset 0 0 18px #000b,0 0 0 1px #6f452d;filter:drop-shadow(0 4px 8px #0009)}
 .ktgf-art{background:none!important;overflow:hidden}
 .ktgf-art svg{display:block;width:100%;height:100%;border-radius:inherit}
-.ktgf-art.ktgf-art-extra{position:relative;background:radial-gradient(circle at 50% 38%,rgba(255,211,92,.28),rgba(106,31,91,.40) 43%,#090609 79%)!important;border:1px solid #8b5b37;box-shadow:inset 0 0 20px #000b,0 0 9px #d9a72b24}
-.ktgf-art-extra i{font-style:normal;font-size:52px;line-height:1;filter:drop-shadow(0 4px 7px #0009) drop-shadow(0 0 8px #ffd95a33)}
-.ktgf-art-extra:before,.ktgf-art-extra:after{content:"✦";position:absolute;color:#ffe27d;font-size:12px;text-shadow:0 0 7px #ffda6b}
-.ktgf-art-extra:before{left:8px;top:8px}.ktgf-art-extra:after{right:8px;bottom:8px}
+.ktgf-art.ktgf-art-extra{position:relative;background:none!important;border:0;box-shadow:none}
+.ktgf-art-extra svg{display:block;width:100%;height:100%;border-radius:inherit;filter:drop-shadow(0 4px 8px #0009)}
 .ktgf-card b{width:100%;min-height:28px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9.5px;line-height:1.15;font-weight:950;word-break:keep-all}
 .ktgf-card strong{display:block;margin-top:5px;color:#ffd65e;font-size:13px;line-height:1;font-weight:950;white-space:nowrap}
 .ktgf-foot{display:flex;align-items:center;justify-content:center;margin-top:12px;padding:10px;border-radius:14px;border:1px solid #663052;background:#100a0f;color:#d8c6d3;font-size:10px;font-weight:900}
@@ -112,7 +110,8 @@
         var cropX=[175,310,445,580,715][i%5],cropY=[205,475,742,1008,1272][Math.floor(i/5)];
         art='<span class="ktgf-art" role="img" aria-label="'+g[0]+'"><svg viewBox="'+cropX+' '+cropY+' 125 130" preserveAspectRatio="xMidYMid slice"><image href="gift-source.svg?v=1" width="864" height="1536"></image></svg></span>';
       }else{
-        art='<span class="ktgf-art ktgf-art-extra" role="img" aria-label="'+g[0]+'"><i>'+g[2]+'</i></span>';
+        var j=i-25,cropPX=(j%5)*125,cropPY=Math.floor(j/5)*130;
+        art='<span class="ktgf-art ktgf-art-extra" role="img" aria-label="'+g[0]+'"><svg viewBox="'+cropPX+' '+cropPY+' 125 130" preserveAspectRatio="xMidYMid slice"><image href="gift-premium-source.svg?v=20260902-1" width="625" height="650"></image></svg></span>';
       }
       return '<button type="button" class="ktgf-card" data-i="'+i+'" onclick="giftSendByIndex('+i+')">'
         +'<span class="ktgf-no">'+(i+1)+'</span>'+art+'<b>'+g[0]+'</b><strong>'+g[1].toLocaleString('ko-KR')+'개</strong></button>';
