@@ -3161,3 +3161,12 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
 .creator.creator-recording video#camera{
   transform:scaleX(-1) scale(.25)!important;
 }
+
+
+/* 2026-09-02 사람 모습만 40% 축소 최종 */
+/* 다른 버튼/배치/UI는 변경하지 않고 카메라 속 사람 크기만 60%로 표시 */
+.creator.camera-on:not(.creator-review) video#camera,
+.creator.creator-recording video#camera{
+  transform:scaleX(-1) scale(.60)!important;
+  transform-origin:center center!important;
+}
