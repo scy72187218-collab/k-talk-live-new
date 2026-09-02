@@ -2955,7 +2955,7 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   border-radius:0!important;
   object-fit:cover!important;
   object-position:50% 50%!important;
-  transform:scaleX(-1) scale(1.08)!important;
+  transform:scaleX(-1)!important;
   transform-origin:50% 50%!important;
   background:#000!important;
 }
