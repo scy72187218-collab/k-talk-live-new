@@ -8,7 +8,7 @@ var sheetBody=document.getElementById('sheetBody');
 
 window.activate=function(name){document.querySelectorAll('[data-tab]').forEach(function(b){b.classList.toggle('active',b.dataset.tab===name);});};
 window.showSheet=function(title,html){sheetTitle.innerHTML=title;sheetBody.innerHTML=html;sheet.classList.add('show');};
-window.closeSheet=function(){sheet.classList.remove('show');sheet.classList.remove('gift-exact');};
+window.closeSheet=function(){sheet.classList.remove('show');sheet.classList.remove('gift-exact');sheet.classList.remove('gift-v2-sheet');};
 
 window.home=function(){
   document.body.classList.remove('kt-home');
