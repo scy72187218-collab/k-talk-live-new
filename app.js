@@ -2216,6 +2216,20 @@ window.ktStopSoundPreview=function(){
 
 window.ktCreatorTracks=[
   {
+    name:'어머나',
+    source:'유명 트로트 · 정식 음원 연결 필요',
+    time:'',
+    url:'',
+    licensed:false
+  },
+  {
+    name:'사내',
+    source:'유명 트로트 · 정식 음원 연결 필요',
+    time:'',
+    url:'',
+    licensed:false
+  },
+  {
     name:'트로트 느낌 폴카',
     source:'CC0 자유음악',
     time:'0:37',
@@ -2257,7 +2271,11 @@ window.ktPlaySoundPreview=function(index,ev){
   if(ev){try{ev.stopPropagation();ev.preventDefault();}catch(e){}}
   ktStopSoundPreview();
   var t=(window.ktCreatorTracks||[])[index];
-  if(!t||!t.url)return;
+  if(!t)return;
+  if(!t.url){
+    alert('이 곡은 제목만 표시했습니다. 실제 재생은 정식 사용 권한이 있는 음원을 연결해야 합니다.');
+    return;
+  }
   var audio=new Audio(t.url);
   audio.preload='metadata';
   audio.volume=.9;
@@ -2291,8 +2309,8 @@ window.openSoundPanel=function(){
   var list=tracks.map(function(t,i){
     return '<button class="kt-sound-row" onclick="selectCreatorSound(\''+t.name+'\')">'
       +'<span class="kt-sound-cover">'+(i+1)+'</span>'
-      +'<span class="kt-sound-info"><b>'+t.name+'</b><small>'+t.source+' · '+t.time+'</small></span>'
-      +'<span class="kt-sound-play" onclick="ktPlaySoundPreview('+i+',event)">▶</span>'
+      +'<span class="kt-sound-info"><b>'+t.name+'</b><small>'+t.source+(t.time?' · '+t.time:'')+'</small></span>'
+      +'<span class="kt-sound-play" onclick="ktPlaySoundPreview('+i+',event)">'+(t.url?'▶':'🔒')+'</span>'
       +'</button>';
   }).join('');
   var html='<div class="kt-sound-panel">'
