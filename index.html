@@ -376,10 +376,13 @@
     var liveRoomType=(window.state&&state.liveRoomType)||'solo';
     var guestStrip='';
     if(liveRoomType!=='solo'){
-      var guestNames=['게스트1','게스트2','게스트3','게스트4','게스트5','게스트6'];
-      var guestFaces=['🙂','😊','😎','👩','🧑','👨'];
-      guestStrip='<div class="kt-live-guests">'+guestNames.map(function(n,i){
-        return '<button onclick="openGuestProfile(\'g'+(i+1)+'\',\''+n+'\',\''+guestFaces[i]+'\')"><span>'+guestFaces[i]+'</span><small>'+n+'</small></button>';
+      var guestDefs=[
+        {id:'g4',name:'게스트4',face:'👩'},
+        {id:'g5',name:'게스트5',face:'🧑'},
+        {id:'g6',name:'게스트6',face:'👨'}
+      ];
+      guestStrip='<div class="kt-live-guests">'+guestDefs.map(function(g){
+        return '<button onclick="openGuestProfile(\''+g.id+'\',\''+g.name+'\',\''+g.face+'\')"><span>'+g.face+'</span><small>'+g.name+'</small></button>';
       }).join('')+'</div>';
     }
     if(window.state){
@@ -400,7 +403,6 @@
       +'<div style="position:absolute;inset:0;background:linear-gradient(180deg,#00000045,transparent 34%,#00000018 62%,#000000d9 100%);pointer-events:none"></div>'
       +'<div id="ktLiveEffectLayer" style="position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden"><div id="ktLiveFaceAnchor" class="kt-face-anchor"></div></div>'
       +'<div id="ktLiveTreasureZone" class="kt-live-treasure-zone"></div>'
-      +'<div class="kt-attendance-wrap"><button id="ktAttendanceHeart" class="kt-attendance-heart" onclick="ktAttendanceCheck()"><span class="kt-attendance-label">출석체크</span><span class="kt-attendance-sub">하트 1개 · 30원</span><i class="kt-attendance-miniheart">💗</i></button></div>'
       +'<div class="kt-like-milestones">💗 5천 · 1만 · 1만5천 · 2만 · 2만5천 <b>달성마다 🌹 1송이</b></div>'
 
       +'<div style="position:absolute;left:10px;right:10px;top:12px;z-index:5;display:grid;gap:7px">'
@@ -409,16 +411,16 @@
           +'<span style="color:#ff6788;font-weight:900;white-space:nowrap">K-Talk LIVE</span>'
         +'</div>'
         +guestStrip
-        +'<button id="myEarnHud" onclick="toggleMyEarnings()" style="width:100%;padding:8px 10px;border:1px solid #ffe07155;border-radius:14px;background:linear-gradient(135deg,#241b08d9,#16131ed9);color:#fff;text-align:left">'
-          +'<div style="display:flex;align-items:center;justify-content:space-between;gap:8px">'
-            +'<span style="font-size:10px;color:#8fe8ff;font-weight:950">🔒 내 수익 · 본인만 표시</span>'
-            +'<b id="hudEarnNet" style="font-size:18px;color:#ffe071">0원</b>'
-          +'</div>'
-          +'<div id="myEarnDetail" style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:5px;font-size:10px;color:#ddd">'
-            +'<span id="hudEarnRoses">🌹 0송이</span><span id="hudEarnRate" style="text-align:right">일반회원 · 35%</span>'
-          +'</div>'
-        +'</button>'
       +'</div>'
+      +'<button id="myEarnHud" onclick="toggleMyEarnings()" style="position:absolute;left:50%;bottom:68px;transform:translateX(-50%);z-index:6;width:150px;padding:6px 8px;border:1px solid #ffe07155;border-radius:999px;background:linear-gradient(135deg,#241b08e8,#16131ee8);color:#fff;text-align:center;box-shadow:0 4px 12px #0007">'
+        +'<div style="display:flex;align-items:center;justify-content:center;gap:6px">'
+          +'<span style="font-size:9px;color:#8fe8ff;font-weight:950">🔒 내가 번 돈</span>'
+          +'<b id="hudEarnNet" style="font-size:14px;color:#ffe071">0원</b>'
+        +'</div>'
+        +'<div id="myEarnDetail" style="display:none;grid-template-columns:1fr 1fr;gap:4px;margin-top:4px;font-size:8px;color:#ddd">'
+          +'<span id="hudEarnRoses">🌹 0송이</span><span id="hudEarnRate" style="text-align:right">일반회원 · 35%</span>'
+        +'</div>'
+      +'</button>'
 
       +'<div style="position:absolute;right:10px;bottom:112px;z-index:5;display:grid;gap:9px">'
         +'<button onclick="addHostLike(1)" style="width:54px;min-height:62px;border-radius:18px;border:1px solid #ff65b788;background:#321024dd;color:#fff;font-size:22px;font-weight:950;line-height:1">💗<small style="display:block;margin-top:4px;font-size:9px;color:#ffd8ef">좋아요</small><b id="hostLikeCount" style="display:block;margin-top:3px;font-size:10px;color:#fff">0</b></button>'
@@ -443,7 +445,6 @@
     }
     if(window.ktRenderTreasure)ktRenderTreasure();
     if(window.ktUpdateTreasureLed)ktUpdateTreasureLed();
-    if(window.ktRenderAttendance)ktRenderAttendance();
 
     updateEarn();
     clearInterval(earnTimer);
