@@ -403,7 +403,7 @@ window.ktAttachCreatorCamera=async function(stream){
   }catch(e){}
 
   try{await camera.play();}catch(e){}
-  stopPersonSegmentation();
+  startPersonSegmentation();
   setTimeout(function(){
     try{
       if(camera.paused||camera.readyState<2)camera.play().catch(function(){});
