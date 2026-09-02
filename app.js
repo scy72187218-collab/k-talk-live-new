@@ -1479,10 +1479,84 @@ window.openFanHelp=function(){
 };
 
 window.showHostCrown=function(kind){var old=document.getElementById('hostGiftCrown');if(old)old.remove();var badge=document.createElement('div');badge.id='hostGiftCrown';badge.textContent=(kind==='다이아 왕관'||kind==='다이아몬드 왕관')?'💎👑':'👑';badge.style.cssText='position:fixed;z-index:9999;top:86px;left:50%;transform:translateX(-50%);font-size:52px;filter:drop-shadow(0 0 15px #ffd85a);pointer-events:none';document.body.appendChild(badge);setTimeout(function(){if(badge&&badge.parentNode)badge.remove();},6000);};
+
+window.ensurePremiumGiftFxStyle=function(){
+  if(document.getElementById('ktPremiumGiftFxStyle'))return;
+  var st=document.createElement('style');
+  st.id='ktPremiumGiftFxStyle';
+  st.textContent=
+    '.kt-premium-gift-fx{position:fixed;inset:0;z-index:10020;pointer-events:none;overflow:hidden}'
+   +'.kt-premium-gift-banner{position:absolute;left:50%;top:max(74px,calc(env(safe-area-inset-top) + 58px));transform:translateX(-50%);min-width:220px;max-width:82vw;padding:9px 14px;border-radius:999px;border:1px solid #ffd96a99;background:linear-gradient(135deg,rgba(18,10,20,.92),rgba(69,24,63,.91));box-shadow:0 0 22px #ffcf5944,inset 0 0 15px #ffffff0d;color:#fff;text-align:center;font-size:12px;font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;animation:ktGiftBanner 3.1s ease both}'
+   +'.kt-premium-gift-banner b{color:#ffe06f}.kt-premium-gift-obj{position:absolute;filter:drop-shadow(0 8px 16px rgba(0,0,0,.58));will-change:transform,opacity}.kt-premium-gift-obj svg{display:block;width:100%;height:100%}'
+   +'.kt-premium-gift-fx.whale .kt-premium-gift-obj{width:min(52vw,270px);height:min(26vw,135px);left:-58vw;top:25%;animation:ktGiftWhale 3.6s cubic-bezier(.2,.65,.2,1) both}'
+   +'.kt-premium-gift-fx.rocket .kt-premium-gift-obj{width:min(27vw,145px);height:min(50vw,250px);right:8%;bottom:-52vw;animation:ktGiftRocket 3.2s cubic-bezier(.18,.68,.25,1) both}'
+   +'.kt-premium-gift-fx.yacht .kt-premium-gift-obj{width:min(58vw,300px);height:min(26vw,135px);left:-64vw;bottom:19%;animation:ktGiftYacht 3.8s cubic-bezier(.2,.65,.2,1) both}'
+   +'.kt-premium-gift-fx.diamond .kt-premium-gift-obj{width:min(40vw,210px);height:min(40vw,210px);left:50%;top:22%;animation:ktGiftDiamond 3s ease both}'
+   +'.kt-premium-gift-fx.gold .kt-premium-gift-obj{width:min(44vw,230px);height:min(34vw,180px);left:-50vw;top:30%;animation:ktGiftGold 3.5s cubic-bezier(.18,.7,.2,1) both}'
+   +'@keyframes ktGiftBanner{0%{opacity:0;transform:translate(-50%,-12px) scale(.96)}12%,80%{opacity:1;transform:translate(-50%,0) scale(1)}100%{opacity:0;transform:translate(-50%,-7px) scale(.98)}}'
+   +'@keyframes ktGiftWhale{0%{opacity:0;transform:translate3d(0,18px,0) scale(.82) rotate(-3deg)}12%{opacity:1}55%{transform:translate3d(78vw,-8px,0) scale(1.04) rotate(2deg)}100%{opacity:0;transform:translate3d(170vw,8px,0) scale(.96) rotate(-2deg)}}'
+   +'@keyframes ktGiftRocket{0%{opacity:0;transform:translate3d(0,0,0) rotate(12deg) scale(.78)}10%{opacity:1}70%{opacity:1;transform:translate3d(-35vw,-92vh,0) rotate(-12deg) scale(1.03)}100%{opacity:0;transform:translate3d(-48vw,-130vh,0) rotate(-17deg) scale(.90)}}'
+   +'@keyframes ktGiftYacht{0%{opacity:0;transform:translate3d(0,15px,0) scale(.9)}12%{opacity:1}55%{transform:translate3d(88vw,-4px,0) scale(1.02)}100%{opacity:0;transform:translate3d(176vw,6px,0) scale(.96)}}'
+   +'@keyframes ktGiftDiamond{0%{opacity:0;transform:translate(-50%,-50%) scale(.25) rotate(-25deg)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.12) rotate(5deg)}66%{opacity:1;transform:translate(-50%,-50%) scale(.96) rotate(-3deg)}100%{opacity:0;transform:translate(-50%,-58%) scale(1.28) rotate(18deg)}}'
+   +'@keyframes ktGiftGold{0%{opacity:0;transform:translate3d(0,10px,0) scale(.8)}12%{opacity:1}58%{transform:translate3d(82vw,-6px,0) scale(1.03)}100%{opacity:0;transform:translate3d(165vw,8px,0) scale(.94)}}';
+  document.head.appendChild(st);
+};
+
+window.getPremiumGiftFxType=function(name,cost){
+  var n=String(name||'');
+  var c=parseInt(cost||0,10)||0;
+  if(n.indexOf('고래')>-1)return 'whale';
+  if(n.indexOf('우주선')>-1||n.indexOf('제트')>-1||n.indexOf('로켓')>-1)return 'rocket';
+  if(n.indexOf('요트')>-1)return 'yacht';
+  if(n.indexOf('다이아')>-1||n.indexOf('99만')>-1)return 'diamond';
+  if(c>=5000)return 'gold';
+  return '';
+};
+
+window.getPremiumGiftSvg=function(type){
+  if(type==='whale'){
+    return '<svg viewBox="0 0 360 180" aria-hidden="true"><defs><linearGradient id="w1" x1="0" x2="1"><stop stop-color="#65d8ff"/><stop offset=".55" stop-color="#2775d8"/><stop offset="1" stop-color="#173b91"/></linearGradient><linearGradient id="w2" x1="0" x2="1"><stop stop-color="#e9fbff"/><stop offset="1" stop-color="#84dfff"/></linearGradient></defs><path d="M45 100C63 59 116 37 188 43c56 4 92 25 105 51 20-10 36-24 45-43 14 32 8 56-19 72 18 7 31 18 38 34-29 2-51-5-68-19-28 24-73 34-129 28-71-8-118-30-128-53-4-8 1-11 13-13z" fill="url(#w1)"/><path d="M75 115c40 16 127 19 196-5-25 35-75 50-139 43-31-4-50-16-57-38z" fill="url(#w2)" opacity=".92"/><circle cx="113" cy="84" r="5" fill="#07111f"/><path d="M171 47c-5-21 2-34 21-41 0 14 8 24 24 31" fill="none" stroke="#77e7ff" stroke-width="9" stroke-linecap="round"/><path d="M28 130c-20 9-26 22-18 38 13-13 28-17 45-10" fill="none" stroke="#67ccff" stroke-width="8" stroke-linecap="round" opacity=".75"/></svg>';
+  }
+  if(type==='rocket'){
+    return '<svg viewBox="0 0 180 320" aria-hidden="true"><defs><linearGradient id="r1" x1="0" x2="1"><stop stop-color="#fff8d5"/><stop offset=".5" stop-color="#f8d25e"/><stop offset="1" stop-color="#d99518"/></linearGradient><linearGradient id="r2" x1="0" x2="0" y2="1"><stop stop-color="#6be8ff"/><stop offset="1" stop-color="#2367d8"/></linearGradient></defs><path d="M90 16c42 40 54 93 43 157H47C36 109 48 56 90 16z" fill="url(#r1)" stroke="#fff5bd" stroke-width="3"/><circle cx="90" cy="92" r="23" fill="url(#r2)" stroke="#dfffff" stroke-width="5"/><path d="M48 139 20 190l34-7M132 139l28 51-34-7" fill="#db3c58" stroke="#ff9aaa" stroke-width="3"/><path d="M67 174h46l-7 44H74z" fill="#c83b42"/><path d="M76 218c-8 28-4 54 14 84 18-30 22-56 14-84z" fill="#ffba31"/><path d="M83 219c-4 22-2 42 7 61 9-19 11-39 7-61z" fill="#fff38d"/></svg>';
+  }
+  if(type==='yacht'){
+    return '<svg viewBox="0 0 380 170" aria-hidden="true"><defs><linearGradient id="y1" x1="0" x2="1"><stop stop-color="#fff"/><stop offset=".6" stop-color="#d8ebff"/><stop offset="1" stop-color="#8fc7ff"/></linearGradient><linearGradient id="y2" x1="0" x2="1"><stop stop-color="#efc351"/><stop offset="1" stop-color="#a77414"/></linearGradient></defs><path d="M50 100h274l-36 42H96z" fill="url(#y1)" stroke="#c7ebff" stroke-width="3"/><path d="M94 71h143l37 29H82z" fill="#f8fbff"/><path d="M130 42h76l29 29H109z" fill="#e9f6ff"/><path d="M145 50h50v15h-50z" fill="#3d7fae"/><path d="M248 74h52l21 26h-47z" fill="url(#y2)"/><path d="M80 143c59 11 129 9 214-4" fill="none" stroke="#54cbff" stroke-width="8" stroke-linecap="round"/><path d="M112 157c72 9 138 5 198-7" fill="none" stroke="#b9efff" stroke-width="5" stroke-linecap="round"/></svg>';
+  }
+  if(type==='diamond'){
+    return '<svg viewBox="0 0 260 260" aria-hidden="true"><defs><linearGradient id="d1" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffffff"/><stop offset=".25" stop-color="#8ff3ff"/><stop offset=".55" stop-color="#8e83ff"/><stop offset=".8" stop-color="#ff91e8"/><stop offset="1" stop-color="#fff0a3"/></linearGradient><radialGradient id="d2"><stop stop-color="#fff7b0" stop-opacity=".9"/><stop offset="1" stop-color="#ffca58" stop-opacity="0"/></radialGradient></defs><circle cx="130" cy="130" r="112" fill="url(#d2)"/><path d="M55 88 91 42h78l36 46-75 126z" fill="url(#d1)" stroke="#fff" stroke-width="5"/><path d="m55 88 75 126 75-126M91 42l39 172 39-172M55 88h150" fill="none" stroke="#ffffffaa" stroke-width="3"/></svg>';
+  }
+  return '<svg viewBox="0 0 320 190" aria-hidden="true"><defs><linearGradient id="g1" x1="0" x2="1"><stop stop-color="#fff2a8"/><stop offset=".35" stop-color="#f5c94d"/><stop offset=".7" stop-color="#d99718"/><stop offset="1" stop-color="#fff0a0"/></linearGradient></defs><path d="M35 104c46-56 115-81 203-61l47 38-46 35c-80 43-152 37-204-12z" fill="url(#g1)" opacity=".95"/><path d="M70 105c55 17 116 12 181-14" fill="none" stroke="#fff4bd" stroke-width="7" stroke-linecap="round"/><circle cx="112" cy="73" r="8" fill="#fff8d5"/><circle cx="206" cy="61" r="6" fill="#fff8d5"/></svg>';
+};
+
+window.showPremiumGiftFx=function(name,cost,sender){
+  ensurePremiumGiftFxStyle();
+  var old=document.getElementById('ktPremiumGiftFx');
+  if(old)old.remove();
+  var type=getPremiumGiftFxType(name,cost);
+  if(!type)return false;
+
+  var wrap=document.createElement('div');
+  wrap.id='ktPremiumGiftFx';
+  wrap.className='kt-premium-gift-fx '+type;
+  var who=sender?sender:'누군가';
+  wrap.innerHTML='<div class="kt-premium-gift-banner"><b>'+who+'</b> · '+name+' 선물!</div>'
+    +'<div class="kt-premium-gift-obj">'+getPremiumGiftSvg(type)+'</div>';
+  document.body.appendChild(wrap);
+  setTimeout(function(){if(wrap&&wrap.parentNode)wrap.remove();},4100);
+  return true;
+};
+
 window.giftSend=function(name,cost,sender){
-  if(name.indexOf('왕관')>-1||name.indexOf('크라운')>-1){showHostCrown(name);}
+  var c=parseInt(cost||0,10)||0;
+  var isPremium=c>=5000;
+  if(!isPremium&&(name.indexOf('왕관')>-1||name.indexOf('크라운')>-1)){showHostCrown(name);}
   ktAnnounceEvent('gift',{sender:sender||'',name:name,count:cost});
-  alert(name+' · '+cost+'개 선물을 선택했습니다.');
+  if(isPremium){
+    showPremiumGiftFx(name,cost,sender||'');
+  }else{
+    alert(name+' · '+cost+'개 선물을 선택했습니다.');
+  }
 };
 window.ktalkGifts=[
   ['장미','1','🌹','꽃/하트'],
@@ -1530,7 +1604,7 @@ window.ktalkGifts=[
   ['황금 궁전','26000','🏯','VIP 전용'],
   ['로열 패키지','27000','🎁','보물/패키지'],
   ['황제 크라운','28000','👑','VIP 전용'],
-  ['다이아 타워','29000','🗼','럭셔리'],
+  ['블루 고래','29000','🐋','럭셔리'],
   ['황금 왕국','30000','🏰','VIP 전용'],
   ['슈퍼 VIP 박스','31000','🎁','보물/패키지'],
   ['K-Talk 황금별','32000','⭐','VIP 전용'],
