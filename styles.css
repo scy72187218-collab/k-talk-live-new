@@ -2928,20 +2928,10 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   .kt-profile-maininfo b{font-size:16px}
 }
 
-/* 2026-09-02 최종: 다른 UI는 유지하고 촬영 화면의 사람 화각만 60% 축소 */
+/* 2026-09-02 최종: 다른 UI는 유지하고 카메라만 휴대폰 화면에 꽉 채움 */
 .creator.camera-on:not(.creator-review) video#cameraBg,
 .creator.creator-recording video#cameraBg{
-  display:block!important;
-  position:absolute!important;
-  inset:0!important;
-  width:100%!important;
-  height:100%!important;
-  object-fit:cover!important;
-  object-position:50% 50%!important;
-  transform:scaleX(-1)!important;
-  filter:blur(14px) brightness(.82)!important;
-  opacity:1!important;
-  z-index:0!important;
+  display:none!important;
 }
 .creator.camera-on:not(.creator-review) video#camera,
 .creator.creator-recording video#camera{
@@ -2952,11 +2942,11 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   top:0!important;
   width:100%!important;
   height:100%!important;
-  object-fit:contain!important;
+  object-fit:cover!important;
   object-position:50% 50%!important;
-  transform:scaleX(-1) scale(.40)!important;
+  transform:scaleX(-1)!important;
   transform-origin:center center!important;
-  background:transparent!important;
+  background:#000!important;
   z-index:1!important;
 }
 
