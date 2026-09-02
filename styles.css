@@ -2928,205 +2928,8 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   .kt-profile-maininfo b{font-size:16px}
 }
 
-
-/* 2026-09-02 게시/창작하기 화면만 축소 */
-/* 다른 화면은 건드리지 않고 촬영 화면의 요청한 부분만 축소 */
-.creator.camera-on:not(.creator-recording) video#camera{
-  object-fit:contain!important;
-  background:#000!important;
-}
-.creator-bottom{
-  padding:0 12px calc(10px + env(safe-area-inset-bottom))!important;
-}
-.creator-bottom .modes{
-  gap:14px!important;
-  margin:0 0 10px!important;
-}
-.creator-bottom .modes span{
-  font-size:15px!important;
-  padding:5px 3px!important;
-}
-.creator-bottom .modes .on{
-  padding:6px 13px!important;
-}
-.creator-bottom .recordrow{
-  gap:18px!important;
-  margin-bottom:10px!important;
-}
-.creator-bottom .record{
-  width:78px!important;
-  height:78px!important;
-  border-width:5px!important;
-}
-.creator-bottom .fx.myvideo{
-  width:50px!important;
-  height:50px!important;
-}
-.creator-bottom .fx.myvideo span{
-  font-size:19px!important;
-}
-.creator-bottom .fx.myvideo small{
-  font-size:7px!important;
-}
-.creator-bottom .creator-foot{
-  font-size:14px!important;
-}
-
-
-/* 2026-09-02 촬영화면 요청부분만 추가 축소 */
-/* 카메라 영역 자체는 유지하고, 앞 영상만 조금 작게 보여 사람이 덜 크게 보이게 */
-.creator.camera-on:not(.creator-recording):not(.creator-review) video#cameraBg{
-  display:block!important;
-  position:absolute!important;
-  inset:-4%!important;
-  width:108%!important;
-  height:108%!important;
-  object-fit:cover!important;
-  transform:scaleX(-1)!important;
-  filter:blur(18px) brightness(.72)!important;
-  opacity:.72!important;
-  z-index:0!important;
-}
-.creator.camera-on:not(.creator-recording):not(.creator-review) video#camera{
-  position:absolute!important;
-  left:4%!important;
-  top:3%!important;
-  width:92%!important;
-  height:92%!important;
-  object-fit:contain!important;
-  object-position:50% 50%!important;
-  transform:scaleX(-1)!important;
-  background:transparent!important;
-  z-index:1!important;
-}
-
-/* 요청한 촬영 조작부만 더 작게 */
-.creator-bottom{
-  padding:0 10px calc(8px + env(safe-area-inset-bottom))!important;
-}
-.creator-bottom .modes{
-  gap:11px!important;
-  margin:0 0 7px!important;
-}
-.creator-bottom .modes span{
-  font-size:12px!important;
-  line-height:1.05!important;
-  padding:4px 2px!important;
-}
-.creator-bottom .modes .on{
-  padding:5px 10px!important;
-}
-.creator-bottom .recordrow{
-  gap:14px!important;
-  margin-bottom:7px!important;
-}
-.creator-bottom .record{
-  width:64px!important;
-  height:64px!important;
-  border-width:4px!important;
-  box-shadow:0 0 0 2px rgba(255,45,85,.16)!important;
-}
-.creator-bottom .fx.myvideo{
-  width:42px!important;
-  height:42px!important;
-}
-.creator-bottom .fx.myvideo span{
-  font-size:16px!important;
-}
-.creator-bottom .fx.myvideo small{
-  font-size:6.5px!important;
-  line-height:1!important;
-}
-.creator-bottom .creator-foot{
-  font-size:12px!important;
-  gap:24px!important;
-}
-
-
-/* 2026-09-02 촬영화면 크기만 축소 - 다른 UI 건드리지 않음 */
-/* 사람(카메라) 화면은 전체 프레임을 더 많이 보이게 */
-.creator.camera-on:not(.creator-recording):not(.creator-review) video#camera{
-  object-fit:contain!important;
-  width:100%!important;
-  height:100%!important;
-  background:#000!important;
-  transform:scaleX(-1)!important;
-}
-
-/* 시간 선택 10초/60초/15초/라이브만 작게 */
-.creator:not(.creator-recording):not(.creator-review) .creator-bottom .modes{
-  gap:14px!important;
-  font-size:10px!important;
-  line-height:1.05!important;
-  margin-bottom:8px!important;
-}
-.creator:not(.creator-recording):not(.creator-review) .creator-bottom .modes span{
-  padding:3px 5px!important;
-  min-width:34px!important;
-  text-align:center!important;
-}
-
-/* 내 동영상 + 빨간 촬영 버튼만 작게 */
-.creator:not(.creator-recording):not(.creator-review) .creator-bottom .recordrow{
-  gap:14px!important;
-}
-.creator:not(.creator-recording):not(.creator-review) .creator-bottom .record{
-  width:64px!important;
-  height:64px!important;
-  border-width:5px!important;
-  box-shadow:0 0 0 3px rgba(255,45,85,.22)!important;
-}
-.creator:not(.creator-recording):not(.creator-review) .creator-bottom .fx.myvideo{
-  width:42px!important;
-  height:42px!important;
-}
-.creator:not(.creator-recording):not(.creator-review) .creator-bottom .fx.myvideo span{
-  font-size:18px!important;
-}
-.creator:not(.creator-recording):not(.creator-review) .creator-bottom .fx.myvideo small{
-  font-size:7px!important;
-  margin-top:1px!important;
-}
-
-/* 맨 아래 게시/창작하기/라이브만 살짝 작게 */
-.creator:not(.creator-recording):not(.creator-review) .creator-bottom .creator-foot{
-  gap:28px!important;
-  margin-top:10px!important;
-  font-size:12px!important;
-}
-
-
-/* 2026-09-02 촬영화면 사람 50% 축소 + 전체화면 채움 최종 */
-/* 다른 UI는 건드리지 않고 카메라 화면만 조정 */
-.creator.camera-on:not(.creator-review) video#cameraBg{
-  display:block!important;
-  position:absolute!important;
-  inset:0!important;
-  width:100%!important;
-  height:100%!important;
-  object-fit:cover!important;
-  object-position:50% 50%!important;
-  transform:scaleX(-1) scale(1.06)!important;
-  transform-origin:center center!important;
-  filter:blur(14px) brightness(.78)!important;
-  opacity:1!important;
-  background:#000!important;
-  z-index:0!important;
-}
-.creator.camera-on:not(.creator-review) video#camera{
-  display:block!important;
-  position:absolute!important;
-  inset:0!important;
-  width:100%!important;
-  height:100%!important;
-  object-fit:contain!important;
-  object-position:50% 50%!important;
-  transform:scaleX(-1) scale(.50)!important;
-  transform-origin:center center!important;
-  background:transparent!important;
-  z-index:1!important;
-}
-/* 촬영 중에도 같은 크기로 보이게 */
+/* 2026-09-02 최종: 사람만 50% 축소, 촬영 조작부는 원위치 */
+.creator.camera-on:not(.creator-review) video#cameraBg,
 .creator.creator-recording video#cameraBg{
   display:block!important;
   position:absolute!important;
@@ -3134,11 +2937,15 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   width:100%!important;
   height:100%!important;
   object-fit:cover!important;
+  object-position:50% 50%!important;
   transform:scaleX(-1) scale(1.06)!important;
-  filter:blur(14px) brightness(.78)!important;
+  transform-origin:center center!important;
+  filter:blur(14px) brightness(.82)!important;
   opacity:1!important;
+  background:#000!important;
   z-index:0!important;
 }
+.creator.camera-on:not(.creator-review) video#camera,
 .creator.creator-recording video#camera{
   display:block!important;
   position:absolute!important;
@@ -3153,70 +2960,66 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   z-index:1!important;
 }
 
-
-/* 2026-09-02 사람만 추가 50% 축소 - 다른 UI 변경 없음 */
-.creator.camera-on:not(.creator-review) video#camera{
-  transform:scaleX(-1) scale(.25)!important;
+/* 10분 / 60초 / 15초 / 라이브 / 내 동영상 / 촬영버튼 원래 크기와 자리 */
+.creator:not(.creator-review) .creator-bottom{
+  left:14px!important;
+  right:14px!important;
+  bottom:18px!important;
+  padding:0!important;
 }
-.creator.creator-recording video#camera{
-  transform:scaleX(-1) scale(.25)!important;
-}
-
-
-/* 2026-09-02 사람 모습만 40% 축소 최종 */
-/* 다른 버튼/배치/UI는 변경하지 않고 카메라 속 사람 크기만 60%로 표시 */
-.creator.camera-on:not(.creator-review) video#camera,
-.creator.creator-recording video#camera{
-  transform:scaleX(-1) scale(.60)!important;
-  transform-origin:center center!important;
-}
-
-
-/* 2026-09-02 요청한 촬영화면만 최종 축소 */
-/* 딴 화면은 건드리지 않고 사람 + 10초/60초/15초/라이브 + 내동영상 + 빨간 촬영 + 아래 글자만 축소 */
-.creator.camera-on:not(.creator-review) video#camera,
-.creator.creator-recording video#camera{
-  transform:scaleX(-1) scale(.48)!important;
-  transform-origin:center center!important;
-}
-
 .creator:not(.creator-review) .creator-bottom .modes{
-  gap:9px!important;
-  margin-bottom:6px!important;
+  display:flex!important;
+  justify-content:center!important;
+  gap:20px!important;
+  margin:0!important;
+  color:#ddd!important;
+  font-size:13px!important;
+  font-weight:850!important;
+  line-height:normal!important;
 }
 .creator:not(.creator-review) .creator-bottom .modes span{
-  font-size:11px!important;
-  line-height:1!important;
-  min-width:30px!important;
-  padding:3px 3px!important;
+  min-width:0!important;
+  padding:0!important;
+  font-size:13px!important;
+  line-height:normal!important;
 }
 .creator:not(.creator-review) .creator-bottom .modes .on{
-  padding:4px 8px!important;
+  color:#fff!important;
+  border-bottom:2px solid #fff!important;
+  padding-bottom:4px!important;
 }
-
 .creator:not(.creator-review) .creator-bottom .recordrow{
-  gap:11px!important;
-  margin-bottom:6px!important;
+  display:flex!important;
+  justify-content:center!important;
+  align-items:center!important;
+  gap:18px!important;
+  margin:0!important;
 }
 .creator:not(.creator-review) .creator-bottom .record{
-  width:54px!important;
-  height:54px!important;
-  border-width:4px!important;
-  box-shadow:0 0 0 2px rgba(255,45,85,.18)!important;
+  width:82px!important;
+  height:82px!important;
+  border-radius:50%!important;
+  border:6px solid #fff!important;
+  background:#ff2d55!important;
+  box-shadow:0 0 0 4px rgba(255,45,85,.24)!important;
 }
 .creator:not(.creator-review) .creator-bottom .fx.myvideo{
-  width:38px!important;
-  height:38px!important;
+  width:52px!important;
+  height:52px!important;
 }
 .creator:not(.creator-review) .creator-bottom .fx.myvideo span{
-  font-size:15px!important;
-}
-.creator:not(.creator-review) .creator-bottom .fx.myvideo small{
-  font-size:6px!important;
+  font-size:24px!important;
   line-height:1!important;
 }
+.creator:not(.creator-review) .creator-bottom .fx.myvideo small{
+  margin-top:2px!important;
+  font-size:8px!important;
+  font-weight:900!important;
+}
 .creator:not(.creator-review) .creator-bottom .creator-foot{
-  font-size:11px!important;
-  gap:22px!important;
-  margin-top:6px!important;
+  display:flex!important;
+  justify-content:center!important;
+  gap:38px!important;
+  margin-top:14px!important;
+  font-size:inherit!important;
 }
