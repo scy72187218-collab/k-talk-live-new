@@ -8,7 +8,7 @@ var sheetBody=document.getElementById('sheetBody');
 
 window.activate=function(name){document.querySelectorAll('[data-tab]').forEach(function(b){b.classList.toggle('active',b.dataset.tab===name);});};
 window.showSheet=function(title,html){sheetTitle.innerHTML=title;sheetBody.innerHTML=html;sheet.classList.add('show');};
-window.closeSheet=function(){sheet.classList.remove('show');sheet.classList.remove('gift-exact');sheet.classList.remove('gift-v2-sheet');};
+window.closeSheet=function(){sheet.classList.remove('show');sheet.classList.remove('gift-exact');};
 
 window.home=function(){
   document.body.classList.remove('kt-home');
@@ -168,62 +168,32 @@ window.openSubs=function(){
 window.showHostCrown=function(kind){var old=document.getElementById('hostGiftCrown');if(old)old.remove();var badge=document.createElement('div');badge.id='hostGiftCrown';badge.textContent=(kind==='다이아 왕관'||kind==='다이아몬드 왕관')?'💎👑':'👑';badge.style.cssText='position:fixed;z-index:9999;top:86px;left:50%;transform:translateX(-50%);font-size:52px;filter:drop-shadow(0 0 15px #ffd85a);pointer-events:none';document.body.appendChild(badge);setTimeout(function(){if(badge&&badge.parentNode)badge.remove();},6000);};
 window.giftSend=function(name,cost){if(name.indexOf('왕관')>-1||name.indexOf('크라운')>-1){showHostCrown(name);}alert(name+' · '+cost+'개 선물을 선택했습니다.');};
 window.ktalkGifts=[
-  ['🌹','장미','1'],
-  ['💖','하트','30'],
-  ['💐','꽃다발','50'],
-  ['🎈','풍선','80'],
-  ['🧰','보물상자','100'],
-  ['👑','왕관','200'],
-  ['♛','다이아 왕관','300'],
-  ['🏎️','럭셔리 자동차','500'],
-  ['🛥️','요트','700'],
-  ['🏰','성','1,000'],
-  ['🍫','초콜릿','10'],
-  ['🧴','향수','20'],
-  ['🎂','케이크','40'],
-  ['🎆','불꽃놀이','60'],
-  ['🦢','백조','120'],
-  ['🏆','트로피','150'],
-  ['⭐','별빛','180'],
-  ['💗','하트 폭죽','250'],
-  ['💎','다이아 하트','400'],
-  ['🎤','럭셔리 무대','600'],
-  ['🌕','달','800'],
-  ['🎁','별 패키지','1,200'],
-  ['🎁','골드 패키지','1,500'],
-  ['💍','프리미엄 반지','2,000'],
-  ['👑','VIP 크라운','3,000']
+  ['장미','1'],['장미 꽃다발','5'],['장미 박스','10'],['장미 20송이','20'],['장미 50송이','50'],
+  ['장미 100송이','100'],['장미 200송이','200'],['장미 300송이','300'],['장미 400송이','400'],['장미 500송이','500'],
+  ['로열 장미','1,000'],['보라 장미','2,000'],['핑크 장미','3,000'],['레전드 장미','5,000'],['황금 장미','10,000'],
+  ['킹 크라운','100'],['다이아 왕관','200'],['럭셔리 자동차','300'],['로열 요트','400'],['골든 캐슬','500'],
+  ['갤럭시 무대','1,000'],['프리미엄 로즈','1'],['로즈 부케','5'],['로즈 박스','10'],['골든 부케','50'],
+  ['로열 하트','100'],['황금 왕관','200'],['사랑 하트','300'],['다이아 하트','500'],['K-Talk 카드','700'],
+  ['VIP 크라운','1,000'],['골드 패키지','1,500'],['로열 패키지','2,000'],['프리미엄 캐슬','3,000'],['프라이빗 제트','5,000'],
+  ['황금 드래곤','500,000'],['황제 궁전','300,000'],['초대형 크루즈','200,000'],['달 착륙선','150,000'],['황금 열차','30,000']
 ];
 window.giftSendByIndex=function(i){
   var g=window.ktalkGifts[i];
   if(!g)return;
-  giftSend(g[1],g[2]);
+  giftSend(g[0],g[1]);
 };
 window.openGifts=function(){
-  var cards=window.ktalkGifts.map(function(g,i){
-    return '<button class="gift-v2-card" onclick="giftSendByIndex('+i+')">'
-      +'<span class="gift-v2-num">'+(i+1)+'</span>'
-      +'<span class="gift-v2-art">'+g[0]+'</span>'
-      +'<b>'+g[1]+'</b>'
-      +'<small>'+g[2]+'개</small>'
-      +'</button>';
+  var buttons=window.ktalkGifts.map(function(g,i){
+    return '<button class="gift-exact-hit" onclick="giftSendByIndex('+i+')" aria-label="'+g[0]+'"></button>';
   }).join('');
-  var html='<div class="gift-v2-wrap">'
-    +'<div class="gift-v2-head">'
-      +'<div class="gift-v2-logo">🎁</div>'
-      +'<div><strong>K-Talk 선물상자</strong><small>마음을 전하는 특별한 선물</small></div>'
-      +'<button class="gift-v2-close" onclick="closeSheet()">닫기</button>'
-    +'</div>'
-    +'<div class="gift-v2-tabs">'
-      +'<button class="on">전체</button><button>꽃/하트</button><button>프리미엄</button><button>연출/특수</button><button>럭셔리</button>'
-    +'</div>'
-    +'<div class="gift-v2-grid">'+cards+'</div>'
+  var html='<div class="gift-exact-wrap">'
+    +'<img class="gift-exact-img" src="gift-panel-exact.svg?v=20260831-1527" alt="K-Talk 선물 40종">'
+    +'<button class="gift-exact-close" onclick="closeSheet()" aria-label="닫기"></button>'
+    +'<div class="gift-exact-hotspots">'+buttons+'</div>'
     +'</div>';
   showSheet('',html);
-  sheet.classList.remove('gift-exact');
-  sheet.classList.add('gift-v2-sheet');
+  sheet.classList.add('gift-exact');
 };
-
 window.openTreasure=function(){showSheet('🎁 보물상자','<div class="premium-grid"><button class="premium" onclick="alert(\'보물상자 50 선택\')"><span>🎁</span><b>보물상자 50</b></button><button class="premium" onclick="alert(\'보물상자 100 선택\')"><span>🎁</span><b>보물상자 100</b></button><button class="premium" onclick="alert(\'보물상자 150 선택\')"><span>🎁</span><b>보물상자 150</b></button></div>');};
 window.selectCoinCharge=function(amount,base,bonus){
   var total=base+bonus;
