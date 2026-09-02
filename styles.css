@@ -2927,3 +2927,47 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   .kt-my-profile-photo{width:76px!important;height:76px!important}
   .kt-profile-maininfo b{font-size:16px}
 }
+
+
+/* 2026-09-02 게시/창작하기 화면만 축소 */
+/* 다른 화면은 건드리지 않고 촬영 화면의 요청한 부분만 축소 */
+.creator.camera-on:not(.creator-recording) video#camera{
+  object-fit:contain!important;
+  background:#000!important;
+}
+.creator-bottom{
+  padding:0 12px calc(10px + env(safe-area-inset-bottom))!important;
+}
+.creator-bottom .modes{
+  gap:14px!important;
+  margin:0 0 10px!important;
+}
+.creator-bottom .modes span{
+  font-size:15px!important;
+  padding:5px 3px!important;
+}
+.creator-bottom .modes .on{
+  padding:6px 13px!important;
+}
+.creator-bottom .recordrow{
+  gap:18px!important;
+  margin-bottom:10px!important;
+}
+.creator-bottom .record{
+  width:78px!important;
+  height:78px!important;
+  border-width:5px!important;
+}
+.creator-bottom .fx.myvideo{
+  width:50px!important;
+  height:50px!important;
+}
+.creator-bottom .fx.myvideo span{
+  font-size:19px!important;
+}
+.creator-bottom .fx.myvideo small{
+  font-size:7px!important;
+}
+.creator-bottom .creator-foot{
+  font-size:14px!important;
+}
