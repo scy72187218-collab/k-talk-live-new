@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>K-Talk 실제 AR 테스트</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000;font-family:system-ui,-apple-system,'Noto Sans KR',sans-serif}
+#wrap{position:fixed;inset:0;background:#000}
+#jeeFaceFilterCanvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#top{position:absolute;z-index:20;top:max(12px,env(safe-area-inset-top));left:12px;right:12px;display:flex;align-items:center;gap:8px}
+#top b{flex:1;color:#fff;font-size:18px;text-shadow:0 2px 6px #000}
+#top a{border:0;border-radius:999px;background:#000a;color:#fff;padding:10px 14px;text-decoration:none;font-weight:900}
+#status{position:absolute;z-index:20;left:50%;bottom:calc(28px + env(safe-area-inset-bottom));transform:translateX(-50%);min-width:210px;text-align:center;padding:10px 14px;border-radius:999px;background:#000a;color:#fff;font-weight:900;font-size:13px}
+</style>
+<script src="https://cdn.jsdelivr.net/gh/jeeliz/jeelizFaceFilter@master/dist/jeelizFaceFilter.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/jeeliz/jeelizFaceFilter@master/libs/three/v97/three.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/jeeliz/jeelizFaceFilter@master/helpers/JeelizResizer.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/jeeliz/jeelizFaceFilter@master/helpers/JeelizThreeHelper.js"></script>
+</head>
+<body>
+<div id="wrap">
+  <canvas id="jeeFaceFilterCanvas"></canvas>
+  <div id="top"><b>K-Talk 실제 얼굴 AR 테스트</b><a href="/">닫기</a></div>
+  <div id="status">카메라 준비 중…</div>
+</div>
+<script>
+(function(){
+  var CAMERA=null, threeStuffs=null;
+  var EARS=null, NOSE=null;
+  var BASE='https://cdn.jsdelivr.net/gh/jeeliz/jeelizFaceFilter@master/demos/threejs/dog_face/';
+  var status=document.getElementById('status');
+
+  function detected(isDetected){
+    status.textContent=isDetected?'얼굴 추적 중 — 고개를 움직여 보세요':'얼굴을 카메라에 보여주세요';
+  }
+
+  function initThree(spec){
+    threeStuffs=JeelizThreeHelper.init(spec,detected);
+    var faceObj=threeStuffs.faceObject;
+    var loader=new THREE.BufferGeometryLoader();
+    var tex=new THREE.TextureLoader();
+    tex.crossOrigin='anonymous';
+
+    loader.load(BASE+'models/dog/dog_ears.json',function(geo){
+      var mat=new THREE.MeshPhongMaterial({
+        map:tex.load(BASE+'models/dog/texture_ears.jpg'),
+        alphaMap:tex.load(BASE+'models/dog/alpha_ears_256.jpg'),
+        bumpMap:tex.load(BASE+'models/dog/normal_ears.jpg'),
+        bumpScale:.0075,transparent:true,shininess:1.5,specular:0xffffff
+      });
+      EARS=new THREE.Mesh(geo,mat);
+      EARS.scale.multiplyScalar(.025);
+      EARS.position.setY(-.3);
+      EARS.frustumCulled=false;
+      EARS.renderOrder=10000;
+      faceObj.add(EARS);
+    });
+
+    loader.load(BASE+'models/dog/dog_nose.json',function(geo){
+      var mat=new THREE.MeshPhongMaterial({
+        map:tex.load(BASE+'models/dog/texture_nose.jpg'),
+        bumpMap:tex.load(BASE+'models/dog/normal_nose.jpg'),
+        bumpScale:.005,shininess:1.5,specular:0xffffff
+      });
+      NOSE=new THREE.Mesh(geo,mat);
+      NOSE.scale.multiplyScalar(.018);
+      NOSE.position.setY(-.05);
+      NOSE.position.setZ(.15);
+      NOSE.frustumCulled=false;
+      NOSE.renderOrder=10000;
+      faceObj.add(NOSE);
+    });
+
+    var amb=new THREE.AmbientLight(0xffffff,.9);
+    threeStuffs.scene.add(amb);
+    var dir=new THREE.DirectionalLight(0xffffff,.55);
+    dir.position.set(100,1000,1000);
+    threeStuffs.scene.add(dir);
+    CAMERA=JeelizThreeHelper.create_camera();
+    status.textContent='얼굴을 카메라에 보여주세요';
+  }
+
+  function initFace(videoSettings){
+    JEELIZFACEFILTER.init({
+      canvasId:'jeeFaceFilterCanvas',
+      NNCPath:'https://cdn.jsdelivr.net/gh/jeeliz/jeelizFaceFilter@master/neuralNets/',
+      videoSettings:videoSettings,
+      callbackReady:function(err,spec){
+        if(err){status.textContent='AR 카메라 시작 실패: '+err;return;}
+        initThree(spec);
+      },
+      callbackTrack:function(ds){
+        if(threeStuffs&&CAMERA)JeelizThreeHelper.render(ds,CAMERA);
+      }
+    });
+  }
+
+  JeelizResizer.size_canvas({
+    canvasId:'jeeFaceFilterCanvas',
+    overSamplingFactor:1,
+    callback:function(err,best){
+      if(err){status.textContent='화면 준비 실패';return;}
+      initFace(best);
+    }
+  });
+})();
+</script>
+</body>
+</html>
