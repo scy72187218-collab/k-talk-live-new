@@ -2960,3 +2960,26 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   border-width:5px!important;
   box-shadow:0 0 0 3px rgba(255,45,85,.20)!important;
 }
+
+
+/* 2026-09-02 촬영/라이브 시작 버튼 사각형 */
+.creator-bottom .record{
+  width:132px!important;
+  height:52px!important;
+  min-width:132px!important;
+  min-height:52px!important;
+  border-radius:14px!important;
+  border:3px solid #fff!important;
+  background:#ff2d55!important;
+  color:#fff!important;
+  font-size:15px!important;
+  font-weight:950!important;
+  letter-spacing:-.2px!important;
+  box-shadow:0 5px 16px rgba(255,45,85,.28)!important;
+}
+.prep-start{
+  border-radius:12px!important;
+  min-height:48px!important;
+  font-size:16px!important;
+  font-weight:950!important;
+}
