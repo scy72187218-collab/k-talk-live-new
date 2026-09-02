@@ -2215,11 +2215,11 @@ window.ktStopSoundPreview=function(){
 };
 
 window.ktCreatorTracks=[
-  {name:'누이',source:'설운도 · 유명 트로트 · 정식 음원 검색',time:'',url:'',searchOnly:true,query:'설운도 누이'},
-  {name:'사내',source:'나훈아 · 유명 트로트 · 정식 음원 검색',time:'',url:'',searchOnly:true,query:'나훈아 사내'},
-  {name:'아모르 파티',source:'김연자 · 유명 트로트 · 정식 음원 검색',time:'',url:'',searchOnly:true,query:'김연자 아모르 파티'},
-  {name:'어머나',source:'장윤정 · 유명 트로트 · 정식 음원 검색',time:'',url:'',searchOnly:true,query:'장윤정 어머나'},
-  {name:'바다새',source:'유명 가요 · 정식 음원 검색',time:'',url:'',searchOnly:true,query:'바다새 노래'},
+  {name:'누이',source:'설운도 · 정식 음원 듣기',time:'',url:'',searchOnly:true,query:'설운도 누이',listenUrl:'https://music.bugs.co.kr/track/78810'},
+  {name:'사내',source:'나훈아 · 정식 음원 듣기',time:'',url:'',searchOnly:true,query:'나훈아 사내',listenUrl:'https://music.bugs.co.kr/track/30932533'},
+  {name:'아모르 파티',source:'김연자 · 정식 음원 듣기',time:'',url:'',searchOnly:true,query:'김연자 아모르 파티',listenUrl:'https://music.bugs.co.kr/track/31762364'},
+  {name:'어머나',source:'장윤정 · 정식 음원 듣기',time:'',url:'',searchOnly:true,query:'장윤정 어머나',listenUrl:'https://music.bugs.co.kr/track/80015360'},
+  {name:'바다새',source:'바다새 · 정식 음원 듣기',time:'',url:'',searchOnly:true,query:'바다새 노래',listenUrl:'https://music.bugs.co.kr/track/1396331'},
   {name:'사랑의 배터리',source:'홍진영 · 유명 트로트 · 정식 음원 검색',time:'',url:'',searchOnly:true,query:'홍진영 사랑의 배터리'},
   {name:'무조건',source:'박상철 · 유명 트로트 · 정식 음원 검색',time:'',url:'',searchOnly:true,query:'박상철 무조건'},
   {name:'안동역에서',source:'진성 · 유명 트로트 · 정식 음원 검색',time:'',url:'',searchOnly:true,query:'진성 안동역에서'},
@@ -2255,8 +2255,8 @@ window.ktOpenLicensedSongSearch=function(index,ev){
   var t=(window.ktCreatorTracks||[])[index];
   if(!t)return;
   var q=String(t.query||t.name||'').trim();
-  if(!q)return;
-  var url='https://www.youtube.com/results?search_query='+encodeURIComponent(q+' 공식 음원');
+  var url=t.listenUrl||('https://www.youtube.com/results?search_query='+encodeURIComponent(q+' 공식 음원'));
+  if(!url)return;
   try{window.open(url,'_blank','noopener');}catch(e){location.href=url;}
 };
 
@@ -2321,6 +2321,16 @@ window.ktPlayRemoteSound=function(url,ev){
   if(p&&p.catch)p.catch(function(){ktStopSoundPreview();});
 };
 
+window.selectCreatorSoundByIndex=function(index,ev){
+  var t=(window.ktCreatorTracks||[])[index];
+  if(!t)return;
+  if(t.searchOnly){
+    ktOpenLicensedSongSearch(index,ev);
+    return;
+  }
+  selectCreatorSound(t.name);
+};
+
 window.renderCreatorSoundList=function(query){
   var tracks=window.ktCreatorTracks||[];
   var q=String(query||'').trim().toLowerCase();
@@ -2328,10 +2338,10 @@ window.renderCreatorSoundList=function(query){
   tracks.forEach(function(t,i){
     var hay=(String(t.name||'')+' '+String(t.source||'')).toLowerCase();
     if(q&&hay.indexOf(q)===-1)return;
-    rows.push('<button class="kt-sound-row" onclick="selectCreatorSound(\''+t.name.replace(/'/g,"\\'")+'\')">'
+    rows.push('<button class="kt-sound-row" onclick="selectCreatorSoundByIndex('+i+',event)">'
       +'<span class="kt-sound-cover">'+(i+1)+'</span>'
       +'<span class="kt-sound-info"><b>'+ktSoundEscape(t.name)+'</b><small>'+ktSoundEscape(t.source)+(t.time?' · '+ktSoundEscape(t.time):'')+'</small></span>'
-      +'<span class="kt-sound-play" onclick="'+(t.searchOnly?'ktOpenLicensedSongSearch('+i+',event)':'ktPlaySoundPreview('+i+',event)')+'">'+(t.searchOnly?'🔎':'▶')+'</span>'
+      +'<span class="kt-sound-play" onclick="'+(t.searchOnly?'ktOpenLicensedSongSearch('+i+',event)':'ktPlaySoundPreview('+i+',event)')+'">▶</span>'
       +'</button>');
   });
   var box=document.getElementById('ktSoundList');
@@ -2389,7 +2399,7 @@ window.openSoundPanel=function(){
     +'<div class="kt-sound-search">⌕ <input id="ktSoundSearchInput" placeholder="트로트·가요·팝송·제목·가수 검색" aria-label="사운드 검색" oninput="filterCreatorSounds(this.value)"></div>'
     +'<div class="kt-sound-tabs"><button>인기</button><button class="on">맞춤 추천</button><button>즐겨찾기</button><button>최근</button></div>'
     +'<div class="kt-sound-list" id="ktSoundList"></div>'
-    +'<div class="note" style="margin:10px 2px 2px">트로트·가요·팝송처럼 검색하면 됩니다. 자유 이용 음원은 ▶로 바로 듣고, 누이·사내·아모르 파티·어머나 같은 유명곡은 🔎를 눌러 정식 음원을 검색해 들을 수 있습니다.</div>'
+    +'<div class="note" style="margin:10px 2px 2px">트로트·가요·팝송처럼 검색하면 됩니다. 자유 이용 음원은 ▶로 바로 재생되고, 유명곡도 ▶를 누르면 정식 스트리밍 페이지가 바로 열립니다.</div>'
     +'</div>';
   showSheet('사운드 추가',html);
   setTimeout(function(){renderCreatorSoundList('');},0);
