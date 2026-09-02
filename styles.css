@@ -2960,6 +2960,46 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   background:#000!important;
 }
 
+/* 2026-09-03 카메라만: 화면은 꽉 채우고 인물은 전체가 보이게 */
+.creator.camera-on:not(.creator-review) video#cameraBg,
+.creator.creator-recording video#cameraBg,
+.creator.beauty-preview-open video#cameraBg{
+  display:block!important;
+  position:absolute!important;
+  inset:0!important;
+  width:100vw!important;
+  height:100dvh!important;
+  max-width:none!important;
+  max-height:none!important;
+  object-fit:cover!important;
+  object-position:50% 50%!important;
+  transform:scaleX(-1) scale(1.06)!important;
+  transform-origin:50% 50%!important;
+  filter:blur(14px) brightness(.58) saturate(.9)!important;
+  z-index:0!important;
+  background:#000!important;
+}
+.creator.camera-on:not(.creator-review) video#camera,
+.creator.creator-recording video#camera,
+.creator.beauty-preview-open video#camera{
+  display:block!important;
+  position:absolute!important;
+  inset:0!important;
+  width:100vw!important;
+  height:100dvh!important;
+  max-width:none!important;
+  max-height:none!important;
+  object-fit:contain!important;
+  object-position:50% 50%!important;
+  transform:scaleX(-1)!important;
+  transform-origin:50% 50%!important;
+  background:transparent!important;
+  z-index:1!important;
+}
+.creator.creator-recording video#camera{
+  z-index:10!important;
+}
+
 /* 빨간 촬영/방송 시작 버튼만 작게 */
 .creator-bottom .record{
   width:66px!important;
