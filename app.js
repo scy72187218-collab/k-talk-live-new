@@ -2070,7 +2070,223 @@ window.openRaffle=function(){showSheet('🎯 제비뽑기','<div class="raffle">
 window.raffle=function(){if(state.raffle<=0){ktSpeak('오늘 참여 횟수를 모두 사용했습니다.');alert('오늘 참여 횟수를 모두 사용했습니다.');return;}state.raffle--;var p=[0,0,1,2,3,4,5];var x=p[Math.floor(Math.random()*p.length)];var msg=x?'장미 '+x+'개 당첨!':'꽝입니다.';ktAnnounceEvent('reward',{text:msg});alert(msg);};
 window.openMessages=function(){showSheet('✉ 쪽지','<div class="rowbox"><b>쪽지 화면</b><br>메시지 기능 버튼이 정상 작동합니다.</div>');};
 window.openComments=function(){showSheet('💬 댓글','<div class="rowbox"><b>댓글 화면</b><br>댓글 버튼이 정상 작동합니다.</div>');};
-window.openProfile=function(){showSheet('♛ 프로필','<div class="profile-pic">K</div><div style="text-align:center"><h3 style="color:#ffe07a">K-Talk</h3></div>');};
+window.ktGetSelectedSubAccount=function(){
+  try{
+    var key=localStorage.getItem('ktalk_sub_account')||'';
+    if(key==='taekwon1'||key==='haine2')return key;
+  }catch(e){}
+  return '';
+};
+window.ktSubAccountInfo=function(key){
+  if(key==='haine2')return {key:'haine2',name:'K-톡 하이네2',icon:'H'};
+  return {key:'taekwon1',name:'K-톡 태권1',icon:'T'};
+};
+window.ktCurrentSubAccountInfo=function(){
+  return ktSubAccountInfo(ktGetSelectedSubAccount()||'taekwon1');
+};
+window.selectKTalkSubAccount=function(key){
+  if(key!=='taekwon1'&&key!=='haine2')return;
+  try{localStorage.setItem('ktalk_sub_account',key);}catch(e){}
+  state.ktSubAccount=key;
+  var info=ktSubAccountInfo(key);
+  var storage='ktalk_profile_v1:sub:'+key;
+  try{
+    if(!localStorage.getItem(storage)){
+      localStorage.setItem(storage,JSON.stringify({name:info.name,bio:'',photo:''}));
+    }
+  }catch(e){}
+  closeSheet();
+  setTimeout(function(){openProfileDirect();},60);
+};
+window.ktSubProfileCard=function(key){
+  var info=ktSubAccountInfo(key);
+  var p={name:info.name,photo:''};
+  try{
+    var raw=localStorage.getItem('ktalk_profile_v1:sub:'+key);
+    if(raw){
+      var x=JSON.parse(raw)||{};
+      if(x.name)p.name=String(x.name);
+      if(x.photo)p.photo=String(x.photo);
+    }
+  }catch(e){}
+  var initial=(p.name||info.name||'K').trim().charAt(0)||'K';
+  var avatar=p.photo
+    ?'<span class="kt-account-avatar '+key+' has-photo"><img src="'+p.photo+'" alt="'+ktProfileEscape(p.name)+' 프로필"></span>'
+    :'<span class="kt-account-avatar '+key+'">'+ktProfileEscape(initial)+'</span>';
+  return {name:p.name,avatar:avatar};
+};
+window.openAccountChooser=function(){
+  var current=ktGetSelectedSubAccount();
+  var t=ktSubProfileCard('taekwon1');
+  var h=ktSubProfileCard('haine2');
+  var html='<div class="kt-account-choice">'
+    +'<div class="kt-account-choice-title">사용할 계정을 선택하세요</div>'
+    +'<div class="kt-account-split">'
+      +'<button class="kt-account-half '+(current==='taekwon1'?'on':'')+'" onclick="selectKTalkSubAccount(\'taekwon1\')">'
+        +t.avatar+'<b>'+ktProfileEscape(t.name)+'</b><small>태권1 계정으로 들어가기</small>'
+      +'</button>'
+      +'<button class="kt-account-half '+(current==='haine2'?'on':'')+'" onclick="selectKTalkSubAccount(\'haine2\')">'
+        +h.avatar+'<b>'+ktProfileEscape(h.name)+'</b><small>하이네2 계정으로 들어가기</small>'
+      +'</button>'
+    +'</div>'
+    +'<div class="kt-account-note">사진은 가운데 맞춰 표시되고 살짝 움직이게 했습니다.</div>'
+    +'</div>';
+  showSheet('계정 선택',html);
+};
+
+window.ktProfileAccountKey=function(){
+  var sub=ktGetSelectedSubAccount();
+  if(sub)return 'sub:'+sub;
+  try{
+    var owner=window.ktVideoOwner?ktVideoOwner():null;
+    if(owner&&owner.id)return String(owner.id);
+    if(owner&&owner.name)return String(owner.name);
+  }catch(e){}
+  return 'local';
+};
+window.ktProfileStorageKey=function(){
+  return 'ktalk_profile_v1:'+ktProfileAccountKey();
+};
+window.ktProfileLoad=function(){
+  var base={name:'',bio:'',photo:'',followers:0,likes:0,link:''};
+  try{
+    var raw=localStorage.getItem(ktProfileStorageKey());
+    if(raw){
+      var p=JSON.parse(raw)||{};
+      base.name=String(p.name||'');
+      base.bio=String(p.bio||'');
+      base.photo=String(p.photo||'');
+      base.followers=parseInt(p.followers||0,10)||0;
+      base.likes=parseInt(p.likes||0,10)||0;
+      base.link=String(p.link||'');
+    }
+  }catch(e){}
+  if(!base.name){
+    try{
+      var sub=ktGetSelectedSubAccount();
+      if(sub)base.name=ktSubAccountInfo(sub).name;
+      else{
+        var owner=window.ktVideoOwner?ktVideoOwner():null;
+        if(owner&&owner.name&&owner.name!=='내 계정')base.name=owner.name;
+        else if(window.ktCurrentVerifiedAccountName&&ktCurrentVerifiedAccountName())base.name=ktCurrentVerifiedAccountName();
+      }
+    }catch(e){}
+  }
+  if(base.name==='태권이'||base.name==='K-톡태권')base.name='K-톡 태권1';
+  if(base.name==='하이네'||base.name==='K-톡하이네')base.name='K-톡 하이네2';
+  if(!base.name)base.name='K-Talk';
+  return base;
+};
+window.ktProfileEscape=function(s){
+  return String(s==null?'':s).replace(/[&<>"']/g,function(ch){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+  });
+};
+window.ktProfileRender=function(){
+  var p=ktProfileLoad();
+  var initial=(p.name||'K').trim().charAt(0)||'K';
+  var photo=p.photo
+    ?'<img src="'+p.photo+'" alt="프로필 사진">'
+    :'<span>'+ktProfileEscape(initial)+'</span>';
+  var linkText=p.link?ktProfileEscape(p.link):'링크를 등록해 주세요';
+  return '<div class="kt-my-profile">'
+    +'<div class="kt-profile-hero">'
+      +'<div class="kt-profile-photo-wrap">'
+        +'<button type="button" class="kt-my-profile-photo" onclick="document.getElementById(\'ktProfilePhotoInput\').click()" aria-label="프로필 사진 바꾸기">'+photo+'<em>사진 변경</em></button>'
+        +'<input id="ktProfilePhotoInput" type="file" accept="image/*" hidden onchange="ktProfilePickPhoto(this)">'
+      +'</div>'
+      +'<div class="kt-profile-maininfo"><b>'+ktProfileEscape(p.name)+'</b><small>'+ktProfileEscape(p.bio||'소개를 입력해 주세요')+'</small></div>'
+    +'</div>'
+    +'<div class="kt-profile-stats">'
+      +'<div><b>'+(p.followers||0).toLocaleString('ko-KR')+'</b><small>팔로워</small></div>'
+      +'<div><b>'+(p.likes||0).toLocaleString('ko-KR')+'</b><small>좋아요</small></div>'
+    +'</div>'
+    +'<button class="kt-profile-public-link" type="button" onclick="ktOpenProfileLink()"><span>🔗</span><b>'+linkText+'</b><em>›</em></button>'
+    +'<label>닉네임<input id="ktProfileName" class="form" maxlength="20" value="'+ktProfileEscape(p.name)+'" placeholder="닉네임"></label>'
+    +'<label>소개<input id="ktProfileBio" class="form" maxlength="60" value="'+ktProfileEscape(p.bio)+'" placeholder="간단한 소개를 입력하세요"></label>'
+    +'<label>프로필 링크<input id="ktProfileLink" class="form" maxlength="180" value="'+ktProfileEscape(p.link||'')+'" placeholder="https:// 또는 사이트 주소"></label>'
+    +'<button class="act" type="button" onclick="ktProfileSave()">프로필 저장</button>'
+    +'<button class="kt-profile-switch-btn" type="button" onclick="openAccountChooser()">⇄ 계정 선택</button>'
+    +'<button class="kt-profile-video-btn" type="button" onclick="closeSheet();setTimeout(openMyVideoLibrary,80)">🎬 내 동영상 보기</button>'
+    +'<small class="kt-profile-note">프로필 사진은 누르지 않아도 바로 보이게 표시됩니다.</small>'
+    +'</div>';
+};
+
+window.ktOpenProfileLink=function(){
+  var p=ktProfileLoad();
+  var url=String(p.link||'').trim();
+  if(!url){alert('프로필 링크를 먼저 입력해 주세요.');return;}
+  if(!/^https?:\/\//i.test(url))url='https://'+url;
+  try{window.open(url,'_blank','noopener');}catch(e){location.href=url;}
+};
+
+window.openProfileDirect=function(){
+  var info=ktCurrentSubAccountInfo();
+  showSheet('♛ '+info.name+' 프로필',ktProfileRender());
+};
+window.openProfile=function(){
+  openAccountChooser();
+};
+window.ktProfileSave=function(){
+  var old=ktProfileLoad();
+  var nameEl=document.getElementById('ktProfileName');
+  var bioEl=document.getElementById('ktProfileBio');
+  var linkEl=document.getElementById('ktProfileLink');
+  var name=String(nameEl?nameEl.value:'').trim();
+  var bio=String(bioEl?bioEl.value:'').trim();
+  var link=String(linkEl?linkEl.value:'').trim();
+  if(!name){alert('닉네임을 입력해 주세요.');return;}
+  var data={name:name,bio:bio,photo:old.photo||'',followers:old.followers||0,likes:old.likes||0,link:link};
+  try{localStorage.setItem(ktProfileStorageKey(),JSON.stringify(data));}catch(e){
+    alert('프로필을 저장하지 못했습니다. 다시 눌러 주세요.');return;
+  }
+  ktSpeak('프로필을 저장했습니다.');
+  alert('✅ 프로필을 저장했습니다.');
+  openProfileDirect();
+};
+window.ktProfilePickPhoto=function(input){
+  var file=input&&input.files&&input.files[0];
+  if(!file)return;
+  if(!/^image\//i.test(file.type||'')){alert('사진 파일을 선택해 주세요.');return;}
+  var reader=new FileReader();
+  reader.onload=function(){
+    var img=new Image();
+    img.onload=function(){
+      try{
+        var size=420;
+        var canvas=document.createElement('canvas');
+        canvas.width=size;canvas.height=size;
+        var ctx=canvas.getContext('2d');
+        var scale=Math.max(size/img.width,size/img.height);
+        var w=img.width*scale,h=img.height*scale;
+        ctx.drawImage(img,(size-w)/2,(size-h)/2,w,h);
+        var photo=canvas.toDataURL('image/jpeg',0.84);
+        var p=ktProfileLoad();
+        p.photo=photo;
+        var nameEl=document.getElementById('ktProfileName');
+        var bioEl=document.getElementById('ktProfileBio');
+        var linkEl=document.getElementById('ktProfileLink');
+        if(nameEl&&nameEl.value.trim())p.name=nameEl.value.trim();
+        if(bioEl)p.bio=bioEl.value.trim();
+        if(linkEl)p.link=linkEl.value.trim();
+        localStorage.setItem(ktProfileStorageKey(),JSON.stringify(p));
+        openProfileDirect();
+      }catch(e){alert('사진을 등록하지 못했습니다. 다른 사진으로 다시 해 주세요.');}
+    };
+    img.onerror=function(){alert('사진을 읽지 못했습니다.');};
+    img.src=reader.result;
+  };
+  reader.onerror=function(){alert('사진을 읽지 못했습니다.');};
+  reader.readAsDataURL(file);
+};
+window.ktAddProfileFollower=function(n){
+  var p=ktProfileLoad();p.followers=Math.max(0,(p.followers||0)+(parseInt(n||1,10)||1));
+  try{localStorage.setItem(ktProfileStorageKey(),JSON.stringify(p));}catch(e){}
+};
+window.ktAddProfileLike=function(n){
+  var p=ktProfileLoad();p.likes=Math.max(0,(p.likes||0)+(parseInt(n||1,10)||1));
+  try{localStorage.setItem(ktProfileStorageKey(),JSON.stringify(p));}catch(e){}
+};
 window.openAI=function(){
   var html='<div class="rowbox"><b>🗣️ AI 음성 안내</b><br>선물 · 보물상자 · 당첨 보상 · 주요 알림을 한국어 음성으로 읽어줍니다.</div>'
     +'<div class="rowbox"><b>현재 상태</b><br>'+(state.aiVoiceOn?'켜짐':'꺼짐')+'</div>'
