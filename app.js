@@ -2269,22 +2269,36 @@ window.selectCreatorSound=function(name){
   closeSheet();
 };
 
-window.openSoundPanel=function(){
+window.renderCreatorSoundList=function(query){
   var tracks=window.ktCreatorTracks||[];
-  var list=tracks.map(function(t,i){
-    return '<button class="kt-sound-row" onclick="selectCreatorSound(\''+t.name+'\')">'
+  var q=String(query||'').trim().toLowerCase();
+  var rows=[];
+  tracks.forEach(function(t,i){
+    var hay=(String(t.name||'')+' '+String(t.source||'')).toLowerCase();
+    if(q&&hay.indexOf(q)===-1)return;
+    rows.push('<button class="kt-sound-row" onclick="selectCreatorSound(\''+t.name.replace(/'/g,"\\'")+'\')">'
       +'<span class="kt-sound-cover">'+(i+1)+'</span>'
       +'<span class="kt-sound-info"><b>'+t.name+'</b><small>'+t.source+(t.time?' · '+t.time:'')+'</small></span>'
       +'<span class="kt-sound-play" onclick="ktPlaySoundPreview('+i+',event)">▶</span>'
-      +'</button>';
-  }).join('');
+      +'</button>');
+  });
+  var box=document.getElementById('ktSoundList');
+  if(box)box.innerHTML=rows.length?rows.join(''):'<div class="rowbox" style="text-align:center">검색 결과가 없습니다.</div>';
+};
+
+window.filterCreatorSounds=function(value){
+  renderCreatorSoundList(value);
+};
+
+window.openSoundPanel=function(){
   var html='<div class="kt-sound-panel">'
-    +'<div class="kt-sound-search">⌕ <input placeholder="사운드 검색" aria-label="사운드 검색"></div>'
+    +'<div class="kt-sound-search">⌕ <input id="ktSoundSearchInput" placeholder="노래 제목·가수·장르 검색" aria-label="사운드 검색" oninput="filterCreatorSounds(this.value)"></div>'
     +'<div class="kt-sound-tabs"><button>인기</button><button class="on">맞춤 추천</button><button>즐겨찾기</button><button>최근</button></div>'
-    +'<div class="kt-sound-list">'+list+'</div>'
-    +'<div class="note" style="margin:10px 2px 2px">팝송은 실제 보컬과 반주가 들어간 자유 이용 음원이며, 곡별 저작자·CC 라이선스 표시는 목록에 함께 표시됩니다.</div>'
+    +'<div class="kt-sound-list" id="ktSoundList"></div>'
+    +'<div class="note" style="margin:10px 2px 2px">검색창에서 제목·가수·장르를 입력하고, 오른쪽 ▶ 버튼을 누르면 바로 들을 수 있습니다.</div>'
     +'</div>';
   showSheet('사운드 추가',html);
+  setTimeout(function(){renderCreatorSoundList('');},0);
 };
 
 window.openSong=function(){openSoundPanel();};
