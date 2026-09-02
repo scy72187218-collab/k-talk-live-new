@@ -110,11 +110,12 @@
         var cropX=[175,310,445,580,715][i%5],cropY=[205,475,742,1008,1272][Math.floor(i/5)];
         art='<span class="ktgf-art" role="img" aria-label="'+g[0]+'"><svg viewBox="'+cropX+' '+cropY+' 125 130" preserveAspectRatio="xMidYMid slice"><image href="gift-source.svg?v=1" width="864" height="1536"></image></svg></span>';
       }else{
-        var j=i-25,cropPX=(j%5)*125,cropPY=Math.floor(j/5)*130;
-        art='<span class="ktgf-art ktgf-art-extra" role="img" aria-label="'+g[0]+'"><svg viewBox="'+cropPX+' '+cropPY+' 125 130" preserveAspectRatio="xMidYMid slice"><image href="gift-premium-source.svg?v=20260902-1" width="625" height="650"></image></svg></span>';
+        var j=i-25,cropPX=(j%5)*75,cropPY=Math.floor(j/5)*78;
+        art='<span class="ktgf-art ktgf-art-extra" role="img" aria-label="'+g[0]+'"><svg viewBox="'+cropPX+' '+cropPY+' 75 78" preserveAspectRatio="xMidYMid slice"><image href="gift-premium-photo-source.svg?v=20260902-approved1" width="375" height="390"></image></svg></span>';
       }
+      var no=i<25?'<span class="ktgf-no">'+(i+1)+'</span>':'';
       return '<button type="button" class="ktgf-card" data-i="'+i+'" onclick="giftSendByIndex('+i+')">'
-        +'<span class="ktgf-no">'+(i+1)+'</span>'+art+'<b>'+g[0]+'</b><strong>'+g[1].toLocaleString('ko-KR')+'개</strong></button>';
+        +no+art+'<b>'+g[0]+'</b><strong>'+g[1].toLocaleString('ko-KR')+'개</strong></button>';
     }).join('');
     var html='<div class="ktgf"><div class="ktgf-head"><div class="ktgf-brand"><span class="ktgf-logo">🎁</span><div><h2>K-Talk 선물상자</h2><p>✦ 마음을 전하는 특별한 선물 ✦</p></div></div><button type="button" class="ktgf-close" onclick="closeSheet()">닫기</button></div>'
       +'<div class="ktgf-main"><aside class="ktgf-side">'
