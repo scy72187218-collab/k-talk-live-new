@@ -406,8 +406,8 @@ window.ensureLiveCamera=async function(facing){
       state.stream=await navigator.mediaDevices.getUserMedia({
         video:{
           facingMode:state.cameraFacing,
-          width:{ideal:1080},
-          height:{ideal:1920},
+          width:{ideal:720},
+          height:{ideal:1280},
           aspectRatio:{ideal:9/16},
           frameRate:{ideal:30,max:30}
         },
@@ -421,7 +421,7 @@ window.ensureLiveCamera=async function(facing){
       });
     }catch(firstErr){
       state.stream=await navigator.mediaDevices.getUserMedia({
-        video:{width:{ideal:1080},height:{ideal:1920},aspectRatio:{ideal:9/16},frameRate:{ideal:30,max:30}},
+        video:{width:{ideal:720},height:{ideal:1280},aspectRatio:{ideal:9/16},frameRate:{ideal:30,max:30}},
         audio:{
           echoCancellation:true,
           noiseSuppression:true,
