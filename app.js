@@ -1171,11 +1171,13 @@ window.ensureFaceEffectLayer=function(){
   return layer;
 };
 
-window.ktFaceDetector=null;
-window.ktFaceTrackTimer=null;
-window.ktMpFaceDetector=null;
-window.ktMpFaceLoading=null;
-window.ktMpFaceBusy=false;
+window.ktFaceMesh=null;
+window.ktFaceMeshLoading=null;
+window.ktFaceMeshBusy=false;
+window.ktFaceLoopRAF=null;
+window.ktFaceLastSendAt=0;
+window.ktFaceLastSeenAt=0;
+window.ktFaceSmooth=null;
 
 window.placeFaceAnchorFallback=function(){
   var anchor=document.getElementById('ktFaceAnchor');
@@ -1196,6 +1198,7 @@ window.placeFaceAnchorFallback=function(){
 window.placeFaceAnchorNormalized=function(cxN,cyN,wN,hN,angle){
   var anchor=document.getElementById('ktFaceAnchor');
   if(!anchor||!camera||!camera.videoWidth||!camera.videoHeight)return;
+
   var cr=creator.getBoundingClientRect();
   var vr=camera.getBoundingClientRect();
   var vw=camera.videoWidth, vh=camera.videoHeight;
@@ -1204,138 +1207,180 @@ window.placeFaceAnchorNormalized=function(cxN,cyN,wN,hN,angle){
   var offX=(vr.width-drawW)/2;
   var offY=(vr.height-drawH)/2;
 
-  var bw=Math.max(.08,Math.min(.95,wN||.32))*vw;
-  var bh=Math.max(.10,Math.min(.95,hN||.42))*vh;
-  var bx=((cxN||.5)-(wN||.32)/2)*vw;
-  var by=((cyN||.4)-(hN||.42)/2)*vh;
+  var safeW=Math.max(.08,Math.min(.90,wN||.32));
+  var safeH=Math.max(.10,Math.min(.92,hN||.42));
+  var bw=safeW*vw;
+  var bh=safeH*vh;
+  var bx=((cxN||.5)-safeW/2)*vw;
+  var by=((cyN||.4)-safeH/2)*vh;
 
   if((state.cameraFacing||'user')!=='environment'){
     bx=vw-(bx+bw);
     angle=-(angle||0);
   }
 
-  var dx=offX+(bx*scale);
-  var dy=offY+(by*scale);
   var shownW=bw*scale;
   var shownH=bh*scale;
-  var centerX=(vr.left-cr.left)+dx+(shownW/2);
-  var centerY=(vr.top-cr.top)+dy+(shownH/2);
+  var target={
+    x:(vr.left-cr.left)+offX+(bx*scale)+(shownW/2),
+    y:(vr.top-cr.top)+offY+(by*scale)+(shownH/2),
+    w:Math.max(116,shownW*1.10),
+    h:Math.max(140,shownH*1.12),
+    a:Math.max(-30,Math.min(30,angle||0))
+  };
 
-  anchor.style.left=centerX+'px';
-  anchor.style.top=centerY+'px';
-  anchor.style.width=Math.max(120,shownW*1.08)+'px';
-  anchor.style.height=Math.max(145,shownH*1.08)+'px';
-  anchor.style.transform='translate(-50%,-50%) rotate('+Math.max(-25,Math.min(25,angle||0))+'deg)';
+  var prev=window.ktFaceSmooth;
+  if(!prev){
+    prev={x:target.x,y:target.y,w:target.w,h:target.h,a:target.a};
+  }else{
+    var k=.58;
+    prev.x+=((target.x-prev.x)*k);
+    prev.y+=((target.y-prev.y)*k);
+    prev.w+=((target.w-prev.w)*k);
+    prev.h+=((target.h-prev.h)*k);
+    prev.a+=((target.a-prev.a)*.48);
+  }
+  window.ktFaceSmooth=prev;
+
+  anchor.style.transition='none';
+  anchor.style.left=prev.x+'px';
+  anchor.style.top=prev.y+'px';
+  anchor.style.width=prev.w+'px';
+  anchor.style.height=prev.h+'px';
+  anchor.style.transform='translate(-50%,-50%) rotate('+prev.a+'deg)';
 };
 
-window.ensureKTMediapipeFace=function(){
-  if(window.ktMpFaceDetector)return Promise.resolve(window.ktMpFaceDetector);
-  if(window.ktMpFaceLoading)return window.ktMpFaceLoading;
+window.ensureKTFaceMesh=function(){
+  if(window.ktFaceMesh)return Promise.resolve(window.ktFaceMesh);
+  if(window.ktFaceMeshLoading)return window.ktFaceMeshLoading;
 
-  window.ktMpFaceLoading=new Promise(function(resolve,reject){
+  window.ktFaceMeshLoading=new Promise(function(resolve,reject){
     function init(){
       try{
-        if(typeof window.FaceDetection!=='function')throw new Error('FaceDetection library unavailable');
-        var fd=new window.FaceDetection({
+        if(typeof window.FaceMesh!=='function')throw new Error('FaceMesh unavailable');
+        var mesh=new window.FaceMesh({
           locateFile:function(file){
-            return 'https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/'+file;
+            return 'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/'+file;
           }
         });
-        fd.setOptions({model:'short',minDetectionConfidence:0.5});
-        fd.onResults(function(results){
-          window.ktMpFaceBusy=false;
-          var det=results&&results.detections&&results.detections[0];
-          if(!det||!det.boundingBox){placeFaceAnchorFallback();return;}
-          var bb=det.boundingBox;
+        mesh.setOptions({
+          maxNumFaces:1,
+          refineLandmarks:false,
+          minDetectionConfidence:.42,
+          minTrackingConfidence:.42
+        });
+        mesh.onResults(function(results){
+          window.ktFaceMeshBusy=false;
+          var list=results&&results.multiFaceLandmarks;
+          if(!list||!list.length){
+            return;
+          }
+
+          var lm=list[0];
+          var minX=1,minY=1,maxX=0,maxY=0;
+          for(var i=0;i<lm.length;i++){
+            var p=lm[i];
+            if(p.x<minX)minX=p.x;
+            if(p.y<minY)minY=p.y;
+            if(p.x>maxX)maxX=p.x;
+            if(p.y>maxY)maxY=p.y;
+          }
+
+          var w=Math.max(.10,maxX-minX);
+          var h=Math.max(.13,maxY-minY);
+          var cx=(minX+maxX)/2;
+          var cy=(minY+maxY)/2;
+
+          w*=1.28;
+          h*=1.34;
+          cy-=h*.025;
+
           var angle=0;
-          var lm=det.landmarks||[];
-          if(lm.length>=2){
-            var dx=(lm[1].x||0)-(lm[0].x||0);
-            var dy=(lm[1].y||0)-(lm[0].y||0);
-            angle=Math.atan2(dy,dx)*180/Math.PI;
-            if(angle>90)angle-=180;
-            if(angle<-90)angle+=180;
+          if(lm[33]&&lm[263]){
+            var ex=(lm[263].x-lm[33].x);
+            var ey=(lm[263].y-lm[33].y);
+            angle=Math.atan2(ey,ex)*180/Math.PI;
           }
-          placeFaceAnchorNormalized(bb.xCenter,bb.yCenter,bb.width,bb.height,angle);
+
+          window.ktFaceLastSeenAt=Date.now();
+          placeFaceAnchorNormalized(cx,cy,w,h,angle);
         });
-        window.ktMpFaceDetector=fd;
-        resolve(fd);
+        window.ktFaceMesh=mesh;
+        resolve(mesh);
       }catch(err){
-        window.ktMpFaceLoading=null;
+        window.ktFaceMeshLoading=null;
         reject(err);
       }
     }
 
-    if(typeof window.FaceDetection==='function'){init();return;}
-    var old=document.getElementById('ktMpFaceDetectionScript');
+    if(typeof window.FaceMesh==='function'){init();return;}
+
+    var old=document.getElementById('ktFaceMeshScript');
     if(old){
       old.addEventListener('load',init,{once:true});
-      old.addEventListener('error',function(){window.ktMpFaceLoading=null;reject(new Error('face library load failed'));},{once:true});
+      old.addEventListener('error',function(){
+        window.ktFaceMeshLoading=null;
+        reject(new Error('FaceMesh load failed'));
+      },{once:true});
       return;
     }
+
     var sc=document.createElement('script');
-    sc.id='ktMpFaceDetectionScript';
-    sc.src='https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/face_detection.js';
+    sc.id='ktFaceMeshScript';
+    sc.src='https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js';
     sc.async=true;
     sc.onload=init;
-    sc.onerror=function(){window.ktMpFaceLoading=null;reject(new Error('face library load failed'));};
+    sc.onerror=function(){
+      window.ktFaceMeshLoading=null;
+      reject(new Error('FaceMesh load failed'));
+    };
     document.head.appendChild(sc);
   });
-  return window.ktMpFaceLoading;
+
+  return window.ktFaceMeshLoading;
 };
 
 window.trackFaceOnce=async function(){
-  var anchor=document.getElementById('ktFaceAnchor');
-  if(!anchor||!camera||!camera.videoWidth||!camera.videoHeight){
-    placeFaceAnchorFallback();
+  if(!camera||!camera.videoWidth||!camera.videoHeight)return;
+  if(window.ktFaceMeshBusy)return;
+  try{
+    var mesh=window.ktFaceMesh||await ensureKTFaceMesh();
+    if(!mesh)return;
+    window.ktFaceMeshBusy=true;
+    await mesh.send({image:camera});
+  }catch(e){
+    window.ktFaceMeshBusy=false;
+  }
+};
+
+window.ktFaceTrackingLoop=function(ts){
+  if(!creator||!creator.classList.contains('show')){
+    window.ktFaceLoopRAF=null;
     return;
   }
 
-  if('FaceDetector' in window){
-    try{
-      if(!window.ktFaceDetector)window.ktFaceDetector=new FaceDetector({fastMode:true,maxDetectedFaces:1});
-      var faces=await window.ktFaceDetector.detect(camera);
-      if(!faces||!faces.length){placeFaceAnchorFallback();return;}
-      var box=faces[0].boundingBox;
-      placeFaceAnchorNormalized(
-        (box.x+box.width/2)/camera.videoWidth,
-        (box.y+box.height/2)/camera.videoHeight,
-        box.width/camera.videoWidth,
-        box.height/camera.videoHeight,
-        0
-      );
-      return;
-    }catch(e){}
+  if(!window.ktFaceLastSendAt||ts-window.ktFaceLastSendAt>=72){
+    window.ktFaceLastSendAt=ts;
+    trackFaceOnce();
   }
 
-  try{
-    var fd=window.ktMpFaceDetector||await ensureKTMediapipeFace();
-    if(fd&&!window.ktMpFaceBusy){
-      window.ktMpFaceBusy=true;
-      Promise.resolve(fd.send({image:camera})).catch(function(){
-        window.ktMpFaceBusy=false;
-        placeFaceAnchorFallback();
-      });
-    }
-  }catch(e){
-    window.ktMpFaceBusy=false;
-    placeFaceAnchorFallback();
-  }
+  window.ktFaceLoopRAF=requestAnimationFrame(window.ktFaceTrackingLoop);
 };
 
 window.startKTFaceTracking=function(){
   ensureFaceEffectLayer();
-  clearInterval(window.ktFaceTrackTimer);
-  trackFaceOnce();
-  window.ktFaceTrackTimer=setInterval(function(){
-    if(creator&&creator.classList.contains('show'))trackFaceOnce();
-  },180);
+  window.ktFaceSmooth=null;
+  window.ktFaceLastSeenAt=0;
+  window.ktFaceLastSendAt=0;
+  if(window.ktFaceLoopRAF)cancelAnimationFrame(window.ktFaceLoopRAF);
+  window.ktFaceLoopRAF=requestAnimationFrame(window.ktFaceTrackingLoop);
 };
 
 window.stopKTFaceTracking=function(){
-  clearInterval(window.ktFaceTrackTimer);
-  window.ktFaceTrackTimer=null;
-  window.ktMpFaceBusy=false;
+  if(window.ktFaceLoopRAF)cancelAnimationFrame(window.ktFaceLoopRAF);
+  window.ktFaceLoopRAF=null;
+  window.ktFaceMeshBusy=false;
+  window.ktFaceSmooth=null;
 };
 
 window.ensureRealFaceEffectStyle=function(){
