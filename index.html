@@ -533,5 +533,80 @@
 </script>
 <script src="test-broadcast.js?v=20260901-natural12"></script>
 
+
+<!-- 2026-09-02 촬영화면 사람 축소 + 버튼 소폭 축소 -->
+<style id="ktCreatorCompactCameraFinal">
+/* 다른 화면은 건드리지 않고 촬영 화면만 조정 */
+#creator.creator.camera-on:not(.creator-review) video#cameraBg{
+  display:block!important;
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  object-position:center center!important;
+  transform:scaleX(-1) scale(1.06)!important;
+  filter:blur(14px) brightness(.72)!important;
+  opacity:.72!important;
+  z-index:0!important;
+  background:#000!important;
+}
+#creator.creator.camera-on:not(.creator-review) video#camera{
+  display:block!important;
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+  transform:scaleX(-1) scale(.72)!important;
+  transform-origin:center center!important;
+  background:transparent!important;
+  z-index:2!important;
+}
+
+/* 10분 · 60초 · 15초와 촬영 버튼만 조금 축소 */
+#creator .creator-bottom{
+  padding-left:12px!important;
+  padding-right:12px!important;
+  padding-bottom:calc(11px + env(safe-area-inset-bottom))!important;
+}
+#creator .creator-bottom .modes{
+  gap:15px!important;
+  margin-bottom:10px!important;
+}
+#creator .creator-bottom .modes span{
+  font-size:16px!important;
+  padding:4px 3px!important;
+}
+#creator .creator-bottom .modes .on{
+  padding:6px 12px!important;
+}
+#creator .creator-bottom .recordrow{
+  gap:20px!important;
+  margin-bottom:10px!important;
+}
+#creator .creator-bottom .record{
+  width:88px!important;
+  height:88px!important;
+  border-width:5px!important;
+}
+#creator .creator-bottom .fx{
+  width:52px!important;
+  height:52px!important;
+  font-size:22px!important;
+}
+#creator .creator-bottom .fx.myvideo span{
+  font-size:20px!important;
+}
+#creator .creator-bottom .fx.myvideo small{
+  font-size:7px!important;
+}
+#creator .creator-bottom .creator-foot{
+  font-size:15px!important;
+  gap:24px!important;
+}
+</style>
+
 </body>
 </html>
