@@ -402,3 +402,53 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   margin-top:10px!important;
   font-size:12px!important;
 }
+
+
+/* 2026-09-02 촬영화면 최종 크기 복구 */
+/* 요청한 촬영 화면만 축소: 사람/시간선택/빨간촬영/내동영상/하단글씨 */
+.creator.show:not(.live-prep-open) video{
+  position:absolute!important;
+  inset:auto!important;
+  left:6%!important;
+  top:6%!important;
+  width:88%!important;
+  height:88%!important;
+  object-fit:contain!important;
+  object-position:50% 50%!important;
+  background:#000!important;
+}
+.creator.show:not(.live-prep-open) .creator-bottom{
+  left:30px!important;
+  right:30px!important;
+  bottom:20px!important;
+}
+.creator.show:not(.live-prep-open) .modes{
+  gap:12px!important;
+  font-size:9px!important;
+  line-height:1!important;
+}
+.creator.show:not(.live-prep-open) .modes span{
+  padding:4px 6px!important;
+  border-radius:10px!important;
+}
+.creator.show:not(.live-prep-open) .recordrow{
+  gap:12px!important;
+  margin-top:6px!important;
+}
+.creator.show:not(.live-prep-open) .record{
+  width:56px!important;
+  height:56px!important;
+  border-width:4px!important;
+  box-shadow:0 0 0 2px rgba(255,45,85,.20)!important;
+}
+.creator.show:not(.live-prep-open) .fx{
+  width:36px!important;
+  height:36px!important;
+  font-size:14px!important;
+  border-width:1px!important;
+}
+.creator.show:not(.live-prep-open) .creator-foot{
+  gap:24px!important;
+  margin-top:7px!important;
+  font-size:10px!important;
+}
