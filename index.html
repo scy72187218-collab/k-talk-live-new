@@ -605,9 +605,9 @@
       state.currentLiveRoomTitle='';
       state.currentViewRoomTitle='';
     }
-    try{history.replaceState({ktDashboard:true},'',location.href);}catch(e){}
-    if(window.openDashboard)window.openDashboard();
-    else if(window.home)window.home();
+    try{history.replaceState({ktVideoHome:true},'',location.href);}catch(e){}
+    if(window.home)window.home();
+    else if(window.openDashboard)window.openDashboard();
   };
 
   window.addEventListener('popstate',function(){
