@@ -1297,54 +1297,190 @@ window.resetBeautyAll=function(){
   openBeautyPanel();
 };
 
-window.clearAllFaceEffects=function(){
-  try{ if(window.ktFaceLoopRAF)cancelAnimationFrame(window.ktFaceLoopRAF); }catch(e){}
-  window.ktFaceLoopRAF=null;
-  window.ktFaceMeshBusy=false;
-  window.ktFaceSmooth=null;
-  window.ktPartSmooth={};
+window.ktFaceTrackers=window.ktFaceTrackers||{};
+window.ktFaceDetectorPromise=window.ktFaceDetectorPromise||null;
 
+window.ktLoadFaceDetector=function(){
+  if(window.ktFaceDetectorPromise)return window.ktFaceDetectorPromise;
+  window.ktFaceDetectorPromise=(async function(){
+    try{
+      var mod=await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/+esm');
+      var vision=await mod.FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/wasm');
+      var detector=await mod.FaceDetector.createFromOptions(vision,{
+        baseOptions:{modelAssetPath:'https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite'},
+        runningMode:'VIDEO',
+        minDetectionConfidence:.42,
+        minSuppressionThreshold:.3
+      });
+      return {type:'mediapipe',detector:detector};
+    }catch(e){
+      try{
+        if('FaceDetector' in window)return {type:'native',detector:new FaceDetector({fastMode:true,maxDetectedFaces:1})};
+      }catch(_e){}
+      return null;
+    }
+  })();
+  return window.ktFaceDetectorPromise;
+};
+
+window.ktStopFaceTrackingFor=function(key){
+  var t=window.ktFaceTrackers&&window.ktFaceTrackers[key];
+  if(!t)return;
+  t.stopped=true;
+  if(t.raf)cancelAnimationFrame(t.raf);
+  delete window.ktFaceTrackers[key];
+};
+
+window.ktStartFaceTrackingFor=function(video,layer,anchor,key){
+  key=key||'creator';
+  ktStopFaceTrackingFor(key);
+  if(!video||!layer||!anchor)return;
+  var tracker={stopped:false,raf:0,busy:false,lastAt:0,smooth:null};
+  window.ktFaceTrackers[key]=tracker;
+
+  function placeBox(box){
+    if(!box||!video.videoWidth||!video.videoHeight)return;
+    var lr=layer.getBoundingClientRect();
+    var vr=video.getBoundingClientRect();
+    if(!lr.width||!lr.height||!vr.width||!vr.height)return;
+    var vw=video.videoWidth,vh=video.videoHeight;
+    var scale=Math.max(vr.width/vw,vr.height/vh);
+    var drawW=vw*scale,drawH=vh*scale;
+    var offX=(vr.width-drawW)/2,offY=(vr.height-drawH)/2;
+    var bx=Number(box.originX!=null?box.originX:box.x)||0;
+    var by=Number(box.originY!=null?box.originY:box.y)||0;
+    var bw=Number(box.width)||0,bh=Number(box.height)||0;
+    var leftInVideo=offX+bx*scale;
+    var topInVideo=offY+by*scale;
+    var mirroredLeft=vr.width-(leftInVideo+bw*scale);
+    var x=(vr.left-lr.left)+mirroredLeft+(bw*scale/2);
+    var y=(vr.top-lr.top)+topInVideo+(bh*scale/2);
+    var w=bw*scale,h=bh*scale;
+    var target={x:x,y:y,w:w,h:h};
+    var sm=tracker.smooth;
+    if(!sm)sm=target;
+    else{
+      var a=.28;
+      sm={x:sm.x+(target.x-sm.x)*a,y:sm.y+(target.y-sm.y)*a,w:sm.w+(target.w-sm.w)*a,h:sm.h+(target.h-sm.h)*a};
+    }
+    tracker.smooth=sm;
+    anchor.style.left=sm.x+'px';
+    anchor.style.top=sm.y+'px';
+    anchor.style.width=Math.max(96,sm.w*1.22)+'px';
+    anchor.style.height=Math.max(112,sm.h*1.38)+'px';
+    anchor.style.opacity='1';
+  }
+
+  function fallback(){
+    var lr=layer.getBoundingClientRect();
+    anchor.style.left=(lr.width*.5)+'px';
+    anchor.style.top=(lr.height*.39)+'px';
+    anchor.style.width=Math.min(220,lr.width*.42)+'px';
+    anchor.style.height=Math.min(270,lr.height*.5)+'px';
+    anchor.style.opacity='.94';
+  }
+
+  async function tick(now){
+    if(tracker.stopped)return;
+    tracker.raf=requestAnimationFrame(tick);
+    if(tracker.busy||now-tracker.lastAt<70)return;
+    if(!video.isConnected||!layer.isConnected||!anchor.isConnected){ktStopFaceTrackingFor(key);return;}
+    if(video.readyState<2||!video.videoWidth){fallback();return;}
+    tracker.lastAt=now;
+    tracker.busy=true;
+    try{
+      var engine=await ktLoadFaceDetector();
+      if(!engine){fallback();return;}
+      var box=null;
+      if(engine.type==='mediapipe'){
+        var result=engine.detector.detectForVideo(video,Math.round(performance.now()));
+        if(result&&result.detections&&result.detections.length)box=result.detections[0].boundingBox;
+      }else{
+        var faces=await engine.detector.detect(video);
+        if(faces&&faces.length)box=faces[0].boundingBox;
+      }
+      if(box)placeBox(box);
+      else if(!tracker.smooth)fallback();
+    }catch(e){
+      if(!tracker.smooth)fallback();
+    }finally{
+      tracker.busy=false;
+    }
+  }
+  fallback();
+  tracker.raf=requestAnimationFrame(tick);
+};
+
+window.ktEnsureFaceEffectStyle=function(){
+  if(document.getElementById('ktRealFaceEffectStyle'))return;
+  var st=document.createElement('style');
+  st.id='ktRealFaceEffectStyle';
+  st.textContent='#ktFaceEffectLayer{position:absolute;inset:0;z-index:6;pointer-events:none;overflow:hidden}#ktFaceAnchor{position:absolute;left:50%;top:39%;width:170px;height:205px;transform:translate(-50%,-50%);transform-origin:center;transition:opacity .12s;pointer-events:none}.kt-fx{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);filter:drop-shadow(0 3px 7px rgba(0,0,0,.36));line-height:1;white-space:nowrap}.kt-fx.top{top:-4%;font-size:clamp(50px,45%,92px)}.kt-fx.center{top:45%;font-size:clamp(52px,50%,102px)}.kt-fx.cheek{top:60%;font-size:clamp(24px,22%,46px)}.kt-fx.cheek.left{left:20%}.kt-fx.cheek.right{left:80%}.kt-fx.side-left{left:4%;top:30%;font-size:clamp(28px,27%,54px)}.kt-fx.side-right{left:96%;top:30%;font-size:clamp(28px,27%,54px)}.kt-fx.spark1{left:8%;top:8%;font-size:38px}.kt-fx.spark2{left:92%;top:15%;font-size:32px}.kt-fx.spark3{left:88%;top:82%;font-size:27px}.kt-fx.spark4{left:14%;top:78%;font-size:25px}.kt-face-effect-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.kt-face-effect-card{border:1px solid rgba(255,255,255,.13);border-radius:16px;background:rgba(255,255,255,.06);color:#fff;padding:10px 5px;min-height:84px;display:grid;place-items:center;gap:4px}.kt-face-effect-card.on{border-color:#ff4f96;box-shadow:0 0 0 2px rgba(255,79,150,.16)}.kt-face-effect-card span{font-size:32px}.kt-face-effect-card b{font-size:10px}.kt-effect-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}.kt-effect-tabs button{height:40px;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:#ffffff0d;color:#fff;font-weight:900}.kt-effect-tabs button.on{background:#fff;color:#111}';
+  document.head.appendChild(st);
+};
+
+window.ktFaceEffectMarkup=function(name){
+  var map={
+    sunglasses:'<span class="kt-fx center">🕶️</span>',
+    cap:'<span class="kt-fx top">🧢</span>',
+    heart:'<span class="kt-fx top">💕</span><span class="kt-fx cheek left">💗</span><span class="kt-fx cheek right">💗</span>',
+    cat:'<span class="kt-fx top">🐱</span><span class="kt-fx cheek left">✨</span><span class="kt-fx cheek right">✨</span>',
+    puppy:'<span class="kt-fx top">🐶</span><span class="kt-fx cheek left">🐾</span><span class="kt-fx cheek right">🐾</span>',
+    bunny:'<span class="kt-fx top">🐰</span><span class="kt-fx cheek left">🌸</span><span class="kt-fx cheek right">🌸</span>',
+    flower:'<span class="kt-fx top">🌸🌼🌸</span>',
+    sparkle:'<span class="kt-fx spark1">✨</span><span class="kt-fx spark2">✨</span><span class="kt-fx spark3">✦</span><span class="kt-fx spark4">✧</span>',
+    angel:'<span class="kt-fx top">😇</span>',
+    party:'<span class="kt-fx side-left">🎉</span><span class="kt-fx side-right">🎊</span><span class="kt-fx top">🥳</span>'
+  };
+  return map[name]||'';
+};
+
+window.ktApplyFaceEffect=function(name,el){
+  name=name||'off';
+  if(name==='off'){clearAllFaceEffects();return;}
+  state.editFilter='';
+  state.editSticker=name;
+  state.pendingEditEffect=name;
+  state.appliedEditEffect=name;
+  ktEnsureFaceEffectStyle();
+  var layer=document.getElementById('ktFaceEffectLayer');
+  if(!layer){
+    layer=document.createElement('div');
+    layer.id='ktFaceEffectLayer';
+    layer.innerHTML='<div id="ktFaceAnchor"></div>';
+    creator.appendChild(layer);
+  }
+  var anchor=document.getElementById('ktFaceAnchor');
+  if(anchor)anchor.innerHTML=ktFaceEffectMarkup(name);
+  document.querySelectorAll('.kt-face-effect-card').forEach(function(btn){btn.classList.toggle('on',btn.getAttribute('data-face-effect')===name);});
+  if(camera&&layer&&anchor)ktStartFaceTrackingFor(camera,layer,anchor,'creator');
+};
+
+window.clearAllFaceEffects=function(){
+  try{ktStopFaceTrackingFor('creator');}catch(e){}
   var layer=document.getElementById('ktFaceEffectLayer');
   if(layer)layer.remove();
-
-  var tray=document.getElementById('ktLiveEffects');
-  if(tray)tray.remove();
-
-  var st=document.getElementById('ktRealFaceEffectStyle');
-  if(st)st.remove();
-
   state.editFilter='';
   state.editSticker='';
   state.pendingEditEffect='off';
   state.appliedEditEffect='off';
-
-  var filterClasses=['fx-glow','fx-soft','fx-rainbow','fx-cool','fx-warm','fx-night','fx-cinema','fx-mono','fx-pink','fx-blue','fx-star','fx-party','fx-disco','fx-dream'];
-  if(creator)creator.classList.remove.apply(creator.classList,filterClasses);
-  if(camera)camera.style.filter='brightness(1.10) contrast(.94) saturate(1.03) blur(.40px)';
+  document.querySelectorAll('.kt-face-effect-card').forEach(function(btn){btn.classList.remove('on');});
+  try{if(window.applyBeautyPreview)applyBeautyPreview();}catch(e){}
 };
 
-window.renderFaceEffect=function(){
-  clearAllFaceEffects();
-};
-
-window.previewEditEffect=function(){
-  clearAllFaceEffects();
-};
-
-window.setEditEffect=function(){
-  clearAllFaceEffects();
-};
-
-window.applyEditEffect=function(){
-  clearAllFaceEffects();
-};
+window.renderFaceEffect=function(name){ktApplyFaceEffect(name||state.appliedEditEffect||'off');};
+window.previewEditEffect=function(name,el){ktApplyFaceEffect(name,el);};
+window.setEditEffect=function(name,el){ktApplyFaceEffect(name,el);};
+window.applyEditEffect=function(name,el){ktApplyFaceEffect(name||state.pendingEditEffect||state.appliedEditEffect||'off',el);};
 
 window.closeEditEffectPanel=function(){
-  clearAllFaceEffects();
+  closeSheet();
   if(state.effectReturnBeauty){state.effectReturnBeauty=false;openBeautyPanel();}
 };
 
-window.switchEditEffectTab=function(){};
+window.switchEditEffectTab=function(tab){
+  openEditEffectPanel(tab||'face');
+};
 
 window.ktStageBackgrounds=[
   {id:'ocean',name:'오션뷰',url:'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=720&h=1280&q=76'},
