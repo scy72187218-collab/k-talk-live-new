@@ -3355,7 +3355,7 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
 .kt-attendance-wrap{
   left:16px!important;
   top:70px!important;
-  transform:scale(.72)!important;
+  transform:scale(.64)!important;
   transform-origin:top left!important;
 }
 .kt-like-milestones{
@@ -3365,7 +3365,7 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   position:absolute!important;
   top:58px!important;
   right:0!important;
-  width:172px!important;
+  width:146px!important;
   padding:6px 8px!important;
   border-radius:12px!important;
   z-index:8!important;
@@ -3374,16 +3374,16 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   gap:5px!important;
 }
 #myEarnHud>div:first-child>span{
-  font-size:8px!important;
+  font-size:7px!important;
 }
 #hudEarnNet{
-  font-size:13px!important;
+  font-size:11px!important;
 }
 #myEarnDetail{
   margin-top:3px!important;
   gap:3px!important;
-  font-size:8px!important;
+  font-size:7px!important;
 }
 #hudEarnRoses,#hudEarnRate{
-  font-size:8px!important;
+  font-size:7px!important;
 }
