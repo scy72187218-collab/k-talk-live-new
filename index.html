@@ -246,22 +246,10 @@
        if(ev.stopPropagation)ev.stopPropagation();
      }
    }catch(e){}
-   if(window.state){
-     state.liveRoomType='solo';
-     state.liveRoomName='1인 방송';
-     state.liveRoomMax=1;
-   }
-   var title=document.getElementById('liveTitle');
-   if(title)title.value='1인 방송';
    try{
      if(window.ktStopBackgroundMedia)window.ktStopBackgroundMedia();
    }catch(e){}
-   try{
-     if(window.openCreator)await window.openCreator();
-   }catch(e){}
-   try{
-     if(window.startBroadcast)await window.startBroadcast();
-   }catch(e){}
+   if(window.openLiveRoom)window.openLiveRoom();
    return false;
  };
  window.openTikLivePrep=function(){creator.classList.add('live-prep-open');};
