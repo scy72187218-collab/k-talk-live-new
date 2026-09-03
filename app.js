@@ -3010,3 +3010,45 @@ setTimeout(function(){
   var oldPrepBottom=window.prepBottomTap;
   window.prepBottomTap=function(el,name){if(oldPrepBottom)oldPrepBottom(el,name);};
 },0);
+
+/* KTALK_PROFILE_POSTED_VIDEO_FIX_20260904 */
+(function(){
+  var oldOpen=window.openProfileDirect;
+  window.openProfileDirect=function(){
+    if(oldOpen)oldOpen();
+    setTimeout(async function(){
+      if(!window.sheetBody||!sheetBody)return;
+      var box=document.getElementById('ktProfilePostedVideos');
+      if(!box){
+        box=document.createElement('div');
+        box.id='ktProfilePostedVideos';
+        box.style.cssText='display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin-top:14px';
+        sheetBody.appendChild(box);
+      }
+      try{
+        var db=await ktOpenVideoDB();
+        var tx=db.transaction('videos','readonly');
+        var req=tx.objectStore('videos').getAll();
+        req.onsuccess=function(){
+          var items=(req.result||[]).filter(function(v){return v.posted;}).sort(function(a,b){return (b.postedAt||b.createdAt||0)-(a.postedAt||a.createdAt||0);});
+          box.innerHTML=items.length?'':'<div style="grid-column:1/-1;padding:16px;text-align:center;color:#aaa">아직 올린 동영상이 없습니다.</div>';
+          items.forEach(function(v){
+            var u=URL.createObjectURL(v.blob);
+            var b=document.createElement('button');
+            b.type='button';
+            b.style.cssText='position:relative;aspect-ratio:9/16;border:0;padding:0;overflow:hidden;border-radius:8px;background:#111';
+            b.innerHTML='<video muted playsinline preload="metadata" src="'+u+'" style="width:100%;height:100%;object-fit:cover"></video><span style="position:absolute;left:7px;bottom:6px;color:#fff">▶</span>';
+            b.onclick=function(){playStoredVideo(v.id);};
+            box.appendChild(b);
+          });
+          try{db.close();}catch(e){}
+        };
+      }catch(e){}
+    },80);
+  };
+  var oldPost=window.postStoredVideo;
+  window.postStoredVideo=async function(id,btn){
+    if(oldPost)await oldPost(id,btn);
+    setTimeout(function(){if(window.openProfileDirect)openProfileDirect();},450);
+  };
+})();
