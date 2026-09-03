@@ -220,6 +220,7 @@ window.showSheet=function(title,html){
   sheet.classList.remove('gift-final-v1');
   sheet.classList.remove('investor-sheet');
   sheet.classList.remove('beauty-control-sheet');
+  sheet.classList.remove('stage-effect-sheet');
   sheetTitle.innerHTML=title;
   sheetBody.innerHTML=html;
   sheet.classList.add('show');
@@ -237,6 +238,7 @@ window.closeSheet=function(){
   sheet.classList.remove('camera-effect-sheet');
   sheet.classList.remove('investor-sheet');
   sheet.classList.remove('beauty-control-sheet');
+  sheet.classList.remove('stage-effect-sheet');
 };
 
 window.home=function(){
@@ -489,7 +491,8 @@ window.stopEffectRecordingCanvas=function(){
 
 window.makeEffectRecordingStream=function(){
   var selected=state.appliedEditEffect||state.pendingEditEffect||'off';
-  if(selected==='off'||!camera||!camera.videoWidth)return state.stream;
+  var hasStage=!!state.stageBackground;
+  if((selected==='off'&&!hasStage)||!camera||!camera.videoWidth)return state.stream;
 
   var canvas=document.createElement('canvas');
   canvas.width=1080;canvas.height=1920;
@@ -503,8 +506,14 @@ window.makeEffectRecordingStream=function(){
     var scale=Math.max(canvas.width/sw,canvas.height/sh);
     var dw=sw*scale,dh=sh*scale,dx=(canvas.width-dw)/2,dy=(canvas.height-dh)/2;
     ctx.save();ctx.clearRect(0,0,canvas.width,canvas.height);
-    ctx.translate(canvas.width,0);ctx.scale(-1,1);
-    try{ctx.drawImage(camera,dx,dy,dw,dh);}catch(e){}
+    if(hasStage&&window.ktStageCanvas&&window.ktStageCanvas.width){
+      var sc=window.ktStageCanvas,ss=Math.max(canvas.width/sc.width,canvas.height/sc.height);
+      var sdw=sc.width*ss,sdh=sc.height*ss,sdx=(canvas.width-sdw)/2,sdy=(canvas.height-sdh)/2;
+      try{ctx.drawImage(sc,sdx,sdy,sdw,sdh);}catch(e){}
+    }else{
+      ctx.translate(canvas.width,0);ctx.scale(-1,1);
+      try{ctx.drawImage(camera,dx,dy,dw,dh);}catch(e){}
+    }
     ctx.restore();
 
     var anchor=document.getElementById('ktFaceAnchor');
@@ -1259,8 +1268,161 @@ window.closeEditEffectPanel=function(){
 
 window.switchEditEffectTab=function(){};
 
+window.ktStageBackgrounds=[
+  {id:'ocean',name:'오션뷰',url:'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=720&h=1280&q=76'},
+  {id:'mountain',name:'산 전망',url:'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=720&h=1280&q=76'},
+  {id:'beach',name:'해안',url:'https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=720&h=1280&q=76'},
+  {id:'forest',name:'숲속',url:'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=720&h=1280&q=76'},
+  {id:'garden',name:'정원',url:'https://images.unsplash.com/photo-1497250681960-ef046c08a56e?auto=format&fit=crop&w=720&h=1280&q=76'},
+  {id:'lake',name:'달빛 호수',url:'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=720&h=1280&q=76'},
+  {id:'city',name:'도시 야경',url:'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=720&h=1280&q=76'},
+  {id:'waterfall',name:'폭포',url:'https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?auto=format&fit=crop&w=720&h=1280&q=76'},
+  {id:'stage',name:'라이브 무대',url:'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=720&h=1280&q=76'},
+  {id:'lounge',name:'골드 라운지',url:'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=720&h=1280&q=76'}
+];
+
+window.ktLoadStageSegmentation=function(){
+  if(window.ktStageSegmenter)return Promise.resolve(window.ktStageSegmenter);
+  if(window.ktStageSegPromise)return window.ktStageSegPromise;
+  window.ktStageSegPromise=new Promise(function(resolve,reject){
+    function ready(){
+      try{
+        var seg=new SelfieSegmentation({
+          locateFile:function(file){
+            return 'https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1.1675465747/'+file;
+          }
+        });
+        seg.setOptions({modelSelection:1,selfieMode:true});
+        seg.onResults(function(results){ if(window.ktRenderStageResults)ktRenderStageResults(results); });
+        window.ktStageSegmenter=seg;
+        resolve(seg);
+      }catch(e){reject(e);}
+    }
+    if(window.SelfieSegmentation){ready();return;}
+    var sc=document.createElement('script');
+    sc.src='https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1.1675465747/selfie_segmentation.js';
+    sc.async=true;
+    sc.onload=ready;
+    sc.onerror=function(){reject(new Error('segmentation load failed'));};
+    document.head.appendChild(sc);
+  });
+  return window.ktStageSegPromise;
+};
+
+window.ktEnsureStageCanvas=function(){
+  var canvas=document.getElementById('ktStageCanvas');
+  if(!canvas){
+    canvas=document.createElement('canvas');
+    canvas.id='ktStageCanvas';
+    canvas.setAttribute('aria-hidden','true');
+    creator.appendChild(canvas);
+  }
+  window.ktStageCanvas=canvas;
+  return canvas;
+};
+
+window.ktDrawCover=function(ctx,img,cw,ch){
+  var iw=img.videoWidth||img.naturalWidth||img.width||cw;
+  var ih=img.videoHeight||img.naturalHeight||img.height||ch;
+  if(!iw||!ih)return;
+  var scale=Math.max(cw/iw,ch/ih);
+  var dw=iw*scale,dh=ih*scale;
+  ctx.drawImage(img,(cw-dw)/2,(ch-dh)/2,dw,dh);
+};
+
+window.ktRenderStageResults=function(results){
+  if(!state.stageBackground||!window.ktStageBgImage)return;
+  var canvas=ktEnsureStageCanvas();
+  var w=(results.image&&results.image.width)||camera.videoWidth||720;
+  var h=(results.image&&results.image.height)||camera.videoHeight||1280;
+  if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;}
+  var ctx=canvas.getContext('2d');
+  if(!ctx)return;
+  ctx.save();
+  ctx.clearRect(0,0,w,h);
+  try{
+    ctx.globalCompositeOperation='source-over';
+    ctx.drawImage(results.segmentationMask,0,0,w,h);
+    ctx.globalCompositeOperation='source-in';
+    ctx.drawImage(results.image,0,0,w,h);
+    ctx.globalCompositeOperation='destination-over';
+    ktDrawCover(ctx,window.ktStageBgImage,w,h);
+  }catch(e){}
+  ctx.restore();
+};
+
+window.ktStartStageLoop=async function(){
+  if(window.ktStageLoopRunning)return;
+  window.ktStageLoopRunning=true;
+  try{
+    var seg=await ktLoadStageSegmentation();
+    while(state.stageBackground&&camera&&camera.srcObject){
+      try{await seg.send({image:camera});}catch(e){}
+      await new Promise(function(r){setTimeout(r,35);});
+    }
+  }catch(e){
+    creator.classList.remove('stage-bg-active');
+    state.stageBackground='';
+    alert('배경 효과를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
+  }
+  window.ktStageLoopRunning=false;
+};
+
+window.ktStopStageBackground=function(){
+  state.stageBackground='';
+  state.stageBackgroundUrl='';
+  window.ktStageBgImage=null;
+  creator.classList.remove('stage-bg-active');
+  var canvas=document.getElementById('ktStageCanvas');
+  if(canvas){try{canvas.remove();}catch(e){}}
+  window.ktStageCanvas=null;
+  document.querySelectorAll('.kt-stage-card').forEach(function(btn){
+    btn.classList.toggle('on',btn.getAttribute('data-stage-id')==='none');
+  });
+};
+
+window.selectStageBackground=function(id){
+  if(id==='none'){ktStopStageBackground();return;}
+  var bg=(window.ktStageBackgrounds||[]).filter(function(x){return x.id===id;})[0];
+  if(!bg)return;
+  state.stageBackground=bg.id;
+  state.stageBackgroundUrl=bg.url;
+  creator.classList.add('stage-bg-active');
+  var img=new Image();
+  img.crossOrigin='anonymous';
+  img.onload=function(){
+    window.ktStageBgImage=img;
+    ktEnsureStageCanvas();
+    ktStartStageLoop();
+  };
+  img.onerror=function(){
+    state.stageBackground='';
+    creator.classList.remove('stage-bg-active');
+    alert('배경 사진을 불러오지 못했습니다.');
+  };
+  img.src=bg.url;
+  document.querySelectorAll('.kt-stage-card').forEach(function(btn){
+    btn.classList.toggle('on',btn.getAttribute('data-stage-id')===id);
+  });
+};
+
 window.openEditEffectPanel=function(){
-  clearAllFaceEffects();
+  creator.classList.add('beauty-preview-open');
+  try{var lp=creator.querySelector('.live-prep');if(lp)lp.style.setProperty('display','none','important');}catch(e){}
+  try{if(window.ensureLiveCamera)ensureLiveCamera(state.cameraFacing||'user').catch(function(){});}catch(e){}
+  var active=state.stageBackground||'none';
+  var cards='<button class="kt-stage-card '+(active==='none'?'on':'')+'" data-stage-id="none" onclick="selectStageBackground(\'none\')"><span class="kt-stage-none">⊘</span><b>효과 없음</b></button>';
+  (window.ktStageBackgrounds||[]).forEach(function(bg){
+    cards+='<button class="kt-stage-card '+(active===bg.id?'on':'')+'" data-stage-id="'+bg.id+'" onclick="selectStageBackground(\''+bg.id+'\')">'
+      +'<span class="kt-stage-thumb" style="background-image:url(&quot;'+bg.url+'&quot;)"></span><b>'+bg.name+'</b></button>';
+  });
+  var html='<div class="kt-stage-panel">'
+    +'<div class="kt-stage-title"><b>편집 효과</b><span>사람이 움직여도 선택한 배경은 고정됩니다.</span></div>'
+    +'<div class="kt-stage-grid">'+cards+'</div>'
+    +'<div class="kt-stage-actions"><button onclick="ktStopStageBackground()">효과 없음</button><button class="primary" onclick="closeSheet()">닫기</button></div>'
+    +'</div>';
+  showSheet('편집 효과',html);
+  sheet.classList.add('camera-effect-sheet','stage-effect-sheet');
 };
 
 window.toggleLiveSetting=function(btn){
