@@ -25,24 +25,13 @@
 
   function testEffectMarkup(name){
     var markup={
-      sunglasses:'<div class="fx-sunglasses-mask"><i></i><i></i><b></b></div>',
-      glasses:'<div class="fx-glasses-mask"><i></i><i></i><b></b></div>',
       mustache:'<div class="fx-mustache-mask"><span>〰</span></div>',
       beard:'<div class="fx-beard-mask"><span>〰</span><b></b></div>',
-      cap:'<div class="fx-cap-mask"><i></i><b></b></div>',
-      pirate:'<div class="fx-pirate-mask"><i></i><b></b></div>',
       crown:'<div class="fx-crown-mask">👑</div>',
-      cat:'<div class="fx-animal-ears cat"><i></i><i></i></div>',
-      dog:'<div class="fx-animal-ears dog"><i></i><i></i></div>',
-      puppy:'<div class="fx-animal-ears dog"><i></i><i></i></div>',
-      rabbit:'<div class="fx-animal-ears rabbit"><i></i><i></i></div>',
-      bunny:'<div class="fx-animal-ears rabbit"><i></i><i></i></div>',
       blush:'<div class="fx-cheek-mask blush"><i></i><i></i></div>',
       heart:'<div class="fx-cheek-mask heart"><i>♥</i><i>♥</i></div>',
       sparkle:'<div class="fx-sparkles-mask"><span>✦</span><span>✧</span><span>✦</span><span>✧</span></div>',
       tears:'<div class="fx-tears-mask"><i></i><i></i></div>',
-      halo:'<div class="fx-halo-mask"></div>',
-      angel:'<div class="fx-halo-mask"></div>',
       flower:'<div style="position:absolute;left:50%;top:-5%;transform:translate(-50%,-50%);font-size:52px;white-space:nowrap">🌸🌼🌸</div>',
       party:'<div style="position:absolute;left:50%;top:0;transform:translate(-50%,-50%);font-size:52px;white-space:nowrap">🎉🥳🎊</div>',
       fire:'<div class="fx-fire-mask">🔥🔥🔥</div>',
@@ -56,13 +45,28 @@
   function applyTestVideoFilter(name){
     var v=document.getElementById('ktTestVideo');
     if(!v)return;
-    var base='brightness(1.12) contrast(.95) saturate(1.02)';
-    if(name==='mono')v.style.filter='grayscale(1) contrast(1.05) brightness(1.08)';
-    else if(name==='warm')v.style.filter='brightness(1.12) contrast(.95) saturate(1.10) sepia(.12)';
-    else if(name==='cool')v.style.filter='brightness(1.10) contrast(.95) saturate(.98) hue-rotate(170deg)';
-    else if(name==='soft')v.style.filter='brightness(1.14) contrast(.92) saturate(.98)';
-    else if(name==='studio')v.style.filter='brightness(1.16) contrast(.94) saturate(.98)';
-    else if(name==='night')v.style.filter='brightness(.88) contrast(1.04) saturate(.92)';
+
+    var bright=58,sharp=52,skin=54;
+    try{
+      if(window.state){
+        bright=Math.max(1,Math.min(100,Number(state.beautyBright||58)));
+        sharp=Math.max(1,Math.min(100,Number(state.beautySharp||52)));
+        skin=Math.max(1,Math.min(100,Number(state.beautySkin||54)));
+      }
+    }catch(e){}
+
+    var brightness=.99+(bright*.0014);
+    var saturation=.99+(sharp*.00065);
+    var contrast=.97+(sharp*.0005);
+    var blur=Math.max(0,(skin-35)*.0027);
+    var base='brightness('+brightness.toFixed(3)+') contrast('+contrast.toFixed(3)+') saturate('+saturation.toFixed(3)+') blur('+blur.toFixed(2)+'px)';
+
+    if(name==='mono')v.style.filter='grayscale(1) contrast(1.03) brightness(1.04)';
+    else if(name==='warm')v.style.filter=base+' sepia(.08) saturate(1.05)';
+    else if(name==='cool')v.style.filter=base+' saturate(.98) hue-rotate(3deg)';
+    else if(name==='soft')v.style.filter=base;
+    else if(name==='studio')v.style.filter='brightness('+(brightness+.025).toFixed(3)+') contrast('+contrast.toFixed(3)+') saturate('+saturation.toFixed(3)+') blur('+Math.min(.22,blur+.03).toFixed(2)+'px)';
+    else if(name==='night')v.style.filter='brightness(.92) contrast(1.02) saturate(.94)';
     else v.style.filter=base;
   }
 
@@ -110,6 +114,7 @@
 
   function applySelectedEffectToTest(){
     var name=(window.state&&(state.appliedEditEffect||state.pendingEditEffect))||'off';
+    if(['sunglasses','glasses','cap','pirate','cat','dog','puppy','rabbit','bunny','halo','angel'].indexOf(name)>-1)name='off';
     var anchor=document.getElementById('ktTestFaceAnchor');
     var layer=document.getElementById('ktTestEffectLayer');
     var v=document.getElementById('ktTestVideo');
