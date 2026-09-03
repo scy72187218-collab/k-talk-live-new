@@ -1624,20 +1624,45 @@ window.selectStageBackground=function(id){
   });
 };
 
-window.openEditEffectPanel=function(){
+window.openEditEffectPanel=function(tab){
+  tab=tab||'face';
   creator.classList.add('beauty-preview-open');
   try{var lp=creator.querySelector('.live-prep');if(lp)lp.style.setProperty('display','none','important');}catch(e){}
   try{if(window.ensureLiveCamera)ensureLiveCamera(state.cameraFacing||'user').catch(function(){});}catch(e){}
-  var active=state.stageBackground||'none';
-  var cards='<button class="kt-stage-card '+(active==='none'?'on':'')+'" data-stage-id="none" onclick="selectStageBackground(\'none\')"><span class="kt-stage-none">⊘</span><b>효과 없음</b></button>';
-  (window.ktStageBackgrounds||[]).forEach(function(bg){
-    cards+='<button class="kt-stage-card '+(active===bg.id?'on':'')+'" data-stage-id="'+bg.id+'" onclick="selectStageBackground(\''+bg.id+'\')">'
-      +'<span class="kt-stage-thumb" style="background-image:url(&quot;'+bg.url+'&quot;)"></span><b>'+bg.name+'</b></button>';
-  });
+  ktEnsureFaceEffectStyle();
+
+  if(tab==='background'){
+    var active=state.stageBackground||'none';
+    var cards='<button class="kt-stage-card '+(active==='none'?'on':'')+'" data-stage-id="none" onclick="selectStageBackground(\'none\')"><span class="kt-stage-none">⊘</span><b>효과 없음</b></button>';
+    (window.ktStageBackgrounds||[]).forEach(function(bg){
+      cards+='<button class="kt-stage-card '+(active===bg.id?'on':'')+'" data-stage-id="'+bg.id+'" onclick="selectStageBackground(\''+bg.id+'\')">'
+        +'<span class="kt-stage-thumb" style="background-image:url(&quot;'+bg.url+'&quot;)"></span><b>'+bg.name+'</b></button>';
+    });
+    var bgHtml='<div class="kt-stage-panel">'
+      +'<div class="kt-effect-tabs"><button onclick="switchEditEffectTab(\'face\')">얼굴 효과</button><button class="on">배경 효과</button></div>'
+      +'<div class="kt-stage-title"><b>배경 효과</b><span>선택한 배경은 화면 뒤에 고정됩니다.</span></div>'
+      +'<div class="kt-stage-grid">'+cards+'</div>'
+      +'<div class="kt-stage-actions"><button onclick="ktStopStageBackground()">배경 없음</button><button class="primary" onclick="closeSheet()">적용</button></div>'
+      +'</div>';
+    showSheet('편집 효과',bgHtml);
+    sheet.classList.add('camera-effect-sheet','stage-effect-sheet');
+    return;
+  }
+
+  var effects=[
+    ['off','⊘','없음'],['heart','💕','하트'],['sunglasses','🕶️','선글라스'],['cap','🧢','모자'],
+    ['cat','🐱','고양이'],['puppy','🐶','강아지'],['bunny','🐰','토끼'],['flower','🌸','꽃'],
+    ['sparkle','✨','반짝이'],['angel','😇','후광'],['party','🎉','파티']
+  ];
+  var current=state.appliedEditEffect||'off';
+  var faceCards=effects.map(function(it){
+    return '<button class="kt-face-effect-card '+(current===it[0]?'on':'')+'" data-face-effect="'+it[0]+'" onclick="setEditEffect(\''+it[0]+'\',this)"><span>'+it[1]+'</span><b>'+it[2]+'</b></button>';
+  }).join('');
   var html='<div class="kt-stage-panel">'
-    +'<div class="kt-stage-title"><b>편집 효과</b><span>사람이 움직여도 선택한 배경은 고정됩니다.</span></div>'
-    +'<div class="kt-stage-grid">'+cards+'</div>'
-    +'<div class="kt-stage-actions"><button onclick="ktStopStageBackground()">효과 없음</button><button class="primary" onclick="closeSheet()">적용</button></div>'
+    +'<div class="kt-effect-tabs"><button class="on">얼굴 효과</button><button onclick="switchEditEffectTab(\'background\')">배경 효과</button></div>'
+    +'<div class="kt-stage-title"><b>얼굴 따라 움직이는 효과</b><span>얼굴을 좌우·위아래로 움직이면 효과도 같이 따라갑니다.</span></div>'
+    +'<div class="kt-face-effect-grid">'+faceCards+'</div>'
+    +'<div class="kt-stage-actions"><button onclick="clearAllFaceEffects()">효과 없음</button><button class="primary" onclick="closeSheet()">적용</button></div>'
     +'</div>';
   showSheet('편집 효과',html);
   sheet.classList.add('camera-effect-sheet','stage-effect-sheet');
