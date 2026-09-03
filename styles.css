@@ -1333,14 +1333,14 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   content:"";
   position:absolute;
   top:4px;
-  width:40px;
-  height:34px;
-  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 38'%3E%3Cg stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M48 8 C37 3 27 4 17 8 C25 10 35 14 45 19 C35 15 25 15 11 19 C21 20 31 23 42 27 C32 24 22 25 8 30 C20 29 30 31 38 34' fill='%23ff5bc822' stroke='%23ff5bc8' stroke-width='3.1'/%3E%3Cpath d='M46 9 C36 5 29 6 21 9 M43 18 C34 16 26 17 17 20 M39 27 C31 25 24 27 15 30' fill='none' stroke='%23ffd2f3' stroke-width='1.35'/%3E%3Ccircle cx='13' cy='9' r='1.6' fill='%23ffb7e9'/%3E%3Ccircle cx='18' cy='5' r='1.1' fill='%23ff8bdc'/%3E%3C/g%3E%3C/svg%3E") center/contain no-repeat;
+  width:50px;
+  height:36px;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 58 40'%3E%3Cg stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M56 18 C45 7 31 3 10 5 C22 9 35 14 50 22 Z' fill='%23ff4fcf33' stroke='%23ff55cf' stroke-width='2.8'/%3E%3Cpath d='M52 20 C40 13 25 12 5 16 C20 18 35 22 49 26 Z' fill='%23ff4fcf2e' stroke='%23ff55cf' stroke-width='2.8'/%3E%3Cpath d='M49 25 C37 21 23 22 6 29 C21 27 34 30 45 34 Z' fill='%23ff4fcf29' stroke='%23ff55cf' stroke-width='2.8'/%3E%3Cpath d='M44 30 C34 28 25 30 15 36 C26 33 35 34 42 37 Z' fill='%23ff4fcf24' stroke='%23ff55cf' stroke-width='2.5'/%3E%3Cpath d='M52 18 C42 10 33 8 23 7 M48 24 C38 18 29 18 17 19 M43 30 C34 26 26 27 18 30' fill='none' stroke='%23ffd8f5' stroke-width='1.2' opacity='.95'/%3E%3Ccircle cx='16' cy='8' r='1.6' fill='%23ffb7e9'/%3E%3Ccircle cx='21' cy='4' r='1.1' fill='%23ff8bdc'/%3E%3C/g%3E%3C/svg%3E") center/contain no-repeat;
   filter:drop-shadow(0 0 3px #ff4fcf) drop-shadow(0 0 8px #ff4fcfaa);
   pointer-events:none
 }
-.kt-attendance-heart:before{left:-28px}
-.kt-attendance-heart:after{right:-28px;transform:scaleX(-1)}
+.kt-attendance-heart:before{left:-42px}
+.kt-attendance-heart:after{right:-42px;transform:scaleX(-1)}
 .kt-attendance-heart .kt-attendance-label{font-size:14px;line-height:1;color:#ffd9f6}
 .kt-attendance-heart .kt-attendance-sub{margin-top:4px;font-size:9px;color:#ffe57b}
 .kt-attendance-heart .kt-attendance-miniheart{
