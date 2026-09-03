@@ -1421,12 +1421,7 @@ window.ktEnsureFaceEffectStyle=function(){
 
 window.ktFaceEffectMarkup=function(name){
   var map={
-    sunglasses:'<span class="kt-fx center">🕶️</span>',
-    cap:'<span class="kt-fx top">🧢</span>',
     heart:'<span class="kt-fx top">💕</span><span class="kt-fx cheek left">💗</span><span class="kt-fx cheek right">💗</span>',
-    cat:'<span class="kt-fx top">🐱</span><span class="kt-fx cheek left">✨</span><span class="kt-fx cheek right">✨</span>',
-    puppy:'<span class="kt-fx top">🐶</span><span class="kt-fx cheek left">🐾</span><span class="kt-fx cheek right">🐾</span>',
-    bunny:'<span class="kt-fx top">🐰</span><span class="kt-fx cheek left">🌸</span><span class="kt-fx cheek right">🌸</span>',
     flower:'<span class="kt-fx top">🌸🌼🌸</span>',
     sparkle:'<span class="kt-fx spark1">✨</span><span class="kt-fx spark2">✨</span><span class="kt-fx spark3">✦</span><span class="kt-fx spark4">✧</span>',
     angel:'<span class="kt-fx top">😇</span>',
@@ -1436,6 +1431,7 @@ window.ktFaceEffectMarkup=function(name){
 };
 
 window.ktApplyFaceEffect=function(name,el){
+  if(['sunglasses','cap','cat','puppy','bunny'].indexOf(name)>-1)name='off';
   name=name||'off';
   if(name==='off'){clearAllFaceEffects();return;}
   state.editFilter='';
@@ -1650,8 +1646,7 @@ window.openEditEffectPanel=function(tab){
   }
 
   var effects=[
-    ['off','⊘','없음'],['heart','💕','하트'],['sunglasses','🕶️','선글라스'],['cap','🧢','모자'],
-    ['cat','🐱','고양이'],['puppy','🐶','강아지'],['bunny','🐰','토끼'],['flower','🌸','꽃'],
+    ['off','⊘','없음'],['heart','💕','하트'],['flower','🌸','꽃'],
     ['sparkle','✨','반짝이'],['angel','😇','후광'],['party','🎉','파티']
   ];
   var current=state.appliedEditEffect||'off';
