@@ -46,6 +46,50 @@
 }
 </style>
 
+
+<style id="ktLiveAttendanceClockOnly">
+/* 라이브 4개 방: 출석체크 + ON AIR + 방송시간만 추가 */
+.kt-live-airclock{
+  position:absolute;left:14px;top:66px;z-index:7;
+  display:flex;align-items:center;gap:8px;
+  padding:6px 10px;border-radius:999px;
+  background:rgba(8,8,12,.64);
+  border:1px solid rgba(255,255,255,.16);
+  color:#fff;font-weight:900;font-size:12px;
+  backdrop-filter:blur(6px);
+}
+.kt-live-airclock .air{
+  color:#ff4a63;
+  text-shadow:0 0 8px rgba(255,54,82,.75);
+  white-space:nowrap;
+}
+.kt-live-airclock .clock{
+  color:#fff;
+  font-variant-numeric:tabular-nums;
+  letter-spacing:.5px;
+}
+.kt-live-attendance{
+  position:absolute;left:50%;top:112px;transform:translateX(-50%);
+  z-index:7;border:0;background:transparent;color:#ffd34d;
+  font-weight:950;font-size:17px;white-space:nowrap;
+  display:flex;align-items:center;gap:6px;
+  text-shadow:0 0 7px #ff4bc9,0 0 14px #ff2fa8;
+}
+.kt-live-attendance .badge{
+  padding:8px 16px;border-radius:18px;
+  background:rgba(26,10,25,.72);
+  border:2px solid #ff4fc6;
+  box-shadow:0 0 10px #ff42ba,0 0 22px rgba(255,66,186,.55),inset 0 0 10px rgba(255,73,194,.22);
+}
+.kt-live-attendance .wing{
+  color:#ff64cf;font-size:28px;line-height:1;
+  filter:drop-shadow(0 0 6px #ff4fc6);
+}
+.kt-live-attendance .heart{
+  color:#ff5abf;margin-left:2px;
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -282,8 +326,19 @@
 (function(){
   var ROSE_WON=30;
   var earnTimer=null;
+  var liveClockTimer=null;
   var toastTimer=null;
   var session={active:false,start:0,roses:0,gifts:0,likes:0,likeRewarded:{},title:'',memberType:'general',rate:0.35};
+
+  function updateLiveClock(){
+    var el=document.getElementById('ktLiveClock');
+    if(!el||!session.active)return;
+    var sec=Math.max(0,Math.floor((Date.now()-session.start)/1000));
+    var h=Math.floor(sec/3600);
+    var m=Math.floor((sec%3600)/60);
+    var s=sec%60;
+    el.textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  }
 
   function money(n){return Math.round(n||0).toLocaleString('ko-KR')+'원';}
   function total(){return session.roses*ROSE_WON;}
@@ -475,6 +530,8 @@
   window.leaveBroadcastToDashboard=function(){
     clearInterval(earnTimer);
     earnTimer=null;
+    clearInterval(liveClockTimer);
+    liveClockTimer=null;
     clearInterval(liveFaceTimer);
     liveFaceTimer=null;
     try{
@@ -544,6 +601,8 @@
       +'<div id="ktLiveEffectLayer" style="position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden"><div id="ktLiveFaceAnchor" class="kt-face-anchor"></div></div>'
       +liveWave
       +'<div id="ktLiveTreasureZone" class="kt-live-treasure-zone"></div>'
+      +'<div class="kt-live-airclock"><span class="air">● ON AIR</span><span id="ktLiveClock" class="clock">00:00:00</span></div>'
+      +'<button class="kt-live-attendance" onclick="if(window.openAttendanceBenefits)openAttendanceBenefits()" aria-label="출석체크"><span class="wing">🪽</span><span class="badge">출석체크 <span class="heart">♥</span></span><span class="wing">🪽</span></button>'
 
       +'<button onclick="leaveBroadcastToDashboard()" aria-label="방송 나가기" style="position:absolute;left:10px;top:12px;z-index:7;width:42px;height:42px;border-radius:50%;border:1px solid #ffffff33;background:#08080b99;color:#fff;font-size:32px;font-weight:700;line-height:36px;display:grid;place-items:center">‹</button>'
       +'<div style="position:absolute;left:58px;right:10px;top:12px;z-index:5;display:grid;gap:7px">'
@@ -589,6 +648,9 @@
     if(window.ktUpdateTreasureLed)ktUpdateTreasureLed();
 
     updateEarn();
+    clearInterval(liveClockTimer);
+    updateLiveClock();
+    liveClockTimer=setInterval(updateLiveClock,1000);
     clearInterval(earnTimer);
     earnTimer=setInterval(function(){
       if(session.active)showPrivate30mEarnings();
@@ -629,6 +691,8 @@
     if(!session.active)return;
     clearInterval(earnTimer);
     earnTimer=null;
+    clearInterval(liveClockTimer);
+    liveClockTimer=null;
     clearInterval(liveFaceTimer);
     liveFaceTimer=null;
     try{
