@@ -430,11 +430,7 @@
     var liveRoomType=(window.state&&state.liveRoomType)||'solo';
     var guestStrip='';
     if(liveRoomType!=='solo'){
-      var guestNames=['게스트1','게스트2','게스트3','게스트4','게스트5','게스트6'];
-      var guestFaces=['🙂','😊','😎','👩','🧑','👨'];
-      guestStrip='<div class="kt-live-guests">'+guestNames.map(function(n,i){
-        return '<button onclick="openGuestProfile(\'g'+(i+1)+'\',\''+n+'\',\''+guestFaces[i]+'\')"><span>'+guestFaces[i]+'</span><small>'+n+'</small></button>';
-      }).join('')+'</div>';
+      guestStrip='';
     }
     if(window.state){
       state.currentLiveRoomTitle=session.title;
@@ -454,8 +450,7 @@
       +'<div style="position:absolute;inset:0;background:linear-gradient(180deg,#00000045,transparent 34%,#00000018 62%,#000000d9 100%);pointer-events:none"></div>'
       +'<div id="ktLiveEffectLayer" style="position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden"><div id="ktLiveFaceAnchor" class="kt-face-anchor"></div></div>'
       +'<div id="ktLiveTreasureZone" class="kt-live-treasure-zone"></div>'
-      +'<div class="kt-attendance-wrap"><button id="ktAttendanceHeart" class="kt-attendance-heart" onclick="ktAttendanceCheck()"><span class="kt-attendance-label">출석체크</span><i class="kt-attendance-miniheart">💗</i></button></div>'
-      +'<div class="kt-like-milestones">💗 5천 · 1만 · 1만5천 · 2만 · 2만5천 <b>달성마다 🌹 1송이</b></div>'
+      +'<div class="kt-attendance-wrap" style="position:absolute;left:12px;top:72px;z-index:7;pointer-events:auto"><button id="ktAttendanceHeart" class="kt-attendance-heart" onclick="ktAttendanceCheck()" style="min-width:92px;height:34px;padding:0 12px;border-radius:17px;font-size:11px"><span class="kt-attendance-label" style="font-size:11px">출석체크</span><i class="kt-attendance-miniheart" style="font-size:11px;bottom:-7px">💗</i></button></div>'
 
       +'<div style="position:absolute;left:10px;right:10px;top:12px;z-index:5;display:grid;gap:7px">'
         +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 10px;border:1px solid #ffffff22;border-radius:14px;background:#08080b77">'
@@ -463,13 +458,13 @@
           +'<span style="color:#ff6788;font-weight:900;white-space:nowrap">K-Talk LIVE</span>'
         +'</div>'
         +guestStrip
-        +'<button id="myEarnHud" onclick="toggleMyEarnings()" style="width:100%;padding:8px 10px;border:1px solid #ffe07155;border-radius:14px;background:linear-gradient(135deg,#241b08d9,#16131ed9);color:#fff;text-align:left">'
-          +'<div style="display:flex;align-items:center;justify-content:space-between;gap:8px">'
-            +'<span style="font-size:10px;color:#8fe8ff;font-weight:950">🔒 내 수익 · 본인만 표시</span>'
-            +'<b id="hudEarnNet" style="font-size:18px;color:#ffe071">0원</b>'
+        +'<button id="myEarnHud" onclick="toggleMyEarnings()" style="position:absolute;top:58px;right:0;width:138px;padding:4px 6px;border:1px solid #ffe07155;border-radius:10px;background:linear-gradient(135deg,#241b08d9,#16131ed9);color:#fff;text-align:left">'
+          +'<div style="display:flex;align-items:center;justify-content:space-between;gap:3px">'
+            +'<span style="font-size:7px;color:#8fe8ff;font-weight:950;white-space:nowrap">🔒 내 수익</span>'
+            +'<b id="hudEarnNet" style="font-size:11px;color:#ffe071;white-space:nowrap">0원</b>'
           +'</div>'
-          +'<div id="myEarnDetail" style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:5px;font-size:10px;color:#ddd">'
-            +'<span id="hudEarnRoses">🌹 0송이</span><span id="hudEarnRate" style="text-align:right">일반회원 · 35%</span>'
+          +'<div id="myEarnDetail" style="display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-top:2px;font-size:7px;color:#ddd">'
+            +'<span id="hudEarnRoses">🌹 0송이</span><span id="hudEarnRate" style="text-align:right">35%</span>'
           +'</div>'
         +'</button>'
       +'</div>'
