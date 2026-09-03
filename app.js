@@ -425,8 +425,8 @@ window.ensureLiveCamera=async function(facing){
       state.stream=await navigator.mediaDevices.getUserMedia({
         video:{
           facingMode:state.cameraFacing,
-          width:{ideal:1280},
-          height:{ideal:720},
+          width:{ideal:1920},
+          height:{ideal:1080},
           frameRate:{ideal:30,max:30}
         },
         audio:{
@@ -1436,14 +1436,13 @@ window.ktFaceEffectMarkup=function(name){
     heart:'<span class="kt-fx top">💕</span><span class="kt-fx cheek left">💗</span><span class="kt-fx cheek right">💗</span>',
     flower:'<span class="kt-fx top">🌸🌼🌸</span>',
     sparkle:'<span class="kt-fx spark1">✨</span><span class="kt-fx spark2">✨</span><span class="kt-fx spark3">✦</span><span class="kt-fx spark4">✧</span>',
-    angel:'<span class="kt-fx top">😇</span>',
     party:'<span class="kt-fx side-left">🎉</span><span class="kt-fx side-right">🎊</span><span class="kt-fx top">🥳</span>'
   };
   return map[name]||'';
 };
 
 window.ktApplyFaceEffect=function(name,el){
-  if(['sunglasses','cap','cat','puppy','bunny'].indexOf(name)>-1)name='off';
+  if(['sunglasses','cap','cat','puppy','bunny','angel'].indexOf(name)>-1)name='off';
   name=name||'off';
   if(name==='off'){clearAllFaceEffects();return;}
   state.editFilter='';
@@ -1659,7 +1658,7 @@ window.openEditEffectPanel=function(tab){
 
   var effects=[
     ['off','⊘','없음'],['heart','💕','하트'],['flower','🌸','꽃'],
-    ['sparkle','✨','반짝이'],['angel','😇','후광'],['party','🎉','파티']
+    ['sparkle','✨','반짝이'],['party','🎉','파티']
   ];
   var current=state.appliedEditEffect||'off';
   var faceCards=effects.map(function(it){
