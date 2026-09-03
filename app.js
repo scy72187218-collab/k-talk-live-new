@@ -1190,7 +1190,7 @@ window.openBeautyPanel=function(){
         +'<b id="beautySingleValue">'+activeValue+'</b>'
       +'</div>'
     +'</div>'
-    +'<div class="kt-beauty-pro-actions"><button onclick="resetBeautyAll()">초기화</button><button class="primary" onclick="closeSheet()">닫기</button></div>'
+    +'<div class="kt-beauty-pro-actions"><button onclick="resetBeautyAll()">초기화</button><button class="primary" onclick="closeSheet()">적용</button></div>'
     +'</div>';
 
   showSheet('뷰티',html);
@@ -1417,6 +1417,7 @@ window.ktRenderStageResults=function(results){
     ktDrawCover(ctx,window.ktStageBgImage,w,h);
   }catch(e){}
   ctx.restore();
+  creator.classList.add('stage-bg-active');
 };
 
 window.ktStartStageLoop=async function(){
@@ -1455,7 +1456,6 @@ window.selectStageBackground=function(id){
   if(!bg)return;
   state.stageBackground=bg.id;
   state.stageBackgroundUrl=bg.url;
-  creator.classList.add('stage-bg-active');
   var img=new Image();
   img.crossOrigin='anonymous';
   img.onload=function(){
@@ -1487,7 +1487,7 @@ window.openEditEffectPanel=function(){
   var html='<div class="kt-stage-panel">'
     +'<div class="kt-stage-title"><b>편집 효과</b><span>사람이 움직여도 선택한 배경은 고정됩니다.</span></div>'
     +'<div class="kt-stage-grid">'+cards+'</div>'
-    +'<div class="kt-stage-actions"><button onclick="ktStopStageBackground()">효과 없음</button><button class="primary" onclick="closeSheet()">닫기</button></div>'
+    +'<div class="kt-stage-actions"><button onclick="ktStopStageBackground()">효과 없음</button><button class="primary" onclick="closeSheet()">적용</button></div>'
     +'</div>';
   showSheet('편집 효과',html);
   sheet.classList.add('camera-effect-sheet','stage-effect-sheet');
