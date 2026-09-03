@@ -3391,3 +3391,28 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
 #hudEarnRoses,#hudEarnRate{
   font-size:7px!important;
 }
+
+
+/* 촬영 화면 보정/편집 효과 버튼만 */
+.creator-tools .creator-tool-text{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:1px!important;
+  line-height:1!important;
+}
+.creator-tools .creator-tool-text b{
+  display:block!important;
+  font-size:18px!important;
+  line-height:18px!important;
+}
+.creator-tools .creator-tool-text small{
+  display:block!important;
+  margin-top:2px!important;
+  font-size:8px!important;
+  line-height:9px!important;
+  font-weight:900!important;
+  color:#fff!important;
+  text-shadow:0 1px 4px #000!important;
+}
