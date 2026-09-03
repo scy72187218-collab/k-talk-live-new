@@ -221,6 +221,7 @@ window.showSheet=function(title,html){
   sheet.classList.remove('investor-sheet');
   sheet.classList.remove('beauty-control-sheet');
   sheet.classList.remove('stage-effect-sheet');
+  sheet.classList.remove('match-arena-sheet');
   sheetTitle.innerHTML=title;
   sheetBody.innerHTML=html;
   sheet.classList.add('show');
@@ -239,6 +240,7 @@ window.closeSheet=function(){
   sheet.classList.remove('investor-sheet');
   sheet.classList.remove('beauty-control-sheet');
   sheet.classList.remove('stage-effect-sheet');
+  sheet.classList.remove('match-arena-sheet');
 };
 
 window.home=function(){
@@ -1058,12 +1060,7 @@ window.prepTap=async function(el,name){
     return;
   }
   if(name==='전환'){
-    state.cameraFacing=(state.cameraFacing==='environment')?'user':'environment';
-    try{
-      if(state.stream){state.stream.getTracks().forEach(function(t){t.stop();});state.stream=null;}
-      if(camera)camera.srcObject=null;
-      await ensureLiveCamera(state.cameraFacing);
-    }catch(e){}
+    if(window.openHostMatchArena)openHostMatchArena('1대1');
     return;
   }
   if(name==='설정'){ openLiveSettings(); return; }
@@ -1074,6 +1071,77 @@ window.prepTap=async function(el,name){
   if(name==='공유'){ if(window.shareApp)shareApp(); return; }
   if(name==='프로모션'){ showSheet('🔥 프로모션','<div class="rowbox"><b>방송 홍보</b><br>방송을 더 많은 사람에게 알리는 기능입니다.</div>'); return; }
   if(name==='라이브 보상'||name==='코인 리워드'){ openBenefitHub(); return; }
+};
+
+
+window.ktMatchMode='1대1';
+
+window.ktMatchSlots=function(side,host){
+  var count=side==='3대3'?3:side==='2대2'?2:1;
+  var html='';
+  for(var i=0;i<count;i++){
+    if(host&&i===0){
+      html+='<div class="kt-match-slot live"><video id="ktMatchHostVideo" autoplay playsinline muted></video><span>LIVE</span><b>나</b></div>';
+    }else{
+      html+='<div class="kt-match-slot"><em>👤</em><b>'+(host?'팀원 대기':'상대 대기')+'</b></div>';
+    }
+  }
+  return html;
+};
+
+window.ktRenderMatchArena=function(mode){
+  mode=mode||window.ktMatchMode||'1대1';
+  window.ktMatchMode=mode;
+  var side=mode==='3대3'?3:mode==='2대2'?2:1;
+  var html='<div class="kt-match-arena">'
+    +'<div class="kt-match-top"><div><b>🔥 호스트 매치</b><span>3판 2선승제</span></div><button onclick="closeSheet()">나가기</button></div>'
+    +'<div class="kt-match-mode-tabs">'
+      +'<button class="'+(mode==='1대1'?'on':'')+'" onclick="ktRenderMatchArena(\'1대1\')">1대1</button>'
+      +'<button class="'+(mode==='2대2'?'on':'')+'" onclick="ktRenderMatchArena(\'2대2\')">2대2</button>'
+      +'<button class="'+(mode==='3대3'?'on':'')+'" onclick="ktRenderMatchArena(\'3대3\')">3대3</button>'
+    +'</div>'
+    +'<div class="kt-match-stage">'
+      +'<div class="kt-match-team blue">'+ktMatchSlots(mode,true)+'</div>'
+      +'<div class="kt-match-center"><small>ROUND 1 / 3</small><strong>01:00</strong><div><b>0</b><i>:</i><b>0</b></div><span>VS</span></div>'
+      +'<div class="kt-match-team pink">'+ktMatchSlots(mode,false)+'</div>'
+    +'</div>'
+    +'<div class="kt-match-roses"><div><b>0 🌹</b><span>내 팀</span></div><em>VS</em><div><b>0 🌹</b><span>상대 팀</span></div></div>'
+    +'<div class="kt-match-bars"><i></i><i></i></div>'
+    +'<div class="kt-match-tabs"><b>매치 정보</b><span>실시간 랭킹</span><span>선물 순위</span><span>매치 규칙</span></div>'
+    +'<div class="kt-match-body">'
+      +'<div class="kt-match-points"><div class="kt-match-point-title"><b>매치 포인트 진행 상황</b><span>현재 72 / 100</span></div><div class="kt-match-progress"><i></i></div><small>매치에서 승리하면 포인트가 올라갑니다. 100P 달성 시 매치 포인트 +1</small></div>'
+      +'<div class="kt-match-reward"><b>100 달성 시</b><strong>+1P</strong><span>매치 포인트 +1</span></div>'
+    +'</div>'
+    +'<div class="kt-match-rewards"><div>🏆 라운드 승리 <b>+10P</b></div><div>👑 매치 승리 <b>+30P</b></div><div>🌟 전승 <b>+20P</b></div><div>✕ 패배 <b>차감 없음</b></div></div>'
+    +'<div class="kt-match-bottom">'
+      +'<div><b>내 매치 포인트</b><strong>7P</strong><span>브론즈 II · 72/100</span></div>'
+      +'<button id="ktMatchRequestBtn" onclick="ktRequestMatch()">⚔ 매치 신청</button>'
+    +'</div>'
+  +'</div>';
+  sheetBody.innerHTML=html;
+  setTimeout(function(){
+    var v=document.getElementById('ktMatchHostVideo');
+    if(v&&state.stream){try{v.srcObject=state.stream;v.play().catch(function(){});}catch(e){}}
+  },0);
+};
+
+window.ktRequestMatch=function(){
+  var btn=document.getElementById('ktMatchRequestBtn');
+  if(!btn)return;
+  btn.textContent='상대 연결 대기 중…';
+  btn.disabled=true;
+  setTimeout(function(){
+    if(btn){btn.textContent='⚔ 매치 신청';btn.disabled=false;}
+  },2500);
+};
+
+window.openHostMatchArena=function(mode){
+  if(!state.stream&&window.ensureLiveCamera){
+    try{ensureLiveCamera(state.cameraFacing||'user').catch(function(){});}catch(e){}
+  }
+  showSheet('호스트 매치','<div class="kt-match-arena"></div>');
+  sheet.classList.add('match-arena-sheet');
+  ktRenderMatchArena(mode||'1대1');
 };
 
 window.getBeautyControlInfo=function(kind){
