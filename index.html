@@ -12,12 +12,17 @@
 <style id="ktRoomWaveOnly">
 /* 방송 파장만 추가: 일반/13명/구독자/비밀방 */
 .kt-room-live-wave{
-  position:absolute;left:12px;right:12px;bottom:150px;height:70px;z-index:4;
-  display:flex;align-items:center;justify-content:center;gap:2px;
-  pointer-events:none;filter:drop-shadow(0 0 5px rgba(255,255,255,.18));
+  position:absolute;left:8px;right:8px;bottom:150px;height:92px;z-index:4;
+  display:flex;align-items:center;justify-content:center;gap:1px;
+  pointer-events:none;filter:drop-shadow(0 0 6px rgba(255,255,255,.20));
+}
+.kt-room-live-wave::before{
+  content:"";position:absolute;left:0;right:0;top:50%;height:1px;
+  background:rgba(255,255,255,.45);box-shadow:0 0 6px rgba(255,255,255,.35);
 }
 .kt-room-live-wave span{
-  flex:1 1 0;min-width:2px;max-width:5px;height:100%;border-radius:999px;transform:scaleY(.18);transform-origin:center;
+  flex:1 1 0;min-width:1px;max-width:3px;height:100%;border-radius:999px;
+  transform:scaleY(.14);transform-origin:center;
   animation:ktRoomWavePulse .82s ease-in-out infinite;
   box-shadow:0 0 7px currentColor;
 }
@@ -34,10 +39,12 @@
 .kt-room-live-wave span:nth-child(5n){animation-delay:-.50s}
 .kt-room-live-wave span:nth-child(7n){animation-delay:-.66s}
 @keyframes ktRoomWavePulse{
-  0%,100%{transform:scaleY(.16)}
-  22%{transform:scaleY(.58)}
-  48%{transform:scaleY(.96)}
-  72%{transform:scaleY(.36)}
+  0%,100%{transform:scaleY(.10)}
+  18%{transform:scaleY(.42)}
+  38%{transform:scaleY(.88)}
+  52%{transform:scaleY(1)}
+  70%{transform:scaleY(.55)}
+  86%{transform:scaleY(.24)}
 }
 </style>
 
