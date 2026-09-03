@@ -1,8 +1,7 @@
 name: Profile posted videos
 on:
   push:
-    paths:
-      - '.github/workflows/profile-posts-on-profile.yml'
+    branches: [main]
 permissions:
   contents: write
 jobs:
@@ -10,105 +9,57 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Change only profile posted-video display
-        shell: bash
+      - name: Patch only profile video display
         run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          p=Path('app.js')
-          s=p.read_text(encoding='utf-8')
+          cat >> app.js <<'JS'
 
-          marker="window.openProfileDirect=function(){"
-          helper=r'''window.ktProfilePostedVideoUrls=window.ktProfilePostedVideoUrls||[];
-window.ktRenderProfilePostedVideos=async function(){
-  var box=document.getElementById('ktProfilePostedVideos');
-  if(!box)return;
-  try{
-    (window.ktProfilePostedVideoUrls||[]).forEach(function(u){try{URL.revokeObjectURL(u);}catch(e){}});
-    window.ktProfilePostedVideoUrls=[];
-    var db=await ktOpenVideoDB();
-    var tx=db.transaction('videos','readonly');
-    var req=tx.objectStore('videos').getAll();
-    req.onsuccess=function(){
-      var items=(req.result||[]).filter(function(v){return !!v.posted;}).sort(function(a,b){return (b.postedAt||b.createdAt||0)-(a.postedAt||a.createdAt||0);});
-      if(!box.isConnected){try{db.close();}catch(e){};return;}
-      if(!items.length){
-        box.innerHTML='<div style="grid-column:1/-1;padding:18px 8px;text-align:center;color:#aaa;font-size:12px">아직 올린 동영상이 없습니다.</div>';
-        try{db.close();}catch(e){}
-        return;
-      }
-      box.innerHTML=items.map(function(v){
-        var url=URL.createObjectURL(v.blob);
-        window.ktProfilePostedVideoUrls.push(url);
-        var id=String(v.id).replace(/'/g,"\\'");
-        return '<button type="button" onclick="playStoredVideo(\''+id+'\')" style="position:relative;aspect-ratio:9/16;border:0;border-radius:8px;overflow:hidden;background:#111;padding:0">'
-          +'<video muted playsinline preload="metadata" src="'+url+'" style="width:100%;height:100%;object-fit:cover;display:block"></video>'
-          +'<span style="position:absolute;left:7px;bottom:6px;color:#fff;font-size:16px;text-shadow:0 1px 4px #000">▶</span>'
-          +'</button>';
-      }).join('');
-      try{db.close();}catch(e){}
-    };
-    req.onerror=function(){try{db.close();}catch(e){};box.innerHTML='<div style="grid-column:1/-1;padding:18px 8px;text-align:center;color:#aaa;font-size:12px">동영상을 불러오지 못했습니다.</div>';};
-  }catch(e){
-    box.innerHTML='<div style="grid-column:1/-1;padding:18px 8px;text-align:center;color:#aaa;font-size:12px">동영상을 불러오지 못했습니다.</div>';
-  }
-};
-
-'''
-          if 'window.ktRenderProfilePostedVideos=async function(){' not in s:
-              if marker not in s:
-                  raise SystemExit('profile direct marker not found')
-              s=s.replace(marker,helper+marker,1)
-
-          old=r'''window.openProfileDirect=function(){
-  var info=ktCurrentSubAccountInfo();
-  showSheet('♛ '+info.name+' 프로필',ktProfileRender());
-};'''
-          new=r'''window.openProfileDirect=function(){
-  var info=ktCurrentSubAccountInfo();
-  showSheet('♛ '+info.name+' 프로필',ktProfileRender());
-  setTimeout(function(){if(window.ktRenderProfilePostedVideos)ktRenderProfilePostedVideos();},60);
-};'''
-          if old in s:
-              s=s.replace(old,new,1)
-          elif new not in s:
-              raise SystemExit('openProfileDirect block not found')
-
-          old2=r'''+ '<button class="kt-profile-video-btn" type="button" onclick="closeSheet();setTimeout(openMyVideoLibrary,80)">🎬 내 동영상 보기</button>'
-    +'<small class="kt-profile-note">프로필 사진은 누르지 않아도 바로 보이게 표시됩니다.</small>'''
-          # Actual source has no space between + and quote; handle exact source form.
-          old2b=r'''    +'<button class="kt-profile-video-btn" type="button" onclick="closeSheet();setTimeout(openMyVideoLibrary,80)">🎬 내 동영상 보기</button>'
-    +'<small class="kt-profile-note">프로필 사진은 누르지 않아도 바로 보이게 표시됩니다.</small>'''
-          new2=r'''    +'<button class="kt-profile-video-btn" type="button" onclick="closeSheet();setTimeout(openMyVideoLibrary,80)">🎬 내 동영상 보기</button>'
-    +'<div style="margin-top:14px"><b style="display:block;margin-bottom:8px;font-size:16px;color:#fff">내가 올린 동영상</b><div id="ktProfilePostedVideos" style="display:grid;grid-template-columns:repeat(3,1fr);gap:3px"><div style="grid-column:1/-1;padding:18px 8px;text-align:center;color:#aaa;font-size:12px">동영상 불러오는 중...</div></div></div>'
-    +'<small class="kt-profile-note">프로필 사진은 누르지 않아도 바로 보이게 표시됩니다.</small>'''
-          if 'id="ktProfilePostedVideos"' not in s:
-              if old2b in s:
-                  s=s.replace(old2b,new2,1)
-              else:
-                  raise SystemExit('profile video button block not found')
-
-          old3=r'''      ktSpeak('동영상을 올렸습니다.');
-      alert('✅ 동영상을 올렸습니다.');'''
-          new3=r'''      ktSpeak('동영상을 올렸습니다.');
-      alert('✅ 동영상을 올렸습니다.');
-      if(window.openProfileDirect){
-        try{closeSheet();}catch(e){}
-        setTimeout(function(){openProfileDirect();},80);
-      }'''
-          if new3 not in s:
-              if old3 not in s:
-                  raise SystemExit('postStoredVideo completion block not found')
-              s=s.replace(old3,new3,1)
-
-          p.write_text(s,encoding='utf-8')
-          PY
-      - name: Commit exact change
-        shell: bash
+          /* KTALK_PROFILE_POSTED_VIDEO_FIX_20260904 */
+          (function(){
+            var oldOpen=window.openProfileDirect;
+            window.openProfileDirect=function(){
+              if(oldOpen)oldOpen();
+              setTimeout(async function(){
+                if(!window.sheetBody||!sheetBody)return;
+                var box=document.getElementById('ktProfilePostedVideos');
+                if(!box){
+                  box=document.createElement('div');
+                  box.id='ktProfilePostedVideos';
+                  box.style.cssText='display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin-top:14px';
+                  sheetBody.appendChild(box);
+                }
+                try{
+                  var db=await ktOpenVideoDB();
+                  var tx=db.transaction('videos','readonly');
+                  var req=tx.objectStore('videos').getAll();
+                  req.onsuccess=function(){
+                    var items=(req.result||[]).filter(function(v){return v.posted;}).sort(function(a,b){return (b.postedAt||b.createdAt||0)-(a.postedAt||a.createdAt||0);});
+                    box.innerHTML=items.length?'':'<div style="grid-column:1/-1;padding:16px;text-align:center;color:#aaa">아직 올린 동영상이 없습니다.</div>';
+                    items.forEach(function(v){
+                      var u=URL.createObjectURL(v.blob);
+                      var b=document.createElement('button');
+                      b.type='button';
+                      b.style.cssText='position:relative;aspect-ratio:9/16;border:0;padding:0;overflow:hidden;border-radius:8px;background:#111';
+                      b.innerHTML='<video muted playsinline preload="metadata" src="'+u+'" style="width:100%;height:100%;object-fit:cover"></video><span style="position:absolute;left:7px;bottom:6px;color:#fff">▶</span>';
+                      b.onclick=function(){playStoredVideo(v.id);};
+                      box.appendChild(b);
+                    });
+                    try{db.close();}catch(e){}
+                  };
+                }catch(e){}
+              },80);
+            };
+            var oldPost=window.postStoredVideo;
+            window.postStoredVideo=async function(id,btn){
+              if(oldPost)await oldPost(id,btn);
+              setTimeout(function(){if(window.openProfileDirect)openProfileDirect();},450);
+            };
+          })();
+          JS
+      - name: Commit only app.js and remove temporary workflow
         run: |
           git config user.name "scy72187218-collab"
           git config user.email "scy72187218@gmail.com"
           git add app.js
           git rm .github/workflows/profile-posts-on-profile.yml
-          git commit -m "Show posted videos directly on own profile"
+          git commit -m "Show uploaded videos on own profile"
           git push
