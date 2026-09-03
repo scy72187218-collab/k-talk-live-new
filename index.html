@@ -48,7 +48,7 @@
 
 
 <style id="ktLiveAttendanceClockOnly">
-/* 라이브 4개 방: 출석체크 + ON AIR + 방송시간만 추가 */
+/* 라이브 4개 방: 시간 옆에 작은 출석체크만 표시 */
 .kt-live-airclock{
   position:absolute;left:14px;top:66px;z-index:7;
   display:flex;align-items:center;gap:8px;
@@ -69,24 +69,24 @@
   letter-spacing:.5px;
 }
 .kt-live-attendance{
-  position:absolute;left:50%;top:112px;transform:translateX(-50%);
+  position:absolute;left:190px;top:64px;transform:none;
   z-index:7;border:0;background:transparent;color:#ffd34d;
-  font-weight:950;font-size:17px;white-space:nowrap;
-  display:flex;align-items:center;gap:6px;
-  text-shadow:0 0 7px #ff4bc9,0 0 14px #ff2fa8;
+  font-weight:950;font-size:12px;white-space:nowrap;
+  display:flex;align-items:center;gap:3px;
+  text-shadow:0 0 5px #ff4bc9;
 }
 .kt-live-attendance .badge{
-  padding:8px 16px;border-radius:18px;
-  background:rgba(26,10,25,.72);
-  border:2px solid #ff4fc6;
-  box-shadow:0 0 10px #ff42ba,0 0 22px rgba(255,66,186,.55),inset 0 0 10px rgba(255,73,194,.22);
+  padding:6px 9px;border-radius:999px;
+  background:rgba(26,10,25,.68);
+  border:1px solid #ff4fc6;
+  box-shadow:0 0 7px rgba(255,66,186,.55);
 }
 .kt-live-attendance .wing{
-  color:#ff64cf;font-size:28px;line-height:1;
-  filter:drop-shadow(0 0 6px #ff4fc6);
+  color:#ff64cf;font-size:15px;line-height:1;
+  filter:drop-shadow(0 0 3px #ff4fc6);
 }
 .kt-live-attendance .heart{
-  color:#ff5abf;margin-left:2px;
+  color:#ff5abf;margin-left:1px;
 }
 </style>
 
