@@ -1338,7 +1338,7 @@ window.switchEditEffectTab=function(){};
 
 window.ktStageBackgrounds=[
   {id:'ocean',name:'오션뷰',url:'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=720&h=1280&q=76'},
-  {id:'mountain',name:'산 전망',url:'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=720&h=1280&q=76'},
+  {id:'mountain',name:'노래 무대',url:'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=720&h=1280&q=76'},
   {id:'beach',name:'해안',url:'https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=720&h=1280&q=76'},
   {id:'forest',name:'숲속',url:'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=720&h=1280&q=76'},
   {id:'garden',name:'정원',url:'https://images.unsplash.com/photo-1497250681960-ef046c08a56e?auto=format&fit=crop&w=720&h=1280&q=76'},
