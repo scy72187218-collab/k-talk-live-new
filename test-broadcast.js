@@ -352,4 +352,87 @@
     }
     renderMessages();
   };
+
+  /* 프로필에 내가 올린 동영상만 추가 표시합니다. 기존 프로필 기능은 그대로 둡니다. */
+  function clearProfileVideoUrls(){
+    try{
+      (window.ktProfileVideoUrls||[]).forEach(function(url){try{URL.revokeObjectURL(url);}catch(e){}});
+    }catch(e){}
+    window.ktProfileVideoUrls=[];
+  }
+
+  window.ktRenderProfileVideoGrid=async function(){
+    var root=document.querySelector('.kt-my-profile');
+    if(!root)return;
+
+    var old=document.getElementById('ktProfilePostedVideos');
+    if(old)old.remove();
+    clearProfileVideoUrls();
+
+    var section=document.createElement('div');
+    section.id='ktProfilePostedVideos';
+    section.style.cssText='margin:18px -2px 4px;padding-top:14px;border-top:1px solid rgba(255,255,255,.12)';
+    section.innerHTML='<div style="display:flex;align-items:center;justify-content:space-between;margin:0 4px 10px"><b style="font-size:18px;color:#fff">🎬 내 동영상</b><button type="button" onclick="closeSheet();setTimeout(openMyVideoLibrary,80)" style="border:0;border-radius:999px;padding:7px 12px;background:#ffffff16;color:#fff;font-weight:900">전체보기</button></div><div id="ktProfileVideoGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:3px"><div style="grid-column:1/-1;padding:22px 8px;text-align:center;color:#aaa">동영상 불러오는 중...</div></div>';
+
+    var firstLabel=root.querySelector('label');
+    if(firstLabel)root.insertBefore(section,firstLabel);
+    else root.appendChild(section);
+
+    var grid=document.getElementById('ktProfileVideoGrid');
+    if(!grid)return;
+
+    try{
+      var db=await ktOpenVideoDB();
+      var tx=db.transaction('videos','readonly');
+      var req=tx.objectStore('videos').getAll();
+      req.onsuccess=function(){
+        var items=(req.result||[]).filter(function(v){return !v.draft&&v.blob;}).sort(function(a,b){return (b.postedAt||b.createdAt||0)-(a.postedAt||a.createdAt||0);});
+        if(!items.length){
+          grid.innerHTML='<button type="button" onclick="closeSheet();openCreator();setTimeout(openMyVideoPicker,120)" style="grid-column:1/-1;min-height:100px;border:1px dashed #ffffff33;border-radius:14px;background:#ffffff08;color:#ddd;font-weight:900">＋ 아직 올린 동영상이 없습니다<br><small style="display:block;margin-top:5px;color:#999">동영상 올리기</small></button>';
+          try{db.close();}catch(e){}
+          return;
+        }
+
+        grid.innerHTML='';
+        items.forEach(function(item){
+          var url=URL.createObjectURL(item.blob);
+          window.ktProfileVideoUrls.push(url);
+          var cell=document.createElement('button');
+          cell.type='button';
+          cell.style.cssText='position:relative;aspect-ratio:3/4;padding:0;border:0;border-radius:4px;overflow:hidden;background:#111;color:#fff';
+          cell.onclick=function(){if(window.playStoredVideo)playStoredVideo(item.id);};
+
+          var video=document.createElement('video');
+          video.src=url;
+          video.muted=true;
+          video.playsInline=true;
+          video.preload='metadata';
+          video.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#111';
+          video.onloadedmetadata=function(){
+            try{video.currentTime=Math.min(.08,Math.max(.02,(video.duration||1)/30));}catch(e){}
+          };
+          cell.appendChild(video);
+
+          var shade=document.createElement('span');
+          shade.style.cssText='position:absolute;inset:auto 0 0 0;padding:20px 6px 6px;background:linear-gradient(transparent,rgba(0,0,0,.74));font-size:10px;font-weight:900;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
+          shade.textContent='▶ '+String(item.name||'내 동영상');
+          cell.appendChild(shade);
+          grid.appendChild(cell);
+        });
+        try{db.close();}catch(e){}
+      };
+      req.onerror=function(){
+        grid.innerHTML='<div style="grid-column:1/-1;padding:18px 8px;text-align:center;color:#aaa">동영상을 불러오지 못했습니다.</div>';
+        try{db.close();}catch(e){}
+      };
+    }catch(e){
+      grid.innerHTML='<div style="grid-column:1/-1;padding:18px 8px;text-align:center;color:#aaa">이 기기에서는 동영상 목록을 불러올 수 없습니다.</div>';
+    }
+  };
+
+  var originalOpenProfileDirect=window.openProfileDirect;
+  window.openProfileDirect=function(){
+    if(originalOpenProfileDirect)originalOpenProfileDirect();
+    setTimeout(function(){if(window.ktRenderProfileVideoGrid)ktRenderProfileVideoGrid();},30);
+  };
 })();
