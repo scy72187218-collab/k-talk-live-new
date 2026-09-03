@@ -307,8 +307,18 @@ window.closeCreator=function(){
 window.applyBaseCameraLook=function(){
   if(!camera)return;
   if(!state.editFilter && !state.beautyMode){
-    camera.style.filter='brightness(1.10) contrast(.94) saturate(1.03) blur(.40px)';
+    state.beautyMode='natural';
+    state.beautyControl='skin';
+    state.beautySkin=60;
+    state.beautyFace=50;
+    state.beautyEyes=50;
+    state.beautyNose=50;
+    state.beautyMouth=50;
+    state.beautyTone=50;
+    state.beautyBright=60;
+    state.beautySharp=55;
   }
+  if(window.applyBeautyPreview)applyBeautyPreview();
 };
 
 window.ktAttachCreatorCamera=async function(stream){
@@ -1146,7 +1156,7 @@ window.openHostMatchArena=function(mode){
 
 window.getBeautyControlInfo=function(kind){
   var map={
-    skin:{label:'피부 부드러움',key:'beautySkin',def:40},
+    skin:{label:'피부 부드러움',key:'beautySkin',def:60},
     face:{label:'얼굴형 조절',key:'beautyFace',def:50},
     eyes:{label:'눈 조절',key:'beautyEyes',def:50},
     nose:{label:'코 조절',key:'beautyNose',def:50},
@@ -1233,9 +1243,9 @@ window.setBeautyControlValue=function(value){
 
 window.applyBeautyPreview=function(){
   if(!camera)return;
-  var skin=Number(state.beautySkin||1),bright=Number(state.beautyBright||1),sharp=Number(state.beautySharp||1);
+  var skin=Number(state.beautySkin||60),bright=Number(state.beautyBright||60),sharp=Number(state.beautySharp||55);
   var face=Number(state.beautyFace||50),eyes=Number(state.beautyEyes||50),nose=Number(state.beautyNose||50);
-  var mouth=Number(state.beautyMouth||50),tone=Number(state.beautyTone||1);
+  var mouth=Number(state.beautyMouth||50),tone=Number(state.beautyTone||50);
   var brightness=.96+(bright*.0024)+(eyes-50)*.0007;
   var saturation=.94+(sharp*.0016)+(mouth-50)*.0032;
   var contrast=.94+(sharp*.0015)+(eyes-50)*.0012+(nose-50)*.0009;
