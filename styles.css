@@ -3124,3 +3124,72 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
 .kt-beauty-single-group{margin:3px 0!important;padding:6px 9px!important}
 .kt-beauty-single-row{min-height:34px!important}
 .kt-beauty-single-row input[type=range]{height:24px!important}
+
+
+/* 편집 효과 전용: 인물은 움직이고 선택한 무대 배경은 고정 */
+.creator.stage-bg-active #ktStageCanvas{
+  display:block!important;
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  pointer-events:none!important;
+  z-index:2!important;
+  background:#000!important;
+}
+.creator.stage-bg-active video#camera,
+.creator.stage-bg-active video#cameraBg{
+  opacity:0!important;
+}
+.creator.stage-bg-active .shade,
+.creator.stage-bg-active .creator-top,
+.creator.stage-bg-active .creator-tools,
+.creator.stage-bg-active .creator-bottom{
+  z-index:5!important;
+}
+.sheet.camera-effect-sheet.stage-effect-sheet .sheet-inner{
+  width:calc(100% - 18px)!important;
+  max-width:520px!important;
+  max-height:36dvh!important;
+  padding:9px 10px 10px!important;
+  border:1px solid rgba(186,83,255,.42)!important;
+  border-bottom:0!important;
+  border-radius:22px 22px 0 0!important;
+  background:linear-gradient(180deg,rgba(17,17,23,.985),rgba(6,6,10,.99))!important;
+  box-shadow:0 -8px 28px rgba(0,0,0,.48)!important;
+}
+.sheet.camera-effect-sheet.stage-effect-sheet .sheet-head{display:none!important}
+.sheet.camera-effect-sheet.stage-effect-sheet #sheetBody{padding:0!important}
+.kt-stage-panel{padding:0 0 2px}
+.kt-stage-title{
+  min-height:34px;display:flex;align-items:center;gap:9px;
+  padding:0 4px 5px;border-bottom:1px solid rgba(255,255,255,.08)
+}
+.kt-stage-title b{font-size:14px;color:#c968ff;white-space:nowrap}
+.kt-stage-title span{font-size:9px;color:#b9bac4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kt-stage-grid{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;
+  margin-top:7px;max-height:20dvh;overflow-y:auto;padding:1px 2px 4px
+}
+.kt-stage-card{
+  min-width:0;border:1px solid rgba(255,255,255,.11);border-radius:11px;
+  background:#17171d;color:#fff;padding:3px;position:relative
+}
+.kt-stage-card.on{border:2px solid #b952ff;box-shadow:0 0 10px rgba(185,82,255,.34)}
+.kt-stage-card b{display:block;margin:3px 1px 1px;font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kt-stage-thumb,.kt-stage-none{
+  display:block;width:100%;aspect-ratio:16/10;border-radius:8px;background-size:cover;background-position:center
+}
+.kt-stage-none{display:grid;place-items:center;background:linear-gradient(145deg,#24242d,#111116);font-size:25px;color:#bd63ff}
+.kt-stage-actions{display:grid;grid-template-columns:1fr 1.25fr;gap:8px;margin-top:7px}
+.kt-stage-actions button{
+  min-height:35px;border:1px solid rgba(255,255,255,.13);border-radius:11px;
+  background:#23232a;color:#fff;font-size:12px;font-weight:950
+}
+.kt-stage-actions button.primary{border:0;background:linear-gradient(135deg,#7548ff,#b44eea)}
+@media(max-width:390px){
+  .sheet.camera-effect-sheet.stage-effect-sheet .sheet-inner{max-height:38dvh!important}
+  .kt-stage-grid{gap:5px;max-height:21dvh}
+  .kt-stage-card b{font-size:8px}
+}
