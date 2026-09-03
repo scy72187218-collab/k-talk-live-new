@@ -3416,3 +3416,32 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   color:#fff!important;
   text-shadow:0 1px 4px #000!important;
 }
+
+
+/* 2026-09-03 모든 방송방 공통 배치 */
+/* 일반/구독자/13명/비밀방 모두 같은 방송 화면 */
+.kt-attendance-wrap,
+.kt-live-guests{
+  display:none!important;
+}
+#myEarnHud{
+  position:fixed!important;
+  left:50%!important;
+  right:auto!important;
+  top:auto!important;
+  bottom:68px!important;
+  transform:translateX(-50%)!important;
+  width:116px!important;
+  min-width:116px!important;
+  padding:5px 8px!important;
+  border-radius:999px!important;
+  text-align:center!important;
+  z-index:9!important;
+}
+#myEarnHud>div:first-child{
+  justify-content:center!important;
+  gap:5px!important;
+}
+#myEarnDetail{
+  display:none;
+}
