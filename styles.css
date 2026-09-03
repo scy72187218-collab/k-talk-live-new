@@ -3354,7 +3354,7 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
 /* 방송 화면 배치만 조정: 출석체크 왼쪽, 내 수익 오른쪽 작게 */
 .kt-attendance-wrap{
   left:16px!important;
-  top:106px!important;
+  top:70px!important;
   transform:scale(.72)!important;
   transform-origin:top left!important;
 }
@@ -3365,7 +3365,7 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   position:absolute!important;
   top:58px!important;
   right:0!important;
-  width:188px!important;
+  width:172px!important;
   padding:6px 8px!important;
   border-radius:12px!important;
   z-index:8!important;
