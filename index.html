@@ -256,7 +256,62 @@
  window.closeTikLivePrep=function(){creator.classList.remove('live-prep-open');};
  window.closeCreator=function(){if(originalCloseCreator)return originalCloseCreator();creator.classList.remove('show');if(state.stream){state.stream.getTracks().forEach(t=>t.stop());state.stream=null;camera.srcObject=null;}};
  window.startBroadcast=async function(){
-   if(window.ensureLiveCamera)await ensureLiveCamera(state.cameraFacing||'user');
+   if(window.__ktLiveStarting)return;
+   window.__ktLiveStarting=true;
+   var overlay=null;
+   try{
+     var hasLiveVideo=!!(window.state&&state.stream&&state.stream.getVideoTracks&&state.stream.getVideoTracks().some(function(t){return t.readyState==='live';}));
+     if(!hasLiveVideo&&window.ensureLiveCamera){
+       await ensureLiveCamera(state.cameraFacing||'user');
+     }
+
+     var host=window.creator||document.getElementById('creator');
+     if(!host)throw new Error('creator not found');
+
+     var oldOverlay=document.getElementById('ktLiveStartCountdown');
+     if(oldOverlay)oldOverlay.remove();
+
+     overlay=document.createElement('div');
+     overlay.id='ktLiveStartCountdown';
+     overlay.style.cssText='position:absolute;inset:0;z-index:9999;display:grid;place-items:center;background:rgba(0,0,0,.28);pointer-events:none;color:#fff;text-align:center;text-shadow:0 3px 16px rgba(0,0,0,.72)';
+     host.appendChild(overlay);
+
+     var n=5;
+     function drawCountdown(){
+       overlay.innerHTML='<div><b style="display:block;font-size:112px;line-height:1;font-weight:950">'+n+'</b><span style="display:block;margin-top:14px;font-size:20px;font-weight:900">잠시 후 방송이 시작됩니다</span></div>';
+     }
+     drawCountdown();
+
+     await new Promise(function(resolve){
+       var timer=setInterval(function(){
+         n--;
+         if(n<=0){
+           clearInterval(timer);
+           resolve();
+           return;
+         }
+         drawCountdown();
+       },1000);
+     });
+
+     if(overlay){
+       overlay.innerHTML='<div><b style="display:block;font-size:62px;line-height:1;font-weight:950">LIVE</b></div>';
+       await new Promise(function(resolve){setTimeout(resolve,260);});
+       overlay.remove();
+       overlay=null;
+     }
+
+     if(window.startTestBroadcast){
+       await window.startTestBroadcast();
+     }else{
+       throw new Error('broadcast screen not available');
+     }
+   }catch(e){
+     try{if(overlay)overlay.remove();}catch(_e){}
+     alert('방송 시작 화면을 불러오지 못했습니다. 다시 눌러 주세요.');
+   }finally{
+     window.__ktLiveStarting=false;
+   }
  };
  window.openRoomPrep=function(name,max){
   if(window.state){
