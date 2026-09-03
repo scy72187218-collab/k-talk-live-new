@@ -309,14 +309,14 @@ window.applyBaseCameraLook=function(){
   if(!state.editFilter && !state.beautyMode){
     state.beautyMode='natural';
     state.beautyControl='skin';
-    state.beautySkin=78;
+    state.beautySkin=88;
     state.beautyFace=50;
     state.beautyEyes=52;
     state.beautyNose=50;
     state.beautyMouth=50;
-    state.beautyTone=54;
-    state.beautyBright=70;
-    state.beautySharp=50;
+    state.beautyTone=55;
+    state.beautyBright=72;
+    state.beautySharp=46;
   }
   if(window.applyBeautyPreview)applyBeautyPreview();
 };
@@ -1156,7 +1156,7 @@ window.openHostMatchArena=function(mode){
 
 window.getBeautyControlInfo=function(kind){
   var map={
-    skin:{label:'피부 부드러움',key:'beautySkin',def:78},
+    skin:{label:'피부 부드러움',key:'beautySkin',def:88},
     face:{label:'얼굴형 조절',key:'beautyFace',def:50},
     eyes:{label:'눈 조절',key:'beautyEyes',def:50},
     nose:{label:'코 조절',key:'beautyNose',def:50},
@@ -1243,13 +1243,13 @@ window.setBeautyControlValue=function(value){
 
 window.applyBeautyPreview=function(){
   if(!camera)return;
-  var skin=Number(state.beautySkin||78),bright=Number(state.beautyBright||70),sharp=Number(state.beautySharp||50);
+  var skin=Number(state.beautySkin||88),bright=Number(state.beautyBright||72),sharp=Number(state.beautySharp||46);
   var face=Number(state.beautyFace||50),eyes=Number(state.beautyEyes||52),nose=Number(state.beautyNose||50);
-  var mouth=Number(state.beautyMouth||50),tone=Number(state.beautyTone||54);
+  var mouth=Number(state.beautyMouth||50),tone=Number(state.beautyTone||55);
   var brightness=.96+(bright*.0024)+(eyes-50)*.0007;
   var saturation=.94+(sharp*.0016)+(mouth-50)*.0032;
-  var contrast=.94+(sharp*.0015)+(eyes-50)*.0012+(nose-50)*.0009;
-  var blur=Math.max(0,(skin-1)*.006);
+  var contrast=.92+(sharp*.0013)+(eyes-50)*.0010+(nose-50)*.0008;
+  var blur=Math.max(0,(skin-1)*.009);
   var sepia=Math.max(0,(tone-50)*.0025);
   var faceScale=1+(face-50)*.0012;
   camera.style.setProperty('filter','brightness('+brightness.toFixed(3)+') saturate('+saturation.toFixed(3)+') contrast('+contrast.toFixed(3)+') blur('+blur.toFixed(2)+'px) sepia('+sepia.toFixed(3)+')','important');
