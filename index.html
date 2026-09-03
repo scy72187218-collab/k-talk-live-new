@@ -10,26 +10,19 @@
  .prep-reward{width:auto!important;min-width:106px!important;padding:0 12px!important;border-radius:14px!important;font-size:12px!important;font-weight:950!important;white-space:nowrap!important;background:linear-gradient(135deg,#3b1b46,#181321)!important;border:1px solid #c35cff99!important;color:#ffe47a!important;box-shadow:0 0 14px #9a35ff33!important}\n</style>
 
 <style id="ktRoomWaveOnly">
-/* 방송 파장만 추가: 일반/13명/구독자/비밀방 */
+/* 방송 파장만: 1인/13명/구독자/비밀방 모두 동일 */
 .kt-room-live-wave{
-  position:absolute;left:14px;right:14px;bottom:150px;height:96px;z-index:4;
-  display:flex;align-items:center;justify-content:stretch;gap:0;
+  position:absolute;left:12px;right:12px;bottom:150px;height:70px;z-index:4;
+  display:flex;align-items:center;justify-content:center;gap:2px;
   pointer-events:none;
-  filter:drop-shadow(0 0 5px rgba(255,255,255,.16));
+  filter:drop-shadow(0 0 5px rgba(255,255,255,.18));
   overflow:hidden;
 }
-.kt-room-live-wave::before{
-  content:"";position:absolute;left:0;right:0;top:50%;height:1px;
-  background:rgba(255,255,255,.28);
-  box-shadow:0 0 5px rgba(255,255,255,.22);
-}
 .kt-room-live-wave span{
-  flex:1 1 0;min-width:0;height:100%;border-radius:999px;
-  transform:scaleY(.10);transform-origin:center;
-  background:hsl(calc(var(--i) * 2.1deg) 100% 58%)!important;
-  color:hsl(calc(var(--i) * 2.1deg) 100% 58%)!important;
-  box-shadow:0 0 3px currentColor;
-  animation-delay:calc(var(--i) * -0.017s)!important;
+  flex:1 1 0;min-width:2px;max-width:5px;height:100%;
+  border-radius:999px;
+  transform:scaleY(.18);
+  transform-origin:center;
   animation:ktRoomWavePulse .82s ease-in-out infinite;
   box-shadow:0 0 7px currentColor;
 }
@@ -46,13 +39,10 @@
 .kt-room-live-wave span:nth-child(5n){animation-delay:-.50s}
 .kt-room-live-wave span:nth-child(7n){animation-delay:-.66s}
 @keyframes ktRoomWavePulse{
-  0%,100%{transform:scaleY(.08)}
-  14%{transform:scaleY(.26)}
-  30%{transform:scaleY(.72)}
-  46%{transform:scaleY(1)}
-  62%{transform:scaleY(.62)}
-  78%{transform:scaleY(.30)}
-  90%{transform:scaleY(.14)}
+  0%,100%{transform:scaleY(.16)}
+  22%{transform:scaleY(.58)}
+  48%{transform:scaleY(.96)}
+  72%{transform:scaleY(.36)}
 }
 </style>
 
@@ -518,10 +508,10 @@
       guestStrip='';
     }
     var waveBars='';
-    for(var wi=0;wi<180;wi++){
-      waveBars+='<span style="--i:'+wi+';animation-duration:'+(0.56+(wi%13)*0.018).toFixed(3)+'s"></span>';
+    for(var wi=0;wi<64;wi++){
+      waveBars+='<span style="animation-duration:'+(0.60+(wi%9)*0.055).toFixed(3)+'s"></span>';
     }
-    var liveWave=(['general','group13','subscriber','password'].indexOf(liveRoomType)>-1)
+    var liveWave=(['solo','general','group','group13','subscriber','password'].indexOf(liveRoomType)>-1)
       ?'<div class="kt-room-live-wave" aria-hidden="true">'+waveBars+'</div>'
       :'';
     if(window.state){
