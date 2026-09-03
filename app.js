@@ -1243,16 +1243,28 @@ window.setBeautyControlValue=function(value){
 
 window.applyBeautyPreview=function(){
   if(!camera)return;
-  var skin=Number(state.beautySkin||88),bright=Number(state.beautyBright||72),sharp=Number(state.beautySharp||46);
-  var face=Number(state.beautyFace||50),eyes=Number(state.beautyEyes||52),nose=Number(state.beautyNose||50);
-  var mouth=Number(state.beautyMouth||50),tone=Number(state.beautyTone||55);
-  var brightness=.96+(bright*.0024)+(eyes-50)*.0007;
-  var saturation=.94+(sharp*.0016)+(mouth-50)*.0032;
-  var contrast=.92+(sharp*.0013)+(eyes-50)*.0010+(nose-50)*.0008;
-  var blur=Math.max(0,(skin-1)*.009);
-  var sepia=Math.max(0,(tone-50)*.0025);
-  var faceScale=1+(face-50)*.0012;
-  camera.style.setProperty('filter','brightness('+brightness.toFixed(3)+') saturate('+saturation.toFixed(3)+') contrast('+contrast.toFixed(3)+') blur('+blur.toFixed(2)+'px) sepia('+sepia.toFixed(3)+')','important');
+  var skin=Math.max(1,Math.min(100,Number(state.beautySkin||72)));
+  var bright=Math.max(1,Math.min(100,Number(state.beautyBright||68)));
+  var sharp=Math.max(1,Math.min(100,Number(state.beautySharp||52)));
+  var face=Math.max(1,Math.min(100,Number(state.beautyFace||50)));
+  var eyes=Math.max(1,Math.min(100,Number(state.beautyEyes||50)));
+  var nose=Math.max(1,Math.min(100,Number(state.beautyNose||50)));
+  var mouth=Math.max(1,Math.min(100,Number(state.beautyMouth||50)));
+  var tone=Math.max(1,Math.min(100,Number(state.beautyTone||58)));
+
+  /* 휴대폰 화면에서도 보정 차이가 분명히 보이도록 전체 카메라 톤을 조금 더 적극적으로 조정 */
+  var brightness=1.00+(bright/100)*.18+(eyes-50)*.0007;
+  var saturation=.98+(sharp/100)*.10+(mouth-50)*.0014;
+  var contrast=.94+(sharp/100)*.08+(nose-50)*.0007;
+  var blur=.10+(skin/100)*.55;
+  var sepia=Math.max(0,(tone-45)*.0018);
+  var faceScale=1+(face-50)*.0008;
+
+  camera.style.setProperty(
+    'filter',
+    'brightness('+brightness.toFixed(3)+') saturate('+saturation.toFixed(3)+') contrast('+contrast.toFixed(3)+') blur('+blur.toFixed(2)+'px) sepia('+sepia.toFixed(3)+')',
+    'important'
+  );
   camera.style.setProperty('transform','scaleX(-1) scale('+faceScale.toFixed(3)+')','important');
 };
 
@@ -1290,7 +1302,7 @@ window.setBeautySlider=function(kind,value){
 };
 
 window.resetBeautyAll=function(){
-  state.beautyMode='off';state.beautyControl='skin';state.beautySkin=1;state.beautyFace=50;state.beautyEyes=50;state.beautyNose=50;state.beautyMouth=50;state.beautyTone=1;state.beautyBright=1;state.beautySharp=1;
+  state.beautyMode='natural';state.beautyControl='skin';state.beautySkin=72;state.beautyFace=50;state.beautyEyes=50;state.beautyNose=50;state.beautyMouth=50;state.beautyTone=58;state.beautyBright=68;state.beautySharp=52;
   creator.classList.remove('beauty-natural','beauty-bright','beauty-soft','beauty-glow');
   creator.removeAttribute('data-beauty-char');
   if(camera){camera.style.removeProperty('filter');camera.style.removeProperty('transform');}
