@@ -34,12 +34,17 @@
       crown:'<div class="fx-crown-mask">👑</div>',
       cat:'<div class="fx-animal-ears cat"><i></i><i></i></div>',
       dog:'<div class="fx-animal-ears dog"><i></i><i></i></div>',
+      puppy:'<div class="fx-animal-ears dog"><i></i><i></i></div>',
       rabbit:'<div class="fx-animal-ears rabbit"><i></i><i></i></div>',
+      bunny:'<div class="fx-animal-ears rabbit"><i></i><i></i></div>',
       blush:'<div class="fx-cheek-mask blush"><i></i><i></i></div>',
       heart:'<div class="fx-cheek-mask heart"><i>♥</i><i>♥</i></div>',
       sparkle:'<div class="fx-sparkles-mask"><span>✦</span><span>✧</span><span>✦</span><span>✧</span></div>',
       tears:'<div class="fx-tears-mask"><i></i><i></i></div>',
       halo:'<div class="fx-halo-mask"></div>',
+      angel:'<div class="fx-halo-mask"></div>',
+      flower:'<div style="position:absolute;left:50%;top:-5%;transform:translate(-50%,-50%);font-size:52px;white-space:nowrap">🌸🌼🌸</div>',
+      party:'<div style="position:absolute;left:50%;top:0;transform:translate(-50%,-50%);font-size:52px;white-space:nowrap">🎉🥳🎊</div>',
       fire:'<div class="fx-fire-mask">🔥🔥🔥</div>',
       facepaint:'<div class="fx-facepaint-mask"><i></i><i></i></div>',
       mask:'<div class="fx-eye-mask"></div>',
@@ -106,12 +111,20 @@
   function applySelectedEffectToTest(){
     var name=(window.state&&(state.appliedEditEffect||state.pendingEditEffect))||'off';
     var anchor=document.getElementById('ktTestFaceAnchor');
+    var layer=document.getElementById('ktTestEffectLayer');
+    var v=document.getElementById('ktTestVideo');
     if(anchor)anchor.innerHTML=testEffectMarkup(name);
     applyTestVideoFilter(name);
     clearInterval(testFaceTimer);
+    testFaceTimer=null;
+    try{if(window.ktStopFaceTrackingFor)ktStopFaceTrackingFor('test-live');}catch(e){}
     if(name!=='off'&&['mono','warm','cool','soft'].indexOf(name)===-1){
-      trackTestFaceOnce();
-      testFaceTimer=setInterval(trackTestFaceOnce,150);
+      if(window.ktStartFaceTrackingFor&&v&&layer&&anchor){
+        ktStartFaceTrackingFor(v,layer,anchor,'test-live');
+      }else{
+        trackTestFaceOnce();
+        testFaceTimer=setInterval(trackTestFaceOnce,150);
+      }
     }
   }
 
@@ -144,6 +157,7 @@
   };
 
   window.endTestBroadcast=function(){
+    try{if(window.ktStopFaceTrackingFor)ktStopFaceTrackingFor('test-live');}catch(e){}
     clearInterval(testFaceTimer);
     testFaceTimer=null;
     stopLocalStream();
