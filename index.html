@@ -166,7 +166,46 @@
  window.openRoomPrep=function(name,max){document.getElementById('liveTitle').value=name+' · 최대 '+max+'명';openCreator();};
  window.openLiveRoom=function(){showSheet('라이브룸','<div class="aux-grid"><button class="aux-card" onclick="closeSheet();openRoomPrep(\'일반 13명방\',13)"><b>👥 일반 13명방</b><small>최대 13명</small></button><button class="aux-card" onclick="closeSheet();openRoomPrep(\'1인 방송\',1)"><b>🎙️ 1인 방송</b><small>나만의 방송</small></button><button class="aux-card" onclick="closeSheet();openRoomPrep(\'비밀방\',7)"><b>🔒 비밀방</b><small>호스트 1 + 게스트 6</small></button><button class="aux-card" onclick="closeSheet();openRoomPrep(\'구독자 전용방\',10)"><b>👑 구독자 전용방</b><small>최대 10명</small></button></div>');};
  window.openProfileVideos=function(){leaveDash();if(window.openMyVideoLibrary)openMyVideoLibrary();else if(originalProfile)originalProfile();};
- window.openMatch=function(){showSheet('🏆 매치전','<div class="note">주간 랭킹 매치전 화면입니다.</div>');};
+ window.openMatchMode=function(label,side,total){
+   var left='',right='';
+   for(var i=0;i<side;i++){
+     left+='<div style="height:72px;border-radius:16px;border:1px solid #2e8cff55;background:linear-gradient(145deg,#0c1730,#080b13);display:grid;place-items:center;color:#73b8ff;font-size:24px;font-weight:950">👤</div>';
+     right+='<div style="height:72px;border-radius:16px;border:1px solid #ff4f9855;background:linear-gradient(145deg,#2c0d20,#11080d);display:grid;place-items:center;color:#ff86bd;font-size:24px;font-weight:950">👤</div>';
+   }
+   var html='<div style="padding:2px 0 6px">'
+     +'<div style="text-align:center;margin-bottom:12px"><b style="display:block;font-size:22px;color:#fff">'+label+' 매치</b><span style="display:block;margin-top:4px;font-size:11px;color:#b9bac4">팀 인원이 모두 모이면 매치를 시작합니다.</span></div>'
+     +'<div style="display:grid;grid-template-columns:1fr 58px 1fr;align-items:center;gap:10px">'
+       +'<div style="display:grid;grid-template-columns:repeat('+side+',1fr);gap:6px">'+left+'</div>'
+       +'<div style="text-align:center"><b style="display:block;font-size:26px;color:#ffd85a">VS</b><small style="color:#aaa">3판 2선승</small></div>'
+       +'<div style="display:grid;grid-template-columns:repeat('+side+',1fr);gap:6px">'+right+'</div>'
+     +'</div>'
+     +'<div style="margin-top:14px;padding:11px 12px;border-radius:15px;background:#ffffff0a;border:1px solid #ffffff12;color:#d7d7df;font-size:11px;line-height:1.55">🏆 라운드 승리 +10P · 매치 승리 +30P · 100P 달성 시 매치 포인트 +1</div>'
+     +'<div style="display:grid;grid-template-columns:1fr 1.4fr;gap:9px;margin-top:12px">'
+       +'<button onclick="openMatch()" style="min-height:44px;border-radius:13px;border:1px solid #ffffff1e;background:#202028;color:#fff;font-weight:950">뒤로</button>'
+       +'<button onclick="closeSheet();openRoomPrep(\''+label+' 매치\','+total+')" style="min-height:44px;border:0;border-radius:13px;background:linear-gradient(135deg,#6e45ff,#a739eb);color:#fff;font-size:15px;font-weight:950">⚔ 매치 신청</button>'
+     +'</div>'
+   +'</div>';
+   showSheet('🔥 호스트 매치',html);
+ };
+ window.openMatch=function(){
+   var card=function(icon,title,sub,side,total,edge){
+     return '<button onclick="openMatchMode(\''+title+'\','+side+','+total+')" style="min-height:112px;border-radius:18px;border:1.5px solid '+edge+';background:linear-gradient(145deg,#11121b,#07070d);color:#fff;padding:12px 8px;text-align:center;box-shadow:inset 0 0 18px '+edge+'22">'
+       +'<span style="display:block;font-size:34px;line-height:1">'+icon+'</span>'
+       +'<b style="display:block;margin-top:8px;font-size:18px">'+title+'</b>'
+       +'<small style="display:block;margin-top:5px;color:#c8c8d2;font-size:10px;line-height:1.4">'+sub+'</small>'
+     +'</button>';
+   };
+   var html='<div style="padding:1px 0 5px">'
+     +'<div style="margin-bottom:12px;text-align:center"><b style="display:block;font-size:21px;color:#fff">매치 방식 선택</b><span style="display:block;margin-top:4px;color:#aaa;font-size:11px">원하는 인원으로 바로 매치 신청하세요.</span></div>'
+     +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">'
+       +card('⚔','1대1','개인 VS 개인',1,2,'#2e8cff')
+       +card('👥','2대2','팀 VS 팀',2,4,'#a64cff')
+       +card('🔥','3대3','3명 팀 대결',3,6,'#ff4f98')
+     +'</div>'
+     +'<div style="margin-top:11px;padding:10px 11px;border-radius:14px;background:#ffffff08;border:1px solid #ffffff12;color:#c9c9d2;font-size:10px;line-height:1.5">라운드는 3판 2선승제로 진행되며 장미 선물 수로 승부를 겨룹니다.</div>'
+   +'</div>';
+   showSheet('🏆 매치전',html);
+ };
  window.openBroadcastList=function(){leaveDash();if(originalFriends)originalFriends();};
  window.openDashboard=function(){document.body.classList.add('kt-home');screen.innerHTML=`<section class="kt-dashboard"><div class="kt-dash-top"><div class="kt-dash-logo"><span class="crown">♛</span> <span class="talk">K-Talk</span> <span class="liveword">LIVE</span></div><div class="kt-dash-actions"><button class="kt-pill coin" onclick="openCharge()">🪙 코인 1,250 ＋</button><button class="kt-pill vip" onclick="openSubs()">💎 VIP</button><button class="kt-iconbtn" onclick="openMessages()">🔔</button></div></div><button onclick="needJoin('K-Talk 가입/로그인을 진행해 주세요.')" style="width:100%;margin:0 0 14px;padding:15px 18px;border-radius:18px;border:2px solid #ff62cf;background:linear-gradient(135deg,#54105f,#e82891 55%,#763dff);color:#fff;font-size:18px;font-weight:950;box-shadow:0 0 20px #ff40c766,inset 0 0 18px #ffffff18">👤 가입 / 로그인</button><div class="kt-notice"><div class="kt-notice-row"><div class="kt-notice-icon">📣</div><div class="kt-notice-copy"><b>공지 · 장미 100송이 선물!</b><span>오늘의 매치전 1등 상금 500코인! 도전하세요! 🏆</span></div></div></div><div class="kt-room-grid"><button class="kt-room purple" onclick="openRoomPrep('일반 13명방',13)"><span class="ri">👥</span><b>일반 13명방</b><small>최대 13명<br>다양한 사람들과 즐겁게!</small><span class="enter">입장하기 ›</span></button><button class="kt-room pink" onclick="openRoomPrep('1인 방송',1)"><span class="ri">🎙️</span><b>1인 방송</b><small>나만의 방송<br>지금 시작해보세요!</small><span class="enter">입장하기 ›</span></button><button class="kt-room gold" onclick="openRoomPrep('비밀방',7)"><span class="ri">🔒</span><b>비밀방</b><small>호스트 1 + 게스트 6<br>비밀번호로 입장!</small><span class="enter">입장하기 ›</span></button><button class="kt-room blue" onclick="openRoomPrep('구독자 전용방',10)"><span class="ri">♛</span><b>구독자 전용방</b><small>구독자만 입장 가능<br>최대 10명 입장</small><span class="enter">입장하기 ›</span></button><button class="kt-room green" onclick="openMatch()"><span class="ri">🏆</span><b>매치전</b><small>주간 랭킹 경쟁!<br>상위 랭커 도전하세요!</small><span class="enter">바로가기 ›</span></button><button class="kt-room cyan" onclick="openProfileVideos()"><span class="ri">🎬</span><b>내 프로필 동영상</b><small>내가 올린 쇼츠/영상<br>프로필에서 확인하세요!</small><span class="enter">바로가기 ›</span></button></div><div class="kt-shortcuts" style="grid-template-columns:repeat(2,1fr)"><button class="kt-short purple" onclick="openRaffle()"><strong>🎡</strong><b>제비뽑기</b><small>하루 2~3회<br>장미 당첨!</small></button><button class="kt-short pink" onclick="openGifts()"><strong>🎁</strong><b>선물하기</b><small>다양한 선물로<br>마음을 전하세요</small></button></div><div class="kt-wide"><button class="blue" onclick="home();activate('shorts')"><b>▣ 쇼츠 올리기</b><small>쇼츠 · 상품/광고 등록 가능</small></button><button class="gold" onclick="openCharge()"><b>🪙 코인 충전</b><small>100개부터 충전 가능</small></button></div></section><nav class="kt-bottom"><button class="homebtn" onclick="home()"><b>⌂</b>홈</button><button onclick="openBroadcastList()"><b>▣</b>방송목록</button><button class="livebtn" onclick="openCreator()"><b>＋</b>라이브룸</button><button onclick="openMessages()"><b>☵</b>채팅</button><button onclick="openProfile()"><b>♙</b>마이페이지</button></nav>`;};
  function showVideoHome(label){leaveDash();document.body.classList.add('kt-video-mode');screen.innerHTML=`<section class="video-home"><video id="homeVideo" autoplay muted loop playsinline poster="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80"><source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4"></video><div class="vh-shade"></div><div class="vh-tabs"><span>LIVE</span><span>커뮤니티</span><span>팔로잉</span><span class="on">추천</span><button aria-label="검색">⌕</button></div><div class="vh-title"><b>♛ K-Talk</b><span>${label||'추천 동영상'} · 화면을 눌러 재생하거나 멈출 수 있습니다.</span></div><div class="vh-actions"><button onclick="needJoin('좋아요를 누르려면 가입해 주세요.')">♡<small>좋아요</small></button><button onclick="openComments()">💬<small>댓글</small></button><button onclick="openGifts()">🎁<small>선물</small></button><button onclick="shareApp()">↗<small>공유</small></button></div></section>`;const v=document.getElementById('homeVideo');if(v){v.addEventListener('click',function(){if(v.paused)v.play().catch(()=>{});else v.pause();});v.play().catch(()=>{});}}
