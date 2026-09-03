@@ -1332,15 +1332,15 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
 .kt-attendance-heart:after{
   content:"";
   position:absolute;
-  top:6px;
-  width:36px;
-  height:30px;
-  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 32'%3E%3Cg stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M42 15 C33 7 24 4 10 5 C18 9 27 12 38 17 Z' fill='%23430b36' stroke='%23ff59cf' stroke-width='2.7'/%3E%3Cpath d='M39 18 C30 12 20 12 7 15 C18 17 28 20 36 22 Z' fill='%23430b36' stroke='%23ff59cf' stroke-width='2.7'/%3E%3Cpath d='M36 22 C27 18 18 19 8 23 C18 24 27 26 33 28 Z' fill='%23430b36' stroke='%23ff59cf' stroke-width='2.5'/%3E%3Cpath d='M33 26 C26 23 19 24 13 28 C20 28 26 29 31 30 Z' fill='%23430b36' stroke='%23ff59cf' stroke-width='2.3'/%3E%3Cpath d='M39 15 C31 9 25 8 18 7 M36 19 C29 15 23 15 15 16 M32 23 C26 21 21 21 15 23' fill='none' stroke='%23ffd7f4' stroke-width='1.1'/%3E%3C/g%3E%3C/svg%3E") center/contain no-repeat;
-  filter:drop-shadow(0 0 3px #ff4fcf) drop-shadow(0 0 6px #ff4fcf99);
+  top:4px;
+  width:44px;
+  height:34px;
+  background:url("attendance-wing.svg?v=1") center/contain no-repeat;
+  filter:drop-shadow(0 0 3px #ff4fcf) drop-shadow(0 0 7px #ff4fcf99);
   pointer-events:none
 }
-.kt-attendance-heart:before{left:-27px}
-.kt-attendance-heart:after{right:-27px;transform:scaleX(-1)}
+.kt-attendance-heart:before{left:-36px}
+.kt-attendance-heart:after{right:-36px;transform:scaleX(-1)}
 .kt-attendance-heart .kt-attendance-label{font-size:14px;line-height:1;color:#ffd9f6}
 .kt-attendance-heart .kt-attendance-sub{margin-top:4px;font-size:9px;color:#ffe57b}
 .kt-attendance-heart .kt-attendance-miniheart{
