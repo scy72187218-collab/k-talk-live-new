@@ -1,4 +1,4 @@
-name: Keep LIVE screen awake
+name: Fix LIVE media stop regression
 
 on:
   push:
@@ -15,89 +15,17 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: main
-      - name: Add broadcast-only screen wake lock
+      - name: Keep LIVE video from being paused by page media stop
         shell: bash
         run: |
-          cat > live-screen-awake.js <<'JS'
-/* K-Talk: keep the broadcaster's screen awake while LIVE. No layout or media behavior changes. */
-(function(){
-  if(window.__ktLiveScreenAwakeLoaded)return;
-  window.__ktLiveScreenAwakeLoaded=true;
-
-  var lock=null;
-  var requesting=false;
-
-  function broadcasting(){
-    try{
-      if(document.getElementById('ktLiveVideo'))return true;
-      if(document.body.classList.contains('kt-solo-host-live'))return true;
-      var s=window.state&&state.stream;
-      if(s&&s.getVideoTracks&&s.getVideoTracks().some(function(t){return t.readyState==='live';})){
-        var creator=document.getElementById('creator')||window.creator;
-        if(!(creator&&creator.classList&&creator.classList.contains('show')))return true;
-      }
-    }catch(e){}
-    return false;
-  }
-
-  async function acquire(){
-    if(lock||requesting||!broadcasting()||document.visibilityState!=='visible')return;
-    if(!navigator.wakeLock||!navigator.wakeLock.request)return;
-    requesting=true;
-    try{
-      lock=await navigator.wakeLock.request('screen');
-      lock.addEventListener('release',function(){lock=null;});
-    }catch(e){}
-    requesting=false;
-  }
-
-  async function release(){
-    if(!lock)return;
-    var old=lock;lock=null;
-    try{await old.release();}catch(e){}
-  }
-
-  function sync(){
-    if(broadcasting())acquire();
-    else release();
-  }
-
-  document.addEventListener('visibilitychange',function(){
-    if(document.visibilityState==='visible')setTimeout(sync,100);
-  });
-
-  try{new MutationObserver(sync).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});}catch(e){}
-  setInterval(sync,1000);
-  sync();
-})();
-JS
-
-          python - <<'PY'
-          from pathlib import Path
-          p=Path('index.html')
-          s=p.read_text(encoding='utf-8')
-          tag='<script src="live-screen-awake.js?v=20260904-liveawake01"></script>'
-          if tag not in s:
-              marker='<script src="video-owner-actions.js?v=20260904-manual-live01"></script>'
-              if marker not in s:
-                  import re
-                  m=re.search(r'<script src="video-owner-actions\.js\?v=[^"\']+"></script>',s)
-                  if not m:
-                      raise SystemExit('video-owner-actions script marker not found')
-                  marker=m.group(0)
-              s=s.replace(marker,marker+'\n'+tag,1)
-              p.write_text(s,encoding='utf-8')
-          PY
-
-      - name: Commit broadcast screen awake fix
+          python -c "import base64; from pathlib import Path; p=Path('multiroom-tiktok-layout.js'); s=p.read_text(encoding='utf-8'); old=base64.b64decode('ICAgICAgaWYodHlwZW9mIHdpbmRvdy5rdFN0b3BCYWNrZ3JvdW5kTWVkaWE9PT0nZnVuY3Rpb24nKXsKICAgICAgICB3aW5kb3cua3RTdG9wQmFja2dyb3VuZE1lZGlhKCk7CiAgICAgICAgcmV0dXJuOwogICAgICB9').decode(); new=base64.b64decode('ICAgICAgaWYodHlwZW9mIHdpbmRvdy5rdFN0b3BCYWNrZ3JvdW5kTWVkaWE9PT0nZnVuY3Rpb24nJiYhZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2t0TGl2ZVZpZGVvJykmJiFkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgna3RSZW1vdGVMaXZlJykpewogICAgICAgIHdpbmRvdy5rdFN0b3BCYWNrZ3JvdW5kTWVkaWEoKTsKICAgICAgICByZXR1cm47CiAgICAgIH0=').decode(); assert old in s or new in s, 'media stop target not found'; s=s.replace(old,new,1); p.write_text(s,encoding='utf-8'); p=Path('index.html'); s=p.read_text(encoding='utf-8'); s=s.replace('multiroom-tiktok-layout.js?v=20260904-controls02','multiroom-tiktok-layout.js?v=20260904-live-stable03'); p.write_text(s,encoding='utf-8')"
+      - name: Commit only LIVE stability fix
         shell: bash
         run: |
           git config user.name 'K-Talk Patch Bot'
           git config user.email 'actions@users.noreply.github.com'
-          git add live-screen-awake.js index.html
+          git add multiroom-tiktok-layout.js index.html
           if ! git diff --cached --quiet; then
-            git commit -m 'Keep broadcaster screen awake during LIVE'
+            git commit -m 'Prevent page media stop from pausing LIVE video'
             git push origin main
           fi
-
-# trigger: 2026-09-04
