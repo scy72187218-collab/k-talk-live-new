@@ -9,7 +9,7 @@
   var livePresenceOn=false;
 
   function headers(extra){var h={apikey:KEY,Authorization:'Bearer '+KEY};if(extra)Object.keys(extra).forEach(function(k){h[k]=extra[k];});return h;}
-  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c];});}
   function who(){var name='K-Talk',id='guest';try{name=state.profileName||state.currentProfileName||state.accountName||name;id=state.profileId||state.currentAccountId||state.accountId||id;}catch(e){}try{name=localStorage.getItem('ktalk_profile_name')||localStorage.getItem('ktalk_active_account_name')||name;id=localStorage.getItem('ktalk_active_account')||localStorage.getItem('ktalk_profile_id')||id;}catch(e){}return {name:String(name).slice(0,80),id:String(id).slice(0,80)};}
 
   async function getVideos(){
@@ -110,16 +110,32 @@
     try{await fetch(SB+'/rest/v1/ktalk_live_rooms?host_id=eq.'+encodeURIComponent(me.id),{method:'PATCH',headers:headers({'Content-Type':'application/json','Prefer':'return=minimal'}),body:JSON.stringify({active:true,updated_at:new Date().toISOString()})});}catch(e){}
   }
 
+  /* 방송이 열리면 바깥 피드에 즉시 LIVE로 등록한다. */
+  window.ktSetLivePresence=setPresence;
+  function announceLiveSoon(){
+    setTimeout(function(){
+      try{
+        var liveView=document.getElementById('ktLiveVideo');
+        var liveTrack=state.stream&&state.stream.getVideoTracks&&state.stream.getVideoTracks().some(function(t){return t.readyState==='live';});
+        if(liveView||liveTrack)setPresence(true);
+      }catch(e){}
+    },120);
+  }
+
   var oldStart=window.startBroadcast;
   if(typeof oldStart==='function'){
     window.startBroadcast=async function(){
       var r=await oldStart.apply(this,arguments);
-      setTimeout(function(){
-        try{
-          var live=state.stream&&state.stream.getVideoTracks&&state.stream.getVideoTracks().some(function(t){return t.readyState==='live';});
-          if(live)setPresence(true);
-        }catch(e){}
-      },350);
+      announceLiveSoon();
+      return r;
+    };
+  }
+
+  var oldTestStart=window.startTestBroadcast;
+  if(typeof oldTestStart==='function'){
+    window.startTestBroadcast=async function(){
+      var r=await oldTestStart.apply(this,arguments);
+      announceLiveSoon();
       return r;
     };
   }
@@ -133,12 +149,23 @@
     window.endTestBroadcast=function(){setPresence(false);return oldTestEnd.apply(this,arguments);};
   }
 
+  /* 혹시 다른 시작 버튼이 startBroadcast를 다시 덮어써도 실제 라이브 화면이 뜨면 자동 등록한다. */
+  var liveDomObserver=null;
+  try{
+    liveDomObserver=new MutationObserver(function(){
+      var liveView=document.getElementById('ktLiveVideo');
+      if(liveView&&!livePresenceOn)setPresence(true);
+    });
+    liveDomObserver.observe(document.body,{childList:true,subtree:true});
+  }catch(e){}
+
   window.addEventListener('pagehide',function(){if(livePresenceOn)setPresence(false);});
 
   setTimeout(function(){
     try{
       var creatorOpen=window.creator&&creator.classList&&creator.classList.contains('show');
       var liveOpen=document.getElementById('ktLiveVideo');
+      if(liveOpen&&!livePresenceOn)setPresence(true);
       if(!creatorOpen&&!liveOpen)window.home();
     }catch(e){}
   },450);
