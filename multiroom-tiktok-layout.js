@@ -284,7 +284,7 @@
 
   function stopPlayback(){
     try{
-      if(typeof window.ktStopBackgroundMedia==='function'){
+      if(typeof window.ktStopBackgroundMedia==='function'&&!document.getElementById('ktLiveVideo')&&!document.getElementById('ktRemoteLive')){
         window.ktStopBackgroundMedia();
         return;
       }
