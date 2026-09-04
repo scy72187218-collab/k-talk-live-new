@@ -179,6 +179,7 @@
   }
 
   function canAutoEnter(){
+    if(window.__ktManualLiveEntryOnly)return false;
     if(joining||Date.now()<snoozeUntil)return false;
     if(typeof window.ktJoinLive!=='function')return false;
     if(hostDeviceBusy())return false;

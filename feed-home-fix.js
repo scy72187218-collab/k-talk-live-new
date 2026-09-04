@@ -2,6 +2,7 @@
 (function(){
   if(window.__ktHomeFeedFixInstalled)return;
   window.__ktHomeFeedFixInstalled=true;
+  window.__ktManualLiveEntryOnly=true;
 
   var SB='https://zupwbfmacwzexyvznlzq.supabase.co';
   var KEY='sb_publishable_AnyCMi4rAgSR2uWg_u1pvw_hHyqWlm3';
@@ -92,7 +93,7 @@
         +'<div><div style="display:inline-block;padding:10px 18px;border-radius:999px;background:#ff2d55;font-size:20px;font-weight:950;box-shadow:0 0 28px #ff2d5577">● LIVE</div>'
         +'<div style="font-size:72px;margin:28px 0 14px">📡</div>'
         +'<b style="display:block;font-size:27px">'+name+'</b><span style="display:block;margin-top:8px;font-size:19px">'+title+'</span><small style="display:block;margin-top:10px;font-size:15px;opacity:.8">'+room+' · 방송 중</small>'
-        +'<strong style="display:block;margin-top:20px;padding:12px 18px;border-radius:999px;background:#ffffff18;border:1px solid #ffffff33;font-size:16px">방송 자동 연결 중...</strong></div>'
+        +'<strong style="display:block;margin-top:20px;padding:12px 18px;border-radius:999px;background:#ffffff18;border:1px solid #ffffff33;font-size:16px">눌러서 방송 들어가기</strong></div>'
       +'</div>'
       +'<div class="vh-tabs"><span class="on">LIVE</span><span>커뮤니티</span><span>팔로잉</span><span>추천</span><button>⌕</button></div>'
       +'<div class="vh-title"><b>🔴 '+name+'</b><span>'+title+'</span></div>'
@@ -135,7 +136,9 @@
     var lives=results[0]||[],videos=results[1]||[];
     if(!lives.length&&!videos.length){if(fallback)fallback();return;}
     try{document.body.classList.remove('kt-home');document.body.classList.add('kt-video-mode');}catch(e){}
-    var html=lives.map(liveCard).join('')+videos.map(function(v,i){return videoCard(v,i+lives.length);}).join('');
+    var firstVideo=videos.length?videoCard(videos[0],0):'';
+    var restVideos=videos.slice(1).map(function(v,i){return videoCard(v,i+1);}).join('');
+    var html=firstVideo+lives.map(liveCard).join('')+restVideos;
     screen.innerHTML='<div id="ktUnifiedFeed" style="height:calc(100dvh - 78px);overflow-y:auto;scroll-snap-type:y mandatory;background:#000">'+html+'</div>';
     bindVideos();
     bindLives();
@@ -481,7 +484,7 @@
   }
   async function scan(){
     installLeaveSnooze();
-    if(joining||Date.now()<snoozeUntil||hostDevice()||!viewerReady())return;
+    if(window.__ktManualLiveEntryOnly||joining||Date.now()<snoozeUntil||hostDevice()||!viewerReady())return;
     if(typeof window.ktJoinLive!=='function')return;
     try{
       var since=new Date(Date.now()-120000).toISOString();
