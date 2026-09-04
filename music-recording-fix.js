@@ -125,7 +125,6 @@
       musicGain.gain.value=0.62;
       musicSource.connect(musicGain);
       musicGain.connect(dest);
-      /* Let the creator hear the chosen music while recording too. */
       musicGain.connect(ctx.destination);
 
       dest.stream.getAudioTracks().forEach(function(t){out.addTrack(t);});
@@ -178,4 +177,37 @@
       return oldDelete.apply(this,arguments);
     };
   }
+
+  /* Sound-only playback fix: do not change any layout or other feature. */
+  function soundOn(v){
+    if(!v)return;
+    try{
+      v.defaultMuted=false;
+      v.muted=false;
+      v.volume=1;
+      if(v.paused){
+        var p=v.play();
+        if(p&&p.catch)p.catch(function(){});
+      }
+    }catch(e){}
+  }
+
+  document.addEventListener('click',function(ev){
+    var v=null;
+    try{v=ev.target&&ev.target.closest?ev.target.closest('.kt-public-video,#ktLibraryPlayer'):null;}catch(e){}
+    if(!v)return;
+    if(v.muted){
+      try{ev.preventDefault();ev.stopImmediatePropagation();}catch(e){}
+      soundOn(v);
+    }
+  },true);
+
+  try{
+    var observer=new MutationObserver(function(){
+      document.querySelectorAll('.kt-public-video,#ktLibraryPlayer').forEach(function(v){
+        try{v.defaultMuted=false;v.muted=false;v.volume=1;}catch(e){}
+      });
+    });
+    observer.observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
 })();
