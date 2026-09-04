@@ -9,7 +9,7 @@
 
   function isSolo(){
     try{
-      return !!window.state && (state.liveRoomType==='solo' || state.liveRoomName==='1인 방송');
+      return !!window.state && (state.liveRoomType==='solo');
     }catch(e){return false;}
   }
 
