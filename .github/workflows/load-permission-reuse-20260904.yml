@@ -1,0 +1,39 @@
+name: Load permission reuse helper
+
+on:
+  push:
+    paths:
+      - '.github/workflows/load-permission-reuse-20260904.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Load only camera mic reuse helper
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          tag='<script src="permission-reuse.js?v=20260904-permission01"></script>'
+          if tag not in s:
+              s=s.replace('</body>',tag+'\n</body>',1)
+              p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit permission helper loader only
+        shell: bash
+        run: |
+          git config user.name 'K-Talk Patch Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add index.html
+          if ! git diff --cached --quiet; then
+            git commit -m 'Avoid repeated camera mic requests while page stays open'
+            git push origin main
+          fi
