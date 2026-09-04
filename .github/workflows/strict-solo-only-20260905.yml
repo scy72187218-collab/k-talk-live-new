@@ -1,0 +1,57 @@
+name: Keep solo layout strictly in solo room
+
+on:
+  push:
+    paths:
+      - '.github/workflows/strict-solo-only-20260905.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Prevent solo layout from touching 13-person room
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          files = [
+              'desktop-live-fullscreen.js',
+              'solo-host-fullscreen-top-timer.js',
+              'solo-fullscreen-lock.js',
+              'solo-attendance-fix.js',
+          ]
+          for name in files:
+              p = Path(name)
+              s = p.read_text(encoding='utf-8')
+              s = s.replace("state.liveRoomType==='solo'||state.liveRoomName==='1인 방송'", "state.liveRoomType==='solo'")
+              s = s.replace("state.liveRoomType==='solo' || state.liveRoomName==='1인 방송'", "state.liveRoomType==='solo'")
+              p.write_text(s, encoding='utf-8')
+
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          versions = {
+              'desktop-live-fullscreen.js': '20260905-strict-solo02',
+              'solo-host-fullscreen-top-timer.js': '20260905-strict-solo02',
+              'solo-fullscreen-lock.js': '20260905-strict-solo02',
+              'solo-attendance-fix.js': '20260905-strict-solo02',
+          }
+          for script, ver in versions.items():
+              s = re.sub(re.escape(script) + r'\?v=[^\"\']+', script + '?v=' + ver, s, count=1)
+          p.write_text(s, encoding='utf-8')
+
+          Path('.github/workflows/strict-solo-only-20260905.yml').unlink(missing_ok=True)
+      - name: Commit only strict solo isolation
+        run: |
+          git config user.name "K-Talk Patch Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet && exit 0
+          git commit -m "Stop 1-person layout from affecting 13-person room"
+          git push
