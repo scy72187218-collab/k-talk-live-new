@@ -407,3 +407,35 @@
     setTimeout(function(){ktInjectOwnVideoMenus();},300);
   }catch(e){}
 })();
+
+/* K-Talk sound panel: never leave the app for catalog rows. */
+(function(){
+  if(window.__ktInlineSoundCatalogFix)return;
+  window.__ktInlineSoundCatalogFix=true;
+
+  function inlineNotice(text){
+    try{
+      var old=document.getElementById('ktSoundInlineNotice');
+      if(old)old.remove();
+      var box=document.getElementById('ktSoundList');
+      if(!box)return;
+      var n=document.createElement('div');
+      n.id='ktSoundInlineNotice';
+      n.textContent=text;
+      n.style.cssText='margin:0 0 12px;padding:12px 14px;border-radius:14px;background:#171722;color:#fff;font-size:14px;font-weight:800;line-height:1.45;border:1px solid rgba(255,255,255,.12)';
+      box.parentNode.insertBefore(n,box);
+      setTimeout(function(){try{n.remove();}catch(e){}},3600);
+    }catch(e){}
+  }
+
+  window.ktOpenLicensedSongSearch=function(index,ev){
+    if(ev){try{ev.stopPropagation();ev.preventDefault();}catch(e){}}
+    try{if(window.ktStopSoundPreview)ktStopSoundPreview();}catch(e){}
+    var t=(window.ktCreatorTracks||[])[index];
+    if(!t)return;
+    if(t.url){
+      try{return window.ktPlaySoundPreview(index,ev);}catch(e){}
+    }
+    inlineNotice('이 곡은 K-Talk에서 바로 재생할 정식 음원 연결이 아직 없습니다. 다른 사이트로 이동하지 않습니다.');
+  };
+})();
