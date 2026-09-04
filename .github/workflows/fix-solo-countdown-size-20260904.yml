@@ -1,0 +1,153 @@
+name: Fix solo LIVE countdown and size
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch solo live only
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          p=Path('desktop-live-fullscreen.js')
+          s=p.read_text(encoding='utf-8')
+
+          old="""    v.style.setProperty('width','100%','important');
+    v.style.setProperty('height','100%','important');
+    v.style.setProperty('object-fit','cover','important');
+    v.style.setProperty('object-position','50% 50%','important');
+    v.style.setProperty('transform','scaleX(-1)','important');
+    v.style.setProperty('transform-origin','50% 50%','important');
+    v.style.setProperty('background','#000','important');"""
+          new="""    var hostScreen=document.getElementById('ktSoloHostLive');
+    if(hostScreen){
+      var bg=document.getElementById('ktSoloBgVideo');
+      if(!bg){
+        bg=document.createElement('video');
+        bg.id='ktSoloBgVideo';
+        bg.autoplay=true;bg.playsInline=true;bg.muted=true;
+        hostScreen.insertBefore(bg,hostScreen.firstChild);
+      }
+      try{bg.srcObject=v.srcObject||(window.state&&state.stream)||null;var bp=bg.play();if(bp&&bp.catch)bp.catch(function(){});}catch(e){}
+      bg.style.cssText='position:absolute;inset:-5%;width:110%;height:110%;object-fit:cover;object-position:50% 50%;transform:scaleX(-1);filter:blur(18px) brightness(.56);opacity:.72;background:#000;z-index:0';
+      v.style.setProperty('position','absolute','important');
+      v.style.setProperty('left','8%','important');
+      v.style.setProperty('top','8%','important');
+      v.style.setProperty('right','auto','important');
+      v.style.setProperty('bottom','auto','important');
+      v.style.setProperty('width','84%','important');
+      v.style.setProperty('height','84%','important');
+      v.style.setProperty('object-fit','contain','important');
+      v.style.setProperty('object-position','50% 50%','important');
+      v.style.setProperty('transform','scaleX(-1)','important');
+      v.style.setProperty('transform-origin','50% 50%','important');
+      v.style.setProperty('background','transparent','important');
+      v.style.setProperty('border-radius','14px','important');
+      v.style.setProperty('z-index','1','important');
+    }else{
+      v.style.setProperty('width','100%','important');
+      v.style.setProperty('height','100%','important');
+      v.style.setProperty('object-fit','cover','important');
+      v.style.setProperty('object-position','50% 50%','important');
+      v.style.setProperty('transform','scaleX(-1)','important');
+      v.style.setProperty('transform-origin','50% 50%','important');
+      v.style.setProperty('background','#000','important');
+    }"""
+          if old not in s:
+              raise SystemExit('solo fill target not found')
+          s=s.replace(old,new,1)
+
+          old_badge="""          +'<span style=\"padding:9px 13px;border-radius:999px;background:#ff2d55;font-size:13px;font-weight:950;box-shadow:0 0 18px #ff2d5577\">● LIVE</span>'"""
+          new_badge="""          +'<span id=\"ktSoloLiveBadge\" style=\"padding:9px 13px;border-radius:999px;background:#555;font-size:13px;font-weight:950;box-shadow:0 0 14px #0006\">방송 준비</span>'"""
+          if old_badge not in s:
+              raise SystemExit('solo badge target not found')
+          s=s.replace(old_badge,new_badge,1)
+
+          old_effect="""        +'<div id=\"ktLiveEffectLayer\" style=\"position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden\"><div id=\"ktLiveFaceAnchor\" class=\"kt-face-anchor\"></div></div>'"""
+          new_effect="""        +'<div id=\"ktLiveEffectLayer\" style=\"position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden\"><div id=\"ktLiveFaceAnchor\" class=\"kt-face-anchor\"></div></div>'
+        +'<div id=\"ktSoloCountdownNumber\" style=\"position:absolute;z-index:9;left:50%;top:50%;transform:translate(-50%,-50%);width:92px;height:92px;border-radius:50%;display:grid;place-items:center;background:rgba(0,0,0,.58);border:2px solid rgba(255,255,255,.85);font-size:48px;font-weight:950;text-shadow:0 2px 8px #000\">5</div>'"""
+          if old_effect not in s:
+              raise SystemExit('solo effect target not found')
+          s=s.replace(old_effect,new_effect,1)
+
+          old_status="""        +'<div style=\"position:absolute;z-index:8;left:50%;bottom:22px;transform:translateX(-50%);padding:9px 14px;border-radius:999px;background:#08080baa;border:1px solid #ffffff22;font-size:12px;font-weight:850\">1인 방송 · 방송 중</div>'"""
+          new_status="""        +'<div id=\"ktSoloLiveStatus\" style=\"position:absolute;z-index:8;left:50%;bottom:22px;transform:translateX(-50%);padding:9px 14px;border-radius:999px;background:#08080baa;border:1px solid #ffffff22;font-size:12px;font-weight:850;white-space:nowrap\">방송 시작까지 5초</div>'"""
+          if old_status not in s:
+              raise SystemExit('solo status target not found')
+          s=s.replace(old_status,new_status,1)
+
+          old_start="""      try{if(window.applyBeautyPreview)setTimeout(window.applyBeautyPreview,60);}catch(e){}
+      try{if(window.ktSetLivePresence)window.ktSetLivePresence(true);}catch(e){}"""
+          new_start="""      try{if(window.applyBeautyPreview)setTimeout(window.applyBeautyPreview,60);}catch(e){}
+      try{
+        clearInterval(window.__ktSoloCountdownTimer);window.__ktSoloCountdownTimer=null;
+        clearInterval(window.__ktSoloElapsedTimer);window.__ktSoloElapsedTimer=null;
+        var remain=5;
+        var badge=document.getElementById('ktSoloLiveBadge');
+        var status=document.getElementById('ktSoloLiveStatus');
+        var num=document.getElementById('ktSoloCountdownNumber');
+        function showReady(){
+          if(num)num.textContent=String(remain);
+          if(status)status.textContent='방송 시작까지 '+remain+'초';
+        }
+        showReady();
+        window.__ktSoloCountdownTimer=setInterval(function(){
+          remain--;
+          if(remain>0){showReady();return;}
+          clearInterval(window.__ktSoloCountdownTimer);window.__ktSoloCountdownTimer=null;
+          if(num)num.style.display='none';
+          if(badge){badge.textContent='● LIVE';badge.style.background='#ff2d55';badge.style.boxShadow='0 0 18px #ff2d5577';}
+          var started=Date.now();
+          try{if(window.state)state.soloLiveStartedAt=started;}catch(e){}
+          function tick(){
+            var sec=Math.max(0,Math.floor((Date.now()-started)/1000));
+            var mm=String(Math.floor(sec/60)).padStart(2,'0');
+            var ss=String(sec%60).padStart(2,'0');
+            if(status)status.textContent='1인 방송 · '+mm+':'+ss;
+          }
+          tick();
+          window.__ktSoloElapsedTimer=setInterval(tick,1000);
+          try{if(window.ktSetLivePresence)window.ktSetLivePresence(true);}catch(e){}
+        },1000);
+      }catch(e){}"""
+          if old_start not in s:
+              raise SystemExit('solo presence target not found')
+          s=s.replace(old_start,new_start,1)
+
+          old_end="""  window.ktEndSoloHostLive=function(){
+    try{if(window.ktSetLivePresence)window.ktSetLivePresence(false);}catch(e){}"""
+          new_end="""  window.ktEndSoloHostLive=function(){
+    try{clearInterval(window.__ktSoloCountdownTimer);window.__ktSoloCountdownTimer=null;clearInterval(window.__ktSoloElapsedTimer);window.__ktSoloElapsedTimer=null;}catch(e){}
+    try{if(window.ktSetLivePresence)window.ktSetLivePresence(false);}catch(e){}"""
+          if old_end not in s:
+              raise SystemExit('solo end target not found')
+          s=s.replace(old_end,new_end,1)
+
+          p.write_text(s,encoding='utf-8')
+
+          idx=Path('index.html')
+          h=idx.read_text(encoding='utf-8')
+          h=re.sub(r'desktop-live-fullscreen\.js\?v=[^\"\']+', 'desktop-live-fullscreen.js?v=20260904-solo-countdown06', h)
+          idx.write_text(h,encoding='utf-8')
+          PY
+      - name: Commit solo live fix
+        shell: bash
+        run: |
+          git config user.name "K-Talk Patch Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add desktop-live-fullscreen.js index.html
+          if ! git diff --cached --quiet; then
+            git commit -m "Make solo host smaller and add real 5 second countdown"
+            git push
+          fi
