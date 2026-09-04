@@ -295,3 +295,52 @@
   setTimeout(install,80);
   setTimeout(install,500);
 })();
+
+/* Complete subscriber benefits page: keep every agreed subscriber benefit visible in one place. */
+(function(){
+  if(window.__ktSubscriberBenefitsCompleteLoaded)return;
+  window.__ktSubscriberBenefitsCompleteLoaded=true;
+
+  function install(){
+    if(typeof window.showSheet!=='function')return;
+    window.openSubscriberBenefits=function(){
+      var html='<div class="kt-subscriber-benefits" style="display:grid;gap:10px">'
+        +'<div style="padding:16px;border-radius:18px;background:linear-gradient(135deg,#251036,#0c1524);border:1px solid #a968ff66">'
+          +'<div style="font-size:28px">💎</div><b style="display:block;margin-top:6px;font-size:20px">K-Talk 구독자 전체 혜택</b><small style="display:block;margin-top:5px;line-height:1.5;color:#ddd">구독자가 받을 수 있는 혜택을 한곳에 모았습니다.</small>'
+        +'</div>'
+        +'<div class="rowbox"><b>💰 방송 정산 40%</b><br>구독자 호스트는 방송 수익 정산을 40% 기준으로 계산합니다. 일반회원은 35%입니다.</div>'
+        +'<div class="rowbox"><b>📊 방송 종료 후 수익 바로 확인</b><br>방송이 끝나면 받은 장미와 정산 기준으로 본인 수익을 바로 확인할 수 있습니다.</div>'
+        +'<div class="rowbox"><b>🚪 모든 이용 가능 방송방 입장</b><br>1인 방송 · 13명 방송 · 구독자 방송 · 비밀방 등 이용 가능한 방송방에 들어갈 수 있습니다.</div>'
+        +'<div class="rowbox"><b>🎥 모든 방송 종류 만들기</b><br>구독자는 방송 종류를 선택해 직접 호스트 방을 만들 수 있습니다.</div>'
+        +'<div class="rowbox"><b>👑 구독자 전용방 이용</b><br>구독자 전용방과 구독자 전용 기능을 이용할 수 있습니다.</div>'
+        +'<div class="rowbox"><b>🔒 비밀방 이용</b><br>비밀번호가 있는 비밀방 등 구독자에게 허용된 방을 이용할 수 있습니다.</div>'
+        +'<div class="rowbox"><b>✍️ 내 방송 제목 직접 설정</b><br>구독자 호스트는 라이브 시작 전에 자기 방 제목을 직접 입력할 수 있습니다.</div>'
+        +'<div class="rowbox"><b>🏦 후원 계좌 등록</b><br>구독자 호스트는 방송 준비 화면에서 은행명 · 계좌번호 · 예금주를 등록해 방송 정보에 표시할 수 있습니다.</div>'
+        +'<div class="rowbox"><b>🪙 장미 · 코인 충전 추가 혜택</b><br>구독자는 충전할 때 일반회원보다 추가 혜택을 받을 수 있으며 실제 지급 수량은 충전 화면에서 확인합니다.</div>'
+        +'<div class="rowbox"><b>♡ 팬클럽 기능</b><br>팬클럽과 구독자 전용 팬 기능을 이용하고 팬과 더 쉽게 소통할 수 있습니다.</div>'
+        +'<div class="rowbox"><b>🎁 팬에게 혜택 주기</b><br>장미 · 선물 · 이벤트 보상 등 제공 가능한 혜택을 팬에게 보낼 수 있습니다.</div>'
+        +'<div class="rowbox"><b>🏆 이벤트 · 미션 · 보상</b><br>구독자 대상 이벤트와 이용 가능한 미션 · 보상 기능을 확인하고 참여할 수 있습니다.</div>'
+        +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:2px">'
+          +'<button class="act" style="margin:0" onclick="openCharge()">🪙 충전 혜택</button>'
+          +'<button class="act" style="margin:0" onclick="openGifts()">🎁 선물 보기</button>'
+        +'</div>'
+        +'<div class="note">구독자 전용 기능은 구독 상태가 활성화된 계정에 적용됩니다.</div>'
+      +'</div>';
+      showSheet('💎 구독자 전체 혜택',html);
+    };
+
+    window.openGiveBenefits=function(){
+      showSheet('💝 혜택 주기',
+        '<div class="rowbox"><b>🌹 장미 보내기</b><br>팬이나 방송 참여자에게 장미를 선물할 수 있습니다.</div>'
+        +'<div class="rowbox"><b>🎁 선물 보내기</b><br>선물함에서 이용 가능한 선물을 골라 보낼 수 있습니다.</div>'
+        +'<div class="rowbox"><b>🏆 이벤트 보상 주기</b><br>진행 중인 이벤트나 미션에서 제공 가능한 보상을 팬에게 줄 수 있습니다.</div>'
+        +'<div class="rowbox"><b>♡ 팬클럽 혜택</b><br>팬클럽에서 제공 가능한 응원 · 이벤트 혜택을 안내하고 줄 수 있습니다.</div>'
+        +'<div class="rowbox"><b>사용 방법</b><br>보낼 혜택을 고르고 받을 사람을 선택한 다음 보내기를 누릅니다.</div>'
+        +'<button class="act" onclick="openGifts()">🌹 장미 · 선물 보내기</button>');
+    };
+  }
+
+  install();
+  setTimeout(install,100);
+  setTimeout(install,600);
+})();
