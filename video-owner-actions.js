@@ -342,3 +342,25 @@
   setTimeout(install,100);
   setTimeout(install,600);
 })();
+
+/* Raffle has exactly two losing slots and five rose prizes. */
+(function(){
+  if(window.__ktRaffleTwoBlanksLoaded)return;
+  window.__ktRaffleTwoBlanksLoaded=true;
+  function install(){
+    if(typeof window.showSheet!=='function')return;
+    window.openRaffle=function(){
+      showSheet('🎯 제비뽑기','<div class="raffle">꽝 · 꽝 · 1 · 2 · 3 · 4 · 5</div><button class="act" onclick="raffle()">제비뽑기</button>');
+    };
+    window.openRaffleGuide=function(){
+      showSheet('🎯 제비뽑기',
+        '<div class="rowbox"><b>하루 3번 참여</b><br>아침 1회 · 점심 1회 · 저녁 1회 참여할 수 있습니다.</div>'
+        +'<div class="rowbox"><b>사용 방법</b><br>각 시간대에 제비뽑기 버튼을 눌러 참여합니다. 이미 참여한 시간대는 다시 참여할 수 없습니다.</div>'
+        +'<div class="rowbox"><b>당첨 구성</b><br>꽝 2개 · 장미 1개 · 2개 · 3개 · 4개 · 5개로 구성됩니다.</div>'
+        +'<button class="act" onclick="openRaffle()">🎯 제비뽑기 바로가기</button>');
+    };
+  }
+  install();
+  setTimeout(install,100);
+  setTimeout(install,600);
+})();
