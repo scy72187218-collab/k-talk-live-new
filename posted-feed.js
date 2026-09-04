@@ -232,3 +232,19 @@
   }
   window.ktTuneMicQuality=tuneMic;
 })();
+
+/* Keep the existing save behavior; only simplify the visible label for older users. */
+(function(){
+  function renameSaveLabel(){
+    try{
+      document.querySelectorAll('button').forEach(function(btn){
+        var text=String(btn.textContent||'').replace(/\s+/g,'').trim();
+        if(text==='임시저장')btn.textContent='저장';
+      });
+    }catch(e){}
+  }
+  renameSaveLabel();
+  try{
+    new MutationObserver(renameSaveLabel).observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+})();
