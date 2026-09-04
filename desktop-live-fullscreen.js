@@ -148,7 +148,7 @@
   installJoinWrapper();
 })();
 
-/* Mobile 1-person LIVE only: remove the 72% shrink that caused black sidebars. */
+/* Mobile 1-person LIVE only: fill the whole live screen without shrinking. */
 (function(){
   if(window.__ktMobileSoloLiveFillLoaded)return;
   window.__ktMobileSoloLiveFillLoaded=true;
@@ -167,27 +167,20 @@
     var hostScreen=document.getElementById('ktSoloHostLive');
     if(hostScreen){
       var bg=document.getElementById('ktSoloBgVideo');
-      if(!bg){
-        bg=document.createElement('video');
-        bg.id='ktSoloBgVideo';
-        bg.autoplay=true;bg.playsInline=true;bg.muted=true;
-        hostScreen.insertBefore(bg,hostScreen.firstChild);
-      }
-      try{bg.srcObject=v.srcObject||(window.state&&state.stream)||null;var bp=bg.play();if(bp&&bp.catch)bp.catch(function(){});}catch(e){}
-      bg.style.cssText='position:absolute;inset:-5%;width:110%;height:110%;object-fit:cover;object-position:50% 50%;transform:scaleX(-1);filter:blur(18px) brightness(.56);opacity:.72;background:#000;z-index:0';
+      if(bg){try{bg.pause();}catch(e){}try{bg.remove();}catch(e){}}
       v.style.setProperty('position','absolute','important');
-      v.style.setProperty('left','8%','important');
-      v.style.setProperty('top','8%','important');
-      v.style.setProperty('right','auto','important');
-      v.style.setProperty('bottom','auto','important');
-      v.style.setProperty('width','84%','important');
-      v.style.setProperty('height','84%','important');
-      v.style.setProperty('object-fit','contain','important');
+      v.style.setProperty('left','0','important');
+      v.style.setProperty('top','0','important');
+      v.style.setProperty('right','0','important');
+      v.style.setProperty('bottom','0','important');
+      v.style.setProperty('width','100%','important');
+      v.style.setProperty('height','100%','important');
+      v.style.setProperty('object-fit','cover','important');
       v.style.setProperty('object-position','50% 50%','important');
       v.style.setProperty('transform','scaleX(-1)','important');
       v.style.setProperty('transform-origin','50% 50%','important');
-      v.style.setProperty('background','transparent','important');
-      v.style.setProperty('border-radius','14px','important');
+      v.style.setProperty('background','#000','important');
+      v.style.setProperty('border-radius','0','important');
       v.style.setProperty('z-index','1','important');
     }else{
       v.style.setProperty('width','100%','important');
