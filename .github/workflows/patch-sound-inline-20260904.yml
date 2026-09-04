@@ -17,34 +17,15 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
+          import base64
           p=Path('music-recording-fix.js')
           s=p.read_text(encoding='utf-8')
-          start='  /* Camera framing only: request a portrait camera stream so the person stays smaller'
-          end='  /* Own-post menu only: add ⋮ to videos I uploaded, with Save and Delete. */'
+          start=base64.b64decode('ICAvKiBDYW1lcmEgZnJhbWluZyBvbmx5OiByZXF1ZXN0IGEgcG9ydHJhaXQgY2FtZXJhIHN0cmVhbSBzbyB0aGUgcGVyc29uIHN0YXlzIHNtYWxsZXI=').decode('utf-8')
+          end=base64.b64decode('ICAvKiBPd24tcG9zdCBtZW51IG9ubHk6IGFkZCDii64gdG8gdmlkZW9zIEkgdXBsb2FkZWQsIHdpdGggU2F2ZSBhbmQgRGVsZXRlLiAqLw==').decode('utf-8')
+          replacement=base64.b64decode('ICAvKiBDYW1lcmEgZnJhbWluZyBvbmx5OiBrZWVwIHRoZSBvcmlnaW5hbCBjYW1lcmEgc3RyZWFtIGFuZCB1c2UgdGhlIHdpZGVzdCBzdXBwb3J0ZWQgem9vbS4gTm8gVUkvbGF5b3V0L2ZlYXR1cmUgY2hhbmdlcy4gKi8KICB2YXIgb2xkRW5zdXJlTGl2ZUNhbWVyYT13aW5kb3cuZW5zdXJlTGl2ZUNhbWVyYTsKICBpZih0eXBlb2Ygb2xkRW5zdXJlTGl2ZUNhbWVyYT09PSdmdW5jdGlvbicpewogICAgd2luZG93LmVuc3VyZUxpdmVDYW1lcmE9YXN5bmMgZnVuY3Rpb24oKXsKICAgICAgdmFyIHJlc3VsdD1hd2FpdCBvbGRFbnN1cmVMaXZlQ2FtZXJhLmFwcGx5KHRoaXMsYXJndW1lbnRzKTsKICAgICAgdHJ5ewogICAgICAgIHZhciB0cmFjaz1zdGF0ZS5zdHJlYW0mJnN0YXRlLnN0cmVhbS5nZXRWaWRlb1RyYWNrcyYmc3RhdGUuc3RyZWFtLmdldFZpZGVvVHJhY2tzKClbMF07CiAgICAgICAgdmFyIGNhcHM9dHJhY2smJnRyYWNrLmdldENhcGFiaWxpdGllcz90cmFjay5nZXRDYXBhYmlsaXRpZXMoKTpudWxsOwogICAgICAgIGlmKHRyYWNrJiZjYXBzJiZjYXBzLnpvb20mJnR5cGVvZiBjYXBzLnpvb20ubWluPT09J251bWJlcicpewogICAgICAgICAgdmFyIG1pblpvb209Y2Fwcy56b29tLm1pbjsKICAgICAgICAgIHZhciBzZXR0aW5ncz10cmFjay5nZXRTZXR0aW5ncz90cmFjay5nZXRTZXR0aW5ncygpOnt9OwogICAgICAgICAgaWYodHlwZW9mIHNldHRpbmdzLnpvb20hPT0nbnVtYmVyJyB8fCBzZXR0aW5ncy56b29tPm1pblpvb20pewogICAgICAgICAgICBhd2FpdCB0cmFjay5hcHBseUNvbnN0cmFpbnRzKHthZHZhbmNlZDpbe3pvb206bWluWm9vbX1dfSk7CiAgICAgICAgICB9CiAgICAgICAgfQogICAgICB9Y2F0Y2goZSl7fQogICAgICByZXR1cm4gcmVzdWx0OwogICAgfTsKICB9Cgo=').decode('utf-8')
           i=s.find(start)
           j=s.find(end)
           if i!=-1 and j!=-1 and j>i:
-              replacement="""  /* Camera framing only: keep the original camera stream and use the widest supported zoom. No UI/layout/feature changes. */
-  var oldEnsureLiveCamera=window.ensureLiveCamera;
-  if(typeof oldEnsureLiveCamera==='function'){
-    window.ensureLiveCamera=async function(){
-      var result=await oldEnsureLiveCamera.apply(this,arguments);
-      try{
-        var track=state.stream&&state.stream.getVideoTracks&&state.stream.getVideoTracks()[0];
-        var caps=track&&track.getCapabilities?track.getCapabilities():null;
-        if(track&&caps&&caps.zoom&&typeof caps.zoom.min==='number'){
-          var minZoom=caps.zoom.min;
-          var settings=track.getSettings?track.getSettings():{};
-          if(typeof settings.zoom!=='number' || settings.zoom>minZoom){
-            await track.applyConstraints({advanced:[{zoom:minZoom}]});
-          }
-        }
-      }catch(e){}
-      return result;
-    };
-  }
-
-"""
               s=s[:i]+replacement+s[j:]
               p.write_text(s,encoding='utf-8')
           PY
