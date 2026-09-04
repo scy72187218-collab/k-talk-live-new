@@ -330,3 +330,51 @@
   setTimeout(install,120);
   setInterval(install,1200);
 })();
+
+/* Fan club page: keep the existing fan list and show all fan-club benefits in the same page. */
+(function(){
+  if(window.__ktFanClubBenefitsFullLoaded)return;
+  window.__ktFanClubBenefitsFullLoaded=true;
+
+  function install(){
+    if(typeof window.showSheet!=='function')return;
+
+    window.openSubs=function(){
+      var html='<div class="kt-fanclub">'
+        +'<div class="kt-fan-head"><div><b>👑 K-Talk 팬클럽</b><span>내 방송을 응원하는 팬 모임</span></div><button onclick="openFanHelp()">?</button></div>'
+        +'<div class="kt-fan-stats">'
+          +'<div><b>0</b><span>팬</span></div>'
+          +'<div><b>0</b><span>응원</span></div>'
+          +'<div><b>0</b><span>슈퍼팬</span></div>'
+        +'</div>'
+        +'<button class="kt-fan-grow" onclick="openFanGrow()"><span>🌱</span><div><b>팬클럽 성장하기</b><small>방송 참여와 응원 활동으로 팬클럽을 키워보세요</small></div><em>›</em></button>'
+        +'<div style="margin:15px 0 8px;font-size:17px;font-weight:950;color:#ffd85a">🎁 팬클럽 혜택</div>'
+        +'<div style="display:grid;gap:8px">'
+          +'<div class="rowbox"><b>👥 팬 자동 모아보기</b><br>내 방송을 자주 보고 응원하는 팬을 한곳에서 확인할 수 있습니다.</div>'
+          +'<div class="rowbox"><b>💛 응원 활동 확인</b><br>방송 참여와 응원 활동이 팬클럽 성장에 반영되도록 안내합니다.</div>'
+          +'<div class="rowbox"><b>👑 팬 등급 관리</b><br>팬 · 열성팬 · 슈퍼팬처럼 활동에 따라 팬 등급을 구분해 관리할 수 있습니다.</div>'
+          +'<div class="rowbox"><b>🔔 팬클럽 소식 알림</b><br>방송 시작, 팬클럽 공지, 혜택 안내처럼 팬에게 필요한 소식을 확인할 수 있습니다.</div>'
+          +'<div class="rowbox"><b>🎥 방송 참여 혜택</b><br>팬클럽 팬은 방송 참여 기록과 응원 활동을 모아서 확인할 수 있습니다.</div>'
+          +'<div class="rowbox"><b>🎁 팬 혜택 보내기</b><br>운영 중인 장미 · 선물 · 이벤트 보상 등 제공 가능한 혜택을 팬에게 안내하고 보낼 수 있습니다.</div>'
+          +'<div class="rowbox"><b>💎 구독자 연동 혜택</b><br>구독 상태가 활성화된 회원은 구독자 전용 기능과 팬클럽 혜택을 함께 확인할 수 있습니다.</div>'
+          +'<div class="rowbox"><b>📊 팬클럽 성장 확인</b><br>팬 수 · 응원 · 슈퍼팬 현황을 위에서 바로 확인하고 팬클럽 성장 상태를 볼 수 있습니다.</div>'
+        +'</div>'
+        +'<div class="kt-fan-tabs" style="margin-top:14px"><button class="on">모든 팬</button><button>팬클럽 도구</button></div>'
+        +'<div class="kt-fan-list">'
+          +'<div class="kt-fan-empty"><span>💛</span><b>아직 등록된 팬이 없습니다</b><small>팬이 참여하면 여기에 표시됩니다.</small></div>'
+        +'</div>'
+      +'</div>';
+      showSheet('팬클럽',html);
+    };
+
+    window.openFanHelp=function(){
+      showSheet('팬클럽 안내',
+        '<div class="rowbox"><b>👑 K-Talk 팬클럽</b><br>팬 관리와 팬클럽 혜택을 한곳에서 확인하는 공간입니다.</div>'
+        +'<div class="rowbox"><b>팬클럽에서 확인하는 내용</b><br>팬 · 응원 · 슈퍼팬 현황, 팬 등급, 팬클럽 소식, 방송 참여 기록, 팬 혜택을 확인합니다.</div>');
+    };
+  }
+
+  install();
+  setTimeout(install,100);
+  setTimeout(install,600);
+})();
