@@ -24,7 +24,6 @@
     try{stream.getTracks().forEach(function(t){if(t.readyState==='live')t.enabled=false;});}catch(e){}
   }
 
-  /* Reuse a live, already-approved stream instead of asking again. */
   function keepApprovedStream(stream){
     if(!hasLiveStream(stream))return;
     if(liveScreenOpen())enableStream(stream);
@@ -55,15 +54,27 @@
     window.ensureLiveCamera=wrapped;
   }
 
+  async function savedMediaPermissionGranted(){
+    try{
+      if(!navigator.permissions||typeof navigator.permissions.query!=='function')return false;
+      var cam=await navigator.permissions.query({name:'camera'});
+      var mic=await navigator.permissions.query({name:'microphone'});
+      return cam&&mic&&cam.state==='granted'&&mic.state==='granted';
+    }catch(e){return false;}
+  }
+
   /*
-    Opening the creator/broadcast preparation screen must not itself ask for camera/mic.
-    The real permission request remains in startBroadcast/startCreatorRecording and explicit
-    beauty/effect camera actions, so it happens only after a user camera action.
+    If this browser has already saved camera+mic as granted, open the camera normally with no prompt.
+    If permission is not saved (or the in-app browser cannot report it), simply open the creator UI
+    without asking. The real request then happens only on an explicit camera action such as record/live.
   */
   function wrapOpenCreator(){
     var old=window.openCreator;
     if(typeof old!=='function'||old.__ktPermissionOnActionWrapped)return;
     var wrapped=async function(){
+      var alreadyGranted=await savedMediaPermissionGranted();
+      if(alreadyGranted)return await old.apply(this,arguments);
+
       var realEnsure=window.ensureLiveCamera;
       var realPreview=window.ensureCreatorPreviewCamera;
       var noRequest=async function(){return true;};
@@ -135,9 +146,7 @@
     asking=true;
     try{
       wakeLock=await navigator.wakeLock.request('screen');
-      if(wakeLock&&wakeLock.addEventListener){
-        wakeLock.addEventListener('release',function(){wakeLock=null;});
-      }
+      if(wakeLock&&wakeLock.addEventListener){wakeLock.addEventListener('release',function(){wakeLock=null;});}
     }catch(e){}
     asking=false;
   }
@@ -148,11 +157,7 @@
     wakeLock=null;
   }
 
-  function sync(){
-    if(liveOpen())requestWake();
-    else releaseWake();
-  }
-
+  function sync(){if(liveOpen())requestWake();else releaseWake();}
   document.addEventListener('click',function(){setTimeout(sync,40);},true);
   document.addEventListener('visibilitychange',function(){
     if(document.visibilityState==='visible')setTimeout(sync,80);
