@@ -277,7 +277,7 @@
     viewerHostId=String(hostId||'guest');
     try{document.body.classList.remove('kt-home');document.body.classList.add('kt-video-mode');}catch(e){}
     screen.innerHTML='<section style="height:calc(100dvh - 78px);position:relative;overflow:hidden;background:#000;color:#fff">'
-      +'<video id="ktRemoteLive" autoplay playsinline controls style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000"></video>'
+      +'<video id="ktRemoteLive" autoplay playsinline controls style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;transform:scaleX(-1);transform-origin:50% 50%"></video>'
       +'<div style="position:absolute;left:12px;right:12px;top:12px;z-index:8;display:flex;align-items:center;gap:10px">'
         +'<button onclick="ktLeaveRemoteLive()" style="width:46px;height:46px;border:0;border-radius:50%;background:#08080bbb;color:#fff;font-size:29px">‹</button>'
         +'<div style="min-width:0;flex:1;padding:9px 12px;border-radius:14px;background:#09090dbb"><b style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">🔴 '+esc(title||'K-Talk LIVE')+'</b><small>'+esc(roomName||'라이브 방송')+'</small></div>'
