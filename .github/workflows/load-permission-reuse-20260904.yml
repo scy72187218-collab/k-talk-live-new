@@ -24,7 +24,7 @@ jobs:
           import re
           p=Path('index.html')
           s=p.read_text(encoding='utf-8')
-          new='<script src="permission-reuse.js?v=20260904-permission04"></script>'
+          new='<script src="permission-reuse.js?v=20260904-permission05"></script>'
           pattern=r'<script src="permission-reuse\.js\?v=[^"]+"></script>'
           if re.search(pattern,s):
               s=re.sub(pattern,new,s,count=1)
@@ -39,6 +39,6 @@ jobs:
           git config user.email 'actions@users.noreply.github.com'
           git add index.html
           if ! git diff --cached --quiet; then
-            git commit -m 'Load camera permission-on-action fix'
+            git commit -m 'Load saved camera permission handling'
             git push origin main
           fi
