@@ -1,0 +1,82 @@
+name: Make LIVE manual entry only
+
+on:
+  push:
+    paths:
+      - '.github/workflows/manual-live-entry-20260904.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Keep first video first and make LIVE tap-to-enter
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          # 1) Home feed: first video first, then active LIVE cards, then remaining videos.
+          p=Path('feed-home-fix.js')
+          s=p.read_text(encoding='utf-8')
+
+          old="""  window.__ktHomeFeedFixInstalled=true;\n\n  var SB="""
+          new="""  window.__ktHomeFeedFixInstalled=true;\n  window.__ktManualLiveEntryOnly=true;\n\n  var SB="""
+          if old in s:
+              s=s.replace(old,new,1)
+          elif 'window.__ktManualLiveEntryOnly=true;' not in s:
+              raise SystemExit('home flag target not found')
+
+          old="""        +'<strong style=\"display:block;margin-top:20px;padding:12px 18px;border-radius:999px;background:#ffffff18;border:1px solid #ffffff33;font-size:16px\">방송 자동 연결 중...</strong></div>'"""
+          new="""        +'<strong style=\"display:block;margin-top:20px;padding:12px 18px;border-radius:999px;background:#ffffff18;border:1px solid #ffffff33;font-size:16px\">눌러서 방송 들어가기</strong></div>'"""
+          if old in s:
+              s=s.replace(old,new,1)
+
+          old="""    var html=lives.map(liveCard).join('')+videos.map(function(v,i){return videoCard(v,i+lives.length);}).join('');"""
+          new="""    var firstVideo=videos.length?videoCard(videos[0],0):'';\n    var restVideos=videos.slice(1).map(function(v,i){return videoCard(v,i+1);}).join('');\n    var html=firstVideo+lives.map(liveCard).join('')+restVideos;"""
+          if old in s:
+              s=s.replace(old,new,1)
+          elif 'var html=firstVideo+lives.map(liveCard).join(\'\')+restVideos;' not in s:
+              raise SystemExit('feed order target not found')
+
+          old="""    if(joining||Date.now()<snoozeUntil||hostDevice()||!viewerReady())return;"""
+          new="""    if(window.__ktManualLiveEntryOnly||joining||Date.now()<snoozeUntil||hostDevice()||!viewerReady())return;"""
+          if old in s:
+              s=s.replace(old,new,1)
+
+          p.write_text(s,encoding='utf-8')
+
+          # 2) Disable the separate automatic LIVE jump helper only.
+          p=Path('video-owner-actions.js')
+          s=p.read_text(encoding='utf-8')
+          old="""  function canAutoEnter(){\n    if(joining||Date.now()<snoozeUntil)return false;"""
+          new="""  function canAutoEnter(){\n    if(window.__ktManualLiveEntryOnly)return false;\n    if(joining||Date.now()<snoozeUntil)return false;"""
+          if old in s:
+              s=s.replace(old,new,1)
+          elif 'if(window.__ktManualLiveEntryOnly)return false;' not in s:
+              raise SystemExit('auto-entry target not found')
+          p.write_text(s,encoding='utf-8')
+
+          # 3) Cache-bust only the two touched scripts.
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          import re
+          s=re.sub(r'feed-home-fix\.js\?v=[^"\']+', 'feed-home-fix.js?v=20260904-manual-live01', s)
+          s=re.sub(r'video-owner-actions\.js\?v=[^"\']+', 'video-owner-actions.js?v=20260904-manual-live01', s)
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit only LIVE entry behavior
+        shell: bash
+        run: |
+          git config user.name 'K-Talk Patch Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add feed-home-fix.js video-owner-actions.js index.html
+          if ! git diff --cached --quiet; then
+            git commit -m 'Show videos first and require tap to enter LIVE'
+            git push origin main
+          fi
