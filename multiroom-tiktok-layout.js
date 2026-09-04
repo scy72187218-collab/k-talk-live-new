@@ -1,4 +1,4 @@
-/* K-Talk: 13-person + subscriber room layout only. TikTok-style host + invite grid. */
+/* K-Talk: 13-person + subscriber room layout only. Host + guest-seat grid. */
 (function(){
   if(window.__ktMultiroomTikTokLayoutLoaded)return;
   window.__ktMultiroomTikTokLayoutLoaded=true;
@@ -58,16 +58,22 @@
     }
     grid.style.cssText='position:absolute;z-index:3;left:56%;right:0;top:200px;bottom:145px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat('+rows+',minmax(0,1fr));gap:4px;padding:0 5px 0 4px;overflow:hidden;pointer-events:auto';
 
-    if(grid.dataset.slots!==String(slots)){
+    if(grid.dataset.slots!==String(slots)||grid.children.length!==slots){
       grid.dataset.slots=String(slots);
       grid.innerHTML='';
       for(var i=0;i<slots;i++){
         var cell=document.createElement('div');
         cell.className='kt-multi-invite-cell';
-        cell.innerHTML='<b style="font-size:28px;line-height:1">＋</b><span style="display:block;margin-top:2px;font-size:12px;font-weight:900">초대</span>';
+        cell.innerHTML='<span style="display:block;font-size:12px;font-weight:900;letter-spacing:-.2px">게스트석</span>';
         cell.style.cssText='min-width:0;min-height:0;border:1px solid rgba(255,255,255,.12);border-radius:8px;background:linear-gradient(180deg,#17171b,#0b0b0e);color:#f5f5f5;display:grid;place-content:center;text-align:center;padding:2px;box-shadow:inset 0 0 12px rgba(255,255,255,.025)';
         grid.appendChild(cell);
       }
+    }else{
+      [].slice.call(grid.children).forEach(function(cell){
+        if(cell.textContent.trim()!=='게스트석'||cell.querySelector('b')){
+          cell.innerHTML='<span style="display:block;font-size:12px;font-weight:900;letter-spacing:-.2px">게스트석</span>';
+        }
+      });
     }
 
     var badge=document.getElementById('ktMultiHostBadge');
