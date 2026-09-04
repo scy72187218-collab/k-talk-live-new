@@ -21,13 +21,15 @@
     section.style.setProperty('background','#050505','important');
 
     /* Host occupies the left side. No empty black side bars. */
+    var isGroup13=getRoomType()==='group13';
+    var roomTop=isGroup13?'40px':'200px';
     video.style.setProperty('position','absolute','important');
     video.style.setProperty('left','0','important');
     video.style.setProperty('right','auto','important');
-    video.style.setProperty('top','200px','important');
+    video.style.setProperty('top',roomTop,'important');
     video.style.setProperty('bottom','145px','important');
     video.style.setProperty('width','56%','important');
-    video.style.setProperty('height','auto','important');
+    video.style.setProperty('height',isGroup13?'calc(100% - 185px)':'auto','important');
     video.style.setProperty('object-fit','cover','important');
     video.style.setProperty('object-position','50% 50%','important');
     video.style.setProperty('transform','scaleX(-1)','important');
@@ -42,11 +44,13 @@
     }
 
     var max=13;
-    try{
-      var m=parseInt(state.liveRoomMax,10);
-      if(m>1)max=m;
-      else if(getRoomType()==='subscriber')max=10;
-    }catch(e){if(getRoomType()==='subscriber')max=10;}
+    if(!isGroup13){
+      try{
+        var m=parseInt(state.liveRoomMax,10);
+        if(m>1)max=m;
+        else if(getRoomType()==='subscriber')max=10;
+      }catch(e){if(getRoomType()==='subscriber')max=10;}
+    }
     var slots=Math.max(1,max-1);
     var rows=Math.ceil(slots/2);
 
@@ -56,7 +60,7 @@
       grid.id='ktMultiInviteGrid';
       section.appendChild(grid);
     }
-    grid.style.cssText='position:absolute;z-index:3;left:56%;right:0;top:200px;bottom:145px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat('+rows+',minmax(0,1fr));gap:4px;padding:0 5px 0 4px;overflow:hidden;pointer-events:auto';
+    grid.style.cssText='position:absolute;z-index:3;left:56%;right:0;top:'+roomTop+';bottom:145px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat('+rows+',minmax(0,1fr));gap:4px;padding:0 5px 0 4px;overflow:hidden;pointer-events:auto';
 
     if(grid.dataset.slots!==String(slots)||grid.children.length!==slots){
       grid.dataset.slots=String(slots);
@@ -83,7 +87,7 @@
       badge.textContent='호스트';
       section.appendChild(badge);
     }
-    badge.style.cssText='position:absolute;z-index:6;left:7px;top:207px;padding:3px 7px;border-radius:6px;background:rgba(10,10,12,.72);border:1px solid rgba(255,255,255,.45);color:#fff;font-size:11px;font-weight:900;pointer-events:none';
+    badge.style.cssText='position:absolute;z-index:6;left:7px;top:'+(isGroup13?'47px':'207px')+';padding:3px 7px;border-radius:6px;background:rgba(10,10,12,.72);border:1px solid rgba(255,255,255,.45);color:#fff;font-size:11px;font-weight:900;pointer-events:none';
   }
 
   window.ktApplyTikTokMultiRoomLayout=applyLayout;
