@@ -211,34 +211,23 @@
     observer.observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 
-  /* Camera framing only: request a portrait camera stream so the person stays smaller
-     with both shoulders visible. No UI/layout/feature changes. */
+  /* Camera framing only: keep the original camera stream and use the widest supported zoom. No UI/layout/feature changes. */
   var oldEnsureLiveCamera=window.ensureLiveCamera;
-  if(typeof oldEnsureLiveCamera==='function' && navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
+  if(typeof oldEnsureLiveCamera==='function'){
     window.ensureLiveCamera=async function(){
-      var md=navigator.mediaDevices;
-      var originalGetUserMedia=md.getUserMedia;
+      var result=await oldEnsureLiveCamera.apply(this,arguments);
       try{
-        md.getUserMedia=function(constraints){
-          try{
-            if(constraints && constraints.video && typeof constraints.video==='object'){
-              var next={};
-              Object.keys(constraints).forEach(function(k){next[k]=constraints[k];});
-              var v={};
-              Object.keys(constraints.video).forEach(function(k){v[k]=constraints.video[k];});
-              v.width={ideal:1080};
-              v.height={ideal:1920};
-              v.aspectRatio={ideal:9/16};
-              next.video=v;
-              constraints=next;
-            }
-          }catch(e){}
-          return originalGetUserMedia.call(md,constraints);
-        };
-        return await oldEnsureLiveCamera.apply(this,arguments);
-      }finally{
-        try{md.getUserMedia=originalGetUserMedia;}catch(e){}
-      }
+        var track=state.stream&&state.stream.getVideoTracks&&state.stream.getVideoTracks()[0];
+        var caps=track&&track.getCapabilities?track.getCapabilities():null;
+        if(track&&caps&&caps.zoom&&typeof caps.zoom.min==='number'){
+          var minZoom=caps.zoom.min;
+          var settings=track.getSettings?track.getSettings():{};
+          if(typeof settings.zoom!=='number' || settings.zoom>minZoom){
+            await track.applyConstraints({advanced:[{zoom:minZoom}]});
+          }
+        }
+      }catch(e){}
+      return result;
     };
   }
 
