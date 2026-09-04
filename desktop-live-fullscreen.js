@@ -33,7 +33,7 @@
       remote.style.setProperty('background','#000','important');
     }
 
-    /* Host on a computer. 13-person/subscriber rooms keep their TikTok-style host + invite grid. */
+    /* Host on a computer. 13-person/subscriber rooms keep their existing host + guest grid. */
     var live=document.getElementById('ktLiveVideo');
     if(live){
       var t=roomType();
@@ -146,4 +146,43 @@
   });
 
   installJoinWrapper();
+})();
+
+/* Mobile 1-person LIVE only: remove the 72% shrink that caused black sidebars. */
+(function(){
+  if(window.__ktMobileSoloLiveFillLoaded)return;
+  window.__ktMobileSoloLiveFillLoaded=true;
+
+  function isMobile(){return window.matchMedia&&window.matchMedia('(max-width: 767px)').matches;}
+  function isSolo(){
+    try{
+      if(!window.state)return false;
+      return state.liveRoomType==='solo'||Number(state.liveRoomMax)===1||state.liveRoomName==='1인 방송';
+    }catch(e){return false;}
+  }
+  function fillSolo(){
+    if(!isMobile()||!isSolo())return;
+    var v=document.getElementById('ktLiveVideo');
+    if(!v)return;
+    v.style.setProperty('width','100%','important');
+    v.style.setProperty('height','100%','important');
+    v.style.setProperty('object-fit','cover','important');
+    v.style.setProperty('object-position','50% 50%','important');
+    v.style.setProperty('transform','scaleX(-1)','important');
+    v.style.setProperty('transform-origin','50% 50%','important');
+    v.style.setProperty('background','#000','important');
+    var layer=document.getElementById('ktLiveEffectLayer');
+    if(layer){
+      layer.style.setProperty('transform','none','important');
+      layer.style.setProperty('transform-origin','50% 50%','important');
+    }
+  }
+
+  try{
+    var obs=new MutationObserver(function(){setTimeout(fillSolo,0);});
+    obs.observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+  window.addEventListener('resize',fillSolo);
+  setInterval(fillSolo,180);
+  setTimeout(fillSolo,40);
 })();
