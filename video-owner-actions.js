@@ -48,7 +48,7 @@
     if(row.author_name&&a.name&&a.name!=='K-Talk'&&String(row.author_name)===a.name)return true;
     return false;
   }
-  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c];});}
 
   window.ktOpenPublicVideoOwnerMenu=function(id,url,path){
     var qid=String(id||'').replace(/'/g,"\\'");
@@ -117,4 +117,115 @@
   refresh();
   try{new MutationObserver(function(){decorate();}).observe(document.documentElement,{childList:true,subtree:true});}catch(e){}
   setInterval(function(){if(document.querySelector('.kt-feed-card .kt-public-video'))refresh();},2500);
+})();
+
+/* K-Talk: when a LIVE broadcast exists, viewers see it immediately without tapping a placeholder card. */
+(function(){
+  if(window.__ktLiveAutoEntryLoaded)return;
+  window.__ktLiveAutoEntryLoaded=true;
+
+  var SB='https://zupwbfmacwzexyvznlzq.supabase.co';
+  var KEY='sb_publishable_AnyCMi4rAgSR2uWg_u1pvw_hHyqWlm3';
+  var joining=false;
+  var snoozeUntil=0;
+  var lastAttemptHost='';
+  var lastAttemptAt=0;
+
+  function headers(){return {apikey:KEY,Authorization:'Bearer '+KEY};}
+
+  function hostDeviceBusy(){
+    try{
+      if(document.body.classList.contains('kt-solo-host-live'))return true;
+      if(document.getElementById('ktLiveVideo'))return true;
+      var s=window.state&&state.stream;
+      if(s&&s.getVideoTracks&&s.getVideoTracks().some(function(t){return t.readyState==='live';}))return true;
+      var creator=document.getElementById('creator')||window.creator;
+      if(creator&&creator.classList&&creator.classList.contains('show'))return true;
+    }catch(e){}
+    return false;
+  }
+
+  function viewerAreaVisible(){
+    try{
+      if(document.getElementById('ktRemoteLive'))return false;
+      if(document.getElementById('ktUnifiedFeed'))return true;
+      if(document.querySelector('.kt-live-feed-card'))return true;
+      if(document.body.classList.contains('kt-home'))return true;
+    }catch(e){}
+    return false;
+  }
+
+  function canAutoEnter(){
+    if(joining||Date.now()<snoozeUntil)return false;
+    if(typeof window.ktJoinLive!=='function')return false;
+    if(hostDeviceBusy())return false;
+    if(!viewerAreaVisible())return false;
+    return true;
+  }
+
+  function markCardConnecting(card){
+    try{
+      var strong=card&&card.querySelector('strong');
+      if(strong)strong.textContent='방송 자동 연결 중...';
+      if(card)card.style.cursor='default';
+    }catch(e){}
+  }
+
+  async function joinLive(host,title,room){
+    host=String(host||'guest');
+    if(!canAutoEnter())return;
+    if(lastAttemptHost===host&&Date.now()-lastAttemptAt<3500)return;
+    lastAttemptHost=host;
+    lastAttemptAt=Date.now();
+    joining=true;
+    try{
+      await window.ktJoinLive(host,title||'K-Talk LIVE',room||'라이브 방송');
+    }catch(e){}
+    setTimeout(function(){joining=false;},900);
+  }
+
+  function joinVisibleCard(){
+    if(!canAutoEnter())return false;
+    var card=document.querySelector('.kt-live-feed-card');
+    if(!card)return false;
+    markCardConnecting(card);
+    joinLive(card.dataset.liveHost||'guest',card.dataset.liveTitle||'K-Talk LIVE',card.dataset.liveRoom||'라이브 방송');
+    return true;
+  }
+
+  async function findAndJoinLive(){
+    if(!canAutoEnter())return;
+    if(joinVisibleCard())return;
+    try{
+      var since=new Date(Date.now()-120000).toISOString();
+      var url=SB+'/rest/v1/ktalk_live_rooms?select=host_id,host_name,title,room_name,started_at,updated_at&active=eq.true&updated_at=gte.'+encodeURIComponent(since)+'&order=started_at.desc&limit=1';
+      var r=await fetch(url,{headers:headers()});
+      if(!r.ok)return;
+      var a=await r.json();
+      var live=a&&a[0];
+      if(!live)return;
+      joinLive(live.host_id||'guest',live.title||live.host_name||'K-Talk LIVE',live.room_name||'라이브 방송');
+    }catch(e){}
+  }
+
+  function installLeaveSnooze(){
+    var fn=window.ktLeaveRemoteLive;
+    if(typeof fn!=='function'||fn.__ktAutoLeaveWrapped)return;
+    function wrapped(){
+      snoozeUntil=Date.now()+30000;
+      return fn.apply(this,arguments);
+    }
+    wrapped.__ktAutoLeaveWrapped=true;
+    window.ktLeaveRemoteLive=wrapped;
+  }
+
+  try{
+    new MutationObserver(function(){
+      installLeaveSnooze();
+      setTimeout(joinVisibleCard,20);
+    }).observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+
+  setTimeout(function(){installLeaveSnooze();findAndJoinLive();},450);
+  setInterval(function(){installLeaveSnooze();findAndJoinLive();},1500);
 })();
