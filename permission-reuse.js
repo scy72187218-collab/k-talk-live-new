@@ -3,11 +3,14 @@
   if(window.__ktPermissionReuseLoaded)return;
   window.__ktPermissionReuseLoaded=true;
 
-  var idleStopTimer=null;
-  var IDLE_STOP_MS=3*60*1000;
-
+  function hasLiveTrack(stream,kind){
+    try{
+      var tracks=kind==='audio'?stream.getAudioTracks():stream.getVideoTracks();
+      return !!(stream&&tracks&&tracks.some(function(t){return t.readyState==='live';}));
+    }catch(e){return false;}
+  }
   function hasLiveStream(stream){
-    try{return !!(stream&&stream.getTracks&&stream.getTracks().some(function(t){return t.readyState==='live';}));}catch(e){return false;}
+    return hasLiveTrack(stream,'video')||hasLiveTrack(stream,'audio');
   }
   function liveScreenOpen(){
     try{
@@ -20,43 +23,34 @@
   function disableStream(stream){
     try{stream.getTracks().forEach(function(t){if(t.readyState==='live')t.enabled=false;});}catch(e){}
   }
-  function stopStream(stream){
-    try{stream&&stream.getTracks&&stream.getTracks().forEach(function(t){try{t.stop();}catch(e){}});}catch(e){}
-  }
-  function keepBriefly(stream){
+
+  /*
+    예전처럼 한 번 허용한 카메라/마이크 트랙은 같은 페이지가 살아 있는 동안 stop()하지 않습니다.
+    화면을 닫았을 때는 enabled=false로만 쉬게 하고, 다시 열면 그대로 재사용합니다.
+    브라우저가 탭을 실제로 종료하면 트랙은 브라우저가 정리합니다.
+  */
+  function keepApprovedStream(stream){
     if(!hasLiveStream(stream))return;
-    clearTimeout(idleStopTimer);
-
-    /* 방송 화면으로 넘어가는 동안에는 카메라/마이크 트랙을 절대 끄지 않습니다. */
-    if(liveScreenOpen()){
-      enableStream(stream);
-      return;
-    }
-
-    disableStream(stream);
-    idleStopTimer=setTimeout(function(){
-      try{
-        if(liveScreenOpen()){
-          enableStream(stream);
-          return;
-        }
-        if(window.state&&state.stream===stream){
-          stopStream(stream);
-          state.stream=null;
-          var c=document.getElementById('camera');
-          if(c)c.srcObject=null;
-        }
-      }catch(e){}
-    },IDLE_STOP_MS);
+    if(liveScreenOpen())enableStream(stream);
+    else disableStream(stream);
   }
 
   function wrapEnsure(){
     var old=window.ensureLiveCamera;
     if(typeof old!=='function'||old.__ktPermissionReuseWrapped)return;
     var wrapped=async function(){
-      clearTimeout(idleStopTimer);
       try{
-        if(window.state&&hasLiveStream(state.stream))enableStream(state.stream);
+        if(window.state&&state.stream&&hasLiveTrack(state.stream,'video')&&hasLiveTrack(state.stream,'audio')){
+          enableStream(state.stream);
+          if(typeof window.ktAttachCreatorCamera==='function'){
+            try{return await window.ktAttachCreatorCamera(state.stream);}catch(e){}
+          }
+          try{
+            var c=document.getElementById('camera');
+            if(c){c.srcObject=state.stream;var p=c.play();if(p&&p.catch)p.catch(function(){});}
+          }catch(e){}
+          return true;
+        }
       }catch(e){}
       return await old.apply(this,arguments);
     };
@@ -75,7 +69,7 @@
       try{r=old.apply(this,arguments);}finally{
         if(saved){
           try{state.stream=saved;}catch(e){}
-          keepBriefly(saved);
+          keepApprovedStream(saved);
         }
       }
       return r;
@@ -91,9 +85,10 @@
   setTimeout(install,700);
   setInterval(install,2500);
 
-  window.addEventListener('pagehide',function(){
-    clearTimeout(idleStopTimer);
-    try{if(window.state&&state.stream){stopStream(state.stream);state.stream=null;}}catch(e){}
+  document.addEventListener('visibilitychange',function(){
+    try{
+      if(document.visibilityState==='visible'&&window.state&&hasLiveStream(state.stream)&&liveScreenOpen())enableStream(state.stream);
+    }catch(e){}
   });
 })();
 
@@ -144,4 +139,75 @@
   try{new MutationObserver(function(){setTimeout(sync,40);}).observe(document.documentElement,{childList:true,subtree:true});}catch(e){}
   setInterval(sync,1500);
   setTimeout(sync,300);
+})();
+
+/*
+  Mobile 13-person/subscriber LIVE only: freeze the live viewport height while the room is open.
+  This prevents Samsung/Naver browser bars from making the room repeatedly shrink and expand.
+  Other pages and 1-person LIVE are untouched.
+*/
+(function(){
+  if(window.__ktMultiLiveViewportStableLoaded)return;
+  window.__ktMultiLiveViewportStableLoaded=true;
+
+  var lockedHeight=0;
+  var lockedSection=null;
+  var lockedScreen=null;
+
+  function isMobile(){return !window.matchMedia||window.matchMedia('(max-width: 767px)').matches;}
+  function isMulti(){
+    try{
+      var t=(window.state&&state.liveRoomType)||'';
+      return t==='group13'||t==='group'||t==='subscriber'||Number(window.state&&state.liveRoomMax)>1;
+    }catch(e){return false;}
+  }
+  function currentHeight(){
+    var h=0;
+    try{h=window.visualViewport&&window.visualViewport.height?window.visualViewport.height:0;}catch(e){}
+    if(!h)h=window.innerHeight||document.documentElement.clientHeight||0;
+    return Math.max(480,Math.round(h||0));
+  }
+  function unlock(){
+    try{
+      if(lockedSection){
+        lockedSection.style.removeProperty('height');
+        lockedSection.style.removeProperty('min-height');
+        lockedSection.style.removeProperty('max-height');
+      }
+      if(lockedScreen){
+        lockedScreen.style.removeProperty('height');
+        lockedScreen.style.removeProperty('min-height');
+        lockedScreen.style.removeProperty('max-height');
+      }
+    }catch(e){}
+    lockedHeight=0;lockedSection=null;lockedScreen=null;
+  }
+  function apply(){
+    if(!isMobile()||!isMulti()){
+      if(lockedSection||lockedScreen)unlock();
+      return;
+    }
+    var v=document.getElementById('ktLiveVideo');
+    if(!v){if(lockedSection||lockedScreen)unlock();return;}
+    var section=v.closest('section');
+    var screen=document.getElementById('screen');
+    if(!section||!screen)return;
+    if(!lockedHeight||lockedSection!==section){
+      unlock();
+      lockedHeight=currentHeight();
+      lockedSection=section;
+      lockedScreen=screen;
+    }
+    var px=lockedHeight+'px';
+    section.style.setProperty('height',px,'important');
+    section.style.setProperty('min-height',px,'important');
+    section.style.setProperty('max-height',px,'important');
+    screen.style.setProperty('height',px,'important');
+    screen.style.setProperty('min-height',px,'important');
+    screen.style.setProperty('max-height',px,'important');
+  }
+
+  try{new MutationObserver(function(){setTimeout(apply,30);}).observe(document.documentElement,{childList:true,subtree:true});}catch(e){}
+  setInterval(apply,500);
+  setTimeout(apply,100);
 })();
