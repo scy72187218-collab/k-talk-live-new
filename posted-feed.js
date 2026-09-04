@@ -22,4 +22,47 @@
   async function show(fallback){var a=await getFeed();if(!a.length){if(fallback)fallback();return}document.body.classList.remove('kt-home');document.body.classList.add('kt-video-mode');screen.innerHTML='<div style="height:calc(100dvh - 78px);overflow-y:auto;scroll-snap-type:y mandatory;background:#000">'+a.map(card).join('')+'</div>';bind()}
   window.home=function(){try{if(window.activate)activate('home')}catch(e){}show(oldHome)};
   window.media=function(type){try{if(window.activate)activate(type)}catch(e){}show(function(){if(oldMedia)oldMedia(type)})};
+
+  /* Saved-video preview fix only. Build the sheet first, then create the blob URL.
+     showSheet() clears old media, so creating the URL before showSheet() made it get
+     revoked immediately and the player stayed at 0:00. */
+  window.playStoredVideo=async function(id){
+    try{
+      var db=await ktOpenVideoDB();
+      var tx=db.transaction('videos','readonly');
+      var req=tx.objectStore('videos').get(id);
+      req.onsuccess=function(){
+        var item=req.result;
+        try{db.close();}catch(e){}
+        if(!item||!item.blob){alert('동영상을 찾지 못했습니다.');return;}
+        var safeName=String(item.name||'내 동영상').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]});
+        showSheet('동영상 재생','<div class="kt-myvideo-player">'
+          +'<video id="ktLibraryPlayer" controls playsinline preload="auto"></video>'
+          +'<b>'+safeName+'</b>'
+          +'<div class="kt-myvideo-player-actions">'
+            +'<button class="back" onclick="openMyVideoLibrary()">← 내 동영상</button>'
+            +'<button class="upload" onclick="postStoredVideo(\''+id+'\',this)">⬆ 동영상 올리기</button>'
+          +'</div>'
+          +'<button type="button" class="kt-myvideo-player-delete" onclick="deleteStoredVideo(\''+id+'\',this,true)">🗑 삭제</button>'
+        +'</div>');
+        try{
+          var oldUrl=window.ktLibraryPlayUrl||'';
+          if(oldUrl)URL.revokeObjectURL(oldUrl);
+        }catch(e){}
+        var url=URL.createObjectURL(item.blob);
+        window.ktLibraryPlayUrl=url;
+        try{ktLibraryPlayUrl=url;}catch(e){}
+        var player=document.getElementById('ktLibraryPlayer');
+        if(player){
+          player.src=url;
+          player.muted=false;
+          player.volume=1;
+          player.load();
+          var p=player.play();
+          if(p&&p.catch)p.catch(function(){});
+        }
+      };
+      req.onerror=function(){try{db.close();}catch(e){}alert('동영상을 재생하지 못했습니다.');};
+    }catch(e){alert('동영상을 재생하지 못했습니다.');}
+  };
 })();
