@@ -48,7 +48,7 @@
     if(row.author_name&&a.name&&a.name!=='K-Talk'&&String(row.author_name)===a.name)return true;
     return false;
   }
-  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c];});}
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 
   window.ktOpenPublicVideoOwnerMenu=function(id,url,path){
     var qid=String(id||'').replace(/'/g,"\\'");
@@ -228,4 +228,95 @@
 
   setTimeout(function(){installLeaveSnooze();findAndJoinLive();},450);
   setInterval(function(){installLeaveSnooze();findAndJoinLive();},1500);
+})();
+
+/* K-Talk: one upload should create and show only one public video. */
+(function(){
+  if(window.__ktSingleVideoUploadFixLoaded)return;
+  window.__ktSingleVideoUploadFixLoaded=true;
+
+  var SB='https://zupwbfmacwzexyvznlzq.supabase.co';
+  var KEY='sb_publishable_AnyCMi4rAgSR2uWg_u1pvw_hHyqWlm3';
+  var locks={};
+  var duplicateUrls={};
+  var scanning=false;
+
+  function headers(){return {apikey:KEY,Authorization:'Bearer '+KEY};}
+  function normalize(u){try{return new URL(u,location.href).href;}catch(e){return String(u||'');}}
+
+  function lockCall(key,fn,ctx,args){
+    if(locks[key])return locks[key];
+    var p=Promise.resolve().then(function(){return fn.apply(ctx,args);});
+    locks[key]=p;
+    p.finally(function(){setTimeout(function(){if(locks[key]===p)delete locks[key];},2500);});
+    return p;
+  }
+
+  function wrapUploadFunctions(){
+    var stored=window.postStoredVideo;
+    if(typeof stored==='function'&&!stored.__ktSingleUploadWrapped){
+      var sw=function(id,btn){
+        if(btn){try{btn.disabled=true;}catch(e){}}
+        return lockCall('stored:'+String(id||''),stored,this,arguments);
+      };
+      sw.__ktSingleUploadWrapped=true;
+      sw.__ktOriginal=stored;
+      window.postStoredVideo=sw;
+    }
+
+    var creator=window.postCreatorRecording;
+    if(typeof creator==='function'&&!creator.__ktSingleUploadWrapped){
+      var cw=function(){return lockCall('creator',creator,this,arguments);};
+      cw.__ktSingleUploadWrapped=true;
+      cw.__ktOriginal=creator;
+      window.postCreatorRecording=cw;
+    }
+  }
+
+  async function scanDuplicates(){
+    if(scanning)return;
+    scanning=true;
+    try{
+      var r=await fetch(SB+'/rest/v1/ktalk_videos?select=id,author_id,author_name,title,video_url,created_at&order=created_at.desc&limit=100',{headers:headers()});
+      if(!r.ok)return;
+      var rows=await r.json();
+      var newest={};
+      var dup={};
+      rows.forEach(function(x){
+        var who=String(x.author_id||x.author_name||'');
+        var title=String(x.title||'');
+        var key=who+'\n'+title;
+        var t=Date.parse(x.created_at||'')||0;
+        if(newest[key]!=null&&Math.abs(newest[key]-t)<=30000){
+          dup[normalize(x.video_url)]=true;
+        }else{
+          newest[key]=t;
+        }
+      });
+      duplicateUrls=dup;
+    }catch(e){}
+    finally{scanning=false;}
+  }
+
+  function hideDuplicateCards(){
+    document.querySelectorAll('.kt-feed-card .kt-public-video').forEach(function(v){
+      var card=v.closest('.kt-feed-card');
+      if(!card)return;
+      var src=normalize(v.currentSrc||v.src||v.getAttribute('src')||'');
+      card.style.display=duplicateUrls[src]?'none':'';
+    });
+  }
+
+  async function refresh(){
+    wrapUploadFunctions();
+    await scanDuplicates();
+    hideDuplicateCards();
+  }
+
+  wrapUploadFunctions();
+  refresh();
+  try{
+    new MutationObserver(function(){wrapUploadFunctions();hideDuplicateCards();}).observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+  setInterval(refresh,1800);
 })();
