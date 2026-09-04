@@ -276,3 +276,57 @@
   }catch(e){}
   setInterval(ensureSupportField,800);
 })();
+
+/* Stop ordinary video/music immediately when the user leaves the video page. LIVE/camera streams are not touched. */
+(function(){
+  if(window.__ktStopMediaOnPageChangeLoaded)return;
+  window.__ktStopMediaOnPageChangeLoaded=true;
+
+  function stopPlayback(){
+    try{
+      if(typeof window.ktStopBackgroundMedia==='function'){
+        window.ktStopBackgroundMedia();
+        return;
+      }
+    }catch(e){}
+    try{
+      document.querySelectorAll('video,audio').forEach(function(m){
+        if(m.id==='camera'||m.id==='cameraBg'||m.id==='ktLiveVideo'||m.id==='ktRemoteLive')return;
+        try{m.pause();m.muted=true;m.volume=0;}catch(e){}
+      });
+    }catch(e){}
+  }
+
+  window.ktStopPagePlayback=stopPlayback;
+
+  function wrap(name){
+    var fn=window[name];
+    if(typeof fn!=='function'||fn.__ktStopsPageMedia)return;
+    function wrapped(){
+      stopPlayback();
+      return fn.apply(this,arguments);
+    }
+    wrapped.__ktStopsPageMedia=true;
+    wrapped.__ktOriginal=fn;
+    window[name]=wrapped;
+  }
+
+  function install(){
+    ['home','media','friends','openDashboard','openBroadcastList','openProfile','openCreator','openLiveRoom','openRoomPrep','quickStartBroadcast','ktJoinLive'].forEach(wrap);
+  }
+
+  document.addEventListener('click',function(e){
+    try{
+      var el=e.target&&e.target.closest?e.target.closest('button,[data-tab]'):null;
+      if(!el)return;
+      if(el.closest('.bottom,.kt-bottom')){stopPlayback();return;}
+      var oc=el.getAttribute('onclick')||'';
+      if(/\b(home|media|friends|openDashboard|openBroadcastList|openProfile|openCreator|openLiveRoom|openRoomPrep|quickStartBroadcast|ktJoinLive)\s*\(/.test(oc))stopPlayback();
+    }catch(err){}
+  },true);
+
+  window.addEventListener('popstate',stopPlayback);
+  install();
+  setTimeout(install,120);
+  setInterval(install,1200);
+})();
