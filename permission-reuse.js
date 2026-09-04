@@ -1,113 +1,115 @@
-/* K-Talk: keep camera/mic permission quiet until the user actually starts a camera action. */
+/* K-Talk: keep the creator camera working and reuse an already-open camera/mic stream. */
 (function(){
   if(window.__ktPermissionReuseLoaded)return;
   window.__ktPermissionReuseLoaded=true;
 
   function hasLiveTrack(stream,kind){
     try{
+      if(!stream)return false;
       var tracks=kind==='audio'?stream.getAudioTracks():stream.getVideoTracks();
-      return !!(stream&&tracks&&tracks.some(function(t){return t.readyState==='live';}));
+      return !!(tracks&&tracks.some(function(t){return t.readyState==='live';}));
     }catch(e){return false;}
   }
-  function hasLiveStream(stream){
-    return hasLiveTrack(stream,'video')||hasLiveTrack(stream,'audio');
-  }
-  function liveScreenOpen(){
+  function hasLiveStream(stream){return hasLiveTrack(stream,'video')||hasLiveTrack(stream,'audio');}
+  function enableTrackKind(stream,kind){
     try{
-      return !!(document.getElementById('ktLiveVideo')||document.getElementById('ktTestVideo')||document.body.classList.contains('kt-solo-host-live'));
-    }catch(e){return false;}
+      var tracks=kind==='audio'?stream.getAudioTracks():stream.getVideoTracks();
+      tracks.forEach(function(t){if(t.readyState==='live')t.enabled=true;});
+    }catch(e){}
   }
-  function enableStream(stream){
-    try{stream.getTracks().forEach(function(t){if(t.readyState==='live')t.enabled=true;});}catch(e){}
-  }
-  function disableStream(stream){
+  function disableAll(stream){
     try{stream.getTracks().forEach(function(t){if(t.readyState==='live')t.enabled=false;});}catch(e){}
   }
-
-  function keepApprovedStream(stream){
-    if(!hasLiveStream(stream))return;
-    if(liveScreenOpen())enableStream(stream);
-    else disableStream(stream);
-  }
-
-  function wrapEnsure(){
-    var old=window.ensureLiveCamera;
-    if(typeof old!=='function'||old.__ktPermissionReuseWrapped)return;
-    var wrapped=async function(){
-      try{
-        if(window.state&&state.stream&&hasLiveTrack(state.stream,'video')&&hasLiveTrack(state.stream,'audio')){
-          enableStream(state.stream);
-          if(typeof window.ktAttachCreatorCamera==='function'){
-            try{return await window.ktAttachCreatorCamera(state.stream);}catch(e){}
-          }
-          try{
-            var c=document.getElementById('camera');
-            if(c){c.srcObject=state.stream;var p=c.play();if(p&&p.catch)p.catch(function(){});}
-          }catch(e){}
-          return true;
-        }
-      }catch(e){}
-      return await old.apply(this,arguments);
-    };
-    wrapped.__ktPermissionReuseWrapped=true;
-    wrapped.__ktOriginal=old;
-    window.ensureLiveCamera=wrapped;
-  }
-
-  async function savedMediaPermissionGranted(){
+  function attachCreator(stream){
     try{
-      if(!navigator.permissions||typeof navigator.permissions.query!=='function')return false;
-      var cam=await navigator.permissions.query({name:'camera'});
-      var mic=await navigator.permissions.query({name:'microphone'});
-      return cam&&mic&&cam.state==='granted'&&mic.state==='granted';
+      if(!stream||!hasLiveTrack(stream,'video'))return false;
+      enableTrackKind(stream,'video');
+      var c=document.getElementById('camera');
+      if(c){
+        if(c.srcObject!==stream)c.srcObject=stream;
+        c.muted=true;
+        c.setAttribute('playsinline','');
+        var p=c.play();if(p&&p.catch)p.catch(function(){});
+      }
+      var creator=document.getElementById('creator');
+      if(creator)creator.classList.add('camera-on');
+      return true;
     }catch(e){return false;}
   }
 
   /*
-    If this browser has already saved camera+mic as granted, open the camera normally with no prompt.
-    If permission is not saved (or the in-app browser cannot report it), simply open the creator UI
-    without asking. The real request then happens only on an explicit camera action such as record/live.
+    Important: do not fake/suppress ensureLiveCamera. The first real camera use must be allowed
+    to request permission. After a stream exists, reuse that live stream so opening creator again
+    does not ask for camera/mic again during the same page session.
   */
+  function wrapEnsure(){
+    var old=window.ensureLiveCamera;
+    if(typeof old!=='function'||old.__ktReuseFixed)return;
+    var wrapped=async function(){
+      try{
+        if(window.state&&state.stream&&hasLiveTrack(state.stream,'video')){
+          attachCreator(state.stream);
+          /* While simply reopening the creator preview, do not request a missing mic again. */
+          if(window.__ktOpeningCreator){
+            if(hasLiveTrack(state.stream,'audio'))enableTrackKind(state.stream,'audio');
+            return true;
+          }
+          /* For record/live start, reuse both tracks when both are already alive. */
+          if(hasLiveTrack(state.stream,'audio')){
+            enableTrackKind(state.stream,'audio');
+            return true;
+          }
+        }
+      }catch(e){}
+      var ok=await old.apply(this,arguments);
+      try{
+        if(ok&&window.state&&state.stream){
+          attachCreator(state.stream);
+          if(hasLiveTrack(state.stream,'audio'))enableTrackKind(state.stream,'audio');
+        }
+      }catch(e){}
+      return ok;
+    };
+    wrapped.__ktReuseFixed=true;
+    wrapped.__ktOriginal=old;
+    window.ensureLiveCamera=wrapped;
+  }
+
   function wrapOpenCreator(){
     var old=window.openCreator;
-    if(typeof old!=='function'||old.__ktPermissionOnActionWrapped)return;
+    if(typeof old!=='function'||old.__ktReuseFixed)return;
     var wrapped=async function(){
-      var alreadyGranted=await savedMediaPermissionGranted();
-      if(alreadyGranted)return await old.apply(this,arguments);
-
-      var realEnsure=window.ensureLiveCamera;
-      var realPreview=window.ensureCreatorPreviewCamera;
-      var noRequest=async function(){return true;};
-      try{
-        window.ensureLiveCamera=noRequest;
-        window.ensureCreatorPreviewCamera=noRequest;
-        return await old.apply(this,arguments);
-      }finally{
-        window.ensureLiveCamera=realEnsure;
-        window.ensureCreatorPreviewCamera=realPreview;
-      }
+      window.__ktOpeningCreator=true;
+      try{return await old.apply(this,arguments);}
+      finally{window.__ktOpeningCreator=false;}
     };
-    wrapped.__ktPermissionOnActionWrapped=true;
+    wrapped.__ktReuseFixed=true;
     wrapped.__ktOriginal=old;
     window.openCreator=wrapped;
   }
 
   function wrapClose(){
     var old=window.closeCreator;
-    if(typeof old!=='function'||old.__ktPermissionReuseWrapped)return;
+    if(typeof old!=='function'||old.__ktReuseFixed)return;
     var wrapped=function(){
       var saved=null;
-      try{if(window.state&&hasLiveStream(state.stream)){saved=state.stream;state.stream=null;}}catch(e){}
-      var r;
-      try{r=old.apply(this,arguments);}finally{
+      try{
+        if(window.state&&hasLiveStream(state.stream)){
+          saved=state.stream;
+          state.stream=null;
+        }
+      }catch(e){}
+      var result;
+      try{result=old.apply(this,arguments);}
+      finally{
         if(saved){
           try{state.stream=saved;}catch(e){}
-          keepApprovedStream(saved);
+          disableAll(saved);
         }
       }
-      return r;
+      return result;
     };
-    wrapped.__ktPermissionReuseWrapped=true;
+    wrapped.__ktReuseFixed=true;
     wrapped.__ktOriginal=old;
     window.closeCreator=wrapped;
   }
@@ -120,7 +122,9 @@
 
   document.addEventListener('visibilitychange',function(){
     try{
-      if(document.visibilityState==='visible'&&window.state&&hasLiveStream(state.stream)&&liveScreenOpen())enableStream(state.stream);
+      if(document.visibilityState==='visible'&&window.state&&state.stream&&document.getElementById('creator')&&document.getElementById('creator').classList.contains('show')){
+        attachCreator(state.stream);
+      }
     }catch(e){}
   });
 })();
@@ -129,16 +133,11 @@
 (function(){
   if(window.__ktLiveScreenWakeLoaded)return;
   window.__ktLiveScreenWakeLoaded=true;
-
-  var wakeLock=null;
-  var asking=false;
-
+  var wakeLock=null,asking=false;
   function liveOpen(){
-    try{
-      return !!(document.getElementById('ktLiveVideo')||document.getElementById('ktRemoteLive')||document.getElementById('ktTestVideo')||document.body.classList.contains('kt-solo-host-live'));
-    }catch(e){return false;}
+    try{return !!(document.getElementById('ktLiveVideo')||document.getElementById('ktRemoteLive')||document.getElementById('ktTestVideo')||document.body.classList.contains('kt-solo-host-live'));}
+    catch(e){return false;}
   }
-
   async function requestWake(){
     if(asking||!liveOpen()||document.visibilityState!=='visible')return;
     if(!('wakeLock' in navigator)||!navigator.wakeLock||typeof navigator.wakeLock.request!=='function')return;
@@ -146,23 +145,18 @@
     asking=true;
     try{
       wakeLock=await navigator.wakeLock.request('screen');
-      if(wakeLock&&wakeLock.addEventListener){wakeLock.addEventListener('release',function(){wakeLock=null;});}
+      if(wakeLock&&wakeLock.addEventListener)wakeLock.addEventListener('release',function(){wakeLock=null;});
     }catch(e){}
     asking=false;
   }
-
   function releaseWake(){
     if(!wakeLock)return;
     try{var p=wakeLock.release();if(p&&p.catch)p.catch(function(){});}catch(e){}
     wakeLock=null;
   }
-
   function sync(){if(liveOpen())requestWake();else releaseWake();}
   document.addEventListener('click',function(){setTimeout(sync,40);},true);
-  document.addEventListener('visibilitychange',function(){
-    if(document.visibilityState==='visible')setTimeout(sync,80);
-    else releaseWake();
-  });
+  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')setTimeout(sync,80);else releaseWake();});
   try{new MutationObserver(function(){setTimeout(sync,40);}).observe(document.documentElement,{childList:true,subtree:true});}catch(e){}
   setInterval(sync,1500);
   setTimeout(sync,300);
@@ -172,11 +166,7 @@
 (function(){
   if(window.__ktMultiLiveViewportStableLoaded)return;
   window.__ktMultiLiveViewportStableLoaded=true;
-
-  var lockedHeight=0;
-  var lockedSection=null;
-  var lockedScreen=null;
-
+  var lockedHeight=0,lockedSection=null,lockedScreen=null;
   function isMobile(){return !window.matchMedia||window.matchMedia('(max-width: 767px)').matches;}
   function isMulti(){
     try{
@@ -192,45 +182,22 @@
   }
   function unlock(){
     try{
-      if(lockedSection){
-        lockedSection.style.removeProperty('height');
-        lockedSection.style.removeProperty('min-height');
-        lockedSection.style.removeProperty('max-height');
-      }
-      if(lockedScreen){
-        lockedScreen.style.removeProperty('height');
-        lockedScreen.style.removeProperty('min-height');
-        lockedScreen.style.removeProperty('max-height');
-      }
+      if(lockedSection){lockedSection.style.removeProperty('height');lockedSection.style.removeProperty('min-height');lockedSection.style.removeProperty('max-height');}
+      if(lockedScreen){lockedScreen.style.removeProperty('height');lockedScreen.style.removeProperty('min-height');lockedScreen.style.removeProperty('max-height');}
     }catch(e){}
     lockedHeight=0;lockedSection=null;lockedScreen=null;
   }
   function apply(){
-    if(!isMobile()||!isMulti()){
-      if(lockedSection||lockedScreen)unlock();
-      return;
-    }
+    if(!isMobile()||!isMulti()){if(lockedSection||lockedScreen)unlock();return;}
     var v=document.getElementById('ktLiveVideo');
     if(!v){if(lockedSection||lockedScreen)unlock();return;}
-    var section=v.closest('section');
-    var screen=document.getElementById('screen');
+    var section=v.closest('section'),screen=document.getElementById('screen');
     if(!section||!screen)return;
-    if(!lockedHeight||lockedSection!==section){
-      unlock();
-      lockedHeight=currentHeight();
-      lockedSection=section;
-      lockedScreen=screen;
-    }
+    if(!lockedHeight||lockedSection!==section){unlock();lockedHeight=currentHeight();lockedSection=section;lockedScreen=screen;}
     var px=lockedHeight+'px';
-    section.style.setProperty('height',px,'important');
-    section.style.setProperty('min-height',px,'important');
-    section.style.setProperty('max-height',px,'important');
-    screen.style.setProperty('height',px,'important');
-    screen.style.setProperty('min-height',px,'important');
-    screen.style.setProperty('max-height',px,'important');
+    section.style.setProperty('height',px,'important');section.style.setProperty('min-height',px,'important');section.style.setProperty('max-height',px,'important');
+    screen.style.setProperty('height',px,'important');screen.style.setProperty('min-height',px,'important');screen.style.setProperty('max-height',px,'important');
   }
-
   try{new MutationObserver(function(){setTimeout(apply,30);}).observe(document.documentElement,{childList:true,subtree:true});}catch(e){}
-  setInterval(apply,500);
-  setTimeout(apply,100);
+  setInterval(apply,500);setTimeout(apply,100);
 })();
