@@ -162,16 +162,17 @@
   setTimeout(sync,300);
 })();
 
-/* Mobile 13-person/subscriber LIVE only: keep the room height stable. */
+/* Mobile LIVE rooms: keep the room height stable. */
 (function(){
   if(window.__ktMultiLiveViewportStableLoaded)return;
   window.__ktMultiLiveViewportStableLoaded=true;
   var lockedHeight=0,lockedSection=null,lockedScreen=null;
   function isMobile(){return !window.matchMedia||window.matchMedia('(max-width: 767px)').matches;}
-  function isMulti(){
+  function isLiveRoom(){
     try{
       var t=(window.state&&state.liveRoomType)||'';
-      return t==='group13'||t==='group'||t==='subscriber'||Number(window.state&&state.liveRoomMax)>1;
+      var max=Number(window.state&&state.liveRoomMax);
+      return t==='solo'||t==='group13'||t==='group'||t==='subscriber'||t==='password'||max>=1;
     }catch(e){return false;}
   }
   function currentHeight(){
@@ -188,7 +189,7 @@
     lockedHeight=0;lockedSection=null;lockedScreen=null;
   }
   function apply(){
-    if(!isMobile()||!isMulti()){if(lockedSection||lockedScreen)unlock();return;}
+    if(!isMobile()||!isLiveRoom()){if(lockedSection||lockedScreen)unlock();return;}
     var v=document.getElementById('ktLiveVideo');
     if(!v){if(lockedSection||lockedScreen)unlock();return;}
     var section=v.closest('section'),screen=document.getElementById('screen');
@@ -198,6 +199,14 @@
     section.style.setProperty('height',px,'important');section.style.setProperty('min-height',px,'important');section.style.setProperty('max-height',px,'important');
     screen.style.setProperty('height',px,'important');screen.style.setProperty('min-height',px,'important');screen.style.setProperty('max-height',px,'important');
   }
-  try{new MutationObserver(function(){setTimeout(apply,30);}).observe(document.documentElement,{childList:true,subtree:true});}catch(e){}
-  setInterval(apply,500);setTimeout(apply,100);
+  var lastLiveVideo=null;
+  function syncLiveNode(){
+    var v=document.getElementById('ktLiveVideo');
+    if(!v){lastLiveVideo=null;if(lockedSection||lockedScreen)unlock();return;}
+    if(v===lastLiveVideo)return;
+    lastLiveVideo=v;
+    setTimeout(apply,30);
+  }
+  try{new MutationObserver(syncLiveNode).observe(document.documentElement,{childList:true,subtree:true});}catch(e){}
+  syncLiveNode();
 })();

@@ -205,13 +205,20 @@
     }
   }
 
+  var lastSoloVideo=null;
+  function applySoloForNewVideo(){
+    if(!isMobile()||!isSolo())return;
+    var v=document.getElementById('ktLiveVideo');
+    if(!v){lastSoloVideo=null;return;}
+    if(v===lastSoloVideo)return;
+    lastSoloVideo=v;
+    setTimeout(function(){if(v===document.getElementById('ktLiveVideo'))fillSolo();},40);
+  }
   try{
-    var obs=new MutationObserver(function(){setTimeout(fillSolo,0);});
+    var obs=new MutationObserver(applySoloForNewVideo);
     obs.observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
-  window.addEventListener('resize',fillSolo);
-  setInterval(fillSolo,180);
-  setTimeout(fillSolo,40);
+  applySoloForNewVideo();
 })();
 
 /* 1-person LIVE start fix: broadcaster stays on the real camera screen so outside devices can connect to the actual stream. */
