@@ -1,0 +1,47 @@
+name: Fix viewer live mirror
+
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-viewer-mirror-20260904.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Mirror viewer live video only
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('feed-home-fix.js')
+          s=p.read_text(encoding='utf-8')
+          old='''<video id="ktRemoteLive" autoplay playsinline controls style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000"></video>'''
+          new='''<video id="ktRemoteLive" autoplay playsinline controls style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;transform:scaleX(-1);transform-origin:50% 50%"></video>'''
+          if old not in s:
+              raise SystemExit('remote live target not found')
+          s=s.replace(old,new,1)
+          p.write_text(s,encoding='utf-8')
+
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          import re
+          s=re.sub(r'feed-home-fix\.js\?v=[^"\']+', 'feed-home-fix.js?v=20260904-viewmirror07', s)
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit viewer mirror fix
+        shell: bash
+        run: |
+          git config user.name 'K-Talk Patch Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add feed-home-fix.js index.html
+          if ! git diff --cached --quiet; then
+            git commit -m 'Match viewer LIVE orientation to host preview'
+            git push origin main
+          fi
