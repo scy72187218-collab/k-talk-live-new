@@ -38,10 +38,11 @@
 #ktSoloHostLive .kt-sa-act{width:46px;min-height:46px;border:1px solid #ffffff32;border-radius:50%;background:#09090ba8;display:grid;place-items:center;padding:4px;font-size:19px;font-weight:900;box-shadow:0 0 8px #0007;}\
 #ktSoloHostLive .kt-sa-act small{display:block;font-size:8px;line-height:1;margin-top:-4px;}\
 #ktSoloHostLive .kt-sa-chat{left:10px;right:68px;bottom:211px;display:flex;flex-direction:column;gap:4px;pointer-events:none;}\
-#ktSoloHostLive .kt-sa-msg{align-self:flex-start;max-width:76%;padding:5px 8px;border-radius:12px;background:#0a0a0a9e;font-size:10px;font-weight:750;white-space:normal;}\
+#ktSoloHostLive .kt-sa-msg{align-self:flex-start;max-width:76%;padding:5px 8px;border-radius:12px;background:#0a0a0a9e;font-size:10px;font-weight:750;white-space:normal;animation:ktSaMsgUp .28s ease-out both;}\
 #ktSoloHostLive .kt-sa-eq{left:8px;right:8px;bottom:179px;height:24px;display:flex;align-items:center;justify-content:center;gap:1px;padding:0 3px;pointer-events:none;overflow:hidden;}\
 #ktSoloHostLive .kt-sa-eq i{display:block;width:2px;border-radius:5px;background:linear-gradient(180deg,#ff59d7 0 25%,#56d9ff 25% 55%,#ffd64f 55% 100%);box-shadow:0 0 5px #7adfff99;animation:ktSaEq 680ms ease-in-out infinite alternate;}\
 @keyframes ktSaEq{from{height:3px}to{height:19px}}\
+@keyframes ktSaMsgUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}\
 #ktSoloHostLive .kt-sa-input{left:10px;right:66px;bottom:136px;height:39px;display:flex;gap:6px;}\
 #ktSoloHostLive .kt-sa-input input{min-width:0;flex:1;border:1px solid #ffffff42;border-radius:20px;background:#09090b9f;color:#fff;padding:0 13px;outline:0;font-size:11px;}\
 #ktSoloHostLive .kt-sa-input button{width:39px;border:1px solid #ffffff42;border-radius:50%;background:#09090b9f;font-size:17px;}\
@@ -125,22 +126,50 @@
 
     var input=document.getElementById('ktSaInput');
     var send=document.getElementById('ktSaSend');
+    function pushChat(name,text){
+      var t=String(text||'').trim();
+      if(!t)return;
+      var c=document.getElementById('ktSaChat');
+      if(!c)return;
+      var d=document.createElement('div');
+      d.className='kt-sa-msg';
+      d.textContent=(name?String(name)+'  ':'')+t;
+      c.appendChild(d);
+      while(c.children.length>5)c.removeChild(c.firstChild);
+    }
+    window.ktSoloPushMessage=pushChat;
     function sendLocal(){
       if(!input)return;
       var t=String(input.value||'').trim();
       if(!t)return;
-      var c=document.getElementById('ktSaChat');
-      if(c){
-        var d=document.createElement('div');
-        d.className='kt-sa-msg';
-        d.textContent='나 · '+t;
-        c.appendChild(d);
-        while(c.children.length>4)c.removeChild(c.firstChild);
-      }
+      pushChat('나',t);
       input.value='';
     }
     if(send)send.onclick=sendLocal;
     if(input)input.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();sendLocal();}});
+
+    if(!window.__ktSaAnnounceWrapped && typeof window.ktAnnounceEvent==='function'){
+      window.__ktSaAnnounceWrapped=true;
+      var oldAnnounce=window.ktAnnounceEvent;
+      window.ktAnnounceEvent=function(type,data){
+        var out=oldAnnounce.apply(this,arguments);
+        try{
+          data=data||{};
+          if(isSolo() && window.ktSoloPushMessage){
+            if(type==='gift'){
+              window.ktSoloPushMessage('🎁 '+(data.sender||'선물'),(data.name||'선물')+(data.count?' '+data.count+'개':'')+' 선물했습니다!');
+            }else if(type==='join'){
+              window.ktSoloPushMessage('👋 '+(data.name||'새 시청자'),'방송에 들어왔습니다.');
+            }else if(type==='reward'){
+              window.ktSoloPushMessage('🎉',data.text||'보상이 지급되었습니다.');
+            }else if(type==='notice'){
+              window.ktSoloPushMessage('📢',data.text||'알림이 있습니다.');
+            }
+          }
+        }catch(e){}
+        return out;
+      };
+    }
 
     function tick(){
       var started=0;
