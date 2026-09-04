@@ -48,7 +48,7 @@
     if(row.author_name&&a.name&&a.name!=='K-Talk'&&String(row.author_name)===a.name)return true;
     return false;
   }
-  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c];});}
 
   window.ktOpenPublicVideoOwnerMenu=function(id,url,path){
     var qid=String(id||'').replace(/'/g,"\\'");
@@ -319,4 +319,26 @@
     new MutationObserver(function(){wrapUploadFunctions();hideDuplicateCards();}).observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
   setInterval(refresh,1800);
+})();
+
+/* Advertising inquiry contact details. */
+(function(){
+  if(window.__ktAdContactDetailsLoaded)return;
+  window.__ktAdContactDetailsLoaded=true;
+  function install(){
+    if(typeof window.showSheet!=='function')return;
+    window.openAd=function(){
+      showSheet('📣 광고 문의',
+        '<div style="display:grid;gap:10px">'
+        +'<div class="rowbox"><b>📣 K-Talk 광고 · 판매 문의</b><br>광고 등록, 판매자 광고, 제휴 문의는 아래 연락처로 문의해 주세요.</div>'
+        +'<div class="rowbox"><b>👤 담당자</b><br>송충영</div>'
+        +'<div class="rowbox"><b>📞 문의 전화</b><br><a href="tel:01075107218" style="color:#7ee7ff;font-size:18px;font-weight:950;text-decoration:none">010-7510-7218</a></div>'
+        +'<div class="rowbox"><b>🧾 사업자 번호</b><br>787-48-01170</div>'
+        +'<a class="act" href="tel:01075107218" style="display:block;text-align:center;text-decoration:none">📞 광고 문의 전화하기</a>'
+        +'</div>');
+    };
+  }
+  install();
+  setTimeout(install,100);
+  setTimeout(install,600);
 })();
