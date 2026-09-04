@@ -18,97 +18,22 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
-          import re
-
-          feed=Path('feed-home-fix.js')
-          s=feed.read_text(encoding='utf-8')
-          s=s.replace('눌러서 방송 들어가기','방송 자동 연결 중...')
-          marker='/* K-Talk: reliable viewer LIVE discovery. */'
+          import base64, re
+          feed = Path('feed-home-fix.js')
+          s = feed.read_text(encoding='utf-8')
+          s = s.replace('눌러서 방송 들어가기', '방송 자동 연결 중...')
+          marker = '/* K-Talk: reliable viewer LIVE discovery. */'
+          encoded = 'LyogSy1UYWxrOiByZWxpYWJsZSB2aWV3ZXIgTElWRSBkaXNjb3ZlcnkuICovCihmdW5jdGlvbigpewogIGlmKHdpbmRvdy5fX2t0TGl2ZUF1dG9FbnRyeUxvYWRlZClyZXR1cm47CiAgd2luZG93Ll9fa3RMaXZlQXV0b0VudHJ5TG9hZGVkPXRydWU7CgogIHZhciBTQj0naHR0cHM6Ly96dXB3YmZtYWN3emV4eXZ6bmx6cS5zdXBhYmFzZS5jbyc7CiAgdmFyIEtFWT0nc2JfcHVibGlzaGFibGVfQW55Q01pNHJBZ1NSMnVXZ191MXB2d19oSHlxV2xtMyc7CiAgdmFyIGpvaW5pbmc9ZmFsc2U7CiAgdmFyIHNub296ZVVudGlsPTA7CiAgdmFyIGxhc3RIb3N0PScnOwogIHZhciBsYXN0QXR0ZW1wdEF0PTA7CgogIGZ1bmN0aW9uIGhlYWRlcnMoKXtyZXR1cm4ge2FwaWtleTpLRVksQXV0aG9yaXphdGlvbjonQmVhcmVyICcrS0VZfTt9CiAgZnVuY3Rpb24gaG9zdERldmljZSgpewogICAgdHJ5ewogICAgICBpZihkb2N1bWVudC5ib2R5LmNsYXNzTGlzdC5jb250YWlucygna3Qtc29sby1ob3N0LWxpdmUnKSlyZXR1cm4gdHJ1ZTsKICAgICAgaWYoZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2t0TGl2ZVZpZGVvJykpcmV0dXJuIHRydWU7CiAgICAgIHZhciBzdHJlYW09d2luZG93LnN0YXRlJiZzdGF0ZS5zdHJlYW07CiAgICAgIGlmKHN0cmVhbSYmc3RyZWFtLmdldFZpZGVvVHJhY2tzJiZzdHJlYW0uZ2V0VmlkZW9UcmFja3MoKS5zb21lKGZ1bmN0aW9uKHQpe3JldHVybiB0LnJlYWR5U3RhdGU9PT0nbGl2ZSc7fSkpcmV0dXJuIHRydWU7CiAgICAgIHZhciBjcmVhdG9yPWRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdjcmVhdG9yJyl8fHdpbmRvdy5jcmVhdG9yOwogICAgICBpZihjcmVhdG9yJiZjcmVhdG9yLmNsYXNzTGlzdCYmY3JlYXRvci5jbGFzc0xpc3QuY29udGFpbnMoJ3Nob3cnKSlyZXR1cm4gdHJ1ZTsKICAgIH1jYXRjaChlKXt9CiAgICByZXR1cm4gZmFsc2U7CiAgfQogIGZ1bmN0aW9uIHZpZXdlclJlYWR5KCl7CiAgICB0cnl7CiAgICAgIGlmKGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdrdFJlbW90ZUxpdmUnKSlyZXR1cm4gZmFsc2U7CiAgICAgIGlmKGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdrdFVuaWZpZWRGZWVkJykpcmV0dXJuIHRydWU7CiAgICAgIGlmKGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3IoJy5rdC1saXZlLWZlZWQtY2FyZCcpKXJldHVybiB0cnVlOwogICAgICBpZihkb2N1bWVudC5ib2R5LmNsYXNzTGlzdC5jb250YWlucygna3QtaG9tZScpKXJldHVybiB0cnVlOwogICAgfWNhdGNoKGUpe30KICAgIHJldHVybiBmYWxzZTsKICB9CiAgZnVuY3Rpb24gaW5zdGFsbExlYXZlU25vb3plKCl7CiAgICB2YXIgZm49d2luZG93Lmt0TGVhdmVSZW1vdGVMaXZlOwogICAgaWYodHlwZW9mIGZuIT09J2Z1bmN0aW9uJ3x8Zm4uX19rdExpdmVWaXNpYmxlTGVhdmVXcmFwcGVkKXJldHVybjsKICAgIGZ1bmN0aW9uIHdyYXBwZWQoKXsKICAgICAgc25vb3plVW50aWw9RGF0ZS5ub3coKSszMDAwMDsKICAgICAgcmV0dXJuIGZuLmFwcGx5KHRoaXMsYXJndW1lbnRzKTsKICAgIH0KICAgIHdyYXBwZWQuX19rdExpdmVWaXNpYmxlTGVhdmVXcmFwcGVkPXRydWU7CiAgICB3aW5kb3cua3RMZWF2ZVJlbW90ZUxpdmU9d3JhcHBlZDsKICB9CiAgYXN5bmMgZnVuY3Rpb24gc2NhbigpewogICAgaW5zdGFsbExlYXZlU25vb3plKCk7CiAgICBpZihqb2luaW5nfHxEYXRlLm5vdygpPHNub296ZVVudGlsfHxob3N0RGV2aWNlKCl8fCF2aWV3ZXJSZWFkeSgpKXJldHVybjsKICAgIGlmKHR5cGVvZiB3aW5kb3cua3RKb2luTGl2ZSE9PSdmdW5jdGlvbicpcmV0dXJuOwogICAgdHJ5ewogICAgICB2YXIgc2luY2U9bmV3IERhdGUoRGF0ZS5ub3coKS0xMjAwMDApLnRvSVNPU3RyaW5nKCk7CiAgICAgIHZhciB1cmw9U0IrJy9yZXN0L3YxL2t0YWxrX2xpdmVfcm9vbXM/c2VsZWN0PWhvc3RfaWQsaG9zdF9uYW1lLHRpdGxlLHJvb21fbmFtZSxzdGFydGVkX2F0LHVwZGF0ZWRfYXQmYWN0aXZlPWVxLnRydWUmdXBkYXRlZF9hdD1ndGUuJytlbmNvZGVVUklDb21wb25lbnQoc2luY2UpKycmb3JkZXI9c3RhcnRlZF9hdC5kZXNjJmxpbWl0PTEnOwogICAgICB2YXIgcj1hd2FpdCBmZXRjaCh1cmwse2hlYWRlcnM6aGVhZGVycygpfSk7CiAgICAgIGlmKCFyLm9rKXJldHVybjsKICAgICAgdmFyIHJvd3M9YXdhaXQgci5qc29uKCk7CiAgICAgIHZhciBsaXZlPXJvd3MmJnJvd3NbMF07CiAgICAgIGlmKCFsaXZlKXJldHVybjsKICAgICAgdmFyIGhvc3Q9U3RyaW5nKGxpdmUuaG9zdF9pZHx8J2d1ZXN0Jyk7CiAgICAgIGlmKGxhc3RIb3N0PT09aG9zdCYmRGF0ZS5ub3coKS1sYXN0QXR0ZW1wdEF0PDQwMDApcmV0dXJuOwogICAgICBsYXN0SG9zdD1ob3N0OwogICAgICBsYXN0QXR0ZW1wdEF0PURhdGUubm93KCk7CiAgICAgIHRyeXsKICAgICAgICB2YXIgY2FyZD1kb2N1bWVudC5xdWVyeVNlbGVjdG9yKCcua3QtbGl2ZS1mZWVkLWNhcmQnKTsKICAgICAgICB2YXIgc3Ryb25nPWNhcmQmJmNhcmQucXVlcnlTZWxlY3Rvcignc3Ryb25nJyk7CiAgICAgICAgaWYoc3Ryb25nKXN0cm9uZy50ZXh0Q29udGVudD0n67Cp7IahIOyekOuPmSDsl7DqsrAg7KSRLi4uJzsKICAgICAgfWNhdGNoKGUpe30KICAgICAgam9pbmluZz10cnVlOwogICAgICB0cnl7YXdhaXQgd2luZG93Lmt0Sm9pbkxpdmUoaG9zdCxsaXZlLnRpdGxlfHxsaXZlLmhvc3RfbmFtZXx8J0stVGFsayBMSVZFJyxsaXZlLnJvb21fbmFtZXx8J+udvOydtOu4jCDrsKnshqEnKTt9Y2F0Y2goZSl7fQogICAgICBzZXRUaW1lb3V0KGZ1bmN0aW9uKCl7am9pbmluZz1mYWxzZTt9LDEwMDApOwogICAgfWNhdGNoKGUpe30KICB9CgogIHRyeXtuZXcgTXV0YXRpb25PYnNlcnZlcihmdW5jdGlvbigpe3NldFRpbWVvdXQoc2NhbiwzMCk7fSkub2JzZXJ2ZShkb2N1bWVudC5kb2N1bWVudEVsZW1lbnQse2NoaWxkTGlzdDp0cnVlLHN1YnRyZWU6dHJ1ZX0pO31jYXRjaChlKXt9CiAgc2V0VGltZW91dChzY2FuLDQ1MCk7CiAgc2V0SW50ZXJ2YWwoc2NhbiwxNTAwKTsKfSkoKTsK'
+          snippet = base64.b64decode(encoded).decode('utf-8')
           if marker not in s:
-              s += r'''
+              s += '\n\n' + snippet
+          feed.write_text(s, encoding='utf-8')
 
-/* K-Talk: reliable viewer LIVE discovery. */
-(function(){
-  if(window.__ktLiveAutoEntryLoaded)return;
-  window.__ktLiveAutoEntryLoaded=true;
-
-  var SB='https://zupwbfmacwzexyvznlzq.supabase.co';
-  var KEY='sb_publishable_AnyCMi4rAgSR2uWg_u1pvw_hHyqWlm3';
-  var joining=false;
-  var snoozeUntil=0;
-  var lastHost='';
-  var lastAttemptAt=0;
-
-  function headers(){return {apikey:KEY,Authorization:'Bearer '+KEY};}
-  function hostDevice(){
-    try{
-      if(document.body.classList.contains('kt-solo-host-live'))return true;
-      if(document.getElementById('ktLiveVideo'))return true;
-      var stream=window.state&&state.stream;
-      if(stream&&stream.getVideoTracks&&stream.getVideoTracks().some(function(t){return t.readyState==='live';}))return true;
-      var creator=document.getElementById('creator')||window.creator;
-      if(creator&&creator.classList&&creator.classList.contains('show'))return true;
-    }catch(e){}
-    return false;
-  }
-  function viewerReady(){
-    try{
-      if(document.getElementById('ktRemoteLive'))return false;
-      if(document.getElementById('ktUnifiedFeed'))return true;
-      if(document.querySelector('.kt-live-feed-card'))return true;
-      if(document.body.classList.contains('kt-home'))return true;
-    }catch(e){}
-    return false;
-  }
-  function installLeaveSnooze(){
-    var fn=window.ktLeaveRemoteLive;
-    if(typeof fn!=='function'||fn.__ktLiveVisibleLeaveWrapped)return;
-    function wrapped(){
-      snoozeUntil=Date.now()+30000;
-      return fn.apply(this,arguments);
-    }
-    wrapped.__ktLiveVisibleLeaveWrapped=true;
-    window.ktLeaveRemoteLive=wrapped;
-  }
-  async function scan(){
-    installLeaveSnooze();
-    if(joining||Date.now()<snoozeUntil||hostDevice()||!viewerReady())return;
-    if(typeof window.ktJoinLive!=='function')return;
-    try{
-      var since=new Date(Date.now()-120000).toISOString();
-      var url=SB+'/rest/v1/ktalk_live_rooms?select=host_id,host_name,title,room_name,started_at,updated_at&active=eq.true&updated_at=gte.'+encodeURIComponent(since)+'&order=started_at.desc&limit=1';
-      var r=await fetch(url,{headers:headers()});
-      if(!r.ok)return;
-      var rows=await r.json();
-      var live=rows&&rows[0];
-      if(!live)return;
-      var host=String(live.host_id||'guest');
-      if(lastHost===host&&Date.now()-lastAttemptAt<4000)return;
-      lastHost=host;
-      lastAttemptAt=Date.now();
-      try{
-        var card=document.querySelector('.kt-live-feed-card');
-        var strong=card&&card.querySelector('strong');
-        if(strong)strong.textContent='방송 자동 연결 중...';
-      }catch(e){}
-      joining=true;
-      try{await window.ktJoinLive(host,live.title||live.host_name||'K-Talk LIVE',live.room_name||'라이브 방송');}catch(e){}
-      setTimeout(function(){joining=false;},1000);
-    }catch(e){}
-  }
-
-  try{new MutationObserver(function(){setTimeout(scan,30);}).observe(document.documentElement,{childList:true,subtree:true});}catch(e){}
-  setTimeout(scan,450);
-  setInterval(scan,1500);
-})();
-'''
-              feed.write_text(s,encoding='utf-8')
-
-          index=Path('index.html')
-          h=index.read_text(encoding='utf-8')
-          h=re.sub(r'feed-home-fix\.js\?v=[^"\']+', 'feed-home-fix.js?v=20260904-live-visible05', h)
-          h=re.sub(r'desktop-live-fullscreen\.js\?v=[^"\']+', 'desktop-live-fullscreen.js?v=20260904-live-visible05', h)
-          index.write_text(h,encoding='utf-8')
+          index = Path('index.html')
+          h = index.read_text(encoding='utf-8')
+          h = re.sub(r'feed-home-fix\.js\?v=[^\"]+', 'feed-home-fix.js?v=20260904-live-visible05', h)
+          h = re.sub(r'desktop-live-fullscreen\.js\?v=[^\"]+', 'desktop-live-fullscreen.js?v=20260904-live-visible05', h)
+          index.write_text(h, encoding='utf-8')
           PY
       - name: Commit live visibility fix
         shell: bash
