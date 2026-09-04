@@ -49,8 +49,7 @@
 
   async function getLives(){
     try{
-      var since=new Date(Date.now()-120000).toISOString();
-      var u=SB+'/rest/v1/ktalk_live_rooms?select=host_id,host_name,title,room_name,started_at,updated_at&active=eq.true&updated_at=gte.'+encodeURIComponent(since)+'&order=started_at.desc&limit=30';
+      var u=SB+'/rest/v1/ktalk_live_rooms?select=host_id,host_name,title,room_name,started_at,updated_at&active=eq.true&order=started_at.desc&limit=30';
       var r=await fetch(u,{headers:headers()});
       return r.ok?await r.json():[];
     }catch(e){return[];}
@@ -135,8 +134,19 @@
     });
   }
 
+  function ensureLiveFeedSync(){
+    if(window.__ktLiveFeedSyncLoaded)return;
+    if(document.querySelector('script[data-kt-live-feed-sync]'))return;
+    var s=document.createElement('script');
+    s.src='live-feed-sync.js?v=20260904-livefeed01';
+    s.async=false;
+    s.setAttribute('data-kt-live-feed-sync','1');
+    document.head.appendChild(s);
+  }
+
   installFriendsPage();
   decorateFollowButtons();
-  try{new MutationObserver(function(){installFriendsPage();decorateFollowButtons();}).observe(document.documentElement,{childList:true,subtree:true});}catch(e){}
-  setInterval(function(){installFriendsPage();decorateFollowButtons();if(document.getElementById('ktFollowStatusPage'))renderFriendsPage();},4000);
+  ensureLiveFeedSync();
+  try{new MutationObserver(function(){installFriendsPage();decorateFollowButtons();ensureLiveFeedSync();}).observe(document.documentElement,{childList:true,subtree:true});}catch(e){}
+  setInterval(function(){installFriendsPage();decorateFollowButtons();ensureLiveFeedSync();if(document.getElementById('ktFollowStatusPage'))renderFriendsPage();},4000);
 })();
