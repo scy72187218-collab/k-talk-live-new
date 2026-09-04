@@ -17,7 +17,7 @@
     var st=document.createElement('style');
     st.id='ktSoloApprovedStyleCss';
     st.textContent='\
-#ktSoloHostLive{background:#000!important;}\
+#ktSoloHostLive{background:radial-gradient(circle at 25% 20%,#341033 0,transparent 34%),radial-gradient(circle at 78% 28%,#102d48 0,transparent 32%),#08050d!important;}\
 #ktSoloHostLive #ktSoloAttendance{display:none!important;}\
 #ktSoloHostLive .kt-sa{position:absolute;z-index:30;color:#fff;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;box-sizing:border-box;}\
 #ktSoloHostLive .kt-sa button{font:inherit;color:inherit;}\
@@ -39,9 +39,9 @@
 #ktSoloHostLive .kt-sa-act small{display:block;font-size:8px;line-height:1;margin-top:-4px;}\
 #ktSoloHostLive .kt-sa-chat{left:10px;right:68px;bottom:211px;display:flex;flex-direction:column;gap:4px;pointer-events:none;}\
 #ktSoloHostLive .kt-sa-msg{align-self:flex-start;max-width:76%;padding:5px 8px;border-radius:12px;background:#0a0a0a9e;font-size:10px;font-weight:750;white-space:normal;}\
-#ktSoloHostLive .kt-sa-eq{left:8px;right:68px;bottom:181px;height:27px;display:flex;align-items:center;justify-content:center;gap:2px;padding:0 4px;pointer-events:none;}\
-#ktSoloHostLive .kt-sa-eq i{display:block;width:3px;border-radius:5px;background:linear-gradient(#ff46cd,#53d7ff,#ffe24c);box-shadow:0 0 6px currentColor;animation:ktSaEq 760ms ease-in-out infinite alternate;}\
-@keyframes ktSaEq{from{height:5px}to{height:25px}}\
+#ktSoloHostLive .kt-sa-eq{left:8px;right:8px;bottom:179px;height:24px;display:flex;align-items:center;justify-content:center;gap:1px;padding:0 3px;pointer-events:none;overflow:hidden;}\
+#ktSoloHostLive .kt-sa-eq i{display:block;width:2px;border-radius:5px;background:linear-gradient(180deg,#ff59d7 0 25%,#56d9ff 25% 55%,#ffd64f 55% 100%);box-shadow:0 0 5px #7adfff99;animation:ktSaEq 680ms ease-in-out infinite alternate;}\
+@keyframes ktSaEq{from{height:3px}to{height:19px}}\
 #ktSoloHostLive .kt-sa-input{left:10px;right:66px;bottom:136px;height:39px;display:flex;gap:6px;}\
 #ktSoloHostLive .kt-sa-input input{min-width:0;flex:1;border:1px solid #ffffff42;border-radius:20px;background:#09090b9f;color:#fff;padding:0 13px;outline:0;font-size:11px;}\
 #ktSoloHostLive .kt-sa-input button{width:39px;border:1px solid #ffffff42;border-radius:50%;background:#09090b9f;font-size:17px;}\
@@ -62,7 +62,7 @@
 
   function makeEq(){
     var s='';
-    for(var i=0;i<54;i++)s+='<i style="animation-delay:'+((i%11)*55)+'ms"></i>';
+    for(var i=0;i<84;i++)s+='<i style="animation-delay:'+((i%14)*42)+'ms"></i>';
     return s;
   }
 
