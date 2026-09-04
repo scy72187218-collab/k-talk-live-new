@@ -161,3 +161,118 @@
   }catch(e){}
   setInterval(function(){fixModes();applyCamera();},700);
 })();
+
+/* Subscriber-only host settings: custom room title + support account. General members are locked. */
+(function(){
+  if(window.__ktSubscriberHostSettingsLoaded)return;
+  window.__ktSubscriberHostSettingsLoaded=true;
+
+  function isSubscriber(){
+    try{
+      if(localStorage.getItem('ktalk_member_type')==='subscriber')return true;
+    }catch(e){}
+    try{
+      if(window.state&&(state.memberType==='subscriber'||state.subscribed===true||state.subscriptionActive===true))return true;
+    }catch(e){}
+    return false;
+  }
+
+  function accountKey(){
+    var id='guest';
+    try{id=(window.state&&(state.profileId||state.currentAccountId||state.accountId))||id;}catch(e){}
+    try{id=localStorage.getItem('ktalk_active_account')||localStorage.getItem('ktalk_profile_id')||id;}catch(e){}
+    return 'ktalk_host_support_account_'+String(id).replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,80);
+  }
+
+  function defaultRoomTitle(){
+    try{return String((window.state&&state.liveRoomName)||'1인 방송');}catch(e){return '1인 방송';}
+  }
+
+  function ensureSupportField(){
+    var title=document.getElementById('liveTitle');
+    if(!title)return;
+    var prep=title.closest('.live-prep');
+    if(!prep)return;
+    var topic=title.closest('.prep-topic')||title.parentElement;
+    var sub=isSubscriber();
+    var box=document.getElementById('ktSubscriberSupportAccount');
+    var note=document.getElementById('ktGeneralHostLockedNote');
+
+    if(sub){
+      title.readOnly=false;
+      title.disabled=false;
+      title.style.removeProperty('opacity');
+      title.style.removeProperty('cursor');
+      title.placeholder='내 방송 제목을 입력하세요';
+      if(note)note.remove();
+      if(!box){
+        box=document.createElement('div');
+        box.id='ktSubscriberSupportAccount';
+        box.style.cssText='margin:8px 4px 0;padding:9px 11px;border-radius:16px;background:rgba(14,14,20,.52);border:1px solid rgba(255,216,90,.35)';
+        box.innerHTML='<label for="ktHostSupportAccount" style="display:block;margin-bottom:5px;color:#ffd85a;font-size:12px;font-weight:900">구독자 전용 · 후원 계좌</label><input id="ktHostSupportAccount" type="text" maxlength="60" autocomplete="off" placeholder="은행명 / 계좌번호 / 예금주" style="width:100%;padding:9px 11px;border-radius:12px;border:1px solid rgba(255,255,255,.12);outline:0;background:rgba(255,255,255,.08);color:#fff;font-size:14px;font-weight:800">';
+        if(topic&&topic.parentNode)topic.parentNode.insertBefore(box,topic.nextSibling);
+      }
+      var inp=document.getElementById('ktHostSupportAccount');
+      if(inp&&!inp.dataset.loaded){
+        inp.dataset.loaded='1';
+        try{inp.value=localStorage.getItem(accountKey())||'';}catch(e){}
+        inp.addEventListener('input',function(){try{localStorage.setItem(accountKey(),String(inp.value||'').slice(0,60));}catch(e){}});
+      }
+      if(box)box.style.display='block';
+    }else{
+      title.readOnly=true;
+      title.disabled=false;
+      title.style.setProperty('opacity','.72');
+      title.style.setProperty('cursor','not-allowed');
+      title.value=defaultRoomTitle();
+      if(box)box.style.display='none';
+      if(!note){
+        note=document.createElement('div');
+        note.id='ktGeneralHostLockedNote';
+        note.textContent='방 제목 · 후원 계좌 등록은 구독자만 이용할 수 있습니다.';
+        note.style.cssText='margin:7px 4px 0;padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.07);color:#e0e0e5;font-size:11px;font-weight:800;text-align:center';
+        if(topic&&topic.parentNode)topic.parentNode.insertBefore(note,topic.nextSibling);
+      }
+    }
+  }
+
+  function prepareBeforeLiveStart(){
+    var title=document.getElementById('liveTitle');
+    if(!title)return;
+    if(!isSubscriber()){
+      var def=defaultRoomTitle();
+      title.value=def;
+      try{if(window.state){state.currentLiveRoomTitle=def;state.liveHostSupportAccount='';}}catch(e){}
+      return;
+    }
+
+    var raw=String(title.value||'').trim();
+    if(!raw||raw==='오늘 라이브 제목을 입력하세요')raw=defaultRoomTitle();
+    raw=raw.split(' · 후원계좌 ')[0].trim();
+    var bank='';
+    var inp=document.getElementById('ktHostSupportAccount');
+    if(inp)bank=String(inp.value||'').trim().slice(0,60);
+    try{if(bank)localStorage.setItem(accountKey(),bank);}catch(e){}
+    var published=bank?(raw+' · 후원계좌 '+bank):raw;
+    title.value=published;
+    try{if(window.state){state.currentLiveRoomTitle=published;state.liveHostSupportAccount=bank;}}catch(e){}
+  }
+
+  document.addEventListener('click',function(e){
+    var t=e.target;
+    if(t&&t.closest&&t.closest('.prep-start'))prepareBeforeLiveStart();
+  },true);
+
+  document.addEventListener('focusin',function(e){
+    if(e.target&&e.target.id==='liveTitle'&&!isSubscriber()){
+      try{e.target.blur();}catch(_e){}
+      ensureSupportField();
+    }
+  },true);
+
+  ensureSupportField();
+  try{
+    new MutationObserver(function(){setTimeout(ensureSupportField,0);}).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
+  }catch(e){}
+  setInterval(ensureSupportField,800);
+})();
