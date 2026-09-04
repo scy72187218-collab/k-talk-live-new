@@ -88,16 +88,22 @@
 
   window.ktApplyTikTokMultiRoomLayout=applyLayout;
 
+  var lastAppliedVideo=null;
+  function applyForNewVideo(){
+    if(!isTargetRoom())return;
+    var v=document.getElementById('ktLiveVideo');
+    if(!v||v===lastAppliedVideo)return;
+    lastAppliedVideo=v;
+    setTimeout(function(){
+      if(v===document.getElementById('ktLiveVideo'))applyLayout();
+    },30);
+  }
+
   try{
-    var obs=new MutationObserver(function(){
-      if(isTargetRoom()&&document.getElementById('ktLiveVideo'))setTimeout(applyLayout,30);
-    });
+    var obs=new MutationObserver(applyForNewVideo);
     obs.observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
-
-  setInterval(function(){
-    if(isTargetRoom()&&document.getElementById('ktLiveVideo'))applyLayout();
-  },500);
+  applyForNewVideo();
 })();
 
 /* Creator camera compact fix: only camera framing and bottom capture controls. */
