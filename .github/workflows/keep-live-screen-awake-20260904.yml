@@ -1,0 +1,101 @@
+name: Keep LIVE screen awake
+
+on:
+  push:
+    paths:
+      - '.github/workflows/keep-live-screen-awake-20260904.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Add broadcast-only screen wake lock
+        shell: bash
+        run: |
+          cat > live-screen-awake.js <<'JS'
+/* K-Talk: keep the broadcaster's screen awake while LIVE. No layout or media behavior changes. */
+(function(){
+  if(window.__ktLiveScreenAwakeLoaded)return;
+  window.__ktLiveScreenAwakeLoaded=true;
+
+  var lock=null;
+  var requesting=false;
+
+  function broadcasting(){
+    try{
+      if(document.getElementById('ktLiveVideo'))return true;
+      if(document.body.classList.contains('kt-solo-host-live'))return true;
+      var s=window.state&&state.stream;
+      if(s&&s.getVideoTracks&&s.getVideoTracks().some(function(t){return t.readyState==='live';})){
+        var creator=document.getElementById('creator')||window.creator;
+        if(!(creator&&creator.classList&&creator.classList.contains('show')))return true;
+      }
+    }catch(e){}
+    return false;
+  }
+
+  async function acquire(){
+    if(lock||requesting||!broadcasting()||document.visibilityState!=='visible')return;
+    if(!navigator.wakeLock||!navigator.wakeLock.request)return;
+    requesting=true;
+    try{
+      lock=await navigator.wakeLock.request('screen');
+      lock.addEventListener('release',function(){lock=null;});
+    }catch(e){}
+    requesting=false;
+  }
+
+  async function release(){
+    if(!lock)return;
+    var old=lock;lock=null;
+    try{await old.release();}catch(e){}
+  }
+
+  function sync(){
+    if(broadcasting())acquire();
+    else release();
+  }
+
+  document.addEventListener('visibilitychange',function(){
+    if(document.visibilityState==='visible')setTimeout(sync,100);
+  });
+
+  try{new MutationObserver(sync).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});}catch(e){}
+  setInterval(sync,1000);
+  sync();
+})();
+JS
+
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          tag='<script src="live-screen-awake.js?v=20260904-liveawake01"></script>'
+          if tag not in s:
+              marker='<script src="video-owner-actions.js?v=20260904-manual-live01"></script>'
+              if marker not in s:
+                  import re
+                  m=re.search(r'<script src="video-owner-actions\.js\?v=[^"\']+"></script>',s)
+                  if not m:
+                      raise SystemExit('video-owner-actions script marker not found')
+                  marker=m.group(0)
+              s=s.replace(marker,marker+'\n'+tag,1)
+              p.write_text(s,encoding='utf-8')
+          PY
+
+      - name: Commit broadcast screen awake fix
+        shell: bash
+        run: |
+          git config user.name 'K-Talk Patch Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add live-screen-awake.js index.html
+          if ! git diff --cached --quiet; then
+            git commit -m 'Keep broadcaster screen awake during LIVE'
+            git push origin main
+          fi
