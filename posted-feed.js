@@ -193,3 +193,42 @@
     }catch(e){alert('동영상을 재생하지 못했습니다.');}
   };
 })();
+
+/* Microphone quality: keep existing screens/features untouched and only tune the live mic track. */
+(function(){
+  if(window.__ktMicQualityBoostInstalled)return;
+  window.__ktMicQualityBoostInstalled=true;
+
+  async function tuneMic(){
+    try{
+      var s=window.state&&state.stream;
+      if(!s||!s.getAudioTracks)return;
+      var t=s.getAudioTracks()[0];
+      if(!t)return;
+      try{t.contentHint='speech';}catch(e){}
+      if(!t.applyConstraints)return;
+      var supported={};
+      try{supported=navigator.mediaDevices&&navigator.mediaDevices.getSupportedConstraints?navigator.mediaDevices.getSupportedConstraints():{};}catch(e){}
+      var c={};
+      if(supported.echoCancellation)c.echoCancellation=true;
+      if(supported.noiseSuppression)c.noiseSuppression=true;
+      if(supported.autoGainControl)c.autoGainControl=true;
+      if(supported.sampleRate)c.sampleRate={ideal:48000};
+      if(supported.sampleSize)c.sampleSize={ideal:16};
+      if(supported.channelCount)c.channelCount={ideal:1};
+      if(supported.latency)c.latency={ideal:0.02};
+      if(supported.voiceIsolation)c.voiceIsolation=true;
+      if(Object.keys(c).length)await t.applyConstraints(c);
+    }catch(e){}
+  }
+
+  var oldEnsure=window.ensureLiveCamera;
+  if(typeof oldEnsure==='function'){
+    window.ensureLiveCamera=async function(){
+      var ok=await oldEnsure.apply(this,arguments);
+      if(ok)await tuneMic();
+      return ok;
+    };
+  }
+  window.ktTuneMicQuality=tuneMic;
+})();
