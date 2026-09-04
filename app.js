@@ -860,19 +860,19 @@ function ktOpenVideoDB(){
 }
 
 window.saveCreatorDraft=async function(){
-  if(!ktCreatorBlob){alert('임시 저장할 동영상이 없습니다.');return;}
+  if(!ktCreatorBlob){alert('저장할 동영상이 없습니다.');return;}
   try{
     var db=await ktOpenVideoDB();
     var tx=db.transaction('videos','readwrite');
     tx.objectStore('videos').put({
       id:'draft-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),
-      name:'임시 저장 동영상 '+new Date().toLocaleString('ko-KR'),
+      name:'저장 동영상 '+new Date().toLocaleString('ko-KR'),
       type:ktCreatorBlob.type||'video/webm',blob:ktCreatorBlob,createdAt:Date.now(),draft:true
     });
     await new Promise(function(resolve,reject){tx.oncomplete=resolve;tx.onerror=function(){reject(tx.error);};tx.onabort=function(){reject(tx.error);};});
     db.close();
-    alert('✅ 임시 저장했습니다.');
-  }catch(e){alert('이 기기에서는 임시 저장하지 못했습니다.');}
+    alert('✅ 저장했습니다.');
+  }catch(e){alert('이 기기에서는 저장하지 못했습니다.');}
 };
 
 window.shareCreatorRecording=async function(){
