@@ -157,7 +157,7 @@
   function isSolo(){
     try{
       if(!window.state)return false;
-      return state.liveRoomType==='solo'||Number(state.liveRoomMax)===1||state.liveRoomName==='1인 방송';
+      return state.liveRoomType==='solo'||state.liveRoomName==='1인 방송';
     }catch(e){return false;}
   }
   function fillSolo(){
@@ -221,7 +221,7 @@
 
   function isSolo(){
     try{
-      return !!window.state&&(state.liveRoomType==='solo'||Number(state.liveRoomMax)===1||state.liveRoomName==='1인 방송');
+      return !!window.state&&(state.liveRoomType==='solo'||state.liveRoomName==='1인 방송');
     }catch(e){return false;}
   }
 

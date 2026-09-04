@@ -5,7 +5,7 @@
 
   function isSolo(){
     try{
-      return !!document.getElementById('ktSoloHostLive') && !!window.state && (state.liveRoomType==='solo' || Number(state.liveRoomMax)===1 || state.liveRoomName==='1인 방송');
+      return !!document.getElementById('ktSoloHostLive') && !!window.state && (state.liveRoomType==='solo' || state.liveRoomName==='1인 방송');
     }catch(e){return false;}
   }
 
