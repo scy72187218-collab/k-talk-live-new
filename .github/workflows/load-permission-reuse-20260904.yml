@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - '.github/workflows/load-permission-reuse-20260904.yml'
+      - 'permission-reuse.js'
 
 permissions:
   contents: write
@@ -20,12 +21,16 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
+          import re
           p=Path('index.html')
           s=p.read_text(encoding='utf-8')
-          tag='<script src="permission-reuse.js?v=20260904-permission01"></script>'
-          if tag not in s:
-              s=s.replace('</body>',tag+'\n</body>',1)
-              p.write_text(s,encoding='utf-8')
+          new='<script src="permission-reuse.js?v=20260904-permission04"></script>'
+          pattern=r'<script src="permission-reuse\.js\?v=[^"]+"></script>'
+          if re.search(pattern,s):
+              s=re.sub(pattern,new,s,count=1)
+          elif new not in s:
+              s=s.replace('</body>',new+'\n</body>',1)
+          p.write_text(s,encoding='utf-8')
           PY
       - name: Commit permission helper loader only
         shell: bash
@@ -34,6 +39,6 @@ jobs:
           git config user.email 'actions@users.noreply.github.com'
           git add index.html
           if ! git diff --cached --quiet; then
-            git commit -m 'Avoid repeated camera mic requests while page stays open'
+            git commit -m 'Load camera permission-on-action fix'
             git push origin main
           fi
