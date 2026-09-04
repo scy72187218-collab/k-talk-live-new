@@ -1,0 +1,50 @@
+name: Match 13-person room to reference proportions
+
+on:
+  push:
+    paths:
+      - '.github/workflows/group13-reference-ratio-20260905.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Adjust only 13-person host and guest proportions
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          p = Path('multiroom-tiktok-layout.js')
+          s = p.read_text(encoding='utf-8')
+
+          s = s.replace("    /* Host occupies the left side. No empty black side bars. */\n", "    /* Host occupies the left side. No empty black side bars. */\n    var isGroup13=getRoomType()==='group13';\n    var roomTop=isGroup13?'40px':'200px';\n")
+          s = s.replace("    video.style.setProperty('top','200px','important');", "    video.style.setProperty('top',roomTop,'important');")
+          s = s.replace("    video.style.setProperty('height','auto','important');", "    video.style.setProperty('height',isGroup13?'calc(100% - 185px)':'auto','important');", 1)
+          s = s.replace("    var max=13;\n    try{\n      var m=parseInt(state.liveRoomMax,10);\n      if(m>1)max=m;\n      else if(getRoomType()==='subscriber')max=10;\n    }catch(e){if(getRoomType()==='subscriber')max=10;}", "    var max=13;\n    if(!isGroup13){\n      try{\n        var m=parseInt(state.liveRoomMax,10);\n        if(m>1)max=m;\n        else if(getRoomType()==='subscriber')max=10;\n      }catch(e){if(getRoomType()==='subscriber')max=10;}\n    }")
+          old = "    grid.style.cssText='position:absolute;z-index:3;left:56%;right:0;top:200px;bottom:145px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat('+rows+',minmax(0,1fr));gap:4px;padding:0 5px 0 4px;overflow:hidden;pointer-events:auto';"
+          new = "    grid.style.cssText='position:absolute;z-index:3;left:56%;right:0;top:'+roomTop+';bottom:145px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat('+rows+',minmax(0,1fr));gap:4px;padding:0 5px 0 4px;overflow:hidden;pointer-events:auto';"
+          s = s.replace(old, new)
+          s = s.replace("    badge.style.cssText='position:absolute;z-index:6;left:7px;top:207px;padding:3px 7px;border-radius:6px;background:rgba(10,10,12,.72);border:1px solid rgba(255,255,255,.45);color:#fff;font-size:11px;font-weight:900;pointer-events:none';", "    badge.style.cssText='position:absolute;z-index:6;left:7px;top:'+(isGroup13?'47px':'207px')+';padding:3px 7px;border-radius:6px;background:rgba(10,10,12,.72);border:1px solid rgba(255,255,255,.45);color:#fff;font-size:11px;font-weight:900;pointer-events:none';")
+          p.write_text(s, encoding='utf-8')
+
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          s = re.sub(r'multiroom-tiktok-layout\.js\?v=[^\"\']+', 'multiroom-tiktok-layout.js?v=20260905-group13-ratio01', s, count=1)
+          p.write_text(s, encoding='utf-8')
+
+          Path('.github/workflows/group13-reference-ratio-20260905.yml').unlink(missing_ok=True)
+      - name: Commit only 13-person ratio change
+        run: |
+          git config user.name "K-Talk Patch Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet && exit 0
+          git commit -m "Match 13-person host and guest proportions"
+          git push
