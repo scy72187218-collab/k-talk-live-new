@@ -80,19 +80,42 @@
   window.ktDeletePublicVideo=async function(id,path){
     if(!id)return;
     if(!confirm('이 동영상을 공개 목록에서 삭제할까요?\n내 동영상 원본은 그대로 남습니다.'))return;
+
+    var victim=rows.find(function(x){return String(x.id)===String(id);})||null;
+    var victimUrl=victim?normalize(victim.video_url):'';
+
+    try{if(window.closeSheet)closeSheet();}catch(e){}
+    if(victimUrl){
+      try{
+        document.querySelectorAll('.kt-feed-card .kt-public-video').forEach(function(v){
+          var src=normalize(v.currentSrc||v.src||v.getAttribute('src')||'');
+          if(src!==victimUrl)return;
+          try{v.pause();}catch(e){}
+          var card=v.closest('.kt-feed-card');
+          if(card)card.remove();
+        });
+      }catch(e){}
+    }
+
     try{
       var r=await fetch(SB+'/rest/v1/ktalk_videos?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:headers({'Prefer':'return=minimal'})});
       if(!r.ok)throw new Error('row delete');
       if(path){
         try{await fetch(SB+'/storage/v1/object/ktalk-videos/'+String(path).split('/').map(encodeURIComponent).join('/'),{method:'DELETE',headers:headers()});}catch(e){}
       }
-      try{if(window.closeSheet)closeSheet();}catch(e){}
       rows=rows.filter(function(x){return String(x.id)!==String(id);});
-      alert('동영상을 삭제했습니다.');
-      if(window.ktRefreshUnifiedFeed)window.ktRefreshUnifiedFeed();
-      else if(window.home)window.home();
+      setTimeout(function(){
+        try{
+          if(window.ktRefreshUnifiedFeed)window.ktRefreshUnifiedFeed();
+          else if(window.home)window.home();
+        }catch(e){}
+      },80);
     }catch(e){
       alert('삭제가 안 됐습니다. 다시 한 번 눌러 주세요.');
+      try{
+        if(window.ktRefreshUnifiedFeed)window.ktRefreshUnifiedFeed();
+        else if(window.home)window.home();
+      }catch(_e){}
     }
   };
 
