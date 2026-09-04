@@ -66,3 +66,84 @@
   setInterval(apply,700);
   setTimeout(apply,100);
 })();
+
+/* Desktop viewer connection stability only. Phone behavior/layout is untouched. */
+(function(){
+  if(window.__ktDesktopLiveReconnectLoaded)return;
+  window.__ktDesktopLiveReconnectLoaded=true;
+
+  function isDesktop(){return window.matchMedia&&window.matchMedia('(min-width: 768px)').matches;}
+  var lastJoin=null;
+  var retryTimer=null;
+  var lastTime=-1;
+  var stalled=0;
+
+  function installJoinWrapper(){
+    var fn=window.ktJoinLive;
+    if(typeof fn!=='function'||fn.__ktDesktopStableWrapped)return;
+    function wrapped(hostId,title,roomName){
+      if(isDesktop()){
+        lastJoin={hostId:hostId,title:title,roomName:roomName};
+        lastTime=-1;
+        stalled=0;
+      }
+      return fn.apply(this,arguments);
+    }
+    wrapped.__ktDesktopStableWrapped=true;
+    wrapped.__ktDesktopOriginal=fn;
+    window.ktJoinLive=wrapped;
+  }
+
+  function scheduleRetry(delay){
+    if(!isDesktop()||!lastJoin||retryTimer)return;
+    if(!document.getElementById('ktRemoteLive'))return;
+    retryTimer=setTimeout(function(){
+      retryTimer=null;
+      if(!isDesktop()||!lastJoin||!document.getElementById('ktRemoteLive'))return;
+      try{window.ktJoinLive(lastJoin.hostId,lastJoin.title,lastJoin.roomName);}catch(e){}
+    },delay||1500);
+  }
+
+  setInterval(function(){
+    installJoinWrapper();
+    if(!isDesktop())return;
+
+    var remote=document.getElementById('ktRemoteLive');
+    if(!remote){lastTime=-1;stalled=0;return;}
+
+    var status=document.getElementById('ktRemoteLiveStatus');
+    var text=status?(status.textContent||''):'';
+    if(text.indexOf('끊겼')>=0||text.indexOf('실패')>=0||text.indexOf('늦습니다')>=0){
+      scheduleRetry(1200);
+      return;
+    }
+
+    var t=Number(remote.currentTime||0);
+    if(remote.readyState>=2&&t>0){
+      if(lastTime>=0&&Math.abs(t-lastTime)<0.08)stalled++;
+      else stalled=0;
+      lastTime=t;
+      if(stalled>=4){
+        stalled=0;
+        scheduleRetry(1000);
+      }
+    }else if(remote.readyState<2){
+      stalled++;
+      if(stalled>=4){stalled=0;scheduleRetry(1000);}
+    }
+  },2500);
+
+  window.addEventListener('online',function(){
+    if(isDesktop()&&document.getElementById('ktRemoteLive'))scheduleRetry(500);
+  });
+  document.addEventListener('visibilitychange',function(){
+    if(document.visibilityState==='visible'&&isDesktop()&&document.getElementById('ktRemoteLive')){
+      setTimeout(function(){
+        var v=document.getElementById('ktRemoteLive');
+        if(v&&v.readyState<2)scheduleRetry(500);
+      },600);
+    }
+  });
+
+  installJoinWrapper();
+})();
