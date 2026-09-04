@@ -1,4 +1,4 @@
-/* K-Talk: reuse an already-approved camera/mic stream while the page stays open, so creator reopen does not ask again unnecessarily. */
+/* K-Talk: keep camera/mic permission quiet until the user actually starts a camera action. */
 (function(){
   if(window.__ktPermissionReuseLoaded)return;
   window.__ktPermissionReuseLoaded=true;
@@ -24,11 +24,7 @@
     try{stream.getTracks().forEach(function(t){if(t.readyState==='live')t.enabled=false;});}catch(e){}
   }
 
-  /*
-    예전처럼 한 번 허용한 카메라/마이크 트랙은 같은 페이지가 살아 있는 동안 stop()하지 않습니다.
-    화면을 닫았을 때는 enabled=false로만 쉬게 하고, 다시 열면 그대로 재사용합니다.
-    브라우저가 탭을 실제로 종료하면 트랙은 브라우저가 정리합니다.
-  */
+  /* Reuse a live, already-approved stream instead of asking again. */
   function keepApprovedStream(stream){
     if(!hasLiveStream(stream))return;
     if(liveScreenOpen())enableStream(stream);
@@ -59,6 +55,32 @@
     window.ensureLiveCamera=wrapped;
   }
 
+  /*
+    Opening the creator/broadcast preparation screen must not itself ask for camera/mic.
+    The real permission request remains in startBroadcast/startCreatorRecording and explicit
+    beauty/effect camera actions, so it happens only after a user camera action.
+  */
+  function wrapOpenCreator(){
+    var old=window.openCreator;
+    if(typeof old!=='function'||old.__ktPermissionOnActionWrapped)return;
+    var wrapped=async function(){
+      var realEnsure=window.ensureLiveCamera;
+      var realPreview=window.ensureCreatorPreviewCamera;
+      var noRequest=async function(){return true;};
+      try{
+        window.ensureLiveCamera=noRequest;
+        window.ensureCreatorPreviewCamera=noRequest;
+        return await old.apply(this,arguments);
+      }finally{
+        window.ensureLiveCamera=realEnsure;
+        window.ensureCreatorPreviewCamera=realPreview;
+      }
+    };
+    wrapped.__ktPermissionOnActionWrapped=true;
+    wrapped.__ktOriginal=old;
+    window.openCreator=wrapped;
+  }
+
   function wrapClose(){
     var old=window.closeCreator;
     if(typeof old!=='function'||old.__ktPermissionReuseWrapped)return;
@@ -79,7 +101,7 @@
     window.closeCreator=wrapped;
   }
 
-  function install(){wrapEnsure();wrapClose();}
+  function install(){wrapEnsure();wrapOpenCreator();wrapClose();}
   install();
   setTimeout(install,100);
   setTimeout(install,700);
@@ -141,11 +163,7 @@
   setTimeout(sync,300);
 })();
 
-/*
-  Mobile 13-person/subscriber LIVE only: freeze the live viewport height while the room is open.
-  This prevents Samsung/Naver browser bars from making the room repeatedly shrink and expand.
-  Other pages and 1-person LIVE are untouched.
-*/
+/* Mobile 13-person/subscriber LIVE only: keep the room height stable. */
 (function(){
   if(window.__ktMultiLiveViewportStableLoaded)return;
   window.__ktMultiLiveViewportStableLoaded=true;
