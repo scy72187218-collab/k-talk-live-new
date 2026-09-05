@@ -98,6 +98,14 @@
     document.head.appendChild(vr);
   }
 
+  if(!document.querySelector('script[data-kt-live-first-feed]')){
+    var lf=document.createElement('script');
+    lf.src='live-first-feed-fix.js?v=20260905-livefirst01';
+    lf.defer=true;
+    lf.setAttribute('data-kt-live-first-feed','1');
+    document.head.appendChild(lf);
+  }
+
   if(!document.querySelector('script[data-kt-playable-sounds]')){
     var snd=document.createElement('script');
     snd.src='sound-playable-original.js?v=20260905-vocal02';
