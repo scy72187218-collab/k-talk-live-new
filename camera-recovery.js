@@ -41,4 +41,12 @@
     lh.setAttribute('data-kt-live-home-indicator','1');
     document.head.appendChild(lh);
   }
+
+  if(!document.querySelector('script[data-kt-playable-sounds]')){
+    var snd=document.createElement('script');
+    snd.src='sound-playable-original.js?v=20260905-sound01';
+    snd.defer=true;
+    snd.setAttribute('data-kt-playable-sounds','1');
+    document.head.appendChild(snd);
+  }
 })();
