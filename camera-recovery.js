@@ -12,7 +12,7 @@
 
   if(!document.querySelector('script[data-kt-group13-layout]')){
     var g=document.createElement('script');
-    g.src='group13-reference-layout.js?v=20260905-group13-07';
+    g.src='group13-reference-layout.js?v=20260905-group13-08';
     g.defer=true;
     g.setAttribute('data-kt-group13-layout','1');
     document.head.appendChild(g);
