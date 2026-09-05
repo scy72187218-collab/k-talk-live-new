@@ -137,4 +137,29 @@
     snd.setAttribute('data-kt-playable-sounds','1');
     document.head.appendChild(snd);
   }
+
+  /* 주소 직접 접속 때 기본 1개 화면에 멈추지 않고 실제 공개 동영상 피드를 다시 불러온다. */
+  function forcePublicFeed(){
+    try{
+      if(document.getElementById('ktUnifiedFeed'))return;
+      if(!document.querySelector('.video-home'))return;
+      if(typeof window.ktRefreshUnifiedFeed!=='function')return;
+      var r=window.ktRefreshUnifiedFeed();
+      if(r&&typeof r.then==='function'){
+        r.then(function(){
+          var feed=document.getElementById('ktUnifiedFeed');
+          if(feed){
+            feed.style.setProperty('overflow-y','scroll','important');
+            feed.style.setProperty('-webkit-overflow-scrolling','touch','important');
+            feed.style.setProperty('touch-action','pan-y','important');
+          }
+        }).catch(function(){});
+      }
+    }catch(e){}
+  }
+  setTimeout(forcePublicFeed,80);
+  setTimeout(forcePublicFeed,350);
+  setTimeout(forcePublicFeed,900);
+  setTimeout(forcePublicFeed,1800);
+  setTimeout(forcePublicFeed,3500);
 })();
