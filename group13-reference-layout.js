@@ -19,12 +19,12 @@
     s.textContent='\
 html.kt-group13-reference body #ktSept2Live .kt-live-guests{display:none!important;}\
 html.kt-group13-reference body #ktSept2Live .kt-s2-right{display:none!important;}\
-html.kt-group13-reference body #ktSept2Live #ktGroup13GuestGrid{position:absolute!important;left:calc(43% + 5px)!important;right:5px!important;top:112px!important;bottom:138px!important;z-index:4!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:repeat(4,minmax(0,1fr))!important;gap:1px!important;pointer-events:auto!important;}\
+html.kt-group13-reference body #ktSept2Live #ktGroup13GuestGrid{position:absolute!important;left:calc(43% + 5px)!important;right:5px!important;top:104px!important;bottom:138px!important;z-index:4!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:repeat(4,minmax(0,1fr))!important;gap:1px!important;pointer-events:auto!important;}\
 html.kt-group13-reference body #ktSept2Live #ktGroup13GuestGrid .kt-group13-guest{min-width:0!important;min-height:0!important;border:1px solid rgba(255,255,255,.06)!important;border-radius:6px!important;background:linear-gradient(180deg,#242427,#1d1d20)!important;color:#a5a5aa!important;display:flex!important;align-items:center!important;justify-content:center!important;font-size:14px!important;font-weight:900!important;letter-spacing:-.2px!important;box-shadow:none!important;}\
-html.kt-group13-reference body #ktSept2Live #ktGroup13HostBadge{position:absolute!important;left:14px!important;top:120px!important;z-index:6!important;padding:3px 8px!important;border-radius:12px!important;background:rgba(35,35,38,.82)!important;color:#fff!important;font-size:12px!important;font-weight:950!important;line-height:1.2!important;border:1px solid rgba(255,255,255,.12)!important;}\
-html.kt-group13-reference body #ktSept2Live .kt-s2-att-small{height:25px!important;min-width:122px!important;padding:0 8px!important;border-radius:12px!important;font-size:11px!important;}\
-html.kt-group13-reference body #ktSept2Live .kt-s2-att-large{height:40px!important;padding:0 8px!important;border-radius:17px!important;font-size:17px!important;}\
-html.kt-group13-reference body #ktSept2Live .kt-s2-attendance-stack{gap:3px!important;}\
+html.kt-group13-reference body #ktSept2Live #ktGroup13HostBadge{position:absolute!important;left:14px!important;top:112px!important;z-index:6!important;padding:3px 8px!important;border-radius:12px!important;background:rgba(35,35,38,.82)!important;color:#fff!important;font-size:12px!important;font-weight:950!important;line-height:1.2!important;border:1px solid rgba(255,255,255,.12)!important;}\
+html.kt-group13-reference body #ktSept2Live .kt-s2-att-small{height:23px!important;min-width:116px!important;padding:0 7px!important;border-radius:11px!important;font-size:10px!important;}\
+html.kt-group13-reference body #ktSept2Live .kt-s2-att-large{height:34px!important;padding:0 7px!important;border-radius:15px!important;font-size:15px!important;}\
+html.kt-group13-reference body #ktSept2Live .kt-s2-attendance-stack{gap:2px!important;}\
 html.kt-group13-reference body #ktSept2Live .kt-s2-gift-row{display:grid!important;visibility:visible!important;opacity:1!important;left:7px!important;right:7px!important;bottom:61px!important;height:72px!important;z-index:28!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:2px!important;padding:3px 2px!important;background:rgba(2,2,5,.92)!important;border-radius:8px!important;overflow:hidden!important;}\
 html.kt-group13-reference body #ktSept2Live .kt-s2-gift-row button{height:64px!important;padding:2px 1px!important;border-radius:7px!important;}\
 html.kt-group13-reference body #ktSept2Live .kt-s2-gift-row .gift-img{width:27px!important;height:27px!important;}\
@@ -99,7 +99,7 @@ html.kt-group13-reference body #ktSept2Live .kt-s2-bottom button{width:46px!impo
     v.style.setProperty('inset','auto','important');
     v.style.setProperty('left','5px','important');
     v.style.setProperty('right','auto','important');
-    v.style.setProperty('top','112px','important');
+    v.style.setProperty('top','104px','important');
     v.style.setProperty('bottom','138px','important');
     v.style.setProperty('width','43%','important');
     v.style.setProperty('height','auto','important');
