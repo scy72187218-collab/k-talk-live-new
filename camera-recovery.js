@@ -74,6 +74,14 @@
     document.head.appendChild(vc);
   }
 
+  if(!document.querySelector('script[data-kt-live-room-chat]')){
+    var rc=document.createElement('script');
+    rc.src='live-room-chat.js?v=20260905-roomchat01';
+    rc.defer=true;
+    rc.setAttribute('data-kt-live-room-chat','1');
+    document.head.appendChild(rc);
+  }
+
   if(!document.querySelector('script[data-kt-attendance-size-position]')){
     var at=document.createElement('script');
     at.src='attendance-size-position-fix.js?v=20260905-attendance04';
