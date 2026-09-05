@@ -2,7 +2,6 @@
 (function(){
   if(window.__ktLiveHostThumbnailLoaded)return;
   window.__ktLiveHostThumbnailLoaded=true;
-  /* Viewers must see the host first and tap to enter; do not auto-open a LIVE room. */
   window.__ktManualLiveEntryOnly=true;
 
   var SB='https://zupwbfmacwzexyvznlzq.supabase.co';
@@ -56,13 +55,24 @@
       var sx=0,sy=0,sww=sw,shh=sh;
       if(src>target){sww=sh*target;sx=(sw-sww)/2;}
       else{shh=sw/target;sy=(sh-shh)/2;}
-      ctx.save();
-      ctx.translate(c.width,0);
-      ctx.scale(-1,1);
+      ctx.save();ctx.translate(c.width,0);ctx.scale(-1,1);
       ctx.drawImage(v,sx,sy,sww,shh,0,0,c.width,c.height);
       ctx.restore();
       return c.toDataURL('image/jpeg',0.46);
     }catch(e){return '';}
+  }
+
+  async function currentRoom(me){
+    try{
+      var u=SB+'/rest/v1/ktalk_live_rooms?select=id,host_id,host_name&active=eq.true&order=updated_at.desc&limit=8';
+      var r=await fetch(u,{headers:headers(),cache:'no-store'});
+      if(!r.ok)return null;
+      var a=await r.json();
+      if(!Array.isArray(a)||!a.length)return null;
+      return a.find(function(x){return String(x.host_id||'')===me.id;})
+        ||a.find(function(x){return String(x.host_id||'')==='guest';})
+        ||a[0];
+    }catch(e){return null;}
   }
 
   async function publish(){
@@ -72,19 +82,13 @@
     busy=true;
     try{
       var me=who();
-      var base=SB+'/rest/v1/ktalk_live_rooms?active=eq.true&host_id=eq.'+encodeURIComponent(me.id);
-      var r=await fetch(base,{
+      var row=await currentRoom(me);
+      if(!row||!row.id){busy=false;return;}
+      var r=await fetch(SB+'/rest/v1/ktalk_live_rooms?id=eq.'+encodeURIComponent(row.id),{
         method:'PATCH',
         headers:headers({'Content-Type':'application/json','Prefer':'return=minimal'}),
         body:JSON.stringify({host_name:me.name,host_photo:photo})
       });
-      if(!r.ok&&me.id!=='guest'){
-        r=await fetch(SB+'/rest/v1/ktalk_live_rooms?active=eq.true&host_id=eq.guest',{
-          method:'PATCH',
-          headers:headers({'Content-Type':'application/json','Prefer':'return=minimal'}),
-          body:JSON.stringify({host_name:me.name,host_photo:photo})
-        });
-      }
       if(r.ok)lastPhoto=photo;
     }catch(e){}
     busy=false;
