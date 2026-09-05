@@ -3,6 +3,9 @@
   if(window.__ktSept2LiveRoomsRestoreLoaded)return;
   window.__ktSept2LiveRoomsRestoreLoaded=true;
 
+  var ktRoomClockTimer=null;
+  var ktRoomClockStartedAt=0;
+
   function esc(s){
     return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});
   }
@@ -20,6 +23,10 @@
       if(window.state){state.liveRoomType=type;state.liveRoomName=name;state.liveRoomMax=max;}
     }catch(e){}
     return {type:type,name:name,max:max};
+  }
+
+  function isAddedUiRoom(room){
+    return !!room&&(room.type==='solo'||room.type==='group'||room.type==='subscriber');
   }
 
   /* Sept. 2 used "group" for the 13-person room. Keep the current buttons but restore that value. */
@@ -58,6 +65,55 @@
     return String(t).split(' · 후원계좌 ')[0]||room.name;
   }
 
+  function formatRoomClock(ms){
+    var sec=Math.max(0,Math.floor(ms/1000));
+    var h=Math.floor(sec/3600);sec%=3600;
+    var m=Math.floor(sec/60),s=sec%60;
+    return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  }
+
+  function startRoomClock(room){
+    clearInterval(ktRoomClockTimer);
+    ktRoomClockTimer=null;
+    if(!isAddedUiRoom(room))return;
+    ktRoomClockStartedAt=Date.now();
+    function tick(){
+      var el=document.getElementById('ktS2RoomClock');
+      if(el)el.textContent=formatRoomClock(Date.now()-ktRoomClockStartedAt);
+    }
+    tick();
+    ktRoomClockTimer=setInterval(tick,1000);
+  }
+
+  function targetHeader(room){
+    if(!isAddedUiRoom(room))return '';
+    return '<div class="kt-s2-title kt-s2-title-live">'
+      +'<div class="kt-s2-title-left"><b><i></i>'+esc(room.name)+'</b><small><i></i> ON AIR <strong id="ktS2RoomClock">00:00:00</strong></small></div>'
+      +'<span>K-Talk LIVE</span>'
+    +'</div>';
+  }
+
+  function attendanceSigns(room){
+    if(!isAddedUiRoom(room))return '<div class="kt-attendance-wrap"><button id="ktAttendanceHeart" class="kt-attendance-heart" onclick="if(window.ktAttendanceCheck)ktAttendanceCheck()"><span class="kt-attendance-label">출석체크</span><span class="kt-attendance-sub">하트 1개 · 30원</span><i class="kt-attendance-miniheart">💗</i></button></div>';
+    return '<div class="kt-s2-attendance-stack">'
+      +'<button type="button" class="kt-s2-att-small" onclick="if(window.ktAttendanceCheck)ktAttendanceCheck()"><span>🪽</span><b>출석체크</b><span>🪽</span></button>'
+      +'<button id="ktAttendanceHeart" type="button" class="kt-s2-att-large" onclick="if(window.ktAttendanceCheck)ktAttendanceCheck()"><span>🪽</span><b>출석체크 <em>♥</em></b><span>🪽</span></button>'
+    +'</div>';
+  }
+
+  function giftShortcutRow(room){
+    if(!isAddedUiRoom(room))return '';
+    return '<div class="kt-s2-gift-row" aria-label="선물 바로가기">'
+      +'<button type="button" onclick="if(window.openGifts)openGifts()"><span class="gift-img"><img src="rose-single.svg" alt=""></span><b>1개</b><small>장미</small></button>'
+      +'<button type="button" onclick="if(window.openGifts)openGifts()"><span class="gift-img"><img src="rose-bouquet-50.svg" alt=""></span><b>50개</b><small>장미다발</small></button>'
+      +'<button type="button" onclick="if(window.openGifts)openGifts()"><span class="gift-img"><img src="rose-bouquet-100.svg" alt=""></span><b>100개</b><small>특대장미</small></button>'
+      +'<button type="button" onclick="if(window.openGifts)openGifts()"><span class="gift-emoji">💗</span><b>10개</b><small>하트</small></button>'
+      +'<button type="button" onclick="if(window.openGifts)openGifts()"><span class="gift-emoji">👑</span><b>100개</b><small>왕관</small></button>'
+      +'<button type="button" onclick="if(window.openGifts)openGifts()"><span class="gift-emoji">🏎️</span><b>50개</b><small>스포츠카</small></button>'
+      +'<button type="button" onclick="if(window.openGifts)openGifts()"><span class="gift-img gift-box"><img src="gift-box.svg" alt=""></span><b>선물상자</b><small>큰 선물 보기</small></button>'
+    +'</div>';
+  }
+
   function installSept2Css(){
     if(document.getElementById('ktSept2LiveCss'))return;
     var st=document.createElement('style');
@@ -82,6 +138,30 @@
 #ktSept2Live .kt-s2-bottom{position:absolute;left:10px;right:10px;bottom:14px;z-index:5;display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;}\
 #ktSept2Live .kt-s2-bottom button{padding:12px 5px;border-radius:15px;font-weight:950;font-size:12px;}\
 #ktSept2Live .kt-attendance-wrap{z-index:6;}\
+#ktSept2Live.kt-added-ui-room .kt-s2-title-live{min-height:58px;padding:7px 12px;background:rgba(9,9,12,.68);border-radius:18px;}\
+#ktSept2Live.kt-added-ui-room .kt-s2-title-left{display:grid;gap:1px;}\
+#ktSept2Live.kt-added-ui-room .kt-s2-title-left b{display:flex;align-items:center;gap:7px;font-size:20px;color:#fff;}\
+#ktSept2Live.kt-added-ui-room .kt-s2-title-left small{display:flex;align-items:center;gap:6px;color:#ff5578;font-size:13px;font-weight:950;}\
+#ktSept2Live.kt-added-ui-room .kt-s2-title-left i{display:inline-block;width:16px;height:16px;border-radius:50%;background:#ff315f;box-shadow:0 0 10px #ff315f;}\
+#ktSept2Live.kt-added-ui-room .kt-s2-title-left small i{width:10px;height:10px;}\
+#ktSept2Live.kt-added-ui-room .kt-s2-title-left strong{color:#fff;font-size:13px;font-variant-numeric:tabular-nums;}\
+#ktSept2Live.kt-added-ui-room .kt-s2-title-live>span{font-size:18px;color:#ff5b88!important;}\
+#ktSept2Live .kt-s2-attendance-stack{display:grid;justify-items:center;gap:4px;pointer-events:auto;}\
+#ktSept2Live .kt-s2-attendance-stack button{font-family:inherit;color:#ffd13f;font-weight:950;letter-spacing:.2px;border:2px solid #ff42c7;background-color:#120712;background-image:radial-gradient(circle,rgba(255,83,207,.7) 0 1.5px,transparent 1.8px);background-size:8px 8px;box-shadow:inset 0 0 12px #ff37c44d,0 0 7px #ff40c9,0 0 18px #ff2ab9c7;text-shadow:0 0 5px #ffad18,0 0 9px #ff6900;}\
+#ktSept2Live .kt-s2-att-small{height:34px;min-width:156px;padding:0 12px;border-radius:15px;font-size:15px;}\
+#ktSept2Live .kt-s2-att-large{width:100%;height:48px;padding:0 12px;border-radius:20px;font-size:21px;}\
+#ktSept2Live .kt-s2-attendance-stack button span{color:#d8ecff;text-shadow:0 0 6px #48a9ff;}\
+#ktSept2Live .kt-s2-attendance-stack em{font-style:normal;color:#ff3c7c;text-shadow:0 0 9px #ff2b80;}\
+#ktSept2Live .kt-s2-gift-row{position:absolute;left:0;right:0;bottom:72px;z-index:8;height:108px;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;padding:5px 3px;background:rgba(2,2,5,.95);border-top:1px solid #ffffff24;border-bottom:1px solid #ffffff18;box-shadow:0 -7px 22px #0009;}\
+#ktSept2Live .kt-s2-gift-row button{min-width:0;height:98px;padding:3px 1px;border:1px solid #ffffff1f;border-radius:9px;background:linear-gradient(180deg,#0d0d12,#07070b);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05;}\
+#ktSept2Live .kt-s2-gift-row .gift-img{width:40px;height:40px;display:grid;place-items:center;}\
+#ktSept2Live .kt-s2-gift-row .gift-img img{max-width:100%;max-height:100%;object-fit:contain;}\
+#ktSept2Live .kt-s2-gift-row .gift-emoji{height:40px;display:grid;place-items:center;font-size:31px;}\
+#ktSept2Live .kt-s2-gift-row b{margin-top:2px;font-size:11px;color:#ffe675;white-space:nowrap;}\
+#ktSept2Live .kt-s2-gift-row small{margin-top:3px;font-size:9px;color:#fff;font-weight:850;white-space:nowrap;}\
+#ktSept2Live .kt-s2-gift-row .gift-box+ b{font-size:9px;color:#fff;}\
+#ktSept2Live.kt-added-ui-room .kt-s2-right{bottom:190px;}\
+@media(max-width:390px){#ktSept2Live.kt-added-ui-room .kt-s2-title-left b{font-size:17px}#ktSept2Live.kt-added-ui-room .kt-s2-title-live>span{font-size:15px}#ktSept2Live .kt-s2-att-large{font-size:18px}#ktSept2Live .kt-s2-gift-row b{font-size:10px}#ktSept2Live .kt-s2-gift-row small{font-size:8px}}\
 ';
     document.head.appendChild(st);
   }
@@ -111,18 +191,19 @@
     var screenEl=document.getElementById('screen')||window.screen;
     if(!screenEl)return;
     var title=roomTitle(room);
+    var target=isAddedUiRoom(room);
     try{if(window.state){state.currentLiveRoomTitle=title;state.currentViewRoomTitle=title;}}
     catch(e){}
 
-    screenEl.innerHTML='<section id="ktSept2Live">'
+    screenEl.innerHTML='<section id="ktSept2Live" class="'+(target?'kt-added-ui-room':'')+'">'
       +'<video id="ktLiveVideo" autoplay playsinline muted></video>'
       +'<div class="kt-s2-shade"></div>'
       +'<div id="ktLiveEffectLayer" style="position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden"><div id="ktLiveFaceAnchor" class="kt-face-anchor"></div></div>'
       +'<div id="ktLiveTreasureZone" class="kt-live-treasure-zone"></div>'
-      +'<div class="kt-attendance-wrap"><button id="ktAttendanceHeart" class="kt-attendance-heart" onclick="if(window.ktAttendanceCheck)ktAttendanceCheck()"><span class="kt-attendance-label">출석체크</span><span class="kt-attendance-sub">하트 1개 · 30원</span><i class="kt-attendance-miniheart">💗</i></button></div>'
       +'<div class="kt-like-milestones">💗 5천 · 1만 · 1만5천 · 2만 · 2만5천 <b>달성마다 🌹 1송이</b></div>'
       +'<div class="kt-s2-top">'
-        +'<div class="kt-s2-title"><b>🔴 '+esc(title)+'</b><span>K-Talk LIVE</span></div>'
+        +(target?targetHeader(room):'<div class="kt-s2-title"><b>🔴 '+esc(title)+'</b><span>K-Talk LIVE</span></div>')
+        +attendanceSigns(room)
         +guestStrip(room)
         +'<button id="myEarnHud" type="button" onclick="if(window.toggleMyEarnings)toggleMyEarnings()">'
           +'<div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span style="font-size:10px;color:#8fe8ff;font-weight:950">🔒 내 수익 · 본인만 표시</span><b id="hudEarnNet" style="font-size:18px;color:#ffe071">0원</b></div>'
@@ -134,6 +215,7 @@
         +'<button class="kt-s2-circle" type="button" onclick="if(window.openGifts)openGifts()" style="border:1px solid #ffd65a88;background:#2b1c08dd;font-size:23px">🎁</button>'
         +'<button class="kt-s2-circle" type="button" onclick="if(window.openEditEffectPanel){var c=document.getElementById(\'creator\')||window.creator;if(c&&c.classList)c.classList.add(\'show\');openEditEffectPanel();}" style="border:1px solid #ffffff38;background:#09090ddd;font-size:11px;font-weight:900">✨ 효과</button>'
       +'</div>'
+      +giftShortcutRow(room)
       +'<div class="kt-s2-bottom">'
         +'<button type="button" onclick="if(window.openGifts)openGifts()" style="border:1px solid #ffd86b66;background:linear-gradient(135deg,#332707,#7a5310);color:#ffe075">🎁 선물</button>'
         +'<button type="button" onclick="if(window.openTreasure)openTreasure()" style="border:1px solid #f2b94f88;background:linear-gradient(135deg,#48260d,#8c5512);color:#fff3a7">🗝️ 보물상자</button>'
@@ -152,6 +234,7 @@
     try{if(window.ktUpdateTreasureLed)window.ktUpdateTreasureLed();}catch(e){}
     try{if(window.ktRenderAttendance)window.ktRenderAttendance();}catch(e){}
     try{if(window.ktSetLivePresence)window.ktSetLivePresence(true);}catch(e){}
+    startRoomClock(room);
 
     enforceSept2Video();
     setTimeout(enforceSept2Video,80);
