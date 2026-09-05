@@ -25,4 +25,12 @@
     p.setAttribute('data-kt-password-layout','1');
     document.head.appendChild(p);
   }
+
+  if(!document.querySelector('script[data-kt-password-host-cover]')){
+    var ph=document.createElement('script');
+    ph.src='password-host-cover-fix.js?v=20260905-password-host01';
+    ph.defer=true;
+    ph.setAttribute('data-kt-password-host-cover','1');
+    document.head.appendChild(ph);
+  }
 })();
