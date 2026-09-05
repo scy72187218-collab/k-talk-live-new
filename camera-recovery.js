@@ -76,7 +76,7 @@
 
   if(!document.querySelector('script[data-kt-live-room-chat]')){
     var rc=document.createElement('script');
-    rc.src='live-room-chat.js?v=20260905-roomchat01';
+    rc.src='live-room-chat.js?v=20260905-roomchat02';
     rc.defer=true;
     rc.setAttribute('data-kt-live-room-chat','1');
     document.head.appendChild(rc);
