@@ -1,11 +1,14 @@
-/* K-Talk: lock ONLY the mobile 1-person camera so it always fills the live screen. */
+/* K-Talk: keep the camera full-screen in 1-person, 13-person, and subscriber live rooms. */
 (function(){
   if(window.__ktSoloFullscreenLockLoaded)return;
   window.__ktSoloFullscreenLockLoaded=true;
 
-  function isSolo(){
-    try{return !!window.state && state.liveRoomType==='solo';}
-    catch(e){return false;}
+  function isTargetRoom(){
+    try{
+      if(!window.state)return false;
+      var t=state.liveRoomType;
+      return t==='solo'||t==='group'||t==='group13'||t==='subscriber';
+    }catch(e){return false;}
   }
 
   function currentHost(){
@@ -16,13 +19,13 @@
     return !!host && host.id==='ktSept2Live';
   }
 
-  function forceSoloFull(){
-    if(!isSolo())return;
+  function forceLiveFull(){
+    if(!isTargetRoom())return;
     var host=currentHost();
     var video=document.getElementById('ktLiveVideo');
     if(!host||!video)return;
 
-    /* 현재 승인된 방송화면은 그대로 두고 카메라 영상만 화면 전체에 고정 */
+    /* 현재 승인된 방송 UI는 그대로 두고 카메라 영상만 전면 고정 */
     if(isSept2Host(host)){
       video.style.setProperty('position','absolute','important');
       video.style.setProperty('inset','0','important');
@@ -94,18 +97,18 @@
   }
 
   function watchVideo(){
-    if(!isSolo())return;
+    if(!isTargetRoom())return;
     var host=currentHost();
     var video=document.getElementById('ktLiveVideo');
     if(!host||!video)return;
 
-    forceSoloFull();
+    forceLiveFull();
 
     if(!video.__ktSoloFullscreenObs){
       try{
         var obs=new MutationObserver(function(){
           var h=currentHost();
-          if(h&&videoNeedsFix(video,h))forceSoloFull();
+          if(h&&videoNeedsFix(video,h))forceLiveFull();
         });
         obs.observe(video,{attributes:true,attributeFilter:['style','class']});
         video.__ktSoloFullscreenObs=obs;
