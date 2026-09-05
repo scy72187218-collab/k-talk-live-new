@@ -49,4 +49,12 @@
     snd.setAttribute('data-kt-playable-sounds','1');
     document.head.appendChild(snd);
   }
+
+  if(!document.querySelector('script[data-kt-match-live-button]')){
+    var mb=document.createElement('script');
+    mb.src='match-live-button.js?v=20260905-match01';
+    mb.defer=true;
+    mb.setAttribute('data-kt-match-live-button','1');
+    document.head.appendChild(mb);
+  }
 })();
