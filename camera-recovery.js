@@ -124,7 +124,7 @@
 
   if(!document.querySelector('script[data-kt-feed-startup-stability]')){
     var fs=document.createElement('script');
-    fs.src='feed-startup-stability-fix.js?v=20260906-feedstable01';
+    fs.src='feed-startup-stability-fix.js?v=20260906-feedstable02';
     fs.defer=true;
     fs.setAttribute('data-kt-feed-startup-stability','1');
     document.head.appendChild(fs);
