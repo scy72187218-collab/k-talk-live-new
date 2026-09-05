@@ -14,6 +14,9 @@ html body #ktSept2Live.kt-live-bottom-room .kt-s2-bottom button{width:48px!impor
 html body #ktSept2Live.kt-live-bottom-room .kt-s2-bottom button.kt-live-link{font-size:25px!important;text-shadow:0 0 9px #ff45c8,0 0 12px #4d8dff!important;}\
 html body #ktSept2Live.kt-live-bottom-room .kt-s2-bottom button.kt-live-share{font-size:29px!important;}\
 html body #ktSept2Live.kt-live-bottom-room .kt-s2-bottom button.kt-live-more{font-size:22px!important;letter-spacing:1px!important;}\
+html body #ktSept2Live.kt-password-room #myEarnHud{position:fixed!important;left:50%!important;bottom:140px!important;transform:translateX(-50%)!important;width:40%!important;max-width:180px!important;padding:3px 6px!important;border-radius:10px!important;z-index:9!important;font-size:8px!important;}\
+html body #ktSept2Live.kt-password-room #myEarnHud #hudEarnNet{font-size:12px!important;}\
+html body #ktSept2Live.kt-password-room #myEarnHud #myEarnDetail{margin-top:1px!important;font-size:7px!important;}\
 .kt-live-more-menu{display:grid;gap:9px;padding:4px 0;}\
 .kt-live-more-menu button{width:100%;min-height:48px;border:1px solid #ffffff20;border-radius:14px;background:#111116;color:#fff;font-size:15px;font-weight:900;text-align:left;padding:0 14px;}\
 .kt-live-more-menu button.danger{border-color:#ff4b6f66;background:#351018;color:#ffb7c5;}\
@@ -76,7 +79,10 @@ html body #ktSept2Live.kt-live-bottom-room .kt-s2-bottom button.kt-live-more{fon
     try{isPassword=!!(window.state&&state.liveRoomType==='password');}catch(e){}
     var active=!!(section&&(section.classList.contains('kt-added-ui-room')||isPassword));
     document.documentElement.classList.toggle('kt-live-bottom-active',active);
-    if(section)section.classList.toggle('kt-live-bottom-room',active);
+    if(section){
+      section.classList.toggle('kt-live-bottom-room',active);
+      section.classList.toggle('kt-password-room',isPassword);
+    }
     if(!active)return;
 
     var bar=section.querySelector('.kt-s2-bottom');
