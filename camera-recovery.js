@@ -2,6 +2,14 @@
 (function(){
   window.__ktCameraRecoveryLoaded=true;
 
+  if(!document.querySelector('script[data-kt-permission-once]')){
+    var po=document.createElement('script');
+    po.src='permission-once-fix.js?v=20260905-permission01';
+    po.defer=true;
+    po.setAttribute('data-kt-permission-once','1');
+    document.head.appendChild(po);
+  }
+
   if(!document.querySelector('script[data-kt-live-bottom-tools]')){
     var s=document.createElement('script');
     s.src='live-bottom-tiktok.js?v=20260905-bottom01';
