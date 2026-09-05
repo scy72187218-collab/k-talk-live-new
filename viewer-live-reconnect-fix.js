@@ -1,4 +1,4 @@
-/* K-Talk LIVE: make viewer video appear reliably on mobile browsers. Starts remote video muted first, then remembers the viewer's sound choice. */
+/* K-Talk LIVE: reliable viewer playback without a visible sound-on button. */
 (function(){
   if(window.__ktViewerLiveReconnectFixLoaded)return;
   window.__ktViewerLiveReconnectFixLoaded=true;
@@ -6,14 +6,6 @@
   var lastArgs=null;
   var retryCount=0;
   var installed=false;
-  var SOUND_KEY='kt_remote_sound_enabled';
-
-  function soundRemembered(){
-    try{return localStorage.getItem(SOUND_KEY)==='1';}catch(e){return false;}
-  }
-  function rememberSound(){
-    try{localStorage.setItem(SOUND_KEY,'1');}catch(e){}
-  }
 
   function status(t,bad){
     var s=document.getElementById('ktRemoteLiveStatus');
@@ -23,8 +15,14 @@
     s.style.color=bad?'#ff9aae':'#fff';
   }
 
+  function hideSoundButton(){
+    var b=document.getElementById('ktRemoteSoundBtn');
+    if(b)b.style.setProperty('display','none','important');
+  }
+
   function trySoundOn(v){
     if(!v)return;
+    hideSoundButton();
     try{
       v.dataset.ktSoundOn='1';
       v.muted=false;
@@ -34,7 +32,8 @@
       var p=v.play();
       if(p&&p.catch){
         p.catch(function(){
-          /* Some mobile browsers still require a fresh user gesture. Retry silently on the next tap anywhere. */
+          /* Browser autoplay rules can still block sound until a user gesture.
+             Keep the UI clean and unlock silently on the next ordinary tap. */
           var once=function(){
             document.removeEventListener('click',once,true);
             document.removeEventListener('touchend',once,true);
@@ -52,48 +51,19 @@
 
   function prepareVideo(){
     var v=document.getElementById('ktRemoteLive');
+    hideSoundButton();
     if(!v)return;
     if(!v.dataset.ktViewerAutoplayFix){
       v.dataset.ktViewerAutoplayFix='1';
       v.setAttribute('playsinline','');
       v.setAttribute('webkit-playsinline','');
-
-      var remembered=soundRemembered();
-      if(remembered){
-        v.dataset.ktSoundOn='1';
-        v.muted=false;
-        v.defaultMuted=false;
-        v.removeAttribute('muted');
-      }else{
-        v.muted=true;
-        v.defaultMuted=true;
-        v.setAttribute('muted','');
-      }
-
-      var b=document.getElementById('ktRemoteSoundBtn');
-      if(b&&!b.dataset.ktViewerSoundFix){
-        b.dataset.ktViewerSoundFix='1';
-        b.textContent='🔊 소리 켜기';
-        b.style.display=remembered?'none':'block';
-        b.addEventListener('click',function(){
-          rememberSound();
-          trySoundOn(v);
-          b.style.display='none';
-        },true);
-      }
-
-      if(remembered){
-        setTimeout(function(){trySoundOn(v);},30);
-      }
-    }else if(soundRemembered()){
-      var btn=document.getElementById('ktRemoteSoundBtn');
-      if(btn)btn.style.display='none';
-      if(v.dataset.ktSoundOn!=='1')trySoundOn(v);
     }
+    trySoundOn(v);
   }
 
-  function forceMutedPlay(){
+  function forcePlay(){
     var v=document.getElementById('ktRemoteLive');
+    hideSoundButton();
     if(!v)return false;
     prepareVideo();
     var hasTrack=false;
@@ -103,17 +73,11 @@
     }catch(e){}
     if(!hasTrack)return false;
 
-    if(soundRemembered()){
-      trySoundOn(v);
-    }else if(v.dataset.ktSoundOn!=='1'){
-      try{v.muted=true;v.defaultMuted=true;v.setAttribute('muted','');}catch(e){}
-      try{var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
-    }
+    trySoundOn(v);
 
     if(v.readyState>=2){
       var s=document.getElementById('ktRemoteLiveStatus');if(s)s.style.display='none';
-      var b=document.getElementById('ktRemoteSoundBtn');
-      if(b)b.style.display=soundRemembered()||v.dataset.ktSoundOn==='1'?'none':'block';
+      hideSoundButton();
       return true;
     }
     return false;
@@ -124,7 +88,7 @@
     var timer=setInterval(function(){
       var v=document.getElementById('ktRemoteLive');
       if(!v){clearInterval(timer);return;}
-      if(forceMutedPlay()){clearInterval(timer);return;}
+      if(forcePlay()){clearInterval(timer);return;}
       var age=Date.now()-start;
       if(age>6500){
         clearInterval(timer);
@@ -150,6 +114,7 @@
     var wrapped=async function(hostId,title,roomName){
       lastArgs=[hostId,title,roomName];
       retryCount=0;
+      hideSoundButton();
       var out;
       try{out=await base.apply(this,arguments);}catch(e){throw e;}
       setTimeout(function(){prepareVideo();scheduleChecks();},40);
@@ -166,8 +131,9 @@
   setTimeout(function(){clearInterval(installTimer);installJoinWrapper();},6000);
 
   setInterval(function(){
-    if(document.getElementById('ktRemoteLive'))forceMutedPlay();
+    hideSoundButton();
+    if(document.getElementById('ktRemoteLive'))forcePlay();
   },400);
 
-  try{new MutationObserver(function(){setTimeout(function(){installJoinWrapper();prepareVideo();},20);}).observe(document.documentElement,{childList:true,subtree:true});}catch(e){}
+  try{new MutationObserver(function(){setTimeout(function(){installJoinWrapper();prepareVideo();hideSoundButton();},20);}).observe(document.documentElement,{childList:true,subtree:true});}catch(e){}
 })();
