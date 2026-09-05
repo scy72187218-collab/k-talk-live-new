@@ -66,6 +66,14 @@
     document.head.appendChild(gp);
   }
 
+  if(!document.querySelector('script[data-kt-live-viewer-join-chat]')){
+    var vc=document.createElement('script');
+    vc.src='live-viewer-join-chat.js?v=20260905-joinchat01';
+    vc.defer=true;
+    vc.setAttribute('data-kt-live-viewer-join-chat','1');
+    document.head.appendChild(vc);
+  }
+
   if(!document.querySelector('script[data-kt-playable-sounds]')){
     var snd=document.createElement('script');
     snd.src='sound-playable-original.js?v=20260905-vocal02';
