@@ -3,6 +3,45 @@
   if(window.__ktCameraRecoveryLoaded)return;
   window.__ktCameraRecoveryLoaded=true;
 
+  /* 주소로 처음 들어왔을 때 외부 도로 포스터/샘플 영상 로딩을 바로 끊고
+     실제 K-Talk 업로드 영상을 먼저 재생한다. 다른 화면은 건드리지 않는다. */
+  function primeHomeVideo(){
+    try{
+      if(document.getElementById('ktSept2Live')||document.getElementById('ktRemoteLive'))return;
+      var c=document.getElementById('creator');
+      if(c&&c.classList.contains('show'))return;
+      var v=document.querySelector('.video-home video#homeVideo, .video-home video');
+      if(!v)return;
+      var u='https://zupwbfmacwzexyvznlzq.supabase.co/storage/v1/object/public/ktalk-videos/guest/1788516701116-emysxm.mp4';
+      var src=String(v.getAttribute('src')||v.currentSrc||'');
+      if(src.indexOf('zupwbfmacwzexyvznlzq.supabase.co')===-1){
+        try{v.pause();}catch(e){}
+        while(v.firstChild)v.removeChild(v.firstChild);
+        v.removeAttribute('poster');
+        v.src=u;
+        v.preload='metadata';
+        v.muted=true;
+        v.defaultMuted=true;
+        v.volume=0;
+        v.autoplay=true;
+        v.loop=true;
+        v.setAttribute('muted','');
+        v.setAttribute('autoplay','');
+        v.setAttribute('loop','');
+        v.setAttribute('playsinline','');
+        v.setAttribute('webkit-playsinline','');
+        try{v.load();}catch(e){}
+      }else{
+        v.removeAttribute('poster');
+      }
+      try{var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
+    }catch(e){}
+  }
+  primeHomeVideo();
+  setTimeout(primeHomeVideo,30);
+  setTimeout(primeHomeVideo,120);
+  setTimeout(primeHomeVideo,350);
+
   var scripts=[
     ['kt-permission-once','permission-once-fix.js?v=20260905-permission01'],
     ['kt-live-bottom-tools','live-bottom-tiktok.js?v=20260905-bottom01'],
