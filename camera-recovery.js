@@ -24,6 +24,7 @@
     ['kt-live-presence-fast','live-presence-fast-fix.js?v=20260905-fastpresence01'],
     ['kt-feed-startup-stability','feed-startup-stability-fix.js?v=20260906-feedstable04'],
     ['kt-home-motion-recovery','home-motion-recovery.js?v=20260906-motion03'],
+    ['kt-home-direct-start','home-direct-start-fix.js?v=20260906-direct01'],
     ['kt-playable-sounds','sound-playable-original.js?v=20260905-vocal02']
   ];
 
