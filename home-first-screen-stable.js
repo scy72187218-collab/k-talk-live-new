@@ -3,12 +3,18 @@
   if(window.__ktHomeFirstScreenStableLoaded)return;
   window.__ktHomeFirstScreenStableLoaded=true;
 
-  var SOURCES=[
+  var REMOTE=[
     'https://zupwbfmacwzexyvznlzq.supabase.co/storage/v1/object/public/ktalk-videos/guest/1788516701116-emysxm.mp4',
     'https://zupwbfmacwzexyvznlzq.supabase.co/storage/v1/object/public/ktalk-videos/guest/1788516656323-4elqcf.mp4',
     'https://zupwbfmacwzexyvznlzq.supabase.co/storage/v1/object/public/ktalk-videos/guest/1788516618159-4ep5ki.mp4',
     'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4'
   ];
+  function sourceAt(i){
+    try{
+      if(location.hostname==='k-talk-new-room.vercel.app'&&i<3)return '/api/video?i='+i;
+    }catch(e){}
+    return REMOTE[i];
+  }
   var sourceIndex=0;
   var feedRequested=false;
   var stable=false;
@@ -52,12 +58,12 @@
 
   function switchSource(v){
     if(!v||stable)return;
-    sourceIndex=Math.min(sourceIndex+1,SOURCES.length-1);
+    sourceIndex=Math.min(sourceIndex+1,REMOTE.length-1);
     try{
       v.pause();
       while(v.firstChild)v.removeChild(v.firstChild);
       v.removeAttribute('poster');
-      v.src=SOURCES[sourceIndex];
+      v.src=sourceAt(sourceIndex);
       v.load();
       play(v);
     }catch(e){}
@@ -98,11 +104,11 @@
       prepare(v);
       var legacy=!document.getElementById('ktUnifiedFeed');
       var src=String(v.getAttribute('src')||v.currentSrc||'');
-      if(legacy&&(src.indexOf('zupwbfmacwzexyvznlzq.supabase.co')===-1&&src.indexOf('interactive-examples.mdn.mozilla.net')===-1)){
+      if(legacy&&(src.indexOf('zupwbfmacwzexyvznlzq.supabase.co')===-1&&src.indexOf('/api/video')===-1&&src.indexOf('interactive-examples.mdn.mozilla.net')===-1)){
         try{
           v.pause();
           while(v.firstChild)v.removeChild(v.firstChild);
-          v.src=SOURCES[sourceIndex];
+          v.src=sourceAt(sourceIndex);
           v.load();
         }catch(e){}
       }
@@ -123,7 +129,16 @@
     }
   }
 
+  function userResume(){
+    if(!safe())return;
+    var v=firstVideo();
+    if(!v)return;
+    play(v);
+  }
+
   [0,120,350,800,1500,2600,4200,6500,9000].forEach(function(ms){setTimeout(check,ms);});
   window.addEventListener('pageshow',function(){stable=false;sourceIndex=0;setTimeout(check,40);});
   document.addEventListener('visibilitychange',function(){if(!document.hidden&&!stable)setTimeout(check,40);});
+  document.addEventListener('touchstart',userResume,{passive:true});
+  document.addEventListener('click',userResume,true);
 })();
