@@ -20,6 +20,12 @@
     return true;
   }
   function feedExists(){return !!document.getElementById('ktUnifiedFeed');}
+  function stableFirstUrl(u,i){
+    try{
+      if(i===0&&location.hostname==='k-talk-new-room.vercel.app')return '/api/video?i=0';
+    }catch(e){}
+    return u;
+  }
 
   function fallbackHome(){
     if(feedExists()||!safe())return false;
@@ -30,10 +36,10 @@
   }
 
   function videoCard(x,i){
-    var id=esc(x.id||''),u=esc(x.video_url||''),name=esc(x.author_name||'K-Talk'),title=esc(x.title||'K-Talk 동영상');
+    var id=esc(x.id||''),raw=String(x.video_url||''),u=esc(stableFirstUrl(raw,i)),name=esc(x.author_name||'K-Talk'),title=esc(x.title||'K-Talk 동영상');
     var src=i===0?' src="'+u+'"':' data-kt-lazy-src="'+u+'"';
     return '<section class="kt-feed-card" style="height:calc(100dvh - 78px);min-height:560px;position:relative;scroll-snap-align:start;background:#000;overflow:hidden">'
-      +'<video class="kt-public-video" '+(i===0?'autoplay ':'')+'muted loop playsinline preload="'+(i===0?'metadata':'none')+'"'+src+' style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000"></video>'
+      +'<video class="kt-public-video" '+(i===0?'autoplay ':'')+'muted loop playsinline preload="'+(i===0?'auto':'none')+'"'+src+' style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000"></video>'
       +'<div class="vh-shade"></div>'
       +'<div class="vh-tabs"><span>LIVE</span><span>커뮤니티</span><span>팔로잉</span><span class="on">추천</span><button>⌕</button></div>'
       +'<div class="vh-title"><b>♛ '+name+'</b><span>'+title+'</span></div>'
