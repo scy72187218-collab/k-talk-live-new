@@ -114,6 +114,14 @@
     document.head.appendChild(lf);
   }
 
+  if(!document.querySelector('script[data-kt-live-presence-fast]')){
+    var fp=document.createElement('script');
+    fp.src='live-presence-fast-fix.js?v=20260905-fastpresence01';
+    fp.defer=true;
+    fp.setAttribute('data-kt-live-presence-fast','1');
+    document.head.appendChild(fp);
+  }
+
   if(!document.querySelector('script[data-kt-playable-sounds]')){
     var snd=document.createElement('script');
     snd.src='sound-playable-original.js?v=20260905-vocal02';
