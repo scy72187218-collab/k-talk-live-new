@@ -58,6 +58,14 @@
     document.head.appendChild(ht);
   }
 
+  if(!document.querySelector('script[data-kt-guest-participation]')){
+    var gp=document.createElement('script');
+    gp.src='guest-participation.js?v=20260905-guest01';
+    gp.defer=true;
+    gp.setAttribute('data-kt-guest-participation','1');
+    document.head.appendChild(gp);
+  }
+
   if(!document.querySelector('script[data-kt-playable-sounds]')){
     var snd=document.createElement('script');
     snd.src='sound-playable-original.js?v=20260905-vocal02';
