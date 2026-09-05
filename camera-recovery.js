@@ -82,6 +82,14 @@
     document.head.appendChild(rc);
   }
 
+  if(!document.querySelector('script[data-kt-live-chat-lower]')){
+    var cl=document.createElement('script');
+    cl.src='live-chat-lower-position.js?v=20260906-chatlower01';
+    cl.defer=true;
+    cl.setAttribute('data-kt-live-chat-lower','1');
+    document.head.appendChild(cl);
+  }
+
   if(!document.querySelector('script[data-kt-attendance-size-position]')){
     var at=document.createElement('script');
     at.src='attendance-size-position-fix.js?v=20260905-attendance04';
