@@ -17,4 +17,12 @@
     g.setAttribute('data-kt-group13-layout','1');
     document.head.appendChild(g);
   }
+
+  if(!document.querySelector('script[data-kt-password-layout]')){
+    var p=document.createElement('script');
+    p.src='password-room-reference-layout.js?v=20260905-password01';
+    p.defer=true;
+    p.setAttribute('data-kt-password-layout','1');
+    document.head.appendChild(p);
+  }
 })();
