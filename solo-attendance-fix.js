@@ -41,7 +41,7 @@ html body #ktSept2Live.kt-added-ui-room .kt-s2-attendance-stack{position:absolut
 html body #ktSept2Live.kt-added-ui-room .kt-s2-attendance-stack button{border-width:1px!important;background-size:6px 6px!important;box-shadow:inset 0 0 7px #ff37c43d,0 0 5px #ff40c9,0 0 10px #ff2ab990!important;animation:none!important;transition:none!important;transform:none!important;}\
 html body #ktSept2Live.kt-added-ui-room .kt-s2-att-small{height:22px!important;min-width:0!important;width:128px!important;padding:0 6px!important;border-radius:10px!important;font-size:10px!important;margin:0!important;}\
 html body #ktSept2Live.kt-added-ui-room .kt-s2-att-large{width:100%!important;height:30px!important;padding:0 7px!important;border-radius:12px!important;font-size:14px!important;margin-top:30px!important;}\
-html body #ktSept2Live.kt-added-ui-room .kt-s2-gift-row{left:5px!important;right:5px!important;bottom:72px!important;height:60px!important;gap:2px!important;padding:2px 2px!important;}\
+html body #ktSept2Live.kt-added-ui-room .kt-s2-gift-row{left:5px!important;right:5px!important;bottom:66px!important;height:60px!important;gap:2px!important;padding:2px 2px!important;}\
 html body #ktSept2Live.kt-added-ui-room .kt-s2-gift-row button{height:54px!important;padding:1px 0!important;border-radius:7px!important;}\
 html body #ktSept2Live.kt-added-ui-room .kt-s2-gift-row .gift-img{width:22px!important;height:22px!important;}\
 html body #ktSept2Live.kt-added-ui-room .kt-s2-gift-row .gift-emoji{height:22px!important;font-size:18px!important;}\
@@ -54,7 +54,7 @@ html body #ktSept2Live.kt-added-ui-room .kt-s2-circle{width:46px!important;heigh
 html body #ktSept2Live.kt-added-ui-room #myEarnHud{position:fixed!important;left:50%!important;bottom:140px!important;transform:translateX(-50%)!important;width:40%!important;max-width:180px!important;padding:3px 6px!important;border-radius:10px!important;z-index:9!important;font-size:8px!important;}\
 html body #ktSept2Live.kt-added-ui-room #myEarnHud #hudEarnNet{font-size:12px!important;}\
 html body #ktSept2Live.kt-added-ui-room #myEarnHud #myEarnDetail{margin-top:1px!important;font-size:7px!important;}\
-html.kt-compact-two-room body #ktSept2Live .kt-s2-gift-row{left:5px!important;right:5px!important;bottom:72px!important;height:60px!important;gap:2px!important;padding:2px!important;}\
+html.kt-compact-two-room body #ktSept2Live .kt-s2-gift-row{left:5px!important;right:5px!important;bottom:66px!important;height:60px!important;gap:2px!important;padding:2px!important;}\
 html.kt-compact-two-room body #ktSept2Live .kt-s2-gift-row button{height:54px!important;padding:1px 0!important;border-radius:7px!important;}\
 html.kt-compact-two-room body #ktSept2Live .kt-s2-gift-row .gift-img{width:22px!important;height:22px!important;}\
 html.kt-compact-two-room body #ktSept2Live .kt-s2-gift-row .gift-emoji{height:22px!important;font-size:18px!important;}\
