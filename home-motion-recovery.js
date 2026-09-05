@@ -1,11 +1,11 @@
-/* K-Talk: if the recommendation fallback is visible, make sure a real video starts moving. UI/layout unchanged. */
+/* K-Talk: hard recovery for a recommendation screen stuck on its poster. UI/layout unchanged. */
 (function(){
   if(window.__ktHomeMotionRecoveryLoaded)return;
   window.__ktHomeMotionRecoveryLoaded=true;
 
-  var SB='https://zupwbfmacwzexyvznlzq.supabase.co';
-  var KEY='sb_publishable_AnyCMi4rAgSR2uWg_u1pvw_hHyqWlm3';
-  var busy=false;
+  var FALLBACK='https://zupwbfmacwzexyvznlzq.supabase.co/storage/v1/object/public/ktalk-videos/guest/1788516701116-emysxm.mp4';
+  var lastVideo=null;
+  var checking=false;
 
   function safe(){
     if(document.getElementById('ktSept2Live'))return false;
@@ -15,79 +15,71 @@
     return true;
   }
 
-  function fallbackVideo(){
-    if(document.getElementById('ktUnifiedFeed'))return null;
+  function getVideo(){
+    if(!safe()||document.getElementById('ktUnifiedFeed'))return null;
     return document.querySelector('.video-home video#homeVideo, .video-home video');
   }
 
-  function playMuted(v){
+  function play(v){
     if(!v)return;
+    lastVideo=v;
     try{
       v.muted=true;
       v.defaultMuted=true;
+      v.volume=0;
       v.autoplay=true;
       v.loop=true;
+      v.preload='auto';
       v.setAttribute('muted','');
       v.setAttribute('autoplay','');
       v.setAttribute('loop','');
       v.setAttribute('playsinline','');
+      v.setAttribute('webkit-playsinline','');
       var p=v.play();
       if(p&&p.catch)p.catch(function(){});
     }catch(e){}
   }
 
-  async function newestVideoUrl(){
+  function forceRealSource(v){
+    if(!v||v.dataset.ktRealSourceForced==='1')return;
+    v.dataset.ktRealSourceForced='1';
     try{
-      var u=SB+'/rest/v1/ktalk_videos?select=video_url&order=created_at.desc&limit=1';
-      var r=await fetch(u,{headers:{apikey:KEY,Authorization:'Bearer '+KEY},cache:'no-store'});
-      if(!r.ok)return '';
-      var rows=await r.json();
-      return rows&&rows[0]&&rows[0].video_url?String(rows[0].video_url):'';
-    }catch(e){return '';}
+      v.pause();
+      while(v.firstChild)v.removeChild(v.firstChild);
+      v.removeAttribute('poster');
+      v.src=FALLBACK;
+      v.load();
+      play(v);
+      v.addEventListener('loadeddata',function(){play(v);},{once:true});
+      v.addEventListener('canplay',function(){play(v);},{once:true});
+    }catch(e){}
   }
 
-  async function rescue(){
-    if(busy||!safe())return;
-    var v=fallbackVideo();
-    if(!v||v.dataset.ktHomeMotionReady==='1')return;
-    busy=true;
-    v.dataset.ktHomeMotionReady='1';
-    playMuted(v);
-
-    var start=Number(v.currentTime||0);
-    setTimeout(async function(){
+  function check(){
+    if(checking)return;
+    var v=getVideo();
+    if(!v)return;
+    checking=true;
+    play(v);
+    var t=Number(v.currentTime||0);
+    setTimeout(function(){
       try{
-        if(!safe()||document.getElementById('ktUnifiedFeed'))return;
-        var cur=fallbackVideo();
+        var cur=getVideo();
         if(!cur)return;
-        var moved=!cur.paused&&Number(cur.currentTime||0)>start+0.08;
-        if(moved)return;
-        var url=await newestVideoUrl();
-        if(url){
-          cur.src=url;
-          cur.removeAttribute('poster');
-          try{cur.load();}catch(e){}
-          playMuted(cur);
-          setTimeout(function(){playMuted(cur);},350);
-          setTimeout(function(){playMuted(cur);},900);
-        }else{
-          playMuted(cur);
-        }
-      }finally{busy=false;}
-    },700);
+        var moved=!cur.paused&&Number(cur.currentTime||0)>t+0.12;
+        if(!moved)forceRealSource(cur);
+      }finally{checking=false;}
+    },650);
   }
 
   function boot(){
-    setTimeout(rescue,120);
-    setTimeout(rescue,500);
-    setTimeout(rescue,1200);
-    setTimeout(rescue,2500);
+    [80,250,600,1100,1800,3000].forEach(function(ms){setTimeout(check,ms);});
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
   else boot();
 
-  try{
-    new MutationObserver(function(){setTimeout(rescue,80);}).observe(document.documentElement,{childList:true,subtree:true});
-  }catch(e){}
+  window.addEventListener('pageshow',function(){setTimeout(check,80);});
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(check,80);});
+  try{new MutationObserver(function(){setTimeout(check,60);}).observe(document.documentElement,{childList:true,subtree:true});}catch(e){}
 })();
