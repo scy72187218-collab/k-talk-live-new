@@ -13,7 +13,7 @@
   var lastSendAt=0;
 
   function headers(extra){var h={apikey:KEY,Authorization:'Bearer '+KEY};if(extra)Object.keys(extra).forEach(function(k){h[k]=extra[k];});return h;}
-  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c];});}
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   function viewerId(){var id='';try{id=localStorage.getItem('ktalk_viewer_id')||'';}catch(e){}if(!id){id='viewer_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,10);try{localStorage.setItem('ktalk_viewer_id',id);}catch(e){}}return id;}
   function me(){
     var id=viewerId(),name='게스트 '+id.slice(-4);
@@ -47,8 +47,6 @@
     var s=document.createElement('style');s.id='ktRoomChatCss';
     s.textContent='\
 #ktRoomChat{position:absolute;z-index:75;left:10px;width:min(58vw,300px);font-family:inherit;pointer-events:auto;}\
-#ktSept2Live #ktRoomChat{bottom:188px;}\
-#ktRemoteLiveArea #ktRoomChat,.kt-remote-live-wrap #ktRoomChat{bottom:88px;}\
 #ktRoomChatLog{max-height:142px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;padding:5px 3px;scrollbar-width:none;}\
 #ktRoomChatLog::-webkit-scrollbar{display:none;}\
 .kt-room-chat-line{padding:5px 8px;border-radius:10px;background:rgba(0,0,0,.58);color:#fff;font-size:11px;font-weight:750;line-height:1.3;text-shadow:0 1px 2px #000;word-break:break-word;}\
@@ -66,7 +64,7 @@
   function chatParent(){
     var host=document.getElementById('ktSept2Live');if(host)return host;
     var remote=document.getElementById('ktRemoteLive');
-    if(remote){var p=remote.closest('section')||remote.parentElement;if(p){p.id=p.id||'ktRemoteLiveArea';if(getComputedStyle(p).position==='static')p.style.position='relative';return p;}}
+    if(remote){var p=remote.closest('section')||remote.parentElement;if(p){if(getComputedStyle(p).position==='static')p.style.position='relative';return p;}}
     return null;
   }
 
@@ -81,11 +79,12 @@
       parent.appendChild(box);
       box.querySelector('#ktRoomChatForm').addEventListener('submit',function(e){e.preventDefault();sendMessage();});
     }
+    box.style.bottom=isHost()?'188px':'88px';
     return box;
   }
 
-  async function inferViewerHost(){
-    if(currentViewerHostId||!isViewer())return;
+  async function inferCurrentHost(){
+    if(currentViewerHostId||(!isHost()&&!isViewer()))return;
     try{
       var since=new Date(Date.now()-180000).toISOString();
       var r=await fetch(SB+'/rest/v1/ktalk_live_rooms?select=host_id&active=eq.true&updated_at=gte.'+encodeURIComponent(since)+'&order=updated_at.desc&limit=1',{headers:headers()});
@@ -98,7 +97,7 @@
     var text=String(input.value||'').trim();if(!text)return;
     if(Date.now()-lastSendAt<600)return;
     lastSendAt=Date.now();
-    if(isViewer()&&!currentViewerHostId)await inferViewerHost();
+    await inferCurrentHost();
     var h=hostId(),p=me();
     input.value='';
     try{
@@ -118,7 +117,7 @@
   }
 
   async function pollMessages(){
-    if(isViewer()&&!currentViewerHostId)await inferViewerHost();
+    await inferCurrentHost();
     var h=hostId();if(!h)return [];
     try{
       var since=new Date(Date.now()-3600000).toISOString();
@@ -130,6 +129,7 @@
 
   async function pollPresence(){
     if(!isHost())return;
+    await inferCurrentHost();
     var h=hostId();
     try{
       var since=new Date(Date.now()-120000).toISOString();
@@ -141,6 +141,7 @@
 
   async function pollGuestSessions(){
     if(!isHost())return;
+    await inferCurrentHost();
     var h=hostId();
     try{
       var since=new Date(Date.now()-180000).toISOString();
@@ -153,7 +154,7 @@
   async function pollAll(){
     if(pollBusy||(!isHost()&&!isViewer()))return;
     pollBusy=true;ensureChat();
-    try{await Promise.all([pollPresence(),pollGuestSessions()]);var rows=await pollMessages();render(rows);}catch(e){}
+    try{await inferCurrentHost();await Promise.all([pollPresence(),pollGuestSessions()]);var rows=await pollMessages();render(rows);}catch(e){}
     pollBusy=false;
   }
 
