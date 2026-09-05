@@ -74,6 +74,14 @@
     document.head.appendChild(vc);
   }
 
+  if(!document.querySelector('script[data-kt-attendance-size-position]')){
+    var at=document.createElement('script');
+    at.src='attendance-size-position-fix.js?v=20260905-attendance01';
+    at.defer=true;
+    at.setAttribute('data-kt-attendance-size-position','1');
+    document.head.appendChild(at);
+  }
+
   if(!document.querySelector('script[data-kt-playable-sounds]')){
     var snd=document.createElement('script');
     snd.src='sound-playable-original.js?v=20260905-vocal02';
