@@ -124,7 +124,7 @@
 
   if(!document.querySelector('script[data-kt-viewer-live-reconnect]')){
     var vr=document.createElement('script');
-    vr.src='viewer-live-reconnect-fix.js?v=20260905-viewer01';
+    vr.src='viewer-live-reconnect-fix.js?v=20260906-viewer02';
     vr.defer=true;
     vr.setAttribute('data-kt-viewer-live-reconnect','1');
     document.head.appendChild(vr);
