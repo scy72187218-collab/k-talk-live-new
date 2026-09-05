@@ -1,4 +1,4 @@
-/* K-Talk LIVE: shared host/viewer chat input + host join/guest notices. */
+/* K-Talk LIVE: host sees notices/messages only; viewers/guests can type chat. */
 (function(){
   if(window.__ktLiveRoomChatLoaded)return;
   window.__ktLiveRoomChatLoaded=true;
@@ -46,18 +46,19 @@
     if(document.getElementById('ktRoomChatCss'))return;
     var s=document.createElement('style');s.id='ktRoomChatCss';
     s.textContent='\
-#ktRoomChat{position:absolute;z-index:75;left:10px;width:min(58vw,300px);font-family:inherit;pointer-events:auto;}\
+#ktRoomChat{position:absolute;z-index:75;left:10px;width:min(60vw,310px);font-family:inherit;pointer-events:auto;}\
+#ktRoomChat.host-only{pointer-events:none;}\
 #ktRoomChatLog{max-height:142px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;padding:5px 3px;scrollbar-width:none;}\
 #ktRoomChatLog::-webkit-scrollbar{display:none;}\
-.kt-room-chat-line{padding:5px 8px;border-radius:10px;background:rgba(0,0,0,.58);color:#fff;font-size:11px;font-weight:750;line-height:1.3;text-shadow:0 1px 2px #000;word-break:break-word;}\
+.kt-room-chat-line{padding:5px 8px;border-radius:10px;background:rgba(0,0,0,.62);color:#fff;font-size:11px;font-weight:750;line-height:1.3;text-shadow:0 1px 2px #000;word-break:break-word;}\
 .kt-room-chat-line b{color:#ff8fca;margin-right:4px;}\
-.kt-room-chat-line.system{background:rgba(31,22,40,.72);color:#ffe9f7;}\
+.kt-room-chat-line.system{background:rgba(31,22,40,.76);color:#ffe9f7;}\
 .kt-room-chat-line.system b{color:#ffd45f;}\
 #ktRoomChatForm{display:grid;grid-template-columns:1fr 52px;gap:6px;align-items:center;margin-top:5px;}\
 #ktRoomChatInput{width:100%;height:38px;border:1px solid rgba(255,255,255,.28);border-radius:999px;background:rgba(0,0,0,.72);color:#fff;padding:0 13px;outline:none;font-family:inherit;font-size:12px;font-weight:800;box-shadow:0 3px 12px #0008;}\
 #ktRoomChatInput::placeholder{color:#cfcbd3;}\
 #ktRoomChatSend{height:38px;border:0;border-radius:999px;background:linear-gradient(135deg,#ff315f,#b04cff);color:#fff;font-family:inherit;font-size:12px;font-weight:950;box-shadow:0 3px 12px #0008;}\
-@media(max-width:430px){#ktRoomChat{width:min(62vw,270px)}#ktRoomChatLog{max-height:118px}}';
+@media(max-width:430px){#ktRoomChat{width:min(64vw,280px)}#ktRoomChatLog{max-height:118px}}';
     document.head.appendChild(s);
   }
 
@@ -79,7 +80,16 @@
       parent.appendChild(box);
       box.querySelector('#ktRoomChatForm').addEventListener('submit',function(e){e.preventDefault();sendMessage();});
     }
-    box.style.bottom=isHost()?'188px':'88px';
+    var form=box.querySelector('#ktRoomChatForm');
+    if(isHost()){
+      box.classList.add('host-only');
+      if(form)form.style.display='none';
+      box.style.bottom='188px';
+    }else{
+      box.classList.remove('host-only');
+      if(form)form.style.display='grid';
+      box.style.bottom='88px';
+    }
     return box;
   }
 
@@ -93,6 +103,7 @@
   }
 
   async function sendMessage(){
+    if(isHost())return;
     var input=document.getElementById('ktRoomChatInput');if(!input)return;
     var text=String(input.value||'').trim();if(!text)return;
     if(Date.now()-lastSendAt<600)return;
@@ -112,7 +123,10 @@
     var html='';
     notices.forEach(function(n){html+='<div class="kt-room-chat-line system"><b>알림</b>'+esc(n.text)+'</div>';});
     (rows||[]).forEach(function(x){html+='<div class="kt-room-chat-line"><b>'+esc(x.sender_name||'게스트')+'</b>'+esc(x.message||'')+'</div>';});
-    log.innerHTML=html||'<div class="kt-room-chat-line system"><b>채팅</b>방송에 들어오면 여기에서 인사할 수 있습니다.</div>';
+    if(!html){
+      html=isHost()?'<div class="kt-room-chat-line system"><b>알림</b>시청자가 들어오거나 채팅을 쓰면 여기에 표시됩니다.</div>':'<div class="kt-room-chat-line system"><b>채팅</b>여기에 글을 쓰면 호스트 화면에도 올라갑니다.</div>';
+    }
+    log.innerHTML=html;
     log.scrollTop=log.scrollHeight;
   }
 
