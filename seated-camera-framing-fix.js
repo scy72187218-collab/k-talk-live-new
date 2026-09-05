@@ -9,4 +9,12 @@
 #ktRemoteLive{object-position:50% 68%!important;}\
 ';
   document.head.appendChild(s);
+
+  if(!document.querySelector('script[data-kt-live-speed-opt]')){
+    var sp=document.createElement('script');
+    sp.src='live-speed-optimization.js?v=20260906-speed01';
+    sp.defer=true;
+    sp.setAttribute('data-kt-live-speed-opt','1');
+    document.head.appendChild(sp);
+  }
 })();
