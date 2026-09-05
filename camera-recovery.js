@@ -68,7 +68,7 @@
 
   if(!document.querySelector('script[data-kt-song-guest-mic-lock]')){
     var gm=document.createElement('script');
-    gm.src='song-guest-mic-lock.js?v=20260906-songmic01';
+    gm.src='song-guest-mic-lock.js?v=20260906-songmic02';
     gm.defer=true;
     gm.setAttribute('data-kt-song-guest-mic-lock','1');
     document.head.appendChild(gm);
