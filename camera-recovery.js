@@ -22,7 +22,7 @@
     ['kt-viewer-live-reconnect','viewer-live-reconnect-fix.js?v=20260906-viewer02'],
     ['kt-live-first-feed','live-first-feed-fix.js?v=20260905-livefirst01'],
     ['kt-live-presence-fast','live-presence-fast-fix.js?v=20260905-fastpresence01'],
-    ['kt-feed-startup-stability','feed-startup-stability-fix.js?v=20260906-feedstable03'],
+    ['kt-feed-startup-stability','feed-startup-stability-fix.js?v=20260906-feedstable04'],
     ['kt-home-motion-recovery','home-motion-recovery.js?v=20260906-motion01'],
     ['kt-playable-sounds','sound-playable-original.js?v=20260905-vocal02']
   ];
