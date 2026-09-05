@@ -33,4 +33,12 @@
     ph.setAttribute('data-kt-password-host-cover','1');
     document.head.appendChild(ph);
   }
+
+  if(!document.querySelector('script[data-kt-live-home-indicator]')){
+    var lh=document.createElement('script');
+    lh.src='live-home-indicator.js?v=20260905-livehome01';
+    lh.defer=true;
+    lh.setAttribute('data-kt-live-home-indicator','1');
+    document.head.appendChild(lh);
+  }
 })();
