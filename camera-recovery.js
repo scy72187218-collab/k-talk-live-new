@@ -90,6 +90,14 @@
     document.head.appendChild(cl);
   }
 
+  if(!document.querySelector('script[data-kt-seated-camera-framing]')){
+    var cf=document.createElement('script');
+    cf.src='seated-camera-framing-fix.js?v=20260906-seated01';
+    cf.defer=true;
+    cf.setAttribute('data-kt-seated-camera-framing','1');
+    document.head.appendChild(cf);
+  }
+
   if(!document.querySelector('script[data-kt-attendance-size-position]')){
     var at=document.createElement('script');
     at.src='attendance-size-position-fix.js?v=20260905-attendance04';
