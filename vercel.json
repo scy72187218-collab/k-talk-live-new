@@ -9,5 +9,18 @@
         }
       ]
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/ktalk26",
+      "destination": "/index.html"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/ktalk26/",
+      "destination": "/ktalk26",
+      "permanent": false
+    }
   ]
 }
