@@ -66,6 +66,14 @@
     document.head.appendChild(gp);
   }
 
+  if(!document.querySelector('script[data-kt-song-guest-mic-lock]')){
+    var gm=document.createElement('script');
+    gm.src='song-guest-mic-lock.js?v=20260906-songmic01';
+    gm.defer=true;
+    gm.setAttribute('data-kt-song-guest-mic-lock','1');
+    document.head.appendChild(gm);
+  }
+
   if(!document.querySelector('script[data-kt-live-viewer-join-chat]')){
     var vc=document.createElement('script');
     vc.src='live-viewer-join-chat.js?v=20260905-joinchat02';
