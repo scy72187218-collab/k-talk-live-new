@@ -90,6 +90,14 @@
     document.head.appendChild(sf);
   }
 
+  if(!document.querySelector('script[data-kt-viewer-live-reconnect]')){
+    var vr=document.createElement('script');
+    vr.src='viewer-live-reconnect-fix.js?v=20260905-viewer01';
+    vr.defer=true;
+    vr.setAttribute('data-kt-viewer-live-reconnect','1');
+    document.head.appendChild(vr);
+  }
+
   if(!document.querySelector('script[data-kt-playable-sounds]')){
     var snd=document.createElement('script');
     snd.src='sound-playable-original.js?v=20260905-vocal02';
