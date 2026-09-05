@@ -76,7 +76,7 @@
 
   if(!document.querySelector('script[data-kt-attendance-size-position]')){
     var at=document.createElement('script');
-    at.src='attendance-size-position-fix.js?v=20260905-attendance03';
+    at.src='attendance-size-position-fix.js?v=20260905-attendance04';
     at.defer=true;
     at.setAttribute('data-kt-attendance-size-position','1');
     document.head.appendChild(at);
