@@ -19,6 +19,26 @@
     return !!host && host.id==='ktSept2Live';
   }
 
+  function moveEarnHudDown(){
+    if(!isTargetRoom())return;
+    var hud=document.querySelector('#ktSept2Live #myEarnHud');
+    if(!hud)return;
+    if(hud.style.getPropertyValue('bottom')!=='126px' || hud.style.getPropertyPriority('bottom')!=='important'){
+      hud.style.setProperty('bottom','126px','important');
+    }
+    if(!hud.__ktEarnHudDownObs){
+      try{
+        var earnObs=new MutationObserver(function(){
+          if(hud.style.getPropertyValue('bottom')!=='126px' || hud.style.getPropertyPriority('bottom')!=='important'){
+            hud.style.setProperty('bottom','126px','important');
+          }
+        });
+        earnObs.observe(hud,{attributes:true,attributeFilter:['style']});
+        hud.__ktEarnHudDownObs=earnObs;
+      }catch(e){}
+    }
+  }
+
   function forceLiveFull(){
     if(!isTargetRoom())return;
     var host=currentHost();
@@ -103,12 +123,14 @@
     if(!host||!video)return;
 
     forceLiveFull();
+    moveEarnHudDown();
 
     if(!video.__ktSoloFullscreenObs){
       try{
         var obs=new MutationObserver(function(){
           var h=currentHost();
           if(h&&videoNeedsFix(video,h))forceLiveFull();
+          moveEarnHudDown();
         });
         obs.observe(video,{attributes:true,attributeFilter:['style','class']});
         video.__ktSoloFullscreenObs=obs;
@@ -122,8 +144,8 @@
         for(var j=0;j<muts[i].addedNodes.length;j++){
           var n=muts[i].addedNodes[j];
           if(!n||n.nodeType!==1)continue;
-          if(n.id==='ktSept2Live'||n.id==='ktSoloHostLive'||n.id==='ktLiveVideo'||
-             (n.querySelector&&(n.querySelector('#ktSept2Live')||n.querySelector('#ktSoloHostLive')||n.querySelector('#ktLiveVideo')))){
+          if(n.id==='ktSept2Live'||n.id==='ktSoloHostLive'||n.id==='ktLiveVideo'||n.id==='myEarnHud'||
+             (n.querySelector&&(n.querySelector('#ktSept2Live')||n.querySelector('#ktSoloHostLive')||n.querySelector('#ktLiveVideo')||n.querySelector('#myEarnHud')))){
             setTimeout(watchVideo,0);
             return;
           }
