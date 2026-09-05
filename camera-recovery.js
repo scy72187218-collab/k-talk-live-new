@@ -44,7 +44,7 @@
 
   if(!document.querySelector('script[data-kt-playable-sounds]')){
     var snd=document.createElement('script');
-    snd.src='sound-playable-original.js?v=20260905-sound01';
+    snd.src='sound-playable-original.js?v=20260905-vocal02';
     snd.defer=true;
     snd.setAttribute('data-kt-playable-sounds','1');
     document.head.appendChild(snd);
