@@ -82,6 +82,14 @@
     document.head.appendChild(at);
   }
 
+  if(!document.querySelector('script[data-kt-subscriber-title-fix]')){
+    var sf=document.createElement('script');
+    sf.src='subscriber-title-position-fix.js?v=20260905-subtitle01';
+    sf.defer=true;
+    sf.setAttribute('data-kt-subscriber-title-fix','1');
+    document.head.appendChild(sf);
+  }
+
   if(!document.querySelector('script[data-kt-playable-sounds]')){
     var snd=document.createElement('script');
     snd.src='sound-playable-original.js?v=20260905-vocal02';
