@@ -21,7 +21,7 @@ html.kt-password-reference body #ktSept2Live #ktPasswordHostFrame #ktLiveVideo{\
   max-height:none!important;\
   object-fit:cover!important;\
   object-position:50% 50%!important;\
-  transform:scaleX(-1) scale(1.10)!important;\
+  transform:scaleX(-1) scale(1.00)!important;\
   transform-origin:50% 50%!important;\
   background:#111!important;\
 }\
@@ -38,7 +38,7 @@ html.kt-password-reference body #ktSept2Live #ktPasswordHostFrame #ktLiveVideo{\
     v.style.setProperty('object-position','50% 50%','important');
     v.style.setProperty('width','100%','important');
     v.style.setProperty('height','100%','important');
-    v.style.setProperty('transform','scaleX(-1) scale(1.10)','important');
+    v.style.setProperty('transform','scaleX(-1) scale(1.00)','important');
     v.style.setProperty('transform-origin','50% 50%','important');
   }
 
