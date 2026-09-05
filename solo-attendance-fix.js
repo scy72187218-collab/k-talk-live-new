@@ -3,11 +3,15 @@
   if(window.__ktAttendanceLed3Rooms)return;
   window.__ktAttendanceLed3Rooms=true;
 
+  function roomType(){
+    try{return (window.state&&state.liveRoomType)||'';}catch(e){return '';}
+  }
+
   function markRoom(){
-    var t='';
-    try{t=(window.state&&state.liveRoomType)||'';}catch(e){}
+    var t=roomType();
     var ok=t==='solo'||t==='group'||t==='group13'||t==='subscriber';
     document.documentElement.classList.toggle('kt-att-led-target',ok);
+    document.documentElement.classList.toggle('kt-compact-two-room',t==='group'||t==='group13'||t==='subscriber');
   }
 
   var s=document.createElement('style');
@@ -50,6 +54,15 @@ html body #ktSept2Live.kt-added-ui-room .kt-s2-circle{width:46px!important;heigh
 html body #ktSept2Live.kt-added-ui-room #myEarnHud{position:fixed!important;left:50%!important;bottom:140px!important;transform:translateX(-50%)!important;width:40%!important;max-width:180px!important;padding:3px 6px!important;border-radius:10px!important;z-index:9!important;font-size:8px!important;}\
 html body #ktSept2Live.kt-added-ui-room #myEarnHud #hudEarnNet{font-size:12px!important;}\
 html body #ktSept2Live.kt-added-ui-room #myEarnHud #myEarnDetail{margin-top:1px!important;font-size:7px!important;}\
+html.kt-compact-two-room body #ktSept2Live .kt-s2-gift-row{left:5px!important;right:5px!important;bottom:72px!important;height:60px!important;gap:2px!important;padding:2px!important;}\
+html.kt-compact-two-room body #ktSept2Live .kt-s2-gift-row button{height:54px!important;padding:1px 0!important;border-radius:7px!important;}\
+html.kt-compact-two-room body #ktSept2Live .kt-s2-gift-row .gift-img{width:22px!important;height:22px!important;}\
+html.kt-compact-two-room body #ktSept2Live .kt-s2-gift-row .gift-emoji{height:22px!important;font-size:18px!important;}\
+html.kt-compact-two-room body #ktSept2Live .kt-s2-gift-row b{margin-top:1px!important;font-size:8px!important;}\
+html.kt-compact-two-room body #ktSept2Live .kt-s2-gift-row small{margin-top:0!important;font-size:6px!important;}\
+html.kt-compact-two-room body #ktSept2Live #myEarnHud{position:fixed!important;left:50%!important;bottom:140px!important;transform:translateX(-50%)!important;width:40%!important;max-width:180px!important;padding:3px 6px!important;border-radius:10px!important;z-index:9!important;font-size:8px!important;}\
+html.kt-compact-two-room body #ktSept2Live #myEarnHud #hudEarnNet{font-size:12px!important;}\
+html.kt-compact-two-room body #ktSept2Live #myEarnHud #myEarnDetail{margin-top:1px!important;font-size:7px!important;}\
 @media(max-width:380px){.kt-att-led-target .kt-live-attendance{left:130px!important;right:5px!important;font-size:12px!important}.kt-att-led-target .kt-live-attendance .badge{font-size:12px!important}#ktSoloHostLive .kt-sa-att{left:136px!important;right:44px!important}#ktSoloHostLive .kt-sa-att:before{font-size:12px!important}html body #ktSept2Live.kt-added-ui-room .kt-s2-att-small{width:116px!important}html body #ktSept2Live.kt-added-ui-room .kt-s2-att-large{font-size:13px!important}html body #ktSept2Live.kt-added-ui-room .kt-s2-gift-row small{font-size:6px!important}}\
 ';
   document.head.appendChild(s);
@@ -81,13 +94,41 @@ html body #ktSept2Live.kt-added-ui-room #myEarnHud #myEarnDetail{margin-top:1px!
     v.dataset.ktStableCamera='1';
   }
 
+  function forceCompactTwoRooms(){
+    var t=roomType();
+    if(!(t==='group'||t==='group13'||t==='subscriber'))return;
+    var gifts=document.querySelector('#ktSept2Live .kt-s2-gift-row');
+    if(gifts&&!gifts.dataset.ktCompactTwoRoom){
+      gifts.dataset.ktCompactTwoRoom='1';
+      gifts.style.setProperty('left','5px','important');
+      gifts.style.setProperty('right','5px','important');
+      gifts.style.setProperty('height','60px','important');
+      gifts.style.setProperty('padding','2px','important');
+    }
+    var hud=document.querySelector('#ktSept2Live #myEarnHud');
+    if(hud&&!hud.dataset.ktCompactTwoRoom){
+      hud.dataset.ktCompactTwoRoom='1';
+      hud.style.setProperty('position','fixed','important');
+      hud.style.setProperty('left','50%','important');
+      hud.style.setProperty('bottom','140px','important');
+      hud.style.setProperty('transform','translateX(-50%)','important');
+      hud.style.setProperty('width','40%','important');
+      hud.style.setProperty('max-width','180px','important');
+      hud.style.setProperty('padding','3px 6px','important');
+      hud.style.setProperty('font-size','8px','important');
+    }
+  }
+
   markRoom();
   forceFrontCameraLayout();
+  forceCompactTwoRooms();
   setInterval(markRoom,700);
 
   var observer=new MutationObserver(function(){
+    markRoom();
     var v=document.getElementById('ktLiveVideo');
     if(v&&!v.dataset.ktStableCamera)forceFrontCameraLayout();
+    forceCompactTwoRooms();
   });
   observer.observe(document.documentElement,{childList:true,subtree:true});
 })();
