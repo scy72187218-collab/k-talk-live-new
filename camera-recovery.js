@@ -36,10 +36,18 @@
 
   if(!document.querySelector('script[data-kt-live-home-indicator]')){
     var lh=document.createElement('script');
-    lh.src='live-home-indicator.js?v=20260905-livehome01';
+    lh.src='live-home-indicator.js?v=20260905-livehome03';
     lh.defer=true;
     lh.setAttribute('data-kt-live-home-indicator','1');
     document.head.appendChild(lh);
+  }
+
+  if(!document.querySelector('script[data-kt-live-host-thumbnail]')){
+    var ht=document.createElement('script');
+    ht.src='live-host-thumbnail.js?v=20260905-hostthumb01';
+    ht.defer=true;
+    ht.setAttribute('data-kt-live-host-thumbnail','1');
+    document.head.appendChild(ht);
   }
 
   if(!document.querySelector('script[data-kt-playable-sounds]')){
@@ -48,13 +56,5 @@
     snd.defer=true;
     snd.setAttribute('data-kt-playable-sounds','1');
     document.head.appendChild(snd);
-  }
-
-  if(!document.querySelector('script[data-kt-match-live-button]')){
-    var mb=document.createElement('script');
-    mb.src='match-live-button.js?v=20260905-match01';
-    mb.defer=true;
-    mb.setAttribute('data-kt-match-live-button','1');
-    document.head.appendChild(mb);
   }
 })();
