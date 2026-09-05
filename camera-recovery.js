@@ -124,7 +124,7 @@
 
   if(!document.querySelector('script[data-kt-feed-startup-stability]')){
     var fs=document.createElement('script');
-    fs.src='feed-startup-stability-fix.js?v=20260906-feedstable02';
+    fs.src='feed-startup-stability-fix.js?v=20260906-feedstable03';
     fs.defer=true;
     fs.setAttribute('data-kt-feed-startup-stability','1');
     document.head.appendChild(fs);
@@ -138,13 +138,13 @@
     document.head.appendChild(snd);
   }
 
-  /* 주소 직접 접속 때 기본 1개 화면에 멈추지 않고 실제 공개 동영상 피드를 다시 불러온다. */
+  /* 주소 직접 접속 시 전체 동영상을 한꺼번에 열지 않고 저메모리 피드만 기다려서 연다. */
   function forcePublicFeed(){
     try{
       if(document.getElementById('ktUnifiedFeed'))return;
       if(!document.querySelector('.video-home'))return;
-      if(typeof window.ktRefreshUnifiedFeed!=='function')return;
-      var r=window.ktRefreshUnifiedFeed();
+      if(typeof window.ktLowMemoryFeed!=='function')return;
+      var r=window.ktLowMemoryFeed();
       if(r&&typeof r.then==='function'){
         r.then(function(){
           var feed=document.getElementById('ktUnifiedFeed');
@@ -157,9 +157,9 @@
       }
     }catch(e){}
   }
-  setTimeout(forcePublicFeed,80);
-  setTimeout(forcePublicFeed,350);
-  setTimeout(forcePublicFeed,900);
+  setTimeout(forcePublicFeed,150);
+  setTimeout(forcePublicFeed,500);
+  setTimeout(forcePublicFeed,1000);
   setTimeout(forcePublicFeed,1800);
-  setTimeout(forcePublicFeed,3500);
+  setTimeout(forcePublicFeed,3200);
 })();
