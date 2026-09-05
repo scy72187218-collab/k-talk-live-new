@@ -24,6 +24,8 @@
 #ktSoloHostLive .kt-sa-att{font-size:0!important;position:absolute!important;left:148px!important;right:48px!important;top:2px!important;width:auto!important;height:40px!important;margin:0!important;padding:0!important;border:2px solid #ff42c7!important;border-radius:8px!important;background-color:#100710!important;background-image:radial-gradient(circle,rgba(255,83,207,.42) 0 1px,transparent 1.5px)!important;background-size:6px 6px!important;box-shadow:inset 0 0 10px #ff37c43d,0 0 7px #ff40c9,0 0 16px #ff2ab99c!important;color:#ffd447!important;}\
 #ktSoloHostLive .kt-sa-att:before{content:"출석체크  ♥"!important;font-size:13px!important;font-weight:950!important;letter-spacing:.5px!important;color:#ffd447!important;text-shadow:0 0 5px #ffad18,0 0 9px #ff6900!important;}\
 #ktSoloHostLive .kt-sa-clock{order:-1!important;}\
+html body #ktSept2Live.kt-added-ui-room{height:100vh!important;height:100svh!important;min-height:100vh!important;min-height:100svh!important;overflow:hidden!important;}\
+html body #ktSept2Live.kt-added-ui-room #ktLiveVideo{transition:none!important;animation:none!important;will-change:auto!important;}\
 html body #ktSept2Live.kt-added-ui-room .kt-s2-title-live{min-height:48px!important;padding:5px 9px!important;border-radius:15px!important;}\
 html body #ktSept2Live.kt-added-ui-room .kt-s2-title-left b{font-size:17px!important;gap:5px!important;}\
 html body #ktSept2Live.kt-added-ui-room .kt-s2-title-left small{font-size:11px!important;gap:4px!important;}\
@@ -56,10 +58,12 @@ html body #ktSept2Live.kt-added-ui-room #myEarnHud #myEarnDetail{margin-top:2px!
     var section=document.getElementById('ktSept2Live');
     var v=document.getElementById('ktLiveVideo');
     if(!section||!v||!section.classList.contains('kt-added-ui-room'))return;
+    var stableH=(window.CSS&&CSS.supports&&CSS.supports('height','100svh'))?'100svh':'100vh';
     section.style.setProperty('padding','0','important');
     section.style.setProperty('margin','0','important');
     section.style.setProperty('width','100%','important');
-    section.style.setProperty('height','100dvh','important');
+    section.style.setProperty('height',stableH,'important');
+    section.style.setProperty('min-height',stableH,'important');
     v.style.setProperty('position','absolute','important');
     v.style.setProperty('inset','0','important');
     v.style.setProperty('left','0','important');
@@ -72,9 +76,18 @@ html body #ktSept2Live.kt-added-ui-room #myEarnHud #myEarnDetail{margin-top:2px!
     v.style.setProperty('object-position','50% 50%','important');
     v.style.setProperty('transform','scaleX(-1)','important');
     v.style.setProperty('border-radius','0','important');
+    v.style.setProperty('transition','none','important');
+    v.style.setProperty('animation','none','important');
+    v.dataset.ktStableCamera='1';
   }
 
   markRoom();
   forceFrontCameraLayout();
-  setInterval(function(){markRoom();forceFrontCameraLayout();},500);
+  setInterval(markRoom,700);
+
+  var observer=new MutationObserver(function(){
+    var v=document.getElementById('ktLiveVideo');
+    if(v&&!v.dataset.ktStableCamera)forceFrontCameraLayout();
+  });
+  observer.observe(document.documentElement,{childList:true,subtree:true});
 })();
