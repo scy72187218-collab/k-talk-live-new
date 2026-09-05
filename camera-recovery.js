@@ -23,7 +23,7 @@
     ['kt-live-first-feed','live-first-feed-fix.js?v=20260905-livefirst01'],
     ['kt-live-presence-fast','live-presence-fast-fix.js?v=20260905-fastpresence01'],
     ['kt-feed-startup-stability','feed-startup-stability-fix.js?v=20260906-feedstable04'],
-    ['kt-home-motion-recovery','home-motion-recovery.js?v=20260906-motion02'],
+    ['kt-home-motion-recovery','home-motion-recovery.js?v=20260906-motion03'],
     ['kt-playable-sounds','sound-playable-original.js?v=20260905-vocal02']
   ];
 
@@ -37,7 +37,6 @@
     document.head.appendChild(s);
   });
 
-  /* Direct address: prefer the low-memory feed without opening every video at once. */
   function forcePublicFeed(){
     try{
       if(document.getElementById('ktUnifiedFeed'))return;
