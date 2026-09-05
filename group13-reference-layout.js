@@ -20,16 +20,15 @@
 html.kt-group13-reference body #ktSept2Live{background:#000!important;}\
 html.kt-group13-reference body #ktSept2Live .kt-live-guests{display:none!important;}\
 html.kt-group13-reference body #ktSept2Live .kt-s2-right{display:none!important;}\
-html.kt-group13-reference body #ktSept2Live #ktGroup13TopControls{position:absolute!important;left:8px!important;right:8px!important;top:149px!important;height:34px!important;z-index:7!important;display:grid!important;grid-template-columns:.86fr 1fr 1.25fr!important;gap:8px!important;align-items:center!important;}\
+html.kt-group13-reference body #ktSept2Live #ktGroup13TopControls{position:absolute!important;left:8px!important;right:8px!important;top:112px!important;height:34px!important;z-index:12!important;display:grid!important;grid-template-columns:.86fr 1fr 1.25fr!important;gap:8px!important;align-items:center!important;}\
 html.kt-group13-reference body #ktSept2Live #ktGroup13TopControls button{height:34px!important;min-width:0!important;padding:0 9px!important;border:0!important;border-radius:10px!important;background:#17171a!important;color:#f5f5f5!important;font-family:inherit!important;font-size:12px!important;font-weight:900!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;box-shadow:none!important;}\
-html.kt-group13-reference body #ktSept2Live #ktGroup13TopControls .rank{color:#f4f4f4!important;}\
-html.kt-group13-reference body #ktSept2Live #ktGroup13TopControls .add{color:#f4f4f4!important;}\
-html.kt-group13-reference body #ktSept2Live #ktGroup13TopControls .viewers{color:#f4f4f4!important;}\
-html.kt-group13-reference body #ktSept2Live #ktGroup13GuestGrid{position:absolute!important;left:calc(42% + 6px)!important;right:7px!important;top:189px!important;bottom:184px!important;z-index:4!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:repeat(4,minmax(0,1fr))!important;gap:1px!important;pointer-events:auto!important;}\
+html.kt-group13-reference body #ktSept2Live #ktGroup13HostFrame{position:absolute!important;left:7px!important;width:42%!important;top:158px!important;bottom:184px!important;z-index:4!important;overflow:hidden!important;border-radius:7px!important;background:#111!important;border:1px solid rgba(255,255,255,.08)!important;}\
+html.kt-group13-reference body #ktSept2Live #ktGroup13HostFrame #ktLiveVideo{position:absolute!important;inset:0!important;left:0!important;top:0!important;right:0!important;bottom:0!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;object-fit:contain!important;object-position:50% 50%!important;border-radius:0!important;background:#111!important;}\
+html.kt-group13-reference body #ktSept2Live #ktGroup13GuestGrid{position:absolute!important;left:calc(42% + 6px)!important;right:7px!important;top:158px!important;bottom:184px!important;z-index:4!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:repeat(4,minmax(0,1fr))!important;gap:1px!important;pointer-events:auto!important;}\
 html.kt-group13-reference body #ktSept2Live #ktGroup13GuestGrid .kt-group13-guest{min-width:0!important;min-height:0!important;border:1px solid rgba(255,255,255,.06)!important;border-radius:5px!important;background:linear-gradient(180deg,#202023,#171719)!important;color:#a8a8ad!important;display:flex!important;align-items:center!important;justify-content:center!important;font-size:13px!important;font-weight:900!important;letter-spacing:-.2px!important;box-shadow:none!important;}\
-html.kt-group13-reference body #ktSept2Live #ktGroup13HostBadge{position:absolute!important;left:14px!important;top:196px!important;z-index:6!important;padding:3px 8px!important;border-radius:12px!important;background:rgba(35,35,38,.86)!important;color:#fff!important;font-size:12px!important;font-weight:950!important;line-height:1.2!important;border:1px solid rgba(255,255,255,.12)!important;}\
-html.kt-group13-reference body #ktSept2Live .kt-s2-att-small{height:23px!important;min-width:102px!important;padding:0 7px!important;border-radius:11px!important;font-size:10px!important;}\
-html.kt-group13-reference body #ktSept2Live .kt-s2-att-large{height:34px!important;padding:0 7px!important;border-radius:15px!important;font-size:15px!important;}\
+html.kt-group13-reference body #ktSept2Live #ktGroup13HostBadge{position:absolute!important;left:14px!important;top:165px!important;z-index:13!important;padding:3px 8px!important;border-radius:12px!important;background:rgba(35,35,38,.86)!important;color:#fff!important;font-size:12px!important;font-weight:950!important;line-height:1.2!important;border:1px solid rgba(255,255,255,.12)!important;}\
+html.kt-group13-reference body #ktSept2Live .kt-s2-att-small{height:20px!important;min-width:88px!important;padding:0 6px!important;border-radius:10px!important;font-size:8px!important;}\
+html.kt-group13-reference body #ktSept2Live .kt-s2-att-large{height:38px!important;padding:0 8px!important;border-radius:17px!important;font-size:17px!important;}\
 html.kt-group13-reference body #ktSept2Live .kt-s2-attendance-stack{gap:2px!important;}\
 html.kt-group13-reference body #ktSept2Live .kt-s2-gift-row{display:grid!important;visibility:visible!important;opacity:1!important;left:7px!important;right:7px!important;bottom:61px!important;height:72px!important;z-index:28!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:2px!important;padding:3px 2px!important;background:rgba(2,2,5,.96)!important;border-radius:8px!important;overflow:hidden!important;}\
 html.kt-group13-reference body #ktSept2Live .kt-s2-gift-row button{height:64px!important;padding:2px 1px!important;border-radius:7px!important;}\
@@ -39,7 +38,7 @@ html.kt-group13-reference body #ktSept2Live .kt-s2-gift-row b{margin-top:1px!imp
 html.kt-group13-reference body #ktSept2Live .kt-s2-gift-row small{margin-top:1px!important;font-size:6px!important;}\
 html.kt-group13-reference body #ktSept2Live .kt-s2-bottom{display:grid!important;visibility:visible!important;opacity:1!important;position:absolute!important;left:6px!important;right:6px!important;bottom:3px!important;height:56px!important;z-index:30!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;align-items:center!important;gap:5px!important;padding:0!important;background:transparent!important;}\
 html.kt-group13-reference body #ktSept2Live .kt-s2-bottom button{width:46px!important;height:46px!important;min-width:46px!important;min-height:46px!important;margin:0 auto!important;padding:0!important;border:1px solid rgba(255,255,255,.12)!important;border-radius:50%!important;background:rgba(22,22,26,.92)!important;color:#fff!important;display:grid!important;place-items:center!important;font-size:22px!important;font-weight:900!important;line-height:1!important;}\
-@media(max-width:380px){html.kt-group13-reference body #ktSept2Live #ktGroup13TopControls{left:5px!important;right:5px!important;gap:5px!important}html.kt-group13-reference body #ktSept2Live #ktGroup13TopControls button{padding:0 5px!important;font-size:10px!important}html.kt-group13-reference body #ktSept2Live #ktGroup13GuestGrid{left:calc(43% + 4px)!important;right:4px!important;gap:1px!important}html.kt-group13-reference body #ktSept2Live #ktGroup13GuestGrid .kt-group13-guest{font-size:12px!important;border-radius:4px!important}html.kt-group13-reference body #ktSept2Live .kt-s2-gift-row{left:4px!important;right:4px!important;height:68px!important}html.kt-group13-reference body #ktSept2Live .kt-s2-gift-row button{height:60px!important}html.kt-group13-reference body #ktSept2Live .kt-s2-gift-row b{font-size:7px!important}html.kt-group13-reference body #ktSept2Live .kt-s2-gift-row small{font-size:5px!important}}\
+@media(max-width:380px){html.kt-group13-reference body #ktSept2Live #ktGroup13TopControls{left:5px!important;right:5px!important;gap:5px!important}html.kt-group13-reference body #ktSept2Live #ktGroup13TopControls button{padding:0 5px!important;font-size:10px!important}html.kt-group13-reference body #ktSept2Live #ktGroup13HostFrame{left:4px!important;width:43%!important}html.kt-group13-reference body #ktSept2Live #ktGroup13GuestGrid{left:calc(43% + 4px)!important;right:4px!important;gap:1px!important}html.kt-group13-reference body #ktSept2Live #ktGroup13GuestGrid .kt-group13-guest{font-size:12px!important;border-radius:4px!important}html.kt-group13-reference body #ktSept2Live .kt-s2-gift-row{left:4px!important;right:4px!important;height:68px!important}html.kt-group13-reference body #ktSept2Live .kt-s2-gift-row button{height:60px!important}html.kt-group13-reference body #ktSept2Live .kt-s2-gift-row b{font-size:7px!important}html.kt-group13-reference body #ktSept2Live .kt-s2-gift-row small{font-size:5px!important}}\
 ';
     document.head.appendChild(s);
   }
@@ -54,6 +53,17 @@ html.kt-group13-reference body #ktSept2Live .kt-s2-bottom button{width:46px!impo
       +'<button type="button" class="add" onclick="if(window.shareApp)shareApp()">🎯 지금 추가</button>'
       +'<button type="button" class="viewers">시청자 4명이 🛩️</button>';
     section.appendChild(row);
+  }
+
+  function ensureHostFrame(section){
+    var frame=document.getElementById('ktGroup13HostFrame');
+    if(!frame){
+      frame=document.createElement('div');
+      frame.id='ktGroup13HostFrame';
+      section.appendChild(frame);
+    }
+    var v=document.getElementById('ktLiveVideo');
+    if(v&&v.parentNode!==frame)frame.appendChild(v);
   }
 
   function makeGrid(section){
@@ -110,27 +120,12 @@ html.kt-group13-reference body #ktSept2Live .kt-s2-bottom button{width:46px!impo
       +'<button class="kt-live-more" type="button" aria-label="더보기" onclick="if(window.ktLiveBottomMore)ktLiveBottomMore();else if(window.openSiteGuide)openSiteGuide()">•••</button>';
   }
 
-  function forceHostVideo(){
-    var v=document.getElementById('ktLiveVideo');
-    if(!v)return;
-    v.style.setProperty('position','absolute','important');
-    v.style.setProperty('inset','auto','important');
-    v.style.setProperty('left','7px','important');
-    v.style.setProperty('right','auto','important');
-    v.style.setProperty('top','189px','important');
-    v.style.setProperty('bottom','184px','important');
-    v.style.setProperty('width','42%','important');
-    v.style.setProperty('height','auto','important');
-    v.style.setProperty('max-width','none','important');
-    v.style.setProperty('max-height','none','important');
-    v.style.setProperty('object-fit','cover','important');
-    v.style.setProperty('object-position','50% 50%','important');
-    v.style.setProperty('border-radius','7px','important');
-    v.style.setProperty('background','#111','important');
-    v.style.setProperty('border','1px solid rgba(255,255,255,.08)','important');
-  }
-
   function removeGroup13Extras(){
+    var section=document.getElementById('ktSept2Live');
+    var frame=document.getElementById('ktGroup13HostFrame');
+    var v=document.getElementById('ktLiveVideo');
+    if(frame&&v&&section&&v.parentNode===frame)section.insertBefore(v,section.firstChild||null);
+    if(frame)frame.remove();
     var grid=document.getElementById('ktGroup13GuestGrid');if(grid)grid.remove();
     var badge=document.getElementById('ktGroup13HostBadge');if(badge)badge.remove();
     var row=document.getElementById('ktGroup13TopControls');if(row)row.remove();
@@ -143,10 +138,10 @@ html.kt-group13-reference body #ktSept2Live .kt-s2-bottom button{width:46px!impo
     document.documentElement.classList.toggle('kt-group13-reference',active);
     if(!active){removeGroup13Extras();return;}
     ensureTopControls(section);
+    ensureHostFrame(section);
     makeGrid(section);
     ensureGiftRow(section);
     ensureBottomBar(section);
-    forceHostVideo();
   }
 
   addCss();
