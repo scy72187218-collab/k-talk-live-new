@@ -68,7 +68,7 @@
 
   if(!document.querySelector('script[data-kt-live-viewer-join-chat]')){
     var vc=document.createElement('script');
-    vc.src='live-viewer-join-chat.js?v=20260905-joinchat01';
+    vc.src='live-viewer-join-chat.js?v=20260905-joinchat02';
     vc.defer=true;
     vc.setAttribute('data-kt-live-viewer-join-chat','1');
     document.head.appendChild(vc);
