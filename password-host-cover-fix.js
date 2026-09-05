@@ -1,4 +1,4 @@
-/* K-Talk LIVE: 비밀방 호스트 영상만 13명방처럼 칸에 꽉 채움. 다른 방/UI는 변경하지 않음. */
+/* K-Talk LIVE: 비밀방 호스트 영상만 칸에 채우되 얼굴은 너무 크게 나오지 않게 조정. 다른 방/UI는 변경하지 않음. */
 (function(){
   if(window.__ktPasswordHostCoverFixLoaded)return;
   window.__ktPasswordHostCoverFixLoaded=true;
@@ -21,7 +21,7 @@ html.kt-password-reference body #ktSept2Live #ktPasswordHostFrame #ktLiveVideo{\
   max-height:none!important;\
   object-fit:cover!important;\
   object-position:50% 50%!important;\
-  transform:scaleX(-1) scale(1.40)!important;\
+  transform:scaleX(-1) scale(1.10)!important;\
   transform-origin:50% 50%!important;\
   background:#111!important;\
 }\
@@ -38,7 +38,7 @@ html.kt-password-reference body #ktSept2Live #ktPasswordHostFrame #ktLiveVideo{\
     v.style.setProperty('object-position','50% 50%','important');
     v.style.setProperty('width','100%','important');
     v.style.setProperty('height','100%','important');
-    v.style.setProperty('transform','scaleX(-1) scale(1.40)','important');
+    v.style.setProperty('transform','scaleX(-1) scale(1.10)','important');
     v.style.setProperty('transform-origin','50% 50%','important');
   }
 
