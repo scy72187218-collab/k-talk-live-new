@@ -218,12 +218,17 @@ window.showSheet=function(title,html){
   sheet.classList.remove('camera-effect-sheet');
   sheet.classList.remove('gift-shop25');
   sheet.classList.remove('gift-final-v1');
+  sheet.classList.remove('investor-sheet');
+  sheet.classList.remove('beauty-control-sheet');
+  sheet.classList.remove('stage-effect-sheet');
+  sheet.classList.remove('match-arena-sheet');
   sheetTitle.innerHTML=title;
   sheetBody.innerHTML=html;
   sheet.classList.add('show');
 };
 window.closeSheet=function(){
   ktStopSheetMedia();
+  try{if(window.ktStopSoundPreview)window.ktStopSoundPreview();}catch(e){}
   try{creator.classList.remove('beauty-preview-open');}catch(e){}
   try{var lp=creator.querySelector('.live-prep');if(lp)lp.style.removeProperty('display');}catch(e){}
   try{sheetBody.innerHTML='';}catch(e){}
@@ -232,6 +237,10 @@ window.closeSheet=function(){
   sheet.classList.remove('gift-shop25');
   sheet.classList.remove('gift-final-v1');
   sheet.classList.remove('camera-effect-sheet');
+  sheet.classList.remove('investor-sheet');
+  sheet.classList.remove('beauty-control-sheet');
+  sheet.classList.remove('stage-effect-sheet');
+  sheet.classList.remove('match-arena-sheet');
 };
 
 window.home=function(){
@@ -298,7 +307,7 @@ window.closeCreator=function(){
 window.applyBaseCameraLook=function(){
   if(!camera)return;
   if(!state.editFilter && !state.beautyMode){
-    camera.style.filter='brightness(1.12) contrast(.95) saturate(1.02)';
+    camera.style.filter='brightness(1.10) contrast(.94) saturate(1.03) blur(.40px)';
   }
 };
 
@@ -406,9 +415,8 @@ window.ensureLiveCamera=async function(facing){
       state.stream=await navigator.mediaDevices.getUserMedia({
         video:{
           facingMode:state.cameraFacing,
-          width:{ideal:1080},
-          height:{ideal:1920},
-          aspectRatio:{ideal:9/16},
+          width:{ideal:1280},
+          height:{ideal:720},
           frameRate:{ideal:30,max:30}
         },
         audio:{
@@ -421,7 +429,7 @@ window.ensureLiveCamera=async function(facing){
       });
     }catch(firstErr){
       state.stream=await navigator.mediaDevices.getUserMedia({
-        video:{width:{ideal:1080},height:{ideal:1920},aspectRatio:{ideal:9/16},frameRate:{ideal:30,max:30}},
+        video:{width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30,max:30}},
         audio:{
           echoCancellation:true,
           noiseSuppression:true,
@@ -485,7 +493,8 @@ window.stopEffectRecordingCanvas=function(){
 
 window.makeEffectRecordingStream=function(){
   var selected=state.appliedEditEffect||state.pendingEditEffect||'off';
-  if(selected==='off'||!camera||!camera.videoWidth)return state.stream;
+  var hasStage=!!state.stageBackground;
+  if((selected==='off'&&!hasStage)||!camera||!camera.videoWidth)return state.stream;
 
   var canvas=document.createElement('canvas');
   canvas.width=1080;canvas.height=1920;
@@ -499,8 +508,14 @@ window.makeEffectRecordingStream=function(){
     var scale=Math.max(canvas.width/sw,canvas.height/sh);
     var dw=sw*scale,dh=sh*scale,dx=(canvas.width-dw)/2,dy=(canvas.height-dh)/2;
     ctx.save();ctx.clearRect(0,0,canvas.width,canvas.height);
-    ctx.translate(canvas.width,0);ctx.scale(-1,1);
-    try{ctx.drawImage(camera,dx,dy,dw,dh);}catch(e){}
+    if(hasStage&&window.ktStageCanvas&&window.ktStageCanvas.width){
+      var sc=window.ktStageCanvas,ss=Math.max(canvas.width/sc.width,canvas.height/sc.height);
+      var sdw=sc.width*ss,sdh=sc.height*ss,sdx=(canvas.width-sdw)/2,sdy=(canvas.height-sdh)/2;
+      try{ctx.drawImage(sc,sdx,sdy,sdw,sdh);}catch(e){}
+    }else{
+      ctx.translate(canvas.width,0);ctx.scale(-1,1);
+      try{ctx.drawImage(camera,dx,dy,dw,dh);}catch(e){}
+    }
     ctx.restore();
 
     var anchor=document.getElementById('ktFaceAnchor');
@@ -1045,12 +1060,7 @@ window.prepTap=async function(el,name){
     return;
   }
   if(name==='전환'){
-    state.cameraFacing=(state.cameraFacing==='environment')?'user':'environment';
-    try{
-      if(state.stream){state.stream.getTracks().forEach(function(t){t.stop();});state.stream=null;}
-      if(camera)camera.srcObject=null;
-      await ensureLiveCamera(state.cameraFacing);
-    }catch(e){}
+    if(window.openHostMatchArena)openHostMatchArena('1대1');
     return;
   }
   if(name==='설정'){ openLiveSettings(); return; }
@@ -1063,38 +1073,162 @@ window.prepTap=async function(el,name){
   if(name==='라이브 보상'||name==='코인 리워드'){ openBenefitHub(); return; }
 };
 
+
+window.ktMatchMode='1대1';
+
+window.ktMatchSlots=function(side,host){
+  var count=side==='3대3'?3:side==='2대2'?2:1;
+  var html='';
+  for(var i=0;i<count;i++){
+    if(host&&i===0){
+      html+='<div class="kt-match-slot live"><video id="ktMatchHostVideo" autoplay playsinline muted></video><span>LIVE</span><b>나</b></div>';
+    }else{
+      html+='<div class="kt-match-slot"><em>👤</em><b>'+(host?'팀원 대기':'상대 대기')+'</b></div>';
+    }
+  }
+  return html;
+};
+
+window.ktRenderMatchArena=function(mode){
+  mode=mode||window.ktMatchMode||'1대1';
+  window.ktMatchMode=mode;
+  var side=mode==='3대3'?3:mode==='2대2'?2:1;
+  var html='<div class="kt-match-arena">'
+    +'<div class="kt-match-top"><div><b>🔥 호스트 매치</b><span>3판 2선승제</span></div><button onclick="closeSheet()">나가기</button></div>'
+    +'<div class="kt-match-mode-tabs">'
+      +'<button class="'+(mode==='1대1'?'on':'')+'" onclick="ktRenderMatchArena(\'1대1\')">1대1</button>'
+      +'<button class="'+(mode==='2대2'?'on':'')+'" onclick="ktRenderMatchArena(\'2대2\')">2대2</button>'
+      +'<button class="'+(mode==='3대3'?'on':'')+'" onclick="ktRenderMatchArena(\'3대3\')">3대3</button>'
+    +'</div>'
+    +'<div class="kt-match-stage">'
+      +'<div class="kt-match-team blue">'+ktMatchSlots(mode,true)+'</div>'
+      +'<div class="kt-match-center"><small>ROUND 1 / 3</small><strong>01:00</strong><div><b>0</b><i>:</i><b>0</b></div><span>VS</span></div>'
+      +'<div class="kt-match-team pink">'+ktMatchSlots(mode,false)+'</div>'
+    +'</div>'
+    +'<div class="kt-match-roses"><div><b>0 🌹</b><span>내 팀</span></div><em>VS</em><div><b>0 🌹</b><span>상대 팀</span></div></div>'
+    +'<div class="kt-match-bars"><i></i><i></i></div>'
+    +'<div class="kt-match-tabs"><b>매치 정보</b><span>실시간 랭킹</span><span>선물 순위</span><span>매치 규칙</span></div>'
+    +'<div class="kt-match-body">'
+      +'<div class="kt-match-points"><div class="kt-match-point-title"><b>매치 포인트 진행 상황</b><span>현재 72 / 100</span></div><div class="kt-match-progress"><i></i></div><small>매치에서 승리하면 포인트가 올라갑니다. 100P 달성 시 매치 포인트 +1</small></div>'
+      +'<div class="kt-match-reward"><b>100 달성 시</b><strong>+1P</strong><span>매치 포인트 +1</span></div>'
+    +'</div>'
+    +'<div class="kt-match-rewards"><div>🏆 라운드 승리 <b>+10P</b></div><div>👑 매치 승리 <b>+30P</b></div><div>🌟 전승 <b>+20P</b></div><div>✕ 패배 <b>차감 없음</b></div></div>'
+    +'<div class="kt-match-bottom">'
+      +'<div><b>내 매치 포인트</b><strong>7P</strong><span>브론즈 II · 72/100</span></div>'
+      +'<button id="ktMatchRequestBtn" onclick="ktRequestMatch()">⚔ 매치 신청</button>'
+    +'</div>'
+  +'</div>';
+  sheetBody.innerHTML=html;
+  setTimeout(function(){
+    var v=document.getElementById('ktMatchHostVideo');
+    if(v&&state.stream){try{v.srcObject=state.stream;v.play().catch(function(){});}catch(e){}}
+  },0);
+};
+
+window.ktRequestMatch=function(){
+  var btn=document.getElementById('ktMatchRequestBtn');
+  if(!btn)return;
+  btn.textContent='상대 연결 대기 중…';
+  btn.disabled=true;
+  setTimeout(function(){
+    if(btn){btn.textContent='⚔ 매치 신청';btn.disabled=false;}
+  },2500);
+};
+
+window.openHostMatchArena=function(mode){
+  if(!state.stream&&window.ensureLiveCamera){
+    try{ensureLiveCamera(state.cameraFacing||'user').catch(function(){});}catch(e){}
+  }
+  showSheet('호스트 매치','<div class="kt-match-arena"></div>');
+  sheet.classList.add('match-arena-sheet');
+  ktRenderMatchArena(mode||'1대1');
+};
+
+window.getBeautyControlInfo=function(kind){
+  var map={
+    skin:{label:'피부 부드러움',key:'beautySkin',def:40},
+    face:{label:'얼굴형 조절',key:'beautyFace',def:50},
+    eyes:{label:'눈 조절',key:'beautyEyes',def:50},
+    nose:{label:'코 조절',key:'beautyNose',def:50},
+    mouth:{label:'턱선 슬림',key:'beautyMouth',def:50}
+  };
+  return map[kind]||map.skin;
+};
+
+window.getBeautyControlValue=function(kind){
+  var info=getBeautyControlInfo(kind);
+  var raw=Number(state[info.key]);
+  return raw>0?raw:info.def;
+};
+
 window.openBeautyPanel=function(){
   creator.classList.add('beauty-preview-open');
   try{var lp=creator.querySelector('.live-prep');if(lp)lp.style.setProperty('display','none','important');}catch(e){}
   try{if(window.ensureLiveCamera)ensureLiveCamera(state.cameraFacing||'user').catch(function(){});}catch(e){}
-  var controls=[['skin','💧','부드럽게',state.beautySkin||35],['face','☺','얼굴형',state.beautyFace||50],['eyes','◉','눈',state.beautyEyes||50],['nose','♢','코',state.beautyNose||50],['mouth','💋','입술',state.beautyMouth||50],['tone','✨','피부',state.beautyTone||35],['bright','☀','밝기',state.beautyBright||25],['sharp','✦','선명도',state.beautySharp||20]];
+
   var selected=state.beautyControl||'skin';
-  var active=controls.filter(function(c){return c[0]===selected;})[0]||controls[0];
-  var controlButtons=controls.map(function(c){return '<button class="'+(c[0]===selected?'on':'')+'" onclick="selectBeautyControl(\''+c[0]+'\')"><b>'+c[1]+'</b><span>'+c[2]+'</span></button>';}).join('');
-  var html='<div class="kt-beauty-panel">'
-    +'<div class="kt-panel-tabs"><button class="on">Beauty</button><button onclick="openEditEffectPanel()">편집효과</button><button onclick="resetBeautyAll()">↺ 초기화</button></div>'
-    +'<div class="kt-beauty-controls">'+controlButtons+'</div>'
-    +'<div class="kt-beauty-one-slider"><div><span id="beautyControlName">'+active[2]+'</span><b id="beautyControlValue">'+active[3]+'</b></div><div class="kt-beauty-range-line"><button type="button" onclick="adjustBeautyControl(-1)" aria-label="줄이기">−</button><input id="beautyControlRange" type="range" min="1" max="100" value="'+active[3]+'" oninput="setBeautyControlValue(this.value)"><button type="button" onclick="adjustBeautyControl(1)" aria-label="늘리기">＋</button></div></div>'
+  var active=getBeautyControlInfo(selected);
+  var activeValue=getBeautyControlValue(selected);
+  var controls=[
+    ['skin','💧','부드럽게'],
+    ['face','☺','얼굴형'],
+    ['eyes','◉','눈'],
+    ['nose','♢','코'],
+    ['mouth','⌄','턱']
+  ];
+  var controlButtons=controls.map(function(c){
+    return '<button class="'+(c[0]===selected?'on':'')+'" data-beauty-kind="'+c[0]+'" onclick="selectBeautyControl(\''+c[0]+'\')"><b>'+c[1]+'</b><span>'+c[2]+'</span><i></i></button>';
+  }).join('');
+
+  var html='<div class="kt-beauty-panel kt-beauty-panel-pro">'
+    +'<div class="kt-beauty-pro-tabs"><span>AI 최적화</span><b>Beauty</b><span>메이크업</span><button onclick="resetBeautyAll()">↺ 초기화</button></div>'
+    +'<div class="kt-beauty-controls kt-beauty-controls-pro">'+controlButtons+'</div>'
+    +'<div class="kt-beauty-slider-group kt-beauty-single-group">'
+      +'<div class="kt-beauty-slider-row kt-beauty-single-row">'
+        +'<span id="beautySingleLabel">'+active.label+'</span>'
+        +'<input id="beautySingleRange" type="range" min="1" max="100" value="'+activeValue+'" oninput="setBeautyActiveValue(this.value)">'
+        +'<b id="beautySingleValue">'+activeValue+'</b>'
+      +'</div>'
+    +'</div>'
+    +'<div class="kt-beauty-pro-actions"><button onclick="resetBeautyAll()">초기화</button><button class="primary" onclick="closeSheet()">적용</button></div>'
     +'</div>';
+
   showSheet('뷰티',html);
-  sheet.classList.add('camera-effect-sheet');
+  sheet.classList.add('camera-effect-sheet','beauty-control-sheet');
 };
 
 window.selectBeautyControl=function(kind){
   state.beautyControl=kind;
-  openBeautyPanel();
+  document.querySelectorAll('.kt-beauty-controls-pro button').forEach(function(btn){
+    btn.classList.toggle('on',btn.getAttribute('data-beauty-kind')===kind);
+  });
+  var info=getBeautyControlInfo(kind);
+  var value=getBeautyControlValue(kind);
+  var label=document.getElementById('beautySingleLabel');
+  var range=document.getElementById('beautySingleRange');
+  var val=document.getElementById('beautySingleValue');
+  if(label)label.textContent=info.label;
+  if(range)range.value=value;
+  if(val)val.textContent=value;
+};
+
+window.setBeautyActiveValue=function(value){
+  setBeautyValue(state.beautyControl||'skin',value);
+  var v=document.getElementById('beautySingleValue');
+  if(v)v.textContent=Math.max(1,Math.min(100,parseInt(value||1,10)));
+};
+
+window.setBeautyValue=function(kind,value){
+  value=Math.max(1,Math.min(100,parseInt(value||1,10)));
+  var keys={skin:'beautySkin',face:'beautyFace',eyes:'beautyEyes',nose:'beautyNose',mouth:'beautyMouth',tone:'beautyTone',bright:'beautyBright',sharp:'beautySharp'};
+  if(keys[kind])state[keys[kind]]=value;
+  applyBeautyPreview();
+  var v=document.getElementById('beautyVal-'+kind);
+  if(v)v.textContent=value;
 };
 
 window.setBeautyControlValue=function(value){
-  var kind=state.beautyControl||'skin';
-  value=Math.max(1,Math.min(100,parseInt(value||1,10)));
-  var labels={skin:'부드럽게',face:'얼굴형',eyes:'눈',nose:'코',mouth:'입술',tone:'피부',bright:'밝기',sharp:'선명도'};
-  var keys={skin:'beautySkin',face:'beautyFace',eyes:'beautyEyes',nose:'beautyNose',mouth:'beautyMouth',tone:'beautyTone',bright:'beautyBright',sharp:'beautySharp'};
-  state[keys[kind]]=value;
-  applyBeautyPreview();
-  var n=document.getElementById('beautyControlName'),v=document.getElementById('beautyControlValue');
-  if(n)n.textContent=labels[kind]||'뷰티';
-  if(v)v.textContent=value;
+  setBeautyValue(state.beautyControl||'skin',value);
 };
 
 window.applyBeautyPreview=function(){
@@ -1176,7 +1310,7 @@ window.clearAllFaceEffects=function(){
 
   var filterClasses=['fx-glow','fx-soft','fx-rainbow','fx-cool','fx-warm','fx-night','fx-cinema','fx-mono','fx-pink','fx-blue','fx-star','fx-party','fx-disco','fx-dream'];
   if(creator)creator.classList.remove.apply(creator.classList,filterClasses);
-  if(camera)camera.style.filter='brightness(1.12) contrast(.95) saturate(1.02)';
+  if(camera)camera.style.filter='brightness(1.10) contrast(.94) saturate(1.03) blur(.40px)';
 };
 
 window.renderFaceEffect=function(){
@@ -1202,8 +1336,161 @@ window.closeEditEffectPanel=function(){
 
 window.switchEditEffectTab=function(){};
 
+window.ktStageBackgrounds=[
+  {id:'ocean',name:'오션뷰',url:'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=720&h=1280&q=76'},
+  {id:'mountain',name:'산 전망',url:'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=720&h=1280&q=76'},
+  {id:'beach',name:'해안',url:'https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=720&h=1280&q=76'},
+  {id:'forest',name:'숲속',url:'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=720&h=1280&q=76'},
+  {id:'garden',name:'정원',url:'https://images.unsplash.com/photo-1497250681960-ef046c08a56e?auto=format&fit=crop&w=720&h=1280&q=76'},
+  {id:'lake',name:'달빛 호수',url:'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=720&h=1280&q=76'},
+  {id:'city',name:'도시 야경',url:'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=720&h=1280&q=76'},
+  {id:'waterfall',name:'폭포',url:'https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?auto=format&fit=crop&w=720&h=1280&q=76'},
+  {id:'stage',name:'라이브 무대',url:'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=720&h=1280&q=76'},
+  {id:'lounge',name:'골드 라운지',url:'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=720&h=1280&q=76'}
+];
+
+window.ktLoadStageSegmentation=function(){
+  if(window.ktStageSegmenter)return Promise.resolve(window.ktStageSegmenter);
+  if(window.ktStageSegPromise)return window.ktStageSegPromise;
+  window.ktStageSegPromise=new Promise(function(resolve,reject){
+    function ready(){
+      try{
+        var seg=new SelfieSegmentation({
+          locateFile:function(file){
+            return 'https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1.1675465747/'+file;
+          }
+        });
+        seg.setOptions({modelSelection:1,selfieMode:true});
+        seg.onResults(function(results){ if(window.ktRenderStageResults)ktRenderStageResults(results); });
+        window.ktStageSegmenter=seg;
+        resolve(seg);
+      }catch(e){reject(e);}
+    }
+    if(window.SelfieSegmentation){ready();return;}
+    var sc=document.createElement('script');
+    sc.src='https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1.1675465747/selfie_segmentation.js';
+    sc.async=true;
+    sc.onload=ready;
+    sc.onerror=function(){reject(new Error('segmentation load failed'));};
+    document.head.appendChild(sc);
+  });
+  return window.ktStageSegPromise;
+};
+
+window.ktEnsureStageCanvas=function(){
+  var canvas=document.getElementById('ktStageCanvas');
+  if(!canvas){
+    canvas=document.createElement('canvas');
+    canvas.id='ktStageCanvas';
+    canvas.setAttribute('aria-hidden','true');
+    creator.appendChild(canvas);
+  }
+  window.ktStageCanvas=canvas;
+  return canvas;
+};
+
+window.ktDrawCover=function(ctx,img,cw,ch){
+  var iw=img.videoWidth||img.naturalWidth||img.width||cw;
+  var ih=img.videoHeight||img.naturalHeight||img.height||ch;
+  if(!iw||!ih)return;
+  var scale=Math.max(cw/iw,ch/ih);
+  var dw=iw*scale,dh=ih*scale;
+  ctx.drawImage(img,(cw-dw)/2,(ch-dh)/2,dw,dh);
+};
+
+window.ktRenderStageResults=function(results){
+  if(!state.stageBackground||!window.ktStageBgImage)return;
+  var canvas=ktEnsureStageCanvas();
+  var w=(results.image&&results.image.width)||camera.videoWidth||720;
+  var h=(results.image&&results.image.height)||camera.videoHeight||1280;
+  if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;}
+  var ctx=canvas.getContext('2d');
+  if(!ctx)return;
+  ctx.save();
+  ctx.clearRect(0,0,w,h);
+  try{
+    ctx.globalCompositeOperation='source-over';
+    ctx.drawImage(results.segmentationMask,0,0,w,h);
+    ctx.globalCompositeOperation='source-in';
+    ctx.drawImage(results.image,0,0,w,h);
+    ctx.globalCompositeOperation='destination-over';
+    ktDrawCover(ctx,window.ktStageBgImage,w,h);
+  }catch(e){}
+  ctx.restore();
+  creator.classList.add('stage-bg-active');
+};
+
+window.ktStartStageLoop=async function(){
+  if(window.ktStageLoopRunning)return;
+  window.ktStageLoopRunning=true;
+  try{
+    var seg=await ktLoadStageSegmentation();
+    while(state.stageBackground&&camera&&camera.srcObject){
+      try{await seg.send({image:camera});}catch(e){}
+      await new Promise(function(r){setTimeout(r,35);});
+    }
+  }catch(e){
+    creator.classList.remove('stage-bg-active');
+    state.stageBackground='';
+    alert('배경 효과를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
+  }
+  window.ktStageLoopRunning=false;
+};
+
+window.ktStopStageBackground=function(){
+  state.stageBackground='';
+  state.stageBackgroundUrl='';
+  window.ktStageBgImage=null;
+  creator.classList.remove('stage-bg-active');
+  var canvas=document.getElementById('ktStageCanvas');
+  if(canvas){try{canvas.remove();}catch(e){}}
+  window.ktStageCanvas=null;
+  document.querySelectorAll('.kt-stage-card').forEach(function(btn){
+    btn.classList.toggle('on',btn.getAttribute('data-stage-id')==='none');
+  });
+};
+
+window.selectStageBackground=function(id){
+  if(id==='none'){ktStopStageBackground();return;}
+  var bg=(window.ktStageBackgrounds||[]).filter(function(x){return x.id===id;})[0];
+  if(!bg)return;
+  state.stageBackground=bg.id;
+  state.stageBackgroundUrl=bg.url;
+  var img=new Image();
+  img.crossOrigin='anonymous';
+  img.onload=function(){
+    window.ktStageBgImage=img;
+    ktEnsureStageCanvas();
+    ktStartStageLoop();
+  };
+  img.onerror=function(){
+    state.stageBackground='';
+    creator.classList.remove('stage-bg-active');
+    alert('배경 사진을 불러오지 못했습니다.');
+  };
+  img.src=bg.url;
+  document.querySelectorAll('.kt-stage-card').forEach(function(btn){
+    btn.classList.toggle('on',btn.getAttribute('data-stage-id')===id);
+  });
+};
+
 window.openEditEffectPanel=function(){
-  clearAllFaceEffects();
+  creator.classList.add('beauty-preview-open');
+  try{var lp=creator.querySelector('.live-prep');if(lp)lp.style.setProperty('display','none','important');}catch(e){}
+  try{if(window.ensureLiveCamera)ensureLiveCamera(state.cameraFacing||'user').catch(function(){});}catch(e){}
+  var active=state.stageBackground||'none';
+  var cards='<button class="kt-stage-card '+(active==='none'?'on':'')+'" data-stage-id="none" onclick="selectStageBackground(\'none\')"><span class="kt-stage-none">⊘</span><b>효과 없음</b></button>';
+  (window.ktStageBackgrounds||[]).forEach(function(bg){
+    cards+='<button class="kt-stage-card '+(active===bg.id?'on':'')+'" data-stage-id="'+bg.id+'" onclick="selectStageBackground(\''+bg.id+'\')">'
+      +'<span class="kt-stage-thumb" style="background-image:url(&quot;'+bg.url+'&quot;)"></span><b>'+bg.name+'</b></button>';
+  });
+  var html='<div class="kt-stage-panel">'
+    +'<div class="kt-stage-title"><b>편집 효과</b><span>사람이 움직여도 선택한 배경은 고정됩니다.</span></div>'
+    +'<div class="kt-stage-grid">'+cards+'</div>'
+    +'<div class="kt-stage-actions"><button onclick="ktStopStageBackground()">효과 없음</button><button class="primary" onclick="closeSheet()">적용</button></div>'
+    +'</div>';
+  showSheet('편집 효과',html);
+  sheet.classList.add('camera-effect-sheet','stage-effect-sheet');
 };
 
 window.toggleLiveSetting=function(btn){
@@ -1454,7 +1741,8 @@ window.openSiteGuide=function(){
   showSheet('K-Talk 이용방법 · 혜택',html);
 };
 window.openInvestorInfo=function(){
-  showSheet('💼 투자자 안내','<div class="rowbox"><b>📅 정산일</b><br>투자자 수익금 정산은 매달 1일 진행하는 방식으로 안내합니다.</div><div class="rowbox"><b>📡 정산 대상</b><br>K-Talk 방송에서 발생한 방송 관련 수익만 투자자 수익 분배 대상에 포함합니다.</div><div class="rowbox"><b>🚫 제외 수익</b><br>광고 수익, 상품 판매 수익, 외부 업체와 별도로 체결한 계약에서 발생한 수익은 투자자 분배 대상에서 제외합니다.</div><div class="rowbox"><b>💰 수익금 분배</b><br>방송 수익을 기준으로 계약서에 정한 지분과 정산 기준에 따라 분배하며 실제 금액은 해당 월의 방송 실적에 따라 달라질 수 있습니다.</div><div class="note">투자에는 손실 위험이 있으며 원금이나 수익을 확정적으로 보장할 수 없습니다.</div>');
+  showSheet('💼 투자자 안내','<div class="rowbox"><b>📅 정산일</b><br>투자자 수익금 정산은 매달 1일 진행하는 방식으로 안내합니다.</div><div class="rowbox"><b>📡 정산 대상</b><br>K-Talk 방송에서 발생한 방송 관련 수익만 투자자 수익 분배 대상에 포함합니다.</div><div class="rowbox"><b>🚫 제외 수익</b><br>광고 수익, 상품 판매 수익, 외부 업체와 별도로 체결한 계약에서 발생한 수익은 투자자 분배 대상에서 제외합니다.</div><div class="rowbox"><b>💰 수익금 분배</b><br>방송 수익을 기준으로 계약서에 정한 지분과 정산 기준에 따라 분배하며 실제 금액은 해당 월의 방송 실적에 따라 달라질 수 있습니다.</div><div class="rowbox investor-contact"><b>📞 광고 문의</b><br><a href="tel:01075107218">010-7510-7218</a><span><b>사업자 번호</b> 787-48-01170</span></div><div class="note">투자에는 손실 위험이 있으며 원금이나 수익을 확정적으로 보장할 수 없습니다.</div>');
+  sheet.classList.add('investor-sheet');
 };
 window.openSubs=function(){
   var html='<div class="kt-fanclub">'
@@ -2199,35 +2487,207 @@ window.setCreatorMode=function(el,name){
   }
 };
 
+window.ktStopSoundPreview=function(){
+  try{
+    if(window.ktSoundAudio){
+      window.ktSoundAudio.pause();
+      window.ktSoundAudio.removeAttribute('src');
+      try{window.ktSoundAudio.load();}catch(e){}
+      window.ktSoundAudio=null;
+    }
+  }catch(e){}
+  document.querySelectorAll('.kt-sound-play').forEach(function(el){el.textContent='▶';});
+};
+
+window.ktCreatorTracks=[
+  {name:'누이',source:'설운도 · 정식 음원 듣기',time:'',url:'',searchOnly:true,query:'설운도 누이',listenUrl:'https://music.bugs.co.kr/track/78810'},
+  {name:'사내',source:'나훈아 · 정식 음원 듣기',time:'',url:'',searchOnly:true,query:'나훈아 사내',listenUrl:'https://music.bugs.co.kr/track/30932533'},
+  {name:'아모르 파티',source:'김연자 · 정식 음원 듣기',time:'',url:'',searchOnly:true,query:'김연자 아모르 파티',listenUrl:'https://music.bugs.co.kr/track/31762364'},
+  {name:'어머나',source:'장윤정 · 정식 음원 듣기',time:'',url:'',searchOnly:true,query:'장윤정 어머나',listenUrl:'https://music.bugs.co.kr/track/80015360'},
+  {name:'바다새',source:'바다새 · 정식 음원 듣기',time:'',url:'',searchOnly:true,query:'바다새 노래',listenUrl:'https://music.bugs.co.kr/track/1396331'},
+  {name:'사랑의 배터리',source:'홍진영 · 유명 트로트 · 정식 음원 검색',time:'',url:'',searchOnly:true,query:'홍진영 사랑의 배터리'},
+  {name:'무조건',source:'박상철 · 유명 트로트 · 정식 음원 검색',time:'',url:'',searchOnly:true,query:'박상철 무조건'},
+  {name:'안동역에서',source:'진성 · 유명 트로트 · 정식 음원 검색',time:'',url:'',searchOnly:true,query:'진성 안동역에서'},
+  {name:'초혼',source:'장윤정 · 유명 트로트 · 정식 음원 검색',time:'',url:'',searchOnly:true,query:'장윤정 초혼'},
+  {name:'고장난 벽시계',source:'나훈아 · 유명 트로트 · 정식 음원 검색',time:'',url:'',searchOnly:true,query:'나훈아 고장난 벽시계'},
+  {name:'내 나이가 어때서',source:'오승근 · 유명 트로트 · 정식 음원 검색',time:'',url:'',searchOnly:true,query:'오승근 내 나이가 어때서'},
+  {name:'보릿고개',source:'진성 · 유명 트로트 · 정식 음원 검색',time:'',url:'',searchOnly:true,query:'진성 보릿고개'},
+  {name:'찬찬찬',source:'편승엽 · 유명 트로트 · 정식 음원 검색',time:'',url:'',searchOnly:true,query:'편승엽 찬찬찬'},
+  {name:'남행열차',source:'김수희 · 유명 가요 · 정식 음원 검색',time:'',url:'',searchOnly:true,query:'김수희 남행열차'},
+  {name:'서른 즈음에',source:'김광석 · 유명 가요 · 정식 음원 검색',time:'',url:'',searchOnly:true,query:'김광석 서른 즈음에'},
+  {name:'사랑했지만',source:'김광석 · 유명 가요 · 정식 음원 검색',time:'',url:'',searchOnly:true,query:'김광석 사랑했지만'},
+  {name:'이등병의 편지',source:'김광석 · 유명 가요 · 정식 음원 검색',time:'',url:'',searchOnly:true,query:'김광석 이등병의 편지'},
+  {name:'Like a Child',source:'Toni Willé · 팝송 · CC BY-SA 3.0',time:'3:10',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Like_a_Child_Radio_Version_Toni_Wille.ogg'},
+  {name:'Wikipedia Pop Anthem',source:'Paul Dreifus · 팝송 · CC BY-SA 3.0',time:'3:37',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Wikipedia_Pop_Anthem.ogg'},
+  {name:'Binbataye',source:'Gadadharadas · 인디 팝 · CC BY-SA 3.0',time:'2:36',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Binbataye_Hindi_pop.oga'},
+  {name:'오빠는 풍각쟁이',source:'박향림 · 한국 가요 · 퍼블릭도메인',time:'2:52',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Park_Hyang-rim_-_Oppaneun_punggakjaeng-i.ogg'},
+  {name:'청춘계급',source:'김해송 · 사람 노래 · 퍼블릭도메인',time:'3:08',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Kim_Hae-Song,_Cheong-chun-gye-geup.ogg'},
+  {name:'전화일기',source:'박향림·김해송 · 사람 노래 · 퍼블릭도메인',time:'3:06',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Bak_Hyang_Rim_Kim_Hae_Song_jeonhwa_ilgi.ogg'},
+  {name:'사의 찬미',source:'윤심덕 · 사람 노래 · 퍼블릭도메인',time:'',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Yun_Sim-Deok_-_In_Praise_of_Death.ogg'},
+  {name:'진국명산',source:'송만갑 · 사람 노래 · 퍼블릭도메인',time:'3:28',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Song_Mangab_-_Jingukmyeongsan.ogg'},
+  {name:'Frankie and Johnny',source:'전통 포크 · 사람 노래 · 퍼블릭도메인',time:'3:20',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/FrankieandJohnny_Live.ogg'},
+  {name:'Jesse James',source:'Bentley Ball · 사람 노래 · 퍼블릭도메인',time:'3:00',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Jesse_James_(Bentley_Ball).ogg'},
+  {name:'Au Clair de la Lune',source:'고전 성악 · 사람 노래 · 퍼블릭도메인',time:'2:46',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Au_Clair_de_la_Lune_1913.ogg'},
+  {name:'Old Folks at Home',source:'고전 보컬 · 사람 노래 · 퍼블릭도메인',time:'4:02',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Foster_-_Schumann-Heink_-_Old_Folks_at_Home_(rec._1918).ogg'},
+  {name:'In My Merry Oldsmobile',source:'Billy Murray · 사람 노래 · 퍼블릭도메인',time:'2:51',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Bill_Murray_-_In_My_Merry_Oldsmobile.ogg'},
+  {name:'Avalon',source:'Al Jolson · 사람 노래 · 퍼블릭도메인',time:'2:58',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Al_Jolson_-_Avalon_(1920).ogg'},
+  {name:'I Shall Not Be Moved',source:'전통 포크 · 사람 노래 · 퍼블릭도메인',time:'3:06',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/IShallNotBeMoved.ogg'}
+]
+
+window.ktOpenLicensedSongSearch=function(index,ev){
+  if(ev){try{ev.stopPropagation();ev.preventDefault();}catch(e){}}
+  ktStopSoundPreview();
+  var t=(window.ktCreatorTracks||[])[index];
+  if(!t)return;
+  var q=String(t.query||t.name||'').trim();
+  var url=t.listenUrl||('https://www.youtube.com/results?search_query='+encodeURIComponent(q+' 공식 음원'));
+  if(!url)return;
+  try{window.open(url,'_blank','noopener');}catch(e){location.href=url;}
+};
+
+window.ktPlaySoundPreview=function(index,ev){
+  if(ev){try{ev.stopPropagation();ev.preventDefault();}catch(e){}}
+  ktStopSoundPreview();
+  var t=(window.ktCreatorTracks||[])[index];
+  if(!t)return;
+  if(!t.url){
+    alert('이 곡은 제목만 표시했습니다. 실제 재생은 정식 사용 권한이 있는 음원을 연결해야 합니다.');
+    return;
+  }
+  var audio=new Audio(t.url);
+  audio.preload='metadata';
+  audio.volume=.9;
+  window.ktSoundAudio=audio;
+  var p=document.querySelectorAll('.kt-sound-play')[index];
+  if(p)p.textContent='■';
+  audio.addEventListener('ended',function(){ktStopSoundPreview();},{once:true});
+  audio.addEventListener('error',function(){
+    ktStopSoundPreview();
+    alert('음악을 불러오지 못했습니다. 잠시 후 다시 눌러 주세요.');
+  },{once:true});
+  var playPromise=audio.play();
+  if(playPromise&&playPromise.catch){
+    playPromise.catch(function(){
+      ktStopSoundPreview();
+      alert('▶ 버튼을 한 번 더 눌러 음악을 재생해 주세요.');
+    });
+  }
+};
+
 window.selectCreatorSound=function(name){
+  ktStopSoundPreview();
   state.creatorSound=name;
   var btn=document.getElementById('creatorSoundBtn');
   if(btn)btn.textContent='♪ '+name;
   closeSheet();
 };
 
-window.openSoundPanel=function(){
-  var tracks=[
-    ['오늘의 설렘','K-Talk 추천','2:10'],
-    ['밤하늘 산책','K-Talk Music','1:00'],
-    ['신나는 하루','Various Creators','1:00'],
-    ['웃으며 시작','K-Talk 추천','1:15'],
-    ['감성 드라이브','K-Talk Music','2:00'],
-    ['따뜻한 오후','Various Creators','1:30']
-  ];
-  var list=tracks.map(function(t,i){
-    return '<button class="kt-sound-row" onclick="selectCreatorSound(\''+t[0]+'\')">'
+window.ktSoundEscape=function(v){
+  return String(v==null?'':v).replace(/[&<>"']/g,function(ch){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+  });
+};
+
+window.ktPlayRemoteSound=function(url,ev){
+  if(ev){try{ev.stopPropagation();ev.preventDefault();}catch(e){}}
+  ktStopSoundPreview();
+  if(!url)return;
+  var audio=new Audio(url);
+  audio.preload='metadata';
+  audio.volume=.9;
+  window.ktSoundAudio=audio;
+  if(ev&&ev.currentTarget)ev.currentTarget.textContent='■';
+  audio.addEventListener('ended',function(){ktStopSoundPreview();},{once:true});
+  audio.addEventListener('error',function(){
+    ktStopSoundPreview();
+    alert('이 음악은 지금 재생할 수 없습니다.');
+  },{once:true});
+  var p=audio.play();
+  if(p&&p.catch)p.catch(function(){ktStopSoundPreview();});
+};
+
+window.selectCreatorSoundByIndex=function(index,ev){
+  var t=(window.ktCreatorTracks||[])[index];
+  if(!t)return;
+  if(t.searchOnly){
+    ktOpenLicensedSongSearch(index,ev);
+    return;
+  }
+  selectCreatorSound(t.name);
+};
+
+window.renderCreatorSoundList=function(query){
+  var tracks=window.ktCreatorTracks||[];
+  var q=String(query||'').trim().toLowerCase();
+  var rows=[];
+  tracks.forEach(function(t,i){
+    var hay=(String(t.name||'')+' '+String(t.source||'')).toLowerCase();
+    if(q&&hay.indexOf(q)===-1)return;
+    rows.push('<button class="kt-sound-row" onclick="selectCreatorSoundByIndex('+i+',event)">'
       +'<span class="kt-sound-cover">'+(i+1)+'</span>'
-      +'<span class="kt-sound-info"><b>'+t[0]+'</b><small>'+t[1]+' · '+t[2]+'</small></span>'
-      +'<span class="kt-sound-play">▶</span>'
-      +'</button>';
-  }).join('');
+      +'<span class="kt-sound-info"><b>'+ktSoundEscape(t.name)+'</b><small>'+ktSoundEscape(t.source)+(t.time?' · '+ktSoundEscape(t.time):'')+'</small></span>'
+      +'<span class="kt-sound-play" onclick="'+(t.searchOnly?'ktOpenLicensedSongSearch('+i+',event)':'ktPlaySoundPreview('+i+',event)')+'">▶</span>'
+      +'</button>');
+  });
+  var box=document.getElementById('ktSoundList');
+  if(box)box.innerHTML=rows.length?rows.join(''):'<div class="rowbox" style="text-align:center">사이트 목록에서 찾는 중...</div>';
+};
+
+window.ktSearchFreeMusicOnline=async function(value){
+  var q=String(value||'').trim();
+  if(q.length<2)return;
+  var mapQuery=q;
+  if(q.indexOf('트로트')>-1)mapQuery='Korean trot song vocal';
+  else if(q.indexOf('가요')>-1)mapQuery='Korean song vocal';
+  else if(q.indexOf('팝송')>-1||q.indexOf('팝')>-1)mapQuery='pop song vocal';
+  else if(q.indexOf('댄스')>-1)mapQuery='dance pop vocal song';
+  else if(q.indexOf('포크')>-1)mapQuery='folk song vocal';
+  var url='https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrlimit=18&gsrsearch='+encodeURIComponent(mapQuery+' audio')+'&prop=imageinfo&iiprop=url%7Cmime%7Cextmetadata&format=json&origin=*';
+  try{
+    var res=await fetch(url);
+    if(!res.ok)throw new Error('search');
+    var data=await res.json();
+    var pages=data&&data.query&&data.query.pages?Object.values(data.query.pages):[];
+    var rows=[];
+    pages.forEach(function(p){
+      var ii=p.imageinfo&&p.imageinfo[0];
+      if(!ii||!ii.url||String(ii.mime||'').indexOf('audio/')!==0)return;
+      var title=String(p.title||'').replace(/^File:/,'').replace(/\.(ogg|oga|mp3|wav|flac)$/i,'').replace(/_/g,' ');
+      var meta=ii.extmetadata||{};
+      var lic=(meta.LicenseShortName&&meta.LicenseShortName.value)||'자유 이용 음원';
+      rows.push('<button class="kt-sound-row" onclick="selectCreatorSound(\''+title.replace(/'/g,"\\'")+'\')">'
+        +'<span class="kt-sound-cover">♪</span>'
+        +'<span class="kt-sound-info"><b>'+ktSoundEscape(title)+'</b><small>온라인 자유음악 · '+ktSoundEscape(lic)+'</small></span>'
+        +'<span class="kt-sound-play" onclick="ktPlayRemoteSound(\''+String(ii.url).replace(/'/g,"%27")+'\',event)">▶</span>'
+        +'</button>');
+    });
+    var box=document.getElementById('ktSoundList');
+    var input=document.getElementById('ktSoundSearchInput');
+    if(!box||!input||String(input.value||'').trim()!==q)return;
+    var local=box.innerHTML;
+    var online=rows.length?'<div class="rowbox" style="margin:10px 0 5px"><b>🌐 온라인 자유음악 검색 결과</b></div>'+rows.join(''):'<div class="rowbox" style="text-align:center">온라인 자유음악에서 재생 가능한 결과가 없습니다.</div>';
+    box.innerHTML=local+online;
+  }catch(e){
+    var box=document.getElementById('ktSoundList');
+    if(box)box.innerHTML+='<div class="rowbox" style="text-align:center">온라인 검색을 불러오지 못했습니다.</div>';
+  }
+};
+
+window.filterCreatorSounds=function(value){
+  renderCreatorSoundList(value);
+  if(window.ktSoundSearchTimer)clearTimeout(window.ktSoundSearchTimer);
+  window.ktSoundSearchTimer=setTimeout(function(){ktSearchFreeMusicOnline(value);},550);
+};
+
+window.openSoundPanel=function(){
   var html='<div class="kt-sound-panel">'
-    +'<div class="kt-sound-search">⌕ <input placeholder="사운드 검색" aria-label="사운드 검색"></div>'
+    +'<div class="kt-sound-search">⌕ <input id="ktSoundSearchInput" placeholder="트로트·가요·팝송·제목·가수 검색" aria-label="사운드 검색" oninput="filterCreatorSounds(this.value)"></div>'
     +'<div class="kt-sound-tabs"><button>인기</button><button class="on">맞춤 추천</button><button>즐겨찾기</button><button>최근</button></div>'
-    +'<div class="kt-sound-list">'+list+'</div>'
+    +'<div class="kt-sound-list" id="ktSoundList"></div>'
+    +'<div class="note" style="margin:10px 2px 2px">트로트·가요·팝송처럼 검색하면 됩니다. 자유 이용 음원은 ▶로 바로 재생되고, 유명곡도 ▶를 누르면 정식 스트리밍 페이지가 바로 열립니다.</div>'
     +'</div>';
   showSheet('사운드 추가',html);
+  setTimeout(function(){renderCreatorSoundList('');},0);
 };
 
 window.openSong=function(){openSoundPanel();};
