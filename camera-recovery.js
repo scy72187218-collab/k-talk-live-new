@@ -79,6 +79,18 @@
     document.head.appendChild(s);
   });
 
+  /* 다른 홈 복구 코드가 모두 올라온 뒤 최종 홈 피드를 마지막에 고정한다.
+     첫 카드는 실제 동영상, 다음으로 넘길 때 방송 중인 LIVE 카드가 섞여 나오고 누르면 입장한다. */
+  function loadFinalHomeFeed(){
+    if(document.querySelector('script[data-kt-home-feed-swipe-final]'))return;
+    var s=document.createElement('script');
+    s.src='home-feed-swipe-final.js?v=20260906-swipe01';
+    s.setAttribute('data-kt-home-feed-swipe-final','1');
+    document.head.appendChild(s);
+  }
+  setTimeout(loadFinalHomeFeed,650);
+  setTimeout(loadFinalHomeFeed,1500);
+
   function forcePublicFeed(){
     try{
       if(document.getElementById('ktUnifiedFeed'))return;
