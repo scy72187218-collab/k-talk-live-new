@@ -1,0 +1,1 @@
+K-Talk LIVE restored to the 2026-09-06 10:30 KST working snapshot (commit 511d62508039c6872dd3b38212ce5088e811b596).
