@@ -83,4 +83,5 @@
   add('kt-live-home-indicator','live-home-indicator.js?v=20260905-livehome03');
   add('kt-live-host-thumbnail','live-host-thumbnail.js?v=20260905-hostthumb01');
   add('kt-playable-sounds','sound-playable-original.js?v=20260905-vocal02');
+  add('kt-home-sound-only','home-sound-only-fix.js?v=20260906-soundonly01');
 })();
