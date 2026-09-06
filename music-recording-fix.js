@@ -211,3 +211,119 @@
     observer.observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 })();
+
+/* K-Talk: 사진 기준 출석체크 LED + 선물줄. 1인/13명/구독자 방송만 적용. */
+(function(){
+  if(window.__ktThreeRoomReferenceUiInstalled)return;
+  window.__ktThreeRoomReferenceUiInstalled=true;
+
+  function roomInfo(){
+    var type='',name='',max=0;
+    try{
+      if(window.state){
+        type=String(state.liveRoomType||'');
+        name=String(state.liveRoomName||state.currentLiveRoomTitle||state.currentViewRoomTitle||'');
+        max=Number(state.liveRoomMax||0);
+      }
+    }catch(e){}
+    return {type:type,name:name,max:max};
+  }
+
+  function isTargetRoom(){
+    var r=roomInfo();
+    if(r.type==='password'||r.name.indexOf('비밀')>-1)return false;
+    if(r.type==='solo'||r.type==='group'||r.type==='group13'||r.type==='subscriber')return true;
+    if(r.name.indexOf('1인')>-1||r.name.indexOf('13명')>-1||r.name.indexOf('구독자')>-1)return true;
+    return r.max===1;
+  }
+
+  var css=document.createElement('style');
+  css.id='ktThreeRoomReferenceUiStyle';
+  css.textContent='\
+.kt-three-room-photo .kt-live-airclock{left:10px!important;top:62px!important;padding:5px 8px!important;gap:5px!important;font-size:10px!important;z-index:21!important;}\
+.kt-three-room-photo .kt-live-attendance{left:134px!important;right:7px!important;top:58px!important;transform:none!important;width:auto!important;height:36px!important;padding:0 8px!important;border:2px solid #ff42c7!important;border-radius:10px!important;background-color:#110711!important;background-image:radial-gradient(circle,rgba(255,74,203,.62) 0 1px,transparent 1.5px)!important;background-size:6px 6px!important;box-shadow:inset 0 0 10px #ff37c43d,0 0 7px #ff40c9,0 0 15px #ff2ab99c!important;color:#ffd54d!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:2px!important;z-index:22!important;}\
+.kt-three-room-photo .kt-live-attendance .badge{padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;color:#ffd54d!important;font-size:12px!important;font-weight:950!important;letter-spacing:.4px!important;text-shadow:0 0 5px #ffad18,0 0 8px #ff6900!important;}\
+.kt-three-room-photo .kt-live-attendance .wing{font-size:13px!important;color:#ff76df!important;filter:drop-shadow(0 0 4px #ff43cb)!important;}\
+.kt-three-room-photo .kt-live-attendance .heart{color:#ff4fbf!important;text-shadow:0 0 6px #ff42bf!important;}\
+#ktThreeRoomReferenceUi{position:absolute!important;inset:0!important;z-index:8!important;pointer-events:none!important;}\
+#ktThreeRoomAttendanceBig{pointer-events:auto!important;position:absolute!important;left:8px!important;right:8px!important;top:102px!important;height:44px!important;border:2px solid #ff3bc8!important;border-radius:15px!important;background-color:#120813!important;background-image:radial-gradient(circle,rgba(255,70,205,.75) 0 1.1px,transparent 1.6px)!important;background-size:7px 7px!important;box-shadow:inset 0 0 13px #ff33c73d,0 0 8px #ff40c9,0 0 20px #ff2ab9b5!important;color:#ffbd28!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:5px!important;font-size:20px!important;font-weight:950!important;letter-spacing:.4px!important;text-shadow:0 0 5px #ffb51b,0 0 10px #ff5d00!important;}\
+#ktThreeRoomAttendanceBig .kt3-wing{color:#ff7ce4!important;font-size:18px!important;text-shadow:0 0 7px #ff49d4!important;}\
+#ktThreeRoomAttendanceBig .kt3-heart{color:#ff477e!important;font-size:21px!important;text-shadow:0 0 7px #ff2e71!important;}\
+#ktThreeRoomGiftRow{pointer-events:auto!important;position:absolute!important;left:4px!important;right:4px!important;bottom:68px!important;height:62px!important;z-index:10!important;display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:2px!important;padding:2px!important;border:1px solid #ffffff22!important;border-radius:9px!important;background:rgba(2,2,6,.84)!important;box-shadow:0 -3px 14px #0008!important;}\
+#ktThreeRoomGiftRow button{min-width:0!important;height:56px!important;padding:2px 1px!important;border:1px solid #ffffff2a!important;border-radius:7px!important;background:linear-gradient(180deg,#111116e8,#07070ae8)!important;color:#fff!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;}\
+#ktThreeRoomGiftRow img{width:25px!important;height:25px!important;object-fit:contain!important;filter:drop-shadow(0 2px 4px #0009)!important;}\
+#ktThreeRoomGiftRow .kt3-gift-emoji{height:25px!important;line-height:25px!important;font-size:20px!important;}\
+#ktThreeRoomGiftRow b{display:block!important;width:100%!important;margin-top:1px!important;font-size:7.2px!important;line-height:1.05!important;font-weight:950!important;white-space:normal!important;word-break:keep-all!important;}\
+#ktThreeRoomGiftRow small{display:block!important;margin-top:1px!important;font-size:5.8px!important;line-height:1!important;color:#ffd86b!important;font-weight:900!important;white-space:nowrap!important;}\
+.kt-three-room-photo #myEarnHud{bottom:136px!important;width:170px!important;max-width:48vw!important;min-width:0!important;padding:5px 8px!important;border-radius:12px!important;z-index:11!important;}\
+.kt-three-room-photo .kt-three-room-right-actions{bottom:148px!important;}\
+@media(max-width:380px){.kt-three-room-photo .kt-live-attendance{left:126px!important;right:5px!important;padding:0 5px!important}.kt-three-room-photo .kt-live-attendance .badge{font-size:11px!important}#ktThreeRoomAttendanceBig{left:5px!important;right:5px!important;height:42px!important;font-size:18px!important}#ktThreeRoomGiftRow{left:2px!important;right:2px!important;gap:1px!important}#ktThreeRoomGiftRow b{font-size:6.4px!important}#ktThreeRoomGiftRow small{font-size:5.2px!important}.kt-three-room-photo #myEarnHud{width:154px!important;max-width:46vw!important}}\
+';
+  document.head.appendChild(css);
+
+  function giftButton(img,label,sub,emoji){
+    var art=img?'<img src="'+img+'" alt="">':'<span class="kt3-gift-emoji">'+emoji+'</span>';
+    return '<button type="button" onclick="if(window.openGifts)openGifts()">'+art+'<b>'+label+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</button>';
+  }
+
+  function addReferenceUi(section){
+    if(!section||section.querySelector('#ktThreeRoomReferenceUi'))return;
+    var wrap=document.createElement('div');
+    wrap.id='ktThreeRoomReferenceUi';
+    wrap.innerHTML=''
+      +'<button type="button" id="ktThreeRoomAttendanceBig" onclick="if(window.openAttendanceBenefits)openAttendanceBenefits()" aria-label="출석체크"><span class="kt3-wing">🪽</span><b>출석체크</b><span class="kt3-heart">♥</span><span class="kt3-wing">🪽</span></button>'
+      +'<div id="ktThreeRoomGiftRow">'
+      +giftButton('rose-single.svg','1개 장미','','')
+      +giftButton('rose-bouquet-50.svg','50개 장미다발','','')
+      +giftButton('rose-bouquet-100.svg','100개 특대장미','','')
+      +giftButton('','10개 하트','','💗')
+      +giftButton('','100개 왕관','','👑')
+      +giftButton('','50개 스포츠카','','🏎️')
+      +giftButton('gift-box.svg','선물상자','큰 선물 보기','')
+      +'</div>';
+    section.appendChild(wrap);
+  }
+
+  function markRightActions(section){
+    if(!section)return;
+    Array.prototype.forEach.call(section.children,function(el){
+      if(!el||el.nodeType!==1||el.tagName!=='DIV'||!el.style)return;
+      var hasLike=!!el.querySelector('#hostLikeCount');
+      if(hasLike)el.classList.add('kt-three-room-right-actions');
+    });
+  }
+
+  function decorateThreeRooms(){
+    var video=document.getElementById('ktLiveVideo');
+    var section=video&&video.closest?video.closest('section'):null;
+    var target=!!section&&isTargetRoom();
+
+    if(!section)return;
+    section.classList.toggle('kt-three-room-photo',target);
+
+    if(!target){
+      var old=section.querySelector('#ktThreeRoomReferenceUi');
+      if(old)old.remove();
+      return;
+    }
+
+    addReferenceUi(section);
+    markRightActions(section);
+  }
+
+  var oldStartBroadcast=window.startBroadcast;
+  if(typeof oldStartBroadcast==='function'){
+    window.startBroadcast=async function(){
+      var result=await oldStartBroadcast.apply(this,arguments);
+      setTimeout(decorateThreeRooms,20);
+      return result;
+    };
+  }
+
+  try{
+    var observer=new MutationObserver(function(){decorateThreeRooms();});
+    observer.observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+
+  decorateThreeRooms();
+})();
