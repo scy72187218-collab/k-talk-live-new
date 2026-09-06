@@ -107,7 +107,7 @@
   }
   function bind(){
     var vs=[].slice.call(document.querySelectorAll('.kt-public-video'));
-    vs.forEach(function(v){v.onclick=function(){v.muted=false;v.volume=1;if(v.paused){var p=v.play();if(p&&p.catch)p.catch(function(){});}else{v.pause();}};});
+    vs.forEach(function(v){v.onclick=function(){v.volume=1;if(v.muted){v.muted=false;v.defaultMuted=false;var p=v.play();if(p&&p.catch)p.catch(function(){});return;}if(v.paused){var p=v.play();if(p&&p.catch)p.catch(function(){});}else{v.pause();}};});
     if('IntersectionObserver'in window){
       var ob=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting&&e.intersectionRatio>.6){e.target.play().catch(function(){});}else{e.target.pause();}});},{threshold:[.6]});
       vs.forEach(function(v){ob.observe(v);});
@@ -152,6 +152,13 @@
   async function show(fallback){var a=await getFeed();if(!a.length){if(fallback)fallback();return;}document.body.classList.remove('kt-home');document.body.classList.add('kt-video-mode');screen.innerHTML='<div style="height:calc(100dvh - 78px);overflow-y:auto;scroll-snap-type:y mandatory;background:#000">'+a.map(card).join('')+'</div>';bind();}
   window.home=function(){try{if(window.activate)activate('home');}catch(e){}show(oldHome);};
   window.media=function(type){try{if(window.activate)activate(type);}catch(e){}show(function(){if(oldMedia)oldMedia(type);});};
+
+  /* Existing uploaded public video should replace the initial flower/home placeholder immediately. */
+  setTimeout(function(){
+    try{
+      if(document.body.classList.contains('kt-home'))window.home();
+    }catch(e){}
+  },120);
 
   /* 저장한 동영상은 세로 화면으로 크게 보여 주고, 소리를 켠 상태로 재생한다. */
   window.playStoredVideo=async function(id){
