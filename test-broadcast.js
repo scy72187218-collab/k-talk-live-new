@@ -23,26 +23,142 @@
   var testFaceTimer=null;
   var testFaceDetector=null;
 
+  /* AI 보정만 자연스럽게 조정합니다. 다른 화면/기능은 건드리지 않습니다. */
+  window.getBeautyControlInfo=function(kind){
+    var map={
+      skin:{label:'피부 부드러움',key:'beautySkin',def:56},
+      face:{label:'얼굴형 조절',key:'beautyFace',def:50},
+      eyes:{label:'눈 조절',key:'beautyEyes',def:50},
+      nose:{label:'코 조절',key:'beautyNose',def:50},
+      mouth:{label:'턱선 조절',key:'beautyMouth',def:50}
+    };
+    return map[kind]||map.skin;
+  };
+
+  window.applyBeautyPreview=function(){
+    if(!window.camera)return;
+    var skin=Math.max(1,Math.min(100,Number(state.beautySkin||56)));
+    var bright=Math.max(1,Math.min(100,Number(state.beautyBright||60)));
+    var sharp=Math.max(1,Math.min(100,Number(state.beautySharp||52)));
+    var face=Math.max(1,Math.min(100,Number(state.beautyFace||50)));
+    var eyes=Math.max(1,Math.min(100,Number(state.beautyEyes||50)));
+    var nose=Math.max(1,Math.min(100,Number(state.beautyNose||50)));
+    var mouth=Math.max(1,Math.min(100,Number(state.beautyMouth||50)));
+    var tone=Math.max(1,Math.min(100,Number(state.beautyTone||54)));
+
+    var brightness=.995+(bright*.00115)+(eyes-50)*.00025;
+    var saturation=.99+(sharp*.00055)+(mouth-50)*.00045;
+    var contrast=.975+(sharp*.00042)+(nose-50)*.00022;
+    var blur=Math.max(0,(skin-38)*.0022);
+    var sepia=Math.max(0,(tone-50)*.0007);
+    var faceScale=1+(face-50)*.00045;
+
+    camera.style.setProperty(
+      'filter',
+      'brightness('+brightness.toFixed(3)+') saturate('+saturation.toFixed(3)+') contrast('+contrast.toFixed(3)+') blur('+blur.toFixed(2)+'px) sepia('+sepia.toFixed(3)+')',
+      'important'
+    );
+    camera.style.setProperty('transform','scaleX(-1) scale('+faceScale.toFixed(3)+')','important');
+  };
+
+  window.applyAIBeautyPreset=async function(){
+    if(!window.camera)return;
+    try{if(window.ensureLiveCamera)await ensureLiveCamera(state.cameraFacing||'user');}catch(e){}
+
+    var targetBright=60,targetSkin=56,targetSharp=52,targetTone=54;
+    try{
+      var engine=window.ktLoadFaceDetector?await ktLoadFaceDetector():null;
+      if(engine&&camera.readyState>=2&&camera.videoWidth){
+        var box=null;
+        if(engine.type==='mediapipe'){
+          var result=engine.detector.detectForVideo(camera,Math.round(performance.now()));
+          if(result&&result.detections&&result.detections.length)box=result.detections[0].boundingBox;
+        }else{
+          var faces=await engine.detector.detect(camera);
+          if(faces&&faces.length)box=faces[0].boundingBox;
+        }
+
+        var c=document.createElement('canvas');
+        c.width=160;c.height=90;
+        var ctx=c.getContext('2d',{willReadFrequently:true});
+        ctx.drawImage(camera,0,0,c.width,c.height);
+        var sx=45,sy=18,sw=70,sh=54;
+        if(box&&camera.videoWidth&&camera.videoHeight){
+          sx=Math.max(0,Math.min(c.width-1,Math.round((box.originX!=null?box.originX:box.x||0)/camera.videoWidth*c.width)));
+          sy=Math.max(0,Math.min(c.height-1,Math.round((box.originY!=null?box.originY:box.y||0)/camera.videoHeight*c.height)));
+          sw=Math.max(12,Math.min(c.width-sx,Math.round((box.width||camera.videoWidth*.4)/camera.videoWidth*c.width)));
+          sh=Math.max(12,Math.min(c.height-sy,Math.round((box.height||camera.videoHeight*.5)/camera.videoHeight*c.height)));
+        }
+        var data=ctx.getImageData(sx,sy,sw,sh).data;
+        var lum=0,sat=0,count=0;
+        for(var p=0;p<data.length;p+=16){
+          var r=data[p],g=data[p+1],b=data[p+2];
+          var mx=Math.max(r,g,b),mn=Math.min(r,g,b);
+          lum+=(r*.2126+g*.7152+b*.0722);
+          sat+=(mx-mn);
+          count++;
+        }
+        if(count){
+          lum/=count;sat/=count;
+          targetBright=Math.round(Math.max(54,Math.min(68,60+(138-lum)*.10)));
+          targetSkin=Math.round(Math.max(48,Math.min(62,56+(128-lum)*.025)));
+          targetSharp=Math.round(Math.max(48,Math.min(58,52+(25-sat)*.04)));
+          targetTone=Math.round(Math.max(50,Math.min(58,54+(20-sat)*.025)));
+        }
+      }
+    }catch(e){}
+
+    state.beautyMode='natural';
+    state.beautyControl='skin';
+    state.beautySkin=targetSkin;
+    state.beautyFace=50;
+    state.beautyEyes=50;
+    state.beautyNose=50;
+    state.beautyMouth=50;
+    state.beautyTone=targetTone;
+    state.beautyBright=targetBright;
+    state.beautySharp=targetSharp;
+    applyBeautyPreview();
+
+    var range=document.getElementById('beautySingleRange');
+    var val=document.getElementById('beautySingleValue');
+    var label=document.getElementById('beautySingleLabel');
+    if(range)range.value=targetSkin;
+    if(val)val.textContent=targetSkin;
+    if(label)label.textContent='피부 부드러움';
+    document.querySelectorAll('.kt-beauty-controls-pro button').forEach(function(btn){
+      btn.classList.toggle('on',btn.getAttribute('data-beauty-kind')==='skin');
+    });
+  };
+
+  window.resetBeautyAll=function(){
+    state.beautyMode='off';
+    state.beautyControl='skin';
+    state.beautySkin=1;
+    state.beautyFace=50;
+    state.beautyEyes=50;
+    state.beautyNose=50;
+    state.beautyMouth=50;
+    state.beautyTone=50;
+    state.beautyBright=1;
+    state.beautySharp=1;
+    try{
+      creator.classList.remove('beauty-natural','beauty-bright','beauty-soft','beauty-glow');
+      creator.removeAttribute('data-beauty-char');
+    }catch(e){}
+    if(window.camera){camera.style.removeProperty('filter');camera.style.removeProperty('transform');}
+    if(window.openBeautyPanel)openBeautyPanel();
+  };
+
   function testEffectMarkup(name){
     var markup={
-      sunglasses:'<div class="fx-sunglasses-mask"><i></i><i></i><b></b></div>',
-      glasses:'<div class="fx-glasses-mask"><i></i><i></i><b></b></div>',
       mustache:'<div class="fx-mustache-mask"><span>〰</span></div>',
       beard:'<div class="fx-beard-mask"><span>〰</span><b></b></div>',
-      cap:'<div class="fx-cap-mask"><i></i><b></b></div>',
-      pirate:'<div class="fx-pirate-mask"><i></i><b></b></div>',
       crown:'<div class="fx-crown-mask">👑</div>',
-      cat:'<div class="fx-animal-ears cat"><i></i><i></i></div>',
-      dog:'<div class="fx-animal-ears dog"><i></i><i></i></div>',
-      puppy:'<div class="fx-animal-ears dog"><i></i><i></i></div>',
-      rabbit:'<div class="fx-animal-ears rabbit"><i></i><i></i></div>',
-      bunny:'<div class="fx-animal-ears rabbit"><i></i><i></i></div>',
       blush:'<div class="fx-cheek-mask blush"><i></i><i></i></div>',
       heart:'<div class="fx-cheek-mask heart"><i>♥</i><i>♥</i></div>',
       sparkle:'<div class="fx-sparkles-mask"><span>✦</span><span>✧</span><span>✦</span><span>✧</span></div>',
       tears:'<div class="fx-tears-mask"><i></i><i></i></div>',
-      halo:'<div class="fx-halo-mask"></div>',
-      angel:'<div class="fx-halo-mask"></div>',
       flower:'<div style="position:absolute;left:50%;top:-5%;transform:translate(-50%,-50%);font-size:52px;white-space:nowrap">🌸🌼🌸</div>',
       party:'<div style="position:absolute;left:50%;top:0;transform:translate(-50%,-50%);font-size:52px;white-space:nowrap">🎉🥳🎊</div>',
       fire:'<div class="fx-fire-mask">🔥🔥🔥</div>',
@@ -56,13 +172,28 @@
   function applyTestVideoFilter(name){
     var v=document.getElementById('ktTestVideo');
     if(!v)return;
-    var base='brightness(1.12) contrast(.95) saturate(1.02)';
-    if(name==='mono')v.style.filter='grayscale(1) contrast(1.05) brightness(1.08)';
-    else if(name==='warm')v.style.filter='brightness(1.12) contrast(.95) saturate(1.10) sepia(.12)';
-    else if(name==='cool')v.style.filter='brightness(1.10) contrast(.95) saturate(.98) hue-rotate(170deg)';
-    else if(name==='soft')v.style.filter='brightness(1.14) contrast(.92) saturate(.98)';
-    else if(name==='studio')v.style.filter='brightness(1.16) contrast(.94) saturate(.98)';
-    else if(name==='night')v.style.filter='brightness(.88) contrast(1.04) saturate(.92)';
+
+    var bright=58,sharp=52,skin=54;
+    try{
+      if(window.state){
+        bright=Math.max(1,Math.min(100,Number(state.beautyBright||58)));
+        sharp=Math.max(1,Math.min(100,Number(state.beautySharp||52)));
+        skin=Math.max(1,Math.min(100,Number(state.beautySkin||54)));
+      }
+    }catch(e){}
+
+    var brightness=.99+(bright*.0014);
+    var saturation=.99+(sharp*.00065);
+    var contrast=.97+(sharp*.0005);
+    var blur=Math.max(0,(skin-35)*.0027);
+    var base='brightness('+brightness.toFixed(3)+') contrast('+contrast.toFixed(3)+') saturate('+saturation.toFixed(3)+') blur('+blur.toFixed(2)+'px)';
+
+    if(name==='mono')v.style.filter='grayscale(1) contrast(1.03) brightness(1.04)';
+    else if(name==='warm')v.style.filter=base+' sepia(.08) saturate(1.05)';
+    else if(name==='cool')v.style.filter=base+' saturate(.98) hue-rotate(3deg)';
+    else if(name==='soft')v.style.filter=base;
+    else if(name==='studio')v.style.filter='brightness('+(brightness+.025).toFixed(3)+') contrast('+contrast.toFixed(3)+') saturate('+saturation.toFixed(3)+') blur('+Math.min(.22,blur+.03).toFixed(2)+'px)';
+    else if(name==='night')v.style.filter='brightness(.92) contrast(1.02) saturate(.94)';
     else v.style.filter=base;
   }
 
@@ -110,6 +241,7 @@
 
   function applySelectedEffectToTest(){
     var name=(window.state&&(state.appliedEditEffect||state.pendingEditEffect))||'off';
+    if(['sunglasses','glasses','cap','pirate','cat','dog','puppy','rabbit','bunny','halo','angel'].indexOf(name)>-1)name='off';
     var anchor=document.getElementById('ktTestFaceAnchor');
     var layer=document.getElementById('ktTestEffectLayer');
     var v=document.getElementById('ktTestVideo');
@@ -219,5 +351,88 @@
       video.parentNode.insertBefore(fallback,video.nextSibling);
     }
     renderMessages();
+  };
+
+  /* 프로필에 내가 올린 동영상만 추가 표시합니다. 기존 프로필 기능은 그대로 둡니다. */
+  function clearProfileVideoUrls(){
+    try{
+      (window.ktProfileVideoUrls||[]).forEach(function(url){try{URL.revokeObjectURL(url);}catch(e){}});
+    }catch(e){}
+    window.ktProfileVideoUrls=[];
+  }
+
+  window.ktRenderProfileVideoGrid=async function(){
+    var root=document.querySelector('.kt-my-profile');
+    if(!root)return;
+
+    var old=document.getElementById('ktProfilePostedVideos');
+    if(old)old.remove();
+    clearProfileVideoUrls();
+
+    var section=document.createElement('div');
+    section.id='ktProfilePostedVideos';
+    section.style.cssText='margin:18px -2px 4px;padding-top:14px;border-top:1px solid rgba(255,255,255,.12)';
+    section.innerHTML='<div style="display:flex;align-items:center;justify-content:space-between;margin:0 4px 10px"><b style="font-size:18px;color:#fff">🎬 내 동영상</b><button type="button" onclick="closeSheet();setTimeout(openMyVideoLibrary,80)" style="border:0;border-radius:999px;padding:7px 12px;background:#ffffff16;color:#fff;font-weight:900">전체보기</button></div><div id="ktProfileVideoGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:3px"><div style="grid-column:1/-1;padding:22px 8px;text-align:center;color:#aaa">동영상 불러오는 중...</div></div>';
+
+    var firstLabel=root.querySelector('label');
+    if(firstLabel)root.insertBefore(section,firstLabel);
+    else root.appendChild(section);
+
+    var grid=document.getElementById('ktProfileVideoGrid');
+    if(!grid)return;
+
+    try{
+      var db=await ktOpenVideoDB();
+      var tx=db.transaction('videos','readonly');
+      var req=tx.objectStore('videos').getAll();
+      req.onsuccess=function(){
+        var items=(req.result||[]).filter(function(v){return !v.draft&&v.blob;}).sort(function(a,b){return (b.postedAt||b.createdAt||0)-(a.postedAt||a.createdAt||0);});
+        if(!items.length){
+          grid.innerHTML='<button type="button" onclick="closeSheet();openCreator();setTimeout(openMyVideoPicker,120)" style="grid-column:1/-1;min-height:100px;border:1px dashed #ffffff33;border-radius:14px;background:#ffffff08;color:#ddd;font-weight:900">＋ 아직 올린 동영상이 없습니다<br><small style="display:block;margin-top:5px;color:#999">동영상 올리기</small></button>';
+          try{db.close();}catch(e){}
+          return;
+        }
+
+        grid.innerHTML='';
+        items.forEach(function(item){
+          var url=URL.createObjectURL(item.blob);
+          window.ktProfileVideoUrls.push(url);
+          var cell=document.createElement('button');
+          cell.type='button';
+          cell.style.cssText='position:relative;aspect-ratio:3/4;padding:0;border:0;border-radius:4px;overflow:hidden;background:#111;color:#fff';
+          cell.onclick=function(){if(window.playStoredVideo)playStoredVideo(item.id);};
+
+          var video=document.createElement('video');
+          video.src=url;
+          video.muted=true;
+          video.playsInline=true;
+          video.preload='metadata';
+          video.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#111';
+          video.onloadedmetadata=function(){
+            try{video.currentTime=Math.min(.08,Math.max(.02,(video.duration||1)/30));}catch(e){}
+          };
+          cell.appendChild(video);
+
+          var shade=document.createElement('span');
+          shade.style.cssText='position:absolute;inset:auto 0 0 0;padding:20px 6px 6px;background:linear-gradient(transparent,rgba(0,0,0,.74));font-size:10px;font-weight:900;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
+          shade.textContent='▶ '+String(item.name||'내 동영상');
+          cell.appendChild(shade);
+          grid.appendChild(cell);
+        });
+        try{db.close();}catch(e){}
+      };
+      req.onerror=function(){
+        grid.innerHTML='<div style="grid-column:1/-1;padding:18px 8px;text-align:center;color:#aaa">동영상을 불러오지 못했습니다.</div>';
+        try{db.close();}catch(e){}
+      };
+    }catch(e){
+      grid.innerHTML='<div style="grid-column:1/-1;padding:18px 8px;text-align:center;color:#aaa">이 기기에서는 동영상 목록을 불러올 수 없습니다.</div>';
+    }
+  };
+
+  var originalOpenProfileDirect=window.openProfileDirect;
+  window.openProfileDirect=function(){
+    if(originalOpenProfileDirect)originalOpenProfileDirect();
+    setTimeout(function(){if(window.ktRenderProfileVideoGrid)ktRenderProfileVideoGrid();},30);
   };
 })();
