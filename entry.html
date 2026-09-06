@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>K-Talk LIVE</title>
+<style>html,body{margin:0;width:100%;height:100%;background:#000}</style>
+</head>
+<body>
+<script>
+(function(){
+  var HOME_VIDEO='https://zupwbfmacwzexyvznlzq.supabase.co/storage/v1/object/public/ktalk-videos/guest/1788516701116-emysxm.mp4';
+  function load(){
+    fetch('/index.html?entry='+Date.now(),{cache:'no-store'})
+      .then(function(r){if(!r.ok)throw new Error('index '+r.status);return r.text();})
+      .then(function(html){
+        html=html.replace(/poster="https:\/\/images\.unsplash\.com\/photo-1500530855697-b586d89ba3ee[^\"]*"/g,'');
+        html=html.split('https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4').join(HOME_VIDEO);
+        html=html.split('camera-recovery.js?v=20260904-camera02').join('camera-recovery.js?v=20260906-entry01');
+        document.open();
+        document.write(html);
+        document.close();
+      })
+      .catch(function(){setTimeout(load,500);});
+  }
+  load();
+})();
+</script>
+</body>
+</html>
