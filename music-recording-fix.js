@@ -211,3 +211,71 @@
     observer.observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 })();
+
+/* K-Talk: 홈 동영상이 준비되기 전에 보이던 임시 화면만 숨긴다. */
+(function(){
+  if(window.__ktHomeFeedFlashFixInstalled)return;
+  window.__ktHomeFeedFlashFixInstalled=true;
+
+  var homeScreen=document.getElementById('screen');
+  if(!homeScreen)return;
+
+  function inLiveOrCreator(){
+    try{
+      if(document.getElementById('ktLiveVideo')||document.getElementById('ktSept2Live')||document.getElementById('ktRemoteLive'))return true;
+      if(window.creator&&creator.classList&&creator.classList.contains('show'))return true;
+    }catch(e){}
+    return false;
+  }
+
+  function showBlackOnly(){
+    if(inLiveOrCreator())return;
+    try{
+      document.body.classList.remove('kt-home');
+      document.body.classList.add('kt-video-mode');
+      homeScreen.innerHTML='<div id="ktHomeFeedLoadingBlank" style="position:absolute;inset:0;background:#000"></div>';
+    }catch(e){}
+  }
+
+  function guardRealFeed(){
+    if(inLiveOrCreator())return;
+    try{
+      if(!document.body.classList.contains('kt-video-mode'))return;
+      var first=homeScreen.querySelector('.kt-public-video');
+      if(!first)return;
+      var holder=first.parentElement&&first.parentElement.parentElement?first.parentElement.parentElement:first.parentElement;
+      if(!holder||holder.dataset.ktFeedGuarded==='1')return;
+      holder.dataset.ktFeedGuarded='1';
+      holder.style.visibility='hidden';
+      var reveal=function(){
+        try{holder.style.visibility='visible';}catch(e){}
+      };
+      if(first.readyState>=2){reveal();return;}
+      first.addEventListener('loadeddata',reveal,{once:true});
+      first.addEventListener('canplay',reveal,{once:true});
+      first.addEventListener('playing',reveal,{once:true});
+      setTimeout(reveal,3000);
+    }catch(e){}
+  }
+
+  try{
+    var feedObserver=new MutationObserver(function(){guardRealFeed();});
+    feedObserver.observe(homeScreen,{childList:true,subtree:true});
+  }catch(e){}
+
+  var realHome=window.home;
+  if(typeof realHome==='function'&&!realHome.__ktNoFlash){
+    var wrappedHome=function(){
+      showBlackOnly();
+      return realHome.apply(this,arguments);
+    };
+    wrappedHome.__ktNoFlash=true;
+    window.home=wrappedHome;
+  }
+
+  setTimeout(function(){
+    try{
+      if(!inLiveOrCreator()&&typeof window.home==='function')window.home();
+    }catch(e){}
+  },0);
+})();
