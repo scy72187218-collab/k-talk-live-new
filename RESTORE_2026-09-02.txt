@@ -1,1 +1,1 @@
-K-Talk LIVE restore marker. Functional files unchanged. Restored state: commit 244f418488da40410bec9cd2066debbc8b676859.
+K-Talk LIVE restore marker. Functional files unchanged. Restored state: commit 0ceac9eb4e720e3699b3f1dbf3770feed256ce67.
