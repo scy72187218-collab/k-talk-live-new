@@ -12,20 +12,17 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: main
-      - name: Load feed and multiroom layout only
+      - name: Load feed home fix only
         shell: bash
         run: |
           python - <<'PY'
           from pathlib import Path
           p=Path('index.html')
           s=p.read_text(encoding='utf-8')
-          feed='<script src="feed-home-fix.js?v=20260904-feed01"></script>'
-          room='<script src="multiroom-tiktok-layout.js?v=20260904-room01"></script>'
-          if feed not in s:
-              s=s.replace('</body>', feed+'\n</body>')
-          if room not in s:
-              s=s.replace('</body>', room+'\n</body>')
-          p.write_text(s,encoding='utf-8')
+          tag='<script src="feed-home-fix.js?v=20260904-feed01"></script>'
+          if tag not in s:
+              s=s.replace('</body>', tag+'\n</body>')
+              p.write_text(s,encoding='utf-8')
           PY
       - name: Commit loader
         shell: bash
@@ -36,5 +33,5 @@ jobs:
           git config user.name 'K-Talk Patch Bot'
           git config user.email 'actions@users.noreply.github.com'
           git add index.html
-          git commit -m 'Load TikTok style 13-person and subscriber room layout'
+          git commit -m 'Load unified home video and live feed'
           git push origin main
