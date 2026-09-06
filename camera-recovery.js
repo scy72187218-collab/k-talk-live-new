@@ -44,7 +44,10 @@
   setTimeout(primeHomeVideo,120);
   setTimeout(primeHomeVideo,350);
 
+  /* 첫 화면 피드는 다른 기능보다 먼저 불러온다. */
   var scripts=[
+    ['kt-feed-startup-stability','feed-startup-stability-fix.js?v=20260906-feedstable06'],
+    ['kt-home-first-screen-stable','home-first-screen-stable.js?v=20260906-firststable02'],
     ['kt-permission-once','permission-once-fix.js?v=20260905-permission01'],
     ['kt-live-bottom-tools','live-bottom-tiktok.js?v=20260905-bottom01'],
     ['kt-group13-layout','group13-reference-layout.js?v=20260905-group13-08'],
@@ -63,8 +66,6 @@
     ['kt-viewer-live-reconnect','viewer-live-reconnect-fix.js?v=20260906-viewer02'],
     ['kt-live-first-feed','live-first-feed-fix.js?v=20260905-livefirst01'],
     ['kt-live-presence-fast','live-presence-fast-fix.js?v=20260905-fastpresence01'],
-    ['kt-feed-startup-stability','feed-startup-stability-fix.js?v=20260906-feedstable05'],
-    ['kt-home-first-screen-stable','home-first-screen-stable.js?v=20260906-firststable02'],
     ['kt-playable-sounds','sound-playable-original.js?v=20260905-vocal02']
   ];
 
@@ -81,7 +82,11 @@
   function forcePublicFeed(){
     try{
       if(document.getElementById('ktUnifiedFeed'))return;
-      if(!document.querySelector('.video-home'))return;
+      if(document.getElementById('ktSept2Live')||document.getElementById('ktRemoteLive'))return;
+      var c=document.getElementById('creator');
+      if(c&&c.classList.contains('show'))return;
+      /* 예전 앱의 '홈 동영상 보기' 카드(.media)에서도 실제 피드로 즉시 전환한다. */
+      if(!document.getElementById('screen'))return;
       if(typeof window.ktLowMemoryFeed!=='function')return;
       var r=window.ktLowMemoryFeed();
       if(r&&typeof r.then==='function'){
@@ -96,9 +101,10 @@
       }
     }catch(e){}
   }
-  setTimeout(forcePublicFeed,150);
-  setTimeout(forcePublicFeed,500);
-  setTimeout(forcePublicFeed,1000);
-  setTimeout(forcePublicFeed,1800);
-  setTimeout(forcePublicFeed,3200);
+  setTimeout(forcePublicFeed,30);
+  setTimeout(forcePublicFeed,120);
+  setTimeout(forcePublicFeed,300);
+  setTimeout(forcePublicFeed,700);
+  setTimeout(forcePublicFeed,1400);
+  setTimeout(forcePublicFeed,2600);
 })();
