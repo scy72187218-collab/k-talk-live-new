@@ -46,7 +46,7 @@
     setTimeout(renderChat,30);
   };
   window.ktGroup13OpenMessage=function(){
-    showSheet('메시지','<div class="rowbox"><b>방송 채팅</b><br>입력한 글은 선물판을 가리지 않고 아래에서 위로 올라갑니다.</div><input id="ktg13ChatInput" class="form" maxlength="100" placeholder="메시지 입력" onkeydown="if(event.key===\'Enter\')ktGroup13SendChat()"><button class="act" onclick="ktg13SendChat()">보내기</button>');
+    showSheet('메시지','<div class="rowbox"><b>방송 채팅</b><br>입력한 글은 선물판을 가리지 않고 아래에서 위로 올라갑니다.</div><input id="ktg13ChatInput" class="form" maxlength="100" placeholder="메시지 입력" onkeydown="if(event.key===\'Enter\')ktGroup13SendChat()"><button class="act" onclick="ktGroup13SendChat()">보내기</button>');
     setTimeout(function(){var i=document.getElementById('ktg13ChatInput');if(i)i.focus();},80);
   };
   window.ktGroup13Friends=function(){
