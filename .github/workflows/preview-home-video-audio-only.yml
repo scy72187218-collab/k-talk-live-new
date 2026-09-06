@@ -1,0 +1,49 @@
+name: Preview home video audio only
+on:
+  push:
+    branches:
+      - preview-home-video-audio-only
+    paths:
+      - '.github/workflows/preview-home-video-audio-only.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: preview-home-video-audio-only
+      - name: Patch only posted feed startup and sound
+        shell: python
+        run: |
+          from pathlib import Path
+          p=Path('posted-feed.js')
+          s=p.read_text(encoding='utf-8')
+          old1="    vs.forEach(function(v){v.onclick=function(){v.muted=false;v.volume=1;if(v.paused){var p=v.play();if(p&&p.catch)p.catch(function(){});}else{v.pause();}};});"
+          new1="    vs.forEach(function(v){v.onclick=function(){v.volume=1;if(v.muted){v.muted=false;v.defaultMuted=false;var p=v.play();if(p&&p.catch)p.catch(function(){});return;}if(v.paused){var p=v.play();if(p&&p.catch)p.catch(function(){});}else{v.pause();}};});"
+          if old1 not in s:
+            raise SystemExit('sound target not found')
+          s=s.replace(old1,new1,1)
+          old2="  window.media=function(type){try{if(window.activate)activate(type);}catch(e){}show(function(){if(oldMedia)oldMedia(type);});};\n"
+          insert="""  window.media=function(type){try{if(window.activate)activate(type);}catch(e){}show(function(){if(oldMedia)oldMedia(type);});};
+
+  /* Existing uploaded public video should replace the initial flower/home placeholder immediately. */
+  setTimeout(function(){
+    try{
+      if(document.body.classList.contains('kt-home'))window.home();
+    }catch(e){}
+  },120);
+"""
+          if old2 not in s:
+            raise SystemExit('home target not found')
+          s=s.replace(old2,insert,1)
+          p.write_text(s,encoding='utf-8')
+      - name: Commit preview patch
+        run: |
+          git config user.name 'K-Talk Preview Patch'
+          git config user.email 'actions@users.noreply.github.com'
+          git add posted-feed.js
+          git diff --cached --quiet && exit 0
+          git commit -m 'Preview: show uploaded video first and keep sound on tap'
+          git push origin HEAD:preview-home-video-audio-only
