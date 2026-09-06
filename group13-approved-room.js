@@ -8,7 +8,7 @@
   window.ktGroup13ChatMessages=window.ktGroup13ChatMessages||[];
 
   function esc(v){
-    return String(v==null?'':v).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[ch];});
+    return String(v==null?'':v).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];});
   }
   function isGroup13(){
     try{
