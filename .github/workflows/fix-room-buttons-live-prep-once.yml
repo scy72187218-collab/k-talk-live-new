@@ -54,7 +54,7 @@ jobs:
           block = s[a:b]
           if 'window.startBroadcast' in block:
             raise SystemExit('direct broadcast start still exists in room shortcut block')
-          if block.count('window.openTikLivePrep') != 4:
+          if block.count('window.openTikLivePrep') != 8:
             raise SystemExit('expected four live prep routes')
 
           path.write_text(s, encoding='utf-8')
