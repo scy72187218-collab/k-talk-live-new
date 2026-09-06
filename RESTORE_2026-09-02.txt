@@ -1,1 +1,2 @@
 K-Talk LIVE restore marker. Functional files unchanged. Restored state: commit 0ceac9eb4e720e3699b3f1dbf3770feed256ce67.
+Rollback requested 2026-09-06: restored to pre-attendance-edit state.
