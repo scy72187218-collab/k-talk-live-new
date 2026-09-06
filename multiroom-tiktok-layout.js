@@ -378,3 +378,110 @@
   setTimeout(install,100);
   setTimeout(install,600);
 })();
+
+/* K-Talk: compact multiroom live controls above guest seats. */
+(function(){
+  if(window.__ktMultiroomCompactControlsLoaded)return;
+  window.__ktMultiroomCompactControlsLoaded=true;
+
+  function roomType(){try{return (window.state&&state.liveRoomType)||'';}catch(e){return '';}}
+  function isTarget(){var t=roomType();return t==='group13'||t==='subscriber';}
+
+  function textOf(el){return String((el&&el.textContent)||'').replace(/\s+/g,' ').trim();}
+  function matchesControl(txt){
+    return txt.indexOf('좋아요')>=0||txt.indexOf('선물')>=0||txt.indexOf('매치')>=0||txt.indexOf('효과')>=0;
+  }
+
+  function hideOldControls(section){
+    if(!section)return;
+    section.querySelectorAll('button,[role="button"]').forEach(function(el){
+      if(el.id==='ktMultiCompactMenuBtn'||el.closest('#ktMultiCompactMenu'))return;
+      if(el.closest('.bottom,.kt-bottom'))return;
+      var txt=textOf(el);
+      if(!matchesControl(txt))return;
+      var cs=null;
+      try{cs=getComputedStyle(el);}catch(e){}
+      var pos=cs&&cs.position;
+      if(pos!=='absolute'&&pos!=='fixed')return;
+      if(!el.dataset.ktMultiOldDisplay)el.dataset.ktMultiOldDisplay=el.style.display||'__empty__';
+      el.dataset.ktMultiHiddenControl='1';
+      el.style.setProperty('display','none','important');
+    });
+  }
+
+  function restoreOldControls(){
+    document.querySelectorAll('[data-kt-multi-hidden-control="1"]').forEach(function(el){
+      var old=el.dataset.ktMultiOldDisplay;
+      el.style.removeProperty('display');
+      if(old&&old!=='__empty__')el.style.display=old;
+      delete el.dataset.ktMultiHiddenControl;
+      delete el.dataset.ktMultiOldDisplay;
+    });
+    var b=document.getElementById('ktMultiCompactMenuBtn');
+    if(b)b.remove();
+  }
+
+  function clickOriginal(label){
+    var section=document.getElementById('ktLiveVideo');
+    section=section&&section.closest('section');
+    if(section){
+      var found=null;
+      section.querySelectorAll('[data-kt-multi-hidden-control="1"]').forEach(function(el){
+        if(found)return;
+        var txt=textOf(el);
+        if(label==='효과'){
+          if(txt.indexOf('효과')>=0)found=el;
+        }else if(txt.indexOf(label)>=0)found=el;
+      });
+      if(found){try{found.click();return true;}catch(e){}}
+    }
+    if(label==='선물'&&typeof window.openGifts==='function'){window.openGifts();return true;}
+    if(label==='매치'&&typeof window.openHostMatchArena==='function'){window.openHostMatchArena('1대1');return true;}
+    if(label==='효과'&&typeof window.openEditEffectPanel==='function'){window.openEditEffectPanel();return true;}
+    return false;
+  }
+
+  window.ktOpenMultiCompactMenu=function(){
+    if(typeof window.showSheet!=='function')return;
+    var html='<div id="ktMultiCompactMenu" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'
+      +'<button class="act" onclick="closeSheet();ktMultiCompactAction(\'좋아요\')">💗 좋아요</button>'
+      +'<button class="act" onclick="closeSheet();ktMultiCompactAction(\'선물\')">🎁 선물</button>'
+      +'<button class="act" onclick="closeSheet();ktMultiCompactAction(\'매치\')">⚔ 매치</button>'
+      +'<button class="act" onclick="closeSheet();ktMultiCompactAction(\'효과\')">✨ 효과</button>'
+      +'</div>';
+    showSheet('방송 기능',html);
+  };
+
+  window.ktMultiCompactAction=function(label){
+    setTimeout(function(){clickOriginal(label);},40);
+  };
+
+  function ensureButton(section){
+    var b=document.getElementById('ktMultiCompactMenuBtn');
+    if(!b){
+      b=document.createElement('button');
+      b.id='ktMultiCompactMenuBtn';
+      b.type='button';
+      b.innerHTML='⋮ <span>기능</span>';
+      b.onclick=function(e){e.preventDefault();e.stopPropagation();window.ktOpenMultiCompactMenu();};
+      section.appendChild(b);
+    }
+    b.style.cssText='position:absolute;z-index:12;right:8px;top:154px;width:76px;height:38px;border:1px solid rgba(255,255,255,.28);border-radius:999px;background:rgba(12,12,18,.82);color:#fff;font-size:16px;font-weight:950;display:flex;align-items:center;justify-content:center;gap:5px;box-shadow:0 4px 14px rgba(0,0,0,.35);touch-action:manipulation';
+    var sp=b.querySelector('span');
+    if(sp)sp.style.cssText='font-size:11px;font-weight:900';
+  }
+
+  function apply(){
+    if(!isTarget()){restoreOldControls();return;}
+    var video=document.getElementById('ktLiveVideo');
+    if(!video)return;
+    var section=video.closest('section');
+    if(!section)return;
+    hideOldControls(section);
+    ensureButton(section);
+  }
+
+  try{new MutationObserver(function(){setTimeout(apply,20);}).observe(document.documentElement,{childList:true,subtree:true});}catch(e){}
+  setTimeout(apply,80);
+  setInterval(apply,500);
+})();
