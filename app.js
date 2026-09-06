@@ -307,8 +307,18 @@ window.closeCreator=function(){
 window.applyBaseCameraLook=function(){
   if(!camera)return;
   if(!state.editFilter && !state.beautyMode){
-    camera.style.filter='brightness(1.10) contrast(.94) saturate(1.03) blur(.40px)';
+    state.beautyMode='natural';
+    state.beautyControl='skin';
+    state.beautySkin=88;
+    state.beautyFace=50;
+    state.beautyEyes=52;
+    state.beautyNose=50;
+    state.beautyMouth=50;
+    state.beautyTone=55;
+    state.beautyBright=72;
+    state.beautySharp=46;
   }
+  if(window.applyBeautyPreview)applyBeautyPreview();
 };
 
 window.ktAttachCreatorCamera=async function(stream){
@@ -415,8 +425,8 @@ window.ensureLiveCamera=async function(facing){
       state.stream=await navigator.mediaDevices.getUserMedia({
         video:{
           facingMode:state.cameraFacing,
-          width:{ideal:1280},
-          height:{ideal:720},
+          width:{ideal:1920},
+          height:{ideal:1080},
           frameRate:{ideal:30,max:30}
         },
         audio:{
@@ -1146,7 +1156,7 @@ window.openHostMatchArena=function(mode){
 
 window.getBeautyControlInfo=function(kind){
   var map={
-    skin:{label:'피부 부드러움',key:'beautySkin',def:40},
+    skin:{label:'피부 부드러움',key:'beautySkin',def:88},
     face:{label:'얼굴형 조절',key:'beautyFace',def:50},
     eyes:{label:'눈 조절',key:'beautyEyes',def:50},
     nose:{label:'코 조절',key:'beautyNose',def:50},
@@ -1181,7 +1191,7 @@ window.openBeautyPanel=function(){
   }).join('');
 
   var html='<div class="kt-beauty-panel kt-beauty-panel-pro">'
-    +'<div class="kt-beauty-pro-tabs"><span>AI 최적화</span><b>Beauty</b><span>메이크업</span><button onclick="resetBeautyAll()">↺ 초기화</button></div>'
+    +'<div class="kt-beauty-pro-tabs"><span role="button" onclick="applyAIBeautyPreset()">AI 최적화</span><b>Beauty</b><span>메이크업</span><button onclick="resetBeautyAll()">↺ 초기화</button></div>'
     +'<div class="kt-beauty-controls kt-beauty-controls-pro">'+controlButtons+'</div>'
     +'<div class="kt-beauty-slider-group kt-beauty-single-group">'
       +'<div class="kt-beauty-slider-row kt-beauty-single-row">'
@@ -1195,6 +1205,76 @@ window.openBeautyPanel=function(){
 
   showSheet('뷰티',html);
   sheet.classList.add('camera-effect-sheet','beauty-control-sheet');
+};
+
+window.applyAIBeautyPreset=async function(){
+  if(!camera)return;
+  try{if(window.ensureLiveCamera)await ensureLiveCamera(state.cameraFacing||'user');}catch(e){}
+  var targetBright=70,targetSkin=74,targetSharp=54,targetTone=56;
+
+  try{
+    var engine=window.ktLoadFaceDetector?await ktLoadFaceDetector():null;
+    if(engine&&camera.readyState>=2&&camera.videoWidth){
+      var box=null;
+      if(engine.type==='mediapipe'){
+        var result=engine.detector.detectForVideo(camera,Math.round(performance.now()));
+        if(result&&result.detections&&result.detections.length)box=result.detections[0].boundingBox;
+      }else{
+        var faces=await engine.detector.detect(camera);
+        if(faces&&faces.length)box=faces[0].boundingBox;
+      }
+
+      var c=document.createElement('canvas');
+      c.width=160;c.height=90;
+      var ctx=c.getContext('2d',{willReadFrequently:true});
+      ctx.drawImage(camera,0,0,c.width,c.height);
+      var sx=45,sy=18,sw=70,sh=54;
+      if(box&&camera.videoWidth&&camera.videoHeight){
+        sx=Math.max(0,Math.min(c.width-1,Math.round((box.originX||box.x||0)/camera.videoWidth*c.width)));
+        sy=Math.max(0,Math.min(c.height-1,Math.round((box.originY||box.y||0)/camera.videoHeight*c.height)));
+        sw=Math.max(12,Math.min(c.width-sx,Math.round((box.width||camera.videoWidth*.4)/camera.videoWidth*c.width)));
+        sh=Math.max(12,Math.min(c.height-sy,Math.round((box.height||camera.videoHeight*.5)/camera.videoHeight*c.height)));
+      }
+      var data=ctx.getImageData(sx,sy,sw,sh).data;
+      var lum=0,sat=0,count=0;
+      for(var p=0;p<data.length;p+=16){
+        var r=data[p],g=data[p+1],b=data[p+2];
+        var mx=Math.max(r,g,b),mn=Math.min(r,g,b);
+        lum+=(r*.2126+g*.7152+b*.0722);
+        sat+=(mx-mn);
+        count++;
+      }
+      if(count){
+        lum/=count;sat/=count;
+        targetBright=Math.round(Math.max(56,Math.min(82,72+(145-lum)*.18)));
+        targetSkin=Math.round(Math.max(66,Math.min(82,74+(130-lum)*.05)));
+        targetSharp=Math.round(Math.max(48,Math.min(62,54+(28-sat)*.08)));
+        targetTone=Math.round(Math.max(50,Math.min(62,56+(22-sat)*.06)));
+      }
+    }
+  }catch(e){}
+
+  state.beautyMode='natural';
+  state.beautyControl='skin';
+  state.beautySkin=targetSkin;
+  state.beautyFace=50;
+  state.beautyEyes=50;
+  state.beautyNose=50;
+  state.beautyMouth=50;
+  state.beautyTone=targetTone;
+  state.beautyBright=targetBright;
+  state.beautySharp=targetSharp;
+  applyBeautyPreview();
+
+  var range=document.getElementById('beautySingleRange');
+  var val=document.getElementById('beautySingleValue');
+  var label=document.getElementById('beautySingleLabel');
+  if(range)range.value=targetSkin;
+  if(val)val.textContent=targetSkin;
+  if(label)label.textContent='피부 부드러움';
+  document.querySelectorAll('.kt-beauty-controls-pro button').forEach(function(btn){
+    btn.classList.toggle('on',btn.getAttribute('data-beauty-kind')==='skin');
+  });
 };
 
 window.selectBeautyControl=function(kind){
@@ -1233,16 +1313,28 @@ window.setBeautyControlValue=function(value){
 
 window.applyBeautyPreview=function(){
   if(!camera)return;
-  var skin=Number(state.beautySkin||1),bright=Number(state.beautyBright||1),sharp=Number(state.beautySharp||1);
-  var face=Number(state.beautyFace||50),eyes=Number(state.beautyEyes||50),nose=Number(state.beautyNose||50);
-  var mouth=Number(state.beautyMouth||50),tone=Number(state.beautyTone||1);
-  var brightness=.96+(bright*.0024)+(eyes-50)*.0007;
-  var saturation=.94+(sharp*.0016)+(mouth-50)*.0032;
-  var contrast=.94+(sharp*.0015)+(eyes-50)*.0012+(nose-50)*.0009;
-  var blur=Math.max(0,(skin-1)*.006);
-  var sepia=Math.max(0,(tone-50)*.0025);
-  var faceScale=1+(face-50)*.0012;
-  camera.style.setProperty('filter','brightness('+brightness.toFixed(3)+') saturate('+saturation.toFixed(3)+') contrast('+contrast.toFixed(3)+') blur('+blur.toFixed(2)+'px) sepia('+sepia.toFixed(3)+')','important');
+  var skin=Math.max(1,Math.min(100,Number(state.beautySkin||72)));
+  var bright=Math.max(1,Math.min(100,Number(state.beautyBright||68)));
+  var sharp=Math.max(1,Math.min(100,Number(state.beautySharp||52)));
+  var face=Math.max(1,Math.min(100,Number(state.beautyFace||50)));
+  var eyes=Math.max(1,Math.min(100,Number(state.beautyEyes||50)));
+  var nose=Math.max(1,Math.min(100,Number(state.beautyNose||50)));
+  var mouth=Math.max(1,Math.min(100,Number(state.beautyMouth||50)));
+  var tone=Math.max(1,Math.min(100,Number(state.beautyTone||58)));
+
+  /* 휴대폰 화면에서도 보정 차이가 분명히 보이도록 전체 카메라 톤을 조금 더 적극적으로 조정 */
+  var brightness=1.00+(bright/100)*.18+(eyes-50)*.0007;
+  var saturation=.98+(sharp/100)*.10+(mouth-50)*.0014;
+  var contrast=.94+(sharp/100)*.08+(nose-50)*.0007;
+  var blur=.10+(skin/100)*.55;
+  var sepia=Math.max(0,(tone-45)*.0018);
+  var faceScale=1+(face-50)*.0008;
+
+  camera.style.setProperty(
+    'filter',
+    'brightness('+brightness.toFixed(3)+') saturate('+saturation.toFixed(3)+') contrast('+contrast.toFixed(3)+') blur('+blur.toFixed(2)+'px) sepia('+sepia.toFixed(3)+')',
+    'important'
+  );
   camera.style.setProperty('transform','scaleX(-1) scale('+faceScale.toFixed(3)+')','important');
 };
 
@@ -1280,65 +1372,196 @@ window.setBeautySlider=function(kind,value){
 };
 
 window.resetBeautyAll=function(){
-  state.beautyMode='off';state.beautyControl='skin';state.beautySkin=1;state.beautyFace=50;state.beautyEyes=50;state.beautyNose=50;state.beautyMouth=50;state.beautyTone=1;state.beautyBright=1;state.beautySharp=1;
+  state.beautyMode='natural';state.beautyControl='skin';state.beautySkin=72;state.beautyFace=50;state.beautyEyes=50;state.beautyNose=50;state.beautyMouth=50;state.beautyTone=58;state.beautyBright=68;state.beautySharp=52;
   creator.classList.remove('beauty-natural','beauty-bright','beauty-soft','beauty-glow');
   creator.removeAttribute('data-beauty-char');
   if(camera){camera.style.removeProperty('filter');camera.style.removeProperty('transform');}
   openBeautyPanel();
 };
 
-window.clearAllFaceEffects=function(){
-  try{ if(window.ktFaceLoopRAF)cancelAnimationFrame(window.ktFaceLoopRAF); }catch(e){}
-  window.ktFaceLoopRAF=null;
-  window.ktFaceMeshBusy=false;
-  window.ktFaceSmooth=null;
-  window.ktPartSmooth={};
+window.ktFaceTrackers=window.ktFaceTrackers||{};
+window.ktFaceDetectorPromise=window.ktFaceDetectorPromise||null;
 
+window.ktLoadFaceDetector=function(){
+  if(window.ktFaceDetectorPromise)return window.ktFaceDetectorPromise;
+  window.ktFaceDetectorPromise=(async function(){
+    try{
+      var mod=await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/+esm');
+      var vision=await mod.FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/wasm');
+      var detector=await mod.FaceDetector.createFromOptions(vision,{
+        baseOptions:{modelAssetPath:'https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite'},
+        runningMode:'VIDEO',
+        minDetectionConfidence:.42,
+        minSuppressionThreshold:.3
+      });
+      return {type:'mediapipe',detector:detector};
+    }catch(e){
+      try{
+        if('FaceDetector' in window)return {type:'native',detector:new FaceDetector({fastMode:true,maxDetectedFaces:1})};
+      }catch(_e){}
+      return null;
+    }
+  })();
+  return window.ktFaceDetectorPromise;
+};
+
+window.ktStopFaceTrackingFor=function(key){
+  var t=window.ktFaceTrackers&&window.ktFaceTrackers[key];
+  if(!t)return;
+  t.stopped=true;
+  if(t.raf)cancelAnimationFrame(t.raf);
+  delete window.ktFaceTrackers[key];
+};
+
+window.ktStartFaceTrackingFor=function(video,layer,anchor,key){
+  key=key||'creator';
+  ktStopFaceTrackingFor(key);
+  if(!video||!layer||!anchor)return;
+  var tracker={stopped:false,raf:0,busy:false,lastAt:0,smooth:null};
+  window.ktFaceTrackers[key]=tracker;
+
+  function placeBox(box){
+    if(!box||!video.videoWidth||!video.videoHeight)return;
+    var lr=layer.getBoundingClientRect();
+    var vr=video.getBoundingClientRect();
+    if(!lr.width||!lr.height||!vr.width||!vr.height)return;
+    var vw=video.videoWidth,vh=video.videoHeight;
+    var scale=Math.max(vr.width/vw,vr.height/vh);
+    var drawW=vw*scale,drawH=vh*scale;
+    var offX=(vr.width-drawW)/2,offY=(vr.height-drawH)/2;
+    var bx=Number(box.originX!=null?box.originX:box.x)||0;
+    var by=Number(box.originY!=null?box.originY:box.y)||0;
+    var bw=Number(box.width)||0,bh=Number(box.height)||0;
+    var leftInVideo=offX+bx*scale;
+    var topInVideo=offY+by*scale;
+    var mirroredLeft=vr.width-(leftInVideo+bw*scale);
+    var x=(vr.left-lr.left)+mirroredLeft+(bw*scale/2);
+    var y=(vr.top-lr.top)+topInVideo+(bh*scale/2);
+    var w=bw*scale,h=bh*scale;
+    var target={x:x,y:y,w:w,h:h};
+    var sm=tracker.smooth;
+    if(!sm)sm=target;
+    else{
+      var a=.28;
+      sm={x:sm.x+(target.x-sm.x)*a,y:sm.y+(target.y-sm.y)*a,w:sm.w+(target.w-sm.w)*a,h:sm.h+(target.h-sm.h)*a};
+    }
+    tracker.smooth=sm;
+    anchor.style.left=sm.x+'px';
+    anchor.style.top=sm.y+'px';
+    anchor.style.width=Math.max(96,sm.w*1.22)+'px';
+    anchor.style.height=Math.max(112,sm.h*1.38)+'px';
+    anchor.style.opacity='1';
+  }
+
+  function fallback(){
+    var lr=layer.getBoundingClientRect();
+    anchor.style.left=(lr.width*.5)+'px';
+    anchor.style.top=(lr.height*.39)+'px';
+    anchor.style.width=Math.min(220,lr.width*.42)+'px';
+    anchor.style.height=Math.min(270,lr.height*.5)+'px';
+    anchor.style.opacity='.94';
+  }
+
+  async function tick(now){
+    if(tracker.stopped)return;
+    tracker.raf=requestAnimationFrame(tick);
+    if(tracker.busy||now-tracker.lastAt<70)return;
+    if(!video.isConnected||!layer.isConnected||!anchor.isConnected){ktStopFaceTrackingFor(key);return;}
+    if(video.readyState<2||!video.videoWidth){fallback();return;}
+    tracker.lastAt=now;
+    tracker.busy=true;
+    try{
+      var engine=await ktLoadFaceDetector();
+      if(!engine){fallback();return;}
+      var box=null;
+      if(engine.type==='mediapipe'){
+        var result=engine.detector.detectForVideo(video,Math.round(performance.now()));
+        if(result&&result.detections&&result.detections.length)box=result.detections[0].boundingBox;
+      }else{
+        var faces=await engine.detector.detect(video);
+        if(faces&&faces.length)box=faces[0].boundingBox;
+      }
+      if(box)placeBox(box);
+      else if(!tracker.smooth)fallback();
+    }catch(e){
+      if(!tracker.smooth)fallback();
+    }finally{
+      tracker.busy=false;
+    }
+  }
+  fallback();
+  tracker.raf=requestAnimationFrame(tick);
+};
+
+window.ktEnsureFaceEffectStyle=function(){
+  if(document.getElementById('ktRealFaceEffectStyle'))return;
+  var st=document.createElement('style');
+  st.id='ktRealFaceEffectStyle';
+  st.textContent='#ktFaceEffectLayer{position:absolute;inset:0;z-index:6;pointer-events:none;overflow:hidden}#ktFaceAnchor{position:absolute;left:50%;top:39%;width:170px;height:205px;transform:translate(-50%,-50%);transform-origin:center;transition:opacity .12s;pointer-events:none}.kt-fx{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);filter:drop-shadow(0 3px 7px rgba(0,0,0,.36));line-height:1;white-space:nowrap}.kt-fx.top{top:-4%;font-size:clamp(50px,45%,92px)}.kt-fx.center{top:45%;font-size:clamp(52px,50%,102px)}.kt-fx.cheek{top:60%;font-size:clamp(24px,22%,46px)}.kt-fx.cheek.left{left:20%}.kt-fx.cheek.right{left:80%}.kt-fx.side-left{left:4%;top:30%;font-size:clamp(28px,27%,54px)}.kt-fx.side-right{left:96%;top:30%;font-size:clamp(28px,27%,54px)}.kt-fx.spark1{left:8%;top:8%;font-size:38px}.kt-fx.spark2{left:92%;top:15%;font-size:32px}.kt-fx.spark3{left:88%;top:82%;font-size:27px}.kt-fx.spark4{left:14%;top:78%;font-size:25px}.kt-face-effect-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.kt-face-effect-card{border:1px solid rgba(255,255,255,.13);border-radius:16px;background:rgba(255,255,255,.06);color:#fff;padding:10px 5px;min-height:84px;display:grid;place-items:center;gap:4px}.kt-face-effect-card.on{border-color:#ff4f96;box-shadow:0 0 0 2px rgba(255,79,150,.16)}.kt-face-effect-card span{font-size:32px}.kt-face-effect-card b{font-size:10px}.kt-effect-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}.kt-effect-tabs button{height:40px;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:#ffffff0d;color:#fff;font-weight:900}.kt-effect-tabs button.on{background:#fff;color:#111}';
+  document.head.appendChild(st);
+};
+
+window.ktFaceEffectMarkup=function(name){
+  var map={
+    heart:'<span class="kt-fx top">💕</span><span class="kt-fx cheek left">💗</span><span class="kt-fx cheek right">💗</span>',
+    flower:'<span class="kt-fx top">🌸🌼🌸</span>',
+    sparkle:'<span class="kt-fx spark1">✨</span><span class="kt-fx spark2">✨</span><span class="kt-fx spark3">✦</span><span class="kt-fx spark4">✧</span>',
+    party:'<span class="kt-fx side-left">🎉</span><span class="kt-fx side-right">🎊</span><span class="kt-fx top">🥳</span>'
+  };
+  return map[name]||'';
+};
+
+window.ktApplyFaceEffect=function(name,el){
+  if(['sunglasses','cap','cat','puppy','bunny','angel'].indexOf(name)>-1)name='off';
+  name=name||'off';
+  if(name==='off'){clearAllFaceEffects();return;}
+  state.editFilter='';
+  state.editSticker=name;
+  state.pendingEditEffect=name;
+  state.appliedEditEffect=name;
+  ktEnsureFaceEffectStyle();
+  var layer=document.getElementById('ktFaceEffectLayer');
+  if(!layer){
+    layer=document.createElement('div');
+    layer.id='ktFaceEffectLayer';
+    layer.innerHTML='<div id="ktFaceAnchor"></div>';
+    creator.appendChild(layer);
+  }
+  var anchor=document.getElementById('ktFaceAnchor');
+  if(anchor)anchor.innerHTML=ktFaceEffectMarkup(name);
+  document.querySelectorAll('.kt-face-effect-card').forEach(function(btn){btn.classList.toggle('on',btn.getAttribute('data-face-effect')===name);});
+  if(camera&&layer&&anchor)ktStartFaceTrackingFor(camera,layer,anchor,'creator');
+};
+
+window.clearAllFaceEffects=function(){
+  try{ktStopFaceTrackingFor('creator');}catch(e){}
   var layer=document.getElementById('ktFaceEffectLayer');
   if(layer)layer.remove();
-
-  var tray=document.getElementById('ktLiveEffects');
-  if(tray)tray.remove();
-
-  var st=document.getElementById('ktRealFaceEffectStyle');
-  if(st)st.remove();
-
   state.editFilter='';
   state.editSticker='';
   state.pendingEditEffect='off';
   state.appliedEditEffect='off';
-
-  var filterClasses=['fx-glow','fx-soft','fx-rainbow','fx-cool','fx-warm','fx-night','fx-cinema','fx-mono','fx-pink','fx-blue','fx-star','fx-party','fx-disco','fx-dream'];
-  if(creator)creator.classList.remove.apply(creator.classList,filterClasses);
-  if(camera)camera.style.filter='brightness(1.10) contrast(.94) saturate(1.03) blur(.40px)';
+  document.querySelectorAll('.kt-face-effect-card').forEach(function(btn){btn.classList.remove('on');});
+  try{if(window.applyBeautyPreview)applyBeautyPreview();}catch(e){}
 };
 
-window.renderFaceEffect=function(){
-  clearAllFaceEffects();
-};
-
-window.previewEditEffect=function(){
-  clearAllFaceEffects();
-};
-
-window.setEditEffect=function(){
-  clearAllFaceEffects();
-};
-
-window.applyEditEffect=function(){
-  clearAllFaceEffects();
-};
+window.renderFaceEffect=function(name){ktApplyFaceEffect(name||state.appliedEditEffect||'off');};
+window.previewEditEffect=function(name,el){ktApplyFaceEffect(name,el);};
+window.setEditEffect=function(name,el){ktApplyFaceEffect(name,el);};
+window.applyEditEffect=function(name,el){ktApplyFaceEffect(name||state.pendingEditEffect||state.appliedEditEffect||'off',el);};
 
 window.closeEditEffectPanel=function(){
-  clearAllFaceEffects();
+  closeSheet();
   if(state.effectReturnBeauty){state.effectReturnBeauty=false;openBeautyPanel();}
 };
 
-window.switchEditEffectTab=function(){};
+window.switchEditEffectTab=function(tab){
+  openEditEffectPanel(tab||'face');
+};
 
 window.ktStageBackgrounds=[
   {id:'ocean',name:'오션뷰',url:'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=720&h=1280&q=76'},
-  {id:'mountain',name:'산 전망',url:'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=720&h=1280&q=76'},
+  {id:'mountain',name:'노래 무대',url:'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=720&h=1280&q=76'},
   {id:'beach',name:'해안',url:'https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=720&h=1280&q=76'},
   {id:'forest',name:'숲속',url:'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=720&h=1280&q=76'},
   {id:'garden',name:'정원',url:'https://images.unsplash.com/photo-1497250681960-ef046c08a56e?auto=format&fit=crop&w=720&h=1280&q=76'},
@@ -1346,6 +1569,10 @@ window.ktStageBackgrounds=[
   {id:'city',name:'도시 야경',url:'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=720&h=1280&q=76'},
   {id:'waterfall',name:'폭포',url:'https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?auto=format&fit=crop&w=720&h=1280&q=76'},
   {id:'stage',name:'라이브 무대',url:'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=720&h=1280&q=76'},
+  {id:'stage2',name:'콘서트 무대',url:'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=720&h=1280&q=76'},
+  {id:'stage3',name:'조명 무대',url:'https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=720&h=1280&q=76'},
+  {id:'stage4',name:'네온 무대',url:'https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?auto=format&fit=crop&w=720&h=1280&q=76'},
+  {id:'stage5',name:'트로트 무대',url:'https://images.unsplash.com/photo-1501612780327-45045538702b?auto=format&fit=crop&w=720&h=1280&q=76'},
   {id:'lounge',name:'골드 라운지',url:'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=720&h=1280&q=76'}
 ];
 
@@ -1474,20 +1701,44 @@ window.selectStageBackground=function(id){
   });
 };
 
-window.openEditEffectPanel=function(){
+window.openEditEffectPanel=function(tab){
+  tab=tab||'face';
   creator.classList.add('beauty-preview-open');
   try{var lp=creator.querySelector('.live-prep');if(lp)lp.style.setProperty('display','none','important');}catch(e){}
   try{if(window.ensureLiveCamera)ensureLiveCamera(state.cameraFacing||'user').catch(function(){});}catch(e){}
-  var active=state.stageBackground||'none';
-  var cards='<button class="kt-stage-card '+(active==='none'?'on':'')+'" data-stage-id="none" onclick="selectStageBackground(\'none\')"><span class="kt-stage-none">⊘</span><b>효과 없음</b></button>';
-  (window.ktStageBackgrounds||[]).forEach(function(bg){
-    cards+='<button class="kt-stage-card '+(active===bg.id?'on':'')+'" data-stage-id="'+bg.id+'" onclick="selectStageBackground(\''+bg.id+'\')">'
-      +'<span class="kt-stage-thumb" style="background-image:url(&quot;'+bg.url+'&quot;)"></span><b>'+bg.name+'</b></button>';
-  });
+  ktEnsureFaceEffectStyle();
+
+  if(tab==='background'){
+    var active=state.stageBackground||'none';
+    var cards='<button class="kt-stage-card '+(active==='none'?'on':'')+'" data-stage-id="none" onclick="selectStageBackground(\'none\')"><span class="kt-stage-none">⊘</span><b>효과 없음</b></button>';
+    (window.ktStageBackgrounds||[]).forEach(function(bg){
+      cards+='<button class="kt-stage-card '+(active===bg.id?'on':'')+'" data-stage-id="'+bg.id+'" onclick="selectStageBackground(\''+bg.id+'\')">'
+        +'<span class="kt-stage-thumb" style="background-image:url(&quot;'+bg.url+'&quot;)"></span><b>'+bg.name+'</b></button>';
+    });
+    var bgHtml='<div class="kt-stage-panel">'
+      +'<div class="kt-effect-tabs"><button onclick="switchEditEffectTab(\'face\')">얼굴 효과</button><button class="on">배경 효과</button></div>'
+      +'<div class="kt-stage-title"><b>배경 효과</b><span>선택한 배경은 화면 뒤에 고정됩니다.</span></div>'
+      +'<div class="kt-stage-grid">'+cards+'</div>'
+      +'<div class="kt-stage-actions"><button onclick="ktStopStageBackground()">배경 없음</button><button class="primary" onclick="closeSheet()">적용</button></div>'
+      +'</div>';
+    showSheet('편집 효과',bgHtml);
+    sheet.classList.add('camera-effect-sheet','stage-effect-sheet');
+    return;
+  }
+
+  var effects=[
+    ['off','⊘','없음'],['heart','💕','하트'],['flower','🌸','꽃'],
+    ['sparkle','✨','반짝이'],['party','🎉','파티']
+  ];
+  var current=state.appliedEditEffect||'off';
+  var faceCards=effects.map(function(it){
+    return '<button class="kt-face-effect-card '+(current===it[0]?'on':'')+'" data-face-effect="'+it[0]+'" onclick="setEditEffect(\''+it[0]+'\',this)"><span>'+it[1]+'</span><b>'+it[2]+'</b></button>';
+  }).join('');
   var html='<div class="kt-stage-panel">'
-    +'<div class="kt-stage-title"><b>편집 효과</b><span>사람이 움직여도 선택한 배경은 고정됩니다.</span></div>'
-    +'<div class="kt-stage-grid">'+cards+'</div>'
-    +'<div class="kt-stage-actions"><button onclick="ktStopStageBackground()">효과 없음</button><button class="primary" onclick="closeSheet()">적용</button></div>'
+    +'<div class="kt-effect-tabs"><button class="on">얼굴 효과</button><button onclick="switchEditEffectTab(\'background\')">배경 효과</button></div>'
+    +'<div class="kt-stage-title"><b>얼굴 따라 움직이는 효과</b><span>얼굴을 좌우·위아래로 움직이면 효과도 같이 따라갑니다.</span></div>'
+    +'<div class="kt-face-effect-grid">'+faceCards+'</div>'
+    +'<div class="kt-stage-actions"><button onclick="clearAllFaceEffects()">효과 없음</button><button class="primary" onclick="closeSheet()">적용</button></div>'
     +'</div>';
   showSheet('편집 효과',html);
   sheet.classList.add('camera-effect-sheet','stage-effect-sheet');
@@ -2759,3 +3010,45 @@ setTimeout(function(){
   var oldPrepBottom=window.prepBottomTap;
   window.prepBottomTap=function(el,name){if(oldPrepBottom)oldPrepBottom(el,name);};
 },0);
+
+/* KTALK_PROFILE_POSTED_VIDEO_FIX_20260904 */
+(function(){
+  var oldOpen=window.openProfileDirect;
+  window.openProfileDirect=function(){
+    if(oldOpen)oldOpen();
+    setTimeout(async function(){
+      if(!window.sheetBody||!sheetBody)return;
+      var box=document.getElementById('ktProfilePostedVideos');
+      if(!box){
+        box=document.createElement('div');
+        box.id='ktProfilePostedVideos';
+        box.style.cssText='display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin-top:14px';
+        sheetBody.appendChild(box);
+      }
+      try{
+        var db=await ktOpenVideoDB();
+        var tx=db.transaction('videos','readonly');
+        var req=tx.objectStore('videos').getAll();
+        req.onsuccess=function(){
+          var items=(req.result||[]).filter(function(v){return v.posted;}).sort(function(a,b){return (b.postedAt||b.createdAt||0)-(a.postedAt||a.createdAt||0);});
+          box.innerHTML=items.length?'':'<div style="grid-column:1/-1;padding:16px;text-align:center;color:#aaa">아직 올린 동영상이 없습니다.</div>';
+          items.forEach(function(v){
+            var u=URL.createObjectURL(v.blob);
+            var b=document.createElement('button');
+            b.type='button';
+            b.style.cssText='position:relative;aspect-ratio:9/16;border:0;padding:0;overflow:hidden;border-radius:8px;background:#111';
+            b.innerHTML='<video muted playsinline preload="metadata" src="'+u+'" style="width:100%;height:100%;object-fit:cover"></video><span style="position:absolute;left:7px;bottom:6px;color:#fff">▶</span>';
+            b.onclick=function(){playStoredVideo(v.id);};
+            box.appendChild(b);
+          });
+          try{db.close();}catch(e){}
+        };
+      }catch(e){}
+    },80);
+  };
+  var oldPost=window.postStoredVideo;
+  window.postStoredVideo=async function(id,btn){
+    if(oldPost)await oldPost(id,btn);
+    setTimeout(function(){if(window.openProfileDirect)openProfileDirect();},450);
+  };
+})();
