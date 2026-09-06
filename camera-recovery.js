@@ -57,4 +57,26 @@
     snd.setAttribute('data-kt-playable-sounds','1');
     document.head.appendChild(snd);
   }
+
+  /* 첫 주소 접속에서는 예전 도로 포스터 화면이 먼저 그려진 뒤
+     feed-home-fix.js가 함수만 바꾸고 실제 피드를 호출하지 않아 그대로 남는다.
+     기존 피드 함수를 한 번만 호출해 실제 업로드 동영상으로 즉시 전환한다.
+     방송방/채팅/카메라 레이아웃은 건드리지 않는다. */
+  var homeFeedStarted=false;
+  function startRealHomeFeed(){
+    try{
+      if(homeFeedStarted)return;
+      if(document.getElementById('ktSept2Live')||document.getElementById('ktRemoteLive'))return;
+      var c=document.getElementById('creator');
+      if(c&&c.classList.contains('show'))return;
+      if(typeof window.ktRefreshUnifiedFeed!=='function')return;
+      homeFeedStarted=true;
+      var r=window.ktRefreshUnifiedFeed();
+      if(r&&typeof r.catch==='function')r.catch(function(){homeFeedStarted=false;});
+    }catch(e){homeFeedStarted=false;}
+  }
+  setTimeout(startRealHomeFeed,50);
+  setTimeout(startRealHomeFeed,180);
+  setTimeout(startRealHomeFeed,500);
+  setTimeout(startRealHomeFeed,1200);
 })();
