@@ -1,0 +1,68 @@
+name: Fix room buttons to live prep once
+
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-room-buttons-live-prep-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Route four room buttons through existing live prep
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('index.html')
+          s = path.read_text(encoding='utf-8')
+
+          pairs = [
+            (
+              "if(window.state){state.liveRoomType='solo';state.liveRoomName='1인 방송';state.liveRoomMax=1;}var t=document.getElementById('liveTitle');if(t)t.value='1인 방송';if(window.startBroadcast)window.startBroadcast();",
+              "if(window.state){state.liveRoomType='solo';state.liveRoomName='1인 방송';state.liveRoomMax=1;}var t=document.getElementById('liveTitle');if(t)t.value='1인 방송';if(window.openTikLivePrep)window.openTikLivePrep();var r=document.querySelectorAll('.room-switch')[0];if(window.selectPrepRoom)window.selectPrepRoom(r,'solo','1인 방송',1);"
+            ),
+            (
+              "if(window.state){state.liveRoomType='group13';state.liveRoomName='13명 방송';state.liveRoomMax=13;}var t=document.getElementById('liveTitle');if(t)t.value='13명 방송';if(window.startBroadcast)window.startBroadcast();",
+              "if(window.state){state.liveRoomType='group13';state.liveRoomName='13명 방송';state.liveRoomMax=13;}var t=document.getElementById('liveTitle');if(t)t.value='13명 방송';if(window.openTikLivePrep)window.openTikLivePrep();var r=document.querySelectorAll('.room-switch')[1];if(window.selectPrepRoom)window.selectPrepRoom(r,'group','13명 방송',13);"
+            ),
+            (
+              "if(window.state){state.liveRoomType='subscriber';state.liveRoomName='구독자 방송';state.liveRoomMax=10;}var t=document.getElementById('liveTitle');if(t)t.value='구독자 방송';if(window.startBroadcast)window.startBroadcast();",
+              "if(window.state){state.liveRoomType='subscriber';state.liveRoomName='구독자 방송';state.liveRoomMax=10;}var t=document.getElementById('liveTitle');if(t)t.value='구독자 방송';if(window.openTikLivePrep)window.openTikLivePrep();var r=document.querySelectorAll('.room-switch')[2];if(window.selectPrepRoom)window.selectPrepRoom(r,'subscriber','구독자 방송',10);"
+            ),
+            (
+              "if(window.state){state.liveRoomType='password';state.liveRoomName='비밀방';state.liveRoomMax=7;}var t=document.getElementById('liveTitle');if(t)t.value='비밀방';if(window.startBroadcast)window.startBroadcast();",
+              "if(window.state){state.liveRoomType='password';state.liveRoomName='비밀방';state.liveRoomMax=7;}var t=document.getElementById('liveTitle');if(t)t.value='비밀방';if(window.openTikLivePrep)window.openTikLivePrep();var r=document.querySelectorAll('.room-switch')[3];if(window.selectPrepRoom)window.selectPrepRoom(r,'password','비밀방',7);"
+            ),
+          ]
+
+          for old, new in pairs:
+            count = s.count(old)
+            if count != 1:
+              raise SystemExit(f'expected one exact room shortcut target, found {count}')
+            s = s.replace(old, new, 1)
+
+          a = s.index('<div class="kt-creator-room-shortcuts">')
+          b = s.index('<div class="recordrow">', a)
+          block = s[a:b]
+          if 'window.startBroadcast' in block:
+            raise SystemExit('direct broadcast start still exists in room shortcut block')
+          if block.count('window.openTikLivePrep') != 4:
+            raise SystemExit('expected four live prep routes')
+
+          path.write_text(s, encoding='utf-8')
+          PY
+
+          git config user.name "K-Talk Patch Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html
+          git diff --cached --check
+          git commit -m "방 선택 후 기존 라이브 준비 화면을 거치도록 수정"
+          git push origin HEAD:main
