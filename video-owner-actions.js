@@ -80,42 +80,19 @@
   window.ktDeletePublicVideo=async function(id,path){
     if(!id)return;
     if(!confirm('이 동영상을 공개 목록에서 삭제할까요?\n내 동영상 원본은 그대로 남습니다.'))return;
-
-    var victim=rows.find(function(x){return String(x.id)===String(id);})||null;
-    var victimUrl=victim?normalize(victim.video_url):'';
-
-    try{if(window.closeSheet)closeSheet();}catch(e){}
-    if(victimUrl){
-      try{
-        document.querySelectorAll('.kt-feed-card .kt-public-video').forEach(function(v){
-          var src=normalize(v.currentSrc||v.src||v.getAttribute('src')||'');
-          if(src!==victimUrl)return;
-          try{v.pause();}catch(e){}
-          var card=v.closest('.kt-feed-card');
-          if(card)card.remove();
-        });
-      }catch(e){}
-    }
-
     try{
       var r=await fetch(SB+'/rest/v1/ktalk_videos?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:headers({'Prefer':'return=minimal'})});
       if(!r.ok)throw new Error('row delete');
       if(path){
         try{await fetch(SB+'/storage/v1/object/ktalk-videos/'+String(path).split('/').map(encodeURIComponent).join('/'),{method:'DELETE',headers:headers()});}catch(e){}
       }
+      try{if(window.closeSheet)closeSheet();}catch(e){}
       rows=rows.filter(function(x){return String(x.id)!==String(id);});
-      setTimeout(function(){
-        try{
-          if(window.ktRefreshUnifiedFeed)window.ktRefreshUnifiedFeed();
-          else if(window.home)window.home();
-        }catch(e){}
-      },80);
+      alert('동영상을 삭제했습니다.');
+      if(window.ktRefreshUnifiedFeed)window.ktRefreshUnifiedFeed();
+      else if(window.home)window.home();
     }catch(e){
       alert('삭제가 안 됐습니다. 다시 한 번 눌러 주세요.');
-      try{
-        if(window.ktRefreshUnifiedFeed)window.ktRefreshUnifiedFeed();
-        else if(window.home)window.home();
-      }catch(_e){}
     }
   };
 
@@ -179,7 +156,6 @@
   }
 
   function canAutoEnter(){
-    if(window.__ktManualLiveEntryOnly)return false;
     if(joining||Date.now()<snoozeUntil)return false;
     if(typeof window.ktJoinLive!=='function')return false;
     if(hostDeviceBusy())return false;
@@ -388,109 +364,3 @@
   setTimeout(install,100);
   setTimeout(install,600);
 })();
-
-/* K-Talk: give locally saved videos an easy custom title instead of showing only file names. */
-(function(){
-  if(window.__ktMyVideoTitleEditorLoaded)return;
-  window.__ktMyVideoTitleEditorLoaded=true;
-
-  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
-  function q(v){return String(v==null?'':v).replace(/\\/g,'\\\\').replace(/'/g,"\\'");}
-
-  async function getAll(){
-    try{
-      var db=await ktOpenVideoDB();
-      return await new Promise(function(resolve){
-        var tx=db.transaction('videos','readonly');
-        var req=tx.objectStore('videos').getAll();
-        req.onsuccess=function(){var a=req.result||[];try{db.close();}catch(e){}resolve(a);};
-        req.onerror=function(){try{db.close();}catch(e){}resolve([]);};
-      });
-    }catch(e){return [];}
-  }
-
-  async function getOne(id){
-    try{
-      var db=await ktOpenVideoDB();
-      return await new Promise(function(resolve){
-        var tx=db.transaction('videos','readonly');
-        var req=tx.objectStore('videos').get(id);
-        req.onsuccess=function(){var x=req.result||null;try{db.close();}catch(e){}resolve(x);};
-        req.onerror=function(){try{db.close();}catch(e){}resolve(null);};
-      });
-    }catch(e){return null;}
-  }
-
-  async function putOne(item){
-    try{
-      var db=await ktOpenVideoDB();
-      return await new Promise(function(resolve){
-        var tx=db.transaction('videos','readwrite');
-        tx.objectStore('videos').put(item);
-        tx.oncomplete=function(){try{db.close();}catch(e){}resolve(true);};
-        tx.onerror=tx.onabort=function(){try{db.close();}catch(e){}resolve(false);};
-      });
-    }catch(e){return false;}
-  }
-
-  window.ktRenameStoredVideo=async function(id){
-    var item=await getOne(id);
-    if(!item){alert('동영상을 찾지 못했습니다.');return;}
-    var current=String(item.title||'').trim();
-    var next=prompt('이 동영상 제목을 입력해 주세요.\n노래 제목이나 알아보기 쉬운 이름으로 적으면 됩니다.',current);
-    if(next===null)return;
-    next=String(next||'').trim();
-    if(!next){alert('제목을 입력해 주세요.');return;}
-    item.title=next.slice(0,60);
-    var ok=await putOne(item);
-    if(!ok){alert('제목을 저장하지 못했습니다.');return;}
-    try{if(window.ktSpeak)ktSpeak('동영상 제목을 저장했습니다.');}catch(e){}
-    openMyVideoLibrary();
-  };
-
-  window.openMyVideoLibrary=async function(){
-    try{
-      var items=(await getAll()).sort(function(a,b){return (b.createdAt||0)-(a.createdAt||0);});
-      var html='<div class="kt-myvideo-head"><b>🎬 내 동영상</b><button onclick="closeSheet();openCreator();setTimeout(openMyVideoPicker,120)">＋ 휴대폰 동영상 올리기</button></div>';
-      if(!items.length){
-        html+='<div class="rowbox"><b>아직 올린 동영상이 없습니다.</b><br>휴대폰에 찍어 놓은 동영상을 선택해서 올릴 수 있습니다.</div>';
-      }else{
-        html+='<div class="kt-myvideo-list">'+items.map(function(v){
-          var d=new Date(v.createdAt||Date.now());
-          var title=String(v.title||'').trim()||'제목 미입력';
-          var id=q(v.id);
-          return '<div class="kt-myvideo-row" data-video-id="'+esc(v.id)+'">'
-            +'<button type="button" class="play" data-play-video="'+esc(v.id)+'" onclick="playStoredVideo(\''+id+'\')"><span>▶</span><b>'+esc(title)+'</b><small>'+d.toLocaleDateString('ko-KR')+(v.posted?' · 게시됨':'')+'</small></button>'
-            +'<div class="kt-myvideo-row-actions">'
-              +'<button type="button" style="min-height:42px;border:1px solid #7b5cff88;border-radius:14px;background:#241b49;color:#fff;font-weight:900" onclick="event.preventDefault();event.stopPropagation();ktRenameStoredVideo(\''+id+'\');return false;">✏ 제목</button>'
-              +'<button type="button" class="upload" onclick="event.preventDefault();event.stopPropagation();postStoredVideo(\''+id+'\',this);return false;">'+(v.posted?'✓ 올림':'올리기')+'</button>'
-              +'<button type="button" class="trash" data-delete-video="'+esc(v.id)+'">삭제</button>'
-            +'</div>'
-          +'</div>';
-        }).join('')+'</div>';
-      }
-      showSheet('내 동영상',html);
-    }catch(e){
-      showSheet('내 동영상','<div class="rowbox"><b>내 동영상을 불러오지 못했습니다.</b><br>잠시 후 다시 열어 주세요.</div>');
-    }
-  };
-
-  var oldPlay=window.playStoredVideo;
-  if(typeof oldPlay==='function'&&!oldPlay.__ktTitleWrapped){
-    var wrapped=function(id){
-      var result=oldPlay.apply(this,arguments);
-      [100,300,650].forEach(function(ms){
-        setTimeout(async function(){
-          var item=await getOne(id);
-          var b=document.querySelector('.kt-myvideo-player > b');
-          if(item&&item.title&&b)b.textContent=item.title;
-        },ms);
-      });
-      return result;
-    };
-    wrapped.__ktTitleWrapped=true;
-    wrapped.__ktOriginal=oldPlay;
-    window.playStoredVideo=wrapped;
-  }
-})();
-
