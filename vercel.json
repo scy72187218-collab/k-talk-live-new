@@ -1,13 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "routes": [
+  "headers": [
     {
-      "src": "/",
-      "dest": "/entry.html",
-      "headers": {
-        "cache-control": "no-store, no-cache, must-revalidate, max-age=0"
-      }
-    },
-    {"handle": "filesystem"}
+      "source": "/(.*)",
+      "headers": [
+        {"key": "Cache-Control", "value": "no-store, no-cache, must-revalidate, max-age=0"}
+      ]
+    }
   ]
 }
