@@ -1,0 +1,44 @@
+name: Load permission reuse helper
+
+on:
+  push:
+    paths:
+      - '.github/workflows/load-permission-reuse-20260904.yml'
+      - 'permission-reuse.js'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Load only camera mic reuse helper
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          new='<script src="permission-reuse.js?v=20260904-permission05"></script>'
+          pattern=r'<script src="permission-reuse\.js\?v=[^"]+"></script>'
+          if re.search(pattern,s):
+              s=re.sub(pattern,new,s,count=1)
+          elif new not in s:
+              s=s.replace('</body>',new+'\n</body>',1)
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit permission helper loader only
+        shell: bash
+        run: |
+          git config user.name 'K-Talk Patch Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add index.html
+          if ! git diff --cached --quiet; then
+            git commit -m 'Load saved camera permission handling'
+            git push origin main
+          fi

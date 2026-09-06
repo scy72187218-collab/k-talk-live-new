@@ -1,0 +1,149 @@
+name: Stabilize K-Talk live connection only
+
+on:
+  push:
+    paths:
+      - '.github/workflows/stabilize-live-connection.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Patch only live WebRTC connection stability
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          p=Path('feed-home-fix.js')
+          s=p.read_text(encoding='utf-8')
+
+          # Keep LIVE card visible longer if a phone temporarily throttles background timers.
+          s=s.replace("var since=new Date(Date.now()-120000).toISOString();\n      var u=SB+'/rest/v1/ktalk_live_rooms?", "var since=new Date(Date.now()-300000).toISOString();\n      var u=SB+'/rest/v1/ktalk_live_rooms?", 1)
+
+          # Add reconnect state without changing any UI/layout code.
+          anchor="  var viewerHostId='';\n"
+          if "viewerReconnectTimer" not in s:
+              if anchor not in s:
+                  raise SystemExit('viewerHostId anchor not found')
+              s=s.replace(anchor, anchor+"  var viewerReconnectTimer=null;\n  var viewerLastJoin=null;\n", 1)
+
+          old_host="""      pc.onconnectionstatechange=function(){
+        var s=pc.connectionState;
+        if(s==='failed'||s==='closed'||s==='disconnected'){
+          try{pc.close();}catch(e){}
+          delete hostPeers[row.id];
+        }
+      };
+"""
+          new_host="""      pc.onconnectionstatechange=function(){
+        var s=pc.connectionState;
+        if(s==='connected'){
+          try{clearTimeout(pc.__ktDropTimer);}catch(e){}
+        }else if(s==='disconnected'){
+          try{clearTimeout(pc.__ktDropTimer);}catch(e){}
+          pc.__ktDropTimer=setTimeout(function(){
+            if(pc.connectionState==='disconnected'||pc.connectionState==='failed'){
+              try{pc.close();}catch(e){}
+              delete hostPeers[row.id];
+            }
+          },12000);
+        }else if(s==='failed'||s==='closed'){
+          try{pc.close();}catch(e){}
+          delete hostPeers[row.id];
+        }
+      };
+"""
+          if old_host not in s:
+              raise SystemExit('host connection handler target not found')
+          s=s.replace(old_host,new_host,1)
+
+          old_stop="""  async function stopViewerConnection(markInactive){
+    clearInterval(viewerPollTimer);viewerPollTimer=null;
+"""
+          new_stop="""  async function stopViewerConnection(markInactive){
+    clearInterval(viewerPollTimer);viewerPollTimer=null;
+    clearTimeout(viewerReconnectTimer);viewerReconnectTimer=null;
+"""
+          if old_stop not in s:
+              raise SystemExit('stopViewerConnection target not found')
+          s=s.replace(old_stop,new_stop,1)
+
+          old_join="""  window.ktJoinLive=async function(hostId,title,roomName){
+    await stopViewerConnection(true);
+    viewerHostId=String(hostId||'guest');
+"""
+          new_join="""  window.ktJoinLive=async function(hostId,title,roomName){
+    viewerLastJoin={hostId:String(hostId||'guest'),title:title||'K-Talk LIVE',roomName:roomName||'라이브 방송'};
+    await stopViewerConnection(true);
+    viewerHostId=String(hostId||'guest');
+"""
+          if old_join not in s:
+              raise SystemExit('ktJoinLive target not found')
+          s=s.replace(old_join,new_join,1)
+
+          old_viewer="""    pc.onconnectionstatechange=function(){
+      var s=pc.connectionState;
+      if(s==='connected')setViewerStatus('연결됨');
+      else if(s==='failed'||s==='disconnected')setViewerStatus('연결이 끊겼습니다. 다시 들어가 주세요.',true);
+    };
+"""
+          new_viewer="""    pc.onconnectionstatechange=function(){
+      var s=pc.connectionState;
+      if(s==='connected'){
+        clearTimeout(viewerReconnectTimer);viewerReconnectTimer=null;
+        setViewerStatus('연결됨');
+      }else if(s==='disconnected'){
+        setViewerStatus('연결 유지 중...');
+        clearTimeout(viewerReconnectTimer);
+        viewerReconnectTimer=setTimeout(function(){
+          if(viewerPeer===pc&&(pc.connectionState==='disconnected'||pc.connectionState==='failed')){
+            var j=viewerLastJoin;
+            if(j)window.ktJoinLive(j.hostId,j.title,j.roomName);
+          }
+        },8000);
+      }else if(s==='failed'){
+        setViewerStatus('다시 연결 중...');
+        clearTimeout(viewerReconnectTimer);
+        viewerReconnectTimer=setTimeout(function(){
+          if(viewerPeer===pc){
+            var j=viewerLastJoin;
+            if(j)window.ktJoinLive(j.hostId,j.title,j.roomName);
+          }
+        },1500);
+      }
+    };
+"""
+          if old_viewer not in s:
+              raise SystemExit('viewer connection handler target not found')
+          s=s.replace(old_viewer,new_viewer,1)
+
+          # Refresh live presence immediately when a broadcaster returns to the foreground.
+          marker="  window.addEventListener('pagehide',function(){"
+          if "KT_LIVE_VISIBILITY_STABILITY" not in s:
+              if marker not in s:
+                  raise SystemExit('pagehide anchor not found')
+              vis="""  /* KT_LIVE_VISIBILITY_STABILITY */
+  document.addEventListener('visibilitychange',function(){
+    if(document.visibilityState==='visible'&&livePresenceOn){
+      try{touchPresence();}catch(e){}
+    }
+  });
+
+"""
+              s=s.replace(marker,vis+marker,1)
+
+          p.write_text(s,encoding='utf-8')
+          PY
+          git config user.name "K-Talk Patch Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add feed-home-fix.js
+          git diff --cached --check
+          git commit -m "Stabilize live connection without changing layout"
+          git push origin HEAD:main
