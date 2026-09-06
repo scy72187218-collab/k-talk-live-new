@@ -3,8 +3,8 @@
   if(window.__ktCameraRecoveryLoaded)return;
   window.__ktCameraRecoveryLoaded=true;
 
-  /* 주소로 처음 들어왔을 때 외부 도로 포스터/샘플 영상 로딩을 바로 끊고
-     실제 K-Talk 업로드 영상을 먼저 재생한다. 다른 화면은 건드리지 않는다. */
+  /* 주소로 처음 들어왔을 때 첫 영상만 안정적으로 준비한다.
+     새 주소에서는 같은 주소의 /api/video 프록시를 유지해 다른 복구 코드와 충돌하지 않는다. */
   function primeHomeVideo(){
     try{
       if(document.getElementById('ktSept2Live')||document.getElementById('ktRemoteLive'))return;
@@ -12,14 +12,16 @@
       if(c&&c.classList.contains('show'))return;
       var v=document.querySelector('.video-home video#homeVideo, .video-home video');
       if(!v)return;
-      var u='https://zupwbfmacwzexyvznlzq.supabase.co/storage/v1/object/public/ktalk-videos/guest/1788516701116-emysxm.mp4';
+      var isNewHost=location.hostname==='k-talk-new-room.vercel.app';
+      var u=isNewHost?'/api/video?i=0&v=20260906-mobile02':'https://zupwbfmacwzexyvznlzq.supabase.co/storage/v1/object/public/ktalk-videos/guest/1788516701116-emysxm.mp4';
       var src=String(v.getAttribute('src')||v.currentSrc||'');
-      if(src.indexOf('zupwbfmacwzexyvznlzq.supabase.co')===-1){
+      var correct=isNewHost?src.indexOf('/api/video?i=')===0:src.indexOf('zupwbfmacwzexyvznlzq.supabase.co')>-1;
+      if(!correct){
         try{v.pause();}catch(e){}
         while(v.firstChild)v.removeChild(v.firstChild);
         v.removeAttribute('poster');
         v.src=u;
-        v.preload='metadata';
+        v.preload='auto';
         v.muted=true;
         v.defaultMuted=true;
         v.volume=0;
@@ -61,8 +63,8 @@
     ['kt-viewer-live-reconnect','viewer-live-reconnect-fix.js?v=20260906-viewer02'],
     ['kt-live-first-feed','live-first-feed-fix.js?v=20260905-livefirst01'],
     ['kt-live-presence-fast','live-presence-fast-fix.js?v=20260905-fastpresence01'],
-    ['kt-feed-startup-stability','feed-startup-stability-fix.js?v=20260906-feedstable04'],
-    ['kt-home-first-screen-stable','home-first-screen-stable.js?v=20260906-firststable01'],
+    ['kt-feed-startup-stability','feed-startup-stability-fix.js?v=20260906-feedstable05'],
+    ['kt-home-first-screen-stable','home-first-screen-stable.js?v=20260906-firststable02'],
     ['kt-playable-sounds','sound-playable-original.js?v=20260905-vocal02']
   ];
 
