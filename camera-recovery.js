@@ -66,7 +66,8 @@
     ['kt-viewer-live-reconnect','viewer-live-reconnect-fix.js?v=20260906-viewer02'],
     ['kt-live-first-feed','live-first-feed-fix.js?v=20260905-livefirst01'],
     ['kt-live-presence-fast','live-presence-fast-fix.js?v=20260905-fastpresence01'],
-    ['kt-playable-sounds','sound-playable-original.js?v=20260905-vocal02']
+    ['kt-playable-sounds','sound-playable-original.js?v=20260905-vocal02'],
+    ['kt-requested-behavior-restore','ktalk-requested-behavior-restore.js?v=20260906-restore01']
   ];
 
   scripts.forEach(function(item){
