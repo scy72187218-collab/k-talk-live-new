@@ -18,7 +18,7 @@
       var t=(window.state&&state.liveRoomType)||'';
       var n=(window.state&&state.liveRoomName)||'';
       var title=(document.getElementById('liveTitle')||{}).value||'';
-      return t==='subscriber'||String(n).indexOf('1인')>-1||String(title).indexOf('구독자 방송')>-1;
+      return t==='subscriber'||String(n).indexOf('구독자')>-1||String(title).indexOf('구독자 방송')>-1;
     }catch(e){return false;}
   }
 
