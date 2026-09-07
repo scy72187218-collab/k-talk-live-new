@@ -36,6 +36,9 @@
       #ktSecretPasswordSave{height:40px;padding:0 13px;border:0;border-radius:11px;background:linear-gradient(135deg,#ffb62f,#ff7a2f);color:#17100a;font-weight:950} \
       #ktSecretPasswordHelp{margin-top:5px;color:#ddd;font-size:10px} \
       #ktSecretPasswordError{display:none;margin-top:5px;color:#ff7c92;font-size:11px;font-weight:900} \
+      #ktSecretPasswordBox.on{margin-bottom:62px!important} \
+      #ktSecretPasswordBox.on + .prep-start{position:fixed!important;left:18px!important;right:18px!important;bottom:10px!important;width:auto!important;z-index:9999!important;margin:0!important;padding:12px!important} \
+      @media(max-width:600px){#ktSecretPasswordBox{padding:7px 8px!important;margin:5px 0 2px!important}#ktSecretPasswordBox label{margin-bottom:4px!important;font-size:11px!important}#ktSecretPassword{height:34px!important;font-size:16px!important}#ktSecretPasswordSave{height:34px!important}#ktSecretPasswordHelp{margin-top:3px!important;font-size:9px!important}#ktSecretPasswordBox.on + .prep-start{left:12px!important;right:12px!important;bottom:8px!important}} \
       .kt-secret-live-pill{position:absolute;z-index:12;right:12px;top:104px;padding:6px 10px;border-radius:999px;border:1px solid #ffbf42;background:rgba(18,12,5,.78);color:#ffe16b;font-size:10px;font-weight:950;box-shadow:0 0 8px rgba(255,190,60,.35)}';
     document.head.appendChild(s);
   }
