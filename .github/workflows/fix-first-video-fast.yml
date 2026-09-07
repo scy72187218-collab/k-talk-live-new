@@ -1,8 +1,5 @@
-name: Speed first public video load
-on:
-  push:
-    paths:
-      - '.github/workflows/fix-first-video-fast.yml'
+name: Fix first video speed
+on: [push]
 permissions:
   contents: write
 jobs:
@@ -10,41 +7,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Patch only first-feed startup
-        shell: bash
-        run: |
-          python - <<'PY'
+      - run: |
+          python3 - <<'PY'
           from pathlib import Path
           p=Path('posted-feed.js')
           s=p.read_text(encoding='utf-8')
-
-          old_get="  async function getFeed(){try{var r=await fetch(SB+'/rest/v1/ktalk_videos?select=id,author_name,title,video_url,created_at,likes&order=created_at.desc&limit=40',{headers:headers()});return r.ok?await r.json():[];}catch(e){return[];}}"
-          new_get="""  var FEED_CACHE_KEY='ktalk_public_feed_cache_v2';
-  function getCachedFeed(){try{var a=JSON.parse(localStorage.getItem(FEED_CACHE_KEY)||'[]');return Array.isArray(a)?a:[];}catch(e){return[];}}
-  async function getFeed(){try{var r=await fetch(SB+'/rest/v1/ktalk_videos?select=id,author_name,title,video_url,created_at,likes&order=created_at.desc&limit=40',{headers:headers()});var a=r.ok?await r.json():[];try{if(a&&a.length)localStorage.setItem(FEED_CACHE_KEY,JSON.stringify(a));}catch(e){}return a;}catch(e){return[];}}
-  var firstFeedPromise=getFeed();"""
-          if old_get not in s:
-              raise SystemExit('getFeed marker not found')
-          s=s.replace(old_get,new_get,1)
-
-          old_video="+'<video class=\"kt-public-video\" '+(i===0?'autoplay ':'')+'muted loop playsinline preload=\"metadata\" src=\"'+u+'\" style=\"position:absolute;inset:0;width:100%;height:100%;object-fit:cover\"></video>'"
-          new_video="+'<video class=\"kt-public-video\" '+(i===0?'autoplay preload=\"auto\" ':'preload=\"metadata\" ')+'muted loop playsinline src=\"'+u+'\" style=\"position:absolute;inset:0;width:100%;height:100%;object-fit:cover\"></video>'"
-          if old_video not in s:
-              raise SystemExit('video marker not found')
-          s=s.replace(old_video,new_video,1)
-
-          old_show="  async function show(fallback){var a=await getFeed();if(!a.length){if(fallback)fallback();return;}document.body.classList.remove('kt-home');document.body.classList.add('kt-video-mode');screen.innerHTML='<div style=\"height:calc(100dvh - 78px);overflow-y:auto;scroll-snap-type:y mandatory;background:#000\">'+a.map(card).join('')+'</div>';bind();}"
-          new_show="""  function renderFeed(a){document.body.classList.remove('kt-home');document.body.classList.add('kt-video-mode');screen.innerHTML='<div style=\"height:calc(100dvh - 78px);overflow-y:auto;scroll-snap-type:y mandatory;background:#000\">'+a.map(card).join('')+'</div>';bind();}
-  async function show(fallback){var cached=getCachedFeed();if(cached.length){renderFeed(cached);firstFeedPromise.then(function(a){if(a&&a.length){try{localStorage.setItem(FEED_CACHE_KEY,JSON.stringify(a));}catch(e){}}});return;}var a=await firstFeedPromise;if(!a.length){a=await getFeed();}if(!a.length){if(fallback)fallback();return;}renderFeed(a);}"""
-          if old_show not in s:
-              raise SystemExit('show marker not found')
-          s=s.replace(old_show,new_show,1)
-
+          s=s.replace('preload="metadata" src="'+"'"+'+u+'+"'"+'"','preload="auto" src="'+"'"+'+u+'+"'"+'"',1)
+          s=s.replace("  async function show(fallback){var a=await getFeed();", "  async function show(fallback){var a=[];try{a=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');}catch(e){}if(!a.length)a=await getFeed();")
+          old="  async function getFeed(){try{var r=await fetch(SB+'/rest/v1/ktalk_videos?select=id,author_name,title,video_url,created_at,likes&order=created_at.desc&limit=40',{headers:headers()});return r.ok?await r.json():[];}catch(e){return[];}}"
+          new="  async function getFeed(){try{var r=await fetch(SB+'/rest/v1/ktalk_videos?select=id,author_name,title,video_url,created_at,likes&order=created_at.desc&limit=40',{headers:headers()});var a=r.ok?await r.json():[];try{if(a.length)localStorage.setItem('ktalk_fast_feed',JSON.stringify(a));}catch(e){}return a;}catch(e){return[];}}"
+          if old not in s: raise SystemExit('feed marker missing')
+          s=s.replace(old,new,1)
           p.write_text(s,encoding='utf-8')
           PY
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name github-actions
+          git config user.email github-actions@github.com
           git add posted-feed.js
-          git rm .github/workflows/fix-first-video-fast.yml
-          git commit -m "Show first public video faster [skip ci]"
+          git commit -m 'Speed first video load [skip ci]'
           git push
