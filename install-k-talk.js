@@ -1,7 +1,9 @@
-/* K-Talk 아이콘/설치 연결: 주소로 들어오면 브라우저가 K-Talk 아이콘을 바로 인식하고, 설치 가능한 기기에서는 한 번 눌러 홈 화면에 추가할 수 있게 한다. */
+/* K-Talk 아이콘/설치 연결: 설치 전 사용자에게만 안내하고, 한 번 설치가 완료되면 같은 기기에서는 다시 표시하지 않는다. 다른 기능은 건드리지 않음. */
 (function(){
   if(window.__ktInstallIconSetup)return;
   window.__ktInstallIconSetup=true;
+
+  var INSTALL_FLAG='ktalk_install_completed_once';
 
   function addLink(rel,href,attrs){
     var old=document.querySelector('link[rel="'+rel+'"]');
@@ -29,9 +31,19 @@
   function standalone(){
     return window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true;
   }
+  function rememberInstalled(){
+    try{localStorage.setItem(INSTALL_FLAG,'1');}catch(e){}
+  }
+  function installedBefore(){
+    if(standalone()){
+      rememberInstalled();
+      return true;
+    }
+    try{return localStorage.getItem(INSTALL_FLAG)==='1';}catch(e){return false;}
+  }
   function removeButton(){var b=document.getElementById('ktInstallIconButton');if(b)b.remove();}
   function ensureButton(){
-    if(standalone()||document.getElementById('ktInstallIconButton'))return;
+    if(installedBefore()||document.getElementById('ktInstallIconButton'))return;
     var b=document.createElement('button');
     b.id='ktInstallIconButton';
     b.type='button';
@@ -41,8 +53,14 @@
     var img=b.querySelector('img');if(img)img.style.cssText='width:34px;height:34px;border-radius:9px;display:block';
     b.addEventListener('click',async function(){
       if(deferredPrompt){
-        try{deferredPrompt.prompt();await deferredPrompt.userChoice;}catch(e){}
-        deferredPrompt=null;removeButton();return;
+        try{
+          deferredPrompt.prompt();
+          var choice=await deferredPrompt.userChoice;
+          if(choice&&choice.outcome==='accepted')rememberInstalled();
+        }catch(e){}
+        deferredPrompt=null;
+        removeButton();
+        return;
       }
       var isiOS=/iphone|ipad|ipod/i.test(navigator.userAgent||'');
       alert(isiOS?'공유 버튼을 누른 뒤 “홈 화면에 추가”를 눌러 주세요.':'브라우저 메뉴에서 “홈 화면에 추가” 또는 “앱 설치”를 눌러 주세요.');
@@ -52,9 +70,21 @@
 
   window.addEventListener('beforeinstallprompt',function(e){
     e.preventDefault();
+    if(installedBefore()){
+      deferredPrompt=null;
+      removeButton();
+      return;
+    }
     deferredPrompt=e;
     ensureButton();
   });
-  window.addEventListener('appinstalled',function(){deferredPrompt=null;removeButton();});
-  setTimeout(function(){if(!standalone())ensureButton();},900);
+  window.addEventListener('appinstalled',function(){
+    rememberInstalled();
+    deferredPrompt=null;
+    removeButton();
+  });
+  setTimeout(function(){
+    if(installedBefore())removeButton();
+    else ensureButton();
+  },900);
 })();
