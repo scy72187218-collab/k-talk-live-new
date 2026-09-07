@@ -11,4 +11,5 @@
   load('mic-prompt-fix.js?v=20260907-mic1');
   load('audio-quality-upgrade.js?v=20260907-audio1');
   load('install-k-talk.js?v=20260907-icon1');
+  load('secret-center-people.js?v=20260908-secretpeople1');
 })();
