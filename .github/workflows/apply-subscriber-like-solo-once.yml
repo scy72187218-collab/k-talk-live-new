@@ -1,0 +1,57 @@
+name: Apply subscriber room like solo once
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/apply-subscriber-like-solo-once.yml'
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Create subscriber-only layout from approved solo layout
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          src_path = Path('solo-approved-room.js')
+          if not src_path.exists():
+              raise SystemExit('solo-approved-room.js not found')
+
+          text = src_path.read_text(encoding='utf-8')
+          text = text.replace('Solo', 'Subscriber')
+          text = text.replace('solo', 'subscriber')
+          text = text.replace('1인 방송', '구독자 방송')
+          text = text.replace('일반회원 · 35%', '구독회원 · 40%')
+          text = text.replace('1인 방송 전용', '구독자 방송 전용')
+          Path('subscriber-approved-room.js').write_text(text, encoding='utf-8')
+
+          index = Path('index.html')
+          html = index.read_text(encoding='utf-8')
+          tag = '<script src="subscriber-approved-room.js?v=20260907-subscriber01"></script>'
+          if tag not in html:
+              anchor = '<script src="solo-approved-room.js?v=20260907-approved01"></script>'
+              if anchor in html:
+                  html = html.replace(anchor, anchor + '\n' + tag, 1)
+              else:
+                  html = html.replace('</body>', tag + '\n</body>', 1)
+              index.write_text(html, encoding='utf-8')
+
+          wf = Path('.github/workflows/apply-subscriber-like-solo-once.yml')
+          if wf.exists():
+              wf.unlink()
+          PY
+      - name: Commit subscriber room only
+        run: |
+          git config user.name "K-Talk Subscriber Helper"
+          git config user.email "actions@github.com"
+          git add subscriber-approved-room.js index.html .github/workflows/apply-subscriber-like-solo-once.yml
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m "Match subscriber room to approved solo layout"
+          git push
