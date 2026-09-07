@@ -1,4 +1,4 @@
-/* K-Talk 요청 수정 3가지만: 주름살 완화, 보정 뒤로가기, 첫 화면 동영상 즉시 표시. */
+/* K-Talk 요청 수정: 주름살 완화, 보정 뒤로가기, 첫 화면 동영상 즉시 표시. */
 (function(){
   if(window.__ktRequestedFixes20260907Installed)return;
   window.__ktRequestedFixes20260907Installed=true;
@@ -112,4 +112,33 @@
 
   /* 첫 진입 때 이미 동영상이 있으면 건드리지 않고, 검정/빈 화면일 때만 채운다. */
   setTimeout(quickHomeVideo,0);
+})();
+
+/* 촬영 화면의 '편집효과' 버튼이 아래 라이브 영역에 가려지거나 잘못 눌리지 않도록 터치 영역만 분리한다. */
+(function(){
+  if(window.__ktEditEffectTouchFixInstalled)return;
+  window.__ktEditEffectTouchFixInstalled=true;
+
+  function ensureEditTouchStyle(){
+    if(document.getElementById('ktEditEffectTouchFixStyle'))return;
+    var s=document.createElement('style');
+    s.id='ktEditEffectTouchFixStyle';
+    s.textContent=''
+      +'#creator .creator-tools{z-index:24!important;pointer-events:auto!important}'
+      +'#creator .creator-tools .creator-tool-text[aria-label="편집 효과"]{position:relative!important;z-index:30!important;transform:translateY(-10px)!important;pointer-events:auto!important;touch-action:manipulation!important}'
+      +'#creator .creator-tools .creator-tool-text[aria-label="편집 효과"] *{pointer-events:none!important}';
+    document.head.appendChild(s);
+  }
+
+  ensureEditTouchStyle();
+
+  document.addEventListener('click',function(e){
+    var btn=e.target&&e.target.closest?e.target.closest('#creator .creator-tools .creator-tool-text[aria-label="편집 효과"]'):null;
+    if(!btn)return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    try{
+      if(window.openEditEffectPanel)window.openEditEffectPanel();
+    }catch(err){}
+  },true);
 })();
