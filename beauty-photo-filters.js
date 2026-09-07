@@ -234,3 +234,45 @@
   s.setAttribute('data-kt-stage-backgrounds-8','1');
   document.head.appendChild(s);
 })();
+
+/* 보정 메뉴 맨 아래 '없음': 추가 보정을 고르지 않을 때 바로 촬영 화면으로 돌아간다. */
+(function(){
+  if(window.__ktBeautyNoneExitInstalled)return;
+  window.__ktBeautyNoneExitInstalled=true;
+
+  function addNoneButton(){
+    try{
+      var sheet=document.getElementById('sheet');
+      if(!sheet||!sheet.classList.contains('beauty-control-sheet'))return;
+      var pro=sheet.querySelector('.kt-beauty-pro');
+      if(!pro||pro.querySelector('.kt-beauty-none-exit'))return;
+      var btn=document.createElement('button');
+      btn.type='button';
+      btn.className='kt-beauty-none-exit';
+      btn.textContent='없음';
+      btn.setAttribute('aria-label','보정 선택 없이 나가기');
+      btn.onclick=function(e){
+        if(e){e.preventDefault();e.stopPropagation();}
+        try{if(window.closeSheet)window.closeSheet();else sheet.classList.remove('show');}catch(err){}
+      };
+      pro.appendChild(btn);
+    }catch(e){}
+  }
+
+  if(!document.getElementById('ktBeautyNoneExitStyle')){
+    var st=document.createElement('style');
+    st.id='ktBeautyNoneExitStyle';
+    st.textContent='#sheet.beauty-control-sheet .kt-beauty-none-exit{display:block!important;width:100%!important;margin:9px 0 2px!important;height:42px!important;border:1px solid rgba(255,255,255,.22)!important;border-radius:12px!important;background:rgba(35,35,42,.92)!important;color:#fff!important;font-size:14px!important;font-weight:900!important;touch-action:manipulation!important}';
+    document.head.appendChild(st);
+  }
+
+  var oldOpen=window.openBeautyPanel;
+  if(typeof oldOpen==='function'){
+    window.openBeautyPanel=function(){
+      var r=oldOpen.apply(this,arguments);
+      setTimeout(addNoneButton,0);
+      return r;
+    };
+  }
+  setTimeout(addNoneButton,0);
+})();
