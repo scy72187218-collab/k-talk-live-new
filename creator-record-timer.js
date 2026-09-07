@@ -226,3 +226,13 @@
     };
   }
 })();
+
+/* 컴퓨터·태블릿(700px 이상)에서만 화면 크기 보정 파일을 불러온다. 휴대폰은 건드리지 않는다. */
+(function(){
+  if(document.getElementById('ktDesktopTabletFixCss'))return;
+  var link=document.createElement('link');
+  link.id='ktDesktopTabletFixCss';
+  link.rel='stylesheet';
+  link.href='desktop-tablet-fix.css?v=20260907a';
+  document.head.appendChild(link);
+})();
