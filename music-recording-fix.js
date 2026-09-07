@@ -10,4 +10,5 @@
   load('group13-approved-room.js?v=20260907-group13');
   load('mic-prompt-fix.js?v=20260907-mic1');
   load('audio-quality-upgrade.js?v=20260907-audio1');
+  load('install-k-talk.js?v=20260907-icon1');
 })();
