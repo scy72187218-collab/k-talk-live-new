@@ -9,4 +9,5 @@
   load('music-recording-base.js?v=20260907-group13');
   load('group13-approved-room.js?v=20260907-group13');
   load('mic-prompt-fix.js?v=20260907-mic1');
+  load('audio-quality-upgrade.js?v=20260907-audio1');
 })();
