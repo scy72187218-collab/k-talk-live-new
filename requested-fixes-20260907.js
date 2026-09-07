@@ -209,3 +209,109 @@
     return false;
   };
 })();
+
+/* 화면을 잠깐 나갔다가 돌아왔을 때: 이미 허용된 카메라는 권한창 없이 다시 붙여 검은 화면을 막는다. */
+(function(){
+  if(window.__ktCameraResumeAfterReturnInstalled)return;
+  window.__ktCameraResumeAfterReturnInstalled=true;
+
+  function liveStream(){
+    try{
+      var s=window.state&&state.stream;
+      return s&&s.getVideoTracks&&s.getVideoTracks().some(function(t){return t.readyState==='live';})?s:null;
+    }catch(e){return null;}
+  }
+
+  function rememberAllowed(){
+    try{sessionStorage.setItem('kt_camera_allowed_this_session','1');}catch(e){}
+  }
+
+  function creatorVisible(){
+    var c=document.getElementById('creator');
+    return !!(c&&c.classList.contains('show'));
+  }
+
+  async function reviveExisting(){
+    var s=liveStream();
+    if(!s)return false;
+    try{
+      var cam=document.getElementById('camera');
+      var bg=document.getElementById('cameraBg');
+      if(cam){
+        if(cam.srcObject!==s)cam.srcObject=s;
+        cam.muted=true;
+        cam.setAttribute('playsinline','');
+        try{await cam.play();}catch(e){}
+      }
+      if(bg){
+        if(bg.srcObject!==s)bg.srcObject=s;
+        bg.muted=true;
+        bg.setAttribute('playsinline','');
+        try{await bg.play();}catch(e){}
+      }
+      var c=document.getElementById('creator');
+      if(c)c.classList.add('camera-on');
+      rememberAllowed();
+      return true;
+    }catch(e){return false;}
+  }
+
+  async function permissionState(name){
+    try{
+      if(navigator.permissions&&navigator.permissions.query){
+        var r=await navigator.permissions.query({name:name});
+        return r&&r.state?r.state:'unknown';
+      }
+    }catch(e){}
+    return 'unknown';
+  }
+
+  async function mayReconnectWithoutPrompt(){
+    var cam=await permissionState('camera');
+    if(cam==='granted')return true;
+    if(cam==='prompt'||cam==='denied')return false;
+    try{return sessionStorage.getItem('kt_camera_allowed_this_session')==='1';}catch(e){return false;}
+  }
+
+  async function restoreIfAllowed(){
+    if(await reviveExisting())return true;
+    if(!creatorVisible())return false;
+    if(!(await mayReconnectWithoutPrompt()))return false;
+    if(typeof window.ensureLiveCamera!=='function')return false;
+    try{
+      var ok=await window.ensureLiveCamera((window.state&&state.cameraFacing)||'user');
+      if(await reviveExisting())return true;
+      return !!ok;
+    }catch(e){return false;}
+  }
+
+  var ensureNow=window.ensureLiveCamera;
+  if(typeof ensureNow==='function'&&!ensureNow.__ktRememberCameraAllowed){
+    var wrappedEnsure=async function(){
+      var ok=await ensureNow.apply(this,arguments);
+      if(liveStream())rememberAllowed();
+      return ok;
+    };
+    wrappedEnsure.__ktRememberCameraAllowed=true;
+    window.ensureLiveCamera=wrappedEnsure;
+  }
+
+  var openNow=window.openCreator;
+  if(typeof openNow==='function'){
+    window.openCreator=async function(){
+      var result=await openNow.apply(this,arguments);
+      setTimeout(function(){restoreIfAllowed();},60);
+      return result;
+    };
+  }
+
+  document.addEventListener('visibilitychange',function(){
+    if(document.visibilityState==='visible'&&creatorVisible()){
+      setTimeout(function(){restoreIfAllowed();},120);
+    }
+  });
+
+  window.addEventListener('pageshow',function(){
+    if(creatorVisible())setTimeout(function(){restoreIfAllowed();},120);
+  });
+})();
