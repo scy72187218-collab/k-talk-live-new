@@ -181,3 +181,13 @@
   `;
   document.head.appendChild(style);
 })();
+
+/* 이번 요청 3가지만 별도 파일로 불러온다. 기존 파장/채팅 코드는 그대로 둔다. */
+(function(){
+  if(document.querySelector('script[data-kt-requested-fixes]'))return;
+  var s=document.createElement('script');
+  s.src='requested-fixes-20260907.js?v=20260907a';
+  s.async=false;
+  s.setAttribute('data-kt-requested-fixes','1');
+  document.head.appendChild(s);
+})();
