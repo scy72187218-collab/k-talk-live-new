@@ -211,3 +211,13 @@
   }catch(e){}
   setTimeout(function(){applyLook();},0);
 })();
+
+/* 편집효과 배경에서 가요무대형 8개만 따로 불러온다. */
+(function(){
+  if(document.querySelector('script[data-kt-stage-backgrounds-8]'))return;
+  var s=document.createElement('script');
+  s.src='stage-backgrounds-8.js?v=20260907a';
+  s.async=false;
+  s.setAttribute('data-kt-stage-backgrounds-8','1');
+  document.head.appendChild(s);
+})();
