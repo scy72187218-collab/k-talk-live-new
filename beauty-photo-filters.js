@@ -60,6 +60,7 @@
     mono:'grayscale(1) contrast(1.04)'
   };
   var labels={natural:'자연',bright:'화사',warm:'따뜻',pink:'핑크',cool:'시원',vivid:'선명',soft:'부드럽게',mono:'흑백'};
+  var icons={natural:'🙂',bright:'✨',warm:'☀️',pink:'🌸',cool:'❄️',vivid:'🌈',soft:'💫',mono:'◐'};
 
   function currentLook(){
     try{
@@ -142,7 +143,9 @@
         box.className='kt-beauty-photo-looks';
         var key=currentLook();
         var html='<div class="kt-beauty-look-title"><b>사진 필터</b><span>촬영 화면에 바로 적용</span></div><div class="kt-beauty-look-row">';
-        Object.keys(labels).forEach(function(k){html+='<button type="button" class="kt-beauty-look-btn '+(k===key?'on':'')+'" data-look="'+k+'" onclick="ktSetBeautyPhotoLook(\''+k+'\')">'+labels[k]+'</button>';});
+        Object.keys(labels).forEach(function(k){
+          html+='<button type="button" class="kt-beauty-look-btn '+(k===key?'on':'')+'" data-look="'+k+'" onclick="ktSetBeautyPhotoLook(\''+k+'\')"><span class="kt-beauty-look-icon kt-look-'+k+'">'+icons[k]+'</span><small>'+labels[k]+'</small></button>';
+        });
         html+='</div>';
         box.innerHTML=html;
         pro.appendChild(box);
@@ -170,7 +173,17 @@
       +'#sheet.beauty-control-sheet .kt-beauty-look-title{display:flex!important;align-items:center!important;justify-content:space-between!important;margin-bottom:7px!important;color:#fff!important}'
       +'#sheet.beauty-control-sheet .kt-beauty-look-title b{font-size:13px!important}.kt-beauty-look-title span{font-size:10px!important;color:#bbb!important}'
       +'#sheet.beauty-control-sheet .kt-beauty-look-row{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:6px!important}'
-      +'#sheet.beauty-control-sheet .kt-beauty-look-btn{min-height:34px!important;border:1px solid rgba(255,255,255,.18)!important;border-radius:10px!important;background:rgba(20,20,24,.88)!important;color:#eee!important;font-size:11px!important;font-weight:850!important}'
+      +'#sheet.beauty-control-sheet .kt-beauty-look-btn{min-height:58px!important;padding:5px 3px!important;border:1px solid rgba(255,255,255,.18)!important;border-radius:10px!important;background:rgba(20,20,24,.88)!important;color:#eee!important;font-size:11px!important;font-weight:850!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:3px!important}'
+      +'#sheet.beauty-control-sheet .kt-beauty-look-icon{display:flex!important;width:30px!important;height:30px!important;border-radius:50%!important;align-items:center!important;justify-content:center!important;font-size:18px!important;line-height:1!important;border:1px solid rgba(255,255,255,.25)!important;box-shadow:inset 0 0 10px rgba(255,255,255,.1)!important}'
+      +'#sheet.beauty-control-sheet .kt-beauty-look-btn small{display:block!important;font-size:10px!important;line-height:1.1!important;color:inherit!important;font-weight:900!important}'
+      +'#sheet.beauty-control-sheet .kt-look-natural{background:linear-gradient(135deg,#544b52,#25252a)!important}'
+      +'#sheet.beauty-control-sheet .kt-look-bright{background:linear-gradient(135deg,#fff7b0,#ffcb62)!important}'
+      +'#sheet.beauty-control-sheet .kt-look-warm{background:linear-gradient(135deg,#ffbd6b,#c96b43)!important}'
+      +'#sheet.beauty-control-sheet .kt-look-pink{background:linear-gradient(135deg,#ffb3d7,#d35a99)!important}'
+      +'#sheet.beauty-control-sheet .kt-look-cool{background:linear-gradient(135deg,#a8ddff,#547fc4)!important}'
+      +'#sheet.beauty-control-sheet .kt-look-vivid{background:linear-gradient(135deg,#f65d8b,#f6c95d,#62d6b8,#6668df)!important}'
+      +'#sheet.beauty-control-sheet .kt-look-soft{background:linear-gradient(135deg,#e8d9ff,#8d7ab5)!important}'
+      +'#sheet.beauty-control-sheet .kt-look-mono{background:linear-gradient(135deg,#f2f2f2,#383838)!important}'
       +'#sheet.beauty-control-sheet .kt-beauty-look-btn.on{border-color:#ff4eb8!important;background:linear-gradient(135deg,rgba(126,54,255,.7),rgba(255,68,162,.72))!important;color:#fff!important}';
     document.head.appendChild(st);
   }
