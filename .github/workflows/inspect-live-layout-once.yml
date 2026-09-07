@@ -1,0 +1,31 @@
+name: Inspect live layout once
+
+on:
+  push:
+    paths:
+      - '.github/workflows/inspect-live-layout-once.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Print live layout context
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          s = Path('index.html').read_text(encoding='utf-8')
+          needle = 'id=\\"myEarnHud\\"'
+          i = s.find(needle)
+          if i < 0:
+              raise SystemExit('myEarnHud not found')
+          print('--- LIVE LAYOUT CONTEXT START ---')
+          print(s[max(0,i-9000):i+18000])
+          print('--- LIVE LAYOUT CONTEXT END ---')
+          PY
