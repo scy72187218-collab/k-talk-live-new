@@ -15,16 +15,23 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: main
-      - name: Print live layout context
+      - name: Find exact 13-person screen
         shell: bash
         run: |
           python - <<'PY'
           from pathlib import Path
-          s = Path('index.html').read_text(encoding='utf-8')
-          i = s.find('myEarnHud')
-          if i < 0:
-              raise SystemExit('myEarnHud not found')
-          print('--- LIVE LAYOUT CONTEXT START ---')
-          print(s[max(0,i-12000):i+26000])
-          print('--- LIVE LAYOUT CONTEXT END ---')
+          terms=['행복한사람','장미다발','큰 선물 보기','시청자 4명이','환영합니다','13명 방송']
+          exts={'.html','.js','.css','.svg'}
+          for p in Path('.').rglob('*'):
+            if not p.is_file() or p.suffix.lower() not in exts or '.git' in p.parts:
+              continue
+            try:s=p.read_text(encoding='utf-8')
+            except:continue
+            hits=[t for t in terms if t in s]
+            if not hits:continue
+            print('\n=== FILE',p,'HITS',hits,'===')
+            for t in hits:
+              i=s.find(t)
+              print('\n--- TERM',t,'---')
+              print(s[max(0,i-5000):i+12000])
           PY
