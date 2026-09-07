@@ -259,3 +259,53 @@
     if(document.visibilityState==='visible')setTimeout(function(){attachPreview();},80);
   });
 })();
+
+/* 비밀방 스위치만 터치 보강: 비밀방 버튼을 누르면 반드시 선택되고 비밀번호 입력칸이 열린다. */
+(function(){
+  if(window.__ktSecretSwitchTouchFixInstalled)return;
+  window.__ktSecretSwitchTouchFixInstalled=true;
+
+  function isSecretButton(el){
+    if(!el)return false;
+    var txt=String(el.textContent||'').replace(/\s+/g,'');
+    return txt.indexOf('비밀방')>-1 && (el.classList.contains('room-switch') || !!el.closest('.kt-creator-room-shortcuts'));
+  }
+
+  function forceSecret(el){
+    try{
+      if(window.state){
+        state.liveRoomType='password';
+        state.liveRoomName='비밀방';
+        state.liveRoomMax=7;
+      }
+      var title=document.getElementById('liveTitle');
+      if(title)title.value='비밀방';
+      document.querySelectorAll('.room-switch').forEach(function(b){b.classList.remove('on');});
+      if(el&&el.classList.contains('room-switch'))el.classList.add('on');
+      else{
+        document.querySelectorAll('.room-switch').forEach(function(b){
+          if(String(b.textContent||'').indexOf('비밀방')>-1)b.classList.add('on');
+        });
+      }
+      if(typeof window.selectPrepRoom==='function'){
+        var sw=el&&el.classList.contains('room-switch')?el:Array.from(document.querySelectorAll('.room-switch')).find(function(b){return String(b.textContent||'').indexOf('비밀방')>-1;});
+        window.selectPrepRoom(sw||null,'password','비밀방',7);
+      }
+    }catch(e){}
+  }
+
+  document.addEventListener('pointerup',function(e){
+    var el=e.target&&e.target.closest?e.target.closest('button'):null;
+    if(isSecretButton(el))setTimeout(function(){forceSecret(el);},0);
+  },true);
+
+  document.addEventListener('click',function(e){
+    var el=e.target&&e.target.closest?e.target.closest('button'):null;
+    if(isSecretButton(el))setTimeout(function(){forceSecret(el);},0);
+  },true);
+
+  var style=document.createElement('style');
+  style.id='ktSecretSwitchTouchFixStyle';
+  style.textContent='.room-switch,.kt-creator-room-shortcuts button{pointer-events:auto!important;touch-action:manipulation!important}.room-switch{position:relative!important;z-index:20!important}';
+  document.head.appendChild(style);
+})();
