@@ -203,3 +203,13 @@
   s.setAttribute('data-kt-beauty-photo-filters','1');
   document.head.appendChild(s);
 })();
+
+/* 13명방 참여자 안쪽 조작키만 별도 파일로 추가 로드 */
+(function(){
+  if(document.querySelector('script[data-kt-group13-participant-controls]'))return;
+  var s=document.createElement('script');
+  s.src='group13-participant-controls.js?v=20260908a';
+  s.async=false;
+  s.setAttribute('data-kt-group13-participant-controls','1');
+  document.head.appendChild(s);
+})();
