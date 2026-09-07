@@ -192,3 +192,37 @@
 
   ensureStyle();
 })();
+
+/* 권한창 반복 완화: 방송/촬영 화면을 여는 것만으로 권한을 묻지 않고, 실제 촬영·라이브 시작 때만 요청한다. */
+(function(){
+  if(window.__ktPermissionEntryFixInstalled)return;
+  window.__ktPermissionEntryFixInstalled=true;
+
+  function hasLiveVideo(){
+    try{return !!(window.state&&state.stream&&state.stream.getVideoTracks&&state.stream.getVideoTracks().some(function(t){return t.readyState==='live';}));}catch(e){return false;}
+  }
+
+  var openNow=window.openCreator;
+  if(typeof openNow==='function'){
+    window.openCreator=async function(){
+      if(hasLiveVideo())return openNow.apply(this,arguments);
+      try{if(window.ktStopBackgroundMedia)window.ktStopBackgroundMedia();}catch(e){}
+      var c=document.getElementById('creator');
+      if(c){
+        c.classList.add('show');
+        c.classList.remove('creator-review','creator-recording','live-prep-open');
+      }
+      return true;
+    };
+  }
+
+  var recordNow=window.startCreatorRecording;
+  if(typeof recordNow==='function'){
+    window.startCreatorRecording=async function(){
+      if(!hasLiveVideo()&&window.ensureLiveCamera){
+        try{await window.ensureLiveCamera((window.state&&state.cameraFacing)||'user');}catch(e){}
+      }
+      return recordNow.apply(this,arguments);
+    };
+  }
+})();
