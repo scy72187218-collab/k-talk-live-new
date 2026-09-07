@@ -142,3 +142,70 @@
     }catch(err){}
   },true);
 })();
+
+/* 컴퓨터/휴대폰 카메라 호환: 기존 연결이 실패할 때 해상도와 마이크를 단계적으로 낮춰 카메라부터 살린다. */
+(function(){
+  if(window.__ktDeviceConnectionFallbackInstalled)return;
+  var oldEnsure=window.ensureLiveCamera;
+  if(typeof oldEnsure!=='function')return;
+  window.__ktDeviceConnectionFallbackInstalled=true;
+
+  function hasLiveVideo(stream){
+    try{return !!(stream&&stream.getVideoTracks&&stream.getVideoTracks().some(function(t){return t.readyState==='live';}));}catch(e){return false;}
+  }
+  function hasLiveAudio(stream){
+    try{return !!(stream&&stream.getAudioTracks&&stream.getAudioTracks().some(function(t){return t.readyState==='live';}));}catch(e){return false;}
+  }
+  async function attachStream(stream){
+    try{
+      if(window.state)state.stream=stream;
+      var cam=document.getElementById('camera');
+      var bg=document.getElementById('cameraBg');
+      if(cam){cam.srcObject=stream;cam.muted=true;cam.setAttribute('playsinline','');try{await cam.play();}catch(e){}}
+      if(bg){bg.srcObject=stream;bg.muted=true;bg.setAttribute('playsinline','');try{await bg.play();}catch(e){}}
+      var c=document.getElementById('creator');
+      if(c)c.classList.add('camera-on');
+      return true;
+    }catch(e){return false;}
+  }
+  async function tryAddMic(stream){
+    if(!stream||hasLiveAudio(stream))return;
+    try{
+      var a=await navigator.mediaDevices.getUserMedia({video:false,audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
+      a.getAudioTracks().forEach(function(t){stream.addTrack(t);});
+    }catch(e){}
+  }
+
+  window.ensureLiveCamera=async function(facing){
+    try{
+      var ok=await oldEnsure.apply(this,arguments);
+      if(window.state&&hasLiveVideo(state.stream))return ok===false?true:ok;
+    }catch(e){}
+
+    if(!navigator.mediaDevices||typeof navigator.mediaDevices.getUserMedia!=='function')return false;
+    var face=facing||(window.state&&state.cameraFacing)||'user';
+    var tries=[
+      {video:{facingMode:{ideal:face},width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30,max:30}},audio:false},
+      {video:{facingMode:{ideal:face},width:{ideal:640},height:{ideal:480},frameRate:{ideal:24,max:30}},audio:false},
+      {video:{facingMode:{ideal:face}},audio:false},
+      {video:true,audio:false}
+    ];
+
+    for(var i=0;i<tries.length;i++){
+      try{
+        var stream=await navigator.mediaDevices.getUserMedia(tries[i]);
+        if(!hasLiveVideo(stream))continue;
+        try{
+          if(window.state&&state.stream&&state.stream!==stream){
+            state.stream.getTracks().forEach(function(t){try{t.stop();}catch(e){}});
+          }
+        }catch(e){}
+        if(window.state)state.cameraFacing=face;
+        await attachStream(stream);
+        await tryAddMic(stream);
+        return true;
+      }catch(e){}
+    }
+    return false;
+  };
+})();
