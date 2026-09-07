@@ -213,3 +213,13 @@
   s.setAttribute('data-kt-group13-participant-controls','1');
   document.head.appendChild(s);
 })();
+
+/* 장미 빠른 선물 수량만 별도 파일로 추가 로드 */
+(function(){
+  if(document.querySelector('script[data-kt-rose-quick-packs]'))return;
+  var s=document.createElement('script');
+  s.src='gift-rose-quick-packs.js?v=20260908a';
+  s.async=false;
+  s.setAttribute('data-kt-rose-quick-packs','1');
+  document.head.appendChild(s);
+})();
