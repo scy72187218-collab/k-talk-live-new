@@ -1,0 +1,32 @@
+name: Install rainbow waveform once
+on:
+  push:
+    paths:
+      - '.github/workflows/install-rainbow-waveform-once.yml'
+permissions:
+  contents: write
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add waveform script to index only
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          tag='<script src="rainbow-waveform.js?v=20260907-wave1"></script>'
+          if tag not in s:
+              s=s.replace('</body>',tag+'\n</body>')
+              p.write_text(s)
+          PY
+      - name: Commit
+        run: |
+          git config user.name "K-Talk Waveform Helper"
+          git config user.email "actions@github.com"
+          git add index.html
+          if ! git diff --cached --quiet; then
+            git commit -m "Apply reference rainbow waveform to four live rooms [skip ci]"
+            git push
+          fi
