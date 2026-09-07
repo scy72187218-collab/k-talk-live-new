@@ -59,3 +59,8 @@
   #sheet.stage-effect-sheet .kt-stage-thumb,#sheet.stage-effect-sheet .kt-stage-none{height:38px!important;min-height:38px!important;border-radius:8px!important}
   #sheet.stage-effect-sheet .kt-stage-card b{font-size:9px!important;line-height:1.1!important}
 }
+
+/* 동영상 촬영 중에는 보정·편집효과 선택창이 화면을 가리지 않게 숨김 */
+#creator.creator-recording ~ #sheet.camera-effect-sheet,
+#creator.creator-recording ~ #sheet.stage-effect-sheet,
+#creator.creator-recording ~ #sheet.beauty-control-sheet{display:none!important}
