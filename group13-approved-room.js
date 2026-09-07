@@ -17,6 +17,51 @@
       return t==='group'||t==='group13'||n==='13명 방송';
     }catch(e){return false;}
   }
+
+  function setupStandaloneShell(){
+    try{
+      var head=document.head||document.getElementsByTagName('head')[0];
+      if(!head)return;
+      if(!document.querySelector('link[rel="manifest"]')){
+        var link=document.createElement('link');
+        link.rel='manifest';
+        link.href='/manifest.webmanifest?v=20260907-fullscreen13';
+        head.appendChild(link);
+      }
+      var theme=document.querySelector('meta[name="theme-color"]');
+      if(!theme){theme=document.createElement('meta');theme.name='theme-color';head.appendChild(theme);}
+      theme.content='#000000';
+      var cap=document.querySelector('meta[name="mobile-web-app-capable"]');
+      if(!cap){cap=document.createElement('meta');cap.name='mobile-web-app-capable';head.appendChild(cap);}
+      cap.content='yes';
+      var acap=document.querySelector('meta[name="apple-mobile-web-app-capable"]');
+      if(!acap){acap=document.createElement('meta');acap.name='apple-mobile-web-app-capable';head.appendChild(acap);}
+      acap.content='yes';
+      var ast=document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
+      if(!ast){ast=document.createElement('meta');ast.name='apple-mobile-web-app-status-bar-style';head.appendChild(ast);}
+      ast.content='black-translucent';
+      document.documentElement.style.background='#000';
+      if(document.body)document.body.style.background='#000';
+    }catch(e){}
+  }
+  setupStandaloneShell();
+
+  function requestGroup13Fullscreen(){
+    try{
+      var standalone=(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||(navigator.standalone===true);
+      if(standalone||document.fullscreenElement||document.webkitFullscreenElement)return;
+      var el=document.documentElement;
+      var fn=el.requestFullscreen||el.webkitRequestFullscreen;
+      if(fn){
+        var r;
+        try{r=fn.call(el,{navigationUI:'hide'});}catch(e){r=fn.call(el);}
+        if(r&&r.catch)r.catch(function(){});
+      }else{
+        setTimeout(function(){try{window.scrollTo(0,1);}catch(e){}},40);
+      }
+    }catch(e){}
+  }
+
   function gift(icon,count,label,img){
     var art=img?'<img src="'+img+'" alt="'+esc(label)+'">':'<span class="ktg13-emoji">'+icon+'</span>';
     return '<button class="ktg13-gift" onclick="openGifts()">'+art+'<b>'+count+'</b><small>'+label+'</small></button>';
@@ -140,6 +185,7 @@
 
   window.startBroadcast=async function(){
     if(!isGroup13())return oldStartBroadcast.apply(this,arguments);
+    requestGroup13Fullscreen();
     var result=await oldStartBroadcast.apply(this,arguments);
     setTimeout(renderApprovedGroup13,0);
     return result;
