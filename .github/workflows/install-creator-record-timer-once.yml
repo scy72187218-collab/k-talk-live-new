@@ -1,0 +1,35 @@
+name: Install creator record timer once
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/install-creator-record-timer-once.yml'
+permissions:
+  contents: write
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add timer script to page
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          tag='<script src="creator-record-timer.js?v=20260907-recordtimer1"></script>'
+          if tag not in s:
+              if '</body>' not in s:
+                  raise SystemExit('index.html has no </body>')
+              s=s.replace('</body>', tag+'\n</body>', 1)
+              p.write_text(s,encoding='utf-8')
+          PY
+      - name: Remove one-time workflow and commit
+        run: |
+          rm -f .github/workflows/install-creator-record-timer-once.yml
+          git config user.name "K-Talk Record Helper"
+          git config user.email "actions@github.com"
+          git add index.html .github/workflows/install-creator-record-timer-once.yml
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Enable 5-second countdown and circular recording timer"
+          git push
