@@ -191,3 +191,71 @@
   s.setAttribute('data-kt-requested-fixes','1');
   document.head.appendChild(s);
 })();
+
+/* 촬영 화면을 열면 사람(카메라 미리보기)이 바로 보이게 복구. 녹화 전에는 카메라만, 녹화 시작 때 마이크를 붙인다. */
+(function(){
+  if(window.__ktCreatorPersonPreviewRestoreInstalled)return;
+  window.__ktCreatorPersonPreviewRestoreInstalled=true;
+
+  function liveTracks(stream,kind){
+    try{
+      var list=kind==='audio'?stream.getAudioTracks():stream.getVideoTracks();
+      return list&&list.some(function(t){return t.readyState==='live';});
+    }catch(e){return false;}
+  }
+
+  async function attachPreview(){
+    var c=document.getElementById('creator');
+    if(!c||!c.classList.contains('show'))return false;
+    var stream=null;
+    try{stream=window.state&&state.stream;}catch(e){}
+    if(!stream||!liveTracks(stream,'video')){
+      if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return false;
+      try{
+        stream=await navigator.mediaDevices.getUserMedia({
+          video:{facingMode:{ideal:(window.state&&state.cameraFacing)||'user'}},
+          audio:false
+        });
+        if(window.state)state.stream=stream;
+        try{sessionStorage.setItem('kt_camera_allowed_this_session','1');}catch(e){}
+      }catch(e){return false;}
+    }
+    try{
+      var cam=document.getElementById('camera');
+      var bg=document.getElementById('cameraBg');
+      if(cam){cam.srcObject=stream;cam.muted=true;cam.setAttribute('playsinline','');try{await cam.play();}catch(e){}}
+      if(bg){bg.srcObject=stream;bg.muted=true;bg.setAttribute('playsinline','');try{await bg.play();}catch(e){}}
+      c.classList.add('camera-on');
+      return true;
+    }catch(e){return false;}
+  }
+
+  var previousOpen=window.openCreator;
+  if(typeof previousOpen==='function'){
+    window.openCreator=async function(){
+      var r=await previousOpen.apply(this,arguments);
+      await attachPreview();
+      return r;
+    };
+  }
+
+  var previousStart=window.startCreatorRecording;
+  if(typeof previousStart==='function'){
+    window.startCreatorRecording=async function(){
+      await attachPreview();
+      var stream=null;
+      try{stream=window.state&&state.stream;}catch(e){}
+      if(stream&&liveTracks(stream,'video')&&!liveTracks(stream,'audio')&&navigator.mediaDevices&&navigator.mediaDevices.getUserMedia){
+        try{
+          var mic=await navigator.mediaDevices.getUserMedia({video:false,audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
+          mic.getAudioTracks().forEach(function(t){try{stream.addTrack(t);}catch(e){}});
+        }catch(e){}
+      }
+      return previousStart.apply(this,arguments);
+    };
+  }
+
+  document.addEventListener('visibilitychange',function(){
+    if(document.visibilityState==='visible')setTimeout(function(){attachPreview();},80);
+  });
+})();
