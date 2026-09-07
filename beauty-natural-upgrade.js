@@ -193,3 +193,13 @@
 
   setTimeout(applyBaseDefaults,0);
 })();
+
+/* 전체 보정 1~100 + 사진 필터는 별도 파일로만 추가 로드 */
+(function(){
+  if(document.querySelector('script[data-kt-beauty-photo-filters]'))return;
+  var s=document.createElement('script');
+  s.src='beauty-photo-filters.js?v=20260907a';
+  s.async=false;
+  s.setAttribute('data-kt-beauty-photo-filters','1');
+  document.head.appendChild(s);
+})();
