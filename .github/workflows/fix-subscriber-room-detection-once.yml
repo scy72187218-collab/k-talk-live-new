@@ -1,0 +1,34 @@
+name: Fix subscriber room detection once
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fix-subscriber-room-detection-once.yml'
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fix subscriber-only detection
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('subscriber-approved-room.js')
+          s=p.read_text(encoding='utf-8')
+          old="return t==='subscriber'||String(n).indexOf('1인')>-1||String(title).indexOf('구독자 방송')>-1;"
+          new="return t==='subscriber'||String(n).indexOf('구독자')>-1||String(title).indexOf('구독자 방송')>-1;"
+          if old not in s:
+              raise SystemExit('target subscriber detection line not found')
+          p.write_text(s.replace(old,new,1),encoding='utf-8')
+          wf=Path('.github/workflows/fix-subscriber-room-detection-once.yml')
+          if wf.exists(): wf.unlink()
+          PY
+      - name: Commit detection fix only
+        run: |
+          git config user.name "K-Talk Subscriber Helper"
+          git config user.email "actions@github.com"
+          git add subscriber-approved-room.js .github/workflows/fix-subscriber-room-detection-once.yml
+          git commit -m "Limit subscriber layout to subscriber room only"
+          git push
