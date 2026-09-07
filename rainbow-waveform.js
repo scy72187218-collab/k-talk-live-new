@@ -1,4 +1,4 @@
-/* K-Talk 4개 방송방 파장만 수정: 1인/13명/구독자/비밀방. 다른 UI는 건드리지 않음. */
+/* K-Talk 4개 방송방 채팅 + 무지개 파장만 수정: 1인/13명/구독자/비밀방. 다른 UI는 건드리지 않음. */
 (function(){
   if(window.__ktRainbowWaveformInstalled)return;
   window.__ktRainbowWaveformInstalled=true;
@@ -13,52 +13,171 @@
 
   var style=document.createElement('style');
   style.id='ktRainbowWaveformStyle';
-  style.textContent='\
-    @keyframes ktRainbowWaveBeat{\
-      0%{transform:scaleY(.58)}\
-      28%{transform:scaleY(1.10)}\
-      52%{transform:scaleY(.76)}\
-      76%{transform:scaleY(1.18)}\
-      100%{transform:scaleY(.68)}\
-    }\
-    .ktsolo-wave,.ktsubscriber-wave,.ktsecret-wave,.kt-secret-wave,.secret-wave{\
-      position:absolute!important;\
-      left:0!important;\
-      right:0!important;\
-      width:auto!important;\
-      bottom:72px!important;\
-      height:34px!important;\
-      z-index:6!important;\
-      display:block!important;\
-      pointer-events:none!important;\
-      background-image:url("k-talk-rainbow-waveform.svg?v=20260907-wavebottom1")!important;\
-      background-repeat:no-repeat!important;\
-      background-position:center!important;\
-      background-size:100% 100%!important;\
-      opacity:.96!important;\
-      transform-origin:center bottom!important;\
-      animation:ktRainbowWaveBeat .62s ease-in-out infinite alternate!important;\
-      filter:drop-shadow(0 0 4px rgba(255,65,210,.35))!important;\
-    }\
-    .ktsolo-wave>i,.ktsubscriber-wave>i,.ktsecret-wave>i,.kt-secret-wave>i,.secret-wave>i{display:none!important}\
-    .ktg13-main::after{\
-      content:"";\
-      position:absolute;\
-      left:0;\
-      right:0;\
-      bottom:2px;\
-      height:32px;\
-      z-index:8;\
-      pointer-events:none;\
-      background-image:url("k-talk-rainbow-waveform.svg?v=20260907-wavebottom1");\
-      background-repeat:no-repeat;\
-      background-position:center;\
-      background-size:100% 100%;\
-      opacity:.96;\
-      transform-origin:center bottom;\
-      animation:ktRainbowWaveBeat .62s ease-in-out infinite alternate;\
-      filter:drop-shadow(0 0 4px rgba(255,65,210,.35));\
-    }\
-  ';
+  style.textContent=`
+    @keyframes ktRainbowWaveBeat{
+      0%{transform:scaleY(.58)}
+      28%{transform:scaleY(1.10)}
+      52%{transform:scaleY(.76)}
+      76%{transform:scaleY(1.18)}
+      100%{transform:scaleY(.68)}
+    }
+
+    /* 기존에 승인한 무지개 파장은 그대로 유지 */
+    .ktsolo-wave,.ktsubscriber-wave,.ktsecret-wave,.kt-secret-wave,.secret-wave{
+      position:absolute!important;
+      left:0!important;
+      right:0!important;
+      width:auto!important;
+      bottom:72px!important;
+      height:34px!important;
+      z-index:6!important;
+      display:block!important;
+      pointer-events:none!important;
+      background-image:url("k-talk-rainbow-waveform.svg?v=20260907-wavebottom1")!important;
+      background-repeat:no-repeat!important;
+      background-position:center!important;
+      background-size:100% 100%!important;
+      opacity:.96!important;
+      transform-origin:center bottom!important;
+      animation:ktRainbowWaveBeat .62s ease-in-out infinite alternate!important;
+      filter:drop-shadow(0 0 4px rgba(255,65,210,.35))!important;
+    }
+    .ktsolo-wave>i,.ktsubscriber-wave>i,.ktsecret-wave>i,.kt-secret-wave>i,.secret-wave>i{display:none!important}
+    .ktg13-main::after{
+      content:"";
+      position:absolute;
+      left:0;
+      right:0;
+      bottom:2px;
+      height:32px;
+      z-index:8;
+      pointer-events:none;
+      background-image:url("k-talk-rainbow-waveform.svg?v=20260907-wavebottom1");
+      background-repeat:no-repeat;
+      background-position:center;
+      background-size:100% 100%;
+      opacity:.96;
+      transform-origin:center bottom;
+      animation:ktRainbowWaveBeat .62s ease-in-out infinite alternate;
+      filter:drop-shadow(0 0 4px rgba(255,65,210,.35));
+    }
+
+    /* 1인/구독자/비밀방: 큰 네모 채팅 배경 제거, 파장 위에서 새 글이 아래부터 위로 쌓임 */
+    .ktsolo-chat,.ktsubscriber-chat,.ktsecret-chat{
+      position:absolute!important;
+      left:10px!important;
+      right:150px!important;
+      bottom:110px!important;
+      height:auto!important;
+      min-height:0!important;
+      max-height:118px!important;
+      padding:0 3px 2px!important;
+      margin:0!important;
+      background:transparent!important;
+      border:0!important;
+      border-radius:0!important;
+      box-shadow:none!important;
+      backdrop-filter:none!important;
+      display:flex!important;
+      flex-direction:column!important;
+      justify-content:flex-end!important;
+      overflow:hidden!important;
+      pointer-events:none!important;
+      z-index:9!important;
+    }
+
+    /* 13명방: 기존 자리 그대로, 네모칸 없이 여러 줄이 아래부터 위로 쌓임 */
+    .ktg13-chat{
+      background:transparent!important;
+      border:0!important;
+      border-radius:0!important;
+      box-shadow:none!important;
+      padding:0 4px 2px!important;
+      margin:0!important;
+      display:flex!important;
+      flex-direction:column!important;
+      justify-content:flex-end!important;
+      overflow:hidden!important;
+      pointer-events:none!important;
+    }
+
+    .ktsolo-chat:empty::before,
+    .ktsubscriber-chat:empty::before,
+    .ktsecret-chat:empty::before,
+    .ktg13-chat:empty::before{
+      content:"채팅을 입력하면 아래에서 위로 올라옵니다"!important;
+      display:block!important;
+      color:rgba(255,255,255,.62)!important;
+      background:transparent!important;
+      font-size:10px!important;
+      font-weight:800!important;
+      line-height:1.25!important;
+      margin:0 0 2px!important;
+      padding:0!important;
+      text-shadow:0 1px 3px #000,0 0 5px #000!important;
+    }
+
+    .ktsolo-chat-line,.ktsubscriber-chat-line,.ktsecret-chat-line,.ktg13-chat-line{
+      display:grid!important;
+      grid-template-columns:18px auto minmax(0,1fr)!important;
+      align-items:center!important;
+      column-gap:5px!important;
+      margin:4px 0 0!important;
+      padding:0!important;
+      min-width:0!important;
+      color:#fff!important;
+      font-size:11px!important;
+      line-height:1.25!important;
+      font-weight:850!important;
+      text-shadow:0 1px 3px #000,0 0 5px #000!important;
+    }
+    .ktsolo-chat-line::before,.ktsubscriber-chat-line::before,.ktsecret-chat-line::before,.ktg13-chat-line::before{
+      content:"";
+      width:17px;
+      height:17px;
+      border-radius:50%;
+      border:1px solid rgba(255,255,255,.78);
+      background:linear-gradient(135deg,#9b65ff,#ff5da8);
+      box-shadow:0 0 5px rgba(255,70,190,.38);
+    }
+    .ktsolo-chat-line b,.ktsubscriber-chat-line b,.ktsecret-chat-line b,.ktg13-chat-line b{
+      white-space:nowrap!important;
+      color:#ff6bc9!important;
+      font-size:11px!important;
+      font-weight:950!important;
+    }
+    .ktsolo-chat-line span,.ktsubscriber-chat-line span,.ktsecret-chat-line span,.ktg13-chat-line span{
+      min-width:0!important;
+      color:#fff!important;
+      font-size:11px!important;
+      font-weight:800!important;
+      white-space:normal!important;
+      overflow-wrap:anywhere!important;
+    }
+
+    .ktsolo-chat-line:nth-child(2n) b,.ktsubscriber-chat-line:nth-child(2n) b,.ktsecret-chat-line:nth-child(2n) b,.ktg13-chat-line:nth-child(2n) b{color:#55d9ff!important}
+    .ktsolo-chat-line:nth-child(3n) b,.ktsubscriber-chat-line:nth-child(3n) b,.ktsecret-chat-line:nth-child(3n) b,.ktg13-chat-line:nth-child(3n) b{color:#79ef72!important}
+    .ktsolo-chat-line:nth-child(4n) b,.ktsubscriber-chat-line:nth-child(4n) b,.ktsecret-chat-line:nth-child(4n) b,.ktg13-chat-line:nth-child(4n) b{color:#ffd45c!important}
+
+    @media(max-width:390px){
+      .ktsolo-chat,.ktsubscriber-chat,.ktsecret-chat{
+        left:8px!important;
+        right:136px!important;
+        bottom:104px!important;
+        max-height:108px!important;
+      }
+      .ktsolo-chat-line,.ktsubscriber-chat-line,.ktsecret-chat-line,.ktg13-chat-line{
+        grid-template-columns:16px auto minmax(0,1fr)!important;
+        column-gap:4px!important;
+        font-size:10px!important;
+      }
+      .ktsolo-chat-line::before,.ktsubscriber-chat-line::before,.ktsecret-chat-line::before,.ktg13-chat-line::before{
+        width:15px;
+        height:15px;
+      }
+      .ktsolo-chat-line b,.ktsubscriber-chat-line b,.ktsecret-chat-line b,.ktg13-chat-line b,
+      .ktsolo-chat-line span,.ktsubscriber-chat-line span,.ktsecret-chat-line span,.ktg13-chat-line span{font-size:10px!important}
+    }
+  `;
   document.head.appendChild(style);
 })();
