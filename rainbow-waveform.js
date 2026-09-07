@@ -260,52 +260,48 @@
   });
 })();
 
-/* 비밀방 스위치만 터치 보강: 비밀방 버튼을 누르면 반드시 선택되고 비밀번호 입력칸이 열린다. */
+/* 비밀방 스위치가 다른 스크립트에 덮여도 터치하면 즉시 비밀번호 입력칸이 열리게 보강 */
 (function(){
-  if(window.__ktSecretSwitchTouchFixInstalled)return;
-  window.__ktSecretSwitchTouchFixInstalled=true;
+  if(window.__ktSecretSwitchTouchRebindInstalled)return;
+  window.__ktSecretSwitchTouchRebindInstalled=true;
 
-  function isSecretButton(el){
-    if(!el)return false;
-    var txt=String(el.textContent||'').replace(/\s+/g,'');
-    return txt.indexOf('비밀방')>-1 && (el.classList.contains('room-switch') || !!el.closest('.kt-creator-room-shortcuts'));
+  function isSecretButton(btn){
+    if(!btn)return false;
+    var txt=String(btn.textContent||'');
+    var oc=String(btn.getAttribute('onclick')||'');
+    return txt.indexOf('비밀')>-1||oc.indexOf("'password'")>-1||oc.indexOf('"password"')>-1;
   }
-
-  function forceSecret(el){
+  function showSecretBox(){
     try{
-      if(window.state){
-        state.liveRoomType='password';
-        state.liveRoomName='비밀방';
-        state.liveRoomMax=7;
-      }
-      var title=document.getElementById('liveTitle');
-      if(title)title.value='비밀방';
-      document.querySelectorAll('.room-switch').forEach(function(b){b.classList.remove('on');});
-      if(el&&el.classList.contains('room-switch'))el.classList.add('on');
-      else{
-        document.querySelectorAll('.room-switch').forEach(function(b){
-          if(String(b.textContent||'').indexOf('비밀방')>-1)b.classList.add('on');
-        });
-      }
-      if(typeof window.selectPrepRoom==='function'){
-        var sw=el&&el.classList.contains('room-switch')?el:Array.from(document.querySelectorAll('.room-switch')).find(function(b){return String(b.textContent||'').indexOf('비밀방')>-1;});
-        window.selectPrepRoom(sw||null,'password','비밀방',7);
-      }
+      if(window.state){state.liveRoomType='password';state.liveRoomName='비밀방';state.liveRoomMax=7;}
+      var box=document.getElementById('ktSecretPasswordBox');
+      if(box)box.classList.add('on');
+      var input=document.getElementById('ktSecretPassword');
+      if(input){setTimeout(function(){try{input.focus();}catch(e){};},30);}
     }catch(e){}
   }
-
-  document.addEventListener('pointerup',function(e){
-    var el=e.target&&e.target.closest?e.target.closest('button'):null;
-    if(isSecretButton(el))setTimeout(function(){forceSecret(el);},0);
-  },true);
-
   document.addEventListener('click',function(e){
-    var el=e.target&&e.target.closest?e.target.closest('button'):null;
-    if(isSecretButton(el))setTimeout(function(){forceSecret(el);},0);
+    var btn=e.target&&e.target.closest?e.target.closest('.room-switch'):null;
+    if(!isSecretButton(btn))return;
+    try{
+      document.querySelectorAll('.room-switch').forEach(function(b){b.classList.remove('on');});
+      btn.classList.add('on');
+    }catch(err){}
+    setTimeout(showSecretBox,0);
   },true);
+  document.addEventListener('touchend',function(e){
+    var btn=e.target&&e.target.closest?e.target.closest('.room-switch'):null;
+    if(!isSecretButton(btn))return;
+    setTimeout(showSecretBox,0);
+  },{capture:true,passive:true});
+})();
 
-  var style=document.createElement('style');
-  style.id='ktSecretSwitchTouchFixStyle';
-  style.textContent='.room-switch,.kt-creator-room-shortcuts button{pointer-events:auto!important;touch-action:manipulation!important}.room-switch{position:relative!important;z-index:20!important}';
-  document.head.appendChild(style);
+/* 카메라 자연 보정 업그레이드는 이 파일만 추가로 불러온다. */
+(function(){
+  if(document.querySelector('script[data-kt-beauty-natural-upgrade]'))return;
+  var s=document.createElement('script');
+  s.src='beauty-natural-upgrade.js?v=20260907b';
+  s.async=false;
+  s.setAttribute('data-kt-beauty-natural-upgrade','1');
+  document.head.appendChild(s);
 })();
