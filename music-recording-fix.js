@@ -17,4 +17,5 @@
   load('group13-earnings-popup-20260908.js?v=20260908-earn-popup1');
   load('group13-inline-earnings-20260908.js?v=20260908-inline-earn2');
   load('my-video-menu-fix-20260908.js?v=20260908-video-menu1');
+  load('video-feed-stability.js?v=20260908-continuous1');
 })();
