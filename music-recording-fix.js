@@ -8,4 +8,5 @@
   }
   load('music-recording-base.js?v=20260907-group13');
   load('group13-approved-room.js?v=20260907-group13');
+  load('live-presence.js?v=20260908-live1');
 })();
