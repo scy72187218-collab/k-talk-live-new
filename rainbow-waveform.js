@@ -319,3 +319,13 @@
   s.setAttribute('data-kt-beauty-natural-upgrade','1');
   document.head.appendChild(s);
 })();
+
+/* 선물상자를 방 선택 화면과 완전히 분리한다. */
+(function(){
+  if(document.querySelector('script[data-kt-gift-room-separation]'))return;
+  var s=document.createElement('script');
+  s.src='gift-room-separation.js?v=20260908a';
+  s.async=false;
+  s.setAttribute('data-kt-gift-room-separation','1');
+  document.head.appendChild(s);
+})();
