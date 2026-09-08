@@ -222,3 +222,18 @@
     try{if(window.openBeautyPanel)window.openBeautyPanel();}catch(err){}
   },true);
 })();
+
+/* 촬영 화면 오른쪽 번개부터 아래 도구들만 작게 정리. 다른 화면은 건드리지 않음. */
+(function(){
+  if(window.__ktCreatorSideCompactInstalled)return;
+  window.__ktCreatorSideCompactInstalled=true;
+  var s=document.createElement('style');
+  s.id='ktCreatorSideCompactStyle';
+  s.textContent=''
+    +'#creator .creator-tools{right:10px!important;top:105px!important;gap:8px!important}'
+    +'#creator .creator-tools button{width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important;font-size:22px!important;padding:0!important}'
+    +'#creator .creator-tools .creator-tool-text[aria-label="AI 보정"],#creator .creator-tools .creator-tool-text[aria-label="편집 효과"]{transform:none!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;line-height:1!important}'
+    +'#creator .creator-tools .creator-tool-text b{font-size:19px!important;line-height:1!important}'
+    +'#creator .creator-tools .creator-tool-text small{font-size:7px!important;line-height:1.05!important;margin-top:2px!important;white-space:nowrap!important}';
+  document.head.appendChild(s);
+})();
