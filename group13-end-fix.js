@@ -88,3 +88,13 @@
   s.setAttribute('data-kt-secret-center-people','1');
   document.head.appendChild(s);
 })();
+
+/* 내가 올린 동영상 오른쪽 점 3개 메뉴만 연결. */
+(function(){
+  if(document.querySelector('script[data-kt-video-owner-menu]'))return;
+  var s=document.createElement('script');
+  s.src='video-owner-menu.js?v=20260908a';
+  s.async=false;
+  s.setAttribute('data-kt-video-owner-menu','1');
+  document.head.appendChild(s);
+})();
