@@ -247,7 +247,7 @@
       try{stream=window.state&&state.stream;}catch(e){}
       if(stream&&liveTracks(stream,'video')&&!liveTracks(stream,'audio')&&navigator.mediaDevices&&navigator.mediaDevices.getUserMedia){
         try{
-          var mic=await navigator.mediaDevices.getUserMedia({video:false,audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true,sampleRate:{ideal:48000},channelCount:{ideal:1}}});
+          var mic=await navigator.mediaDevices.getUserMedia({video:false,audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
           mic.getAudioTracks().forEach(function(t){try{stream.addTrack(t);}catch(e){}});
         }catch(e){}
       }
@@ -317,15 +317,5 @@
   s.src='beauty-natural-upgrade.js?v=20260907b';
   s.async=false;
   s.setAttribute('data-kt-beauty-natural-upgrade','1');
-  document.head.appendChild(s);
-})();
-
-/* 선물상자를 방 선택 화면과 완전히 분리한다. */
-(function(){
-  if(document.querySelector('script[data-kt-gift-room-separation]'))return;
-  var s=document.createElement('script');
-  s.src='gift-room-separation.js?v=20260908a';
-  s.async=false;
-  s.setAttribute('data-kt-gift-room-separation','1');
   document.head.appendChild(s);
 })();

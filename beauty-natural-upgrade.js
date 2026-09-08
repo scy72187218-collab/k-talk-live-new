@@ -223,13 +223,3 @@
   s.setAttribute('data-kt-rose-quick-packs','1');
   document.head.appendChild(s);
 })();
-
-/* 촬영 화면 편집효과 바로 아래 보물상자 버튼만 별도 파일로 추가 로드 */
-(function(){
-  if(document.querySelector('script[data-kt-creator-treasure]'))return;
-  var s=document.createElement('script');
-  s.src='creator-treasure-button.js?v=20260908a';
-  s.async=false;
-  s.setAttribute('data-kt-creator-treasure','1');
-  document.head.appendChild(s);
-})();
