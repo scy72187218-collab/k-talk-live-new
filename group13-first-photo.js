@@ -1,4 +1,4 @@
-/* K-Talk 13명 방 오른쪽 퀵 버튼: 좋아요/선물/매치/효과/보물상자만 표시. 13명 방 보정은 제외. */
+/* K-Talk 13명 방 오른쪽 퀵 버튼: 좋아요 아래 선물 버튼 제거 -> 효과 -> 보물상자 -> 매치. */
 (function(){
   if(window.__ktGroup13RightQuickInstalled)return;
   window.__ktGroup13RightQuickInstalled=true;
@@ -28,10 +28,6 @@
     if(n)n.textContent=String(window.__ktGroup13LikeCount);
   }
 
-  function gift(){
-    try{if(window.openGifts){window.openGifts();return;}}catch(e){}
-  }
-
   function match(){
     try{if(window.openMatchArena){window.openMatchArena('1대1');return;}}catch(e){}
     try{if(window.ktRenderMatchArena){window.showSheet&&window.showSheet('호스트 매치','<div class="kt-match-arena"></div>');window.ktRenderMatchArena('1대1');return;}}catch(e){}
@@ -49,7 +45,6 @@
   }
 
   window.ktGroup13QuickLike=like;
-  window.ktGroup13QuickGift=gift;
   window.ktGroup13QuickMatch=match;
   window.ktGroup13QuickEffect=effect;
   window.ktGroup13QuickTreasure=treasure;
@@ -66,33 +61,59 @@
       host.style.removeProperty('background-position');
     }
 
-    var old=main.querySelector('.ktg13-right-quick');
-    if(old){
-      var beauty=old.querySelector('[aria-label="보정"]');
-      if(beauty)beauty.remove();
-      if(!old.querySelector('[aria-label="보물상자"]')){
-        var chest=document.createElement('button');
-        chest.className='ktg13-treasure';
-        chest.type='button';
-        chest.setAttribute('aria-label','보물상자');
-        chest.setAttribute('onclick','ktGroup13QuickTreasure()');
-        chest.innerHTML='<b>🎁</b><span>보물상자</span>';
-        var effectBtn=old.querySelector('[aria-label="효과"]');
-        if(effectBtn&&effectBtn.nextSibling)old.insertBefore(chest,effectBtn.nextSibling);
-        else old.appendChild(chest);
-      }
-      return;
+    var box=main.querySelector('.ktg13-right-quick');
+    if(!box){
+      box=document.createElement('div');
+      box.className='ktg13-right-quick';
+      main.appendChild(box);
     }
 
-    var box=document.createElement('div');
-    box.className='ktg13-right-quick';
-    box.innerHTML=''
-      +'<button class="ktg13-like" type="button" onclick="ktGroup13QuickLike()" aria-label="좋아요"><b>💗</b><span>좋아요</span><em id="ktg13LikeCount">'+String(window.__ktGroup13LikeCount)+'</em></button>'
-      +'<button type="button" onclick="ktGroup13QuickGift()" aria-label="선물"><b>🎁</b><span>선물</span></button>'
-      +'<button type="button" onclick="ktGroup13QuickMatch()" aria-label="매치"><b>⚔</b><span>매치</span></button>'
-      +'<button type="button" onclick="ktGroup13QuickEffect()" aria-label="효과"><b>✨</b><span>효과</span></button>'
-      +'<button class="ktg13-treasure" type="button" onclick="ktGroup13QuickTreasure()" aria-label="보물상자"><b>🎁</b><span>보물상자</span></button>';
-    main.appendChild(box);
+    Array.from(box.querySelectorAll('button')).forEach(function(b){
+      if(b.getAttribute('aria-label')==='선물' || b.getAttribute('aria-label')==='보정')b.remove();
+    });
+
+    var likeBtn=box.querySelector('[aria-label="좋아요"]');
+    if(!likeBtn){
+      likeBtn=document.createElement('button');
+      likeBtn.className='ktg13-like';
+      likeBtn.type='button';
+      likeBtn.setAttribute('onclick','ktGroup13QuickLike()');
+      likeBtn.setAttribute('aria-label','좋아요');
+      likeBtn.innerHTML='<b>💗</b><span>좋아요</span><em id="ktg13LikeCount">'+String(window.__ktGroup13LikeCount)+'</em>';
+    }
+
+    var effectBtn=box.querySelector('[aria-label="효과"]');
+    if(!effectBtn){
+      effectBtn=document.createElement('button');
+      effectBtn.type='button';
+      effectBtn.setAttribute('onclick','ktGroup13QuickEffect()');
+      effectBtn.setAttribute('aria-label','효과');
+      effectBtn.innerHTML='<b>✨</b><span>효과</span>';
+    }
+
+    var chest=box.querySelector('[aria-label="보물상자"]');
+    if(!chest){
+      chest=document.createElement('button');
+      chest.className='ktg13-treasure';
+      chest.type='button';
+      chest.setAttribute('onclick','ktGroup13QuickTreasure()');
+      chest.setAttribute('aria-label','보물상자');
+      chest.innerHTML='<b>🎁</b><span>보물상자</span>';
+    }
+
+    var matchBtn=box.querySelector('[aria-label="매치"]');
+    if(!matchBtn){
+      matchBtn=document.createElement('button');
+      matchBtn.type='button';
+      matchBtn.setAttribute('onclick','ktGroup13QuickMatch()');
+      matchBtn.setAttribute('aria-label','매치');
+      matchBtn.innerHTML='<b>⚔</b><span>매치</span>';
+    }
+
+    box.appendChild(likeBtn);
+    box.appendChild(effectBtn);
+    box.appendChild(chest);
+    box.appendChild(matchBtn);
   }
 
   var observer=new MutationObserver(function(){apply();});
@@ -108,5 +129,15 @@
   s.src='beauty-three-rooms.js?v=20260909-all4';
   s.async=false;
   s.setAttribute('data-kt-beauty-three-rooms','1');
+  document.head.appendChild(s);
+})();
+
+/* 1인/구독자/비밀방 오른쪽 퀵버튼도 같은 순서로 맞춘다. */
+(function(){
+  if(document.querySelector('script[data-kt-room-side-actions-3rooms]'))return;
+  var s=document.createElement('script');
+  s.src='room-side-actions-3rooms.js?v=20260909a';
+  s.async=false;
+  s.setAttribute('data-kt-room-side-actions-3rooms','1');
   document.head.appendChild(s);
 })();
