@@ -2,41 +2,11 @@
 (function(){
   var SB='https://zupwbfmacwzexyvznlzq.supabase.co';
   var KEY='sb_publishable_AnyCMi4rAgSR2uWg_u1pvw_hHyqWlm3';
-  var postingCreator=false;
-  var postingStored={};
   function headers(extra){var h={apikey:KEY,Authorization:'Bearer '+KEY};if(extra)Object.keys(extra).forEach(function(k){h[k]=extra[k];});return h;}
-  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c];});}
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   function blobNow(){try{if(window.ktCreatorBlob)return window.ktCreatorBlob;}catch(e){}try{return typeof ktCreatorBlob!=='undefined'?ktCreatorBlob:null;}catch(e){return null;}}
   function titleNow(){try{return window.ktImportedVideoName||ktImportedVideoName||('K-Talk 동영상 '+new Date().toLocaleString('ko-KR'));}catch(e){return 'K-Talk 동영상';}}
   function who(){var name='K-Talk',id='guest';try{name=state.profileName||state.currentProfileName||state.accountName||name;id=state.profileId||state.currentAccountId||state.accountId||id;}catch(e){}try{name=localStorage.getItem('ktalk_profile_name')||localStorage.getItem('ktalk_active_account_name')||name;id=localStorage.getItem('ktalk_active_account')||localStorage.getItem('ktalk_profile_id')||id;}catch(e){}return {name:String(name).slice(0,80),id:String(id).slice(0,80)};}
-
-  function dedupeFeed(list){
-    var out=[];
-    (Array.isArray(list)?list:[]).forEach(function(x){
-      if(!x)return;
-      var xu=String(x.video_url||'');
-      var xn=String(x.author_name||'').trim();
-      var xt=String(x.title||'').trim();
-      var xd=Date.parse(x.created_at||'')||0;
-      var dup=out.some(function(y){
-        if(xu&&xu===String(y.video_url||''))return true;
-        var yd=Date.parse(y.created_at||'')||0;
-        return xn===String(y.author_name||'').trim()&&xt===String(y.title||'').trim()&&xd&&yd&&Math.abs(xd-yd)<=90000;
-      });
-      if(!dup)out.push(x);
-    });
-    return out;
-  }
-  function cacheFeed(list){try{localStorage.setItem('ktalk_fast_feed',JSON.stringify(dedupeFeed(list).slice(0,40)));}catch(e){}}
-  function rememberFeedRow(row,a,title){
-    if(!row)return;
-    var x=Object.assign({},row);
-    if(!x.author_name)x.author_name=a&&a.name||'K-Talk';
-    if(!x.title)x.title=title||'K-Talk 동영상';
-    if(!x.created_at)x.created_at=new Date().toISOString();
-    var cur=[];try{cur=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');}catch(e){}
-    cacheFeed([x].concat(cur||[]));
-  }
 
   async function markLocalPosted(){try{var db=await ktOpenVideoDB(),tx=db.transaction('videos','readwrite'),st=tx.objectStore('videos'),rq=st.getAll();await new Promise(function(ok){rq.onsuccess=function(){var a=(rq.result||[]).filter(function(v){return v&&!v.draft;}).sort(function(a,b){return (b.createdAt||0)-(a.createdAt||0);}),x=a[0];if(x){x.posted=true;x.postedAt=x.postedAt||Date.now();st.put(x);}ok();};rq.onerror=ok;});await new Promise(function(ok){tx.oncomplete=ok;tx.onerror=ok;tx.onabort=ok;});try{db.close();}catch(e){}try{if(window.ktRenderProfilePostedVideos)window.ktRenderProfilePostedVideos();}catch(e){}}catch(e){}}
   function ext(t){t=String(t||'').toLowerCase();if(t.indexOf('mp4')>=0)return'mp4';if(t.indexOf('quicktime')>=0)return'mov';if(t.indexOf('m4v')>=0)return'm4v';return'webm';}
@@ -49,9 +19,7 @@
     var ins=await fetch(SB+'/rest/v1/ktalk_videos',{method:'POST',headers:headers({'Content-Type':'application/json','Prefer':'return=representation'}),body:JSON.stringify({author_id:a.id,author_name:a.name,title:title||'K-Talk 동영상',video_path:path,video_url:url})});
     if(!ins.ok)throw new Error('insert');
     var rows=await ins.json();
-    var row=rows&&rows[0]?rows[0]:{id:'',video_url:url,author_name:a.name,title:title||'K-Talk 동영상',created_at:new Date().toISOString()};
-    rememberFeedRow(row,a,title);
-    return row;
+    return rows&&rows[0]?rows[0]:{id:'',video_url:url};
   }
 
   async function getStoredItem(id){
@@ -79,17 +47,13 @@
   var oldPost=window.postCreatorRecording;
   if(oldPost&&!oldPost.__ktPublic){
     var wrap=async function(){
-      if(postingCreator)return;
-      postingCreator=true;
-      try{
-        var b=blobNow(),t=titleNow();
-        await oldPost.apply(this,arguments);
-        await markLocalPosted();
-        if(b){
-          try{await publicUpload(b,t);setTimeout(function(){try{window.home();}catch(e){}},80);}
-          catch(e){alert('동영상은 내 프로필에 저장됐지만 공개 목록 등록에 실패했습니다.');}
-        }
-      }finally{postingCreator=false;}
+      var b=blobNow(),t=titleNow();
+      await oldPost.apply(this,arguments);
+      await markLocalPosted();
+      if(b){
+        try{await publicUpload(b,t);setTimeout(function(){try{window.home();}catch(e){}},80);}
+        catch(e){alert('동영상은 내 프로필에 저장됐지만 공개 목록 등록에 실패했습니다.');}
+      }
     };
     wrap.__ktPublic=true;
     window.postCreatorRecording=wrap;
@@ -97,39 +61,35 @@
 
   /* 내 동영상에서 '동영상 올리기' 한 번만 누르면 프로필 저장 + 전체 공개를 같이 처리한다. */
   window.postStoredVideo=async function(id,btn){
-    if(postingStored[id])return;
-    postingStored[id]=true;
+    var item=await getStoredItem(id);
+    if(!item||!item.blob){alert('동영상을 찾지 못했습니다.');return;}
+    if(btn){btn.disabled=true;btn.textContent='올리는 중...';}
+
+    item.posted=true;
+    item.postedAt=item.postedAt||Date.now();
+    await putStoredItem(item);
+    try{if(window.ktRenderProfilePostedVideos)window.ktRenderProfilePostedVideos();}catch(e){}
+
     try{
-      var item=await getStoredItem(id);
-      if(!item||!item.blob){alert('동영상을 찾지 못했습니다.');return;}
-      if(btn){btn.disabled=true;btn.textContent='올리는 중...';}
-
-      item.posted=true;
-      item.postedAt=item.postedAt||Date.now();
-      await putStoredItem(item);
-      try{if(window.ktRenderProfilePostedVideos)window.ktRenderProfilePostedVideos();}catch(e){}
-
-      try{
-        if(!item.publicVideoId){
-          var row=await publicUpload(item.blob,item.name||'K-Talk 동영상');
-          item.publicPosted=true;
-          item.publicVideoId=row&&row.id?row.id:'';
-          item.publicVideoUrl=row&&row.video_url?row.video_url:'';
-          await putStoredItem(item);
-        }
-        if(btn){btn.textContent='✓ 올리기 완료';btn.classList.add('done');}
-        try{if(window.closeSheet)closeSheet();}catch(e){}
-        setTimeout(function(){try{window.home();}catch(e){}},100);
-      }catch(e){
-        if(btn){btn.disabled=false;btn.textContent='다시 올리기';}
-        alert('내 프로필에는 올라갔습니다. 공개 영상 등록만 다시 눌러 주세요.');
+      if(!item.publicVideoId){
+        var row=await publicUpload(item.blob,item.name||'K-Talk 동영상');
+        item.publicPosted=true;
+        item.publicVideoId=row&&row.id?row.id:'';
+        item.publicVideoUrl=row&&row.video_url?row.video_url:'';
+        await putStoredItem(item);
       }
-    }finally{delete postingStored[id];}
+      if(btn){btn.textContent='✓ 올리기 완료';btn.classList.add('done');}
+      try{if(window.closeSheet)closeSheet();}catch(e){}
+      setTimeout(function(){try{window.home();}catch(e){}},100);
+    }catch(e){
+      if(btn){btn.disabled=false;btn.textContent='다시 올리기';}
+      alert('내 프로필에는 올라갔습니다. 공개 영상 등록만 다시 눌러 주세요.');
+    }
   };
 
   window.saveCreatorDraft=async function(){if(!blobNow()){alert('저장할 동영상이 없습니다.');return;}if(window.postCreatorRecording)await window.postCreatorRecording();};
 
-  async function getFeed(){try{var r=await fetch(SB+'/rest/v1/ktalk_videos?select=id,author_name,title,video_url,created_at,likes&order=created_at.desc&limit=40',{headers:headers()});var a=r.ok?dedupeFeed(await r.json()):[];if(a.length)cacheFeed(a);return a;}catch(e){return[];}}
+  async function getFeed(){try{var r=await fetch(SB+'/rest/v1/ktalk_videos?select=id,author_name,title,video_url,created_at,likes&order=created_at.desc&limit=40',{headers:headers()});var a=r.ok?await r.json():[];try{if(a.length)localStorage.setItem('ktalk_fast_feed',JSON.stringify(a));}catch(e){}return a;}catch(e){return[];}}
   function card(x,i){
     var id=esc(x.id),u=esc(x.video_url),name=esc(x.author_name||'K-Talk'),title=esc(x.title||'K-Talk 동영상');
     return '<section style="height:calc(100dvh - 78px);min-height:560px;position:relative;scroll-snap-align:start;background:#000;overflow:hidden">'
@@ -189,34 +149,7 @@
   window.ktPublicShare=async function(url){try{if(navigator.share){await navigator.share({title:'K-Talk 동영상',url:url});return;}if(navigator.clipboard){await navigator.clipboard.writeText(url);alert('동영상 주소를 복사했습니다.');return;}if(window.shareApp)shareApp();}catch(e){}};
 
   var oldHome=window.home,oldMedia=window.media;
-  function renderFeed(a){
-    a=dedupeFeed(a);
-    if(!a.length)return false;
-    document.body.classList.remove('kt-home');
-    document.body.classList.add('kt-video-mode');
-    screen.innerHTML='<div style="height:calc(100dvh - 78px);overflow-y:auto;scroll-snap-type:y mandatory;background:#000">'+a.map(card).join('')+'</div>';
-    bind();
-    return true;
-  }
-  function showImmediateVideo(){
-    try{if(screen.querySelector('video'))return;}catch(e){}
-    document.body.classList.remove('kt-home');
-    document.body.classList.add('kt-video-mode');
-    screen.innerHTML='<section style="height:calc(100dvh - 78px);min-height:560px;position:relative;background:#000;overflow:hidden">'
-      +'<video autoplay muted loop playsinline preload="auto" src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000"></video>'
-      +'<div class="vh-shade"></div>'
-      +'<div class="vh-tabs"><span>LIVE</span><span>커뮤니티</span><span>팔로잉</span><span class="on">추천</span><button>⌕</button></div>'
-      +'<div class="vh-title"><b>♛ K-Talk</b><span>동영상 불러오는 중</span></div>'
-      +'</section>';
-  }
-  async function show(fallback){
-    var a=[];try{a=dedupeFeed(JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]'));}catch(e){}
-    if(a.length){renderFeed(a);getFeed().then(function(fresh){if(fresh.length)renderFeed(fresh);});return;}
-    showImmediateVideo();
-    var fresh=await getFeed();
-    if(fresh.length){renderFeed(fresh);return;}
-    if(fallback)fallback();
-  }
+  async function show(fallback){var a=[];try{a=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');}catch(e){}if(!a.length)a=await getFeed();if(!a.length){if(fallback)fallback();return;}document.body.classList.remove('kt-home');document.body.classList.add('kt-video-mode');screen.innerHTML='<div style="height:calc(100dvh - 78px);overflow-y:auto;scroll-snap-type:y mandatory;background:#000">'+a.map(card).join('')+'</div>';bind();}
   window.home=function(){try{if(window.activate)activate('home');}catch(e){}show(oldHome);};
   window.media=function(type){try{if(window.activate)activate(type);}catch(e){}show(function(){if(oldMedia)oldMedia(type);});};
 
