@@ -17,6 +17,7 @@
   var hostRequestCache={};
   var hostPeers={};
   var spokenMessages={};
+  var speechStartedAt=Date.now();
   var liveBadgeBusy=false;
   var lastChatSend=0;
 
@@ -198,7 +199,7 @@
   async function pollViewerGuestAnswer(){
     if(!viewerGuestSessionId||!viewerGuestPc)return;
     try{
-      var rows=await api('ktalk_guest_sessions?select=id,answer_sdp,status,active&designated=neq.none&id=eq.'+encodeURIComponent(viewerGuestSessionId)+'&limit=1').catch(function(){return api('ktalk_guest_sessions?select=id,answer_sdp,status,active&id=eq.'+encodeURIComponent(viewerGuestSessionId)+'&limit=1');});
+      var rows=await api('ktalk_guest_sessions?select=id,answer_sdp,status,active&id=eq.'+encodeURIComponent(viewerGuestSessionId)+'&limit=1');
       var x=rows&&rows[0];if(!x)return;
       if((x.status==='rejected'||x.active===false)&&x.status!=='accepted'){
         await leaveGuestParticipation(false);guestButton('참여 거절됨',false);setTimeout(function(){if(!viewerGuestSessionId)guestButton('🙋 참여',false);},1600);return;
@@ -288,6 +289,8 @@
       var rows=await api('ktalk_live_messages?select=id,sender_name,message,message_type,created_at&host_id=eq.'+encodeURIComponent(hid)+'&created_at=gte.'+encodeURIComponent(cut)+'&order=created_at.asc&limit=40');
       (rows||[]).forEach(function(x){
         if(String(x.message_type||'')!=='system'||spokenMessages[x.id])return;
+        var created=Date.parse(x.created_at||'')||0;
+        if(created&&created<speechStartedAt-2000){spokenMessages[x.id]=1;return;}
         if(String(x.message||'').indexOf('들어왔습니다')>-1){
           spokenMessages[x.id]=1;
           try{if(window.ktAnnounceEvent)window.ktAnnounceEvent('join',{name:String(x.sender_name||'게스트')});else if(window.ktSpeak)window.ktSpeak(String(x.sender_name||'게스트')+'님, K-Talk에 오신 것을 환영합니다.');}catch(e){}
