@@ -43,3 +43,13 @@
   },false);
   syncRoomTouch();
 })();
+
+/* 공개 동영상이 검게 멈출 때 재생만 복구하는 보강 파일. */
+(function(){
+  if(document.querySelector('script[data-kt-public-feed-recovery]'))return;
+  var s=document.createElement('script');
+  s.src='public-feed-recovery.js?v=20260908a';
+  s.async=false;
+  s.setAttribute('data-kt-public-feed-recovery','1');
+  document.head.appendChild(s);
+})();
