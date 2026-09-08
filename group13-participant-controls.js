@@ -1,4 +1,4 @@
-/* K-Talk 13명 방송 참여자 안쪽 조작키만 추가: 호스트/게스트 마이크·쪽지, 매치는 호스트만. 위/아래 기존 화면은 변경하지 않음. */
+/* K-Talk 13명 방송 참여자 안쪽 조작키만 추가: 호스트/게스트 마이크·쪽지·내 수익, 매치는 호스트만. 다른 화면은 변경하지 않음. */
 (function(){
   if(window.__ktGroup13ParticipantControlsInstalled)return;
   window.__ktGroup13ParticipantControlsInstalled=true;
@@ -8,7 +8,7 @@
 
   function esc(v){
     return String(v==null?'':v).replace(/[&<>"']/g,function(ch){
-      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[ch];
     });
   }
 
@@ -119,7 +119,6 @@
     setTimeout(function(){window.ktGroup13OpenDirectMessage(role,index);},20);
   };
 
-  /* 실제 통신 코드에서 이 함수를 호출하면 받은 쪽지로 바로 들어온다. */
   window.ktReceiveGroup13DirectMessage=function(role,index,text){
     text=String(text||'').trim();
     if(!text)return;
@@ -129,6 +128,22 @@
   window.ktGroup13HostMatchOnly=function(){
     if(!isHostView())return;
     if(typeof window.openHostMatchArena==='function')window.openHostMatchArena('1대1');
+  };
+
+  window.ktGroup13MyEarnings=function(){
+    try{
+      if(typeof window.toggleMyEarnings==='function'){
+        window.toggleMyEarnings();
+        return;
+      }
+    }catch(e){}
+    var net='0원',roses='🌹 0송이',rate='일반회원 · 35%';
+    try{var a=document.getElementById('hudEarnNet');if(a&&a.textContent)net=a.textContent;}catch(e){}
+    try{var b=document.getElementById('hudEarnRoses');if(b&&b.textContent)roses=b.textContent;}catch(e){}
+    try{var c=document.getElementById('hudEarnRate');if(c&&c.textContent)rate=c.textContent;}catch(e){}
+    if(typeof window.showSheet==='function'){
+      showSheet('🔒 내 수익 · 본인만 보기','<div class="rowbox"><b>내 수익</b><br>이 금액은 본인 화면에서만 확인됩니다.</div><div style="padding:16px;border:1px solid #d7ad39;border-radius:14px;background:#17140b;text-align:center;color:#fff"><b style="font-size:22px;color:#ffe36a">'+net+'</b><div style="margin-top:7px;font-size:12px">'+roses+' · '+rate+'</div></div>');
+    }
   };
 
   function addStyle(){
@@ -145,12 +160,20 @@
       +'.ktg13-guest .ktg13-person-btn{width:23px;height:23px;font-size:11px}'
       +'.ktg13-person-btn.off{background:rgba(95,15,25,.88);border-color:#ff6a7f}'
       +'.ktg13-person-btn.match{border-color:#b86cff;background:rgba(52,18,80,.86)}'
-      +'@media(max-width:390px){.ktg13-host .ktg13-person-btn{width:31px;height:31px;font-size:14px}.ktg13-guest .ktg13-person-btn{width:21px;height:21px;font-size:10px}}';
+      +'.ktg13-person-btn.earn{width:auto!important;min-width:42px!important;padding:0 6px!important;border-radius:8px!important;border-color:#d7ad39!important;background:rgba(35,28,7,.94)!important;color:#ffe36a!important;display:flex!important;gap:2px!important;font-size:9px!important;font-weight:900!important;line-height:1!important;white-space:nowrap!important}'
+      +'.ktg13-host .ktg13-person-btn.earn{height:28px!important;min-width:54px!important;font-size:10px!important}'
+      +'.ktg13-guest .ktg13-person-btn.earn{height:21px!important;min-width:38px!important;padding:0 4px!important;font-size:8px!important}'
+      +'.ktg13-earn #myEarnHud{width:90%!important;min-width:0!important;margin-left:auto!important;padding:1px 5px!important;border-radius:9px!important}'
+      +'@media(max-width:390px){.ktg13-host .ktg13-person-btn{width:31px;height:31px;font-size:14px}.ktg13-guest .ktg13-person-btn{width:21px;height:21px;font-size:10px}.ktg13-host .ktg13-person-btn.earn{height:26px!important;min-width:50px!important;font-size:9px!important}.ktg13-guest .ktg13-person-btn.earn{height:19px!important;min-width:35px!important;font-size:7px!important}.ktg13-earn #myEarnHud{width:88%!important;padding:1px 4px!important}}';
     document.head.appendChild(s);
   }
 
   function button(icon,label,onclick,cls){
     return '<button type="button" class="ktg13-person-btn '+(cls||'')+'" aria-label="'+label+'" title="'+label+'" onclick="event.stopPropagation();'+onclick+'">'+icon+'</button>';
+  }
+
+  function earningsButton(){
+    return button('🔒 수익','내 수익 · 본인만 보기','ktGroup13MyEarnings()','earn');
   }
 
   function enhance(){
@@ -164,6 +187,7 @@
       hc.className='ktg13-person-controls';
       hc.innerHTML=button('🎤','호스트 마이크','ktGroup13TogglePersonMic(\'host\',0,this)','')
         +button('✉','호스트 쪽지','ktGroup13OpenDirectMessage(\'host\',0)','')
+        +earningsButton()
         +(isHostView()?button('⚔','호스트 매치','ktGroup13HostMatchOnly()','match'):'');
       host.appendChild(hc);
     }
@@ -174,11 +198,26 @@
       var gc=document.createElement('div');
       gc.className='ktg13-person-controls';
       gc.innerHTML=button('🎤','게스트 '+n+' 마이크','ktGroup13TogglePersonMic(\'guest\','+n+',this)','')
-        +button('✉','게스트 '+n+' 쪽지','ktGroup13OpenDirectMessage(\'guest\','+n+')','');
+        +button('✉','게스트 '+n+' 쪽지','ktGroup13OpenDirectMessage(\'guest\','+n+')','')
+        +earningsButton();
       g.appendChild(gc);
     });
 
-    /* 매치 버튼은 호스트 화면에서만 보인다. 게스트 화면이면 기존 하단 매치도 감춘다. */
+    /* 이미 만들어진 조작키에도 내 수익이 없으면 메시지 옆에만 추가한다. */
+    room.querySelectorAll('.ktg13-person-controls').forEach(function(c){
+      var current=c.querySelector('.ktg13-person-btn.earn');
+      if(current){
+        if(String(current.textContent||'').indexOf('수익')<0)current.innerHTML='🔒 수익';
+        return;
+      }
+      var msg=null;
+      c.querySelectorAll('.ktg13-person-btn').forEach(function(b){if(!msg&&String(b.getAttribute('aria-label')||'').indexOf('쪽지')>-1)msg=b;});
+      var earn=document.createElement('button');
+      earn.type='button';earn.className='ktg13-person-btn earn';earn.setAttribute('aria-label','내 수익 · 본인만 보기');earn.title='내 수익 · 본인만 보기';earn.innerHTML='🔒 수익';
+      earn.onclick=function(e){e.stopPropagation();window.ktGroup13MyEarnings();};
+      if(msg)msg.insertAdjacentElement('afterend',earn);else c.appendChild(earn);
+    });
+
     if(!isHostView()){
       room.querySelectorAll('.ktg13-tool').forEach(function(b){
         if(String(b.textContent||'').indexOf('매치')>-1)b.style.display='none';
