@@ -68,3 +68,13 @@
     stopGroup13Now();
   },true);
 })();
+
+/* 태블릿에서만 카메라 중복 연결/고해상도 부담을 줄이는 파일을 마지막에 한 번 로드 */
+(function(){
+  if(document.querySelector('script[data-kt-tablet-performance]'))return;
+  var s=document.createElement('script');
+  s.src='tablet-performance-fix.js?v=20260908a';
+  s.async=false;
+  s.setAttribute('data-kt-tablet-performance','1');
+  document.head.appendChild(s);
+})();
