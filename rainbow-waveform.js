@@ -329,3 +329,13 @@
   s.setAttribute('data-kt-face-effects-upgrade','1');
   document.head.appendChild(s);
 })();
+
+/* 현재 13명 방송 시청자 채팅/참여 요청/호스트 올리기 연결만 추가로 불러온다. */
+(function(){
+  if(document.querySelector('script[data-kt-viewer-guest-controls]'))return;
+  var s=document.createElement('script');
+  s.src='live-viewer-guest-controls.js?v=20260908a';
+  s.async=false;
+  s.setAttribute('data-kt-viewer-guest-controls','1');
+  document.head.appendChild(s);
+})();
