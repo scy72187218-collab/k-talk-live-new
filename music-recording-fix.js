@@ -15,5 +15,5 @@
   load('beauty-ai-actions.js?v=20260908a');
   load('private-monitor-20260908.js?v=20260908-earn2');
   load('group13-earnings-popup-20260908.js?v=20260908-earn-popup1');
-  load('group13-inline-earnings-20260908.js?v=20260908-inline-earn1');
+  load('group13-inline-earnings-20260908.js?v=20260908-inline-earn2');
 })();
