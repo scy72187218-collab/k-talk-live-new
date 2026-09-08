@@ -88,3 +88,13 @@
   s.setAttribute('data-kt-gift-position-only','1');
   document.head.appendChild(s);
 })();
+
+/* 13명 방송에만 첫 번째 사진과 같은 오른쪽 버튼 4개 추가: 좋아요 / 선물상자 / 매치 / 효과음 */
+(function(){
+  if(document.querySelector('script[data-kt-group13-side-controls]'))return;
+  var s=document.createElement('script');
+  s.src='group13-side-controls-20260908.js?v=20260908-side01';
+  s.defer=true;
+  s.setAttribute('data-kt-group13-side-controls','1');
+  document.head.appendChild(s);
+})();
