@@ -1,4 +1,4 @@
-/* K-Talk 설치 안내: 처음 들어온 사람에게만 '설치'를 한 번 보여주고, 이후에는 다시 표시하지 않는다. 다른 기능은 건드리지 않음. */
+/* K-Talk 설치 안내: 처음 들어온 사람에게만 '설치'를 한 번 보여주고, 방송/촬영 화면에서는 바로 숨긴다. 다른 기능은 건드리지 않음. */
 (function(){
   if(window.__ktInstallIconSetup)return;
   window.__ktInstallIconSetup=true;
@@ -49,7 +49,17 @@
   function rememberOffer(){try{localStorage.setItem(OFFER_SEEN,'1');}catch(e){}}
   function removeButton(){var b=document.getElementById('ktInstallIconButton');if(b)b.remove();}
 
+  function inBroadcastOrCreator(){
+    try{
+      var c=document.getElementById('creator');
+      if(c&&c.classList.contains('show'))return true;
+      if(document.querySelector('.live-prep-open,.ktsolo-room,.ktsubscriber-room,.ktsecret-room,.ktg13-room'))return true;
+    }catch(e){}
+    return false;
+  }
+
   function ensureButton(){
+    if(inBroadcastOrCreator()){removeButton();return;}
     if(installedBefore()||offerSeen()||document.getElementById('ktInstallIconButton'))return;
 
     var b=document.createElement('button');
@@ -80,9 +90,13 @@
     document.body.appendChild(b);
   }
 
+  function hideWhenEnteringBroadcast(){
+    if(inBroadcastOrCreator())removeButton();
+  }
+
   window.addEventListener('beforeinstallprompt',function(e){
     e.preventDefault();
-    if(installedBefore()||offerSeen()){
+    if(installedBefore()||offerSeen()||inBroadcastOrCreator()){
       deferredPrompt=null;
       removeButton();
       return;
@@ -97,8 +111,18 @@
     removeButton();
   });
 
+  document.addEventListener('click',function(e){
+    var t=e.target&&e.target.closest?e.target.closest('.kt-bottom .livebtn,.kt-creator-room-shortcuts button,.room-switch,.prep-start,[onclick*="openCreator"],[onclick*="openRoomPrep"],[onclick*="startBroadcast"]'):null;
+    if(t)setTimeout(hideWhenEnteringBroadcast,0);
+  },true);
+
+  try{
+    var obs=new MutationObserver(hideWhenEnteringBroadcast);
+    obs.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
+  }catch(e){}
+
   setTimeout(function(){
-    if(installedBefore()||offerSeen())removeButton();
+    if(installedBefore()||offerSeen()||inBroadcastOrCreator())removeButton();
     else ensureButton();
   },900);
 })();
