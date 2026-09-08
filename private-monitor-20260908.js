@@ -28,6 +28,7 @@
         '<div style="padding:16px;border:1px solid #d5ae39;border-radius:15px;background:#17140b;color:#fff;text-align:center">'+
           '<div style="font-size:23px;font-weight:950;color:#ffe36a">'+net+'</div>'+
           '<div style="margin-top:7px;font-size:12px">'+roses+' · '+rate+'</div>'+
+          '<div style="margin-top:4px;font-size:10px;color:#8fe8ff;font-weight:850">구독자 40%</div>'+
           '<div style="margin-top:6px;font-size:10px;color:#ffd76a;font-weight:850">소속사: 소속사에서 지급 결정</div>'+
         '</div>');
     }
@@ -44,8 +45,9 @@
       +'/* 선물상자 바로 위 기존 개인 수익표만 조금 작게 */'
       +'.ktg13-earn #myEarnHud{width:90%!important;min-width:0!important;margin-left:auto!important;padding:1px 5px!important;border-radius:9px!important}'
       +'.ktg13-earn #myEarnHud #hudEarnNet,.ktg13-earn #myEarnHud #hudEarnRoses,.ktg13-earn #myEarnHud #hudEarnRate{font-size:10px!important;line-height:1.08!important}'
+      +'.ktg13-earn #myEarnHud #hudEarnSubscriber{grid-column:1/-1!important;text-align:center!important;color:#8fe8ff!important;font-size:8px!important;line-height:1.1!important;font-weight:850!important;white-space:normal!important}'
       +'.ktg13-earn #myEarnHud #hudEarnAgency{grid-column:1/-1!important;text-align:center!important;color:#ffd76a!important;font-size:8px!important;line-height:1.1!important;font-weight:850!important;white-space:normal!important}'
-      +'@media(max-width:390px){.ktg13-earn #myEarnHud{width:88%!important;padding:1px 4px!important}.ktg13-earn #myEarnHud #hudEarnNet,.ktg13-earn #myEarnHud #hudEarnRoses,.ktg13-earn #myEarnHud #hudEarnRate{font-size:9px!important}.ktg13-earn #myEarnHud #hudEarnAgency{font-size:7px!important}}';
+      +'@media(max-width:390px){.ktg13-earn #myEarnHud{width:88%!important;padding:1px 4px!important}.ktg13-earn #myEarnHud #hudEarnNet,.ktg13-earn #myEarnHud #hudEarnRoses,.ktg13-earn #myEarnHud #hudEarnRate{font-size:9px!important}.ktg13-earn #myEarnHud #hudEarnSubscriber,.ktg13-earn #myEarnHud #hudEarnAgency{font-size:7px!important}}';
     document.head.appendChild(s);
   }
 
@@ -59,6 +61,13 @@
         note.id='hudEarnAgency';
         detail.appendChild(note);
       }
+      var sub=document.getElementById('hudEarnSubscriber');
+      if(!sub){
+        sub=document.createElement('span');
+        sub.id='hudEarnSubscriber';
+        detail.insertBefore(sub,note);
+      }
+      sub.textContent='구독자 40%';
       note.textContent='소속사: 소속사에서 지급 결정';
     }catch(e){}
   }
