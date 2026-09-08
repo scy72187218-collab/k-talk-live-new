@@ -14,4 +14,5 @@
   load('secret-center-people.js?v=20260908-secretpeople1');
   load('beauty-ai-actions.js?v=20260908a');
   load('private-monitor-20260908.js?v=20260908-earn2');
+  load('group13-mini-earnings-display.js?v=20260908-earn3');
 })();
