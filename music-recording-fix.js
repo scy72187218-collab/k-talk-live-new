@@ -10,4 +10,5 @@
   load('group13-approved-room.js?v=20260907-group13');
   load('live-presence.js?v=20260908-live1');
   load('media-profile-stability-fix.js?v=20260908-media1');
+  load('group13-realtime-fix.js?v=20260908-chatreq1');
 })();
