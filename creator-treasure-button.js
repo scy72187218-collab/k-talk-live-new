@@ -3,6 +3,17 @@
   if(window.__ktCreatorTreasureButtonInstalled)return;
   window.__ktCreatorTreasureButtonInstalled=true;
 
+  /* 비밀방 버튼과 겹치지 않도록 보물상자 버튼만 조금 작게 하고 위로 당긴다. */
+  if(!document.getElementById('ktCreatorTreasurePositionFix')){
+    var style=document.createElement('style');
+    style.id='ktCreatorTreasurePositionFix';
+    style.textContent=''
+      +'#creator .creator-tools [data-kt-creator-treasure]{width:42px!important;height:42px!important;min-height:42px!important;margin-top:-16px!important;align-self:center!important;padding:0!important;z-index:45!important}'
+      +'#creator .creator-tools [data-kt-creator-treasure] b{font-size:22px!important;line-height:1!important}'
+      +'#creator .creator-tools [data-kt-creator-treasure] small{font-size:7px!important;line-height:1!important;margin-top:1px!important}';
+    document.head.appendChild(style);
+  }
+
   window.openCreatorTreasureBox=window.openCreatorTreasureBox||function(){
     try{
       if(window.showSheet){
