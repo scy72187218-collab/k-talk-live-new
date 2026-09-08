@@ -309,23 +309,3 @@
   style.textContent='.room-switch,.kt-creator-room-shortcuts button{pointer-events:auto!important;touch-action:manipulation!important}.room-switch{position:relative!important;z-index:20!important}';
   document.head.appendChild(style);
 })();
-
-/* 카메라 자연 보정 업그레이드는 이 파일만 추가로 불러온다. */
-(function(){
-  if(document.querySelector('script[data-kt-beauty-natural-upgrade]'))return;
-  var s=document.createElement('script');
-  s.src='beauty-natural-upgrade.js?v=20260907b';
-  s.async=false;
-  s.setAttribute('data-kt-beauty-natural-upgrade','1');
-  document.head.appendChild(s);
-})();
-
-/* 선물상자를 방 선택 화면과 완전히 분리한다. */
-(function(){
-  if(document.querySelector('script[data-kt-gift-room-separation]'))return;
-  var s=document.createElement('script');
-  s.src='gift-room-separation.js?v=20260908a';
-  s.async=false;
-  s.setAttribute('data-kt-gift-room-separation','1');
-  document.head.appendChild(s);
-})();
