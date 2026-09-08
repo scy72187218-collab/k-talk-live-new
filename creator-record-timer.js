@@ -1,4 +1,4 @@
-/* K-Talk 촬영 전용: 5초 준비 카운트다운 + 선택 시간(10분/60초/15초) 원형 진행 표시. 다른 기능은 변경하지 않음. */
+/* K-Talk 촬영 전용: 촬영 버튼을 누르면 즉시 시작 + 선택 시간(10분/60초/15초) 원형 진행 표시. 다른 기능은 변경하지 않음. */
 (function(){
   if(window.__ktCreatorRecordTimerInstalled)return;
   window.__ktCreatorRecordTimerInstalled=true;
@@ -147,32 +147,8 @@
       }
     }catch(e){}
     if(countingDown)return;
-
     ensureStyle();
-    var overlay=ensureCountdown();
-    var btn=recordButton();
-    countingDown=true;
-    var n=5;
-
-    function show(){
-      if(!countingDown)return;
-      overlay.textContent=String(n);
-      overlay.style.display='grid';
-      if(btn){
-        btn.classList.add('kt-record-counting');
-        btn.textContent=String(n);
-      }
-      if(n<=1){
-        countdownTimer=setTimeout(function(){
-          if(!countingDown)return;
-          beginActualRecording();
-        },1000);
-      }else{
-        n--;
-        countdownTimer=setTimeout(show,1000);
-      }
-    }
-    show();
+    return beginActualRecording.apply(this,arguments);
   };
 
   window.stopCreatorRecording=function(){

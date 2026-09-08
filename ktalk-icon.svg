@@ -7,6 +7,6 @@
   </defs>
   <rect width="512" height="512" rx="112" fill="#050307"/>
   <rect x="28" y="28" width="456" height="456" rx="96" fill="none" stroke="url(#g)" stroke-width="20"/>
-  <text x="256" y="245" text-anchor="middle" fill="#fff" font-family="Arial,sans-serif" font-size="132" font-weight="900">K</text>
-  <text x="256" y="340" text-anchor="middle" fill="#ff4bbf" font-family="Arial,sans-serif" font-size="68" font-weight="900">TALK</text>
+  <text x="256" y="250" text-anchor="middle" fill="#fff" font-family="Arial,sans-serif" font-size="144" font-weight="900">K</text>
+  <text x="256" y="344" text-anchor="middle" fill="#ff4bbf" font-family="Arial,sans-serif" font-size="74" font-weight="900">TALK</text>
 </svg>
