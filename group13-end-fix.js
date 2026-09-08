@@ -78,3 +78,13 @@
   s.setAttribute('data-kt-tablet-performance','1');
   document.head.appendChild(s);
 })();
+
+/* 비밀방 가운데 호스트·게스트 칸 전용 레이아웃만 연결. 다른 화면은 건드리지 않음. */
+(function(){
+  if(document.querySelector('script[data-kt-secret-center-people]'))return;
+  var s=document.createElement('script');
+  s.src='secret-center-people.js?v=20260908b';
+  s.async=false;
+  s.setAttribute('data-kt-secret-center-people','1');
+  document.head.appendChild(s);
+})();
