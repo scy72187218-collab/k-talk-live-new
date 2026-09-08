@@ -58,7 +58,6 @@
         if(typeof oldSetBeautyValue==='function')oldSetBeautyValue.call(window,'skin',mapped);
         else if(window.applyBeautyPreview)window.applyBeautyPreview();
       }else if(kind==='jaw'){
-        /* 현재 엔진의 얼굴형 효과에 턱 값을 연결해 실제 화면 변화가 나도록 한다. */
         var faceValue=clamp(50+(50-value)*.55,50);
         state.beautyFace=faceValue;
         if(typeof oldSetBeautyValue==='function')oldSetBeautyValue.call(window,'face',faceValue);
@@ -170,7 +169,6 @@
     renderBeautyPanel();
   };
 
-  /* AI 보정과 편집효과가 가까워서 잘못 열리는 문제를 확실히 분리한다. */
   var lastBeautyTap=0;
   function beautyButton(target){
     if(!target||!target.closest)return null;
@@ -212,7 +210,8 @@
       +'#sheet.beauty-control-sheet .kt-beauty-single-row{display:flex!important;align-items:center!important;justify-content:space-between!important;margin-bottom:7px!important}#sheet.beauty-control-sheet #beautySingleLabel{font-weight:900!important}#sheet.beauty-control-sheet #beautySingleValue{font-size:20px!important;font-weight:950!important}'
       +'#sheet.beauty-control-sheet #beautySingleRange{display:block!important;width:100%!important;min-width:0!important}'
       +'#sheet.beauty-control-sheet .kt-beauty-scale{display:flex!important;justify-content:space-between!important;margin-top:5px!important;font-size:10px!important;color:#ccc!important}'
-      +'#sheet.beauty-control-sheet .kt-beauty-v2-actions{display:grid!important;grid-template-columns:1fr 1.4fr!important;gap:8px!important;margin-top:10px!important}.kt-beauty-v2-actions button{height:42px!important;border:0!important;border-radius:12px!important;background:#2b2b33!important;color:#fff!important;font-weight:900!important}.kt-beauty-v2-actions .primary{background:linear-gradient(135deg,#7046ff,#d63cff)!important}';
+      +'#sheet.beauty-control-sheet .kt-beauty-v2-actions{display:grid!important;grid-template-columns:1fr 1.4fr!important;gap:8px!important;margin-top:10px!important}.kt-beauty-v2-actions button{height:42px!important;border:0!important;border-radius:12px!important;background:#2b2b33!important;color:#fff!important;font-weight:900!important}.kt-beauty-v2-actions .primary{background:linear-gradient(135deg,#7046ff,#d63cff)!important}'
+      +'@media(max-width:600px){#sheet.beauty-control-sheet,#sheet.beauty-control-sheet .sheet-inner,#sheet.beauty-control-sheet .sheet-body,#sheet.beauty-control-sheet .kt-beauty-v2{box-sizing:border-box!important;max-width:100%!important;overflow-x:hidden!important}#sheet.beauty-control-sheet .sheet-inner{width:calc(100vw - 12px)!important;margin-left:auto!important;margin-right:auto!important;max-height:62dvh!important;padding-left:8px!important;padding-right:8px!important}#sheet.beauty-control-sheet .kt-beauty-v2-top{grid-template-columns:1fr auto!important;gap:5px!important;margin-bottom:7px!important}#sheet.beauty-control-sheet .kt-beauty-v2-top>span{display:none!important}#sheet.beauty-control-sheet .kt-beauty-v2-top>b{font-size:16px!important}#sheet.beauty-control-sheet .kt-beauty-v2-top>button{padding:6px 8px!important;font-size:11px!important}#sheet.beauty-control-sheet .kt-beauty-controls-pro{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px!important}#sheet.beauty-control-sheet .kt-beauty-controls-pro button{min-width:0!important;min-height:48px!important;padding:4px 1px!important}#sheet.beauty-control-sheet .kt-beauty-controls-pro button b{font-size:18px!important}#sheet.beauty-control-sheet .kt-beauty-controls-pro button span{font-size:10px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}#sheet.beauty-control-sheet .kt-beauty-single-group{margin-top:7px!important;padding:8px!important}#sheet.beauty-control-sheet #beautySingleValue{font-size:18px!important}#sheet.beauty-control-sheet .kt-beauty-v2-actions{gap:6px!important;margin-top:7px!important}#sheet.beauty-control-sheet .kt-beauty-v2-actions button{height:38px!important;font-size:12px!important}}';
     document.head.appendChild(s);
   }
 
