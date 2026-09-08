@@ -247,7 +247,7 @@
       try{stream=window.state&&state.stream;}catch(e){}
       if(stream&&liveTracks(stream,'video')&&!liveTracks(stream,'audio')&&navigator.mediaDevices&&navigator.mediaDevices.getUserMedia){
         try{
-          var mic=await navigator.mediaDevices.getUserMedia({video:false,audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
+          var mic=await navigator.mediaDevices.getUserMedia({video:false,audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true,sampleRate:{ideal:48000},channelCount:{ideal:1}}});
           mic.getAudioTracks().forEach(function(t){try{stream.addTrack(t);}catch(e){}});
         }catch(e){}
       }
