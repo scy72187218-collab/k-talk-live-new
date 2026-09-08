@@ -13,5 +13,5 @@
   load('install-k-talk.js?v=20260907-icon1');
   load('secret-center-people.js?v=20260908-secretpeople1');
   load('beauty-ai-actions.js?v=20260908a');
-  load('private-monitor-20260908.js?v=20260908-private1');
+  load('private-monitor-20260908.js?v=20260908-earn2');
 })();
