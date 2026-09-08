@@ -150,7 +150,6 @@
     ensureStyle();
     loadBeautyUpgrade(function(){applyLiveBeauty();});
 
-    /* 이전에 잘못 들어간 사진 배경이 남아 있으면 13명 호스트에서만 제거한다. */
     var host=main.querySelector('.ktg13-host');
     if(host){
       host.style.removeProperty('background-image');
@@ -176,4 +175,14 @@
   try{observer.observe(document.body,{childList:true,subtree:true});}catch(e){}
   setInterval(apply,800);
   setTimeout(apply,0);
+})();
+
+/* 1인/구독자/비밀방에도 같은 1~100 보정을 연결한다. */
+(function(){
+  if(document.querySelector('script[data-kt-beauty-three-rooms]'))return;
+  var s=document.createElement('script');
+  s.src='beauty-three-rooms.js?v=20260909-all4';
+  s.async=false;
+  s.setAttribute('data-kt-beauty-three-rooms','1');
+  document.head.appendChild(s);
 })();
