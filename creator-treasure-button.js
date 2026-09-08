@@ -40,13 +40,3 @@
   setTimeout(ensureButton,100);
   setTimeout(ensureButton,500);
 })();
-
-/* 첫 방문 설치 안내는 별도 파일로만 추가 로드 */
-(function(){
-  if(document.querySelector('script[data-kt-install-once]'))return;
-  var s=document.createElement('script');
-  s.src='install-once.js?v=20260908a';
-  s.async=false;
-  s.setAttribute('data-kt-install-once','1');
-  document.head.appendChild(s);
-})();
