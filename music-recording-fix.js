@@ -9,4 +9,5 @@
   load('music-recording-base.js?v=20260907-group13');
   load('group13-approved-room.js?v=20260907-group13');
   load('desktop-video-playback-fix.js?v=20260908-pcvideo1');
+  load('video-more-menu.js?v=20260909-video-more1');
 })();
