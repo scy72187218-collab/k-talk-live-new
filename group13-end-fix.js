@@ -78,3 +78,13 @@
   s.setAttribute('data-kt-tablet-performance','1');
   document.head.appendChild(s);
 })();
+
+/* 요청대로 다른 화면은 건드리지 않고 선물 버튼 위치만 이동 */
+(function(){
+  if(document.querySelector('script[data-kt-gift-position-only]'))return;
+  var s=document.createElement('script');
+  s.src='gift-position-only-fix.js?v=20260908-giftpos01';
+  s.defer=true;
+  s.setAttribute('data-kt-gift-position-only','1');
+  document.head.appendChild(s);
+})();
