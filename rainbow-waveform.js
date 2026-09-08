@@ -319,3 +319,13 @@
   s.setAttribute('data-kt-beauty-natural-upgrade','1');
   document.head.appendChild(s);
 })();
+
+/* 얼굴 따라 움직이는 필터 확장 파일만 추가로 불러온다. */
+(function(){
+  if(document.querySelector('script[data-kt-face-effects-upgrade]'))return;
+  var s=document.createElement('script');
+  s.src='tiktok-face-effects.js?v=20260908a';
+  s.async=false;
+  s.setAttribute('data-kt-face-effects-upgrade','1');
+  document.head.appendChild(s);
+})();
