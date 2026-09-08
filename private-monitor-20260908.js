@@ -28,6 +28,7 @@
         '<div style="padding:16px;border:1px solid #d5ae39;border-radius:15px;background:#17140b;color:#fff;text-align:center">'+
           '<div style="font-size:23px;font-weight:950;color:#ffe36a">'+net+'</div>'+
           '<div style="margin-top:7px;font-size:12px">'+roses+' · '+rate+'</div>'+
+          '<div style="margin-top:6px;font-size:10px;color:#ffd76a;font-weight:850">소속사: 소속사에서 지급 결정</div>'+
         '</div>');
     }
   };
@@ -43,8 +44,23 @@
       +'/* 선물상자 바로 위 기존 개인 수익표만 조금 작게 */'
       +'.ktg13-earn #myEarnHud{width:90%!important;min-width:0!important;margin-left:auto!important;padding:1px 5px!important;border-radius:9px!important}'
       +'.ktg13-earn #myEarnHud #hudEarnNet,.ktg13-earn #myEarnHud #hudEarnRoses,.ktg13-earn #myEarnHud #hudEarnRate{font-size:10px!important;line-height:1.08!important}'
-      +'@media(max-width:390px){.ktg13-earn #myEarnHud{width:88%!important;padding:1px 4px!important}.ktg13-earn #myEarnHud #hudEarnNet,.ktg13-earn #myEarnHud #hudEarnRoses,.ktg13-earn #myEarnHud #hudEarnRate{font-size:9px!important}}';
+      +'.ktg13-earn #myEarnHud #hudEarnAgency{grid-column:1/-1!important;text-align:center!important;color:#ffd76a!important;font-size:8px!important;line-height:1.1!important;font-weight:850!important;white-space:normal!important}'
+      +'@media(max-width:390px){.ktg13-earn #myEarnHud{width:88%!important;padding:1px 4px!important}.ktg13-earn #myEarnHud #hudEarnNet,.ktg13-earn #myEarnHud #hudEarnRoses,.ktg13-earn #myEarnHud #hudEarnRate{font-size:9px!important}.ktg13-earn #myEarnHud #hudEarnAgency{font-size:7px!important}}';
     document.head.appendChild(s);
+  }
+
+  function ensureAgencyNote(){
+    try{
+      var detail=document.getElementById('myEarnDetail');
+      if(!detail)return;
+      var note=document.getElementById('hudEarnAgency');
+      if(!note){
+        note=document.createElement('span');
+        note.id='hudEarnAgency';
+        detail.appendChild(note);
+      }
+      note.textContent='소속사: 소속사에서 지급 결정';
+    }catch(e){}
   }
 
   function makeEarnButton(host){
@@ -106,6 +122,7 @@
     var room=document.querySelector('.ktg13-room');
     if(!room)return;
     addStyle();
+    ensureAgencyNote();
 
     /* 예전에 잘못 들어간 '모니터' 버튼이 있으면 이것만 제거 */
     room.querySelectorAll('.ktg13-monitor-tool').forEach(function(b){try{b.remove();}catch(e){}});
