@@ -98,13 +98,3 @@
   s.setAttribute('data-kt-video-owner-menu','1');
   document.head.appendChild(s);
 })();
-
-/* 동영상 한 번 올릴 때 두 개씩 생기는 중복 등록만 방지. */
-(function(){
-  if(document.querySelector('script[data-kt-video-upload-dedupe]'))return;
-  var s=document.createElement('script');
-  s.src='video-upload-dedupe-fix.js?v=20260908a';
-  s.async=false;
-  s.setAttribute('data-kt-video-upload-dedupe','1');
-  document.head.appendChild(s);
-})();

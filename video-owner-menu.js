@@ -127,9 +127,9 @@
   };
 
   function addMenu(sec,id,url){
-    if(!sec||sec.querySelector('[aria-label="동영상 메뉴"]')||sec.querySelector('.kt-owned-video-more'))return;
+    if(!sec||sec.querySelector('.kt-owned-video-more'))return;
     var wrap=document.createElement('div');wrap.className='kt-owned-video-more';
-    wrap.innerHTML='<button type="button" class="kt-owned-video-more-btn" aria-label="동영상 메뉴" title="동영상 메뉴">•••</button>'
+    wrap.innerHTML='<button type="button" class="kt-owned-video-more-btn" aria-label="동영상 메뉴" title="동영상 메뉴">⋮</button>'
       +'<div class="kt-owned-video-menu">'
         +'<button type="button" class="danger">🗑 삭제</button>'
         +'<button type="button">📝 임시 저장</button>'
@@ -153,7 +153,7 @@
   }
   if(!document.getElementById('ktOwnedVideoMenuStyle')){
     var st=document.createElement('style');st.id='ktOwnedVideoMenuStyle';
-    st.textContent='.kt-owned-video-more{position:absolute;right:12px;top:62px;z-index:60}.kt-owned-video-more-btn{width:46px;height:40px;border:0;border-radius:20px;background:rgba(0,0,0,.58);color:#fff;font-size:22px;font-weight:950;letter-spacing:2px;line-height:1;display:flex;align-items:center;justify-content:center;padding:0;box-shadow:0 2px 10px rgba(0,0,0,.35)}.kt-owned-video-menu{display:none;position:absolute;right:0;top:43px;width:154px;padding:6px;border-radius:13px;background:rgba(20,20,22,.96);border:1px solid rgba(255,255,255,.16);box-shadow:0 8px 24px rgba(0,0,0,.45)}.kt-owned-video-menu.open{display:grid;gap:3px}.kt-owned-video-menu button{width:100%;padding:10px 9px;border:0;border-radius:9px;background:transparent;color:#fff;text-align:left;font-size:13px;font-weight:800}.kt-owned-video-menu button:active{background:rgba(255,255,255,.12)}.kt-owned-video-menu button.danger{color:#ff788f}';document.head.appendChild(st);
+    st.textContent='.kt-owned-video-more{position:absolute;right:12px;top:62px;z-index:60}.kt-owned-video-more-btn{width:38px;height:38px;border:0;border-radius:50%;background:rgba(0,0,0,.58);color:#fff;font-size:28px;font-weight:900;line-height:30px;display:grid;place-items:center;box-shadow:0 2px 10px rgba(0,0,0,.35)}.kt-owned-video-menu{display:none;position:absolute;right:0;top:43px;width:154px;padding:6px;border-radius:13px;background:rgba(20,20,22,.96);border:1px solid rgba(255,255,255,.16);box-shadow:0 8px 24px rgba(0,0,0,.45)}.kt-owned-video-menu.open{display:grid;gap:3px}.kt-owned-video-menu button{width:100%;padding:10px 9px;border:0;border-radius:9px;background:transparent;color:#fff;text-align:left;font-size:13px;font-weight:800}.kt-owned-video-menu button:active{background:rgba(255,255,255,.12)}.kt-owned-video-menu button.danger{color:#ff788f}';document.head.appendChild(st);
   }
   document.addEventListener('click',function(){closeMenus();});
   try{new MutationObserver(function(){setTimeout(scan,0);}).observe(document.documentElement,{childList:true,subtree:true});}catch(e){}

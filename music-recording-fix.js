@@ -18,5 +18,4 @@
   load('group13-inline-earnings-20260908.js?v=20260908-inline-earn2');
   load('my-video-menu-fix-20260908.js?v=20260908-video-menu1');
   load('profile-video-restore-20260908.js?v=20260908-profile-video1');
-  load('my-video-delete-longpress-20260908.js?v=20260908-delete1');
 })();
