@@ -1,4 +1,4 @@
-/* K-Talk: 방송 오른쪽 좋아요 바로 위에 겹쳐 뜨는 중복 보정(반짝이) 버튼만 숨김. 좋아요 버튼은 깜빡이지 않게 고정. 다른 버튼/기능은 건드리지 않음. */
+/* K-Talk: 13명 방송 오른쪽 좋아요 주변 중복 보정 버튼만 숨김. 1인/구독자/비밀방은 건드리지 않음. */
 (function(){
   if(window.__ktTopBeautyDuplicateFixInstalled)return;
   window.__ktTopBeautyDuplicateFixInstalled=true;
@@ -39,7 +39,7 @@
   function fix(){
     var screen=document.getElementById('screen');
     if(!screen)return;
-    if(!screen.querySelector('#ktSept2Live,.ktsolo-room,.ktsubscriber-room,.ktsecret-room,.ktg13-room,.live-view'))return;
+    if(!screen.querySelector('.ktg13-room'))return;
 
     var buttons=Array.prototype.slice.call(screen.querySelectorAll('button'));
     var likes=buttons.filter(function(b){return isLike(b)&&visible(b);});
