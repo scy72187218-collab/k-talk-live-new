@@ -10,6 +10,7 @@
   load('group13-approved-room.js?v=20260907-group13');
   load('earnings-rooms-copy.js?v=20260909-earnings-restore1');
   load('all-device-open-stability.js?v=20260910-all1');
+  load('group13-bottom-fit-fix.js?v=20260910-bottom1');
   load('gift-viewport-fix.js?v=20260910-gift1');
   load('video-more-menu.js?v=20260909-video-more1');
   load('public-feed-three-dot.js?v=20260909-feedmore1');
