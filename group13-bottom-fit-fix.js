@@ -3,11 +3,21 @@
   if(window.__ktGroup13BottomFitInstalled)return;
   window.__ktGroup13BottomFitInstalled=true;
 
-  function setVh(){
+  function visibleHeight(){
     try{
-      var h=(window.visualViewport&&window.visualViewport.height)||window.innerHeight||document.documentElement.clientHeight||700;
-      document.documentElement.style.setProperty('--kt-g13-visible-h',Math.round(h)+'px');
-    }catch(e){}
+      var s=document.getElementById('screen');
+      var vh=(window.visualViewport&&window.visualViewport.height)||window.innerHeight||document.documentElement.clientHeight||700;
+      var top=0;
+      if(s){
+        var r=s.getBoundingClientRect();
+        top=Math.max(0,Math.round(r.top||0));
+      }
+      return Math.max(320,Math.floor(vh-top-6));
+    }catch(e){return 700;}
+  }
+
+  function setVh(){
+    try{document.documentElement.style.setProperty('--kt-g13-visible-h',visibleHeight()+'px');}catch(e){}
   }
 
   function installStyle(){
@@ -23,16 +33,16 @@
   }
 
   function apply(){
-    setVh();
     var s=document.getElementById('screen');
     if(!s)return;
     var room=s.querySelector('.ktg13-room');
     s.classList.toggle('ktg13-fit-screen',!!room);
+    if(room)setVh();
   }
 
-  setVh();installStyle();apply();
+  installStyle();apply();
   window.addEventListener('resize',apply);
   window.addEventListener('orientationchange',function(){setTimeout(apply,160);});
-  try{if(window.visualViewport)window.visualViewport.addEventListener('resize',apply);}catch(e){}
+  try{if(window.visualViewport){window.visualViewport.addEventListener('resize',apply);window.visualViewport.addEventListener('scroll',apply);}}catch(e){}
   try{new MutationObserver(function(){setTimeout(apply,10);}).observe(document.documentElement,{childList:true,subtree:true});}catch(e){}
 })();
