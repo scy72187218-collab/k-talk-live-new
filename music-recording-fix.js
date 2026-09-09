@@ -11,4 +11,5 @@
   load('earnings-rooms-copy.js?v=20260909-earnings-restore1');
   load('mobile-open-compat.js?v=20260909-mobile1');
   load('video-more-menu.js?v=20260909-video-more1');
+  load('beauty-natural-upgrade.js?v=20260909-beauty2');
 })();
