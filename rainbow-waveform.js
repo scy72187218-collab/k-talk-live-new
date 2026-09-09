@@ -309,3 +309,15 @@
   style.textContent='.room-switch,.kt-creator-room-shortcuts button{pointer-events:auto!important;touch-action:manipulation!important}.room-switch{position:relative!important;z-index:20!important}';
   document.head.appendChild(style);
 })();
+
+/* 1인방·구독자방·비밀방: 내 수익의 수익률/장미 상세를 항상 보이게만 복구. 13명방과 다른 UI는 건드리지 않음. */
+(function(){
+  if(window.__ktThreeRoomEarningsRateVisibleInstalled)return;
+  window.__ktThreeRoomEarningsRateVisibleInstalled=true;
+  var style=document.createElement('style');
+  style.id='ktThreeRoomEarningsRateVisibleStyle';
+  style.textContent=''
+    +'.ktsolo-room #myEarnDetail,.ktsubscriber-room #myEarnDetail,.ktsecret-room #myEarnDetail{display:grid!important;visibility:visible!important;opacity:1!important}'
+    +'.ktsolo-room #hudEarnRate,.ktsubscriber-room #hudEarnRate,.ktsecret-room #hudEarnRate{display:block!important;visibility:visible!important;opacity:1!important;white-space:nowrap!important}';
+  document.head.appendChild(style);
+})();
