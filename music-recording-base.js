@@ -204,7 +204,9 @@
 
   try{
     var observer=new MutationObserver(function(){
-      document.querySelectorAll('.kt-public-video,#ktLibraryPlayer').forEach(function(v){
+      /* 공개 피드는 무음 자동재생을 유지해야 모든 휴대폰/태블릿/PC에서 검은 화면 없이 열린다.
+         내 동영상 플레이어만 기존처럼 소리를 켠다. */
+      document.querySelectorAll('#ktLibraryPlayer').forEach(function(v){
         try{v.defaultMuted=false;v.muted=false;v.volume=1;}catch(e){}
       });
     });
