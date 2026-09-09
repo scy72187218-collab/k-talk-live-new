@@ -37,11 +37,15 @@
   window.openSubs=function(){
     showSheet('👑 구독·VIP 혜택',
       '<div style="padding:3px 0 4px">'+
-      '<div class="rowbox" style="border-color:#7f6cff66;box-shadow:0 0 14px #6a58ff33"><b style="color:#c9c1ff">💎 구독자 혜택</b><br>구독자는 구독자 전용방을 이용할 수 있고, 일반방과 1인 방송 등 이용 가능한 방송방을 더 편하게 확인할 수 있습니다.</div>'+
-      '<div class="rowbox" style="border-color:#ff5ea566;box-shadow:0 0 14px #ff4b9b33"><b style="color:#ffb0d1">🌹 장미 충전 할인</b><br>구독자는 500개 이상 충전할 때 할인 혜택을 적용하는 방식으로 안내합니다. 실제 할인율과 결제 조건은 결제 화면에서 명확하게 표시해야 합니다.</div>'+
-      '<div class="rowbox" style="border-color:#43d7ff66;box-shadow:0 0 14px #32c8ff33"><b style="color:#91eaff">🔓 이용 가능한 방</b><br>일반 13명방 · 1인 방송 · 구독자 전용방을 이용할 수 있으며, 비밀번호방은 방장이 정한 비밀번호가 있어야 입장할 수 있습니다. 기타 제한 방은 해당 이용 조건을 충족해야 합니다.</div>'+
-      '<div class="rowbox" style="border-color:#ffd45c66;box-shadow:0 0 14px #ffca3633"><b style="color:#ffe899">👑 VIP 안내</b><br>VIP 전용 혜택과 입장 권한은 회원 등급 확인 후 적용되도록 구성합니다.</div>'+
-      '<div class="note">구독·VIP 혜택과 할인 내용은 실제 서비스 정책과 결제 조건에 맞춰 최종 확정해야 합니다.</div></div>');
+      '<div class="rowbox" style="border-color:#67e3a066;box-shadow:0 0 14px #35d66b33"><b style="color:#9ff5bd">🙂 일반회원 혜택</b><br>일반회원도 일반 13명방·1인 방송 이용, 출석체크, 제비뽑기, 보물상자 등 기본 이벤트 혜택에 참여할 수 있습니다.</div>'+
+      '<div class="rowbox" style="border-color:#ff6d8f66;box-shadow:0 0 14px #ff456c33"><b style="color:#ffb4c5">🌹 7일 출석 보너스</b><br>출석을 7일 연속 완료하면 장미 10개를 보너스로 받는 혜택을 적용합니다.</div>'+
+      '<div class="rowbox" style="border-color:#91f3ee66;box-shadow:0 0 14px #31cfc733"><b style="color:#b8fff8">🎯 제비뽑기 혜택</b><br>제비뽑기에 참여해 장미 보상을 받을 수 있습니다. 당첨 보상은 1~5송이이며 꽝 항목도 포함됩니다.</div>'+
+      '<div class="rowbox" style="border-color:#ffb09a66;box-shadow:0 0 14px #ff633f33"><b style="color:#ffd0c2">🎁 보물상자·이벤트</b><br>일반회원부터 참여 가능한 보물상자와 출석 이벤트를 통해 추가 장미 보상을 받을 수 있습니다.</div>'+
+      '<div class="rowbox" style="border-color:#7f6cff66;box-shadow:0 0 14px #6a58ff33"><b style="color:#c9c1ff">💎 구독자 혜택</b><br>구독자는 구독자 전용방을 이용할 수 있고, 비밀방도 방 이용 조건에 맞으면 입장할 수 있습니다. 유료 구독자는 승인 절차를 간단하게 적용합니다.</div>'+
+      '<div class="rowbox" style="border-color:#ff5ea566;box-shadow:0 0 14px #ff4b9b33"><b style="color:#ffb0d1">🌹 장미 할인 혜택</b><br>회원 등급에 따라 장미 할인 혜택을 적용합니다. 일반 등급 5% · 중회원 10% · VIP 15% 할인 기준으로 안내합니다.</div>'+
+      '<div class="rowbox" style="border-color:#43d7ff66;box-shadow:0 0 14px #32c8ff33"><b style="color:#91eaff">🔓 이용 가능한 방</b><br>일반회원은 일반 13명방과 1인 방송을 이용할 수 있습니다. 구독자는 구독자 전용방을 이용할 수 있고, 비밀방은 비밀번호와 해당 이용 조건을 충족해야 입장할 수 있습니다.</div>'+
+      '<div class="rowbox" style="border-color:#ffd45c66;box-shadow:0 0 14px #ffca3633"><b style="color:#ffe899">👑 VIP 혜택</b><br>VIP는 VIP 등급 표시와 최대 장미 할인 혜택을 적용하며, 구독자 전용방 등 회원 등급에 맞는 혜택을 함께 이용할 수 있습니다.</div>'+
+      '<div class="note">회원 혜택은 일반회원도 참여 가능한 기본 이벤트와 구독·VIP 추가 혜택을 함께 적용합니다. 실제 결제 금액과 이용 조건은 결제 화면과 운영 정책에 맞춰 표시합니다.</div></div>');
   };
 
   window.openInvestorInfo=function(){
