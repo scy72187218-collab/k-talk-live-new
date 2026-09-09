@@ -1,4 +1,4 @@
-/* K-Talk 13명방 오른쪽 퀵 버튼만 복구: 좋아요 -> 효과 -> 보물상자 -> 매치. 다른 방은 건드리지 않음. */
+/* K-Talk 13명 방 오른쪽 퀵 버튼: 좋아요/선물/매치/효과/보물상자만 표시. 13명 방 보정은 제외. */
 (function(){
   if(window.__ktGroup13RightQuickInstalled)return;
   window.__ktGroup13RightQuickInstalled=true;
@@ -28,6 +28,10 @@
     if(n)n.textContent=String(window.__ktGroup13LikeCount);
   }
 
+  function gift(){
+    try{if(window.openGifts){window.openGifts();return;}}catch(e){}
+  }
+
   function match(){
     try{if(window.openMatchArena){window.openMatchArena('1대1');return;}}catch(e){}
     try{if(window.ktRenderMatchArena){window.showSheet&&window.showSheet('호스트 매치','<div class="kt-match-arena"></div>');window.ktRenderMatchArena('1대1');return;}}catch(e){}
@@ -45,6 +49,7 @@
   }
 
   window.ktGroup13QuickLike=like;
+  window.ktGroup13QuickGift=gift;
   window.ktGroup13QuickMatch=match;
   window.ktGroup13QuickEffect=effect;
   window.ktGroup13QuickTreasure=treasure;
@@ -54,56 +59,40 @@
     if(!main)return;
     ensureStyle();
 
-    var box=main.querySelector('.ktg13-right-quick');
-    if(!box){
-      box=document.createElement('div');
-      box.className='ktg13-right-quick';
-      main.appendChild(box);
+    var host=main.querySelector('.ktg13-host');
+    if(host){
+      host.style.removeProperty('background-image');
+      host.style.removeProperty('background-size');
+      host.style.removeProperty('background-position');
     }
 
-    var likeBtn=box.querySelector('[aria-label="좋아요"]');
-    if(!likeBtn){
-      likeBtn=document.createElement('button');
-      likeBtn.className='ktg13-like';
-      likeBtn.type='button';
-      likeBtn.setAttribute('onclick','ktGroup13QuickLike()');
-      likeBtn.setAttribute('aria-label','좋아요');
-      likeBtn.innerHTML='<b>💗</b><span>좋아요</span><em id="ktg13LikeCount">'+String(window.__ktGroup13LikeCount)+'</em>';
+    var old=main.querySelector('.ktg13-right-quick');
+    if(old){
+      var beauty=old.querySelector('[aria-label="보정"]');
+      if(beauty)beauty.remove();
+      if(!old.querySelector('[aria-label="보물상자"]')){
+        var chest=document.createElement('button');
+        chest.className='ktg13-treasure';
+        chest.type='button';
+        chest.setAttribute('aria-label','보물상자');
+        chest.setAttribute('onclick','ktGroup13QuickTreasure()');
+        chest.innerHTML='<b>🎁</b><span>보물상자</span>';
+        var effectBtn=old.querySelector('[aria-label="효과"]');
+        if(effectBtn&&effectBtn.nextSibling)old.insertBefore(chest,effectBtn.nextSibling);
+        else old.appendChild(chest);
+      }
+      return;
     }
 
-    var effectBtn=box.querySelector('[aria-label="효과"]');
-    if(!effectBtn){
-      effectBtn=document.createElement('button');
-      effectBtn.type='button';
-      effectBtn.setAttribute('onclick','ktGroup13QuickEffect()');
-      effectBtn.setAttribute('aria-label','효과');
-      effectBtn.innerHTML='<b>✨</b><span>효과</span>';
-    }
-
-    var chest=box.querySelector('[aria-label="보물상자"]');
-    if(!chest){
-      chest=document.createElement('button');
-      chest.className='ktg13-treasure';
-      chest.type='button';
-      chest.setAttribute('onclick','ktGroup13QuickTreasure()');
-      chest.setAttribute('aria-label','보물상자');
-      chest.innerHTML='<b>🎁</b><span>보물상자</span>';
-    }
-
-    var matchBtn=box.querySelector('[aria-label="매치"]');
-    if(!matchBtn){
-      matchBtn=document.createElement('button');
-      matchBtn.type='button';
-      matchBtn.setAttribute('onclick','ktGroup13QuickMatch()');
-      matchBtn.setAttribute('aria-label','매치');
-      matchBtn.innerHTML='<b>⚔</b><span>매치</span>';
-    }
-
-    box.innerHTML='';
-    box.appendChild(likeBtn);
-    box.appendChild(effectBtn);
-    box.appendChild(chest);
-    box.appendChild(matchBtn);
+    var box=document.createElement('div');
+    box.className='ktg13-right-quick';
+    box.innerHTML=''
+      +'<button class="ktg13-like" type="button" onclick="ktGroup13QuickLike()" aria-label="좋아요"><b>💗</b><span>좋아요</span><em id="ktg13LikeCount">'+String(window.__ktGroup13LikeCount)+'</em></button>'
+      +'<button type="button" onclick="ktGroup13QuickGift()" aria-label="선물"><b>🎁</b><span>선물</span></button>'
+      +'<button type="button" onclick="ktGroup13QuickMatch()" aria-label="매치"><b>⚔</b><span>매치</span></button>'
+      +'<button type="button" onclick="ktGroup13QuickEffect()" aria-label="효과"><b>✨</b><span>효과</span></button>'
+      +'<button class="ktg13-treasure" type="button" onclick="ktGroup13QuickTreasure()" aria-label="보물상자"><b>🎁</b><span>보물상자</span></button>';
+    main.appendChild(box);
   }
 
   var observer=new MutationObserver(function(){apply();});
@@ -112,49 +101,12 @@
   setTimeout(apply,0);
 })();
 
-/* 13명방이 기본 전체화면으로 먼저 열렸을 때, 승인된 호스트+12게스트/하단 UI로 한 번만 다시 붙인다. */
+/* 1인/구독자/비밀방에는 기존 1~100 보정을 그대로 연결한다. */
 (function(){
-  if(window.__ktGroup13RenderRecoveryInstalled)return;
-  window.__ktGroup13RenderRecoveryInstalled=true;
-  var busy=false;
-  var retried=false;
-
-  function isGroup13(){
-    try{
-      var t=(window.state&&state.liveRoomType)||'';
-      var n=(window.state&&state.liveRoomName)||'';
-      return t==='group'||t==='group13'||n==='13명 방송';
-    }catch(e){return false;}
-  }
-
-  function needsRecovery(){
-    if(!isGroup13())return false;
-    if(document.querySelector('.ktg13-room'))return false;
-    var s=document.getElementById('screen');
-    if(!s)return false;
-    var txt=String(s.textContent||'');
-    return txt.indexOf('13명 방송')>-1||txt.indexOf('ON AIR')>-1;
-  }
-
-  async function recover(){
-    if(busy||retried||!needsRecovery()||typeof window.startBroadcast!=='function')return;
-    busy=true;
-    retried=true;
-    try{
-      await window.startBroadcast();
-    }catch(e){
-      retried=false;
-    }
-    busy=false;
-  }
-
-  setTimeout(recover,120);
-  setTimeout(recover,700);
-  try{
-    var ob=new MutationObserver(function(){
-      if(document.querySelector('.ktg13-room')){try{ob.disconnect();}catch(e){}return;}
-      setTimeout(recover,30);
-    });
-    ob.observe(document.body,{childList:true,subtree:true});
-  }catch(e){}
+  if(document.querySelector('script[data-kt-beauty-three-rooms]'))return;
+  var s=document.createElement('script');
+  s.src='beauty-three-rooms.js?v=20260909-all4';
+  s.async=false;
+  s.setAttribute('data-kt-beauty-three-rooms','1');
+  document.head.appendChild(s);
 })();
