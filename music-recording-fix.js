@@ -14,6 +14,7 @@
   load('video-more-menu.js?v=20260909-video-more1');
   load('public-feed-three-dot.js?v=20260909-feedmore1');
   load('video-duplicate-delete-fix.js?v=20260909-videofix1');
+  load('public-feed-recovery.js?v=20260909-mobile-recovery1');
 })();
 
 /* 촬영 화면의 편집효과 바로 아래 V(더보기) 버튼만 제거. 다른 버튼/기능은 건드리지 않음. */
