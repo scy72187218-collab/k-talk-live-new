@@ -9,14 +9,12 @@
   load('music-recording-base.js?v=20260910-blackvideo1');
   load('group13-approved-room.js?v=20260907-group13');
   load('earnings-rooms-copy.js?v=20260909-earnings-restore1');
-  load('mobile-open-compat.js?v=20260910-mobile2');
-  load('tablet-fast-first-frame.js?v=20260910-tablet1');
+  load('all-device-open-stability.js?v=20260910-all1');
   load('video-more-menu.js?v=20260909-video-more1');
   load('public-feed-three-dot.js?v=20260909-feedmore1');
   load('solo-right-dedupe.js?v=20260909-solo-right2');
   load('video-audio-stop-on-leave.js?v=20260909-stop1');
   load('video-social-actions-visible.js?v=20260909-social1');
-  load('ktalk-device-stability-20260909.js?v=20260910-device3');
   load('seller-ads-center-loader.js?v=20260909-business1');
 })();
 
