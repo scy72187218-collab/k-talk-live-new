@@ -25,7 +25,7 @@
   if(btn)btn.remove();
 })();
 
-/* 방송 화면 오른쪽 버튼 중복만 정리: 효과 1개, 보물상자 1개, 좋아요 뒤 겹친 그림자 제거. */
+/* 13명 방송 화면 오른쪽 버튼 중복만 정리. 1인/구독자/비밀방은 건드리지 않음. */
 (function(){
   if(window.__ktLiveSideDuplicateCleanupInstalled)return;
   window.__ktLiveSideDuplicateCleanupInstalled=true;
@@ -42,7 +42,7 @@
   function liveScreen(){
     var screen=document.getElementById('screen');
     if(!screen)return null;
-    return screen.querySelector('#ktSept2Live,.ktsolo-room,.ktsubscriber-room,.ktsecret-room,.ktg13-room,.live-view')?screen:null;
+    return screen.querySelector('.ktg13-room')?screen:null;
   }
 
   function isVisibleRight(btn){
