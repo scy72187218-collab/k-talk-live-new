@@ -186,3 +186,13 @@
   applyDefaults();
   setTimeout(function(){try{window.applyBeautyPreview();}catch(e){}},0);
 })();
+
+/* 이번 요청: 부위 보정은 건드리지 않고 숏폼 얼굴 효과 파일만 연결 */
+(function(){
+  if(document.querySelector('script[data-kt-shortform-face-effects]'))return;
+  var s=document.createElement('script');
+  s.src='face-effects-shortform.js?v=20260909a';
+  s.async=false;
+  s.setAttribute('data-kt-shortform-face-effects','1');
+  document.head.appendChild(s);
+})();
