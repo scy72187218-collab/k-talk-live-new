@@ -6,7 +6,7 @@
     s.async=false;
     document.head.appendChild(s);
   }
-  load('music-recording-base.js?v=20260910-blackvideo1');
+  load('music-recording-base.js?v=20260910-audio1');
   load('group13-approved-room.js?v=20260907-group13');
   load('earnings-rooms-copy.js?v=20260909-earnings-restore1');
   load('all-device-open-stability.js?v=20260910-all1');
