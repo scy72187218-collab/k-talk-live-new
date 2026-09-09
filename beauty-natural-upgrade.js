@@ -20,7 +20,7 @@
     }catch(e){}
   }
 
-  function filterString(forLive){
+  function filterString(){
     ensureDefaults();
     var soft=clamp(state.beautySoft,62);
     var bright=clamp(state.beautyBright,58);
@@ -29,13 +29,10 @@
     var color=clamp(state.beautyColor,55);
     var brightness=(0.92+bright*0.0030).toFixed(3);
     var saturation=(0.90+color*0.0022).toFixed(3);
-    var contrast=(0.93+sharp*0.0014).toFixed(3);
+    var softContrast=Math.max(0.90,0.98-(soft-50)*0.0008);
+    var contrast=(softContrast+(sharp-50)*0.0010).toFixed(3);
     var sepia=Math.max(0,(tone-50)*0.0015).toFixed(3);
-    var blur=Math.max(0,(soft-45)*0.008).toFixed(2);
-    if(forLive){
-      return 'brightness('+brightness+') saturate('+saturation+') contrast('+contrast+') sepia('+sepia+')';
-    }
-    return 'brightness('+brightness+') saturate('+saturation+') contrast('+contrast+') sepia('+sepia+') blur('+blur+'px)';
+    return 'brightness('+brightness+') saturate('+saturation+') contrast('+contrast+') sepia('+sepia+')';
   }
 
   function setFilterOnce(v,f){
@@ -48,15 +45,20 @@
   }
 
   function applyBeauty(){
-    var cameraFilter=filterString(false);
-    var liveFilter=filterString(true);
-    setFilterOnce(document.getElementById('camera'),cameraFilter);
-    setFilterOnce(document.getElementById('cameraBg'),cameraFilter);
-    setFilterOnce(document.getElementById('ktLiveVideo'),liveFilter);
+    var f=filterString();
+    setFilterOnce(document.getElementById('camera'),f);
+    setFilterOnce(document.getElementById('cameraBg'),f);
+    setFilterOnce(document.getElementById('ktLiveVideo'),f);
     try{
       var c=document.getElementById('creator');
       if(c)c.classList.add('beauty-on');
     }catch(e){}
+  }
+
+  var applyTimer=0;
+  function scheduleBeauty(delay){
+    try{clearTimeout(applyTimer);}catch(e){}
+    applyTimer=setTimeout(applyBeauty,Math.max(40,delay||70));
   }
 
   window.ktBeautySet=function(key,value){
@@ -101,7 +103,7 @@
     var live=document.getElementById('ktLiveVideo');
     if(!live)return;
     if(document.getElementById('ktLiveBeautyQuick'))return;
-    applyBeauty();
+    scheduleBeauty(80);
     var host=live.parentElement;
     if(!host)return;
     var b=document.createElement('button');
@@ -113,7 +115,7 @@
     try{
       if(!live.dataset.ktBeautyPlayingHook){
         live.dataset.ktBeautyPlayingHook='1';
-        live.addEventListener('playing',function(){applyBeauty();},{once:true});
+        live.addEventListener('playing',function(){scheduleBeauty(80);},{once:true});
       }
     }catch(e){}
   }
@@ -134,7 +136,8 @@
       +'#sheet.beauty-control-sheet .ktb-actions button{min-height:42px;border:1px solid #ffffff22;border-radius:12px;background:#222;color:#fff;font-weight:900}'
       +'#sheet.beauty-control-sheet .ktb-actions button.on{border:0;background:linear-gradient(135deg,#7b4dff,#dd38e8)}'
       +'#ktLiveBeautyQuick{position:absolute!important;right:10px!important;top:154px!important;z-index:12!important;width:54px!important;height:54px!important;border-radius:50%!important;border:1px solid #ffffff44!important;background:#151018df!important;color:#fff!important;font-size:19px!important;font-weight:900!important;display:grid!important;place-items:center!important;line-height:1!important}'
-      +'#ktLiveBeautyQuick small{display:block!important;margin-top:-9px!important;font-size:8px!important;color:#fff!important}';
+      +'#ktLiveBeautyQuick small{display:block!important;margin-top:-9px!important;font-size:8px!important;color:#fff!important}'
+      +'#camera,#cameraBg,#ktLiveVideo{-webkit-backface-visibility:hidden!important;backface-visibility:hidden!important;}';
     document.head.appendChild(s);
   }
 
@@ -142,7 +145,7 @@
   if(typeof oldOpenCreator==='function'){
     window.openCreator=async function(){
       var r=await oldOpenCreator.apply(this,arguments);
-      setTimeout(applyBeauty,30);
+      scheduleBeauty(90);
       return r;
     };
   }
@@ -151,7 +154,7 @@
   if(typeof oldEnsure==='function'){
     window.ensureLiveCamera=async function(){
       var r=await oldEnsure.apply(this,arguments);
-      setTimeout(applyBeauty,30);
+      scheduleBeauty(90);
       return r;
     };
   }
@@ -162,5 +165,6 @@
   });
   mo.observe(document.documentElement,{childList:true,subtree:true});
   ensureDefaults();
-  setTimeout(function(){applyBeauty();injectLiveButton();},0);
+  scheduleBeauty(80);
+  setTimeout(injectLiveButton,0);
 })();
