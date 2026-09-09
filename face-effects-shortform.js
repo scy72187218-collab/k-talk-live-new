@@ -1,5 +1,14 @@
-/* K-Talk 얼굴 효과 추가: 부위별 보정은 건드리지 않고 숏폼 스타일 효과만 확장 */
+/* K-Talk 얼굴 효과 추가: 휴대폰에서만 숏폼 스타일 효과 확장. 부위별 보정은 건드리지 않음. */
 (function(){
+  function ktIsPhone(){
+    try{
+      var ua=String(navigator.userAgent||'');
+      if(/iPhone|iPod|Android.*Mobile/i.test(ua))return true;
+      var sw=Math.min((window.screen&&screen.width)||window.innerWidth||9999,(window.screen&&screen.height)||window.innerHeight||9999);
+      return sw<=600 && (('ontouchstart' in window)||((navigator.maxTouchPoints||0)>0));
+    }catch(e){return (window.innerWidth||9999)<=600;}
+  }
+  if(!ktIsPhone())return;
   if(window.__ktShortformFaceEffectsInstalled)return;
   window.__ktShortformFaceEffectsInstalled=true;
 
