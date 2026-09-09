@@ -196,3 +196,96 @@
   s.setAttribute('data-kt-shortform-face-effects','1');
   document.head.appendChild(s);
 })();
+
+/* 신규 가입자에게 K-Talk 홈 아이콘 추가 안내를 바로 표시. 브라우저 보안상 실제 홈 화면 추가는 사용자가 한 번 눌러야 함. */
+(function(){
+  if(window.__ktFirstJoinHomeIconInstalled)return;
+  window.__ktFirstJoinHomeIconInstalled=true;
+
+  function standalone(){
+    try{return window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;}catch(e){return false;}
+  }
+
+  function ensureLinks(){
+    try{
+      if(!document.querySelector('link[rel="manifest"]')){
+        var m=document.createElement('link');m.rel='manifest';m.href='/manifest.webmanifest';document.head.appendChild(m);
+      }
+      if(!document.querySelector('link[rel~="icon"]')){
+        var i=document.createElement('link');i.rel='icon';i.href='/ktalk-icon.svg';i.type='image/svg+xml';document.head.appendChild(i);
+      }
+    }catch(e){}
+  }
+
+  ensureLinks();
+  var installEvent=null;
+  var joinSeen=false;
+
+  function removeOffer(){
+    var box=document.getElementById('ktFirstJoinIconOffer');
+    if(box)box.remove();
+  }
+
+  function showOffer(){
+    if(standalone())return;
+    if(document.getElementById('ktFirstJoinIconOffer'))return;
+    var box=document.createElement('div');
+    box.id='ktFirstJoinIconOffer';
+    box.innerHTML='<img src="/ktalk-icon.svg" alt="K-Talk"><div><b>K-Talk 아이콘</b><span>홈 화면에 바로 추가하세요</span></div><button id="ktAddHomeIcon" type="button">아이콘 추가</button><button id="ktIconLater" type="button" aria-label="나중에">×</button>';
+    box.style.cssText='position:fixed;left:10px;right:10px;bottom:18px;z-index:2147483646;display:grid;grid-template-columns:48px 1fr auto 34px;align-items:center;gap:9px;padding:10px 10px;border-radius:18px;background:rgba(10,10,16,.96);border:1px solid rgba(255,255,255,.18);box-shadow:0 8px 30px rgba(0,0,0,.45);color:#fff;font-family:system-ui,-apple-system,Noto Sans KR,sans-serif';
+    var img=box.querySelector('img');if(img)img.style.cssText='width:48px;height:48px;border-radius:13px;display:block';
+    var text=box.querySelector('div');if(text)text.style.cssText='min-width:0';
+    var b=box.querySelector('b');if(b)b.style.cssText='display:block;font-size:14px;font-weight:950';
+    var span=box.querySelector('span');if(span)span.style.cssText='display:block;margin-top:2px;font-size:11px;color:#ddd';
+    var add=box.querySelector('#ktAddHomeIcon');if(add)add.style.cssText='height:38px;padding:0 12px;border:0;border-radius:12px;background:linear-gradient(135deg,#ff3c91,#8b5cff);color:#fff;font-size:12px;font-weight:950;white-space:nowrap';
+    var later=box.querySelector('#ktIconLater');if(later)later.style.cssText='width:32px;height:32px;border:0;border-radius:50%;background:rgba(255,255,255,.08);color:#fff;font-size:22px';
+    document.body.appendChild(box);
+
+    add.onclick=async function(){
+      if(installEvent){
+        try{
+          installEvent.prompt();
+          var choice=await installEvent.userChoice;
+          if(choice&&choice.outcome==='accepted')removeOffer();
+          installEvent=null;
+          return;
+        }catch(e){}
+      }
+      alert('브라우저 메뉴에서 "홈 화면에 추가" 또는 "앱 설치"를 눌러 주세요. K-Talk 아이콘으로 설치됩니다.');
+    };
+    later.onclick=removeOffer;
+  }
+
+  window.addEventListener('beforeinstallprompt',function(e){
+    try{e.preventDefault();installEvent=e;}catch(err){}
+    if(joinSeen)setTimeout(showOffer,0);
+  });
+  window.addEventListener('appinstalled',removeOffer);
+
+  var oldAnnounce=window.ktAnnounceEvent;
+  if(typeof oldAnnounce==='function'&&!oldAnnounce.__ktHomeIconJoinWrapped){
+    var wrapped=function(type,data){
+      var r=oldAnnounce.apply(this,arguments);
+      if(type==='join'){
+        joinSeen=true;
+        setTimeout(showOffer,80);
+      }
+      return r;
+    };
+    wrapped.__ktHomeIconJoinWrapped=true;
+    window.ktAnnounceEvent=wrapped;
+  }
+
+  try{
+    if(window.state&&state.joined){joinSeen=true;setTimeout(showOffer,250);}
+  }catch(e){}
+
+  var checks=0;
+  var timer=setInterval(function(){
+    checks++;
+    try{
+      if(window.state&&state.joined){joinSeen=true;showOffer();clearInterval(timer);}
+    }catch(e){}
+    if(checks>40)clearInterval(timer);
+  },500);
+})();
