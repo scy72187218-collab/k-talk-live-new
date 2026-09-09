@@ -8,13 +8,13 @@
   }
   load('music-recording-base.js?v=20260907-group13');
   load('group13-approved-room.js?v=20260907-group13');
-  load('room-transition-no-old-flash.js?v=20260909-roomflash1');
   load('earnings-rooms-copy.js?v=20260909-earnings-restore1');
   load('mobile-open-compat.js?v=20260909-mobile1');
   load('video-more-menu.js?v=20260909-video-more1');
   load('public-feed-three-dot.js?v=20260909-feedmore1');
-  load('video-duplicate-delete-fix.js?v=20260909-videofix1');
-  load('public-feed-recovery.js?v=20260909-mobile-recovery1');
+  load('solo-right-dedupe.js?v=20260909-solo-right2');
+  load('ktalk-device-stability-20260909.js?v=20260909-device2');
+  load('seller-ads-center-loader.js?v=20260909-business1');
 })();
 
 /* 촬영 화면의 편집효과 바로 아래 V(더보기) 버튼만 제거. 다른 버튼/기능은 건드리지 않음. */
