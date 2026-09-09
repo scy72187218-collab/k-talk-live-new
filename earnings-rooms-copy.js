@@ -36,3 +36,26 @@
   document.addEventListener('DOMContentLoaded',applyEarningsCopy);
   setTimeout(applyEarningsCopy,0);
 })();
+
+/* 하트 아래에서 선물·보정(효과) 두 버튼만 숨김. 좋아요/매치/다른 UI는 그대로 둔다. */
+(function(){
+  if(window.__ktHideGiftBeautyUnderHeartInstalled)return;
+  window.__ktHideGiftBeautyUnderHeartInstalled=true;
+
+  function applyTwoButtonHide(){
+    document.querySelectorAll('.ktsolo-right,.ktsubscriber-right,.ktsecret-right').forEach(function(side){
+      side.querySelectorAll('button').forEach(function(btn){
+        var oc=String(btn.getAttribute('onclick')||'');
+        var txt=String(btn.textContent||'').replace(/\s+/g,'');
+        var isGift=oc.indexOf('openGifts')>-1;
+        var isBeauty=oc.indexOf('openBeautyPanel')>-1||oc.indexOf('Effect')>-1||txt.indexOf('보정')>-1||txt.indexOf('효과')>-1;
+        if(isGift||isBeauty)btn.style.setProperty('display','none','important');
+      });
+    });
+  }
+
+  var obs2=new MutationObserver(function(){setTimeout(applyTwoButtonHide,0);});
+  obs2.observe(document.documentElement,{childList:true,subtree:true});
+  document.addEventListener('DOMContentLoaded',applyTwoButtonHide);
+  setTimeout(applyTwoButtonHide,0);
+})();
