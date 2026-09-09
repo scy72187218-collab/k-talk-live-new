@@ -29,36 +29,23 @@
     var color=clamp(state.beautyColor,55);
     var brightness=(0.92+bright*0.0030).toFixed(3);
     var saturation=(0.90+color*0.0022).toFixed(3);
-    var softContrast=Math.max(0.90,0.98-(soft-50)*0.0008);
-    var contrast=(softContrast+(sharp-50)*0.0010).toFixed(3);
+    var contrast=(0.93+sharp*0.0014).toFixed(3);
     var sepia=Math.max(0,(tone-50)*0.0015).toFixed(3);
-    return 'brightness('+brightness+') saturate('+saturation+') contrast('+contrast+') sepia('+sepia+')';
-  }
-
-  function setFilterOnce(v,f){
-    if(!v)return;
-    try{
-      if(v.dataset&&v.dataset.ktBeautyFilter===f)return;
-      v.style.setProperty('filter',f,'important');
-      if(v.dataset)v.dataset.ktBeautyFilter=f;
-    }catch(e){}
+    var blur=Math.max(0,(soft-45)*0.008).toFixed(2);
+    return 'brightness('+brightness+') saturate('+saturation+') contrast('+contrast+') sepia('+sepia+') blur('+blur+'px)';
   }
 
   function applyBeauty(){
     var f=filterString();
-    setFilterOnce(document.getElementById('camera'),f);
-    setFilterOnce(document.getElementById('cameraBg'),f);
-    setFilterOnce(document.getElementById('ktLiveVideo'),f);
+    ['camera','cameraBg','ktLiveVideo'].forEach(function(id){
+      var v=document.getElementById(id);
+      if(!v)return;
+      try{v.style.setProperty('filter',f,'important');}catch(e){}
+    });
     try{
       var c=document.getElementById('creator');
       if(c)c.classList.add('beauty-on');
     }catch(e){}
-  }
-
-  var applyTimer=0;
-  function scheduleBeauty(delay){
-    try{clearTimeout(applyTimer);}catch(e){}
-    applyTimer=setTimeout(applyBeauty,Math.max(40,delay||70));
   }
 
   window.ktBeautySet=function(key,value){
@@ -102,8 +89,8 @@
   function injectLiveButton(){
     var live=document.getElementById('ktLiveVideo');
     if(!live)return;
+    applyBeauty();
     if(document.getElementById('ktLiveBeautyQuick'))return;
-    scheduleBeauty(80);
     var host=live.parentElement;
     if(!host)return;
     var b=document.createElement('button');
@@ -112,12 +99,6 @@
     b.innerHTML='✨<small>보정</small>';
     b.onclick=function(e){e.preventDefault();e.stopPropagation();openBeautyPanel();};
     host.appendChild(b);
-    try{
-      if(!live.dataset.ktBeautyPlayingHook){
-        live.dataset.ktBeautyPlayingHook='1';
-        live.addEventListener('playing',function(){scheduleBeauty(80);},{once:true});
-      }
-    }catch(e){}
   }
 
   if(!document.getElementById('ktBeautyVisibleLiveStyle')){
@@ -136,8 +117,7 @@
       +'#sheet.beauty-control-sheet .ktb-actions button{min-height:42px;border:1px solid #ffffff22;border-radius:12px;background:#222;color:#fff;font-weight:900}'
       +'#sheet.beauty-control-sheet .ktb-actions button.on{border:0;background:linear-gradient(135deg,#7b4dff,#dd38e8)}'
       +'#ktLiveBeautyQuick{position:absolute!important;right:10px!important;top:154px!important;z-index:12!important;width:54px!important;height:54px!important;border-radius:50%!important;border:1px solid #ffffff44!important;background:#151018df!important;color:#fff!important;font-size:19px!important;font-weight:900!important;display:grid!important;place-items:center!important;line-height:1!important}'
-      +'#ktLiveBeautyQuick small{display:block!important;margin-top:-9px!important;font-size:8px!important;color:#fff!important}'
-      +'#camera,#cameraBg,#ktLiveVideo{-webkit-backface-visibility:hidden!important;backface-visibility:hidden!important;}';
+      +'#ktLiveBeautyQuick small{display:block!important;margin-top:-9px!important;font-size:8px!important;color:#fff!important}';
     document.head.appendChild(s);
   }
 
@@ -145,7 +125,7 @@
   if(typeof oldOpenCreator==='function'){
     window.openCreator=async function(){
       var r=await oldOpenCreator.apply(this,arguments);
-      scheduleBeauty(90);
+      setTimeout(applyBeauty,30);
       return r;
     };
   }
@@ -154,17 +134,23 @@
   if(typeof oldEnsure==='function'){
     window.ensureLiveCamera=async function(){
       var r=await oldEnsure.apply(this,arguments);
-      scheduleBeauty(90);
+      setTimeout(applyBeauty,30);
       return r;
     };
   }
 
-  var mo=new MutationObserver(function(){
-    var live=document.getElementById('ktLiveVideo');
-    if(live&&!document.getElementById('ktLiveBeautyQuick'))setTimeout(injectLiveButton,0);
-  });
+  var mo=new MutationObserver(function(){setTimeout(injectLiveButton,0);});
   mo.observe(document.documentElement,{childList:true,subtree:true});
   ensureDefaults();
-  scheduleBeauty(80);
-  setTimeout(injectLiveButton,0);
+  setTimeout(function(){applyBeauty();injectLiveButton();},0);
+})();
+
+/* 숏폼 스타일 얼굴 장식 효과는 별도 메뉴에서 사용 */
+(function(){
+  if(document.querySelector('script[data-kt-shortform-face-effects]'))return;
+  var s=document.createElement('script');
+  s.src='face-effects-shortform.js?v=20260909b';
+  s.async=false;
+  s.setAttribute('data-kt-shortform-face-effects','1');
+  document.head.appendChild(s);
 })();

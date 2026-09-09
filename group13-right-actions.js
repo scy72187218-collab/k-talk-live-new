@@ -100,6 +100,7 @@
   }
 
   function apply(){
+    applySolo();
     applyGroup13();
   }
 

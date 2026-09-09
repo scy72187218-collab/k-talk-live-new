@@ -14,9 +14,6 @@
   load('video-more-menu.js?v=20260909-video-more1');
   load('public-feed-three-dot.js?v=20260909-feedmore1');
   load('video-duplicate-delete-fix.js?v=20260909-videofix1');
-  load('live-top-beauty-duplicate-fix.js?v=20260909-topbeauty1');
-  load('tiktok-face-effects.js?v=20260909-facefx1');
-  load('secret-switch-replacement.js?v=20260909-secret2');
 })();
 
 /* 촬영 화면의 편집효과 바로 아래 V(더보기) 버튼만 제거. 다른 버튼/기능은 건드리지 않음. */
@@ -25,7 +22,7 @@
   if(btn)btn.remove();
 })();
 
-/* 13명 방송 화면 오른쪽 버튼 중복만 정리. 1인/구독자/비밀방은 건드리지 않음. */
+/* 방송 화면 오른쪽 버튼 중복만 정리: 효과 1개, 보물상자 1개, 좋아요 뒤 겹친 그림자 제거. */
 (function(){
   if(window.__ktLiveSideDuplicateCleanupInstalled)return;
   window.__ktLiveSideDuplicateCleanupInstalled=true;
@@ -42,7 +39,7 @@
   function liveScreen(){
     var screen=document.getElementById('screen');
     if(!screen)return null;
-    return screen.querySelector('.ktg13-room')?screen:null;
+    return screen.querySelector('#ktSept2Live,.ktsolo-room,.ktsubscriber-room,.ktsecret-room,.ktg13-room,.live-view')?screen:null;
   }
 
   function isVisibleRight(btn){
