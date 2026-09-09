@@ -222,3 +222,46 @@
     try{if(window.openBeautyPanel)window.openBeautyPanel();}catch(err){}
   },true);
 })();
+
+/* 첫 화면 임시 영상이 잠깐 떴다가 바뀌는 현상을 막고, 공개 동영상은 한 번 터치하면 소리가 켜진 채 계속 재생한다. */
+(function(){
+  if(window.__ktHomeFeedAudioFixInstalled)return;
+  window.__ktHomeFeedAudioFixInstalled=true;
+
+  var body=document.body;
+  var hadHome=!!(body&&body.classList.contains('kt-home'));
+  if(body&&!hadHome)body.classList.add('kt-home');
+  setTimeout(function(){
+    try{if(window.home)window.home();}catch(e){}
+    setTimeout(function(){
+      try{
+        if(body&&!hadHome&&body.classList.contains('kt-home')&&!document.querySelector('.kt-public-video'))body.classList.remove('kt-home');
+      }catch(e){}
+    },1200);
+  },20);
+
+  var soundUnlocked=false;
+  function soundOn(v){
+    if(!v)return;
+    soundUnlocked=true;
+    try{v.muted=false;v.defaultMuted=false;v.removeAttribute('muted');v.volume=1;}catch(e){}
+    try{var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
+  }
+
+  document.addEventListener('click',function(e){
+    var v=e.target&&e.target.closest?e.target.closest('.kt-public-video'):null;
+    if(!v)return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    if(v.muted){soundOn(v);return;}
+    try{
+      if(v.paused){var p=v.play();if(p&&p.catch)p.catch(function(){});}else v.pause();
+    }catch(err){}
+  },true);
+
+  document.addEventListener('play',function(e){
+    var v=e.target;
+    if(!soundUnlocked||!v||!v.classList||!v.classList.contains('kt-public-video'))return;
+    try{v.muted=false;v.defaultMuted=false;v.removeAttribute('muted');v.volume=1;}catch(err){}
+  },true);
+})();
