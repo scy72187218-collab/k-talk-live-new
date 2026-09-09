@@ -119,13 +119,3 @@
   s.setAttribute('data-kt-beauty-three-rooms','1');
   document.head.appendChild(s);
 })();
-
-/* 1인 방송은 사용자가 승인한 첫 번째 사진 구성을 별도 잠금한다. */
-(function(){
-  if(document.querySelector('script[data-kt-solo-first-photo-lock]'))return;
-  var s=document.createElement('script');
-  s.src='solo-first-photo-lock.js?v=20260909-1342';
-  s.async=false;
-  s.setAttribute('data-kt-solo-first-photo-lock','1');
-  document.head.appendChild(s);
-})();
