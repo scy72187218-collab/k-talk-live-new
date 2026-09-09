@@ -14,7 +14,7 @@
   load('public-feed-three-dot.js?v=20260909-feedmore1');
   load('solo-right-dedupe.js?v=20260909-solo-right2');
   load('ktalk-device-stability-20260909.js?v=20260909-device2');
-  load('home-video-instant-fix.js?v=20260909-homevideo1');
+  load('public-feed-recovery.js?v=20260908a');
   load('seller-ads-center-loader.js?v=20260909-business1');
 })();
 
