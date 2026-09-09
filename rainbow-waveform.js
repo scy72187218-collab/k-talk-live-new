@@ -309,23 +309,3 @@
   style.textContent='.room-switch,.kt-creator-room-shortcuts button{pointer-events:auto!important;touch-action:manipulation!important}.room-switch{position:relative!important;z-index:20!important}';
   document.head.appendChild(style);
 })();
-
-/* 13명 방에 첫 번째 사진 저장본만 연결. */
-(function(){
-  if(document.querySelector('script[data-kt-group13-first-photo]'))return;
-  var s=document.createElement('script');
-  s.src='group13-first-photo.js?v=20260909a';
-  s.async=false;
-  s.setAttribute('data-kt-group13-first-photo','1');
-  document.head.appendChild(s);
-})();
-
-/* 13명 방의 기존 보물상자 기능을 1인/구독자/비밀방에도 연결. */
-(function(){
-  if(document.querySelector('script[data-kt-treasure-other-rooms]'))return;
-  var s=document.createElement('script');
-  s.src='treasure-other-rooms.js?v=20260909a';
-  s.async=false;
-  s.setAttribute('data-kt-treasure-other-rooms','1');
-  document.head.appendChild(s);
-})();
