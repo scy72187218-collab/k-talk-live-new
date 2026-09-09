@@ -1,4 +1,4 @@
-/* K-Talk 요청 수정: 주름살 완화, 보정 뒤로가기, 첫 화면 동영상 즉시 표시. */
+/* K-Talk 요청 수정: 주름살 완화, 보정 뒤로가기. */
 (function(){
   if(window.__ktRequestedFixes20260907Installed)return;
   window.__ktRequestedFixes20260907Installed=true;
@@ -71,41 +71,6 @@
       return r;
     };
   }
-
-  function quickHomeVideo(){
-    var host=document.getElementById('screen');
-    if(!host)return;
-    try{
-      if(document.body.classList.contains('kt-home'))return;
-      if(host.querySelector('video'))return;
-    }catch(e){}
-    document.body.classList.remove('kt-home');
-    document.body.classList.add('kt-video-mode');
-    host.innerHTML='<section class="video-home">'
-      +'<video id="homeVideo" autoplay muted loop playsinline preload="auto" poster="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80">'
-      +'<source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4"></video>'
-      +'<div class="vh-shade"></div>'
-      +'<div class="vh-tabs"><span>LIVE</span><span>커뮤니티</span><span>팔로잉</span><span class="on">추천</span><button aria-label="검색">⌕</button></div>'
-      +'<div class="vh-title"><b>♛ K-Talk</b><span>추천 동영상 · 화면을 눌러 재생하거나 멈출 수 있습니다.</span></div>'
-      +'<div class="vh-actions"><button onclick="needJoin(\'좋아요를 누르려면 가입해 주세요.\')">♡<small>좋아요</small></button><button onclick="openComments()">💬<small>댓글</small></button><button onclick="openGifts()">🎁<small>선물</small></button><button onclick="shareApp()">↗<small>공유</small></button></div>'
-      +'</section>';
-    var v=document.getElementById('homeVideo');
-    if(v){
-      v.addEventListener('click',function(){if(v.paused)v.play().catch(function(){});else v.pause();});
-      try{var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
-    }
-  }
-
-  var loadedHome=window.home;
-  if(typeof loadedHome==='function'&&!loadedHome.__ktInstantFirstVideo){
-    var wrappedHome=function(){
-      quickHomeVideo();
-      return loadedHome.apply(this,arguments);
-    };
-    wrappedHome.__ktInstantFirstVideo=true;
-    window.home=wrappedHome;
-  }
-  setTimeout(quickHomeVideo,0);
 })();
 
 (function(){
