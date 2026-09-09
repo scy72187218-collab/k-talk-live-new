@@ -14,20 +14,20 @@
       state.beautyOn=true;
       var creator=document.getElementById('creator');
       if(creator)creator.classList.add('beauty-on');
-      /* 예전 강한 기본값이 남아 있어도 이번 자연 보정값으로 한 번만 정리 */
-      if(!state.__ktBeautyNaturalDefaultsV2){
-        state.beautyStrength=48;
-        state.beautySkin=58;
-        state.beautyWrinkle=55;
-        state.beautyBright=55;
+      /* 기본은 얼굴이 달라 보이지 않게 아주 자연스럽게 */
+      if(!state.__ktBeautyNaturalDefaultsV3){
+        state.beautyStrength=28;
+        state.beautySkin=48;
+        state.beautyWrinkle=45;
+        state.beautyBright=52;
         state.beautySharp=50;
-        state.beautyTone=52;
+        state.beautyTone=50;
         state.beautyFace=50;
         state.beautyEyes=50;
         state.beautyNose=50;
         state.beautyMouth=50;
         state.beautyJaw=50;
-        state.__ktBeautyNaturalDefaultsV2=true;
+        state.__ktBeautyNaturalDefaultsV3=true;
       }
     }catch(e){}
   }
@@ -50,8 +50,8 @@
   var oldInfo=window.getBeautyControlInfo;
   if(typeof oldInfo==='function'){
     window.getBeautyControlInfo=function(kind){
-      if(kind==='strength')return {label:'전체 보정',key:'beautyStrength',def:48};
-      if(kind==='wrinkle')return {label:'주름 완화',key:'beautyWrinkle',def:55};
+      if(kind==='strength')return {label:'전체 보정',key:'beautyStrength',def:28};
+      if(kind==='wrinkle')return {label:'주름 완화',key:'beautyWrinkle',def:45};
       if(kind==='mouth')return {label:'입 조절',key:'beautyMouth',def:50};
       if(kind==='jaw')return {label:'턱선 조절',key:'beautyJaw',def:50};
       return oldInfo.apply(this,arguments);
@@ -80,21 +80,21 @@
       applyDefaults();
       try{oldApply.apply(this,arguments);}catch(e){}
       try{
-        var strength=clamp(state.beautyStrength,48)/100;
-        var skin=clamp(state.beautySkin,58)/100;
-        var wrinkle=clamp(state.beautyWrinkle,55)/100;
-        var bright=clamp(state.beautyBright,55);
+        var strength=clamp(state.beautyStrength,28)/100;
+        var skin=clamp(state.beautySkin,48)/100;
+        var wrinkle=clamp(state.beautyWrinkle,45)/100;
+        var bright=clamp(state.beautyBright,52);
         var sharp=clamp(state.beautySharp,50);
-        var tone=clamp(state.beautyTone,52);
+        var tone=clamp(state.beautyTone,50);
         var face=clamp(state.beautyFace,50);
         var jaw=clamp(state.beautyJaw,50);
 
-        /* 기본은 자연스럽게: 과한 뽀샤시/색조/확대 제거 */
-        var brightness=1.00 + strength*.028 + (bright-50)*.0012;
-        var saturation=1.00 + strength*.012 + (tone-50)*.0007;
-        var contrast=.998 - strength*.006 + (sharp-50)*.00045;
-        var blur=.02 + skin*.10 + wrinkle*.035;
-        var scale=1 + (face-50)*.00035 + (50-jaw)*.00018;
+        /* 기본 얼굴은 그대로 두고 피부/밝기만 아주 약하게 정리 */
+        var brightness=1.00 + strength*.012 + (bright-50)*.0006;
+        var saturation=1.00 + (tone-50)*.0004;
+        var contrast=1.00 + (sharp-50)*.00025;
+        var blur=.02 + skin*.22 + wrinkle*.07;
+        var scale=1 + (face-50)*.00015 + (50-jaw)*.00008;
         var filter='brightness('+brightness.toFixed(3)+') saturate('+saturation.toFixed(3)+') contrast('+contrast.toFixed(3)+') blur('+blur.toFixed(2)+'px)';
 
         ['camera','cameraBg'].forEach(function(id){
@@ -148,15 +148,15 @@
       if(pro&&!pro.querySelector('.kt-beauty-base-note')){
         var note=document.createElement('div');
         note.className='kt-beauty-base-note';
-        note.textContent='기본 자연 보정 ON · 얼굴 장식 없이 눈·코·입·턱 포함 1~100 조절';
+        note.textContent='기본 자연 보정 ON · 얼굴은 그대로 두고 항목별 1~100 조절';
         pro.insertBefore(note,pro.firstChild);
       }
 
       var kind=(window.state&&state.beautyControl)||'strength';
       var info=window.getBeautyControlInfo?window.getBeautyControlInfo(kind):null;
       var value=window.getBeautyControlValue?window.getBeautyControlValue(kind):50;
-      if(kind==='strength')value=clamp(state.beautyStrength,48);
-      if(kind==='wrinkle')value=clamp(state.beautyWrinkle,55);
+      if(kind==='strength')value=clamp(state.beautyStrength,28);
+      if(kind==='wrinkle')value=clamp(state.beautyWrinkle,45);
       if(kind==='jaw')value=clamp(state.beautyJaw,50);
       var label=document.getElementById('beautySingleLabel');
       var rangeEl=document.getElementById('beautySingleRange');
@@ -198,7 +198,7 @@
   var oldReset=window.resetBeautyAll;
   if(typeof oldReset==='function')window.resetBeautyAll=function(){
     var r=oldReset.apply(this,arguments);
-    try{state.__ktBeautyNaturalDefaultsV2=false;}catch(e){}
+    try{state.__ktBeautyNaturalDefaultsV3=false;}catch(e){}
     applyDefaults();
     clearDecorativeFaceEffect();
     try{window.applyBeautyPreview();}catch(e){}
