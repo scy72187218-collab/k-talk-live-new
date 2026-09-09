@@ -325,3 +325,13 @@
     +'.ktg13-room #hudEarnRoses::after{content:" · 1개 30원"}';
   document.head.appendChild(style);
 })();
+
+/* 13명방 오른쪽 좋아요·효과·보물상자·매치 버튼만 불러온다. */
+(function(){
+  if(document.querySelector('script[data-kt-group13-right-actions]'))return;
+  var s=document.createElement('script');
+  s.src='group13-right-actions.js?v=20260909a';
+  s.async=false;
+  s.setAttribute('data-kt-group13-right-actions','1');
+  document.head.appendChild(s);
+})();
