@@ -1,4 +1,4 @@
-/* K-Talk 13명 방 오른쪽 퀵 버튼: 좋아요/선물/매치/효과/보물상자만 표시. 13명 방 보정은 제외. */
+/* K-Talk 13명 방 오른쪽 퀵 버튼: 좋아요/선물/매치/효과/보정/보물상자만 표시. */
 (function(){
   if(window.__ktGroup13RightQuickInstalled)return;
   window.__ktGroup13RightQuickInstalled=true;
@@ -43,6 +43,11 @@
     try{if(window.openEditEffectPanel){window.openEditEffectPanel();return;}}catch(e){}
   }
 
+  function beauty(){
+    try{if(window.ktOpenLiveBeauty){window.ktOpenLiveBeauty();return;}}catch(e){}
+    try{if(window.openBeautyPanel){window.openBeautyPanel();return;}}catch(e){}
+  }
+
   function treasure(){
     try{if(window.openTreasure){window.openTreasure();return;}}catch(e){}
     try{if(window.openGifts){window.openGifts();return;}}catch(e){}
@@ -52,6 +57,7 @@
   window.ktGroup13QuickGift=gift;
   window.ktGroup13QuickMatch=match;
   window.ktGroup13QuickEffect=effect;
+  window.ktGroup13QuickBeauty=beauty;
   window.ktGroup13QuickTreasure=treasure;
 
   function apply(){
@@ -68,8 +74,16 @@
 
     var old=main.querySelector('.ktg13-right-quick');
     if(old){
-      var beauty=old.querySelector('[aria-label="보정"]');
-      if(beauty)beauty.remove();
+      if(!old.querySelector('[aria-label="보정"]')){
+        var beautyBtn=document.createElement('button');
+        beautyBtn.type='button';
+        beautyBtn.setAttribute('aria-label','보정');
+        beautyBtn.setAttribute('onclick','ktGroup13QuickBeauty()');
+        beautyBtn.innerHTML='<b>🪞</b><span>보정</span>';
+        var effectBtn=old.querySelector('[aria-label="효과"]');
+        if(effectBtn&&effectBtn.nextSibling)old.insertBefore(beautyBtn,effectBtn.nextSibling);
+        else old.appendChild(beautyBtn);
+      }
       if(!old.querySelector('[aria-label="보물상자"]')){
         var chest=document.createElement('button');
         chest.className='ktg13-treasure';
@@ -77,8 +91,8 @@
         chest.setAttribute('aria-label','보물상자');
         chest.setAttribute('onclick','ktGroup13QuickTreasure()');
         chest.innerHTML='<b>🎁</b><span>보물상자</span>';
-        var effectBtn=old.querySelector('[aria-label="효과"]');
-        if(effectBtn&&effectBtn.nextSibling)old.insertBefore(chest,effectBtn.nextSibling);
+        var after=old.querySelector('[aria-label="보정"]')||old.querySelector('[aria-label="효과"]');
+        if(after&&after.nextSibling)old.insertBefore(chest,after.nextSibling);
         else old.appendChild(chest);
       }
       return;
@@ -91,6 +105,7 @@
       +'<button type="button" onclick="ktGroup13QuickGift()" aria-label="선물"><b>🎁</b><span>선물</span></button>'
       +'<button type="button" onclick="ktGroup13QuickMatch()" aria-label="매치"><b>⚔</b><span>매치</span></button>'
       +'<button type="button" onclick="ktGroup13QuickEffect()" aria-label="효과"><b>✨</b><span>효과</span></button>'
+      +'<button type="button" onclick="ktGroup13QuickBeauty()" aria-label="보정"><b>🪞</b><span>보정</span></button>'
       +'<button class="ktg13-treasure" type="button" onclick="ktGroup13QuickTreasure()" aria-label="보물상자"><b>🎁</b><span>보물상자</span></button>';
     main.appendChild(box);
   }
@@ -101,11 +116,11 @@
   setTimeout(apply,0);
 })();
 
-/* 1인/구독자/비밀방에는 기존 1~100 보정을 그대로 연결한다. */
+/* 13명/구독자 방에만 기존 1~100 보정을 연결한다. */
 (function(){
   if(document.querySelector('script[data-kt-beauty-three-rooms]'))return;
   var s=document.createElement('script');
-  s.src='beauty-three-rooms.js?v=20260909-all4';
+  s.src='beauty-three-rooms.js?v=20260909-13sub1';
   s.async=false;
   s.setAttribute('data-kt-beauty-three-rooms','1');
   document.head.appendChild(s);
