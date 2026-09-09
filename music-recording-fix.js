@@ -13,3 +13,9 @@
   load('video-more-menu.js?v=20260909-video-more1');
   load('public-feed-three-dot.js?v=20260909-feedmore1');
 })();
+
+/* 촬영 화면의 편집효과 바로 아래 V(더보기) 버튼만 제거. 다른 버튼/기능은 건드리지 않음. */
+(function(){
+  var btn=document.querySelector('#creator .creator-tools > button[aria-label="더보기"]');
+  if(btn)btn.remove();
+})();
