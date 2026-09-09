@@ -15,6 +15,7 @@
   load('solo-right-dedupe.js?v=20260909-solo-right2');
   load('video-audio-stop-on-leave.js?v=20260909-stop1');
   load('video-social-actions-visible.js?v=20260909-social1');
+  load('profile-video-restore-20260908.js?v=20260909-profile-restore1');
 })();
 
 /* 촬영 화면의 편집효과 바로 아래 V(더보기) 버튼만 제거. 다른 버튼/기능은 건드리지 않음. */
