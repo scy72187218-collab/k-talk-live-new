@@ -310,14 +310,18 @@
   document.head.appendChild(style);
 })();
 
-/* 1인방·구독자방·비밀방: 내 수익의 수익률/장미 상세를 항상 보이게만 복구. 13명방과 다른 UI는 건드리지 않음. */
+/* 4개 방송방: 내 수익의 수익률/장미 상세를 항상 보이게 복구. */
 (function(){
   if(window.__ktThreeRoomEarningsRateVisibleInstalled)return;
   window.__ktThreeRoomEarningsRateVisibleInstalled=true;
   var style=document.createElement('style');
   style.id='ktThreeRoomEarningsRateVisibleStyle';
   style.textContent=''
-    +'.ktsolo-room #myEarnDetail,.ktsubscriber-room #myEarnDetail,.ktsecret-room #myEarnDetail{display:grid!important;visibility:visible!important;opacity:1!important}'
-    +'.ktsolo-room #hudEarnRate,.ktsubscriber-room #hudEarnRate,.ktsecret-room #hudEarnRate{display:block!important;visibility:visible!important;opacity:1!important;white-space:nowrap!important}';
+    +'.ktsolo-room #myEarnHud,.ktsubscriber-room #myEarnHud,.ktsecret-room #myEarnHud,.ktg13-room #myEarnHud{display:block!important;visibility:visible!important;opacity:1!important}'
+    +'.ktsolo-room #myEarnDetail,.ktsubscriber-room #myEarnDetail,.ktsecret-room #myEarnDetail,.ktg13-room #myEarnDetail{display:grid!important;visibility:visible!important;opacity:1!important}'
+    +'.ktsolo-room #hudEarnRate,.ktsubscriber-room #hudEarnRate,.ktsecret-room #hudEarnRate{display:block!important;visibility:visible!important;opacity:1!important;white-space:nowrap!important}'
+    +'.ktg13-room #hudEarnRate{display:block!important;visibility:visible!important;opacity:1!important;white-space:normal!important;font-size:7px!important;line-height:1.15!important}'
+    +'.ktg13-room #hudEarnRate::after{content:" · 구독자 40%"}'
+    +'.ktg13-room #hudEarnRoses::after{content:" · 1개 30원"}';
   document.head.appendChild(style);
 })();
