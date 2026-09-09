@@ -1,4 +1,4 @@
-/* K-Talk 얼굴 효과 추가: 부위별 보정은 건드리지 않고 숏폼 스타일 재미 효과만 확장 */
+/* K-Talk 얼굴 효과 추가: 보정과 분리된 선택형 숏폼 재미 효과 */
 (function(){
   if(window.__ktShortformFaceEffectsInstalled)return;
   window.__ktShortformFaceEffectsInstalled=true;
@@ -30,10 +30,12 @@
   var oldMarkup=window.ktFaceEffectMarkup;
   window.ktFaceEffectMarkup=function(name){
     var map={
+      /* 기본 하트도 볼 옆에 붙이지 않고 위쪽 장식으로만 표시 */
+      heart:'<span class="kt-fx top">💕</span>',
       sunglasses:'<span class="kt-fx center" style="top:39%;font-size:clamp(54px,48%,98px)">🕶️</span>',
       cap:'<span class="kt-fx top" style="top:-10%">🧢</span>',
-      cat:'<span class="kt-fx top" style="top:-7%">🐱</span><span class="kt-fx cheek left">✨</span><span class="kt-fx cheek right">✨</span>',
-      puppy:'<span class="kt-fx top" style="top:-7%">🐶</span><span class="kt-fx cheek left">🐾</span><span class="kt-fx cheek right">🐾</span>',
+      cat:'<span class="kt-fx top" style="top:-7%">🐱</span><span class="kt-fx spark1">✨</span><span class="kt-fx spark2">✨</span>',
+      puppy:'<span class="kt-fx top" style="top:-7%">🐶</span>',
       bunny:'<span class="kt-fx top" style="top:-11%;font-size:clamp(58px,50%,104px)">🐰</span>',
       angel:'<span class="kt-fx top" style="top:-11%">😇</span><span class="kt-fx spark1">✨</span><span class="kt-fx spark2">✨</span>',
       crown:'<span class="kt-fx top" style="top:-12%">👑</span><span class="kt-fx spark1">✨</span><span class="kt-fx spark2">✨</span>',
@@ -47,7 +49,7 @@
       cloud:'<span class="kt-fx top">☁️☁️</span>',
       confetti:'<span class="kt-fx side-left">🎊</span><span class="kt-fx side-right">🎉</span>',
       flowercrown:'<span class="kt-fx top">🌺🌼🌺</span>',
-      heartglow:'<span class="kt-fx top">💖</span><span class="kt-fx cheek left">💕</span><span class="kt-fx cheek right">💕</span>',
+      heartglow:'<span class="kt-fx top">💖</span><span class="kt-fx spark1">✨</span><span class="kt-fx spark2">✨</span>',
       sparkleplus:'<span class="kt-fx spark1">✨</span><span class="kt-fx spark2">💫</span><span class="kt-fx spark3">✨</span><span class="kt-fx spark4">💫</span>',
       smile:'<span class="kt-fx side-left">😊</span><span class="kt-fx side-right">😊</span>'
     };
