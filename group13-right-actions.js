@@ -111,3 +111,50 @@
   setInterval(apply,800);
   setTimeout(apply,0);
 })();
+
+/* 13명방이 기본 전체화면으로 먼저 열렸을 때, 승인된 호스트+12게스트/하단 UI로 한 번만 다시 붙인다. */
+(function(){
+  if(window.__ktGroup13RenderRecoveryInstalled)return;
+  window.__ktGroup13RenderRecoveryInstalled=true;
+  var busy=false;
+  var retried=false;
+
+  function isGroup13(){
+    try{
+      var t=(window.state&&state.liveRoomType)||'';
+      var n=(window.state&&state.liveRoomName)||'';
+      return t==='group'||t==='group13'||n==='13명 방송';
+    }catch(e){return false;}
+  }
+
+  function needsRecovery(){
+    if(!isGroup13())return false;
+    if(document.querySelector('.ktg13-room'))return false;
+    var s=document.getElementById('screen');
+    if(!s)return false;
+    var txt=String(s.textContent||'');
+    return txt.indexOf('13명 방송')>-1||txt.indexOf('ON AIR')>-1;
+  }
+
+  async function recover(){
+    if(busy||retried||!needsRecovery()||typeof window.startBroadcast!=='function')return;
+    busy=true;
+    retried=true;
+    try{
+      await window.startBroadcast();
+    }catch(e){
+      retried=false;
+    }
+    busy=false;
+  }
+
+  setTimeout(recover,120);
+  setTimeout(recover,700);
+  try{
+    var ob=new MutationObserver(function(){
+      if(document.querySelector('.ktg13-room')){try{ob.disconnect();}catch(e){}return;}
+      setTimeout(recover,30);
+    });
+    ob.observe(document.body,{childList:true,subtree:true});
+  }catch(e){}
+})();
