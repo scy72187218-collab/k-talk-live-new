@@ -58,20 +58,20 @@
 
   function row(key,label){
     var value=clamp(state[key],50);
-    return '<div class="ktb-row"><div class="ktb-label"><b>'+label+'</b><strong id="ktb-'+key+'-v">'+value+'</strong></div>'+
-      '<input type="range" min="1" max="100" value="'+value+'" oninput="ktBeautySet(\''+key+'\',this.value)">'+
+    return '<div class="ktb-row"><div class="ktb-label"><b>'+label+'</b><strong id="ktb-'+key+'-v">'+value+'</strong></div>'+\
+      '<input type="range" min="1" max="100" value="'+value+'" oninput="ktBeautySet(\\''+key+'\\',this.value)">'+\
       '<div class="ktb-scale"><span>1</span><span>100</span></div></div>';
   }
 
   window.openBeautyPanel=function(){
     ensureDefaults();
-    var html='<div class="ktb-wrap">'+
-      '<div class="ktb-note">카메라 화면 보정 · 각 항목 1~100</div>'+
-      row('beautySoft','부드러움')+
-      row('beautyBright','밝기')+
-      row('beautyTone','톤')+
-      row('beautyColor','색감')+
-      row('beautySharp','선명도')+
+    var html='<div class="ktb-wrap">'+\
+      '<div class="ktb-note">카메라 화면 보정 · 각 항목 1~100</div>'+\
+      row('beautySoft','부드러움')+\
+      row('beautyBright','밝기')+\
+      row('beautyTone','톤')+\
+      row('beautyColor','색감')+\
+      row('beautySharp','선명도')+\
       '<div class="ktb-actions"><button onclick="ktBeautyReset()">기본값</button><button class="on" onclick="closeSheet()">적용</button></div></div>';
     if(window.showSheet)showSheet('✨ 카메라 보정',html);
     var sh=document.getElementById('sheet');
@@ -143,14 +143,4 @@
   mo.observe(document.documentElement,{childList:true,subtree:true});
   ensureDefaults();
   setTimeout(function(){applyBeauty();injectLiveButton();},0);
-})();
-
-/* 숏폼 스타일 얼굴 장식 효과는 별도 메뉴에서 사용 */
-(function(){
-  if(document.querySelector('script[data-kt-shortform-face-effects]'))return;
-  var s=document.createElement('script');
-  s.src='face-effects-shortform.js?v=20260909b';
-  s.async=false;
-  s.setAttribute('data-kt-shortform-face-effects','1');
-  document.head.appendChild(s);
 })();
