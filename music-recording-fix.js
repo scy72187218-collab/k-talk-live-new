@@ -14,7 +14,6 @@
   load('public-feed-three-dot.js?v=20260909-feedmore1');
   load('solo-right-dedupe.js?v=20260909-solo-right2');
   load('video-audio-stop-on-leave.js?v=20260909-stop1');
-  load('home-video-autoplay-fix.js?v=20260909-autoplay1');
   load('video-social-actions-visible.js?v=20260909-social1');
 })();
 
