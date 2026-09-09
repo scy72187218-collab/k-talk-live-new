@@ -86,3 +86,13 @@
     };
   }
 })();
+
+/* 같은 보정/얼굴효과를 4개 방송방 카메라에도 동시에 적용 */
+(function(){
+  if(document.querySelector('script[data-kt-fourroom-beauty-sync]'))return;
+  var s=document.createElement('script');
+  s.src='beauty-four-rooms-sync.js?v=20260910a';
+  s.async=false;
+  s.setAttribute('data-kt-fourroom-beauty-sync','1');
+  document.head.appendChild(s);
+})();
