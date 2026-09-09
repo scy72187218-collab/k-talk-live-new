@@ -103,7 +103,7 @@
         +'<div class="ktsolo-main">'
           +'<video id="ktLiveVideo" autoplay playsinline muted></video>'
           +'<div class="ktsolo-shade"></div>'
-          +'<div class="ktsolo-right"><button class="like" onclick="if(window.addHostLike)addHostLike(1)">💗<small>좋아요</small><b id="hostLikeCount" style="display:block;font-size:8px">0</b></button><button onclick="openGifts()">🎁</button><button onclick="if(window.openHostMatchArena)openHostMatchArena(\'1대1\')">⚔<small>매치</small></button><button onclick="ktSoloEffect()">✨<small>효과</small></button></div>'
+          +'<div class="ktsolo-right"><button class="like" onclick="if(window.addHostLike)addHostLike(1)">💗<small>좋아요</small><b id="hostLikeCount" style="display:block;font-size:8px">0</b></button><button onclick="if(window.openHostMatchArena)openHostMatchArena(\'1대1\')">⚔<small>매치</small></button></div>'
           +'<div class="ktsolo-wave">'+equalizerBars()+'</div>'
           +'<div class="ktsolo-earn"><button id="myEarnHud" onclick="toggleMyEarnings()"><div style="display:flex;align-items:center;justify-content:center;gap:5px"><span style="font-size:8px;color:#8fe8ff;font-weight:950;white-space:nowrap">🔒 내 수익</span><b id="hudEarnNet" style="font-size:12px;color:#ffe071;white-space:nowrap">'+esc(net)+'</b></div><div id="myEarnDetail" style="display:none;grid-template-columns:1fr 1fr;gap:4px;margin-top:2px;font-size:7px;color:#ddd"><span id="hudEarnRoses">'+esc(roses)+'</span><span id="hudEarnRate" style="text-align:right">'+esc(rate)+'</span></div></button></div>'
           +'<div id="ktsoloChatList" class="ktsolo-chat"></div>'
