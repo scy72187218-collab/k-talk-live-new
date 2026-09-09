@@ -212,7 +212,7 @@
   }catch(e){}
 })();
 
-/* K-Talk: 홈 동영상이 준비되기 전에 보이던 임시 화면만 숨긴다. */
+/* K-Talk: 홈 동영상은 검은 임시화면 없이 바로 보이게 한다. */
 (function(){
   if(window.__ktHomeFeedFlashFixInstalled)return;
   window.__ktHomeFeedFlashFixInstalled=true;
@@ -228,15 +228,6 @@
     return false;
   }
 
-  function showBlackOnly(){
-    if(inLiveOrCreator())return;
-    try{
-      document.body.classList.remove('kt-home');
-      document.body.classList.add('kt-video-mode');
-      homeScreen.innerHTML='<div id="ktHomeFeedLoadingBlank" style="position:absolute;inset:0;background:#000"></div>';
-    }catch(e){}
-  }
-
   function guardRealFeed(){
     if(inLiveOrCreator())return;
     try{
@@ -244,17 +235,16 @@
       var first=homeScreen.querySelector('.kt-public-video');
       if(!first)return;
       var holder=first.parentElement&&first.parentElement.parentElement?first.parentElement.parentElement:first.parentElement;
-      if(!holder||holder.dataset.ktFeedGuarded==='1')return;
-      holder.dataset.ktFeedGuarded='1';
-      holder.style.visibility='hidden';
-      var reveal=function(){
-        try{holder.style.visibility='visible';}catch(e){}
-      };
-      if(first.readyState>=2){reveal();return;}
-      first.addEventListener('loadeddata',reveal,{once:true});
-      first.addEventListener('canplay',reveal,{once:true});
-      first.addEventListener('playing',reveal,{once:true});
-      setTimeout(reveal,3000);
+      if(holder){
+        holder.dataset.ktFeedGuarded='1';
+        holder.style.visibility='visible';
+      }
+      first.preload='auto';
+      first.playsInline=true;
+      try{
+        var p=first.play();
+        if(p&&p.catch)p.catch(function(){});
+      }catch(e){}
     }catch(e){}
   }
 
@@ -266,7 +256,6 @@
   var realHome=window.home;
   if(typeof realHome==='function'&&!realHome.__ktNoFlash){
     var wrappedHome=function(){
-      showBlackOnly();
       return realHome.apply(this,arguments);
     };
     wrappedHome.__ktNoFlash=true;
@@ -278,4 +267,52 @@
       if(!inLiveOrCreator()&&typeof window.home==='function')window.home();
     }catch(e){}
   },0);
+})();
+
+/* 페이지를 바꾸면 이전 페이지의 음악/미리듣기를 즉시 멈춘다. */
+(function(){
+  if(window.__ktStopMusicOnNavigationInstalled)return;
+  window.__ktStopMusicOnNavigationInstalled=true;
+
+  function stopPageMusic(){
+    try{if(window.ktStopSoundPreview)window.ktStopSoundPreview();}catch(e){}
+    try{
+      var c=window.ktCreatorMusicCapture;
+      if(c){
+        try{c.audio.pause();c.audio.currentTime=0;}catch(e){}
+        try{c.ctx.close();}catch(e){}
+        try{c.audio.remove();}catch(e){}
+        window.ktCreatorMusicCapture=null;
+      }
+    }catch(e){}
+    try{
+      document.querySelectorAll('audio').forEach(function(a){
+        try{a.pause();a.currentTime=0;}catch(e){}
+      });
+    }catch(e){}
+    try{
+      document.querySelectorAll('.kt-public-video,#ktLibraryPlayer').forEach(function(v){
+        try{v.pause();v.muted=true;}catch(e){}
+      });
+    }catch(e){}
+  }
+  window.ktStopPageMusic=stopPageMusic;
+
+  function wrap(name){
+    var old=window[name];
+    if(typeof old!=='function'||old.__ktStopsPageMusic)return;
+    var fn=function(){
+      stopPageMusic();
+      return old.apply(this,arguments);
+    };
+    fn.__ktStopsPageMusic=true;
+    window[name]=fn;
+  }
+
+  ['home','media','friends','openCreator','openRoomPrep','openMyVideoLibrary','openProfile','openMyProfile','profile','openSettings'].forEach(wrap);
+
+  document.addEventListener('visibilitychange',function(){
+    if(document.visibilityState==='hidden')stopPageMusic();
+  });
+  window.addEventListener('pagehide',stopPageMusic);
 })();
