@@ -13,9 +13,6 @@
   load('video-more-menu.js?v=20260909-video-more1');
   load('public-feed-three-dot.js?v=20260909-feedmore1');
   load('solo-right-dedupe.js?v=20260909-solo-right2');
-  load('video-audio-stop-on-leave.js?v=20260909-stop1');
-  load('video-social-actions-visible.js?v=20260909-social1');
-  load('profile-video-restore-20260908.js?v=20260909-profile-restore1');
   load('ktalk-device-stability-20260909.js?v=20260909-device2');
   load('seller-ads-center-loader.js?v=20260909-business1');
 })();
