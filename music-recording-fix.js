@@ -16,6 +16,7 @@
   load('video-duplicate-delete-fix.js?v=20260909-videofix1');
   load('live-top-beauty-duplicate-fix.js?v=20260909-topbeauty1');
   load('tiktok-face-effects.js?v=20260909-facefx1');
+  load('secret-switch-replacement.js?v=20260909-secret2');
 })();
 
 /* 촬영 화면의 편집효과 바로 아래 V(더보기) 버튼만 제거. 다른 버튼/기능은 건드리지 않음. */
