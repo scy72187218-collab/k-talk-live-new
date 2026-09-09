@@ -93,6 +93,17 @@
     };
   }
 
+  function dedupeBeautyButtons(controls){
+    if(!controls)return;
+    var seen={};
+    Array.from(controls.querySelectorAll('button[data-beauty-kind]')).forEach(function(btn){
+      var key=String(btn.getAttribute('data-beauty-kind')||'').trim();
+      if(!key)return;
+      if(seen[key]){btn.remove();return;}
+      seen[key]=true;
+    });
+  }
+
   function addButton(controls,kind,icon,label,before){
     if(!controls||controls.querySelector('[data-beauty-kind="'+kind+'"]'))return;
     var b=document.createElement('button');
@@ -108,11 +119,13 @@
       if(!sheet||!sheet.classList.contains('beauty-control-sheet'))return;
       var controls=sheet.querySelector('.kt-beauty-controls-pro');
       if(controls){
+        dedupeBeautyButtons(controls);
         addButton(controls,'strength','✨','전체',controls.firstChild);
         addButton(controls,'wrinkle','〰','주름');
         var mouth=controls.querySelector('[data-beauty-kind="mouth"]');
         if(mouth)mouth.innerHTML='<b>👄</b><span>입</span><i></i>';
         addButton(controls,'jaw','⌄','턱');
+        dedupeBeautyButtons(controls);
       }
 
       var group=sheet.querySelector('.kt-beauty-single-group');
