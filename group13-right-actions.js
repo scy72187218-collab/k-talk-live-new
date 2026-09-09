@@ -14,17 +14,17 @@
       +'.ktg13-right-quick button{width:54px;height:54px;border-radius:50%;border:1px solid rgba(255,255,255,.22);background:rgba(28,28,32,.92);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0;box-shadow:0 2px 8px rgba(0,0,0,.4);font-family:inherit;font-weight:950;touch-action:manipulation}'
       +'.ktg13-right-quick button b{font-size:22px;line-height:1}'
       +'.ktg13-right-quick button span{font-size:10px;line-height:1.05;margin-top:3px;white-space:nowrap}'
-      +'.ktg13-right-quick .ktg13-like{width:44px!important;height:50px!important;border-radius:16px!important;border-color:#ff65b788!important;background:#321024d9!important;color:#fff!important;font-size:16px!important;font-weight:950!important;box-shadow:none!important;display:block!important;line-height:1.05!important}'
-      +'.ktg13-right-quick .ktg13-like small{display:block!important;font-size:8px!important;margin-top:1px!important;line-height:1.05!important}'
-      +'.ktg13-right-quick .ktg13-like>b{display:block!important;font-size:8px!important;line-height:1.05!important;margin-top:1px!important}'
+      +'.ktg13-right-quick .ktg13-like{height:66px;border-radius:20px;border-color:rgba(255,62,170,.55);background:rgba(70,32,57,.94);box-shadow:0 0 8px rgba(255,52,171,.26)}'
+      +'.ktg13-right-quick .ktg13-like b{font-size:25px}'
+      +'.ktg13-right-quick .ktg13-like em{font-style:normal;font-size:11px;line-height:1;margin-top:3px}'
       +'.ktg13-right-quick .ktg13-treasure{border-color:rgba(255,203,72,.62);background:linear-gradient(145deg,rgba(92,63,13,.96),rgba(37,27,9,.96));box-shadow:0 0 10px rgba(255,194,55,.28)}'
-      +'@media(max-width:390px){.ktg13-right-quick{right:4px;gap:5px}.ktg13-right-quick button{width:44px;height:44px}.ktg13-right-quick .ktg13-like{width:40px!important;height:46px!important;border-radius:16px!important}.ktg13-right-quick button b{font-size:18px}.ktg13-right-quick button span{font-size:8.5px}}';
+      +'@media(max-width:390px){.ktg13-right-quick{right:4px;gap:5px}.ktg13-right-quick button{width:44px;height:44px}.ktg13-right-quick .ktg13-like{height:54px;border-radius:17px}.ktg13-right-quick button b{font-size:18px}.ktg13-right-quick button span,.ktg13-right-quick .ktg13-like em{font-size:8.5px}}';
     document.head.appendChild(s);
   }
 
   function like(){
     window.__ktGroup13LikeCount++;
-    var n=document.getElementById('hostLikeCount');
+    var n=document.getElementById('ktg13LikeCount');
     if(n)n.textContent=String(window.__ktGroup13LikeCount);
   }
 
@@ -66,9 +66,9 @@
       likeBtn=document.createElement('button');
       likeBtn.className='ktg13-like';
       likeBtn.type='button';
-      likeBtn.setAttribute('onclick','if(window.addHostLike){addHostLike(1)}else{ktGroup13QuickLike()}');
+      likeBtn.setAttribute('onclick','ktGroup13QuickLike()');
       likeBtn.setAttribute('aria-label','좋아요');
-      likeBtn.innerHTML='💗<small>좋아요</small><b id="hostLikeCount" style="display:block;font-size:8px">0</b>';
+      likeBtn.innerHTML='<b>💗</b><span>좋아요</span><em id="ktg13LikeCount">'+String(window.__ktGroup13LikeCount)+'</em>';
     }
 
     var effectBtn=box.querySelector('[aria-label="효과"]');
