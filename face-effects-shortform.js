@@ -96,3 +96,13 @@
   s.setAttribute('data-kt-fourroom-beauty-sync','1');
   document.head.appendChild(s);
 })();
+
+/* 공개 동영상 오른쪽: 프로필 사진 → 좋아요 → 댓글 → 선물 → 공유 순서만 보강 */
+(function(){
+  if(document.querySelector('script[data-kt-feed-profile-actions]'))return;
+  var s=document.createElement('script');
+  s.src='feed-profile-actions.js?v=20260910a';
+  s.async=false;
+  s.setAttribute('data-kt-feed-profile-actions','1');
+  document.head.appendChild(s);
+})();
