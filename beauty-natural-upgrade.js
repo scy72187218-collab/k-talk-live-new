@@ -20,7 +20,7 @@
     }catch(e){}
   }
 
-  function filterString(){
+  function filterString(forLive){
     ensureDefaults();
     var soft=clamp(state.beautySoft,62);
     var bright=clamp(state.beautyBright,58);
@@ -32,16 +32,27 @@
     var contrast=(0.93+sharp*0.0014).toFixed(3);
     var sepia=Math.max(0,(tone-50)*0.0015).toFixed(3);
     var blur=Math.max(0,(soft-45)*0.008).toFixed(2);
+    if(forLive){
+      return 'brightness('+brightness+') saturate('+saturation+') contrast('+contrast+') sepia('+sepia+')';
+    }
     return 'brightness('+brightness+') saturate('+saturation+') contrast('+contrast+') sepia('+sepia+') blur('+blur+'px)';
   }
 
+  function setFilterOnce(v,f){
+    if(!v)return;
+    try{
+      if(v.dataset&&v.dataset.ktBeautyFilter===f)return;
+      v.style.setProperty('filter',f,'important');
+      if(v.dataset)v.dataset.ktBeautyFilter=f;
+    }catch(e){}
+  }
+
   function applyBeauty(){
-    var f=filterString();
-    ['camera','cameraBg','ktLiveVideo'].forEach(function(id){
-      var v=document.getElementById(id);
-      if(!v)return;
-      try{v.style.setProperty('filter',f,'important');}catch(e){}
-    });
+    var cameraFilter=filterString(false);
+    var liveFilter=filterString(true);
+    setFilterOnce(document.getElementById('camera'),cameraFilter);
+    setFilterOnce(document.getElementById('cameraBg'),cameraFilter);
+    setFilterOnce(document.getElementById('ktLiveVideo'),liveFilter);
     try{
       var c=document.getElementById('creator');
       if(c)c.classList.add('beauty-on');
@@ -89,8 +100,8 @@
   function injectLiveButton(){
     var live=document.getElementById('ktLiveVideo');
     if(!live)return;
-    applyBeauty();
     if(document.getElementById('ktLiveBeautyQuick'))return;
+    applyBeauty();
     var host=live.parentElement;
     if(!host)return;
     var b=document.createElement('button');
@@ -99,6 +110,12 @@
     b.innerHTML='✨<small>보정</small>';
     b.onclick=function(e){e.preventDefault();e.stopPropagation();openBeautyPanel();};
     host.appendChild(b);
+    try{
+      if(!live.dataset.ktBeautyPlayingHook){
+        live.dataset.ktBeautyPlayingHook='1';
+        live.addEventListener('playing',function(){applyBeauty();},{once:true});
+      }
+    }catch(e){}
   }
 
   if(!document.getElementById('ktBeautyVisibleLiveStyle')){
@@ -139,7 +156,10 @@
     };
   }
 
-  var mo=new MutationObserver(function(){setTimeout(injectLiveButton,0);});
+  var mo=new MutationObserver(function(){
+    var live=document.getElementById('ktLiveVideo');
+    if(live&&!document.getElementById('ktLiveBeautyQuick'))setTimeout(injectLiveButton,0);
+  });
   mo.observe(document.documentElement,{childList:true,subtree:true});
   ensureDefaults();
   setTimeout(function(){applyBeauty();injectLiveButton();},0);
