@@ -6,8 +6,8 @@
   function buttonKind(btn){
     var text=String(btn.textContent||'').replace(/\s+/g,'');
     var onclick=String(btn.getAttribute('onclick')||'');
-    if(text.indexOf('효과')>-1||onclick.indexOf('ktSoloEffect')>-1)return 'effect';
-    if(text.indexOf('보물상자')>-1||onclick.indexOf('ktRenderTreasure')>-1)return 'treasure';
+    if(text.indexOf('효과')>-1||text.indexOf('✨')>-1||onclick.indexOf('ktSoloEffect')>-1||onclick.indexOf('openEditEffectPanel')>-1)return 'effect';
+    if(text.indexOf('보물상자')>-1||text.indexOf('🎁')>-1||onclick.indexOf('openTreasure')>-1||onclick.indexOf('openGifts')>-1||onclick.indexOf('ktRenderTreasure')>-1)return 'treasure';
     return '';
   }
 
@@ -24,6 +24,8 @@
   }
 
   dedupe();
+  setTimeout(dedupe,60);
+  setTimeout(dedupe,250);
   var observer=new MutationObserver(function(){dedupe();});
   observer.observe(document.documentElement,{childList:true,subtree:true});
 })();
