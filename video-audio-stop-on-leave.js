@@ -1,4 +1,4 @@
-/* K-Talk: 동영상/쇼츠를 보다가 다른 페이지로 이동할 때 그 화면의 영상·음악만 정지. 다른 기능은 건드리지 않음. */
+/* K-Talk: 동영상/쇼츠를 보다가 다른 페이지로 이동할 때 그 화면의 영상·음악만 정지. 프로필은 겹쳐서 여는 화면이라 음악을 유지한다. 다른 기능은 건드리지 않음. */
 (function(){
   if(window.__ktVideoAudioStopOnLeaveInstalled)return;
   window.__ktVideoAudioStopOnLeaveInstalled=true;
@@ -20,11 +20,21 @@
     try{if(window.ktStopSoundPreview)window.ktStopSoundPreview();}catch(e){}
   }
 
-  /* 아래 메뉴로 다른 페이지를 누르는 순간 현재 동영상 소리를 먼저 멈춘다. */
+  function isProfileNav(nav){
+    if(!nav)return false;
+    try{
+      return nav.getAttribute('data-bottom')==='profile' ||
+        nav.getAttribute('data-tab')==='profile' ||
+        !!(nav.closest&&nav.closest('[data-bottom="profile"],[data-tab="profile"]'));
+    }catch(e){return false;}
+  }
+
+  /* 아래 메뉴로 다른 페이지를 누르는 순간 현재 동영상 소리를 먼저 멈춘다.
+     단, 프로필은 현재 화면 위에 겹쳐 열리므로 영상·음악을 그대로 유지한다. */
   document.addEventListener('click',function(e){
     var nav=null;
     try{nav=e.target&&e.target.closest?e.target.closest('.bottom button,.kt-bottom button'):null;}catch(err){}
-    if(nav)stopScreenMedia();
+    if(nav&&!isProfileNav(nav))stopScreenMedia();
   },true);
 
   /* 화면 내용이 교체될 때 제거되는 영상도 확실하게 멈춘다. */
@@ -46,8 +56,8 @@
     }
   }catch(e){}
 
-  /* 자주 쓰는 페이지 이동 함수도 같은 동작을 보장한다. */
-  ['home','media','friends','openCreator','openDashboard','profile','openProfile'].forEach(function(name){
+  /* 실제로 화면을 교체하는 이동만 정지. 프로필/openProfile은 겹쳐 열리므로 제외. */
+  ['home','media','friends','openCreator','openDashboard'].forEach(function(name){
     var fn=window[name];
     if(typeof fn!=='function'||fn.__ktStopsVideoAudio)return;
     var wrapped=function(){
