@@ -335,3 +335,14 @@
   s.setAttribute('data-kt-group13-right-actions','1');
   document.head.appendChild(s);
 })();
+
+
+/* 카메라 보정 업그레이드 파일만 추가 로드 */
+(function(){
+  if(document.querySelector('script[data-kt-beauty-natural-upgrade]'))return;
+  var s=document.createElement('script');
+  s.src='beauty-natural-upgrade.js?v=20260909c';
+  s.async=false;
+  s.setAttribute('data-kt-beauty-natural-upgrade','1');
+  document.head.appendChild(s);
+})();
