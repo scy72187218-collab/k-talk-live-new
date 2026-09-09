@@ -9,4 +9,5 @@
   load('music-recording-base.js?v=20260907-group13');
   load('group13-approved-room.js?v=20260907-group13');
   load('earnings-rooms-copy.js?v=20260909-earnings-restore1');
+  load('mobile-open-compat.js?v=20260909-mobile1');
 })();
