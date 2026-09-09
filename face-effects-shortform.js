@@ -15,6 +15,20 @@
   ];
   var extraNames=extraEffects.map(function(x){return x[0];});
 
+  function dedupeFaceCards(grid){
+    if(!grid)return;
+    var seenKey={};
+    var seenLabel={};
+    Array.from(grid.querySelectorAll('.kt-face-effect-card')).forEach(function(card){
+      var key=String(card.getAttribute('data-face-effect')||'').trim();
+      var labelEl=card.querySelector('b');
+      var label=String(labelEl?labelEl.textContent:'').replace(/\s+/g,'').trim();
+      if((key&&seenKey[key])||(label&&seenLabel[label])){card.remove();return;}
+      if(key)seenKey[key]=true;
+      if(label)seenLabel[label]=true;
+    });
+  }
+
   var oldMarkup=window.ktFaceEffectMarkup;
   window.ktFaceEffectMarkup=function(name){
     var map={
@@ -71,8 +85,13 @@
         try{
           var grid=document.querySelector('#sheet .kt-face-effect-grid');
           if(!grid)return;
+          dedupeFaceCards(grid);
           extraEffects.forEach(function(it){
-            if(grid.querySelector('[data-face-effect="'+it[0]+'"]'))return;
+            var existsByKey=grid.querySelector('[data-face-effect="'+it[0]+'"]');
+            var existsByLabel=Array.from(grid.querySelectorAll('.kt-face-effect-card b')).some(function(b){
+              return String(b.textContent||'').replace(/\s+/g,'').trim()===it[2];
+            });
+            if(existsByKey||existsByLabel)return;
             var b=document.createElement('button');
             b.className='kt-face-effect-card'+((window.state&&state.appliedEditEffect===it[0])?' on':'');
             b.setAttribute('data-face-effect',it[0]);
@@ -80,6 +99,7 @@
             b.onclick=function(){if(window.setEditEffect)window.setEditEffect(it[0],b);};
             grid.appendChild(b);
           });
+          dedupeFaceCards(grid);
         }catch(e){}
       },0);
       return r;
