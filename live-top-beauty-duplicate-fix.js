@@ -1,4 +1,4 @@
-/* K-Talk: 방송 오른쪽 좋아요 바로 위에 겹쳐 뜨는 중복 보정(반짝이) 버튼만 숨김. 다른 버튼/기능은 건드리지 않음. */
+/* K-Talk: 방송 오른쪽 좋아요 바로 위에 겹쳐 뜨는 중복 보정(반짝이) 버튼만 숨김. 좋아요 버튼은 깜빡이지 않게 고정. 다른 버튼/기능은 건드리지 않음. */
 (function(){
   if(window.__ktTopBeautyDuplicateFixInstalled)return;
   window.__ktTopBeautyDuplicateFixInstalled=true;
@@ -24,6 +24,18 @@
     return txt==='✨'||txt==='✦'||txt==='✨보정'||txt==='보정'||txt.indexOf('AI보정')>-1||oc.indexOf('openBeautyPanel')>-1;
   }
 
+  function freezeLike(btn){
+    try{
+      btn.style.setProperty('animation','none','important');
+      btn.style.setProperty('transition','none','important');
+      btn.style.setProperty('visibility','visible','important');
+      btn.style.setProperty('opacity','1','important');
+      btn.style.setProperty('filter','none','important');
+      btn.style.setProperty('will-change','auto','important');
+      btn.setAttribute('data-kt-like-steady','1');
+    }catch(e){}
+  }
+
   function fix(){
     var screen=document.getElementById('screen');
     if(!screen)return;
@@ -32,6 +44,7 @@
     var buttons=Array.prototype.slice.call(screen.querySelectorAll('button'));
     var likes=buttons.filter(function(b){return isLike(b)&&visible(b);});
     likes.forEach(function(like){
+      freezeLike(like);
       var lr=like.getBoundingClientRect();
       buttons.forEach(function(btn){
         if(btn===like||!isBeautySparkle(btn)||!visible(btn))return;
@@ -44,8 +57,6 @@
           btn.setAttribute('data-kt-hidden-top-beauty-duplicate','1');
         }
       });
-      like.style.setProperty('visibility','visible','important');
-      like.style.setProperty('opacity','1','important');
     });
   }
 
