@@ -1,13 +1,17 @@
-/* K-Talk only: phone open + tablet fit + home-return stability. Do not change other projects. */
+/* K-Talk only: phone + tablet + PC opening/reconnect stability. Other screens/features are untouched. */
 (function(){
   if(window.__ktDeviceStability20260909)return;
   window.__ktDeviceStability20260909=true;
 
   var FIRST_VIDEO='https://zupwbfmacwzexyvznlzq.supabase.co/storage/v1/object/public/ktalk-videos/guest/1788516701116-emysxm.mp4';
   var repairTimer=null;
+  var reconnectTimer=null;
 
   function setRealVh(){
-    try{document.documentElement.style.setProperty('--kt-real-vh',(window.innerHeight||document.documentElement.clientHeight||700)+'px');}catch(e){}
+    try{
+      var h=(window.visualViewport&&window.visualViewport.height)||window.innerHeight||document.documentElement.clientHeight||700;
+      document.documentElement.style.setProperty('--kt-real-vh',Math.round(h)+'px');
+    }catch(e){}
   }
 
   function installCss(){
@@ -91,6 +95,15 @@ html,body{max-width:100%!important;overflow-x:hidden!important;}\
     },500);
   }
 
+  function reconnect(){
+    clearTimeout(reconnectTimer);
+    reconnectTimer=setTimeout(function(){
+      setRealVh();
+      if(creatorOpen()||liveOpen())return;
+      repairHome();
+    },120);
+  }
+
   function lateReapplyGroup13(){
     if(window.__ktGroup13LateReapplyDone)return;
     window.__ktGroup13LateReapplyDone=true;
@@ -109,12 +122,27 @@ html,body{max-width:100%!important;overflow-x:hidden!important;}\
   setRealVh();installCss();lateReapplyGroup13();
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(repairHome,60);},{once:true});
   else setTimeout(repairHome,60);
+
   window.addEventListener('resize',function(){setRealVh();setTimeout(fixFeed,40);});
   window.addEventListener('orientationchange',function(){setTimeout(function(){setRealVh();fixFeed();},180);});
   window.addEventListener('pageshow',function(){setTimeout(repairHome,80);});
   window.addEventListener('popstate',function(){setTimeout(repairHome,120);});
+  window.addEventListener('online',reconnect);
+  window.addEventListener('focus',function(){if(navigator.onLine!==false)reconnect();});
   document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(repairHome,100);});
+
+  try{
+    if(window.visualViewport){
+      window.visualViewport.addEventListener('resize',function(){setRealVh();setTimeout(fixFeed,40);});
+      window.visualViewport.addEventListener('scroll',setRealVh);
+    }
+  }catch(e){}
+  try{
+    var conn=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
+    if(conn&&conn.addEventListener)conn.addEventListener('change',function(){if(navigator.onLine!==false)reconnect();});
+  }catch(e){}
   try{new MutationObserver(function(){setTimeout(fixFeed,20);}).observe(document.documentElement,{childList:true,subtree:true});}catch(e){}
+
   setTimeout(repairHome,350);
   setTimeout(repairHome,1000);
 })();
