@@ -37,25 +37,73 @@
   setTimeout(applyEarningsCopy,0);
 })();
 
-/* 하트 아래에서 선물·보정(효과) 두 버튼만 숨김. 좋아요/매치/다른 UI는 그대로 둔다. */
+/* 1인·구독자·비밀방 오른쪽: 기존 선물 버튼만 숨기고, 효과 바로 아래에 보물상자만 추가. */
 (function(){
-  if(window.__ktHideGiftBeautyUnderHeartInstalled)return;
-  window.__ktHideGiftBeautyUnderHeartInstalled=true;
+  if(window.__ktEffectTreasureRightSideInstalled)return;
+  window.__ktEffectTreasureRightSideInstalled=true;
 
-  function applyTwoButtonHide(){
-    document.querySelectorAll('.ktsolo-right,.ktsubscriber-right,.ktsecret-right').forEach(function(side){
-      side.querySelectorAll('button').forEach(function(btn){
-        var oc=String(btn.getAttribute('onclick')||'');
-        var txt=String(btn.textContent||'').replace(/\s+/g,'');
-        var isGift=oc.indexOf('openGifts')>-1;
-        var isBeauty=oc.indexOf('openBeautyPanel')>-1||oc.indexOf('Effect')>-1||txt.indexOf('보정')>-1||txt.indexOf('효과')>-1;
-        if(isGift||isBeauty)btn.style.setProperty('display','none','important');
-      });
+  window.ktRoomQuickTreasure=function(){
+    try{if(window.openTreasure){window.openTreasure();return;}}catch(e){}
+    try{if(window.openGifts)window.openGifts();}catch(e){}
+  };
+
+  function fixSide(selector,effectFn){
+    var side=document.querySelector(selector);
+    if(!side)return;
+
+    var buttons=Array.from(side.children).filter(function(el){return el&&el.tagName==='BUTTON';});
+    var like=buttons.find(function(b){return b.classList.contains('like');})||null;
+    var effect=buttons.find(function(b){return String(b.getAttribute('onclick')||'').indexOf(effectFn)>-1;})||null;
+    var match=buttons.find(function(b){return String(b.getAttribute('onclick')||'').indexOf('openHostMatchArena')>-1;})||null;
+
+    buttons.forEach(function(btn){
+      var oc=String(btn.getAttribute('onclick')||'');
+      if(oc.indexOf('openGifts')>-1 && !btn.hasAttribute('data-kt-quick-treasure')){
+        btn.style.setProperty('display','none','important');
+      }
     });
+
+    if(!effect){
+      effect=document.createElement('button');
+      effect.type='button';
+      effect.setAttribute('onclick','if(window.'+effectFn+')window.'+effectFn+'()');
+      effect.innerHTML='✨<small>효과</small>';
+    }
+    effect.style.removeProperty('display');
+
+    var chest=side.querySelector('[data-kt-quick-treasure]');
+    if(!chest){
+      chest=document.createElement('button');
+      chest.type='button';
+      chest.setAttribute('data-kt-quick-treasure','1');
+      chest.setAttribute('aria-label','보물상자');
+      chest.setAttribute('onclick','ktRoomQuickTreasure()');
+      chest.innerHTML='🎁<small>보물상자</small>';
+    }
+
+    if(like && like.nextElementSibling!==effect){
+      side.insertBefore(effect,like.nextElementSibling);
+    }else if(!like && effect.parentNode!==side){
+      side.insertBefore(effect,side.firstChild);
+    }
+
+    if(effect.nextElementSibling!==chest){
+      side.insertBefore(chest,effect.nextElementSibling);
+    }
+
+    if(match && chest.nextElementSibling!==match){
+      side.insertBefore(match,chest.nextElementSibling);
+    }
   }
 
-  var obs2=new MutationObserver(function(){setTimeout(applyTwoButtonHide,0);});
+  function applyRightSide(){
+    fixSide('.ktsolo-right','ktSoloEffect');
+    fixSide('.ktsubscriber-right','ktSubscriberEffect');
+    fixSide('.ktsecret-right','ktSecretEffect');
+  }
+
+  var obs2=new MutationObserver(function(){setTimeout(applyRightSide,0);});
   obs2.observe(document.documentElement,{childList:true,subtree:true});
-  document.addEventListener('DOMContentLoaded',applyTwoButtonHide);
-  setTimeout(applyTwoButtonHide,0);
+  document.addEventListener('DOMContentLoaded',applyRightSide);
+  setTimeout(applyRightSide,0);
 })();
