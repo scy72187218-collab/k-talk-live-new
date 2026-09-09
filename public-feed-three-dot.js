@@ -82,15 +82,16 @@
     if(!row||!row.id)throw new Error('not-found');
     var uid=currentUserId();
     if(String(row.author_id||'')!==uid)throw new Error('not-owner');
+    var ownerHeaders={'Prefer':'return=minimal','x-ktalk-author-id':uid};
 
     try{
       await fetch(SB+'/rest/v1/ktalk_video_comments?video_id=eq.'+encodeURIComponent(row.id),{
-        method:'DELETE',headers:headers({'Prefer':'return=minimal'})
+        method:'DELETE',headers:headers(ownerHeaders)
       });
     }catch(e){}
 
     var del=await fetch(SB+'/rest/v1/ktalk_videos?id=eq.'+encodeURIComponent(row.id)+'&author_id=eq.'+encodeURIComponent(uid),{
-      method:'DELETE',headers:headers({'Prefer':'return=minimal'})
+      method:'DELETE',headers:headers(ownerHeaders)
     });
     if(!del.ok)throw new Error('delete-failed');
 
@@ -100,7 +101,7 @@
     if(row.video_path){
       try{
         await fetch(SB+'/storage/v1/object/ktalk-videos/'+String(row.video_path).split('/').map(encodeURIComponent).join('/'),{
-          method:'DELETE',headers:headers()
+          method:'DELETE',headers:headers({'x-ktalk-author-id':uid})
         });
       }catch(e){}
     }
