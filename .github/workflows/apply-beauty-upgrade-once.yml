@@ -1,0 +1,231 @@
+name: Apply beauty upgrade once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/apply-beauty-upgrade-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore stronger beauty controls only
+        shell: bash
+        run: |
+          cat > beauty-natural-upgrade.js <<'EOF'
+          /* K-Talk 카메라 보정 전용: 기본 보정 + 항목별 1~100. 다른 기능은 건드리지 않음. */
+          (function(){
+            if(window.__ktBeautyNaturalUpgradeInstalled)return;
+            window.__ktBeautyNaturalUpgradeInstalled=true;
+
+            function clamp(v,d){
+              v=parseInt(v,10);
+              if(!isFinite(v))v=d;
+              return Math.max(1,Math.min(100,v));
+            }
+
+            function applyDefaults(){
+              try{
+                state.beautyOn=true;
+                var creator=document.getElementById('creator');
+                if(creator)creator.classList.add('beauty-on');
+                if(!state.__ktBeautyDefaultsSet){
+                  if(!(Number(state.beautyStrength)>0))state.beautyStrength=78;
+                  if(!(Number(state.beautySkin)>0))state.beautySkin=92;
+                  if(!(Number(state.beautyWrinkle)>0))state.beautyWrinkle=82;
+                  if(!(Number(state.beautyBright)>0))state.beautyBright=76;
+                  if(!(Number(state.beautySharp)>0))state.beautySharp=48;
+                  if(!(Number(state.beautyTone)>0))state.beautyTone=60;
+                  if(!(Number(state.beautyFace)>0))state.beautyFace=52;
+                  if(!(Number(state.beautyEyes)>0))state.beautyEyes=54;
+                  if(!(Number(state.beautyNose)>0))state.beautyNose=50;
+                  if(!(Number(state.beautyMouth)>0))state.beautyMouth=54;
+                  if(!(Number(state.beautyJaw)>0))state.beautyJaw=50;
+                  state.__ktBeautyDefaultsSet=true;
+                }
+              }catch(e){}
+            }
+
+            var oldInfo=window.getBeautyControlInfo;
+            if(typeof oldInfo==='function'){
+              window.getBeautyControlInfo=function(kind){
+                if(kind==='strength')return {label:'전체 보정',key:'beautyStrength',def:78};
+                if(kind==='wrinkle')return {label:'주름 완화',key:'beautyWrinkle',def:82};
+                if(kind==='mouth')return {label:'입 조절',key:'beautyMouth',def:54};
+                if(kind==='jaw')return {label:'턱선 조절',key:'beautyJaw',def:50};
+                return oldInfo.apply(this,arguments);
+              };
+            }
+
+            var oldSet=window.setBeautyValue;
+            if(typeof oldSet==='function'){
+              window.setBeautyValue=function(kind,value){
+                value=clamp(value,50);
+                try{
+                  if(kind==='strength')state.beautyStrength=value;
+                  else if(kind==='wrinkle')state.beautyWrinkle=value;
+                  else if(kind==='jaw')state.beautyJaw=value;
+                  else return oldSet.apply(this,arguments);
+                  if(window.applyBeautyPreview)window.applyBeautyPreview();
+                  var val=document.getElementById('beautySingleValue');
+                  if(val)val.textContent=value;
+                }catch(e){}
+              };
+            }
+
+            var oldApply=window.applyBeautyPreview;
+            if(typeof oldApply==='function'){
+              window.applyBeautyPreview=function(){
+                applyDefaults();
+                try{oldApply.apply(this,arguments);}catch(e){}
+                try{
+                  var strength=clamp(state.beautyStrength,78)/100;
+                  var skin=clamp(state.beautySkin,92)/100;
+                  var wrinkle=clamp(state.beautyWrinkle,82)/100;
+                  var bright=clamp(state.beautyBright,76);
+                  var sharp=clamp(state.beautySharp,48);
+                  var tone=clamp(state.beautyTone,60);
+                  var eyes=clamp(state.beautyEyes,54);
+                  var nose=clamp(state.beautyNose,50);
+                  var mouth=clamp(state.beautyMouth,54);
+                  var face=clamp(state.beautyFace,52);
+                  var jaw=clamp(state.beautyJaw,50);
+
+                  var brightness=1.02 + strength*.10 + (bright-50)*.0018 + (eyes-50)*.0007;
+                  var saturation=1.00 + strength*.045 + (tone-50)*.0010 + (mouth-50)*.0015;
+                  var contrast=.98 - strength*.035 + (sharp-50)*.0008 + (nose-50)*.0007;
+                  var blur=.12 + skin*.34 + wrinkle*.12;
+                  var scale=1 + (face-50)*.0012 + (50-jaw)*.0007;
+                  var filter='brightness('+brightness.toFixed(3)+') saturate('+saturation.toFixed(3)+') contrast('+contrast.toFixed(3)+') blur('+blur.toFixed(2)+'px)';
+
+                  ['camera','cameraBg'].forEach(function(id){
+                    var cam=document.getElementById(id);
+                    if(!cam)return;
+                    cam.style.setProperty('filter',filter,'important');
+                    cam.style.setProperty('transform','scaleX(-1) scale('+scale.toFixed(3)+')','important');
+                  });
+                }catch(e){}
+              };
+            }
+
+            function addButton(controls,kind,icon,label,before){
+              if(!controls||controls.querySelector('[data-beauty-kind="'+kind+'"]'))return;
+              var b=document.createElement('button');
+              b.setAttribute('data-beauty-kind',kind);
+              b.innerHTML='<b>'+icon+'</b><span>'+label+'</span><i></i>';
+              b.onclick=function(){if(window.selectBeautyControl)window.selectBeautyControl(kind);};
+              if(before&&before.parentNode===controls)controls.insertBefore(b,before);else controls.appendChild(b);
+            }
+
+            function decorate(){
+              try{
+                var sheet=document.getElementById('sheet');
+                if(!sheet||!sheet.classList.contains('beauty-control-sheet'))return;
+                var controls=sheet.querySelector('.kt-beauty-controls-pro');
+                if(controls){
+                  addButton(controls,'strength','✨','전체',controls.firstChild);
+                  addButton(controls,'wrinkle','〰','주름');
+                  var mouth=controls.querySelector('[data-beauty-kind="mouth"]');
+                  if(mouth)mouth.innerHTML='<b>👄</b><span>입</span><i></i>';
+                  addButton(controls,'jaw','⌄','턱');
+                }
+
+                var group=sheet.querySelector('.kt-beauty-single-group');
+                if(group){
+                  group.style.setProperty('display','block','important');
+                  group.style.setProperty('visibility','visible','important');
+                  group.style.setProperty('opacity','1','important');
+                  var range=group.querySelector('#beautySingleRange');
+                  if(range){range.min='1';range.max='100';range.style.setProperty('width','100%','important');}
+                  if(!group.querySelector('.kt-beauty-range-scale')){
+                    var scale=document.createElement('div');
+                    scale.className='kt-beauty-range-scale';
+                    scale.innerHTML='<span>1</span><strong>1 ~ 100 조절</strong><span>100</span>';
+                    group.appendChild(scale);
+                  }
+                }
+
+                var pro=sheet.querySelector('.kt-beauty-pro');
+                if(pro&&!pro.querySelector('.kt-beauty-base-note')){
+                  var note=document.createElement('div');
+                  note.className='kt-beauty-base-note';
+                  note.textContent='카메라 기본 보정 ON · 눈·코·입·턱 포함 항목별 1~100 조절';
+                  pro.insertBefore(note,pro.firstChild);
+                }
+
+                var kind=(window.state&&state.beautyControl)||'strength';
+                var info=window.getBeautyControlInfo?window.getBeautyControlInfo(kind):null;
+                var value=window.getBeautyControlValue?window.getBeautyControlValue(kind):50;
+                if(kind==='strength')value=clamp(state.beautyStrength,78);
+                if(kind==='wrinkle')value=clamp(state.beautyWrinkle,82);
+                if(kind==='jaw')value=clamp(state.beautyJaw,50);
+                var label=document.getElementById('beautySingleLabel');
+                var rangeEl=document.getElementById('beautySingleRange');
+                var valEl=document.getElementById('beautySingleValue');
+                if(label&&info)label.textContent=info.label;
+                if(rangeEl)rangeEl.value=value;
+                if(valEl)valEl.textContent=value;
+              }catch(e){}
+            }
+
+            if(!document.getElementById('ktBeautyNaturalUpgradeStyle')){
+              var st=document.createElement('style');
+              st.id='ktBeautyNaturalUpgradeStyle';
+              st.textContent=''
+                +'#sheet.beauty-control-sheet .kt-beauty-controls-pro{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important}'
+                +'#sheet.beauty-control-sheet .kt-beauty-controls-pro button{min-height:56px!important}'
+                +'#sheet.beauty-control-sheet .kt-beauty-single-group{display:block!important;visibility:visible!important;opacity:1!important;margin-top:9px!important;padding:10px!important;border-radius:14px!important;background:rgba(255,255,255,.07)!important}'
+                +'#sheet.beauty-control-sheet #beautySingleRange{display:block!important;width:100%!important}'
+                +'#sheet.beauty-control-sheet #beautySingleValue{display:inline-flex!important;min-width:38px!important;justify-content:center!important;font-size:18px!important;font-weight:950!important}'
+                +'#sheet.beauty-control-sheet .kt-beauty-range-scale{display:flex!important;justify-content:space-between!important;margin-top:5px!important;font-size:11px!important;color:#ddd!important}'
+                +'#sheet.beauty-control-sheet .kt-beauty-range-scale strong{font-size:12px!important;color:#fff!important}'
+                +'#sheet.beauty-control-sheet .kt-beauty-base-note{margin:0 0 7px!important;padding:7px 9px!important;border-radius:10px!important;background:rgba(128,70,255,.16)!important;color:#fff!important;font-size:11px!important;font-weight:850!important;text-align:center!important}';
+              document.head.appendChild(st);
+            }
+
+            var oldOpen=window.openBeautyPanel;
+            if(typeof oldOpen==='function')window.openBeautyPanel=function(){applyDefaults();var r=oldOpen.apply(this,arguments);setTimeout(decorate,0);setTimeout(function(){try{window.applyBeautyPreview();}catch(e){}},20);return r;};
+
+            var oldSelect=window.selectBeautyControl;
+            if(typeof oldSelect==='function')window.selectBeautyControl=function(kind){var r=oldSelect.apply(this,arguments);setTimeout(decorate,0);return r;};
+
+            var oldReset=window.resetBeautyAll;
+            if(typeof oldReset==='function')window.resetBeautyAll=function(){var r=oldReset.apply(this,arguments);try{state.beautyStrength=78;state.beautyWrinkle=82;state.beautyJaw=50;state.beautyMouth=54;state.__ktBeautyDefaultsSet=false;}catch(e){}applyDefaults();try{window.applyBeautyPreview();}catch(e){}setTimeout(decorate,0);return r;};
+
+            var oldOpenCreator=window.openCreator;
+            if(typeof oldOpenCreator==='function')window.openCreator=async function(){var r=await oldOpenCreator.apply(this,arguments);applyDefaults();try{window.applyBeautyPreview();}catch(e){}return r;};
+
+            var oldEnsure=window.ensureLiveCamera;
+            if(typeof oldEnsure==='function')window.ensureLiveCamera=async function(){var r=await oldEnsure.apply(this,arguments);applyDefaults();try{window.applyBeautyPreview();}catch(e){}return r;};
+
+            applyDefaults();
+            setTimeout(function(){try{window.applyBeautyPreview();}catch(e){}},0);
+          })();
+          EOF
+
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('rainbow-waveform.js')
+          s=p.read_text(encoding='utf-8')
+          marker='data-kt-beauty-natural-upgrade'
+          if marker not in s:
+              s += '''\n\n/* 카메라 보정 업그레이드 파일만 추가 로드 */\n(function(){\n  if(document.querySelector('script[data-kt-beauty-natural-upgrade]'))return;\n  var s=document.createElement('script');\n  s.src='beauty-natural-upgrade.js?v=20260909c';\n  s.async=false;\n  s.setAttribute('data-kt-beauty-natural-upgrade','1');\n  document.head.appendChild(s);\n})();\n'''
+              p.write_text(s,encoding='utf-8')
+          PY
+
+      - name: Commit beauty-only patch
+        shell: bash
+        run: |
+          if git diff --quiet -- beauty-natural-upgrade.js rainbow-waveform.js; then
+            exit 0
+          fi
+          git config user.name 'scy72187218-collab'
+          git config user.email 'scy72187218@gmail.com'
+          git add beauty-natural-upgrade.js rainbow-waveform.js
+          git commit -m '카메라 보정 1~100과 기본 보정 효과 복구'
+          git push
