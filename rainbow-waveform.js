@@ -346,3 +346,48 @@
   s.setAttribute('data-kt-beauty-natural-upgrade','1');
   document.head.appendChild(s);
 })();
+
+/* 팬클럽 화면에 혜택을 바로 보이게 추가. 팬클럽 외 다른 화면은 건드리지 않음. */
+(function(){
+  if(window.__ktFanClubBenefitsVisibleInstalled)return;
+  window.__ktFanClubBenefitsVisibleInstalled=true;
+
+  var oldOpenSubs=window.openSubs;
+  if(typeof oldOpenSubs!=='function')return;
+
+  function ensureStyle(){
+    if(document.getElementById('ktFanClubBenefitsVisibleStyle'))return;
+    var s=document.createElement('style');
+    s.id='ktFanClubBenefitsVisibleStyle';
+    s.textContent=''
+      +'.kt-fan-benefits{margin:12px 0 14px;padding:12px;border-radius:18px;background:linear-gradient(145deg,rgba(255,191,48,.13),rgba(142,74,255,.11));border:1px solid rgba(255,210,91,.28)}'
+      +'.kt-fan-benefits-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;color:#ffd86a;font-size:16px;font-weight:950}'
+      +'.kt-fan-benefit-row{display:grid;grid-template-columns:76px 1fr;gap:8px;align-items:start;padding:9px 8px;border-radius:13px;background:rgba(0,0,0,.24);margin-top:7px}'
+      +'.kt-fan-benefit-row b{color:#fff;font-size:12px;line-height:1.25}.kt-fan-benefit-row b small{display:block;margin-top:2px;color:#ffd86a;font-size:10px;font-weight:900}'
+      +'.kt-fan-benefit-row span{color:#e7e7ea;font-size:11px;line-height:1.45;font-weight:750}'
+      +'@media(max-width:390px){.kt-fan-benefits{padding:10px;margin:10px 0 12px}.kt-fan-benefit-row{grid-template-columns:70px 1fr;padding:8px 7px}.kt-fan-benefit-row span{font-size:10px}}';
+    document.head.appendChild(s);
+  }
+
+  window.openSubs=function(){
+    var r=oldOpenSubs.apply(this,arguments);
+    setTimeout(function(){
+      try{
+        ensureStyle();
+        var host=document.querySelector('#sheet .kt-fanclub');
+        if(!host||host.querySelector('.kt-fan-benefits'))return;
+        var grow=host.querySelector('.kt-fan-grow');
+        var box=document.createElement('div');
+        box.className='kt-fan-benefits';
+        box.innerHTML=''
+          +'<div class="kt-fan-benefits-title"><span>🎁 팬클럽 혜택</span><span>회원별</span></div>'
+          +'<div class="kt-fan-benefit-row"><b>일반<small>월 5,000원</small></b><span>🌹 장미 5% 할인 · 전용 배지 · 방송 우선 노출</span></div>'
+          +'<div class="kt-fan-benefit-row"><b>중회원<small>월 14,900원</small></b><span>🌹 장미 10% 할인 · 전용 배지 · 비밀방 입장 · 방송 우선 노출 · 빠른 고객센터</span></div>'
+          +'<div class="kt-fan-benefit-row"><b>VIP<small>월 19,900원</small></b><span>🌹 장미 15% 할인 · VIP 배지 · 모든 비밀방 입장 · 방송 최우선 노출 · 빠른 고객센터</span></div>';
+        if(grow&&grow.parentNode)grow.parentNode.insertBefore(box,grow.nextSibling);
+        else host.appendChild(box);
+      }catch(e){}
+    },0);
+    return r;
+  };
+})();
