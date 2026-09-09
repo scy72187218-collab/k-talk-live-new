@@ -222,3 +222,61 @@
     try{if(window.openBeautyPanel)window.openBeautyPanel();}catch(err){}
   },true);
 })();
+
+/* 1인방·구독자방·비밀방: 효과 바로 아래 보물상자 버튼만 추가 */
+(function(){
+  if(window.__ktTreasureUnderEffectInstalled)return;
+  window.__ktTreasureUnderEffectInstalled=true;
+
+  if(!document.getElementById('ktTreasureUnderEffectStyle')){
+    var st=document.createElement('style');
+    st.id='ktTreasureUnderEffectStyle';
+    st.textContent=''
+      +'.ktsolo-tools.kt-has-treasure-under-effect,.ktsubscriber-tools.kt-has-treasure-under-effect,.ktsecret-tools.kt-has-treasure-under-effect{flex-basis:94px!important;grid-template-columns:repeat(6,1fr)!important;grid-template-rows:50px 40px!important;align-items:start!important}'
+      +'.kt-effect-anchor{grid-column:5!important;grid-row:1!important}'
+      +'.kt-treasure-under-effect{grid-column:5!important;grid-row:2!important;align-self:start!important;touch-action:manipulation!important}'
+      +'.kt-treasure-under-effect i{width:31px!important;height:31px!important;font-size:17px!important;border-color:#d7ad39!important;box-shadow:0 0 9px rgba(255,190,70,.32),inset 0 0 10px rgba(255,255,255,.06)!important}'
+      +'.kt-treasure-under-effect span{font-size:7.5px!important;color:#ffe071!important;font-weight:950!important}'
+      +'@media(max-width:390px){.ktsolo-tools.kt-has-treasure-under-effect,.ktsubscriber-tools.kt-has-treasure-under-effect,.ktsecret-tools.kt-has-treasure-under-effect{flex-basis:88px!important;grid-template-rows:46px 38px!important}.kt-treasure-under-effect i{width:29px!important;height:29px!important;font-size:16px!important}.kt-treasure-under-effect span{font-size:7px!important}}';
+    document.head.appendChild(st);
+  }
+
+  var rooms=[
+    {wrap:'.ktsolo-tools',tool:'ktsolo-tool'},
+    {wrap:'.ktsubscriber-tools',tool:'ktsubscriber-tool'},
+    {wrap:'.ktsecret-tools',tool:'ktsecret-tool'}
+  ];
+
+  function addTreasure(spec){
+    var wrap=document.querySelector(spec.wrap);
+    if(!wrap||wrap.querySelector('.kt-treasure-under-effect'))return;
+    var effect=null;
+    var buttons=wrap.querySelectorAll('button');
+    for(var i=0;i<buttons.length;i++){
+      if(String(buttons[i].textContent||'').indexOf('효과')>-1){effect=buttons[i];break;}
+    }
+    if(!effect)return;
+    wrap.classList.add('kt-has-treasure-under-effect');
+    effect.classList.add('kt-effect-anchor');
+    var btn=document.createElement('button');
+    btn.type='button';
+    btn.className=spec.tool+' kt-treasure-under-effect';
+    btn.innerHTML='<i>🎁</i><span>보물상자</span>';
+    btn.addEventListener('click',function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      try{if(window.openTreasure)window.openTreasure();}catch(err){}
+    });
+    effect.insertAdjacentElement('afterend',btn);
+  }
+
+  function applyTreasureButtons(){
+    for(var i=0;i<rooms.length;i++)addTreasure(rooms[i]);
+  }
+
+  setTimeout(applyTreasureButtons,0);
+  var target=document.getElementById('screen')||document.body;
+  if(target&&window.MutationObserver){
+    new MutationObserver(function(){applyTreasureButtons();}).observe(target,{childList:true,subtree:true});
+  }
+})();
