@@ -115,3 +115,13 @@
   s.setAttribute('data-kt-feed-profile-actions','1');
   document.head.appendChild(s);
 })();
+
+/* 최신 기본 카메라 톤: 외모 형태는 자동 변경하지 않고 노출·색감·선명도만 자연스럽게 정리 */
+(function(){
+  if(document.querySelector('script[data-kt-camera-natural-look-v3]'))return;
+  var s=document.createElement('script');
+  s.src='camera-natural-look-v3.js?v=20260910b';
+  s.async=false;
+  s.setAttribute('data-kt-camera-natural-look-v3','1');
+  document.head.appendChild(s);
+})();
