@@ -119,3 +119,13 @@
   s.setAttribute('data-kt-creator-effect-buttons-fix','1');
   document.head.appendChild(s);
 })();
+
+/* 보정 변화가 바로 보이게 하고 보정창 높이만 줄이는 전용 보강 */
+(function(){
+  if(document.querySelector('script[data-kt-beauty-visible-fix]'))return;
+  var s=document.createElement('script');
+  s.src='beauty-visible-fix.js?v=20260910a';
+  s.async=false;
+  s.setAttribute('data-kt-beauty-visible-fix','1');
+  document.head.appendChild(s);
+})();
