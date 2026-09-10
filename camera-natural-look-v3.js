@@ -86,3 +86,13 @@
   s.setAttribute('data-kt-tiktok-face-effects','1');
   document.head.appendChild(s);
 })();
+
+/* 촬영 화면의 보정·얼굴효과·배경효과 버튼을 터치 한 번에 확실히 작동시킴 */
+(function(){
+  if(document.querySelector('script[data-kt-creator-effect-buttons-fix]'))return;
+  var s=document.createElement('script');
+  s.src='creator-effect-buttons-fix.js?v=20260910a';
+  s.async=false;
+  s.setAttribute('data-kt-creator-effect-buttons-fix','1');
+  document.head.appendChild(s);
+})();
