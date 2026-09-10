@@ -27,3 +27,43 @@
   var btn=document.querySelector('#creator .creator-tools > button[aria-label="더보기"]');
   if(btn)btn.remove();
 })();
+
+/* 동영상/음악을 듣다가 다른 페이지로 이동하면 그 소리만 즉시 멈춘다. 카메라/라이브는 건드리지 않음. */
+(function(){
+  if(window.__ktStopMediaOnPageMoveInstalled)return;
+  window.__ktStopMediaOnPageMoveInstalled=true;
+
+  function isCameraOrLiveMedia(m){
+    if(!m)return false;
+    var id=m.id||'';
+    return id==='camera'||id==='cameraBg'||id==='ktLiveVideo'||id==='ktSept2Live'||id==='ktRemoteLive';
+  }
+
+  window.ktStopPageMedia=function(){
+    try{
+      document.querySelectorAll('audio,video').forEach(function(m){
+        if(isCameraOrLiveMedia(m))return;
+        try{m.pause();}catch(e){}
+        try{m.muted=true;}catch(e){}
+      });
+    }catch(e){}
+    try{
+      if(window.ktCreatorMusicCapture&&window.ktCreatorMusicCapture.audio){
+        window.ktCreatorMusicCapture.audio.pause();
+      }
+    }catch(e){}
+    try{if(window.ktStopSoundPreview)window.ktStopSoundPreview();}catch(e){}
+  };
+
+  document.addEventListener('click',function(e){
+    var t=e.target;
+    if(!t||!t.closest)return;
+    var nav=t.closest('.bottom button,.kt-bottom button');
+    if(nav)window.ktStopPageMedia();
+  },true);
+
+  document.addEventListener('visibilitychange',function(){
+    if(document.visibilityState==='hidden')window.ktStopPageMedia();
+  });
+  window.addEventListener('pagehide',window.ktStopPageMedia);
+})();
