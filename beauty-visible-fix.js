@@ -130,3 +130,48 @@
   strongDefaults();
   setTimeout(function(){try{if(window.applyBeautyPreview)window.applyBeautyPreview();else applyVisibleBeauty();}catch(e){}},40);
 })();
+
+/* AI 보정과 편집 효과 두 화면에 각각 보이는 나가기 화살표를 표시한다. */
+(function(){
+  if(window.__ktPanelBackArrowVisibleFixInstalled)return;
+  window.__ktPanelBackArrowVisibleFixInstalled=true;
+
+  var style=document.createElement('style');
+  style.id='ktPanelBackArrowVisibleFixStyle';
+  style.textContent=''
+    +'#sheet.camera-effect-sheet.beauty-control-sheet .sheet-head,'
+    +'#sheet.camera-effect-sheet.stage-effect-sheet .sheet-head{display:flex!important;align-items:center!important;justify-content:space-between!important;min-height:40px!important;padding:0 2px 6px!important}'
+    +'#sheet.camera-effect-sheet.beauty-control-sheet .sheet-head button,'
+    +'#sheet.camera-effect-sheet.stage-effect-sheet .sheet-head button{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-width:78px!important;height:36px!important;padding:0 10px!important;border-radius:12px!important;background:rgba(255,255,255,.12)!important;color:#fff!important;font-size:13px!important;font-weight:950!important;white-space:nowrap!important;pointer-events:auto!important;touch-action:manipulation!important;z-index:30!important}'
+    +'#sheet.camera-effect-sheet.beauty-control-sheet .sheet-head h3,'
+    +'#sheet.camera-effect-sheet.stage-effect-sheet .sheet-head h3{display:block!important;margin:0!important;font-size:13px!important;color:#fff!important;opacity:.88!important}';
+  document.head.appendChild(style);
+
+  function fixArrow(){
+    try{
+      var sheet=document.getElementById('sheet');
+      if(!sheet||!sheet.classList.contains('show'))return;
+      var beauty=sheet.classList.contains('beauty-control-sheet');
+      var edit=sheet.classList.contains('stage-effect-sheet')||sheet.classList.contains('camera-effect-sheet');
+      if(!beauty&&!edit)return;
+      var head=sheet.querySelector('.sheet-head');
+      if(!head)return;
+      var btn=head.querySelector('button');
+      if(!btn)return;
+      btn.type='button';
+      btn.textContent='← 나가기';
+      btn.setAttribute('aria-label',beauty?'AI 보정 나가기':'편집 효과 나가기');
+      btn.onclick=function(e){
+        try{e.preventDefault();e.stopPropagation();}catch(err){}
+        try{if(window.closeSheet)window.closeSheet();}catch(err){}
+      };
+    }catch(e){}
+  }
+
+  var sheet=document.getElementById('sheet');
+  if(sheet&&window.MutationObserver){
+    try{new MutationObserver(function(){fixArrow();}).observe(sheet,{attributes:true,childList:true,subtree:true});}catch(e){}
+  }
+  document.addEventListener('click',function(){setTimeout(fixArrow,0);},true);
+  setTimeout(fixArrow,0);
+})();
