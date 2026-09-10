@@ -139,3 +139,118 @@
   s.setAttribute('data-kt-beauty-sharp-touch-fix','1');
   document.head.appendChild(s);
 })();
+
+/* 보정 숫자 표시를 1~1000으로 확장. 실제 효과 엔진은 기존 안정 범위(1~100)에 비례 환산하여 유지. */
+(function(){
+  if(window.__ktBeautyRange1000Installed)return;
+  window.__ktBeautyRange1000Installed=true;
+
+  function clamp1000(v,d){
+    v=parseInt(v,10);
+    if(!isFinite(v))v=d;
+    return Math.max(1,Math.min(1000,v));
+  }
+  function toInternal(v){
+    return Math.max(1,Math.min(100,Math.round(clamp1000(v,500)/10)));
+  }
+  function toDisplay(v){
+    v=Number(v);
+    if(!isFinite(v)||v<=0)v=50;
+    return clamp1000(Math.round(v*10),500);
+  }
+  function currentKind(){
+    try{return (window.state&&state.beautyControl)||'skin';}catch(e){return 'skin';}
+  }
+  function store(){
+    try{
+      if(!window.state)return {};
+      if(!state.ktBeauty1000)state.ktBeauty1000={};
+      return state.ktBeauty1000;
+    }catch(e){return {};}
+  }
+  function currentDisplay(kind){
+    var bag=store();
+    if(bag[kind])return clamp1000(bag[kind],500);
+    try{
+      if(window.getBeautyControlValue)return toDisplay(window.getBeautyControlValue(kind));
+    }catch(e){}
+    return 500;
+  }
+
+  window.ktSetBeauty1000=function(value){
+    var kind=currentKind();
+    var display=clamp1000(value,currentDisplay(kind));
+    try{store()[kind]=display;}catch(e){}
+    try{
+      if(window.setBeautyValue)window.setBeautyValue(kind,toInternal(display));
+    }catch(e){}
+    var range=document.getElementById('beautySingleRange');
+    var val=document.getElementById('beautySingleValue');
+    if(range)range.value=display;
+    if(val)val.textContent=display;
+  };
+
+  function syncRange(){
+    try{
+      var sheet=document.getElementById('sheet');
+      if(!sheet||!sheet.classList.contains('beauty-control-sheet'))return;
+      var range=document.getElementById('beautySingleRange');
+      var val=document.getElementById('beautySingleValue');
+      var kind=currentKind();
+      var display=currentDisplay(kind);
+      if(range){
+        range.min='1';
+        range.max='1000';
+        range.step='1';
+        range.value=display;
+        range.oninput=function(){window.ktSetBeauty1000(this.value);};
+        range.onchange=function(){window.ktSetBeauty1000(this.value);};
+      }
+      if(val)val.textContent=display;
+      var scale=sheet.querySelector('.kt-beauty-range-scale');
+      if(scale){
+        var spans=scale.querySelectorAll('span');
+        if(spans[0])spans[0].textContent='1';
+        if(spans[spans.length-1])spans[spans.length-1].textContent='1000';
+        var strong=scale.querySelector('strong');
+        if(strong)strong.textContent='1 ~ 1000 조절';
+      }
+      var note=sheet.querySelector('.kt-beauty-base-note');
+      if(note)note.textContent='카메라 기본 보정 ON · 눈·코·입·턱 포함 항목별 1~1000 조절';
+    }catch(e){}
+  }
+
+  var oldOpenBeauty=window.openBeautyPanel;
+  if(typeof oldOpenBeauty==='function'){
+    window.openBeautyPanel=function(){
+      var r=oldOpenBeauty.apply(this,arguments);
+      setTimeout(syncRange,0);
+      setTimeout(syncRange,60);
+      return r;
+    };
+  }
+  var oldSelectBeauty=window.selectBeautyControl;
+  if(typeof oldSelectBeauty==='function'){
+    window.selectBeautyControl=function(kind){
+      var r=oldSelectBeauty.apply(this,arguments);
+      setTimeout(syncRange,0);
+      return r;
+    };
+  }
+  var oldEdit=window.openEditEffectPanel;
+  if(typeof oldEdit==='function'){
+    window.openEditEffectPanel=function(){
+      var r=oldEdit.apply(this,arguments);
+      setTimeout(function(){
+        try{
+          var sheet=document.getElementById('sheet');
+          if(!sheet)return;
+          var span=sheet.querySelector('.kt-stage-title span');
+          if(span)span.textContent=String(span.textContent||'').replace('보정 1~100','보정 1~1000');
+        }catch(e){}
+      },0);
+      return r;
+    };
+  }
+  setTimeout(syncRange,120);
+})();
