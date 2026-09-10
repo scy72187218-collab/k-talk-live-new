@@ -166,3 +166,13 @@
   s.setAttribute('data-kt-live-viewer-interactions','1');
   document.head.appendChild(s);
 })();
+
+/* 입장 직후 채팅 UI가 늦게 붙는 경우에만 자동으로 다시 연결 */
+(function(){
+  if(document.querySelector('script[data-kt-live-viewer-recovery]'))return;
+  var s=document.createElement('script');
+  s.src='live-viewer-recovery.js?v=20260910-recover1';
+  s.async=false;
+  s.setAttribute('data-kt-live-viewer-recovery','1');
+  document.head.appendChild(s);
+})();
