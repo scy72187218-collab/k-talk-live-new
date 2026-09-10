@@ -1,99 +1,129 @@
-/* K-Talk 얼굴 효과 추가: 휴대폰에서만 숏폼 스타일 효과 확장. 부위별 보정은 건드리지 않음. */
+/* K-Talk 얼굴 효과: 그림/이모지 카드 대신 실제 인물 사진 기반 REAL LOOK 프리셋. 기존 보정·방송 기능은 그대로 유지. */
 (function(){
-  function ktIsPhone(){
-    try{
-      var ua=String(navigator.userAgent||'');
-      if(/iPhone|iPod|Android.*Mobile/i.test(ua))return true;
-      var sw=Math.min((window.screen&&screen.width)||window.innerWidth||9999,(window.screen&&screen.height)||window.innerHeight||9999);
-      return sw<=600 && (('ontouchstart' in window)||((navigator.maxTouchPoints||0)>0));
-    }catch(e){return (window.innerWidth||9999)<=600;}
-  }
-  if(!ktIsPhone())return;
-  if(window.__ktShortformFaceEffectsInstalled)return;
-  window.__ktShortformFaceEffectsInstalled=true;
+  if(window.__ktRealLookFaceEffectsInstalled)return;
+  window.__ktRealLookFaceEffectsInstalled=true;
 
-  var extraEffects=[
-    ['sunglasses','🕶️','선글라스'],
-    ['cap','🧢','모자'],
-    ['cat','😺','고양이'],
-    ['puppy','🐶','강아지'],
-    ['bunny','🐰','토끼'],
-    ['angel','😇','천사'],
-    ['crown','👑','왕관'],
-    ['star','🌟','스타']
+  var looks=[
+    ['real-original','https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=360&q=82','원본',''],
+    ['real-natural','https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=360&q=82','내추럴','brightness(1.015) saturate(1.018) contrast(.995)'],
+    ['real-soft','https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=360&q=82','소프트','brightness(1.035) saturate(1.015) contrast(.965)'],
+    ['real-studio','https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=360&q=82','스튜디오','brightness(1.025) saturate(1.035) contrast(1.035)'],
+    ['real-warm','https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=360&q=82','웜','brightness(1.025) saturate(1.07) sepia(.035)'],
+    ['real-cool','https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=360&q=82','쿨','brightness(1.015) saturate(.965) contrast(1.025) hue-rotate(-4deg)'],
+    ['real-cinema','https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=360&q=82','시네마','brightness(.995) saturate(.93) contrast(1.085)'],
+    ['real-clear','https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=360&q=82','클리어','brightness(1.03) saturate(1.025) contrast(1.05)']
   ];
-  var extraNames=extraEffects.map(function(x){return x[0];});
+  var lookMap={};
+  looks.forEach(function(it){lookMap[it[0]]=it;});
 
-  var oldMarkup=window.ktFaceEffectMarkup;
-  window.ktFaceEffectMarkup=function(name){
-    var map={
-      sunglasses:'<span class="kt-fx center" style="top:39%;font-size:clamp(54px,48%,98px)">🕶️</span>',
-      cap:'<span class="kt-fx top" style="top:-10%">🧢</span>',
-      cat:'<span class="kt-fx top" style="top:-7%">🐱</span><span class="kt-fx cheek left">✨</span><span class="kt-fx cheek right">✨</span>',
-      puppy:'<span class="kt-fx top" style="top:-7%">🐶</span><span class="kt-fx cheek left">🐾</span><span class="kt-fx cheek right">🐾</span>',
-      bunny:'<span class="kt-fx top" style="top:-11%;font-size:clamp(58px,50%,104px)">🐰</span>',
-      angel:'<span class="kt-fx top" style="top:-11%">😇</span><span class="kt-fx spark1">✨</span><span class="kt-fx spark2">✨</span>',
-      crown:'<span class="kt-fx top" style="top:-12%">👑</span><span class="kt-fx spark1">✨</span><span class="kt-fx spark2">✨</span>',
-      star:'<span class="kt-fx spark1">🌟</span><span class="kt-fx spark2">✨</span><span class="kt-fx spark3">⭐</span><span class="kt-fx spark4">✦</span>'
-    };
-    if(map[name])return map[name];
-    return typeof oldMarkup==='function'?oldMarkup.apply(this,arguments):'';
-  };
+  function currentLook(){
+    try{return String((window.state&&state.ktRealLook)||'real-natural');}catch(e){return 'real-natural';}
+  }
 
-  var oldApply=window.ktApplyFaceEffect;
-  window.ktApplyFaceEffect=function(name,el){
-    name=name||'off';
-    if(extraNames.indexOf(name)===-1){
-      return typeof oldApply==='function'?oldApply.apply(this,arguments):undefined;
-    }
+  function applyLookFilter(){
     try{
-      state.editFilter='';
-      state.editSticker=name;
-      state.pendingEditEffect=name;
-      state.appliedEditEffect=name;
-      if(window.ktEnsureFaceEffectStyle)ktEnsureFaceEffectStyle();
-      var creator=document.getElementById('creator');
-      var camera=document.getElementById('camera');
-      if(!creator)return;
-      var layer=document.getElementById('ktFaceEffectLayer');
-      if(!layer){
-        layer=document.createElement('div');
-        layer.id='ktFaceEffectLayer';
-        layer.innerHTML='<div id="ktFaceAnchor"></div>';
-        creator.appendChild(layer);
+      var name=currentLook();
+      var extra=(lookMap[name]||lookMap['real-natural'])[3]||'';
+      ['camera','cameraBg'].forEach(function(id){
+        var v=document.getElementById(id);
+        if(!v)return;
+        var base=(v.style&&v.style.getPropertyValue('filter'))||'';
+        base=String(base||'').replace(/\s*var\(--kt-real-look-extra\)[^;]*/g,'').trim();
+        if(extra)v.style.setProperty('filter',(base+' '+extra).trim(),'important');
+      });
+    }catch(e){}
+  }
+
+  var oldBeautyApply=window.applyBeautyPreview;
+  if(typeof oldBeautyApply==='function'&&!oldBeautyApply.__ktRealLookWrapped){
+    var wrappedBeauty=function(){
+      var r=oldBeautyApply.apply(this,arguments);
+      applyLookFilter();
+      return r;
+    };
+    wrappedBeauty.__ktRealLookWrapped=true;
+    window.applyBeautyPreview=wrappedBeauty;
+  }
+
+  window.ktApplyRealLook=function(name,el){
+    if(!lookMap[name])name='real-natural';
+    try{
+      if(window.state){
+        state.ktRealLook=name;
+        state.editSticker='';
+        state.editFilter='';
+        state.pendingEditEffect=name;
+        state.appliedEditEffect=name;
       }
       var anchor=document.getElementById('ktFaceAnchor');
-      if(anchor)anchor.innerHTML=window.ktFaceEffectMarkup(name);
+      if(anchor)anchor.innerHTML='';
       document.querySelectorAll('.kt-face-effect-card').forEach(function(btn){
         btn.classList.toggle('on',btn.getAttribute('data-face-effect')===name);
       });
-      if(camera&&layer&&anchor&&window.ktStartFaceTrackingFor)ktStartFaceTrackingFor(camera,layer,anchor,'creator');
+      if(typeof window.applyBeautyPreview==='function')window.applyBeautyPreview();
+      else applyLookFilter();
+      if(window.ktSyncBeautyToFourRooms)setTimeout(function(){try{window.ktSyncBeautyToFourRooms();}catch(e){}},0);
     }catch(e){}
   };
+
+  var oldClear=window.clearAllFaceEffects;
+  if(typeof oldClear==='function'){
+    window.clearAllFaceEffects=function(){
+      try{if(window.state)state.ktRealLook='real-original';}catch(e){}
+      var r=oldClear.apply(this,arguments);
+      try{if(typeof window.applyBeautyPreview==='function')window.applyBeautyPreview();}catch(e){}
+      return r;
+    };
+  }
+
+  function renderRealLookPanel(){
+    try{
+      var sheet=document.getElementById('sheet');
+      var grid=sheet&&sheet.querySelector('.kt-face-effect-grid');
+      if(!grid)return;
+      var current=currentLook();
+      grid.innerHTML=looks.map(function(it){
+        return '<button class="kt-face-effect-card kt-real-look-card '+(current===it[0]?'on':'')+'" data-face-effect="'+it[0]+'" type="button" onclick="ktApplyRealLook(\''+it[0]+'\',this)">'
+          +'<span class="kt-real-look-photo"><img src="'+it[1]+'" alt="'+it[2]+' 인물 예시" loading="lazy"></span>'
+          +'<b>'+it[2]+'</b><small>실제 인물 톤</small></button>';
+      }).join('');
+      var title=sheet.querySelector('.kt-stage-title');
+      if(title)title.innerHTML='<b>REAL LOOK · 실제 인물 프리셋</b><span>그림 대신 실제 인물 예시로 보고 선택합니다. 보정 1~100은 그대로 사용할 수 있습니다.</span>';
+      var mainTitle=document.getElementById('sheetTitle');
+      if(mainTitle)mainTitle.textContent='편집 효과 · REAL LOOK';
+    }catch(e){}
+  }
+
+  if(!document.getElementById('ktRealLookFaceEffectStyle')){
+    var st=document.createElement('style');
+    st.id='ktRealLookFaceEffectStyle';
+    st.textContent=''
+      +'#sheet.stage-effect-sheet .kt-face-effect-grid{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:8px!important}'
+      +'#sheet.stage-effect-sheet .kt-real-look-card{position:relative!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:flex-start!important;min-height:116px!important;padding:4px!important;border-radius:15px!important;overflow:hidden!important;background:linear-gradient(180deg,rgba(20,22,30,.96),rgba(8,9,14,.98))!important;border:1px solid rgba(255,255,255,.14)!important;box-shadow:inset 0 0 18px rgba(255,255,255,.025),0 5px 16px rgba(0,0,0,.30)!important}'
+      +'#sheet.stage-effect-sheet .kt-real-look-card.on{border-color:#ff4f96!important;box-shadow:0 0 0 2px rgba(255,79,150,.19),0 0 18px rgba(125,92,255,.35)!important}'
+      +'#sheet.stage-effect-sheet .kt-real-look-photo{display:block!important;width:100%!important;height:72px!important;border-radius:11px!important;overflow:hidden!important;background:#111!important}'
+      +'#sheet.stage-effect-sheet .kt-real-look-photo img{display:block!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center 32%!important;filter:none!important}'
+      +'#sheet.stage-effect-sheet .kt-real-look-card b{display:block!important;margin-top:5px!important;color:#fff!important;font-size:11px!important;line-height:1.1!important;font-weight:950!important;text-align:center!important}'
+      +'#sheet.stage-effect-sheet .kt-real-look-card small{display:block!important;margin-top:2px!important;color:#9fdcff!important;font-size:8px!important;line-height:1!important;text-align:center!important}'
+      +'#sheet.stage-effect-sheet .kt-stage-title{padding:9px 10px!important;border-radius:13px!important;background:linear-gradient(135deg,rgba(103,64,255,.18),rgba(0,210,255,.10))!important;border:1px solid rgba(153,130,255,.22)!important}'
+      +'#sheet.stage-effect-sheet .kt-stage-title b{color:#fff!important;letter-spacing:.2px!important}'
+      +'@media(max-width:390px){#sheet.stage-effect-sheet .kt-face-effect-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:6px!important}#sheet.stage-effect-sheet .kt-real-look-card{min-height:105px!important}#sheet.stage-effect-sheet .kt-real-look-photo{height:63px!important}}';
+    document.head.appendChild(st);
+  }
 
   var oldOpen=window.openEditEffectPanel;
   if(typeof oldOpen==='function'){
     window.openEditEffectPanel=function(tab){
       var r=oldOpen.apply(this,arguments);
-      if((tab||'face')!=='face')return r;
-      setTimeout(function(){
-        try{
-          var grid=document.querySelector('#sheet .kt-face-effect-grid');
-          if(!grid)return;
-          extraEffects.forEach(function(it){
-            if(grid.querySelector('[data-face-effect="'+it[0]+'"]'))return;
-            var b=document.createElement('button');
-            b.className='kt-face-effect-card'+((window.state&&state.appliedEditEffect===it[0])?' on':'');
-            b.setAttribute('data-face-effect',it[0]);
-            b.innerHTML='<span>'+it[1]+'</span><b>'+it[2]+'</b>';
-            b.onclick=function(){if(window.setEditEffect)window.setEditEffect(it[0],b);};
-            grid.appendChild(b);
-          });
-        }catch(e){}
-      },0);
+      if((tab||'face')==='face')setTimeout(renderRealLookPanel,0);
       return r;
     };
   }
+
+  try{
+    if(window.state&&!state.ktRealLook)state.ktRealLook='real-natural';
+    setTimeout(function(){try{if(typeof window.applyBeautyPreview==='function')window.applyBeautyPreview();}catch(e){}},0);
+  }catch(e){}
 })();
 
 /* 같은 보정/얼굴효과를 4개 방송방 카메라에도 동시에 적용 */
