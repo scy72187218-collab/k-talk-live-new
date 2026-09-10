@@ -222,3 +222,13 @@
     try{if(window.openBeautyPanel)window.openBeautyPanel();}catch(err){}
   },true);
 })();
+
+/* 보정 업그레이드 실제 연결: 카메라 기본 자연 보정 + 피부/주름/눈/코/입/턱 1~100. */
+(function(){
+  if(document.querySelector('script[data-kt-beauty-natural-upgrade]'))return;
+  var s=document.createElement('script');
+  s.src='beauty-natural-upgrade.js?v=20260910b';
+  s.async=false;
+  s.setAttribute('data-kt-beauty-natural-upgrade','1');
+  document.head.appendChild(s);
+})();
