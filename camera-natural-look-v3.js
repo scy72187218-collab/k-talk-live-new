@@ -4,15 +4,37 @@
   window.__ktCameraNaturalLookV3Installed=true;
 
   function clamp(v,min,max){v=Number(v);if(!isFinite(v))v=min;return Math.max(min,Math.min(max,v));}
-  function strength(){try{return clamp(state.beautyStrength||68,1,100);}catch(e){return 68;}}
+
+  /* 이번 요청: 카메라를 켰을 때 기본값은 약하고 자연스럽게 시작. 1~100 수동 조절은 그대로 유지. */
+  function applySoftDefault(){
+    try{
+      if(!window.state||state.__ktSoftDefaultApplied)return;
+      state.beautyOn=true;
+      state.beautyStrength=52;
+      state.beautySkin=65;
+      state.beautyWrinkle=55;
+      state.beautyBright=55;
+      state.beautySharp=50;
+      state.beautyTone=52;
+      state.beautyFace=50;
+      state.beautyEyes=50;
+      state.beautyNose=50;
+      state.beautyMouth=50;
+      state.beautyJaw=50;
+      state.__ktSoftDefaultApplied=true;
+    }catch(e){}
+  }
+
+  applySoftDefault();
+  function strength(){try{return clamp(state.beautyStrength||52,1,100);}catch(e){return 52;}}
 
   function polishVideo(v){
     if(!v)return;
     try{
       var s=strength()/100;
-      var extraBrightness=1.018+s*0.022;
-      var extraContrast=1.010+s*0.015;
-      var extraSaturation=1.010+s*0.022;
+      var extraBrightness=1.010+s*0.014;
+      var extraContrast=1.006+s*0.010;
+      var extraSaturation=1.006+s*0.014;
       var base=(v.style&&v.style.getPropertyValue('filter'))||'';
       if(!base||base==='none')base='';
       var suffix=' brightness('+extraBrightness.toFixed(3)+') contrast('+extraContrast.toFixed(3)+') saturate('+extraSaturation.toFixed(3)+')';
@@ -41,6 +63,7 @@
   }
 
   function refresh(){
+    applySoftDefault();
     installWrap();
     try{
       if(typeof window.applyBeautyPreview==='function')window.applyBeautyPreview();
