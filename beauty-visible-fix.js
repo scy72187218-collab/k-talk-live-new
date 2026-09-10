@@ -1,4 +1,4 @@
-/* K-Talk 보정 전용 보강: 보정 변화가 눈에 보이게 하고, 보정창 높이만 줄임. 다른 기능은 건드리지 않음. */
+/* K-Talk 보정 전용 보강: 1~100 변화가 화면에서 분명히 보이게 하고, 보정창 크기만 유지. 다른 기능은 건드리지 않음. */
 (function(){
   if(window.__ktBeautyVisibleFixInstalled)return;
   window.__ktBeautyVisibleFixInstalled=true;
@@ -8,57 +8,67 @@
     if(!isFinite(v))v=d;
     return Math.max(1,Math.min(100,v));
   }
+  function norm(v,d){return (clamp(v,d)-1)/99;}
 
-  /* 카메라를 열었을 때 기본적으로 강한 동안 느낌이 보이도록 시작값만 올린다. */
+  /* 기본은 중간 정도로 시작하고, 100까지 올렸을 때 차이가 크게 남도록 범위를 확보한다. */
   function strongDefaults(){
     try{
       if(!window.state||state.__ktBeautyVisibleDefaultApplied)return;
       state.beautyOn=true;
-      state.beautyStrength=90;
-      state.beautySkin=96;
-      state.beautyWrinkle=94;
-      state.beautyBright=80;
-      state.beautySharp=46;
-      state.beautyTone=60;
-      state.beautyFace=54;
-      state.beautyEyes=58;
+      state.beautyStrength=68;
+      state.beautySkin=72;
+      state.beautyWrinkle=68;
+      state.beautyBright=62;
+      state.beautySharp=52;
+      state.beautyTone=56;
+      state.beautyFace=52;
+      state.beautyEyes=54;
       state.beautyNose=50;
-      state.beautyMouth=56;
-      state.beautyJaw=48;
+      state.beautyMouth=54;
+      state.beautyJaw=50;
       state.__ktBeautyVisibleDefaultApplied=true;
     }catch(e){}
   }
 
-  /* 기존 보정값을 사용하되, 1~100을 움직였을 때 변화가 바로 보이도록 최종 화면 필터를 분명하게 적용한다. */
+  /* 1은 거의 원본, 100은 강한 보정이 되도록 최종 필터 범위를 크게 잡는다. */
   function applyVisibleBeauty(){
     strongDefaults();
     try{
       if(!window.state)return;
-      var strength=clamp(state.beautyStrength,90)/100;
-      var skin=clamp(state.beautySkin,96)/100;
-      var wrinkle=clamp(state.beautyWrinkle,94)/100;
-      var bright=clamp(state.beautyBright,80);
-      var sharp=clamp(state.beautySharp,46);
-      var tone=clamp(state.beautyTone,60);
-      var eyes=clamp(state.beautyEyes,58);
-      var nose=clamp(state.beautyNose,50);
-      var mouth=clamp(state.beautyMouth,56);
-      var face=clamp(state.beautyFace,54);
-      var jaw=clamp(state.beautyJaw,48);
+      var strength=norm(state.beautyStrength,68);
+      var skin=norm(state.beautySkin,72);
+      var wrinkle=norm(state.beautyWrinkle,68);
+      var bright=norm(state.beautyBright,62);
+      var sharp=norm(state.beautySharp,52);
+      var tone=norm(state.beautyTone,56);
+      var eyes=norm(state.beautyEyes,54);
+      var nose=norm(state.beautyNose,50);
+      var mouth=norm(state.beautyMouth,54);
+      var face=norm(state.beautyFace,52);
+      var jaw=norm(state.beautyJaw,50);
 
-      var brightness=1.035 + strength*.090 + (bright-50)*.00155 + (eyes-50)*.00110;
-      var saturation=1.010 + strength*.055 + (tone-50)*.00115 + (mouth-50)*.00155;
-      var contrast=1.015 - strength*.085 + (sharp-50)*.00105 + (nose-50)*.00120;
-      var blur=.10 + skin*.38 + wrinkle*.28;
-      var sepia=Math.max(0,(tone-50)*.00115);
-      var scale=1 + (face-50)*.0015 + (50-jaw)*.0008;
+      var brightness=.985 + strength*.105 + bright*.105 + (eyes-.5)*.070;
+      var saturation=.970 + strength*.070 + tone*.095 + (mouth-.5)*.120;
+      var contrast=1.045 - skin*.075 - wrinkle*.070 + (sharp-.5)*.180 + (nose-.5)*.100;
+      var blur=.02 + skin*.72 + wrinkle*.54;
+      var sepia=Math.max(0,(tone-.45)*.050);
+      var scale=1 + (face-.5)*.055 - (jaw-.5)*.018;
+
+      brightness=Math.max(.90,Math.min(1.25,brightness));
+      saturation=Math.max(.88,Math.min(1.24,saturation));
+      contrast=Math.max(.78,Math.min(1.20,contrast));
+      blur=Math.max(0,Math.min(1.35,blur));
+      scale=Math.max(.965,Math.min(1.055,scale));
 
       var filter='brightness('+brightness.toFixed(3)+') saturate('+saturation.toFixed(3)+') contrast('+contrast.toFixed(3)+') blur('+blur.toFixed(2)+'px) sepia('+sepia.toFixed(3)+')';
       ['camera','cameraBg'].forEach(function(id){
         var v=document.getElementById(id);
         if(!v)return;
         v.style.setProperty('filter',filter,'important');
-        v.style.setProperty('transform','scaleX(-1) scale('+scale.toFixed(3)+')','important');
+        v.style.setProperty('-webkit-filter',filter,'important');
+        var rear=false;
+        try{rear=!!(window.state&&state.cameraFacing==='environment');}catch(e){}
+        v.style.setProperty('transform',(rear?'scaleX(1)':'scaleX(-1)')+' scale('+scale.toFixed(3)+')','important');
       });
     }catch(e){}
   }
@@ -77,7 +87,23 @@
     window.applyBeautyPreview=applyVisibleBeauty;
   }
 
-  /* 보정창이 얼굴을 너무 가리지 않도록 세로 높이와 버튼만 줄인다. */
+  /* 어떤 보정 슬라이더를 움직여도 기존 값 변경 직후 최종 화면을 다시 계산한다. */
+  document.addEventListener('input',function(e){
+    var el=e.target;
+    if(!el||el.type!=='range')return;
+    var sheet=document.getElementById('sheet');
+    if(!sheet||!sheet.classList.contains('beauty-control-sheet')||!sheet.contains(el))return;
+    setTimeout(function(){try{applyVisibleBeauty();}catch(err){}},0);
+  },true);
+  document.addEventListener('change',function(e){
+    var el=e.target;
+    if(!el||el.type!=='range')return;
+    var sheet=document.getElementById('sheet');
+    if(!sheet||!sheet.classList.contains('beauty-control-sheet')||!sheet.contains(el))return;
+    setTimeout(function(){try{applyVisibleBeauty();}catch(err){}},0);
+  },true);
+
+  /* 보정창이 얼굴을 너무 가리지 않도록 기존 컴팩트 크기를 그대로 유지한다. */
   if(!document.getElementById('ktBeautyVisibleCompactStyle')){
     var st=document.createElement('style');
     st.id='ktBeautyVisibleCompactStyle';
@@ -101,7 +127,6 @@
     document.head.appendChild(st);
   }
 
-  /* 현재 열린 보정창/카메라에도 즉시 반영. */
   strongDefaults();
   setTimeout(function(){try{if(window.applyBeautyPreview)window.applyBeautyPreview();else applyVisibleBeauty();}catch(e){}},40);
 })();
