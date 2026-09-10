@@ -156,3 +156,13 @@
   s.setAttribute('data-kt-first-page-icon','1');
   document.head.appendChild(s);
 })();
+
+/* 친구/원격 방송에 채팅·좋아요·선물·공유와 입장 닉네임 표시만 연결 */
+(function(){
+  if(document.querySelector('script[data-kt-live-viewer-interactions]'))return;
+  var s=document.createElement('script');
+  s.src='live-viewer-interactions.js?v=20260910-chat1';
+  s.async=false;
+  s.setAttribute('data-kt-live-viewer-interactions','1');
+  document.head.appendChild(s);
+})();
