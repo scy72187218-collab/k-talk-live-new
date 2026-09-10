@@ -66,3 +66,13 @@
   setTimeout(refresh,0);
   setTimeout(refresh,250);
 })();
+
+/* 편집효과에 한국 남자/한국 여자 사진형 프리셋 2개만 추가 */
+(function(){
+  if(document.querySelector('script[data-kt-korean-face-presets]'))return;
+  var s=document.createElement('script');
+  s.src='korean-face-presets.js?v=20260910a';
+  s.async=false;
+  s.setAttribute('data-kt-korean-face-presets','1');
+  document.head.appendChild(s);
+})();
