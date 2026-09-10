@@ -232,3 +232,59 @@
   s.setAttribute('data-kt-beauty-natural-upgrade','1');
   document.head.appendChild(s);
 })();
+
+/* 혜택 화면을 닫았을 때, 들어가기 전에 재생 중이던 홈 동영상만 즉시 이어서 재생한다. */
+(function(){
+  if(window.__ktBenefitVideoResumeInstalled)return;
+  window.__ktBenefitVideoResumeInstalled=true;
+  var resumeVideo=null;
+  var resumeNeeded=false;
+  var benefitOpen=false;
+
+  function findPlayingHomeVideo(){
+    try{
+      var list=document.querySelectorAll('#homeVideo,.kt-public-video');
+      for(var i=0;i<list.length;i++){
+        var v=list[i];
+        if(v&&!v.paused&&!v.ended)return v;
+      }
+    }catch(e){}
+    return null;
+  }
+
+  var oldShowSheet=window.showSheet;
+  if(typeof oldShowSheet==='function'){
+    window.showSheet=function(title,html){
+      var t=String(title||'');
+      if(t.indexOf('혜택')>-1&&!benefitOpen){
+        resumeVideo=findPlayingHomeVideo();
+        resumeNeeded=!!resumeVideo;
+        benefitOpen=true;
+      }
+      return oldShowSheet.apply(this,arguments);
+    };
+  }
+
+  var oldCloseSheet=window.closeSheet;
+  if(typeof oldCloseSheet==='function'){
+    window.closeSheet=function(){
+      var shouldResume=benefitOpen&&resumeNeeded&&resumeVideo&&document.documentElement.contains(resumeVideo);
+      var target=resumeVideo;
+      var r=oldCloseSheet.apply(this,arguments);
+      try{
+        var sh=document.getElementById('sheet');
+        if(sh)sh.classList.remove('benefit-center-sheet');
+      }catch(e){}
+      if(shouldResume){
+        try{
+          var p=target.play();
+          if(p&&p.catch)p.catch(function(){});
+        }catch(e){}
+      }
+      benefitOpen=false;
+      resumeNeeded=false;
+      resumeVideo=null;
+      return r;
+    };
+  }
+})();
