@@ -118,3 +118,13 @@
   s.setAttribute('data-kt-ai-voice-fix','1');
   document.head.appendChild(s);
 })();
+
+/* 방송방 선택 스위치 터치 보강만 연결 */
+(function(){
+  if(document.querySelector('script[data-kt-room-switch-fix]'))return;
+  var s=document.createElement('script');
+  s.src='room-switch-fix-20260910.js?v=20260910a';
+  s.async=false;
+  s.setAttribute('data-kt-room-switch-fix','1');
+  document.head.appendChild(s);
+})();
