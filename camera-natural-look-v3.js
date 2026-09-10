@@ -129,3 +129,13 @@
   s.setAttribute('data-kt-beauty-visible-fix','1');
   document.head.appendChild(s);
 })();
+
+/* 보정으로 영상이 흐려지는 현상 제거 + 보정 버튼 터치 안정화 */
+(function(){
+  if(document.querySelector('script[data-kt-beauty-sharp-touch-fix]'))return;
+  var s=document.createElement('script');
+  s.src='beauty-sharp-touch-fix.js?v=20260910a';
+  s.async=false;
+  s.setAttribute('data-kt-beauty-sharp-touch-fix','1');
+  document.head.appendChild(s);
+})();
