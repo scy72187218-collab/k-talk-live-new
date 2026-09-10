@@ -23,6 +23,7 @@
   load('vocal-enhancer.js?v=20260910-vocal1');
   load('interface-recording-audio-fix.js?v=20260910-interface2');
   load('karaoke-audio-quality.js?v=20260910-karaoke1');
+  load('attendance-host-rose.js?v=20260910-hostrose1');
 })();
 
 /* 촬영 화면의 편집효과 바로 아래 V(더보기) 버튼만 제거. 다른 버튼/기능은 건드리지 않음. */
