@@ -128,3 +128,21 @@
   s.setAttribute('data-kt-room-switch-fix','1');
   document.head.appendChild(s);
 })();
+
+/* 현재 방송자 표시·친구 방송목록·다른 기기 실시간 입장 기능만 연결 */
+(function(){
+  if(document.querySelector('script[data-kt-live-presence]'))return;
+  var s=document.createElement('script');
+  s.src='live-presence.js?v=20260910-live1';
+  s.async=false;
+  s.setAttribute('data-kt-live-presence','1');
+  s.onload=function(){
+    if(document.querySelector('script[data-kt-live-video-discovery]'))return;
+    var v=document.createElement('script');
+    v.src='live-video-discovery.js?v=20260910-live1';
+    v.async=false;
+    v.setAttribute('data-kt-live-video-discovery','1');
+    document.head.appendChild(v);
+  };
+  document.head.appendChild(s);
+})();
