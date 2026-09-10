@@ -51,11 +51,11 @@
   }
 
   function showEntryIconOffer(){
-    if(standalone())return;
     if(document.getElementById('ktFirstJoinIconOffer'))return;
+    var installed=standalone();
     var box=document.createElement('div');
     box.id='ktFirstJoinIconOffer';
-    box.innerHTML='<img src="/ktalk-icon.svg?v=20260910-icon2" alt="K-Talk"><div><b>K-Talk 아이콘</b><span>홈 화면에 바로 추가하세요</span></div><button id="ktAddHomeIcon" type="button">아이콘 추가</button><button id="ktIconLater" type="button" aria-label="나중에">×</button>';
+    box.innerHTML='<img src="/ktalk-icon.svg?v=20260910-icon2" alt="K-Talk"><div><b>K-Talk 새 아이콘</b><span>'+(installed?'새 아이콘이 적용된 K-Talk입니다':'홈 화면에 바로 추가하세요')+'</span></div><button id="ktAddHomeIcon" type="button">'+(installed?'확인':'아이콘 추가')+'</button><button id="ktIconLater" type="button" aria-label="나중에">×</button>';
     box.style.cssText='position:fixed;left:10px;right:10px;bottom:18px;z-index:2147483646;display:grid;grid-template-columns:48px 1fr auto 34px;align-items:center;gap:9px;padding:10px;border-radius:18px;background:rgba(10,10,16,.96);border:1px solid rgba(255,255,255,.18);box-shadow:0 8px 30px rgba(0,0,0,.45);color:#fff;font-family:system-ui,-apple-system,Noto Sans KR,sans-serif';
     var img=box.querySelector('img');if(img)img.style.cssText='width:48px;height:48px;border-radius:13px;display:block';
     var text=box.querySelector('div');if(text)text.style.cssText='min-width:0';
@@ -66,6 +66,7 @@
     document.body.appendChild(box);
 
     if(add)add.onclick=async function(){
+      if(installed){removeOffer();return;}
       if(installEvent){
         try{
           installEvent.prompt();
@@ -85,12 +86,12 @@
   if(document.readyState==='loading'){
     document.addEventListener('DOMContentLoaded',function(){
       setTimeout(openFirstPageIfBlank,120);
-      setTimeout(showEntryIconOffer,350);
+      setTimeout(showEntryIconOffer,120);
       setTimeout(openFirstPageIfBlank,700);
     },{once:true});
   }else{
     setTimeout(openFirstPageIfBlank,120);
-    setTimeout(showEntryIconOffer,350);
+    setTimeout(showEntryIconOffer,120);
     setTimeout(openFirstPageIfBlank,700);
   }
 })();
