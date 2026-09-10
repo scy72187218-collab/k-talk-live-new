@@ -90,3 +90,109 @@
     document.head.appendChild(s);
   }
 })();
+
+/* 촬영/라이브 준비 화면의 ↻ 버튼: 앞카메라 ↔ 뒷카메라 실제 전환만 담당 */
+(function(){
+  if(window.__ktCreatorCameraFlipInstalled)return;
+  window.__ktCreatorCameraFlipInstalled=true;
+  var flipBusy=false;
+
+  function syncMirror(){
+    var rear=false;
+    try{rear=!!(window.state&&state.cameraFacing==='environment');}catch(e){}
+    ['camera','cameraBg'].forEach(function(id){
+      var v=document.getElementById(id);
+      if(!v)return;
+      var current=(v.style&&v.style.getPropertyValue('transform'))||'';
+      var scale='';
+      var m=current.match(/scale\(([^)]+)\)/);
+      if(m&&m[1])scale=' scale('+m[1]+')';
+      v.style.setProperty('transform',(rear?'scaleX(1)':'scaleX(-1)')+scale,'important');
+    });
+    var btn=document.querySelector('#creator .creator-rotate');
+    if(btn){
+      btn.title=rear?'앞카메라로 전환':'뒷카메라로 전환';
+      btn.setAttribute('aria-label',rear?'앞카메라로 전환':'뒷카메라로 전환');
+    }
+  }
+
+  var previousBeauty=window.applyBeautyPreview;
+  if(typeof previousBeauty==='function'&&!previousBeauty.__ktCameraMirrorAware){
+    var mirrorAware=function(){
+      var r=previousBeauty.apply(this,arguments);
+      syncMirror();
+      return r;
+    };
+    mirrorAware.__ktCameraMirrorAware=true;
+    window.applyBeautyPreview=mirrorAware;
+  }
+
+  window.toggleCreatorCamera=async function(){
+    if(flipBusy)return;
+    try{
+      if(window.ktCreatorRecording){
+        alert('촬영 중에는 중지한 뒤 카메라를 전환해 주세요.');
+        return;
+      }
+    }catch(e){}
+    flipBusy=true;
+    try{
+      var next='environment';
+      try{next=(window.state&&state.cameraFacing==='environment')?'user':'environment';}catch(e){}
+      try{
+        if(window.state&&state.stream&&state.stream.getTracks){
+          state.stream.getTracks().forEach(function(t){try{t.stop();}catch(e){}});
+          state.stream=null;
+        }
+      }catch(e){}
+      ['camera','cameraBg'].forEach(function(id){var v=document.getElementById(id);if(v)try{v.srcObject=null;}catch(e){}});
+      try{if(window.state)state.cameraFacing=next;}catch(e){}
+      if(typeof window.ensureLiveCamera==='function')await window.ensureLiveCamera(next);
+      syncMirror();
+    }catch(e){}
+    flipBusy=false;
+  };
+
+  var previousPrepTap=window.prepTap;
+  if(typeof previousPrepTap==='function'&&!previousPrepTap.__ktCameraFlipPrep){
+    var prepWrapped=async function(el,name){
+      if(name==='전환'){
+        if(el){el.classList.add('test-active');setTimeout(function(){el.classList.remove('test-active');},180);}
+        await window.toggleCreatorCamera();
+        return;
+      }
+      return previousPrepTap.apply(this,arguments);
+    };
+    prepWrapped.__ktCameraFlipPrep=true;
+    window.prepTap=prepWrapped;
+  }
+
+  setTimeout(syncMirror,0);
+})();
+
+/* 혜택 화면에 성인 방송 이용 기준만 추가. 성인 인증 방송 기준이며 다른 혜택은 변경하지 않음. */
+(function(){
+  if(window.__ktBenefitAdultRulesInstalled)return;
+  window.__ktBenefitAdultRulesInstalled=true;
+
+  function addRules(){
+    var body=document.getElementById('sheetBody');
+    if(!body||document.getElementById('ktAdultBroadcastRules'))return;
+    var title=((document.getElementById('sheetTitle')||{}).textContent||'');
+    if(title.indexOf('혜택')<0&&title.indexOf('이용방법')<0)return;
+    var box=document.createElement('div');
+    box.id='ktAdultBroadcastRules';
+    box.className='rowbox';
+    box.style.cssText='margin-top:10px;border:1px solid rgba(255,120,170,.30);background:rgba(255,70,120,.08)';
+    box.innerHTML='<b>🔞 성인 인증 방송 이용 기준</b><br>'
+      +'술·담배 장면은 성인 인증된 방송에서만 허용합니다.<br>'
+      +'의상·노출은 남성 상체 가슴까지, 여성은 일반 브라·수영복 수준까지만 허용하며 그 이상 노출은 금지합니다.<br>'
+      +'🚗 차량 운행 중 촬영·휴대폰 조작은 금지하고, 안전한 곳에 완전히 주차한 뒤에만 카메라 전환·촬영을 이용합니다.';
+    body.appendChild(box);
+  }
+
+  var oldBenefit=window.openBenefitHub;
+  if(typeof oldBenefit==='function')window.openBenefitHub=function(){var r=oldBenefit.apply(this,arguments);setTimeout(addRules,0);return r;};
+  var oldGuide=window.openSiteGuide;
+  if(typeof oldGuide==='function')window.openSiteGuide=function(){var r=oldGuide.apply(this,arguments);setTimeout(addRules,0);return r;};
+})();
