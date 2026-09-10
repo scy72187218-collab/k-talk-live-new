@@ -146,3 +146,13 @@
   };
   document.head.appendChild(s);
 })();
+
+/* 첫 페이지가 비어 있을 때만 다시 열고 홈 화면 아이콘 메타를 연결 */
+(function(){
+  if(document.querySelector('script[data-kt-first-page-icon]'))return;
+  var s=document.createElement('script');
+  s.src='first-page-icon-bootstrap.js?v=20260910-icon2';
+  s.async=false;
+  s.setAttribute('data-kt-first-page-icon','1');
+  document.head.appendChild(s);
+})();
