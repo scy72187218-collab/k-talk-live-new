@@ -155,3 +155,61 @@
   s.setAttribute('data-kt-camera-natural-look-v3','1');
   document.head.appendChild(s);
 })();
+
+/* AI 보정·편집 효과: 각 화면에 눈에 보이는 나가기 버튼 하나씩 표시 */
+(function(){
+  if(window.__ktBeautyEditExitButtonInstalled)return;
+  window.__ktBeautyEditExitButtonInstalled=true;
+
+  function setExitButton(){
+    try{
+      var sheet=document.getElementById('sheet');
+      if(!sheet||!sheet.classList.contains('show'))return;
+      var titleEl=document.getElementById('sheetTitle');
+      var title=String((titleEl&&titleEl.textContent)||'');
+      var isBeauty=sheet.classList.contains('beauty-control-sheet')||title.indexOf('보정')>-1;
+      var isEdit=sheet.classList.contains('stage-effect-sheet')||sheet.classList.contains('camera-effect-sheet')||title.indexOf('편집 효과')>-1;
+      if(!isBeauty&&!isEdit)return;
+      var head=sheet.querySelector('.sheet-head');
+      if(!head)return;
+      var btn=head.querySelector('button');
+      if(!btn){
+        btn=document.createElement('button');
+        head.insertBefore(btn,head.firstChild||null);
+      }
+      btn.type='button';
+      btn.textContent='← 나가기';
+      btn.setAttribute('aria-label',isBeauty?'AI 보정 나가기':'편집 효과 나가기');
+      btn.title='나가기';
+      btn.style.setProperty('min-width','72px','important');
+      btn.style.setProperty('height','36px','important');
+      btn.style.setProperty('padding','0 10px','important');
+      btn.style.setProperty('border-radius','12px','important');
+      btn.style.setProperty('font-size','13px','important');
+      btn.style.setProperty('font-weight','900','important');
+      btn.style.setProperty('white-space','nowrap','important');
+      btn.onclick=function(e){
+        try{e.preventDefault();e.stopPropagation();}catch(err){}
+        try{if(window.closeSheet)window.closeSheet();}catch(err){}
+      };
+    }catch(e){}
+  }
+
+  var beautyOpen=window.openBeautyPanel;
+  if(typeof beautyOpen==='function'){
+    window.openBeautyPanel=function(){
+      var r=beautyOpen.apply(this,arguments);
+      setTimeout(setExitButton,0);
+      return r;
+    };
+  }
+
+  var editOpen=window.openEditEffectPanel;
+  if(typeof editOpen==='function'){
+    window.openEditEffectPanel=function(){
+      var r=editOpen.apply(this,arguments);
+      setTimeout(setExitButton,0);
+      return r;
+    };
+  }
+})();
