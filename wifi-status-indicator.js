@@ -1,4 +1,4 @@
-/* K-Talk 동영상/방송 화면: 우측 장미 위에 '📶 대중교통' 표시. 누르면 사라짐. 다른 기능은 건드리지 않음. */
+/* K-Talk 동영상/방송 화면: 왼쪽 위에 '📶 대중교통' 표시. 공유 버튼과 겹치지 않음. 다른 기능은 건드리지 않음. */
 (function(){
   if(window.__ktWifiStatusIndicatorInstalled)return;
   window.__ktWifiStatusIndicatorInstalled=true;
@@ -8,11 +8,11 @@
     var s=document.createElement('style');
     s.id='ktWifiStatusIndicatorStyle';
     s.textContent=''
-      +'#ktWifiStatusIndicator{position:fixed!important;right:10px!important;bottom:155px!important;z-index:2147483000!important;display:inline-flex!important;align-items:center!important;gap:5px!important;height:30px!important;padding:0 10px!important;border-radius:999px!important;border:1px solid rgba(255,255,255,.30)!important;background:rgba(10,10,14,.82)!important;color:#fff!important;box-shadow:0 4px 14px rgba(0,0,0,.35)!important;font-size:11px!important;font-weight:900!important;line-height:1!important;white-space:nowrap!important;opacity:1!important;pointer-events:auto!important;touch-action:manipulation!important;transition:opacity .16s ease,transform .16s ease!important}'
+      +'#ktWifiStatusIndicator{position:fixed!important;left:10px!important;right:auto!important;top:12px!important;bottom:auto!important;z-index:2147483000!important;display:inline-flex!important;align-items:center!important;gap:5px!important;height:30px!important;padding:0 10px!important;border-radius:999px!important;border:1px solid rgba(255,255,255,.30)!important;background:rgba(10,10,14,.82)!important;color:#fff!important;box-shadow:0 4px 14px rgba(0,0,0,.35)!important;font-size:11px!important;font-weight:900!important;line-height:1!important;white-space:nowrap!important;opacity:1!important;pointer-events:auto!important;touch-action:manipulation!important;transition:opacity .16s ease,transform .16s ease!important}'
       +'#ktWifiStatusIndicator .kt-net-icon{font-size:15px!important;line-height:1!important}'
       +'#ktWifiStatusIndicator.kt-hide{opacity:0!important;transform:scale(.92)!important;pointer-events:none!important}'
-      +'@media(max-width:390px){#ktWifiStatusIndicator{right:8px!important;bottom:150px!important;height:28px!important;padding:0 8px!important;font-size:10px!important}}'
-      +'@media(min-width:700px){#ktWifiStatusIndicator{right:14px!important;bottom:170px!important;height:32px!important;font-size:12px!important}}';
+      +'@media(max-width:390px){#ktWifiStatusIndicator{left:8px!important;right:auto!important;top:10px!important;bottom:auto!important;height:28px!important;padding:0 8px!important;font-size:10px!important}}'
+      +'@media(min-width:700px){#ktWifiStatusIndicator{left:14px!important;right:auto!important;top:14px!important;bottom:auto!important;height:32px!important;font-size:12px!important}}';
     document.head.appendChild(s);
   }
 
