@@ -16,7 +16,8 @@
   load('public-feed-three-dot.js?v=20260909-feedmore1');
   load('solo-right-dedupe.js?v=20260909-solo-right2');
   load('fanclub-restore.js?v=20260910-fanclub1');
-  load('video-gift-benefit.js?v=20260910-gift30-1');
+  load('video-gift-benefit.js?v=20260910-gift30-2');
+  load('wifi-status-indicator.js?v=20260910-nettoast1');
 })();
 
 /* 촬영 화면의 편집효과 바로 아래 V(더보기) 버튼만 제거. 다른 버튼/기능은 건드리지 않음. */
