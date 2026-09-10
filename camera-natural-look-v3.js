@@ -76,3 +76,13 @@
   s.setAttribute('data-kt-korean-face-presets','1');
   document.head.appendChild(s);
 })();
+
+/* 기존 사진 프리셋은 유지하고 틱톡식 얼굴 추적 재미 효과를 추가 */
+(function(){
+  if(document.querySelector('script[data-kt-tiktok-face-effects]'))return;
+  var s=document.createElement('script');
+  s.src='tiktok-face-effects-upgrade.js?v=20260910a';
+  s.async=false;
+  s.setAttribute('data-kt-tiktok-face-effects','1');
+  document.head.appendChild(s);
+})();
