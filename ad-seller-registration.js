@@ -88,3 +88,13 @@
     };
   }
 })();
+
+/* 사용방법 메뉴에 카메라·보정 안내만 추가로 연결 */
+(function(){
+  if(document.querySelector('script[data-kt-help-beauty-guide]'))return;
+  var s=document.createElement('script');
+  s.src='help-guide-benefits-20260910.js?v=20260910a';
+  s.async=false;
+  s.setAttribute('data-kt-help-beauty-guide','1');
+  document.head.appendChild(s);
+})();
