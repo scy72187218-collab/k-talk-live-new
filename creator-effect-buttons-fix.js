@@ -3,10 +3,13 @@
   if(window.__ktCreatorEffectButtonsFixInstalled)return;
   window.__ktCreatorEffectButtonsFixInstalled=true;
 
+  var lastBtn=null,lastAt=0;
   function creatorOpen(){
     var c=document.getElementById('creator');
     return !!(c&&c.classList.contains('show'));
   }
+  function mark(btn){lastBtn=btn;lastAt=Date.now();}
+  function duplicate(btn){return btn===lastBtn&&(Date.now()-lastAt)<420;}
 
   function applyFaceButton(btn){
     if(!btn)return;
@@ -16,11 +19,15 @@
       if(/^real-/.test(name)&&typeof window.ktApplyRealLook==='function'){
         window.ktApplyRealLook(name,btn);return;
       }
-      if(/^korean-/.test(name)&&typeof window.ktApplyKoreanFacePreset==='function'){
-        window.ktApplyKoreanFacePreset(name,btn);return;
-      }
       if(typeof window.setEditEffect==='function')window.setEditEffect(name,btn);
     }catch(e){}
+  }
+
+  function applyKoreanButton(btn){
+    if(!btn)return;
+    var kind=btn.getAttribute('data-kt-kind')||'';
+    if(kind!=='male'&&kind!=='female')return;
+    try{if(typeof window.ktApplyKoreanPhotoPreset==='function')window.ktApplyKoreanPhotoPreset(kind,btn);}catch(e){}
   }
 
   function applyBeautyButton(btn){
@@ -37,31 +44,30 @@
     try{if(typeof window.selectStageBackground==='function')window.selectStageBackground(id);}catch(e){}
   }
 
-  function intercept(e){
+  function route(e,isClick){
     if(!creatorOpen())return;
     var t=e.target;
     if(!t||!t.closest)return;
 
     var beauty=t.closest('#sheet.beauty-control-sheet .kt-beauty-controls-pro button[data-beauty-kind]');
-    if(beauty){
-      e.preventDefault();e.stopPropagation();
-      applyBeautyButton(beauty);return;
-    }
-
+    var korean=t.closest('#sheet.camera-effect-sheet .kt-korean-photo-card[data-kt-kind]');
     var face=t.closest('#sheet.camera-effect-sheet .kt-face-effect-card[data-face-effect]');
-    if(face){
-      e.preventDefault();e.stopPropagation();
-      applyFaceButton(face);return;
-    }
-
     var stage=t.closest('#sheet.stage-effect-sheet .kt-stage-card[data-stage-id]');
-    if(stage){
-      e.preventDefault();e.stopPropagation();
-      applyStageButton(stage);return;
+    var btn=beauty||korean||face||stage;
+    if(!btn)return;
+
+    if(isClick&&duplicate(btn)){
+      e.preventDefault();e.stopImmediatePropagation();return;
     }
+    e.preventDefault();e.stopImmediatePropagation();mark(btn);
+    if(beauty)applyBeautyButton(beauty);
+    else if(korean)applyKoreanButton(korean);
+    else if(face)applyFaceButton(face);
+    else if(stage)applyStageButton(stage);
   }
 
-  document.addEventListener('pointerup',intercept,true);
+  document.addEventListener('pointerup',function(e){route(e,false);},true);
+  document.addEventListener('click',function(e){route(e,true);},true);
 
   document.addEventListener('input',function(e){
     if(!creatorOpen())return;
@@ -74,10 +80,13 @@
     var s=document.createElement('style');
     s.id='ktCreatorEffectButtonsFixStyle';
     s.textContent=''
+      +'#sheet.beauty-control-sheet button,'
+      +'#sheet.camera-effect-sheet button,'
+      +'#sheet.stage-effect-sheet button{pointer-events:auto!important;touch-action:manipulation!important;cursor:pointer!important;position:relative!important;z-index:8!important}'
       +'#sheet.beauty-control-sheet .kt-beauty-controls-pro button,'
       +'#sheet.camera-effect-sheet .kt-face-effect-card,'
-      +'#sheet.stage-effect-sheet .kt-stage-card{pointer-events:auto!important;touch-action:manipulation!important;cursor:pointer!important;position:relative!important;z-index:5!important}'
-      +'#sheet.beauty-control-sheet #beautySingleRange{pointer-events:auto!important;touch-action:pan-x!important;position:relative!important;z-index:6!important}';
+      +'#sheet.stage-effect-sheet .kt-stage-card{min-width:0!important}'
+      +'#sheet.beauty-control-sheet #beautySingleRange{pointer-events:auto!important;touch-action:pan-x!important;position:relative!important;z-index:9!important}';
     document.head.appendChild(s);
   }
 })();
