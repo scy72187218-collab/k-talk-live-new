@@ -14,6 +14,7 @@
   load('beauty-natural-upgrade.js?v=20260909-beauty2');
   load('beauty-panel-real-controls.js?v=20260910-real1');
   load('public-feed-three-dot.js?v=20260909-feedmore1');
+  load('feed-swipe-playback-fix.js?v=20260910-feedplay1');
   load('solo-right-dedupe.js?v=20260909-solo-right2');
   load('fanclub-restore.js?v=20260910-fanclub1');
   load('video-gift-benefit.js?v=20260910-gift30-2');
