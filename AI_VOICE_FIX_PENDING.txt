@@ -1,0 +1,1 @@
+AI voice fix safety marker before linking ai-voice-fix.js. Previous production commit: b16319dcb2f9c9273fcd1cb881cb2639ac180e67
