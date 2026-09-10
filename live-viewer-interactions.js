@@ -4,7 +4,7 @@
   window.__ktLiveViewerInteractionInstalled=true;
 
   var BASE='https://zupwbfmacwzexyvznlzq.supabase.co/rest/v1/';
-  var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFjZSIsInJlZiI6Inp1cHdiZm1hY3d6ZXh5dnpubHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjEwNzYsImV4cCI6MjEwNDAzNzA3Nn0.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
+  var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1cHdiZm1hY3d6ZXh5dnpubHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjEwNzYsImV4cCI6MjEwNDAzNzA3Nn0.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
   var remote={hostId:'',viewerId:'',viewerName:'',roomStart:'',timer:null,lastLikeAt:0};
   var hostTimer=null,hostRoomStart='';
 
@@ -63,9 +63,10 @@
       +'.kt-remote-bottom{position:absolute;left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom));z-index:8;display:flex;align-items:center;gap:7px}'
       +'.kt-remote-bottom input{flex:1 1 auto;min-width:0;height:44px;border:1px solid rgba(255,255,255,.16);border-radius:23px;background:rgba(28,28,34,.88);color:#fff;padding:0 14px;font-size:14px;font-weight:750;outline:none;backdrop-filter:blur(5px)}'
       +'.kt-remote-bottom input::placeholder{color:#c9c9ce}.kt-remote-action{width:44px;height:44px;flex:0 0 44px;border:1px solid rgba(255,255,255,.17);border-radius:50%;background:rgba(23,23,29,.9);color:#fff;font-size:20px;display:grid;place-items:center;touch-action:manipulation}'
+      +'.kt-remote-send{height:44px;min-width:58px;flex:0 0 auto;padding:0 12px;border:0;border-radius:22px;background:linear-gradient(135deg,#ff2f72,#ff5364);color:#fff;font-size:13px;font-weight:950;white-space:nowrap;touch-action:manipulation}'
       +'.kt-remote-action.heart{background:rgba(77,16,50,.92);color:#ff65ad}.kt-remote-action.gift{background:rgba(62,37,11,.92)}.kt-remote-action.share{font-size:19px}'
       +'.kt-remote-heart-pop{position:absolute;right:18px;bottom:126px;z-index:9;font-size:31px;pointer-events:none;animation:ktRemoteHeartFloat 1.15s ease-out forwards}@keyframes ktRemoteHeartFloat{0%{opacity:0;transform:translateY(15px) scale(.7)}20%{opacity:1}100%{opacity:0;transform:translateY(-95px) scale(1.25)}}'
-      +'@media(max-width:390px){.kt-remote-chat{left:9px;right:54px;bottom:72px;max-height:140px}.kt-remote-bottom{left:6px;right:6px;gap:5px}.kt-remote-bottom input{height:42px;padding:0 12px;font-size:13px}.kt-remote-action{width:40px;height:40px;flex-basis:40px;font-size:18px}.kt-remote-chat-line,.kt-remote-chat-line b{font-size:11px}}';
+      +'@media(max-width:390px){.kt-remote-chat{left:9px;right:54px;bottom:72px;max-height:140px}.kt-remote-bottom{left:6px;right:6px;gap:5px}.kt-remote-bottom input{height:42px;padding:0 12px;font-size:13px}.kt-remote-send{height:40px;min-width:50px;padding:0 9px;font-size:12px}.kt-remote-action{width:40px;height:40px;flex-basis:40px;font-size:18px}.kt-remote-chat-line,.kt-remote-chat-line b{font-size:11px}}';
     document.head.appendChild(s);
   }
 
@@ -78,6 +79,7 @@
     if(!document.getElementById('ktRemoteBottom')){
       var bar=document.createElement('div');bar.id='ktRemoteBottom';bar.className='kt-remote-bottom';
       bar.innerHTML='<input id="ktRemoteChatInput" maxlength="100" placeholder="입력하세요…" aria-label="라이브 채팅 입력">'
+        +'<button type="button" class="kt-remote-send" onclick="ktRemoteSendChat()" aria-label="채팅 보내기">보내기</button>'
         +'<button type="button" class="kt-remote-action heart" onclick="ktRemoteLike()" aria-label="좋아요">♥</button>'
         +'<button type="button" class="kt-remote-action gift" onclick="ktRemoteOpenGifts()" aria-label="선물">🎁</button>'
         +'<button type="button" class="kt-remote-action share" onclick="ktRemoteShare()" aria-label="공유">↗</button>';
