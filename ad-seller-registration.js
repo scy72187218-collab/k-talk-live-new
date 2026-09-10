@@ -99,11 +99,11 @@
   document.head.appendChild(s);
 })();
 
-/* 동영상과 방송 화면에서도 우측 장미 위 네트워크 안테나 표시가 사라지지 않게 연결 */
+/* 동영상과 방송 화면에서도 우측 장미 위 네트워크 표시 연결 */
 (function(){
   if(document.querySelector('script[data-kt-wifi-status]'))return;
   var s=document.createElement('script');
-  s.src='wifi-status-indicator.js?v=20260910a';
+  s.src='wifi-status-indicator.js?v=20260910b';
   s.async=false;
   s.setAttribute('data-kt-wifi-status','1');
   document.head.appendChild(s);
