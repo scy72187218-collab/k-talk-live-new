@@ -1,13 +1,12 @@
-/* K-Talk 보정/얼굴효과를 4개 방송방(1인/13명/구독자/비밀방)에 동일 적용. 다른 기능은 건드리지 않음. */
+/* K-Talk 보정/얼굴효과를 구독자방/비밀방 2곳에만 동일 적용. 다른 방송방과 기능은 건드리지 않음. */
 (function(){
   if(window.__ktBeautyFourRoomsSyncInstalled)return;
   window.__ktBeautyFourRoomsSyncInstalled=true;
 
+  /* 사용자 요청: 구독자방 + 비밀방만 적용 */
   var rooms=[
-    {box:'.ktsolo-main',video:'.ktsolo-main video',key:'solo'},
     {box:'.ktsubscriber-main',video:'.ktsubscriber-main video',key:'subscriber'},
-    {box:'.ktsecret-main',video:'.ktsecret-main video',key:'secret'},
-    {box:'.ktg13-host',video:'.ktg13-host video',key:'group13'}
+    {box:'.ktsecret-main',video:'.ktsecret-main video',key:'secret'}
   ];
 
   function eachRoom(fn){
@@ -79,7 +78,7 @@
     var st=document.createElement('style');
     st.id='ktFourRoomFaceLayerStyle';
     st.textContent=''
-      +'.ktsolo-main,.ktsubscriber-main,.ktsecret-main,.ktg13-host{position:relative!important}'
+      +'.ktsubscriber-main,.ktsecret-main{position:relative!important}'
       +'.kt-fourroom-face-layer{position:absolute!important;inset:0!important;z-index:6!important;pointer-events:none!important;overflow:hidden!important}'
       +'.kt-fourroom-face-anchor{position:absolute!important;left:50%!important;top:50%!important;width:42%!important;height:42%!important;transform:translate(-50%,-50%)!important;pointer-events:none!important}';
     document.head.appendChild(st);
@@ -134,6 +133,7 @@
     }
   }catch(e){}
 
+  /* 기존 호출명은 다른 파일과 호환을 위해 유지하지만 실제 적용 대상은 2개 방뿐 */
   window.ktSyncBeautyToFourRooms=syncAll;
   setTimeout(syncAll,0);
 })();
