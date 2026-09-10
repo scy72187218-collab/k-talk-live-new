@@ -69,3 +69,74 @@
   });
   window.addEventListener('pagehide',window.ktStopPageMedia);
 })();
+
+/* 1인 방송: 오른쪽 하트 바로 위에 카메라 앞/뒤 전환 버튼 하나만 추가. */
+(function(){
+  if(window.__ktSoloCameraFlipInstalled)return;
+  window.__ktSoloCameraFlipInstalled=true;
+
+  function applyMirror(v,facing){
+    if(!v)return;
+    try{
+      v.style.setProperty('transform',facing==='environment'?'none':'scaleX(-1)','important');
+    }catch(e){}
+  }
+
+  window.ktSoloFlipCamera=async function(btn){
+    if(btn&&btn.dataset.busy==='1')return;
+    if(btn)btn.dataset.busy='1';
+    var oldFacing='user';
+    try{oldFacing=(window.state&&state.cameraFacing)||'user';}catch(e){}
+    var next=oldFacing==='environment'?'user':'environment';
+    try{
+      if(window.state)state.cameraFacing=next;
+      var ok=false;
+      if(typeof window.ensureLiveCamera==='function')ok=await window.ensureLiveCamera(next);
+      if(!ok)throw new Error('camera switch failed');
+      var v=document.getElementById('ktLiveVideo');
+      if(v&&window.state&&state.stream){
+        v.srcObject=state.stream;
+        v.muted=true;
+        v.setAttribute('playsinline','');
+        applyMirror(v,next);
+        try{await v.play();}catch(e){}
+      }
+      if(btn){
+        btn.title=next==='environment'?'전면 카메라로 바꾸기':'후면 카메라로 바꾸기';
+        btn.setAttribute('aria-label','카메라 뒤집기');
+      }
+    }catch(err){
+      try{
+        if(window.state)state.cameraFacing=oldFacing;
+        if(typeof window.ensureLiveCamera==='function')await window.ensureLiveCamera(oldFacing);
+        var oldV=document.getElementById('ktLiveVideo');
+        if(oldV&&window.state&&state.stream){
+          oldV.srcObject=state.stream;
+          applyMirror(oldV,oldFacing);
+          try{await oldV.play();}catch(e){}
+        }
+      }catch(e){}
+    }finally{
+      if(btn)btn.dataset.busy='0';
+    }
+  };
+
+  function install(){
+    var right=document.querySelector('.ktsolo-right');
+    if(!right||right.querySelector('.kt-solo-camera-flip'))return;
+    var like=right.querySelector('.like');
+    if(!like)return;
+    var b=document.createElement('button');
+    b.type='button';
+    b.className='kt-solo-camera-flip';
+    b.setAttribute('aria-label','카메라 뒤집기');
+    b.title='카메라 앞/뒤 바꾸기';
+    b.innerHTML='↻<small>뒤집기</small>';
+    b.onclick=function(){window.ktSoloFlipCamera(this);};
+    right.insertBefore(b,like);
+  }
+
+  install();
+  var obs=new MutationObserver(function(){install();});
+  obs.observe(document.documentElement,{childList:true,subtree:true});
+})();
