@@ -1,4 +1,4 @@
-/* K-Talk 편집효과 전용 업그레이드: 틱톡식 얼굴 추적 효과 20+개. 다른 기능/방송방은 건드리지 않음. */
+/* K-Talk 편집효과 전용 업그레이드: 기존 사진 프리셋은 그대로 두고 틱톡식 얼굴 추적 효과 24개를 추가. */
 (function(){
   if(window.__ktTikTokFaceEffectsUpgradeInstalled)return;
   window.__ktTikTokFaceEffectsUpgradeInstalled=true;
@@ -67,10 +67,11 @@
     var st=document.createElement('style');
     st.id='ktTikTokFaceEffectsStyle';
     st.textContent=''
-      +'#sheet.camera-effect-sheet .kt-face-effect-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:7px!important;max-height:43vh!important;overflow-y:auto!important;padding:2px 2px 8px!important}'
-      +'#sheet.camera-effect-sheet .kt-face-effect-card{min-height:68px!important;padding:7px 3px!important;border-radius:14px!important}'
-      +'#sheet.camera-effect-sheet .kt-face-effect-card span{font-size:27px!important}'
-      +'#sheet.camera-effect-sheet .kt-face-effect-card b{font-size:9px!important;white-space:nowrap!important}'
+      +'#sheet.camera-effect-sheet .kt-face-effect-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:7px!important;max-height:45vh!important;overflow-y:auto!important;padding:2px 2px 8px!important}'
+      +'#sheet.camera-effect-sheet .kt-tiktok-effect-card{min-height:68px!important;padding:7px 3px!important;border-radius:14px!important}'
+      +'#sheet.camera-effect-sheet .kt-tiktok-effect-card span{font-size:27px!important}'
+      +'#sheet.camera-effect-sheet .kt-tiktok-effect-card b{font-size:9px!important;white-space:nowrap!important}'
+      +'#sheet.camera-effect-sheet .kt-tiktok-effect-label{grid-column:1/-1!important;display:block!important;margin:5px 0 1px!important;padding:6px 8px!important;border-radius:10px!important;background:rgba(255,255,255,.06)!important;color:#fff!important;font-size:11px!important;font-weight:900!important;text-align:left!important}'
       +'#ktFaceAnchor .ktfx-glasses{top:40%!important;font-size:70px!important}'
       +'#ktFaceAnchor .ktfx-cap{top:-8%!important;font-size:72px!important}'
       +'#ktFaceAnchor .ktfx-ears{top:-8%!important;font-size:72px!important}'
@@ -96,8 +97,7 @@
       if(creator&&camera&&camera.parentNode===creator)creator.insertBefore(layer,camera.nextSibling);
       else if(creator)creator.appendChild(layer);
     }
-    var anchor=document.getElementById('ktFaceAnchor');
-    return {layer:layer,anchor:anchor};
+    return {layer:layer,anchor:document.getElementById('ktFaceAnchor')};
   }
 
   var oldSet=window.setEditEffect;
@@ -107,19 +107,21 @@
 
   function applyEffect(name,el){
     name=name||'off';
-    if(!supported[name]){
-      if(typeof oldSet==='function')return oldSet.apply(this,arguments);
-      return;
-    }
     if(name==='off'){
       try{if(window.clearAllFaceEffects)window.clearAllFaceEffects();}catch(e){}
       return;
     }
+    if(!supported[name])return;
     try{
-      state.editFilter='';
-      state.editSticker=name;
-      state.pendingEditEffect=name;
-      state.appliedEditEffect=name;
+      if(window.state){
+        state.ktRealLook='real-original';
+        state.ktKoreanPhotoPreset='';
+        state.editFilter='';
+        state.editSticker=name;
+        state.pendingEditEffect=name;
+        state.appliedEditEffect=name;
+      }
+      if(typeof window.applyBeautyPreview==='function')window.applyBeautyPreview();
     }catch(e){}
     var p=ensureLayer();
     if(p.anchor)p.anchor.innerHTML=markup(name);
@@ -151,16 +153,29 @@
     if(typeof oldRender==='function')return oldRender.apply(this,arguments);
   };
 
-  function decorateFaceGrid(){
+  function addTikTokCards(){
     ensureStyle();
     var sheet=document.getElementById('sheet');
     if(!sheet||!sheet.classList.contains('camera-effect-sheet'))return;
     var grid=sheet.querySelector('.kt-face-effect-grid');
-    if(!grid)return;
+    if(!grid||grid.querySelector('.kt-tiktok-effect-label'))return;
+
+    var label=document.createElement('div');
+    label.className='kt-tiktok-effect-label';
+    label.textContent='얼굴 따라가는 재미 효과';
+    grid.appendChild(label);
+
     var current=(window.state&&state.appliedEditEffect)||'off';
-    grid.innerHTML=effects.map(function(it){
-      return '<button class="kt-face-effect-card '+(current===it[0]?'on':'')+'" data-face-effect="'+it[0]+'" onclick="setEditEffect(\''+it[0]+'\',this)"><span>'+it[1]+'</span><b>'+it[2]+'</b></button>';
-    }).join('');
+    effects.forEach(function(it){
+      if(it[0]==='off'&&grid.querySelector('[data-face-effect="off"]'))return;
+      var b=document.createElement('button');
+      b.type='button';
+      b.className='kt-face-effect-card kt-tiktok-effect-card '+(current===it[0]?'on':'');
+      b.setAttribute('data-face-effect',it[0]);
+      b.innerHTML='<span>'+it[1]+'</span><b>'+it[2]+'</b>';
+      b.onclick=function(){window.setEditEffect(it[0],b);};
+      grid.appendChild(b);
+    });
   }
 
   var oldOpen=window.openEditEffectPanel;
@@ -168,10 +183,20 @@
     window.openEditEffectPanel=function(tab){
       var which=tab||'face';
       var r=oldOpen.apply(this,arguments);
-      if(which!=='background')setTimeout(decorateFaceGrid,0);
+      if(which!=='background'){
+        setTimeout(addTikTokCards,120);
+        setTimeout(addTikTokCards,220);
+      }
       return r;
     };
   }
 
+  var observer=new MutationObserver(function(){
+    try{
+      var sheet=document.getElementById('sheet');
+      if(sheet&&sheet.classList.contains('camera-effect-sheet'))setTimeout(addTikTokCards,130);
+    }catch(e){}
+  });
+  try{observer.observe(document.documentElement,{childList:true,subtree:true});}catch(e){}
   ensureStyle();
 })();
