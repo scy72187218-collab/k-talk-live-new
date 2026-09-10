@@ -288,3 +288,15 @@
     };
   }
 })();
+
+/* 4개 방송방 채팅 입력: 글 입력칸 바로 오른쪽에 '보내기' 버튼을 붙인다. */
+(function(){
+  if(window.__ktChatSendInlineInstalled)return;
+  window.__ktChatSendInlineInstalled=true;
+  var st=document.createElement('style');
+  st.id='ktChatSendInlineStyle';
+  st.textContent=''
+    +'#sheetBody #ktsoloChatInput,#sheetBody #ktsubscriberChatInput,#sheetBody #ktsecretChatInput,#sheetBody #ktg13ChatInput{display:inline-block!important;vertical-align:top!important;width:calc(100% - 94px)!important;height:44px!important;margin:0!important;box-sizing:border-box!important}'
+    +'#sheetBody #ktsoloChatInput + .act,#sheetBody #ktsubscriberChatInput + .act,#sheetBody #ktsecretChatInput + .act,#sheetBody #ktg13ChatInput + .act{display:inline-flex!important;vertical-align:top!important;width:86px!important;height:44px!important;margin:0 0 0 8px!important;padding:0 10px!important;align-items:center!important;justify-content:center!important;box-sizing:border-box!important;font-weight:950!important}';
+  document.head.appendChild(st);
+})();
