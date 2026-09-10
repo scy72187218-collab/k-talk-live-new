@@ -97,10 +97,16 @@
         try{if(c.ctx&&c.ctx.state==='suspended')c.ctx.resume().catch(function(){});}catch(e){}
         try{
           if(c.audio){
-            c.audio.muted=false;
-            c.audio.volume=1;
-            var p=c.audio.play();
-            if(p&&p.catch)p.catch(function(){});
+            var audio=c.audio;
+            var originalId=audio.id||'ktCreatorMusicCapture';
+            /* 촬영 화면이 다른 미디어를 자동 정지할 때 이 녹음용 음악까지 꺼지는 것을 막는다. */
+            audio.id='ktCreatorPreview';
+            audio.muted=false;
+            audio.volume=1;
+            var p=audio.play();
+            var restore=function(){setTimeout(function(){try{audio.id=originalId;}catch(e){}},180);};
+            if(p&&p.then)p.then(restore).catch(function(){try{audio.id=originalId;}catch(e){}});
+            else restore();
           }
         }catch(e){}
         clearInterval(timer);
