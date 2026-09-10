@@ -108,3 +108,13 @@
   s.setAttribute('data-kt-wifi-status','1');
   document.head.appendChild(s);
 })();
+
+/* AI 한국어 음성 읽기 안정화 파일만 추가 연결 */
+(function(){
+  if(document.querySelector('script[data-kt-ai-voice-fix]'))return;
+  var s=document.createElement('script');
+  s.src='ai-voice-fix.js?v=20260910a';
+  s.async=false;
+  s.setAttribute('data-kt-ai-voice-fix','1');
+  document.head.appendChild(s);
+})();
