@@ -31,7 +31,8 @@
       '<div class="rowbox"><b>3. 방송목록</b><br>현재 방송 중인 방을 확인할 수 있습니다.</div>'+
       '<div class="rowbox"><b>4. 채팅·내 정보</b><br>하단 메뉴에서 채팅과 프로필을 확인합니다.</div>'+
       '<div class="rowbox"><b>5. 방송방 종류</b><br>일반 13명방, 1인 방송, 비밀번호방, 구독자 전용방 등이 있으며 각 방의 조건에 맞게 이용합니다.</div>'+
-      '<div class="rowbox"><b>6. 선물·보물상자</b><br>선물 종류와 보물상자 이벤트는 사용방법 메뉴에서 확인할 수 있습니다.</div>');
+      '<div class="rowbox"><b>6. 선물·보물상자</b><br>선물 종류와 보물상자 이벤트는 사용방법 메뉴에서 확인할 수 있습니다.</div>'+
+      '<div class="rowbox"><b>7. 📶 Wi-Fi 이용</b><br>Wi-Fi에 연결한 상태에서도 K-Talk의 동영상과 라이브 방송을 이용할 수 있습니다.</div>');
   };
 
   window.openSubs=function(){
