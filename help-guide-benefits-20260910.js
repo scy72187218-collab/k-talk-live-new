@@ -46,6 +46,24 @@
         btn.style.setProperty('position','relative','important');
         btn.style.setProperty('z-index','5','important');
       });
+
+      /* 정산 금액 카드만 보강: 장미 1개=30원, 일반 35%, 구독자 40%를 함께 계산해 표시 */
+      try{
+        var top=body.querySelector('.kt-benefit-top');
+        if(top&&top.children&&top.children.length>=3){
+          var roseStrong=top.children[0].querySelector('strong');
+          var payoutStrong=top.children[2].querySelector('strong');
+          var roses=parseInt(String(roseStrong&&roseStrong.textContent||'').replace(/[^0-9]/g,''),10)||0;
+          if(roses>0&&payoutStrong){
+            var total=roses*30;
+            var general=Math.round(total*0.35);
+            var subscriber=Math.round(total*0.40);
+            payoutStrong.innerHTML='<span style="display:block;white-space:nowrap;font-size:.78em">일반 35% · '+general.toLocaleString('ko-KR')+'원</span>'
+              +'<span style="display:block;white-space:nowrap;font-size:.78em;margin-top:2px">구독자 40% · '+subscriber.toLocaleString('ko-KR')+'원</span>';
+          }
+        }
+      }catch(e){}
+
       if(!body.querySelector('[data-kt-benefit-reader]')){
         var read=document.createElement('button');
         read.type='button';
