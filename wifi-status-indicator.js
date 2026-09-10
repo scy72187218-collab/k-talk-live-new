@@ -1,54 +1,74 @@
-/* K-Talk 네트워크 표시: 동영상/방송 화면에서 우측 구석 장미 위에 작은 안테나 표시. 다른 기능은 건드리지 않음. */
+/* K-Talk 네트워크 안내: 동영상/방송 중 연결 상태가 바뀔 때만 잠깐 표시. 연결되면 자동으로 사라지고 탭해도 닫힘. */
 (function(){
   if(window.__ktWifiStatusIndicatorInstalled)return;
   window.__ktWifiStatusIndicatorInstalled=true;
 
-  function ensure(){
-    var el=document.getElementById('ktWifiStatusIndicator');
-    if(!el){
-      el=document.createElement('div');
-      el.id='ktWifiStatusIndicator';
-      el.setAttribute('aria-label','네트워크 연결 상태');
-      el.innerHTML='<span class="kt-wifi-arc a1"></span><span class="kt-wifi-arc a2"></span><span class="kt-wifi-dot"></span>';
-      document.body.appendChild(el);
-    }
-    return el;
-  }
+  var hideTimer=null;
 
   function style(){
     if(document.getElementById('ktWifiStatusIndicatorStyle'))return;
     var s=document.createElement('style');
     s.id='ktWifiStatusIndicatorStyle';
     s.textContent=''
-      +'#ktWifiStatusIndicator{position:fixed!important;right:10px!important;bottom:155px!important;width:30px!important;height:26px!important;z-index:2147483000!important;pointer-events:none!important;filter:drop-shadow(0 1px 2px #000);opacity:.95!important}'
-      +'#ktWifiStatusIndicator .kt-wifi-arc{position:absolute!important;left:50%!important;transform:translateX(-50%) rotate(45deg)!important;border-style:solid!important;border-color:#fff!important;border-left-color:transparent!important;border-top-color:transparent!important;border-radius:50%!important}'
-      +'#ktWifiStatusIndicator .a1{width:24px!important;height:24px!important;top:-4px!important;border-width:3px!important}'
-      +'#ktWifiStatusIndicator .a2{width:14px!important;height:14px!important;top:5px!important;border-width:3px!important}'
-      +'#ktWifiStatusIndicator .kt-wifi-dot{position:absolute!important;left:50%!important;bottom:1px!important;width:5px!important;height:5px!important;transform:translateX(-50%)!important;border-radius:50%!important;background:#fff!important}'
-      +'#ktWifiStatusIndicator.offline .kt-wifi-arc,#ktWifiStatusIndicator.offline .kt-wifi-dot{opacity:.28!important}'
-      +'#ktWifiStatusIndicator.offline:after{content:"×"!important;position:absolute!important;right:-2px!important;top:-7px!important;color:#fff!important;font-size:18px!important;font-weight:950!important}'
-      +'@media(min-width:700px){#ktWifiStatusIndicator{right:14px!important;bottom:170px!important;width:34px!important;height:29px!important}}';
+      +'#ktWifiStatusIndicator{position:fixed!important;left:50%!important;top:88px!important;transform:translate(-50%,-8px)!important;z-index:2147483000!important;display:flex!important;align-items:center!important;gap:7px!important;max-width:88vw!important;padding:7px 11px!important;border-radius:999px!important;border:1px solid rgba(255,255,255,.28)!important;background:rgba(10,10,14,.82)!important;color:#fff!important;box-shadow:0 5px 18px rgba(0,0,0,.28)!important;font-size:11px!important;font-weight:900!important;white-space:nowrap!important;opacity:0!important;pointer-events:auto!important;touch-action:manipulation!important;transition:.18s ease!important}'
+      +'#ktWifiStatusIndicator.show{opacity:1!important;transform:translate(-50%,0)!important}'
+      +'#ktWifiStatusIndicator.offline{border-color:rgba(255,87,112,.72)!important;background:rgba(45,8,15,.88)!important}'
+      +'#ktWifiStatusIndicator .kt-net-icon{font-size:15px!important;line-height:1!important}'
+      +'@media(max-width:390px){#ktWifiStatusIndicator{top:78px!important;font-size:10px!important;padding:6px 9px!important}}';
     document.head.appendChild(s);
   }
 
-  function update(){
+  function ensure(){
+    var el=document.getElementById('ktWifiStatusIndicator');
+    if(!el){
+      el=document.createElement('button');
+      el.type='button';
+      el.id='ktWifiStatusIndicator';
+      el.setAttribute('aria-label','네트워크 상태 안내 닫기');
+      el.addEventListener('click',function(){hide(true);});
+      document.body.appendChild(el);
+    }
+    return el;
+  }
+
+  function hide(immediate){
+    if(hideTimer){clearTimeout(hideTimer);hideTimer=null;}
+    var el=document.getElementById('ktWifiStatusIndicator');
+    if(!el)return;
+    el.classList.remove('show');
+    if(immediate)setTimeout(function(){if(el&&el.parentNode)el.remove();},160);
+  }
+
+  function show(text,offline,autoMs){
     style();
+    if(hideTimer){clearTimeout(hideTimer);hideTimer=null;}
     var el=ensure();
-    el.classList.toggle('offline',navigator.onLine===false);
-    el.title=navigator.onLine===false?'인터넷 연결 없음':'인터넷 연결됨';
+    el.classList.toggle('offline',!!offline);
+    el.innerHTML='<span class="kt-net-icon">'+(offline?'📡':'📶')+'</span><span>'+text+'</span>';
+    requestAnimationFrame(function(){el.classList.add('show');});
+    if(autoMs>0){
+      hideTimer=setTimeout(function(){hide(true);},autoMs);
+    }
   }
 
-  update();
-  window.addEventListener('online',update);
-  window.addEventListener('offline',update);
-  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')setTimeout(update,50);});
-  window.addEventListener('pageshow',function(){setTimeout(update,50);});
-
-  if(window.MutationObserver){
-    var obs=new MutationObserver(function(){
-      var el=document.getElementById('ktWifiStatusIndicator');
-      if(!el)update();
-    });
-    obs.observe(document.documentElement,{childList:true,subtree:true});
+  function onOffline(){
+    show('연결이 끊겼습니다 · 다시 연결 중',true,0);
   }
+
+  function onOnline(){
+    show('인터넷 연결됨',false,1800);
+  }
+
+  /* 처음 들어왔을 때도 상태를 아주 잠깐만 보여준다. */
+  if(navigator.onLine===false)onOffline();
+  else show('인터넷 연결됨',false,1600);
+
+  window.addEventListener('online',onOnline);
+  window.addEventListener('offline',onOffline);
+  document.addEventListener('visibilitychange',function(){
+    if(document.visibilityState!=='visible')return;
+    setTimeout(function(){
+      if(navigator.onLine===false)onOffline();
+    },80);
+  });
 })();
