@@ -95,3 +95,75 @@
     setTimeout(openFirstPageIfBlank,700);
   }
 })();
+
+/* AI 보정·편집효과 버튼만 터치/클릭 작동 보강. 다른 버튼과 화면은 건드리지 않음. */
+(function(){
+  if(window.__ktCreatorBeautyEffectButtonFix20260910)return;
+  window.__ktCreatorBeautyEffectButtonFix20260910=true;
+
+  var lastTapAt=0;
+  var lastAction='';
+
+  function getAction(btn){
+    if(!btn)return '';
+    var label=String(btn.getAttribute('aria-label')||'');
+    var text=String(btn.textContent||'').replace(/\s+/g,'');
+    if(label==='AI 보정'||text.indexOf('AI보정')>-1||text==='보정')return 'beauty';
+    if(label==='편집 효과'||text.indexOf('편집효과')>-1)return 'edit';
+    return '';
+  }
+
+  function isTarget(btn){
+    if(!btn)return false;
+    if(btn.closest('#creator .creator-tools'))return !!getAction(btn);
+    if(btn.closest('#creator .live-prep')&&btn.classList.contains('prep-item'))return !!getAction(btn);
+    return false;
+  }
+
+  function runAction(action){
+    try{
+      var creator=document.getElementById('creator');
+      if(creator)creator.classList.add('show');
+      if(action==='beauty'&&typeof window.openBeautyPanel==='function'){
+        window.openBeautyPanel();
+        return true;
+      }
+      if(action==='edit'&&typeof window.openEditEffectPanel==='function'){
+        window.openEditEffectPanel();
+        return true;
+      }
+    }catch(e){}
+    return false;
+  }
+
+  function handle(e){
+    var btn=e.target&&e.target.closest?e.target.closest('button'):null;
+    if(!isTarget(btn))return;
+    var action=getAction(btn);
+    var now=Date.now();
+
+    if(e.type==='click'&&lastAction===action&&(now-lastTapAt)<500){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      return;
+    }
+
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    lastTapAt=now;
+    lastAction=action;
+    runAction(action);
+  }
+
+  document.addEventListener('pointerup',handle,true);
+  document.addEventListener('click',handle,true);
+
+  if(!document.getElementById('ktCreatorBeautyEffectButtonFixStyle')){
+    var s=document.createElement('style');
+    s.id='ktCreatorBeautyEffectButtonFixStyle';
+    s.textContent=''
+      +'#creator .creator-tools .creator-tool-text[aria-label="AI 보정"],#creator .creator-tools .creator-tool-text[aria-label="편집 효과"]{pointer-events:auto!important;touch-action:manipulation!important;position:relative!important;z-index:60!important}'
+      +'#creator .live-prep .prep-item{pointer-events:auto!important;touch-action:manipulation!important}';
+    document.head.appendChild(s);
+  }
+})();
