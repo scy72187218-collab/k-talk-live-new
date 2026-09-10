@@ -19,6 +19,7 @@
   load('video-gift-benefit.js?v=20260910-gift30-2');
   load('wifi-status-indicator.js?v=20260910-nettoast1');
   load('benefit-ai-reader.js?v=20260910-ai-reader1');
+  load('vocal-enhancer.js?v=20260910-vocal1');
   load('interface-recording-audio-fix.js?v=20260910-interface2');
 })();
 
