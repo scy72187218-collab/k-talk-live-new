@@ -108,3 +108,13 @@
   s.setAttribute('data-kt-wifi-status','1');
   document.head.appendChild(s);
 })();
+
+/* 비밀방 호스트·게스트·채팅 3가지만 연결. 기존 선물과 나머지 UI는 그대로 유지. */
+(function(){
+  if(document.querySelector('script[data-kt-secret-host-guests-chat]'))return;
+  var s=document.createElement('script');
+  s.src='secret-host-guests-chat.js?v=20260910a';
+  s.async=false;
+  s.setAttribute('data-kt-secret-host-guests-chat','1');
+  document.head.appendChild(s);
+})();
