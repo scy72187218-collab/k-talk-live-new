@@ -36,13 +36,3 @@
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',show,{once:true});
   else show();
 })();
-
-/* 비밀방 화면에서만 6칸과 하단 요소가 겹치지 않도록 전용 배치 파일 연결 */
-(function(){
-  if(document.querySelector('script[data-kt-secret-layout-adjust]'))return;
-  var s=document.createElement('script');
-  s.src='secret-room-layout-adjust-20260910.js?v=20260910a';
-  s.async=false;
-  s.setAttribute('data-kt-secret-layout-adjust','1');
-  document.head.appendChild(s);
-})();
