@@ -266,3 +266,64 @@
   setTimeout(apply,80);
   setTimeout(apply,220);
 })();
+
+/* 2026-09-11 파장 최종: 실제 카메라/사진이 열린 칸 하단에만 표시. 다른 UI는 변경하지 않음. */
+(function(){
+  if(window.__ktWaveInsideOpenCamera20260911)return;
+  window.__ktWaveInsideOpenCamera20260911=true;
+
+  if(!document.getElementById('ktWaveInsideOpenCameraStyle20260911')){
+    var st=document.createElement('style');
+    st.id='ktWaveInsideOpenCameraStyle20260911';
+    st.textContent=''
+      +'.ktsolo-wave,.ktsubscriber-wave,.ktsecret-wave,.kt-secret-wave,.secret-wave{display:none!important}'
+      +'.ktg13-main::after{display:none!important;content:none!important}'
+      +'.kt-open-camera-wave{position:absolute!important;left:0!important;right:0!important;bottom:0!important;height:26px!important;z-index:5!important;display:block!important;pointer-events:none!important;background-image:url("k-talk-rainbow-waveform.svg?v=20260907-wavebottom1")!important;background-repeat:no-repeat!important;background-position:center!important;background-size:100% 100%!important;opacity:.96!important;filter:drop-shadow(0 0 4px rgba(255,65,210,.35))!important;transform-origin:center bottom!important;animation:ktOpenCameraWaveBeat .62s ease-in-out infinite alternate!important}'
+      +'.ktsolo-main>.kt-open-camera-wave{left:0!important;right:62px!important;bottom:143px!important;height:34px!important}'
+      +'.ktsecret-slot,.ktsubscriber-host,.ktsubscriber-guest,.ktg13-host,.ktg13-guest{position:relative!important;overflow:hidden!important}'
+      +'.ktsecret-slot-label,.ktsubscriber-host-label,.ktsubscriber-guest b,.ktg13-host-label{z-index:6!important}'
+      +'@keyframes ktOpenCameraWaveBeat{0%{transform:scaleY(.58)}28%{transform:scaleY(1.10)}52%{transform:scaleY(.76)}76%{transform:scaleY(1.18)}100%{transform:scaleY(.68)}}';
+    document.head.appendChild(st);
+  }
+
+  function hasMedia(el){
+    if(!el)return false;
+    if(el.classList.contains('ktsolo-main'))return !!el.querySelector('video');
+    if(el.classList.contains('ktsubscriber-host')||el.classList.contains('ktg13-host')||el.classList.contains('host'))return !!el.querySelector('video,img,canvas');
+    if(el.querySelector('video,img,canvas,.ktsecret-guest-photo'))return true;
+    try{
+      var bg=getComputedStyle(el).backgroundImage||'';
+      if(bg&&bg!=='none'&&bg.indexOf('linear-gradient')===-1&&bg.indexOf('radial-gradient')===-1)return true;
+    }catch(e){}
+    return false;
+  }
+
+  function setWave(el,on){
+    if(!el)return;
+    var wave=el.querySelector(':scope > .kt-open-camera-wave');
+    if(on){
+      if(!wave){
+        wave=document.createElement('div');
+        wave.className='kt-open-camera-wave';
+        el.appendChild(wave);
+      }
+    }else if(wave){
+      wave.remove();
+    }
+  }
+
+  function apply(){
+    var solo=document.querySelector('.ktsolo-room .ktsolo-main');
+    if(solo)setWave(solo,hasMedia(solo));
+
+    document.querySelectorAll('.ktsubscriber-room .ktsubscriber-host,.ktsubscriber-room .ktsubscriber-guest').forEach(function(el){setWave(el,hasMedia(el));});
+    document.querySelectorAll('.ktsecret-room .ktsecret-slot').forEach(function(el){setWave(el,hasMedia(el));});
+    document.querySelectorAll('.ktg13-room .ktg13-host,.ktg13-room .ktg13-guest').forEach(function(el){setWave(el,hasMedia(el));});
+  }
+
+  var ob=new MutationObserver(function(){apply();});
+  try{ob.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class','style','src']});}catch(e){}
+  setTimeout(apply,0);
+  setTimeout(apply,80);
+  setTimeout(apply,220);
+})();
