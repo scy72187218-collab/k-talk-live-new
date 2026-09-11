@@ -1,13 +1,13 @@
 /* K-Talk 파장만 수정: 13명방은 그대로 두고 1인/구독자방은 사람(카메라) 칸마다 파장 1개만, 비밀방은 기존 빈칸 아래에 게스트6 빈칸을 하나 더 표시. 다른 UI/기능은 변경하지 않음. */
 (function(){
-  if(window.__ktMatchGroup13WaveV6)return;
-  window.__ktMatchGroup13WaveV6=true;
+  if(window.__ktMatchGroup13WaveV7)return;
+  window.__ktMatchGroup13WaveV7=true;
 
   function addStyle(){
-    var old=document.getElementById('ktMatchGroup13WaveV6Style');
+    var old=document.getElementById('ktMatchGroup13WaveV7Style');
     if(old)return;
     var s=document.createElement('style');
-    s.id='ktMatchGroup13WaveV6Style';
+    s.id='ktMatchGroup13WaveV7Style';
     s.textContent=`
       @keyframes ktMatch13WaveMove{0%{transform:scaleY(.52)}45%{transform:scaleY(.82)}100%{transform:scaleY(1)}}
 
@@ -88,6 +88,14 @@
       html body #screen .ktsecret-slot>.kt-open-camera-wave i,
       html body #screen .ktsecret-guest-slot>.kt-open-camera-wave i{display:none!important}
 
+      /* 게스트5·게스트6 빈칸의 파장 2개만 오른쪽 버튼보다 위에 보이게 한다 */
+      html body #screen .ktsecret-room .ktsecret-extra-pair>.ktsecret-slot>.kt-open-camera-wave{
+        z-index:12!important;
+        height:34px!important;
+        bottom:0!important;
+        display:block!important;
+      }
+
       /* 1인방은 선물칸 바로 위가 카메라의 보이는 아래쪽이므로 그 위치만 유지 */
       html body #screen .ktsolo-main>.kt-open-camera-wave{bottom:66px!important;height:58px!important}
 
@@ -97,6 +105,7 @@
         html body #screen .ktsubscriber-guest>.kt-open-camera-wave,
         html body #screen .ktsecret-slot>.kt-open-camera-wave,
         html body #screen .ktsecret-guest-slot>.kt-open-camera-wave{height:38px!important}
+        html body #screen .ktsecret-room .ktsecret-extra-pair>.ktsecret-slot>.kt-open-camera-wave{height:30px!important}
       }
     `;
     document.head.appendChild(s);
