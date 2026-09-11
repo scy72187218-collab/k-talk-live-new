@@ -49,6 +49,7 @@
       +'button:not(:disabled),a[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[role="button"]:not([aria-disabled="true"]),[onclick],[data-bottom],[data-tab],.room-switch,.prep-item,.modes span,.creator-foot span,.prep-bottom span,.kt-room,.kt-short,.kt-iconbtn,.kt-pill{pointer-events:auto!important;touch-action:manipulation!important}'
       +'.bottom,.kt-bottom,.header,.creator-top,.creator-tools,.creator-bottom,.live-prep,.sheet.show,.sheet.show .sheet-body{pointer-events:auto!important}'
       +'.bottom button,.kt-bottom button,.header button,.creator button,.live-prep button,.sheet.show button{pointer-events:auto!important;touch-action:manipulation!important}'
+      +'.creator.show{pointer-events:auto!important}'
       +'.creator .shade,.creator #camera,.creator #cameraBg,.creator #ktCreatorPreview{pointer-events:none!important}';
     document.head.appendChild(st);
   }
@@ -75,6 +76,17 @@
     try{
       ev.preventDefault();
       hit.click();
+    }catch(e){}
+  },true);
+
+  /* 아래 방송하기 버튼만 별도로 보강: 누르면 기존 카메라/방송 준비 흐름을 그대로 연다. */
+  document.addEventListener('click',function(ev){
+    var btn=ev.target&&ev.target.closest?ev.target.closest('.bottom .plus,.kt-bottom .livebtn'):null;
+    if(!btn)return;
+    try{ev.preventDefault();ev.stopImmediatePropagation();}catch(e){}
+    try{
+      if(typeof window.quickStartBroadcast==='function')window.quickStartBroadcast();
+      else if(typeof window.openCreator==='function')window.openCreator();
     }catch(e){}
   },true);
 
