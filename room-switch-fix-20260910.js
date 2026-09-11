@@ -227,3 +227,42 @@
   setTimeout(apply,0);
   setTimeout(apply,120);
 })();
+
+/* 2026-09-11 파장: 1인·13명·구독자·비밀방 모두 카메라/참여자 화면 안에서만 표시. 다른 UI는 변경하지 않음. */
+(function(){
+  if(window.__ktWaveCameraOnly20260911)return;
+  window.__ktWaveCameraOnly20260911=true;
+
+  if(!document.getElementById('ktWaveCameraOnlyStyle20260911')){
+    var st=document.createElement('style');
+    st.id='ktWaveCameraOnlyStyle20260911';
+    st.textContent=''
+      +'.ktsolo-main,.ktsubscriber-stage,.ktg13-main,.ktsecret-main{position:relative!important;overflow:hidden!important}'
+      +'.ktsolo-main>.ktsolo-wave{left:0!important;right:0!important;bottom:72px!important;width:auto!important}'
+      +'.ktsubscriber-stage>.ktsubscriber-wave{position:absolute!important;left:0!important;right:59px!important;bottom:4px!important;width:auto!important;height:34px!important;z-index:8!important}'
+      +'.ktg13-main::after{left:0!important;right:0!important;bottom:2px!important}'
+      +'.ktsecret-main>.ktsecret-wave{left:3px!important;right:3px!important;bottom:145px!important;width:auto!important;height:34px!important;z-index:8!important}'
+      +'@media(max-width:390px){.ktsubscriber-stage>.ktsubscriber-wave{right:49px!important}.ktsecret-main>.ktsecret-wave{bottom:132px!important}}';
+    document.head.appendChild(st);
+  }
+
+  function apply(){
+    var soloMain=document.querySelector('.ktsolo-room .ktsolo-main');
+    var soloWave=document.querySelector('.ktsolo-room .ktsolo-wave');
+    if(soloMain&&soloWave&&soloWave.parentNode!==soloMain)soloMain.appendChild(soloWave);
+
+    var subStage=document.querySelector('.ktsubscriber-room .ktsubscriber-stage');
+    var subWave=document.querySelector('.ktsubscriber-room .ktsubscriber-wave');
+    if(subStage&&subWave&&subWave.parentNode!==subStage)subStage.appendChild(subWave);
+
+    var secretMain=document.querySelector('.ktsecret-room .ktsecret-main');
+    var secretWave=document.querySelector('.ktsecret-room .ktsecret-wave');
+    if(secretMain&&secretWave&&secretWave.parentNode!==secretMain)secretMain.appendChild(secretWave);
+  }
+
+  var ob=new MutationObserver(function(){apply();});
+  try{ob.observe(document.body,{childList:true,subtree:true});}catch(e){}
+  setTimeout(apply,0);
+  setTimeout(apply,80);
+  setTimeout(apply,220);
+})();
