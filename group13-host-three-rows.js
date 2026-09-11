@@ -11,7 +11,8 @@
       #screen .ktg13-room .ktg13-main{grid-template-rows:repeat(4,minmax(0,1fr))!important;}\
       #screen .ktg13-room .ktg13-host{grid-column:1!important;grid-row:1/4!important;}\
       #screen .ktg13-room .ktg13-guests{grid-column:2!important;grid-row:1/5!important;}\
-      #screen .ktg13-room .ktg13-host-extra{grid-column:1!important;grid-row:4!important;display:grid!important;place-items:center!important;min-width:0!important;min-height:0!important;}';
+      #screen .ktg13-room .ktg13-host-extra{grid-column:1!important;grid-row:4!important;display:grid!important;place-items:center!important;min-width:0!important;min-height:0!important;}\
+      #screen .ktg13-room .ktg13-host>video{width:92%!important;height:88%!important;position:absolute!important;left:4%!important;top:4%!important;object-fit:contain!important;object-position:center top!important;}';
     document.head.appendChild(s);
   }
 
