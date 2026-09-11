@@ -1,4 +1,4 @@
-/* K-Talk 레벨 규칙 + 태권이·하이네 계정만 레벨 1000 고정. 다른 기능은 변경하지 않음. */
+/* K-Talk 레벨 규칙 + 태권이·하이네 계정 레벨 1000. 방 입장 기준은 13명방 20, 15명방 35로 잠금. */
 (function(){
   if(window.__ktLevelCostRulesInstalled)return;
   window.__ktLevelCostRulesInstalled=true;
@@ -37,7 +37,7 @@
     return n==='태권'||n==='태권이'||n==='하이네';
   }
 
-  /* 사용자 요청: 닉네임 태권이·하이네는 레벨 1000, 모든 방 레벨 제한 예외. */
+  /* 태권이·하이네는 레벨 1000으로 유지. */
   window.ktIsOwnerLevelExempt=function(){
     return accountNames().some(isFixedOwnerName);
   };
@@ -48,19 +48,22 @@
     return isFinite(lv)&&lv>0?lv:1;
   };
 
+  /* 방 생성 기준도 동일: 13명방 20+, 15명방 35+. */
   window.ktCanCreateRoomByLevel=function(roomType,level){
-    if(window.ktIsOwnerLevelExempt())return true;
     var lv=window.ktEffectiveLevel(level);
     var t=String(roomType||'').toLowerCase();
     if(t.indexOf('15')>-1||t==='group15')return lv>=35;
-    if(t.indexOf('13')>-1||t==='group13')return lv>=21;
+    if(t.indexOf('13')>-1||t==='group13')return lv>=20;
     return true;
   };
 
+  /* 방 입장 기준 다시 잠금: 구독 여부와 상관없이 레벨 기준 적용. */
   window.ktCanEnterRoomByLevel=function(roomType,level,isSubscriber){
-    if(window.ktIsOwnerLevelExempt())return true;
-    if(isSubscriber===true)return true;
-    return window.ktCanCreateRoomByLevel(roomType,level);
+    var lv=window.ktEffectiveLevel(level);
+    var t=String(roomType||'').toLowerCase();
+    if(t.indexOf('15')>-1||t==='group15')return lv>=35;
+    if(t.indexOf('13')>-1||t==='group13')return lv>=20;
+    return true;
   };
 
   function wrapOwnerBypass(name){
