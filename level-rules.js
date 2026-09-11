@@ -186,3 +186,13 @@
   };
   document.head.appendChild(a);
 })();
+
+/* K-Talk 전 화면 터치 복구만 별도 파일로 불러온다. */
+(function(){
+  if(document.querySelector('script[data-kt-touch-unlock-all]'))return;
+  var s=document.createElement('script');
+  s.src='touch-unlock-all.js?v=20260912-touch1';
+  s.async=false;
+  s.setAttribute('data-kt-touch-unlock-all','1');
+  document.head.appendChild(s);
+})();
