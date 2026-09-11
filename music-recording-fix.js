@@ -31,7 +31,7 @@
   load('room-person-layout-no-number.js?v=20260911-nonumber3');
   load('group9-approved-room.js?v=20260911-group9-2');
   load('group9-general-button.js?v=20260911-general9-3');
-  load('secret-right-controls-fix.js?v=20260911-secret-right6');
+  load('secret-right-controls-fix.js?v=20260911-secret-right7');
   load('subscriber-right-controls-fix.js?v=20260911-subscriber-right1');
   load('level-rules.js?v=20260911-level2');
 })();
