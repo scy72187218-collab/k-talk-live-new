@@ -156,3 +156,21 @@
   s.setAttribute('data-kt-chat-benefit-ai-reader','1');
   document.head.appendChild(s);
 })();
+
+/* 기존 실시간 방송 등록/입장 + 동영상 화면 방송 상태 표시만 다시 연결한다. */
+(function(){
+  if(document.querySelector('script[data-kt-live-presence]'))return;
+  var a=document.createElement('script');
+  a.src='live-presence.js?v=20260912-live-restore1';
+  a.async=false;
+  a.setAttribute('data-kt-live-presence','1');
+  a.onload=function(){
+    if(document.querySelector('script[data-kt-live-video-discovery]'))return;
+    var b=document.createElement('script');
+    b.src='live-video-discovery.js?v=20260912-live-restore1';
+    b.async=false;
+    b.setAttribute('data-kt-live-video-discovery','1');
+    document.head.appendChild(b);
+  };
+  document.head.appendChild(a);
+})();
