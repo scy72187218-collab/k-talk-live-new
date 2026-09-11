@@ -168,5 +168,16 @@
     }).observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 
+  /* 다른 페이지/앱/탭에 갔다가 돌아왔을 때 보던 동영상만 다시 재생 */
+  function resumeAfterReturn(){
+    if(document.hidden)return;
+    setTimeout(install,30);
+    setTimeout(activeByPosition,140);
+  }
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)resumeAfterReturn();});
+  window.addEventListener('pageshow',resumeAfterReturn);
+  window.addEventListener('focus',resumeAfterReturn);
+  window.addEventListener('popstate',resumeAfterReturn);
+
   setTimeout(install,80);
 })();
