@@ -137,10 +137,10 @@
           var ripple=.86+.14*Math.sin((i*.53)+(performance.now()*.018));
           var ratio=Math.min(1,.10+(shaped*.88)+(voiceBoost*.58));
           ratio=Math.max(.12,ratio*ripple);
-          bar.style.height=Math.max(4,Math.round(maxH*ratio))+'px';
+          bar.style.setProperty('height',Math.max(4,Math.round(maxH*ratio))+'px','important');
         }else{
           var idle=3+Math.round((1+Math.sin(i*.55+performance.now()*.006))*1.5);
-          bar.style.height=idle+'px';
+          bar.style.setProperty('height',idle+'px','important');
         }
       });
     });
