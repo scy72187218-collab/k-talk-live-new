@@ -10,8 +10,26 @@
     s.textContent=''
       +'.kt-person-seat-number{display:none!important}'
       +'.kt-person-layout-panel #ktPersonSeatTarget,.kt-person-layout-panel [data-act="seatGo"]{display:none!important}'
-      +'.kt-guest-label-hidden{display:none!important}';
+      +'.kt-guest-label-hidden{display:none!important}'
+      +'html body #screen .ktsubscriber-room .ktsubscriber-people{grid-template-columns:repeat(4,minmax(0,1fr))!important;grid-template-rows:repeat(4,minmax(0,1fr))!important;grid-auto-flow:row!important}'
+      +'html body #screen .ktsubscriber-room .ktsubscriber-host{grid-column:1!important;grid-row:1/span 2!important}'
+      +'html body #screen .ktsubscriber-room .ktsubscriber-guest{grid-column:auto!important;grid-row:auto!important;min-width:0!important;min-height:0!important}'
+      +'html body #screen .ktsubscriber-room .ktsubscriber-guest>span{font-size:18px!important}'
+      +'html body #screen .ktsubscriber-room .ktsubscriber-guest>b{font-size:7px!important;left:3px!important;bottom:3px!important;padding:2px 4px!important}';
     document.head.appendChild(s);
+  }
+
+  function ensureSubscriber14(){
+    var people=document.querySelector('.ktsubscriber-room .ktsubscriber-people');
+    if(!people)return;
+    var guests=[].slice.call(people.querySelectorAll(':scope > .ktsubscriber-guest'));
+    for(var i=guests.length+1;i<=14;i++){
+      var d=document.createElement('div');
+      d.className='ktsubscriber-guest';
+      d.setAttribute('data-guest-slot',String(i));
+      d.innerHTML='<span>👤</span><b>게스트</b>';
+      people.appendChild(d);
+    }
   }
 
   function hasLiveVideo(tile){
@@ -72,6 +90,7 @@
 
   function clean(){
     addStyle();
+    ensureSubscriber14();
     document.querySelectorAll('.kt-person-seat-number').forEach(function(n){n.remove();});
     var input=document.getElementById('ktPersonSeatTarget');
     if(input)input.style.setProperty('display','none','important');
