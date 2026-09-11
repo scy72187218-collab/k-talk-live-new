@@ -23,13 +23,20 @@
       if(!btn)return false;
       var text=String(btn.textContent||'').replace(/\s+/g,'');
       var oc=String(btn.getAttribute&&btn.getAttribute('onclick')||'');
-      if(kind==='flip')return btn.classList&&btn.classList.contains('kt-room-camera-flip')||text.indexOf('뒤집기')>-1;
-      if(kind==='like')return btn.classList&&btn.classList.contains('like')||text.indexOf('좋아요')>-1;
+      if(kind==='flip')return (btn.classList&&btn.classList.contains('kt-room-camera-flip'))||text.indexOf('뒤집기')>-1;
+      if(kind==='like')return (btn.classList&&btn.classList.contains('like'))||text.indexOf('좋아요')>-1;
       if(kind==='effect')return oc.indexOf('ktSecretEffect')>-1||text.indexOf('효과')>-1;
       if(kind==='gift')return oc.indexOf('openGifts')>-1||text.indexOf('보물상자')>-1;
-      if(kind==='match')return btn.classList&&btn.classList.contains('ktsecret-match-restored')||text.indexOf('매치')>-1;
+      if(kind==='match')return (btn.classList&&btn.classList.contains('ktsecret-match-restored'))||text.indexOf('매치')>-1;
       return false;
     })||null;
+  }
+
+  function isAlreadyOrdered(side,arr){
+    var current=[].slice.call(side.children||[]).filter(function(el){return arr.indexOf(el)>-1;});
+    if(current.length!==arr.length)return false;
+    for(var i=0;i<arr.length;i++)if(current[i]!==arr[i])return false;
+    return true;
   }
 
   function install(){
@@ -67,17 +74,26 @@
         try{if(window.openMatchArena)window.openMatchArena('1대1');}catch(e){}
       };
       match.onkeydown=function(e){if(e&&(e.key==='Enter'||e.key===' ')){e.preventDefault();this.click();}};
+      side.appendChild(match);
     }
 
-    [flip,like,effect,gift,match].forEach(function(btn){if(btn)side.appendChild(btn);});
+    var order=[flip,like,effect,gift,match].filter(Boolean);
+    if(!isAlreadyOrdered(side,order)){
+      order.forEach(function(btn){side.appendChild(btn);});
+    }
   }
 
   install();
-  [60,180,420,900,1500].forEach(function(ms){setTimeout(install,ms);});
+  [80,240,600].forEach(function(ms){setTimeout(install,ms);});
   try{
-    var mo=new MutationObserver(function(){
+    var mo=new MutationObserver(function(mutations){
+      var needs=false;
+      for(var i=0;i<mutations.length;i++){
+        if(mutations[i].target&&((mutations[i].target.classList&&mutations[i].target.classList.contains('ktsecret-right'))||(mutations[i].target.querySelector&&mutations[i].target.querySelector('.ktsecret-right')))){needs=true;break;}
+      }
+      if(!needs)return;
       clearTimeout(window.__ktSecretRightControlsFixTimer);
-      window.__ktSecretRightControlsFixTimer=setTimeout(install,25);
+      window.__ktSecretRightControlsFixTimer=setTimeout(install,80);
     });
     mo.observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
