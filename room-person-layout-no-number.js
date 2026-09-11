@@ -11,6 +11,7 @@
       +'.kt-person-seat-number{display:none!important}'
       +'.kt-person-layout-panel #ktPersonSeatTarget,.kt-person-layout-panel [data-act="seatGo"]{display:none!important}'
       +'.kt-guest-label-hidden{display:none!important}'
+      +'html body:has(#screen .ktsubscriber-room) .kt-person-layout-launch{display:none!important}'
       +'html body #screen .ktsubscriber-room .ktsubscriber-stage{position:relative!important;display:block!important;overflow:hidden!important}'
       +'html body #screen .ktsubscriber-room .ktsubscriber-people{width:100%!important;height:100%!important;grid-template-columns:29% repeat(3,minmax(0,1fr))!important;grid-template-rows:repeat(4,minmax(0,1fr))!important;grid-auto-flow:row!important;padding-right:0!important}'
       +'html body #screen .ktsubscriber-room .ktsubscriber-host{grid-column:1!important;grid-row:1/span 2!important}'
