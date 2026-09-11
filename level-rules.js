@@ -126,3 +126,13 @@
   s.setAttribute('data-kt-sub-tier-rules','1');
   document.head.appendChild(s);
 })();
+
+/* 혜택 화면 안내문만 별도 파일로 불러온다. */
+(function(){
+  if(document.querySelector('script[data-kt-sub-benefits-summary]'))return;
+  var s=document.createElement('script');
+  s.src='subscriber-benefits-summary.js?v=20260911-benefits1';
+  s.async=false;
+  s.setAttribute('data-kt-sub-benefits-summary','1');
+  document.head.appendChild(s);
+})();
