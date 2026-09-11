@@ -30,6 +30,7 @@
   load('room-person-layout-controls.js?v=20260911-layout2');
   load('room-person-layout-no-number.js?v=20260911-nonumber3');
   load('group9-approved-room.js?v=20260911-group9-1');
+  load('level-rules.js?v=20260911-level1');
 })();
 
 /* 촬영 화면의 편집효과 바로 아래 V(더보기) 버튼만 제거. 다른 버튼/기능은 건드리지 않음. */
