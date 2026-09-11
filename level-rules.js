@@ -1,4 +1,4 @@
-/* K-Talk 레벨 규칙 + 태권 계정만 레벨 제한 예외. 다른 기능은 변경하지 않음. */
+/* K-Talk 레벨 규칙 + 태권이·하이네 계정만 레벨 1000 고정. 다른 기능은 변경하지 않음. */
 (function(){
   if(window.__ktLevelCostRulesInstalled)return;
   window.__ktLevelCostRulesInstalled=true;
@@ -7,33 +7,43 @@
     return String(v==null?'':v).replace(/\s+/g,'').trim();
   }
 
-  function currentAccountName(){
+  function accountNames(){
     var list=[];
+    function add(v){
+      var n=cleanName(v);
+      if(n&&list.indexOf(n)<0)list.push(n);
+    }
     try{
       if(window.state){
-        list.push(state.nickname,state.nickName,state.userName,state.username,state.profileName,state.displayName,state.name,state.accountName);
+        [state.nickname,state.nickName,state.userName,state.username,state.profileName,state.displayName,state.name,state.accountName].forEach(add);
       }
     }catch(e){}
     try{
       ['ktalk_nickname','ktalk_username','ktalk_profile_name','nickname','userName','username','profileName','displayName','accountName'].forEach(function(k){
-        var v=localStorage.getItem(k);
-        if(v)list.push(v);
+        add(localStorage.getItem(k));
       });
     }catch(e){}
-    for(var i=0;i<list.length;i++){
-      var n=cleanName(list[i]);
-      if(n)return n;
-    }
-    return '';
+    try{
+      if(typeof window.ktProfileLoad==='function'){
+        var p=window.ktProfileLoad();
+        if(p)add(p.name);
+      }
+    }catch(e){}
+    return list;
   }
 
-  /* 사용자 요청: '태권' 계정은 레벨 제한 없이 모든 방 입장/생성 허용. */
+  function isFixedOwnerName(n){
+    n=cleanName(n);
+    return n==='태권'||n==='태권이'||n==='하이네';
+  }
+
+  /* 사용자 요청: 닉네임 태권이·하이네는 레벨 1000, 모든 방 레벨 제한 예외. */
   window.ktIsOwnerLevelExempt=function(){
-    return currentAccountName()==='태권';
+    return accountNames().some(isFixedOwnerName);
   };
 
   window.ktEffectiveLevel=function(level){
-    if(window.ktIsOwnerLevelExempt())return 999;
+    if(window.ktIsOwnerLevelExempt())return 1000;
     var lv=parseInt(level,10);
     return isFinite(lv)&&lv>0?lv:1;
   };
@@ -62,7 +72,7 @@
       if(!s)return original.apply(this,arguments);
       var keys=['level','userLevel','memberLevel','hostLevel'];
       var old={};
-      keys.forEach(function(k){old[k]=s[k];s[k]=999;});
+      keys.forEach(function(k){old[k]=s[k];s[k]=1000;});
       s.ktOwnerLevelBypass=true;
       var result;
       try{
