@@ -1,7 +1,32 @@
-/* K-Talk: 방송 화면을 다녀온 뒤 동영상 화면으로 돌아오면 보이는 영상만 다시 재생. 다른 UI/방송 기능은 건드리지 않음. */
+/* K-Talk: 방송 화면을 다녀온 뒤 동영상 화면으로 돌아오면 보이는 영상만 다시 재생. 동영상 소리는 한 번에 하나만 재생. 다른 UI/방송 기능은 건드리지 않음. */
 (function(){
   if(window.__ktBroadcastVideoResumeFixInstalled)return;
   window.__ktBroadcastVideoResumeFixInstalled=true;
+
+  function isCameraOrLiveMedia(m){
+    if(!m)return false;
+    var id=m.id||'';
+    return id==='camera'||id==='cameraBg'||id==='ktLiveVideo'||id==='ktSept2Live'||id==='ktRemoteLive';
+  }
+
+  function stopCompetingMedia(target){
+    try{
+      document.querySelectorAll('audio,video').forEach(function(m){
+        if(!m||m===target||isCameraOrLiveMedia(m))return;
+        try{m.pause();}catch(e){}
+        try{m.muted=true;}catch(e){}
+      });
+    }catch(e){}
+    try{
+      if(window.ktSoundAudio&&window.ktSoundAudio!==target)window.ktSoundAudio.pause();
+    }catch(e){}
+    try{
+      if(window.ktCreatorMusicCapture&&window.ktCreatorMusicCapture.audio&&window.ktCreatorMusicCapture.audio!==target){
+        window.ktCreatorMusicCapture.audio.pause();
+      }
+    }catch(e){}
+    try{if(window.ktStopSoundPreview)window.ktStopSoundPreview();}catch(e){}
+  }
 
   function visible(v){
     if(!v||!v.isConnected)return false;
@@ -31,6 +56,7 @@
       }catch(e){}
     });
     if(!target)return;
+    stopCompetingMedia(target);
     try{
       target.preload='auto';
       target.setAttribute('playsinline','');
@@ -39,6 +65,13 @@
       if(p&&p.catch)p.catch(function(){});
     }catch(e){}
   }
+
+  document.addEventListener('play',function(e){
+    var v=e.target;
+    if(!v||!v.matches)return;
+    if(!v.matches('.kt-public-video,#homeVideo,#ktLibraryPlayer'))return;
+    stopCompetingMedia(v);
+  },true);
 
   function resumeSequence(){
     resumeVisibleVideo();
