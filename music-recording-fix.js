@@ -36,6 +36,7 @@
   load('level-rules.js?v=20260911-level4');
   load('treasure-global-room.js?v=20260911-treasure1');
   load('message-recipient-picker.js?v=20260911-message1');
+  load('host-face-like-reward.js?v=20260911-hostlike1');
 })();
 
 /* 촬영 화면의 편집효과 바로 아래 V(더보기) 버튼만 제거. 다른 버튼/기능은 건드리지 않음. */
