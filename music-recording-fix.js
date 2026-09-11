@@ -32,6 +32,7 @@
   load('group9-approved-room.js?v=20260911-group9-2');
   load('group9-general-button.js?v=20260911-general9-3');
   load('secret-right-controls-fix.js?v=20260911-secret-right1');
+  load('subscriber-right-controls-fix.js?v=20260911-subscriber-right1');
   load('level-rules.js?v=20260911-level1');
 })();
 
