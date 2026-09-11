@@ -169,22 +169,27 @@
   document.head.appendChild(s);
 })();
 
-/* 기존 실시간 방송 등록/입장 + 동영상 화면 방송 상태 표시만 다시 연결한다. */
+/* 기존 실시간 방송 등록/입장 + 동영상 화면 방송 상태 표시는 모든 방 스크립트가 준비된 뒤 마지막에 연결한다. */
 (function(){
-  if(document.querySelector('script[data-kt-live-presence]'))return;
-  var a=document.createElement('script');
-  a.src='live-presence.js?v=20260912-live-restore1';
-  a.async=false;
-  a.setAttribute('data-kt-live-presence','1');
-  a.onload=function(){
-    if(document.querySelector('script[data-kt-live-video-discovery]'))return;
-    var b=document.createElement('script');
-    b.src='live-video-discovery.js?v=20260912-live-restore1';
-    b.async=false;
-    b.setAttribute('data-kt-live-video-discovery','1');
-    document.head.appendChild(b);
-  };
-  document.head.appendChild(a);
+  function loadLivePresence(){
+    if(document.querySelector('script[data-kt-live-presence]'))return;
+    var a=document.createElement('script');
+    a.src='live-presence.js?v=20260912-live-order2';
+    a.async=false;
+    a.setAttribute('data-kt-live-presence','1');
+    a.onload=function(){
+      if(document.querySelector('script[data-kt-live-video-discovery]'))return;
+      var b=document.createElement('script');
+      b.src='live-video-discovery.js?v=20260912-live-order2';
+      b.async=false;
+      b.setAttribute('data-kt-live-video-discovery','1');
+      document.head.appendChild(b);
+    };
+    document.head.appendChild(a);
+  }
+
+  if(document.readyState==='complete')setTimeout(loadLivePresence,0);
+  else window.addEventListener('load',function(){setTimeout(loadLivePresence,0);},{once:true});
 })();
 
 /* K-Talk 전 화면 터치 복구만 별도 파일로 불러온다. */
