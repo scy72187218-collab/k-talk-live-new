@@ -121,7 +121,7 @@
 (function(){
   if(document.querySelector('script[data-kt-sub-tier-rules]'))return;
   var s=document.createElement('script');
-  s.src='subscription-tier-rules.js?v=20260911-subtier1';
+  s.src='subscription-tier-rules.js?v=20260911-subtier2';
   s.async=false;
   s.setAttribute('data-kt-sub-tier-rules','1');
   document.head.appendChild(s);
