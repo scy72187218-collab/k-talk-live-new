@@ -33,7 +33,7 @@
   load('group9-general-button.js?v=20260911-general9-3');
   load('secret-right-controls-fix.js?v=20260911-secret-right4');
   load('subscriber-right-controls-fix.js?v=20260911-subscriber-right1');
-  load('level-rules.js?v=20260911-level1');
+  load('level-rules.js?v=20260911-level2');
 })();
 
 /* 촬영 화면의 편집효과 바로 아래 V(더보기) 버튼만 제거. 다른 버튼/기능은 건드리지 않음. */
