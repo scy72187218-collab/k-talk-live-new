@@ -9,7 +9,7 @@
 
   function esc(v){
     return String(v==null?'':v).replace(/[&<>"']/g,function(ch){
-      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[ch];
     });
   }
 
@@ -142,4 +142,92 @@
     if(subscriber)setTimeout(renderApprovedSubscriber,0);
     return result;
   };
+})();
+
+/* 2026-09-11 구독자방 전용: 호스트 1명 + 게스트 9명 칸, 좋아요/효과/보물상자/매치만 오른쪽 안쪽에 띄움. 다른 방은 건드리지 않음. */
+(function(){
+  if(window.__ktSubscriberTenLayoutInSubscriberFile)return;
+  window.__ktSubscriberTenLayoutInSubscriberFile=true;
+
+  function ensureSubscriberTenStyle(){
+    if(document.getElementById('ktSubscriberTenLayoutInSubscriberFileStyle'))return;
+    var st=document.createElement('style');
+    st.id='ktSubscriberTenLayoutInSubscriberFileStyle';
+    st.textContent=''
+      +'.ktsubscriber-main .ktsubscriber-people{position:absolute;left:3px;top:3px;right:56px;bottom:150px;z-index:3;display:grid;grid-template-columns:minmax(0,40%) minmax(0,60%);gap:3px;pointer-events:none}'
+      +'.ktsubscriber-main .ktsubscriber-host-tile{position:relative;min-width:0;min-height:0;overflow:hidden;border:2px solid #ff31bd;border-radius:9px;background:#16161a;box-shadow:0 0 8px rgba(255,49,189,.22)}'
+      +'.ktsubscriber-main .ktsubscriber-host-tile #ktLiveVideo{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:50% 50%!important;transform:scaleX(-1)!important;background:#111!important}'
+      +'.ktsubscriber-main .ktsubscriber-host-label{position:absolute;left:6px;top:6px;z-index:4;padding:3px 8px;border-radius:11px;background:#ff3168;color:#fff;font-size:10px;font-weight:950;box-shadow:0 2px 8px #0008}'
+      +'.ktsubscriber-main .ktsubscriber-guest-grid{min-width:0;min-height:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:2px}'
+      +'.ktsubscriber-main .ktsubscriber-guest-slot{min-width:0;min-height:0;overflow:hidden;border:1px solid #ff31bd;border-radius:7px;background:linear-gradient(145deg,#17181d,#0f1014);display:grid;place-items:center;align-content:center;color:#d7d7dd;text-align:center;box-shadow:inset 0 0 10px #ffffff08}'
+      +'.ktsubscriber-main .ktsubscriber-guest-avatar{display:block;font-size:20px;line-height:1;margin-bottom:2px;opacity:.8}.ktsubscriber-main .ktsubscriber-guest-slot b{display:block;font-size:8px;line-height:1;color:#eee;font-weight:900}'
+      +'.ktsubscriber-main>.ktsubscriber-shade{z-index:1!important}'
+      +'.ktsubscriber-main .ktsubscriber-right{right:4px!important;top:10px!important;bottom:auto!important;z-index:15!important;display:grid!important;gap:5px!important;width:46px!important;justify-items:center!important}'
+      +'.ktsubscriber-main .ktsubscriber-right button{width:42px!important;height:42px!important;min-width:42px!important;border-radius:50%!important;background:rgba(16,16,20,.82)!important;backdrop-filter:blur(3px);box-shadow:0 2px 9px #0009!important;padding:0!important;pointer-events:auto!important}'
+      +'.ktsubscriber-main .ktsubscriber-right .like{height:46px!important;border-radius:16px!important;background:rgba(50,16,36,.86)!important}'
+      +'.ktsubscriber-main .ktsubscriber-right small{display:block!important;font-size:7px!important;line-height:1.05!important;margin-top:0!important;white-space:nowrap!important}'
+      +'@media(max-width:390px){.ktsubscriber-main .ktsubscriber-people{right:50px;bottom:136px;grid-template-columns:minmax(0,39%) minmax(0,61%)}.ktsubscriber-main .ktsubscriber-right{right:3px!important;top:8px!important;width:42px!important}.ktsubscriber-main .ktsubscriber-right button{width:38px!important;height:38px!important;min-width:38px!important;font-size:14px!important}.ktsubscriber-main .ktsubscriber-right .like{height:42px!important}.ktsubscriber-main .ktsubscriber-guest-avatar{font-size:17px}.ktsubscriber-main .ktsubscriber-guest-slot b{font-size:7px}}';
+    document.head.appendChild(st);
+  }
+
+  function orderSubscriberRightButtons(main){
+    var box=main.querySelector('.ktsubscriber-right');
+    if(!box)return;
+    var buttons=[].slice.call(box.querySelectorAll('button'));
+    var like=buttons.find(function(b){return b.classList.contains('like');});
+    var effect=buttons.find(function(b){return String(b.getAttribute('onclick')||'').indexOf('ktSubscriberEffect')>-1;});
+    var gift=buttons.find(function(b){return String(b.getAttribute('onclick')||'').indexOf('openGifts')>-1;});
+    var match=buttons.find(function(b){return String(b.getAttribute('onclick')||'').indexOf('openHostMatchArena')>-1;});
+    if(gift)gift.innerHTML='🎁<small>보물상자</small>';
+    [like,effect,gift,match].forEach(function(b){if(b)box.appendChild(b);});
+  }
+
+  function setupSubscriberTenLayout(){
+    var room=document.querySelector('.ktsubscriber-room');
+    var main=room&&room.querySelector('.ktsubscriber-main');
+    if(!main)return;
+    ensureSubscriberTenStyle();
+    orderSubscriberRightButtons(main);
+    if(main.getAttribute('data-kt-ten-layout')==='1')return;
+    var video=main.querySelector('#ktLiveVideo');
+    if(!video)return;
+
+    var people=document.createElement('div');
+    people.className='ktsubscriber-people';
+    var host=document.createElement('div');
+    host.className='ktsubscriber-host-tile';
+    var label=document.createElement('span');
+    label.className='ktsubscriber-host-label';
+    label.textContent='호스트';
+    host.appendChild(video);
+    host.appendChild(label);
+
+    var guests=document.createElement('div');
+    guests.className='ktsubscriber-guest-grid';
+    for(var i=1;i<=9;i++){
+      var slot=document.createElement('div');
+      slot.className='ktsubscriber-guest-slot';
+      slot.setAttribute('data-guest-slot',String(i));
+      slot.innerHTML='<span class="ktsubscriber-guest-avatar">👤</span><b>게스트 '+i+'</b>';
+      guests.appendChild(slot);
+    }
+
+    people.appendChild(host);
+    people.appendChild(guests);
+    main.insertBefore(people,main.firstChild);
+    main.setAttribute('data-kt-ten-layout','1');
+  }
+
+  setTimeout(setupSubscriberTenLayout,0);
+  var tries=0;
+  var timer=setInterval(function(){
+    tries++;
+    setupSubscriberTenLayout();
+    if(tries>80)clearInterval(timer);
+  },250);
+  if('MutationObserver' in window){
+    var ob=new MutationObserver(function(){setupSubscriberTenLayout();});
+    var target=document.getElementById('screen')||document.body;
+    if(target)ob.observe(target,{childList:true,subtree:true});
+  }
 })();
