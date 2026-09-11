@@ -4,16 +4,18 @@
   window.__ktSecretRightControlsFixInstalled=true;
 
   function ensureStyle(){
-    if(document.getElementById('ktSecretRightControlsFixStyle'))return;
+    var old=document.getElementById('ktSecretRightControlsFixStyle');
+    if(old)old.remove();
     var s=document.createElement('style');
     s.id='ktSecretRightControlsFixStyle';
     s.textContent=''
-      +'.ktsecret-right{right:5px!important;bottom:185px!important;gap:6px!important;display:flex!important;flex-direction:column!important;align-items:center!important;z-index:20!important}'
-      +'.ktsecret-right>button,.ktsecret-right>.ktsecret-match-restored{width:48px!important;height:48px!important;min-width:48px!important;min-height:48px!important;border-radius:50%!important;font-size:18px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;padding:0!important;border:1px solid #ffffff38!important;background:#101014d9!important;color:#fff!important;font-weight:950!important;box-sizing:border-box!important}'
-      +'.ktsecret-right>.like{height:58px!important;min-height:58px!important;border-radius:18px!important}'
-      +'.ktsecret-right>button small,.ktsecret-right>button span,.ktsecret-right>.ktsecret-match-restored span{display:block!important;font-size:9px!important;line-height:1!important;margin-top:2px!important;white-space:nowrap!important;font-weight:950!important}'
-      +'.ktsecret-right>.like b{font-size:9px!important;line-height:1!important;margin-top:2px!important}'
-      +'@media(max-width:390px){.ktsecret-right{right:4px!important;bottom:180px!important;gap:5px!important}.ktsecret-right>button,.ktsecret-right>.ktsecret-match-restored{width:47px!important;height:47px!important;min-width:47px!important;min-height:47px!important}.ktsecret-right>.like{height:56px!important;min-height:56px!important}}';
+      +'.ktsecret-right{right:5px!important;bottom:185px!important;gap:5px!important;display:flex!important;flex-direction:column!important;align-items:center!important;z-index:20!important}'
+      +'.ktsecret-right>.kt-room-camera-flip{width:48px!important;height:48px!important;min-width:48px!important;min-height:48px!important;border-radius:50%!important;font-size:18px!important}'
+      +'.ktsecret-right>.like,.ktsecret-right>.ktsecret-effect-small,.ktsecret-right>.ktsecret-gift-small,.ktsecret-right>.ktsecret-match-restored{width:43px!important;height:43px!important;min-width:43px!important;min-height:43px!important;border-radius:50%!important;font-size:16px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;padding:0!important;border:1px solid #ffffff38!important;background:#101014d9!important;color:#fff!important;font-weight:950!important;box-sizing:border-box!important}'
+      +'.ktsecret-right>.like{height:48px!important;min-height:48px!important;border-radius:16px!important;background:#321024d9!important}'
+      +'.ktsecret-right>.ktsecret-effect-small small,.ktsecret-right>.ktsecret-effect-small span,.ktsecret-right>.ktsecret-gift-small small,.ktsecret-right>.ktsecret-gift-small span,.ktsecret-right>.ktsecret-match-restored span,.ktsecret-right>.like small{display:block!important;font-size:8px!important;line-height:1!important;margin-top:1px!important;white-space:nowrap!important;font-weight:950!important}'
+      +'.ktsecret-right>.like b{font-size:8px!important;line-height:1!important;margin-top:1px!important}'
+      +'@media(max-width:390px){.ktsecret-right{right:4px!important;bottom:180px!important;gap:4px!important}.ktsecret-right>.kt-room-camera-flip{width:46px!important;height:46px!important;min-width:46px!important;min-height:46px!important}.ktsecret-right>.like,.ktsecret-right>.ktsecret-effect-small,.ktsecret-right>.ktsecret-gift-small,.ktsecret-right>.ktsecret-match-restored{width:41px!important;height:41px!important;min-width:41px!important;min-height:41px!important}.ktsecret-right>.like{height:46px!important;min-height:46px!important}}';
     document.head.appendChild(s);
   }
 
@@ -63,6 +65,9 @@
     var gift=findButton(side,'gift');
     var match=side.querySelector(':scope > .ktsecret-match-restored')||findButton(side,'match');
     var flip=findButton(side,'flip');
+
+    if(effect)effect.classList.add('ktsecret-effect-small');
+    if(gift)gift.classList.add('ktsecret-gift-small');
 
     if(gift&&!String(gift.textContent||'').match(/보물상자/)){
       var gs=document.createElement('span');
