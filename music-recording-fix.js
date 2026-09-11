@@ -42,6 +42,12 @@
     return id==='camera'||id==='cameraBg'||id==='ktLiveVideo'||id==='ktSept2Live'||id==='ktRemoteLive';
   }
 
+  function isPagePlaybackMedia(m){
+    if(!m)return false;
+    if(m.id==='homeVideo'||m.id==='ktLibraryPlayer')return true;
+    return !!(m.classList&&m.classList.contains('kt-public-video'));
+  }
+
   window.ktStopPageMedia=function(){
     try{
       document.querySelectorAll('audio,video').forEach(function(m){
@@ -58,17 +64,57 @@
     try{if(window.ktStopSoundPreview)window.ktStopSoundPreview();}catch(e){}
   };
 
+  function hasPlayingPageMedia(){
+    try{
+      var list=document.querySelectorAll('audio,video');
+      for(var i=0;i<list.length;i++){
+        var m=list[i];
+        if(isCameraOrLiveMedia(m))continue;
+        if(!m.paused)return true;
+      }
+    }catch(e){}
+    try{if(window.ktSoundAudio&&!window.ktSoundAudio.paused)return true;}catch(e){}
+    try{if(window.ktCreatorMusicCapture&&window.ktCreatorMusicCapture.audio&&!window.ktCreatorMusicCapture.audio.paused)return true;}catch(e){}
+    return false;
+  }
+
+  function armPageMoveStop(){
+    window.__ktPageMediaStopUntil=Date.now()+1200;
+    window.ktStopPageMedia();
+    [40,120,300,700,1100].forEach(function(ms){
+      setTimeout(function(){
+        if(Date.now()<=Number(window.__ktPageMediaStopUntil||0))window.ktStopPageMedia();
+      },ms);
+    });
+  }
+
+  document.addEventListener('play',function(e){
+    var m=e.target;
+    if(Date.now()>Number(window.__ktPageMediaStopUntil||0))return;
+    if(!isPagePlaybackMedia(m))return;
+    try{m.pause();}catch(err){}
+    try{m.muted=true;}catch(err){}
+  },true);
+
+  document.addEventListener('pointerdown',function(e){
+    var t=e.target;
+    if(!t||!t.closest)return;
+    if(t.closest('.kt-public-video,#homeVideo,#ktLibraryPlayer')){
+      window.__ktPageMediaStopUntil=0;
+    }
+  },true);
+
   document.addEventListener('click',function(e){
     var t=e.target;
     if(!t||!t.closest)return;
-    var nav=t.closest('.bottom button,.kt-bottom button');
-    if(nav)window.ktStopPageMedia();
+    var nav=t.closest('.bottom button,.kt-bottom button,[data-bottom]');
+    if(nav&&hasPlayingPageMedia())armPageMoveStop();
   },true);
 
   document.addEventListener('visibilitychange',function(){
-    if(document.visibilityState==='hidden')window.ktStopPageMedia();
+    if(document.visibilityState==='hidden')armPageMoveStop();
   });
-  window.addEventListener('pagehide',window.ktStopPageMedia);
+  window.addEventListener('pagehide',armPageMoveStop);
 })();
 
 /* 1인 방송: 오른쪽 하트 바로 위에 카메라 앞/뒤 전환 버튼 하나만 추가. */
