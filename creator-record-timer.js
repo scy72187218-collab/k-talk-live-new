@@ -211,3 +211,92 @@
   link.href='desktop-tablet-fix.css?v=20260907a';
   document.head.appendChild(link);
 })();
+
+/* K-Talk 운영자 두 계정만 레벨 1000 고정. 다른 계정/기능은 변경하지 않음. */
+(function(){
+  if(window.__ktOwnerTwoAccountsLevel1000Only)return;
+  window.__ktOwnerTwoAccountsLevel1000Only=true;
+
+  function clean(v){return String(v==null?'':v).replace(/\s+/g,'').trim();}
+  function selectedKey(){
+    var k='';
+    try{if(typeof window.ktGetSelectedSubAccount==='function')k=clean(window.ktGetSelectedSubAccount());}catch(e){}
+    if(!k){
+      try{
+        ['ktalk_selected_sub_account','kt_selected_sub_account','ktalk_sub_account','selectedSubAccount'].some(function(key){
+          var v=clean(localStorage.getItem(key));
+          if(v){k=v;return true;}
+          return false;
+        });
+      }catch(e){}
+    }
+    return k.toLowerCase();
+  }
+  function currentNames(){
+    var out=[];
+    function add(v){v=clean(v);if(v&&out.indexOf(v)<0)out.push(v);}
+    try{if(window.state)[state.nickname,state.nickName,state.userName,state.username,state.profileName,state.displayName,state.name,state.accountName].forEach(add);}catch(e){}
+    try{if(typeof window.ktProfileLoad==='function'){var p=window.ktProfileLoad()||{};add(p.name);add(p.nickname);}}catch(e){}
+    try{
+      ['ktalk_nickname','ktalk_username','ktalk_profile_name','nickname','userName','username','profileName','displayName','accountName'].forEach(function(key){add(localStorage.getItem(key));});
+    }catch(e){}
+    return out;
+  }
+  function isOwner(){
+    var k=selectedKey();
+    if(k==='taekwon1'||k==='haine2'||k==='sub:taekwon1'||k==='sub:haine2')return true;
+    return currentNames().some(function(n){return n==='태권이'||n==='하이네';});
+  }
+  function force1000(){
+    if(!isOwner())return false;
+    try{
+      if(window.state){
+        state.level=1000;
+        state.userLevel=1000;
+        state.memberLevel=1000;
+        state.hostLevel=1000;
+        state.ktOwnerLevelBypass=true;
+      }
+    }catch(e){}
+    try{
+      ['ktalk_level','ktalk_user_level','ktalk_member_level','ktalk_host_level','level','userLevel','memberLevel','hostLevel'].forEach(function(key){localStorage.setItem(key,'1000');});
+    }catch(e){}
+    return true;
+  }
+
+  window.ktForceOwnerLevel1000=force1000;
+  var oldEffective=window.ktEffectiveLevel;
+  window.ktEffectiveLevel=function(level){
+    if(force1000())return 1000;
+    if(typeof oldEffective==='function')return oldEffective.apply(this,arguments);
+    var n=parseInt(level,10);return isFinite(n)&&n>0?n:1;
+  };
+  var oldEnter=window.ktCanEnterRoomByLevel;
+  window.ktCanEnterRoomByLevel=function(roomType,level,isSubscriber){
+    if(force1000())return true;
+    return typeof oldEnter==='function'?oldEnter.apply(this,arguments):true;
+  };
+  var oldCreate=window.ktCanCreateRoomByLevel;
+  window.ktCanCreateRoomByLevel=function(roomType,level){
+    if(force1000())return true;
+    return typeof oldCreate==='function'?oldCreate.apply(this,arguments):true;
+  };
+
+  document.addEventListener('pointerdown',force1000,true);
+  document.addEventListener('click',force1000,true);
+  window.addEventListener('pageshow',force1000);
+  window.addEventListener('focus',force1000);
+  [0,100,300,800,1600,3000].forEach(function(ms){setTimeout(force1000,ms);});
+
+  var oldSelect=window.selectKTalkSubAccount;
+  if(typeof oldSelect==='function'&&!oldSelect.__ktOwnerLevel1000Wrapped){
+    var wrapped=function(){
+      var r=oldSelect.apply(this,arguments);
+      setTimeout(force1000,0);
+      setTimeout(force1000,120);
+      return r;
+    };
+    wrapped.__ktOwnerLevel1000Wrapped=true;
+    window.selectKTalkSubAccount=wrapped;
+  }
+})();
