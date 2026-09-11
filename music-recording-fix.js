@@ -9,7 +9,7 @@
   load('music-recording-base.js?v=20260907-group13');
   load('group13-approved-room.js?v=20260907-group13');
   load('group13-host-three-rows.js?v=20260911-host3rows1');
-  load('room-stats-mission-copy.js?v=20260911-mission1');
+  load('room-stats-mission-copy.js?v=20260911-mission2');
   load('earnings-rooms-copy.js?v=20260909-earnings-restore1');
   load('mobile-open-compat.js?v=20260909-mobile1');
   load('video-more-menu.js?v=20260909-video-more1');
