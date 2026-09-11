@@ -8,9 +8,9 @@
     var s=document.createElement('style');
     s.id='ktRoomStatsMissionCopyStyle';
     s.textContent='\
-      #screen .kt-room-stats-copy{flex:0 0 42px!important;display:grid!important;grid-template-columns:1fr 1fr 1.35fr!important;gap:5px!important;min-height:0!important;background:#000!important;}\
+      #screen .kt-room-stats-copy{flex:0 0 42px!important;display:grid!important;grid-template-columns:1fr 1fr 1.35fr!important;gap:5px!important;min-height:42px!important;width:100%!important;background:#000!important;position:relative!important;z-index:5!important;visibility:visible!important;opacity:1!important;}\
       #screen .kt-room-stats-copy button,#screen .kt-room-stats-copy .kt-room-viewers-copy{border:0!important;border-radius:12px!important;background:#111114!important;color:#fff!important;font:950 13px/1.1 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:4px!important;white-space:nowrap!important;overflow:hidden!important;padding:0 5px!important;}\
-      @media(max-width:390px){#screen .kt-room-stats-copy{flex-basis:38px!important;gap:3px!important}#screen .kt-room-stats-copy button,#screen .kt-room-stats-copy .kt-room-viewers-copy{font-size:11px!important;padding:0 3px!important}}';
+      @media(max-width:390px){#screen .kt-room-stats-copy{flex-basis:38px!important;min-height:38px!important;gap:3px!important}#screen .kt-room-stats-copy button,#screen .kt-room-stats-copy .kt-room-viewers-copy{font-size:11px!important;padding:0 3px!important}}';
     document.head.appendChild(s);
   }
 
@@ -50,10 +50,24 @@
   }
 
   function addAfter(room,anchorSelector){
-    if(!room||room.querySelector(':scope > .kt-room-stats-copy'))return;
+    if(!room||room.querySelector('.kt-room-stats-copy'))return;
     var anchor=room.querySelector(anchorSelector);
     if(!anchor)return;
     anchor.insertAdjacentElement('afterend',makeRow());
+  }
+
+  function ensureSecretRow(){
+    var room=document.querySelector('.ktsecret-room');
+    if(!room)return;
+    var anchor=room.querySelector('.ktsecret-led');
+    if(!anchor)return;
+    var row=room.querySelector('.kt-room-stats-copy');
+    if(!row){
+      row=makeRow();
+      anchor.insertAdjacentElement('afterend',row);
+    }else if(row.previousElementSibling!==anchor){
+      anchor.insertAdjacentElement('afterend',row);
+    }
   }
 
   function renameGroup13Mission(){
@@ -71,17 +85,17 @@
     ensureStyle();
     addAfter(document.querySelector('.ktsolo-room'),'.ktsolo-led');
     addAfter(document.querySelector('.ktsubscriber-room'),'.ktsubscriber-led');
-    addAfter(document.querySelector('.ktsecret-room'),'.ktsecret-led');
+    ensureSecretRow();
     renameGroup13Mission();
     refreshViewers();
   }
 
   install();
-  [80,220,500,900,1500].forEach(function(ms){setTimeout(install,ms);});
+  [80,220,500,900,1500,2400].forEach(function(ms){setTimeout(install,ms);});
   try{
     var mo=new MutationObserver(function(){
       clearTimeout(window.__ktRoomStatsMissionCopyTimer);
-      window.__ktRoomStatsMissionCopyTimer=setTimeout(install,25);
+      window.__ktRoomStatsMissionCopyTimer=setTimeout(install,40);
     });
     mo.observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
