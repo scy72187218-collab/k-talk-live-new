@@ -166,3 +166,13 @@
   setInterval(pollHostReward,4000);
   setTimeout(pollHostReward,1200);
 })();
+
+/* 메인 화면 바깥의 무료 아침·점심·저녁 돌리기만 불러온다. */
+(function(){
+  if(document.querySelector('script[data-kt-daily-spin]'))return;
+  var s=document.createElement('script');
+  s.src='daily-spin-reward.js?v=20260911-spin1';
+  s.async=false;
+  s.setAttribute('data-kt-daily-spin','1');
+  document.head.appendChild(s);
+})();
