@@ -82,11 +82,26 @@
   var oldClose=window.closeSheet;
   if(typeof oldClose==='function'&&!oldClose.__ktHelpHideVideo){
     var wrappedClose=function(){
+      var title='';
       try{
         var titleEl=document.getElementById('sheetTitle');
-        var title=titleEl?String(titleEl.textContent||''):'';
-        if(title.indexOf('혜택')>-1&&window.speechSynthesis)window.speechSynthesis.cancel();
+        title=titleEl?String(titleEl.textContent||''):'';
       }catch(e){}
+
+      try{
+        if(window.speechSynthesis)window.speechSynthesis.cancel();
+      }catch(e){}
+
+      /* 사용방법 안쪽 페이지를 닫으면 동영상으로 나가지 않고 사용방법 메뉴로 돌아간다. */
+      if(document.body.classList.contains('kt-help-screen-open')&&title!=='K-Talk 사용방법·혜택'){
+        try{
+          if(typeof window.openMenu==='function'){
+            window.openMenu();
+            return;
+          }
+        }catch(e){}
+      }
+
       leaveHelp();
       return oldClose.apply(this,arguments);
     };
