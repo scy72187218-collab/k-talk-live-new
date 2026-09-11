@@ -176,3 +176,13 @@
   s.setAttribute('data-kt-live-viewer-interactions','1');
   document.head.appendChild(s);
 })();
+
+/* 13명방 보물상자: 호스트 라벨 옆 상자·남은 시간 표시만 연결 */
+(function(){
+  if(document.querySelector('script[data-kt-group13-treasure-host]'))return;
+  var s=document.createElement('script');
+  s.src='group13-treasure-host-20260911.js?v=20260911a';
+  s.async=false;
+  s.setAttribute('data-kt-group13-treasure-host','1');
+  document.head.appendChild(s);
+})();
