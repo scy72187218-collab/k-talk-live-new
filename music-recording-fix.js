@@ -29,7 +29,8 @@
   load('waveform-individual-bars.js?v=20260911-auto8');
   load('room-person-layout-controls.js?v=20260911-layout2');
   load('room-person-layout-no-number.js?v=20260911-nonumber3');
-  load('group9-approved-room.js?v=20260911-group9-1');
+  load('group9-approved-room.js?v=20260911-group9-2');
+  load('group9-general-button.js?v=20260911-general9-1');
   load('level-rules.js?v=20260911-level1');
 })();
 
