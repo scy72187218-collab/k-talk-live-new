@@ -1,4 +1,4 @@
-/* 구독자방 오른쪽 버튼만: 뒤집기·좋아요·효과·보물상자는 그대로 두고, 매치만 보물상자 바로 밑에 확실히 표시. */
+/* 구독자방 오른쪽 버튼만: 뒤집기·좋아요·효과·보물상자는 그대로 두고, 매치만 보이는 보물상자 글씨 바로 밑에 붙인다. */
 (function(){
   if(window.__ktSubscriberRightFiveFixInstalled)return;
   window.__ktSubscriberRightFiveFixInstalled=true;
@@ -43,7 +43,6 @@
     if(!room||!box){removeFloating();return;}
     ensureStyle();
 
-    /* 보물상자가 두 개 생기면 위의 첫 번째만 남긴다. */
     var treasures=[].slice.call(box.querySelectorAll(':scope > button')).filter(function(btn){
       return labelOf(btn)==='보물상자';
     });
@@ -56,7 +55,6 @@
     });
     if(!treasure)return;
 
-    /* 오른쪽 안에 숨어 있는 기존 매치만 제거하고, 화면에 고정된 매치 하나만 사용한다. */
     [].slice.call(box.children||[]).forEach(function(el){
       if(isMatch(el)){try{el.remove();}catch(e){}}
     });
@@ -79,11 +77,13 @@
       document.body.appendChild(match);
     }
 
-    /* 보물상자 바로 밑 위치를 그대로 따라간다. 조상 overflow에 가려지지 않게 fixed로 표시. */
+    /* 버튼 박스가 아니라 실제로 보이는 '보물상자' 글씨 아래를 기준으로 매치를 붙인다. */
     var r=treasure.getBoundingClientRect();
+    var label=treasure.querySelector('small');
+    var lr=label?label.getBoundingClientRect():r;
     var size=window.innerWidth<=390?48:50;
     var left=Math.round(r.left+(r.width-size)/2);
-    var top=Math.round(r.bottom+(window.innerWidth<=390?5:6));
+    var top=Math.round(lr.bottom+2);
     match.style.setProperty('left',left+'px','important');
     match.style.setProperty('top',top+'px','important');
   }
