@@ -1,5 +1,25 @@
 /* K-Talk 오늘의 돌리기 전용: 메인 화면 밖에 버튼만 표시. 다른 화면/기능은 변경하지 않음. */
 (function(){
+  function removeDuplicateButtons(){
+    try{
+      var nodes=[].slice.call(document.querySelectorAll('#ktDailySpinFab,.kt-daily-spin-fab'));
+      var keep=null;
+      nodes.forEach(function(n){
+        if(!keep){keep=n;return;}
+        if(n!==keep&&n.parentNode)n.remove();
+      });
+      if(keep){
+        keep.id='ktDailySpinFab';
+        keep.classList.add('kt-daily-spin-fab');
+      }
+    }catch(e){}
+  }
+
+  removeDuplicateButtons();
+  setTimeout(removeDuplicateButtons,50);
+  setTimeout(removeDuplicateButtons,300);
+  setTimeout(removeDuplicateButtons,900);
+
   if(window.__ktDailySpinRewardInstalled)return;
   window.__ktDailySpinRewardInstalled=true;
 
@@ -75,6 +95,7 @@
 
   function installButton(){
     ensureStyle();
+    removeDuplicateButtons();
     var b=document.getElementById('ktDailySpinFab');
     if(!b){
       b=document.createElement('button');
@@ -112,4 +133,94 @@
   var obs=new MutationObserver(function(){installButton();});
   obs.observe(document.documentElement,{childList:true,subtree:true});
   setInterval(updateButton,60000);
+})();
+
+/* 공개 동영상을 보다가 다른 화면으로 가면 뒤에서 다시 소리가 나지 않게 막는다. 라이브/카메라는 건드리지 않음. */
+(function(){
+  if(window.__ktPageVideoExitGuardInstalled)return;
+  window.__ktPageVideoExitGuardInstalled=true;
+
+  function isPageVideo(m){
+    return !!(m&&(m.id==='homeVideo'||(m.classList&&m.classList.contains('kt-public-video'))));
+  }
+
+  function pageVideoShouldStop(m){
+    if(!isPageVideo(m))return false;
+    if(!m.isConnected)return true;
+    try{
+      var sheet=document.getElementById('sheet');
+      if(sheet&&sheet.classList.contains('show')&&!sheet.contains(m))return true;
+      var creator=document.getElementById('creator');
+      if(creator&&creator.classList.contains('show')&&!creator.contains(m))return true;
+      var cs=getComputedStyle(m);
+      if(cs.display==='none'||cs.visibility==='hidden')return true;
+      var r=m.getBoundingClientRect();
+      if(r.width<2||r.height<2)return true;
+    }catch(e){}
+    return false;
+  }
+
+  function hardStop(m){
+    if(!isPageVideo(m))return;
+    try{m.pause();}catch(e){}
+    try{m.muted=true;}catch(e){}
+  }
+
+  var tracked=null;
+  try{
+    document.querySelectorAll('#homeVideo,.kt-public-video').forEach(function(m){
+      if(!m.paused)tracked=m;
+    });
+  }catch(e){}
+
+  var nativePlay=HTMLMediaElement.prototype.play;
+  if(nativePlay&&!nativePlay.__ktPageExitGuardWrapped){
+    var guardedPlay=function(){
+      if(isPageVideo(this)&&pageVideoShouldStop(this)){
+        hardStop(this);
+        return Promise.resolve();
+      }
+      return nativePlay.apply(this,arguments);
+    };
+    guardedPlay.__ktPageExitGuardWrapped=true;
+    HTMLMediaElement.prototype.play=guardedPlay;
+  }
+
+  document.addEventListener('play',function(e){
+    var m=e.target;
+    if(!isPageVideo(m))return;
+    tracked=m;
+    if(pageVideoShouldStop(m))hardStop(m);
+  },true);
+
+  function checkAfterMove(){
+    if(tracked&&pageVideoShouldStop(tracked)){
+      hardStop(tracked);
+      try{if(window.ktStopSoundPreview)window.ktStopSoundPreview();}catch(e){}
+    }
+  }
+
+  document.addEventListener('click',function(e){
+    var t=e.target;
+    if(t&&t.closest&&t.closest('#homeVideo,.kt-public-video'))return;
+    setTimeout(checkAfterMove,0);
+    setTimeout(checkAfterMove,80);
+    setTimeout(checkAfterMove,300);
+    setTimeout(checkAfterMove,900);
+  },true);
+
+  try{
+    var screen=document.getElementById('screen');
+    if(screen){
+      new MutationObserver(function(){
+        setTimeout(checkAfterMove,0);
+        setTimeout(checkAfterMove,120);
+      }).observe(screen,{childList:true,subtree:false});
+    }
+  }catch(e){}
+
+  document.addEventListener('visibilitychange',function(){
+    if(document.hidden&&tracked)hardStop(tracked);
+  });
+  window.addEventListener('pagehide',function(){if(tracked)hardStop(tracked);});
 })();
