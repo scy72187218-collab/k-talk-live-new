@@ -192,6 +192,24 @@
   else window.addEventListener('load',function(){setTimeout(loadLivePresence,0);},{once:true});
 })();
 
+/* 다른 사람 방송 입장 화면의 기존 채팅·좋아요·선물·공유 기능만 연결한다. */
+(function(){
+  function loadViewerInteractions(tryNo){
+    if(document.querySelector('script[data-kt-live-viewer-interactions]'))return;
+    if(typeof window.ktEnterRemoteLive!=='function'){
+      if((tryNo||0)<30)setTimeout(function(){loadViewerInteractions((tryNo||0)+1);},200);
+      return;
+    }
+    var s=document.createElement('script');
+    s.src='live-viewer-interactions.js?v=20260912-viewer-actions1';
+    s.async=false;
+    s.setAttribute('data-kt-live-viewer-interactions','1');
+    document.head.appendChild(s);
+  }
+  if(document.readyState==='complete')setTimeout(function(){loadViewerInteractions(0);},120);
+  else window.addEventListener('load',function(){setTimeout(function(){loadViewerInteractions(0);},120);},{once:true});
+})();
+
 /* K-Talk 전 화면 터치 복구만 별도 파일로 불러온다. */
 (function(){
   if(document.querySelector('script[data-kt-touch-unlock-all]'))return;
