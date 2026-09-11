@@ -146,33 +146,8 @@
         return window.stopCreatorRecording();
       }
     }catch(e){}
-    if(countingDown)return;
-
     ensureStyle();
-    var overlay=ensureCountdown();
-    var btn=recordButton();
-    countingDown=true;
-    var n=5;
-
-    function show(){
-      if(!countingDown)return;
-      overlay.textContent=String(n);
-      overlay.style.display='grid';
-      if(btn){
-        btn.classList.add('kt-record-counting');
-        btn.textContent=String(n);
-      }
-      if(n<=1){
-        countdownTimer=setTimeout(function(){
-          if(!countingDown)return;
-          beginActualRecording();
-        },1000);
-      }else{
-        n--;
-        countdownTimer=setTimeout(show,1000);
-      }
-    }
-    show();
+    return beginActualRecording.apply(this,arguments);
   };
 
   window.stopCreatorRecording=function(){
