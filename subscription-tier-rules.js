@@ -4,9 +4,9 @@
   window.__ktSubscriptionTierRulesInstalled=true;
 
   var PLANS={
-    9900:{price:9900,discount:0,minDiscountQty:500,allRooms:true,weeklyRoses:14,contactPost:false,label:'구독자'},
-    14900:{price:14900,discount:10,minDiscountQty:500,allRooms:true,weeklyRoses:14,contactPost:true,label:'중회원'},
-    19900:{price:19900,discount:20,minDiscountQty:500,allRooms:true,weeklyRoses:14,contactPost:true,label:'VIP'}
+    9900:{price:9900,discount:0,minDiscountQty:500,coinBonus:10,minBonusQty:500,allRooms:true,weeklyRoses:14,contactPost:false,label:'구독자'},
+    14900:{price:14900,discount:10,minDiscountQty:500,coinBonus:20,minBonusQty:500,allRooms:true,weeklyRoses:14,contactPost:true,label:'중회원'},
+    19900:{price:19900,discount:20,minDiscountQty:500,coinBonus:30,minBonusQty:500,allRooms:true,weeklyRoses:14,contactPost:true,label:'VIP'}
   };
 
   function digits(v){return parseInt(String(v==null?'':v).replace(/[^0-9]/g,''),10)||0;}
@@ -59,6 +59,12 @@
     if(!plan||qty<plan.minDiscountQty)return 0;
     return plan.discount||0;
   };
+  window.ktCoinTierBonus=function(qty){
+    var plan=window.ktGetSubscriptionPlan();
+    qty=parseInt(qty,10)||0;
+    if(!plan||qty<plan.minBonusQty)return 0;
+    return plan.coinBonus||0;
+  };
   window.ktCoinDiscountedAmount=function(amount,qty){
     var rate=window.ktCoinDiscountPercent(qty);
     var a=Number(amount)||0;
@@ -77,16 +83,22 @@
     return typeof oldCanCreate==='function'?oldCanCreate(roomType,level):true;
   };
 
-  /* 충전 선택 시 500개부터만 14,900원 10%, 19,900원 20% 할인. 9,900원은 0%. */
+  /* 코인 500개부터: 9,900원 보너스 10개 / 14,900원 보너스 20개+10% 할인 / 19,900원 보너스 30개+20% 할인. */
   var oldSelectCoinCharge=window.selectCoinCharge;
   if(typeof oldSelectCoinCharge==='function'){
     window.selectCoinCharge=function(amount,base,bonus){
+      var plan=window.ktGetSubscriptionPlan();
+      if(!plan)return oldSelectCoinCharge.apply(this,arguments);
       var rate=window.ktCoinDiscountPercent(base);
-      if(!rate)return oldSelectCoinCharge.apply(this,arguments);
+      var tierBonus=window.ktCoinTierBonus(base);
+      if(!rate&&!tierBonus)return oldSelectCoinCharge.apply(this,arguments);
       var pay=window.ktCoinDiscountedAmount(amount,base);
-      var total=(Number(base)||0)+(Number(bonus)||0);
-      try{if(window.ktSpeak)window.ktSpeak('코인 '+Number(base).toLocaleString('ko-KR')+'개부터 구독 할인 '+rate+'퍼센트가 적용됩니다.');}catch(e){}
-      alert('구독 할인 '+rate+'% 적용 · '+Number(base).toLocaleString('ko-KR')+'개 · 결제 '+pay.toLocaleString('ko-KR')+'원 · 총 '+total.toLocaleString('ko-KR')+'개');
+      var total=(Number(base)||0)+(Number(bonus)||0)+tierBonus;
+      var msg=[];
+      if(rate)msg.push('할인 '+rate+'%');
+      if(tierBonus)msg.push('보너스 '+tierBonus+'개');
+      try{if(window.ktSpeak)window.ktSpeak('코인 '+Number(base).toLocaleString('ko-KR')+'개 구매에 '+msg.join(' 그리고 ')+'가 적용됩니다.');}catch(e){}
+      alert(msg.join(' · ')+' 적용 · 기본 '+Number(base).toLocaleString('ko-KR')+'개 · 결제 '+pay.toLocaleString('ko-KR')+'원 · 총 '+total.toLocaleString('ko-KR')+'개');
     };
   }
 
@@ -102,9 +114,9 @@
           var note=document.createElement('div');
           note.className='rowbox';
           note.setAttribute('data-kt-sub-discount-note','1');
-          if(!plan)note.innerHTML='<b>구독 할인</b><br>14,900원은 500개부터 10% · 19,900원은 500개부터 20% · 9,900원은 할인 없음';
-          else if(plan.price===9900)note.innerHTML='<b>9,900원 구독</b><br>코인 구매 할인 없음';
-          else note.innerHTML='<b>'+plan.price.toLocaleString('ko-KR')+'원 구독</b><br>코인 500개부터 '+plan.discount+'% 할인';
+          if(!plan)note.innerHTML='<b>구독 코인 혜택</b><br>500개부터 9,900원 보너스 10개 · 14,900원 보너스 20개+10% 할인 · 19,900원 보너스 30개+20% 할인';
+          else if(plan.price===9900)note.innerHTML='<b>9,900원 구독</b><br>코인 500개부터 보너스 10개 · 구매 할인 없음';
+          else note.innerHTML='<b>'+plan.price.toLocaleString('ko-KR')+'원 구독</b><br>코인 500개부터 보너스 '+plan.coinBonus+'개 · '+plan.discount+'% 할인';
           body.insertBefore(note,body.firstChild);
         }catch(e){}
       },0);
@@ -115,9 +127,9 @@
   /* 혜택 화면만 정확한 3개 요금제로 표시. */
   window.openSubscriberBenefits=function(){
     var html=''
-      +'<div class="rowbox"><b>9,900원 구독</b><br>모든 방송방 입장·방 만들기 가능 · 코인 할인 없음 · 7일 방송 시 장미 14송이 · 전화번호/계좌번호 등록 불가</div>'
-      +'<div class="rowbox"><b>14,900원 구독</b><br>모든 방송방 이용 가능 · 코인 500개부터 10% 할인 · 전화번호/계좌번호 등록 가능</div>'
-      +'<div class="rowbox"><b>19,900원 구독</b><br>모든 방송방 이용 가능 · 코인 500개부터 20% 할인 · 전화번호/계좌번호 등록 가능</div>';
+      +'<div class="rowbox"><b>9,900원 구독</b><br>모든 방송방 입장·방 만들기 가능 · 코인 500개부터 보너스 10개 · 구매 할인 없음 · 7일 방송 시 장미 14송이 · 전화번호/계좌번호 등록 불가</div>'
+      +'<div class="rowbox"><b>14,900원 구독</b><br>모든 방송방 이용 가능 · 코인 500개부터 보너스 20개 + 10% 할인 · 전화번호/계좌번호 등록 가능</div>'
+      +'<div class="rowbox"><b>19,900원 구독</b><br>모든 방송방 이용 가능 · 코인 500개부터 보너스 30개 + 20% 할인 · 전화번호/계좌번호 등록 가능</div>';
     if(window.showSheet)showSheet('💎 K-Talk 구독자 혜택',html);
   };
 
