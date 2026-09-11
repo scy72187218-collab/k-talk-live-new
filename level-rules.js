@@ -136,3 +136,13 @@
   s.setAttribute('data-kt-sub-benefits-summary','1');
   document.head.appendChild(s);
 })();
+
+/* 닉네임·프로필 사진 여러 기기 동기화만 별도 파일로 불러온다. */
+(function(){
+  if(document.querySelector('script[data-kt-profile-device-sync]'))return;
+  var s=document.createElement('script');
+  s.src='profile-device-sync.js?v=20260911-sync1';
+  s.async=false;
+  s.setAttribute('data-kt-profile-device-sync','1');
+  document.head.appendChild(s);
+})();
