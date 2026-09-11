@@ -121,3 +121,14 @@
     selectRoom(btn);
   },true);
 })();
+
+/* 2026-09-11 비밀방: 호스트·게스트 칸만 위쪽에 보이도록 정리. 다른 UI는 변경하지 않음. */
+(function(){
+  if(document.getElementById('ktSecretGuestLift20260911'))return;
+  var st=document.createElement('style');
+  st.id='ktSecretGuestLift20260911';
+  st.textContent=''
+    +'.ktsecret-room .ktsecret-six-grid{top:0!important;right:0!important;bottom:145px!important;left:0!important}'
+    +'@media(max-width:390px){.ktsecret-room .ktsecret-six-grid{bottom:132px!important}}';
+  document.head.appendChild(st);
+})();
