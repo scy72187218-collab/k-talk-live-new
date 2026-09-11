@@ -237,3 +237,48 @@
   obs.observe(document.documentElement,{childList:true,subtree:true});
   setInterval(install,900);
 })();
+
+/* 방송방 출석체크: 그 방 호스트 장미 1송이만 추가. 다른 UI/기능은 건드리지 않음. */
+(function(){
+  if(window.__ktAttendanceHostRoseInstalled)return;
+  window.__ktAttendanceHostRoseInstalled=true;
+
+  function todayKey(){
+    var d=new Date();
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  }
+
+  function roomKey(room){
+    var key=room&&room.className?String(room.className):'room';
+    try{
+      var t=(window.state&&state.liveRoomType)||'';
+      var title=(window.state&&(state.currentLiveRoomTitle||state.currentViewRoomTitle||state.liveRoomName))||'';
+      key+='|'+t+'|'+title;
+    }catch(e){}
+    return key.replace(/\s+/g,'_').slice(0,120);
+  }
+
+  function addHostRoseOne(){
+    var el=document.getElementById('hudEarnRoses')||document.getElementById('ktSubscriberEarnRoses');
+    if(!el)return;
+    var text=String(el.textContent||'');
+    var m=text.match(/(\d[\d,]*)/);
+    var n=m?parseInt(m[1].replace(/,/g,''),10)||0:0;
+    el.textContent='🌹 '+(n+1)+'송이';
+  }
+
+  document.addEventListener('click',function(e){
+    var target=e.target;
+    if(!target||!target.closest)return;
+    var btn=target.closest('.ktsolo-att,.ktg13-attend,.ktsubscriber-att,.ktsecret-att');
+    if(!btn)return;
+    var room=btn.closest('.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room');
+    if(!room)return;
+    var key='ktalk_host_attendance_rose|'+todayKey()+'|'+roomKey(room);
+    try{
+      if(localStorage.getItem(key)==='1')return;
+      localStorage.setItem(key,'1');
+    }catch(err){}
+    addHostRoseOne();
+  },true);
+})();
