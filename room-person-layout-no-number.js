@@ -127,3 +127,49 @@
     mo.observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 })();
+
+/* 1인방·13명방 출석체크만 비밀방 출석체크 코드/크기와 똑같이 맞춘다. */
+(function(){
+  if(window.__ktSoloGroup13SecretAttendanceInstalled)return;
+  window.__ktSoloGroup13SecretAttendanceInstalled=true;
+
+  function ensureStyle(){
+    if(document.getElementById('ktSoloGroup13SecretAttendanceStyle'))return;
+    var s=document.createElement('style');
+    s.id='ktSoloGroup13SecretAttendanceStyle';
+    s.textContent='\
+      #screen .ktsolo-room .ktsolo-att.kt-secret-att-copy,#screen .ktg13-room .ktg13-attend.kt-secret-att-copy{justify-self:center!important;height:29px!important;min-width:88px!important;width:auto!important;padding:0 3px!important;border-radius:18px!important;border:2px solid #ff2bbd!important;background-color:#130714!important;background-image:radial-gradient(circle,#ff35ce 1.4px,transparent 2px)!important;background-size:8px 8px!important;color:#ffd52f!important;font-size:11px!important;font-weight:950!important;box-shadow:0 0 8px #ff2bbd!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:1px!important;white-space:nowrap!important;line-height:1!important;}\
+      #screen .ktsolo-room .ktsolo-att.kt-secret-att-copy img,#screen .ktg13-room .ktg13-attend.kt-secret-att-copy img{width:14px!important;height:14px!important;object-fit:contain!important;margin:0!important;}\
+      #screen .ktsolo-room .ktsolo-att.kt-secret-att-copy span,#screen .ktg13-room .ktg13-attend.kt-secret-att-copy span{display:inline!important;margin:0!important;padding:0!important;font-size:inherit!important;line-height:1!important;}\
+      @media(max-width:390px){#screen .ktsolo-room .ktsolo-att.kt-secret-att-copy,#screen .ktg13-room .ktg13-attend.kt-secret-att-copy{min-width:82px!important;height:27px!important;font-size:10px!important}#screen .ktsolo-room .ktsolo-att.kt-secret-att-copy img,#screen .ktg13-room .ktg13-attend.kt-secret-att-copy img{width:13px!important;height:13px!important}}';
+    document.head.appendChild(s);
+  }
+
+  function applyOne(btn){
+    if(!btn)return;
+    btn.classList.add('kt-secret-att-copy');
+    btn.innerHTML='<img src="attendance-wing.svg" alt=""><span>출석체크</span><img src="attendance-wing.svg" alt="">';
+    btn.onclick=function(){
+      try{
+        if(window.openAttendanceBenefits){window.openAttendanceBenefits();return;}
+        if(window.ktAttendanceCheck)window.ktAttendanceCheck();
+      }catch(e){}
+    };
+  }
+
+  function apply(){
+    ensureStyle();
+    applyOne(document.querySelector('.ktsolo-room .ktsolo-att'));
+    applyOne(document.querySelector('.ktg13-room .ktg13-attend'));
+  }
+
+  apply();
+  [60,180,420,900,1500].forEach(function(ms){setTimeout(apply,ms);});
+  try{
+    var mo=new MutationObserver(function(){
+      clearTimeout(window.__ktSoloGroup13SecretAttendanceTimer);
+      window.__ktSoloGroup13SecretAttendanceTimer=setTimeout(apply,25);
+    });
+    mo.observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+})();
