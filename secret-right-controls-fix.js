@@ -32,6 +32,20 @@
     })||null;
   }
 
+  function isMatch(el){
+    if(!el)return false;
+    var text=String(el.textContent||'').replace(/\s+/g,'');
+    return (el.classList&&el.classList.contains('ktsecret-match-restored'))||text.indexOf('매치')>-1;
+  }
+
+  function removeExtraMatches(side,keep){
+    [].slice.call(side.children||[]).forEach(function(el){
+      if(el!==keep&&isMatch(el)){
+        try{el.remove();}catch(e){}
+      }
+    });
+  }
+
   function isAlreadyOrdered(side,arr){
     var current=[].slice.call(side.children||[]).filter(function(el){return arr.indexOf(el)>-1;});
     if(current.length!==arr.length)return false;
@@ -47,7 +61,7 @@
     var like=findButton(side,'like');
     var effect=findButton(side,'effect');
     var gift=findButton(side,'gift');
-    var match=findButton(side,'match');
+    var match=side.querySelector(':scope > .ktsecret-match-restored')||findButton(side,'match');
     var flip=findButton(side,'flip');
 
     if(gift&&!String(gift.textContent||'').match(/보물상자/)){
@@ -76,6 +90,8 @@
       match.onkeydown=function(e){if(e&&(e.key==='Enter'||e.key===' ')){e.preventDefault();this.click();}};
       side.appendChild(match);
     }
+
+    removeExtraMatches(side,match);
 
     var order=[flip,like,effect,gift,match].filter(Boolean);
     if(!isAlreadyOrdered(side,order)){
