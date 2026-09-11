@@ -19,17 +19,31 @@
     document.head.appendChild(s);
   }
 
+  function labelOf(btn){
+    if(!btn)return '';
+    var small=btn.querySelector('small');
+    return String((small&&small.textContent)||btn.getAttribute('aria-label')||'').trim();
+  }
+
   function isMatch(btn){
     if(!btn)return false;
     var label=btn.getAttribute('aria-label')||'';
-    var small=btn.querySelector('small');
-    return label==='매치'||(small&&String(small.textContent||'').trim()==='매치');
+    return label==='매치'||labelOf(btn)==='매치';
   }
 
   function install(){
     var box=document.querySelector('.ktsubscriber-right');
     if(!box)return;
     ensureStyle();
+
+    /* 구독자방 보물상자가 두 개 생기면 위의 첫 번째만 남기고 맨 아래 중복만 제거한다. */
+    var treasures=[].slice.call(box.querySelectorAll(':scope > button')).filter(function(btn){
+      return labelOf(btn)==='보물상자';
+    });
+    if(treasures.length>1){
+      treasures.slice(1).forEach(function(btn){try{btn.remove();}catch(e){}});
+      treasures=treasures.slice(0,1);
+    }
 
     var buttons=[].slice.call(box.querySelectorAll(':scope > button'));
     var match=buttons.find(isMatch);
@@ -50,9 +64,8 @@
     /* 기본 구독자방의 5번째 버튼 숨김 규칙보다 우선해서 매치는 항상 표시한다. */
     try{match.style.setProperty('display','flex','important');}catch(e){}
 
-    var treasure=[].slice.call(box.querySelectorAll(':scope > button')).find(function(btn){
-      var small=btn.querySelector('small');
-      return small&&String(small.textContent||'').trim()==='보물상자';
+    var treasure=treasures[0]||[].slice.call(box.querySelectorAll(':scope > button')).find(function(btn){
+      return labelOf(btn)==='보물상자';
     });
     if(treasure&&treasure.nextElementSibling!==match){
       box.insertBefore(match,treasure.nextElementSibling);
