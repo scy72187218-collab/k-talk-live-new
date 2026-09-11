@@ -146,3 +146,13 @@
   s.setAttribute('data-kt-profile-device-sync','1');
   document.head.appendChild(s);
 })();
+
+/* 새 채팅과 혜택·보상 화면 AI 읽기만 별도 파일로 불러온다. */
+(function(){
+  if(document.querySelector('script[data-kt-chat-benefit-ai-reader]'))return;
+  var s=document.createElement('script');
+  s.src='chat-benefit-ai-reader.js?v=20260911-ai-chat1';
+  s.async=false;
+  s.setAttribute('data-kt-chat-benefit-ai-reader','1');
+  document.head.appendChild(s);
+})();
