@@ -170,7 +170,7 @@
   }
 })();
 
-/* 혜택 · 보상 화면 상단 3칸만 어제 저장한 값으로 표시. 다른 기능은 변경하지 않음. */
+/* 혜택 · 보상 화면 상단에 어제 저장한 일반회원 35%와 구독자 40%를 함께 표시. 다른 기능은 변경하지 않음. */
 (function(){
   if(window.__ktBenefitSubscriber40DisplayInstalled)return;
   window.__ktBenefitSubscriber40DisplayInstalled=true;
@@ -182,6 +182,12 @@
       try{
         var top=document.querySelector('.kt-benefit-top');
         if(!top)return;
+        if(top.children.length<4){
+          var extra=document.createElement('div');
+          extra.innerHTML='<span>💰</span><b>구독자 40%</b><strong>120,000원</strong>';
+          top.appendChild(extra);
+        }
+        top.style.setProperty('grid-template-columns','repeat(2,minmax(0,1fr))','important');
         var cards=top.children;
         if(cards[0]){
           var b0=cards[0].querySelector('b');
@@ -198,11 +204,17 @@
         if(cards[2]){
           var b2=cards[2].querySelector('b');
           var s2=cards[2].querySelector('strong');
-          if(b2)b2.textContent='구독자 40%';
-          if(s2)s2.textContent='120,000원';
+          if(b2)b2.textContent='일반회원 35%';
+          if(s2)s2.textContent='105,000원';
+        }
+        if(cards[3]){
+          var b3=cards[3].querySelector('b');
+          var s3=cards[3].querySelector('strong');
+          if(b3)b3.textContent='구독자 40%';
+          if(s3)s3.textContent='120,000원';
         }
         var note=document.querySelector('.kt-benefit-net-note');
-        if(note)note.textContent='🌹 1개 30원 기준 · 10,000개 = 300,000원 · 구독자 40% = 120,000원';
+        if(note)note.textContent='🌹 1개 30원 기준 · 10,000개 = 300,000원 · 일반회원 35% = 105,000원 · 구독자 40% = 120,000원';
       }catch(e){}
     },0);
     return r;
