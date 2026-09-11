@@ -173,4 +173,58 @@
     var root=btn.closest('form')||btn.closest('#sheetBody')||btn.parentElement;
     blockIfNeeded(e,root);
   },true);
+
+  /* 매치 구독 혜택: 구독자는 자신이 받은 매치 보상에 10%를 추가한다. */
+  window.ktMatchSubscriberBonusPercent=function(){
+    return window.ktIsPaidSubscriber()?10:0;
+  };
+  window.ktApplyMatchSubscriberBonus=function(amount){
+    var n=Number(amount)||0;
+    if(!window.ktIsPaidSubscriber())return Math.round(n);
+    return Math.round(n*1.10);
+  };
+
+  /* 월 1회 매치 랭킹 보상. */
+  window.ktMatchMonthlyPrizes={1:100,2:80,3:50,4:30,5:30};
+  window.ktGetMatchMonthlyPrize=function(rank){
+    rank=parseInt(rank,10)||0;
+    return window.ktMatchMonthlyPrizes[rank]||0;
+  };
+
+  function decorateMatchArena(){
+    try{
+      var arena=document.querySelector('.kt-match-arena');
+      if(!arena)return;
+      var old=arena.querySelector('[data-kt-match-sub-benefit]');
+      if(old)old.remove();
+      var box=document.createElement('div');
+      box.setAttribute('data-kt-match-sub-benefit','1');
+      box.style.cssText='margin:8px 0;padding:10px 11px;border:1px solid #ffffff22;border-radius:14px;background:#101118;color:#fff;font-size:11px;line-height:1.55;font-weight:800';
+      box.innerHTML='<b style="color:#ffd85a">⚔ 매치 구독 혜택</b><br>구독자는 매치에서 받은 보상에 <b>10% 추가</b><br><span style="color:#d7d7dd">월 1회 랭킹: 1등 100개 · 2등 80개 · 3등 50개 · 4등 30개 · 5등 30개</span>';
+      var rewards=arena.querySelector('.kt-match-rewards');
+      if(rewards&&rewards.parentNode)rewards.parentNode.insertBefore(box,rewards.nextSibling);
+      else arena.appendChild(box);
+
+      if(window.ktIsPaidSubscriber()){
+        var items=arena.querySelectorAll('.kt-match-rewards b');
+        items.forEach(function(b){
+          var m=String(b.textContent||'').match(/\+(\d+)P/);
+          if(!m)return;
+          var base=parseInt(m[1],10)||0;
+          b.textContent='+'+window.ktApplyMatchSubscriberBonus(base)+'P';
+        });
+      }
+    }catch(e){}
+  }
+
+  var oldRenderMatch=window.ktRenderMatchArena;
+  if(typeof oldRenderMatch==='function'&&!oldRenderMatch.__ktSubscriberMatchWrapped){
+    var wrappedRender=function(){
+      var r=oldRenderMatch.apply(this,arguments);
+      setTimeout(decorateMatchArena,0);
+      return r;
+    };
+    wrappedRender.__ktSubscriberMatchWrapped=true;
+    window.ktRenderMatchArena=wrappedRender;
+  }
 })();
