@@ -69,7 +69,8 @@
     if(!b)return;
     var slot=slotInfo(),used=wasUsed();
     b.classList.toggle('used',used);
-    b.innerHTML='<span class="ico">🎡</span><span>오늘의 돌리기<small>'+slot.label+' 1회'+(used?' · 완료':'')+'</small></span>';
+    var html='<span class="ico">🎡</span><span>오늘의 돌리기<small>'+slot.label+' 1회'+(used?' · 완료':'')+'</small></span>';
+    if(b.innerHTML!==html)b.innerHTML=html;
   }
 
   function installButton(){
