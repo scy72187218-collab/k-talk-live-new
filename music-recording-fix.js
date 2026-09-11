@@ -192,3 +192,42 @@
   var obs=new MutationObserver(function(){install();});
   obs.observe(document.documentElement,{childList:true,subtree:true});
 })();
+
+/* 13명방·구독자방·비밀방: 이미 만든 카메라 뒤집기 기능을 좋아요 바로 위에만 추가. */
+(function(){
+  if(window.__ktThreeRoomCameraFlipInstalled)return;
+  window.__ktThreeRoomCameraFlipInstalled=true;
+
+  function addFlip(side,like,group13){
+    if(!side||!like)return;
+    var b=side.querySelector(':scope > .kt-room-camera-flip');
+    if(!b){
+      b=document.createElement('button');
+      b.type='button';
+      b.className='kt-room-camera-flip';
+      b.setAttribute('aria-label','카메라 뒤집기');
+      b.title='카메라 앞/뒤 바꾸기';
+      b.innerHTML=group13?'<b>↻</b><span>뒤집기</span>':'↻<small>뒤집기</small>';
+      b.onclick=function(){
+        if(window.ktSoloFlipCamera)window.ktSoloFlipCamera(this);
+      };
+    }
+    if(like.previousElementSibling!==b)side.insertBefore(b,like);
+  }
+
+  function install(){
+    var g=document.querySelector('.ktg13-right-quick');
+    if(g)addFlip(g,g.querySelector('.ktg13-like'),true);
+
+    var s=document.querySelector('.ktsubscriber-right');
+    if(s)addFlip(s,s.querySelector('.like'),false);
+
+    var sec=document.querySelector('.ktsecret-right');
+    if(sec)addFlip(sec,sec.querySelector('.like'),false);
+  }
+
+  install();
+  var obs=new MutationObserver(function(){install();});
+  obs.observe(document.documentElement,{childList:true,subtree:true});
+  setInterval(install,900);
+})();
