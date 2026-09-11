@@ -169,3 +169,63 @@
     mo.observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 })();
+
+/* 13명방 오른쪽 버튼만: 뒤집기·좋아요·효과·보물상자·매치 5개 유지, 크기만 조금 키움. */
+(function(){
+  if(window.__ktGroup13RightFiveFixInstalled)return;
+  window.__ktGroup13RightFiveFixInstalled=true;
+
+  function ensureStyle(){
+    if(document.getElementById('ktGroup13RightFiveFixStyle'))return;
+    var s=document.createElement('style');
+    s.id='ktGroup13RightFiveFixStyle';
+    s.textContent=''
+      +'.ktg13-right-quick{right:5px!important;gap:6px!important;top:50%!important;transform:translateY(-50%)!important}'
+      +'.ktg13-right-quick>button{width:48px!important;height:48px!important;min-width:48px!important;min-height:48px!important}'
+      +'.ktg13-right-quick>.ktg13-like{height:58px!important;min-height:58px!important;border-radius:18px!important}'
+      +'.ktg13-right-quick>button b{font-size:20px!important;line-height:1!important}'
+      +'.ktg13-right-quick>button span{font-size:9px!important;line-height:1!important;margin-top:3px!important}'
+      +'.ktg13-right-quick>.ktg13-like em{font-size:9px!important}';
+    document.head.appendChild(s);
+  }
+
+  function install(){
+    var box=document.querySelector('.ktg13-right-quick');
+    if(!box)return;
+    ensureStyle();
+
+    var like=box.querySelector('.ktg13-like');
+    if(like&&!box.querySelector('.kt-room-camera-flip')){
+      var flip=document.createElement('button');
+      flip.type='button';
+      flip.className='kt-room-camera-flip';
+      flip.setAttribute('aria-label','카메라 뒤집기');
+      flip.innerHTML='<b>↻</b><span>뒤집기</span>';
+      flip.onclick=function(){if(window.ktSoloFlipCamera)window.ktSoloFlipCamera(this);};
+      box.insertBefore(flip,like);
+    }
+
+    var hasMatch=[].slice.call(box.querySelectorAll('button')).some(function(btn){
+      return btn.getAttribute('aria-label')==='매치'||String(btn.textContent||'').indexOf('매치')>-1;
+    });
+    if(!hasMatch){
+      var match=document.createElement('button');
+      match.type='button';
+      match.className='ktg13-match-restored';
+      match.setAttribute('aria-label','매치');
+      match.innerHTML='<b>⚔</b><span>매치</span>';
+      match.onclick=function(){
+        try{if(window.ktUnifiedQuickMatch){window.ktUnifiedQuickMatch();return;}}catch(e){}
+        try{if(window.openHostMatchArena)window.openHostMatchArena('1대1');}catch(e){}
+      };
+      box.appendChild(match);
+    }
+  }
+
+  install();
+  [60,180,420,900,1500].forEach(function(ms){setTimeout(install,ms);});
+  try{
+    var mo=new MutationObserver(function(){install();});
+    mo.observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+})();
