@@ -133,7 +133,7 @@
 (function(){
   if(document.querySelector('script[data-kt-wave-camera-bars]'))return;
   var s=document.createElement('script');
-  s.src='wave-camera-bars-20260911.js?v=20260911-bars2';
+  s.src='wave-camera-bars-20260911.js?v=20260911-bars3';
   s.async=false;
   s.setAttribute('data-kt-wave-camera-bars','1');
   document.head.appendChild(s);
