@@ -4,10 +4,11 @@
   window.__ktHostFaceLikeRewardInstalled=true;
 
   var BASE='https://zupwbfmacwzexyvznlzq.supabase.co/rest/v1/';
-  var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmZhY3d6ZXh5dnpubHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjEwNzYsImV4cCI6MjEwNDAzNzA3Nn0.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
+  var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1cHdiZm1hY3d6ZXh5dnpubHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjEwNzYsImV4cCI6MjEwNDAzNzA3Nn0.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
   var remoteHostId='';
   var remoteHostName='K-Talk 호스트';
-  var busy=false;
+  var pendingLikes=0;
+  var sending=false;
 
   function deviceId(){
     var id='';
@@ -73,24 +74,36 @@
     }catch(e){return remoteHostName;}
   }
 
-  async function addLike(ev){
-    if(!remoteHostId||busy)return;
-    busy=true;
+  async function flushLikes(){
+    if(sending||pendingLikes<1||!remoteHostId)return;
+    sending=true;
     try{
-      remoteHostName=currentRemoteName();
-      var out=await rpc('ktalk_add_host_face_like',{
-        p_host_id:remoteHostId,
-        p_host_name:remoteHostName,
-        p_viewer_id:deviceId()
-      });
-      var row=Array.isArray(out)?out[0]:out;
-      if(row){
-        var likes=parseInt(row.likes||0,10)||0;
-        var badge=ensureLikeBadge();
-        if(badge)badge.textContent='💗 '+likes.toLocaleString('ko-KR');
-        if(ev)showHeartBurst(ev.clientX||innerWidth/2,ev.clientY||innerHeight/2);
+      while(pendingLikes>0&&remoteHostId){
+        pendingLikes--;
+        remoteHostName=currentRemoteName();
+        var out=await rpc('ktalk_add_host_face_like',{
+          p_host_id:remoteHostId,
+          p_host_name:remoteHostName,
+          p_viewer_id:deviceId()
+        });
+        var row=Array.isArray(out)?out[0]:out;
+        if(row){
+          var likes=parseInt(row.likes||0,10)||0;
+          var badge=ensureLikeBadge();
+          if(badge)badge.textContent='💗 '+likes.toLocaleString('ko-KR');
+        }
       }
-    }catch(e){}finally{busy=false;}
+    }catch(e){}finally{
+      sending=false;
+      if(pendingLikes>0)setTimeout(flushLikes,80);
+    }
+  }
+
+  function addLike(ev){
+    if(!remoteHostId)return;
+    pendingLikes++;
+    if(ev)showHeartBurst(ev.clientX||innerWidth/2,ev.clientY||innerHeight/2);
+    flushLikes();
   }
 
   function wrapEnter(){
@@ -103,6 +116,11 @@
       setTimeout(function(){
         remoteHostName=currentRemoteName();
         ensureLikeBadge();
+        rpc('ktalk_host_face_like_status',{p_host_id:remoteHostId}).then(function(out){
+          var row=Array.isArray(out)?out[0]:out;
+          var b=ensureLikeBadge();
+          if(row&&b)b.textContent='💗 '+(parseInt(row.likes||0,10)||0).toLocaleString('ko-KR');
+        }).catch(function(){});
       },180);
       return r;
     };
