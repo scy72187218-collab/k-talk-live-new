@@ -1,20 +1,21 @@
-/* K-Talk 파장만 수정: 13명방은 그대로 두고 1인/구독자방은 사람(카메라) 칸마다 파장 1개만, 비밀방은 총 7칸(호스트1+게스트6) 전부 파장 1개씩 표시. 다른 UI/기능은 변경하지 않음. */
+/* K-Talk 파장만 수정: 13명방은 그대로 두고 1인/구독자방은 사람(카메라) 칸마다 파장 1개만, 비밀방은 기존 빈칸 아래에 게스트6 빈칸을 하나 더 표시. 다른 UI/기능은 변경하지 않음. */
 (function(){
-  if(window.__ktMatchGroup13WaveV5)return;
-  window.__ktMatchGroup13WaveV5=true;
+  if(window.__ktMatchGroup13WaveV6)return;
+  window.__ktMatchGroup13WaveV6=true;
 
   function addStyle(){
-    var old=document.getElementById('ktMatchGroup13WaveV5Style');
+    var old=document.getElementById('ktMatchGroup13WaveV6Style');
     if(old)return;
     var s=document.createElement('style');
-    s.id='ktMatchGroup13WaveV5Style';
+    s.id='ktMatchGroup13WaveV6Style';
     s.textContent=`
       @keyframes ktMatch13WaveMove{0%{transform:scaleY(.52)}45%{transform:scaleY(.82)}100%{transform:scaleY(1)}}
 
-      /* 비밀방 기존 6칸 배치는 그대로 두고 마지막 칸만 둘로 나눠 게스트 6을 한 칸 추가 */
+      /* 비밀방 기존 게스트5 빈칸은 그대로 두고, 같은 폭으로 아래에 게스트6 빈칸만 하나 더 추가 */
       html body #screen .ktsecret-room .ktsecret-extra-pair{
         display:grid!important;
-        grid-template-columns:repeat(2,minmax(0,1fr))!important;
+        grid-template-columns:minmax(0,1fr)!important;
+        grid-template-rows:repeat(2,minmax(0,1fr))!important;
         gap:2px!important;
         min-width:0!important;
         min-height:0!important;
@@ -25,10 +26,6 @@
         height:100%!important;
         min-width:0!important;
         min-height:0!important;
-      }
-      html body #screen .ktsecret-room .ktsecret-extra-slot .ktsecret-guest-wait span,
-      html body #screen .ktsecret-room .ktsecret-extra-slot .ktsecret-slot-label{
-        font-size:7px!important;
       }
 
       /* 1인/구독자/비밀방의 아래쪽 공용 파장과 이전 임시 파장만 숨긴다. 13명방은 건드리지 않는다. */
@@ -138,7 +135,7 @@
     pair.appendChild(last);
     var extra=document.createElement('div');
     extra.className='ktsecret-slot ktsecret-extra-slot';
-    extra.innerHTML='<div class="ktsecret-guest-wait"><b>+</b><span>게스트 6</span></div><span class="ktsecret-slot-label">게스트 6</span>';
+    extra.innerHTML='<div class="ktsecret-guest-wait"><b>+</b><span>게스트 6</span></div>';
     pair.appendChild(extra);
   }
 
@@ -176,7 +173,7 @@
     /* 13명방은 손대지 않는다. */
     document.querySelectorAll('.ktsolo-room .ktsolo-main').forEach(function(tile){setOneWave(tile,tileHasPerson(tile),idx++);});
     document.querySelectorAll('.ktsubscriber-room .ktsubscriber-host,.ktsubscriber-room .ktsubscriber-guest').forEach(function(tile){setOneWave(tile,tileHasPerson(tile),idx++);});
-    /* 비밀방은 요청대로 총 7칸 전부 파장 1개씩 표시 */
+    /* 비밀방은 호스트/게스트 각 칸에 13명방과 같은 파장 1개씩 표시 */
     document.querySelectorAll('.ktsecret-room .ktsecret-slot,.ktsecret-room .ktsecret-guest-slot').forEach(function(tile){setOneWave(tile,true,idx++);});
   }
 
