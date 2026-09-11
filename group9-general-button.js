@@ -141,3 +141,31 @@
     mo.observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 })();
+
+/* 자리 이동/배치 창: 원래대로 버튼 아래 나가기 버튼만 복구. */
+(function(){
+  if(window.__ktPersonLayoutExitButtonInstalled)return;
+  window.__ktPersonLayoutExitButtonInstalled=true;
+
+  function installExitButton(){
+    var panel=document.getElementById('ktPersonLayoutPanel');
+    if(!panel||panel.querySelector('.kt-person-layout-exit'))return;
+    var b=document.createElement('button');
+    b.type='button';
+    b.className='wide kt-person-layout-exit';
+    b.textContent='나가기';
+    b.onclick=function(e){
+      try{e.preventDefault();e.stopPropagation();}catch(err){}
+      panel.classList.remove('on');
+      document.querySelectorAll('.kt-person-layout-selected').forEach(function(el){el.classList.remove('kt-person-layout-selected');});
+    };
+    panel.appendChild(b);
+  }
+
+  installExitButton();
+  [80,220,500,900,1500].forEach(function(ms){setTimeout(installExitButton,ms);});
+  try{
+    var mo=new MutationObserver(function(){installExitButton();});
+    mo.observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+})();
