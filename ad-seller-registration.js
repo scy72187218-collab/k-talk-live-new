@@ -129,6 +129,16 @@
   document.head.appendChild(s);
 })();
 
+/* 4개 방송방 카메라 안쪽 무지개 막대 파장만 연결 */
+(function(){
+  if(document.querySelector('script[data-kt-wave-camera-bars]'))return;
+  var s=document.createElement('script');
+  s.src='wave-camera-bars-20260911.js?v=20260911-bars1';
+  s.async=false;
+  s.setAttribute('data-kt-wave-camera-bars','1');
+  document.head.appendChild(s);
+})();
+
 /* 현재 방송자 표시·친구 방송목록·다른 기기 실시간 입장 기능만 연결 */
 (function(){
   if(document.querySelector('script[data-kt-live-presence]'))return;
