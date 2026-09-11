@@ -110,3 +110,123 @@
     mo.observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 })();
+
+/* 1인방·13명방·구독자방·비밀방: 실제 사람이 있는 칸마다 작은 마이크 버튼만 추가. */
+(function(){
+  if(window.__ktPersonMicButtonsInstalled)return;
+  window.__ktPersonMicButtonsInstalled=true;
+
+  function ensureStyle(){
+    if(document.getElementById('ktPersonMicButtonsStyle'))return;
+    var s=document.createElement('style');
+    s.id='ktPersonMicButtonsStyle';
+    s.textContent='\
+      .kt-person-mic{position:absolute!important;right:5px!important;top:5px!important;z-index:25!important;width:25px!important;height:25px!important;min-width:25px!important;min-height:25px!important;padding:0!important;margin:0!important;border:1px solid rgba(255,255,255,.45)!important;border-radius:50%!important;background:rgba(8,8,12,.78)!important;color:#fff!important;display:grid!important;place-items:center!important;font-size:13px!important;line-height:1!important;box-shadow:0 1px 5px rgba(0,0,0,.45)!important;touch-action:manipulation!important;}\
+      .kt-person-mic.muted{background:rgba(112,18,32,.86)!important;}\
+      @media(max-width:390px){.kt-person-mic{right:3px!important;top:3px!important;width:22px!important;height:22px!important;min-width:22px!important;min-height:22px!important;font-size:11px!important}}';
+    document.head.appendChild(s);
+  }
+
+  function isHost(tile){
+    return !!(tile&&(
+      tile.classList.contains('ktsolo-main')||
+      tile.classList.contains('ktg13-host')||
+      tile.classList.contains('ktsubscriber-host')||
+      (tile.classList.contains('ktsecret-slot')&&tile.classList.contains('host'))
+    ));
+  }
+
+  function tileVideo(tile){
+    try{return tile&&tile.querySelector?tile.querySelector('video'):null;}catch(e){return null;}
+  }
+
+  function hasMicSource(tile){
+    if(!tile)return false;
+    if(isHost(tile))return true;
+    var v=tileVideo(tile);
+    if(!v)return false;
+    try{
+      if(v.srcObject&&v.srcObject.getAudioTracks&&v.srcObject.getAudioTracks().length)return true;
+    }catch(e){}
+    try{if(v.currentSrc||v.src)return true;}catch(e){}
+    return false;
+  }
+
+  function getAudioTracks(tile){
+    if(isHost(tile)){
+      try{
+        if(window.state&&state.stream&&state.stream.getAudioTracks)return state.stream.getAudioTracks();
+      }catch(e){}
+    }
+    var v=tileVideo(tile);
+    try{
+      if(v&&v.srcObject&&v.srcObject.getAudioTracks)return v.srcObject.getAudioTracks();
+    }catch(e){}
+    return [];
+  }
+
+  function syncButton(btn,tile){
+    var tracks=getAudioTracks(tile);
+    var muted=false;
+    if(tracks.length){
+      muted=!tracks.some(function(t){return t.enabled!==false;});
+    }else{
+      var v=tileVideo(tile);
+      if(v)muted=!!v.muted;
+    }
+    btn.classList.toggle('muted',muted);
+    btn.textContent=muted?'🔇':'🎤';
+    btn.title=muted?'마이크 켜기':'마이크 끄기';
+    btn.setAttribute('aria-label',btn.title);
+  }
+
+  function toggleMic(tile,btn){
+    var tracks=getAudioTracks(tile);
+    if(tracks.length){
+      var turnOn=!tracks.some(function(t){return t.enabled!==false;});
+      tracks.forEach(function(t){try{t.enabled=turnOn;}catch(e){}});
+    }else{
+      var v=tileVideo(tile);
+      if(v){
+        try{v.muted=!v.muted;}catch(e){}
+      }
+    }
+    syncButton(btn,tile);
+  }
+
+  function addToTile(tile){
+    if(!tile)return;
+    var old=tile.querySelector(':scope > .kt-person-mic');
+    if(!hasMicSource(tile)){
+      if(old)old.remove();
+      return;
+    }
+    if(!old){
+      old=document.createElement('button');
+      old.type='button';
+      old.className='kt-person-mic';
+      old.onclick=function(e){
+        try{e.preventDefault();e.stopPropagation();}catch(err){}
+        toggleMic(tile,this);
+      };
+      tile.appendChild(old);
+    }
+    syncButton(old,tile);
+  }
+
+  function install(){
+    ensureStyle();
+    document.querySelectorAll('.ktsolo-main,.ktg13-host,.ktg13-guest,.ktsubscriber-host,.ktsubscriber-guest,.ktsecret-slot').forEach(addToTile);
+  }
+
+  install();
+  [80,220,500,900,1500].forEach(function(ms){setTimeout(install,ms);});
+  try{
+    var mo=new MutationObserver(function(){
+      clearTimeout(window.__ktPersonMicButtonsTimer);
+      window.__ktPersonMicButtonsTimer=setTimeout(install,30);
+    });
+    mo.observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+  setInterval(install,1200);
+})();
