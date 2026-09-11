@@ -167,7 +167,7 @@
   document.head.appendChild(st);
 })();
 
-/* 비밀방 하단만 정리: 수익은 선물줄 바로 위 오른쪽, 채팅은 왼쪽. 다른 방/기능은 변경하지 않음. */
+/* 비밀방 하단만 정리: 수익은 파형 바로 위 오른쪽, 채팅은 왼쪽. 다른 방/기능은 변경하지 않음. */
 (function(){
   if(window.__ktSecretBottomOnly20260911)return;
   window.__ktSecretBottomOnly20260911=true;
@@ -183,7 +183,7 @@
     if(earn.parentNode!==main)main.appendChild(earn);
     earn.style.setProperty('position','absolute','important');
     earn.style.setProperty('right','6px','important');
-    earn.style.setProperty('bottom','88px','important');
+    earn.style.setProperty('bottom','190px','important');
     earn.style.setProperty('left','auto','important');
     earn.style.setProperty('width','160px','important');
     earn.style.setProperty('height','64px','important');
@@ -192,6 +192,18 @@
     earn.style.setProperty('display','flex','important');
     earn.style.setProperty('align-items','flex-end','important');
     earn.style.setProperty('justify-content','flex-end','important');
+    earn.style.setProperty('overflow','visible','important');
+
+    var hud=earn.querySelector('#myEarnHud');
+    if(hud){
+      hud.style.setProperty('position','static','important');
+      hud.style.setProperty('inset','auto','important');
+      hud.style.setProperty('left','auto','important');
+      hud.style.setProperty('right','auto','important');
+      hud.style.setProperty('top','auto','important');
+      hud.style.setProperty('bottom','auto','important');
+      hud.style.setProperty('transform','none','important');
+    }
 
     if(chat){
       chat.style.setProperty('left','8px','important');
@@ -205,7 +217,8 @@
     st.id='ktSecretBottomOnlyStyle20260911';
     st.textContent=''
       +'.ktsecret-room .ktsecret-gifts{bottom:3px!important}'
-      +'@media(max-width:390px){.ktsecret-room .ktsecret-earn-row{right:5px!important;bottom:82px!important;width:145px!important;height:58px!important}.ktsecret-room .ktsecret-chat{right:154px!important;bottom:64px!important}.ktsecret-room .ktsecret-gifts{bottom:3px!important}}';
+      +'.ktsecret-room .ktsecret-earn-row #myEarnHud{position:static!important;inset:auto!important;transform:none!important}'
+      +'@media(max-width:390px){.ktsecret-room .ktsecret-earn-row{right:5px!important;bottom:184px!important;width:145px!important;height:58px!important}.ktsecret-room .ktsecret-chat{right:154px!important;bottom:64px!important}.ktsecret-room .ktsecret-gifts{bottom:3px!important}}';
     document.head.appendChild(st);
   }
 
