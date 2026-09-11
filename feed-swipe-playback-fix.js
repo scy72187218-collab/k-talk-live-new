@@ -1,9 +1,11 @@
-/* K-Talk 공개 동영상 넘김 재생 보강: 재생 실패/멈춤 영상은 재시도 후 자동 건너뜀. 다른 화면은 건드리지 않음. */
+/* K-Talk 공개 동영상 재생 보강: 다른 페이지/앱/탭에서 돌아오면 보던 영상과 소리를 다시 재생. 다른 화면은 건드리지 않음. */
 (function(){
   if(window.__ktFeedSwipePlaybackFixInstalled)return;
   window.__ktFeedSwipePlaybackFixInstalled=true;
 
   function isFeedVideo(v){return !!(v&&v.classList&&v.classList.contains('kt-public-video'));}
+  function isHomeVideo(v){return !!(v&&v.id==='homeVideo');}
+  function isPlaybackVideo(v){return isFeedVideo(v)||isHomeVideo(v);}
   function feedSection(v){return v&&v.closest?v.closest('section'):null;}
   function feedScroller(){
     var v=document.querySelector('.kt-public-video');
@@ -19,6 +21,35 @@
         sessionStorage.setItem('kt_feed_fresh_at',String(Date.now()));
       }
     }catch(e){}
+  }
+
+  function saveSound(v){
+    if(!isPlaybackVideo(v))return;
+    try{
+      sessionStorage.setItem('kt_video_muted',v.muted?'1':'0');
+      sessionStorage.setItem('kt_video_volume',String(typeof v.volume==='number'?v.volume:1));
+    }catch(e){}
+  }
+
+  function restoreSound(v){
+    if(!isPlaybackVideo(v))return;
+    try{
+      var muted=sessionStorage.getItem('kt_video_muted');
+      var volume=sessionStorage.getItem('kt_video_volume');
+      if(muted!==null)v.muted=(muted==='1');
+      if(volume!==null){
+        var n=Number(volume);
+        if(isFinite(n))v.volume=Math.max(0,Math.min(1,n));
+      }
+    }catch(e){}
+  }
+
+  function setupSoundMemory(v){
+    if(!isPlaybackVideo(v)||v.dataset.ktSoundMemory==='1')return;
+    v.dataset.ktSoundMemory='1';
+    restoreSound(v);
+    v.addEventListener('volumechange',function(){saveSound(v);});
+    v.addEventListener('play',function(){if(!v.muted)saveSound(v);});
   }
 
   function nextPlayableSection(section){
@@ -70,9 +101,29 @@
     removeBroken(v);
   }
 
+  function playElement(v,force){
+    if(!isPlaybackVideo(v))return;
+    setupSoundMemory(v);
+    restoreSound(v);
+    try{
+      v.preload='auto';
+      v.setAttribute('playsinline','');
+      v.setAttribute('webkit-playsinline','');
+      if(force&&v.readyState===0){try{v.load();}catch(e){}}
+      var p=v.play();
+      if(p&&p.catch)p.catch(function(){
+        setTimeout(function(){
+          if(document.hidden)return;
+          try{v.play().catch(function(){});}catch(e){}
+        },180);
+      });
+    }catch(e){}
+  }
+
   function playVideo(v,force){
     if(!isFeedVideo(v)||v.dataset.ktFeedBroken==='1')return;
-    try{v.muted=true;v.defaultMuted=true;v.setAttribute('muted','');v.setAttribute('playsinline','');}catch(e){}
+    setupSoundMemory(v);
+    restoreSound(v);
     if(force&&v.readyState===0){try{v.load();}catch(e){}}
     var before=Number(v.currentTime||0);
     try{
@@ -93,7 +144,8 @@
   function setupVideo(v){
     if(!isFeedVideo(v)||v.dataset.ktFeedSetup==='1')return;
     v.dataset.ktFeedSetup='1';
-    try{v.preload='auto';v.muted=true;v.defaultMuted=true;v.setAttribute('playsinline','');}catch(e){}
+    try{v.preload='auto';v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');}catch(e){}
+    setupSoundMemory(v);
     v.addEventListener('loadeddata',function(){v.dataset.ktFeedRetry='0';clearTimeout(v.__ktFeedWatch);});
     v.addEventListener('canplay',function(){v.dataset.ktFeedRetry='0';clearTimeout(v.__ktFeedWatch);});
     v.addEventListener('error',function(){retryOrSkip(v);});
@@ -103,9 +155,20 @@
     });
   }
 
+  function setupHomeVideo(){
+    var v=document.getElementById('homeVideo');
+    if(!v)return;
+    try{v.preload='auto';v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');}catch(e){}
+    setupSoundMemory(v);
+  }
+
   function activeByPosition(){
     var sc=feedScroller();
-    if(!sc)return;
+    if(!sc){
+      var hv=document.getElementById('homeVideo');
+      if(hv)playElement(hv,false);
+      return;
+    }
     var videos=[].slice.call(sc.querySelectorAll('.kt-public-video')).filter(function(v){return v.dataset.ktFeedBroken!=='1'&&feedSection(v)&&feedSection(v).style.display!=='none';});
     if(!videos.length)return;
     var box=sc.getBoundingClientRect();
@@ -126,6 +189,7 @@
   function install(){
     var videos=[].slice.call(document.querySelectorAll('.kt-public-video'));
     videos.forEach(setupVideo);
+    setupHomeVideo();
     var sc=feedScroller();
     if(sc&&sc.dataset.ktFeedScrollFix!=='1'){
       sc.dataset.ktFeedScrollFix='1';
@@ -143,13 +207,13 @@
 
   var oldHome=window.home;
   if(typeof oldHome==='function'&&!oldHome.__ktFeedSwipeFresh){
-    var h=function(){clearBadCache();var r=oldHome.apply(this,arguments);setTimeout(install,60);setTimeout(install,500);return r;};
+    var h=function(){clearBadCache();var r=oldHome.apply(this,arguments);setTimeout(install,20);setTimeout(install,120);setTimeout(install,500);return r;};
     h.__ktFeedSwipeFresh=true;
     window.home=h;
   }
   var oldMedia=window.media;
   if(typeof oldMedia==='function'&&!oldMedia.__ktFeedSwipeFresh){
-    var m=function(){clearBadCache();var r=oldMedia.apply(this,arguments);setTimeout(install,60);setTimeout(install,500);return r;};
+    var m=function(){clearBadCache();var r=oldMedia.apply(this,arguments);setTimeout(install,20);setTimeout(install,120);setTimeout(install,500);return r;};
     m.__ktFeedSwipeFresh=true;
     window.media=m;
   }
@@ -161,23 +225,36 @@
         [].slice.call(rec.addedNodes||[]).forEach(function(n){
           if(!n||n.nodeType!==1)return;
           if(n.matches&&n.matches('.kt-public-video')){setupVideo(n);found=true;}
+          if(n.id==='homeVideo'){setupHomeVideo();found=true;}
           if(n.querySelectorAll){[].slice.call(n.querySelectorAll('.kt-public-video')).forEach(function(v){setupVideo(v);found=true;});}
+          if(n.querySelector&&n.querySelector('#homeVideo')){setupHomeVideo();found=true;}
         });
       });
-      if(found)setTimeout(install,30);
+      if(found)setTimeout(install,20);
     }).observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 
-  /* 다른 페이지/앱/탭에 갔다가 돌아왔을 때 보던 동영상만 다시 재생 */
+  /* 다른 페이지/앱/탭에 갔다가 돌아왔을 때 영상과 기존 소리 상태를 같이 복구 */
   function resumeAfterReturn(){
     if(document.hidden)return;
-    setTimeout(install,30);
-    setTimeout(activeByPosition,140);
+    setTimeout(install,0);
+    setTimeout(install,80);
+    setTimeout(activeByPosition,180);
+    setTimeout(activeByPosition,500);
   }
   document.addEventListener('visibilitychange',function(){if(!document.hidden)resumeAfterReturn();});
   window.addEventListener('pageshow',resumeAfterReturn);
   window.addEventListener('focus',resumeAfterReturn);
   window.addEventListener('popstate',resumeAfterReturn);
 
-  setTimeout(install,80);
+  /* 브라우저가 소리 있는 자동재생을 잠시 막은 경우 첫 터치에서 즉시 이어서 재생 */
+  document.addEventListener('pointerdown',function(){
+    if(document.hidden)return;
+    var hv=document.getElementById('homeVideo');
+    if(hv&&hv.paused)playElement(hv,false);
+    var sc=feedScroller();
+    if(sc)setTimeout(activeByPosition,0);
+  },{passive:true});
+
+  setTimeout(install,40);
 })();
