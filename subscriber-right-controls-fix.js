@@ -1,4 +1,4 @@
-/* 구독자방 오른쪽 버튼만: 뒤집기·좋아요·효과·보물상자는 그대로 두고, 매치만 보이는 보물상자 글씨 바로 밑에 붙인다. */
+/* 구독자방 오른쪽 버튼만: 뒤집기·좋아요·효과·보물상자는 그대로 두고, 매치만 보이는 보물상자 글씨 바로 밑에서 조금 위로 붙인다. */
 (function(){
   if(window.__ktSubscriberRightFiveFixInstalled)return;
   window.__ktSubscriberRightFiveFixInstalled=true;
@@ -77,13 +77,13 @@
       document.body.appendChild(match);
     }
 
-    /* 버튼 박스가 아니라 실제로 보이는 '보물상자' 글씨 아래를 기준으로 매치를 붙인다. */
+    /* 실제 보물상자 글씨 기준에서 매치만 8px 위로 당긴다. */
     var r=treasure.getBoundingClientRect();
     var label=treasure.querySelector('small');
     var lr=label?label.getBoundingClientRect():r;
     var size=window.innerWidth<=390?48:50;
     var left=Math.round(r.left+(r.width-size)/2);
-    var top=Math.round(lr.bottom+2);
+    var top=Math.round(lr.bottom-6);
     match.style.setProperty('left',left+'px','important');
     match.style.setProperty('top',top+'px','important');
   }
