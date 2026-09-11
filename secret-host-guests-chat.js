@@ -11,7 +11,7 @@
       +'.ktsecret-main{position:relative!important}'
       +'.ktsecret-host-tag{position:absolute;left:10px;top:10px;z-index:21;display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border-radius:10px;border:1px solid rgba(255,75,215,.75);background:rgba(20,8,22,.72);box-shadow:0 0 10px rgba(255,35,205,.38);color:#fff;font-size:11px;font-weight:950;pointer-events:none}'
       +'.ktsecret-host-tag b{color:#ffd86a}.ktsecret-host-tag span{color:#ff71dd}'
-      +'.ktsecret-guest-panel{position:absolute;right:8px;top:8px;z-index:20;width:min(46%,230px);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;pointer-events:auto}'
+      +'.ktsecret-guest-panel{position:absolute;right:8px;top:-18px;z-index:20;width:min(46%,230px);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;pointer-events:auto}'
       +'.ktsecret-guest-slot{position:relative;aspect-ratio:3/4;min-height:66px;overflow:hidden;border:1px solid rgba(255,87,219,.56);border-radius:9px;background:linear-gradient(160deg,rgba(32,32,38,.94),rgba(12,12,16,.96));box-shadow:0 0 6px rgba(255,40,205,.22)}'
       +'.ktsecret-guest-slot video{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;transform:none!important;background:#15151a!important}'
       +'.ktsecret-guest-empty{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:#d4d4dc;font-size:18px;font-weight:900}.ktsecret-guest-empty small{display:block;margin-top:2px;color:#aaa;font-size:8px}'
@@ -20,7 +20,7 @@
       +'.ktsecret-chat:empty:before{content:"💬 채팅을 입력하면 아래에서 위로 올라옵니다"!important;color:rgba(255,255,255,.72)!important;font-size:10px!important;font-weight:850!important;text-shadow:0 1px 3px #000,0 0 5px #000!important}'
       +'.ktsecret-chat-line{display:flex!important;align-items:flex-start!important;gap:6px!important;margin-top:5px!important;padding:0!important;font-size:11px!important;line-height:1.28!important;font-weight:850!important;text-shadow:0 1px 3px #000,0 0 5px #000!important}'
       +'.ktsecret-chat-line b{flex:0 0 auto!important;color:#63d8ff!important;font-size:11px!important;white-space:nowrap!important}.ktsecret-chat-line span{min-width:0!important;color:#fff!important;font-size:11px!important;white-space:normal!important;overflow-wrap:anywhere!important}'
-      +'@media(max-width:390px){.ktsecret-guest-panel{right:5px;top:7px;width:45%;gap:3px}.ktsecret-guest-slot{min-height:58px;border-radius:7px}.ktsecret-host-tag{left:7px;top:7px;padding:4px 7px;font-size:10px}.ktsecret-chat{left:6px!important;right:47%!important;bottom:64px!important;max-height:46%!important}.ktsecret-chat-line,.ktsecret-chat-line b,.ktsecret-chat-line span{font-size:10px!important}}'
+      +'@media(max-width:390px){.ktsecret-guest-panel{right:5px;top:-18px;width:45%;gap:3px}.ktsecret-guest-slot{min-height:58px;border-radius:7px}.ktsecret-host-tag{left:7px;top:7px;padding:4px 7px;font-size:10px}.ktsecret-chat{left:6px!important;right:47%!important;bottom:64px!important;max-height:46%!important}.ktsecret-chat-line,.ktsecret-chat-line b,.ktsecret-chat-line span{font-size:10px!important}}'
       +'@media(min-width:700px) and (orientation:landscape){.ktsecret-guest-panel{width:42%;max-width:420px;grid-template-columns:repeat(3,minmax(0,1fr))}.ktsecret-chat{right:44%!important;max-height:52%!important}}';
     document.head.appendChild(s);
   }
