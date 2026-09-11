@@ -116,3 +116,28 @@
     mo.observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 })();
+
+/* 비밀방 오른쪽에 겹쳐 보이는 검은 매치 버튼 하나만 제거. 아래 메뉴의 매치는 유지. */
+(function(){
+  if(window.__ktSecretDuplicateMatchFixInstalled)return;
+  window.__ktSecretDuplicateMatchFixInstalled=true;
+
+  function removeDuplicateMatch(){
+    var side=document.querySelector('.ktsecret-right');
+    if(!side)return;
+    [].slice.call(side.children).forEach(function(btn){
+      if(!btn||btn.tagName!=='BUTTON')return;
+      var small=btn.querySelector('small');
+      if(small&&String(small.textContent||'').trim()==='매치'){
+        try{btn.remove();}catch(e){}
+      }
+    });
+  }
+
+  removeDuplicateMatch();
+  [50,150,350,700,1200].forEach(function(ms){setTimeout(removeDuplicateMatch,ms);});
+  try{
+    var mo=new MutationObserver(function(){removeDuplicateMatch();});
+    mo.observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+})();
