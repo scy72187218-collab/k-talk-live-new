@@ -42,3 +42,59 @@
     return r;
   };
 })();
+
+/* 사용방법 화면을 열 때만 뒤의 동영상 화면을 숨긴다. 다른 페이지/기능은 건드리지 않음. */
+(function(){
+  if(window.__ktHelpHideVideoInstalled)return;
+  window.__ktHelpHideVideoInstalled=true;
+
+  if(!document.getElementById('ktHelpHideVideoStyle')){
+    var s=document.createElement('style');
+    s.id='ktHelpHideVideoStyle';
+    s.textContent='body.kt-help-screen-open #screen{visibility:hidden!important;background:#000!important}';
+    document.head.appendChild(s);
+  }
+
+  function enterHelp(){
+    try{document.body.classList.add('kt-help-screen-open');}catch(e){}
+    try{if(window.ktStopPageMedia)window.ktStopPageMedia();}catch(e){}
+    try{
+      document.querySelectorAll('.kt-public-video,#homeVideo,#ktLibraryPlayer').forEach(function(v){
+        try{v.pause();v.muted=true;}catch(err){}
+      });
+    }catch(e){}
+  }
+
+  function leaveHelp(){
+    try{document.body.classList.remove('kt-help-screen-open');}catch(e){}
+  }
+
+  var oldMenu=window.openMenu;
+  if(typeof oldMenu==='function'&&!oldMenu.__ktHelpHideVideo){
+    var wrappedMenu=function(){
+      enterHelp();
+      return oldMenu.apply(this,arguments);
+    };
+    wrappedMenu.__ktHelpHideVideo=true;
+    window.openMenu=wrappedMenu;
+  }
+
+  var oldClose=window.closeSheet;
+  if(typeof oldClose==='function'&&!oldClose.__ktHelpHideVideo){
+    var wrappedClose=function(){
+      leaveHelp();
+      return oldClose.apply(this,arguments);
+    };
+    wrappedClose.__ktHelpHideVideo=true;
+    window.closeSheet=wrappedClose;
+  }
+
+  document.addEventListener('click',function(e){
+    var t=e.target;
+    if(!t||!t.closest)return;
+    var b=t.closest('[data-bottom]');
+    if(!b)return;
+    if(b.dataset.bottom==='help')enterHelp();
+    else leaveHelp();
+  },true);
+})();
