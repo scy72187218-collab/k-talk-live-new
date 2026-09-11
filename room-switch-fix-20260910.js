@@ -156,3 +156,13 @@
     +'#sheetBody #ktsoloChatInput + .act,#sheetBody #ktsubscriberChatInput + .act,#sheetBody #ktsecretChatInput + .act,#sheetBody #ktg13ChatInput + .act{display:inline-flex!important;vertical-align:top!important;width:86px!important;height:44px!important;margin:0 0 0 8px!important;padding:0 10px!important;align-items:center!important;justify-content:center!important;box-sizing:border-box!important;font-weight:950!important}';
   document.head.appendChild(st);
 })();
+
+/* 1인/13명/비밀방 오른쪽 좋아요·효과·보물상자·매치: 테두리만 제거. 다른 스타일/기능은 그대로. */
+(function(){
+  if(document.getElementById('ktRightActionBorderless20260911'))return;
+  var st=document.createElement('style');
+  st.id='ktRightActionBorderless20260911';
+  st.textContent=''
+    +'.ktsolo-right button,.ktg13-right-quick button,.ktsecret-right button{border:0!important}';
+  document.head.appendChild(st);
+})();
