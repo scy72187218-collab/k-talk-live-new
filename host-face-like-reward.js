@@ -171,7 +171,7 @@
 (function(){
   if(document.querySelector('script[data-kt-daily-spin]'))return;
   var s=document.createElement('script');
-  s.src='daily-spin-reward.js?v=20260911-spin1';
+  s.src='daily-spin-reward.js?v=20260911-spin2';
   s.async=false;
   s.setAttribute('data-kt-daily-spin','1');
   document.head.appendChild(s);
