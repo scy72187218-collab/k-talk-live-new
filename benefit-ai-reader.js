@@ -82,6 +82,11 @@
   var oldClose=window.closeSheet;
   if(typeof oldClose==='function'&&!oldClose.__ktHelpHideVideo){
     var wrappedClose=function(){
+      try{
+        var titleEl=document.getElementById('sheetTitle');
+        var title=titleEl?String(titleEl.textContent||''):'';
+        if(title.indexOf('혜택')>-1&&window.speechSynthesis)window.speechSynthesis.cancel();
+      }catch(e){}
       leaveHelp();
       return oldClose.apply(this,arguments);
     };
