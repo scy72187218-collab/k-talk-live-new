@@ -166,3 +166,51 @@
     +'.ktsolo-right button,.ktg13-right-quick button,.ktsecret-right button{border:0!important}';
   document.head.appendChild(st);
 })();
+
+/* 비밀방 하단만 정리: 수익은 선물줄 바로 위 오른쪽, 채팅은 왼쪽. 다른 방/기능은 변경하지 않음. */
+(function(){
+  if(window.__ktSecretBottomOnly20260911)return;
+  window.__ktSecretBottomOnly20260911=true;
+
+  function apply(){
+    var room=document.querySelector('.ktsecret-room');
+    if(!room)return;
+    var main=room.querySelector('.ktsecret-main');
+    var earn=room.querySelector('.ktsecret-earn-row');
+    var chat=room.querySelector('.ktsecret-chat');
+    if(!main||!earn)return;
+
+    if(earn.parentNode!==main)main.appendChild(earn);
+    earn.style.setProperty('position','absolute','important');
+    earn.style.setProperty('right','6px','important');
+    earn.style.setProperty('bottom','70px','important');
+    earn.style.setProperty('left','auto','important');
+    earn.style.setProperty('width','160px','important');
+    earn.style.setProperty('height','64px','important');
+    earn.style.setProperty('padding','0','important');
+    earn.style.setProperty('z-index','14','important');
+    earn.style.setProperty('display','flex','important');
+    earn.style.setProperty('align-items','flex-end','important');
+    earn.style.setProperty('justify-content','flex-end','important');
+
+    if(chat){
+      chat.style.setProperty('left','8px','important');
+      chat.style.setProperty('right','174px','important');
+      chat.style.setProperty('bottom','70px','important');
+    }
+  }
+
+  if(!document.getElementById('ktSecretBottomOnlyStyle20260911')){
+    var st=document.createElement('style');
+    st.id='ktSecretBottomOnlyStyle20260911';
+    st.textContent=''
+      +'.ktsecret-room .ktsecret-gifts{bottom:3px!important}'
+      +'@media(max-width:390px){.ktsecret-room .ktsecret-earn-row{right:5px!important;bottom:64px!important;width:145px!important;height:58px!important}.ktsecret-room .ktsecret-chat{right:154px!important;bottom:64px!important}.ktsecret-room .ktsecret-gifts{bottom:3px!important}}';
+    document.head.appendChild(st);
+  }
+
+  var ob=new MutationObserver(function(){apply();});
+  try{ob.observe(document.body,{childList:true,subtree:true});}catch(e){}
+  setTimeout(apply,0);
+  setTimeout(apply,120);
+})();
