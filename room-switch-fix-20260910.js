@@ -183,7 +183,7 @@
     if(earn.parentNode!==main)main.appendChild(earn);
     earn.style.setProperty('position','absolute','important');
     earn.style.setProperty('right','6px','important');
-    earn.style.setProperty('bottom','86px','important');
+    earn.style.setProperty('bottom','74px','important');
     earn.style.setProperty('left','auto','important');
     earn.style.setProperty('width','160px','important');
     earn.style.setProperty('height','64px','important');
@@ -218,7 +218,7 @@
     st.textContent=''
       +'.ktsecret-room .ktsecret-gifts{bottom:3px!important}'
       +'.ktsecret-room .ktsecret-earn-row #myEarnHud{position:static!important;inset:auto!important;transform:none!important}'
-      +'@media(max-width:390px){.ktsecret-room .ktsecret-earn-row{right:5px!important;bottom:80px!important;width:145px!important;height:58px!important}.ktsecret-room .ktsecret-chat{right:154px!important;bottom:64px!important}.ktsecret-room .ktsecret-gifts{bottom:3px!important}}';
+      +'@media(max-width:390px){.ktsecret-room .ktsecret-earn-row{right:5px!important;bottom:68px!important;width:145px!important;height:58px!important}.ktsecret-room .ktsecret-chat{right:154px!important;bottom:64px!important}.ktsecret-room .ktsecret-gifts{bottom:3px!important}}';
     document.head.appendChild(st);
   }
 
