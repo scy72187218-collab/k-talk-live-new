@@ -116,3 +116,13 @@
     return window.ktLevelUpCostForTarget(lv+1);
   };
 })();
+
+/* 구독 요금/혜택 규칙은 별도 파일만 불러온다. */
+(function(){
+  if(document.querySelector('script[data-kt-sub-tier-rules]'))return;
+  var s=document.createElement('script');
+  s.src='subscription-tier-rules.js?v=20260911-subtier1';
+  s.async=false;
+  s.setAttribute('data-kt-sub-tier-rules','1');
+  document.head.appendChild(s);
+})();
