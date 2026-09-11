@@ -30,7 +30,7 @@
     wave.removeAttribute('data-kt-voice-bars-v4');
     wave.style.removeProperty('--kt-wave-scale');
     wave.style.setProperty('--kt-wave-speed',speeds[index%speeds.length]);
-    wave.style.setProperty('--kt-wave-delay',delays[index%speeds.length]);
+    wave.style.setProperty('--kt-wave-delay',delays[index%delays.length]);
   }
 
   function apply(){
