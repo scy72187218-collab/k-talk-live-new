@@ -1,13 +1,13 @@
-/* K-Talk 파장만 수정: 13명방은 그대로 두고 1인/구독자/비밀방도 13명방 방식처럼 사람(카메라) 칸마다 파장 1개만 표시. 다른 UI/기능은 변경하지 않음. */
+/* K-Talk 파장만 수정: 13명방은 그대로 두고 1인/구독자방은 사람(카메라) 칸마다 파장 1개만, 비밀방은 6칸 전부 파장 1개씩 표시. 다른 UI/기능은 변경하지 않음. */
 (function(){
-  if(window.__ktMatchGroup13WaveV3)return;
-  window.__ktMatchGroup13WaveV3=true;
+  if(window.__ktMatchGroup13WaveV4)return;
+  window.__ktMatchGroup13WaveV4=true;
 
   function addStyle(){
-    var old=document.getElementById('ktMatchGroup13WaveV3Style');
+    var old=document.getElementById('ktMatchGroup13WaveV4Style');
     if(old)return;
     var s=document.createElement('style');
-    s.id='ktMatchGroup13WaveV3Style';
+    s.id='ktMatchGroup13WaveV4Style';
     s.textContent=`
       @keyframes ktMatch13WaveMove{0%{transform:scaleY(.52)}45%{transform:scaleY(.82)}100%{transform:scaleY(1)}}
 
@@ -101,7 +101,6 @@
     if(!tile)return false;
     var videos=tile.querySelectorAll('video');
     for(var i=0;i<videos.length;i++)if(liveVideo(videos[i]))return true;
-    /* 13명방처럼 실제 사람 사진이 들어온 게스트 칸도 열린 사람 칸으로 본다. */
     var photo=tile.querySelector('img.ktsecret-guest-photo,img.ktsubscriber-guest-photo,img[data-kt-live-person]');
     return !!(photo&&photo.getAttribute('src'));
   }
@@ -139,7 +138,8 @@
     /* 13명방은 손대지 않는다. */
     document.querySelectorAll('.ktsolo-room .ktsolo-main').forEach(function(tile){setOneWave(tile,tileHasPerson(tile),idx++);});
     document.querySelectorAll('.ktsubscriber-room .ktsubscriber-host,.ktsubscriber-room .ktsubscriber-guest').forEach(function(tile){setOneWave(tile,tileHasPerson(tile),idx++);});
-    document.querySelectorAll('.ktsecret-room .ktsecret-slot,.ktsecret-room .ktsecret-guest-slot').forEach(function(tile){setOneWave(tile,tileHasPerson(tile),idx++);});
+    /* 비밀방은 요청대로 6칸 전부 파장 1개씩 표시 */
+    document.querySelectorAll('.ktsecret-room .ktsecret-slot,.ktsecret-room .ktsecret-guest-slot').forEach(function(tile){setOneWave(tile,true,idx++);});
   }
 
   sync();
