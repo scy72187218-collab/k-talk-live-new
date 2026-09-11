@@ -132,3 +132,15 @@
     +'@media(max-width:390px){.ktsecret-room .ktsecret-six-grid{bottom:132px!important}}';
   document.head.appendChild(st);
 })();
+
+/* 2026-09-11 비밀방 채팅: 채팅 칸 배경 없이 카메라 화면 위에 글씨만 떠 보이게. 다른 UI는 변경하지 않음. */
+(function(){
+  if(document.getElementById('ktSecretFloatingChat20260911'))return;
+  var st=document.createElement('style');
+  st.id='ktSecretFloatingChat20260911';
+  st.textContent=''
+    +'.ktsecret-room .ktsecret-chat{background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:0 5px 5px!important;pointer-events:none!important}'
+    +'.ktsecret-room .ktsecret-chat:empty:before{background:transparent!important;text-shadow:0 1px 3px #000,0 0 5px #000!important}'
+    +'.ktsecret-room .ktsecret-chat-line{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;text-shadow:0 1px 3px #000,0 0 5px #000!important}';
+  document.head.appendChild(st);
+})();
