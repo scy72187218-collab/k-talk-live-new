@@ -1,4 +1,4 @@
-/* K-Talk: 첫 페이지 시작 안정화 + 홈 화면 아이콘 메타/진입 안내만 담당. 다른 기능은 건드리지 않음. */
+/* K-Talk: 첫 페이지 동영상 즉시 시작 + 홈 화면 아이콘 메타/진입 안내만 담당. 다른 기능은 건드리지 않음. */
 (function(){
   if(window.__ktFirstPageIconBootstrapInstalled)return;
   window.__ktFirstPageIconBootstrapInstalled=true;
@@ -20,20 +20,52 @@
   ensureLink('icon','/ktalk-icon.svg?v=20260910-icon2','ktShortcutIcon');
   ensureLink('apple-touch-icon','/ktalk-icon.svg?v=20260910-icon2','ktAppleTouchIcon');
 
-  function firstPageReady(){
+  var firstEntryOpened=false;
+
+  function wakeHomeVideo(){
+    var v=document.getElementById('homeVideo');
+    if(!v)return false;
     try{
-      var screen=document.getElementById('screen');
-      if(!screen)return true;
-      if(screen.children&&screen.children.length>0)return true;
-      return !!String(screen.innerHTML||'').trim();
-    }catch(e){return true;}
+      v.muted=true;
+      v.defaultMuted=true;
+      v.autoplay=true;
+      v.preload='auto';
+      v.setAttribute('muted','');
+      v.setAttribute('autoplay','');
+      v.setAttribute('playsinline','');
+      v.setAttribute('webkit-playsinline','');
+      if(v.readyState===0){try{v.load();}catch(e){}}
+      var p=v.play();
+      if(p&&p.catch)p.catch(function(){
+        setTimeout(function(){try{v.play().catch(function(){});}catch(e){}},180);
+      });
+      if(v.dataset.ktFirstVideoWake!=='1'){
+        v.dataset.ktFirstVideoWake='1';
+        v.addEventListener('loadeddata',function(){try{v.play().catch(function(){});}catch(e){}});
+        v.addEventListener('canplay',function(){try{v.play().catch(function(){});}catch(e){}});
+      }
+    }catch(e){}
+    return true;
   }
 
-  function openFirstPageIfBlank(){
-    if(firstPageReady())return;
+  function openFirstVideoPage(){
+    if(firstEntryOpened){wakeHomeVideo();return;}
+    if(typeof window.home!=='function'){
+      setTimeout(openFirstVideoPage,40);
+      return;
+    }
     try{
-      if(typeof window.home==='function')window.home();
-    }catch(e){}
+      firstEntryOpened=true;
+      window.home();
+    }catch(e){
+      firstEntryOpened=false;
+      setTimeout(openFirstVideoPage,60);
+      return;
+    }
+    setTimeout(wakeHomeVideo,0);
+    setTimeout(wakeHomeVideo,80);
+    setTimeout(wakeHomeVideo,320);
+    setTimeout(wakeHomeVideo,900);
   }
 
   function standalone(){
@@ -82,17 +114,23 @@
   }
 
   window.addEventListener('appinstalled',removeOffer);
+  window.addEventListener('pageshow',function(){setTimeout(wakeHomeVideo,30);});
+  window.addEventListener('focus',function(){setTimeout(wakeHomeVideo,30);});
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden)setTimeout(wakeHomeVideo,30);
+  });
 
+  setTimeout(openFirstVideoPage,0);
   if(document.readyState==='loading'){
     document.addEventListener('DOMContentLoaded',function(){
-      setTimeout(openFirstPageIfBlank,120);
+      setTimeout(openFirstVideoPage,0);
       setTimeout(showEntryIconOffer,120);
-      setTimeout(openFirstPageIfBlank,700);
+      setTimeout(wakeHomeVideo,500);
     },{once:true});
   }else{
-    setTimeout(openFirstPageIfBlank,120);
+    setTimeout(openFirstVideoPage,0);
     setTimeout(showEntryIconOffer,120);
-    setTimeout(openFirstPageIfBlank,700);
+    setTimeout(wakeHomeVideo,500);
   }
 })();
 
