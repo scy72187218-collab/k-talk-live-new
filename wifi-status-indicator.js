@@ -86,3 +86,13 @@
   s.setAttribute('data-kt-attendance-one-rose','1');
   document.head.appendChild(s);
 })();
+
+/* 처음 사용했던 실시간 접속 연결만 복구 */
+(function(){
+  if(document.querySelector('script[data-kt-live-presence-original]')||window.__ktLivePresenceInstalled)return;
+  var s=document.createElement('script');
+  s.src='live-presence.js?v=20260908-original';
+  s.async=false;
+  s.setAttribute('data-kt-live-presence-original','1');
+  document.head.appendChild(s);
+})();
