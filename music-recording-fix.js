@@ -32,7 +32,7 @@
   load('group9-approved-room.js?v=20260911-group9-2');
   load('group9-general-button.js?v=20260911-general9-3');
   load('secret-right-controls-fix.js?v=20260911-secret-right8');
-  load('subscriber-right-controls-fix.js?v=20260911-subscriber-right4');
+  load('subscriber-right-controls-fix.js?v=20260913-hostcam1');
   load('level-rules.js?v=20260913-level-open1');
   load('treasure-global-room.js?v=20260911-treasure1');
   load('message-recipient-picker.js?v=20260911-message1');
