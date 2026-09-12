@@ -42,6 +42,48 @@
       :'<span class="kt-feed-profile-circle kt-feed-profile-empty">👤</span><small>프로필</small>';
   }
 
+  function heartBurst(btn){
+    var host=btn&&btn.closest?btn.closest('.video-home,section'):null;
+    if(!host)host=document.getElementById('screen')||document.body;
+    try{
+      var r=btn.getBoundingClientRect();
+      var hr=host.getBoundingClientRect?host.getBoundingClientRect():{left:0,top:0};
+      for(var i=0;i<4;i++){
+        (function(n){
+          var h=document.createElement('span');
+          h.className='kt-feed-heart-float';
+          h.textContent=n%2?'💗':'♥';
+          h.style.left=Math.max(8,(r.left-hr.left)+(r.width/2)-12+(n-1.5)*7)+'px';
+          h.style.top=Math.max(60,(r.top-hr.top)-4)+'px';
+          h.style.animationDelay=(n*55)+'ms';
+          host.appendChild(h);
+          setTimeout(function(){if(h&&h.parentNode)h.remove();},1250+n*55);
+        })(i);
+      }
+    }catch(e){}
+  }
+
+  function installLike(btn){
+    if(!btn||btn.classList.contains('kt-feed-profile-button'))return;
+    var text=String(btn.textContent||'').replace(/\s+/g,'');
+    var aria=String(btn.getAttribute('aria-label')||'');
+    if(text.indexOf('좋아요')<0&&aria.indexOf('좋아요')<0)return;
+    if(btn.dataset.ktLikeFixed==='1')return;
+    btn.dataset.ktLikeFixed='1';
+    btn.setAttribute('aria-label','좋아요');
+    btn.onclick=function(e){
+      try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(err){}
+      heartBurst(btn);
+      btn.classList.add('kt-liked-now');
+      var small=btn.querySelector('small');
+      if(small)small.textContent='좋아요';
+      var icon=btn.firstChild;
+      if(icon&&icon.nodeType===3)icon.nodeValue='♥';
+      setTimeout(function(){btn.classList.remove('kt-liked-now');},260);
+      return false;
+    };
+  }
+
   function decorate(box){
     if(!box)return;
     var b=box.querySelector('.kt-feed-profile-button');
@@ -64,6 +106,7 @@
       b.setAttribute('data-photo-src',src);
       b.innerHTML=profileHtml(src);
     }
+    [].slice.call(box.querySelectorAll('button')).forEach(installLike);
   }
 
   function run(){
@@ -81,6 +124,10 @@
       +'.vh-actions .kt-feed-profile-circle{display:flex!important;width:48px!important;height:48px!important;border-radius:50%!important;overflow:hidden!important;align-items:center!important;justify-content:center!important;border:2px solid #fff!important;background:#222!important;font-size:28px!important;box-sizing:border-box!important;box-shadow:0 2px 8px rgba(0,0,0,.45)!important}'
       +'.vh-actions .kt-feed-profile-circle img{width:100%!important;height:100%!important;object-fit:cover!important;object-position:center!important;display:block!important}'
       +'.vh-actions .kt-feed-profile-button small{display:block!important;margin-top:3px!important;font-size:10px!important;font-weight:850!important;color:#fff!important}'
+      +'.vh-actions>button.kt-liked-now{transform:scale(1.18)!important;color:#ff4f9c!important}'
+      +'.video-home,.kt-video-mode #screen section{position:relative!important}'
+      +'.kt-feed-heart-float{position:absolute!important;z-index:80!important;pointer-events:none!important;font-size:30px!important;line-height:1!important;color:#ff4f9c!important;text-shadow:0 0 9px #ff4f9c,0 2px 4px #000!important;animation:ktFeedHeartUp 1.05s ease-out forwards!important}'
+      +'@keyframes ktFeedHeartUp{0%{opacity:0;transform:translateY(10px) scale(.65) rotate(-8deg)}18%{opacity:1}100%{opacity:0;transform:translateY(-145px) scale(1.35) rotate(8deg)}}'
       +'@media(max-width:390px){.vh-actions{right:8px!important;bottom:98px!important;gap:10px!important}.vh-actions .kt-feed-profile-circle{width:44px!important;height:44px!important}.vh-actions>button:not(.kt-feed-profile-button){font-size:28px!important}}';
     document.head.appendChild(st);
   }
