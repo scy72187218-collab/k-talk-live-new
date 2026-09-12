@@ -104,3 +104,76 @@
   window.addEventListener('focus',function(){unlock(document);});
   [0,100,300,800,1600,3000].forEach(function(ms){setTimeout(function(){installStyle();unlock(document);},ms);});
 })();
+
+/* 라이브 준비 화면의 방 선택 스위치와 라이브 시작 버튼 터치만 보강. 다른 기능/UI는 변경하지 않음. */
+(function(){
+  if(window.__ktRoomSwitchTouchOnlyInstalled)return;
+  window.__ktRoomSwitchTouchOnlyInstalled=true;
+
+  function addStyle(){
+    if(document.getElementById('ktRoomSwitchTouchOnlyStyle'))return;
+    var s=document.createElement('style');
+    s.id='ktRoomSwitchTouchOnlyStyle';
+    s.textContent=''
+      +'.live-prep .room-switch-row{position:relative!important;z-index:30!important;pointer-events:auto!important}'
+      +'.live-prep .room-switch,.live-prep .prep-start{position:relative!important;z-index:31!important;pointer-events:auto!important;touch-action:manipulation!important;-webkit-user-select:none!important;user-select:none!important}';
+    document.head.appendChild(s);
+  }
+
+  function spec(btn){
+    var t=String((btn&&btn.textContent)||'').replace(/\s+/g,'');
+    if(t.indexOf('1인')>-1)return {type:'solo',name:'1인 방송',max:1};
+    if(t.indexOf('9명')>-1)return {type:'group9',name:'9명 방송',max:9};
+    if(t.indexOf('13명')>-1)return {type:'group',name:'13명 방송',max:13};
+    if(t.indexOf('15명')>-1)return {type:'group15',name:'15명 방송',max:15};
+    if(t.indexOf('구독자')>-1)return {type:'subscriber',name:'구독자 방송',max:10};
+    if(t.indexOf('비밀')>-1)return {type:'password',name:'비밀방',max:7};
+    return null;
+  }
+
+  function select(btn){
+    var x=spec(btn);
+    if(!x)return;
+    try{
+      if(window.state){
+        state.liveRoomType=x.type;
+        state.liveRoomName=x.name;
+        state.liveRoomMax=x.max;
+      }
+      document.querySelectorAll('.live-prep .room-switch').forEach(function(b){
+        var on=b===btn;
+        b.classList.toggle('on',on);
+        b.setAttribute('aria-pressed',on?'true':'false');
+      });
+      var title=document.getElementById('liveTitle');
+      if(title){title.value=x.name;title.dataset.autoRoom='1';}
+      var pw=document.getElementById('ktSecretPasswordBox');
+      if(pw){
+        if(x.type==='password'){pw.style.removeProperty('display');pw.classList.add('on');}
+        else{pw.classList.remove('on');pw.style.setProperty('display','none','important');}
+      }
+    }catch(e){}
+  }
+
+  function hit(e){
+    var b=e.target&&e.target.closest?e.target.closest('.live-prep .room-switch'):null;
+    if(b)select(b);
+  }
+
+  document.addEventListener('pointerdown',hit,true);
+  document.addEventListener('click',hit,true);
+
+  function refresh(){
+    addStyle();
+    document.querySelectorAll('.live-prep .room-switch,.live-prep .prep-start').forEach(function(b){
+      try{b.style.setProperty('pointer-events','auto','important');b.style.setProperty('touch-action','manipulation','important');}catch(e){}
+    });
+  }
+
+  refresh();
+  [80,220,500,1000,1800].forEach(function(ms){setTimeout(refresh,ms);});
+  try{
+    var mo=new MutationObserver(function(){clearTimeout(window.__ktRoomSwitchTouchOnlyTimer);window.__ktRoomSwitchTouchOnlyTimer=setTimeout(refresh,25);});
+    mo.observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+})();
