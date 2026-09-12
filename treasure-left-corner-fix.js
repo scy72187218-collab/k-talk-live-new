@@ -1,4 +1,4 @@
-/* K-Talk 보물상자 표시 위치만 수정: 활성 보물상자는 호스트 영상 왼쪽 위 구석에 표시. 기존 보물상자 버튼/기능은 그대로 유지. */
+/* K-Talk 보물상자 표시 위치 유지 + 9명 방에서만 호스트 길이 축소. 다른 방은 변경하지 않음. */
 (function(){
   if(window.__ktTreasureLeftCornerFixInstalled)return;
   window.__ktTreasureLeftCornerFixInstalled=true;
@@ -14,18 +14,59 @@
     document.head.appendChild(s);
   }
 
-  function ensureNineRoomCompactStyle(){
-    if(document.getElementById('ktNineRoomCompactGridStyle'))return;
-    var s=document.createElement('style');
-    s.id='ktNineRoomCompactGridStyle';
-    s.textContent=''
-      +'.ktg13-room[data-kt-room="9"] .ktg13-main{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:repeat(3,minmax(0,1fr))!important;gap:2px!important}'
-      +'.ktg13-room[data-kt-room="9"] .ktg13-host{grid-column:1!important;grid-row:1!important;min-width:0!important;min-height:0!important}'
-      +'.ktg13-room[data-kt-room="9"] .ktg13-guests{display:contents!important}'
-      +'.ktg13-room[data-kt-room="9"] .ktg13-guest{min-width:0!important;min-height:0!important;font-size:12px!important}'
-      +'#screen .ktg13-room[data-kt-room="9"] .ktg13-host>video{width:100%!important;height:100%!important;left:0!important;top:0!important;position:absolute!important;object-fit:cover!important;object-position:center!important}'
-      +'@media(max-width:390px){.ktg13-room[data-kt-room="9"] .ktg13-guest{font-size:10px!important}}';
-    document.head.appendChild(s);
+  function isNineRoom(){
+    try{
+      var room=document.querySelector('.ktg13-room');
+      if(room&&room.getAttribute('data-kt-room')==='9')return true;
+      var t=(window.state&&state.liveRoomType)||'';
+      var n=(window.state&&state.liveRoomName)||'';
+      return t==='group9'||n==='9명 방송';
+    }catch(e){return false;}
+  }
+
+  function compactNineRoom(){
+    if(!isNineRoom())return;
+    var room=document.querySelector('.ktg13-room');
+    if(!room)return;
+    room.setAttribute('data-kt-room','9');
+
+    var main=room.querySelector('.ktg13-main');
+    var host=room.querySelector('.ktg13-host');
+    var guests=room.querySelector('.ktg13-guests');
+    if(!main||!host||!guests)return;
+
+    main.style.setProperty('display','grid','important');
+    main.style.setProperty('grid-template-columns','repeat(3,minmax(0,1fr))','important');
+    main.style.setProperty('grid-template-rows','repeat(3,minmax(0,1fr))','important');
+    main.style.setProperty('gap','2px','important');
+
+    host.style.setProperty('grid-column','1','important');
+    host.style.setProperty('grid-row','1','important');
+    host.style.setProperty('min-width','0','important');
+    host.style.setProperty('min-height','0','important');
+    host.style.setProperty('height','auto','important');
+
+    guests.style.setProperty('display','contents','important');
+    guests.style.setProperty('grid-column','auto','important');
+    guests.style.setProperty('grid-row','auto','important');
+
+    var cells=[].slice.call(room.querySelectorAll('.ktg13-guests > .ktg13-guest'));
+    cells.slice(8).forEach(function(g){try{g.remove();}catch(e){}});
+    cells.slice(0,8).forEach(function(g){
+      g.style.setProperty('min-width','0','important');
+      g.style.setProperty('min-height','0','important');
+      g.style.setProperty('height','auto','important');
+    });
+
+    var v=host.querySelector('video');
+    if(v){
+      v.style.setProperty('position','absolute','important');
+      v.style.setProperty('left','0','important');
+      v.style.setProperty('top','0','important');
+      v.style.setProperty('width','100%','important');
+      v.style.setProperty('height','100%','important');
+      v.style.setProperty('object-fit','cover','important');
+    }
   }
 
   function moveFallback(){
@@ -48,7 +89,7 @@
     }
   }
 
-  function apply(){ensureStyle();ensureNineRoomCompactStyle();moveGlobal();moveFallback();}
+  function apply(){ensureStyle();compactNineRoom();moveGlobal();moveFallback();}
   apply();
   setTimeout(apply,80);
   setTimeout(apply,300);
