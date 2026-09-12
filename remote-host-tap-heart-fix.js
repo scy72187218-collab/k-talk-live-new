@@ -104,3 +104,13 @@
   setTimeout(prepareVideos,1200);
   setInterval(prepareVideos,2500);
 })();
+
+/* 추천 동영상 사이에 실제 방송 중 LIVE를 섞어 보여주는 연결 */
+(function(){
+  if(document.querySelector('script[data-kt-live-feed-bootstrap]'))return;
+  var s=document.createElement('script');
+  s.src='live-feed-bootstrap.js?v=20260912-livefeed1';
+  s.async=false;
+  s.setAttribute('data-kt-live-feed-bootstrap','1');
+  document.head.appendChild(s);
+})();
