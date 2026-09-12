@@ -229,3 +229,13 @@
     mo.observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 })();
+
+/* 9명 방만: 저장해 둔 자리 이동/배치 복구 파일 로드 */
+(function(){
+  if(document.querySelector('script[data-kt-nine-saved-restore]'))return;
+  var s=document.createElement('script');
+  s.src='nine-room-saved-restore.js?v=20260912-1';
+  s.async=false;
+  s.setAttribute('data-kt-nine-saved-restore','1');
+  document.head.appendChild(s);
+})();
