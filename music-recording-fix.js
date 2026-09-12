@@ -31,6 +31,7 @@
   load('room-person-layout-no-number.js?v=20260911-nonumber3');
   load('group9-approved-room.js?v=20260911-group9-2');
   load('group9-general-button.js?v=20260911-general9-3');
+  load('group9-13-camera-buttons.js?v=20260913-camera-all1');
   load('secret-right-controls-fix.js?v=20260911-secret-right8');
   load('subscriber-right-controls-fix.js?v=20260913-hostcam1');
   load('level-rules.js?v=20260913-level-open1');
