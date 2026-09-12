@@ -176,3 +176,21 @@
   s.setAttribute('data-kt-daily-spin','1');
   document.head.appendChild(s);
 })();
+
+/* 방송목록 실시간 표시 연결만 보강. 다른 화면/기능은 변경하지 않음. */
+(function(){
+  if(!document.querySelector('script[data-kt-live-presence]')){
+    var s=document.createElement('script');
+    s.src='live-presence.js?v=20260913-list1';
+    s.async=false;
+    s.setAttribute('data-kt-live-presence','1');
+    document.head.appendChild(s);
+  }
+  if(!document.querySelector('script[data-kt-live-presence-watchdog]')){
+    var w=document.createElement('script');
+    w.src='live-presence-watchdog.js?v=20260913-list1';
+    w.async=false;
+    w.setAttribute('data-kt-live-presence-watchdog','1');
+    document.head.appendChild(w);
+  }
+})();
