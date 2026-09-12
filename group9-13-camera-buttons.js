@@ -122,3 +122,13 @@
     mo.observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 })();
+
+/* 위 방송방 카메라 파일이 불러와질 때, 네 방의 카메라+마이크 안쪽 배치 전용 파일만 함께 불러온다. */
+(function(){
+  if(document.querySelector('script[data-kt-inside-av="1"]'))return;
+  var s=document.createElement('script');
+  s.src='room-inside-camera-mic.js?v=20260913-inside1';
+  s.async=false;
+  s.setAttribute('data-kt-inside-av','1');
+  document.head.appendChild(s);
+})();
