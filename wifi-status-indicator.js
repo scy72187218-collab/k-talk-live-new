@@ -36,13 +36,3 @@
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',show,{once:true});
   else show();
 })();
-
-/* 13명방·구독자방·비밀방에 간단한 자리 이동 버튼만 연결 */
-(function(){
-  if(document.querySelector('script[data-kt-simple-seat-layout-three]'))return;
-  var s=document.createElement('script');
-  s.src='room-seat-layout-simple.js?v=20260912-seat1';
-  s.async=false;
-  s.setAttribute('data-kt-simple-seat-layout-three','1');
-  document.head.appendChild(s);
-})();
