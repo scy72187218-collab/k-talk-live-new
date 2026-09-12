@@ -37,3 +37,31 @@
   var observer=new MutationObserver(function(){dedupe();});
   observer.observe(document.documentElement,{childList:true,subtree:true});
 })();
+
+/* 방송방 출석체크는 안내창을 열지 않고 장미 1송이 지급만 실행한다. */
+(function(){
+  if(window.__ktAttendanceDirectRoseNoPopupInstalled)return;
+  window.__ktAttendanceDirectRoseNoPopupInstalled=true;
+
+  var selector='.ktsolo-att,.ktg13-attend,.ktsubscriber-att,.ktsecret-att';
+
+  function fixAttendanceButtons(){
+    try{
+      document.querySelectorAll(selector).forEach(function(btn){
+        if(btn.dataset.ktAttendanceDirectRose==='1')return;
+        btn.dataset.ktAttendanceDirectRose='1';
+        btn.removeAttribute('onclick');
+        btn.onclick=function(ev){
+          if(ev)ev.preventDefault();
+          return false;
+        };
+      });
+    }catch(e){}
+  }
+
+  fixAttendanceButtons();
+  [40,120,300,700,1200].forEach(function(ms){setTimeout(fixAttendanceButtons,ms);});
+  try{
+    new MutationObserver(function(){fixAttendanceButtons();}).observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+})();
