@@ -77,7 +77,7 @@
   }
 
   async function publishIfNeeded(){
-    if(publishing||!liveRoomVisible()||!liveStream())return;
+    if(publishing||!liveRoomVisible())return;
     publishing=true;
     var id=hostId(),stamp=now();
     try{
@@ -98,7 +98,7 @@
   }
 
   async function heartbeat(){
-    if(liveRoomVisible()&&liveStream()){
+    if(liveRoomVisible()){
       misses=0;
       if(!roomId){await publishIfNeeded();return;}
       try{await req('ktalk_live_rooms?id=eq.'+enc(roomId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:true,updated_at:now()})});}catch(e){roomId='';}
