@@ -1,4 +1,4 @@
-/* K-Talk 레벨 규칙 + 태권이·하이네 계정 레벨 1000. 방 입장 기준은 13명방 20, 15명방 35로 잠금. */
+/* K-Talk 레벨 규칙. 현재 방 생성/입장 레벨 제한은 임시 해제. 다른 레벨 표시·비용 규칙은 그대로 유지. */
 (function(){
   if(window.__ktLevelCostRulesInstalled)return;
   window.__ktLevelCostRulesInstalled=true;
@@ -71,21 +71,13 @@
     return isFinite(lv)&&lv>0?lv:1;
   };
 
-  /* 방 생성 기준도 동일: 13명방 20+, 15명방 35+. */
+  /* 임시 해제: 레벨과 관계없이 모든 방 생성 가능. */
   window.ktCanCreateRoomByLevel=function(roomType,level){
-    var lv=window.ktEffectiveLevel(level);
-    var t=String(roomType||'').toLowerCase();
-    if(t.indexOf('15')>-1||t==='group15')return lv>=35;
-    if(t.indexOf('13')>-1||t==='group13')return lv>=20;
     return true;
   };
 
-  /* 방 입장 기준 다시 잠금: 구독 여부와 상관없이 레벨 기준 적용. */
+  /* 임시 해제: 레벨과 관계없이 모든 방 입장 가능. */
   window.ktCanEnterRoomByLevel=function(roomType,level,isSubscriber){
-    var lv=window.ktEffectiveLevel(level);
-    var t=String(roomType||'').toLowerCase();
-    if(t.indexOf('15')>-1||t==='group15')return lv>=35;
-    if(t.indexOf('13')>-1||t==='group13')return lv>=20;
     return true;
   };
 
