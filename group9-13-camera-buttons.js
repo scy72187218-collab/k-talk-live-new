@@ -1,4 +1,4 @@
-/* 9명방·13명방 전용: 호스트와 모든 게스트 칸에 카메라 버튼만 추가. 다른 방/UI/기능은 변경하지 않음. */
+/* 13명방의 기존 카메라 버튼은 유지하고, 9명방은 사진(칸) 탭 방식의 카메라+마이크만 사용. */
 (function(){
   if(window.__ktGroup913CameraButtonsInstalled)return;
   window.__ktGroup913CameraButtonsInstalled=true;
@@ -6,13 +6,12 @@
   function isTargetRoom(room){
     if(!room)return false;
     var kind=String(room.getAttribute('data-kt-room')||'');
-    if(kind==='15')return false;
-    if(kind==='9')return true;
+    if(kind==='9'||kind==='15')return false;
     try{
       var t=String((window.state&&state.liveRoomType)||'');
       var n=String((window.state&&state.liveRoomName)||'');
       return t==='group'||t==='group13'||n==='13명 방송';
-    }catch(e){return kind!=='15';}
+    }catch(e){return false;}
   }
 
   function ensureStyle(){
@@ -24,6 +23,7 @@
       +'.ktg13-room .kt-913-camera{position:absolute!important;left:4px!important;bottom:4px!important;z-index:32!important;width:26px!important;height:26px!important;min-width:26px!important;min-height:26px!important;padding:0!important;margin:0!important;border:1px solid rgba(255,255,255,.50)!important;border-radius:50%!important;background:rgba(8,8,12,.84)!important;color:#fff!important;display:grid!important;place-items:center!important;font-size:13px!important;line-height:1!important;box-shadow:0 1px 5px rgba(0,0,0,.48)!important;touch-action:manipulation!important}'
       +'.ktg13-room .kt-913-camera.locked{background:rgba(112,18,32,.90)!important}'
       +'.ktg13-room .ktg13-host>.ktg13-camera-toggle{display:none!important}'
+      +'.ktg13-room[data-kt-room="9"] .kt-913-camera{display:none!important}'
       +'@media(max-width:390px){.ktg13-room .kt-913-camera{left:3px!important;bottom:3px!important;width:23px!important;height:23px!important;min-width:23px!important;min-height:23px!important;font-size:11px!important}}';
     document.head.appendChild(s);
   }
@@ -105,6 +105,12 @@
 
   function install(){
     var room=document.querySelector('.ktg13-room');
+    if(!room)return;
+    var kind=String(room.getAttribute('data-kt-room')||'');
+    if(kind==='9'){
+      room.querySelectorAll('.kt-913-camera').forEach(function(b){try{b.remove();}catch(e){}});
+      return;
+    }
     if(!isTargetRoom(room))return;
     ensureStyle();
     addToTile(room.querySelector('.ktg13-host'));
@@ -123,12 +129,36 @@
   }catch(e){}
 })();
 
-/* 위 방송방 카메라 파일이 불러와질 때, 네 방의 카메라+마이크 안쪽 배치 전용 파일만 함께 불러온다. */
+/* 9명방을 포함한 방송칸 안쪽 카메라+마이크: 사람 사진/칸을 눌렀을 때만 표시. */
 (function(){
   if(document.querySelector('script[data-kt-inside-av="1"]'))return;
   var s=document.createElement('script');
-  s.src='room-inside-camera-mic.js?v=20260913-inside1';
+  s.src='room-inside-camera-mic.js?v=20260913-inside2';
   s.async=false;
   s.setAttribute('data-kt-inside-av','1');
   document.head.appendChild(s);
+})();
+
+/* 비밀방 선택 시 기존 비밀번호/입장 연결을 반드시 거치게 한다. 다른 방 선택은 건드리지 않음. */
+(function(){
+  if(window.__ktSecretRoomSelectBridgeInstalled)return;
+  window.__ktSecretRoomSelectBridgeInstalled=true;
+
+  function bridge(e){
+    var b=e.target&&e.target.closest?e.target.closest('.live-prep .room-switch'):null;
+    if(!b)return;
+    var text=String(b.textContent||'').replace(/\s+/g,'');
+    if(text.indexOf('비밀')<0)return;
+    try{
+      if(typeof window.selectPrepRoom==='function'){
+        window.selectPrepRoom(b,'password','비밀방',7);
+      }else if(window.state){
+        state.liveRoomType='password';
+        state.liveRoomName='비밀방';
+        state.liveRoomMax=7;
+      }
+    }catch(err){}
+  }
+
+  document.addEventListener('pointerdown',bridge,true);
 })();
