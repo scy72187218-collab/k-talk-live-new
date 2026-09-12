@@ -11,7 +11,7 @@
 
   async function ensureKey(){
     if(KEY)return KEY;
-    var r=await fetch('live-presence.js?v=20260910-live1',{cache:'no-store'});
+    var r=await fetch('live-presence.js?v=20260913-list1',{cache:'no-store'});
     if(!r.ok)throw new Error('live config');
     var t=await r.text();
     var m=t.match(/var KEY='([^']+)'/);
@@ -54,11 +54,33 @@
     }catch(e){}
     return false;
   }
+  function group9Open(){
+    try{
+      var t=String((window.state&&state.liveRoomType)||'');
+      var n=String((window.state&&state.liveRoomName)||'');
+      if(t==='group9'||n==='9명 방송'){
+        if(document.querySelector('.ktg13-room[data-kt-room="9"],.ktg13-room,#ktLiveVideo'))return true;
+      }
+    }catch(e){}
+    try{
+      if(document.querySelector('.ktg13-room[data-kt-room="9"]'))return true;
+      var air=document.querySelector('.ktg13-air strong');
+      if(air&&String(air.textContent||'').indexOf('9명 방송')>-1)return true;
+    }catch(e){}
+    return false;
+  }
   function liveRoomVisible(){
+    if(group9Open())return true;
     return !!document.querySelector('.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room,#ktLiveVideo');
   }
   function roomInfo(){
     var type='solo',name='1인 방송',title='';
+    if(group9Open()){
+      type='group9';name='9명 방송';
+      try{var n=document.getElementById('liveTitle');title=n?String(n.value||'').trim():'';}catch(e){}
+      if(!title||title==='오늘 라이브 제목을 입력하세요'||title==='13명 방송')title='9명 방송';
+      return {type:type,name:name,title:title};
+    }
     try{type=String((window.state&&state.liveRoomType)||'solo');name=String((window.state&&state.liveRoomName)||'1인 방송');}catch(e){}
     if(type==='group')type='group13';
     try{var t=document.getElementById('liveTitle');title=t?String(t.value||'').trim():'';}catch(e){}
@@ -84,7 +106,8 @@
       var rows=await req('ktalk_live_rooms?select=id,active,updated_at&host_id=eq.'+enc(id)+'&active=eq.true&order=started_at.desc&limit=1');
       if(rows&&rows[0]){
         roomId=rows[0].id;
-        await req('ktalk_live_rooms?id=eq.'+enc(roomId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:true,updated_at:stamp})});
+        var inf=roomInfo();
+        await req('ktalk_live_rooms?id=eq.'+enc(roomId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:true,room_type:inf.type,room_name:inf.name,title:inf.title,updated_at:stamp})});
       }else{
         var r=roomInfo(),p=profile();
         await req('ktalk_live_rooms?host_id=eq.'+enc(id)+'&active=eq.true',{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:stamp})});
@@ -93,7 +116,10 @@
       }
       misses=0;
       refreshViews();
-    }catch(e){}
+    }catch(e){
+      roomId='';
+      try{window.__ktLiveWatchdogLastError=String(e&&e.message||e);}catch(_){}
+    }
     publishing=false;
   }
 
@@ -101,7 +127,10 @@
     if(liveRoomVisible()){
       misses=0;
       if(!roomId){await publishIfNeeded();return;}
-      try{await req('ktalk_live_rooms?id=eq.'+enc(roomId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:true,updated_at:now()})});}catch(e){roomId='';}
+      try{
+        var inf=roomInfo();
+        await req('ktalk_live_rooms?id=eq.'+enc(roomId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:true,room_type:inf.type,room_name:inf.name,title:inf.title,updated_at:now()})});
+      }catch(e){roomId='';}
       return;
     }
     if(!roomId)return;
@@ -112,11 +141,12 @@
     refreshViews();
   }
 
-  document.addEventListener('click',function(){setTimeout(publishIfNeeded,900);},true);
-  var mo=new MutationObserver(function(){setTimeout(publishIfNeeded,250);});
-  try{mo.observe(document.getElementById('screen')||document.body,{childList:true,subtree:true});}catch(e){}
-  setInterval(heartbeat,3000);
-  setTimeout(publishIfNeeded,1000);
+  document.addEventListener('click',function(){setTimeout(publishIfNeeded,650);},true);
+  var mo=new MutationObserver(function(){setTimeout(publishIfNeeded,180);});
+  try{mo.observe(document.getElementById('screen')||document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['data-kt-room']});}catch(e){}
+  setInterval(heartbeat,2500);
+  setTimeout(publishIfNeeded,700);
+  setTimeout(publishIfNeeded,1800);
 
   window.addEventListener('pagehide',function(){
     if(!roomId)return;
