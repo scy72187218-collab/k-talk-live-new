@@ -9,22 +9,31 @@
 
   function applyEarningsCopy(){
     if(!isTargetRoom())return;
+
+    var subscriberRoom=!!document.querySelector('.ktsubscriber-room');
     var hud=document.getElementById('myEarnHud');
+    if(!hud&&subscriberRoom)hud=document.getElementById('ktSubscriberEarnHud');
     if(!hud||hud.getAttribute('data-kt-earnings-copy')==='1')return;
 
-    var netEl=document.getElementById('hudEarnNet');
-    var rosesEl=document.getElementById('hudEarnRoses');
+    var netEl=document.getElementById('hudEarnNet')||document.getElementById('ktSubscriberEarnNet');
+    var rosesEl=document.getElementById('hudEarnRoses')||document.getElementById('ktSubscriberEarnRoses');
     var net=netEl?netEl.textContent:'0원';
     var roses=rosesEl?rosesEl.textContent:'🌹 0송이';
+
+    var isSubscriberHud=hud.id==='ktSubscriberEarnHud';
+    var netId=isSubscriberHud?'ktSubscriberEarnNet':'hudEarnNet';
+    var detailId=isSubscriberHud?'ktSubscriberEarnDetail':'myEarnDetail';
+    var rosesId=isSubscriberHud?'ktSubscriberEarnRoses':'hudEarnRoses';
+    var rateId=isSubscriberHud?'ktSubscriberEarnRate':'hudEarnRate';
 
     hud.innerHTML=''
       +'<div style="display:flex;align-items:center;justify-content:center;gap:4px">'
         +'<span style="font-size:8px;color:#8fe8ff;font-weight:950;white-space:nowrap">🔒 내 수익 · 본인만 표시</span>'
-        +'<b id="hudEarnNet" style="font-size:12px;color:#ffe071;white-space:nowrap">'+net+'</b>'
+        +'<b id="'+netId+'" style="font-size:12px;color:#ffe071;white-space:nowrap">'+net+'</b>'
       +'</div>'
-      +'<div id="myEarnDetail" style="display:grid;grid-template-columns:1fr auto;gap:1px 4px;margin-top:1px;font-size:7px;color:#ddd;line-height:1.15">'
-        +'<span id="hudEarnRoses">'+roses+'</span>'
-        +'<span id="hudEarnRate" style="text-align:right;white-space:nowrap">일반회원 35%</span>'
+      +'<div id="'+detailId+'" style="display:grid;grid-template-columns:1fr auto;gap:1px 4px;margin-top:1px;font-size:7px;color:#ddd;line-height:1.15">'
+        +'<span id="'+rosesId+'">'+roses+'</span>'
+        +'<span id="'+rateId+'" style="text-align:right;white-space:nowrap">일반회원 35%</span>'
         +'<span style="grid-column:1/-1;text-align:right;white-space:nowrap">구독자회원 40% · 소속사 65%</span>'
         +'<span style="grid-column:1/-1;text-align:right;color:#ffe071;white-space:nowrap">소속사 가입은 소속사가 결정</span>'
       +'</div>';

@@ -121,3 +121,209 @@
     selectRoom(btn);
   },true);
 })();
+
+/* 2026-09-11 비밀방: 호스트·게스트 칸만 위쪽에 보이도록 정리. 다른 UI는 변경하지 않음. */
+(function(){
+  if(document.getElementById('ktSecretGuestLift20260911'))return;
+  var st=document.createElement('style');
+  st.id='ktSecretGuestLift20260911';
+  st.textContent=''
+    +'.ktsecret-room .ktsecret-six-grid{top:0!important;right:0!important;bottom:145px!important;left:0!important}'
+    +'@media(max-width:390px){.ktsecret-room .ktsecret-six-grid{bottom:132px!important}}';
+  document.head.appendChild(st);
+})();
+
+/* 2026-09-11 비밀방 채팅: 채팅 칸 배경 없이 카메라 화면 위에 글씨만 떠 보이게. 다른 UI는 변경하지 않음. */
+(function(){
+  if(document.getElementById('ktSecretFloatingChat20260911'))return;
+  var st=document.createElement('style');
+  st.id='ktSecretFloatingChat20260911';
+  st.textContent=''
+    +'.ktsecret-room .ktsecret-chat{background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:0 5px 5px!important;pointer-events:none!important}'
+    +'.ktsecret-room .ktsecret-chat:empty:before{background:transparent!important;text-shadow:0 1px 3px #000,0 0 5px #000!important}'
+    +'.ktsecret-room .ktsecret-chat-line{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;text-shadow:0 1px 3px #000,0 0 5px #000!important}';
+  document.head.appendChild(st);
+})();
+
+/* 4개 방송방 채팅 입력: 글 입력칸 바로 오른쪽에 '보내기' 버튼을 붙인다. */
+(function(){
+  if(window.__ktChatSendInlineInstalled)return;
+  window.__ktChatSendInlineInstalled=true;
+  var st=document.createElement('style');
+  st.id='ktChatSendInlineStyle';
+  st.textContent=''
+    +'#sheetBody #ktsoloChatInput,#sheetBody #ktsubscriberChatInput,#sheetBody #ktsecretChatInput,#sheetBody #ktg13ChatInput{display:inline-block!important;vertical-align:top!important;width:calc(100% - 94px)!important;height:44px!important;margin:0!important;box-sizing:border-box!important}'
+    +'#sheetBody #ktsoloChatInput + .act,#sheetBody #ktsubscriberChatInput + .act,#sheetBody #ktsecretChatInput + .act,#sheetBody #ktg13ChatInput + .act{display:inline-flex!important;vertical-align:top!important;width:86px!important;height:44px!important;margin:0 0 0 8px!important;padding:0 10px!important;align-items:center!important;justify-content:center!important;box-sizing:border-box!important;font-weight:950!important}';
+  document.head.appendChild(st);
+})();
+
+/* 1인/13명/비밀방 오른쪽 좋아요·효과·보물상자·매치: 테두리만 제거. 다른 스타일/기능은 그대로. */
+(function(){
+  if(document.getElementById('ktRightActionBorderless20260911'))return;
+  var st=document.createElement('style');
+  st.id='ktRightActionBorderless20260911';
+  st.textContent=''
+    +'.ktsolo-right button,.ktg13-right-quick button,.ktsecret-right button{border:0!important}';
+  document.head.appendChild(st);
+})();
+
+/* 비밀방 하단만 정리: 수익은 파형 바로 위 오른쪽, 채팅은 왼쪽. 다른 방/기능은 변경하지 않음. */
+(function(){
+  if(window.__ktSecretBottomOnly20260911)return;
+  window.__ktSecretBottomOnly20260911=true;
+
+  function apply(){
+    var room=document.querySelector('.ktsecret-room');
+    if(!room)return;
+    var main=room.querySelector('.ktsecret-main');
+    var earn=room.querySelector('.ktsecret-earn-row');
+    var chat=room.querySelector('.ktsecret-chat');
+    if(!main||!earn)return;
+
+    if(earn.parentNode!==main)main.appendChild(earn);
+    earn.style.setProperty('position','absolute','important');
+    earn.style.setProperty('right','6px','important');
+    earn.style.setProperty('bottom','74px','important');
+    earn.style.setProperty('left','auto','important');
+    earn.style.setProperty('width','160px','important');
+    earn.style.setProperty('height','64px','important');
+    earn.style.setProperty('padding','0','important');
+    earn.style.setProperty('z-index','14','important');
+    earn.style.setProperty('display','flex','important');
+    earn.style.setProperty('align-items','flex-end','important');
+    earn.style.setProperty('justify-content','flex-end','important');
+    earn.style.setProperty('overflow','visible','important');
+
+    var hud=earn.querySelector('#myEarnHud');
+    if(hud){
+      hud.style.setProperty('position','static','important');
+      hud.style.setProperty('inset','auto','important');
+      hud.style.setProperty('left','auto','important');
+      hud.style.setProperty('right','auto','important');
+      hud.style.setProperty('top','auto','important');
+      hud.style.setProperty('bottom','auto','important');
+      hud.style.setProperty('transform','none','important');
+    }
+
+    if(chat){
+      chat.style.setProperty('left','8px','important');
+      chat.style.setProperty('right','174px','important');
+      chat.style.setProperty('bottom','70px','important');
+    }
+  }
+
+  if(!document.getElementById('ktSecretBottomOnlyStyle20260911')){
+    var st=document.createElement('style');
+    st.id='ktSecretBottomOnlyStyle20260911';
+    st.textContent=''
+      +'.ktsecret-room .ktsecret-gifts{bottom:3px!important}'
+      +'.ktsecret-room .ktsecret-earn-row #myEarnHud{position:static!important;inset:auto!important;transform:none!important}'
+      +'@media(max-width:390px){.ktsecret-room .ktsecret-earn-row{right:5px!important;bottom:68px!important;width:145px!important;height:58px!important}.ktsecret-room .ktsecret-chat{right:154px!important;bottom:64px!important}.ktsecret-room .ktsecret-gifts{bottom:3px!important}}';
+    document.head.appendChild(st);
+  }
+
+  var ob=new MutationObserver(function(){apply();});
+  try{ob.observe(document.body,{childList:true,subtree:true});}catch(e){}
+  setTimeout(apply,0);
+  setTimeout(apply,120);
+})();
+
+/* 2026-09-11 파장: 1인·13명·구독자·비밀방 모두 카메라/참여자 화면 안에서만 표시. 다른 UI는 변경하지 않음. */
+(function(){
+  if(window.__ktWaveCameraOnly20260911)return;
+  window.__ktWaveCameraOnly20260911=true;
+
+  if(!document.getElementById('ktWaveCameraOnlyStyle20260911')){
+    var st=document.createElement('style');
+    st.id='ktWaveCameraOnlyStyle20260911';
+    st.textContent=''
+      +'.ktsolo-main,.ktsubscriber-stage,.ktg13-main,.ktsecret-main{position:relative!important;overflow:hidden!important}'
+      +'.ktsolo-main>.ktsolo-wave{left:0!important;right:0!important;bottom:72px!important;width:auto!important}'
+      +'.ktsubscriber-stage>.ktsubscriber-wave{position:absolute!important;left:0!important;right:59px!important;bottom:4px!important;width:auto!important;height:34px!important;z-index:8!important}'
+      +'.ktg13-main::after{left:0!important;right:0!important;bottom:2px!important}'
+      +'.ktsecret-main>.ktsecret-wave{left:3px!important;right:3px!important;bottom:145px!important;width:auto!important;height:34px!important;z-index:8!important}'
+      +'@media(max-width:390px){.ktsubscriber-stage>.ktsubscriber-wave{right:49px!important}.ktsecret-main>.ktsecret-wave{bottom:132px!important}}';
+    document.head.appendChild(st);
+  }
+
+  function apply(){
+    var soloMain=document.querySelector('.ktsolo-room .ktsolo-main');
+    var soloWave=document.querySelector('.ktsolo-room .ktsolo-wave');
+    if(soloMain&&soloWave&&soloWave.parentNode!==soloMain)soloMain.appendChild(soloWave);
+
+    var subStage=document.querySelector('.ktsubscriber-room .ktsubscriber-stage');
+    var subWave=document.querySelector('.ktsubscriber-room .ktsubscriber-wave');
+    if(subStage&&subWave&&subWave.parentNode!==subStage)subStage.appendChild(subWave);
+
+    var secretMain=document.querySelector('.ktsecret-room .ktsecret-main');
+    var secretWave=document.querySelector('.ktsecret-room .ktsecret-wave');
+    if(secretMain&&secretWave&&secretWave.parentNode!==secretMain)secretMain.appendChild(secretWave);
+  }
+
+  var ob=new MutationObserver(function(){apply();});
+  try{ob.observe(document.body,{childList:true,subtree:true});}catch(e){}
+  setTimeout(apply,0);
+  setTimeout(apply,80);
+  setTimeout(apply,220);
+})();
+
+/* 2026-09-11 파장 최종: 실제 카메라/사진이 열린 칸 하단에만 표시. 다른 UI는 변경하지 않음. */
+(function(){
+  if(window.__ktWaveInsideOpenCamera20260911)return;
+  window.__ktWaveInsideOpenCamera20260911=true;
+
+  if(!document.getElementById('ktWaveInsideOpenCameraStyle20260911')){
+    var st=document.createElement('style');
+    st.id='ktWaveInsideOpenCameraStyle20260911';
+    st.textContent=''
+      +'.ktsolo-wave,.ktsubscriber-wave,.ktsecret-wave,.kt-secret-wave,.secret-wave{display:none!important}'
+      +'.ktg13-main::after{display:none!important;content:none!important}'
+      +'.kt-open-camera-wave{position:absolute!important;left:0!important;right:0!important;bottom:0!important;height:26px!important;z-index:5!important;display:block!important;pointer-events:none!important;background-image:url("k-talk-rainbow-waveform.svg?v=20260907-wavebottom1")!important;background-repeat:no-repeat!important;background-position:center!important;background-size:100% 100%!important;opacity:.96!important;filter:drop-shadow(0 0 4px rgba(255,65,210,.35))!important;transform-origin:center bottom!important;animation:ktOpenCameraWaveBeat .62s ease-in-out infinite alternate!important}'
+      +'.ktsolo-main>.kt-open-camera-wave{left:0!important;right:62px!important;bottom:143px!important;height:34px!important}'
+      +'.ktsecret-slot,.ktsubscriber-host,.ktsubscriber-guest,.ktg13-host,.ktg13-guest{position:relative!important;overflow:hidden!important}'
+      +'.ktsecret-slot-label,.ktsubscriber-host-label,.ktsubscriber-guest b,.ktg13-host-label{z-index:6!important}'
+      +'@keyframes ktOpenCameraWaveBeat{0%{transform:scaleY(.58)}28%{transform:scaleY(1.10)}52%{transform:scaleY(.76)}76%{transform:scaleY(1.18)}100%{transform:scaleY(.68)}}';
+    document.head.appendChild(st);
+  }
+
+  function hasMedia(el){
+    if(!el)return false;
+    if(el.classList.contains('ktsolo-main'))return !!el.querySelector('video');
+    if(el.classList.contains('ktsubscriber-host')||el.classList.contains('ktg13-host')||el.classList.contains('host'))return !!el.querySelector('video,img,canvas');
+    if(el.querySelector('video,img,canvas,.ktsecret-guest-photo'))return true;
+    try{
+      var bg=getComputedStyle(el).backgroundImage||'';
+      if(bg&&bg!=='none'&&bg.indexOf('linear-gradient')===-1&&bg.indexOf('radial-gradient')===-1)return true;
+    }catch(e){}
+    return false;
+  }
+
+  function setWave(el,on){
+    if(!el)return;
+    var wave=el.querySelector(':scope > .kt-open-camera-wave');
+    if(on){
+      if(!wave){
+        wave=document.createElement('div');
+        wave.className='kt-open-camera-wave';
+        el.appendChild(wave);
+      }
+    }else if(wave){
+      wave.remove();
+    }
+  }
+
+  function apply(){
+    var solo=document.querySelector('.ktsolo-room .ktsolo-main');
+    if(solo)setWave(solo,hasMedia(solo));
+
+    document.querySelectorAll('.ktsubscriber-room .ktsubscriber-host,.ktsubscriber-room .ktsubscriber-guest').forEach(function(el){setWave(el,hasMedia(el));});
+    document.querySelectorAll('.ktsecret-room .ktsecret-slot').forEach(function(el){setWave(el,hasMedia(el));});
+    document.querySelectorAll('.ktg13-room .ktg13-host,.ktg13-room .ktg13-guest').forEach(function(el){setWave(el,hasMedia(el));});
+  }
+
+  var ob=new MutationObserver(function(){apply();});
+  try{ob.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class','style','src']});}catch(e){}
+  setTimeout(apply,0);
+  setTimeout(apply,80);
+  setTimeout(apply,220);
+})();

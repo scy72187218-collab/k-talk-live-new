@@ -123,8 +123,56 @@
 (function(){
   if(document.querySelector('script[data-kt-room-switch-fix]'))return;
   var s=document.createElement('script');
-  s.src='room-switch-fix-20260910.js?v=20260910a';
+  s.src='room-switch-fix-20260910.js?v=20260911-income2';
   s.async=false;
   s.setAttribute('data-kt-room-switch-fix','1');
+  document.head.appendChild(s);
+})();
+
+/* 4개 방송방 카메라 안쪽 무지개 파장만 연결 */
+(function(){
+  if(document.querySelector('script[data-kt-wave-camera-bars]'))return;
+  var s=document.createElement('script');
+  s.src='wave-camera-bars-20260911.js?v=20260911-wave10';
+  s.async=false;
+  s.setAttribute('data-kt-wave-camera-bars','1');
+  document.head.appendChild(s);
+})();
+
+/* 현재 방송자 표시·친구 방송목록·다른 기기 실시간 입장 기능만 연결 */
+(function(){
+  if(document.querySelector('script[data-kt-live-presence]'))return;
+  var s=document.createElement('script');
+  s.src='live-presence.js?v=20260910-live1';
+  s.async=false;
+  s.setAttribute('data-kt-live-presence','1');
+  s.onload=function(){
+    if(document.querySelector('script[data-kt-live-video-discovery]'))return;
+    var v=document.createElement('script');
+    v.src='live-video-discovery.js?v=20260910-live1';
+    v.async=false;
+    v.setAttribute('data-kt-live-video-discovery','1');
+    document.head.appendChild(v);
+  };
+  document.head.appendChild(s);
+})();
+
+/* 첫 페이지가 비어 있을 때만 다시 열고 홈 화면 아이콘 메타를 연결 */
+(function(){
+  if(document.querySelector('script[data-kt-first-page-icon]'))return;
+  var s=document.createElement('script');
+  s.src='first-page-icon-bootstrap.js?v=20260910-icon2';
+  s.async=false;
+  s.setAttribute('data-kt-first-page-icon','1');
+  document.head.appendChild(s);
+})();
+
+/* 친구/원격 방송에 채팅·좋아요·선물·공유와 입장 닉네임 표시만 연결 */
+(function(){
+  if(document.querySelector('script[data-kt-live-viewer-interactions]'))return;
+  var s=document.createElement('script');
+  s.src='live-viewer-interactions.js?v=20260910-chat1';
+  s.async=false;
+  s.setAttribute('data-kt-live-viewer-interactions','1');
   document.head.appendChild(s);
 })();

@@ -222,3 +222,81 @@
     try{if(window.openBeautyPanel)window.openBeautyPanel();}catch(err){}
   },true);
 })();
+
+/* 보정 업그레이드 실제 연결: 카메라 기본 자연 보정 + 피부/주름/눈/코/입/턱 1~100. */
+(function(){
+  if(document.querySelector('script[data-kt-beauty-natural-upgrade]'))return;
+  var s=document.createElement('script');
+  s.src='beauty-natural-upgrade.js?v=20260910b';
+  s.async=false;
+  s.setAttribute('data-kt-beauty-natural-upgrade','1');
+  document.head.appendChild(s);
+})();
+
+/* 혜택 화면을 닫았을 때, 들어가기 전에 재생 중이던 홈 동영상만 즉시 이어서 재생한다. */
+(function(){
+  if(window.__ktBenefitVideoResumeInstalled)return;
+  window.__ktBenefitVideoResumeInstalled=true;
+  var resumeVideo=null;
+  var resumeNeeded=false;
+  var benefitOpen=false;
+
+  function findPlayingHomeVideo(){
+    try{
+      var list=document.querySelectorAll('#homeVideo,.kt-public-video');
+      for(var i=0;i<list.length;i++){
+        var v=list[i];
+        if(v&&!v.paused&&!v.ended)return v;
+      }
+    }catch(e){}
+    return null;
+  }
+
+  var oldShowSheet=window.showSheet;
+  if(typeof oldShowSheet==='function'){
+    window.showSheet=function(title,html){
+      var t=String(title||'');
+      if(t.indexOf('혜택')>-1&&!benefitOpen){
+        resumeVideo=findPlayingHomeVideo();
+        resumeNeeded=!!resumeVideo;
+        benefitOpen=true;
+      }
+      return oldShowSheet.apply(this,arguments);
+    };
+  }
+
+  var oldCloseSheet=window.closeSheet;
+  if(typeof oldCloseSheet==='function'){
+    window.closeSheet=function(){
+      var shouldResume=benefitOpen&&resumeNeeded&&resumeVideo&&document.documentElement.contains(resumeVideo);
+      var target=resumeVideo;
+      var r=oldCloseSheet.apply(this,arguments);
+      try{
+        var sh=document.getElementById('sheet');
+        if(sh)sh.classList.remove('benefit-center-sheet');
+      }catch(e){}
+      if(shouldResume){
+        try{
+          var p=target.play();
+          if(p&&p.catch)p.catch(function(){});
+        }catch(e){}
+      }
+      benefitOpen=false;
+      resumeNeeded=false;
+      resumeVideo=null;
+      return r;
+    };
+  }
+})();
+
+/* 4개 방송방 채팅 입력: 글 입력칸 바로 오른쪽에 '보내기' 버튼을 붙인다. */
+(function(){
+  if(window.__ktChatSendInlineInstalled)return;
+  window.__ktChatSendInlineInstalled=true;
+  var st=document.createElement('style');
+  st.id='ktChatSendInlineStyle';
+  st.textContent=''
+    +'#sheetBody #ktsoloChatInput,#sheetBody #ktsubscriberChatInput,#sheetBody #ktsecretChatInput,#sheetBody #ktg13ChatInput{display:inline-block!important;vertical-align:top!important;width:calc(100% - 94px)!important;height:44px!important;margin:0!important;box-sizing:border-box!important}'
+    +'#sheetBody #ktsoloChatInput + .act,#sheetBody #ktsubscriberChatInput + .act,#sheetBody #ktsecretChatInput + .act,#sheetBody #ktg13ChatInput + .act{display:inline-flex!important;vertical-align:top!important;width:86px!important;height:44px!important;margin:0 0 0 8px!important;padding:0 10px!important;align-items:center!important;justify-content:center!important;box-sizing:border-box!important;font-weight:950!important}';
+  document.head.appendChild(st);
+})();

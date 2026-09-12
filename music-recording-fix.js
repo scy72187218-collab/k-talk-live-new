@@ -8,12 +8,16 @@
   }
   load('music-recording-base.js?v=20260907-group13');
   load('group13-approved-room.js?v=20260907-group13');
+  load('group13-host-three-rows.js?v=20260911-host3rows1');
+  load('room-stats-mission-copy.js?v=20260911-mission2');
   load('earnings-rooms-copy.js?v=20260909-earnings-restore1');
   load('mobile-open-compat.js?v=20260909-mobile1');
   load('video-more-menu.js?v=20260909-video-more1');
   load('beauty-natural-upgrade.js?v=20260909-beauty2');
   load('beauty-panel-real-controls.js?v=20260910-real1');
   load('public-feed-three-dot.js?v=20260909-feedmore1');
+  load('feed-swipe-playback-fix.js?v=20260910-feedplay1');
+  load('broadcast-video-resume-fix.js?v=20260911-return1');
   load('solo-right-dedupe.js?v=20260909-solo-right2');
   load('fanclub-restore.js?v=20260910-fanclub1');
   load('video-gift-benefit.js?v=20260910-gift30-2');
@@ -22,6 +26,17 @@
   load('vocal-enhancer.js?v=20260910-vocal1');
   load('interface-recording-audio-fix.js?v=20260910-interface2');
   load('karaoke-audio-quality.js?v=20260910-karaoke1');
+  load('waveform-individual-bars.js?v=20260911-auto8');
+  load('room-person-layout-controls.js?v=20260911-layout2');
+  load('room-person-layout-no-number.js?v=20260911-nonumber3');
+  load('group9-approved-room.js?v=20260911-group9-2');
+  load('group9-general-button.js?v=20260911-general9-3');
+  load('secret-right-controls-fix.js?v=20260911-secret-right8');
+  load('subscriber-right-controls-fix.js?v=20260911-subscriber-right4');
+  load('level-rules.js?v=20260911-level4');
+  load('treasure-global-room.js?v=20260911-treasure1');
+  load('message-recipient-picker.js?v=20260911-message1');
+  load('host-face-like-reward.js?v=20260911-hostlike1');
 })();
 
 /* 촬영 화면의 편집효과 바로 아래 V(더보기) 버튼만 제거. 다른 버튼/기능은 건드리지 않음. */
@@ -41,6 +56,12 @@
     return id==='camera'||id==='cameraBg'||id==='ktLiveVideo'||id==='ktSept2Live'||id==='ktRemoteLive';
   }
 
+  function isPagePlaybackMedia(m){
+    if(!m)return false;
+    if(m.id==='homeVideo'||m.id==='ktLibraryPlayer')return true;
+    return !!(m.classList&&m.classList.contains('kt-public-video'));
+  }
+
   window.ktStopPageMedia=function(){
     try{
       document.querySelectorAll('audio,video').forEach(function(m){
@@ -57,17 +78,57 @@
     try{if(window.ktStopSoundPreview)window.ktStopSoundPreview();}catch(e){}
   };
 
+  function hasPlayingPageMedia(){
+    try{
+      var list=document.querySelectorAll('audio,video');
+      for(var i=0;i<list.length;i++){
+        var m=list[i];
+        if(isCameraOrLiveMedia(m))continue;
+        if(!m.paused)return true;
+      }
+    }catch(e){}
+    try{if(window.ktSoundAudio&&!window.ktSoundAudio.paused)return true;}catch(e){}
+    try{if(window.ktCreatorMusicCapture&&window.ktCreatorMusicCapture.audio&&!window.ktCreatorMusicCapture.audio.paused)return true;}catch(e){}
+    return false;
+  }
+
+  function armPageMoveStop(){
+    window.__ktPageMediaStopUntil=Date.now()+1200;
+    window.ktStopPageMedia();
+    [40,120,300,700,1100].forEach(function(ms){
+      setTimeout(function(){
+        if(Date.now()<=Number(window.__ktPageMediaStopUntil||0))window.ktStopPageMedia();
+      },ms);
+    });
+  }
+
+  document.addEventListener('play',function(e){
+    var m=e.target;
+    if(Date.now()>Number(window.__ktPageMediaStopUntil||0))return;
+    if(!isPagePlaybackMedia(m))return;
+    try{m.pause();}catch(err){}
+    try{m.muted=true;}catch(err){}
+  },true);
+
+  document.addEventListener('pointerdown',function(e){
+    var t=e.target;
+    if(!t||!t.closest)return;
+    if(t.closest('.kt-public-video,#homeVideo,#ktLibraryPlayer')){
+      window.__ktPageMediaStopUntil=0;
+    }
+  },true);
+
   document.addEventListener('click',function(e){
     var t=e.target;
     if(!t||!t.closest)return;
-    var nav=t.closest('.bottom button,.kt-bottom button');
-    if(nav)window.ktStopPageMedia();
+    var nav=t.closest('.bottom button,.kt-bottom button,[data-bottom]');
+    if(nav&&hasPlayingPageMedia())armPageMoveStop();
   },true);
 
   document.addEventListener('visibilitychange',function(){
-    if(document.visibilityState==='hidden')window.ktStopPageMedia();
+    if(document.visibilityState==='hidden')armPageMoveStop();
   });
-  window.addEventListener('pagehide',window.ktStopPageMedia);
+  window.addEventListener('pagehide',armPageMoveStop);
 })();
 
 /* 1인 방송: 오른쪽 하트 바로 위에 카메라 앞/뒤 전환 버튼 하나만 추가. */
@@ -139,4 +200,88 @@
   install();
   var obs=new MutationObserver(function(){install();});
   obs.observe(document.documentElement,{childList:true,subtree:true});
+})();
+
+/* 13명방·구독자방·비밀방: 이미 만든 카메라 뒤집기 기능을 좋아요 바로 위에만 추가. */
+(function(){
+  if(window.__ktThreeRoomCameraFlipInstalled)return;
+  window.__ktThreeRoomCameraFlipInstalled=true;
+
+  function addFlip(side,like,group13){
+    if(!side||!like)return;
+    var b=side.querySelector(':scope > .kt-room-camera-flip');
+    if(!b){
+      b=document.createElement('button');
+      b.type='button';
+      b.className='kt-room-camera-flip';
+      b.setAttribute('aria-label','카메라 뒤집기');
+      b.title='카메라 앞/뒤 바꾸기';
+      b.innerHTML=group13?'<b>↻</b><span>뒤집기</span>':'↻<small>뒤집기</small>';
+      b.onclick=function(){
+        if(window.ktSoloFlipCamera)window.ktSoloFlipCamera(this);
+      };
+    }
+    if(like.previousElementSibling!==b)side.insertBefore(b,like);
+  }
+
+  function install(){
+    var g=document.querySelector('.ktg13-right-quick');
+    if(g)addFlip(g,g.querySelector('.ktg13-like'),true);
+
+    var s=document.querySelector('.ktsubscriber-right');
+    if(s)addFlip(s,s.querySelector('.like'),false);
+
+    var sec=document.querySelector('.ktsecret-right');
+    if(sec)addFlip(sec,sec.querySelector('.like'),false);
+  }
+
+  install();
+  var obs=new MutationObserver(function(){install();});
+  obs.observe(document.documentElement,{childList:true,subtree:true});
+  setInterval(install,900);
+})();
+
+/* 방송방 출석체크: 그 방 호스트 장미 1송이만 추가. 다른 UI/기능은 건드리지 않음. */
+(function(){
+  if(window.__ktAttendanceHostRoseInstalled)return;
+  window.__ktAttendanceHostRoseInstalled=true;
+
+  function todayKey(){
+    var d=new Date();
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  }
+
+  function roomKey(room){
+    var key=room&&room.className?String(room.className):'room';
+    try{
+      var t=(window.state&&state.liveRoomType)||'';
+      var title=(window.state&&(state.currentLiveRoomTitle||state.currentViewRoomTitle||state.liveRoomName))||'';
+      key+='|'+t+'|'+title;
+    }catch(e){}
+    return key.replace(/\s+/g,'_').slice(0,120);
+  }
+
+  function addHostRoseOne(){
+    var el=document.getElementById('hudEarnRoses')||document.getElementById('ktSubscriberEarnRoses');
+    if(!el)return;
+    var text=String(el.textContent||'');
+    var m=text.match(/(\d[\d,]*)/);
+    var n=m?parseInt(m[1].replace(/,/g,''),10)||0:0;
+    el.textContent='🌹 '+(n+1)+'송이';
+  }
+
+  document.addEventListener('click',function(e){
+    var target=e.target;
+    if(!target||!target.closest)return;
+    var btn=target.closest('.ktsolo-att,.ktg13-attend,.ktsubscriber-att,.ktsecret-att');
+    if(!btn)return;
+    var room=btn.closest('.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room');
+    if(!room)return;
+    var key='ktalk_host_attendance_rose|'+todayKey()+'|'+roomKey(room);
+    try{
+      if(localStorage.getItem(key)==='1')return;
+      localStorage.setItem(key,'1');
+    }catch(err){}
+    addHostRoseOne();
+  },true);
 })();
