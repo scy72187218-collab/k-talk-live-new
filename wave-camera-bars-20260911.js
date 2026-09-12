@@ -43,3 +43,39 @@
   setTimeout(apply,80);
   setTimeout(apply,220);
 })();
+
+/* 2026-09-12: 9명 방송만 호스트 포함 3 x 3 같은 크기로 정렬. 다른 방/UI/기능은 변경하지 않음. */
+(function(){
+  if(window.__ktNineRoomThreeByThreeOnly)return;
+  window.__ktNineRoomThreeByThreeOnly=true;
+
+  var st=document.createElement('style');
+  st.id='ktNineRoomThreeByThreeOnlyStyle';
+  st.textContent=''
+    +'#screen .ktg13-room.kt-nine-grid-only .ktg13-main{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:repeat(3,minmax(0,1fr))!important;gap:2px!important}'
+    +'#screen .ktg13-room.kt-nine-grid-only .ktg13-host{grid-column:1!important;grid-row:1!important;min-width:0!important;min-height:0!important}'
+    +'#screen .ktg13-room.kt-nine-grid-only .ktg13-guests{display:contents!important}'
+    +'#screen .ktg13-room.kt-nine-grid-only .ktg13-host-extra{display:none!important}'
+    +'#screen .ktg13-room.kt-nine-grid-only .ktg13-host>video{position:absolute!important;left:0!important;top:0!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center!important}'
+    +'#screen .ktg13-room.kt-nine-grid-only .ktg13-guest{min-width:0!important;min-height:0!important}';
+  document.head.appendChild(st);
+
+  function applyNineOnly(){
+    var room=document.querySelector('#screen .ktg13-room');
+    if(!room)return;
+    var head=room.querySelector('.ktg13-air strong');
+    var text=String(head&&head.textContent||'').replace(/\s+/g,'');
+    var isNine=text.indexOf('9명방송')>-1;
+    if(!isNine){
+      try{isNine=!!(window.state&&(state.liveRoomType==='group9'||state.liveRoomName==='9명 방송'));}catch(e){}
+    }
+    room.classList.toggle('kt-nine-grid-only',!!isNine);
+  }
+
+  var ob=new MutationObserver(function(){applyNineOnly();});
+  try{ob.observe(document.body,{childList:true,subtree:true,characterData:true});}catch(e){}
+  setTimeout(applyNineOnly,0);
+  setTimeout(applyNineOnly,80);
+  setTimeout(applyNineOnly,220);
+  setTimeout(applyNineOnly,600);
+})();
