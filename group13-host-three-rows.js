@@ -231,3 +231,95 @@
   }catch(e){}
   setInterval(install,1200);
 })();
+
+/* 13명방만: 마이크·카메라 버튼을 무지개 파장 아래쪽에 두고 카메라 잠김/열림 기능 추가. 다른 방/UI는 변경하지 않음. */
+(function(){
+  if(window.__ktGroup13CameraLockControlsInstalled)return;
+  window.__ktGroup13CameraLockControlsInstalled=true;
+
+  function ensureStyle(){
+    if(document.getElementById('ktGroup13CameraLockControlsStyle'))return;
+    var s=document.createElement('style');
+    s.id='ktGroup13CameraLockControlsStyle';
+    s.textContent='\
+      .ktg13-room .ktg13-host>.kt-open-camera-wave{bottom:31px!important;height:34px!important;}\
+      .ktg13-room .ktg13-host>.kt-person-mic{top:auto!important;right:5px!important;bottom:4px!important;}\
+      .ktg13-room .ktg13-camera-toggle{position:absolute!important;right:36px!important;bottom:4px!important;z-index:26!important;height:25px!important;min-width:54px!important;padding:0 7px!important;border:1px solid rgba(255,255,255,.45)!important;border-radius:13px!important;background:rgba(8,8,12,.80)!important;color:#fff!important;font:900 10px/1 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:3px!important;touch-action:manipulation!important;}\
+      .ktg13-room .ktg13-camera-toggle.locked{background:rgba(112,18,32,.88)!important;}\
+      .ktg13-room .ktg13-camera-lock-mask{display:none;position:absolute;inset:0;z-index:2;background:#08080b;color:#fff;font:900 13px/1.2 system-ui,-apple-system,"Noto Sans KR",sans-serif;align-items:center;justify-content:center;text-align:center;}\
+      .ktg13-room .ktg13-host.kt-camera-locked .ktg13-camera-lock-mask{display:flex!important;}\
+      @media(max-width:390px){.ktg13-room .ktg13-host>.kt-open-camera-wave{bottom:28px!important;height:31px!important}.ktg13-room .ktg13-host>.kt-person-mic{right:3px!important;bottom:3px!important}.ktg13-room .ktg13-camera-toggle{right:31px!important;bottom:3px!important;height:22px!important;min-width:49px!important;font-size:9px!important}}';
+    document.head.appendChild(s);
+  }
+
+  function videoTracks(){
+    try{
+      if(window.state&&state.stream&&state.stream.getVideoTracks)return state.stream.getVideoTracks();
+    }catch(e){}
+    var v=document.querySelector('.ktg13-room .ktg13-host video');
+    try{
+      if(v&&v.srcObject&&v.srcObject.getVideoTracks)return v.srcObject.getVideoTracks();
+    }catch(e){}
+    return [];
+  }
+
+  function cameraOpen(){
+    var tracks=videoTracks();
+    if(!tracks.length)return true;
+    return tracks.some(function(t){return t.enabled!==false;});
+  }
+
+  function sync(host,btn){
+    var open=cameraOpen();
+    host.classList.toggle('kt-camera-locked',!open);
+    btn.classList.toggle('locked',!open);
+    btn.innerHTML=open?'📷 <span>열림</span>':'🔒 <span>잠김</span>';
+    btn.title=open?'카메라 잠그기':'카메라 열기';
+    btn.setAttribute('aria-label',btn.title);
+  }
+
+  function toggle(host,btn){
+    var tracks=videoTracks();
+    if(!tracks.length)return;
+    var open=cameraOpen();
+    tracks.forEach(function(t){try{t.enabled=!open;}catch(e){}});
+    sync(host,btn);
+  }
+
+  function install(){
+    var host=document.querySelector('.ktg13-room .ktg13-host');
+    if(!host)return;
+    ensureStyle();
+
+    var mask=host.querySelector(':scope > .ktg13-camera-lock-mask');
+    if(!mask){
+      mask=document.createElement('div');
+      mask.className='ktg13-camera-lock-mask';
+      mask.innerHTML='🔒 카메라 잠김';
+      host.appendChild(mask);
+    }
+
+    var btn=host.querySelector(':scope > .ktg13-camera-toggle');
+    if(!btn){
+      btn=document.createElement('button');
+      btn.type='button';
+      btn.className='ktg13-camera-toggle';
+      btn.onclick=function(e){
+        try{e.preventDefault();e.stopPropagation();}catch(err){}
+        toggle(host,this);
+      };
+      host.appendChild(btn);
+    }
+    sync(host,btn);
+  }
+
+  install();
+  [80,220,500,900,1500].forEach(function(ms){setTimeout(install,ms);});
+  try{
+    var mo=new MutationObserver(function(){
+      clearTimeout(window.__ktGroup13CameraControlsTimer);
+      window.__ktGroup13CameraControlsTimer=setTimeout(install,30);
+    });
+    mo.observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+})();
