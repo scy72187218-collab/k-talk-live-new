@@ -10,10 +10,10 @@
     s.textContent=''
       +'.kt-seat-layout-mount{position:relative!important}'
       +'.kt-seat-layout-wrap{position:absolute!important;z-index:45!important;top:5px!important;left:50%!important;transform:translateX(-50%)!important;display:flex!important;flex-direction:column!important;align-items:center!important;gap:4px!important;pointer-events:auto!important}'
-      +'.kt-seat-layout-trigger{height:29px!important;padding:0 12px!important;border:1px solid #ff2bbd88!important;border-radius:12px!important;background:#111116e8!important;color:#fff!important;font-size:11px!important;font-weight:900!important;box-shadow:0 2px 10px #000a!important;white-space:nowrap!important}'
-      +'.kt-seat-layout-picker{display:none!important;gap:4px!important;padding:4px!important;border-radius:12px!important;background:#050507ec!important;border:1px solid #ff2bbd77!important;box-shadow:0 2px 10px #000a!important}'
+      +'.kt-seat-layout-trigger{height:29px!important;padding:0 12px!important;border:1px solid #ff2bbd88!important;border-radius:12px!important;background:#111116e8!important;color:#fff!important;font-size:11px!important;font-weight:900!important;box-shadow:0 2px 10px #000a!important;white-space:nowrap!important;pointer-events:auto!important;touch-action:manipulation!important;position:relative!important;z-index:46!important}'
+      +'.kt-seat-layout-picker{display:none!important;gap:4px!important;padding:4px!important;border-radius:12px!important;background:#050507ec!important;border:1px solid #ff2bbd77!important;box-shadow:0 2px 10px #000a!important;pointer-events:auto!important;position:relative!important;z-index:46!important}'
       +'.kt-seat-layout-picker.open{display:flex!important}'
-      +'.kt-seat-layout-btn{height:27px!important;min-width:44px!important;padding:0 7px!important;border:1px solid #494951!important;border-radius:9px!important;background:#17171c!important;color:#fff!important;font-size:10px!important;font-weight:900!important;line-height:1!important}'
+      +'.kt-seat-layout-btn{height:27px!important;min-width:44px!important;padding:0 7px!important;border:1px solid #494951!important;border-radius:9px!important;background:#17171c!important;color:#fff!important;font-size:10px!important;font-weight:900!important;line-height:1!important;pointer-events:auto!important;touch-action:manipulation!important;position:relative!important;z-index:47!important}'
       +'.kt-seat-layout-btn.on{border-color:#ff32c7!important;background:#33102e!important;color:#ffe8fb!important}'
 
       /* 13명방 */
@@ -79,6 +79,33 @@
     if(save){try{localStorage.setItem('kt_simple_seat_layout_'+info.key,layout);}catch(e){}}
   }
 
+  function openPicker(info){
+    if(!info||!info.mount)return;
+    var picker=info.mount.querySelector(':scope > .kt-seat-layout-wrap .kt-seat-layout-picker');
+    if(picker)picker.classList.add('open');
+  }
+
+  function seatIsEmpty(el){
+    if(!el)return false;
+    var seat=el.closest('.ktg13-guest,.ktsubscriber-guest,.ktsecret-slot:not(.host)');
+    if(!seat)return false;
+    if(seat.querySelector('img,canvas,.ktsecret-guest-photo'))return false;
+    var videos=[].slice.call(seat.querySelectorAll('video'));
+    for(var i=0;i<videos.length;i++){
+      try{if(videos[i].srcObject||videos[i].currentSrc||videos[i].getAttribute('src'))return false;}catch(e){}
+    }
+    return true;
+  }
+
+  function bindEmptySpaceOpen(info){
+    if(!info||!info.mount||info.mount.dataset.ktSeatEmptyOpen==='1')return;
+    info.mount.dataset.ktSeatEmptyOpen='1';
+    info.mount.addEventListener('click',function(e){
+      if(e.target.closest('button,a,input,textarea,select,label,.kt-seat-layout-wrap'))return;
+      if(e.target===info.mount||seatIsEmpty(e.target))openPicker(roomInfo());
+    },false);
+  }
+
   function ensurePicker(){
     addStyle();
     var info=roomInfo();
@@ -110,6 +137,7 @@
       },true);
       info.mount.appendChild(wrap);
     }
+    bindEmptySpaceOpen(info);
     applyLayout(info,saved(info),false);
   }
 
