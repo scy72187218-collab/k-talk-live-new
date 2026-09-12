@@ -36,3 +36,28 @@
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',show,{once:true});
   else show();
 })();
+
+/* 방송 준비 화면의 '15명 방송' 버튼만 제거. 다른 방/기능은 변경하지 않음. */
+(function(){
+  if(window.__ktRemove15RoomButtonOnlyInstalled)return;
+  window.__ktRemove15RoomButtonOnlyInstalled=true;
+
+  function removeOnly15(){
+    var roots=document.querySelectorAll('.live-prep .room-switch-row,.kt-creator-room-shortcuts');
+    roots.forEach(function(root){
+      [].slice.call(root.querySelectorAll('button')).forEach(function(btn){
+        var text=String(btn.textContent||'').replace(/\s+/g,'').trim();
+        if(text==='15명방송'){
+          try{btn.remove();}catch(e){}
+        }
+      });
+    });
+  }
+
+  removeOnly15();
+  [50,150,350,700,1200].forEach(function(ms){setTimeout(removeOnly15,ms);});
+  try{
+    var mo=new MutationObserver(function(){removeOnly15();});
+    mo.observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+})();
