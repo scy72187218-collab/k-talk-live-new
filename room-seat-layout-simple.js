@@ -15,6 +15,8 @@
       +'.kt-seat-layout-picker.open{display:flex!important}'
       +'.kt-seat-layout-btn{height:27px!important;min-width:44px!important;padding:0 7px!important;border:1px solid #494951!important;border-radius:9px!important;background:#17171c!important;color:#fff!important;font-size:10px!important;font-weight:900!important;line-height:1!important;pointer-events:auto!important;touch-action:manipulation!important;position:relative!important;z-index:47!important}'
       +'.kt-seat-layout-btn.on{border-color:#ff32c7!important;background:#33102e!important;color:#ffe8fb!important}'
+
+      /* 13명방 */
       +'.ktg13-room:not([data-kt-room="9"]):not([data-kt-room="15"])[data-kt-seat-layout="grid"] .ktg13-main{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;grid-template-rows:repeat(4,minmax(0,1fr))!important;gap:2px!important}'
       +'.ktg13-room:not([data-kt-room="9"]):not([data-kt-room="15"])[data-kt-seat-layout="grid"] .ktg13-host{grid-column:auto!important;grid-row:auto!important;min-width:0!important;min-height:0!important}'
       +'.ktg13-room:not([data-kt-room="9"]):not([data-kt-room="15"])[data-kt-seat-layout="grid"] .ktg13-guests{display:contents!important}'
@@ -26,6 +28,8 @@
       +'.ktg13-room:not([data-kt-room="9"]):not([data-kt-room="15"])[data-kt-seat-layout="focus"] .ktg13-host{grid-column:1 / 3!important;grid-row:1 / 3!important;min-width:0!important;min-height:0!important}'
       +'.ktg13-room:not([data-kt-room="9"]):not([data-kt-room="15"])[data-kt-seat-layout="focus"] .ktg13-guests{display:contents!important}'
       +'.ktg13-room:not([data-kt-room="9"]):not([data-kt-room="15"])[data-kt-seat-layout="focus"] .ktg13-guest{grid-column:auto!important;grid-row:auto!important;min-width:0!important;min-height:0!important}'
+
+      /* 구독자방 */
       +'.ktsubscriber-room[data-kt-seat-layout="grid"] .ktsubscriber-people{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:repeat(4,minmax(0,1fr))!important;gap:3px!important}'
       +'.ktsubscriber-room[data-kt-seat-layout="grid"] .ktsubscriber-host,.ktsubscriber-room[data-kt-seat-layout="grid"] .ktsubscriber-guest{grid-column:auto!important;grid-row:auto!important;min-width:0!important;min-height:0!important}'
       +'.ktsubscriber-room[data-kt-seat-layout="side"] .ktsubscriber-people{display:grid!important;grid-template-columns:40% 30% 30%!important;grid-template-rows:repeat(4,minmax(0,1fr))!important;gap:3px!important}'
@@ -33,6 +37,8 @@
       +'.ktsubscriber-room[data-kt-seat-layout="focus"] .ktsubscriber-people{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;grid-template-rows:repeat(4,minmax(0,1fr))!important;gap:3px!important}'
       +'.ktsubscriber-room[data-kt-seat-layout="focus"] .ktsubscriber-host{grid-column:1 / 3!important;grid-row:1 / 3!important;min-width:0!important;min-height:0!important}'
       +'.ktsubscriber-room[data-kt-seat-layout="focus"] .ktsubscriber-guest{grid-column:auto!important;grid-row:auto!important;min-width:0!important;min-height:0!important}'
+
+      /* 비밀방 */
       +'.ktsecret-room[data-kt-seat-layout="grid"] .ktsecret-six-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:repeat(2,minmax(0,1fr))!important;gap:3px!important}'
       +'.ktsecret-room[data-kt-seat-layout="grid"] .ktsecret-slot{grid-column:auto!important;grid-row:auto!important}'
       +'.ktsecret-room[data-kt-seat-layout="side"] .ktsecret-six-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:repeat(3,minmax(0,1fr))!important;gap:3px!important}'
@@ -57,14 +63,6 @@
 
   function saved(info){
     try{
-      if(info.key==='subscriber'&&!localStorage.getItem('kt_restore_subscriber_layout_20260912')){
-        localStorage.setItem('kt_simple_seat_layout_subscriber','side');
-        localStorage.setItem('kt_restore_subscriber_layout_20260912','1');
-      }
-      if(info.key==='secret'&&!localStorage.getItem('kt_restore_secret_layout_20260912')){
-        localStorage.setItem('kt_simple_seat_layout_secret','grid');
-        localStorage.setItem('kt_restore_secret_layout_20260912','1');
-      }
       var v=localStorage.getItem('kt_simple_seat_layout_'+info.key);
       if(v==='grid'||v==='side'||v==='focus')return v;
     }catch(e){}
