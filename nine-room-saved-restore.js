@@ -7,6 +7,7 @@
   var selectedGuest=null;
   var repeatTimer=null;
   var repeatDelay=null;
+  try{localStorage.setItem('kt9_layout_choice','grid');}catch(e){}
 
   function ensureStyle(){
     if(document.getElementById('ktNineRoomSavedRestoreStyle'))return;
