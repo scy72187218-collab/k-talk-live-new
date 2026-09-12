@@ -30,6 +30,15 @@
     document.head.appendChild(s);
   }
 
+  function loadHostFaceLikeFix(){
+    if(document.querySelector('script[data-kt-host-face-like]'))return;
+    var s=document.createElement('script');
+    s.src='host-face-like-reward.js?v=20260912-hostlike2';
+    s.async=false;
+    s.setAttribute('data-kt-host-face-like','1');
+    document.head.appendChild(s);
+  }
+
   function installRealCameraFlip(){
     if(window.__ktRealCameraFlipInstalled)return;
     if(typeof window.ktSoloFlipCamera!=='function')return;
@@ -113,6 +122,7 @@
   loadTreasureHostResults();
   loadTreasureHostHeadFallback();
   loadAllSwitchesFix();
+  loadHostFaceLikeFix();
   setTimeout(installRealCameraFlip,0);
   setTimeout(installRealCameraFlip,300);
   setTimeout(installRealCameraFlip,1000);
