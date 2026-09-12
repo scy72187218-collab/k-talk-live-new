@@ -28,7 +28,7 @@
     return t?JSON.parse(t):null;
   }
   function enc(v){return encodeURIComponent(String(v==null?'':v));}
-  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c];});}
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   function nowIso(){return new Date().toISOString();}
   function deviceId(){
     var id='';
