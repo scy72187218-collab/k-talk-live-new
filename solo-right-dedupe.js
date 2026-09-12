@@ -160,3 +160,122 @@
   install();
   [100,300,700,1500].forEach(function(ms){setTimeout(function(){install();restorePhoto();},ms);});
 })();
+
+/* 내 동영상의 '동영상 올리기'만 보강. 다른 화면/기능은 변경하지 않음. */
+(function(){
+  if(window.__ktVideoUploadOnlyFixInstalled)return;
+  window.__ktVideoUploadOnlyFixInstalled=true;
+
+  var SB='https://zupwbfmacwzexyvznlzq.supabase.co';
+  var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBiYXNlIiwicmVmIjoienVwd2JmbWFjd3pleHl2em5senEiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc4ODQ2MTA3NiwiZXhwIjoyMTA0MDM3MDc2fQ.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
+  var MAX=100*1024*1024;
+
+  function headers(extra){
+    var h={apikey:KEY,Authorization:'Bearer '+KEY};
+    Object.keys(extra||{}).forEach(function(k){h[k]=extra[k];});
+    return h;
+  }
+  function who(){
+    var name='K-Talk',id='guest';
+    try{
+      if(typeof window.ktProfileLoad==='function'){
+        var p=window.ktProfileLoad();
+        if(p&&p.name)name=p.name;
+      }
+    }catch(e){}
+    try{name=localStorage.getItem('ktalk_profile_name')||localStorage.getItem('ktalk_active_account_name')||name;}catch(e){}
+    try{id=localStorage.getItem('ktalk_active_account')||localStorage.getItem('ktalk_profile_id')||id;}catch(e){}
+    return {name:String(name||'K-Talk').slice(0,80),id:String(id||'guest').slice(0,80)};
+  }
+  function mime(blob,name){
+    var t=String(blob&&blob.type||'').toLowerCase();
+    var n=String(name||'').toLowerCase();
+    if(t==='video/mp4'||t==='video/quicktime'||t==='video/x-m4v'||t==='video/webm')return t;
+    if(/\.mov$/.test(n))return 'video/quicktime';
+    if(/\.m4v$/.test(n))return 'video/x-m4v';
+    if(/\.webm$/.test(n))return 'video/webm';
+    return 'video/mp4';
+  }
+  function ext(type){
+    if(type==='video/quicktime')return 'mov';
+    if(type==='video/x-m4v')return 'm4v';
+    if(type==='video/webm')return 'webm';
+    return 'mp4';
+  }
+  async function getItem(id){
+    try{
+      var db=await ktOpenVideoDB();
+      return await new Promise(function(resolve){
+        var tx=db.transaction('videos','readonly');
+        var req=tx.objectStore('videos').get(id);
+        req.onsuccess=function(){var x=req.result||null;try{db.close();}catch(e){}resolve(x);};
+        req.onerror=function(){try{db.close();}catch(e){}resolve(null);};
+      });
+    }catch(e){return null;}
+  }
+  async function putItem(item){
+    var db=await ktOpenVideoDB();
+    await new Promise(function(resolve,reject){
+      var tx=db.transaction('videos','readwrite');
+      tx.objectStore('videos').put(item);
+      tx.oncomplete=resolve;
+      tx.onerror=function(){reject(tx.error||new Error('save'));};
+      tx.onabort=function(){reject(tx.error||new Error('save'));};
+    });
+    try{db.close();}catch(e){}
+  }
+  function clearFeedCache(){
+    try{localStorage.removeItem('ktalk_fast_feed');}catch(e){}
+    try{sessionStorage.removeItem('kt_feed_fresh_at');}catch(e){}
+  }
+  async function upload(item){
+    var blob=item&&item.blob;
+    if(!blob)throw new Error('파일 없음');
+    if(Number(blob.size||0)>MAX)throw new Error('100MB보다 큰 동영상은 올릴 수 없습니다.');
+    var type=mime(blob,item.name);
+    var a=who();
+    var clean=String(a.id||'guest').replace(/[^a-zA-Z0-9_-]/g,'_')||'guest';
+    var path=clean+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext(type);
+    var up=await fetch(SB+'/storage/v1/object/ktalk-videos/'+path,{method:'POST',headers:headers({'Content-Type':type,'x-upsert':'false'}),body:blob});
+    if(!up.ok){
+      var ut='';try{ut=await up.text();}catch(e){}
+      throw new Error(up.status===413?'100MB보다 큰 동영상은 올릴 수 없습니다.':('영상 전송 실패 '+up.status+(ut?' '+ut:'')));
+    }
+    var url=SB+'/storage/v1/object/public/ktalk-videos/'+path;
+    var ins=await fetch(SB+'/rest/v1/ktalk_videos',{method:'POST',headers:headers({'Content-Type':'application/json','Prefer':'return=representation'}),body:JSON.stringify({author_id:a.id,author_name:a.name,title:item.name||'K-Talk 동영상',video_path:path,video_url:url})});
+    if(!ins.ok){
+      var it='';try{it=await ins.text();}catch(e){}
+      throw new Error('목록 등록 실패 '+ins.status+(it?' '+it:''));
+    }
+    var rows=await ins.json();
+    return rows&&rows[0]?rows[0]:{id:'',video_url:url};
+  }
+
+  window.postStoredVideo=async function(id,btn){
+    if(btn&&btn.dataset.ktUploading==='1')return;
+    if(btn){btn.dataset.ktUploading='1';btn.disabled=true;btn.textContent='올리는 중...';}
+    try{
+      var item=await getItem(id);
+      if(!item||!item.blob)throw new Error('동영상을 찾지 못했습니다.');
+      if(!item.publicVideoId){
+        var row=await upload(item);
+        item.publicPosted=true;
+        item.publicVideoId=row&&row.id?row.id:'';
+        item.publicVideoUrl=row&&row.video_url?row.video_url:'';
+      }
+      item.posted=true;
+      item.postedAt=item.postedAt||Date.now();
+      await putItem(item);
+      clearFeedCache();
+      try{if(window.ktRenderProfilePostedVideos)window.ktRenderProfilePostedVideos();}catch(e){}
+      if(btn){btn.textContent='✓ 올리기 완료';btn.classList.add('done');}
+      try{if(window.closeSheet)window.closeSheet();}catch(e){}
+      setTimeout(function(){try{if(window.home)window.home();}catch(e){}},120);
+    }catch(e){
+      if(btn){btn.disabled=false;btn.dataset.ktUploading='0';btn.textContent='다시 올리기';}
+      alert(String(e&&e.message||'동영상을 올리지 못했습니다. 다시 눌러 주세요.'));
+      return;
+    }
+    if(btn)btn.dataset.ktUploading='0';
+  };
+})();
