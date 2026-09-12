@@ -73,3 +73,13 @@
     if(roomOpen())startPresence();
   },1500);
 })();
+
+/* 동영상 작성자 팔로우/방송 상태 + 최종 K-Talk 주소 공유만 별도 파일로 불러온다. */
+(function(){
+  if(document.querySelector('script[data-kt-video-social-canonical]'))return;
+  var s=document.createElement('script');
+  s.src='video-social-canonical-fix.js?v=20260912-social1';
+  s.async=false;
+  s.setAttribute('data-kt-video-social-canonical','1');
+  document.head.appendChild(s);
+})();
