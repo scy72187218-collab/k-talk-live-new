@@ -36,3 +36,13 @@
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',show,{once:true});
   else show();
 })();
+
+/* 실시간 사람 접속 파일만 연결 */
+(function(){
+  if(document.querySelector('script[data-kt-live-presence]'))return;
+  var s=document.createElement('script');
+  s.src='live-presence.js?v=20260908-1903';
+  s.async=false;
+  s.setAttribute('data-kt-live-presence','1');
+  document.head.appendChild(s);
+})();
