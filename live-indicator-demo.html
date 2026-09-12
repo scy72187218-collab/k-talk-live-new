@@ -3,43 +3,105 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>LIVE 표시 데모</title>
+<title>LIVE 표시 동기화 데모</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#050507;color:#fff;font-family:system-ui,-apple-system,'Noto Sans KR',sans-serif}.phone{min-height:100dvh;max-width:430px;margin:0 auto;background:linear-gradient(180deg,#0a0a0f,#020203);position:relative;overflow:hidden}.top{position:absolute;left:0;right:0;top:0;z-index:5;height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;background:linear-gradient(180deg,rgba(0,0,0,.72),transparent)}.logo{font-weight:950}.liveBadge{display:none;border:0;border-radius:999px;background:#e91845;color:#fff;font-weight:950;padding:8px 12px;box-shadow:0 0 14px rgba(233,24,69,.6);animation:pulse .9s linear infinite}.liveBadge.show{display:block}@keyframes pulse{0%,45%{opacity:1}55%,100%{opacity:.45}}.video{height:100dvh;display:grid;place-items:center;text-align:center;background:radial-gradient(circle at 50% 35%,#30344b,#11131c 42%,#050507 72%)}.video .play{font-size:72px;opacity:.92}.video small{display:block;margin-top:10px;color:#cfcfd8;font-size:13px}.controls{position:absolute;left:12px;right:12px;bottom:18px;z-index:6;display:flex;gap:8px}.controls button{flex:1;height:48px;border:0;border-radius:14px;font-weight:900;font-size:14px}.start{background:#e91845;color:#fff}.stop{background:#2b2b34;color:#fff}.hint{position:absolute;left:14px;right:14px;top:74px;z-index:4;padding:10px 12px;border-radius:14px;background:rgba(0,0,0,.48);border:1px solid rgba(255,255,255,.12);font-size:12px;line-height:1.45;color:#ddd}
+*{box-sizing:border-box}body{margin:0;background:#050507;color:#fff;font-family:system-ui,-apple-system,'Noto Sans KR',sans-serif}.phone{min-height:100dvh;max-width:430px;margin:0 auto;background:linear-gradient(180deg,#0a0a0f,#020203);position:relative;overflow:hidden}.top{position:absolute;left:0;right:0;top:0;z-index:5;height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;background:linear-gradient(180deg,rgba(0,0,0,.72),transparent)}.logo{font-weight:950}.liveBadge{display:none;border:0;border-radius:999px;background:#e91845;color:#fff;font-weight:950;padding:8px 12px;box-shadow:0 0 14px rgba(233,24,69,.6);animation:pulse .9s linear infinite}.liveBadge.show{display:block}@keyframes pulse{0%,45%{opacity:1}55%,100%{opacity:.45}}.video{height:100dvh;display:grid;place-items:center;text-align:center;background:radial-gradient(circle at 50% 35%,#30344b,#11131c 42%,#050507 72%)}.video .play{font-size:72px;opacity:.92}.video small{display:block;margin-top:10px;color:#cfcfd8;font-size:13px}.controls{position:absolute;left:12px;right:12px;bottom:18px;z-index:6;display:flex;gap:8px}.controls button{flex:1;height:48px;border:0;border-radius:14px;font-weight:900;font-size:14px}.start{background:#e91845;color:#fff}.stop{background:#2b2b34;color:#fff}.hint{position:absolute;left:14px;right:14px;top:74px;z-index:4;padding:10px 12px;border-radius:14px;background:rgba(0,0,0,.48);border:1px solid rgba(255,255,255,.12);font-size:12px;line-height:1.45;color:#ddd}.sync{position:absolute;left:14px;right:14px;top:140px;z-index:4;text-align:center;font-size:11px;color:#9fd8ff}
 </style>
 </head>
 <body>
 <div class="phone">
   <div class="top">
-    <div class="logo">K-Talk · 추천 동영상 데모</div>
+    <div class="logo">LIVE 표시 동기화 데모</div>
     <button id="liveBadge" class="liveBadge" type="button" onclick="openLiveNotice()">● LIVE</button>
   </div>
-  <div class="hint">이 페이지는 LIVE 빨간불 표시만 확인하는 독립 데모입니다. 다른 기존 화면이나 기능은 수정하지 않습니다.</div>
+  <div class="hint">두 휴대폰에서 같은 데모 페이지를 열면 LIVE 표시가 같이 바뀝니다. 기존 화면과 기능은 수정하지 않습니다.</div>
+  <div id="syncText" class="sync">연결 확인 중...</div>
   <div class="video">
-    <div><div class="play">▶</div><b>추천 동영상 화면</b><small>방송 시작을 누르면 위쪽에 LIVE 빨간불이 나타납니다.</small></div>
+    <div><div class="play">▶</div><b>추천 동영상 화면 데모</b><small>한쪽에서 LIVE를 켜거나 끄면 다른 쪽도 자동으로 바뀝니다.</small></div>
   </div>
   <div class="controls">
-    <button class="start" type="button" onclick="setLive(true)">방송 시작 표시</button>
-    <button class="stop" type="button" onclick="setLive(false)">방송 종료 표시</button>
+    <button class="start" type="button" onclick="setLive(true)">LIVE 켜기</button>
+    <button class="stop" type="button" onclick="setLive(false)">LIVE 끄기</button>
   </div>
 </div>
 <script>
 (function(){
-  var key='kt_live_indicator_demo';
-  function paint(){
-    var on=false;
-    try{on=localStorage.getItem(key)==='on';}catch(e){}
-    document.getElementById('liveBadge').classList.toggle('show',on);
+  var apiBase='',apiKey='',ready=false,busy=false,last=null;
+
+  function paint(on){
+    document.getElementById('liveBadge').classList.toggle('show',!!on);
+    document.getElementById('syncText').textContent=on?'두 기기 동기화 · 현재 LIVE 켜짐':'두 기기 동기화 · 현재 LIVE 꺼짐';
   }
-  window.setLive=function(on){
-    try{localStorage.setItem(key,on?'on':'off');}catch(e){}
-    paint();
+
+  async function loadConfig(){
+    try{
+      var r=await fetch('live-presence.js?demo-config=1',{cache:'no-store'});
+      if(!r.ok)throw new Error('config');
+      var t=await r.text();
+      var b=t.match(/var BASE='([^']+)'/);
+      var k=t.match(/var KEY='([^']+)'/);
+      if(!b||!k)throw new Error('config');
+      apiBase=b[1];
+      apiKey=k[1];
+      ready=true;
+      return true;
+    }catch(e){
+      document.getElementById('syncText').textContent='동기화 연결을 준비하지 못했습니다.';
+      return false;
+    }
+  }
+
+  function url(){return apiBase+'neutral_live_indicator_demo?id=eq.demo';}
+  function headers(extra){
+    var h={apikey:apiKey,Authorization:'Bearer '+apiKey};
+    Object.keys(extra||{}).forEach(function(k){h[k]=extra[k];});
+    return h;
+  }
+
+  async function readState(){
+    if(!ready||busy)return;
+    try{
+      var r=await fetch(url()+'&select=is_live,updated_at',{headers:headers(),cache:'no-store'});
+      if(!r.ok)throw new Error('read');
+      var rows=await r.json();
+      var on=!!(rows&&rows[0]&&rows[0].is_live);
+      if(last!==on){last=on;paint(on);}
+    }catch(e){
+      document.getElementById('syncText').textContent='연결 확인 중...';
+    }
+  }
+
+  window.setLive=async function(on){
+    if(!ready||busy)return;
+    busy=true;
+    try{
+      var r=await fetch(url(),{
+        method:'PATCH',
+        headers:headers({'Content-Type':'application/json','Prefer':'return=minimal'}),
+        body:JSON.stringify({is_live:!!on,updated_at:new Date().toISOString()})
+      });
+      if(!r.ok)throw new Error('write');
+      last=!!on;
+      paint(last);
+    }catch(e){
+      alert('동기화 연결을 확인하지 못했습니다. 잠시 후 다시 눌러 주세요.');
+    }
+    busy=false;
+    setTimeout(readState,150);
   };
+
   window.openLiveNotice=function(){
-    alert('LIVE 표시 데모입니다. 실제 방송 연결은 하지 않습니다.');
+    alert('LIVE 표시 동기화 데모입니다. 실제 방송 영상 연결은 하지 않습니다.');
   };
-  window.addEventListener('storage',paint);
-  paint();
+
+  (async function(){
+    if(await loadConfig()){
+      await readState();
+      setInterval(readState,1200);
+      window.addEventListener('focus',readState);
+      document.addEventListener('visibilitychange',function(){if(!document.hidden)readState();});
+    }
+  })();
 })();
 </script>
 </body>
