@@ -56,3 +56,13 @@
   s.setAttribute('data-kt-level-rules','1');
   document.head.appendChild(s);
 })();
+
+/* 구독자방 상단의 15명 표시와 출석체크 간격만 연결 */
+(function(){
+  if(document.querySelector('script[data-kt-subscriber-header15]'))return;
+  var s=document.createElement('script');
+  s.src='subscriber-header-15-spacing.js?v=20260912-sub15a';
+  s.async=false;
+  s.setAttribute('data-kt-subscriber-header15','1');
+  document.head.appendChild(s);
+})();
