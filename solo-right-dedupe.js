@@ -37,3 +37,13 @@
   var observer=new MutationObserver(function(){dedupe();});
   observer.observe(document.documentElement,{childList:true,subtree:true});
 })();
+
+/* 내 프로필 복구 전용 파일만 연결. 다른 화면/기능은 변경하지 않음. */
+(function(){
+  if(document.querySelector('script[data-kt-profile-restore-only]'))return;
+  var s=document.createElement('script');
+  s.src='profile-restore-only.js?v=20260912-profile1';
+  s.async=false;
+  s.setAttribute('data-kt-profile-restore-only','1');
+  document.head.appendChild(s);
+})();
