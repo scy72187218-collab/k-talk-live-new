@@ -30,23 +30,6 @@
     }
     return id;
   }
-  function hasLiveVideo(stream){
-    try{return !!(stream&&stream.getVideoTracks&&stream.getVideoTracks().some(function(t){return t&&t.readyState==='live';}));}catch(e){return false;}
-  }
-  function findStream(){
-    try{if(window.state&&hasLiveVideo(window.state.stream))return window.state.stream;}catch(e){}
-    try{
-      var videos=document.querySelectorAll('video');
-      for(var i=0;i<videos.length;i++){
-        var s=videos[i]&&videos[i].srcObject;
-        if(hasLiveVideo(s)){
-          try{if(window.state)window.state.stream=s;}catch(e){}
-          return s;
-        }
-      }
-    }catch(e){}
-    return null;
-  }
   function profile(){
     var p={name:'K-Talk 방송자',photo:''};
     try{if(window.ktProfileLoad){var x=window.ktProfileLoad()||{};p.name=String(x.name||p.name);p.photo=String(x.photo||'');}}catch(e){}
@@ -72,8 +55,6 @@
 
   async function registerNow(){
     if(active||registering||Date.now()>armedUntil)return;
-    var stream=findStream();
-    if(!stream)return;
     registering=true;
     var hostId=deviceId(),p=profile(),r=roomInfo(),stamp=nowIso();
     try{
@@ -116,19 +97,33 @@
     window.startBroadcast=fn;
   }
 
+  function screenShowsOnAir(){
+    try{
+      var screen=document.getElementById('screen');
+      if(!screen)return false;
+      var txt=String(screen.innerText||'');
+      return txt.indexOf('ON AIR')>-1||txt.indexOf('방송 중')>-1||!!screen.querySelector('#ktLiveVideo,.ktsolo-room,.ktg13-room,.ktg9-room,.ktsubscriber-room,.ktsecret-room');
+    }catch(e){return false;}
+  }
+
   document.addEventListener('click',function(e){
     try{
-      var start=e.target&&e.target.closest?e.target.closest('.prep-start'):null;
-      if(start)arm();
+      var target=e.target&&e.target.closest?e.target.closest('button,[role="button"],.prep-start'):null;
+      var text=target?String(target.innerText||target.textContent||'').replace(/\s+/g,' ').trim():'';
+      if((target&&target.matches&&target.matches('.prep-start'))||text.indexOf('방송 시작')>-1||text.indexOf('방송시작')>-1)arm();
       var leave=e.target&&e.target.closest?e.target.closest('.ktsolo-back,.ktsubscriber-back,.ktsecret-back,.ktg13-back,.ktg9-back'):null;
       if(leave&&active)stop();
     }catch(err){}
   },true);
 
   wrapStart();
-  var wrapCount=0;
-  var wrapTimer=setInterval(function(){wrapCount++;wrapStart();if(wrapCount>60)clearInterval(wrapTimer);},200);
-  setInterval(registerNow,500);
+  setInterval(function(){
+    wrapStart();
+    if(!active&&screenShowsOnAir()){
+      armedUntil=Date.now()+60000;
+      registerNow();
+    }
+  },700);
   window.addEventListener('pagehide',function(){
     if(active&&roomId){
       try{fetch(BASE+'ktalk_live_rooms?id=eq.'+enc(roomId),{method:'PATCH',headers:headers({Prefer:'return=minimal'}),body:JSON.stringify({active:false,updated_at:nowIso()}),keepalive:true});}catch(e){}
