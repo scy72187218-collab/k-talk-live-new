@@ -176,3 +176,13 @@
   s.setAttribute('data-kt-live-viewer-interactions','1');
   document.head.appendChild(s);
 })();
+
+/* 원격 방송 호스트 화면 직접 터치: 터치 1번마다 하트 1개 즉시 표시 */
+(function(){
+  if(document.querySelector('script[data-kt-remote-host-tap-heart]'))return;
+  var s=document.createElement('script');
+  s.src='remote-host-tap-heart-fix.js?v=20260912-hosttap1';
+  s.async=false;
+  s.setAttribute('data-kt-remote-host-tap-heart','1');
+  document.head.appendChild(s);
+})();
