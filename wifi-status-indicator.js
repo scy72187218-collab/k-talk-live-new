@@ -46,3 +46,13 @@
   s.setAttribute('data-kt-simple-seat-layout-three','1');
   document.head.appendChild(s);
 })();
+
+/* 본인 계정의 방 입장 레벨 예외 규칙만 다시 연결 */
+(function(){
+  if(document.querySelector('script[data-kt-level-rules]'))return;
+  var s=document.createElement('script');
+  s.src='level-rules.js?v=20260912-owner-entry1';
+  s.async=false;
+  s.setAttribute('data-kt-level-rules','1');
+  document.head.appendChild(s);
+})();
