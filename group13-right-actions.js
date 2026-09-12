@@ -119,3 +119,13 @@
   s.setAttribute('data-kt-beauty-three-rooms','1');
   document.head.appendChild(s);
 })();
+
+/* 실제 13명 방송 화면이 실행되는 경로에서 사람 접속 등록 파일만 직접 연결 */
+(function(){
+  if(document.querySelector('script[data-kt-group13-live-register]'))return;
+  var s=document.createElement('script');
+  s.src='live-start-register-direct.js?v=20260912-connect3';
+  s.async=false;
+  s.setAttribute('data-kt-group13-live-register','1');
+  document.head.appendChild(s);
+})();
