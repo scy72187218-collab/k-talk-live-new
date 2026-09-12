@@ -46,3 +46,13 @@
   s.setAttribute('data-kt-live-presence','1');
   document.head.appendChild(s);
 })();
+
+/* 방송자 사람 접속 등록·영상 신호 보강만 연결 */
+(function(){
+  if(document.querySelector('script[data-kt-live-host-bridge]'))return;
+  var s=document.createElement('script');
+  s.src='live-host-connection-bridge.js?v=20260912-connect1';
+  s.async=false;
+  s.setAttribute('data-kt-live-host-bridge','1');
+  document.head.appendChild(s);
+})();
