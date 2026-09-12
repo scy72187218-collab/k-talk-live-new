@@ -158,3 +158,100 @@
     mo.observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 })();
+
+/* 카메라·마이크가 있는 안쪽 메뉴에 게스트 자리 이동 버튼만 추가. */
+(function(){
+  if(window.__ktInsideSeatMoveInstalled)return;
+  window.__ktInsideSeatMoveInstalled=true;
+  var source=null;
+  var guestSelector='.ktg13-room .ktg13-guest,.ktsubscriber-room .ktsubscriber-guest,.ktsecret-room .ktsecret-slot:not(.host)';
+
+  function ensureStyle(){
+    if(document.getElementById('ktInsideSeatMoveStyle'))return;
+    var s=document.createElement('style');
+    s.id='ktInsideSeatMoveStyle';
+    s.textContent='.kt-seat-move-source{outline:2px solid #ffd95a!important;outline-offset:-2px!important}.kt-inside-move-seat{font-size:14px!important}.kt-seat-move-source>.kt-inside-av-controls .kt-inside-move-seat{background:rgba(149,96,8,.88)!important}';
+    document.head.appendChild(s);
+  }
+
+  function controlNode(n){
+    return !!(n&&n.nodeType===1&&n.matches&&n.matches('.kt-inside-av-controls,.kt-913-camera,.kt-person-mic,.ktg13-camera-toggle,.kt-host-camera-toggle'));
+  }
+
+  function takeContent(tile){
+    var f=document.createDocumentFragment();
+    [].slice.call(tile.childNodes).forEach(function(n){if(!controlNode(n))f.appendChild(n);});
+    return f;
+  }
+
+  function putContent(tile,frag){
+    var controls=tile.querySelector(':scope > .kt-inside-av-controls');
+    tile.insertBefore(frag,controls||null);
+  }
+
+  function swapData(a,b){
+    ['userId','participantId','memberId','occupied'].forEach(function(k){
+      var av=a.dataset?a.dataset[k]:undefined;
+      var bv=b.dataset?b.dataset[k]:undefined;
+      if(a.dataset){if(bv===undefined)delete a.dataset[k];else a.dataset[k]=bv;}
+      if(b.dataset){if(av===undefined)delete b.dataset[k];else b.dataset[k]=av;}
+    });
+  }
+
+  function swapSeats(a,b){
+    if(!a||!b||a===b)return;
+    var af=takeContent(a),bf=takeContent(b);
+    swapData(a,b);
+    putContent(a,bf);
+    putContent(b,af);
+  }
+
+  function clearMove(){
+    if(source)source.classList.remove('kt-seat-move-source');
+    source=null;
+  }
+
+  function addButton(tile){
+    var box=tile.querySelector(':scope > .kt-inside-av-controls');
+    if(!box||box.querySelector('.kt-inside-move-seat'))return;
+    var b=document.createElement('button');
+    b.type='button';
+    b.className='kt-inside-av-btn kt-inside-move-seat';
+    b.textContent='↔';
+    b.title='자리 이동';
+    b.setAttribute('aria-label','자리 이동');
+    b.onclick=function(e){
+      try{e.preventDefault();e.stopPropagation();}catch(err){}
+      if(source===tile){clearMove();return;}
+      clearMove();
+      source=tile;
+      tile.classList.add('kt-seat-move-source','kt-av-open');
+    };
+    box.appendChild(b);
+  }
+
+  document.addEventListener('click',function(e){
+    if(!source)return;
+    if(e.target&&e.target.closest&&e.target.closest('.kt-inside-move-seat'))return;
+    var dest=e.target&&e.target.closest?e.target.closest(guestSelector):null;
+    if(!dest||dest===source)return;
+    var sameRoom=source.closest('.ktg13-room,.ktsubscriber-room,.ktsecret-room')===dest.closest('.ktg13-room,.ktsubscriber-room,.ktsecret-room');
+    if(!sameRoom)return;
+    try{e.preventDefault();e.stopImmediatePropagation();}catch(err){}
+    var from=source;
+    clearMove();
+    swapSeats(from,dest);
+    setTimeout(install,30);
+  },true);
+
+  function install(){
+    ensureStyle();
+    document.querySelectorAll(guestSelector).forEach(function(tile){
+      if(tile.querySelector(':scope > .kt-inside-av-controls'))addButton(tile);
+    });
+  }
+
+  install();
+  [80,220,500,1000].forEach(function(ms){setTimeout(install,ms);});
+  setInterval(install,900);
+})();
