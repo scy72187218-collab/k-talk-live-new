@@ -255,3 +255,29 @@
   [80,220,500,1000].forEach(function(ms){setTimeout(install,ms);});
   setInterval(install,900);
 })();
+
+/* 사용방법에 네 방송방 카메라·마이크·자리 이동 설명만 추가. */
+(function(){
+  if(window.__ktRoomAvGuideInstalled)return;
+  window.__ktRoomAvGuideInstalled=true;
+
+  function addGuide(){
+    var page=document.querySelector('.kt-guide-page');
+    if(!page||page.querySelector('.kt-room-av-guide'))return;
+    var cards=page.querySelector('.kt-guide-cards');
+    if(!cards)return;
+    var d=document.createElement('div');
+    d.className='kt-room-av-guide';
+    d.innerHTML='<span>🎛️</span><b>방송방 카메라·마이크·자리 이동</b><small>9명방 · 13명방 · 구독자방 · 비밀방에서 사람이 있는 화면을 누르면 📷 카메라 · 🎤 마이크 · ↔ 자리 이동 버튼이 표시됩니다. 자리를 옮기려면 ↔를 누른 뒤 이동할 자리를 누르세요.</small>';
+    cards.appendChild(d);
+  }
+
+  var old=window.openSiteGuide;
+  if(typeof old==='function'){
+    window.openSiteGuide=function(){
+      var r=old.apply(this,arguments);
+      setTimeout(addGuide,0);
+      return r;
+    };
+  }
+})();
