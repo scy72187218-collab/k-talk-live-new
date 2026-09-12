@@ -1,4 +1,4 @@
-/* K-Talk 보물상자 표시 위치 유지 + 9명 방에서만 호스트 길이 축소. 다른 방은 변경하지 않음. */
+/* K-Talk 보물상자 표시 위치만 수정: 활성 보물상자는 호스트 영상 왼쪽 위 구석에 표시. 기존 보물상자 버튼/기능은 그대로 유지. */
 (function(){
   if(window.__ktTreasureLeftCornerFixInstalled)return;
   window.__ktTreasureLeftCornerFixInstalled=true;
@@ -14,59 +14,76 @@
     document.head.appendChild(s);
   }
 
-  function isNineRoom(){
-    try{
-      var room=document.querySelector('.ktg13-room');
-      if(room&&room.getAttribute('data-kt-room')==='9')return true;
-      var t=(window.state&&state.liveRoomType)||'';
-      var n=(window.state&&state.liveRoomName)||'';
-      return t==='group9'||n==='9명 방송';
-    }catch(e){return false;}
+  function ensureNineRoomLayoutStyle(){
+    if(document.getElementById('ktNineRoomLayoutChoicesStyle'))return;
+    var s=document.createElement('style');
+    s.id='ktNineRoomLayoutChoicesStyle';
+    s.textContent=''
+      +'.ktg13-room[data-kt-room="9"] .kt9-layout-picker{position:absolute!important;z-index:40!important;top:5px!important;left:50%!important;transform:translateX(-50%)!important;display:flex!important;gap:4px!important;padding:3px!important;border-radius:12px!important;background:#050507d9!important;border:1px solid #ff2bbd77!important;box-shadow:0 2px 10px #000a!important}'
+      +'.ktg13-room[data-kt-room="9"] .kt9-layout-btn{height:27px!important;min-width:39px!important;padding:0 6px!important;border:1px solid #494951!important;border-radius:9px!important;background:#17171c!important;color:#fff!important;font-size:10px!important;font-weight:900!important;line-height:1!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:3px!important}'
+      +'.ktg13-room[data-kt-room="9"] .kt9-layout-btn b{font-size:15px!important;line-height:1!important}'
+      +'.ktg13-room[data-kt-room="9"] .kt9-layout-btn.on{border-color:#ff32c7!important;background:#33102e!important;box-shadow:0 0 8px #ff2bbd88!important;color:#ffe8fb!important}'
+      +'.ktg13-room[data-kt-room="9"] .ktg13-host-extra{display:none!important}'
+      +'#screen .ktg13-room[data-kt-room="9"] .ktg13-host>video{width:100%!important;height:100%!important;left:0!important;top:0!important;position:absolute!important;object-fit:cover!important;object-position:center!important}'
+      +'.ktg13-room[data-kt-room="9"][data-kt9-layout="grid"] .ktg13-main{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:repeat(3,minmax(0,1fr))!important;gap:2px!important}'
+      +'.ktg13-room[data-kt-room="9"][data-kt9-layout="grid"] .ktg13-host{grid-column:1!important;grid-row:1!important;min-width:0!important;min-height:0!important}'
+      +'.ktg13-room[data-kt-room="9"][data-kt9-layout="grid"] .ktg13-guests{display:contents!important}'
+      +'.ktg13-room[data-kt-room="9"][data-kt9-layout="side"] .ktg13-main{display:grid!important;grid-template-columns:42% 58%!important;grid-template-rows:minmax(0,1fr)!important;gap:3px!important}'
+      +'.ktg13-room[data-kt-room="9"][data-kt9-layout="side"] .ktg13-host{grid-column:1!important;grid-row:1!important;min-width:0!important;min-height:0!important}'
+      +'.ktg13-room[data-kt-room="9"][data-kt9-layout="side"] .ktg13-guests{display:grid!important;grid-column:2!important;grid-row:1!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-rows:repeat(4,minmax(0,1fr))!important;gap:2px!important;min-width:0!important;min-height:0!important}'
+      +'.ktg13-room[data-kt-room="9"][data-kt9-layout="focus"] .ktg13-main{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:repeat(4,minmax(0,1fr))!important;gap:2px!important}'
+      +'.ktg13-room[data-kt-room="9"][data-kt9-layout="focus"] .ktg13-host{grid-column:1 / 3!important;grid-row:1 / 3!important;min-width:0!important;min-height:0!important}'
+      +'.ktg13-room[data-kt-room="9"][data-kt9-layout="focus"] .ktg13-guests{display:contents!important}'
+      +'.ktg13-room[data-kt-room="9"] .ktg13-guest{min-width:0!important;min-height:0!important;font-size:12px!important}'
+      +'@media(max-width:390px){.ktg13-room[data-kt-room="9"] .kt9-layout-picker{top:4px!important;gap:3px!important;padding:2px!important}.ktg13-room[data-kt-room="9"] .kt9-layout-btn{height:24px!important;min-width:34px!important;padding:0 4px!important;font-size:9px!important}.ktg13-room[data-kt-room="9"] .kt9-layout-btn b{font-size:13px!important}.ktg13-room[data-kt-room="9"] .ktg13-guest{font-size:10px!important}}';
+    document.head.appendChild(s);
   }
 
-  function compactNineRoom(){
-    if(!isNineRoom())return;
-    var room=document.querySelector('.ktg13-room');
+  function savedNineLayout(){
+    try{
+      var v=localStorage.getItem('kt9_layout_choice');
+      if(v==='grid'||v==='side'||v==='focus')return v;
+    }catch(e){}
+    return 'grid';
+  }
+
+  function applyNineLayout(layout,save){
+    if(layout!=='grid'&&layout!=='side'&&layout!=='focus')layout='grid';
+    var room=document.querySelector('.ktg13-room[data-kt-room="9"]');
     if(!room)return;
-    room.setAttribute('data-kt-room','9');
-
-    var main=room.querySelector('.ktg13-main');
-    var host=room.querySelector('.ktg13-host');
-    var guests=room.querySelector('.ktg13-guests');
-    if(!main||!host||!guests)return;
-
-    main.style.setProperty('display','grid','important');
-    main.style.setProperty('grid-template-columns','repeat(3,minmax(0,1fr))','important');
-    main.style.setProperty('grid-template-rows','repeat(3,minmax(0,1fr))','important');
-    main.style.setProperty('gap','2px','important');
-
-    host.style.setProperty('grid-column','1','important');
-    host.style.setProperty('grid-row','1','important');
-    host.style.setProperty('min-width','0','important');
-    host.style.setProperty('min-height','0','important');
-    host.style.setProperty('height','auto','important');
-
-    guests.style.setProperty('display','contents','important');
-    guests.style.setProperty('grid-column','auto','important');
-    guests.style.setProperty('grid-row','auto','important');
-
-    var cells=[].slice.call(room.querySelectorAll('.ktg13-guests > .ktg13-guest'));
-    cells.slice(8).forEach(function(g){try{g.remove();}catch(e){}});
-    cells.slice(0,8).forEach(function(g){
-      g.style.setProperty('min-width','0','important');
-      g.style.setProperty('min-height','0','important');
-      g.style.setProperty('height','auto','important');
+    room.setAttribute('data-kt9-layout',layout);
+    room.querySelectorAll('.kt9-layout-btn').forEach(function(b){
+      b.classList.toggle('on',b.getAttribute('data-layout')===layout);
     });
-
-    var v=host.querySelector('video');
-    if(v){
-      v.style.setProperty('position','absolute','important');
-      v.style.setProperty('left','0','important');
-      v.style.setProperty('top','0','important');
-      v.style.setProperty('width','100%','important');
-      v.style.setProperty('height','100%','important');
-      v.style.setProperty('object-fit','cover','important');
+    if(save){
+      try{localStorage.setItem('kt9_layout_choice',layout);}catch(e){}
     }
+  }
+
+  function ensureNineLayoutPicker(){
+    ensureNineRoomLayoutStyle();
+    var room=document.querySelector('.ktg13-room[data-kt-room="9"]');
+    if(!room)return;
+    var main=room.querySelector('.ktg13-main');
+    if(!main)return;
+    var picker=main.querySelector('.kt9-layout-picker');
+    if(!picker){
+      picker=document.createElement('div');
+      picker.className='kt9-layout-picker';
+      picker.innerHTML=''
+        +'<button type="button" class="kt9-layout-btn" data-layout="grid" title="3×3 격자"><b>▦</b><span>격자</span></button>'
+        +'<button type="button" class="kt9-layout-btn" data-layout="side" title="호스트 왼쪽"><b>▥</b><span>좌측</span></button>'
+        +'<button type="button" class="kt9-layout-btn" data-layout="focus" title="호스트 크게"><b>▣</b><span>큰칸</span></button>';
+      picker.addEventListener('click',function(e){
+        var b=e.target&&e.target.closest?e.target.closest('.kt9-layout-btn'):null;
+        if(!b)return;
+        e.preventDefault();
+        e.stopPropagation();
+        applyNineLayout(b.getAttribute('data-layout'),true);
+      },true);
+      main.appendChild(picker);
+    }
+    applyNineLayout(savedNineLayout(),false);
   }
 
   function moveFallback(){
@@ -89,7 +106,7 @@
     }
   }
 
-  function apply(){ensureStyle();compactNineRoom();moveGlobal();moveFallback();}
+  function apply(){ensureStyle();ensureNineLayoutPicker();moveGlobal();moveFallback();}
   apply();
   setTimeout(apply,80);
   setTimeout(apply,300);
