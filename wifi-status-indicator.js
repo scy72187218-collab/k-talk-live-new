@@ -76,3 +76,13 @@
   s.setAttribute('data-kt-subscriber-header15','1');
   document.head.appendChild(s);
 })();
+
+/* 출석체크 보상만 하루 장미 1송이로 연결 */
+(function(){
+  if(document.querySelector('script[data-kt-attendance-one-rose]'))return;
+  var s=document.createElement('script');
+  s.src='attendance-one-rose-fix.js?v=20260912-attrose1';
+  s.async=false;
+  s.setAttribute('data-kt-attendance-one-rose','1');
+  document.head.appendChild(s);
+})();
