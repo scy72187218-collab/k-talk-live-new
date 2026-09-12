@@ -1,43 +1,44 @@
-/* K-Talk 13명방 전용: 호스트를 위 3줄 높이로 줄이고, 그 아래 빈 게스트 1칸만 추가. 다른 UI/기능은 변경하지 않음. */
+/* K-Talk 13명방 전용: 호스트를 위 가로 1칸 크게, 아래 게스트 12칸을 3x4로 배치. 다른 방/UI/기능은 변경하지 않음. */
 (function(){
-  if(window.__ktGroup13HostThreeRowsInstalled)return;
-  window.__ktGroup13HostThreeRowsInstalled=true;
+  if(window.__ktGroup13HostTopLayoutInstalled)return;
+  window.__ktGroup13HostTopLayoutInstalled=true;
+
+  function isGroup13(){
+    try{
+      var t=String((window.state&&state.liveRoomType)||'');
+      var n=String((window.state&&state.liveRoomName)||'');
+      return t==='group'||t==='group13'||n==='13명 방송';
+    }catch(e){return false;}
+  }
 
   function addStyle(){
-    if(document.getElementById('ktGroup13HostThreeRowsStyle'))return;
+    if(document.getElementById('ktGroup13HostTopLayoutStyle'))return;
     var s=document.createElement('style');
-    s.id='ktGroup13HostThreeRowsStyle';
+    s.id='ktGroup13HostTopLayoutStyle';
     s.textContent='\
-      #screen .ktg13-room .ktg13-main{grid-template-rows:repeat(4,minmax(0,1fr))!important;}\
-      #screen .ktg13-room .ktg13-host{grid-column:1!important;grid-row:1/4!important;}\
-      #screen .ktg13-room .ktg13-guests{grid-column:2!important;grid-row:1/5!important;}\
-      #screen .ktg13-room .ktg13-host-extra{grid-column:1!important;grid-row:4!important;display:grid!important;place-items:center!important;min-width:0!important;min-height:0!important;}\
-      #screen .ktg13-room .ktg13-host>video{width:78%!important;height:76%!important;position:absolute!important;left:11%!important;top:5%!important;object-fit:contain!important;object-position:center top!important;}';
+      #screen .ktg13-room.ktg13-top-host-layout .ktg13-main{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:minmax(0,1.35fr) repeat(4,minmax(0,1fr))!important;gap:2px!important;}\
+      #screen .ktg13-room.ktg13-top-host-layout .ktg13-host{grid-column:1/4!important;grid-row:1!important;min-width:0!important;min-height:0!important;}\
+      #screen .ktg13-room.ktg13-top-host-layout .ktg13-guests{grid-column:1/4!important;grid-row:2/6!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:repeat(4,minmax(0,1fr))!important;gap:2px!important;min-width:0!important;min-height:0!important;}\
+      #screen .ktg13-room.ktg13-top-host-layout .ktg13-host>video{width:100%!important;height:100%!important;position:absolute!important;left:0!important;top:0!important;object-fit:cover!important;object-position:center!important;}';
     document.head.appendChild(s);
   }
 
   function apply(){
+    if(!isGroup13())return;
     var room=document.querySelector('.ktg13-room');
     if(!room)return;
+    if(room.getAttribute('data-kt-room')==='9'||room.getAttribute('data-kt-room')==='15')return;
     addStyle();
-    var main=room.querySelector('.ktg13-main');
-    var host=room.querySelector('.ktg13-host');
-    var guests=room.querySelector('.ktg13-guests');
-    if(!main||!host||!guests)return;
-    if(!main.querySelector('.ktg13-host-extra')){
-      var extra=document.createElement('div');
-      extra.className='ktg13-guest ktg13-host-extra';
-      extra.innerHTML='<span>게스트</span>';
-      main.insertBefore(extra,guests);
-    }
+    room.classList.add('ktg13-top-host-layout');
+    var extra=room.querySelector('.ktg13-host-extra');
+    if(extra)extra.remove();
   }
 
-  apply();
-  [50,150,350,700,1200].forEach(function(ms){setTimeout(apply,ms);});
+  [80,180,350,700,1200].forEach(function(ms){setTimeout(apply,ms);});
   try{
     var mo=new MutationObserver(function(){
-      clearTimeout(window.__ktGroup13HostThreeRowsTimer);
-      window.__ktGroup13HostThreeRowsTimer=setTimeout(apply,30);
+      clearTimeout(window.__ktGroup13HostTopLayoutTimer);
+      window.__ktGroup13HostTopLayoutTimer=setTimeout(apply,40);
     });
     mo.observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
