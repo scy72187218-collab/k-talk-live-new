@@ -4,17 +4,28 @@
   window.__ktLivePresenceWatchdogInstalled=true;
 
   var BASE='https://zupwbfmacwzexyvznlzq.supabase.co/rest/v1/';
-  var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXAiLCJyZWYiOiJ6dXB3YmZtYWN3emV4eXZ6bmx6cSIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzg4NDYxMDc2LCJleHAiOjIxMDQwMzcwNzZ9.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
+  var KEY='';
   var roomId='';
   var publishing=false;
   var misses=0;
 
+  async function ensureKey(){
+    if(KEY)return KEY;
+    var r=await fetch('live-presence.js?v=20260910-live1',{cache:'no-store'});
+    if(!r.ok)throw new Error('live config');
+    var t=await r.text();
+    var m=t.match(/var KEY='([^']+)'/);
+    if(!m)throw new Error('live config');
+    KEY=m[1];
+    return KEY;
+  }
   function headers(extra){
     var h={apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json'};
     Object.keys(extra||{}).forEach(function(k){h[k]=extra[k];});
     return h;
   }
   async function req(path,opt){
+    await ensureKey();
     opt=opt||{};opt.headers=headers(opt.headers);
     var r=await fetch(BASE+path,opt);
     if(!r.ok)throw new Error('live watchdog '+r.status);
@@ -39,9 +50,7 @@
     }catch(e){}
     try{
       var videos=document.querySelectorAll('.ktsolo-room video,.ktg13-room video,.ktsubscriber-room video,.ktsecret-room video,#ktLiveVideo,video#camera');
-      for(var i=0;i<videos.length;i++){
-        if(streamIsLive(videos[i].srcObject))return true;
-      }
+      for(var i=0;i<videos.length;i++)if(streamIsLive(videos[i].srcObject))return true;
     }catch(e){}
     return false;
   }
@@ -50,10 +59,7 @@
   }
   function roomInfo(){
     var type='solo',name='1인 방송',title='';
-    try{
-      type=String((window.state&&state.liveRoomType)||'solo');
-      name=String((window.state&&state.liveRoomName)||'1인 방송');
-    }catch(e){}
+    try{type=String((window.state&&state.liveRoomType)||'solo');name=String((window.state&&state.liveRoomName)||'1인 방송');}catch(e){}
     if(type==='group')type='group13';
     try{var t=document.getElementById('liveTitle');title=t?String(t.value||'').trim():'';}catch(e){}
     if(!title||title==='오늘 라이브 제목을 입력하세요')title=name;
@@ -114,6 +120,8 @@
 
   window.addEventListener('pagehide',function(){
     if(!roomId)return;
-    try{fetch(BASE+'ktalk_live_rooms?id=eq.'+enc(roomId),{method:'PATCH',headers:headers({Prefer:'return=minimal'}),body:JSON.stringify({active:false,updated_at:now()}),keepalive:true});}catch(e){}
+    ensureKey().then(function(){
+      try{fetch(BASE+'ktalk_live_rooms?id=eq.'+enc(roomId),{method:'PATCH',headers:headers({Prefer:'return=minimal'}),body:JSON.stringify({active:false,updated_at:now()}),keepalive:true});}catch(e){}
+    }).catch(function(){});
   });
 })();
