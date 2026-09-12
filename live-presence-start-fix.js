@@ -4,7 +4,7 @@
   window.__ktLivePresenceStartFixInstalled=true;
 
   function roomOpen(){
-    try{return !!document.querySelector('.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room');}
+    try{return !!document.querySelector('#ktLiveVideo,.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room');}
     catch(e){return false;}
   }
 
