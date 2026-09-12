@@ -114,3 +114,13 @@
   s.setAttribute('data-kt-live-feed-bootstrap','1');
   document.head.appendChild(s);
 })();
+
+/* 사람 접속 전용 보강만 추가 로드. 기존 하트/화면 기능은 변경하지 않음. */
+(function(){
+  if(document.querySelector('script[data-kt-live-connection-start-only]'))return;
+  var s=document.createElement('script');
+  s.src='live-connection-start-only.js?v=20260912-connect1';
+  s.async=false;
+  s.setAttribute('data-kt-live-connection-start-only','1');
+  document.head.appendChild(s);
+})();
