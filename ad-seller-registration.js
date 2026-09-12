@@ -176,3 +176,13 @@
   s.setAttribute('data-kt-live-viewer-interactions','1');
   document.head.appendChild(s);
 })();
+
+/* 방송방이 열렸는데 목록 등록이 빠질 때만 실시간 등록을 보강 */
+(function(){
+  if(document.querySelector('script[data-kt-live-watchdog]'))return;
+  var s=document.createElement('script');
+  s.src='live-presence-watchdog.js?v=20260912-live1';
+  s.async=false;
+  s.setAttribute('data-kt-live-watchdog','1');
+  document.head.appendChild(s);
+})();
