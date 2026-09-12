@@ -100,3 +100,94 @@
     mo.observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 })();
+
+/* 13명방·구독자방·비밀방 호스트 칸: 사진처럼 카메라 열림/잠김 + 마이크 버튼만 아래에 표시. */
+(function(){
+  if(window.__ktThreeRoomHostCameraMicInstalled)return;
+  window.__ktThreeRoomHostCameraMicInstalled=true;
+
+  function ensureStyle(){
+    if(document.getElementById('ktThreeRoomHostCameraMicStyle'))return;
+    var s=document.createElement('style');
+    s.id='ktThreeRoomHostCameraMicStyle';
+    s.textContent=''
+      +'.ktg13-room .ktg13-host,.ktsubscriber-room .ktsubscriber-host,.ktsecret-room .ktsecret-slot.host{position:relative!important}'
+      +'.ktg13-room .ktg13-host>.kt-person-mic,.ktsubscriber-room .ktsubscriber-host>.kt-person-mic,.ktsecret-room .ktsecret-slot.host>.kt-person-mic{top:auto!important;right:5px!important;bottom:5px!important;z-index:31!important}'
+      +'.ktg13-room .ktg13-camera-toggle,.ktsubscriber-room .kt-host-camera-toggle,.ktsecret-room .kt-host-camera-toggle{position:absolute!important;right:36px!important;bottom:5px!important;z-index:31!important;height:25px!important;min-width:54px!important;padding:0 7px!important;margin:0!important;border:1px solid rgba(255,255,255,.45)!important;border-radius:13px!important;background:rgba(8,8,12,.82)!important;color:#fff!important;font:900 10px/1 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:3px!important;box-shadow:0 1px 5px rgba(0,0,0,.45)!important;touch-action:manipulation!important}'
+      +'.ktsubscriber-room .kt-host-camera-toggle.locked,.ktsecret-room .kt-host-camera-toggle.locked{background:rgba(112,18,32,.88)!important}'
+      +'@media(max-width:390px){.ktg13-room .ktg13-host>.kt-person-mic,.ktsubscriber-room .ktsubscriber-host>.kt-person-mic,.ktsecret-room .ktsecret-slot.host>.kt-person-mic{right:3px!important;bottom:3px!important}.ktg13-room .ktg13-camera-toggle,.ktsubscriber-room .kt-host-camera-toggle,.ktsecret-room .kt-host-camera-toggle{right:31px!important;bottom:3px!important;height:22px!important;min-width:49px!important;padding:0 5px!important;font-size:9px!important}}';
+    document.head.appendChild(s);
+  }
+
+  function tracks(host){
+    try{
+      if(window.state&&state.stream&&state.stream.getVideoTracks){
+        var a=state.stream.getVideoTracks();
+        if(a&&a.length)return a;
+      }
+    }catch(e){}
+    try{
+      var v=host&&host.querySelector?host.querySelector('video'):null;
+      if(v&&v.srcObject&&v.srcObject.getVideoTracks)return v.srcObject.getVideoTracks();
+    }catch(e){}
+    return [];
+  }
+
+  function isOpen(host){
+    var a=tracks(host);
+    if(!a.length)return true;
+    return a.some(function(t){return t.enabled!==false;});
+  }
+
+  function sync(host,btn){
+    var open=isOpen(host);
+    btn.classList.toggle('locked',!open);
+    btn.innerHTML=open?'📷 <span>열림</span>':'🔒 <span>잠김</span>';
+    btn.title=open?'카메라 잠그기':'카메라 열기';
+    btn.setAttribute('aria-label',btn.title);
+  }
+
+  function toggle(host,btn){
+    var a=tracks(host);
+    if(!a.length)return;
+    var open=isOpen(host);
+    a.forEach(function(t){try{t.enabled=!open;}catch(e){}});
+    sync(host,btn);
+  }
+
+  function addCamera(host){
+    if(!host)return;
+    var existing=host.querySelector(':scope > .ktg13-camera-toggle');
+    if(existing){sync(host,existing);return;}
+    var btn=host.querySelector(':scope > .kt-host-camera-toggle');
+    if(!btn){
+      btn=document.createElement('button');
+      btn.type='button';
+      btn.className='kt-host-camera-toggle';
+      btn.onclick=function(e){
+        try{e.preventDefault();e.stopPropagation();}catch(err){}
+        toggle(host,this);
+      };
+      host.appendChild(btn);
+    }
+    sync(host,btn);
+  }
+
+  function install(){
+    ensureStyle();
+    addCamera(document.querySelector('.ktg13-room .ktg13-host'));
+    addCamera(document.querySelector('.ktsubscriber-room .ktsubscriber-host'));
+    addCamera(document.querySelector('.ktsecret-room .ktsecret-slot.host'));
+  }
+
+  install();
+  [80,220,500,900,1500].forEach(function(ms){setTimeout(install,ms);});
+  setInterval(install,1000);
+  try{
+    var mo=new MutationObserver(function(){
+      clearTimeout(window.__ktThreeRoomHostCameraMicTimer);
+      window.__ktThreeRoomHostCameraMicTimer=setTimeout(install,35);
+    });
+    mo.observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+})();
