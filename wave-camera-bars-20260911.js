@@ -79,3 +79,99 @@
   setTimeout(applyNineOnly,220);
   setTimeout(applyNineOnly,600);
 })();
+
+/* 2026-09-12: 구독자방·비밀방도 9명방/13명방과 같이 마이크·카메라를 파장 아래에 두고 카메라 잠김/열림 사용. 다른 UI는 변경하지 않음. */
+(function(){
+  if(window.__ktSubSecretCameraLockControlsInstalled)return;
+  window.__ktSubSecretCameraLockControlsInstalled=true;
+
+  function ensureStyle(){
+    if(document.getElementById('ktSubSecretCameraLockControlsStyle'))return;
+    var s=document.createElement('style');
+    s.id='ktSubSecretCameraLockControlsStyle';
+    s.textContent=''
+      +'.ktsubscriber-room .ktsubscriber-host>.kt-open-camera-wave,.ktsecret-room .ktsecret-slot.host>.kt-open-camera-wave{bottom:31px!important;height:34px!important}'
+      +'.ktsubscriber-room .ktsubscriber-host>.kt-person-mic,.ktsecret-room .ktsecret-slot.host>.kt-person-mic{top:auto!important;right:5px!important;bottom:4px!important}'
+      +'.kt-room-camera-toggle{position:absolute!important;right:36px!important;bottom:4px!important;z-index:26!important;height:25px!important;min-width:54px!important;padding:0 7px!important;border:1px solid rgba(255,255,255,.45)!important;border-radius:13px!important;background:rgba(8,8,12,.80)!important;color:#fff!important;font:900 10px/1 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:3px!important;touch-action:manipulation!important}'
+      +'.kt-room-camera-toggle.locked{background:rgba(112,18,32,.88)!important}'
+      +'.kt-room-camera-lock-mask{display:none;position:absolute;inset:0;z-index:2;background:#08080b;color:#fff;font:900 13px/1.2 system-ui,-apple-system,"Noto Sans KR",sans-serif;align-items:center;justify-content:center;text-align:center}'
+      +'.ktsubscriber-host.kt-camera-locked>.kt-room-camera-lock-mask,.ktsecret-slot.host.kt-camera-locked>.kt-room-camera-lock-mask{display:flex!important}'
+      +'@media(max-width:390px){.ktsubscriber-room .ktsubscriber-host>.kt-open-camera-wave,.ktsecret-room .ktsecret-slot.host>.kt-open-camera-wave{bottom:28px!important;height:31px!important}.ktsubscriber-room .ktsubscriber-host>.kt-person-mic,.ktsecret-room .ktsecret-slot.host>.kt-person-mic{right:3px!important;bottom:3px!important}.kt-room-camera-toggle{right:31px!important;bottom:3px!important;height:22px!important;min-width:49px!important;font-size:9px!important}}';
+    document.head.appendChild(s);
+  }
+
+  function videoTracks(host){
+    try{
+      if(window.state&&state.stream&&state.stream.getVideoTracks)return state.stream.getVideoTracks();
+    }catch(e){}
+    var v=host&&host.querySelector?host.querySelector('video'):null;
+    try{
+      if(v&&v.srcObject&&v.srcObject.getVideoTracks)return v.srcObject.getVideoTracks();
+    }catch(e){}
+    return [];
+  }
+
+  function cameraOpen(host){
+    var tracks=videoTracks(host);
+    if(!tracks.length)return true;
+    return tracks.some(function(t){return t.enabled!==false;});
+  }
+
+  function sync(host,btn){
+    var open=cameraOpen(host);
+    host.classList.toggle('kt-camera-locked',!open);
+    btn.classList.toggle('locked',!open);
+    btn.innerHTML=open?'📷 <span>열림</span>':'🔒 <span>잠김</span>';
+    btn.title=open?'카메라 잠그기':'카메라 열기';
+    btn.setAttribute('aria-label',btn.title);
+  }
+
+  function toggle(host,btn){
+    var tracks=videoTracks(host);
+    if(!tracks.length)return;
+    var open=cameraOpen(host);
+    tracks.forEach(function(t){try{t.enabled=!open;}catch(e){}});
+    sync(host,btn);
+  }
+
+  function installHost(host){
+    if(!host)return;
+    ensureStyle();
+
+    var mask=host.querySelector(':scope > .kt-room-camera-lock-mask');
+    if(!mask){
+      mask=document.createElement('div');
+      mask.className='kt-room-camera-lock-mask';
+      mask.innerHTML='🔒 카메라 잠김';
+      host.appendChild(mask);
+    }
+
+    var btn=host.querySelector(':scope > .kt-room-camera-toggle');
+    if(!btn){
+      btn=document.createElement('button');
+      btn.type='button';
+      btn.className='kt-room-camera-toggle';
+      btn.onclick=function(e){
+        try{e.preventDefault();e.stopPropagation();}catch(err){}
+        toggle(host,this);
+      };
+      host.appendChild(btn);
+    }
+    sync(host,btn);
+  }
+
+  function install(){
+    installHost(document.querySelector('.ktsubscriber-room .ktsubscriber-host'));
+    installHost(document.querySelector('.ktsecret-room .ktsecret-slot.host'));
+  }
+
+  install();
+  [80,220,500,900,1500].forEach(function(ms){setTimeout(install,ms);});
+  try{
+    var mo=new MutationObserver(function(){
+      clearTimeout(window.__ktSubSecretCameraControlsTimer);
+      window.__ktSubSecretCameraControlsTimer=setTimeout(install,30);
+    });
+    mo.observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+})();
