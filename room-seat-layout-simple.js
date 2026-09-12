@@ -63,6 +63,14 @@
 
   function saved(info){
     try{
+      if(info.key==='subscriber'&&!localStorage.getItem('kt_restore_subscriber_layout_20260912_1740')){
+        localStorage.setItem('kt_simple_seat_layout_subscriber','side');
+        localStorage.setItem('kt_restore_subscriber_layout_20260912_1740','1');
+      }
+      if(info.key==='secret'&&!localStorage.getItem('kt_restore_secret_layout_20260912_1740')){
+        localStorage.setItem('kt_simple_seat_layout_secret','grid');
+        localStorage.setItem('kt_restore_secret_layout_20260912_1740','1');
+      }
       var v=localStorage.getItem('kt_simple_seat_layout_'+info.key);
       if(v==='grid'||v==='side'||v==='focus')return v;
     }catch(e){}
