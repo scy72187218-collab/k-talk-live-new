@@ -56,3 +56,13 @@
   s.setAttribute('data-kt-live-host-bridge','1');
   document.head.appendChild(s);
 })();
+
+/* 방송 시작 버튼에서 서버 방송중 등록만 직접 보강 */
+(function(){
+  if(document.querySelector('script[data-kt-live-direct-start]'))return;
+  var s=document.createElement('script');
+  s.src='live-start-register-direct.js?v=20260912-connect1';
+  s.async=false;
+  s.setAttribute('data-kt-live-direct-start','1');
+  document.head.appendChild(s);
+})();
