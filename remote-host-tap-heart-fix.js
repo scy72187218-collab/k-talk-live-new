@@ -9,6 +9,7 @@
     s.id='ktLocalHostTapHeartFinalStyle';
     s.textContent=''
       +'.ktsolo-main,.ktg13-host,.ktsubscriber-host,.ktsecret-host,.ktg9-host,#ktLiveVideo{-webkit-touch-callout:none!important;-webkit-user-select:none!important;user-select:none!important;touch-action:manipulation!important}'
+      +'.kt-host-tap-heart{display:none!important}'
       +'.kt-host-direct-heart{position:fixed;z-index:2147483000;pointer-events:none;font-size:40px;line-height:1;color:#ff4f9e;text-shadow:0 0 10px #ff3c91,0 2px 5px #000;animation:ktLocalHostHeartToTop 1.55s cubic-bezier(.18,.72,.25,1) forwards}'
       +'@keyframes ktLocalHostHeartToTop{0%{opacity:.25;transform:translate(-50%,0) scale(.72)}10%{opacity:1;transform:translate(-50%,-18px) scale(1)}72%{opacity:1;transform:translate(calc(-50% + 12px),-300px) scale(1.12)}100%{opacity:0;transform:translate(calc(-50% - 6px),-430px) scale(1.28)}}';
     document.head.appendChild(s);
