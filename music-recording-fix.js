@@ -18,7 +18,7 @@
   load('fanclub-restore.js?v=20260910-fanclub1');
   load('video-gift-benefit.js?v=20260910-gift30-2');
   load('wifi-status-indicator.js?v=20260910-nettoast1');
-  load('live-start-register-direct.js?v=20260912-connect4');
+  load('live-start-register-direct.js?v=20260912-connect5');
   load('benefit-ai-reader.js?v=20260910-ai-reader1');
   load('vocal-enhancer.js?v=20260910-vocal1');
   load('interface-recording-audio-fix.js?v=20260910-interface2');
