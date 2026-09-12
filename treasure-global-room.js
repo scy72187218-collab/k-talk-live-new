@@ -14,6 +14,13 @@
     document.head.appendChild(s);
   }
 
+  function loadTreasureHostHeadFallback(){
+    var s=document.createElement('script');
+    s.src='treasure-host-head-fallback.js?v=20260912-hosthead1';
+    s.async=false;
+    document.head.appendChild(s);
+  }
+
   function installRealCameraFlip(){
     if(window.__ktRealCameraFlipInstalled)return;
     if(typeof window.ktSoloFlipCamera!=='function')return;
@@ -95,6 +102,7 @@
 
   loadTreasureCore();
   loadTreasureHostResults();
+  loadTreasureHostHeadFallback();
   setTimeout(installRealCameraFlip,0);
   setTimeout(installRealCameraFlip,300);
   setTimeout(installRealCameraFlip,1000);
