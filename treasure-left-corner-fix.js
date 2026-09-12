@@ -19,10 +19,12 @@
     var s=document.createElement('style');
     s.id='ktNineRoomLayoutChoicesStyle';
     s.textContent=''
-      +'.ktg13-room[data-kt-room="9"] .kt9-layout-picker{position:absolute!important;z-index:40!important;top:5px!important;left:50%!important;transform:translateX(-50%)!important;display:flex!important;gap:4px!important;padding:3px!important;border-radius:12px!important;background:#050507d9!important;border:1px solid #ff2bbd77!important;box-shadow:0 2px 10px #000a!important}'
-      +'.ktg13-room[data-kt-room="9"] .kt9-layout-btn{height:27px!important;min-width:39px!important;padding:0 6px!important;border:1px solid #494951!important;border-radius:9px!important;background:#17171c!important;color:#fff!important;font-size:10px!important;font-weight:900!important;line-height:1!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:3px!important}'
-      +'.ktg13-room[data-kt-room="9"] .kt9-layout-btn b{font-size:15px!important;line-height:1!important}'
-      +'.ktg13-room[data-kt-room="9"] .kt9-layout-btn.on{border-color:#ff32c7!important;background:#33102e!important;box-shadow:0 0 8px #ff2bbd88!important;color:#ffe8fb!important}'
+      +'.ktg13-room[data-kt-room="9"] .kt9-layout-wrap{position:absolute!important;z-index:40!important;top:5px!important;left:50%!important;transform:translateX(-50%)!important;display:flex!important;flex-direction:column!important;align-items:center!important;gap:4px!important}'
+      +'.ktg13-room[data-kt-room="9"] .kt9-layout-trigger{height:29px!important;padding:0 12px!important;border:1px solid #ff2bbd88!important;border-radius:12px!important;background:#111116e8!important;color:#fff!important;font-size:11px!important;font-weight:900!important;box-shadow:0 2px 10px #000a!important}'
+      +'.ktg13-room[data-kt-room="9"] .kt9-layout-picker{display:none!important;gap:4px!important;padding:4px!important;border-radius:12px!important;background:#050507ec!important;border:1px solid #ff2bbd77!important;box-shadow:0 2px 10px #000a!important}'
+      +'.ktg13-room[data-kt-room="9"] .kt9-layout-picker.open{display:flex!important}'
+      +'.ktg13-room[data-kt-room="9"] .kt9-layout-btn{height:27px!important;min-width:44px!important;padding:0 7px!important;border:1px solid #494951!important;border-radius:9px!important;background:#17171c!important;color:#fff!important;font-size:10px!important;font-weight:900!important;line-height:1!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:3px!important}'
+      +'.ktg13-room[data-kt-room="9"] .kt9-layout-btn.on{border-color:#ff32c7!important;background:#33102e!important;color:#ffe8fb!important}'
       +'.ktg13-room[data-kt-room="9"] .ktg13-host-extra{display:none!important}'
       +'#screen .ktg13-room[data-kt-room="9"] .ktg13-host>video{width:100%!important;height:100%!important;left:0!important;top:0!important;position:absolute!important;object-fit:cover!important;object-position:center!important}'
       +'.ktg13-room[data-kt-room="9"][data-kt9-layout="grid"] .ktg13-main{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:repeat(3,minmax(0,1fr))!important;gap:2px!important}'
@@ -35,7 +37,7 @@
       +'.ktg13-room[data-kt-room="9"][data-kt9-layout="focus"] .ktg13-host{grid-column:1 / 3!important;grid-row:1 / 3!important;min-width:0!important;min-height:0!important}'
       +'.ktg13-room[data-kt-room="9"][data-kt9-layout="focus"] .ktg13-guests{display:contents!important}'
       +'.ktg13-room[data-kt-room="9"] .ktg13-guest{min-width:0!important;min-height:0!important;font-size:12px!important}'
-      +'@media(max-width:390px){.ktg13-room[data-kt-room="9"] .kt9-layout-picker{top:4px!important;gap:3px!important;padding:2px!important}.ktg13-room[data-kt-room="9"] .kt9-layout-btn{height:24px!important;min-width:34px!important;padding:0 4px!important;font-size:9px!important}.ktg13-room[data-kt-room="9"] .kt9-layout-btn b{font-size:13px!important}.ktg13-room[data-kt-room="9"] .ktg13-guest{font-size:10px!important}}';
+      +'@media(max-width:390px){.ktg13-room[data-kt-room="9"] .kt9-layout-wrap{top:4px!important}.ktg13-room[data-kt-room="9"] .kt9-layout-trigger{height:26px!important;padding:0 10px!important;font-size:10px!important}.ktg13-room[data-kt-room="9"] .kt9-layout-btn{height:25px!important;min-width:39px!important;padding:0 5px!important;font-size:9px!important}.ktg13-room[data-kt-room="9"] .ktg13-guest{font-size:10px!important}}';
     document.head.appendChild(s);
   }
 
@@ -66,22 +68,33 @@
     if(!room)return;
     var main=room.querySelector('.ktg13-main');
     if(!main)return;
-    var picker=main.querySelector('.kt9-layout-picker');
-    if(!picker){
-      picker=document.createElement('div');
-      picker.className='kt9-layout-picker';
-      picker.innerHTML=''
-        +'<button type="button" class="kt9-layout-btn" data-layout="grid" title="3×3 격자"><b>▦</b><span>격자</span></button>'
-        +'<button type="button" class="kt9-layout-btn" data-layout="side" title="호스트 왼쪽"><b>▥</b><span>좌측</span></button>'
-        +'<button type="button" class="kt9-layout-btn" data-layout="focus" title="호스트 크게"><b>▣</b><span>큰칸</span></button>';
+    var wrap=main.querySelector('.kt9-layout-wrap');
+    if(!wrap){
+      wrap=document.createElement('div');
+      wrap.className='kt9-layout-wrap';
+      wrap.innerHTML=''
+        +'<button type="button" class="kt9-layout-trigger">↔ 자리 이동</button>'
+        +'<div class="kt9-layout-picker">'
+          +'<button type="button" class="kt9-layout-btn" data-layout="grid">격자</button>'
+          +'<button type="button" class="kt9-layout-btn" data-layout="side">좌측</button>'
+          +'<button type="button" class="kt9-layout-btn" data-layout="focus">큰칸</button>'
+        +'</div>';
+      var trigger=wrap.querySelector('.kt9-layout-trigger');
+      var picker=wrap.querySelector('.kt9-layout-picker');
+      trigger.addEventListener('click',function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        picker.classList.toggle('open');
+      },true);
       picker.addEventListener('click',function(e){
         var b=e.target&&e.target.closest?e.target.closest('.kt9-layout-btn'):null;
         if(!b)return;
         e.preventDefault();
         e.stopPropagation();
         applyNineLayout(b.getAttribute('data-layout'),true);
+        picker.classList.remove('open');
       },true);
-      main.appendChild(picker);
+      main.appendChild(wrap);
     }
     applyNineLayout(savedNineLayout(),false);
   }
