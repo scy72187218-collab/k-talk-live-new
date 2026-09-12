@@ -1,11 +1,11 @@
-/* K-Talk LIVE 사람 접속 전용: 방송 시작 버튼에서 서버 등록만 직접 보강. 화면/UI는 변경하지 않음. */
+/* K-Talk LIVE 사람 접속 등록 전용 V5: 오래된 접속 스크립트가 먼저 떠도 방송중 서버 등록은 다시 실행. 화면/UI는 변경하지 않음. */
 (function(){
-  if(window.__ktDirectLiveStartRegisterInstalled)return;
-  window.__ktDirectLiveStartRegisterInstalled=true;
+  if(window.__ktDirectLiveStartRegisterV5)return;
+  window.__ktDirectLiveStartRegisterV5=true;
 
   var BASE='https://zupwbfmacwzexyvznlzq.supabase.co/rest/v1/';
   var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1cHdiZm1hY3d6ZXh5dnpubHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjEwNzYsImV4cCI6MjEwNDAzNzA3Nn0.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
-  var armedUntil=0,registering=false,active=false,roomId='',beatTimer=null;
+  var registering=false,active=false,beatTimer=null;
 
   function headers(extra){
     var h={apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json'};
@@ -15,7 +15,7 @@
   async function req(path,opt){
     opt=opt||{};opt.headers=headers(opt.headers);
     var r=await fetch(BASE+path,opt);
-    if(!r.ok)throw new Error('direct live '+r.status);
+    if(!r.ok)throw new Error('live-register '+r.status);
     if(r.status===204)return null;
     var t=await r.text();return t?JSON.parse(t):null;
   }
@@ -24,18 +24,14 @@
   function deviceId(){
     var id='';
     try{id=localStorage.getItem('kt_live_device_id')||'';}catch(e){}
-    if(!id){
-      id='kt_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,10);
-      try{localStorage.setItem('kt_live_device_id',id);}catch(e){}
-    }
+    if(!id){id='kt_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,10);try{localStorage.setItem('kt_live_device_id',id);}catch(e){}}
     return id;
   }
-  function profile(){
-    var p={name:'K-Talk 방송자',photo:''};
-    try{if(window.ktProfileLoad){var x=window.ktProfileLoad()||{};p.name=String(x.name||p.name);p.photo=String(x.photo||'');}}catch(e){}
-    try{if((!p.name||p.name==='K-Talk 방송자')&&window.ktGetSelectedSubAccount&&window.ktSubProfileCard){var sub=window.ktGetSelectedSubAccount();if(sub){var s=window.ktSubProfileCard(sub)||{};p.name=String(s.name||p.name);p.photo=String(s.photo||p.photo);}}}catch(e){}
-    if(p.photo&&p.photo.length>240000)p.photo='';
-    return p;
+  function profileName(){
+    var name='K-Talk 방송자';
+    try{if(window.ktProfileLoad){var p=window.ktProfileLoad()||{};name=String(p.name||name);}}catch(e){}
+    try{if((!name||name==='K-Talk 방송자')&&window.ktGetSelectedSubAccount&&window.ktSubProfileCard){var sub=window.ktGetSelectedSubAccount();if(sub){var q=window.ktSubProfileCard(sub)||{};name=String(q.name||name);}}}catch(e){}
+    return name||'K-Talk 방송자';
   }
   function roomInfo(){
     var type='solo',name='1인 방송',title='';
@@ -52,81 +48,60 @@
     if(!title||title==='오늘 라이브 제목을 입력하세요')title=name;
     return {type:type,name:name,title:title};
   }
-
-  async function registerNow(){
-    if(active||registering||Date.now()>armedUntil)return;
-    registering=true;
-    var hostId=deviceId(),p=profile(),r=roomInfo(),stamp=nowIso();
-    try{
-      await req('ktalk_live_rooms?host_id=eq.'+enc(hostId)+'&active=eq.true',{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:stamp})});
-      var rows=await req('ktalk_live_rooms',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify({host_id:hostId,host_name:p.name,title:r.title,room_type:r.type,room_name:r.name,active:true,started_at:stamp,updated_at:stamp,host_photo:p.photo||null})});
-      roomId=rows&&rows[0]?rows[0].id:'';
-      active=!!roomId;
-      if(active){
-        clearInterval(beatTimer);
-        beatTimer=setInterval(async function(){
-          if(!active||!roomId)return;
-          try{await req('ktalk_live_rooms?id=eq.'+enc(roomId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:true,updated_at:nowIso()})});}catch(e){}
-        },10000);
-      }
-    }catch(e){active=false;roomId='';}
-    registering=false;
-  }
-
-  function arm(){
-    armedUntil=Date.now()+60000;
-    [0,100,250,500,900,1400,2200,3500,5000,8000,12000,18000].forEach(function(ms){setTimeout(registerNow,ms);});
-  }
-
-  async function stop(){
-    var id=roomId;active=false;roomId='';armedUntil=0;clearInterval(beatTimer);beatTimer=null;
-    if(!id)return;
-    try{await req('ktalk_live_rooms?id=eq.'+enc(id),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})});}catch(e){}
-  }
-
-  function wrapStart(){
-    var old=window.startBroadcast;
-    if(typeof old!=='function'||old.__ktDirectLiveStartWrapped)return;
-    var fn=function(){
-      arm();
-      var out=old.apply(this,arguments);
-      if(out&&typeof out.then==='function')return out.then(function(v){arm();return v;});
-      arm();return out;
-    };
-    fn.__ktDirectLiveStartWrapped=true;
-    window.startBroadcast=fn;
-  }
-
-  function screenShowsOnAir(){
+  function onAir(){
     try{
       var screen=document.getElementById('screen');
-      if(!screen)return false;
-      var txt=String(screen.innerText||'');
-      return txt.indexOf('ON AIR')>-1||txt.indexOf('방송 중')>-1||!!screen.querySelector('#ktLiveVideo,.ktsolo-room,.ktg13-room,.ktg9-room,.ktsubscriber-room,.ktsecret-room');
+      var root=screen||document.body;
+      if(!root)return false;
+      if(root.querySelector&&root.querySelector('#ktLiveVideo,.ktsolo-room,.ktg13-room,.ktg9-room,.ktsubscriber-room,.ktsecret-room'))return true;
+      var txt=String(root.innerText||root.textContent||'');
+      return txt.indexOf('ON AIR')>-1||txt.indexOf('방송 중')>-1;
     }catch(e){return false;}
+  }
+  async function heartbeat(){
+    if(!active)return;
+    try{await req('ktalk_live_rooms?host_id=eq.'+enc(deviceId())+'&active=eq.true',{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:true,updated_at:nowIso()})});}catch(e){active=false;}
+  }
+  async function registerNow(){
+    if(registering||active||!onAir())return;
+    registering=true;
+    var hostId=deviceId(),stamp=nowIso(),r=roomInfo();
+    try{
+      var exists=await req('ktalk_live_rooms?select=id&host_id=eq.'+enc(hostId)+'&active=eq.true&limit=1');
+      if(exists&&exists.length){
+        active=true;
+        await heartbeat();
+      }else{
+        var resp=await fetch(BASE+'ktalk_live_rooms',{method:'POST',headers:headers({Prefer:'return=minimal'}),body:JSON.stringify({host_id:hostId,host_name:profileName(),title:r.title,room_type:r.type,room_name:r.name,active:true,started_at:stamp,updated_at:stamp})});
+        if(!resp.ok)throw new Error('live-register '+resp.status);
+        active=true;
+      }
+      clearInterval(beatTimer);
+      beatTimer=setInterval(heartbeat,10000);
+    }catch(e){active=false;}
+    registering=false;
+  }
+  async function stop(){
+    active=false;clearInterval(beatTimer);beatTimer=null;
+    try{await req('ktalk_live_rooms?host_id=eq.'+enc(deviceId())+'&active=eq.true',{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})});}catch(e){}
   }
 
   document.addEventListener('click',function(e){
     try{
-      var target=e.target&&e.target.closest?e.target.closest('button,[role="button"],.prep-start'):null;
-      var text=target?String(target.innerText||target.textContent||'').replace(/\s+/g,' ').trim():'';
-      if((target&&target.matches&&target.matches('.prep-start'))||text.indexOf('방송 시작')>-1||text.indexOf('방송시작')>-1)arm();
+      var b=e.target&&e.target.closest?e.target.closest('button,[role="button"],.prep-start'):null;
+      var text=b?String(b.innerText||b.textContent||'').replace(/\s+/g,' ').trim():'';
+      if((b&&b.matches&&b.matches('.prep-start'))||text.indexOf('방송 시작')>-1||text.indexOf('방송시작')>-1){[100,400,900,1600,2600].forEach(function(ms){setTimeout(registerNow,ms);});}
       var leave=e.target&&e.target.closest?e.target.closest('.ktsolo-back,.ktsubscriber-back,.ktsecret-back,.ktg13-back,.ktg9-back'):null;
-      if(leave&&active)stop();
+      if(leave)stop();
     }catch(err){}
   },true);
 
-  wrapStart();
-  setInterval(function(){
-    wrapStart();
-    if(!active&&screenShowsOnAir()){
-      armedUntil=Date.now()+60000;
-      registerNow();
-    }
-  },700);
+  setInterval(function(){if(onAir())registerNow();},1000);
+  setTimeout(registerNow,500);
+  window.addEventListener('pageshow',function(){setTimeout(registerNow,300);});
+  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')setTimeout(registerNow,300);});
   window.addEventListener('pagehide',function(){
-    if(active&&roomId){
-      try{fetch(BASE+'ktalk_live_rooms?id=eq.'+enc(roomId),{method:'PATCH',headers:headers({Prefer:'return=minimal'}),body:JSON.stringify({active:false,updated_at:nowIso()}),keepalive:true});}catch(e){}
-    }
+    if(!active)return;
+    try{fetch(BASE+'ktalk_live_rooms?host_id=eq.'+enc(deviceId())+'&active=eq.true',{method:'PATCH',headers:headers({Prefer:'return=minimal'}),body:JSON.stringify({active:false,updated_at:nowIso()}),keepalive:true});}catch(e){}
   });
 })();
