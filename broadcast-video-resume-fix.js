@@ -9,12 +9,23 @@
     return id==='camera'||id==='cameraBg'||id==='ktLiveVideo'||id==='ktSept2Live'||id==='ktRemoteLive';
   }
 
+  function isPageVideo(m){
+    if(!m||!m.matches)return false;
+    return m.matches('.kt-public-video,#homeVideo,#ktLibraryPlayer');
+  }
+
+  function stopOneMedia(m){
+    if(!m||isCameraOrLiveMedia(m))return;
+    try{m.pause();}catch(e){}
+    try{m.muted=true;}catch(e){}
+    try{m.volume=0;}catch(e){}
+  }
+
   function stopCompetingMedia(target){
     try{
       document.querySelectorAll('audio,video').forEach(function(m){
         if(!m||m===target||isCameraOrLiveMedia(m))return;
-        try{m.pause();}catch(e){}
-        try{m.muted=true;}catch(e){}
+        stopOneMedia(m);
       });
     }catch(e){}
     try{
@@ -22,6 +33,42 @@
     }catch(e){}
     try{
       if(window.ktCreatorMusicCapture&&window.ktCreatorMusicCapture.audio&&window.ktCreatorMusicCapture.audio!==target){
+        window.ktCreatorMusicCapture.audio.pause();
+      }
+    }catch(e){}
+    try{if(window.ktStopSoundPreview)window.ktStopSoundPreview();}catch(e){}
+  }
+
+  function stopRemovedMedia(node){
+    if(!node||node.nodeType!==1)return false;
+    var foundPageVideo=false;
+    try{
+      if(node.matches&&node.matches('audio,video')){
+        if(isPageVideo(node))foundPageVideo=true;
+        stopOneMedia(node);
+      }
+      if(node.querySelectorAll){
+        node.querySelectorAll('audio,video').forEach(function(m){
+          if(isPageVideo(m))foundPageVideo=true;
+          stopOneMedia(m);
+        });
+      }
+    }catch(e){}
+    return foundPageVideo;
+  }
+
+  function stopLooseAudioIfLeavingVideoPage(){
+    var stillOnVideoPage=false;
+    try{stillOnVideoPage=!!document.querySelector('.kt-public-video,#homeVideo,#ktLibraryPlayer');}catch(e){}
+    if(stillOnVideoPage)return;
+    try{
+      if(window.ktSoundAudio){
+        window.ktSoundAudio.pause();
+        window.ktSoundAudio.muted=true;
+      }
+    }catch(e){}
+    try{
+      if(window.ktCreatorMusicCapture&&window.ktCreatorMusicCapture.audio){
         window.ktCreatorMusicCapture.audio.pause();
       }
     }catch(e){}
@@ -42,7 +89,7 @@
 
   function resumeVisibleVideo(){
     if(document.hidden)return;
-    try{window.__ktPageMediaStopUntil=0;}catch(e){}
+    if(Date.now()<=Number(window.__ktPageMediaStopUntil||0))return;
     var list=[].slice.call(document.querySelectorAll('.kt-public-video,#homeVideo'));
     if(!list.length)return;
     var target=null,dist=Infinity;
@@ -100,14 +147,19 @@
 
   try{
     new MutationObserver(function(list){
-      var found=false;
+      var foundAddedVideo=false;
+      var removedPageVideo=false;
       list.forEach(function(rec){
+        [].slice.call(rec.removedNodes||[]).forEach(function(n){
+          if(stopRemovedMedia(n))removedPageVideo=true;
+        });
         [].slice.call(rec.addedNodes||[]).forEach(function(n){
           if(!n||n.nodeType!==1)return;
-          if((n.matches&&n.matches('.kt-public-video,#homeVideo'))||(n.querySelector&&n.querySelector('.kt-public-video,#homeVideo')))found=true;
+          if((n.matches&&n.matches('.kt-public-video,#homeVideo'))||(n.querySelector&&n.querySelector('.kt-public-video,#homeVideo')))foundAddedVideo=true;
         });
       });
-      if(found)resumeSequence();
+      if(removedPageVideo)setTimeout(stopLooseAudioIfLeavingVideoPage,0);
+      if(foundAddedVideo)resumeSequence();
     }).observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 })();
