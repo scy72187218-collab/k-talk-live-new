@@ -36,3 +36,13 @@
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',show,{once:true});
   else show();
 })();
+
+/* 사람 접속 기능만 확실히 불러오기. 기존 네트워크 표시 동작은 변경하지 않음. */
+(function(){
+  if(document.querySelector('script[data-kt-live-connection-start-only]'))return;
+  var s=document.createElement('script');
+  s.src='live-connection-start-only.js?v=20260912-connect2';
+  s.async=false;
+  s.setAttribute('data-kt-live-connection-start-only','1');
+  document.head.appendChild(s);
+})();
