@@ -8,7 +8,6 @@
   var STALE_MS=50000;
   var ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
   var hostActive=false,hostRoomId='',hostHeartbeat=null,hostSignalTimer=null,hostActivityTimer=null;
-  var hostStartPending=false;
   var hostPeers={};
   var viewerCtx=null;
   var lastActivityStamp='';
@@ -64,9 +63,6 @@
     try{return !!(window.state&&state.stream&&state.stream.getVideoTracks&&state.stream.getVideoTracks().some(function(t){return t.readyState==='live';}));}catch(e){return false;}
   }
   function localStream(){try{return window.state&&state.stream?state.stream:null;}catch(e){return null;}}
-  function hasOpenedBroadcastRoom(){
-    try{return !!document.querySelector('.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room');}catch(e){return false;}
-  }
 
   function ensureStyle(){
     if(document.getElementById('ktLivePresenceStyle'))return;
@@ -183,8 +179,7 @@
   }
 
   async function startHostPresence(){
-    if(hostActive||hostStartPending||!hasLiveLocalVideo())return;
-    hostStartPending=true;
+    if(hostActive||!hasLiveLocalVideo())return;
     var p=profile(),r=currentRoom(),hostId=deviceId(),stamp=nowIso();
     try{
       await req('ktalk_live_rooms?host_id=eq.'+enc(hostId)+'&active=eq.true',{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:stamp})});
@@ -197,14 +192,6 @@
       hostActivityTimer=setInterval(hostPollActivity,1800);hostPollActivity();
       renderLiveCards();
     }catch(e){hostActive=false;hostRoomId='';}
-    finally{hostStartPending=false;}
-  }
-  window.ktStartHostPresence=startHostPresence;
-
-  function recoverHostPresence(){
-    if(hostActive||hostStartPending)return;
-    if(!hasOpenedBroadcastRoom()||!hasLiveLocalVideo())return;
-    startHostPresence();
   }
 
   async function stopHostPresence(){
@@ -324,12 +311,8 @@
     }
   });
 
-  var hostPresenceObserver=new MutationObserver(function(){setTimeout(recoverHostPresence,40);});
-  try{hostPresenceObserver.observe(document.body,{childList:true,subtree:true});}catch(e){}
-
   setInterval(function(){
-    recoverHostPresence();
     if(document.querySelector('.kt-dashboard')||document.querySelector('.friends-list'))renderLiveCards();
-  },1200);
-  setTimeout(function(){recoverHostPresence();renderLiveCards();},900);
+  },5000);
+  setTimeout(renderLiveCards,900);
 })();
