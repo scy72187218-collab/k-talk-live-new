@@ -1,4 +1,4 @@
-/* K-Talk 레벨 규칙. 방 생성·입장 레벨 제한은 전부 해제. 다른 기능은 변경하지 않음. */
+/* K-Talk 레벨 규칙 + 태권이·하이네 계정 레벨 1000. 방 입장 기준은 13명방 20, 15명방 35로 잠금. */
 (function(){
   if(window.__ktLevelCostRulesInstalled)return;
   window.__ktLevelCostRulesInstalled=true;
@@ -41,7 +41,7 @@
     return accountNames().some(isFixedOwnerName);
   }
 
-  /* 기존 본인 계정 레벨 표시는 그대로 유지한다. */
+  /* 태권이·하이네 계정은 어느 화면/방 판정에서도 레벨 1000으로 고정한다. */
   window.ktForceOwnerLevel1000=function(){
     if(!ownerAccountDetected())return false;
     try{
@@ -62,21 +62,30 @@
   };
 
   window.ktIsOwnerLevelExempt=function(){
-    return true;
+    return window.ktForceOwnerLevel1000();
   };
 
   window.ktEffectiveLevel=function(level){
+    if(window.ktForceOwnerLevel1000())return 1000;
     var lv=parseInt(level,10);
     return isFinite(lv)&&lv>0?lv:1;
   };
 
-  /* 모든 방 생성 레벨 제한 해제. */
-  window.ktCanCreateRoomByLevel=function(){
+  /* 방 생성 기준도 동일: 13명방 20+, 15명방 35+. */
+  window.ktCanCreateRoomByLevel=function(roomType,level){
+    var lv=window.ktEffectiveLevel(level);
+    var t=String(roomType||'').toLowerCase();
+    if(t.indexOf('15')>-1||t==='group15')return lv>=35;
+    if(t.indexOf('13')>-1||t==='group13')return lv>=20;
     return true;
   };
 
-  /* 모든 방 입장 레벨 제한 해제. */
-  window.ktCanEnterRoomByLevel=function(){
+  /* 방 입장 기준 다시 잠금: 구독 여부와 상관없이 레벨 기준 적용. */
+  window.ktCanEnterRoomByLevel=function(roomType,level,isSubscriber){
+    var lv=window.ktEffectiveLevel(level);
+    var t=String(roomType||'').toLowerCase();
+    if(t.indexOf('15')>-1||t==='group15')return lv>=35;
+    if(t.indexOf('13')>-1||t==='group13')return lv>=20;
     return true;
   };
 
@@ -96,6 +105,7 @@
   wrapOwnerBypass('selectPrepRoom');
   wrapOwnerBypass('openProfile');
 
+  /* 비밀방 등 다른 파일이 레벨값을 직접 읽어도 클릭 전에 1000으로 맞춘다. */
   document.addEventListener('pointerdown',function(){window.ktForceOwnerLevel1000();},true);
   document.addEventListener('click',function(){window.ktForceOwnerLevel1000();},true);
   window.addEventListener('pageshow',function(){window.ktForceOwnerLevel1000();});
