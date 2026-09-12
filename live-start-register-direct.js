@@ -1,12 +1,15 @@
-/* K-Talk LIVE 사람 접속 등록 전용 V5: 오래된 접속 스크립트가 먼저 떠도 방송중 서버 등록은 다시 실행. 화면/UI는 변경하지 않음. */
+/* K-Talk LIVE 사람 접속 등록 전용 V6: 방송 등록 실패 원인 추적 추가. 화면/UI는 변경하지 않음. */
 (function(){
-  if(window.__ktDirectLiveStartRegisterV5)return;
-  window.__ktDirectLiveStartRegisterV5=true;
+  if(window.__ktDirectLiveStartRegisterV6)return;
+  window.__ktDirectLiveStartRegisterV6=true;
 
   var BASE='https://zupwbfmacwzexyvznlzq.supabase.co/rest/v1/';
   var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1cHdiZm1hY3d6ZXh5dnpubHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjEwNzYsImV4cCI6MjEwNDAzNzA3Nn0.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
   var registering=false,active=false,beatTimer=null;
 
+  function dbg(stage,detail){
+    try{fetch('/api/live-debug?stage='+encodeURIComponent(stage)+'&detail='+encodeURIComponent(String(detail||'').slice(0,160)),{cache:'no-store'}).catch(function(){});}catch(e){}
+  }
   function headers(extra){
     var h={apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json'};
     Object.keys(extra||{}).forEach(function(k){h[k]=extra[k];});
@@ -15,7 +18,11 @@
   async function req(path,opt){
     opt=opt||{};opt.headers=headers(opt.headers);
     var r=await fetch(BASE+path,opt);
-    if(!r.ok)throw new Error('live-register '+r.status);
+    if(!r.ok){
+      var err='';try{err=await r.text();}catch(e){}
+      dbg('reg_req_error',r.status+' '+err);
+      throw new Error('live-register '+r.status);
+    }
     if(r.status===204)return null;
     var t=await r.text();return t?JSON.parse(t):null;
   }
@@ -50,8 +57,7 @@
   }
   function onAir(){
     try{
-      var screen=document.getElementById('screen');
-      var root=screen||document.body;
+      var root=document.getElementById('screen')||document.body;
       if(!root)return false;
       if(root.querySelector&&root.querySelector('#ktLiveVideo,.ktsolo-room,.ktg13-room,.ktg9-room,.ktsubscriber-room,.ktsecret-room'))return true;
       var txt=String(root.innerText||root.textContent||'');
@@ -60,25 +66,33 @@
   }
   async function heartbeat(){
     if(!active)return;
-    try{await req('ktalk_live_rooms?host_id=eq.'+enc(deviceId())+'&active=eq.true',{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:true,updated_at:nowIso()})});}catch(e){active=false;}
+    try{await req('ktalk_live_rooms?host_id=eq.'+enc(deviceId())+'&active=eq.true',{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:true,updated_at:nowIso()})});}
+    catch(e){active=false;dbg('reg_heartbeat_error',e.message||'error');}
   }
   async function registerNow(){
     if(registering||active||!onAir())return;
     registering=true;
     var hostId=deviceId(),stamp=nowIso(),r=roomInfo();
+    dbg('reg_attempt',r.type);
     try{
       var exists=await req('ktalk_live_rooms?select=id&host_id=eq.'+enc(hostId)+'&active=eq.true&limit=1');
       if(exists&&exists.length){
         active=true;
+        dbg('reg_existing','ok');
         await heartbeat();
       }else{
         var resp=await fetch(BASE+'ktalk_live_rooms',{method:'POST',headers:headers({Prefer:'return=minimal'}),body:JSON.stringify({host_id:hostId,host_name:profileName(),title:r.title,room_type:r.type,room_name:r.name,active:true,started_at:stamp,updated_at:stamp})});
-        if(!resp.ok)throw new Error('live-register '+resp.status);
+        if(!resp.ok){
+          var err='';try{err=await resp.text();}catch(e){}
+          dbg('reg_post_error',resp.status+' '+err);
+          throw new Error('live-register '+resp.status);
+        }
         active=true;
+        dbg('reg_post_ok',r.type);
       }
       clearInterval(beatTimer);
       beatTimer=setInterval(heartbeat,10000);
-    }catch(e){active=false;}
+    }catch(e){active=false;dbg('reg_catch',e.message||'error');}
     registering=false;
   }
   async function stop(){
@@ -86,6 +100,7 @@
     try{await req('ktalk_live_rooms?host_id=eq.'+enc(deviceId())+'&active=eq.true',{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})});}catch(e){}
   }
 
+  dbg('reg_loaded','v6');
   document.addEventListener('click',function(e){
     try{
       var b=e.target&&e.target.closest?e.target.closest('button,[role="button"],.prep-start'):null;
