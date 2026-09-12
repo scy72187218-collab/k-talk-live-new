@@ -1,60 +1,17 @@
-/* K-Talk 라이브 호스트 터치: 원격/내 방송방 모두 한 번 누를 때마다 하트 1개가 길게 위로 올라가고, 내 방송방 좋아요 숫자도 +1. 다른 UI는 변경하지 않음. */
+/* K-Talk 내 방송방 호스트 터치 전용: 한 번 누르면 하트 1개가 화면 위까지 올라가고 상단 좋아요 숫자 +1. 원격 방송은 기존 서버 좋아요 코드에 맡김. */
 (function(){
-  if(window.__ktRemoteHostTapHeartFixInstalledV2)return;
-  window.__ktRemoteHostTapHeartFixInstalledV2=true;
+  if(window.__ktLocalHostTapHeartFinalInstalled)return;
+  window.__ktLocalHostTapHeartFinalInstalled=true;
 
   function ensureStyle(){
-    if(document.getElementById('ktRemoteHostTapHeartFixStyle'))return;
+    if(document.getElementById('ktLocalHostTapHeartFinalStyle'))return;
     var s=document.createElement('style');
-    s.id='ktRemoteHostTapHeartFixStyle';
+    s.id='ktLocalHostTapHeartFinalStyle';
     s.textContent=''
-      +'.kt-host-direct-heart{position:fixed;z-index:2147483000;pointer-events:none;font-size:38px;line-height:1;color:#ff4f9e;text-shadow:0 0 10px #ff3c91,0 2px 5px #000;animation:ktHostDirectHeartUp 1.35s cubic-bezier(.18,.72,.28,1) forwards}'
-      +'@keyframes ktHostDirectHeartUp{0%{opacity:.2;transform:translate(-50%,0) scale(.70)}12%{opacity:1;transform:translate(-50%,-18px) scale(1)}72%{opacity:1;transform:translate(calc(-50% + 12px),-205px) scale(1.18)}100%{opacity:0;transform:translate(calc(-50% - 8px),-285px) scale(1.34)}}';
+      +'.ktsolo-main,.ktg13-host,.ktsubscriber-host,.ktsecret-host,.ktg9-host,#ktLiveVideo{-webkit-touch-callout:none!important;-webkit-user-select:none!important;user-select:none!important;touch-action:manipulation!important}'
+      +'.kt-host-direct-heart{position:fixed;z-index:2147483000;pointer-events:none;font-size:40px;line-height:1;color:#ff4f9e;text-shadow:0 0 10px #ff3c91,0 2px 5px #000;animation:ktLocalHostHeartToTop 1.55s cubic-bezier(.18,.72,.25,1) forwards}'
+      +'@keyframes ktLocalHostHeartToTop{0%{opacity:.25;transform:translate(-50%,0) scale(.72)}10%{opacity:1;transform:translate(-50%,-18px) scale(1)}72%{opacity:1;transform:translate(calc(-50% + 12px),-300px) scale(1.12)}100%{opacity:0;transform:translate(calc(-50% - 6px),-430px) scale(1.28)}}';
     document.head.appendChild(s);
-  }
-
-  function popHeart(e){
-    ensureStyle();
-    var x=(e&&e.clientX)||Math.round(innerWidth*.50);
-    var y=(e&&e.clientY)||Math.round(innerHeight*.58);
-    var h=document.createElement('div');
-    h.className='kt-host-direct-heart';
-    h.textContent='♥';
-    h.style.left=Math.max(28,Math.min(innerWidth-28,x))+'px';
-    h.style.top=Math.max(110,Math.min(innerHeight-90,y))+'px';
-    document.body.appendChild(h);
-    setTimeout(function(){if(h.parentNode)h.remove();},1450);
-  }
-
-  function num(el){
-    if(!el)return 0;
-    var m=String(el.textContent||'').match(/(\d[\d,]*)/);
-    return m?parseInt(m[1].replace(/,/g,''),10)||0:0;
-  }
-
-  function bumpLocalLike(){
-    var el=document.getElementById('hostLikeCount');
-    var before=num(el);
-    var nativeUsed=false;
-    try{
-      if(typeof window.addHostLike==='function'){
-        nativeUsed=true;
-        window.addHostLike(1);
-      }
-    }catch(e){nativeUsed=false;}
-    setTimeout(function(){
-      if(!el)return;
-      var now=num(el);
-      if(!nativeUsed||now<=before)el.textContent=(before+1).toLocaleString('ko-KR');
-    },100);
-  }
-
-  function isRemoteHostArea(t){
-    if(!t||!t.closest)return false;
-    var root=t.closest('.kt-remote-live');
-    if(!root)return false;
-    if(t.closest('button,input,textarea,a,.kt-remote-top,.kt-remote-bottom,.kt-remote-chat'))return false;
-    return true;
   }
 
   function isLocalHostArea(t){
@@ -67,18 +24,69 @@
     return true;
   }
 
+  function prepareVideos(){
+    document.querySelectorAll('#ktLiveVideo,.ktsolo-main video,.ktg13-host video,.ktsubscriber-host video,.ktsecret-host video,.ktg9-host video').forEach(function(v){
+      try{
+        v.disablePictureInPicture=true;
+        v.setAttribute('disablepictureinpicture','');
+        v.setAttribute('controlsList','nodownload noremoteplayback');
+        v.setAttribute('draggable','false');
+        v.oncontextmenu=function(e){e.preventDefault();return false;};
+      }catch(e){}
+    });
+  }
+
+  function popHeart(x,y){
+    ensureStyle();
+    var h=document.createElement('div');
+    h.className='kt-host-direct-heart';
+    h.textContent='♥';
+    h.style.left=Math.max(28,Math.min(innerWidth-28,Number(x)||innerWidth*.50))+'px';
+    h.style.top=Math.max(160,Math.min(innerHeight-100,Number(y)||innerHeight*.58))+'px';
+    document.body.appendChild(h);
+    setTimeout(function(){if(h.parentNode)h.remove();},1650);
+  }
+
+  function num(el){
+    if(!el)return 0;
+    var m=String(el.textContent||'').match(/(\d[\d,]*)/);
+    return m?parseInt(m[1].replace(/,/g,''),10)||0:0;
+  }
+
+  function bumpLocalLike(){
+    var el=document.getElementById('hostLikeCount');
+    var before=num(el);
+    var changed=false;
+    try{
+      if(typeof window.addHostLike==='function'){
+        window.addHostLike(1);
+        changed=true;
+      }
+    }catch(e){changed=false;}
+    setTimeout(function(){
+      if(!el)return;
+      var now=num(el);
+      if(!changed||now<=before)el.textContent=(before+1).toLocaleString('ko-KR');
+    },80);
+  }
+
   var lastAt=0;
   function onTap(e){
-    var t=e.target;
-    var remote=isRemoteHostArea(t);
-    var local=isLocalHostArea(t);
-    if(!remote&&!local)return;
+    if(!isLocalHostArea(e.target))return;
     var now=Date.now();
-    if(now-lastAt<220)return;
+    if(now-lastAt<260)return;
     lastAt=now;
-    popHeart(e);
-    if(local)bumpLocalLike();
+    popHeart(e.clientX||innerWidth*.50,e.clientY||innerHeight*.58);
+    bumpLocalLike();
   }
+
+  document.addEventListener('contextmenu',function(e){
+    if(isLocalHostArea(e.target)){
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  },true);
+  document.addEventListener('dragstart',function(e){if(isLocalHostArea(e.target))e.preventDefault();},true);
 
   if(window.PointerEvent){
     document.addEventListener('pointerup',onTap,true);
@@ -90,4 +98,8 @@
   }
 
   ensureStyle();
+  prepareVideos();
+  setTimeout(prepareVideos,300);
+  setTimeout(prepareVideos,1200);
+  setInterval(prepareVideos,2500);
 })();
