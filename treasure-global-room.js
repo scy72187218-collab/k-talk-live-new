@@ -21,6 +21,15 @@
     document.head.appendChild(s);
   }
 
+  function loadTreasureLeftCornerFix(){
+    if(document.querySelector('script[data-kt-treasure-left-corner]'))return;
+    var s=document.createElement('script');
+    s.src='treasure-left-corner-fix.js?v=20260912-left1';
+    s.async=false;
+    s.setAttribute('data-kt-treasure-left-corner','1');
+    document.head.appendChild(s);
+  }
+
   function loadAllSwitchesFix(){
     if(document.querySelector('script[data-kt-all-switches-fix]'))return;
     var s=document.createElement('script');
@@ -121,6 +130,7 @@
   loadTreasureCore();
   loadTreasureHostResults();
   loadTreasureHostHeadFallback();
+  loadTreasureLeftCornerFix();
   loadAllSwitchesFix();
   loadHostFaceLikeFix();
   setTimeout(installRealCameraFlip,0);
