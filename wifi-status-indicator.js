@@ -47,6 +47,16 @@
   document.head.appendChild(s);
 })();
 
+/* 13명 방 모양만 이전 상태로 복구 */
+(function(){
+  if(document.querySelector('script[data-kt-group13-layout-restore]'))return;
+  var s=document.createElement('script');
+  s.src='group13-layout-restore.js?v=20260912-g13restore1';
+  s.async=false;
+  s.setAttribute('data-kt-group13-layout-restore','1');
+  document.head.appendChild(s);
+})();
+
 /* 본인 계정의 방 입장 레벨 예외 규칙만 다시 연결 */
 (function(){
   if(document.querySelector('script[data-kt-level-rules]'))return;
