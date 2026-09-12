@@ -3,15 +3,11 @@
   if(window.__ktLiveConnectionStartOnlyInstalled)return;
   window.__ktLiveConnectionStartOnlyInstalled=true;
 
+  var armed=false;
+
   function hasLiveVideo(stream){
     try{return !!(stream&&stream.getVideoTracks&&stream.getVideoTracks().some(function(track){return track&&track.readyState==='live';}));}
     catch(e){return false;}
-  }
-
-  function roomOpen(){
-    try{
-      return !!document.querySelector('#ktLiveVideo,.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room,.ktg9-room');
-    }catch(e){return false;}
   }
 
   function findRoomStream(){
@@ -27,7 +23,7 @@
   }
 
   function startPresence(){
-    if(!roomOpen())return;
+    if(!armed)return;
     var stream=findRoomStream();
     if(!stream)return;
     try{
@@ -40,6 +36,7 @@
   }
 
   function retryStart(){
+    armed=true;
     [0,80,180,320,600,1000,1600,2400,3600,5200,7500,10000].forEach(function(ms){setTimeout(startPresence,ms);});
   }
 
@@ -72,19 +69,9 @@
     }catch(err){}
   },true);
 
-  try{
-    new MutationObserver(function(){
-      if(roomOpen()){
-        setTimeout(startPresence,40);
-        setTimeout(startPresence,180);
-        setTimeout(startPresence,600);
-      }
-    }).observe(document.body,{childList:true,subtree:true});
-  }catch(e){}
-
-  setInterval(function(){if(roomOpen())startPresence();},800);
-  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')retryStart();});
-  window.addEventListener('pageshow',retryStart);
+  setInterval(startPresence,800);
+  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'&&armed)retryStart();});
+  window.addEventListener('pageshow',function(){if(armed)retryStart();});
 
   setTimeout(function(){
     if(document.querySelector('script[data-kt-live-viewer-recovery]'))return;
