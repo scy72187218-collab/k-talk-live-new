@@ -1,4 +1,4 @@
-/* K-Talk 13명방 전용: 호스트를 위 3줄 높이로 줄이고, 그 아래 빈 게스트 1칸만 추가. 다른 UI/기능은 변경하지 않음. */
+/* K-Talk 13명방 전용: 호스트는 위쪽 짧은 한 줄, 아래 게스트 12칸(3×4). 다른 UI/기능은 변경하지 않음. */
 (function(){
   if(window.__ktGroup13HostThreeRowsInstalled)return;
   window.__ktGroup13HostThreeRowsInstalled=true;
@@ -8,28 +8,35 @@
     var s=document.createElement('style');
     s.id='ktGroup13HostThreeRowsStyle';
     s.textContent='\
-      #screen .ktg13-room .ktg13-main{grid-template-rows:repeat(4,minmax(0,1fr))!important;}\
-      #screen .ktg13-room .ktg13-host{grid-column:1!important;grid-row:1/4!important;}\
-      #screen .ktg13-room .ktg13-guests{grid-column:2!important;grid-row:1/5!important;}\
-      #screen .ktg13-room .ktg13-host-extra{grid-column:1!important;grid-row:4!important;display:grid!important;place-items:center!important;min-width:0!important;min-height:0!important;}\
-      #screen .ktg13-room .ktg13-host>video{width:78%!important;height:76%!important;position:absolute!important;left:11%!important;top:5%!important;object-fit:contain!important;object-position:center top!important;}';
+      #screen .ktg13-room[data-kt-room="13"] .ktg13-main{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:minmax(72px,.72fr) repeat(4,minmax(0,1fr))!important;gap:2px!important;}\
+      #screen .ktg13-room[data-kt-room="13"] .ktg13-host{grid-column:1/4!important;grid-row:1!important;min-width:0!important;min-height:0!important;}\
+      #screen .ktg13-room[data-kt-room="13"] .ktg13-guests{display:contents!important;}\
+      #screen .ktg13-room[data-kt-room="13"] .ktg13-host-extra{display:none!important;}\
+      #screen .ktg13-room[data-kt-room="13"] .ktg13-host>video{width:100%!important;height:100%!important;position:absolute!important;left:0!important;top:0!important;object-fit:cover!important;object-position:center center!important;}\
+      @media(max-width:390px){#screen .ktg13-room[data-kt-room="13"] .ktg13-main{grid-template-rows:minmax(64px,.68fr) repeat(4,minmax(0,1fr))!important;}}';
     document.head.appendChild(s);
   }
 
   function apply(){
     var room=document.querySelector('.ktg13-room');
     if(!room)return;
+    var roomType='';
+    var roomName='';
+    try{
+      roomType=(window.state&&state.liveRoomType)||'';
+      roomName=(window.state&&state.liveRoomName)||'';
+    }catch(e){}
+    var tagged=room.getAttribute('data-kt-room')||'';
+    if(tagged==='9'||tagged==='15'||roomType==='group9'||roomType==='group15'||roomName==='9명 방송'||roomName==='15명 방송')return;
+
     addStyle();
+    room.setAttribute('data-kt-room','13');
     var main=room.querySelector('.ktg13-main');
     var host=room.querySelector('.ktg13-host');
     var guests=room.querySelector('.ktg13-guests');
     if(!main||!host||!guests)return;
-    if(!main.querySelector('.ktg13-host-extra')){
-      var extra=document.createElement('div');
-      extra.className='ktg13-guest ktg13-host-extra';
-      extra.innerHTML='<span>게스트</span>';
-      main.insertBefore(extra,guests);
-    }
+    var extra=main.querySelector('.ktg13-host-extra');
+    if(extra)extra.remove();
   }
 
   apply();
