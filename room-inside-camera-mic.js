@@ -281,3 +281,146 @@
     };
   }
 })();
+
+/* 네 방송방 권한만 구분: 호스트·운영진은 관리, 게스트는 본인 카메라·마이크만. */
+(function(){
+  if(window.__ktRoomAvRolePermissionInstalled)return;
+  window.__ktRoomAvRolePermissionInstalled=true;
+
+  var tileSelector='.ktg13-room .ktg13-host,.ktg13-room .ktg13-guest,.ktsubscriber-room .ktsubscriber-host,.ktsubscriber-room .ktsubscriber-guest,.ktsecret-room .ktsecret-slot';
+
+  function roleText(){
+    var s=window.state||{};
+    var vals=[s.role,s.userRole,s.memberRole,s.levelName,s.gradeName,s.rankName,s.membershipName,s.userGrade,s.userLevel];
+    try{
+      ['kt_role','kt_user_role','kt_member_role','kt_grade','kt_level_name'].forEach(function(k){var v=localStorage.getItem(k);if(v)vals.push(v);});
+    }catch(e){}
+    return vals.filter(Boolean).join(' ');
+  }
+
+  function isManager(){
+    var s=window.state||{};
+    if(s.isHost===true||s.isAdmin===true||s.isOperator===true||s.isStaff===true||window.KT_IS_ADMIN===true||window.KT_IS_OPERATOR===true)return true;
+    if(/최고\s*운영자|운영자|관리자|admin|operator|staff/i.test(roleText()))return true;
+    try{
+      if(s.stream){
+        var host=document.querySelector('.ktg13-host video,.ktsubscriber-host video,.ktsecret-slot.host video');
+        if(host&&host.srcObject&&host.srcObject===s.stream)return true;
+      }
+    }catch(e){}
+    return false;
+  }
+
+  function videoOf(tile){
+    try{return tile&&tile.querySelector?tile.querySelector('video'):null;}catch(e){return null;}
+  }
+
+  function isOwnTile(tile){
+    if(!tile)return false;
+    var s=window.state||{};
+    try{
+      if(tile.dataset&&(tile.dataset.self==='1'||tile.dataset.me==='1'||tile.dataset.local==='1'||tile.dataset.own==='1'))return true;
+      if(tile.classList&&(tile.classList.contains('me')||tile.classList.contains('self')||tile.classList.contains('local')))return true;
+      var v=videoOf(tile);
+      if(s.stream&&v&&v.srcObject&&v.srcObject===s.stream)return true;
+      var mine=[s.userId,s.currentUserId,s.memberId,s.profileId,s.uid].filter(Boolean).map(String);
+      var theirs=[];
+      if(tile.dataset)theirs=[tile.dataset.userId,tile.dataset.participantId,tile.dataset.memberId,tile.dataset.uid].filter(Boolean).map(String);
+      for(var i=0;i<mine.length;i++)if(theirs.indexOf(mine[i])>-1)return true;
+    }catch(e){}
+    return false;
+  }
+
+  function ensureStyle(){
+    if(document.getElementById('ktRoomAvRolePermissionStyle'))return;
+    var s=document.createElement('style');
+    s.id='ktRoomAvRolePermissionStyle';
+    s.textContent=''
+      +'.kt-av-no-access>.kt-inside-av-controls{display:none!important}'
+      +'.kt-av-self-only>.kt-inside-av-controls .kt-inside-move-seat{display:none!important}'
+      +'.kt-inside-manager-key{width:23px!important;height:23px!important;min-width:23px!important;border-radius:50%!important;display:grid!important;place-items:center!important;background:rgba(176,124,15,.88)!important;border:1px solid rgba(255,224,115,.72)!important;font-size:12px!important;line-height:1!important;pointer-events:none!important}';
+    document.head.appendChild(s);
+  }
+
+  function managerHearOpenMics(){
+    if(!isManager())return;
+    var s=window.state||{};
+    document.querySelectorAll(tileSelector).forEach(function(tile){
+      var v=videoOf(tile);
+      if(!v)return;
+      try{
+        if(s.stream&&v.srcObject===s.stream)return;
+        if(v.dataset&&v.dataset.ktManagerMicLocked==='1')return;
+        v.muted=false;
+        v.volume=1;
+        if(v.paused&&typeof v.play==='function')v.play().catch(function(){});
+      }catch(e){}
+    });
+  }
+
+  function apply(){
+    ensureStyle();
+    var manager=isManager();
+    document.querySelectorAll(tileSelector).forEach(function(tile){
+      var box=tile.querySelector(':scope > .kt-inside-av-controls');
+      if(!box)return;
+      var own=isOwnTile(tile);
+      tile.classList.toggle('kt-av-no-access',!manager&&!own);
+      tile.classList.toggle('kt-av-self-only',!manager&&own);
+      var move=box.querySelector('.kt-inside-move-seat');
+      if(move){
+        move.style.setProperty('display',manager?'grid':'none','important');
+        move.disabled=!manager;
+      }
+      var key=box.querySelector('.kt-inside-manager-key');
+      if(manager){
+        if(!key){
+          key=document.createElement('span');
+          key.className='kt-inside-manager-key';
+          key.textContent='🔑';
+          key.title='호스트·운영진 관리 권한';
+          box.insertBefore(key,box.firstChild);
+        }
+      }else if(key){
+        key.remove();
+      }
+    });
+    managerHearOpenMics();
+  }
+
+  document.addEventListener('click',function(e){
+    var btn=e.target&&e.target.closest?e.target.closest('.kt-inside-camera,.kt-inside-mic,.kt-inside-move-seat'):null;
+    if(!btn)return;
+    var tile=btn.closest(tileSelector);
+    if(!tile)return;
+    var manager=isManager();
+    if(btn.classList.contains('kt-inside-move-seat')){
+      if(manager)return;
+      try{e.preventDefault();e.stopImmediatePropagation();}catch(err){}
+      return;
+    }
+    if(manager||isOwnTile(tile))return;
+    try{e.preventDefault();e.stopImmediatePropagation();}catch(err){}
+  },true);
+
+  document.addEventListener('pointerdown',function(){setTimeout(managerHearOpenMics,0);},true);
+  apply();
+  [80,220,500,1000,1800].forEach(function(ms){setTimeout(apply,ms);});
+  setInterval(apply,900);
+  try{
+    var mo=new MutationObserver(function(){clearTimeout(window.__ktRoomAvRoleTimer);window.__ktRoomAvRoleTimer=setTimeout(apply,30);});
+    mo.observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+
+  var oldGuide=window.openSiteGuide;
+  if(typeof oldGuide==='function'){
+    window.openSiteGuide=function(){
+      var r=oldGuide.apply(this,arguments);
+      setTimeout(function(){
+        var t=document.querySelector('.kt-room-av-guide small');
+        if(t)t.textContent='9명방 · 13명방 · 구독자방 · 비밀방에서 호스트·운영진은 🔑 관리 권한으로 게스트 카메라·마이크 잠금/해제와 자리 이동을 관리합니다. 게스트는 본인 화면의 카메라·마이크만 켜고 끌 수 있으며 자리 이동은 할 수 없습니다. 게스트가 열어 둔 마이크는 호스트·운영진에게 들립니다.';
+      },0);
+      return r;
+    };
+  }
+})();
