@@ -3,20 +3,21 @@
   if(window.__ktLiveConnectionStartOnlyInstalled)return;
   window.__ktLiveConnectionStartOnlyInstalled=true;
 
-  function roomOpen(){
-    try{return !!document.querySelector('#ktLiveVideo,.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room,.ktg9-room');}
-    catch(e){return false;}
-  }
-
   function hasLiveVideo(stream){
     try{return !!(stream&&stream.getVideoTracks&&stream.getVideoTracks().some(function(track){return track&&track.readyState==='live';}));}
     catch(e){return false;}
   }
 
-  function findRoomStream(){
-    try{if(window.state&&hasLiveVideo(state.stream))return state.stream;}catch(e){}
+  function roomOpen(){
     try{
-      var videos=document.querySelectorAll('#ktLiveVideo,#camera,.ktsolo-room video,.ktg13-room video,.ktsubscriber-room video,.ktsecret-room video,.ktg9-room video');
+      return !!document.querySelector('#ktLiveVideo,.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room,.ktg9-room');
+    }catch(e){return false;}
+  }
+
+  function findRoomStream(){
+    try{if(window.state&&hasLiveVideo(window.state.stream))return window.state.stream;}catch(e){}
+    try{
+      var videos=document.querySelectorAll('video');
       for(var i=0;i<videos.length;i++){
         var stream=videos[i]&&videos[i].srcObject;
         if(hasLiveVideo(stream))return stream;
@@ -29,18 +30,24 @@
     if(!roomOpen())return;
     var stream=findRoomStream();
     if(!stream)return;
-    try{if(window.state)state.stream=stream;}catch(e){}
-    try{if(typeof window.ktStartHostPresence==='function')window.ktStartHostPresence();}catch(e){}
+    try{
+      if(window.state)window.state.stream=stream;
+      else if(typeof state!=='undefined')state.stream=stream;
+    }catch(e){}
+    try{
+      if(typeof window.ktStartHostPresence==='function')window.ktStartHostPresence();
+    }catch(e){}
   }
 
   function retryStart(){
-    [0,80,250,600,1200,2200,4000,7000].forEach(function(ms){setTimeout(startPresence,ms);});
+    [0,80,180,320,600,1000,1600,2400,3600,5200,7500,10000].forEach(function(ms){setTimeout(startPresence,ms);});
   }
 
   function wrapBroadcastStart(){
     var original=window.startBroadcast;
     if(typeof original!=='function'||original.__ktConnectionStartOnlyWrapped)return false;
     var wrapped=async function(){
+      retryStart();
       var result=await original.apply(this,arguments);
       retryStart();
       return result;
@@ -54,21 +61,35 @@
   var tries=0;
   var wrapTimer=setInterval(function(){
     tries++;
-    if(wrapBroadcastStart()||tries>60)clearInterval(wrapTimer);
+    wrapBroadcastStart();
+    if(tries>120)clearInterval(wrapTimer);
   },100);
 
+  document.addEventListener('click',function(e){
+    try{
+      var btn=e.target&&e.target.closest?e.target.closest('.prep-start'):null;
+      if(btn)retryStart();
+    }catch(err){}
+  },true);
+
   try{
-    new MutationObserver(function(){if(roomOpen())setTimeout(startPresence,60);}).observe(document.body,{childList:true,subtree:true});
+    new MutationObserver(function(){
+      if(roomOpen()){
+        setTimeout(startPresence,40);
+        setTimeout(startPresence,180);
+        setTimeout(startPresence,600);
+      }
+    }).observe(document.body,{childList:true,subtree:true});
   }catch(e){}
 
-  setInterval(function(){if(roomOpen())startPresence();},1000);
-  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')setTimeout(startPresence,120);});
-  window.addEventListener('pageshow',function(){setTimeout(startPresence,120);});
+  setInterval(function(){if(roomOpen())startPresence();},800);
+  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')retryStart();});
+  window.addEventListener('pageshow',retryStart);
 
   setTimeout(function(){
     if(document.querySelector('script[data-kt-live-viewer-recovery]'))return;
     var s=document.createElement('script');
-    s.src='live-viewer-recovery.js?v=20260912-connect1';
+    s.src='live-viewer-recovery.js?v=20260912-connect2';
     s.async=false;
     s.setAttribute('data-kt-live-viewer-recovery','1');
     document.head.appendChild(s);
