@@ -219,3 +219,17 @@
   s.setAttribute('data-kt-touch-unlock-all','1');
   document.head.appendChild(s);
 })();
+
+/* 실제 방송 시작 시 기존 실시간 방송 등록을 바로 호출하는 연결만 추가한다. */
+(function(){
+  function loadPresenceStartFix(){
+    if(document.querySelector('script[data-kt-live-presence-start-fix]'))return;
+    var s=document.createElement('script');
+    s.src='live-presence-start-fix.js?v=20260912-live-start1';
+    s.async=false;
+    s.setAttribute('data-kt-live-presence-start-fix','1');
+    document.head.appendChild(s);
+  }
+  if(document.readyState==='complete')setTimeout(loadPresenceStartFix,80);
+  else window.addEventListener('load',function(){setTimeout(loadPresenceStartFix,80);},{once:true});
+})();
