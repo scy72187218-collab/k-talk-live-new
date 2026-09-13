@@ -181,7 +181,7 @@
 (function(){
   if(document.querySelector('script[data-kt-live-watchdog]'))return;
   var s=document.createElement('script');
-  s.src='live-presence-watchdog.js?v=20260913-live2';
+  s.src='live-presence-watchdog.js?v=20260913-live3';
   s.async=false;
   s.setAttribute('data-kt-live-watchdog','1');
   document.head.appendChild(s);
