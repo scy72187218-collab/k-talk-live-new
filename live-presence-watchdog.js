@@ -94,15 +94,21 @@
     var id=hostId(),stamp=now();
     try{
       var r=roomInfo(),p=profile();
-      var rows=await req('ktalk_live_rooms?select=id,active,updated_at&host_id=eq.'+enc(id)+'&order=updated_at.desc&limit=1');
-      if(rows&&rows[0]){
-        roomId=rows[0].id;
-        await req('ktalk_live_rooms?host_id=eq.'+enc(id),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:stamp})});
-        await req('ktalk_live_rooms?id=eq.'+enc(roomId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({host_name:p.name,title:r.title,room_type:r.type,room_name:r.name,active:true,started_at:stamp,updated_at:stamp,host_photo:p.photo||null})});
-      }else{
-        var made=await req('ktalk_live_rooms',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify({host_id:id,host_name:p.name,title:r.title,room_type:r.type,room_name:r.name,active:true,started_at:stamp,updated_at:stamp,host_photo:p.photo||null})});
-        roomId=made&&made[0]?made[0].id:'';
+      if(roomId){
+        try{
+          await req('ktalk_live_rooms?id=eq.'+enc(roomId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({host_name:p.name,title:r.title,room_type:r.type,room_name:r.name,active:true,updated_at:stamp,host_photo:p.photo||null})});
+          misses=0;
+          refreshViews();
+          publishing=false;
+          return;
+        }catch(e){roomId='';}
       }
+      try{
+        await req('ktalk_live_rooms?host_id=eq.'+enc(id)+'&active=eq.true',{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:stamp})});
+      }catch(e){}
+      var made=await req('ktalk_live_rooms',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify({host_id:id,host_name:p.name,title:r.title,room_type:r.type,room_name:r.name,active:true,started_at:stamp,updated_at:stamp,host_photo:p.photo||null})});
+      roomId=made&&made[0]?made[0].id:'';
+      if(!roomId)throw new Error('live watchdog no room id');
       misses=0;
       refreshViews();
     }catch(e){
@@ -170,13 +176,23 @@
     await stopFallbackPresence();
   }
 
+  function startTarget(e){
+    var el=e&&e.target&&e.target.closest?e.target.closest('button,.prep-start'):null;
+    if(!el)return false;
+    if(el.classList&&el.classList.contains('prep-start'))return true;
+    return /방송\s*시작/.test(String(el.textContent||''));
+  }
+
   wrapStartBroadcast();
   wrapStop('leaveBroadcastToDashboard');
   wrapStop('endBroadcastEarnings');
 
+  document.addEventListener('pointerdown',function(e){
+    if(startTarget(e))markBroadcastStarted();
+  },true);
+
   document.addEventListener('click',function(e){
-    var start=e.target&&e.target.closest?e.target.closest('.prep-start'):null;
-    if(start)markBroadcastStarted();
+    if(startTarget(e))markBroadcastStarted();
     var t=e.target&&e.target.closest?e.target.closest('.ktsolo-back,.ktsubscriber-back,.ktsecret-back,.ktg13-back'):null;
     if(t)stopFallbackPresence();
     setTimeout(function(){publishIfNeeded(false);},650);
@@ -184,6 +200,7 @@
 
   var mo=new MutationObserver(function(){setTimeout(function(){publishIfNeeded(false);},180);});
   try{mo.observe(document.getElementById('screen')||document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['data-kt-room']});}catch(e){}
+  setInterval(function(){wrapStartBroadcast();},1200);
   setInterval(heartbeat,2500);
   setTimeout(function(){publishIfNeeded(false);},700);
   setTimeout(function(){publishIfNeeded(false);},1800);
