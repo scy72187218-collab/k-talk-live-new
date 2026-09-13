@@ -200,6 +200,13 @@
     refreshRoom(room);
   }
 
+  function stageBadgeText(stage){
+    if(stage===1)return '1단계 🌹 장미';
+    if(stage===2)return '2단계 🏎️ 스포츠카';
+    if(stage===3)return '3단계 💎💗 다이아몬드 하트';
+    return '';
+  }
+
   function refreshRoom(room){
     if(!room||!roomKey(room))return;
     var btn=missionButton(room);
@@ -212,7 +219,7 @@
       badge.className='kt-mission-stage-badge';
       btn.appendChild(badge);
     }
-    badge.textContent=stage+'단계';
+    badge.textContent=stageBadgeText(stage);
   }
 
   function refreshAll(){
