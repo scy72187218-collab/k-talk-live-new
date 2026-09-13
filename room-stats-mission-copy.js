@@ -145,3 +145,161 @@
     showMission();
   },true);
 })();
+
+/* 다섯 방송방 미션 1·2·3단계 선택: 선택한 단계만 방 바깥 미션 옆에 표시. */
+(function(){
+  if(window.__ktMissionStageOutsideBadgeInstalled)return;
+  window.__ktMissionStageOutsideBadgeInstalled=true;
+  var activeRoom=null;
+
+  function ensureStyle(){
+    if(document.getElementById('ktMissionStageOutsideBadgeStyle'))return;
+    var s=document.createElement('style');
+    s.id='ktMissionStageOutsideBadgeStyle';
+    s.textContent=''
+      +'.kt-mission-stage-choice{cursor:pointer!important;touch-action:manipulation!important}'
+      +'.kt-mission-stage-label{display:inline-flex!important;align-items:center!important;justify-content:center!important;margin:0 6px 5px 0!important;padding:3px 7px!important;border-radius:999px!important;background:#ffcf3a!important;color:#211300!important;font-size:11px!important;font-weight:950!important;line-height:1!important}'
+      +'.kt-mission-stage-badge{display:inline-flex!important;align-items:center!important;justify-content:center!important;margin-left:3px!important;padding:2px 5px!important;border-radius:999px!important;background:#ffcf3a!important;color:#211300!important;font-size:9px!important;font-weight:950!important;line-height:1!important;white-space:nowrap!important}'
+      +'@media(max-width:390px){.kt-mission-stage-label{font-size:10px!important;padding:3px 6px!important}.kt-mission-stage-badge{font-size:8px!important;padding:2px 4px!important;margin-left:2px!important}}';
+    document.head.appendChild(s);
+  }
+
+  function roomKey(room){
+    if(!room)return '';
+    if(room.classList.contains('ktsolo-room'))return 'solo';
+    if(room.classList.contains('ktsubscriber-room'))return 'subscriber';
+    if(room.classList.contains('ktsecret-room'))return 'secret';
+    if(room.classList.contains('ktg13-room')){
+      var k=String(room.getAttribute('data-kt-room')||'');
+      if(k==='15')return '';
+      return k==='9'?'group9':'group13';
+    }
+    return '';
+  }
+
+  function missionButton(room){
+    if(!room)return null;
+    if(room.classList.contains('ktg13-room'))return room.querySelector('.ktg13-stats > button:nth-child(2)');
+    return room.querySelector('[data-kt-room-mission]');
+  }
+
+  function storedStage(room){
+    var key=roomKey(room);
+    if(!key)return 0;
+    try{
+      var n=parseInt(localStorage.getItem('ktalk_mission_stage:'+key)||'0',10);
+      return n>=1&&n<=3?n:0;
+    }catch(e){return 0;}
+  }
+
+  function setStage(room,stage){
+    var key=roomKey(room);
+    if(!key||stage<1||stage>3)return;
+    try{localStorage.setItem('ktalk_mission_stage:'+key,String(stage));}catch(e){}
+    try{room.dataset.ktMissionStage=String(stage);}catch(e){}
+    refreshRoom(room);
+  }
+
+  function refreshRoom(room){
+    if(!room||!roomKey(room))return;
+    var btn=missionButton(room);
+    if(!btn)return;
+    var stage=storedStage(room);
+    var badge=btn.querySelector('.kt-mission-stage-badge');
+    if(!stage){if(badge)badge.remove();return;}
+    if(!badge){
+      badge=document.createElement('span');
+      badge.className='kt-mission-stage-badge';
+      btn.appendChild(badge);
+    }
+    badge.textContent=stage+'단계';
+  }
+
+  function refreshAll(){
+    ensureStyle();
+    document.querySelectorAll('.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room').forEach(refreshRoom);
+  }
+
+  function stageFromText(text){
+    text=String(text||'');
+    if(text.indexOf('장미 1개짜리 30개 깨기')>-1)return 1;
+    if(text.indexOf('스포츠카 50개짜리 10개 깨기')>-1)return 2;
+    if(text.indexOf('다이아몬드 하트 400개짜리 10개 깨기')>-1)return 3;
+    return 0;
+  }
+
+  function decorateMissionRows(){
+    ensureStyle();
+    document.querySelectorAll('.rowbox').forEach(function(row){
+      var stage=stageFromText(row.textContent);
+      if(!stage)return;
+      row.classList.add('kt-mission-stage-choice');
+      row.setAttribute('data-kt-mission-stage-choice',String(stage));
+      row.setAttribute('role','button');
+      row.setAttribute('tabindex','0');
+      if(!row.querySelector('.kt-mission-stage-label')){
+        var label=document.createElement('span');
+        label.className='kt-mission-stage-label';
+        label.textContent=stage+'단계';
+        row.insertBefore(label,row.firstChild);
+      }
+    });
+  }
+
+  function visibleRoom(){
+    var list=[].slice.call(document.querySelectorAll('.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room'));
+    for(var i=0;i<list.length;i++){
+      var room=list[i];
+      if(!roomKey(room))continue;
+      try{
+        var cs=getComputedStyle(room),r=room.getBoundingClientRect();
+        if(cs.display!=='none'&&cs.visibility!=='hidden'&&r.width>0&&r.height>0)return room;
+      }catch(e){}
+    }
+    return list.find(function(room){return !!roomKey(room);})||null;
+  }
+
+  document.addEventListener('pointerdown',function(e){
+    var t=e.target;
+    if(!t||!t.closest)return;
+    var copied=t.closest('.ktsolo-room [data-kt-room-mission],.ktsubscriber-room [data-kt-room-mission],.ktsecret-room [data-kt-room-mission]');
+    var groupBtn=t.closest('.ktg13-room .ktg13-stats > button:nth-child(2)');
+    var btn=copied||groupBtn;
+    if(!btn)return;
+    var room=btn.closest('.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room');
+    if(roomKey(room))activeRoom=room;
+    setTimeout(decorateMissionRows,30);
+  },true);
+
+  document.addEventListener('click',function(e){
+    var row=e.target&&e.target.closest?e.target.closest('.rowbox'):null;
+    if(!row)return;
+    var stage=parseInt(row.getAttribute('data-kt-mission-stage-choice')||'0',10)||stageFromText(row.textContent);
+    if(!stage)return;
+    var room=activeRoom||visibleRoom();
+    if(!room)return;
+    setStage(room,stage);
+    decorateMissionRows();
+  },true);
+
+  document.addEventListener('keydown',function(e){
+    if(e.key!=='Enter'&&e.key!==' ')return;
+    var row=e.target&&e.target.closest?e.target.closest('.kt-mission-stage-choice'):null;
+    if(!row)return;
+    e.preventDefault();
+    var stage=parseInt(row.getAttribute('data-kt-mission-stage-choice')||'0',10);
+    var room=activeRoom||visibleRoom();
+    if(stage&&room)setStage(room,stage);
+  },true);
+
+  refreshAll();
+  [80,220,500,1000,1800].forEach(function(ms){setTimeout(function(){refreshAll();decorateMissionRows();},ms);});
+  setInterval(refreshAll,900);
+  try{
+    var mo=new MutationObserver(function(){
+      clearTimeout(window.__ktMissionStageOutsideBadgeTimer);
+      window.__ktMissionStageOutsideBadgeTimer=setTimeout(function(){refreshAll();decorateMissionRows();},30);
+    });
+    mo.observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+})();
