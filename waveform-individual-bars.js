@@ -145,6 +145,17 @@
     return null;
   }
 
+  function tileHasPerson(tile){
+    if(!tile)return false;
+    try{
+      if(tile.querySelector('video,img'))return true;
+      var d=tile.dataset||{};
+      if(d.userId||d.guestId||d.participantId||d.liveUser)return true;
+      if(d.occupied==='1'||d.connected==='1')return true;
+    }catch(e){}
+    return false;
+  }
+
   function tileCameraOpen(tile,localHost){
     if(!tile)return false;
     var explicit=explicitCameraState(tile);
@@ -167,7 +178,9 @@
       }
     }catch(e){}
 
-    return explicit===true;
+    if(explicit===true)return true;
+    if(localHost)return true;
+    return tileHasPerson(tile);
   }
 
   function ensureSecretSeventhSlot(){
