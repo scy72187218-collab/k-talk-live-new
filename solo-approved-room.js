@@ -9,7 +9,7 @@
 
   function esc(v){
     return String(v==null?'':v).replace(/[&<>"']/g,function(ch){
-      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[ch];
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
     });
   }
 
