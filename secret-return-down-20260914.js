@@ -4,6 +4,6 @@
   window.__ktSecretReturnDown20260914=true;
   var s=document.createElement('style');
   s.id='ktSecretReturnDown20260914Style';
-  s.textContent='.ktsecret-room .ktsecret-return{transform:translateY(22px)!important;}';
+  s.textContent='.ktsecret-room .ktsecret-return{transform:translateY(40px)!important;}';
   document.head.appendChild(s);
 })();
