@@ -3,6 +3,14 @@
   if(window.__ktEarningsRoomsCopyInstalled)return;
   window.__ktEarningsRoomsCopyInstalled=true;
 
+  /* 현재 1인방에서 실제 보이는 수익표만 왼쪽으로 이동. 다른 방은 변경하지 않음. */
+  if(!document.getElementById('ktSoloEarningsLeft20260913')){
+    var soloEarnStyle=document.createElement('style');
+    soloEarnStyle.id='ktSoloEarningsLeft20260913';
+    soloEarnStyle.textContent='html.kt-att-led-target:not(.kt-compact-two-room) body #ktSept2Live.kt-added-ui-room #myEarnHud,.ktsolo-room #myEarnHud{translate:-45px 0!important;}';
+    document.head.appendChild(soloEarnStyle);
+  }
+
   /* 9명/13명 계열 방송의 수익표는 폭을 과하게 줄이지 않고, 상세내용만 기본 접기. */
   if(!document.getElementById('ktCompactGroupEarningsStyle')){
     var compact=document.createElement('style');
