@@ -48,4 +48,7 @@
 
   /* 촬영 화면 위쪽 '라이브' 글씨만 '동영상 촬영 시간'으로 변경. */
   load('creator-top-live-label-only-20260914.js','__ktCreatorTopLiveLabelOnly20260914');
+
+  /* 방을 열 때 예전 화면이 잠깐 보이는 현상만 가림. */
+  load('live-room-no-old-flash-20260914.js','__ktLiveRoomNoOldFlash20260914');
 })();
