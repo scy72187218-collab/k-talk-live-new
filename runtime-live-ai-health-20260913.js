@@ -39,4 +39,7 @@
 
   /* 비밀방 되돌리기 버튼 위치만 조금 아래로. */
   load('secret-return-down-20260914.js','__ktSecretReturnDown20260914');
+
+  /* 촬영 화면 방송 바로가기는 1인 방송만 표시. */
+  load('creator-room-shortcuts-solo-only-20260914.js','__ktCreatorRoomShortcutsSoloOnly20260914');
 })();
