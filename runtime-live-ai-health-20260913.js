@@ -19,7 +19,7 @@
       if(guard&&window[guard]){if(done)done();return;}
       if(hasScript(src)){waitGuard(guard,done,0);return;}
       var s=document.createElement('script');
-      s.src=src+'?v=20260913-health2';
+      s.src=src+'?v=20260913-health3';
       s.async=false;
       s.onload=function(){if(done)done();};
       s.onerror=function(){if(done)done();};
@@ -27,12 +27,12 @@
     }catch(e){if(done)done();}
   }
 
+  /* AI 읽기 → 기본 실시간 방송 등록/입장 → LIVE 표시 → 시청자 상호작용 순서. */
   load('chat-benefit-ai-reader.js','__ktChatBenefitAIReaderInstalled',function(){
     load('live-presence.js','__ktLivePresenceInstalled',function(){
-      load('live-presence-watchdog.js','__ktLivePresenceWatchdogInstalled',function(){
-        load('live-video-discovery.js','__ktLiveVideoDiscoveryInstalled',function(){
-          load('live-viewer-interactions.js','__ktLiveViewerInteractionInstalled');
-        });
+      /* live-presence가 정상 설치되면 별도 watchdog을 같이 돌리지 않는다. 중복 방송 등록 방지. */
+      load('live-video-discovery.js','__ktLiveVideoDiscoveryInstalled',function(){
+        load('live-viewer-interactions.js','__ktLiveViewerInteractionInstalled');
       });
     });
   });
