@@ -162,3 +162,23 @@
 
   document.addEventListener('pointerdown',bridge,true);
 })();
+
+/* 열쇠 모양은 숨기고, 메인 동영상의 댓글 비눗방울 터치만 복구. */
+(function(){
+  if(window.__ktKeyBubbleOnlyFixInstalled)return;
+  window.__ktKeyBubbleOnlyFixInstalled=true;
+
+  var st=document.createElement('style');
+  st.id='ktHideManagerKeyOnly';
+  st.textContent='html body .kt-inside-manager-key{display:none!important}';
+  document.head.appendChild(st);
+
+  document.addEventListener('click',function(e){
+    var b=e.target&&e.target.closest?e.target.closest('.vh-actions button,.right-actions button'):null;
+    if(!b)return;
+    var txt=String(b.textContent||'');
+    if(txt.indexOf('댓글')<0&&txt.indexOf('💬')<0)return;
+    try{e.preventDefault();e.stopImmediatePropagation();}catch(err){}
+    if(typeof window.openComments==='function')window.openComments();
+  },true);
+})();
