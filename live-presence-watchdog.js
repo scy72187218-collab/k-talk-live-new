@@ -103,14 +103,13 @@
     publishing=true;
     var id=hostId(),stamp=now();
     try{
-      var rows=await req('ktalk_live_rooms?select=id,active,updated_at&host_id=eq.'+enc(id)+'&active=eq.true&order=started_at.desc&limit=1');
+      var r=roomInfo(),p=profile();
+      var rows=await req('ktalk_live_rooms?select=id,active,updated_at&host_id=eq.'+enc(id)+'&order=updated_at.desc&limit=1');
       if(rows&&rows[0]){
         roomId=rows[0].id;
-        var inf=roomInfo();
-        await req('ktalk_live_rooms?id=eq.'+enc(roomId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:true,room_type:inf.type,room_name:inf.name,title:inf.title,updated_at:stamp})});
+        await req('ktalk_live_rooms?host_id=eq.'+enc(id),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:stamp})});
+        await req('ktalk_live_rooms?id=eq.'+enc(roomId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({host_name:p.name,title:r.title,room_type:r.type,room_name:r.name,active:true,started_at:stamp,updated_at:stamp,host_photo:p.photo||null})});
       }else{
-        var r=roomInfo(),p=profile();
-        await req('ktalk_live_rooms?host_id=eq.'+enc(id)+'&active=eq.true',{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:stamp})});
         var made=await req('ktalk_live_rooms',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify({host_id:id,host_name:p.name,title:r.title,room_type:r.type,room_name:r.name,active:true,started_at:stamp,updated_at:stamp,host_photo:p.photo||null})});
         roomId=made&&made[0]?made[0].id:'';
       }
