@@ -162,23 +162,36 @@
   },true);
 })();
 
-/* 9명방 수익표: 처음에는 한 줄만 보이게 접기. */
+/* 9명방 수익표: 내용은 그대로 두고 크기만 작게 축소. */
 (function(){
   if(window.__ktNineEarningsCompactInstalled)return;
   window.__ktNineEarningsCompactInstalled=true;
   function apply(){
     var room=document.querySelector('.ktg13-room[data-kt-room="9"]');
     if(!room)return;
+    var hud=room.querySelector('#myEarnHud');
+    if(hud){
+      hud.style.setProperty('width','220px','important');
+      hud.style.setProperty('max-width','220px','important');
+      hud.style.setProperty('transform','scale(.72)','important');
+      hud.style.setProperty('transform-origin','top right','important');
+      hud.style.setProperty('margin-left','auto','important');
+    }
     var detail=room.querySelector('#myEarnDetail');
-    if(detail&&detail.getAttribute('data-kt-nine-compact')!=='1'){
-      detail.style.display='none';
-      detail.setAttribute('data-kt-nine-compact','1');
+    if(detail){
+      detail.style.setProperty('grid-template-columns','max-content max-content','important');
+      detail.style.setProperty('justify-content','end','important');
+      detail.style.setProperty('font-size','7px','important');
+      detail.style.setProperty('line-height','1.15','important');
+      [].slice.call(detail.querySelectorAll('span')).forEach(function(el){
+        el.style.setProperty('white-space','nowrap','important');
+      });
     }
   }
   apply();
   try{
     var mo=new MutationObserver(function(){setTimeout(apply,0);});
-    mo.observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['data-kt-room']});
+    mo.observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['data-kt-room','style']});
   }catch(e){}
 })();
 
