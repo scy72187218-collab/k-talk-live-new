@@ -2,7 +2,7 @@
 (function(){
   function loadTreasureCore(){
     var s=document.createElement('script');
-    s.src='treasure-global-room-core.js?v=20260911-treasure1';
+    s.src='treasure-global-room-core.js?v=20260913-treasure3';
     s.async=false;
     document.head.appendChild(s);
   }
