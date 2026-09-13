@@ -42,4 +42,7 @@
 
   /* 촬영 화면 방송 바로가기는 1인 방송만 표시. */
   load('creator-room-shortcuts-solo-only-20260914.js','__ktCreatorRoomShortcutsSoloOnly20260914');
+
+  /* 라이브 준비 화면의 중복 9명 방송 버튼 하나만 숨김. */
+  load('live-prep-remove-duplicate-9only-20260914.js','__ktRemoveDuplicate9Only20260914');
 })();
