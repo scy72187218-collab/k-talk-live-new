@@ -17,15 +17,18 @@ jobs:
           from pathlib import Path
           p=Path('index.html')
           s=p.read_text(encoding='utf-8')
-          tag='<script src="runtime-live-ai-health-20260913.js?v=20260913-health2"></script>'
-          if tag not in s:
+          old='<script src="runtime-live-ai-health-20260913.js?v=20260913-health2"></script>'
+          tag='<script src="runtime-live-ai-health-20260913.js?v=20260913-health3"></script>'
+          if old in s:
+              s=s.replace(old,tag)
+          elif tag not in s:
               s=s.replace('</body>',tag+'\n</body>')
-              p.write_text(s,encoding='utf-8')
+          p.write_text(s,encoding='utf-8')
       - name: Commit
         run: |
           if git diff --quiet; then exit 0; fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html
-          git commit -m "Load runtime live and AI health"
+          git commit -m "Refresh runtime live and AI health"
           git push
