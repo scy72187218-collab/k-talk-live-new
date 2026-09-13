@@ -142,3 +142,21 @@
     +'}';
   document.head.appendChild(s);
 })();
+
+/* 1인 방송만: 뒤집기·좋아요·효과·보물상자·매치를 조금 크게 하고 테두리를 다시 표시. 다른 방은 건드리지 않음. */
+(function(){
+  if(window.__ktSoloRightLargeBorderInstalled)return;
+  window.__ktSoloRightLargeBorderInstalled=true;
+  var s=document.createElement('style');
+  s.id='ktSoloRightLargeBorderStyle';
+  s.textContent=''
+    +'.ktsolo-right{gap:8px!important}'
+    +'.ktsolo-right.kt-synced-actions>button,.ktsolo-right>.kt-solo-camera-flip{width:58px!important;height:58px!important;min-width:58px!important;min-height:58px!important;border-radius:50%!important;border:1px solid rgba(255,255,255,.48)!important;background:rgba(18,18,23,.84)!important;box-shadow:0 2px 8px rgba(0,0,0,.42)!important;outline:0!important;color:#fff!important}'
+    +'.ktsolo-right.kt-synced-actions>.like{height:66px!important;min-height:66px!important;border-radius:20px!important;border-color:rgba(255,62,170,.62)!important;background:rgba(65,25,50,.88)!important}'
+    +'.ktsolo-right.kt-synced-actions>.kt-solo-treasure{border-color:rgba(255,203,72,.68)!important;background:rgba(65,49,16,.88)!important}'
+    +'.ktsolo-right.kt-synced-actions>button b{font-size:22px!important;line-height:1!important}'
+    +'.ktsolo-right.kt-synced-actions>button small,.ktsolo-right>.kt-solo-camera-flip small{font-size:10px!important;line-height:1!important;margin-top:3px!important;white-space:nowrap!important}'
+    +'.ktsolo-right>.kt-solo-camera-flip{font-size:22px!important}'
+    +'@media(max-width:390px){.ktsolo-right{gap:6px!important}.ktsolo-right.kt-synced-actions>button,.ktsolo-right>.kt-solo-camera-flip{width:54px!important;height:54px!important;min-width:54px!important;min-height:54px!important}.ktsolo-right.kt-synced-actions>.like{height:62px!important;min-height:62px!important}.ktsolo-right.kt-synced-actions>button small,.ktsolo-right>.kt-solo-camera-flip small{font-size:9px!important}}';
+  document.head.appendChild(s);
+})();
