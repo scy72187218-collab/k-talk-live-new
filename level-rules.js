@@ -26,22 +26,40 @@
     try{
       if(typeof window.ktProfileLoad==='function'){
         var p=window.ktProfileLoad();
-        if(p)add(p.name);
+        if(p)[p.name,p.nickname,p.nickName,p.displayName,p.profileName,p.accountName,p.username,p.userName].forEach(add);
+      }
+    }catch(e){}
+    try{
+      if(typeof window.ktGetSelectedSubAccount==='function'){
+        var sub=window.ktGetSelectedSubAccount();
+        add(sub);
+        if(sub&&typeof window.ktSubProfileCard==='function'){
+          var sp=window.ktSubProfileCard(sub)||{};
+          [sp.name,sp.nickname,sp.nickName,sp.displayName,sp.profileName,sp.accountName,sp.username,sp.userName].forEach(add);
+        }
       }
     }catch(e){}
     return list;
   }
 
+  function normalizeOwnerName(n){
+    return cleanName(n).replace(/[‐‑‒–—―-]/g,'-').toLowerCase();
+  }
+
   function isFixedOwnerName(n){
-    n=cleanName(n);
-    return n==='태권'||n==='태권이'||n==='하이네';
+    n=normalizeOwnerName(n);
+    return [
+      '태권','태권이','하이네',
+      '태권1','태권2','하이네2',
+      'k톡태권','k-톡태권'
+    ].indexOf(n)>-1;
   }
 
   function ownerAccountDetected(){
     return accountNames().some(isFixedOwnerName);
   }
 
-  /* 태권이·하이네 계정은 어느 화면/방 판정에서도 레벨 1000으로 고정한다. */
+  /* 관리자 계정은 어느 화면/방 판정에서도 레벨 1000으로 고정한다. */
   window.ktForceOwnerLevel1000=function(){
     if(!ownerAccountDetected())return false;
     try{
@@ -51,17 +69,29 @@
         state.memberLevel=1000;
         state.hostLevel=1000;
         state.ktOwnerLevelBypass=true;
+        state.ktOwnerAdmin=true;
+        state.ktOwnerGiftPermission=true;
       }
     }catch(e){}
     try{
       ['ktalk_level','ktalk_user_level','ktalk_member_level','ktalk_host_level','level','userLevel','memberLevel','hostLevel'].forEach(function(k){
         localStorage.setItem(k,'1000');
       });
+      localStorage.setItem('ktalk_owner_admin','1');
+      localStorage.setItem('ktalk_owner_gift_permission','1');
     }catch(e){}
     return true;
   };
 
   window.ktIsOwnerLevelExempt=function(){
+    return window.ktForceOwnerLevel1000();
+  };
+
+  window.ktIsOwnerAdmin=function(){
+    return window.ktForceOwnerLevel1000();
+  };
+
+  window.ktOwnerHasGiftPermission=function(){
     return window.ktForceOwnerLevel1000();
   };
 
