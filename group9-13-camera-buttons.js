@@ -223,7 +223,7 @@
 (function(){
   if(document.querySelector('script[data-kt-controls-tap-only="1"]'))return;
   var s=document.createElement('script');
-  s.src='room-controls-tap-only-guard.js?v=20260913-taponly1';
+  s.src='room-controls-tap-only-guard.js?v=20260913-taponly2';
   s.async=false;
   s.setAttribute('data-kt-controls-tap-only','1');
   document.head.appendChild(s);
