@@ -74,3 +74,67 @@
     mo.observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 })();
+
+/* 9명 일반방 버튼 터치 선택만 보정하고, 사용방법에 9명 일반방 문구가 빠졌으면 다시 표시. */
+(function(){
+  if(window.__ktNineGeneralPrepTouchGuideFixInstalled)return;
+  window.__ktNineGeneralPrepTouchGuideFixInstalled=true;
+
+  function ensureNineButton(){
+    try{
+      document.querySelectorAll('.live-prep .kt-room9-general,.live-prep .kt-room9-switch').forEach(function(btn){
+        btn.classList.add('room-switch');
+        btn.style.setProperty('pointer-events','auto','important');
+        btn.style.setProperty('touch-action','manipulation','important');
+        btn.style.setProperty('position','relative','important');
+        btn.style.setProperty('z-index','31','important');
+      });
+    }catch(e){}
+  }
+
+  function installGuidePatch(){
+    if(typeof window.openSiteGuide!=='function'||window.openSiteGuide.__ktNineGeneralGuideFixed)return false;
+    var old=window.openSiteGuide;
+    var wrapped=function(){
+      var r=old.apply(this,arguments);
+      setTimeout(function(){
+        try{
+          var body=document.getElementById('sheetBody');
+          if(!body)return;
+          var rows=[].slice.call(body.querySelectorAll('.rowbox'));
+          var row=rows.find(function(el){return String(el.textContent||'').indexOf('방송방 종류')>-1;});
+          if(!row)return;
+          var txt=String(row.textContent||'');
+          if(txt.indexOf('9명 일반방')>-1)return;
+          if(row.innerHTML.indexOf('일반 13명방')>-1){
+            row.innerHTML=row.innerHTML.replace('일반 13명방','9명 일반방, 13명 방송');
+          }else{
+            row.innerHTML+='<br>9명 일반방은 호스트 1명과 게스트 8명이 함께 이용합니다.';
+          }
+        }catch(e){}
+      },0);
+      return r;
+    };
+    wrapped.__ktNineGeneralGuideFixed=true;
+    window.openSiteGuide=wrapped;
+    return true;
+  }
+
+  ensureNineButton();
+  [80,220,500,1000,1800].forEach(function(ms){setTimeout(ensureNineButton,ms);});
+  try{
+    var mo=new MutationObserver(function(){
+      clearTimeout(window.__ktNineGeneralPrepTouchTimer);
+      window.__ktNineGeneralPrepTouchTimer=setTimeout(ensureNineButton,35);
+    });
+    mo.observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+
+  if(!installGuidePatch()){
+    var tries=0;
+    var timer=setInterval(function(){
+      tries++;
+      if(installGuidePatch()||tries>40)clearInterval(timer);
+    },100);
+  }
+})();
