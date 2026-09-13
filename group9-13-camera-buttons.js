@@ -213,7 +213,7 @@
 (function(){
   if(document.querySelector('script[data-kt-profile-level="1"]'))return;
   var s=document.createElement('script');
-  s.src='room-host-guest-profile-level.js?v=20260913-profilelevel2';
+  s.src='room-host-guest-profile-level.js?v=20260913-profilelevel3';
   s.async=false;
   s.setAttribute('data-kt-profile-level','1');
   document.head.appendChild(s);
