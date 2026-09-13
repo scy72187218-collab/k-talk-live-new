@@ -183,3 +183,92 @@
   [80,240,700,1200,2200].forEach(function(ms){setTimeout(install,ms);});
   setInterval(install,1200);
 })();
+
+/* 비밀방 안쪽 조작버튼 마지막 강제 숨김: 예전 카메라/마이크와 자리이동까지 평소에는 숨기고, 사람 칸을 직접 눌렀을 때만 잠깐 표시. */
+(function(){
+  if(window.__ktSecretInsideControlsHardHideInstalled)return;
+  window.__ktSecretInsideControlsHardHideInstalled=true;
+
+  var tileSelector='.ktsecret-room .ktsecret-slot,.ktsecret-room .ktsecret-guest-slot';
+  var controlSelector='.kt-inside-camera,.kt-inside-mic,.kt-inside-move-seat,.kt-inside-seat-up,.kt-inside-seat-down';
+
+  function oldControls(room){
+    return room.querySelectorAll('.kt-person-mic,.kt-host-camera-toggle,.ktg13-camera-toggle,.kt-913-camera,.kt-inside-manager-key');
+  }
+
+  function hideOld(room){
+    if(!room)return;
+    oldControls(room).forEach(function(el){
+      try{el.style.setProperty('display','none','important');}catch(e){}
+    });
+  }
+
+  function boxOf(tile){
+    try{return tile.querySelector(':scope > .kt-inside-av-controls');}catch(e){return null;}
+  }
+
+  function hideTile(tile){
+    if(!tile)return;
+    tile.__ktSecretExplicitOpen=false;
+    var box=boxOf(tile);
+    if(box){
+      box.style.setProperty('display','none','important');
+      box.style.setProperty('opacity','0','important');
+      box.style.setProperty('visibility','hidden','important');
+      box.style.setProperty('pointer-events','none','important');
+    }
+    tile.classList.remove('kt-av-open','kt-secret-controls-open','kt-room-controls-tap-open');
+    tile.classList.add('kt-room-controls-hidden');
+  }
+
+  function showTile(tile){
+    if(!tile)return;
+    var box=boxOf(tile);
+    if(!box)return;
+    tile.__ktSecretExplicitOpen=true;
+    tile.classList.remove('kt-room-controls-hidden');
+    tile.classList.add('kt-secret-controls-open','kt-room-controls-tap-open');
+    box.style.setProperty('display','flex','important');
+    box.style.setProperty('opacity','1','important');
+    box.style.setProperty('visibility','visible','important');
+    box.style.setProperty('pointer-events','auto','important');
+    try{clearTimeout(tile.__ktSecretHardHideTimer);}catch(e){}
+    tile.__ktSecretHardHideTimer=setTimeout(function(){hideTile(tile);},2600);
+  }
+
+  function install(){
+    var room=document.querySelector('.ktsecret-room');
+    if(!room)return;
+    hideOld(room);
+    room.querySelectorAll('.ktsecret-slot,.ktsecret-guest-slot').forEach(function(tile){
+      if(tile.__ktSecretExplicitOpen!==true)hideTile(tile);
+    });
+  }
+
+  document.addEventListener('click',function(e){
+    var t=e.target;
+    if(!t||!t.closest)return;
+    var room=t.closest('.ktsecret-room');
+    if(!room)return;
+    var ctl=t.closest(controlSelector);
+    if(ctl){
+      var tile=ctl.closest('.ktsecret-slot,.ktsecret-guest-slot');
+      setTimeout(function(){if(tile)hideTile(tile);},0);
+      return;
+    }
+    if(t.closest('.kt-inside-av-controls'))return;
+    var tile=t.closest('.ktsecret-slot,.ktsecret-guest-slot');
+    if(tile)showTile(tile);
+  },true);
+
+  install();
+  [50,150,350,700,1200,2000].forEach(function(ms){setTimeout(install,ms);});
+  setInterval(install,500);
+  try{
+    var mo=new MutationObserver(function(){
+      clearTimeout(window.__ktSecretInsideHardHideTimer);
+      window.__ktSecretInsideHardHideTimer=setTimeout(install,20);
+    });
+    mo.observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+})();
