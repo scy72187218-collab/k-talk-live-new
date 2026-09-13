@@ -4,7 +4,7 @@
   window.__ktAttendanceHeartHostTapFixInstalled=true;
 
   var roomSelector='.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room';
-  var attendanceSelector='.ktsolo-att,.ktg13-attend,.ktsubscriber-att,.ktsecret-att';
+  var attendanceSelector='.ktsolo-att,.ktg13-attend,.ktsubscriber-att,.ktsecret-att,.kt-live-attendance,[data-kt-attendance]';
   var sideLikeSelector='.ktsolo-right .like,.ktg13-right-quick .ktg13-like,.ktsubscriber-right .like,.ktsecret-right .like';
   var hostSelector='.ktsolo-room .ktsolo-main,.ktg13-room .ktg13-host,.ktsubscriber-room .ktsubscriber-host,.ktsecret-room .ktsecret-slot.host';
 
@@ -74,18 +74,21 @@
     try{localStorage.setItem('ktalk_ai_voice','on');}catch(e){}
     try{if(window.speechSynthesis&&window.speechSynthesis.cancel)window.speechSynthesis.cancel();}catch(e){}
     try{
-      if(typeof window.ktSpeak==='function'){
-        setTimeout(function(){try{window.ktSpeak(msg);}catch(e){}},20);
-        return;
-      }
-      if('speechSynthesis' in window){
+      if('speechSynthesis' in window&&typeof window.SpeechSynthesisUtterance==='function'){
         var u=new SpeechSynthesisUtterance(msg);
         u.lang='ko-KR';
         u.volume=1;
         u.rate=0.98;
         u.pitch=1.02;
+        try{
+          var voices=window.speechSynthesis.getVoices?window.speechSynthesis.getVoices():[];
+          var ko=voices.find(function(v){return /^ko(-|_)/i.test(v.lang||'');});
+          if(ko)u.voice=ko;
+        }catch(e){}
         window.speechSynthesis.speak(u);
+        return;
       }
+      if(typeof window.ktSpeak==='function')window.ktSpeak(msg);
     }catch(e){}
   }
 
