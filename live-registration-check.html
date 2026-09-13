@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>K-Talk LIVE 등록 점검</title>
+<style>
+body{margin:0;background:#07070b;color:#fff;font-family:system-ui,-apple-system,'Noto Sans KR',sans-serif;display:grid;place-items:center;min-height:100dvh}.box{width:min(88vw,440px);padding:24px;border:1px solid #ffffff22;border-radius:20px;background:#101017}.box h1{font-size:22px;margin:0 0 12px}.box p{color:#ccc;line-height:1.5}.status{margin-top:16px;padding:16px;border-radius:14px;background:#08080d;font-weight:800;line-height:1.7;white-space:pre-wrap}.ok{color:#62f59a}.bad{color:#ff7187}.wait{color:#ffd76a}button{width:100%;margin-top:14px;padding:13px;border:0;border-radius:12px;background:#ff3d88;color:#fff;font-size:16px;font-weight:900}</style>
+</head>
+<body>
+<div class="box">
+<h1>K-Talk LIVE 등록 점검</h1>
+<p>기존 K-Talk 화면은 바꾸지 않고, 이 휴대폰에서 방송목록 서버 연결만 확인합니다.</p>
+<div id="status" class="status wait">점검 중입니다…</div>
+<button type="button" onclick="runCheck()">다시 점검</button>
+</div>
+<script>
+async function runCheck(){
+  var out=document.getElementById('status');
+  out.className='status wait';out.textContent='1단계: LIVE 설정 파일 확인 중…';
+  try{
+    var cfg=await fetch('live-presence.js?diag='+Date.now(),{cache:'no-store'});
+    if(!cfg.ok)throw new Error('설정 파일 '+cfg.status);
+    var text=await cfg.text();
+    var bm=text.match(/var BASE='([^']+)'/), km=text.match(/var KEY='([^']+)'/);
+    if(!bm||!km)throw new Error('LIVE 설정을 읽지 못했습니다');
+    var BASE=bm[1],KEY=km[1];
+    out.textContent='2단계: 서버 읽기 연결 확인 중…';
+    var common={apikey:KEY,Authorization:'Bearer '+KEY};
+    var r=await fetch(BASE+'ktalk_live_rooms?select=id&limit=1',{headers:common,cache:'no-store'});
+    if(!r.ok){var rt=await r.text();throw new Error('서버 읽기 '+r.status+' '+rt.slice(0,120));}
+    out.textContent='3단계: 방송 등록 통신 확인 중…';
+    var stamp=new Date().toISOString();
+    var payload={host_id:'diag_'+Date.now(),host_name:'K-Talk 점검',title:'연결점검',room_type:'diagnostic',room_name:'연결점검',active:false,started_at:stamp,updated_at:stamp};
+    var p=await fetch(BASE+'ktalk_live_rooms',{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json',Prefer:'return=representation'},body:JSON.stringify(payload)});
+    if(!p.ok){var pt=await p.text();throw new Error('등록 요청 '+p.status+' '+pt.slice(0,180));}
+    out.className='status ok';out.textContent='✅ 서버 연결 정상\n✅ 방송 등록 통신 정상\n\n이 화면을 사진 찍어서 보내주세요.';
+  }catch(e){
+    out.className='status bad';out.textContent='❌ 연결 점검 실패\n'+String(e&&e.message||e)+'\n\n이 화면을 사진 찍어서 보내주세요.';
+  }
+}
+runCheck();
+</script>
+</body>
+</html>
