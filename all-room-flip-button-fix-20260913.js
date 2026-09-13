@@ -3,22 +3,59 @@
   if(window.__ktAllRoomFlipButtonFix20260913)return;
   window.__ktAllRoomFlipButtonFix20260913=true;
 
+  /* 뒤집기 = 좌우 반전이 아니라 실제 앞카메라 ↔ 뒷카메라 전환 */
   async function flipCamera(){
+    var current=(window.state&&state.cameraFacing)||'user';
+    var next=current==='environment'?'user':'environment';
     try{
-      var next=(window.state&&state.cameraFacing==='environment')?'user':'environment';
-      if(window.state)state.cameraFacing=next;
-      if(typeof window.ensureLiveCamera==='function'){
-        var ok=await window.ensureLiveCamera(next);
-        if(ok===false)return;
+      if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return false;
+
+      var oldStream=(window.state&&state.stream)?state.stream:null;
+      var audioTracks=[];
+      if(oldStream&&oldStream.getAudioTracks){
+        audioTracks=oldStream.getAudioTracks().filter(function(t){return t.readyState==='live';});
       }
-      document.querySelectorAll('.ktsolo-room video,.ktg13-room video,.ktsubscriber-room video,.ktsecret-room video,#ktLiveVideo').forEach(function(v){
+
+      if(oldStream&&oldStream.getVideoTracks){
+        oldStream.getVideoTracks().forEach(function(t){try{t.stop();}catch(e){}});
+      }
+
+      var videoStream=null;
+      var base={width:{ideal:1920},height:{ideal:1080},frameRate:{ideal:30,max:30}};
+      try{
+        videoStream=await navigator.mediaDevices.getUserMedia({
+          video:{facingMode:{exact:next},width:base.width,height:base.height,frameRate:base.frameRate},
+          audio:false
+        });
+      }catch(firstErr){
+        videoStream=await navigator.mediaDevices.getUserMedia({
+          video:{facingMode:{ideal:next},width:base.width,height:base.height,frameRate:base.frameRate},
+          audio:false
+        });
+      }
+
+      var tracks=[];
+      if(videoStream&&videoStream.getVideoTracks)tracks=tracks.concat(videoStream.getVideoTracks());
+      tracks=tracks.concat(audioTracks);
+      var merged=new MediaStream(tracks);
+
+      if(window.state){
+        state.stream=merged;
+        state.cameraFacing=next;
+      }
+
+      document.querySelectorAll('#camera,.ktsolo-room video,.ktg13-room video,.ktsubscriber-room video,.ktsecret-room video,#ktLiveVideo').forEach(function(v){
         try{
-          if(window.state&&state.stream)v.srcObject=state.stream;
-          v.style.transform=next==='user'?'scaleX(-1)':'none';
+          v.srcObject=merged;
+          v.style.setProperty('transform',next==='user'?'scaleX(-1)':'none','important');
           var p=v.play();if(p&&p.catch)p.catch(function(){});
         }catch(e){}
       });
-    }catch(e){}
+      return true;
+    }catch(e){
+      try{if(window.state)state.cameraFacing=current;}catch(x){}
+      return false;
+    }
   }
   window.ktAllRoomsFlipCamera=flipCamera;
 
