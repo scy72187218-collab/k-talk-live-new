@@ -123,7 +123,8 @@
 
   function markBroadcastStarted(){
     broadcastStarted=true;
-    [40,250,700,1600].forEach(function(ms){setTimeout(function(){publishIfNeeded(true);},ms);});
+    publishIfNeeded(true);
+    [250,700,1600].forEach(function(ms){setTimeout(function(){publishIfNeeded(true);},ms);});
   }
 
   function wrapStartBroadcast(){
@@ -174,6 +175,8 @@
   wrapStop('endBroadcastEarnings');
 
   document.addEventListener('click',function(e){
+    var start=e.target&&e.target.closest?e.target.closest('.prep-start'):null;
+    if(start)markBroadcastStarted();
     var t=e.target&&e.target.closest?e.target.closest('.ktsolo-back,.ktsubscriber-back,.ktsecret-back,.ktg13-back'):null;
     if(t)stopFallbackPresence();
     setTimeout(function(){publishIfNeeded(false);},650);
