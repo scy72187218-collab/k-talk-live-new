@@ -21,16 +21,9 @@
     return rooms[0]||null;
   }
 
+  /* 호스트 자신의 방에서 출석 버튼을 눌러도 안내창/음성은 띄우지 않는다. */
   function explainHostAttendance(){
-    var msg='출석체크는 시청자가 누르면 호스트에게 장미 1송이가 들어갑니다.';
-    try{
-      if(typeof window.ktSpeak==='function')window.ktSpeak(msg);
-    }catch(e){}
-    try{
-      if(typeof window.showSheet==='function'){
-        window.showSheet('🌹 출석체크','<div class="rowbox"><b>시청자 출석 응원</b><br>방에 들어온 시청자가 출석체크를 한 번 누르면 호스트에게 장미 1송이가 들어갑니다.<br><small>호스트 본인이 누른 것은 지급되지 않습니다.</small></div>');
-      }
-    }catch(e){}
+    return;
   }
 
   /* 호스트 자신의 방에서는 self 보상을 절대 주지 않는다. 실제 지급은 원격 시청자의 ktRemoteAttendance → 호스트 동기화 경로에서만 처리한다. */
