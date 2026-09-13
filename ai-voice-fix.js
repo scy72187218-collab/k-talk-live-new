@@ -162,7 +162,7 @@
   },true);
 })();
 
-/* 9명방 수익표: 내용은 그대로 두고 크기만 작게 축소. */
+/* 9명방 수익표: 내용은 그대로 두고 너무 작지 않게 중간 크기로 조정. */
 (function(){
   if(window.__ktNineEarningsCompactInstalled)return;
   window.__ktNineEarningsCompactInstalled=true;
@@ -171,9 +171,9 @@
     if(!room)return;
     var hud=room.querySelector('#myEarnHud');
     if(hud){
-      hud.style.setProperty('width','200px','important');
-      hud.style.setProperty('max-width','200px','important');
-      hud.style.setProperty('transform','scale(.58)','important');
+      hud.style.setProperty('width','210px','important');
+      hud.style.setProperty('max-width','210px','important');
+      hud.style.setProperty('transform','scale(.72)','important');
       hud.style.setProperty('transform-origin','top right','important');
       hud.style.setProperty('margin-left','auto','important');
     }
@@ -181,8 +181,8 @@
     if(detail){
       detail.style.setProperty('grid-template-columns','max-content max-content','important');
       detail.style.setProperty('justify-content','end','important');
-      detail.style.setProperty('font-size','7px','important');
-      detail.style.setProperty('line-height','1.15','important');
+      detail.style.setProperty('font-size','8px','important');
+      detail.style.setProperty('line-height','1.18','important');
       [].slice.call(detail.querySelectorAll('span')).forEach(function(el){
         el.style.setProperty('white-space','nowrap','important');
       });
