@@ -60,10 +60,28 @@
     }catch(e){}
   }
 
+  async function flipSoloCamera(){
+    try{
+      var next=(window.state&&state.cameraFacing==='environment')?'user':'environment';
+      if(window.state)state.cameraFacing=next;
+      if(typeof window.ensureLiveCamera==='function'){
+        var ok=await window.ensureLiveCamera(next);
+        if(ok===false)return;
+      }
+      var v=document.getElementById('ktLiveVideo');
+      if(v&&window.state&&state.stream){
+        v.srcObject=state.stream;
+        v.style.transform=next==='user'?'scaleX(-1)':'none';
+        var p=v.play();if(p&&p.catch)p.catch(function(){});
+      }
+    }catch(e){}
+  }
+
   window.ktUnifiedQuickLike=hostLike;
   window.ktUnifiedQuickEffect=effect;
   window.ktUnifiedQuickTreasure=treasure;
   window.ktUnifiedQuickMatch=match;
+  window.ktSoloFlipCamera=flipSoloCamera;
 
   function applyGroup13(){
     var main=document.querySelector('.ktg13-main');
@@ -89,18 +107,33 @@
     var box=document.querySelector('.ktsolo-right');
     if(!box)return;
     ensureStyle();
-    if(box.getAttribute('data-kt-actions')==='same4')return;
-    box.setAttribute('data-kt-actions','same4');
+    if(box.getAttribute('data-kt-actions')==='same5')return;
+    box.setAttribute('data-kt-actions','same5');
     box.classList.add('kt-synced-actions');
     box.innerHTML=''
+      +'<button class="kt-solo-camera-flip" type="button" onclick="ktSoloFlipCamera()" aria-label="뒤집기"><b>↻</b><small>뒤집기</small></button>'
       +'<button class="like" type="button" onclick="ktUnifiedQuickLike()" aria-label="좋아요"><b>💗</b><small>좋아요</small><em id="hostLikeCount" style="font-style:normal;display:block;font-size:8px">0</em></button>'
       +'<button type="button" onclick="ktUnifiedQuickEffect(\'solo\')" aria-label="효과"><b>✨</b><small>효과</small></button>'
       +'<button class="kt-solo-treasure" type="button" onclick="ktUnifiedQuickTreasure()" aria-label="보물상자"><b>🎁</b><small>보물상자</small></button>'
       +'<button type="button" onclick="ktUnifiedQuickMatch()" aria-label="매치"><b>⚔</b><small>매치</small></button>';
   }
 
+  function compactSoloEarnings(){
+    var room=document.querySelector('.ktsolo-room');
+    if(!room)return;
+    var hud=room.querySelector('#myEarnHud');
+    if(!hud||hud.getAttribute('data-kt-solo-compact')==='1')return;
+    var first=hud.firstElementChild;
+    var label=first?first.querySelector('span'):null;
+    if(label)label.textContent='🔒 내 수익';
+    var detail=room.querySelector('#myEarnDetail');
+    if(detail)detail.style.display='none';
+    hud.setAttribute('data-kt-solo-compact','1');
+  }
+
   function apply(){
     applySolo();
+    compactSoloEarnings();
     applyGroup13();
   }
 
@@ -143,20 +176,24 @@
   document.head.appendChild(s);
 })();
 
-/* 1인 방송만: 뒤집기·좋아요·효과·보물상자·매치를 조금 크게 하고 테두리를 다시 표시. 다른 방은 건드리지 않음. */
+/* 1인 방송만: 뒤집기 포함 오른쪽 5개 버튼을 작게 하고 아래로 내리며 수익표도 작게 유지. */
 (function(){
-  if(window.__ktSoloRightLargeBorderInstalled)return;
-  window.__ktSoloRightLargeBorderInstalled=true;
+  if(window.__ktSoloRightCompactInstalled)return;
+  window.__ktSoloRightCompactInstalled=true;
   var s=document.createElement('style');
-  s.id='ktSoloRightLargeBorderStyle';
+  s.id='ktSoloRightCompactStyle';
   s.textContent=''
-    +'.ktsolo-right{gap:8px!important}'
-    +'.ktsolo-right.kt-synced-actions>button,.ktsolo-right>.kt-solo-camera-flip{width:58px!important;height:58px!important;min-width:58px!important;min-height:58px!important;border-radius:50%!important;border:1px solid rgba(255,255,255,.48)!important;background:rgba(18,18,23,.84)!important;box-shadow:0 2px 8px rgba(0,0,0,.42)!important;outline:0!important;color:#fff!important}'
-    +'.ktsolo-right.kt-synced-actions>.like{height:66px!important;min-height:66px!important;border-radius:20px!important;border-color:rgba(255,62,170,.62)!important;background:rgba(65,25,50,.88)!important}'
-    +'.ktsolo-right.kt-synced-actions>.kt-solo-treasure{border-color:rgba(255,203,72,.68)!important;background:rgba(65,49,16,.88)!important}'
-    +'.ktsolo-right.kt-synced-actions>button b{font-size:22px!important;line-height:1!important}'
-    +'.ktsolo-right.kt-synced-actions>button small,.ktsolo-right>.kt-solo-camera-flip small{font-size:10px!important;line-height:1!important;margin-top:3px!important;white-space:nowrap!important}'
-    +'.ktsolo-right>.kt-solo-camera-flip{font-size:22px!important}'
-    +'@media(max-width:390px){.ktsolo-right{gap:6px!important}.ktsolo-right.kt-synced-actions>button,.ktsolo-right>.kt-solo-camera-flip{width:54px!important;height:54px!important;min-width:54px!important;min-height:54px!important}.ktsolo-right.kt-synced-actions>.like{height:62px!important;min-height:62px!important}.ktsolo-right.kt-synced-actions>button small,.ktsolo-right>.kt-solo-camera-flip small{font-size:9px!important}}';
+    +'.ktsolo-right{bottom:112px!important;gap:5px!important}'
+    +'.ktsolo-right.kt-synced-actions>button{width:46px!important;height:46px!important;min-width:46px!important;min-height:46px!important;border-radius:50%!important;border:1px solid rgba(255,255,255,.40)!important;background:rgba(18,18,23,.80)!important;box-shadow:0 2px 7px rgba(0,0,0,.36)!important;color:#fff!important}'
+    +'.ktsolo-right.kt-synced-actions>.like{height:52px!important;min-height:52px!important;border-radius:17px!important;border-color:rgba(255,62,170,.55)!important;background:rgba(65,25,50,.82)!important}'
+    +'.ktsolo-right.kt-synced-actions>.kt-solo-treasure{border-color:rgba(255,203,72,.60)!important;background:rgba(65,49,16,.82)!important}'
+    +'.ktsolo-right.kt-synced-actions>button b{font-size:17px!important;line-height:1!important}'
+    +'.ktsolo-right.kt-synced-actions>button small{font-size:8px!important;line-height:1!important;margin-top:2px!important;white-space:nowrap!important}'
+    +'.ktsolo-room .ktsolo-earn{right:6px!important;bottom:66px!important;width:112px!important;max-width:32%!important}'
+    +'.ktsolo-room .ktsolo-earn #myEarnHud{padding:3px 5px!important;border-radius:10px!important;min-height:0!important}'
+    +'.ktsolo-room .ktsolo-earn #myEarnHud>div:first-child{gap:3px!important}'
+    +'.ktsolo-room .ktsolo-earn #myEarnHud>div:first-child span{font-size:7px!important}'
+    +'.ktsolo-room .ktsolo-earn #hudEarnNet{font-size:10px!important}'
+    +'@media(max-width:390px){.ktsolo-right{bottom:104px!important;gap:4px!important}.ktsolo-right.kt-synced-actions>button{width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important}.ktsolo-right.kt-synced-actions>.like{height:48px!important;min-height:48px!important}.ktsolo-room .ktsolo-earn{right:5px!important;bottom:61px!important;width:104px!important;max-width:31%!important}}';
   document.head.appendChild(s);
 })();
