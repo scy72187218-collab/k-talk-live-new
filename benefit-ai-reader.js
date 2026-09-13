@@ -118,3 +118,19 @@
     else leaveHelp();
   },true);
 })();
+
+/* 촬영 화면 정렬: 오른쪽 도구는 위로 모으고, 상단 뒤로가기 줄은 화면 맨 위에 붙인다. 다른 화면은 변경하지 않음. */
+(function(){
+  if(window.__ktCreatorSideAlignInstalled)return;
+  window.__ktCreatorSideAlignInstalled=true;
+  if(document.getElementById('ktCreatorSideAlignStyle'))return;
+  var s=document.createElement('style');
+  s.id='ktCreatorSideAlignStyle';
+  s.textContent=''
+    +'#creator .creator-top{top:0!important;left:10px!important;right:10px!important}'
+    +'#creator .creator-tools{top:60px!important;right:12px!important;bottom:auto!important;gap:10px!important;transform:none!important;align-items:center!important}'
+    +'#creator .creator-tools>button{margin:0!important;transform:none!important}'
+    +'#creator .creator-tools .creator-tool-text[aria-label="편집 효과"],#creator .creator-tools .creator-tool-text[aria-label="AI 보정"]{transform:none!important;margin:0!important}'
+    +'@media(max-width:390px){#creator .creator-top{top:0!important;left:8px!important;right:8px!important}#creator .creator-tools{top:56px!important;right:8px!important;gap:8px!important}}';
+  document.head.appendChild(s);
+})();
