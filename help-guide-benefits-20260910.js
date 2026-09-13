@@ -124,6 +124,18 @@
         '<div class="rowbox"><b>5. 기본 보정</b><br>카메라를 켜면 기본 자연 보정이 적용되며, 필요하면 각 항목을 다시 조절하거나 초기화할 수 있습니다.</div>'+ 
         '<div class="rowbox"><b>6. 편집 효과</b><br>하트·모자·선글라스 같은 화면 효과와 무대·바다 같은 배경 효과는 편집 효과 메뉴에서 선택합니다.</div>'+ 
         '<div class="note">보정과 효과는 화면 연출 기능입니다. 기기 성능이나 조명에 따라 보이는 정도가 달라질 수 있습니다.</div>');
+      setTimeout(function(){
+        try{if(window.speechSynthesis)window.speechSynthesis.cancel();}catch(e){}
+        try{
+          var title=document.getElementById('sheetTitle');
+          var body=document.getElementById('sheetBody');
+          if(!body)return;
+          var clone=body.cloneNode(true);
+          clone.querySelectorAll('button,input,select,textarea').forEach(function(el){el.remove();});
+          var text=((title?title.textContent:'')+' '+String(clone.textContent||'')).replace(/\s+/g,' ').trim();
+          if(text)speakText(text);
+        }catch(e){}
+      },80);
     };
 
     window.openMenu=function(){
