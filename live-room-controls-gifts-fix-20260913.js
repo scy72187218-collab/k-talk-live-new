@@ -25,6 +25,7 @@
       +'.ktsolo-att,.ktg13-attend,.ktsubscriber-att,.ktsecret-att,.ktsolo-right,.ktg13-right-quick,.ktsubscriber-right,.ktsecret-right{pointer-events:auto!important;z-index:80!important}'
       +'.ktsolo-att,.ktg13-attend,.ktsubscriber-att,.ktsecret-att,.ktsolo-right button,.ktg13-right-quick button,.ktsubscriber-right button,.ktsecret-right button,.ktsolo-gift,.ktg13-gift,.ktsubscriber-gift,.ktsecret-gift{pointer-events:auto!important;position:relative!important;z-index:81!important;cursor:pointer!important}'
       +'.ktsolo-gifts,.ktg13-gifts,.ktsubscriber-gifts,.ktsecret-gifts{pointer-events:auto!important;z-index:75!important}'
+      +'.ktsolo-room .ktsolo-right{top:14px!important;bottom:auto!important;right:8px!important;transform:none!important}'
       +'.kt-live-tap-pressed{transform:scale(.94)!important;filter:brightness(1.18)!important}';
     document.head.appendChild(s);
   }
