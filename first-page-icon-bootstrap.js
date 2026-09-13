@@ -3,6 +3,9 @@
   if(window.__ktFirstPageIconBootstrapInstalled)return;
   window.__ktFirstPageIconBootstrapInstalled=true;
 
+  var INSTALL_FLAG='ktalk_home_icon_installed_v4';
+  var DONE_FLAG='ktalk_home_icon_offer_done_v4';
+
   function ensureLink(rel,href,id){
     try{
       var old=id?document.getElementById(id):null;
@@ -72,8 +75,39 @@
     try{return window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;}catch(e){return false;}
   }
 
+  function rememberInstalled(){
+    try{
+      localStorage.setItem(INSTALL_FLAG,'1');
+      localStorage.setItem(DONE_FLAG,'1');
+      localStorage.setItem('ktalk_install_completed_once','1');
+    }catch(e){}
+  }
+
+  function installedBefore(){
+    if(standalone()){
+      rememberInstalled();
+      return true;
+    }
+    try{
+      return localStorage.getItem(INSTALL_FLAG)==='1'||localStorage.getItem('ktalk_install_completed_once')==='1';
+    }catch(e){return false;}
+  }
+
+  function offerDone(){
+    try{return localStorage.getItem(DONE_FLAG)==='1';}catch(e){return false;}
+  }
+
+  function rememberDone(){
+    try{localStorage.setItem(DONE_FLAG,'1');}catch(e){}
+  }
+
   var installEvent=null;
   window.addEventListener('beforeinstallprompt',function(e){
+    if(installedBefore()){
+      removeOffer();
+      installEvent=null;
+      return;
+    }
     try{e.preventDefault();installEvent=e;}catch(err){}
   });
 
@@ -82,12 +116,49 @@
     if(old)old.remove();
   }
 
+  function setOfferState(text,disabled){
+    var add=document.getElementById('ktAddHomeIcon');
+    if(!add)return;
+    add.textContent=text||'아이콘 추가';
+    add.disabled=!!disabled;
+    add.style.opacity=disabled?'.72':'1';
+  }
+
+  function finishOffer(text){
+    setOfferState(text||'설치 완료 ✓',true);
+    setTimeout(removeOffer,850);
+  }
+
+  async function runInstallPrompt(){
+    if(!installEvent)return false;
+    var ev=installEvent;
+    installEvent=null;
+    setOfferState('설치하는 중…',true);
+    try{
+      ev.prompt();
+      var choice=await ev.userChoice;
+      if(choice&&choice.outcome==='accepted'){
+        rememberInstalled();
+        finishOffer('설치 완료 ✓');
+      }else{
+        setOfferState('아이콘 추가',false);
+      }
+      return true;
+    }catch(e){
+      setOfferState('아이콘 추가',false);
+      return false;
+    }
+  }
+
   function showEntryIconOffer(){
+    if(installedBefore()||offerDone()){
+      removeOffer();
+      return;
+    }
     if(document.getElementById('ktFirstJoinIconOffer'))return;
-    var installed=standalone();
     var box=document.createElement('div');
     box.id='ktFirstJoinIconOffer';
-    box.innerHTML='<img src="/ktalk-icon.svg?v=20260910-icon2" alt="K-Talk"><div><b>K-Talk 새 아이콘</b><span>'+(installed?'새 아이콘이 적용된 K-Talk입니다':'홈 화면에 바로 추가하세요')+'</span></div><button id="ktAddHomeIcon" type="button">'+(installed?'확인':'아이콘 추가')+'</button><button id="ktIconLater" type="button" aria-label="나중에">×</button>';
+    box.innerHTML='<img src="/ktalk-icon.svg?v=20260910-icon2" alt="K-Talk"><div><b>K-Talk 새 아이콘</b><span>홈 화면에 바로 추가하세요</span></div><button id="ktAddHomeIcon" type="button">아이콘 추가</button><button id="ktIconLater" type="button" aria-label="나중에">×</button>';
     box.style.cssText='position:fixed;left:10px;right:10px;bottom:18px;z-index:2147483646;display:grid;grid-template-columns:48px 1fr auto 34px;align-items:center;gap:9px;padding:10px;border-radius:18px;background:rgba(10,10,16,.96);border:1px solid rgba(255,255,255,.18);box-shadow:0 8px 30px rgba(0,0,0,.45);color:#fff;font-family:system-ui,-apple-system,Noto Sans KR,sans-serif';
     var img=box.querySelector('img');if(img)img.style.cssText='width:48px;height:48px;border-radius:13px;display:block';
     var text=box.querySelector('div');if(text)text.style.cssText='min-width:0';
@@ -98,22 +169,30 @@
     document.body.appendChild(box);
 
     if(add)add.onclick=async function(){
-      if(installed){removeOffer();return;}
-      if(installEvent){
-        try{
-          installEvent.prompt();
-          var choice=await installEvent.userChoice;
-          if(choice&&choice.outcome==='accepted')removeOffer();
-          installEvent=null;
-          return;
-        }catch(e){}
-      }
-      alert('브라우저 메뉴에서 "홈 화면에 추가" 또는 "앱 설치"를 눌러 주세요. K-Talk 아이콘으로 설치됩니다.');
+      if(await runInstallPrompt())return;
+      setOfferState('설치 준비 중…',true);
+      setTimeout(async function(){
+        if(await runInstallPrompt())return;
+        setOfferState('아이콘 추가',false);
+        alert('브라우저 메뉴에서 "홈 화면에 추가" 또는 "앱 설치"를 눌러 주세요. K-Talk 아이콘으로 설치됩니다.');
+      },600);
     };
-    if(later)later.onclick=removeOffer;
+    if(later)later.onclick=function(){rememberDone();removeOffer();};
   }
 
-  window.addEventListener('appinstalled',removeOffer);
+  window.addEventListener('appinstalled',function(){
+    rememberInstalled();
+    if(document.getElementById('ktFirstJoinIconOffer'))finishOffer('설치 완료 ✓');
+    else removeOffer();
+  });
+
+  try{
+    var offerObserver=new MutationObserver(function(){
+      if(installedBefore()||offerDone())removeOffer();
+    });
+    offerObserver.observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+
   window.addEventListener('pageshow',function(){setTimeout(wakeHomeVideo,30);});
   window.addEventListener('focus',function(){setTimeout(wakeHomeVideo,30);});
   document.addEventListener('visibilitychange',function(){
