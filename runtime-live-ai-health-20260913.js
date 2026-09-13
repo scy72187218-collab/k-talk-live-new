@@ -39,7 +39,4 @@
 
   /* 비밀방 되돌리기 버튼 위치만 조금 아래로. */
   load('secret-return-down-20260914.js','__ktSecretReturnDown20260914');
-
-  /* 촬영 화면의 방송방 바로가기 버튼 줄만 숨김. */
-  load('creator-room-shortcuts-hide-20260914.js','__ktCreatorRoomShortcutsHide20260914');
 })();
