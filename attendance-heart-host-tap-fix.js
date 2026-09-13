@@ -120,3 +120,13 @@
     if(room)addTopHeart(room);
   },true);
 })();
+
+/* 프로필 사진·레벨·닉네임 표시 파일 로딩만 보강. 다른 기능은 변경하지 않음. */
+(function(){
+  if(document.querySelector('script[data-kt-profile-level="1"]'))return;
+  var s=document.createElement('script');
+  s.src='room-host-guest-profile-level.js?v=20260913-profilelevel2';
+  s.async=false;
+  s.setAttribute('data-kt-profile-level','1');
+  document.head.appendChild(s);
+})();
