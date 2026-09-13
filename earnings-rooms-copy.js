@@ -1,4 +1,41 @@
 /* K-Talk: 13명 방의 내 수익 지급표를 1인/구독자/비밀방에도 동일하게 표시. 다른 UI는 건드리지 않음. */
+
+/* 비밀방 수익표 크기(110px / 작은 화면 100px)를 1인·9명·13명·구독자·비밀방에 동일 적용. 위치/다른 UI는 변경하지 않음. */
+(function(){
+  if(window.__ktEarningsSecretSizeSyncInstalled)return;
+  window.__ktEarningsSecretSizeSyncInstalled=true;
+  var old=document.getElementById('ktEarningsSecretSizeSyncStyle');
+  if(old)old.remove();
+  var s=document.createElement('style');
+  s.id='ktEarningsSecretSizeSyncStyle';
+  s.textContent=''
+    +'html body .ktsolo-room .ktsolo-earn{width:110px!important;max-width:none!important;transform:none!important}'
+    +'html body .ktsolo-room .ktsolo-earn #myEarnHud,'
+    +'html body .ktg13-room .ktg13-earn #myEarnHud,'
+    +'html body .ktsubscriber-room #ktSubscriberEarnHud,'
+    +'html body .ktsubscriber-room .ktsubscriber-earnhud,'
+    +'html body .ktsecret-room .ktsecret-earn-row #myEarnHud{width:110px!important;max-width:110px!important;min-width:0!important;padding:2px 3px!important;box-sizing:border-box!important}'
+    +'html body .ktsolo-room .ktsolo-earn #myEarnHud span,'
+    +'html body .ktg13-room .ktg13-earn #myEarnHud span,'
+    +'html body .ktsubscriber-room #ktSubscriberEarnHud span,'
+    +'html body .ktsubscriber-room .ktsubscriber-earnhud span,'
+    +'html body .ktsecret-room .ktsecret-earn-row #myEarnHud span{font-size:6.5px!important}'
+    +'html body .ktsolo-room .ktsolo-earn #myEarnHud b,'
+    +'html body .ktg13-room .ktg13-earn #myEarnHud b,'
+    +'html body .ktsubscriber-room #ktSubscriberEarnHud b,'
+    +'html body .ktsubscriber-room .ktsubscriber-earnhud b,'
+    +'html body .ktsecret-room .ktsecret-earn-row #myEarnHud b{font-size:9px!important}'
+    +'@media(max-width:390px){'
+      +'html body .ktsolo-room .ktsolo-earn{width:100px!important;max-width:none!important;transform:none!important}'
+      +'html body .ktsolo-room .ktsolo-earn #myEarnHud,'
+      +'html body .ktg13-room .ktg13-earn #myEarnHud,'
+      +'html body .ktsubscriber-room #ktSubscriberEarnHud,'
+      +'html body .ktsubscriber-room .ktsubscriber-earnhud,'
+      +'html body .ktsecret-room .ktsecret-earn-row #myEarnHud{width:100px!important;max-width:100px!important;padding:2px 2px!important}'
+    +'}';
+  document.head.appendChild(s);
+})();
+
 (function(){
   if(window.__ktEarningsRoomsCopyInstalled)return;
   window.__ktEarningsRoomsCopyInstalled=true;
