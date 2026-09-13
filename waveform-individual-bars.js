@@ -1,14 +1,19 @@
-/* K-Talk 파장 자동 생성만 수정: 1인/9명/13명/구독자/비밀방에서 카메라가 열린 사람 칸에만 무지개 파장 1개를 각각 따로 움직이게 표시. 다른 UI/기능은 변경하지 않음. */
+/* K-Talk 파장 자동 생성만 수정: 1인/9명/13명/구독자/비밀방에서 카메라가 열린 사람 칸에만 사진처럼 촘촘한 무지개 막대 파장을 각각 따로 움직이게 표시. 다른 UI/기능은 변경하지 않음. */
 (function(){
-  if(window.__ktAutoParticipantWaveV9)return;
-  window.__ktAutoParticipantWaveV9=true;
+  if(window.__ktAutoParticipantWaveV10)return;
+  window.__ktAutoParticipantWaveV10=true;
 
   function addStyle(){
-    if(document.getElementById('ktAutoParticipantWaveV9Style'))return;
+    if(document.getElementById('ktAutoParticipantWaveV10Style'))return;
     var s=document.createElement('style');
-    s.id='ktAutoParticipantWaveV9Style';
+    s.id='ktAutoParticipantWaveV10Style';
     s.textContent=`
-      @keyframes ktAutoParticipantWaveMove{0%{transform:scaleY(.48)}28%{transform:scaleY(.76)}55%{transform:scaleY(1)}78%{transform:scaleY(.68)}100%{transform:scaleY(.92)}}
+      @keyframes ktAutoParticipantBarMove{
+        0%{transform:scaleY(var(--kt-bar-min,.22))}
+        35%{transform:scaleY(var(--kt-bar-mid,.62))}
+        68%{transform:scaleY(var(--kt-bar-max,.94))}
+        100%{transform:scaleY(var(--kt-bar-end,.42))}
+      }
 
       /* 기존 비밀방 게스트6 빈칸 배치는 그대로 유지 */
       html body #screen .ktsecret-room .ktsecret-extra-pair{
@@ -58,58 +63,53 @@
       html body #screen .ktsecret-slot>.kt-open-camera-wave,
       html body #screen .ktsecret-guest-slot>.kt-open-camera-wave{
         position:absolute!important;
-        left:0!important;
-        right:0!important;
+        left:2px!important;
+        right:2px!important;
         width:auto!important;
         z-index:8!important;
-        display:block!important;
-        padding:0!important;
+        display:flex!important;
+        align-items:center!important;
+        justify-content:center!important;
+        gap:1px!important;
+        padding:0 1px!important;
         overflow:hidden!important;
         pointer-events:none!important;
-        opacity:.98!important;
+        opacity:1!important;
         background:none!important;
-        filter:drop-shadow(0 0 5px rgba(255,45,220,.55))!important;
+        filter:drop-shadow(0 0 3px rgba(255,45,220,.62))!important;
         animation:none!important;
       }
-      html body #screen .ktsolo-main>.kt-open-camera-wave{bottom:36px!important;height:58px!important}
+      html body #screen .ktsolo-main>.kt-open-camera-wave{bottom:36px!important;height:62px!important}
       html body #screen .ktg13-host>.kt-open-camera-wave,
       html body #screen .ktg13-guest>.kt-open-camera-wave,
       html body #screen .ktsubscriber-host>.kt-open-camera-wave,
       html body #screen .ktsubscriber-guest>.kt-open-camera-wave,
       html body #screen .ktsecret-slot>.kt-open-camera-wave,
-      html body #screen .ktsecret-guest-slot>.kt-open-camera-wave{bottom:0!important;height:42px!important}
+      html body #screen .ktsecret-guest-slot>.kt-open-camera-wave{bottom:0!important;height:44px!important}
 
-      html body #screen .ktsolo-main>.kt-open-camera-wave:before,
-      html body #screen .ktg13-host>.kt-open-camera-wave:before,
-      html body #screen .ktg13-guest>.kt-open-camera-wave:before,
-      html body #screen .ktsubscriber-host>.kt-open-camera-wave:before,
-      html body #screen .ktsubscriber-guest>.kt-open-camera-wave:before,
-      html body #screen .ktsecret-slot>.kt-open-camera-wave:before,
-      html body #screen .ktsecret-guest-slot>.kt-open-camera-wave:before{
-        content:""!important;
-        position:absolute!important;
-        left:0!important;
-        right:0!important;
-        top:0!important;
-        bottom:0!important;
-        background-image:url("k-talk-rainbow-waveform.svg?v=20260913-auto9")!important;
-        background-repeat:no-repeat!important;
-        background-position:center bottom!important;
-        background-size:100% 100%!important;
-        transform-origin:center bottom!important;
+      html body #screen .kt-open-camera-wave:before{content:none!important;display:none!important}
+      html body #screen .kt-open-camera-wave i{
+        display:block!important;
+        flex:1 1 0!important;
+        min-width:1px!important;
+        max-width:4px!important;
+        height:100%!important;
+        margin:0!important;
+        border-radius:999px!important;
+        transform-origin:center center!important;
         will-change:transform!important;
-        animation:ktAutoParticipantWaveMove var(--kt-wave-speed,.22s) ease-in-out var(--kt-wave-delay,0s) infinite alternate!important;
+        box-shadow:0 0 3px currentColor!important;
+        animation:ktAutoParticipantBarMove var(--kt-bar-speed,.28s) ease-in-out var(--kt-bar-delay,0s) infinite alternate!important;
       }
-      html body #screen .kt-open-camera-wave i{display:none!important}
 
       @media(max-width:390px){
-        html body #screen .ktsolo-main>.kt-open-camera-wave{bottom:30px!important;height:54px!important}
+        html body #screen .ktsolo-main>.kt-open-camera-wave{bottom:30px!important;height:58px!important}
         html body #screen .ktg13-host>.kt-open-camera-wave,
         html body #screen .ktg13-guest>.kt-open-camera-wave,
         html body #screen .ktsubscriber-host>.kt-open-camera-wave,
         html body #screen .ktsubscriber-guest>.kt-open-camera-wave,
         html body #screen .ktsecret-slot>.kt-open-camera-wave,
-        html body #screen .ktsecret-guest-slot>.kt-open-camera-wave{height:38px!important}
+        html body #screen .ktsecret-guest-slot>.kt-open-camera-wave{height:40px!important}
       }
     `;
     document.head.appendChild(s);
@@ -197,6 +197,32 @@
     return out;
   }
 
+  function buildBars(wave,index){
+    var count=48;
+    if(wave.dataset.ktBars==='48'&&wave.children.length===count)return;
+    wave.innerHTML='';
+    wave.dataset.ktBars='48';
+    for(var i=0;i<count;i++){
+      var bar=document.createElement('i');
+      var hue=(318+(i*7.45))%360;
+      var min=(0.14+((i*13+index*3)%22)/100).toFixed(2);
+      var mid=(0.42+((i*9+index*5)%34)/100).toFixed(2);
+      var max=(0.66+((i*17+index*7)%31)/100).toFixed(2);
+      var end=(0.22+((i*11+index*2)%32)/100).toFixed(2);
+      var speed=(0.20+((i*7+index)%12)/100).toFixed(2)+'s';
+      var delay=(-((i*5+index*3)%22)/100).toFixed(2)+'s';
+      bar.style.setProperty('--kt-bar-min',min);
+      bar.style.setProperty('--kt-bar-mid',mid);
+      bar.style.setProperty('--kt-bar-max',max);
+      bar.style.setProperty('--kt-bar-end',end);
+      bar.style.setProperty('--kt-bar-speed',speed);
+      bar.style.setProperty('--kt-bar-delay',delay);
+      bar.style.background='hsl('+hue+' 100% 56%)';
+      bar.style.color='hsl('+hue+' 100% 56%)';
+      wave.appendChild(bar);
+    }
+  }
+
   function setOneWave(tile,on,index){
     if(!tile)return;
     var waves=directWaves(tile);
@@ -212,11 +238,7 @@
       wave.setAttribute('aria-hidden','true');
       tile.appendChild(wave);
     }
-    wave.innerHTML='';
-    var speeds=['.16s','.19s','.23s','.18s','.21s','.25s','.17s','.22s','.20s','.24s','.15s','.26s','.18s'];
-    var delays=['-.02s','-.09s','-.15s','-.05s','-.12s','-.19s','-.07s','-.14s','-.22s','-.04s','-.17s','-.10s','-.20s'];
-    wave.style.setProperty('--kt-wave-speed',speeds[index%speeds.length]);
-    wave.style.setProperty('--kt-wave-delay',delays[index%delays.length]);
+    buildBars(wave,index);
   }
 
   function sync(){
@@ -259,8 +281,8 @@
   },true);
   try{
     var mo=new MutationObserver(function(){
-      clearTimeout(window.__ktAutoParticipantWaveTimerV9);
-      window.__ktAutoParticipantWaveTimerV9=setTimeout(sync,30);
+      clearTimeout(window.__ktAutoParticipantWaveTimerV10);
+      window.__ktAutoParticipantWaveTimerV10=setTimeout(sync,30);
     });
     mo.observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['src','class','style','data-off','data-locked','data-user-id','data-guest-id','data-participant-id','data-live-user','data-occupied','data-connected']});
   }catch(e){}
