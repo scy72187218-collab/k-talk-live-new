@@ -4,7 +4,7 @@
   window.__ktGlobalTreasureRoomInstalled=true;
 
   var BASE='https://zupwbfmacwzexyvznlzq.supabase.co/rest/v1/';
-  var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXAiLCJyZWYiOiJ6dXB3YmZtYWN3emV4eXZ6bmx6cSIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzg4NDYxMDc2LCJleHAiOjIxMDQwMzcwNzZ9.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
+  var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1cHdiZm1hY3d6ZXh5dnpubHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjEwNzYsImV4cCI6MjEwNDAzNzA3Nn0.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
   var latestEvents=[];
   var pollTimer=null;
   var viewerEventId='';
@@ -58,7 +58,7 @@
       +'.kt-global-treasure-alert b{color:#fff}.kt-global-treasure-alert .chest{font-size:23px;filter:drop-shadow(0 0 6px #ffb000)}.kt-global-treasure-alert .time{color:#7ff7ff}'
       +'.kt-global-treasure-hostbadge{position:absolute!important;right:6px!important;top:28px!important;z-index:80!important;width:56px!important;min-height:58px!important;border:1px solid #ffd45b!important;border-radius:16px!important;background:rgba(26,16,5,.92)!important;color:#fff!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:1px!important;padding:4px 3px!important;box-shadow:0 0 10px #ffb00099!important;font:950 9px/1.05 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;touch-action:manipulation!important}'
       +'.kt-global-treasure-hostbadge .ico{font-size:25px!important;line-height:1!important}.kt-global-treasure-hostbadge strong{font-size:9px!important;color:#ffe052!important}.kt-global-treasure-hostbadge small{font-size:8px!important;color:#fff!important}.kt-global-treasure-hostbadge.ready{animation:ktTreasurePulse .8s ease-in-out infinite alternate!important}'
-      +'@keyframes ktTreasurePulse{from{box-shadow:0 0 8px #ffb00099}to{box-shadow:0 0 20px #ffe500}}\n'
+      +'@keyframes ktTreasurePulse{from{box-shadow:0 0 8px #ffb00099}to{box-shadow:0 0 20px #ffe500}}'
       +'.kt-global-treasure-viewbadge{position:absolute!important;right:10px!important;top:76px!important;z-index:20!important;width:66px!important;min-height:72px!important;border:2px solid #ffd45b!important;border-radius:18px!important;background:rgba(26,16,5,.92)!important;color:#fff!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:2px!important;padding:5px!important;box-shadow:0 0 13px #ffb00099!important;font:950 10px/1.05 system-ui,-apple-system,"Noto Sans KR",sans-serif!important}'
       +'.kt-global-treasure-viewbadge .ico{font-size:31px!important}.kt-global-treasure-viewbadge strong{color:#ffe052!important}.kt-global-treasure-viewbadge.ready{animation:ktTreasurePulse .8s ease-in-out infinite alternate!important}'
       +'.kt-global-treasure-led{cursor:pointer!important}'
