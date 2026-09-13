@@ -51,4 +51,7 @@
 
   /* 촬영 화면의 게시·창작하기·라이브 줄만 시간 선택줄 바로 아래로 이동하고 조금 굵게. */
   load('creator-foot-under-timer-20260914.js','__ktCreatorFootUnderTimer20260914');
+
+  /* 방송 파장만: 사진처럼 무지개 파장을 사람마다 하나씩 자동 표시. */
+  load('participant-photo-wave-only-20260915.js','__ktParticipantPhotoWaveOnly20260915');
 })();
