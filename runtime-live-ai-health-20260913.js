@@ -48,4 +48,7 @@
 
   /* 촬영 화면 위쪽 '라이브' 글씨만 '동영상 촬영 시간'으로 변경. */
   load('creator-top-live-label-only-20260914.js','__ktCreatorTopLiveLabelOnly20260914');
+
+  /* 촬영 화면의 게시·창작하기·라이브 줄만 시간 선택줄 바로 아래로 이동하고 조금 굵게. */
+  load('creator-foot-under-timer-20260914.js','__ktCreatorFootUnderTimer20260914');
 })();
