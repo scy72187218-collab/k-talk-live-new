@@ -22,6 +22,7 @@
     +'.ktsolo-room #myEarnHud b,.ktg13-room #myEarnHud b,.ktsubscriber-room #ktSubscriberEarnHud b,.ktsubscriber-room .ktsubscriber-earnhud b,.ktsecret-room #myEarnHud b{font-size:9px!important;line-height:1.05!important}'
     +'.ktg13-room #myEarnDetail,.ktsubscriber-room #ktSubscriberEarnDetail{display:grid!important;width:100%!important;max-width:100%!important;overflow:hidden!important;font-size:6px!important;line-height:1.05!important;gap:1px 2px!important;margin-top:2px!important}'
     +'.ktg13-room #myEarnDetail>*,.ktsubscriber-room #ktSubscriberEarnDetail>*{white-space:nowrap!important;overflow:hidden!important;text-overflow:clip!important}'
+    +'.ktsecret-room .ktsecret-six-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-rows:repeat(3,minmax(0,1fr))!important}'
     +'@media(max-width:390px){.ktg13-room .ktg13-mid{grid-template-columns:minmax(0,1fr) 100px!important}.ktsubscriber-room .ktsubscriber-info{grid-template-columns:minmax(0,1fr) 100px!important}.ktg13-room .ktg13-earn #myEarnHud,.ktsubscriber-room #ktSubscriberEarnHud,.ktsubscriber-room .ktsubscriber-earnhud{width:100px!important;max-width:100px!important;min-width:100px!important;height:64px!important;max-height:64px!important;padding:2px 2px!important}}';
   document.head.appendChild(s);
 
