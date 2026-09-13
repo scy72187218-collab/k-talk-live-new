@@ -32,7 +32,13 @@
   }
 
   function openMission(){
-    try{if(typeof window.showSheet==='function')window.showSheet('🎯 미션','<div class="rowbox"><b>미션</b><br>방송 미션을 확인하는 자리입니다.</div>');}catch(e){}
+    try{
+      if(typeof window.showSheet!=='function')return;
+      window.showSheet('🎯 미션',''
+        +'<div class="rowbox"><b>🌹 장미 미션</b><br>장미 1개짜리 30개 깨기</div>'
+        +'<div class="rowbox"><b>🏎️ 스포츠카 미션</b><br>스포츠카 50개짜리 10개 깨기</div>'
+        +'<div class="rowbox"><b>💎💗 다이아몬드 하트 미션</b><br>다이아몬드 하트 400개짜리 10개 깨기</div>');
+    }catch(e){}
   }
 
   function fillRow(row){
@@ -77,7 +83,10 @@
     var row=document.querySelector('.ktg13-room .ktg13-stats');
     if(!row)return;
     var buttons=row.querySelectorAll('button');
-    if(buttons[1]&&buttons[1].textContent.indexOf('미션')===-1)buttons[1].textContent='🎯 미션';
+    if(buttons[1]){
+      if(buttons[1].textContent.indexOf('미션')===-1)buttons[1].textContent='🎯 미션';
+      buttons[1].onclick=openMission;
+    }
   }
 
   function refreshViewers(){
