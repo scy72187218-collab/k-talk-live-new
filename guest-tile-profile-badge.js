@@ -15,8 +15,12 @@
       +'.kt-guest-identity{position:absolute!important;left:4px!important;bottom:4px!important;z-index:26!important;max-width:calc(100% - 8px)!important;display:flex!important;align-items:center!important;gap:4px!important;padding:2px 5px 2px 2px!important;border-radius:999px!important;background:rgba(0,0,0,.68)!important;color:#fff!important;pointer-events:none!important;box-sizing:border-box!important}'
       +'.kt-guest-profile-photo,.kt-guest-profile-fallback{width:22px!important;height:22px!important;min-width:22px!important;border-radius:50%!important;object-fit:cover!important;display:grid!important;place-items:center!important;background:#25252c!important;border:1px solid rgba(255,255,255,.55)!important;font-size:12px!important;overflow:hidden!important}'
       +'.kt-guest-nickname{display:block!important;min-width:0!important;max-width:72px!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;color:#fff!important;font-size:9px!important;font-weight:950!important;line-height:1.1!important;text-shadow:0 1px 2px #000!important}'
-      +'.kt-guest-reward-badge{position:absolute!important;left:4px!important;right:auto!important;top:4px!important;z-index:27!important;min-height:22px!important;padding:2px 5px!important;border-radius:999px!important;display:flex!important;align-items:center!important;gap:3px!important;background:rgba(24,17,4,.86)!important;border:1px solid rgba(255,211,77,.66)!important;color:#ffe06b!important;font-size:9px!important;font-weight:950!important;line-height:1!important;white-space:nowrap!important;pointer-events:none!important;box-shadow:0 1px 4px rgba(0,0,0,.45)!important}'
+      +'.kt-guest-reward-badge{position:absolute!important;left:4px!important;right:auto!important;top:4px!important;z-index:27!important;min-height:22px!important;padding:2px 5px!important;border-radius:999px!important;display:flex!important;align-items:center!important;gap:3px!important;background:rgba(24,17,4,.86)!important;border:1px solid rgba(255,211,77,.66)!important;color:#ffe06b!important;font-size:9px!important;font-weight:950!important;line-height:1!important;white-space:nowrap!important;pointer-events:auto!important;cursor:pointer!important;box-shadow:0 1px 4px rgba(0,0,0,.45)!important;touch-action:manipulation!important}'
       +'.kt-guest-reward-badge .rose{color:#ff759e!important}'
+      +'.kt-giver-pop{position:fixed!important;inset:0!important;z-index:99999!important;background:rgba(0,0,0,.62)!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:18px!important;box-sizing:border-box!important}'
+      +'.kt-giver-card{width:min(320px,92vw)!important;max-height:70vh!important;overflow:auto!important;border:1px solid rgba(255,215,90,.62)!important;border-radius:16px!important;background:#17151b!important;color:#fff!important;box-shadow:0 12px 34px rgba(0,0,0,.55)!important;padding:14px!important;box-sizing:border-box!important}'
+      +'.kt-giver-head{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;margin-bottom:10px!important}.kt-giver-head b{font-size:15px!important}.kt-giver-close{width:30px!important;height:30px!important;border:0!important;border-radius:50%!important;background:#2c2931!important;color:#fff!important;font-size:18px!important}'
+      +'.kt-giver-row{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;padding:9px 4px!important;border-top:1px solid rgba(255,255,255,.09)!important;font-size:13px!important}.kt-giver-row:first-child{border-top:0!important}.kt-giver-row strong{color:#ffe26f!important}.kt-giver-empty{padding:14px 4px!important;text-align:center!important;color:#bbb!important;font-size:12px!important}'
       +'@media(max-width:390px){.kt-guest-identity{left:3px!important;bottom:3px!important;gap:3px!important;padding:1px 4px 1px 1px!important}.kt-guest-profile-photo,.kt-guest-profile-fallback{width:19px!important;height:19px!important;min-width:19px!important;font-size:10px!important}.kt-guest-nickname{max-width:58px!important;font-size:8px!important}.kt-guest-reward-badge{left:3px!important;right:auto!important;top:3px!important;min-height:19px!important;padding:2px 4px!important;font-size:8px!important}}';
     document.head.appendChild(s);
   }
@@ -115,6 +119,88 @@
     return 0;
   }
 
+  function giverStoreKey(tile){
+    var room='room';
+    try{room=String((window.state&&(state.currentLiveRoomTitle||state.currentViewRoomTitle||state.liveRoomName))||'room');}catch(e){}
+    return 'ktalk_guest_givers:'+room+':'+(guestId(tile)||nickname(tile)||'guest');
+  }
+
+  function loadGivers(tile){
+    try{
+      var a=JSON.parse(localStorage.getItem(giverStoreKey(tile))||'[]');
+      return Array.isArray(a)?a:[];
+    }catch(e){return [];}
+  }
+
+  function saveGivers(tile,list){
+    try{localStorage.setItem(giverStoreKey(tile),JSON.stringify(list.slice(-50)));}catch(e){}
+  }
+
+  function giverName(data){
+    data=data||{};
+    var v=data.giverName||data.senderName||data.fromName||data.senderNickname||data.giverNickname||data.fromNickname||data.sender||data.giver||data.from;
+    if(v&&typeof v==='object')v=v.name||v.nickname||v.displayName||v.userName||'';
+    return String(v||'').trim();
+  }
+
+  function giverAmount(data){
+    data=data||{};
+    var v=data.addedRoses!=null?data.addedRoses:data.roseAmount!=null?data.roseAmount:data.amount!=null?data.amount:data.giftCount!=null?data.giftCount:data.count;
+    var n=parseInt(String(v==null?'':v).replace(/[^0-9-]/g,''),10);
+    return isFinite(n)&&n>0?n:1;
+  }
+
+  function recordGiver(tile,data){
+    if(!tile)return;
+    var who=giverName(data);
+    if(!who)return;
+    var amount=giverAmount(data);
+    var list=loadGivers(tile);
+    list.push({name:who,roses:amount,time:Date.now()});
+    saveGivers(tile,list);
+  }
+
+  function openGiverList(tile){
+    ensureStyle();
+    var old=document.getElementById('ktGuestGiverPopup');
+    if(old)old.remove();
+    var pop=document.createElement('div');
+    pop.id='ktGuestGiverPopup';
+    pop.className='kt-giver-pop';
+    var card=document.createElement('div');
+    card.className='kt-giver-card';
+    var head=document.createElement('div');
+    head.className='kt-giver-head';
+    var title=document.createElement('b');
+    title.textContent='🌹 '+nickname(tile)+'님 받은 내역';
+    var close=document.createElement('button');
+    close.type='button';
+    close.className='kt-giver-close';
+    close.textContent='×';
+    close.onclick=function(){pop.remove();};
+    head.appendChild(title);head.appendChild(close);card.appendChild(head);
+    var list=loadGivers(tile).slice().reverse();
+    if(!list.length){
+      var empty=document.createElement('div');
+      empty.className='kt-giver-empty';
+      empty.textContent='보낸 사람 기록이 아직 없습니다.';
+      card.appendChild(empty);
+    }else{
+      list.forEach(function(x){
+        var row=document.createElement('div');
+        row.className='kt-giver-row';
+        var who=document.createElement('span');
+        who.textContent=x.name+'님';
+        var val=document.createElement('strong');
+        val.textContent='🌹 '+(parseInt(x.roses,10)||1)+'송이';
+        row.appendChild(who);row.appendChild(val);card.appendChild(row);
+      });
+    }
+    pop.appendChild(card);
+    pop.addEventListener('click',function(e){if(e.target===pop)pop.remove();});
+    document.body.appendChild(pop);
+  }
+
   function markPlaceholders(tile){
     [].slice.call(tile.children||[]).forEach(function(el){
       if(!el||el.classList.contains('kt-guest-identity')||el.classList.contains('kt-guest-reward-badge')||el.classList.contains('kt-inside-av-controls')||el.classList.contains('kt-person-seat-number'))return;
@@ -165,12 +251,14 @@
     ident.appendChild(nm);
 
     if(!reward){
-      reward=document.createElement('span');
+      reward=document.createElement('button');
+      reward.type='button';
       reward.className='kt-guest-reward-badge';
       tile.appendChild(reward);
     }
     reward.innerHTML='<span>🪙</span><span class="rose">🌹</span><b>'+roses+'</b>';
-    reward.title='받은 장미 '+roses+'송이';
+    reward.title='받은 장미 '+roses+'송이 · 누가 줬는지 보기';
+    reward.onclick=function(e){try{e.preventDefault();e.stopPropagation();}catch(err){} openGiverList(tile);};
   }
 
   function makeFallback(name){
@@ -184,6 +272,16 @@
   function install(){
     document.querySelectorAll(selector).forEach(render);
   }
+
+  window.ktRecordGuestRoseGiver=function(target,giver,roses){
+    var tile=target;
+    if(typeof target==='string'){
+      try{tile=document.querySelector(target);}catch(e){tile=null;}
+    }
+    if(!tile||!tile.matches||!tile.matches(selector))return false;
+    recordGiver(tile,{giverName:giver,addedRoses:roses});
+    return true;
+  };
 
   window.ktSetGuestProfileBadge=function(target,data){
     var tile=target;
@@ -215,6 +313,9 @@
   });
   document.addEventListener('kt-guest-roses',function(e){
     var d=e&&e.detail?e.detail:{};
+    var tile=d.tile||null;
+    if(!tile&&d.selector){try{tile=document.querySelector(d.selector);}catch(err){tile=null;}}
+    if(tile)recordGiver(tile,d);
     if(d.tile)window.ktSetGuestProfileBadge(d.tile,d);
     else if(d.selector)window.ktSetGuestProfileBadge(d.selector,d);
   });
