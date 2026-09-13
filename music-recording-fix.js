@@ -35,7 +35,7 @@
   load('secret-right-controls-fix.js?v=20260911-secret-right8');
   load('subscriber-right-controls-fix.js?v=20260913-hostcam1');
   load('level-rules.js?v=20260913-level-open1');
-  load('treasure-global-room.js?v=20260911-treasure1');
+  load('treasure-global-room.js?v=20260913-treasure3');
   load('message-recipient-picker.js?v=20260911-message1');
   load('host-face-like-reward.js?v=20260911-hostlike1');
 })();
