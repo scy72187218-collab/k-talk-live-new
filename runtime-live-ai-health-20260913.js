@@ -45,4 +45,7 @@
 
   /* 라이브 준비 화면의 중복 9명 방송 버튼 하나만 숨김. */
   load('live-prep-remove-duplicate-9only-20260914.js','__ktRemoveDuplicate9Only20260914');
+
+  /* 촬영 화면 위쪽 '라이브' 글씨만 '동영상 촬영 시간'으로 변경. */
+  load('creator-top-live-label-only-20260914.js','__ktCreatorTopLiveLabelOnly20260914');
 })();
