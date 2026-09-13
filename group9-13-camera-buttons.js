@@ -1,4 +1,4 @@
-/* 13명방의 기존 카메라 버튼은 유지하고, 9명방은 사진(칸) 탭 방식의 카메라+마이크만 사용. */
+/* 9명방과 13명방 모두 사진(칸) 탭 방식의 카메라+마이크만 사용. */
 (function(){
   if(window.__ktGroup913CameraButtonsInstalled)return;
   window.__ktGroup913CameraButtonsInstalled=true;
@@ -107,14 +107,10 @@
     var room=document.querySelector('.ktg13-room');
     if(!room)return;
     var kind=String(room.getAttribute('data-kt-room')||'');
-    if(kind==='9'){
+    if(kind==='9'||isTargetRoom(room)){
       room.querySelectorAll('.kt-913-camera').forEach(function(b){try{b.remove();}catch(e){}});
       return;
     }
-    if(!isTargetRoom(room))return;
-    ensureStyle();
-    addToTile(room.querySelector('.ktg13-host'));
-    room.querySelectorAll('.ktg13-guest').forEach(addToTile);
   }
 
   install();
