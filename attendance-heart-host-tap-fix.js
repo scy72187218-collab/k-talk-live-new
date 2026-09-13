@@ -39,19 +39,51 @@
     list.forEach(function(el){el.textContent='🌹 '+(numberFrom(el)+1)+'송이';});
   }
 
+  function attendanceNickname(){
+    var name='';
+    try{
+      if(typeof window.ktProfileLoad==='function'){
+        var p=window.ktProfileLoad()||{};
+        name=String(p.nickname||p.name||p.displayName||'').trim();
+      }
+    }catch(e){}
+    if(!name){
+      try{
+        var sub=typeof window.ktGetSelectedSubAccount==='function'?window.ktGetSelectedSubAccount():'';
+        if(sub&&typeof window.ktSubProfileCard==='function'){
+          var sp=window.ktSubProfileCard(sub)||{};
+          name=String(sp.nickname||sp.name||'').trim();
+        }
+      }catch(e){}
+    }
+    if(!name){
+      try{
+        ['ktalk_nickname','ktalk_profile_name','nickname','profileName','displayName'].some(function(k){
+          var v=String(localStorage.getItem(k)||'').trim();
+          if(v){name=v;return true;}
+          return false;
+        });
+      }catch(e){}
+    }
+    return name||'회원';
+  }
+
   function speakAttendanceDone(){
+    var msg=attendanceNickname()+'님, 출석 체크해 주셔서 감사합니다.';
+    try{if(window.state)state.aiVoiceOn=true;}catch(e){}
+    try{localStorage.setItem('ktalk_ai_voice','on');}catch(e){}
+    try{if(window.speechSynthesis&&window.speechSynthesis.cancel)window.speechSynthesis.cancel();}catch(e){}
     try{
       if(typeof window.ktSpeak==='function'){
-        window.ktSpeak('출석 체크했다');
+        setTimeout(function(){try{window.ktSpeak(msg);}catch(e){}},20);
         return;
       }
       if('speechSynthesis' in window){
-        window.speechSynthesis.cancel();
-        var u=new SpeechSynthesisUtterance('출석 체크했다');
+        var u=new SpeechSynthesisUtterance(msg);
         u.lang='ko-KR';
         u.volume=1;
-        u.rate=0.95;
-        u.pitch=1;
+        u.rate=0.98;
+        u.pitch=1.02;
         window.speechSynthesis.speak(u);
       }
     }catch(e){}
@@ -110,10 +142,10 @@
       try{localStorage.setItem(key,'1');}catch(e){}
       setCount(room,getCount(room)+1);
       addRoseOne();
-      speakAttendanceDone();
     }else if(getCount(room)<1){
       setCount(room,1);
     }
+    speakAttendanceDone();
     try{
       btn.classList.add('kt-attendance-done');
       btn.setAttribute('aria-pressed','true');
@@ -210,6 +242,10 @@
     var t=e.target;
     if(!t||!t.closest)return;
     var like=t.closest(sideLikeSelector);
+    if(!like){
+      var b=t.closest('button[aria-label="좋아요"]');
+      if(b&&!b.classList.contains('kt-live-clock-heart')&&b.closest('.ktsolo-right,.ktg13-right-quick,.ktsubscriber-right,.ktsecret-right'))like=b;
+    }
     if(!like)return;
     var room=like.closest(roomSelector);
     if(room)addTopHeart(room);
