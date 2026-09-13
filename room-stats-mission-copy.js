@@ -113,3 +113,33 @@
   }catch(e){}
   setInterval(install,900);
 })();
+
+/* 다섯 방송방의 미션 버튼만 같은 내용으로 고정. 15명방과 다른 기능은 건드리지 않음. */
+(function(){
+  if(window.__ktFiveRoomMissionOnlyInstalled)return;
+  window.__ktFiveRoomMissionOnlyInstalled=true;
+
+  function showMission(){
+    try{
+      if(typeof window.showSheet!=='function')return;
+      window.showSheet('🎯 미션',''
+        +'<div class="rowbox"><b>🌹 장미 미션</b><br>장미 1개짜리 30개 깨기</div>'
+        +'<div class="rowbox"><b>🏎️ 스포츠카 미션</b><br>스포츠카 50개짜리 10개 깨기</div>'
+        +'<div class="rowbox"><b>💎💗 다이아몬드 하트 미션</b><br>다이아몬드 하트 400개짜리 10개 깨기</div>');
+    }catch(e){}
+  }
+
+  window.addEventListener('click',function(e){
+    var t=e.target;
+    if(!t||!t.closest)return;
+    var copied=t.closest('.ktsolo-room [data-kt-room-mission],.ktsubscriber-room [data-kt-room-mission],.ktsecret-room [data-kt-room-mission]');
+    var groupBtn=t.closest('.ktg13-room .ktg13-stats > button:nth-child(2)');
+    if(!copied&&!groupBtn)return;
+    if(groupBtn){
+      var room=groupBtn.closest('.ktg13-room');
+      if(room&&String(room.getAttribute('data-kt-room')||'')==='15')return;
+    }
+    try{e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();}catch(err){}
+    showMission();
+  },true);
+})();
