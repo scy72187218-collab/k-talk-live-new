@@ -148,3 +148,25 @@
     mo.observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 })();
+
+/* 카메라·마이크·자리이동을 한 번 사용하면 안쪽 조작버튼을 바로 숨긴다. 다시 사람 칸을 누르면 다시 표시된다. */
+(function(){
+  if(window.__ktRoomControlAutoHideInstalled)return;
+  window.__ktRoomControlAutoHideInstalled=true;
+
+  var controlSelector='.kt-inside-camera,.kt-inside-mic,.kt-inside-move-seat,.kt-inside-seat-up,.kt-inside-seat-down';
+  var tileSelector='.ktg13-host,.ktg13-guest,.ktsubscriber-host,.ktsubscriber-guest,.ktsecret-slot,.ktsecret-guest-slot';
+
+  document.addEventListener('click',function(e){
+    var btn=e.target&&e.target.closest?e.target.closest(controlSelector):null;
+    if(!btn||btn.disabled)return;
+    var tile=btn.closest(tileSelector);
+    var room=btn.closest('.ktg13-room,.ktsubscriber-room,.ktsecret-room');
+    setTimeout(function(){
+      try{
+        if(tile)tile.classList.remove('kt-av-open');
+        if(room)room.querySelectorAll('.kt-av-open').forEach(function(t){t.classList.remove('kt-av-open');});
+      }catch(err){}
+    },0);
+  },true);
+})();
