@@ -192,3 +192,13 @@
   s.setAttribute('data-kt-guest-badge','1');
   document.head.appendChild(s);
 })();
+
+/* 네 방송방 출석 장미 + 옆 좋아요/호스트 얼굴 상단 하트 증가만 연결. */
+(function(){
+  if(document.querySelector('script[data-kt-att-heart-fix="1"]'))return;
+  var s=document.createElement('script');
+  s.src='attendance-heart-host-tap-fix.js?v=20260913-heart1';
+  s.async=false;
+  s.setAttribute('data-kt-att-heart-fix','1');
+  document.head.appendChild(s);
+})();
