@@ -202,3 +202,13 @@
   s.setAttribute('data-kt-att-heart-fix','1');
   document.head.appendChild(s);
 })();
+
+/* 열쇠 표시 제거 + 자리 이동 위/아래 화살표만 연결. */
+(function(){
+  if(document.querySelector('script[data-kt-seat-up-down="1"]'))return;
+  var s=document.createElement('script');
+  s.src='seat-up-down-no-key.js?v=20260913-seat1';
+  s.async=false;
+  s.setAttribute('data-kt-seat-up-down','1');
+  document.head.appendChild(s);
+})();
