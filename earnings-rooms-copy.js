@@ -3,6 +3,18 @@
   if(window.__ktEarningsRoomsCopyInstalled)return;
   window.__ktEarningsRoomsCopyInstalled=true;
 
+  /* 9명/13명 계열 방송의 수익표 폭만 줄임. 채팅/선물/방 구조는 변경하지 않음. */
+  if(!document.getElementById('ktCompactGroupEarningsStyle')){
+    var compact=document.createElement('style');
+    compact.id='ktCompactGroupEarningsStyle';
+    compact.textContent=''
+      +'.ktg13-room .ktg13-mid{grid-template-columns:minmax(0,1fr) 30%!important}'
+      +'.ktg13-room .ktg13-earn #myEarnHud{overflow:hidden!important}'
+      +'.ktg13-room .ktg13-earn #myEarnDetail{font-size:5.7px!important;gap:1px 2px!important;line-height:1.08!important}'
+      +'@media(max-width:390px){.ktg13-room .ktg13-mid{grid-template-columns:minmax(0,1fr) 30%!important}}';
+    document.head.appendChild(compact);
+  }
+
   function isTargetRoom(){
     return !!document.querySelector('.ktsolo-room,.ktsubscriber-room,.ktsecret-room');
   }
