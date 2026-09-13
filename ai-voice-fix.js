@@ -161,3 +161,48 @@
     attendanceSpeak();
   },true);
 })();
+
+/* 9명방 수익표: 처음에는 한 줄만 보이게 접기. */
+(function(){
+  if(window.__ktNineEarningsCompactInstalled)return;
+  window.__ktNineEarningsCompactInstalled=true;
+  function apply(){
+    var room=document.querySelector('.ktg13-room[data-kt-room="9"]');
+    if(!room)return;
+    var detail=room.querySelector('#myEarnDetail');
+    if(detail&&detail.getAttribute('data-kt-nine-compact')!=='1'){
+      detail.style.display='none';
+      detail.setAttribute('data-kt-nine-compact','1');
+    }
+  }
+  apply();
+  try{
+    var mo=new MutationObserver(function(){setTimeout(apply,0);});
+    mo.observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['data-kt-room']});
+  }catch(e){}
+})();
+
+/* 방송목록 연동 파일이 빠진 경우에만 최신 파일을 다시 연결. */
+(function(){
+  function load(src,attr){
+    if(document.querySelector('script['+attr+']'))return;
+    var s=document.createElement('script');
+    s.src=src;
+    s.async=false;
+    s.setAttribute(attr,'1');
+    document.head.appendChild(s);
+  }
+  function ensure(){
+    if(!window.__ktLivePresenceInstalled){
+      load('live-presence.js?v=20260913-ai-link1','data-kt-ai-live-presence');
+    }
+    if(!window.__ktLivePresenceWatchdogInstalled){
+      load('live-presence-watchdog.js?v=20260913-ai-link1','data-kt-ai-live-watchdog');
+    }
+  }
+  ensure();
+  document.addEventListener('pointerdown',function(e){
+    var t=e.target;
+    if(t&&t.closest&&t.closest('.prep-start'))ensure();
+  },true);
+})();
