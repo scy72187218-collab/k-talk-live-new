@@ -182,3 +182,13 @@
     if(typeof window.openComments==='function')window.openComments();
   },true);
 })();
+
+/* 네 방송방 게스트 프로필·닉네임·받은 장미 표시 파일만 연결. */
+(function(){
+  if(document.querySelector('script[data-kt-guest-badge="1"]'))return;
+  var s=document.createElement('script');
+  s.src='guest-tile-profile-badge.js?v=20260913-guestbadge1';
+  s.async=false;
+  s.setAttribute('data-kt-guest-badge','1');
+  document.head.appendChild(s);
+})();
