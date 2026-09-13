@@ -196,3 +196,16 @@
   var oldGuide=window.openSiteGuide;
   if(typeof oldGuide==='function')window.openSiteGuide=function(){var r=oldGuide.apply(this,arguments);setTimeout(addRules,0);return r;};
 })();
+
+/* 촬영 화면 AI 보정·편집효과 두 버튼의 중심선과 간격만 정리. */
+(function(){
+  if(window.__ktCreatorTextToolCenterInstalled)return;
+  window.__ktCreatorTextToolCenterInstalled=true;
+  var s=document.createElement('style');
+  s.id='ktCreatorTextToolCenterStyle';
+  s.textContent=''
+    +'#creator .creator-tools>button.creator-tool-text{width:52px!important;height:52px!important;min-width:52px!important;min-height:52px!important;max-width:52px!important;max-height:52px!important;margin:0!important;padding:0!important;align-self:center!important;position:relative!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;transform:none!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:1px!important;box-sizing:border-box!important}'
+    +'#creator .creator-tools>button.creator-tool-text b{display:block!important;margin:0!important;padding:0!important;font-size:18px!important;line-height:18px!important;text-align:center!important}'
+    +'#creator .creator-tools>button.creator-tool-text small{display:block!important;margin:2px 0 0!important;padding:0!important;width:100%!important;font-size:8px!important;line-height:9px!important;font-weight:900!important;text-align:center!important;white-space:nowrap!important}';
+  document.head.appendChild(s);
+})();
