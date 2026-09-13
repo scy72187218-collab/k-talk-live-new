@@ -36,4 +36,7 @@
       });
     });
   });
+
+  /* 비밀방 되돌리기 버튼 위치만 조금 아래로. */
+  load('secret-return-down-20260914.js','__ktSecretReturnDown20260914');
 })();
