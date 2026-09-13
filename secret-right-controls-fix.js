@@ -121,3 +121,65 @@
     mo.observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 })();
+
+/* 최종 보정: 구독자방·비밀방 오른쪽 4개는 공중 아이콘처럼 테두리/배경 제거. 비밀방 카메라·마이크·자리이동은 사람 칸을 눌렀을 때만 잠깐 표시. */
+(function(){
+  if(window.__ktSubscriberSecretFinalUiFixInstalled)return;
+  window.__ktSubscriberSecretFinalUiFixInstalled=true;
+
+  var hideTimer=null;
+
+  function ensureFinalStyle(){
+    var old=document.getElementById('ktSubscriberSecretFinalUiFixStyle');
+    if(old)old.remove();
+    var s=document.createElement('style');
+    s.id='ktSubscriberSecretFinalUiFixStyle';
+    s.textContent=''
+      +'html body .ktsubscriber-room .ktsubscriber-right>.kt-room-camera-flip,html body .ktsubscriber-room .ktsubscriber-right>button:not(.like),html body #ktSubscriberMatchFloating{border:0!important;background:transparent!important;background-image:none!important;box-shadow:none!important;outline:0!important;border-radius:0!important}'
+      +'html body .ktsecret-room .ktsecret-right>*:not(.like){border:0!important;background:transparent!important;background-image:none!important;box-shadow:none!important;outline:0!important;border-radius:0!important}'
+      +'html body .ktsecret-room .kt-person-mic,html body .ktsecret-room .kt-host-camera-toggle{display:none!important}'
+      +'html body .ktsecret-room .ktsecret-slot>.kt-inside-av-controls,html body .ktsecret-room .ktsecret-guest-slot>.kt-inside-av-controls{display:none!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important}'
+      +'html body .ktsecret-room .ktsecret-slot.kt-secret-controls-open>.kt-inside-av-controls,html body .ktsecret-room .ktsecret-guest-slot.kt-secret-controls-open>.kt-inside-av-controls{display:flex!important;opacity:1!important;visibility:visible!important;pointer-events:auto!important}';
+    document.head.appendChild(s);
+  }
+
+  function closeSecretControls(){
+    try{
+      document.querySelectorAll('.ktsecret-room .kt-secret-controls-open').forEach(function(tile){tile.classList.remove('kt-secret-controls-open');});
+    }catch(e){}
+  }
+
+  function openSecretControls(tile){
+    closeSecretControls();
+    if(!tile||!tile.querySelector(':scope > .kt-inside-av-controls'))return;
+    tile.classList.add('kt-secret-controls-open');
+    clearTimeout(hideTimer);
+    hideTimer=setTimeout(closeSecretControls,2600);
+  }
+
+  document.addEventListener('click',function(e){
+    var t=e.target;
+    if(!t||!t.closest)return;
+    var room=t.closest('.ktsecret-room');
+    if(!room)return;
+    var control=t.closest('.kt-inside-camera,.kt-inside-mic,.kt-inside-move-seat,.kt-inside-seat-up,.kt-inside-seat-down');
+    if(control){
+      setTimeout(closeSecretControls,0);
+      return;
+    }
+    if(t.closest('.kt-inside-av-controls'))return;
+    var tile=t.closest('.ktsecret-slot,.ktsecret-guest-slot');
+    if(tile)openSecretControls(tile);
+  },true);
+
+  function install(){
+    ensureFinalStyle();
+    document.querySelectorAll('.ktsecret-room .ktsecret-slot,.ktsecret-room .ktsecret-guest-slot').forEach(function(tile){
+      if(!tile.classList.contains('kt-secret-controls-open'))tile.classList.remove('kt-av-open');
+    });
+  }
+
+  install();
+  [80,240,700,1200,2200].forEach(function(ms){setTimeout(install,ms);});
+  setInterval(install,1200);
+})();
