@@ -38,6 +38,24 @@
     list.forEach(function(el){el.textContent='🌹 '+(numberFrom(el)+1)+'송이';});
   }
 
+  function speakAttendanceDone(){
+    try{
+      if(typeof window.ktSpeak==='function'){
+        window.ktSpeak('출석 체크했다');
+        return;
+      }
+      if('speechSynthesis' in window){
+        window.speechSynthesis.cancel();
+        var u=new SpeechSynthesisUtterance('출석 체크했다');
+        u.lang='ko-KR';
+        u.volume=1;
+        u.rate=0.95;
+        u.pitch=1;
+        window.speechSynthesis.speak(u);
+      }
+    }catch(e){}
+  }
+
   function attendance(btn){
     var room=btn&&btn.closest?btn.closest(roomSelector):null;
     if(!room)return;
@@ -47,6 +65,7 @@
     if(!done){
       try{localStorage.setItem(key,'1');}catch(e){}
       addRoseOne();
+      speakAttendanceDone();
     }
     try{
       btn.textContent='🪽 출석완료 🌹+1 🪽';
