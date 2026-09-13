@@ -171,9 +171,9 @@
     if(!room)return;
     var hud=room.querySelector('#myEarnHud');
     if(hud){
-      hud.style.setProperty('width','220px','important');
-      hud.style.setProperty('max-width','220px','important');
-      hud.style.setProperty('transform','scale(.72)','important');
+      hud.style.setProperty('width','200px','important');
+      hud.style.setProperty('max-width','200px','important');
+      hud.style.setProperty('transform','scale(.58)','important');
       hud.style.setProperty('transform-origin','top right','important');
       hud.style.setProperty('margin-left','auto','important');
     }
