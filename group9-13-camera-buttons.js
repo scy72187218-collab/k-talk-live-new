@@ -212,3 +212,13 @@
   s.setAttribute('data-kt-seat-up-down','1');
   document.head.appendChild(s);
 })();
+
+/* 네 방송방 호스트·게스트 프로필 사진 + 레벨 + 닉네임 표시만 연결. */
+(function(){
+  if(document.querySelector('script[data-kt-profile-level="1"]'))return;
+  var s=document.createElement('script');
+  s.src='room-host-guest-profile-level.js?v=20260913-profilelevel1';
+  s.async=false;
+  s.setAttribute('data-kt-profile-level','1');
+  document.head.appendChild(s);
+})();
