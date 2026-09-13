@@ -222,3 +222,13 @@
   s.setAttribute('data-kt-profile-level','1');
   document.head.appendChild(s);
 })();
+
+/* 카메라·마이크·자리이동은 사람 칸을 눌렀을 때만 보이고, 한 번 사용하면 바로 숨김. */
+(function(){
+  if(document.querySelector('script[data-kt-controls-tap-only="1"]'))return;
+  var s=document.createElement('script');
+  s.src='room-controls-tap-only-guard.js?v=20260913-taponly1';
+  s.async=false;
+  s.setAttribute('data-kt-controls-tap-only','1');
+  document.head.appendChild(s);
+})();
