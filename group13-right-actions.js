@@ -119,3 +119,26 @@
   s.setAttribute('data-kt-beauty-three-rooms','1');
   document.head.appendChild(s);
 })();
+
+/* 다섯 방송방의 좋아요·효과·보물상자·매치만 테두리/배경 없이 공중에 뜬 모양으로 표시. 뒤집기와 다른 기능은 유지. */
+(function(){
+  if(window.__ktFiveRoomFloatingQuickStyleInstalled)return;
+  window.__ktFiveRoomFloatingQuickStyleInstalled=true;
+  var s=document.createElement('style');
+  s.id='ktFiveRoomFloatingQuickStyle';
+  s.textContent=''
+    +'.ktg13-right-quick>button,'
+    +'.ktsolo-right.kt-synced-actions>button,'
+    +'.ktsubscriber-room .ktsubscriber-right>button:not(.kt-room-camera-flip),'
+    +'#ktSubscriberMatchFloating,'
+    +'.ktsecret-right>.like,'
+    +'.ktsecret-right>.ktsecret-effect-small,'
+    +'.ktsecret-right>.ktsecret-gift-small,'
+    +'.ktsecret-right>.ktsecret-match-restored{'
+      +'border:0!important;'
+      +'background:transparent!important;'
+      +'box-shadow:none!important;'
+      +'outline:0!important;'
+    +'}';
+  document.head.appendChild(s);
+})();
