@@ -18,10 +18,10 @@
   }
 
   function viewerCount(){
-    var n=1;
-    try{if(window.state)n=Number(state.viewerCount||state.liveViewerCount||state.viewers||1);}catch(e){}
-    if(!isFinite(n)||n<1)n=1;
-    return Math.floor(n);
+    if(!window.__ktDemoViewerCount){
+      window.__ktDemoViewerCount=5+Math.floor(Math.random()*6);
+    }
+    return window.__ktDemoViewerCount;
   }
 
   function openRanking(){
@@ -43,7 +43,7 @@
 
   function fillRow(row){
     if(!row)return;
-    row.innerHTML='<button type="button" data-kt-room-rank>🔥 일일 랭킹</button><button type="button" data-kt-room-mission>🎯 미션</button><div class="kt-room-viewers-copy">시청자 <b>'+viewerCount()+'</b>명이 시청중 🏃</div>';
+    row.innerHTML='<button type="button" data-kt-room-rank>🔥 일일 랭킹</button><button type="button" data-kt-room-mission>🎯 미션</button><div class="kt-room-viewers-copy">테스트 시청자 <b>'+viewerCount()+'</b>명 시청중 🏃</div>';
     var r=row.querySelector('[data-kt-room-rank]');
     var m=row.querySelector('[data-kt-room-mission]');
     if(r)r.onclick=openRanking;
@@ -90,7 +90,9 @@
   }
 
   function refreshViewers(){
-    document.querySelectorAll('.kt-room-viewers-copy b').forEach(function(b){b.textContent=String(viewerCount());});
+    var n=viewerCount();
+    document.querySelectorAll('.kt-room-viewers-copy').forEach(function(el){el.innerHTML='테스트 시청자 <b>'+n+'</b>명 시청중 🏃';});
+    document.querySelectorAll('.ktg13-room .ktg13-viewers').forEach(function(el){el.textContent='테스트 시청자 '+n+'명이 시청중 🏃';});
   }
 
   function install(){
