@@ -190,14 +190,30 @@
       if(inOwnRoom&&String(ev.host_id)===hid)return false;
       if(isViewing(ev))return false;
       return true;
+    }).slice(0,3);
+    var keep={};
+    var small=false;
+    try{small=!!(window.matchMedia&&window.matchMedia('(max-width:390px)').matches);}catch(e){}
+    var baseTop=small?68:76;
+    available.forEach(function(ev,i){
+      var id='ktGlobalTreasureAlert_'+String(ev.id).replace(/[^a-zA-Z0-9_-]/g,'');
+      keep[id]=1;
+      var a=document.getElementById(id);
+      if(!a){
+        a=document.createElement('button');
+        a.type='button';
+        a.id=id;
+        a.className='kt-global-treasure-alert';
+        document.body.appendChild(a);
+      }
+      a.style.setProperty('top',(baseTop+(i*58))+'px','important');
+      a.dataset.eventId=ev.id;
+      var left=ms(ev.unlock_at)-now(),ready=left<=0;
+      a.innerHTML='<span class="chest">🎁</span><span><b>'+String(ev.host_name||'호스트')+' 방</b> 보물상자 '+ev.amount+'개 떴습니다<br><span class="time">'+(ready?'지금 받으러 가기':'열림까지 '+fmt(left))+'</span> · 눌러서 방송방 입장</span>';
     });
-    var ev=available[0]||null;
-    var a=document.getElementById('ktGlobalTreasureAlert');
-    if(!ev){if(a)a.remove();return;}
-    if(!a){a=document.createElement('button');a.type='button';a.id='ktGlobalTreasureAlert';a.className='kt-global-treasure-alert';document.body.appendChild(a);}
-    a.dataset.eventId=ev.id;
-    var left=ms(ev.unlock_at)-now(),ready=left<=0;
-    a.innerHTML='<span class="chest">🎁</span><span><b>'+String(ev.host_name||'호스트')+' 방</b> 보물상자 '+ev.amount+'개 떴습니다<br><span class="time">'+(ready?'지금 받으러 가기':'열림까지 '+fmt(left))+'</span> · 눌러서 방송방 입장'+(available.length>1?' · 외 '+(available.length-1)+'곳':'')+'</span>';
+    document.querySelectorAll('.kt-global-treasure-alert').forEach(function(a){
+      if(!keep[a.id])a.remove();
+    });
   }
 
   async function enterEvent(id){
@@ -266,7 +282,7 @@
 
   document.addEventListener('click',function(e){
     var t=e.target;if(!t||!t.closest)return;
-    var a=t.closest('#ktGlobalTreasureAlert');
+    var a=t.closest('.kt-global-treasure-alert');
     if(a){e.preventDefault();e.stopPropagation();enterEvent(a.dataset.eventId);return;}
     var v=t.closest('#ktGlobalTreasureViewBadge');
     if(v){e.preventDefault();e.stopPropagation();claimEvent(v.dataset.eventId);return;}
