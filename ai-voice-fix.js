@@ -100,7 +100,7 @@
   try{if(synth&&synth.getVoices)synth.getVoices();}catch(e){}
 })();
 
-/* 방송방 출석체크 AI: 출석 버튼을 누른 사람의 닉네임 + 감사 인사만 읽는다. 다른 기능/UI는 건드리지 않음. */
+/* 방송방 출석체크 AI: 출석 버튼을 누른 사람의 닉네임 + 감사 인사를 터치 즉시 읽는다. 다른 기능/UI는 건드리지 않음. */
 (function(){
   if(window.__ktAttendanceNicknameVoiceInstalled)return;
   window.__ktAttendanceNicknameVoiceInstalled=true;
@@ -134,13 +134,30 @@
     return name||'회원';
   }
 
-  document.addEventListener('click',function(e){
+  function attendanceSpeak(){
+    var msg=nickname()+'님, 출석 체크해 주셔서 감사합니다.';
+    try{if(window.state)state.aiVoiceOn=true;}catch(e){}
+    try{localStorage.setItem('ktalk_ai_voice','on');}catch(e){}
+    try{if(window.speechSynthesis&&window.speechSynthesis.cancel)window.speechSynthesis.cancel();}catch(e){}
+    try{
+      if(typeof window.ktSpeak==='function'&&window.ktSpeak(msg))return;
+    }catch(e){}
+    try{
+      if(!window.speechSynthesis||typeof window.SpeechSynthesisUtterance!=='function')return;
+      var u=new SpeechSynthesisUtterance(msg);
+      u.lang='ko-KR';
+      u.rate=0.98;
+      u.pitch=1.02;
+      u.volume=1;
+      window.speechSynthesis.speak(u);
+    }catch(e){}
+  }
+
+  document.addEventListener('pointerdown',function(e){
     var t=e.target;
     if(!t||!t.closest)return;
     var btn=t.closest('.ktsolo-att,.ktg13-attend,.ktsubscriber-att,.ktsecret-att,.kt-live-attendance');
     if(!btn)return;
-    setTimeout(function(){
-      try{if(typeof window.ktSpeak==='function')window.ktSpeak(nickname()+'님, 출석 체크해 주셔서 감사합니다.');}catch(err){}
-    },80);
+    attendanceSpeak();
   },true);
 })();
