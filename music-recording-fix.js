@@ -34,6 +34,7 @@
   load('group9-general-button.js?v=20260911-general9-3');
   load('group9-13-camera-buttons.js?v=20260913-camera-all1');
   load('secret-right-controls-fix.js?v=20260913-float1');
+  load('secret-camera-mic-stable.js?v=20260913-stable1');
   load('subscriber-right-controls-fix.js?v=20260913-float1');
   load('level-rules.js?v=20260913-level-open1');
   load('treasure-global-room.js?v=20260913-treasure3');
