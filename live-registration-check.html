@@ -15,6 +15,21 @@ body{margin:0;background:#07070b;color:#fff;font-family:system-ui,-apple-system,
 <button type="button" onclick="runCheck()">다시 점검</button>
 </div>
 <script>
+async function stableFetch(url,opt){
+  var lastError=null;
+  for(var attempt=0;attempt<2;attempt++){
+    var ctrl=typeof AbortController!=='undefined'?new AbortController():null;
+    var timer=ctrl?setTimeout(function(){ctrl.abort();},12000):null;
+    try{
+      var next=Object.assign({},opt||{});if(ctrl)next.signal=ctrl.signal;
+      var response=await fetch(url,next);if(timer)clearTimeout(timer);return response;
+    }catch(e){
+      if(timer)clearTimeout(timer);lastError=e;
+      if(attempt===0)await new Promise(function(resolve){setTimeout(resolve,700);});
+    }
+  }
+  throw lastError||new Error('network');
+}
 async function runCheck(){
   var out=document.getElementById('status');
   out.className='status wait';out.textContent='1단계: LIVE 설정 파일 확인 중…';
@@ -27,12 +42,12 @@ async function runCheck(){
     var BASE=bm[1],KEY=km[1];
     out.textContent='2단계: 서버 읽기 연결 확인 중…';
     var common={apikey:KEY,Authorization:'Bearer '+KEY};
-    var r=await fetch(BASE+'ktalk_live_rooms?select=id&limit=1',{headers:common,cache:'no-store'});
+    var r=await stableFetch(BASE+'ktalk_live_rooms?select=id&limit=1',{headers:common,cache:'no-store'});
     if(!r.ok){var rt=await r.text();throw new Error('서버 읽기 '+r.status+' '+rt.slice(0,120));}
     out.textContent='3단계: 방송 등록 통신 확인 중…';
     var stamp=new Date().toISOString();
     var payload={host_id:'diag_'+Date.now(),host_name:'K-Talk 점검',title:'연결점검',room_type:'diagnostic',room_name:'연결점검',active:false,started_at:stamp,updated_at:stamp};
-    var p=await fetch(BASE+'ktalk_live_rooms',{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json',Prefer:'return=representation'},body:JSON.stringify(payload)});
+    var p=await stableFetch(BASE+'ktalk_live_rooms',{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json',Prefer:'return=representation'},body:JSON.stringify(payload)});
     if(!p.ok){var pt=await p.text();throw new Error('등록 요청 '+p.status+' '+pt.slice(0,180));}
     out.className='status ok';out.textContent='✅ 서버 연결 정상\n✅ 방송 등록 통신 정상\n\n이 화면을 사진 찍어서 보내주세요.';
   }catch(e){
