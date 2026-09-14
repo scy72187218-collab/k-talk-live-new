@@ -50,22 +50,71 @@
   document.head.appendChild(s);
 })();
 
-/* 비밀방만: 되돌리기·좋아요·선물상자·효과·매치를 위로 올리기 전 상태로 복귀. 선물줄/다른 방은 그대로 둠. */
+/* 비밀방만: 되돌리기·보물상자·매치 3개만 LED 아래 위쪽 줄로 이동. 좋아요·효과·선물줄·게스트·다른 방은 그대로. */
 (function(){
-  if(window.__ktSecretBeforeTopControls20260915)return;
-  window.__ktSecretBeforeTopControls20260915=true;
-  var old=document.getElementById('ktSecretBeforeTopControlsStyle20260915');
-  if(old)old.remove();
-  var s=document.createElement('style');
-  s.id='ktSecretBeforeTopControlsStyle20260915';
-  s.textContent=''
-    +'html body #screen .ktsecret-room>.kt-live-top-quickbar{display:none!important;flex:0 0 0!important;min-height:0!important;height:0!important;margin:0!important;padding:0!important;overflow:hidden!important}'
-    +'html body #screen .ktsecret-room .ktsecret-right{display:grid!important}'
-    +'html body #screen .ktsecret-room>.ktsecret-led{flex:0 0 58px!important;min-height:58px!important;height:58px!important;border-radius:22px!important}'
-    +'html body #screen .ktsecret-room .ktsecret-led-track{font-size:24px!important;font-weight:950!important}'
-    +'@media(max-width:390px){'
-      +'html body #screen .ktsecret-room>.ktsecret-led{flex-basis:50px!important;min-height:50px!important;height:50px!important}'
-      +'html body #screen .ktsecret-room .ktsecret-led-track{font-size:20px!important}'
-    +'}';
-  document.head.appendChild(s);
+  if(window.__ktSecretTopThreeLoaded20260915)return;
+  window.__ktSecretTopThreeLoaded20260915=true;
+
+  function ensureStyle(){
+    var old=document.getElementById('ktSecretBeforeTopControlsStyle20260915');
+    if(old)old.remove();
+    if(document.getElementById('ktSecretTopThreeLoadedStyle20260915'))return;
+    var s=document.createElement('style');
+    s.id='ktSecretTopThreeLoadedStyle20260915';
+    s.textContent=''
+      +'html body #screen .ktsecret-room>.kt-live-top-quickbar{display:none!important}'
+      +'html body #screen .ktsecret-room>.ktsecret-led{flex:0 0 58px!important;min-height:58px!important;height:58px!important;border-radius:22px!important}'
+      +'html body #screen .ktsecret-room .ktsecret-led-track{font-size:24px!important;font-weight:950!important}'
+      +'#screen .ktsecret-top-three{flex:0 0 46px!important;min-height:46px!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:4px!important;width:100%!important;box-sizing:border-box!important;z-index:30!important}'
+      +'#screen .ktsecret-top-three button{height:46px!important;margin:0!important;border:1px solid rgba(255,255,255,.17)!important;border-radius:12px!important;background:linear-gradient(180deg,#1a1a20,#0b0b0f)!important;color:#fff!important;font-size:13px!important;font-weight:950!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:5px!important;white-space:nowrap!important}'
+      +'#screen .ktsecret-top-three button b{font-size:17px!important}'
+      +'#screen .ktsecret-room .ktsecret-right{display:grid!important}'
+      +'#screen .ktsecret-room .ktsecret-right .ktsecret-return{display:none!important}'
+      +'#screen .ktsecret-room .ktsecret-right button:nth-child(3){display:none!important}'
+      +'#screen .ktsecret-room .ktsecret-right button:nth-child(4){display:none!important}'
+      +'@media(max-width:390px){'
+        +'html body #screen .ktsecret-room>.ktsecret-led{flex-basis:50px!important;min-height:50px!important;height:50px!important}'
+        +'html body #screen .ktsecret-room .ktsecret-led-track{font-size:20px!important}'
+        +'#screen .ktsecret-top-three{flex-basis:42px!important;min-height:42px!important}'
+        +'#screen .ktsecret-top-three button{height:42px!important;font-size:12px!important}'
+      +'}';
+    document.head.appendChild(s);
+  }
+
+  function findAnchor(room){
+    var children=[].slice.call(room.children||[]);
+    var stats=children.find(function(el){
+      var t=String(el.textContent||'').replace(/\s+/g,' ');
+      return t.indexOf('일일 랭킹')>-1&&t.indexOf('미션')>-1&&t.indexOf('시청자')>-1;
+    });
+    return stats||room.querySelector('.ktsecret-main');
+  }
+
+  function install(){
+    ensureStyle();
+    document.querySelectorAll('.ktsecret-room').forEach(function(room){
+      var anchor=findAnchor(room);
+      if(!anchor||!anchor.parentNode)return;
+      var bar=room.querySelector(':scope > .ktsecret-top-three');
+      if(!bar){
+        bar=document.createElement('div');
+        bar.className='ktsecret-top-three';
+        bar.innerHTML=''
+          +'<button type="button" onclick="if(window.ktAllRoomsFlipCamera)ktAllRoomsFlipCamera()"><b>↻</b><span>되돌리기</span></button>'
+          +'<button type="button" onclick="if(window.openGifts)openGifts()"><b>🎁</b><span>보물상자</span></button>'
+          +'<button type="button" onclick="if(window.openHostMatchArena)openHostMatchArena(\'1대1\')"><b>⚔</b><span>매치</span></button>';
+      }
+      if(bar.nextElementSibling!==anchor)anchor.parentNode.insertBefore(bar,anchor);
+    });
+  }
+
+  install();
+  [40,120,300,700,1300].forEach(function(ms){setTimeout(install,ms);});
+  try{
+    var mo=new MutationObserver(function(){
+      clearTimeout(window.__ktSecretTopThreeLoadedTimer20260915);
+      window.__ktSecretTopThreeLoadedTimer20260915=setTimeout(install,25);
+    });
+    mo.observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
 })();
