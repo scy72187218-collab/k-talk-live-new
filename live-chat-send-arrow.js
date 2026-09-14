@@ -15,6 +15,7 @@
       +'.kt-remote-bottom #ktRemoteChatSend svg{width:23px!important;height:23px!important;display:block!important;fill:currentColor!important}'
       +'.kt-remote-bottom #ktRemoteGuestRequest{font-size:0!important;color:#77e7ff!important}'
       +'.kt-remote-bottom #ktRemoteGuestRequest svg{width:24px!important;height:24px!important;display:block!important;fill:currentColor!important}'
+      +'.kt-remote-bottom .kt-remote-action.heart{display:none!important}'
       +'@media(max-width:390px){.kt-remote-bottom #ktRemoteChatSend svg{width:21px!important;height:21px!important}.kt-remote-bottom #ktRemoteGuestRequest svg{width:22px!important;height:22px!important}}';
     document.head.appendChild(s);
   }
