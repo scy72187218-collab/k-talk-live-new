@@ -28,7 +28,37 @@
 
   function updateNote(){
     var note=document.querySelector('.kt-sound-panel .note');
-    if(note)note.textContent='사람이 직접 부른 자유 이용 보컬곡 20곡만 들어 있습니다. ▶ 버튼을 누르면 K-Talk 안에서 바로 재생됩니다.';
+    if(note)note.textContent='사람이 직접 부른 자유 이용 보컬곡 20곡만 들어 있습니다. 곡을 누르면 촬영 화면에서도 바로 소리가 납니다.';
+  }
+
+  function stopCreatorMusic(){
+    try{
+      if(window.ktCreatorMusicAudio){
+        window.ktCreatorMusicAudio.pause();
+        window.ktCreatorMusicAudio.removeAttribute('src');
+        try{window.ktCreatorMusicAudio.load();}catch(e){}
+        window.ktCreatorMusicAudio=null;
+      }
+    }catch(e){}
+  }
+  window.ktStopCreatorMusic=stopCreatorMusic;
+
+  function playCreatorMusic(index){
+    var t=tracks[index];
+    if(!t||!t.url)return;
+    stopCreatorMusic();
+    var audio=new Audio(t.url);
+    audio.preload='auto';
+    audio.volume=.9;
+    audio.loop=true;
+    window.ktCreatorMusicAudio=audio;
+    var p=audio.play();
+    if(p&&p.catch){
+      p.catch(function(){
+        stopCreatorMusic();
+        alert('사운드를 재생하지 못했습니다. 곡을 한 번 더 눌러 주세요.');
+      });
+    }
   }
 
   function apply(){
@@ -37,6 +67,19 @@
     window.ktOpenLicensedSongSearch=function(index,ev){
       if(ev){try{ev.stopPropagation();ev.preventDefault();}catch(e){}}
       if(typeof window.ktPlaySoundPreview==='function')window.ktPlaySoundPreview(index,ev);
+    };
+    window.selectCreatorSoundByIndex=function(index,ev){
+      if(ev){try{ev.stopPropagation();ev.preventDefault();}catch(e){}}
+      var t=tracks[index];
+      if(!t)return;
+      try{
+        if(window.state)window.state.creatorSound=t.name;
+        else if(typeof state!=='undefined')state.creatorSound=t.name;
+      }catch(e){}
+      var btn=document.getElementById('creatorSoundBtn');
+      if(btn)btn.textContent='♪ '+t.name;
+      playCreatorMusic(index);
+      if(typeof window.closeSheet==='function')window.closeSheet();
     };
     try{
       var list=document.getElementById('ktSoundList');
@@ -59,6 +102,14 @@
       apply();
       oldOpen.apply(this,arguments);
       setTimeout(apply,0);
+    };
+  }
+
+  var oldCloseCreator=window.closeCreator;
+  if(typeof oldCloseCreator==='function'){
+    window.closeCreator=function(){
+      stopCreatorMusic();
+      return oldCloseCreator.apply(this,arguments);
     };
   }
 })();
