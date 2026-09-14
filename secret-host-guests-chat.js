@@ -70,7 +70,7 @@
   }
 
   window.ktSetSecretGuestStream=function(index,stream,name){
-    index=Math.max(0,Math.min(3,parseInt(index,10)||0));
+    index=Math.max(0,Math.min(4,parseInt(index,10)||0));
     window.ktSecretGuestStreams=window.ktSecretGuestStreams||[];
     window.ktSecretGuestStreams[index]={stream:stream||null,name:name||('게스트 '+(index+1))};
     syncGuestStreams();
@@ -90,7 +90,7 @@
       var panel=document.createElement('div');
       panel.className='ktsecret-guest-panel';
       var html='';
-      for(var i=0;i<4;i++){
+      for(var i=0;i<5;i++){
         html+='<div class="ktsecret-guest-slot" data-guest-index="'+i+'"><video autoplay playsinline></video><div class="ktsecret-guest-empty">👤<small>게스트 '+(i+1)+'</small></div><div class="ktsecret-guest-name">게스트 '+(i+1)+'</div></div>';
       }
       panel.innerHTML=html;
