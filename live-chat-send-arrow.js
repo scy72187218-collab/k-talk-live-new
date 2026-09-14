@@ -181,3 +181,13 @@
   setInterval(recover,3000);
   setTimeout(recover,500);
 })();
+
+/* 게스트 참여신청은 호스트에게 프로필 사진 카드로 표시. 기존 방 UI는 변경하지 않음. */
+(function(){
+  if(document.querySelector('script[data-kt-guest-photo-cards]'))return;
+  var s=document.createElement('script');
+  s.src='guest-request-photo-cards-20260914.js?v=20260914-photo1';
+  s.async=false;
+  s.setAttribute('data-kt-guest-photo-cards','1');
+  document.head.appendChild(s);
+})();
