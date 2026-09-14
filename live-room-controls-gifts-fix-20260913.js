@@ -3,6 +3,9 @@
   if(window.__ktLiveRoomControlsGiftsFix20260913)return;
   window.__ktLiveRoomControlsGiftsFix20260913=true;
 
+  var lastPointerControl=null;
+  var lastPointerAt=0;
+
   function inLiveRoom(el){
     return !!(el&&el.closest&&el.closest('.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room'));
   }
@@ -21,10 +24,11 @@
     var s=document.createElement('style');
     s.id='ktLiveRoomControlsGiftsFixStyle';
     s.textContent=''
+      +'.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room{pointer-events:auto!important}'
       +'.ktsolo-room button,.ktg13-room button,.ktsubscriber-room button,.ktsecret-room button{touch-action:manipulation!important;-webkit-tap-highlight-color:transparent!important}'
       +'.ktsolo-att,.ktg13-attend,.ktsubscriber-att,.ktsecret-att,.ktsolo-right,.ktg13-right-quick,.ktsubscriber-right,.ktsecret-right{pointer-events:auto!important;z-index:80!important}'
       +'.ktsolo-att,.ktg13-attend,.ktsubscriber-att,.ktsecret-att,.ktsolo-right>*,.ktg13-right-quick>*,.ktsubscriber-right>*,.ktsecret-right>*,.ktsolo-gift,.ktg13-gift,.ktsubscriber-gift,.ktsecret-gift{pointer-events:auto!important;touch-action:manipulation!important;position:relative!important;z-index:81!important;cursor:pointer!important}'
-      +'.ktsolo-gifts,.ktg13-gifts,.ktsubscriber-gifts,.ktsecret-gifts{pointer-events:auto!important;position:relative!important;z-index:75!important}'
+      +'.ktsolo-gifts,.ktg13-gifts,.ktsubscriber-gifts,.ktsecret-gifts,.ktsolo-gifts>*,.ktg13-gifts>*,.ktsubscriber-gifts>*,.ktsecret-gifts>*{pointer-events:auto!important;touch-action:manipulation!important;position:relative!important;z-index:75!important}'
       +'.ktg13-room .ktg13-tools,.ktg13-room .ktg13-tool,.ktg13-room .ktg13-stats,.ktg13-room .ktg13-stats button{pointer-events:auto!important;position:relative!important;z-index:82!important;touch-action:manipulation!important}'
       +'.ktg13-room .kt-room-live-wave,.ktg13-room .vh-shade,.ktg13-room video{pointer-events:none!important}'
       +'.ktsolo-room .ktsolo-right{top:14px!important;bottom:auto!important;right:8px!important;transform:none!important}'
@@ -56,7 +60,6 @@
         audioTracks=oldStream.getAudioTracks().filter(function(t){return t.readyState==='live';});
       }
 
-      /* 휴대폰에서 반대쪽 카메라를 열 수 있게 기존 영상 트랙만 먼저 해제 */
       if(oldStream&&oldStream.getVideoTracks){
         oldStream.getVideoTracks().forEach(function(t){try{t.stop();}catch(e){}});
       }
@@ -177,11 +180,43 @@
     return node&&node.parentElement===side?node:null;
   }
 
-  function handle(e){
-    var target=e.target;
-    var btn=target&&target.closest?target.closest('button,[role="button"],.ktsolo-att,.ktg13-attend,.ktsubscriber-att,.ktsecret-att,.ktsolo-gift,.ktg13-gift,.ktsubscriber-gift,.ktsecret-gift'):null;
+  function candidateFromNode(target){
+    if(!target||!target.closest)return null;
+    var btn=target.closest('button,[role="button"],.ktsolo-att,.ktg13-attend,.ktsubscriber-att,.ktsecret-att,.ktsolo-gift,.ktg13-gift,.ktsubscriber-gift,.ktsecret-gift');
     if(!btn)btn=directQuickChild(target);
-    if(!btn||!inLiveRoom(btn))return;
+    return btn&&inLiveRoom(btn)?btn:null;
+  }
+
+  function controlFromEvent(e){
+    var btn=candidateFromNode(e&&e.target);
+    if(btn)return btn;
+    try{
+      var x=typeof e.clientX==='number'?e.clientX:null;
+      var y=typeof e.clientY==='number'?e.clientY:null;
+      if(x===null||y===null||!document.elementsFromPoint)return null;
+      var els=document.elementsFromPoint(x,y)||[];
+      for(var i=0;i<els.length;i++){
+        btn=candidateFromNode(els[i]);
+        if(btn)return btn;
+      }
+    }catch(err){}
+    return null;
+  }
+
+  function handle(e){
+    var btn=controlFromEvent(e);
+    if(!btn)return;
+
+    var now=Date.now();
+    if(e.type==='click'&&lastPointerControl===btn&&now-lastPointerAt<900){
+      stopEvent(e);
+      return;
+    }
+
+    if(e.type==='pointerup'){
+      lastPointerControl=btn;
+      lastPointerAt=now;
+    }
 
     if(isQuickGift(btn)){
       stopEvent(e);press(btn);sendQuickGift(btn);return;
@@ -213,6 +248,7 @@
   }
 
   ensureStyle();
+  window.addEventListener('pointerup',handle,true);
   window.addEventListener('click',handle,true);
   setInterval(ensureStyle,1500);
 })();
