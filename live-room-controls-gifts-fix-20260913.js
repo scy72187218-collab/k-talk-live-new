@@ -23,7 +23,7 @@
     s.textContent=''
       +'.ktsolo-room button,.ktg13-room button,.ktsubscriber-room button,.ktsecret-room button{touch-action:manipulation!important;-webkit-tap-highlight-color:transparent!important}'
       +'.ktsolo-att,.ktg13-attend,.ktsubscriber-att,.ktsecret-att,.ktsolo-right,.ktg13-right-quick,.ktsubscriber-right,.ktsecret-right{pointer-events:auto!important;z-index:80!important}'
-      +'.ktsolo-att,.ktg13-attend,.ktsubscriber-att,.ktsecret-att,.ktsolo-right button,.ktg13-right-quick button,.ktsubscriber-right button,.ktsecret-right button,.ktsolo-gift,.ktg13-gift,.ktsubscriber-gift,.ktsecret-gift{pointer-events:auto!important;position:relative!important;z-index:81!important;cursor:pointer!important}'
+      +'.ktsolo-att,.ktg13-attend,.ktsubscriber-att,.ktsecret-att,.ktsolo-right>*,.ktg13-right-quick>*,.ktsubscriber-right>*,.ktsecret-right>*,.ktsolo-gift,.ktg13-gift,.ktsubscriber-gift,.ktsecret-gift{pointer-events:auto!important;touch-action:manipulation!important;position:relative!important;z-index:81!important;cursor:pointer!important}'
       +'.ktsolo-gifts,.ktg13-gifts,.ktsubscriber-gifts,.ktsecret-gifts{pointer-events:auto!important;position:relative!important;z-index:75!important}'
       +'.ktg13-room .ktg13-tools,.ktg13-room .ktg13-tool,.ktg13-room .ktg13-stats,.ktg13-room .ktg13-stats button{pointer-events:auto!important;position:relative!important;z-index:82!important;touch-action:manipulation!important}'
       +'.ktg13-room .kt-room-live-wave,.ktg13-room .vh-shade,.ktg13-room video{pointer-events:none!important}'
@@ -168,8 +168,19 @@
     return !!(btn&&btn.matches&&btn.matches('.ktsolo-gift,.ktg13-gift,.ktsubscriber-gift,.ktsecret-gift'));
   }
 
+  function directQuickChild(target){
+    if(!target||!target.closest)return null;
+    var side=target.closest('.ktsolo-right,.ktg13-right-quick,.ktsubscriber-right,.ktsecret-right');
+    if(!side)return null;
+    var node=target;
+    while(node&&node.parentElement!==side)node=node.parentElement;
+    return node&&node.parentElement===side?node:null;
+  }
+
   function handle(e){
-    var btn=e.target&&e.target.closest?e.target.closest('button'):null;
+    var target=e.target;
+    var btn=target&&target.closest?target.closest('button,[role="button"],.ktsolo-att,.ktg13-attend,.ktsubscriber-att,.ktsecret-att,.ktsolo-gift,.ktg13-gift,.ktsubscriber-gift,.ktsecret-gift'):null;
+    if(!btn)btn=directQuickChild(target);
     if(!btn||!inLiveRoom(btn))return;
 
     if(isQuickGift(btn)){
@@ -177,11 +188,11 @@
     }
 
     var text=String(btn.textContent||'').replace(/\s+/g,'');
-    var aria=String(btn.getAttribute('aria-label')||'').replace(/\s+/g,'');
+    var aria=String(btn.getAttribute&&btn.getAttribute('aria-label')||'').replace(/\s+/g,'');
     var key=text+' '+aria;
     var kind=roomKind(btn);
 
-    if(btn.matches('.ktsolo-att,.ktg13-attend,.ktsubscriber-att,.ktsecret-att')||key.indexOf('출석체크')>-1){
+    if(btn.matches&&btn.matches('.ktsolo-att,.ktg13-attend,.ktsubscriber-att,.ktsecret-att')||key.indexOf('출석체크')>-1){
       stopEvent(e);press(btn);attendance();return;
     }
     if(key.indexOf('뒤집기')>-1||key.indexOf('되돌리기')>-1){
