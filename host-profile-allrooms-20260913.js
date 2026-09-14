@@ -86,7 +86,8 @@
       +'.ktg13-room[data-kt-room="9"] .kt-allhost-level{height:14px!important;padding:0 3px!important;font-size:7px!important}'
       +'.ktg13-room[data-kt-room="9"] .kt-allhost-name{max-width:55px!important;font-size:8px!important}'
       +'.ktsolo-main>.kt-allhost-profile{left:7px!important;top:7px!important}'
-      +'@media(max-width:390px){.kt-allhost-profile{left:4px!important;top:4px!important;gap:3px!important;padding:1px 4px 1px 1px!important}.kt-allhost-photo,.kt-allhost-fallback{width:22px!important;height:22px!important;min-width:22px!important;font-size:11px!important}.kt-allhost-level{height:15px!important;padding:0 4px!important;font-size:7px!important}.kt-allhost-name{max-width:72px!important;font-size:8px!important}}';
+      +'@media(max-width:390px){.kt-allhost-profile{left:4px!important;top:4px!important;gap:3px!important;padding:1px 4px 1px 1px!important}.kt-allhost-photo,.kt-allhost-fallback{width:22px!important;height:22px!important;min-width:22px!important;font-size:11px!important}.kt-allhost-level{height:15px!important;padding:0 4px!important;font-size:7px!important}.kt-allhost-name{max-width:72px!important;font-size:8px!important}}'
+      +'.ktsecret-room .ktsecret-slot.host>.kt-allhost-profile,.ktsecret-room .ktsecret-host>.kt-allhost-profile{left:50%!important;right:auto!important;top:5px!important;transform:translateX(-50%)!important}';
     document.head.appendChild(st);
   }
 
