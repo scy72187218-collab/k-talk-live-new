@@ -19,7 +19,7 @@
   var s=document.createElement('style');
   s.id='ktSecretReturnDown20260914Style';
   s.textContent=''
-    +'.ktsecret-room .ktsecret-right{transform:translateY(58px)!important;}'
+    +'.ktsecret-room .ktsecret-right{transform:translateY(-18px)!important;}'
     +'.ktsecret-room .ktsecret-return{transform:none!important;}'
     +'.ktsecret-room .ktsecret-earn-row #myEarnHud{transform:translateX(-72px)!important;}'
     +'.prep-card #ktSecretPasswordBox.on{position:fixed!important;left:18px!important;right:18px!important;bottom:86px!important;z-index:10000!important;display:block!important;margin:0!important;width:auto!important;}'
