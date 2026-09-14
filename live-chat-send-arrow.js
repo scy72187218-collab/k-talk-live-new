@@ -151,3 +151,13 @@
   s.setAttribute('data-kt-guest-host-action-fix','1');
   document.head.appendChild(s);
 })();
+
+/* 호스트 방송 채팅만 공중에 길게 보이도록 보강: 1인·9명·13명·구독자·비밀방 공통. */
+(function(){
+  if(document.querySelector('script[data-kt-host-chat-float-allrooms]'))return;
+  var s=document.createElement('script');
+  s.src='host-chat-float-allrooms-20260914.js?v=20260914-chatfloat1';
+  s.async=false;
+  s.setAttribute('data-kt-host-chat-float-allrooms','1');
+  document.head.appendChild(s);
+})();
