@@ -1,4 +1,4 @@
-/* K-Talk 방송방 상단 퀵버튼 전용: 다른 방은 되돌리기·보물상자·매치, 비밀방만 요청한 5버튼 순서로 표시. 다른 기능은 변경하지 않음. */
+/* K-Talk 방송방 상단 퀵버튼 전용: 되돌리기·보물상자·매치만 표시. 다른 기능은 변경하지 않음. */
 (function(){
   if(window.__ktLiveTopQuickbar20260915)return;
   window.__ktLiveTopQuickbar20260915=true;
@@ -9,7 +9,7 @@
     s.id='ktLiveTopQuickbarStyle20260915';
     s.textContent=''
       +'.kt-live-top-quickbar{flex:0 0 38px!important;min-height:38px!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:3px!important;align-items:stretch!important;width:100%!important;box-sizing:border-box!important;position:relative!important;z-index:40!important;padding:0 1px!important;pointer-events:auto!important}'
-      +'.ktsecret-room>.kt-live-top-quickbar{grid-template-columns:repeat(5,minmax(0,1fr))!important}'
+      +'.ktsecret-room>.kt-live-top-quickbar{grid-template-columns:repeat(3,minmax(0,1fr))!important}'
       +'.kt-live-top-quickbar button{min-width:0!important;height:38px!important;margin:0!important;padding:2px 1px!important;border:1px solid rgba(255,255,255,.16)!important;border-radius:10px!important;background:linear-gradient(180deg,rgba(28,28,34,.96),rgba(10,10,14,.96))!important;color:#fff!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:3px!important;white-space:nowrap!important;font-size:11px!important;font-weight:950!important;line-height:1!important;letter-spacing:-.3px!important;text-shadow:0 1px 2px #000!important;box-shadow:inset 0 0 10px rgba(255,255,255,.035)!important;pointer-events:auto!important;touch-action:manipulation!important}'
       +'.ktsecret-room>.kt-live-top-quickbar button{font-size:10px!important;gap:2px!important}'
       +'.kt-live-top-quickbar button b{font-size:14px!important;line-height:1!important;font-weight:950!important}.kt-live-top-quickbar button span{font-size:11px!important;font-weight:950!important;line-height:1!important;color:#fff!important}'
@@ -29,19 +29,10 @@
     var bar=document.createElement('div');
     bar.className='kt-live-top-quickbar';
     bar.setAttribute('data-kt-top-quickbar','1');
-    if(room&&room.classList.contains('ktsecret-room')){
-      bar.innerHTML=''
-        +'<button type="button" aria-label="되돌리기"><b>↻</b><span>되돌리기</span></button>'
-        +'<button type="button" aria-label="좋아요"><b>💗</b><span>좋아요</span></button>'
-        +'<button type="button" aria-label="보물상자"><b>🎁</b><span>보물상자</span></button>'
-        +'<button type="button" aria-label="효과"><b>✨</b><span>효과</span></button>'
-        +'<button type="button" aria-label="매치"><b>⚔</b><span>매치</span></button>';
-    }else{
-      bar.innerHTML=''
-        +'<button type="button" aria-label="되돌리기"><b>↻</b><span>되돌리기</span></button>'
-        +'<button type="button" aria-label="보물상자"><b>🎁</b><span>보물상자</span></button>'
-        +'<button type="button" aria-label="매치"><b>⚔</b><span>매치</span></button>';
-    }
+    bar.innerHTML=''
+      +'<button type="button" aria-label="되돌리기"><b>↻</b><span>되돌리기</span></button>'
+      +'<button type="button" aria-label="보물상자"><b>🎁</b><span>보물상자</span></button>'
+      +'<button type="button" aria-label="매치"><b>⚔</b><span>매치</span></button>';
     return bar;
   }
 
