@@ -1,4 +1,4 @@
-/* K-Talk 공개 동영상 오른쪽 버튼: 프로필 사진 → 좋아요 → 댓글 → 선물 → 공유. 이 영역만 보강. */
+/* K-Talk 공개 동영상 오른쪽 버튼: 프로필 사진 → 장미 → 좋아요 → 댓글 → 선물 → 공유. 이 영역만 보강. */
 (function(){
   if(window.__ktFeedProfileActionsInstalledV2)return;
   window.__ktFeedProfileActionsInstalledV2=true;
@@ -42,18 +42,38 @@
       :'<span class="kt-feed-profile-circle kt-feed-profile-empty">👤</span><small>프로필</small>';
   }
 
-  function replaceHeartWithRose(box){
+  function keepLikeAsHeart(like){
+    if(!like)return;
     try{
-      var buttons=[].slice.call(box.querySelectorAll(':scope > button:not(.kt-feed-profile-button)'));
-      var like=buttons[0];
-      if(!like)return;
       for(var n=like.firstChild;n;n=n.nextSibling){
-        if(n.nodeType===3&&String(n.nodeValue||'').indexOf('♡')>-1){
-          n.nodeValue=String(n.nodeValue||'').replace('♡','🌹');
-          break;
+        if(n.nodeType===3){
+          var t=String(n.nodeValue||'');
+          if(t.indexOf('🌹')>-1||t.indexOf('♥')>-1||t.indexOf('♡')>-1){
+            n.nodeValue=t.replace('🌹','♡').replace('♥','♡');
+            return;
+          }
         }
       }
     }catch(e){}
+  }
+
+  function ensureRose(box,profile,like){
+    var rose=box.querySelector(':scope > .kt-feed-rose-button');
+    if(!rose){
+      rose=document.createElement('button');
+      rose.type='button';
+      rose.className='kt-feed-rose-button';
+      rose.setAttribute('aria-label','장미');
+      rose.innerHTML='🌹<small>장미</small>';
+      rose.onclick=function(){
+        try{if(typeof window.openGifts==='function')window.openGifts();}catch(e){}
+      };
+    }
+    if(like){
+      if(rose.nextSibling!==like)box.insertBefore(rose,like);
+    }else if(profile&&profile.nextSibling!==rose){
+      box.insertBefore(rose,profile.nextSibling||null);
+    }
   }
 
   function decorate(box){
@@ -78,7 +98,11 @@
       b.setAttribute('data-photo-src',src);
       b.innerHTML=profileHtml(src);
     }
-    replaceHeartWithRose(box);
+
+    var buttons=[].slice.call(box.querySelectorAll(':scope > button:not(.kt-feed-profile-button):not(.kt-feed-rose-button)'));
+    var like=buttons[0]||null;
+    keepLikeAsHeart(like);
+    ensureRose(box,b,like);
   }
 
   function run(){
