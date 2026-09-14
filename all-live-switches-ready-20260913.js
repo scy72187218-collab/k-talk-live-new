@@ -225,8 +225,30 @@
   }
 
   function clickRoom(b){
-    var d=defFromText(b.textContent||b.getAttribute('aria-label')||'');
-    if(d)applyRoom(b,d);
+    var text=String(b.textContent||b.getAttribute('aria-label')||'').replace(/\s+/g,'');
+    var d=null;
+    if(text.indexOf('1인')>-1)d={type:'solo',name:'1인 방송',max:1};
+    else if(text.indexOf('9명')>-1)d={type:'group9',name:'9명 일반방',max:9};
+    else if(text.indexOf('13명')>-1)d={type:'group',name:'13명 방송',max:13};
+    else if(text.indexOf('15명')>-1)d={type:'group15',name:'15명 방송',max:15};
+    else if(text.indexOf('구독자')>-1)d={type:'subscriber',name:'구독자 방송',max:10};
+    else if(text.indexOf('비밀')>-1)d={type:'password',name:'비밀방',max:7};
+    if(!d)return;
+    var buttons=[].slice.call(document.querySelectorAll('.live-prep .room-switch'));
+    markOne(buttons,b);
+    try{
+      if(window.state){
+        state.prepRoomType=d.type;
+        state.roomType=d.type;
+        state.prepRoomName=d.name;
+        state.prepRoomMax=d.max;
+      }
+      var title=document.getElementById('liveTitle');
+      if(title){title.value=d.name;title.dataset.autoRoom='1';}
+      if(typeof window.selectPrepRoom==='function')window.selectPrepRoom(b,d.type,d.name,d.max);
+      var secret=document.getElementById('secretPasswordBox');
+      if(secret)secret.style.display=d.type==='password'?'block':'none';
+    }catch(e){}
   }
 
   function clickBottomTab(el){
