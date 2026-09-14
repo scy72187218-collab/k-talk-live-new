@@ -71,7 +71,7 @@
   function prepare(v){
     if(!v||v.dataset.ktPlaybackFixed==='1')return;
     v.dataset.ktPlaybackFixed='1';
-    try{v.preload='auto';v.loop=true;v.setAttribute('playsinline','');}catch(e){}
+    try{v.preload='metadata';v.loop=true;v.setAttribute('playsinline','');}catch(e){}
 
     v.addEventListener('waiting',function(){
       if(isVisible(v))setTimeout(function(){safePlay(v,unlocked);},350);
