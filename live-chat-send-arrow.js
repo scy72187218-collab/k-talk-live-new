@@ -50,12 +50,20 @@
       btn.setAttribute('aria-label','방송 참여 신청');
       btn.setAttribute('title','방송 참여 신청');
       btn.innerHTML=peopleSvg;
-      btn.onclick=function(){
+    }
+    if(!btn.__ktDirectGuestRequestBound){
+      btn.__ktDirectGuestRequestBound=true;
+      btn.onclick=function(e){
+        if(e)e.preventDefault();
+        if(typeof window.ktRequestGuestJoin==='function'){
+          window.ktRequestGuestJoin();
+          return;
+        }
         var input=document.getElementById('ktRemoteChatInput');
         if(!input||typeof window.ktRemoteSendChat!=='function')return;
         input.value='👥 방송 참여 신청합니다.';
         var r=window.ktRemoteSendChat();
-        try{Promise.resolve(r).finally(function(){if(input.value==='👥 방송 참여 신청합니다.')input.value='';});}catch(e){}
+        try{Promise.resolve(r).finally(function(){if(input.value==='👥 방송 참여 신청합니다.')input.value='';});}catch(err){}
       };
     }
     if(sendBtn&&sendBtn.nextElementSibling!==btn){
@@ -128,7 +136,7 @@
 (function(){
   if(document.querySelector('script[data-kt-guest-request-flow]'))return;
   var s=document.createElement('script');
-  s.src='live-guest-request-flow.js?v=20260914-guest1';
+  s.src='live-guest-request-flow.js?v=20260914-guest2';
   s.async=false;
   s.setAttribute('data-kt-guest-request-flow','1');
   document.head.appendChild(s);
