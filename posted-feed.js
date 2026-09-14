@@ -98,7 +98,7 @@
       +'<div class="vh-tabs"><span>LIVE</span><span>커뮤니티</span><span>팔로잉</span><span class="on">추천</span><button>⌕</button></div>'
       +'<div class="vh-title"><b>♛ '+name+'</b><span>'+title+'</span></div>'
       +'<div class="vh-actions">'
-        +'<button onclick="ktPublicLike(\''+id+'\',this)">🌹<small>좋아요 '+Number(x.likes||0)+'</small></button>'
+        +'<button onclick="ktPublicSendRose(\''+id+'\',\''+name.replace(/'/g,"\\'")+'\',this)">🌹<small>장미 '+Number(x.likes||0)+'송이</small></button>'
         +'<button onclick="ktPublicComments(\''+id+'\')">💬<small>댓글</small></button>'
         +'<button onclick="openGifts()">🎁<small>선물</small></button>'
         +'<button onclick="ktPublicShare(\''+u+'\')">↗<small>공유</small></button>'
@@ -114,7 +114,23 @@
     }
   }
 
-  window.ktPublicLike=async function(id,btn){try{var r=await fetch(SB+'/rest/v1/rpc/ktalk_like_video',{method:'POST',headers:headers({'Content-Type':'application/json'}),body:JSON.stringify({video_id:id})});if(r.ok){var n=await r.json(),s=btn&&btn.querySelector('small');if(s)s.textContent='좋아요 '+Number(n||0);}}catch(e){}};
+  window.ktPublicSendRose=async function(id,recipientName,btn){
+    if(btn&&btn.disabled)return;
+    if(btn)btn.disabled=true;
+    try{
+      var r=await fetch(SB+'/rest/v1/rpc/ktalk_like_video',{method:'POST',headers:headers({'Content-Type':'application/json'}),body:JSON.stringify({video_id:id})});
+      if(!r.ok)throw new Error('rose');
+      var n=await r.json(),s=btn&&btn.querySelector('small');
+      if(s)s.textContent='장미 '+Number(n||0)+'송이';
+      var toast=document.createElement('div');
+      toast.style.cssText='position:fixed;left:50%;bottom:110px;transform:translateX(-50%);z-index:99999;padding:12px 18px;border-radius:999px;background:rgba(24,8,28,.94);border:1px solid #ff5aaf;color:#fff;font-weight:950;box-shadow:0 0 18px rgba(255,54,150,.45);white-space:nowrap';
+      toast.textContent='🌹 '+(recipientName||'동영상 게시자')+'님에게 장미 1송이를 보냈습니다';
+      document.body.appendChild(toast);
+      setTimeout(function(){if(toast&&toast.parentNode)toast.remove();},2200);
+    }catch(e){alert('장미 전송에 실패했습니다. 다시 눌러 주세요.');}
+    finally{if(btn)btn.disabled=false;}
+  };
+  window.ktPublicLike=function(id,btn){return ktPublicSendRose(id,'동영상 게시자',btn);};
 
   window.ktPublicComments=async function(videoId){
     try{
