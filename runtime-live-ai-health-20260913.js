@@ -19,7 +19,7 @@
       if(guard&&window[guard]){if(done)done();return;}
       if(hasScript(src)){waitGuard(guard,done,0);return;}
       var s=document.createElement('script');
-      s.src=src+'?v=20260913-health3';
+      s.src=src+'?v=20260915-requestedonly1';
       s.async=false;
       s.onload=function(){if(done)done();};
       s.onerror=function(){if(done)done();};
@@ -54,4 +54,10 @@
 
   /* 방송 파장만: 사진처럼 무지개 파장을 사람마다 하나씩 자동 표시. */
   load('participant-photo-wave-only-20260915.js','__ktParticipantPhotoWaveOnly20260915');
+
+  /* 사용자가 방금 요청한 두 부분만 복구. 다른 화면/기능은 건드리지 않음. */
+  load('group13-approved-room.js','__ktGroup13ApprovedRoomInstalled');
+  load('feed-swipe-playback-fix.js','__ktFeedSwipePlaybackFixInstalled',function(){
+    load('broadcast-video-resume-fix.js','__ktBroadcastVideoResumeFixInstalled');
+  });
 })();
