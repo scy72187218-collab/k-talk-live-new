@@ -98,6 +98,14 @@
     try{if(window.ktRefreshVideoLivePeek)window.ktRefreshVideoLivePeek();}catch(e){}
   }
 
+  function fastViewerRefresh(){
+    try{
+      if(document.hidden)return;
+      if(document.querySelector('.friends-list')&&typeof window.ktRefreshLiveCards==='function')window.ktRefreshLiveCards();
+      if(document.body&&document.body.classList.contains('kt-video-mode')&&typeof window.ktRefreshVideoLivePeek==='function')window.ktRefreshVideoLivePeek();
+    }catch(e){}
+  }
+
   async function syncExistingRows(id,stamp,r,p){
     var rows=await req('ktalk_live_rooms?select=id,host_id,active,started_at,updated_at&host_id=eq.'+enc(id)+'&active=eq.true&order=started_at.desc&limit=20');
     rows=Array.isArray(rows)?rows:[];
@@ -220,12 +228,17 @@
     setTimeout(function(){publishIfNeeded(false);},650);
   },true);
 
-  var mo=new MutationObserver(function(){setTimeout(function(){publishIfNeeded(false);},180);});
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)fastViewerRefresh();});
+  window.addEventListener('focus',fastViewerRefresh);
+
+  var mo=new MutationObserver(function(){setTimeout(function(){publishIfNeeded(false);fastViewerRefresh();},180);});
   try{mo.observe(document.getElementById('screen')||document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['data-kt-room']});}catch(e){}
   setInterval(function(){wrapStartBroadcast();},1200);
   setInterval(heartbeat,2500);
+  setInterval(fastViewerRefresh,1000);
   setTimeout(function(){publishIfNeeded(false);},700);
   setTimeout(function(){publishIfNeeded(false);},1800);
+  setTimeout(fastViewerRefresh,220);
 
   window.addEventListener('pagehide',function(){
     broadcastStarted=false;
