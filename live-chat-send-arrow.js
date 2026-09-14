@@ -50,3 +50,13 @@
   s.setAttribute('data-kt-remote-video-fallback','1');
   document.head.appendChild(s);
 })();
+
+/* 일부 휴대폰에서 앞카메라 요청이 뒷카메라로 떨어질 때만 보강. */
+(function(){
+  if(document.querySelector('script[data-kt-front-camera-user-fallback]'))return;
+  var s=document.createElement('script');
+  s.src='front-camera-user-fallback-20260914.js?v=20260914-front1';
+  s.async=false;
+  s.setAttribute('data-kt-front-camera-user-fallback','1');
+  document.head.appendChild(s);
+})();
