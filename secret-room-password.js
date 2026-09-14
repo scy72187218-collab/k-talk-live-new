@@ -3,6 +3,7 @@
   if(window.__ktSecretPasswordInstalled)return;
   window.__ktSecretPasswordInstalled=true;
   window.ktSecretChatMessages=window.ktSecretChatMessages||[];
+  var secretSetupRequested=false;
 
   function esc(v){
     return String(v==null?'':v).replace(/[&<>"']/g,function(ch){
@@ -63,6 +64,10 @@
     var card=document.querySelector('.prep-card');
     if(!card)return null;
     var box=document.getElementById('ktSecretPasswordBox');
+    if(!secretSetupRequested){
+      if(box&&box.parentNode)box.parentNode.removeChild(box);
+      return null;
+    }
     if(!box){
       box=document.createElement('div');
       box.id='ktSecretPasswordBox';
@@ -103,6 +108,7 @@
   if(typeof oldSelect==='function'){
     window.selectPrepRoom=function(el,type,name,max){
       var r=oldSelect.apply(this,arguments);
+      secretSetupRequested=(type==='password');
       if(window.state&&type==='password'){
         state.liveRoomType='password';state.liveRoomName='비밀방';state.liveRoomMax=5;
       }
@@ -115,6 +121,7 @@
   if(typeof oldOpenRoomPrep==='function'){
     window.openRoomPrep=function(name,max){
       var r=oldOpenRoomPrep.apply(this,arguments);
+      secretSetupRequested=String(name||'').indexOf('비밀')>-1;
       if(String(name||'').indexOf('비밀')>-1&&window.state){
         state.liveRoomType='password';state.liveRoomName='비밀방';state.liveRoomMax=5;
       }
