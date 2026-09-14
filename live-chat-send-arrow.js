@@ -1,7 +1,10 @@
-/* K-Talk 원격 시청 채팅: 입력창 옆 전송 버튼 1개만 추가. 다른 UI는 변경하지 않음. */
+/* K-Talk 원격 시청 하단: 채팅 전송 종이비행기와 방송 참여 신청 버튼만 보강. 다른 UI는 변경하지 않음. */
 (function(){
   if(window.__ktRemoteChatSendArrowInstalled)return;
   window.__ktRemoteChatSendArrowInstalled=true;
+
+  var planeSvg='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.7 2.3a1 1 0 0 0-1-.24L3.2 8.15a1 1 0 0 0-.08 1.86l7.07 3.12 3.12 7.07a1 1 0 0 0 .91.6h.05a1 1 0 0 0 .91-.69l6.76-16.82a1 1 0 0 0-.24-.99ZM14.25 17.1l-2.13-4.83 5.27-5.27-6.42 4.15-4.07-1.79 11.84-4.12-4.49 11.86Z"/></svg>';
+  var peopleSvg='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm6.5 1a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM2 20c0-4 3.1-7 7-7s7 3 7 7v1H2v-1Zm13.4-6.4c3.5.4 6.1 2.9 6.6 6.4H18c-.1-2.5-1-4.7-2.6-6.4Z"/></svg>';
 
   function ensureStyle(){
     if(document.getElementById('ktRemoteChatSendArrowStyle'))return;
@@ -9,9 +12,54 @@
     s.id='ktRemoteChatSendArrowStyle';
     s.textContent=''
       +'.kt-remote-bottom #ktRemoteChatSend{font-size:0!important;font-weight:950!important;line-height:1!important}'
-      +'.kt-remote-bottom #ktRemoteChatSend svg{width:20px!important;height:20px!important;display:block!important;fill:currentColor!important}'
-      +'@media(max-width:390px){.kt-remote-bottom #ktRemoteChatSend svg{width:18px!important;height:18px!important}}';
+      +'.kt-remote-bottom #ktRemoteChatSend svg{width:23px!important;height:23px!important;display:block!important;fill:currentColor!important}'
+      +'.kt-remote-bottom #ktRemoteGuestRequest{font-size:0!important;color:#77e7ff!important}'
+      +'.kt-remote-bottom #ktRemoteGuestRequest svg{width:24px!important;height:24px!important;display:block!important;fill:currentColor!important}'
+      +'@media(max-width:390px){.kt-remote-bottom #ktRemoteChatSend svg{width:21px!important;height:21px!important}.kt-remote-bottom #ktRemoteGuestRequest svg{width:22px!important;height:22px!important}}';
     document.head.appendChild(s);
+  }
+
+  function ensureSend(bar,input){
+    var btn=document.getElementById('ktRemoteChatSend')||bar.querySelector('.kt-remote-action.send');
+    if(!btn){
+      btn=document.createElement('button');
+      btn.type='button';
+      btn.className='kt-remote-action send';
+      input.insertAdjacentElement('afterend',btn);
+    }
+    btn.id='ktRemoteChatSend';
+    btn.classList.add('kt-remote-action','send');
+    btn.setAttribute('aria-label','채팅 올리기');
+    btn.innerHTML=planeSvg;
+    if(!btn.onclick){
+      btn.onclick=function(){
+        if(typeof window.ktRemoteSendChat==='function')window.ktRemoteSendChat();
+      };
+    }
+    return btn;
+  }
+
+  function ensureGuestRequest(bar,sendBtn){
+    var btn=document.getElementById('ktRemoteGuestRequest');
+    if(!btn){
+      btn=document.createElement('button');
+      btn.id='ktRemoteGuestRequest';
+      btn.type='button';
+      btn.className='kt-remote-action kt-remote-guest-request';
+      btn.setAttribute('aria-label','방송 참여 신청');
+      btn.setAttribute('title','방송 참여 신청');
+      btn.innerHTML=peopleSvg;
+      btn.onclick=function(){
+        var input=document.getElementById('ktRemoteChatInput');
+        if(!input||typeof window.ktRemoteSendChat!=='function')return;
+        input.value='👥 방송 참여 신청합니다.';
+        var r=window.ktRemoteSendChat();
+        try{Promise.resolve(r).finally(function(){if(input.value==='👥 방송 참여 신청합니다.')input.value='';});}catch(e){}
+      };
+    }
+    if(sendBtn&&sendBtn.nextElementSibling!==btn){
+      try{sendBtn.insertAdjacentElement('afterend',btn);}catch(e){}
+    }
   }
 
   function apply(){
@@ -19,20 +67,8 @@
     var bar=document.getElementById('ktRemoteBottom');
     var input=document.getElementById('ktRemoteChatInput');
     if(!bar||!input)return;
-    if(document.getElementById('ktRemoteChatSend'))return;
-    var existing=bar.querySelector('.kt-remote-action.send');
-    if(existing){existing.id='ktRemoteChatSend';return;}
-
-    var btn=document.createElement('button');
-    btn.id='ktRemoteChatSend';
-    btn.type='button';
-    btn.className='kt-remote-action';
-    btn.setAttribute('aria-label','채팅 보내기');
-    btn.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.7 2.3a1 1 0 0 0-1-.24L3.2 8.15a1 1 0 0 0-.08 1.86l7.07 3.12 3.12 7.07a1 1 0 0 0 .91.6h.05a1 1 0 0 0 .91-.69l6.76-16.82a1 1 0 0 0-.24-.99ZM14.25 17.1l-2.13-4.83 5.27-5.27-6.42 4.15-4.07-1.79 11.84-4.12-4.49 11.86Z"/></svg>';
-    btn.addEventListener('click',function(){
-      if(typeof window.ktRemoteSendChat==='function')window.ktRemoteSendChat();
-    });
-    input.insertAdjacentElement('afterend',btn);
+    var sendBtn=ensureSend(bar,input);
+    ensureGuestRequest(bar,sendBtn);
   }
 
   var obs=new MutationObserver(function(){setTimeout(apply,0);});
