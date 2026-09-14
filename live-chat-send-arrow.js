@@ -19,6 +19,8 @@
     var input=document.getElementById('ktRemoteChatInput');
     if(!bar||!input)return;
     if(document.getElementById('ktRemoteChatSend'))return;
+    var existing=bar.querySelector('.kt-remote-action.send');
+    if(existing){existing.id='ktRemoteChatSend';return;}
 
     var btn=document.createElement('button');
     btn.id='ktRemoteChatSend';
