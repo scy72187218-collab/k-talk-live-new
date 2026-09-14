@@ -397,3 +397,49 @@
   ensureFollowStyle();
   document.addEventListener('click',onPhoto,true);
 })();
+
+/* 프로필 카드 안에 사용 방법·보상·혜택 안내만 추가. 다른 화면/버튼은 변경하지 않음. */
+(function(){
+  if(window.__ktLiveProfileGuide20260915)return;
+  window.__ktLiveProfileGuide20260915=true;
+
+  function ensureGuideStyle(){
+    if(document.getElementById('ktLiveProfileGuideStyle20260915'))return;
+    var s=document.createElement('style');
+    s.id='ktLiveProfileGuideStyle20260915';
+    s.textContent=''
+      +'.kt-live-profile-guide{max-width:390px!important;margin:20px auto 0!important;padding:16px!important;border:1px solid #e7e7eb!important;border-radius:16px!important;background:#fafafa!important;text-align:left!important;color:#222!important;box-sizing:border-box!important}'
+      +'.kt-live-profile-guide-title{display:flex!important;align-items:center!important;gap:7px!important;margin-bottom:11px!important;font-size:16px!important;font-weight:950!important;color:#111!important}'
+      +'.kt-live-profile-guide-item{padding:10px 0!important;border-top:1px solid #e9e9ec!important}.kt-live-profile-guide-item:first-of-type{border-top:0!important;padding-top:0!important}'
+      +'.kt-live-profile-guide-item b{display:block!important;margin-bottom:5px!important;font-size:13px!important;font-weight:950!important;color:#111!important}'
+      +'.kt-live-profile-guide-item span{display:block!important;font-size:12px!important;line-height:1.58!important;color:#555!important;font-weight:700!important}'
+      +'.kt-live-profile-guide-reward{margin-top:4px!important;padding:9px 11px!important;border-radius:11px!important;background:#fff4f7!important;border:1px solid #ffd2dc!important;color:#b51d42!important;font-size:12px!important;font-weight:900!important;line-height:1.5!important}'
+      +'@media(max-width:390px){.kt-live-profile-guide{padding:14px!important}.kt-live-profile-guide-title{font-size:15px!important}.kt-live-profile-guide-item span,.kt-live-profile-guide-reward{font-size:11px!important}}';
+    document.head.appendChild(s);
+  }
+
+  function installGuide(){
+    ensureGuideStyle();
+    var card=document.getElementById('ktLiveProfileCard');
+    if(!card)return;
+    var body=card.querySelector('.kt-live-profile-body');
+    if(!body||body.querySelector('.kt-live-profile-guide'))return;
+    var box=document.createElement('section');
+    box.className='kt-live-profile-guide';
+    box.innerHTML=''
+      +'<div class="kt-live-profile-guide-title">📘 사용 방법 · 보상 · 혜택</div>'
+      +'<div class="kt-live-profile-guide-item"><b>사용 방법</b><span>① 방송 중 사람의 프로필 사진을 누릅니다.<br>② 프로필에서 <strong>팔로우</strong>를 누릅니다.<br>③ 팔로잉·팔로워·좋아요와 소개글을 확인할 수 있습니다.</span></div>'
+      +'<div class="kt-live-profile-guide-item"><b>🎁 첫 팔로우 보상</b><span>처음 팔로우가 새로 성립하면 회사가 <strong>팔로우 받은 사람</strong>에게 🌹 장미 1송이를 자동 지급합니다.</span><div class="kt-live-profile-guide-reward">지급 주체: 회사 · 받는 사람: 팔로우 받은 사람 · 수량: 장미 1송이 · 횟수: 최초 1회</div></div>'
+      +'<div class="kt-live-profile-guide-item"><b>✅ 혜택 기준</b><span>팔로우하면 상대의 팔로워 수와 내 팔로잉 수에 바로 반영됩니다. 같은 두 사람 사이의 장미 보상은 최초 1회만 적용되며, 언팔 후 다시 팔로우해도 중복 지급되지 않습니다.</span></div>'
+      +'<div class="kt-live-profile-guide-item"><b>👤 내 프로필</b><span>내 프로필에서는 팔로우 버튼이 작동하지 않으며 팔로우 보상도 지급되지 않습니다.</span></div>';
+    var bio=body.querySelector('.kt-live-profile-bio');
+    if(bio)body.insertBefore(box,bio);else body.appendChild(box);
+  }
+
+  ensureGuideStyle();
+  installGuide();
+  try{
+    var mo=new MutationObserver(function(){setTimeout(installGuide,0);});
+    mo.observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+})();
