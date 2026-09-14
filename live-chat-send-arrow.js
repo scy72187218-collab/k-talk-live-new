@@ -161,3 +161,23 @@
   s.setAttribute('data-kt-host-chat-float-allrooms','1');
   document.head.appendChild(s);
 })();
+
+/* 동영상 화면에서 LIVE 방송 알림이 다시 보이도록 상태만 복구. 다른 화면은 변경하지 않음. */
+(function(){
+  if(window.__ktVideoLivePeekRecoveryInstalled)return;
+  window.__ktVideoLivePeekRecoveryInstalled=true;
+  function recover(){
+    try{
+      var inVideo=document.body&&document.body.classList.contains('kt-video-mode');
+      var remote=document.querySelector('.kt-remote-live');
+      if(inVideo&&!remote&&document.documentElement.classList.contains('kt-remote-viewing')){
+        document.documentElement.classList.remove('kt-remote-viewing');
+      }
+      if(inVideo&&!remote&&typeof window.ktRefreshVideoLivePeek==='function')window.ktRefreshVideoLivePeek();
+    }catch(e){}
+  }
+  var mo=new MutationObserver(function(){setTimeout(recover,80);});
+  mo.observe(document.documentElement,{childList:true,subtree:true});
+  setInterval(recover,3000);
+  setTimeout(recover,500);
+})();
