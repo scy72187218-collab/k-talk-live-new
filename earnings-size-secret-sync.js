@@ -49,3 +49,25 @@
 
   document.head.appendChild(s);
 })();
+
+/* 비밀방만 강제 5칸: 왼쪽 큰 호스트 1칸 + 오른쪽 게스트 4칸(2x2). 다른 방/선물/버튼은 변경하지 않음. */
+(function(){
+  if(window.__ktSecretFivePanelForceLoaded20260915)return;
+  window.__ktSecretFivePanelForceLoaded20260915=true;
+  var old=document.getElementById('ktSecretFivePanelForceLoadedStyle20260915');
+  if(old)old.remove();
+  var s=document.createElement('style');
+  s.id='ktSecretFivePanelForceLoadedStyle20260915';
+  s.textContent=''
+    +'#screen .ktsecret-room .ktsecret-six-grid{'
+      +'grid-template-columns:48% 26% 26%!important;'
+      +'grid-template-rows:repeat(2,minmax(0,1fr))!important;'
+      +'gap:3px!important;padding:3px!important;'
+    +'}'
+    +'#screen .ktsecret-room .ktsecret-six-grid>.ktsecret-slot.host{grid-column:1!important;grid-row:1 / 3!important}'
+    +'#screen .ktsecret-room .ktsecret-six-grid>.ktsecret-slot:nth-child(2){grid-column:2!important;grid-row:1!important}'
+    +'#screen .ktsecret-room .ktsecret-six-grid>.ktsecret-slot:nth-child(3){grid-column:3!important;grid-row:1!important}'
+    +'#screen .ktsecret-room .ktsecret-six-grid>.ktsecret-slot:nth-child(4){grid-column:2!important;grid-row:2!important}'
+    +'#screen .ktsecret-room .ktsecret-six-grid>.ktsecret-slot:nth-child(5){grid-column:3!important;grid-row:2!important}';
+  document.head.appendChild(s);
+})();
