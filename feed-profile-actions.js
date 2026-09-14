@@ -42,6 +42,20 @@
       :'<span class="kt-feed-profile-circle kt-feed-profile-empty">👤</span><small>프로필</small>';
   }
 
+  function replaceHeartWithRose(box){
+    try{
+      var buttons=[].slice.call(box.querySelectorAll(':scope > button:not(.kt-feed-profile-button)'));
+      var like=buttons[0];
+      if(!like)return;
+      for(var n=like.firstChild;n;n=n.nextSibling){
+        if(n.nodeType===3&&String(n.nodeValue||'').indexOf('♡')>-1){
+          n.nodeValue=String(n.nodeValue||'').replace('♡','🌹');
+          break;
+        }
+      }
+    }catch(e){}
+  }
+
   function decorate(box){
     if(!box)return;
     var b=box.querySelector('.kt-feed-profile-button');
@@ -64,6 +78,7 @@
       b.setAttribute('data-photo-src',src);
       b.innerHTML=profileHtml(src);
     }
+    replaceHeartWithRose(box);
   }
 
   function run(){
