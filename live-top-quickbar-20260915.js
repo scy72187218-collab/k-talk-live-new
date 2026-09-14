@@ -101,7 +101,6 @@
       anchor.parentNode.insertBefore(bar,anchor);
       return;
     }
-    /* 랭킹/미션 줄이 늦게 생성되어도 비밀방은 항상 퀵버튼이 그 위에 오도록 재정렬 */
     if(bar.nextElementSibling!==anchor){
       anchor.parentNode.insertBefore(bar,anchor);
     }
@@ -187,4 +186,21 @@
     });
     mo.observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
+})();
+
+/* 비밀방만: 아까 승인한 5칸 배치(큰 호스트 1 + 오른쪽 게스트 4)로 복구. 선물/다른 방/기능은 건드리지 않음. */
+(function(){
+  if(window.__ktSecretFivePanelRestore20260915)return;
+  window.__ktSecretFivePanelRestore20260915=true;
+  var st=document.createElement('style');
+  st.id='ktSecretFivePanelRestoreStyle20260915';
+  st.textContent=''
+    +'#screen .ktsecret-room .ktsecret-six-grid{grid-template-columns:40% 30% 30%!important;grid-template-rows:repeat(2,minmax(0,1fr))!important;gap:3px!important;padding:3px!important}'
+    +'#screen .ktsecret-room .ktsecret-six-grid>.ktsecret-slot.host{grid-column:1!important;grid-row:1 / 3!important}'
+    +'#screen .ktsecret-room .ktsecret-six-grid>.ktsecret-slot:nth-child(2){grid-column:2!important;grid-row:1!important}'
+    +'#screen .ktsecret-room .ktsecret-six-grid>.ktsecret-slot:nth-child(3){grid-column:3!important;grid-row:1!important}'
+    +'#screen .ktsecret-room .ktsecret-six-grid>.ktsecret-slot:nth-child(4){grid-column:2!important;grid-row:2!important}'
+    +'#screen .ktsecret-room .ktsecret-six-grid>.ktsecret-slot:nth-child(5){grid-column:3!important;grid-row:2!important}'
+    +'#screen .ktsecret-room .ktsecret-main{min-height:0!important;flex:1 1 0!important}';
+  document.head.appendChild(st);
 })();
