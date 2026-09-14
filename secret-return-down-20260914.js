@@ -66,3 +66,24 @@
   new MutationObserver(function(){forceFive();}).observe(document.documentElement,{childList:true,subtree:true});
   setTimeout(forceFive,100);
 })();
+
+/* 2026-09-14 16:00 비밀방 호스트 프로필 위치만 복원. 다른 방에는 적용하지 않음. */
+(function(){
+  if(window.__ktSecretHostProfile1600Restore)return;
+  window.__ktSecretHostProfile1600Restore=true;
+  function fix(){
+    var left=(window.matchMedia&&window.matchMedia('(max-width:390px)').matches)?'4px':'5px';
+    document.querySelectorAll('.ktsecret-room .ktsecret-slot.host>.kt-allhost-profile,.ktsecret-room .ktsecret-host>.kt-allhost-profile').forEach(function(el){
+      el.style.setProperty('left',left,'important');
+      el.style.setProperty('right','auto','important');
+      el.style.setProperty('top',left,'important');
+      el.style.setProperty('transform','none','important');
+    });
+  }
+  fix();
+  [40,120,300,700,1400].forEach(function(ms){setTimeout(fix,ms);});
+  try{
+    var mo=new MutationObserver(function(){clearTimeout(window.__ktSecretHostProfile1600Timer);window.__ktSecretHostProfile1600Timer=setTimeout(fix,25);});
+    mo.observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+})();
