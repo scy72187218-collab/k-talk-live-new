@@ -1,4 +1,4 @@
-/* K-Talk 수익표 보정: 13명방과 구독자방을 같은 크기/펼침 상태로 맞춤. 다른 UI는 변경하지 않음. */
+/* K-Talk 수익표 보정: 기존 방은 그대로 두고 13명방에서만 수익표를 조금 줄이고 게스트 영역을 넓힘. */
 (function(){
   if(window.__ktSecretEarningsSizeSyncV2Installed)return;
   window.__ktSecretEarningsSizeSyncV2Installed=true;
@@ -26,7 +26,21 @@
     +'.ktg13-room #myEarnDetail>*,.ktsubscriber-room #ktSubscriberEarnDetail>*{white-space:nowrap!important;overflow:hidden!important;text-overflow:clip!important}'
     +'.ktsecret-room .ktsecret-six-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-rows:repeat(3,minmax(0,1fr))!important}'
     +'.ktsecret-room .ktsecret-six-grid>.ktsecret-slot.host{height:100%!important;width:auto!important;aspect-ratio:1/1!important;justify-self:start!important;align-self:stretch!important;max-width:100%!important}'
-    +'@media(max-width:390px){.ktg13-room .ktg13-mid{grid-template-columns:minmax(0,1fr) 100px!important}.ktsubscriber-room .ktsubscriber-info{grid-template-columns:minmax(0,1fr) 100px!important}.ktg13-room .ktg13-earn{width:100px!important;max-width:100px!important}.ktg13-room .ktg13-earn #myEarnHud,.ktsubscriber-room #ktSubscriberEarnHud,.ktsubscriber-room .ktsubscriber-earnhud{width:100px!important;max-width:100px!important;min-width:100px!important;height:64px!important;max-height:64px!important;padding:2px 2px!important}}';
+    +'@media(max-width:390px){.ktg13-room .ktg13-mid{grid-template-columns:minmax(0,1fr) 100px!important}.ktsubscriber-room .ktsubscriber-info{grid-template-columns:minmax(0,1fr) 100px!important}.ktg13-room .ktg13-earn{width:100px!important;max-width:100px!important}.ktg13-room .ktg13-earn #myEarnHud,.ktsubscriber-room #ktSubscriberEarnHud,.ktsubscriber-room .ktsubscriber-earnhud{width:100px!important;max-width:100px!important;min-width:100px!important;height:64px!important;max-height:64px!important;padding:2px 2px!important}}'
+
+    /* 13명방만: 수익표를 줄이고 그만큼 게스트 화면을 넓힘 */
+    +'.ktg13-room .ktg13-main{grid-template-columns:38% 62%!important}'
+    +'.ktg13-room .ktg13-guests{gap:1px!important}'
+    +'.ktg13-room .ktg13-guest{position:relative!important;overflow:hidden!important}'
+    +'.ktg13-room .ktg13-guest>video,.ktg13-room .ktg13-guest>img:not(.kt-guest-profile-photo){width:100%!important;height:100%!important;object-fit:cover!important}'
+    +'.ktg13-room .ktg13-mid{flex:0 0 58px!important;grid-template-columns:minmax(0,1fr) 84px!important;gap:5px!important}'
+    +'.ktg13-room .ktg13-chat{height:58px!important;max-height:58px!important}'
+    +'.ktg13-room .ktg13-earn{width:84px!important;max-width:84px!important;height:50px!important;min-height:50px!important}'
+    +'.ktg13-room .ktg13-earn #myEarnHud{width:84px!important;max-width:84px!important;min-width:84px!important;height:50px!important;max-height:50px!important;padding:1px 2px!important}'
+    +'.ktg13-room #myEarnHud span{font-size:5.5px!important;line-height:1!important}'
+    +'.ktg13-room #myEarnHud b{font-size:8px!important;line-height:1!important}'
+    +'.ktg13-room #myEarnDetail{font-size:5.2px!important;line-height:1!important;gap:0 1px!important;margin-top:1px!important}'
+    +'@media(max-width:390px){.ktg13-room .ktg13-main{grid-template-columns:37% 63%!important}.ktg13-room .ktg13-mid{grid-template-columns:minmax(0,1fr) 80px!important}.ktg13-room .ktg13-earn{width:80px!important;max-width:80px!important}.ktg13-room .ktg13-earn #myEarnHud{width:80px!important;max-width:80px!important;min-width:80px!important}}';
   document.head.appendChild(s);
 
   function expandBoth(){
