@@ -1,4 +1,4 @@
-/* K-Talk 사운드 목록 전용: 외부 유명곡/벅스 이동 없이 자유 이용 보컬곡 20곡만 표시·재생. 다른 기능은 변경하지 않음. */
+/* K-Talk 사운드 목록 전용: 자유 이용 보컬곡 20곡 + 허가된 옛날 가요 메뉴. 다른 기능은 변경하지 않음. */
 (function(){
   if(window.__ktFreeVocal20Installed20260915)return;
   window.__ktFreeVocal20Installed20260915=true;
@@ -7,11 +7,11 @@
     {name:'Like a Child',source:'Toni Willé · 사람 보컬 · CC BY-SA 3.0',time:'3:10',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Like_a_Child_Radio_Version_Toni_Wille.ogg'},
     {name:'Wikipedia Pop Anthem',source:'Paul Dreifus · 사람 보컬 · CC BY-SA 3.0',time:'3:37',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Wikipedia_Pop_Anthem.ogg'},
     {name:'Binbataye',source:'Gadadharadas · 사람 보컬 · CC BY-SA 3.0',time:'2:36',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Binbataye_Hindi_pop.oga'},
-    {name:'오빠는 풍각쟁이',source:'박향림 · 한국 가요 · 퍼블릭도메인',time:'2:52',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Park_Hyang-rim_-_Oppaneun_punggakjaeng-i.ogg'},
-    {name:'청춘계급',source:'김해송 · 사람 보컬 · 퍼블릭도메인',time:'3:08',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Kim_Hae-Song,_Cheong-chun-gye-geup.ogg'},
-    {name:'전화일기',source:'박향림·김해송 · 사람 보컬 · 퍼블릭도메인',time:'3:06',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Bak_Hyang_Rim_Kim_Hae_Song_jeonhwa_ilgi.ogg'},
-    {name:'사의 찬미',source:'윤심덕 · 사람 보컬 · 퍼블릭도메인',time:'',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Yun_Sim-Deok_-_In_Praise_of_Death.ogg'},
-    {name:'진국명산',source:'송만갑 · 사람 보컬 · 퍼블릭도메인',time:'3:28',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Song_Mangab_-_Jingukmyeongsan.ogg'},
+    {name:'오빠는 풍각쟁이',source:'박향림 · 한국 옛날 가요 · 퍼블릭도메인',time:'2:52',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Park_Hyang-rim_-_Oppaneun_punggakjaeng-i.ogg',oldKorean:true},
+    {name:'청춘계급',source:'김해송 · 한국 옛날 가요 · 퍼블릭도메인',time:'3:08',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Kim_Hae-Song,_Cheong-chun-gye-geup.ogg',oldKorean:true},
+    {name:'전화일기',source:'박향림·김해송 · 한국 옛날 가요 · 퍼블릭도메인',time:'3:06',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Bak_Hyang_Rim_Kim_Hae_Song_jeonhwa_ilgi.ogg',oldKorean:true},
+    {name:'사의 찬미',source:'윤심덕 · 한국 옛날 가요 · 퍼블릭도메인',time:'',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Yun_Sim-Deok_-_In_Praise_of_Death.ogg',oldKorean:true},
+    {name:'진국명산',source:'송만갑 · 한국 옛날 노래 · 퍼블릭도메인',time:'3:28',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Song_Mangab_-_Jingukmyeongsan.ogg',oldKorean:true},
     {name:'Frankie and Johnny',source:'전통 포크 · 사람 보컬 · 퍼블릭도메인',time:'3:20',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/FrankieandJohnny_Live.ogg'},
     {name:'Jesse James',source:'Bentley Ball · 사람 보컬 · 퍼블릭도메인',time:'3:00',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Jesse_James_(Bentley_Ball).ogg'},
     {name:'Au Clair de la Lune',source:'고전 성악 · 사람 보컬 · 퍼블릭도메인',time:'2:46',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Au_Clair_de_la_Lune_1913.ogg'},
@@ -26,9 +26,13 @@
     {name:'Wěseeraw olecho',source:'Gershon Sirota · 사람 보컬 · 퍼블릭도메인',time:'2:58',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/W%C4%9Bseeraw_olecho_(1902).ogg'}
   ];
 
-  function updateNote(){
+  function currentTracks(){
+    return Array.isArray(window.ktCreatorTracks)&&window.ktCreatorTracks.length?window.ktCreatorTracks:tracks;
+  }
+
+  function setNote(text){
     var note=document.querySelector('.kt-sound-panel .note');
-    if(note)note.textContent='사람이 직접 부른 자유 이용 보컬곡 20곡만 들어 있습니다. 곡을 누르면 촬영 화면에서도 바로 소리가 납니다.';
+    if(note)note.textContent=text||'사람이 직접 부른 자유 이용 보컬곡 20곡만 들어 있습니다. 곡을 누르면 촬영 화면에서도 바로 소리가 납니다.';
   }
 
   function stopCreatorMusic(){
@@ -43,8 +47,7 @@
   }
   window.ktStopCreatorMusic=stopCreatorMusic;
 
-  function playCreatorMusic(index){
-    var t=tracks[index];
+  function playCreatorTrack(t){
     if(!t||!t.url)return;
     stopCreatorMusic();
     var audio=new Audio(t.url);
@@ -61,6 +64,38 @@
     }
   }
 
+  function renderCurrent(){
+    try{
+      var list=document.getElementById('ktSoundList');
+      if(list&&typeof window.renderCreatorSoundList==='function'){
+        var input=document.getElementById('ktSoundSearchInput');
+        window.renderCreatorSoundList(input?String(input.value||''):'');
+      }
+    }catch(e){}
+  }
+
+  window.ktShowOldKoreanSongs=function(btn){
+    window.ktCreatorTracks=tracks.filter(function(t){return !!t.oldKorean;});
+    var tabs=document.querySelectorAll('.kt-sound-tabs button');
+    tabs.forEach(function(b){b.classList.remove('on');});
+    if(btn)btn.classList.add('on');
+    var input=document.getElementById('ktSoundSearchInput');
+    if(input)input.value='';
+    renderCurrent();
+    setNote('옛날 가요는 사용 가능한 퍼블릭도메인·자유 이용 음원만 표시합니다. 김광석·바다새·골목길 등 권리 확인이 필요한 유명곡 원음은 넣지 않습니다.');
+  };
+
+  function installOldSongTab(){
+    var tabs=document.querySelector('.kt-sound-tabs');
+    if(!tabs||tabs.querySelector('.kt-old-song-tab'))return;
+    var b=document.createElement('button');
+    b.type='button';
+    b.className='kt-old-song-tab';
+    b.textContent='옛날 가요';
+    b.onclick=function(){window.ktShowOldKoreanSongs(b);};
+    tabs.appendChild(b);
+  }
+
   function apply(){
     window.ktCreatorTracks=tracks.slice(0,20);
     window.ktSearchFreeMusicOnline=function(){ return Promise.resolve(); };
@@ -70,7 +105,7 @@
     };
     window.selectCreatorSoundByIndex=function(index,ev){
       if(ev){try{ev.stopPropagation();ev.preventDefault();}catch(e){}}
-      var t=tracks[index];
+      var t=currentTracks()[index];
       if(!t)return;
       try{
         if(window.state)window.state.creatorSound=t.name;
@@ -78,17 +113,12 @@
       }catch(e){}
       var btn=document.getElementById('creatorSoundBtn');
       if(btn)btn.textContent='♪ '+t.name;
-      playCreatorMusic(index);
+      playCreatorTrack(t);
       if(typeof window.closeSheet==='function')window.closeSheet();
     };
-    try{
-      var list=document.getElementById('ktSoundList');
-      if(list&&typeof window.renderCreatorSoundList==='function'){
-        var input=document.getElementById('ktSoundSearchInput');
-        window.renderCreatorSoundList(input?String(input.value||''):'');
-      }
-      updateNote();
-    }catch(e){}
+    renderCurrent();
+    installOldSongTab();
+    setNote();
   }
 
   apply();
@@ -99,9 +129,12 @@
   var oldOpen=window.openSoundPanel;
   if(typeof oldOpen==='function'){
     window.openSoundPanel=function(){
-      apply();
+      window.ktCreatorTracks=tracks.slice(0,20);
       oldOpen.apply(this,arguments);
-      setTimeout(apply,0);
+      setTimeout(function(){
+        installOldSongTab();
+        setNote();
+      },0);
     };
   }
 
