@@ -49,3 +49,23 @@
 
   document.head.appendChild(s);
 })();
+
+/* 비밀방만: 되돌리기·좋아요·선물상자·효과·매치를 위로 올리기 전 상태로 복귀. 선물줄/다른 방은 그대로 둠. */
+(function(){
+  if(window.__ktSecretBeforeTopControls20260915)return;
+  window.__ktSecretBeforeTopControls20260915=true;
+  var old=document.getElementById('ktSecretBeforeTopControlsStyle20260915');
+  if(old)old.remove();
+  var s=document.createElement('style');
+  s.id='ktSecretBeforeTopControlsStyle20260915';
+  s.textContent=''
+    +'html body #screen .ktsecret-room>.kt-live-top-quickbar{display:none!important;flex:0 0 0!important;min-height:0!important;height:0!important;margin:0!important;padding:0!important;overflow:hidden!important}'
+    +'html body #screen .ktsecret-room .ktsecret-right{display:grid!important}'
+    +'html body #screen .ktsecret-room>.ktsecret-led{flex:0 0 58px!important;min-height:58px!important;height:58px!important;border-radius:22px!important}'
+    +'html body #screen .ktsecret-room .ktsecret-led-track{font-size:24px!important;font-weight:950!important}'
+    +'@media(max-width:390px){'
+      +'html body #screen .ktsecret-room>.ktsecret-led{flex-basis:50px!important;min-height:50px!important;height:50px!important}'
+      +'html body #screen .ktsecret-room .ktsecret-led-track{font-size:20px!important}'
+    +'}';
+  document.head.appendChild(s);
+})();
