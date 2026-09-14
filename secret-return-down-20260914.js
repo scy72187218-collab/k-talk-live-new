@@ -23,6 +23,9 @@
     +'.ktsecret-room .ktsecret-return{transform:none!important;}'
     +'.ktsecret-room .ktsecret-earn-row #myEarnHud{transform:translateX(-52px)!important;}'
     +'.prep-card #ktSecretPasswordBox.on{position:fixed!important;left:18px!important;right:18px!important;bottom:86px!important;z-index:10000!important;display:block!important;margin:0!important;width:auto!important;}'
+    +'.ktsecret-room .ktsecret-six-grid{grid-template-columns:48% repeat(2,minmax(0,1fr))!important;grid-template-rows:repeat(2,minmax(0,1fr))!important;gap:4px!important;padding:4px!important;}'
+    +'.ktsecret-room .ktsecret-six-grid>.ktsecret-slot.host{grid-column:1!important;grid-row:1 / span 2!important;border-radius:10px!important;}'
+    +'.ktsecret-room .ktsecret-six-grid>.ktsecret-slot:not(.host){grid-column:auto!important;grid-row:auto!important;border-radius:8px!important;}'
     +'.ktsecret-room .ktsecret-six-grid>.ktsecret-slot:nth-child(6){display:none!important;}';
   document.head.appendChild(s);
 
