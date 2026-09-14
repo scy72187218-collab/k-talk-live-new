@@ -1,0 +1,86 @@
+name: Install separate video like and rose behavior once
+
+on:
+  push:
+    paths:
+      - '.github/workflows/install-video-like-rose-separate.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Patch only video like and rose behavior
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          p = Path('posted-feed.js')
+          s = p.read_text(encoding='utf-8')
+
+          old = "created_at,likes&order=created_at.desc"
+          new = "created_at,likes,roses&order=created_at.desc"
+          if old not in s:
+              raise SystemExit('feed select target not found')
+          s = s.replace(old, new, 1)
+
+          old = "        +'<button onclick=\"ktPublicSendRose(\\''+id+'\\',\\''+name.replace(/'/g,\"\\\\'\")+'\\',this)\">🌹<small>장미 '+Number(x.likes||0)+'송이</small></button>'"
+          new = "        +'<button onclick=\"ktPublicLike(\\''+id+'\\',this)\">❤️<small>좋아요 '+Number(x.likes||0)+'</small></button>'\n        +'<button onclick=\"ktPublicSendRose(\\''+id+'\\',\\''+name.replace(/'/g,\"\\\\'\")+'\\',this)\">🌹<small>장미 '+Number(x.roses||0)+'송이</small></button>'"
+          if old not in s:
+              raise SystemExit('video action target not found')
+          s = s.replace(old, new, 1)
+
+          old = "/rest/v1/rpc/ktalk_like_video"
+          new = "/rest/v1/rpc/ktalk_send_video_rose"
+          if old not in s:
+              raise SystemExit('rose rpc target not found')
+          s = s.replace(old, new, 1)
+
+          old = "  window.ktPublicLike=function(id,btn){return ktPublicSendRose(id,'동영상 게시자',btn);};"
+          new = """  window.ktPublicLike=async function(id,btn){
+    if(btn&&btn.disabled)return;
+    if(btn)btn.disabled=true;
+    try{
+      var r=await fetch(SB+'/rest/v1/rpc/ktalk_like_video',{method:'POST',headers:headers({'Content-Type':'application/json'}),body:JSON.stringify({video_id:id})});
+      if(!r.ok)throw new Error('like');
+      var n=await r.json(),s=btn&&btn.querySelector('small');
+      if(s)s.textContent='좋아요 '+Number(n||0);
+    }catch(e){alert('좋아요 처리에 실패했습니다. 다시 눌러 주세요.');}
+    finally{if(btn)btn.disabled=false;}
+  };"""
+          if old not in s:
+              raise SystemExit('like alias target not found')
+          s = s.replace(old, new, 1)
+
+          old = "try{a=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');}catch(e){}"
+          new = "try{a=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');if(a.length&&!Object.prototype.hasOwnProperty.call(a[0],'roses'))a=[];}catch(e){}"
+          if old not in s:
+              raise SystemExit('feed cache target not found')
+          s = s.replace(old, new, 1)
+
+          p.write_text(s, encoding='utf-8')
+
+          i = Path('index.html')
+          h = i.read_text(encoding='utf-8')
+          old = 'posted-feed.js?v=20260914-video-rose1'
+          new = 'posted-feed.js?v=20260914-video-like-rose2'
+          if old not in h:
+              raise SystemExit('index cache target not found')
+          i.write_text(h.replace(old, new, 1), encoding='utf-8')
+
+          Path('.github/workflows/install-video-like-rose-separate.yml').unlink()
+          PY
+
+      - name: Commit exact video feed patch only
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add posted-feed.js index.html .github/workflows/install-video-like-rose-separate.yml
+          git commit -m "Separate video likes from rose gifts"
+          git push
