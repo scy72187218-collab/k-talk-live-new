@@ -1,4 +1,4 @@
-/* K-Talk 파장 자동 생성만 수정: 1인방과 9명/13명/구독자/비밀방의 호스트 칸에만 파장을 표시하고, 모든 게스트 칸에서는 파장을 제거. 다른 UI/기능은 변경하지 않음. */
+/* K-Talk 파장 자동 생성: 9명/13명/구독자방의 현재 호스트 전용 파장은 유지하고, 비밀방만 2026-09-14 16:00처럼 카메라가 열린 사람 칸마다 파장을 표시. */
 (function(){
   if(window.__ktAutoParticipantWaveV10)return;
   window.__ktAutoParticipantWaveV10=true;
@@ -15,7 +15,6 @@
         100%{transform:scaleY(var(--kt-bar-end,.42))}
       }
 
-      /* 기존 비밀방 게스트6 빈칸 배치는 그대로 유지 */
       html body #screen .ktsecret-room .ktsecret-extra-pair{
         display:grid!important;
         grid-template-columns:minmax(0,1fr)!important;
@@ -32,7 +31,7 @@
         min-height:0!important;
       }
 
-      /* 기존 아래쪽 공용 파장만 숨김. 호스트 칸 파장만 사용 */
+      /* 기존 아래쪽 공용 파장만 숨김. 사람 칸 파장만 사용 */
       html body #screen .ktsubscriber-room .ktsubscriber-wave,
       html body #screen .ktsecret-room .ktsecret-wave,
       html body #screen .ktsecret-room .kt-secret-wave,
@@ -46,25 +45,25 @@
       }
       html body #screen .ktg13-main::after{content:none!important;display:none!important}
 
-      /* 게스트 칸 파장은 9명/13명/구독자/비밀방 모두 표시하지 않음 */
+      /* 9명/13명/구독자방 게스트 파장은 현재 상태 그대로 숨김 */
       html body #screen .ktg13-guest>.kt-open-camera-wave,
-      html body #screen .ktsubscriber-guest>.kt-open-camera-wave,
-      html body #screen .ktsecret-slot:not(.host)>.kt-open-camera-wave,
-      html body #screen .ktsecret-guest-slot>.kt-open-camera-wave{
+      html body #screen .ktsubscriber-guest>.kt-open-camera-wave{
         display:none!important;
         animation:none!important;
       }
 
-      /* 파장은 호스트 카메라 칸 안쪽 아래에만 표시 */
+      /* 비밀방은 16:00 상태처럼 호스트/게스트 각각 파장 사용 */
       html body #screen .ktsolo-main,
       html body #screen .ktg13-host,
       html body #screen .ktsubscriber-host,
-      html body #screen .ktsecret-slot.host{position:relative!important;overflow:hidden!important}
+      html body #screen .ktsecret-slot,
+      html body #screen .ktsecret-guest-slot{position:relative!important;overflow:hidden!important}
 
       html body #screen .ktsolo-main>.kt-open-camera-wave,
       html body #screen .ktg13-host>.kt-open-camera-wave,
       html body #screen .ktsubscriber-host>.kt-open-camera-wave,
-      html body #screen .ktsecret-slot.host>.kt-open-camera-wave{
+      html body #screen .ktsecret-slot>.kt-open-camera-wave,
+      html body #screen .ktsecret-guest-slot>.kt-open-camera-wave{
         position:absolute!important;
         left:2px!important;
         right:2px!important;
@@ -85,7 +84,8 @@
       html body #screen .ktsolo-main>.kt-open-camera-wave{bottom:36px!important;height:62px!important}
       html body #screen .ktg13-host>.kt-open-camera-wave,
       html body #screen .ktsubscriber-host>.kt-open-camera-wave,
-      html body #screen .ktsecret-slot.host>.kt-open-camera-wave{bottom:0!important;height:44px!important}
+      html body #screen .ktsecret-slot>.kt-open-camera-wave,
+      html body #screen .ktsecret-guest-slot>.kt-open-camera-wave{bottom:0!important;height:44px!important}
 
       html body #screen .kt-open-camera-wave:before{content:none!important;display:none!important}
       html body #screen .kt-open-camera-wave i{
@@ -106,7 +106,8 @@
         html body #screen .ktsolo-main>.kt-open-camera-wave{bottom:30px!important;height:58px!important}
         html body #screen .ktg13-host>.kt-open-camera-wave,
         html body #screen .ktsubscriber-host>.kt-open-camera-wave,
-        html body #screen .ktsecret-slot.host>.kt-open-camera-wave{height:40px!important}
+        html body #screen .ktsecret-slot>.kt-open-camera-wave,
+        html body #screen .ktsecret-guest-slot>.kt-open-camera-wave{height:40px!important}
       }
     `;
     document.head.appendChild(s);
@@ -252,7 +253,7 @@
   }
 
   function removeGuestWaves(){
-    document.querySelectorAll('.ktg13-room .ktg13-guest,.ktsubscriber-room .ktsubscriber-guest,.ktsecret-room .ktsecret-slot:not(.host),.ktsecret-room .ktsecret-guest-slot').forEach(function(tile){
+    document.querySelectorAll('.ktg13-room .ktg13-guest,.ktsubscriber-room .ktsubscriber-guest').forEach(function(tile){
       setOneWave(tile,false,0);
     });
   }
@@ -262,24 +263,21 @@
     ensureSecretSeventhSlot();
     var idx=0;
 
-    /* 1인방: 호스트 카메라가 열려 있을 때만 파장 */
     document.querySelectorAll('.ktsolo-room .ktsolo-main').forEach(function(tile){
       setOneWave(tile,tileCameraOpen(tile,true),idx++);
     });
 
-    /* 9명방·13명방: 호스트만 파장, 게스트 파장은 모두 제거 */
     document.querySelectorAll('.ktg13-room .ktg13-host').forEach(function(tile){
       setOneWave(tile,tileCameraOpen(tile,true),idx++);
     });
 
-    /* 구독자방: 호스트만 파장, 게스트 파장은 모두 제거 */
     document.querySelectorAll('.ktsubscriber-room .ktsubscriber-host').forEach(function(tile){
       setOneWave(tile,tileCameraOpen(tile,true),idx++);
     });
 
-    /* 비밀방: 호스트만 파장, 게스트 파장은 모두 제거 */
-    document.querySelectorAll('.ktsecret-room .ktsecret-slot.host').forEach(function(tile){
-      setOneWave(tile,tileCameraOpen(tile,true),idx++);
+    document.querySelectorAll('.ktsecret-room .ktsecret-slot,.ktsecret-room .ktsecret-guest-slot').forEach(function(tile){
+      var host=tile.classList.contains('host');
+      setOneWave(tile,tileCameraOpen(tile,host),idx++);
     });
 
     removeGuestWaves();
