@@ -2505,7 +2505,104 @@ window.openCharge=function(){
 window.openRaffle=function(){showSheet('🎯 제비뽑기','<div class="raffle">꽝 · 1 · 2 · 3 · 4 · 5</div><button class="act" onclick="raffle()">제비뽑기</button>');};
 window.raffle=function(){if(state.raffle<=0){ktSpeak('오늘 참여 횟수를 모두 사용했습니다.');alert('오늘 참여 횟수를 모두 사용했습니다.');return;}state.raffle--;var p=[0,0,1,2,3,4,5];var x=p[Math.floor(Math.random()*p.length)];var msg=x?'장미 '+x+'개 당첨!':'꽝입니다.';ktAnnounceEvent('reward',{text:msg});alert(msg);};
 window.openMessages=function(){showSheet('✉ 쪽지','<div class="rowbox"><b>쪽지 화면</b><br>메시지 기능 버튼이 정상 작동합니다.</div>');};
-window.openComments=function(){showSheet('💬 댓글','<div class="rowbox"><b>댓글 화면</b><br>댓글 버튼이 정상 작동합니다.</div>');};
+window.ktCommentEscape=function(value){
+  return String(value==null?'':value).replace(/[&<>"']/g,function(ch){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+  });
+};
+window.ktCommentState=window.ktCommentState||{replyTo:'',attachment:''};
+window.ktCommentLoad=function(){
+  try{
+    var saved=JSON.parse(localStorage.getItem('ktalk_video_comments_v1')||'[]');
+    return Array.isArray(saved)?saved:[];
+  }catch(e){return [];}
+};
+window.ktCommentSave=function(items){
+  try{localStorage.setItem('ktalk_video_comments_v1',JSON.stringify(items.slice(0,100)));}catch(e){}
+};
+window.ktCommentInstallStyle=function(){
+  if(document.getElementById('ktCommentStyle'))return;
+  var style=document.createElement('style');
+  style.id='ktCommentStyle';
+  style.textContent='.kt-comments{color:#fff}.kt-comment-compose{padding:11px;border-radius:18px;background:#11131b;border:1px solid #ffffff22}.kt-comment-replyto{display:none;margin-bottom:7px;padding:7px 9px;border-radius:10px;background:#4d2b62;color:#ffe27a;font-size:12px}.kt-comment-replyto.on{display:flex;justify-content:space-between}.kt-comment-inputrow{display:flex;gap:7px}.kt-comment-inputrow textarea{flex:1;min-height:48px;max-height:100px;resize:none;border:1px solid #ffffff2b;border-radius:14px;padding:12px;background:#080910;color:#fff;font-size:15px;outline:0}.kt-comment-send{width:58px;border:0;border-radius:14px;background:linear-gradient(135deg,#ff3d91,#8c55ff);color:#fff;font-weight:950}.kt-comment-tools{display:flex;gap:6px;margin-top:8px;overflow-x:auto;padding-bottom:3px}.kt-comment-tools button{flex:0 0 auto;min-width:38px;height:36px;border:1px solid #ffffff1c;border-radius:11px;background:#20222d;color:#fff;font-size:19px}.kt-comment-attach{display:none;margin-top:8px;position:relative;width:76px}.kt-comment-attach.on{display:block}.kt-comment-attach img{width:76px;height:62px;object-fit:cover;border-radius:10px}.kt-comment-attach button{position:absolute;right:-7px;top:-7px;width:22px;height:22px;border:0;border-radius:50%;background:#ff375f;color:#fff}.kt-comment-list{display:grid;gap:9px;margin-top:12px}.kt-comment-empty{text-align:center;padding:24px;color:#bfc1ca}.kt-comment-item{padding:11px;border-radius:16px;background:#12141d;border:1px solid #ffffff16}.kt-comment-head{display:flex;align-items:center;gap:8px}.kt-comment-avatar{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#ff4baa,#745cff);font-weight:950}.kt-comment-head b{font-size:13px}.kt-comment-head time{margin-left:auto;color:#8e929f;font-size:10px}.kt-comment-body{margin:8px 0 8px 42px;white-space:pre-wrap;word-break:break-word;font-size:14px;line-height:1.45}.kt-comment-body img{display:block;max-width:150px;max-height:150px;margin-top:7px;border-radius:12px}.kt-comment-actions{display:flex;gap:5px;margin-left:36px;flex-wrap:wrap}.kt-comment-actions button{border:0;border-radius:999px;padding:6px 9px;background:#242632;color:#dfe1e7;font-size:11px}.kt-comment-actions button.liked{color:#ff6da9}.kt-comment-parent{margin:0 0 7px 42px;color:#c49aff;font-size:11px}';
+  document.head.appendChild(style);
+};
+window.ktCommentRender=function(){
+  var list=document.getElementById('ktCommentList');if(!list)return;
+  var items=ktCommentLoad();
+  if(!items.length){list.innerHTML='<div class="kt-comment-empty">첫 댓글을 남겨보세요 💬</div>';return;}
+  list.innerHTML=items.map(function(item){
+    var body=ktCommentEscape(item.text||'');
+    var media=item.attachment?'<img src="'+ktCommentEscape(item.attachment)+'" alt="댓글 첨부 이미지">':'';
+    var parent=item.replyTo?'<div class="kt-comment-parent">↳ '+ktCommentEscape(item.replyTo)+'님에게 답글</div>':'';
+    return '<article class="kt-comment-item">'
+      +'<div class="kt-comment-head"><span class="kt-comment-avatar">'+ktCommentEscape((item.name||'K').charAt(0))+'</span><b>'+ktCommentEscape(item.name||'K-Talk 회원')+'</b><time>'+ktCommentEscape(item.time||'방금')+'</time></div>'
+      +parent+'<div class="kt-comment-body">'+body+media+'</div>'
+      +'<div class="kt-comment-actions"><button class="'+(item.liked?'liked':'')+'" onclick="ktCommentLike(\''+item.id+'\')">'+(item.liked?'♥':'♡')+' '+Number(item.likes||0)+'</button><button onclick="ktCommentReply(\''+item.id+'\')">↩ 답글</button><button onclick="ktCommentDelete(\''+item.id+'\')">삭제</button><button onclick="ktCommentReport(\''+item.id+'\')">신고</button></div>'
+      +'</article>';
+  }).join('');
+};
+window.ktCommentInsertEmoji=function(emoji){
+  var input=document.getElementById('ktCommentInput');if(!input)return;
+  var start=input.selectionStart||input.value.length,end=input.selectionEnd||input.value.length;
+  input.value=input.value.slice(0,start)+emoji+input.value.slice(end);
+  input.focus();input.selectionStart=input.selectionEnd=start+emoji.length;
+};
+window.ktCommentPickFile=function(input){
+  var file=input&&input.files&&input.files[0];if(!file)return;
+  if(file.size>2500000){alert('사진 또는 GIF는 2.5MB 이하만 올릴 수 있습니다.');input.value='';return;}
+  var reader=new FileReader();
+  reader.onload=function(){
+    ktCommentState.attachment=String(reader.result||'');
+    var box=document.getElementById('ktCommentAttach');var img=document.getElementById('ktCommentAttachImg');
+    if(box&&img){img.src=ktCommentState.attachment;box.classList.add('on');}
+  };
+  reader.readAsDataURL(file);
+};
+window.ktCommentRemoveAttachment=function(){
+  ktCommentState.attachment='';
+  var box=document.getElementById('ktCommentAttach');if(box)box.classList.remove('on');
+  var input=document.getElementById('ktCommentFile');if(input)input.value='';
+};
+window.ktCommentSubmit=function(){
+  var input=document.getElementById('ktCommentInput');if(!input)return;
+  var text=input.value.trim();
+  if(!text&&!ktCommentState.attachment){alert('댓글이나 이모티콘을 입력해 주세요.');return;}
+  var info=(window.ktCurrentSubAccountInfo&&ktCurrentSubAccountInfo())||{name:'K-Talk 회원'};
+  var items=ktCommentLoad();
+  items.unshift({id:'c'+Date.now(),name:info.name||'K-Talk 회원',text:text,attachment:ktCommentState.attachment||'',replyTo:ktCommentState.replyTo||'',likes:0,liked:false,time:'방금'});
+  ktCommentSave(items);input.value='';ktCommentState.replyTo='';ktCommentRemoveAttachment();
+  var reply=document.getElementById('ktCommentReplyTo');if(reply){reply.classList.remove('on');reply.innerHTML='';}
+  ktCommentRender();
+};
+window.ktCommentLike=function(id){
+  var items=ktCommentLoad();items.forEach(function(x){if(x.id===id){x.liked=!x.liked;x.likes=Math.max(0,Number(x.likes||0)+(x.liked?1:-1));}});ktCommentSave(items);ktCommentRender();
+};
+window.ktCommentReply=function(id){
+  var item=ktCommentLoad().find(function(x){return x.id===id;});if(!item)return;
+  ktCommentState.replyTo=item.name||'회원';
+  var reply=document.getElementById('ktCommentReplyTo');if(reply){reply.classList.add('on');reply.innerHTML='<span>↳ '+ktCommentEscape(ktCommentState.replyTo)+'님에게 답글</span><button onclick="ktCommentCancelReply()">×</button>';}
+  var input=document.getElementById('ktCommentInput');if(input)input.focus();
+};
+window.ktCommentCancelReply=function(){ktCommentState.replyTo='';var el=document.getElementById('ktCommentReplyTo');if(el){el.classList.remove('on');el.innerHTML='';}};
+window.ktCommentDelete=function(id){
+  if(!confirm('이 댓글을 삭제할까요?'))return;
+  ktCommentSave(ktCommentLoad().filter(function(x){return x.id!==id;}));ktCommentRender();
+};
+window.ktCommentReport=function(id){alert('신고가 접수되었습니다. 확인 후 처리하겠습니다.');};
+window.openComments=function(){
+  ktCommentInstallStyle();ktCommentState.replyTo='';ktCommentState.attachment='';
+  var emojis=['😀','😂','🥰','😍','😘','😎','🥳','😭','😡','👍','👏','🙏','💪','❤️','💖','🔥','✨','🎉','🎵','🌹','🎁','👑','🍻','🍀'];
+  var tools=emojis.map(function(x){return '<button type="button" onclick="ktCommentInsertEmoji(\''+x+'\')">'+x+'</button>';}).join('');
+  var html='<div class="kt-comments">'
+    +'<div class="kt-comment-compose"><div id="ktCommentReplyTo" class="kt-comment-replyto"></div>'
+    +'<div class="kt-comment-inputrow"><textarea id="ktCommentInput" maxlength="300" placeholder="댓글을 입력하세요"></textarea><button class="kt-comment-send" onclick="ktCommentSubmit()">등록</button></div>'
+    +'<div class="kt-comment-tools">'+tools+'<button type="button" onclick="document.getElementById(\'ktCommentFile\').click()">📷</button><button type="button" onclick="document.getElementById(\'ktCommentFile\').click()">GIF</button></div>'
+    +'<input id="ktCommentFile" type="file" accept="image/*,.gif" hidden onchange="ktCommentPickFile(this)">'
+    +'<div id="ktCommentAttach" class="kt-comment-attach"><img id="ktCommentAttachImg" alt=""><button onclick="ktCommentRemoveAttachment()">×</button></div></div>'
+    +'<div id="ktCommentList" class="kt-comment-list"></div></div>';
+  showSheet('💬 동영상 댓글',html);setTimeout(ktCommentRender,0);
+};
 window.ktGetSelectedSubAccount=function(){
   try{
     var key=localStorage.getItem('ktalk_sub_account')||'';
