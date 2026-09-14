@@ -184,7 +184,7 @@
   function setupVideo(v){
     if(!isFeedVideo(v)||v.dataset.ktFeedSetup==='1')return;
     v.dataset.ktFeedSetup='1';
-    try{v.preload='metadata';v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');}catch(e){}
+    try{if(v.getAttribute('preload')!=='auto')v.preload='metadata';v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');}catch(e){}
     setupSoundMemory(v);
     v.addEventListener('loadeddata',function(){v.dataset.ktFeedRetry='0';clearTimeout(v.__ktFeedWatch);});
     v.addEventListener('canplay',function(){v.dataset.ktFeedRetry='0';clearTimeout(v.__ktFeedWatch);});
