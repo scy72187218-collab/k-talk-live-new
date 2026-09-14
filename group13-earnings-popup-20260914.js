@@ -75,3 +75,15 @@
     document.head.appendChild(s);
   }catch(e){}
 })();
+
+/* 방송방 상단 퀵버튼/LED 높이 조정 모듈 로더만 추가. 다른 기능은 변경하지 않음. */
+(function(){
+  if(window.__ktTopQuickBarLoader20260915)return;
+  window.__ktTopQuickBarLoader20260915=true;
+  try{
+    var s=document.createElement('script');
+    s.src='live-top-quickbar-20260915.js?v=20260915-topbar1';
+    s.async=true;
+    document.head.appendChild(s);
+  }catch(e){}
+})();
