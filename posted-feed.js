@@ -98,7 +98,7 @@
       +'<div class="vh-tabs"><span>LIVE</span><span>커뮤니티</span><span>팔로잉</span><span class="on">추천</span><button>⌕</button></div>'
       +'<div class="vh-title"><b>♛ '+name+'</b><span>'+title+'</span></div>'
       +'<div class="vh-actions">'
-        +'<button onclick="ktPublicLike(\''+id+'\',this)">♡<small>좋아요 '+Number(x.likes||0)+'</small></button>'
+        +'<button onclick="ktPublicLike(\''+id+'\',this)">🌹<small>좋아요 '+Number(x.likes||0)+'</small></button>'
         +'<button onclick="ktPublicComments(\''+id+'\')">💬<small>댓글</small></button>'
         +'<button onclick="openGifts()">🎁<small>선물</small></button>'
         +'<button onclick="ktPublicShare(\''+u+'\')">↗<small>공유</small></button>'
