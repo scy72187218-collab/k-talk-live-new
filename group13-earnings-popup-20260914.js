@@ -39,3 +39,15 @@
     window.ktGroup13ShowEarningsBig();
   },true);
 })();
+
+/* 친구 화면 방송상태/쪽지 모듈 로더만 추가. 기존 기능은 변경하지 않음. */
+(function(){
+  if(window.__ktFriendsLiveMessageLoader20260915)return;
+  window.__ktFriendsLiveMessageLoader20260915=true;
+  try{
+    var s=document.createElement('script');
+    s.src='friends-live-message-status-20260915.js?v=20260915-status1';
+    s.async=true;
+    document.head.appendChild(s);
+  }catch(e){}
+})();
