@@ -9,6 +9,7 @@
   var publishing=false;
   var misses=0;
   var broadcastStarted=false;
+  var lastDedupeAt=0;
 
   async function ensureKey(){
     if(KEY)return KEY;
@@ -80,12 +81,35 @@
   function profile(){
     var p={name:'K-Talk 방송자',photo:''};
     try{if(window.ktProfileLoad){var x=window.ktProfileLoad()||{};p.name=String(x.name||p.name);p.photo=String(x.photo||'');}}catch(e){}
-    if(p.photo&&p.photo.length>240000)p.photo='';
+    if(!p.photo){
+      try{
+        var sub=window.ktGetSelectedSubAccount?window.ktGetSelectedSubAccount():'';
+        if(sub){
+          var raw=localStorage.getItem('ktalk_profile_v1:sub:'+sub);
+          if(raw){var sp=JSON.parse(raw)||{};if(sp.name)p.name=String(sp.name);if(sp.photo)p.photo=String(sp.photo);}
+        }
+      }catch(e){}
+    }
+    if(p.photo&&p.photo.length>900000)p.photo='';
     return p;
   }
   function refreshViews(){
     try{if(window.ktRefreshLiveCards)window.ktRefreshLiveCards();}catch(e){}
     try{if(window.ktRefreshVideoLivePeek)window.ktRefreshVideoLivePeek();}catch(e){}
+  }
+
+  async function syncExistingRows(id,stamp,r,p){
+    var rows=await req('ktalk_live_rooms?select=id,host_id,active,started_at,updated_at&host_id=eq.'+enc(id)+'&active=eq.true&order=started_at.desc&limit=20');
+    rows=Array.isArray(rows)?rows:[];
+    if(!rows.length)return false;
+    var keep=rows[0];
+    roomId=keep.id;
+    await req('ktalk_live_rooms?id=eq.'+enc(roomId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({host_name:p.name,title:r.title,room_type:r.type,room_name:r.name,active:true,updated_at:stamp,host_photo:p.photo||null})});
+    for(var i=1;i<rows.length;i++){
+      try{await req('ktalk_live_rooms?id=eq.'+enc(rows[i].id),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:stamp})});}catch(e){}
+    }
+    lastDedupeAt=Date.now();
+    return true;
   }
 
   async function publishIfNeeded(force){
@@ -94,21 +118,16 @@
     var id=hostId(),stamp=now();
     try{
       var r=roomInfo(),p=profile();
-      if(roomId){
-        try{
-          await req('ktalk_live_rooms?id=eq.'+enc(roomId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({host_name:p.name,title:r.title,room_type:r.type,room_name:r.name,active:true,updated_at:stamp,host_photo:p.photo||null})});
-          misses=0;
-          refreshViews();
-          publishing=false;
-          return;
-        }catch(e){roomId='';}
+      if(await syncExistingRows(id,stamp,r,p)){
+        misses=0;
+        refreshViews();
+        publishing=false;
+        return;
       }
-      try{
-        await req('ktalk_live_rooms?host_id=eq.'+enc(id)+'&active=eq.true',{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:stamp})});
-      }catch(e){}
       var made=await req('ktalk_live_rooms',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify({host_id:id,host_name:p.name,title:r.title,room_type:r.type,room_name:r.name,active:true,started_at:stamp,updated_at:stamp,host_photo:p.photo||null})});
       roomId=made&&made[0]?made[0].id:'';
       if(!roomId)throw new Error('live watchdog no room id');
+      lastDedupeAt=Date.now();
       misses=0;
       refreshViews();
     }catch(e){
@@ -165,8 +184,11 @@
       misses=0;
       if(!roomId){await publishIfNeeded(true);return;}
       try{
-        var inf=roomInfo();
-        await req('ktalk_live_rooms?id=eq.'+enc(roomId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:true,room_type:inf.type,room_name:inf.name,title:inf.title,updated_at:now()})});
+        var inf=roomInfo(),p=profile(),stamp=now();
+        if(Date.now()-lastDedupeAt>9000){
+          if(await syncExistingRows(hostId(),stamp,inf,p))return;
+        }
+        await req('ktalk_live_rooms?id=eq.'+enc(roomId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({host_name:p.name,active:true,room_type:inf.type,room_name:inf.name,title:inf.title,updated_at:stamp,host_photo:p.photo||null})});
       }catch(e){roomId='';}
       return;
     }
