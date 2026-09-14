@@ -32,11 +32,19 @@
     return bar;
   }
 
+  function secretStatsAnchor(room){
+    var direct=[].slice.call(room.children||[]).find(function(el){
+      var t=String(el.textContent||'').replace(/\s+/g,' ');
+      return t.indexOf('일일 랭킹')>-1&&t.indexOf('미션')>-1&&t.indexOf('시청자')>-1;
+    });
+    return direct||room.querySelector('.ktsecret-stats')||room.querySelector('.ktsecret-main');
+  }
+
   function anchorFor(room){
     if(room.classList.contains('ktg13-room'))return room.querySelector('.ktg13-stats')||room.querySelector('.ktg13-main');
     if(room.classList.contains('ktsolo-room'))return room.querySelector('.ktsolo-main');
     if(room.classList.contains('ktsubscriber-room'))return room.querySelector('.ktsubscriber-main');
-    if(room.classList.contains('ktsecret-room'))return room.querySelector('.ktsecret-main');
+    if(room.classList.contains('ktsecret-room'))return secretStatsAnchor(room);
     return null;
   }
 
