@@ -177,16 +177,6 @@
   document.head.appendChild(s);
 })();
 
-/* 원격 시청 채팅 입력창 옆 전송 화살표 1개만 연결 */
-(function(){
-  if(document.querySelector('script[data-kt-live-chat-send-arrow]'))return;
-  var s=document.createElement('script');
-  s.src='live-chat-send-arrow.js?v=20260914-chat-arrow1';
-  s.async=false;
-  s.setAttribute('data-kt-live-chat-send-arrow','1');
-  document.head.appendChild(s);
-})();
-
 /* 방송방이 열렸는데 목록 등록이 빠질 때만 실시간 등록을 보강 */
 (function(){
   if(document.querySelector('script[data-kt-live-watchdog]'))return;
@@ -194,15 +184,5 @@
   s.src='live-presence-watchdog.js?v=20260913-live3';
   s.async=false;
   s.setAttribute('data-kt-live-watchdog','1');
-  document.head.appendChild(s);
-})();
-
-/* 공개 동영상 재생과 소리만 안정화 */
-(function(){
-  if(document.querySelector('script[data-kt-video-feed-playback-fix]'))return;
-  var s=document.createElement('script');
-  s.src='video-feed-playback-fix.js?v=20260914-video1';
-  s.async=false;
-  s.setAttribute('data-kt-video-feed-playback-fix','1');
   document.head.appendChild(s);
 })();

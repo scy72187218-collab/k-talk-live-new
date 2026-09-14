@@ -9,7 +9,7 @@
 
   function isOwnerName(v){
     var n=clean(v);
-    return ['태권','태권이','하이네','태권1','태권2','하이네2','k톡태권','k-톡태권','k-톡태권1'].indexOf(n)>-1;
+    return ['태권','태권이','하이네','태권1','태권2','하이네2','k톡태권','k-톡태권'].indexOf(n)>-1;
   }
 
   function names(){

@@ -108,64 +108,11 @@
     }
   }
 
-  /* 비밀방만: 호스트 1 + 게스트 4 = 총 5명 */
-  function isSecretRoomState(){
-    try{
-      var t=(window.state&&state.liveRoomType)||'';
-      var n=(window.state&&state.liveRoomName)||'';
-      var title=(document.getElementById('liveTitle')||{}).value||'';
-      return t==='password'||String(n).indexOf('비밀')>-1||String(title).indexOf('비밀')>-1;
-    }catch(e){return false;}
-  }
-
-  function enforceSecretFive(){
-    try{if(isSecretRoomState()&&window.state)state.liveRoomMax=5;}catch(e){}
-    var room=document.querySelector('.ktsecret-room');
-    if(!room)return;
-    var grid=room.querySelector('.ktsecret-six-grid');
-    if(!grid)return;
-    var slots=[].slice.call(grid.children||[]).filter(function(el){return el.classList&&el.classList.contains('ktsecret-slot');});
-    slots.forEach(function(slot,i){
-      try{slot.style.setProperty('display',i<5?'flex':'none','important');}catch(e){}
-    });
-  }
-
-  var oldSelectPrepRoom=window.selectPrepRoom;
-  if(typeof oldSelectPrepRoom==='function'){
-    window.selectPrepRoom=function(el,type,name,max){
-      var r=oldSelectPrepRoom.apply(this,arguments);
-      if(type==='password'||String(name||'').indexOf('비밀')>-1){
-        try{if(window.state)state.liveRoomMax=5;}catch(e){}
-      }
-      return r;
-    };
-  }
-
-  var oldOpenRoomPrep=window.openRoomPrep;
-  if(typeof oldOpenRoomPrep==='function'){
-    window.openRoomPrep=function(name,max){
-      var r=oldOpenRoomPrep.apply(this,arguments);
-      if(String(name||'').indexOf('비밀')>-1){
-        try{if(window.state)state.liveRoomMax=5;}catch(e){}
-      }
-      return r;
-    };
-  }
-
-  var oldStartBroadcast=window.startBroadcast;
-  if(typeof oldStartBroadcast==='function'){
-    window.startBroadcast=function(){
-      try{if(isSecretRoomState()&&window.state)state.liveRoomMax=5;}catch(e){}
-      return oldStartBroadcast.apply(this,arguments);
-    };
-  }
-
   function ensure(){
     addFlip('.ktsolo-room','.ktsolo-right');
     addFlip('.ktg13-room','.ktg13-right-quick');
     addFlip('.ktsubscriber-room','.ktsubscriber-right');
     addFlip('.ktsecret-room','.ktsecret-right');
-    enforceSecretFive();
   }
 
   ensure();

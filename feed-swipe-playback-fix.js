@@ -16,7 +16,7 @@
   function clearBadCache(){
     try{
       var last=Number(sessionStorage.getItem('kt_feed_fresh_at')||0);
-      if(Date.now()-last>300000){
+      if(Date.now()-last>15000){
         localStorage.removeItem('ktalk_fast_feed');
         sessionStorage.setItem('kt_feed_fresh_at',String(Date.now()));
       }
@@ -184,7 +184,7 @@
   function setupVideo(v){
     if(!isFeedVideo(v)||v.dataset.ktFeedSetup==='1')return;
     v.dataset.ktFeedSetup='1';
-    try{if(v.getAttribute('preload')!=='auto')v.preload='metadata';v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');}catch(e){}
+    try{v.preload='auto';v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');}catch(e){}
     setupSoundMemory(v);
     v.addEventListener('loadeddata',function(){v.dataset.ktFeedRetry='0';clearTimeout(v.__ktFeedWatch);});
     v.addEventListener('canplay',function(){v.dataset.ktFeedRetry='0';clearTimeout(v.__ktFeedWatch);});

@@ -61,7 +61,7 @@
     }catch(e){}
   }
 
-  /* 같은 카메라 스트림을 가능하면 선명한 Full HD(1920x1080, 30fps)로 유지하고, 미지원 기기만 HD(1280x720)로 낮춘다. */
+  /* 같은 카메라 스트림을 가능하면 안정적인 HD(1280x720, 30fps)로 유지한다. 실패하면 기존 화질을 그대로 둔다. */
   async function preferHd(){
     var track=null;
     try{
@@ -70,11 +70,11 @@
     }catch(e){}
     if(!track||!track.applyConstraints)return false;
     try{
-      await track.applyConstraints({width:{ideal:1920},height:{ideal:1080},frameRate:{ideal:30,max:30}});
+      await track.applyConstraints({width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30,max:30}});
       return true;
     }catch(e){
       try{
-        await track.applyConstraints({width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30,max:30}});
+        await track.applyConstraints({width:{ideal:960},height:{ideal:540},frameRate:{ideal:30,max:30}});
         return true;
       }catch(err){return false;}
     }

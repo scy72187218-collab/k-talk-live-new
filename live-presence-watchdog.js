@@ -9,7 +9,6 @@
   var publishing=false;
   var misses=0;
   var broadcastStarted=false;
-  var lastDedupeAt=0;
 
   async function ensureKey(){
     if(KEY)return KEY;
@@ -21,25 +20,6 @@
     KEY=m[1];
     return KEY;
   }
-  async function fetchStable(url,opt){
-    var lastError=null;
-    for(var attempt=0;attempt<2;attempt++){
-      var ctrl=typeof AbortController!=='undefined'?new AbortController():null;
-      var timer=ctrl?setTimeout(function(){ctrl.abort();},12000):null;
-      try{
-        var next=Object.assign({},opt||{});
-        if(ctrl)next.signal=ctrl.signal;
-        var response=await fetch(url,next);
-        if(timer)clearTimeout(timer);
-        return response;
-      }catch(e){
-        if(timer)clearTimeout(timer);
-        lastError=e;
-        if(attempt===0)await new Promise(function(resolve){setTimeout(resolve,700);});
-      }
-    }
-    throw lastError||new Error('live watchdog network');
-  }
   function headers(extra){
     var h={apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json'};
     Object.keys(extra||{}).forEach(function(k){h[k]=extra[k];});
@@ -48,7 +28,7 @@
   async function req(path,opt){
     await ensureKey();
     opt=opt||{};opt.headers=headers(opt.headers);
-    var r=await fetchStable(BASE+path,opt);
+    var r=await fetch(BASE+path,opt);
     if(!r.ok)throw new Error('live watchdog '+r.status);
     if(r.status===204)return null;
     var t=await r.text();return t?JSON.parse(t):null;
@@ -100,43 +80,12 @@
   function profile(){
     var p={name:'K-Talk 방송자',photo:''};
     try{if(window.ktProfileLoad){var x=window.ktProfileLoad()||{};p.name=String(x.name||p.name);p.photo=String(x.photo||'');}}catch(e){}
-    if(!p.photo){
-      try{
-        var sub=window.ktGetSelectedSubAccount?window.ktGetSelectedSubAccount():'';
-        if(sub){
-          var raw=localStorage.getItem('ktalk_profile_v1:sub:'+sub);
-          if(raw){var sp=JSON.parse(raw)||{};if(sp.name)p.name=String(sp.name);if(sp.photo)p.photo=String(sp.photo);}
-        }
-      }catch(e){}
-    }
-    if(p.photo&&p.photo.length>900000)p.photo='';
+    if(p.photo&&p.photo.length>240000)p.photo='';
     return p;
   }
   function refreshViews(){
     try{if(window.ktRefreshLiveCards)window.ktRefreshLiveCards();}catch(e){}
     try{if(window.ktRefreshVideoLivePeek)window.ktRefreshVideoLivePeek();}catch(e){}
-  }
-
-  function fastViewerRefresh(){
-    try{
-      if(document.hidden)return;
-      if(document.querySelector('.friends-list')&&typeof window.ktRefreshLiveCards==='function')window.ktRefreshLiveCards();
-      if(document.body&&document.body.classList.contains('kt-video-mode')&&typeof window.ktRefreshVideoLivePeek==='function')window.ktRefreshVideoLivePeek();
-    }catch(e){}
-  }
-
-  async function syncExistingRows(id,stamp,r,p){
-    var rows=await req('ktalk_live_rooms?select=id,host_id,active,started_at,updated_at&host_id=eq.'+enc(id)+'&active=eq.true&order=started_at.desc&limit=20');
-    rows=Array.isArray(rows)?rows:[];
-    if(!rows.length)return false;
-    var keep=rows[0];
-    roomId=keep.id;
-    await req('ktalk_live_rooms?id=eq.'+enc(roomId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({host_name:p.name,title:r.title,room_type:r.type,room_name:r.name,active:true,updated_at:stamp,host_photo:p.photo||null})});
-    for(var i=1;i<rows.length;i++){
-      try{await req('ktalk_live_rooms?id=eq.'+enc(rows[i].id),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:stamp})});}catch(e){}
-    }
-    lastDedupeAt=Date.now();
-    return true;
   }
 
   async function publishIfNeeded(force){
@@ -145,16 +94,21 @@
     var id=hostId(),stamp=now();
     try{
       var r=roomInfo(),p=profile();
-      if(await syncExistingRows(id,stamp,r,p)){
-        misses=0;
-        refreshViews();
-        publishing=false;
-        return;
+      if(roomId){
+        try{
+          await req('ktalk_live_rooms?id=eq.'+enc(roomId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({host_name:p.name,title:r.title,room_type:r.type,room_name:r.name,active:true,updated_at:stamp,host_photo:p.photo||null})});
+          misses=0;
+          refreshViews();
+          publishing=false;
+          return;
+        }catch(e){roomId='';}
       }
+      try{
+        await req('ktalk_live_rooms?host_id=eq.'+enc(id)+'&active=eq.true',{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:stamp})});
+      }catch(e){}
       var made=await req('ktalk_live_rooms',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify({host_id:id,host_name:p.name,title:r.title,room_type:r.type,room_name:r.name,active:true,started_at:stamp,updated_at:stamp,host_photo:p.photo||null})});
       roomId=made&&made[0]?made[0].id:'';
       if(!roomId)throw new Error('live watchdog no room id');
-      lastDedupeAt=Date.now();
       misses=0;
       refreshViews();
     }catch(e){
@@ -211,11 +165,8 @@
       misses=0;
       if(!roomId){await publishIfNeeded(true);return;}
       try{
-        var inf=roomInfo(),p=profile(),stamp=now();
-        if(Date.now()-lastDedupeAt>9000){
-          if(await syncExistingRows(hostId(),stamp,inf,p))return;
-        }
-        await req('ktalk_live_rooms?id=eq.'+enc(roomId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({host_name:p.name,active:true,room_type:inf.type,room_name:inf.name,title:inf.title,updated_at:stamp,host_photo:p.photo||null})});
+        var inf=roomInfo();
+        await req('ktalk_live_rooms?id=eq.'+enc(roomId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:true,room_type:inf.type,room_name:inf.name,title:inf.title,updated_at:now()})});
       }catch(e){roomId='';}
       return;
     }
@@ -247,17 +198,12 @@
     setTimeout(function(){publishIfNeeded(false);},650);
   },true);
 
-  document.addEventListener('visibilitychange',function(){if(!document.hidden)fastViewerRefresh();});
-  window.addEventListener('focus',fastViewerRefresh);
-
-  var mo=new MutationObserver(function(){setTimeout(function(){publishIfNeeded(false);fastViewerRefresh();},180);});
+  var mo=new MutationObserver(function(){setTimeout(function(){publishIfNeeded(false);},180);});
   try{mo.observe(document.getElementById('screen')||document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['data-kt-room']});}catch(e){}
   setInterval(function(){wrapStartBroadcast();},1200);
   setInterval(heartbeat,2500);
-  setInterval(fastViewerRefresh,1000);
   setTimeout(function(){publishIfNeeded(false);},700);
   setTimeout(function(){publishIfNeeded(false);},1800);
-  setTimeout(fastViewerRefresh,220);
 
   window.addEventListener('pagehide',function(){
     broadcastStarted=false;
