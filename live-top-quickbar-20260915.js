@@ -15,7 +15,9 @@
       +'.ktsolo-room .ktsolo-led-track,.ktg13-room:not([data-kt-room="15"]) .ktg13-led-track,.ktsubscriber-room .ktsubscriber-led-track,.ktsecret-room .ktsecret-led-track{font-size:18px!important;font-weight:950!important}'
       +'.ktsolo-room .ktsolo-right,.ktg13-room:not([data-kt-room="15"]) .ktg13-right-quick,.ktsubscriber-room .ktsubscriber-right,.ktsecret-room .ktsecret-right{display:none!important}'
       +'.ktsubscriber-room .ktsubscriber-stage{grid-template-columns:minmax(0,1fr)!important}'
-      +'@media(max-width:390px){.kt-live-top-quickbar{flex-basis:36px!important;min-height:36px!important}.kt-live-top-quickbar button{height:36px!important;font-size:10px!important;gap:2px!important}.kt-live-top-quickbar button b{font-size:13px!important}.kt-live-top-quickbar button span{font-size:10px!important}.ktsolo-room>.ktsolo-led,.ktg13-room:not([data-kt-room="15"])>.ktg13-led,.ktsubscriber-room>.ktsubscriber-led,.ktsecret-room>.ktsecret-led{flex-basis:36px!important;min-height:36px!important;height:36px!important}.ktsolo-room .ktsolo-led-track,.ktg13-room:not([data-kt-room="15"]) .ktg13-led-track,.ktsubscriber-room .ktsubscriber-led-track,.ktsecret-room .ktsecret-led-track{font-size:17px!important}}';
+      +'/* 1인방·비밀방 선물줄만 9명방처럼 하단 메뉴 바로 위로 내림. 다른 방은 변경하지 않음. */'
+      +'.ktsolo-room>.ktsolo-gifts,.ktsecret-room>.ktsecret-gifts{position:relative!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;flex:0 0 64px!important;min-height:64px!important;height:64px!important;width:100%!important;box-sizing:border-box!important;z-index:11!important}'
+      +'@media(max-width:390px){.kt-live-top-quickbar{flex-basis:36px!important;min-height:36px!important}.kt-live-top-quickbar button{height:36px!important;font-size:10px!important;gap:2px!important}.kt-live-top-quickbar button b{font-size:13px!important}.kt-live-top-quickbar button span{font-size:10px!important}.ktsolo-room>.ktsolo-led,.ktg13-room:not([data-kt-room="15"])>.ktg13-led,.ktsubscriber-room>.ktsubscriber-led,.ktsecret-room>.ktsecret-led{flex-basis:36px!important;min-height:36px!important;height:36px!important}.ktsolo-room .ktsolo-led-track,.ktg13-room:not([data-kt-room="15"]) .ktg13-led-track,.ktsubscriber-room .ktsubscriber-led-track,.ktsecret-room .ktsecret-led-track{font-size:17px!important}.ktsolo-room>.ktsolo-gifts,.ktsecret-room>.ktsecret-gifts{flex-basis:58px!important;min-height:58px!important;height:58px!important}}';
     document.head.appendChild(s);
   }
 
@@ -40,8 +42,26 @@
     return null;
   }
 
+  function fixBottomGiftRow(room){
+    var gifts=null,tools=null;
+    if(room.classList.contains('ktsolo-room')){
+      gifts=room.querySelector('.ktsolo-gifts');
+      tools=room.querySelector('.ktsolo-tools');
+    }else if(room.classList.contains('ktsecret-room')){
+      gifts=room.querySelector('.ktsecret-gifts');
+      tools=room.querySelector('.ktsecret-tools');
+    }else{
+      return;
+    }
+    if(!gifts||!tools||!tools.parentNode)return;
+    if(gifts.parentNode!==tools.parentNode||gifts.nextElementSibling!==tools){
+      tools.parentNode.insertBefore(gifts,tools);
+    }
+  }
+
   function installRoom(room){
     if(!room||!room.isConnected)return;
+    fixBottomGiftRow(room);
     if(room.classList.contains('ktg13-room')&&String(room.getAttribute('data-kt-room')||'')==='15')return;
     if(room.querySelector(':scope > .kt-live-top-quickbar'))return;
     var anchor=anchorFor(room);
