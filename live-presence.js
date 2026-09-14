@@ -17,10 +17,29 @@
     Object.keys(extra||{}).forEach(function(k){h[k]=extra[k];});
     return h;
   }
+  async function fetchStable(url,opt){
+    var lastError=null;
+    for(var attempt=0;attempt<2;attempt++){
+      var ctrl=typeof AbortController!=='undefined'?new AbortController():null;
+      var timer=ctrl?setTimeout(function(){ctrl.abort();},12000):null;
+      try{
+        var next=Object.assign({},opt||{});
+        if(ctrl)next.signal=ctrl.signal;
+        var response=await fetch(url,next);
+        if(timer)clearTimeout(timer);
+        return response;
+      }catch(e){
+        if(timer)clearTimeout(timer);
+        lastError=e;
+        if(attempt===0)await new Promise(function(resolve){setTimeout(resolve,700);});
+      }
+    }
+    throw lastError||new Error('live network');
+  }
   async function req(path,opt){
     opt=opt||{};
     opt.headers=headers(opt.headers);
-    var r=await fetch(BASE+path,opt);
+    var r=await fetchStable(BASE+path,opt);
     if(!r.ok)throw new Error('live api '+r.status);
     if(r.status===204)return null;
     var t=await r.text();
