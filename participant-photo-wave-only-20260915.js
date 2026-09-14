@@ -85,3 +85,21 @@
     mo.observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['src','class','data-user-id','data-guest-id','data-participant-id','data-live-user','data-occupied','data-connected']});
   }catch(e){}
 })();
+
+/* 요청한 다섯 방송방 파장 시각 스타일만 라디오형으로 통일. 다른 UI/기능은 변경하지 않음. */
+(function(){
+  if(window.__ktFiveRoomRadioWave20260915)return;
+  window.__ktFiveRoomRadioWave20260915=true;
+  var s=document.createElement('style');
+  s.id='ktFiveRoomRadioWaveStyle20260915';
+  s.textContent=''
+    +'@keyframes ktFiveRoomRadioWaveBeat{0%{transform:scaleY(.72)}35%{transform:scaleY(1.05)}62%{transform:scaleY(.88)}100%{transform:scaleY(1.16)}}'
+    +'#screen .ktsolo-wave,#screen .ktsecret-wave{position:absolute!important;left:8px!important;right:8px!important;bottom:8px!important;width:auto!important;height:58px!important;z-index:7!important;display:block!important;pointer-events:none!important;background:url("k-talk-rainbow-waveform.svg?v=20260915-radio5") center/100% 100% no-repeat!important;opacity:1!important;transform-origin:center center!important;animation:ktFiveRoomRadioWaveBeat .52s ease-in-out infinite alternate!important;filter:drop-shadow(0 0 7px rgba(255,36,208,.72)) drop-shadow(0 0 12px rgba(44,186,255,.28))!important}'
+    +'#screen .ktsolo-wave>i,#screen .ktsecret-wave>i{display:none!important}'
+    +'#screen .ktsolo-main>.kt-photo-participant-wave{bottom:8px!important;height:58px!important;opacity:.96!important;transform-origin:center center!important;filter:drop-shadow(0 0 6px rgba(255,36,208,.62))!important}'
+    +'#screen .ktsubscriber-wave{position:relative!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;width:100%!important;height:52px!important;min-height:52px!important;flex:0 0 52px!important;z-index:7!important;display:block!important;pointer-events:none!important;background:url("k-talk-rainbow-waveform.svg?v=20260915-radio5") center/100% 100% no-repeat!important;opacity:1!important;transform-origin:center center!important;animation:ktFiveRoomRadioWaveBeat .52s ease-in-out infinite alternate!important;filter:drop-shadow(0 0 7px rgba(255,36,208,.72)) drop-shadow(0 0 12px rgba(44,186,255,.28))!important}'
+    +'#screen .ktsubscriber-wave>i{display:none!important}'
+    +'#screen .ktg13-room:not([data-kt-room="15"]) .ktg13-main::after{content:""!important;position:absolute!important;left:4px!important;right:4px!important;bottom:2px!important;height:56px!important;z-index:8!important;pointer-events:none!important;background:url("k-talk-rainbow-waveform.svg?v=20260915-radio5") center/100% 100% no-repeat!important;opacity:1!important;transform-origin:center center!important;animation:ktFiveRoomRadioWaveBeat .52s ease-in-out infinite alternate!important;filter:drop-shadow(0 0 7px rgba(255,36,208,.72)) drop-shadow(0 0 12px rgba(44,186,255,.28))!important}'
+    +'@media(max-width:390px){#screen .ktsolo-wave,#screen .ktsecret-wave{bottom:6px!important;height:54px!important}#screen .ktsolo-main>.kt-photo-participant-wave{bottom:6px!important;height:54px!important}#screen .ktsubscriber-wave{height:48px!important;min-height:48px!important;flex-basis:48px!important}#screen .ktg13-room:not([data-kt-room="15"]) .ktg13-main::after{height:50px!important}}';
+  document.head.appendChild(s);
+})();
