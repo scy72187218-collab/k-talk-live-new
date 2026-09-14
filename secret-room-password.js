@@ -19,6 +19,17 @@
     }catch(e){return false;}
   }
 
+  function isSecretPrepVisible(box){
+    try{
+      if(!box||!box.isConnected)return false;
+      var prep=box.closest('.live-prep');
+      var creator=box.closest('.creator');
+      if(!prep||!creator||!creator.classList.contains('live-prep-open'))return false;
+      var cs=window.getComputedStyle(prep);
+      return cs.display!=='none'&&cs.visibility!=='hidden';
+    }catch(e){return false;}
+  }
+
   function getSaved(){
     try{return String(localStorage.getItem('kt_secret_room_password')||'').replace(/\D/g,'').slice(0,4);}catch(e){return '';}
   }
@@ -72,15 +83,16 @@
         if(v.length===4){this.textContent='저장됨';setTimeout(function(){var b=document.getElementById('ktSecretPasswordSave');if(b)b.textContent='저장';},900);}
       });
     }
-    box.classList.toggle('on',isSecretRoom());
+    box.classList.toggle('on',isSecretRoom()&&isSecretPrepVisible(box));
     return box;
   }
 
   function updatePrep(){
     var box=ensurePasswordBox();
     if(!box)return;
-    box.classList.toggle('on',isSecretRoom());
-    if(isSecretRoom()){
+    var show=isSecretRoom()&&isSecretPrepVisible(box);
+    box.classList.toggle('on',show);
+    if(show){
       var input=document.getElementById('ktSecretPassword');
       var saved=(window.state&&state.liveRoomPassword)||getSaved();
       if(input&&saved&&!input.value)input.value=saved;
