@@ -291,3 +291,89 @@
   window.addEventListener('pointerup',closeTreasure,true);
   window.addEventListener('click',closeTreasure,true);
 })();
+
+/* 보물상자 '닫기' 첫 터치 즉시 닫기 전용. 다른 요소는 변경하지 않음. */
+(function(){
+  if(window.__ktTreasureCloseOneTap20260915)return;
+  window.__ktTreasureCloseOneTap20260915=true;
+
+  function isTreasureOpen(){
+    var sh=document.getElementById('sheet');
+    var title=document.getElementById('sheetTitle');
+    return !!(sh&&sh.classList.contains('show')&&title&&String(title.textContent||'').indexOf('보물상자')>-1);
+  }
+
+  function closeButton(){
+    var sh=document.getElementById('sheet');
+    if(!sh)return null;
+    var list=sh.querySelectorAll('.sheet-head button');
+    for(var i=0;i<list.length;i++){
+      if(String(list[i].textContent||'').replace(/\s+/g,'').indexOf('닫기')>-1)return list[i];
+    }
+    return list[0]||null;
+  }
+
+  function hardClose(){
+    if(!isTreasureOpen())return;
+    var sh=document.getElementById('sheet');
+    try{if(typeof window.closeSheet==='function')window.closeSheet();}catch(e){}
+    try{
+      if(sh){
+        sh.classList.remove('show');
+        sh.style.removeProperty('pointer-events');
+      }
+      var body=document.getElementById('sheetBody');
+      if(body)body.innerHTML='';
+    }catch(e){}
+  }
+
+  function hitClose(e){
+    if(!isTreasureOpen())return false;
+    var btn=closeButton();
+    if(!btn)return false;
+    try{
+      if(e&&e.target&&e.target.closest&&e.target.closest('#sheet .sheet-head button')===btn)return true;
+    }catch(x){}
+    try{
+      var p=(e&&e.touches&&e.touches[0])||(e&&e.changedTouches&&e.changedTouches[0])||e;
+      var x=p&&p.clientX,y=p&&p.clientY;
+      if(typeof x!=='number'||typeof y!=='number')return false;
+      var r=btn.getBoundingClientRect();
+      return x>=r.left-8&&x<=r.right+8&&y>=r.top-8&&y<=r.bottom+8;
+    }catch(x){return false;}
+  }
+
+  function onFirstTouch(e){
+    if(!hitClose(e))return;
+    try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(x){}
+    hardClose();
+  }
+
+  function strengthenClose(){
+    if(!isTreasureOpen())return;
+    var btn=closeButton();
+    if(!btn)return;
+    try{
+      btn.style.setProperty('pointer-events','auto','important');
+      btn.style.setProperty('touch-action','manipulation','important');
+      btn.style.setProperty('position','relative','important');
+      btn.style.setProperty('z-index','2147483647','important');
+      if(btn.dataset.ktTreasureOneTap!=='1'){
+        btn.dataset.ktTreasureOneTap='1';
+        btn.addEventListener('pointerdown',onFirstTouch,true);
+        btn.addEventListener('touchstart',onFirstTouch,{capture:true,passive:false});
+        btn.addEventListener('mousedown',onFirstTouch,true);
+      }
+    }catch(e){}
+  }
+
+  window.addEventListener('pointerdown',onFirstTouch,true);
+  window.addEventListener('touchstart',onFirstTouch,{capture:true,passive:false});
+  window.addEventListener('mousedown',onFirstTouch,true);
+  window.addEventListener('click',onFirstTouch,true);
+
+  try{
+    new MutationObserver(function(){setTimeout(strengthenClose,0);}).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
+  }catch(e){}
+  setInterval(strengthenClose,300);
+})();
