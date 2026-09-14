@@ -62,6 +62,11 @@
     }
   }
 
+  function ensureRoseIcon(bar){
+    var btn=bar.querySelector('.kt-remote-action.heart');
+    if(btn&&btn.textContent!=='🌹')btn.textContent='🌹';
+  }
+
   function apply(){
     ensureStyle();
     var bar=document.getElementById('ktRemoteBottom');
@@ -69,6 +74,7 @@
     if(!bar||!input)return;
     var sendBtn=ensureSend(bar,input);
     ensureGuestRequest(bar,sendBtn);
+    ensureRoseIcon(bar);
   }
 
   var obs=new MutationObserver(function(){setTimeout(apply,0);});
