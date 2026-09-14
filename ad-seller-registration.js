@@ -196,3 +196,13 @@
   s.setAttribute('data-kt-live-watchdog','1');
   document.head.appendChild(s);
 })();
+
+/* 공개 동영상 재생과 소리만 안정화 */
+(function(){
+  if(document.querySelector('script[data-kt-video-feed-playback-fix]'))return;
+  var s=document.createElement('script');
+  s.src='video-feed-playback-fix.js?v=20260914-video1';
+  s.async=false;
+  s.setAttribute('data-kt-video-feed-playback-fix','1');
+  document.head.appendChild(s);
+})();
