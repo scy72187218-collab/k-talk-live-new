@@ -1,4 +1,4 @@
-/* K-Talk 방송방 상단 퀵버튼 전용: LED를 조금 줄이고 되돌리기·좋아요·보물상자·효과·매치를 위 한 줄에 표시. 다른 기능은 변경하지 않음. */
+/* K-Talk 방송방 상단 퀵버튼 전용: LED를 조금 줄이고 되돌리기·보물상자·매치를 위 한 줄에 표시. 좋아요는 호스트 사진, 효과는 기존 바깥 버튼 사용. 다른 기능은 변경하지 않음. */
 (function(){
   if(window.__ktLiveTopQuickbar20260915)return;
   window.__ktLiveTopQuickbar20260915=true;
@@ -8,7 +8,7 @@
     var s=document.createElement('style');
     s.id='ktLiveTopQuickbarStyle20260915';
     s.textContent=''
-      +'.kt-live-top-quickbar{flex:0 0 38px!important;min-height:38px!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:3px!important;align-items:stretch!important;width:100%!important;box-sizing:border-box!important;position:relative!important;z-index:40!important;padding:0 1px!important;pointer-events:auto!important}'
+      +'.kt-live-top-quickbar{flex:0 0 38px!important;min-height:38px!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:3px!important;align-items:stretch!important;width:100%!important;box-sizing:border-box!important;position:relative!important;z-index:40!important;padding:0 1px!important;pointer-events:auto!important}'
       +'.kt-live-top-quickbar button{min-width:0!important;height:38px!important;margin:0!important;padding:2px 1px!important;border:1px solid rgba(255,255,255,.16)!important;border-radius:10px!important;background:linear-gradient(180deg,rgba(28,28,34,.96),rgba(10,10,14,.96))!important;color:#fff!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:3px!important;white-space:nowrap!important;font-size:11px!important;font-weight:950!important;line-height:1!important;letter-spacing:-.3px!important;text-shadow:0 1px 2px #000!important;box-shadow:inset 0 0 10px rgba(255,255,255,.035)!important;pointer-events:auto!important;touch-action:manipulation!important}'
       +'.kt-live-top-quickbar button b{font-size:14px!important;line-height:1!important;font-weight:950!important}.kt-live-top-quickbar button span{font-size:11px!important;font-weight:950!important;line-height:1!important;color:#fff!important}'
       +'.ktsolo-room>.ktsolo-led,.ktg13-room:not([data-kt-room="15"])>.ktg13-led,.ktsubscriber-room>.ktsubscriber-led,.ktsecret-room>.ktsecret-led{flex:0 0 38px!important;min-height:38px!important;height:38px!important;border-radius:16px!important}'
@@ -27,9 +27,7 @@
     bar.setAttribute('data-kt-top-quickbar','1');
     bar.innerHTML=''
       +'<button type="button" aria-label="되돌리기"><b>↻</b><span>되돌리기</span></button>'
-      +'<button type="button" aria-label="좋아요"><b>💗</b><span>좋아요</span></button>'
       +'<button type="button" aria-label="보물상자"><b>🎁</b><span>보물상자</span></button>'
-      +'<button type="button" aria-label="효과"><b>✨</b><span>효과</span></button>'
       +'<button type="button" aria-label="매치"><b>⚔</b><span>매치</span></button>';
     return bar;
   }
