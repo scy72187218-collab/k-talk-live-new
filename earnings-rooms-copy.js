@@ -56,6 +56,14 @@
     document.head.appendChild(secretEarnStyle);
   }
 
+  /* 비밀방 오른쪽 되돌리기/좋아요/효과/보물상자/매치 버튼만 조금 위로 이동. 다른 방은 변경하지 않음. */
+  if(!document.getElementById('ktSecretRightControlsUp20260914')){
+    var secretRightStyle=document.createElement('style');
+    secretRightStyle.id='ktSecretRightControlsUp20260914';
+    secretRightStyle.textContent='.ktsecret-room .ktsecret-right{transform:translateY(-18px)!important;}';
+    document.head.appendChild(secretRightStyle);
+  }
+
   /* 9명/13명 계열 방송의 수익표는 폭을 과하게 줄이지 않고, 상세내용만 기본 접기. */
   if(!document.getElementById('ktCompactGroupEarningsStyle')){
     var compact=document.createElement('style');
