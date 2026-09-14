@@ -33,14 +33,14 @@
     +'.ktg13-room .ktg13-guests{gap:1px!important}'
     +'.ktg13-room .ktg13-guest{position:relative!important;overflow:hidden!important}'
     +'.ktg13-room .ktg13-guest>video,.ktg13-room .ktg13-guest>img:not(.kt-guest-profile-photo){width:100%!important;height:100%!important;object-fit:cover!important}'
-    +'.ktg13-room .ktg13-mid{flex:0 0 58px!important;grid-template-columns:minmax(0,1fr) 84px!important;gap:5px!important}'
+    +'.ktg13-room .ktg13-mid{flex:0 0 58px!important;grid-template-columns:minmax(0,1fr) 104px!important;gap:5px!important}'
     +'.ktg13-room .ktg13-chat{height:58px!important;max-height:58px!important}'
-    +'.ktg13-room .ktg13-earn{width:84px!important;max-width:84px!important;height:50px!important;min-height:50px!important}'
-    +'.ktg13-room .ktg13-earn #myEarnHud{width:84px!important;max-width:84px!important;min-width:84px!important;height:50px!important;max-height:50px!important;padding:1px 2px!important}'
+    +'.ktg13-room .ktg13-earn{width:104px!important;max-width:104px!important;height:54px!important;min-height:54px!important}'
+    +'.ktg13-room .ktg13-earn #myEarnHud{width:104px!important;max-width:104px!important;min-width:104px!important;height:54px!important;max-height:54px!important;padding:1px 3px!important}'
     +'.ktg13-room #myEarnHud span{font-size:5.5px!important;line-height:1!important}'
     +'.ktg13-room #myEarnHud b{font-size:8px!important;line-height:1!important}'
-    +'.ktg13-room #myEarnDetail{font-size:5.2px!important;line-height:1!important;gap:0 1px!important;margin-top:1px!important}'
-    +'@media(max-width:390px){.ktg13-room .ktg13-main{grid-template-columns:37% 63%!important}.ktg13-room .ktg13-mid{grid-template-columns:minmax(0,1fr) 80px!important}.ktg13-room .ktg13-earn{width:80px!important;max-width:80px!important}.ktg13-room .ktg13-earn #myEarnHud{width:80px!important;max-width:80px!important;min-width:80px!important}}';
+    +'.ktg13-room #myEarnDetail{font-size:5.2px!important;line-height:1.08!important;gap:1px!important;margin-top:1px!important}'
+    +'@media(max-width:390px){.ktg13-room .ktg13-main{grid-template-columns:37% 63%!important}.ktg13-room .ktg13-mid{grid-template-columns:minmax(0,1fr) 100px!important}.ktg13-room .ktg13-earn{width:100px!important;max-width:100px!important}.ktg13-room .ktg13-earn #myEarnHud{width:100px!important;max-width:100px!important;min-width:100px!important}}';
   document.head.appendChild(s);
 
   function expandBoth(){
