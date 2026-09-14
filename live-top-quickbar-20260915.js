@@ -1,4 +1,4 @@
-/* K-Talk 방송방 상단 퀵버튼 전용: LED를 조금 줄이고 되돌리기·보물상자·매치를 위 한 줄에 표시. 좋아요는 호스트 사진, 효과는 기존 바깥 버튼 사용. 다른 기능은 변경하지 않음. */
+/* K-Talk 방송방 상단 퀵버튼 전용: 다른 방은 되돌리기·보물상자·매치, 비밀방만 요청한 5버튼 순서로 표시. 다른 기능은 변경하지 않음. */
 (function(){
   if(window.__ktLiveTopQuickbar20260915)return;
   window.__ktLiveTopQuickbar20260915=true;
@@ -9,26 +9,38 @@
     s.id='ktLiveTopQuickbarStyle20260915';
     s.textContent=''
       +'.kt-live-top-quickbar{flex:0 0 38px!important;min-height:38px!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:3px!important;align-items:stretch!important;width:100%!important;box-sizing:border-box!important;position:relative!important;z-index:40!important;padding:0 1px!important;pointer-events:auto!important}'
+      +'.ktsecret-room>.kt-live-top-quickbar{grid-template-columns:repeat(5,minmax(0,1fr))!important}'
       +'.kt-live-top-quickbar button{min-width:0!important;height:38px!important;margin:0!important;padding:2px 1px!important;border:1px solid rgba(255,255,255,.16)!important;border-radius:10px!important;background:linear-gradient(180deg,rgba(28,28,34,.96),rgba(10,10,14,.96))!important;color:#fff!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:3px!important;white-space:nowrap!important;font-size:11px!important;font-weight:950!important;line-height:1!important;letter-spacing:-.3px!important;text-shadow:0 1px 2px #000!important;box-shadow:inset 0 0 10px rgba(255,255,255,.035)!important;pointer-events:auto!important;touch-action:manipulation!important}'
+      +'.ktsecret-room>.kt-live-top-quickbar button{font-size:10px!important;gap:2px!important}'
       +'.kt-live-top-quickbar button b{font-size:14px!important;line-height:1!important;font-weight:950!important}.kt-live-top-quickbar button span{font-size:11px!important;font-weight:950!important;line-height:1!important;color:#fff!important}'
+      +'.ktsecret-room>.kt-live-top-quickbar button span{font-size:10px!important}'
       +'.ktsolo-room>.ktsolo-led,.ktg13-room:not([data-kt-room="15"])>.ktg13-led,.ktsubscriber-room>.ktsubscriber-led,.ktsecret-room>.ktsecret-led{flex:0 0 38px!important;min-height:38px!important;height:38px!important;border-radius:16px!important}'
       +'.ktsolo-room .ktsolo-led-track,.ktg13-room:not([data-kt-room="15"]) .ktg13-led-track,.ktsubscriber-room .ktsubscriber-led-track,.ktsecret-room .ktsecret-led-track{font-size:18px!important;font-weight:950!important}'
       +'.ktsolo-room .ktsolo-right,.ktg13-room:not([data-kt-room="15"]) .ktg13-right-quick,.ktsubscriber-room .ktsubscriber-right,.ktsecret-room .ktsecret-right{display:none!important}'
       +'.ktsubscriber-room .ktsubscriber-stage{grid-template-columns:minmax(0,1fr)!important}'
       +'/* 1인방·비밀방 선물줄만 9명방처럼 하단 메뉴 바로 위로 내림. 다른 방은 변경하지 않음. */'
       +'.ktsolo-room>.ktsolo-gifts,.ktsecret-room>.ktsecret-gifts{position:relative!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;flex:0 0 64px!important;min-height:64px!important;height:64px!important;width:100%!important;box-sizing:border-box!important;z-index:11!important}'
-      +'@media(max-width:390px){.kt-live-top-quickbar{flex-basis:36px!important;min-height:36px!important}.kt-live-top-quickbar button{height:36px!important;font-size:10px!important;gap:2px!important}.kt-live-top-quickbar button b{font-size:13px!important}.kt-live-top-quickbar button span{font-size:10px!important}.ktsolo-room>.ktsolo-led,.ktg13-room:not([data-kt-room="15"])>.ktg13-led,.ktsubscriber-room>.ktsubscriber-led,.ktsecret-room>.ktsecret-led{flex-basis:36px!important;min-height:36px!important;height:36px!important}.ktsolo-room .ktsolo-led-track,.ktg13-room:not([data-kt-room="15"]) .ktg13-led-track,.ktsubscriber-room .ktsubscriber-led-track,.ktsecret-room .ktsecret-led-track{font-size:17px!important}.ktsolo-room>.ktsolo-gifts,.ktsecret-room>.ktsecret-gifts{flex-basis:58px!important;min-height:58px!important;height:58px!important}}';
+      +'@media(max-width:390px){.kt-live-top-quickbar{flex-basis:36px!important;min-height:36px!important}.kt-live-top-quickbar button{height:36px!important;font-size:10px!important;gap:2px!important}.kt-live-top-quickbar button b{font-size:13px!important}.kt-live-top-quickbar button span{font-size:10px!important}.ktsecret-room>.kt-live-top-quickbar button,.ktsecret-room>.kt-live-top-quickbar button span{font-size:9px!important}.ktsolo-room>.ktsolo-led,.ktg13-room:not([data-kt-room="15"])>.ktg13-led,.ktsubscriber-room>.ktsubscriber-led,.ktsecret-room>.ktsecret-led{flex-basis:36px!important;min-height:36px!important;height:36px!important}.ktsolo-room .ktsolo-led-track,.ktg13-room:not([data-kt-room="15"]) .ktg13-led-track,.ktsubscriber-room .ktsubscriber-led-track,.ktsecret-room .ktsecret-led-track{font-size:17px!important}.ktsolo-room>.ktsolo-gifts,.ktsecret-room>.ktsecret-gifts{flex-basis:58px!important;min-height:58px!important;height:58px!important}}';
     document.head.appendChild(s);
   }
 
-  function makeBar(){
+  function makeBar(room){
     var bar=document.createElement('div');
     bar.className='kt-live-top-quickbar';
     bar.setAttribute('data-kt-top-quickbar','1');
-    bar.innerHTML=''
-      +'<button type="button" aria-label="되돌리기"><b>↻</b><span>되돌리기</span></button>'
-      +'<button type="button" aria-label="보물상자"><b>🎁</b><span>보물상자</span></button>'
-      +'<button type="button" aria-label="매치"><b>⚔</b><span>매치</span></button>';
+    if(room&&room.classList.contains('ktsecret-room')){
+      bar.innerHTML=''
+        +'<button type="button" aria-label="되돌리기"><b>↻</b><span>되돌리기</span></button>'
+        +'<button type="button" aria-label="좋아요"><b>💗</b><span>좋아요</span></button>'
+        +'<button type="button" aria-label="보물상자"><b>🎁</b><span>보물상자</span></button>'
+        +'<button type="button" aria-label="효과"><b>✨</b><span>효과</span></button>'
+        +'<button type="button" aria-label="매치"><b>⚔</b><span>매치</span></button>';
+    }else{
+      bar.innerHTML=''
+        +'<button type="button" aria-label="되돌리기"><b>↻</b><span>되돌리기</span></button>'
+        +'<button type="button" aria-label="보물상자"><b>🎁</b><span>보물상자</span></button>'
+        +'<button type="button" aria-label="매치"><b>⚔</b><span>매치</span></button>';
+    }
     return bar;
   }
 
@@ -69,10 +81,18 @@
     if(!room||!room.isConnected)return;
     fixBottomGiftRow(room);
     if(room.classList.contains('ktg13-room')&&String(room.getAttribute('data-kt-room')||'')==='15')return;
-    if(room.querySelector(':scope > .kt-live-top-quickbar'))return;
     var anchor=anchorFor(room);
     if(!anchor||!anchor.parentNode)return;
-    anchor.parentNode.insertBefore(makeBar(),anchor);
+    var bar=room.querySelector(':scope > .kt-live-top-quickbar');
+    if(!bar){
+      bar=makeBar(room);
+      anchor.parentNode.insertBefore(bar,anchor);
+      return;
+    }
+    /* 랭킹/미션 줄이 늦게 생성되어도 비밀방은 항상 퀵버튼이 그 위에 오도록 재정렬 */
+    if(bar.nextElementSibling!==anchor){
+      anchor.parentNode.insertBefore(bar,anchor);
+    }
   }
 
   function installAll(){
