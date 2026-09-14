@@ -122,3 +122,13 @@
   s.setAttribute('data-kt-front-camera-user-fallback','1');
   document.head.appendChild(s);
 })();
+
+/* 13명 방송 참여신청/호스트 올리기 흐름만 추가. */
+(function(){
+  if(document.querySelector('script[data-kt-guest-request-flow]'))return;
+  var s=document.createElement('script');
+  s.src='live-guest-request-flow.js?v=20260914-guest1';
+  s.async=false;
+  s.setAttribute('data-kt-guest-request-flow','1');
+  document.head.appendChild(s);
+})();
