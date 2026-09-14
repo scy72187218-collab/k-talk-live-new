@@ -16,6 +16,14 @@
     try{if(isSecretRoom()&&window.state)state.liveRoomMax=5;}catch(e){}
   }
 
+  function showSecretPasswordBox(){
+    try{
+      if(!isSecretRoom())return;
+      var box=document.getElementById('ktSecretPasswordBox');
+      if(box)box.classList.add('on');
+    }catch(e){}
+  }
+
   var s=document.createElement('style');
   s.id='ktSecretReturnDown20260914Style';
   s.textContent=''
@@ -34,6 +42,8 @@
         state.liveRoomType='password';
         state.liveRoomName='비밀방';
         state.liveRoomMax=5;
+        setTimeout(showSecretPasswordBox,0);
+        setTimeout(showSecretPasswordBox,120);
       }
       return r;
     };
@@ -47,6 +57,8 @@
         state.liveRoomType='password';
         state.liveRoomName='비밀방';
         state.liveRoomMax=5;
+        setTimeout(showSecretPasswordBox,30);
+        setTimeout(showSecretPasswordBox,150);
       }
       return r;
     };
@@ -60,6 +72,6 @@
     };
   }
 
-  new MutationObserver(function(){forceFive();}).observe(document.documentElement,{childList:true,subtree:true});
-  setTimeout(forceFive,100);
+  new MutationObserver(function(){forceFive();showSecretPasswordBox();}).observe(document.documentElement,{childList:true,subtree:true});
+  setTimeout(function(){forceFive();showSecretPasswordBox();},100);
 })();
