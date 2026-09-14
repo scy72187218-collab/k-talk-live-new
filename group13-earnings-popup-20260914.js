@@ -51,3 +51,15 @@
     document.head.appendChild(s);
   }catch(e){}
 })();
+
+/* 이용방법·혜택 AI 음성 읽기 모듈 로더만 추가. 기존 기능은 변경하지 않음. */
+(function(){
+  if(window.__ktAiHelpReaderLoader20260915)return;
+  window.__ktAiHelpReaderLoader20260915=true;
+  try{
+    var s=document.createElement('script');
+    s.src='ai-help-reader-20260915.js?v=20260915-voice1';
+    s.async=true;
+    document.head.appendChild(s);
+  }catch(e){}
+})();
