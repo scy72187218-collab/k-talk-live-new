@@ -26,6 +26,11 @@
     {name:'Wěseeraw olecho',source:'Gershon Sirota · 사람 보컬 · 퍼블릭도메인',time:'2:58',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/W%C4%9Bseeraw_olecho_(1902).ogg'}
   ];
 
+  function updateNote(){
+    var note=document.querySelector('.kt-sound-panel .note');
+    if(note)note.textContent='사람이 직접 부른 자유 이용 보컬곡 20곡만 들어 있습니다. ▶ 버튼을 누르면 K-Talk 안에서 바로 재생됩니다.';
+  }
+
   function apply(){
     window.ktCreatorTracks=tracks.slice(0,20);
     window.ktSearchFreeMusicOnline=function(){ return Promise.resolve(); };
@@ -33,21 +38,27 @@
       if(ev){try{ev.stopPropagation();ev.preventDefault();}catch(e){}}
       if(typeof window.ktPlaySoundPreview==='function')window.ktPlaySoundPreview(index,ev);
     };
+    try{
+      var list=document.getElementById('ktSoundList');
+      if(list&&typeof window.renderCreatorSoundList==='function'){
+        var input=document.getElementById('ktSoundSearchInput');
+        window.renderCreatorSoundList(input?String(input.value||''):'');
+      }
+      updateNote();
+    }catch(e){}
   }
 
   apply();
   setTimeout(apply,0);
-  setTimeout(apply,600);
+  setTimeout(apply,250);
+  setTimeout(apply,800);
 
   var oldOpen=window.openSoundPanel;
   if(typeof oldOpen==='function'){
     window.openSoundPanel=function(){
       apply();
       oldOpen.apply(this,arguments);
-      setTimeout(function(){
-        var note=document.querySelector('.kt-sound-panel .note');
-        if(note)note.textContent='사람이 직접 부른 자유 이용 보컬곡 20곡만 들어 있습니다. ▶ 버튼을 누르면 K-Talk 안에서 바로 재생됩니다.';
-      },0);
+      setTimeout(apply,0);
     };
   }
 })();
