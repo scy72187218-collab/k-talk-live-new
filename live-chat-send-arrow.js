@@ -142,11 +142,11 @@
   document.head.appendChild(s);
 })();
 
-/* 호스트 채팅에 참여신청이 왔을 때 누를 수 있는 '올리기' 버튼만 보강. */
+/* 호스트 채팅에 참여신청이 왔을 때 누를 수 있는 선택 메뉴만 보강. */
 (function(){
   if(document.querySelector('script[data-kt-guest-host-action-fix]'))return;
   var s=document.createElement('script');
-  s.src='guest-request-host-action-fix.js?v=20260914-host1';
+  s.src='guest-request-host-action-fix.js?v=20260914-host2';
   s.async=false;
   s.setAttribute('data-kt-guest-host-action-fix','1');
   document.head.appendChild(s);
