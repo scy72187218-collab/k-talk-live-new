@@ -21,6 +21,7 @@
   function now(){return new Date().toISOString();}
   function deviceId(){var id='';try{id=localStorage.getItem('kt_live_device_id')||'';}catch(e){}if(!id){id='kt_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,10);try{localStorage.setItem('kt_live_device_id',id);}catch(e){}}return id;}
   function videoWorking(){var v=document.getElementById('ktRemoteLiveVideo');if(!v)return false;try{var s=v.srcObject,tracks=s&&s.getVideoTracks?s.getVideoTracks():[];return !!(v.videoWidth>0&&v.readyState>=2&&tracks.some(function(t){return t.readyState==='live'&&!t.muted;}));}catch(e){return false;}}
+  function mirrorRemote(){var v=document.getElementById('ktRemoteLiveVideo');if(!v)return;try{v.style.setProperty('transform','scaleX(-1)','important');v.style.setProperty('transform-origin','center center','important');}catch(e){}}
   function waitIce(pc,ms){return new Promise(function(resolve){if(pc.iceGatheringState==='complete')return resolve();var done=false,t=setTimeout(finish,ms||7000);function finish(){if(done)return;done=true;clearTimeout(t);try{pc.removeEventListener('icegatheringstatechange',on);}catch(e){}resolve();}function on(){if(pc.iceGatheringState==='complete')finish();}pc.addEventListener('icegatheringstatechange',on);});}
 
   async function closeFallback(){
@@ -44,7 +45,7 @@
       fallback=ctx;
       pc.ontrack=function(ev){
         var v=document.getElementById('ktRemoteLiveVideo');
-        if(v){try{v.srcObject=ev.streams[0]||new MediaStream([ev.track]);v.muted=false;var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(e){}}
+        if(v){try{v.srcObject=ev.streams[0]||new MediaStream([ev.track]);mirrorRemote();v.muted=false;var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(e){}}
         var st=document.getElementById('ktRemoteLiveStatus');if(st)st.style.display='none';
       };
       pc.onconnectionstatechange=function(){
@@ -88,6 +89,7 @@
       currentHost=String(hostId||'');retryCount=0;
       await closeFallback();
       var r=await old.apply(this,arguments);
+      mirrorRemote();
       schedule(currentHost);
       return r;
     };
@@ -103,6 +105,6 @@
   }
 
   wrapEnter();wrapLeave();
-  setInterval(function(){wrapEnter();wrapLeave();},1800);
+  setInterval(function(){wrapEnter();wrapLeave();mirrorRemote();},1800);
   window.addEventListener('pagehide',function(){try{if(fallback&&fallback.pc)fallback.pc.close();}catch(e){}});
 })();
