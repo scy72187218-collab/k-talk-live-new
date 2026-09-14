@@ -1,4 +1,4 @@
-/* K-Talk 공개 동영상 오른쪽 버튼: 프로필 사진 → 장미 → 좋아요 → 댓글 → 선물 → 공유. 이 영역만 보강. */
+/* K-Talk 공개 동영상 오른쪽 버튼: 프로필 사진 → 장미 → 좋아요 → 댓글 → 공유하기. 이 영역만 보강. */
 (function(){
   if(window.__ktFeedProfileActionsInstalledV2)return;
   window.__ktFeedProfileActionsInstalledV2=true;
@@ -134,6 +134,26 @@
     }
   }
 
+  function removeGiftKeepShare(box){
+    try{
+      var buttons=[].slice.call(box.querySelectorAll(':scope > button:not(.kt-feed-profile-button):not(.kt-feed-rose-button)'));
+      buttons.forEach(function(btn){
+        var small=btn.querySelector('small');
+        var label=small?String(small.textContent||'').trim():'';
+        var onclick=String(btn.getAttribute('onclick')||'');
+        var text=String(btn.textContent||'');
+        if(label==='선물'||onclick.indexOf('openGifts')>-1||text.indexOf('🎁')>-1){
+          btn.remove();
+          return;
+        }
+        if(label==='공유'||label==='공유하기'||onclick.indexOf('ktPublicShare')>-1||onclick.indexOf('shareApp')>-1){
+          btn.setAttribute('aria-label','공유하기');
+          if(small&&small.textContent!=='공유하기')small.textContent='공유하기';
+        }
+      });
+    }catch(e){}
+  }
+
   function decorate(box){
     if(!box)return;
     var b=box.querySelector('.kt-feed-profile-button');
@@ -161,6 +181,7 @@
     var like=buttons[0]||null;
     bindLike(like);
     ensureRose(box,b,like);
+    removeGiftKeepShare(box);
   }
 
   function run(){
