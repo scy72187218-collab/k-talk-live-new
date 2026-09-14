@@ -377,3 +377,86 @@
   }catch(e){}
   setInterval(strengthenClose,300);
 })();
+
+/* 방송 시작 직후 예전 화면이 잠깐 보이는 것만 가림. 최종 방 화면/기능은 변경하지 않음. */
+(function(){
+  if(window.__ktRoomOpenFlashGuard20260915)return;
+  window.__ktRoomOpenFlashGuard20260915=true;
+
+  function selectedRoom(){
+    try{
+      var t=(window.state&&state.liveRoomType)||'';
+      var n=(window.state&&state.liveRoomName)||'';
+      if(t==='group9'||n==='9명 방송')return {selector:'.ktg13-room[data-kt-room="9"]'};
+      if(t==='group15'||n==='15명 방송')return {selector:'.ktg13-room[data-kt-room="15"]'};
+      if(t==='group'||t==='group13'||n==='13명 방송')return {selector:'.ktg13-room:not([data-kt-room="9"]):not([data-kt-room="15"])'};
+      if(t==='subscriber'||String(n).indexOf('구독자')>-1)return {selector:'.ktsubscriber-room'};
+      if(t==='secret'||String(n).indexOf('비밀')>-1)return {selector:'.ktsecret-room'};
+      if(t==='solo'||String(n).indexOf('1인')>-1)return {selector:'.ktsolo-room'};
+    }catch(e){}
+    return null;
+  }
+
+  function makeCover(){
+    var old=document.getElementById('ktRoomOpeningFlashCover');
+    if(old)try{old.remove();}catch(e){}
+    var c=document.createElement('div');
+    c.id='ktRoomOpeningFlashCover';
+    c.setAttribute('aria-hidden','true');
+    c.style.cssText='position:fixed;inset:0;z-index:2147483646;background:#000;pointer-events:auto;';
+    (document.body||document.documentElement).appendChild(c);
+    return c;
+  }
+
+  function removeCover(c){
+    try{if(c&&c.parentNode)c.parentNode.removeChild(c);}catch(e){}
+  }
+
+  function watchFinalRoom(info,c){
+    var ended=false;
+    var mo=null;
+    var timer=null;
+    function finish(){
+      if(ended)return;
+      ended=true;
+      try{if(mo)mo.disconnect();}catch(e){}
+      try{if(timer)clearTimeout(timer);}catch(e){}
+      removeCover(c);
+    }
+    function check(){
+      if(ended)return;
+      try{if(info&&info.selector&&document.querySelector(info.selector)){finish();return;}}catch(e){}
+    }
+    try{
+      mo=new MutationObserver(check);
+      mo.observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['class','data-kt-room']});
+    }catch(e){}
+    timer=setTimeout(finish,4500);
+    check();
+    return finish;
+  }
+
+  function install(){
+    var previous=window.startBroadcast;
+    if(typeof previous!=='function'||previous.__ktRoomOpenFlashGuard)return;
+
+    var guarded=async function(){
+      var info=selectedRoom();
+      if(!info)return previous.apply(this,arguments);
+      var cover=makeCover();
+      var stopWatch=watchFinalRoom(info,cover);
+      try{
+        return await previous.apply(this,arguments);
+      }catch(err){
+        stopWatch();
+        throw err;
+      }
+    };
+    guarded.__ktRoomOpenFlashGuard=true;
+    guarded.__ktRoomOpenFlashGuardBase=previous;
+    window.startBroadcast=guarded;
+  }
+
+  if(document.readyState==='complete')install();
+  else window.addEventListener('load',install,{once:true});
+})();
