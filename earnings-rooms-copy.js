@@ -48,6 +48,14 @@
     document.head.appendChild(soloEarnStyle);
   }
 
+  /* 비밀방 수익표만 오른쪽 조작버튼과 겹치지 않게 조금 왼쪽으로 이동. 다른 방은 변경하지 않음. */
+  if(!document.getElementById('ktSecretEarningsLeft20260914')){
+    var secretEarnStyle=document.createElement('style');
+    secretEarnStyle.id='ktSecretEarningsLeft20260914';
+    secretEarnStyle.textContent='.ktsecret-room .ktsecret-earn-row #myEarnHud{translate:-28px 0!important;}';
+    document.head.appendChild(secretEarnStyle);
+  }
+
   /* 9명/13명 계열 방송의 수익표는 폭을 과하게 줄이지 않고, 상세내용만 기본 접기. */
   if(!document.getElementById('ktCompactGroupEarningsStyle')){
     var compact=document.createElement('style');
