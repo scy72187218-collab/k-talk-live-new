@@ -252,3 +252,42 @@
   window.addEventListener('click',handle,true);
   setInterval(ensureStyle,1500);
 })();
+
+/* 보물상자 팝업의 닫기 버튼만 터치 안정화. 다른 팝업/화면은 변경하지 않음. */
+(function(){
+  if(window.__ktTreasureCloseOnly20260914)return;
+  window.__ktTreasureCloseOnly20260914=true;
+
+  function isTreasureSheet(){
+    var sh=document.getElementById('sheet');
+    var title=document.getElementById('sheetTitle');
+    return !!(sh&&sh.classList.contains('show')&&title&&String(title.textContent||'').indexOf('보물상자')>-1);
+  }
+
+  function closeTreasure(e){
+    if(!isTreasureSheet())return;
+    var sh=document.getElementById('sheet');
+    var close=sh&&sh.querySelector('.sheet-head button');
+    if(!close)return;
+    var hit=false;
+    try{hit=!!(e.target&&e.target.closest&&e.target.closest('#sheet .sheet-head button')===close);}catch(x){}
+    if(!hit){
+      try{
+        var r=close.getBoundingClientRect();
+        var x=e.clientX,y=e.clientY;
+        hit=typeof x==='number'&&typeof y==='number'&&x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom;
+      }catch(x){}
+    }
+    if(!hit)return;
+    try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(x){}
+    try{if(typeof window.closeSheet==='function')window.closeSheet();}catch(x){}
+    try{
+      sh.classList.remove('show');
+      var body=document.getElementById('sheetBody');
+      if(body)body.innerHTML='';
+    }catch(x){}
+  }
+
+  window.addEventListener('pointerup',closeTreasure,true);
+  window.addEventListener('click',closeTreasure,true);
+})();
