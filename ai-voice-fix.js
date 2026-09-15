@@ -8,6 +8,41 @@
   var speaking=false;
   var spokenOnce=Object.create(null);
 
+  function isLiveOrCreatorMedia(media){
+    if(!media)return false;
+    if(media.id==='camera'||media.id==='cameraBg'||media.id==='ktLiveVideo')return true;
+    try{
+      return !!(media.closest&&media.closest('#creator,.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room'));
+    }catch(e){return false;}
+  }
+
+  function isNormalPlaybackMedia(media){
+    if(!media||!media.tagName)return false;
+    var tag=String(media.tagName).toUpperCase();
+    if(tag!=='VIDEO'&&tag!=='AUDIO')return false;
+    return !isLiveOrCreatorMedia(media);
+  }
+
+  function playbackActive(){
+    try{
+      return [].slice.call(document.querySelectorAll('video,audio')).some(function(media){
+        return isNormalPlaybackMedia(media)&&!media.paused&&!media.ended&&media.readyState>=2;
+      });
+    }catch(e){return false;}
+  }
+
+  window.ktAiPlaybackBlocking=playbackActive;
+
+  function stopForPlayback(){
+    queue=[];
+    speaking=false;
+    try{if(synth&&synth.cancel)synth.cancel();}catch(e){}
+  }
+
+  document.addEventListener('play',function(e){
+    if(isNormalPlaybackMedia(e.target))stopForPlayback();
+  },true);
+
   function getKoVoice(){
     if(!synth||!synth.getVoices)return null;
     var voices=synth.getVoices()||[];
@@ -22,6 +57,7 @@
 
   function speakNow(text){
     text=normalize(text);
+    if(playbackActive())return false;
     if(!text||!synth||typeof window.SpeechSynthesisUtterance!=='function')return false;
     try{
       if(synth.paused&&synth.resume)synth.resume();
@@ -41,12 +77,14 @@
   }
 
   function drain(){
+    if(playbackActive()){queue=[];speaking=false;return;}
     if(speaking||!queue.length)return;
     speakNow(queue.shift());
   }
 
   window.ktSpeak=function(text){
     try{if(window.state&&state.aiVoiceOn===false)return false;}catch(e){}
+    if(playbackActive())return false;
     text=normalize(text);
     if(!text)return false;
     if(!synth||typeof window.SpeechSynthesisUtterance!=='function')return false;
@@ -67,7 +105,7 @@
     var msg='K-Talk AI 음성 안내 테스트입니다.';
     delete spokenOnce[normalize(msg)];
     var ok=window.ktSpeak(msg);
-    if(!ok)alert('이 브라우저에서 음성 읽기를 사용할 수 없습니다. 크롬에서 다시 실행해 주세요.');
+    if(!ok&&!playbackActive())alert('이 브라우저에서 음성 읽기를 사용할 수 없습니다. 크롬에서 다시 실행해 주세요.');
     return ok;
   };
 
@@ -75,7 +113,7 @@
   window.toggleAIVoice=function(btn){
     if(typeof oldToggle==='function'){
       var r=oldToggle.apply(this,arguments);
-      try{if(window.state&&state.aiVoiceOn){setTimeout(function(){window.ktSpeak('에이아이 음성 안내를 켰습니다.');},60);}}catch(e){}
+      try{if(window.state&&state.aiVoiceOn&&!playbackActive()){setTimeout(function(){window.ktSpeak('에이아이 음성 안내를 켰습니다.');},60);}}catch(e){}
       return r;
     }
     try{state.aiVoiceOn=!state.aiVoiceOn;localStorage.setItem('ktalk_ai_voice',state.aiVoiceOn?'on':'off');}catch(e){}
@@ -140,12 +178,16 @@
   }
 
   function attendanceSpeak(){
+    try{if(window.ktAiPlaybackBlocking&&window.ktAiPlaybackBlocking())return;}catch(e){}
     var msg=nickname()+'님, 출석 체크해 주셔서 감사합니다.';
     try{if(window.state)state.aiVoiceOn=true;}catch(e){}
     try{localStorage.setItem('ktalk_ai_voice','on');}catch(e){}
     try{if(window.speechSynthesis&&window.speechSynthesis.cancel)window.speechSynthesis.cancel();}catch(e){}
     try{
-      if(typeof window.ktSpeak==='function'&&window.ktSpeak(msg))return;
+      if(typeof window.ktSpeak==='function'){
+        window.ktSpeak(msg);
+        return;
+      }
     }catch(e){}
     try{
       if(!window.speechSynthesis||typeof window.SpeechSynthesisUtterance!=='function')return;
