@@ -122,3 +122,77 @@
   s.textContent='#creator.creator.camera-on:not(.creator-review) video#camera{transform:scaleX(-1) scale(.92)!important;transform-origin:center center!important;}';
   document.head.appendChild(s);
 })();
+
+/* 2026-09-15 AI 보정 강도 선택만 단순화. 다른 방/선물/버튼은 변경하지 않음. */
+(function(){
+  if(window.__ktSimpleBeautyPresets20260915)return;
+  window.__ktSimpleBeautyPresets20260915=true;
+
+  function ensureStyle(){
+    if(document.getElementById('ktSimpleBeautyPresetsStyle20260915'))return;
+    var s=document.createElement('style');
+    s.id='ktSimpleBeautyPresetsStyle20260915';
+    s.textContent=''
+      +'.kt-simple-beauty{padding:8px 2px 4px}.kt-simple-beauty-note{margin:0 0 12px;padding:10px 12px;border-radius:12px;background:#ffffff0d;color:#ddd;font-size:12px;line-height:1.5}'
+      +'.kt-simple-beauty-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.kt-simple-beauty-grid button{min-height:64px;border:1px solid #ffffff22;border-radius:16px;background:#12121a;color:#fff;font-size:16px;font-weight:950}'
+      +'.kt-simple-beauty-grid button.on{border-color:#ff5ccf;box-shadow:0 0 0 2px #ff5ccf33,0 0 16px #ff5ccf33;background:linear-gradient(135deg,#2b1028,#16111f)}'
+      +'.kt-simple-beauty-grid small{display:block;margin-top:5px;color:#cfcfd5;font-size:10px;font-weight:700}.kt-simple-beauty-apply{width:100%;height:46px;margin-top:12px;border:0;border-radius:14px;background:linear-gradient(135deg,#ff3ca6,#7b55ff);color:#fff;font-size:15px;font-weight:950}';
+    document.head.appendChild(s);
+  }
+
+  var presets={
+    off:{skin:1,tone:50,bright:50,sharp:50},
+    light:{skin:74,tone:56,bright:64,sharp:52},
+    normal:{skin:82,tone:60,bright:70,sharp:52},
+    strong:{skin:90,tone:64,bright:76,sharp:50}
+  };
+
+  window.ktApplySimpleBeautyPreset=function(name){
+    name=presets[name]?name:'normal';
+    state.ktSimpleBeautyPreset=name;
+    if(name==='off'){
+      state.beautyOn=false;
+      if(camera){
+        camera.style.removeProperty('filter');
+        camera.style.setProperty('transform','scaleX(-1) scale(.92)','important');
+      }
+    }else{
+      var p=presets[name];
+      state.beautyOn=true;
+      state.beautySkin=p.skin;
+      state.beautyTone=p.tone;
+      state.beautyBright=p.bright;
+      state.beautySharp=p.sharp;
+      state.beautyFace=50;
+      state.beautyEyes=50;
+      state.beautyNose=50;
+      state.beautyMouth=50;
+      try{if(typeof window.applyBeautyPreview==='function')window.applyBeautyPreview();}catch(e){}
+      if(camera)camera.style.setProperty('transform','scaleX(-1) scale(.92)','important');
+    }
+    document.querySelectorAll('.kt-simple-beauty-grid button[data-beauty-preset]').forEach(function(b){
+      b.classList.toggle('on',b.getAttribute('data-beauty-preset')===name);
+    });
+  };
+
+  window.openBeautyPanel=function(){
+    ensureStyle();
+    try{creator.classList.add('beauty-preview-open');}catch(e){}
+    try{var lp=creator.querySelector('.live-prep');if(lp)lp.style.setProperty('display','none','important');}catch(e){}
+    try{if(window.ensureLiveCamera)ensureLiveCamera(state.cameraFacing||'user').catch(function(){});}catch(e){}
+    var current=state.ktSimpleBeautyPreset||'normal';
+    var html='<div class="kt-simple-beauty">'
+      +'<div class="kt-simple-beauty-note">카메라 밝기와 피부 질감을 자연스럽게 정리합니다. 원하는 강도를 눌러 바로 미리 볼 수 있습니다.</div>'
+      +'<div class="kt-simple-beauty-grid">'
+        +'<button data-beauty-preset="off" class="'+(current==='off'?'on':'')+'" onclick="ktApplySimpleBeautyPreset(\'off\')">원본<small>보정 없음</small></button>'
+        +'<button data-beauty-preset="light" class="'+(current==='light'?'on':'')+'" onclick="ktApplySimpleBeautyPreset(\'light\')">약하게<small>밝기·질감 가볍게</small></button>'
+        +'<button data-beauty-preset="normal" class="'+(current==='normal'?'on':'')+'" onclick="ktApplySimpleBeautyPreset(\'normal\')">보통<small>자연스러운 방송 보정</small></button>'
+        +'<button data-beauty-preset="strong" class="'+(current==='strong'?'on':'')+'" onclick="ktApplySimpleBeautyPreset(\'strong\')">강하게<small>밝기·질감 더 선명하게</small></button>'
+      +'</div>'
+      +'<button class="kt-simple-beauty-apply" onclick="closeSheet()">적용</button>'
+      +'</div>';
+    showSheet('AI 보정',html);
+    sheet.classList.add('camera-effect-sheet','beauty-control-sheet');
+    setTimeout(function(){ktApplySimpleBeautyPreset(current);},0);
+  };
+})();
