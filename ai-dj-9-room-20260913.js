@@ -119,7 +119,7 @@
   if(document.getElementById('ktCreatorCameraSlightlySmaller20260915'))return;
   var s=document.createElement('style');
   s.id='ktCreatorCameraSlightlySmaller20260915';
-  s.textContent='#creator.creator.camera-on:not(.creator-review) video#camera{transform:scaleX(-1) scale(.88)!important;transform-origin:center center!important;}';
+  s.textContent='#creator.creator.camera-on:not(.creator-review) video#camera{transform:scaleX(-1) scale(.84)!important;transform-origin:center center!important;}';
   document.head.appendChild(s);
 
   function tryZoomOut(){
@@ -186,7 +186,7 @@
     if(camera){
       if(name==='off')camera.style.removeProperty('filter');
       else camera.style.setProperty('filter',p.filter,'important');
-      camera.style.setProperty('transform','scaleX(-1) scale(.88)','important');
+      camera.style.setProperty('transform','scaleX(-1) scale(.84)','important');
     }
     document.querySelectorAll('.kt-simple-beauty-grid button[data-beauty-preset]').forEach(function(b){
       b.classList.toggle('on',b.getAttribute('data-beauty-preset')===name);
