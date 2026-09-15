@@ -18,7 +18,7 @@
       +'.ktsolo-room .ktsolo-led-track,.ktg13-room:not([data-kt-room="15"]) .ktg13-led-track,.ktsubscriber-room .ktsubscriber-led-track,.ktsecret-room .ktsecret-led-track{font-size:18px!important;font-weight:950!important}'
       +'.ktsolo-room .ktsolo-right,.ktg13-room:not([data-kt-room="15"]) .ktg13-right-quick,.ktsubscriber-room .ktsubscriber-right,.ktsecret-room .ktsecret-right{display:none!important}'
       +'.ktsubscriber-room .ktsubscriber-stage{grid-template-columns:minmax(0,1fr)!important}'
-      +'/* 1인방·비밀방 선물줄만 9명방처럼 하단 메뉴 바로 위로 내림. 다른 방은 변경하지 않음. */'
+      +'/* 1인방·비밀방 선물줄만 하단 메뉴 바로 위로 내림. 다른 방은 변경하지 않음. */'
       +'.ktsolo-room>.ktsolo-gifts,.ktsecret-room>.ktsecret-gifts{position:relative!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;flex:0 0 64px!important;min-height:64px!important;height:64px!important;width:100%!important;box-sizing:border-box!important;z-index:11!important}'
       +'.ktsecret-room>.ktsecret-gifts{order:90!important;margin:0!important}.ktsecret-room>.ktsecret-tools{order:100!important}'
       +'@media(max-width:390px){.kt-live-top-quickbar{flex-basis:36px!important;min-height:36px!important}.kt-live-top-quickbar button{height:36px!important;font-size:10px!important;gap:2px!important}.kt-live-top-quickbar button b{font-size:13px!important}.kt-live-top-quickbar button span{font-size:10px!important}.ktsecret-room>.kt-live-top-quickbar button,.ktsecret-room>.kt-live-top-quickbar button span{font-size:9px!important}.ktsolo-room>.ktsolo-led,.ktg13-room:not([data-kt-room="15"])>.ktg13-led,.ktsubscriber-room>.ktsubscriber-led,.ktsecret-room>.ktsecret-led{flex-basis:36px!important;min-height:36px!important;height:36px!important}.ktsolo-room .ktsolo-led-track,.ktg13-room:not([data-kt-room="15"]) .ktg13-led-track,.ktsubscriber-room .ktsubscriber-led-track,.ktsecret-room .ktsecret-led-track{font-size:17px!important}.ktsolo-room>.ktsolo-gifts,.ktsecret-room>.ktsecret-gifts{flex-basis:58px!important;min-height:58px!important;height:58px!important}}';
@@ -113,30 +113,32 @@
   }catch(e){}
 })();
 
-/* 1인방 선물줄과 같은 구성/모양을 9명방·13명방·구독자방·비밀방에만 복사. 다른 UI/기능은 변경하지 않음. */
+/* 13명방 선물줄과 같은 구성/모양을 1인방·9명방·구독자방·비밀방에만 복사. 13명방 원본과 다른 UI는 변경하지 않음. */
 (function(){
-  if(window.__ktCopySoloGiftsToFourRooms20260915)return;
-  window.__ktCopySoloGiftsToFourRooms20260915=true;
+  if(window.__ktCopy13GiftsToOtherRooms20260915)return;
+  window.__ktCopy13GiftsToOtherRooms20260915=true;
 
-  if(!document.getElementById('ktCopySoloGiftStyle20260915')){
+  var oldStyle=document.getElementById('ktCopySoloGiftStyle20260915');
+  if(oldStyle)oldStyle.remove();
+
+  if(!document.getElementById('ktCopy13GiftStyle20260915')){
     var st=document.createElement('style');
-    st.id='ktCopySoloGiftStyle20260915';
+    st.id='ktCopy13GiftStyle20260915';
     st.textContent=''
-      +'#screen .ktg13-gifts,#screen .ktsubscriber-gifts,#screen .ktsecret-gifts{display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:3px!important}'
-      +'#screen .kt-solo-copy-gift{min-width:0!important;border:1px solid #ffffff33!important;border-radius:7px!important;background:linear-gradient(180deg,rgba(17,17,22,.76),rgba(9,9,12,.84))!important;color:#fff!important;padding:2px 1px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:flex-end!important;overflow:hidden!important;backdrop-filter:blur(2px)!important}'
-      +'#screen .kt-solo-copy-gift img{width:36px!important;max-width:84%!important;height:29px!important;object-fit:contain!important;filter:drop-shadow(0 2px 4px #000)!important}'
-      +'#screen .kt-solo-copy-emoji{height:29px!important;display:grid!important;place-items:center!important;font-size:23px!important;line-height:1!important;filter:drop-shadow(0 0 5px #ff5bd4)!important}'
-      +'#screen .kt-solo-copy-gift b{color:#ffe23e!important;font-size:8.5px!important;line-height:1!important}'
-      +'#screen .kt-solo-copy-gift small{display:block!important;margin-top:1px!important;color:#fff!important;font-size:7px!important;line-height:1.05!important;font-weight:900!important;text-align:center!important}'
-      +'@media(max-width:390px){#screen .kt-solo-copy-gift img,#screen .kt-solo-copy-emoji{height:26px!important}}';
+      +'#screen .ktsolo-room .ktsolo-gifts,#screen .ktg13-room[data-kt-room="9"] .ktg13-gifts,#screen .ktsubscriber-room .ktsubscriber-gifts,#screen .ktsecret-room .ktsecret-gifts{flex:0 0 56px!important;min-height:56px!important;height:56px!important;display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:3px!important}'
+      +'#screen .kt-g13-copy-gift{min-width:0!important;border:1px solid #33343a!important;border-radius:7px!important;background:linear-gradient(180deg,#111116,#09090c)!important;color:#fff!important;padding:2px 1px 2px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:flex-end!important;overflow:hidden!important}'
+      +'#screen .kt-g13-copy-gift img{width:34px!important;max-width:84%!important;height:24px!important;object-fit:contain!important;filter:drop-shadow(0 2px 4px #000)!important}'
+      +'#screen .kt-g13-copy-emoji{height:24px!important;display:grid!important;place-items:center!important;font-size:21px!important;line-height:1!important;filter:drop-shadow(0 0 5px #ff5bd4)!important}'
+      +'#screen .kt-g13-copy-gift b{color:#ffe23e!important;font-size:8px!important;line-height:1.02!important}'
+      +'#screen .kt-g13-copy-gift small{display:block!important;margin-top:1px!important;color:#fff!important;font-size:6.5px!important;line-height:1.02!important;font-weight:900!important;text-align:center!important;white-space:normal!important}';
     document.head.appendChild(st);
   }
 
   function item(prefix,kind,count,label,asset){
     var art=asset
-      ?'<img src="/'+asset+'?v=20260915-solo-copy1" alt="'+label+'">'
-      :'<span class="kt-solo-copy-emoji">'+kind+'</span>';
-    return '<button type="button" class="'+prefix+'-gift kt-solo-copy-gift" onclick="if(window.openGifts)openGifts()">'+art+'<b>'+count+'</b><small>'+label+'</small></button>';
+      ?'<img src="'+asset+'" alt="'+label+'">'
+      :'<span class="kt-g13-copy-emoji">'+kind+'</span>';
+    return '<button type="button" class="'+prefix+'-gift kt-g13-copy-gift" onclick="if(window.openGifts)openGifts()">'+art+'<b>'+count+'</b><small>'+label+'</small></button>';
   }
 
   function markup(prefix){
@@ -150,30 +152,27 @@
       +item(prefix,'','선물상자','큰 선물 보기','gift-box.svg');
   }
 
+  function apply(selector,prefix){
+    document.querySelectorAll(selector).forEach(function(row){
+      if(row.dataset.ktG13GiftCopy==='1')return;
+      row.innerHTML=markup(prefix);
+      row.dataset.ktG13GiftCopy='1';
+    });
+  }
+
   function normalize(){
-    document.querySelectorAll('.ktg13-room:not([data-kt-room="15"]) .ktg13-gifts').forEach(function(row){
-      if(row.dataset.ktSoloGiftCopy==='1')return;
-      row.innerHTML=markup('ktg13');
-      row.dataset.ktSoloGiftCopy='1';
-    });
-    document.querySelectorAll('.ktsubscriber-room .ktsubscriber-gifts').forEach(function(row){
-      if(row.dataset.ktSoloGiftCopy==='1')return;
-      row.innerHTML=markup('ktsubscriber');
-      row.dataset.ktSoloGiftCopy='1';
-    });
-    document.querySelectorAll('.ktsecret-room .ktsecret-gifts').forEach(function(row){
-      if(row.dataset.ktSoloGiftCopy==='1')return;
-      row.innerHTML=markup('ktsecret');
-      row.dataset.ktSoloGiftCopy='1';
-    });
+    apply('.ktsolo-room .ktsolo-gifts','ktsolo');
+    apply('.ktg13-room[data-kt-room="9"] .ktg13-gifts','ktg13');
+    apply('.ktsubscriber-room .ktsubscriber-gifts','ktsubscriber');
+    apply('.ktsecret-room .ktsecret-gifts','ktsecret');
   }
 
   normalize();
   [40,120,300,700,1300].forEach(function(ms){setTimeout(normalize,ms);});
   try{
     var mo=new MutationObserver(function(){
-      clearTimeout(window.__ktCopySoloGiftsToFourRoomsTimer20260915);
-      window.__ktCopySoloGiftsToFourRoomsTimer20260915=setTimeout(normalize,25);
+      clearTimeout(window.__ktCopy13GiftsTimer20260915);
+      window.__ktCopy13GiftsTimer20260915=setTimeout(normalize,25);
     });
     mo.observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
