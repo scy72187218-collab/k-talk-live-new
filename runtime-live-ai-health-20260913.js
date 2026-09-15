@@ -63,4 +63,7 @@
   load('feed-swipe-playback-fix.js','__ktFeedSwipePlaybackFixInstalled',function(){
     load('broadcast-video-resume-fix.js','__ktBroadcastVideoResumeFixInstalled');
   });
+
+  /* 방송 입장 순간 카메라가 끊기거나 1~2초 늦게 뜨는 현상만 보강. */
+  load('live-room-instant-video-fix-20260915.js','__ktLiveRoomInstantVideoFixInstalled');
 })();
