@@ -163,9 +163,22 @@
     document.head.appendChild(st);
   }
 
+  function loadCompanyBoard(){
+    try{
+      if(window.__ktBlogCommentRewardBoard20260915)return;
+      var exists=[].slice.call(document.scripts).some(function(s){return String(s.src||'').indexOf('blog-comment-reward-board-20260915.js')>-1;});
+      if(exists)return;
+      var sc=document.createElement('script');
+      sc.src='blog-comment-reward-board-20260915.js?v=20260915-blogreward1';
+      document.body.appendChild(sc);
+    }catch(e){}
+  }
+
   run();
+  loadCompanyBoard();
   setTimeout(run,80);
   setTimeout(run,300);
+  setTimeout(loadCompanyBoard,120);
   try{new MutationObserver(run).observe(document.documentElement,{childList:true,subtree:true});}catch(e){}
   window.addEventListener('storage',run);
 })();
