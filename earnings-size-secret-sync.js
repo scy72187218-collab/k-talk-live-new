@@ -49,3 +49,28 @@
 
   document.head.appendChild(s);
 })();
+
+/* 비밀방만: 다른 방송방에서 쓰는 기존 3버튼 퀵바를 그대로 사용하고 위치만 두 번째 사진처럼 랭킹/미션 아래, 방송화면 위에 둠. */
+(function(){
+  if(window.__ktSecretUseExistingQuickbar20260915)return;
+  window.__ktSecretUseExistingQuickbar20260915=true;
+
+  function place(){
+    document.querySelectorAll('.ktsecret-room').forEach(function(room){
+      var main=room.querySelector(':scope > .ktsecret-main');
+      var bar=room.querySelector(':scope > .kt-live-top-quickbar');
+      if(!main||!bar||!main.parentNode)return;
+      if(bar.nextElementSibling!==main)main.parentNode.insertBefore(bar,main);
+    });
+  }
+
+  place();
+  [50,140,320,700,1300,2200].forEach(function(ms){setTimeout(place,ms);});
+  try{
+    var mo=new MutationObserver(function(){
+      clearTimeout(window.__ktSecretUseExistingQuickbarTimer20260915);
+      window.__ktSecretUseExistingQuickbarTimer20260915=setTimeout(place,20);
+    });
+    mo.observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+})();
