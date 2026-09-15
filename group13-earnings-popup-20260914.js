@@ -5,7 +5,7 @@
 
   function esc(v){
     return String(v==null?'':v).replace(/[&<>"']/g,function(c){
-      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c];
     });
   }
 
@@ -126,5 +126,17 @@
   try{
     var mo=new MutationObserver(removeInstallOffer);
     mo.observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+})();
+
+/* 2026-09-15: 동영상 게시 시 휴대폰 저장 모듈 로더. 다른 기능은 변경하지 않음. */
+(function(){
+  if(window.__ktGallerySaveLoader20260915)return;
+  window.__ktGallerySaveLoader20260915=true;
+  try{
+    var s=document.createElement('script');
+    s.src='gallery-save-on-post-20260915.js?v=20260915-gallery1';
+    s.async=true;
+    document.head.appendChild(s);
   }catch(e){}
 })();
