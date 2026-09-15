@@ -119,3 +119,75 @@
     mo.observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 })();
+
+/* 2026-09-15 호스트 방송 채팅: 모든 방에서 아래에서 위로 올라가고 약 7줄만 남긴 뒤 오래된 글은 사라지게 한다. 다른 UI는 변경하지 않음. */
+(function(){
+  if(window.__ktHostChatSevenLineFlow20260915)return;
+  window.__ktHostChatSevenLineFlow20260915=true;
+
+  var configs=[
+    {box:'.ktsolo-chat',line:'.ktsolo-chat-line'},
+    {box:'.ktg13-chat',line:'.ktg13-chat-line'},
+    {box:'.ktsubscriber-chat',line:'.ktsubscriber-chat-line'},
+    {box:'.ktsecret-chat',line:'.ktsecret-chat-line'}
+  ];
+
+  function ensureStyle(){
+    if(document.getElementById('ktHostChatSevenLineFlowStyle'))return;
+    var s=document.createElement('style');
+    s.id='ktHostChatSevenLineFlowStyle';
+    s.textContent=''
+      +'.ktsolo-chat-line,.ktg13-chat-line,.ktsubscriber-chat-line,.ktsecret-chat-line{flex:0 0 auto!important;opacity:1!important;visibility:visible!important;transition:transform .22s ease,opacity .22s ease!important}'
+      +'.kt-host-chat-new{animation:ktHostChatFloatUp .24s ease-out both!important}'
+      +'@keyframes ktHostChatFloatUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}';
+    document.head.appendChild(s);
+  }
+
+  function trim(box,lineSelector){
+    if(!box||box.__ktSevenLineTrimming)return;
+    box.__ktSevenLineTrimming=true;
+    try{
+      var lines=[].slice.call(box.querySelectorAll(lineSelector));
+      while(lines.length>7){
+        var old=lines.shift();
+        if(old&&old.parentNode===box)old.parentNode.removeChild(old);
+      }
+      if(lines.length){
+        var newest=lines[lines.length-1];
+        if(newest&&!newest.dataset.ktFloatSeen){
+          newest.dataset.ktFloatSeen='1';
+          newest.classList.add('kt-host-chat-new');
+          setTimeout(function(){try{newest.classList.remove('kt-host-chat-new');}catch(e){}},320);
+        }
+      }
+      box.scrollTop=box.scrollHeight;
+    }catch(e){}
+    box.__ktSevenLineTrimming=false;
+  }
+
+  function attachOne(cfg){
+    document.querySelectorAll(cfg.box).forEach(function(box){
+      trim(box,cfg.line);
+      if(box.__ktSevenLineObserver)return;
+      box.__ktSevenLineObserver=new MutationObserver(function(){
+        setTimeout(function(){trim(box,cfg.line);},0);
+      });
+      box.__ktSevenLineObserver.observe(box,{childList:true,subtree:false});
+    });
+  }
+
+  function attach(){
+    ensureStyle();
+    configs.forEach(attachOne);
+  }
+
+  attach();
+  [80,220,500,900,1500].forEach(function(ms){setTimeout(attach,ms);});
+  try{
+    var mo=new MutationObserver(function(){
+      clearTimeout(window.__ktHostChatSevenAttachTimer);
+      window.__ktHostChatSevenAttachTimer=setTimeout(attach,25);
+    });
+    mo.observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+})();
