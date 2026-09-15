@@ -4,15 +4,10 @@
   window.__ktAiHelpReader20260915=true;
 
   var speakingToken=0;
-  var greetingDone=false;
+  var benefitContext=false;
 
   function voiceOn(){
     try{return !!(window.state&&state.aiVoiceOn);}catch(e){return true;}
-  }
-  function inBroadcast(){
-    try{
-      return !!document.querySelector('#screen .ktsolo-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room,#screen .ktg9-room');
-    }catch(e){return false;}
   }
   function stopGuideVoice(){
     speakingToken++;
@@ -44,14 +39,13 @@
     return out;
   }
   function speakAll(text){
-    if(inBroadcast()){stopGuideVoice();return;}
     if(!voiceOn()||!('speechSynthesis' in window))return;
     var q=chunks(text);if(!q.length)return;
     var token=++speakingToken;
     try{speechSynthesis.cancel();speechSynthesis.resume();}catch(e){}
     var voice=pickVoice();
     function next(){
-      if(token!==speakingToken||!q.length||!voiceOn()||inBroadcast())return;
+      if(token!==speakingToken||!q.length||!voiceOn())return;
       var part=q.shift();
       var u=new SpeechSynthesisUtterance(part);
       u.lang='ko-KR';u.rate=1.00;u.pitch=1;u.volume=1;if(voice)u.voice=voice;
@@ -67,23 +61,24 @@
   }
 
   function greetingText(){
-    return '안녕하세요. K-Talk AI 음성 안내입니다. 필요한 내용을 차례대로 읽어드리겠습니다.';
+    return 'K-Talk 혜택 안내입니다. 화면에 있는 혜택 내용을 읽어드리겠습니다.';
   }
-  function greetOnce(){
-    if(greetingDone||!voiceOn()||inBroadcast()||!('speechSynthesis' in window))return;
-    greetingDone=true;
-    speakAll(greetingText());
-  }
-  window.ktAiGreetingOnce=greetOnce;
 
-  /* 각 안내는 그 화면에 들어갔을 때만 읽는다. 방송방 안에서는 혜택/안내를 자동으로 읽지 않는다. */
-  function isGuideTitle(title){
+  function isBenefitRoot(title){
     title=clean(title);
-    return /(사용방법|이용방법|이용·혜택|혜택|안내|구독|VIP|장미 충전|선물|보물상자|제비뽑기|투자자|광고|신고|수익률)/i.test(title);
+    return /^(K-Talk 사용방법·혜택|K-Talk 사용방법 · 혜택|K-Talk 이용방법·혜택|K-Talk 이용방법 · 혜택|혜택 · 보상 센터)$/i.test(title);
+  }
+  function isBenefitChild(title){
+    title=clean(title);
+    return /(7일 방송 보상|제비뽑기|출석 · 참여 보상|출석 · 참여|장미 · 코인 충전 혜택|방송방 이용 혜택|혜택 받기|구독자 혜택|혜택 주기|혜택 알림|미션 · 랭킹|팬클럽 혜택|구독·VIP 혜택|구독 · VIP 혜택)/i.test(title);
+  }
+  function isBenefitTitle(title){
+    title=clean(title);
+    return isBenefitRoot(title)||isBenefitChild(title);
   }
   function isFullGuideTitle(title){
     title=clean(title);
-    return /(사용방법|이용방법|이용·혜택)/i.test(title);
+    return /^(K-Talk 사용방법·혜택|K-Talk 사용방법 · 혜택|K-Talk 이용방법·혜택|K-Talk 이용방법 · 혜택)$/i.test(title);
   }
 
   function fullGuideHtml(){
@@ -118,35 +113,36 @@
   }
 
   function currentSheetText(){
-    if(inBroadcast())return '';
     var sheet=document.getElementById('sheet');
     if(!sheet||!sheet.classList.contains('show'))return '';
     var title=document.getElementById('sheetTitle');
     var body=document.getElementById('sheetBody');
     var t=clean(title&&title.textContent);
-    if(!isGuideTitle(t))return '';
+    if(!isBenefitTitle(t))return '';
     return clean(t+' '+(body&&body.innerText||body&&body.textContent||''));
   }
   function readCurrentSheet(){
-    if(inBroadcast()){stopGuideVoice();return;}
     appendFullGuide();
     var txt=currentSheetText();
-    if(txt){
-      greetingDone=true;
-      speakAll(greetingText()+' '+txt);
-    }
+    if(txt)speakAll(greetingText()+' '+txt);
   }
   window.ktReadCurrentHelpSheet=readCurrentSheet;
+  window.ktAiGreetingOnce=function(){
+    var txt=currentSheetText();
+    if(txt)readCurrentSheet();
+  };
 
   function install(){
     if(typeof window.showSheet==='function'&&!window.showSheet.__ktAiHelpWrapped){
       var oldShow=window.showSheet;
       var wrapped=function(title,html){
+        var t=clean(title);
+        if(isBenefitRoot(t))benefitContext=true;
+        else if(isBenefitChild(t))benefitContext=true;
+        else benefitContext=false;
         var r=oldShow.apply(this,arguments);
-        if(!inBroadcast()&&isGuideTitle(title))setTimeout(function(){
-          appendFullGuide();
-          readCurrentSheet();
-        },120);
+        if(benefitContext&&isBenefitTitle(t))setTimeout(readCurrentSheet,120);
+        else stopGuideVoice();
         return r;
       };
       wrapped.__ktAiHelpWrapped=true;
@@ -157,20 +153,8 @@
       var t=function(btn){
         var r=oldToggle.apply(this,arguments);
         setTimeout(function(){
-          if(inBroadcast()){
-            stopGuideVoice();
-          }else if(voiceOn()){
-            var txt=currentSheetText();
-            if(txt){
-              appendFullGuide();
-              readCurrentSheet();
-            }else{
-              greetingDone=false;
-              greetOnce();
-            }
-          }else{
-            stopGuideVoice();
-          }
+          if(voiceOn()&&currentSheetText())readCurrentSheet();
+          else if(!voiceOn())stopGuideVoice();
         },120);
         return r;
       };
@@ -183,27 +167,6 @@
   setTimeout(install,300);
   setTimeout(install,1200);
   setInterval(install,2500);
-
-  function firstUserVoice(){
-    if(greetingDone||!voiceOn()||inBroadcast())return;
-    greetOnce();
-  }
-  document.addEventListener('click',firstUserVoice,{once:true,capture:false});
-  document.addEventListener('touchend',firstUserVoice,{once:true,capture:false});
-
-  document.addEventListener('click',function(e){
-    var b=e.target&&e.target.closest?e.target.closest('#sheet button'):null;
-    if(!b||!voiceOn()||inBroadcast())return;
-    setTimeout(function(){
-      appendFullGuide();
-      var txt=currentSheetText();
-      if(txt){greetingDone=true;speakAll(greetingText()+' '+txt);}
-    },160);
-  },false);
-
-  try{
-    new MutationObserver(function(){if(inBroadcast())stopGuideVoice();}).observe(document.getElementById('screen')||document.documentElement,{childList:true,subtree:true});
-  }catch(e){}
 })();
 
 /* 방송 중 프로필 사진을 누르면 그 사람에게 선물할 수 있게 연결. 자기 사진에는 선물 버튼을 만들지 않음. */
