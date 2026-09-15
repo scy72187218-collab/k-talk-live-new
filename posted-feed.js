@@ -271,7 +271,10 @@
   window.__ktAllVideoViewingLocked20260915=true;
 
   function isLiveCamera(v){
-    return !!(v&&(v.id==='camera'||v.id==='cameraBg'||v.id==='ktLiveVideo'));
+    if(!v)return false;
+    if(v.id==='camera'||v.id==='cameraBg'||v.id==='ktLiveVideo')return true;
+    try{if(v.closest&&v.closest('#creator'))return true;}catch(e){}
+    return false;
   }
   function lockOne(v){
     if(!v||isLiveCamera(v))return;
@@ -288,6 +291,10 @@
     p.appendChild(cover);
   }
   function lockAll(){
+    try{
+      var creator=document.getElementById('creator');
+      if(creator)creator.querySelectorAll('.kt-video-lock-cover').forEach(function(x){x.remove();});
+    }catch(e){}
     document.querySelectorAll('video').forEach(lockOne);
   }
 
