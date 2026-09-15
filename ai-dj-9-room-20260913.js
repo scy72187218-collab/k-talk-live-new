@@ -111,3 +111,14 @@
 
   setTimeout(showInstallBox,900);
 })();
+
+/* 2026-09-15 촬영/방송 준비 카메라에서 사람 크기만 조금 축소. 다른 UI는 변경하지 않음. */
+(function(){
+  if(window.__ktCreatorCameraSlightlySmaller20260915)return;
+  window.__ktCreatorCameraSlightlySmaller20260915=true;
+  if(document.getElementById('ktCreatorCameraSlightlySmaller20260915'))return;
+  var s=document.createElement('style');
+  s.id='ktCreatorCameraSlightlySmaller20260915';
+  s.textContent='#creator.creator.camera-on:not(.creator-review) video#camera{transform:scaleX(-1) scale(.92)!important;transform-origin:center center!important;}';
+  document.head.appendChild(s);
+})();
