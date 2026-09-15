@@ -1,7 +1,7 @@
-/* K-Talk 공개 동영상 오른쪽 버튼: 프로필 사진 → 장미 → 좋아요 → 댓글 → 공유하기. 이 영역만 보강. */
+/* K-Talk 공개 동영상 오른쪽 버튼: 프로필 사진 → 좋아요 → 댓글 → 공유하기. 동영상 장미 보내기만 제거. */
 (function(){
-  if(window.__ktFeedProfileActionsInstalledV2)return;
-  window.__ktFeedProfileActionsInstalledV2=true;
+  if(window.__ktFeedProfileActionsInstalledV3)return;
+  window.__ktFeedProfileActionsInstalledV3=true;
 
   function getProfileImage(){
     var src='';
@@ -73,7 +73,6 @@
     if(like.getAttribute('data-kt-heart-bound')==='1')return;
     like.setAttribute('data-kt-heart-bound','1');
     like.addEventListener('click',function(){
-      window.__ktFeedHeartClickUntil=Date.now()+3500;
       [0,120,350,800,1500,2800].forEach(function(ms){setTimeout(function(){normalizeLikeText(like);},ms);});
     },true);
     try{
@@ -81,67 +80,19 @@
     }catch(e){}
   }
 
-  function recipientName(box){
+  function removeVideoRoseAndGift(box){
     try{
-      var card=box&&box.closest?box.closest('section'):null;
-      var title=card&&card.querySelector?card.querySelector('.vh-title b'):null;
-      var name=title?String(title.textContent||''):'';
-      name=name.replace(/^♛\s*/,'').trim();
-      return name||'동영상 게시자';
-    }catch(e){return '동영상 게시자';}
-  }
-
-  function showRoseToast(name){
-    try{
-      var old=document.querySelector('.kt-feed-rose-toast');
-      if(old)old.remove();
-      var toast=document.createElement('div');
-      toast.className='kt-feed-rose-toast';
-      toast.style.cssText='position:fixed;left:50%;bottom:110px;transform:translateX(-50%);z-index:99999;padding:12px 18px;border-radius:999px;background:rgba(24,8,28,.94);border:1px solid #ff5aaf;color:#fff;font-weight:950;box-shadow:0 0 18px rgba(255,54,150,.45);white-space:nowrap;max-width:88vw;overflow:hidden;text-overflow:ellipsis';
-      toast.textContent='🌹 '+(name||'동영상 게시자')+'님에게 장미 1송이를 보냈습니다';
-      document.body.appendChild(toast);
-      setTimeout(function(){if(toast&&toast.parentNode)toast.remove();},2200);
-    }catch(e){}
-  }
-
-  function sendOneRose(box){
-    var name=recipientName(box);
-    try{
-      if(typeof window.giftSend==='function')window.giftSend('장미',1);
-      else if(typeof window.ktAnnounceEvent==='function')window.ktAnnounceEvent('gift',{name:'장미',count:1});
-    }catch(e){}
-    showRoseToast(name);
-  }
-
-  function ensureRose(box,profile,like){
-    var rose=box.querySelector(':scope > .kt-feed-rose-button');
-    if(!rose){
-      rose=document.createElement('button');
-      rose.type='button';
-      rose.className='kt-feed-rose-button';
-      rose.setAttribute('aria-label','장미');
-      rose.innerHTML='🌹<small>장미</small>';
-    }
-    rose.onclick=function(e){
-      try{if(e){e.preventDefault();e.stopPropagation();}}catch(x){}
-      sendOneRose(box);
-      return false;
-    };
-    if(like){
-      if(rose.nextSibling!==like)box.insertBefore(rose,like);
-    }else if(profile&&profile.nextSibling!==rose){
-      box.insertBefore(rose,profile.nextSibling||null);
-    }
-  }
-
-  function removeGiftKeepShare(box){
-    try{
-      var buttons=[].slice.call(box.querySelectorAll(':scope > button:not(.kt-feed-profile-button):not(.kt-feed-rose-button)'));
+      box.querySelectorAll(':scope > .kt-feed-rose-button').forEach(function(btn){btn.remove();});
+      var buttons=[].slice.call(box.querySelectorAll(':scope > button:not(.kt-feed-profile-button)'));
       buttons.forEach(function(btn){
         var small=btn.querySelector('small');
         var label=small?String(small.textContent||'').trim():'';
         var onclick=String(btn.getAttribute('onclick')||'');
         var text=String(btn.textContent||'');
+        if(label==='장미'||text.indexOf('🌹')>-1){
+          btn.remove();
+          return;
+        }
         if(label==='선물'||onclick.indexOf('openGifts')>-1||text.indexOf('🎁')>-1){
           btn.remove();
           return;
@@ -152,6 +103,17 @@
         }
       });
     }catch(e){}
+  }
+
+  function findLike(box){
+    var buttons=[].slice.call(box.querySelectorAll(':scope > button:not(.kt-feed-profile-button)'));
+    for(var i=0;i<buttons.length;i++){
+      var small=buttons[i].querySelector('small');
+      var label=small?String(small.textContent||'').trim():'';
+      var txt=String(buttons[i].textContent||'');
+      if(label.indexOf('좋아요')===0||txt.indexOf('♡')>-1||txt.indexOf('♥')>-1)return buttons[i];
+    }
+    return buttons[0]||null;
   }
 
   function decorate(box){
@@ -170,6 +132,7 @@
     }else if(box.firstChild!==b){
       box.insertBefore(b,box.firstChild||null);
     }
+
     var src=getProfileImage();
     var old=b.getAttribute('data-photo-src')||'';
     if(old!==src||!b.firstChild){
@@ -177,37 +140,12 @@
       b.innerHTML=profileHtml(src);
     }
 
-    var buttons=[].slice.call(box.querySelectorAll(':scope > button:not(.kt-feed-profile-button):not(.kt-feed-rose-button)'));
-    var like=buttons[0]||null;
-    bindLike(like);
-    ensureRose(box,b,like);
-    removeGiftKeepShare(box);
+    removeVideoRoseAndGift(box);
+    bindLike(findLike(box));
   }
 
   function run(){
     try{document.querySelectorAll('.vh-actions').forEach(decorate);}catch(e){}
-  }
-
-  function fixHeartToast(node){
-    try{
-      if(Date.now()>Number(window.__ktFeedHeartClickUntil||0))return;
-      if(!node||node.nodeType!==1)return;
-      if(node.classList&&node.classList.contains('kt-feed-rose-toast'))return;
-      var txt=String(node.textContent||'');
-      if(txt.indexOf('장미 1송이를 보냈습니다')===-1)return;
-      node.textContent='💗 좋아요를 눌렀습니다';
-      window.__ktFeedHeartClickUntil=0;
-    }catch(e){}
-  }
-
-  function watchHeartToast(){
-    if(!document.body||window.__ktFeedHeartToastObserver)return;
-    try{
-      window.__ktFeedHeartToastObserver=new MutationObserver(function(list){
-        list.forEach(function(m){[].slice.call(m.addedNodes||[]).forEach(fixHeartToast);});
-      });
-      window.__ktFeedHeartToastObserver.observe(document.body,{childList:true});
-    }catch(e){}
   }
 
   if(!document.getElementById('ktFeedProfileActionsStyleV2')){
@@ -226,10 +164,8 @@
   }
 
   run();
-  watchHeartToast();
   setTimeout(run,80);
   setTimeout(run,300);
-  setTimeout(watchHeartToast,0);
   try{new MutationObserver(run).observe(document.documentElement,{childList:true,subtree:true});}catch(e){}
   window.addEventListener('storage',run);
 })();
