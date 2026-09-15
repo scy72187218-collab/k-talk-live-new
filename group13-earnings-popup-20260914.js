@@ -5,7 +5,7 @@
 
   function esc(v){
     return String(v==null?'':v).replace(/[&<>"']/g,function(c){
-      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c];
     });
   }
 
@@ -136,6 +136,18 @@
   try{
     var s=document.createElement('script');
     s.src='gallery-save-on-post-20260915.js?v=20260915-gallery1';
+    s.async=true;
+    document.head.appendChild(s);
+  }catch(e){}
+})();
+
+/* 2026-09-15: 장미 레벨 시스템 로더. 기존 방 UI와 선물 UI는 변경하지 않음. */
+(function(){
+  if(window.__ktLevelSystemLoader20260915)return;
+  window.__ktLevelSystemLoader20260915=true;
+  try{
+    var s=document.createElement('script');
+    s.src='level-system-20260915.js?v=20260915-level1';
     s.async=true;
     document.head.appendChild(s);
   }catch(e){}
