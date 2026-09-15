@@ -265,3 +265,145 @@
     mo.observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 })();
+
+/* 2026-09-15 촬영 화면 스위치 작동 보강. 화면 배치/방/선물은 변경하지 않음. */
+(function(){
+  if(window.__ktCreatorEveryControlReady20260915)return;
+  window.__ktCreatorEveryControlReady20260915=true;
+
+  function ensureTouch(){
+    var root=document.getElementById('creator');
+    if(!root)return;
+    root.querySelectorAll('button,.modes span,.creator-foot span').forEach(function(el){
+      el.style.setProperty('pointer-events','auto','important');
+      el.style.setProperty('touch-action','manipulation','important');
+      el.style.setProperty('-webkit-tap-highlight-color','transparent','important');
+      if(el.tagName==='BUTTON'&&!el.type)el.type='button';
+    });
+  }
+
+  function simpleSheet(title,html){
+    try{
+      if(typeof window.showSheet==='function')window.showSheet(title,'<div class="rowbox">'+html+'</div>');
+      else alert(title);
+    }catch(e){}
+  }
+
+  window.ktSetCreatorTimer=function(seconds){
+    seconds=Math.max(0,Number(seconds)||0);
+    try{state.creatorTimerSeconds=seconds;}catch(e){}
+    var btn=document.querySelector('#creator .creator-tools button[aria-label="타이머"]');
+    if(btn){
+      btn.classList.toggle('on',seconds>0);
+      btn.setAttribute('aria-pressed',seconds>0?'true':'false');
+      btn.title=seconds?('촬영 타이머 '+seconds+'초'):'촬영 타이머 꺼짐';
+    }
+    try{if(typeof window.closeSheet==='function')window.closeSheet();}catch(e){}
+  };
+
+  window.ktOpenCreatorTimer=function(){
+    simpleSheet('타이머','<button type="button" onclick="ktSetCreatorTimer(3)">3초</button> <button type="button" onclick="ktSetCreatorTimer(10)">10초</button> <button type="button" onclick="ktSetCreatorTimer(0)">끄기</button>');
+  };
+
+  window.ktToggleCreatorFlash=async function(btn){
+    try{
+      var stream=(window.camera&&camera.srcObject)||(window.state&&state.stream)||null;
+      var track=stream&&stream.getVideoTracks&&stream.getVideoTracks()[0];
+      if(!track||!track.getCapabilities||!track.applyConstraints){
+        simpleSheet('플래시','현재 카메라에서는 플래시를 사용할 수 없습니다. 후면 카메라에서 다시 눌러 주세요.');
+        return;
+      }
+      var caps=track.getCapabilities();
+      if(!caps||!caps.torch){
+        simpleSheet('플래시','현재 카메라에서는 플래시를 사용할 수 없습니다. 후면 카메라에서 다시 눌러 주세요.');
+        return;
+      }
+      state.creatorTorchOn=!state.creatorTorchOn;
+      await track.applyConstraints({advanced:[{torch:!!state.creatorTorchOn}]});
+      if(btn){
+        btn.classList.toggle('on',!!state.creatorTorchOn);
+        btn.setAttribute('aria-pressed',state.creatorTorchOn?'true':'false');
+      }
+    }catch(e){
+      try{state.creatorTorchOn=false;}catch(_e){}
+      simpleSheet('플래시','플래시를 켤 수 없습니다. 카메라를 전환한 뒤 다시 눌러 주세요.');
+    }
+  };
+
+  window.ktOpenCreatorMore=function(){
+    simpleSheet('더보기','<button type="button" onclick="if(window.toggleCreatorCamera)toggleCreatorCamera();closeSheet()">카메라 전환</button> <button type="button" onclick="closeSheet();setTimeout(function(){if(window.openBeautyPanel)openBeautyPanel();},30)">AI 보정</button> <button type="button" onclick="closeSheet();setTimeout(function(){if(window.openEditEffectPanel)openEditEffectPanel();},30)">편집효과</button> <button type="button" onclick="closeSheet();setTimeout(function(){if(window.openSoundPanel)openSoundPanel();},30)">사운드</button>');
+  };
+
+  function bindMissing(){
+    ensureTouch();
+    var root=document.getElementById('creator');
+    if(!root)return;
+    var flash=root.querySelector('.creator-tools button[aria-label="플래시"]');
+    var timer=root.querySelector('.creator-tools button[aria-label="타이머"]');
+    var more=root.querySelector('.creator-tools button[aria-label="더보기"]');
+    if(flash&&!flash.dataset.ktCreatorBound){
+      flash.dataset.ktCreatorBound='1';
+      flash.addEventListener('click',function(){ktToggleCreatorFlash(flash);});
+    }
+    if(timer&&!timer.dataset.ktCreatorBound){
+      timer.dataset.ktCreatorBound='1';
+      timer.addEventListener('click',function(){ktOpenCreatorTimer();});
+    }
+    if(more&&!more.dataset.ktCreatorBound){
+      more.dataset.ktCreatorBound='1';
+      more.addEventListener('click',function(){ktOpenCreatorMore();});
+    }
+
+    var sound=document.getElementById('creatorSoundBtn');
+    if(sound&&!sound.dataset.ktCreatorFallback){
+      sound.dataset.ktCreatorFallback='1';
+      sound.addEventListener('click',function(){
+        if(typeof window.openSoundPanel!=='function')simpleSheet('사운드','사운드 기능을 준비 중입니다.');
+      });
+    }
+  }
+
+  if(typeof window.toggleCreatorCamera!=='function'){
+    window.toggleCreatorCamera=async function(){
+      try{
+        state.cameraFacing=(state.cameraFacing==='environment')?'user':'environment';
+        if(typeof window.ensureLiveCamera==='function')await window.ensureLiveCamera(state.cameraFacing);
+        else if(typeof window.ensureCreatorPreviewCamera==='function')await window.ensureCreatorPreviewCamera(state.cameraFacing);
+      }catch(e){}
+    };
+  }
+
+  if(typeof window.startCreatorRecording==='function'&&!window.__ktCreatorTimerWrapped20260915){
+    window.__ktCreatorTimerWrapped20260915=true;
+    var originalStartCreatorRecording=window.startCreatorRecording;
+    window.startCreatorRecording=function(){
+      var args=arguments;
+      var seconds=0;
+      try{seconds=Number(state.creatorTimerSeconds)||0;}catch(e){}
+      if(!seconds||window.__ktCreatorTimerRunning)return originalStartCreatorRecording.apply(this,args);
+      window.__ktCreatorTimerRunning=true;
+      var left=seconds;
+      var badge=document.createElement('div');
+      badge.id='ktCreatorTimerBadge';
+      badge.style.cssText='position:absolute;z-index:9999;left:50%;top:42%;transform:translate(-50%,-50%);width:92px;height:92px;border-radius:50%;display:grid;place-items:center;background:rgba(0,0,0,.55);color:#fff;font:900 48px system-ui;pointer-events:none';
+      badge.textContent=String(left);
+      var root=document.getElementById('creator');
+      if(root)root.appendChild(badge);
+      var timer=setInterval(function(){
+        left--;
+        if(left>0){badge.textContent=String(left);return;}
+        clearInterval(timer);
+        if(badge&&badge.parentNode)badge.parentNode.removeChild(badge);
+        window.__ktCreatorTimerRunning=false;
+        originalStartCreatorRecording.apply(window,args);
+      },1000);
+    };
+  }
+
+  bindMissing();
+  [100,300,700,1400,2500].forEach(function(ms){setTimeout(bindMissing,ms);});
+  try{
+    var observer=new MutationObserver(function(){clearTimeout(window.__ktCreatorControlTimer);window.__ktCreatorControlTimer=setTimeout(bindMissing,30);});
+    observer.observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+})();
