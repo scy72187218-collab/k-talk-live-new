@@ -1,4 +1,4 @@
-/* K-Talk 녹음 보컬 강화: 화면/UI는 건드리지 않고 녹음되는 목소리만 정리한다. */
+/* K-Talk 녹음 보컬 강화: 화면/UI는 건드리지 않고 녹음되는 소리만 정리한다. */
 (function(){
   if(window.__ktVocalEnhancerInstalled)return;
   window.__ktVocalEnhancerInstalled=true;
@@ -11,6 +11,16 @@
       if(!s||!s.getAudioTracks)return null;
       return s.getAudioTracks().find(function(t){return t&&t.readyState==='live';})||null;
     }catch(e){return null;}
+  }
+
+  function externalLike(label){
+    return /(usb|audio interface|interface|uac|codec|line in|stereo mix|external|인터페이스|외장|라인|스테레오 믹스)/i.test(String(label||''));
+  }
+
+  function isExternalInterface(track){
+    if(!track)return false;
+    if(externalLike(track.label))return true;
+    try{return !!(window.state&&state.__ktInterfaceAudioReady&&externalLike(state.__ktInterfaceAudioLabel||track.label));}catch(e){return false;}
   }
 
   function stopEngine(keepCurrent){
@@ -43,6 +53,19 @@
     var raw=liveAudioTrack();
     if(!raw)return false;
 
+    /* USB/오디오 인터페이스는 이미 음악+목소리가 완성되어 들어오므로 EQ/리버브를 다시 걸지 않는다.
+       그래야 음악 음색과 인터페이스의 에코/보컬 효과가 원음대로 보존된다. */
+    if(isExternalInterface(raw)){
+      try{if(engine)stopEngine(false);}catch(e){}
+      try{raw.contentHint='music';}catch(e){}
+      try{
+        state.__ktVocalEnhanced=false;
+        state.__ktVocalEnhancerName='인터페이스 원음';
+        state.__ktInterfaceOriginalSound=true;
+      }catch(e){}
+      return true;
+    }
+
     /* 이미 이번 입력이 보컬 강화된 트랙이면 그대로 사용한다. */
     if(engine&&engine.processedTrack===raw&&raw.readyState==='live'){
       try{if(engine.ctx&&engine.ctx.state==='suspended')await engine.ctx.resume();}catch(e){}
@@ -63,53 +86,51 @@
 
       var source=ctx.createMediaStreamSource(new MediaStream([raw]));
 
-      /* 저음 울림 제거 */
+      /* 휴대폰 마이크만 자연스럽게 정리한다. */
       var highpass=ctx.createBiquadFilter();
       highpass.type='highpass';
-      highpass.frequency.value=75;
+      highpass.frequency.value=70;
       highpass.Q.value=.7;
 
-      /* 답답한 중저음은 조금 줄이고 목소리 선명도와 공기감은 살린다. */
       var mud=ctx.createBiquadFilter();
       mud.type='peaking';
       mud.frequency.value=280;
-      mud.Q.value=1.05;
-      mud.gain.value=-2.2;
+      mud.Q.value=1.0;
+      mud.gain.value=-1.5;
 
       var presence=ctx.createBiquadFilter();
       presence.type='peaking';
       presence.frequency.value=3200;
       presence.Q.value=.9;
-      presence.gain.value=2.8;
+      presence.gain.value=2.2;
 
       var air=ctx.createBiquadFilter();
       air.type='highshelf';
       air.frequency.value=8500;
-      air.gain.value=1.8;
+      air.gain.value=1.2;
 
-      /* 작은 목소리는 앞으로, 큰 목소리는 튀지 않게 정리한다. */
       var comp=ctx.createDynamicsCompressor();
-      comp.threshold.value=-24;
-      comp.knee.value=16;
-      comp.ratio.value=3.6;
-      comp.attack.value=.004;
-      comp.release.value=.18;
+      comp.threshold.value=-23;
+      comp.knee.value=18;
+      comp.ratio.value=3.0;
+      comp.attack.value=.006;
+      comp.release.value=.20;
 
       var makeup=ctx.createGain();
-      makeup.gain.value=1.12;
+      makeup.gain.value=1.07;
 
       var dry=ctx.createGain();
-      dry.gain.value=.94;
+      dry.gain.value=.98;
 
+      /* 리버브는 아주 약하게만 넣어 말소리와 음악이 뭉개지지 않게 한다. */
       var wet=ctx.createGain();
-      wet.gain.value=.11;
+      wet.gain.value=.045;
 
       var verb=ctx.createConvolver();
-      verb.buffer=impulse(ctx,.62,3.0);
+      verb.buffer=impulse(ctx,.42,3.6);
 
-      /* 마지막 피크를 막아서 찢어지는 소리를 줄인다. */
       var limiter=ctx.createDynamicsCompressor();
-      limiter.threshold.value=-3.5;
+      limiter.threshold.value=-3.0;
       limiter.knee.value=0;
       limiter.ratio.value=18;
       limiter.attack.value=.002;
@@ -135,6 +156,7 @@
 
       var processed=dest.stream.getAudioTracks()[0];
       if(!processed)throw new Error('processed audio track missing');
+      try{processed.contentHint='speech';}catch(e){}
 
       /* 원본 마이크 트랙은 AudioContext 입력으로 살아 있어야 하므로 stop하지 않고 스트림에서만 뺀다. */
       var s=window.state&&state.stream;
@@ -146,7 +168,8 @@
       window.ktVocalEnhancer=engine;
       try{
         state.__ktVocalEnhanced=true;
-        state.__ktVocalEnhancerName='보컬 강화';
+        state.__ktVocalEnhancerName='자연 보컬 강화';
+        state.__ktInterfaceOriginalSound=false;
       }catch(e){}
       return true;
     }catch(e){
@@ -155,7 +178,7 @@
     }
   }
 
-  /* 인터페이스 선택이 끝난 다음, 5초 카운트다운에 들어가기 전에 목소리를 보정한다. */
+  /* 인터페이스 선택이 끝난 다음, 촬영 직전에 소리만 확인한다. */
   var oldStart=window.startCreatorRecording;
   if(typeof oldStart==='function'){
     window.startCreatorRecording=async function(){
