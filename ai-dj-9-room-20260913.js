@@ -231,3 +231,37 @@
     });
   }catch(e){}
 })();
+
+/* 2026-09-15 삼성/모바일 터치에서 라이브 준비 버튼들이 눌리지 않는 경우만 보강. 기존 클릭 기능을 그대로 호출하고 화면 배치는 변경하지 않음. */
+(function(){
+  if(window.__ktLivePrepTouchBridge20260915)return;
+  window.__ktLivePrepTouchBridge20260915=true;
+
+  function arm(){
+    document.querySelectorAll('.live-prep button,.live-prep .prep-bottom span,.live-prep [role="switch"]').forEach(function(el){
+      el.style.setProperty('pointer-events','auto','important');
+      el.style.setProperty('touch-action','manipulation','important');
+      el.style.setProperty('-webkit-tap-highlight-color','transparent','important');
+    });
+  }
+
+  document.addEventListener('touchend',function(e){
+    var t=e.target&&e.target.closest?e.target.closest('.live-prep button,.live-prep .prep-bottom span,.live-prep [role="switch"]'):null;
+    if(!t||!t.closest('.live-prep')||t.disabled)return;
+    e.preventDefault();
+    e.stopPropagation();
+    if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+    try{
+      t.click();
+    }catch(err){
+      try{t.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,view:window}));}catch(_e){}
+    }
+  },{capture:true,passive:false});
+
+  arm();
+  [120,350,800,1500].forEach(function(ms){setTimeout(arm,ms);});
+  try{
+    var mo=new MutationObserver(function(){clearTimeout(window.__ktLivePrepTouchArmTimer);window.__ktLivePrepTouchArmTimer=setTimeout(arm,30);});
+    mo.observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+})();
