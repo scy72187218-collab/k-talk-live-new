@@ -6,6 +6,7 @@
   var synth=window.speechSynthesis;
   var queue=[];
   var speaking=false;
+  var spokenOnce=Object.create(null);
 
   function getKoVoice(){
     if(!synth||!synth.getVoices)return null;
@@ -49,6 +50,9 @@
     text=normalize(text);
     if(!text)return false;
     if(!synth||typeof window.SpeechSynthesisUtterance!=='function')return false;
+    /* 같은 문구가 화면에서 사라졌다 다시 생겨도 이번 접속에서는 한 번만 읽는다. */
+    if(spokenOnce[text])return true;
+    spokenOnce[text]=1;
     queue.push(text);
     if(queue.length>4)queue=queue.slice(-4);
     drain();
@@ -61,6 +65,7 @@
     try{if(synth&&synth.cancel)synth.cancel();}catch(e){}
     speaking=false;queue=[];
     var msg='K-Talk AI 음성 안내 테스트입니다.';
+    delete spokenOnce[normalize(msg)];
     var ok=window.ktSpeak(msg);
     if(!ok)alert('이 브라우저에서 음성 읽기를 사용할 수 없습니다. 크롬에서 다시 실행해 주세요.');
     return ok;
