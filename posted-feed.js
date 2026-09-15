@@ -1,9 +1,9 @@
 /* K-Talk public video feed: simple profile + public feed posting behavior. */
 (function(){
   var SB='https://zupwbfmacwzexyvznlzq.supabase.co';
-  var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYXNlIiwicmVmIjoienVwd2JmbWFjd3pleHl2em5senEiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc4ODQ2MTA3NiwiZXhwIjoyMTA0MDM3MDc2fQ.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
+  var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1cHdiZm1hY3d6ZXh5dnpubHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjEwNzYsImV4cCI6MjEwNDAzNzA3Nn0.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
   function headers(extra){var h={apikey:KEY,Authorization:'Bearer '+KEY};if(extra)Object.keys(extra).forEach(function(k){h[k]=extra[k];});return h;}
-  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c];});}
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   function blobNow(){try{if(window.ktCreatorBlob)return window.ktCreatorBlob;}catch(e){}try{return typeof ktCreatorBlob!=='undefined'?ktCreatorBlob:null;}catch(e){return null;}}
   function titleNow(){try{return window.ktImportedVideoName||ktImportedVideoName||('K-Talk 동영상 '+new Date().toLocaleString('ko-KR'));}catch(e){return 'K-Talk 동영상';}}
   function who(){var name='K-Talk',id='guest';try{name=state.profileName||state.currentProfileName||state.accountName||name;id=state.profileId||state.currentAccountId||state.accountId||id;}catch(e){}try{name=localStorage.getItem('ktalk_profile_name')||localStorage.getItem('ktalk_active_account_name')||name;id=localStorage.getItem('ktalk_active_account')||localStorage.getItem('ktalk_profile_id')||id;}catch(e){}return {name:String(name).slice(0,80),id:String(id).slice(0,80)};}
@@ -262,53 +262,5 @@
   renameSaveLabel();
   try{
     new MutationObserver(renameSaveLabel).observe(document.documentElement,{childList:true,subtree:true});
-  }catch(e){}
-})();
-
-/* 2026-09-15 동영상 보기만 전체 잠금. 촬영/라이브 카메라와 방송방은 건드리지 않음. */
-(function(){
-  if(window.__ktAllVideoViewingLocked20260915)return;
-  window.__ktAllVideoViewingLocked20260915=true;
-
-  function isLiveCamera(v){
-    if(!v)return false;
-    if(v.id==='camera'||v.id==='cameraBg'||v.id==='ktLiveVideo')return true;
-    try{if(v.closest&&v.closest('#creator'))return true;}catch(e){}
-    return false;
-  }
-  function lockOne(v){
-    if(!v||isLiveCamera(v))return;
-    try{v.pause();}catch(e){}
-    try{v.removeAttribute('autoplay');v.autoplay=false;v.controls=false;v.muted=true;}catch(e){}
-    v.setAttribute('data-kt-video-locked','1');
-    var p=v.parentElement;
-    if(!p||p.querySelector(':scope > .kt-video-lock-cover'))return;
-    try{if(getComputedStyle(p).position==='static')p.style.position='relative';}catch(e){}
-    var cover=document.createElement('div');
-    cover.className='kt-video-lock-cover';
-    cover.style.cssText='position:absolute;inset:0;z-index:40;display:grid;place-items:center;background:rgba(0,0,0,.72);color:#fff;text-align:center;font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif;pointer-events:auto';
-    cover.innerHTML='<div style="padding:18px 22px;border:1px solid rgba(255,255,255,.18);border-radius:18px;background:rgba(14,14,20,.9);box-shadow:0 8px 30px rgba(0,0,0,.35)"><div style="font-size:34px">🔒</div><b style="display:block;margin-top:8px;font-size:18px">동영상 보기 잠금</b></div>';
-    p.appendChild(cover);
-  }
-  function lockAll(){
-    try{
-      var creator=document.getElementById('creator');
-      if(creator)creator.querySelectorAll('.kt-video-lock-cover').forEach(function(x){x.remove();});
-    }catch(e){}
-    document.querySelectorAll('video').forEach(lockOne);
-  }
-
-  document.addEventListener('play',function(e){
-    var v=e.target;
-    if(!(v instanceof HTMLVideoElement)||isLiveCamera(v))return;
-    try{v.pause();v.muted=true;}catch(_e){}
-    lockOne(v);
-  },true);
-
-  lockAll();
-  [100,350,900,1600].forEach(function(ms){setTimeout(lockAll,ms);});
-  try{
-    var mo=new MutationObserver(function(){clearTimeout(window.__ktVideoViewLockTimer);window.__ktVideoViewLockTimer=setTimeout(lockAll,20);});
-    mo.observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 })();
