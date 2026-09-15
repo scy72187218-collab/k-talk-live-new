@@ -112,18 +112,33 @@
   setTimeout(showInstallBox,900);
 })();
 
-/* 2026-09-15 촬영/방송 준비 카메라에서 사람 크기만 조금 축소. 다른 UI는 변경하지 않음. */
+/* 2026-09-15 참고 영상과 비교해 촬영/방송 준비 카메라 구도만 조금 더 넓게. 다른 UI는 변경하지 않음. */
 (function(){
   if(window.__ktCreatorCameraSlightlySmaller20260915)return;
   window.__ktCreatorCameraSlightlySmaller20260915=true;
   if(document.getElementById('ktCreatorCameraSlightlySmaller20260915'))return;
   var s=document.createElement('style');
   s.id='ktCreatorCameraSlightlySmaller20260915';
-  s.textContent='#creator.creator.camera-on:not(.creator-review) video#camera{transform:scaleX(-1) scale(.92)!important;transform-origin:center center!important;}';
+  s.textContent='#creator.creator.camera-on:not(.creator-review) video#camera{transform:scaleX(-1) scale(.88)!important;transform-origin:center center!important;}';
   document.head.appendChild(s);
+
+  function tryZoomOut(){
+    try{
+      if(!window.camera||!camera.srcObject)return;
+      var tracks=camera.srcObject.getVideoTracks&&camera.srcObject.getVideoTracks();
+      var track=tracks&&tracks[0];
+      if(!track||!track.getCapabilities||!track.applyConstraints)return;
+      var caps=track.getCapabilities();
+      if(!caps||!caps.zoom)return;
+      var z=typeof caps.zoom.min==='number'?caps.zoom.min:1;
+      track.applyConstraints({advanced:[{zoom:z}]}).catch(function(){});
+    }catch(e){}
+  }
+  [250,700,1400].forEach(function(ms){setTimeout(tryZoomOut,ms);});
+  try{camera.addEventListener('loadedmetadata',tryZoomOut);}catch(e){}
 })();
 
-/* 2026-09-15 AI 보정만 강화: 피부 질감 완화 + 메이크업 톤 프리셋. 다른 방/선물/버튼/사운드는 변경하지 않음. */
+/* 2026-09-15 AI 보정만 강화: 피부 질감 완화 + 방송용 톤 프리셋. 다른 방/선물/버튼/사운드는 변경하지 않음. */
 (function(){
   if(window.__ktSimpleBeautyPresets20260915)return;
   window.__ktSimpleBeautyPresets20260915=true;
@@ -142,16 +157,17 @@
 
   var presets={
     off:{skin:1,tone:50,bright:50,sharp:50,filter:'none'},
-    light:{skin:76,tone:56,bright:64,sharp:50,filter:'brightness(1.06) saturate(1.06) contrast(.96) blur(.12px)'},
-    normal:{skin:86,tone:60,bright:70,sharp:48,filter:'brightness(1.09) saturate(1.10) contrast(.92) blur(.32px)'},
-    strong:{skin:94,tone:63,bright:76,sharp:44,filter:'brightness(1.12) saturate(1.12) contrast(.88) blur(.58px)'},
-    makeup:{skin:88,tone:68,bright:72,sharp:46,filter:'brightness(1.10) saturate(1.24) contrast(.91) sepia(.05) hue-rotate(-5deg) blur(.38px)'},
-    makeupStrong:{skin:95,tone:72,bright:78,sharp:42,filter:'brightness(1.13) saturate(1.32) contrast(.87) sepia(.08) hue-rotate(-7deg) blur(.62px)'}
+    light:{skin:80,tone:56,bright:65,sharp:49,filter:'brightness(1.07) saturate(1.04) contrast(.95) blur(.18px)'},
+    normal:{skin:90,tone:60,bright:72,sharp:46,filter:'brightness(1.10) saturate(1.06) contrast(.90) blur(.42px)'},
+    strong:{skin:96,tone:64,bright:78,sharp:41,filter:'brightness(1.13) saturate(1.07) contrast(.85) blur(.70px)'},
+    makeup:{skin:92,tone:68,bright:74,sharp:44,filter:'brightness(1.11) saturate(1.18) contrast(.89) sepia(.04) hue-rotate(-4deg) blur(.48px)'},
+    makeupStrong:{skin:97,tone:72,bright:80,sharp:39,filter:'brightness(1.14) saturate(1.23) contrast(.84) sepia(.06) hue-rotate(-5deg) blur(.76px)'}
   };
 
   window.ktApplySimpleBeautyPreset=function(name){
     name=presets[name]?name:'normal';
     state.ktSimpleBeautyPreset=name;
+    try{localStorage.setItem('ktalk_simple_beauty_preset',name);}catch(e){}
     var p=presets[name];
     if(name==='off'){
       state.beautyOn=false;
@@ -170,28 +186,36 @@
     if(camera){
       if(name==='off')camera.style.removeProperty('filter');
       else camera.style.setProperty('filter',p.filter,'important');
-      camera.style.setProperty('transform','scaleX(-1) scale(.92)','important');
+      camera.style.setProperty('transform','scaleX(-1) scale(.88)','important');
     }
     document.querySelectorAll('.kt-simple-beauty-grid button[data-beauty-preset]').forEach(function(b){
       b.classList.toggle('on',b.getAttribute('data-beauty-preset')===name);
     });
   };
 
+  function savedPreset(){
+    try{
+      var v=localStorage.getItem('ktalk_simple_beauty_preset');
+      if(v&&presets[v])return v;
+    }catch(e){}
+    return state.ktSimpleBeautyPreset||'normal';
+  }
+
   window.openBeautyPanel=function(){
     ensureStyle();
     try{creator.classList.add('beauty-preview-open');}catch(e){}
     try{var lp=creator.querySelector('.live-prep');if(lp)lp.style.setProperty('display','none','important');}catch(e){}
     try{if(window.ensureLiveCamera)ensureLiveCamera(state.cameraFacing||'user').catch(function(){});}catch(e){}
-    var current=state.ktSimpleBeautyPreset||'normal';
+    var current=savedPreset();
     var html='<div class="kt-simple-beauty">'
-      +'<div class="kt-simple-beauty-note">원본부터 강한 피부 보정과 메이크업 톤까지 바로 비교할 수 있습니다. 얼굴 크기는 현재 설정 그대로 유지됩니다.</div>'
+      +'<div class="kt-simple-beauty-note">참고 영상처럼 화면 여백을 조금 더 보이게 하고, 보정은 단계별로 바로 비교할 수 있게 했습니다.</div>'
       +'<div class="kt-simple-beauty-grid">'
         +'<button data-beauty-preset="off" class="'+(current==='off'?'on':'')+'" onclick="ktApplySimpleBeautyPreset(\'off\')">원본<small>보정 없음</small></button>'
         +'<button data-beauty-preset="light" class="'+(current==='light'?'on':'')+'" onclick="ktApplySimpleBeautyPreset(\'light\')">약하게<small>밝기·질감 가볍게</small></button>'
-        +'<button data-beauty-preset="normal" class="'+(current==='normal'?'on':'')+'" onclick="ktApplySimpleBeautyPreset(\'normal\')">피부 보정<small>질감 부드럽게</small></button>'
-        +'<button data-beauty-preset="strong" class="'+(current==='strong'?'on':'')+'" onclick="ktApplySimpleBeautyPreset(\'strong\')">강한 보정<small>질감 더 부드럽게</small></button>'
+        +'<button data-beauty-preset="normal" class="'+(current==='normal'?'on':'')+'" onclick="ktApplySimpleBeautyPreset(\'normal\')">피부 보정<small>질감 더 부드럽게</small></button>'
+        +'<button data-beauty-preset="strong" class="'+(current==='strong'?'on':'')+'" onclick="ktApplySimpleBeautyPreset(\'strong\')">강한 보정<small>방송용 부드러운 톤</small></button>'
         +'<button data-beauty-preset="makeup" class="'+(current==='makeup'?'on':'')+'" onclick="ktApplySimpleBeautyPreset(\'makeup\')">메이크업<small>화사한 색감·톤</small></button>'
-        +'<button data-beauty-preset="makeupStrong" class="'+(current==='makeupStrong'?'on':'')+'" onclick="ktApplySimpleBeautyPreset(\'makeupStrong\')">강한 메이크업<small>더 선명한 방송 톤</small></button>'
+        +'<button data-beauty-preset="makeupStrong" class="'+(current==='makeupStrong'?'on':'')+'" onclick="ktApplySimpleBeautyPreset(\'makeupStrong\')">강한 메이크업<small>조금 더 부드러운 방송 톤</small></button>'
       +'</div>'
       +'<button class="kt-simple-beauty-apply" onclick="closeSheet()">적용</button>'
       +'</div>';
@@ -199,4 +223,11 @@
     sheet.classList.add('camera-effect-sheet','beauty-control-sheet');
     setTimeout(function(){ktApplySimpleBeautyPreset(current);},0);
   };
+
+  try{
+    camera.addEventListener('loadedmetadata',function(){
+      var current=savedPreset();
+      if(current!=='off')setTimeout(function(){ktApplySimpleBeautyPreset(current);},60);
+    });
+  }catch(e){}
 })();
