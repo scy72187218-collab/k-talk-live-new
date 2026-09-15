@@ -1,0 +1,38 @@
+name: Creator camera reference once
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/creator-camera-reference-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Adjust creator camera framing only
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('ai-dj-9-room-20260913.js')
+          s = p.read_text(encoding='utf-8')
+          s2 = s.replace("scaleX(-1) scale(.88)", "scaleX(-1) scale(.84)")
+          if s2 == s:
+              raise SystemExit('target camera scale not found')
+          p.write_text(s2, encoding='utf-8')
+          PY
+      - name: Commit requested camera-only change
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ai-dj-9-room-20260913.js
+          git commit -m "Match creator camera framing closer to reference"
+          git push origin HEAD:main
