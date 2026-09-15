@@ -298,3 +298,47 @@
     if(c)c.addEventListener('loadedmetadata',function(){setTimeout(applyReferenceLook,40);});
   }catch(e){}
 })();
+
+/* 2026-09-15 참고 화면 고정: AI 보정을 눌러도 사람 크기가 다시 커지지 않게 하고 강한 보정만 조금 더 분명하게. */
+(function(){
+  if(window.__ktCreatorReferenceBeautyLock20260915)return;
+  window.__ktCreatorReferenceBeautyLock20260915=true;
+
+  function lockFrame(name){
+    try{
+      var c=document.getElementById('camera');
+      if(!c)return;
+      c.style.setProperty('transform','scaleX(-1) scale(.78)','important');
+      if(name==='strong')c.style.setProperty('filter','brightness(1.15) saturate(1.08) contrast(.82) blur(.88px)','important');
+      if(name==='makeupStrong')c.style.setProperty('filter','brightness(1.16) saturate(1.20) contrast(.82) sepia(.05) hue-rotate(-4deg) blur(.92px)','important');
+    }catch(e){}
+  }
+
+  function wrapBeauty(){
+    try{
+      if(typeof window.ktApplySimpleBeautyPreset!=='function'||window.ktApplySimpleBeautyPreset.__ktReferenceLocked)return;
+      var original=window.ktApplySimpleBeautyPreset;
+      var wrapped=function(name){
+        var result=original.apply(this,arguments);
+        setTimeout(function(){lockFrame(name);},0);
+        return result;
+      };
+      wrapped.__ktReferenceLocked=true;
+      window.ktApplySimpleBeautyPreset=wrapped;
+    }catch(e){}
+  }
+
+  function apply(){
+    wrapBeauty();
+    var saved='';
+    try{saved=localStorage.getItem('ktalk_simple_beauty_preset')||'';}catch(e){}
+    lockFrame(saved);
+  }
+
+  apply();
+  [50,180,500,1000,1800].forEach(function(ms){setTimeout(apply,ms);});
+  try{
+    var c=document.getElementById('camera');
+    if(c)c.addEventListener('loadedmetadata',function(){setTimeout(apply,30);});
+  }catch(e){}
+})();
