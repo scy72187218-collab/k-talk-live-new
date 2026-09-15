@@ -1,4 +1,4 @@
-/* K-Talk 선물상자 잔액 표시 전용. 선물상자를 열면 본인 보유 장미 수량을 보여주고, 선물 사용 시 차감합니다. 다른 화면/배치는 변경하지 않음. */
+/* K-Talk 선물상자 잔액 표시 전용. 선물상자를 열면 본인 보유 장미 수량을 보여주고, 일반 회원 선물 사용 시 차감합니다. 관리자 계정은 선물 제한 없이 사용하며 자동 충전창은 띄우지 않습니다. 다른 화면/배치는 변경하지 않음. */
 (function(){
   if(window.__ktGiftBalanceBox20260915)return;
   window.__ktGiftBalanceBox20260915=true;
@@ -22,6 +22,14 @@
       }
     }
     return id.slice(0,80);
+  }
+
+  function isOwnerGiftExempt(){
+    try{if(typeof window.ktOwnerHasGiftPermission==='function'&&window.ktOwnerHasGiftPermission())return true;}catch(e){}
+    try{if(typeof window.ktIsOwnerAdmin==='function'&&window.ktIsOwnerAdmin())return true;}catch(e){}
+    try{if(window.state&&(state.ktOwnerAdmin||state.ktOwnerGiftPermission))return true;}catch(e){}
+    try{if(localStorage.getItem('ktalk_owner_admin')==='1'||localStorage.getItem('ktalk_owner_gift_permission')==='1')return true;}catch(e){}
+    return false;
   }
 
   function apiConfig(){
@@ -54,6 +62,19 @@
     return isFinite(n)&&n>0?n:0;
   }
 
+  function smallNotice(text){
+    try{
+      var old=document.getElementById('ktGiftSmallNotice20260915');
+      if(old&&old.parentNode)old.parentNode.removeChild(old);
+      var n=document.createElement('div');
+      n.id='ktGiftSmallNotice20260915';
+      n.textContent=text;
+      n.style.cssText='position:fixed;left:50%;bottom:86px;transform:translateX(-50%);z-index:100001;max-width:88vw;padding:9px 13px;border-radius:12px;background:rgba(10,10,14,.94);border:1px solid rgba(255,216,90,.55);color:#fff;font-size:12px;font-weight:850;text-align:center;box-shadow:0 5px 18px rgba(0,0,0,.45);pointer-events:none';
+      document.body.appendChild(n);
+      setTimeout(function(){try{if(n&&n.parentNode)n.parentNode.removeChild(n);}catch(e){}},2200);
+    }catch(e){}
+  }
+
   function ensureStyle(){
     if(document.getElementById('ktGiftBalanceBoxStyle20260915'))return;
     var s=document.createElement('style');
@@ -76,13 +97,30 @@
     bar.className='kt-gift-balance-bar loading';
     bar.innerHTML='<span>🌹 보유 장미 <b data-kt-gift-balance>확인 중…</b><em data-kt-gift-unit style="font-style:normal"> 개</em></span><button type="button">충전하기</button>';
     var btn=bar.querySelector('button');
-    if(btn)btn.addEventListener('click',function(){try{if(typeof window.openCharge==='function')window.openCharge();}catch(e){}});
+    if(btn)btn.addEventListener('click',function(){
+      if(isOwnerGiftExempt())return;
+      try{if(typeof window.openCharge==='function')window.openCharge();}catch(e){}
+    });
     var head=gift.querySelector('.kt-gift-final-head');
     if(head&&head.nextSibling)gift.insertBefore(bar,head.nextSibling);else if(head)head.insertAdjacentElement('afterend',bar);else gift.insertBefore(bar,gift.firstChild);
     return bar;
   }
 
+  function paintOwnerUnlimited(){
+    try{window.state&&(state.roseBalance=999999999);}catch(e){}
+    var bar=balanceBar();
+    if(!bar)return;
+    bar.classList.remove('loading');
+    var b=bar.querySelector('[data-kt-gift-balance]');
+    var unit=bar.querySelector('[data-kt-gift-unit]');
+    var btn=bar.querySelector('button');
+    if(b)b.textContent='관리자 · 무제한';
+    if(unit)unit.textContent='';
+    if(btn)btn.style.setProperty('display','none','important');
+  }
+
   function paintBalance(n){
+    if(isOwnerGiftExempt()){paintOwnerUnlimited();return;}
     n=numberOf(n);
     try{window.state&&(state.roseBalance=n);}catch(e){}
     try{localStorage.setItem('ktalk_last_rose_balance',String(n));}catch(e){}
@@ -90,11 +128,19 @@
     if(!bar)return;
     bar.classList.remove('loading');
     var b=bar.querySelector('[data-kt-gift-balance]');
+    var unit=bar.querySelector('[data-kt-gift-unit]');
+    var btn=bar.querySelector('button');
     if(b)b.textContent=n.toLocaleString('ko-KR');
+    if(unit)unit.textContent=' 개';
+    if(btn)btn.style.removeProperty('display');
   }
 
   async function refreshBalance(){
     ensureStyle();
+    if(isOwnerGiftExempt()){
+      paintOwnerUnlimited();
+      return 999999999;
+    }
     var bar=balanceBar();
     if(bar){
       bar.classList.add('loading');
@@ -133,6 +179,13 @@
       var send=async function(name,cost,sender){
         var amount=numberOf(cost);
         if(amount<=0)return oldSend.apply(this,arguments);
+
+        /* 관리자 본인 계정: 장미 차감/잔액 제한/자동 충전창 없이 바로 선물 전송 */
+        if(isOwnerGiftExempt()){
+          try{window.state&&(state.roseBalance=999999999);}catch(e){}
+          return oldSend.apply(this,arguments);
+        }
+
         if(sendBusy)return;
         sendBusy=true;
         try{
@@ -142,14 +195,14 @@
           var balance=numberOf(row&&row.balance);
           paintBalance(balance);
           if(!ok){
-            alert('🌹 보유 장미가 부족합니다. 현재 '+balance.toLocaleString('ko-KR')+'개 남았습니다. 충전해 주세요.');
-            setTimeout(function(){try{if(typeof window.openCharge==='function')window.openCharge();}catch(e){}},80);
+            /* 방송 화면을 가리는 충전 팝업은 자동으로 열지 않는다. */
+            smallNotice('🌹 장미가 부족합니다. 선물상자의 충전하기에서 충전해 주세요.');
             return;
           }
           oldSend.call(this,name,cost,sender);
           setTimeout(refreshBalance,180);
         }catch(e){
-          alert('장미 잔액을 확인하지 못했습니다. 잠시 후 다시 눌러 주세요.');
+          smallNotice('장미 잔액을 확인하지 못했습니다. 잠시 후 다시 눌러 주세요.');
         }finally{
           sendBusy=false;
         }
