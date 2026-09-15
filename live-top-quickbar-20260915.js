@@ -48,7 +48,7 @@
     if(room.classList.contains('ktg13-room'))return room.querySelector('.ktg13-stats')||room.querySelector('.ktg13-main');
     if(room.classList.contains('ktsolo-room'))return findStatsAnchor(room,'.ktsolo-stats')||room.querySelector('.ktsolo-main');
     if(room.classList.contains('ktsubscriber-room'))return room.querySelector('.ktsubscriber-main');
-    if(room.classList.contains('ktsecret-room'))return findStatsAnchor(room,'.ktsecret-stats')||room.querySelector('.ktsecret-main');
+    if(room.classList.contains('ktsecret-room'))return room.querySelector('.ktsecret-main');
     return null;
   }
 
