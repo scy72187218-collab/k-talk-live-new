@@ -4,6 +4,7 @@
   window.__ktAiHelpReader20260915=true;
 
   var speakingToken=0;
+  var greetingDone=false;
 
   function voiceOn(){
     try{return !!(window.state&&state.aiVoiceOn);}catch(e){return true;}
@@ -47,18 +48,33 @@
     if(!voiceOn()||!('speechSynthesis' in window))return;
     var q=chunks(text);if(!q.length)return;
     var token=++speakingToken;
-    try{speechSynthesis.cancel();}catch(e){}
+    try{speechSynthesis.cancel();speechSynthesis.resume();}catch(e){}
     var voice=pickVoice();
     function next(){
       if(token!==speakingToken||!q.length||!voiceOn()||inBroadcast())return;
-      var u=new SpeechSynthesisUtterance(q.shift());
-      u.lang='ko-KR';u.rate=1.02;u.pitch=1;u.volume=1;if(voice)u.voice=voice;
-      u.onend=function(){setTimeout(next,30);};
-      u.onerror=function(){setTimeout(next,40);};
-      try{speechSynthesis.speak(u);}catch(e){}
+      var part=q.shift();
+      var u=new SpeechSynthesisUtterance(part);
+      u.lang='ko-KR';u.rate=1.00;u.pitch=1;u.volume=1;if(voice)u.voice=voice;
+      u.onend=function(){setTimeout(next,70);};
+      u.onerror=function(ev){
+        var err=ev&&ev.error||'';
+        if(err==='canceled'||err==='interrupted')return;
+        setTimeout(next,140);
+      };
+      try{speechSynthesis.speak(u);}catch(e){setTimeout(next,180);}
     }
-    setTimeout(next,60);
+    setTimeout(next,80);
   }
+
+  function greetingText(){
+    return '안녕하세요. K-Talk AI 음성 안내입니다. 필요한 내용을 차례대로 읽어드리겠습니다.';
+  }
+  function greetOnce(){
+    if(greetingDone||!voiceOn()||inBroadcast()||!('speechSynthesis' in window))return;
+    greetingDone=true;
+    speakAll(greetingText());
+  }
+  window.ktAiGreetingOnce=greetOnce;
 
   /* 각 안내는 그 화면에 들어갔을 때만 읽는다. 방송방 안에서는 혜택/안내를 자동으로 읽지 않는다. */
   function isGuideTitle(title){
@@ -115,7 +131,10 @@
     if(inBroadcast()){stopGuideVoice();return;}
     appendFullGuide();
     var txt=currentSheetText();
-    if(txt)speakAll(txt);
+    if(txt){
+      greetingDone=true;
+      speakAll(greetingText()+' '+txt);
+    }
   }
   window.ktReadCurrentHelpSheet=readCurrentSheet;
 
@@ -127,7 +146,7 @@
         if(!inBroadcast()&&isGuideTitle(title))setTimeout(function(){
           appendFullGuide();
           readCurrentSheet();
-        },90);
+        },120);
         return r;
       };
       wrapped.__ktAiHelpWrapped=true;
@@ -141,13 +160,18 @@
           if(inBroadcast()){
             stopGuideVoice();
           }else if(voiceOn()){
-            appendFullGuide();
             var txt=currentSheetText();
-            if(txt)speakAll(txt);
+            if(txt){
+              appendFullGuide();
+              readCurrentSheet();
+            }else{
+              greetingDone=false;
+              greetOnce();
+            }
           }else{
             stopGuideVoice();
           }
-        },100);
+        },120);
         return r;
       };
       t.__ktAiHelpWrapped=true;
@@ -160,14 +184,21 @@
   setTimeout(install,1200);
   setInterval(install,2500);
 
+  function firstUserVoice(){
+    if(greetingDone||!voiceOn()||inBroadcast())return;
+    greetOnce();
+  }
+  document.addEventListener('click',firstUserVoice,{once:true,capture:false});
+  document.addEventListener('touchend',firstUserVoice,{once:true,capture:false});
+
   document.addEventListener('click',function(e){
     var b=e.target&&e.target.closest?e.target.closest('#sheet button'):null;
     if(!b||!voiceOn()||inBroadcast())return;
     setTimeout(function(){
       appendFullGuide();
       var txt=currentSheetText();
-      if(txt)speakAll(txt);
-    },140);
+      if(txt){greetingDone=true;speakAll(greetingText()+' '+txt);}
+    },160);
   },false);
 
   try{
