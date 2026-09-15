@@ -8,6 +8,15 @@
   function voiceOn(){
     try{return !!(window.state&&state.aiVoiceOn);}catch(e){return true;}
   }
+  function inBroadcast(){
+    try{
+      return !!document.querySelector('#screen .ktsolo-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room,#screen .ktg9-room');
+    }catch(e){return false;}
+  }
+  function stopGuideVoice(){
+    speakingToken++;
+    try{speechSynthesis.cancel();}catch(e){}
+  }
   function clean(v){
     return String(v==null?'':v)
       .replace(/[♛🌹🎁📱📘✅👤💰🪙🎯📣🚩❔✉👑]/g,' ')
@@ -34,13 +43,14 @@
     return out;
   }
   function speakAll(text){
+    if(inBroadcast()){stopGuideVoice();return;}
     if(!voiceOn()||!('speechSynthesis' in window))return;
     var q=chunks(text);if(!q.length)return;
     var token=++speakingToken;
     try{speechSynthesis.cancel();}catch(e){}
     var voice=pickVoice();
     function next(){
-      if(token!==speakingToken||!q.length||!voiceOn())return;
+      if(token!==speakingToken||!q.length||!voiceOn()||inBroadcast())return;
       var u=new SpeechSynthesisUtterance(q.shift());
       u.lang='ko-KR';u.rate=1.02;u.pitch=1;u.volume=1;if(voice)u.voice=voice;
       u.onend=function(){setTimeout(next,30);};
@@ -50,7 +60,7 @@
     setTimeout(next,60);
   }
 
-  /* 각 안내는 그 화면에 들어갔을 때만 읽는다. */
+  /* 각 안내는 그 화면에 들어갔을 때만 읽는다. 방송방 안에서는 혜택/안내를 자동으로 읽지 않는다. */
   function isGuideTitle(title){
     title=clean(title);
     return /(사용방법|이용방법|이용·혜택|혜택|안내|구독|VIP|장미 충전|선물|보물상자|제비뽑기|투자자|광고|신고|수익률)/i.test(title);
@@ -92,6 +102,7 @@
   }
 
   function currentSheetText(){
+    if(inBroadcast())return '';
     var sheet=document.getElementById('sheet');
     if(!sheet||!sheet.classList.contains('show'))return '';
     var title=document.getElementById('sheetTitle');
@@ -101,6 +112,7 @@
     return clean(t+' '+(body&&body.innerText||body&&body.textContent||''));
   }
   function readCurrentSheet(){
+    if(inBroadcast()){stopGuideVoice();return;}
     appendFullGuide();
     var txt=currentSheetText();
     if(txt)speakAll(txt);
@@ -112,7 +124,7 @@
       var oldShow=window.showSheet;
       var wrapped=function(title,html){
         var r=oldShow.apply(this,arguments);
-        if(isGuideTitle(title))setTimeout(function(){
+        if(!inBroadcast()&&isGuideTitle(title))setTimeout(function(){
           appendFullGuide();
           readCurrentSheet();
         },90);
@@ -126,14 +138,14 @@
       var t=function(btn){
         var r=oldToggle.apply(this,arguments);
         setTimeout(function(){
-          if(voiceOn()){
-            /* 현재 안내 화면 안에 있을 때만 읽는다. 다른 화면에서는 혜택/안내를 읽지 않는다. */
+          if(inBroadcast()){
+            stopGuideVoice();
+          }else if(voiceOn()){
             appendFullGuide();
             var txt=currentSheetText();
             if(txt)speakAll(txt);
           }else{
-            speakingToken++;
-            try{speechSynthesis.cancel();}catch(e){}
+            stopGuideVoice();
           }
         },100);
         return r;
@@ -150,11 +162,128 @@
 
   document.addEventListener('click',function(e){
     var b=e.target&&e.target.closest?e.target.closest('#sheet button'):null;
-    if(!b||!voiceOn())return;
+    if(!b||!voiceOn()||inBroadcast())return;
     setTimeout(function(){
       appendFullGuide();
       var txt=currentSheetText();
       if(txt)speakAll(txt);
     },140);
   },false);
+
+  try{
+    new MutationObserver(function(){if(inBroadcast())stopGuideVoice();}).observe(document.getElementById('screen')||document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+})();
+
+/* 방송 중 프로필 사진을 누르면 그 사람에게 선물할 수 있게 연결. 자기 사진에는 선물 버튼을 만들지 않음. */
+(function(){
+  if(window.__ktProfileTargetGift20260915)return;
+  window.__ktProfileTargetGift20260915=true;
+
+  var target=null;
+
+  function text(v){return v==null?'':String(v).trim();}
+  function ensureStyle(){
+    if(document.getElementById('ktProfileTargetGiftStyle20260915'))return;
+    var s=document.createElement('style');
+    s.id='ktProfileTargetGiftStyle20260915';
+    s.textContent=''
+      +'.kt-live-profile-gift{width:min(330px,88%)!important;height:48px!important;margin-top:10px!important;border:0!important;border-radius:7px!important;background:linear-gradient(135deg,#ff3c92,#8b5cff)!important;color:#fff!important;font-size:17px!important;font-weight:950!important;touch-action:manipulation!important}'
+      +'.kt-target-gift-pop{position:fixed!important;inset:0!important;z-index:2147483646!important;background:rgba(0,0,0,.74)!important;display:grid!important;place-items:end center!important;font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif!important}'
+      +'.kt-target-gift-box{width:min(100%,520px)!important;padding:16px 12px calc(18px + env(safe-area-inset-bottom))!important;border-radius:22px 22px 0 0!important;background:#0a0a0f!important;color:#fff!important;border-top:1px solid #333!important}'
+      +'.kt-target-gift-head{display:flex!important;align-items:center!important;justify-content:space-between!important;margin:0 3px 12px!important}.kt-target-gift-head b{font-size:16px!important}.kt-target-gift-close{width:36px!important;height:36px!important;border:0!important;border-radius:50%!important;background:#222!important;color:#fff!important;font-size:22px!important}'
+      +'.kt-target-gift-grid{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:7px!important}.kt-target-gift-grid button{min-height:82px!important;border:1px solid #333!important;border-radius:13px!important;background:#111118!important;color:#fff!important;font-weight:900!important;font-size:11px!important;line-height:1.2!important;touch-action:manipulation!important}.kt-target-gift-grid strong{display:block!important;font-size:29px!important;line-height:1.05!important;margin-bottom:5px!important}.kt-target-gift-grid em{display:block!important;color:#ffe23e!important;font-style:normal!important;font-size:12px!important}'
+      +'@media(max-width:390px){.kt-target-gift-grid{gap:5px!important}.kt-target-gift-grid button{min-height:76px!important;font-size:10px!important}.kt-target-gift-grid strong{font-size:25px!important}}';
+    document.head.appendChild(s);
+  }
+
+  function viewerName(){
+    try{if(typeof window.ktProfileLoad==='function'){var p=window.ktProfileLoad()||{};return text(p.name||p.nickname)||'K-Talk 사용자';}}catch(e){}
+    return 'K-Talk 사용자';
+  }
+
+  function targetFromCard(card){
+    if(!card)return null;
+    var name=text((card.querySelector('.kt-live-profile-name')||{}).textContent)||'상대방';
+    var id=text((card.querySelector('.kt-live-profile-id')||{}).textContent).replace(/^@/,'');
+    var img=card.querySelector('.kt-live-profile-avatar img');
+    return {id:id,name:name,photo:img?text(img.currentSrc||img.src):''};
+  }
+
+  function setTarget(t){
+    target=t||null;
+    window.__ktGiftTarget=target;
+    try{if(window.state)state.giftTarget=target;}catch(e){}
+  }
+
+  function toast(msg){
+    var old=document.getElementById('ktTargetGiftToast');if(old)old.remove();
+    var d=document.createElement('div');d.id='ktTargetGiftToast';d.textContent=msg;
+    d.style.cssText='position:fixed;left:50%;bottom:105px;transform:translateX(-50%);z-index:2147483647;max-width:88vw;padding:11px 16px;border-radius:999px;background:rgba(20,8,24,.96);color:#fff;border:1px solid #ff5a99;font:900 13px system-ui;white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
+    document.body.appendChild(d);setTimeout(function(){if(d.parentNode)d.remove();},2200);
+  }
+
+  function closeGift(){var p=document.getElementById('ktTargetGiftPop');if(p)p.remove();}
+  window.ktCloseTargetGift=closeGift;
+
+  window.ktSendTargetGift=function(name,count){
+    if(!target)return;
+    var t=target;
+    setTarget(t);
+    var sent=false;
+    try{
+      if(typeof window.giftSend==='function'){
+        window.giftSend(name,count,t);
+        sent=true;
+      }
+    }catch(e){}
+    try{document.dispatchEvent(new CustomEvent('kt-target-gift-sent',{detail:{target:t,name:name,count:count,sender:viewerName()}}));}catch(e){}
+    if(!sent){
+      try{if(typeof window.ktAnnounceEvent==='function')window.ktAnnounceEvent('gift',{sender:viewerName(),name:name,count:count,target:t.name});}catch(e){}
+    }
+    closeGift();
+    toast(t.name+'님에게 '+name+' '+count+'개를 선택했습니다.');
+  };
+
+  window.ktOpenTargetGift=function(t){
+    if(!t)return;
+    ensureStyle();setTarget(t);closeGift();
+    var p=document.createElement('div');p.id='ktTargetGiftPop';p.className='kt-target-gift-pop';
+    p.innerHTML='<div class="kt-target-gift-box">'
+      +'<div class="kt-target-gift-head"><b>🎁 '+text(t.name)+'님에게 선물</b><button type="button" class="kt-target-gift-close" onclick="ktCloseTargetGift()">×</button></div>'
+      +'<div class="kt-target-gift-grid">'
+        +'<button type="button" onclick="ktSendTargetGift(\'장미\',1)"><strong>🌹</strong><em>1개</em>장미</button>'
+        +'<button type="button" onclick="ktSendTargetGift(\'장미다발\',50)"><strong>💐</strong><em>50개</em>장미다발</button>'
+        +'<button type="button" onclick="ktSendTargetGift(\'특대장미\',100)"><strong>💐</strong><em>100개</em>특대장미</button>'
+        +'<button type="button" onclick="ktSendTargetGift(\'하트\',10)"><strong>💗</strong><em>10개</em>하트</button>'
+        +'<button type="button" onclick="ktSendTargetGift(\'왕관\',100)"><strong>👑</strong><em>100개</em>왕관</button>'
+        +'<button type="button" onclick="ktSendTargetGift(\'스포츠카\',50)"><strong>🏎️</strong><em>50개</em>스포츠카</button>'
+        +'<button type="button" onclick="if(window.openGifts)openGifts()"><strong>🎁</strong><em>더보기</em>큰 선물</button>'
+      +'</div></div>';
+    p.addEventListener('click',function(e){if(e.target===p)closeGift();});
+    document.body.appendChild(p);
+  };
+
+  function inject(){
+    ensureStyle();
+    var card=document.getElementById('ktLiveProfileCard');
+    if(!card)return;
+    var follow=card.querySelector('.kt-live-profile-follow');
+    if(!follow||follow.dataset.self==='1')return;
+    if(card.querySelector('.kt-live-profile-gift'))return;
+    var btn=document.createElement('button');
+    btn.type='button';btn.className='kt-live-profile-gift';btn.textContent='🎁 선물하기';
+    btn.onclick=function(){
+      var t=targetFromCard(card);
+      if(!t)return;
+      try{if(typeof window.ktCloseLiveProfileCard==='function')window.ktCloseLiveProfileCard();}catch(e){}
+      window.ktOpenTargetGift(t);
+    };
+    follow.insertAdjacentElement('afterend',btn);
+  }
+
+  ensureStyle();
+  inject();
+  [100,300,700,1400].forEach(function(ms){setTimeout(inject,ms);});
+  try{new MutationObserver(function(){setTimeout(inject,0);}).observe(document.body,{childList:true,subtree:true});}catch(e){}
 })();
