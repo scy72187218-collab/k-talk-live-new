@@ -37,13 +37,17 @@
 
   function disconnectBroadcastNodes(){
     try{if(window.ktCreatorMusicSource)window.ktCreatorMusicSource.disconnect();}catch(e){}
+    try{if(window.ktCreatorMusicHighpass)window.ktCreatorMusicHighpass.disconnect();}catch(e){}
     try{if(window.ktCreatorMusicBass)window.ktCreatorMusicBass.disconnect();}catch(e){}
     try{if(window.ktCreatorMusicPresence)window.ktCreatorMusicPresence.disconnect();}catch(e){}
+    try{if(window.ktCreatorMusicAir)window.ktCreatorMusicAir.disconnect();}catch(e){}
     try{if(window.ktCreatorMusicCompressor)window.ktCreatorMusicCompressor.disconnect();}catch(e){}
     try{if(window.ktCreatorMusicGain)window.ktCreatorMusicGain.disconnect();}catch(e){}
     window.ktCreatorMusicSource=null;
+    window.ktCreatorMusicHighpass=null;
     window.ktCreatorMusicBass=null;
     window.ktCreatorMusicPresence=null;
+    window.ktCreatorMusicAir=null;
     window.ktCreatorMusicCompressor=null;
     window.ktCreatorMusicGain=null;
   }
@@ -75,36 +79,51 @@
       if(ctx.state==='suspended')ctx.resume().catch(function(){});
 
       var source=ctx.createMediaElementSource(audio);
+
+      var highpass=ctx.createBiquadFilter();
+      highpass.type='highpass';
+      highpass.frequency.value=58;
+      highpass.Q.value=.55;
+
       var bass=ctx.createBiquadFilter();
       bass.type='lowshelf';
-      bass.frequency.value=130;
-      bass.gain.value=.7;
+      bass.frequency.value=125;
+      bass.gain.value=2.2;
 
       var presence=ctx.createBiquadFilter();
       presence.type='peaking';
-      presence.frequency.value=2400;
-      presence.Q.value=.72;
-      presence.gain.value=.55;
+      presence.frequency.value=2600;
+      presence.Q.value=.78;
+      presence.gain.value=1.25;
+
+      var air=ctx.createBiquadFilter();
+      air.type='highshelf';
+      air.frequency.value=7200;
+      air.gain.value=1.15;
 
       var comp=ctx.createDynamicsCompressor();
-      comp.threshold.value=-16;
-      comp.knee.value=10;
-      comp.ratio.value=1.8;
-      comp.attack.value=.008;
-      comp.release.value=.18;
+      comp.threshold.value=-18;
+      comp.knee.value=14;
+      comp.ratio.value=2.15;
+      comp.attack.value=.006;
+      comp.release.value=.22;
 
       var gain=ctx.createGain();
-      gain.gain.value=.86;
+      gain.gain.value=.90;
 
-      source.connect(bass);
+      source.connect(highpass);
+      highpass.connect(bass);
       bass.connect(presence);
-      presence.connect(comp);
+      presence.connect(air);
+      air.connect(comp);
       comp.connect(gain);
       gain.connect(ctx.destination);
 
       window.ktCreatorMusicSource=source;
+      window.ktCreatorMusicHighpass=highpass;
       window.ktCreatorMusicBass=bass;
       window.ktCreatorMusicPresence=presence;
+      window.ktCreatorMusicAir=air;
       window.ktCreatorMusicCompressor=comp;
       window.ktCreatorMusicGain=gain;
       return true;
@@ -123,15 +142,15 @@
     audio.loop=true;
     audio.src=t.url;
     var processed=connectBroadcastSound(audio);
-    audio.volume=processed?.56:.16;
+    audio.volume=processed?.42:.16;
     window.ktCreatorMusicAudio=audio;
     var p=audio.play();
     if(p&&p.then){
       p.then(function(){
-        var target=processed?.86:.64;
+        var target=processed?.78:.64;
         window.ktCreatorMusicFadeTimer=setInterval(function(){
           if(!window.ktCreatorMusicAudio||window.ktCreatorMusicAudio!==audio){clearInterval(window.ktCreatorMusicFadeTimer);window.ktCreatorMusicFadeTimer=null;return;}
-          audio.volume=Math.min(target,audio.volume+.04);
+          audio.volume=Math.min(target,audio.volume+.035);
           if(audio.volume>=target){clearInterval(window.ktCreatorMusicFadeTimer);window.ktCreatorMusicFadeTimer=null;}
         },70);
       }).catch(function(){
@@ -227,4 +246,55 @@
       return oldCloseCreator.apply(this,arguments);
     };
   }
+})();
+
+/* 2026-09-15 참고 영상과 현재 촬영 화면 비교 후: 촬영 화면 사람 크기·기본 보정만 맞춤. 다른 UI/방/선물은 변경하지 않음. */
+(function(){
+  if(window.__ktCreatorReferenceLook20260915)return;
+  window.__ktCreatorReferenceLook20260915=true;
+
+  function ensureLookStyle(){
+    if(document.getElementById('ktCreatorReferenceLookStyle20260915'))return;
+    var s=document.createElement('style');
+    s.id='ktCreatorReferenceLookStyle20260915';
+    s.textContent='#creator.creator.camera-on:not(.creator-review) video#camera{transform:scaleX(-1) scale(.78)!important;transform-origin:center center!important;}';
+    document.head.appendChild(s);
+  }
+
+  function tryWiderCamera(){
+    try{
+      var c=document.getElementById('camera');
+      if(!c||!c.srcObject)return;
+      var tracks=c.srcObject.getVideoTracks&&c.srcObject.getVideoTracks();
+      var track=tracks&&tracks[0];
+      if(!track||!track.getCapabilities||!track.applyConstraints)return;
+      var caps=track.getCapabilities();
+      if(!caps||!caps.zoom)return;
+      var min=typeof caps.zoom.min==='number'?caps.zoom.min:1;
+      track.applyConstraints({advanced:[{zoom:min}]}).catch(function(){});
+    }catch(e){}
+  }
+
+  function applyDefaultBeauty(){
+    try{
+      var saved=localStorage.getItem('ktalk_simple_beauty_preset');
+      if(!saved&&typeof window.ktApplySimpleBeautyPreset==='function'){
+        localStorage.setItem('ktalk_simple_beauty_preset','strong');
+        window.ktApplySimpleBeautyPreset('strong');
+      }
+    }catch(e){}
+  }
+
+  function applyReferenceLook(){
+    ensureLookStyle();
+    tryWiderCamera();
+    applyDefaultBeauty();
+  }
+
+  applyReferenceLook();
+  [120,350,800,1500].forEach(function(ms){setTimeout(applyReferenceLook,ms);});
+  try{
+    var c=document.getElementById('camera');
+    if(c)c.addEventListener('loadedmetadata',function(){setTimeout(applyReferenceLook,40);});
+  }catch(e){}
 })();
