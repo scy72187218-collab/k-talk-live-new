@@ -18,7 +18,7 @@
     {name:'Old Folks at Home',source:'고전 보컬 · 사람 보컬 · 퍼블릭도메인',time:'4:02',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Foster_-_Schumann-Heink_-_Old_Folks_at_Home_(rec._1918).ogg'},
     {name:'In My Merry Oldsmobile',source:'Billy Murray · 사람 보컬 · 퍼블릭도메인',time:'2:51',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Bill_Murray_-_In_My_Merry_Oldsmobile.ogg'},
     {name:'Avalon',source:'Al Jolson · 사람 보컬 · 퍼블릭도메인',time:'2:58',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Al_Jolson_-_Avalon_(1920).ogg'},
-    {name:'I Shall Not Be Moved',source:'전통 포크 · 사람 보컬 · 퍼블릭도메인',time:'3:06',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/IShallNotBeMoved.ogg'},
+    {name:'I Shall Not Be Moved',source:'전통 포크 · 사람이 직접 부른 자유 이용 보컬 · 퍼블릭도메인',time:'3:06',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/IShallNotBeMoved.ogg'},
     {name:"Nobody Knows the Trouble I've Seen",source:'Vernon Dalhart · 전통 보컬 · 퍼블릭도메인',time:'3:33',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/NobodyKnowsTheTroubleISee.ogg'},
     {name:'O mio babbino caro',source:'Frances Alda · 성악 보컬 · 퍼블릭도메인 표시',time:'2:37',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Frances_Alda,_O_mio_babbino_caro_(Gianni_Schicchi)_unrestored.ogg'},
     {name:'Chanson du toréador',source:'Pasquale Amato · 성악 보컬 · 퍼블릭도메인 표시',time:'',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Pasquale_Amato,_Georges_Bizet,_Chanson_du_tor%C3%A9ador,_Carmen.ogg'},
@@ -35,6 +35,19 @@
     if(note)note.textContent=text||'사람이 직접 부른 자유 이용 보컬곡 20곡만 들어 있습니다. 곡을 누르면 촬영 화면에서도 바로 소리가 납니다.';
   }
 
+  function disconnectBroadcastNodes(){
+    try{if(window.ktCreatorMusicSource)window.ktCreatorMusicSource.disconnect();}catch(e){}
+    try{if(window.ktCreatorMusicBass)window.ktCreatorMusicBass.disconnect();}catch(e){}
+    try{if(window.ktCreatorMusicPresence)window.ktCreatorMusicPresence.disconnect();}catch(e){}
+    try{if(window.ktCreatorMusicCompressor)window.ktCreatorMusicCompressor.disconnect();}catch(e){}
+    try{if(window.ktCreatorMusicGain)window.ktCreatorMusicGain.disconnect();}catch(e){}
+    window.ktCreatorMusicSource=null;
+    window.ktCreatorMusicBass=null;
+    window.ktCreatorMusicPresence=null;
+    window.ktCreatorMusicCompressor=null;
+    window.ktCreatorMusicGain=null;
+  }
+
   function stopCreatorMusic(){
     try{
       if(window.ktCreatorMusicFadeTimer){clearInterval(window.ktCreatorMusicFadeTimer);window.ktCreatorMusicFadeTimer=null;}
@@ -44,25 +57,80 @@
         try{window.ktCreatorMusicAudio.load();}catch(e){}
         window.ktCreatorMusicAudio=null;
       }
+      disconnectBroadcastNodes();
     }catch(e){}
   }
   window.ktStopCreatorMusic=stopCreatorMusic;
 
+  function connectBroadcastSound(audio){
+    try{
+      var AC=window.AudioContext||window.webkitAudioContext;
+      if(!AC)return false;
+      var ctx=window.ktCreatorMusicAudioContext;
+      if(!ctx||ctx.state==='closed'){
+        ctx=new AC();
+        window.ktCreatorMusicAudioContext=ctx;
+      }
+      if(ctx.state==='suspended')ctx.resume().catch(function(){});
+
+      var source=ctx.createMediaElementSource(audio);
+      var bass=ctx.createBiquadFilter();
+      bass.type='lowshelf';
+      bass.frequency.value=140;
+      bass.gain.value=2.2;
+
+      var presence=ctx.createBiquadFilter();
+      presence.type='peaking';
+      presence.frequency.value=2600;
+      presence.Q.value=.85;
+      presence.gain.value=1.4;
+
+      var comp=ctx.createDynamicsCompressor();
+      comp.threshold.value=-21;
+      comp.knee.value=18;
+      comp.ratio.value=2.7;
+      comp.attack.value=.012;
+      comp.release.value=.24;
+
+      var gain=ctx.createGain();
+      gain.gain.value=.92;
+
+      source.connect(bass);
+      bass.connect(presence);
+      presence.connect(comp);
+      comp.connect(gain);
+      gain.connect(ctx.destination);
+
+      window.ktCreatorMusicSource=source;
+      window.ktCreatorMusicBass=bass;
+      window.ktCreatorMusicPresence=presence;
+      window.ktCreatorMusicCompressor=comp;
+      window.ktCreatorMusicGain=gain;
+      return true;
+    }catch(e){
+      disconnectBroadcastNodes();
+      return false;
+    }
+  }
+
   function playCreatorTrack(t){
     if(!t||!t.url)return;
     stopCreatorMusic();
-    var audio=new Audio(t.url);
+    var audio=new Audio();
+    audio.crossOrigin='anonymous';
     audio.preload='auto';
-    audio.volume=.12;
     audio.loop=true;
+    audio.src=t.url;
+    var processed=connectBroadcastSound(audio);
+    audio.volume=processed?.82:.16;
     window.ktCreatorMusicAudio=audio;
     var p=audio.play();
     if(p&&p.then){
       p.then(function(){
-        var target=.58;
+        var target=processed?.92:.64;
         window.ktCreatorMusicFadeTimer=setInterval(function(){
           if(!window.ktCreatorMusicAudio||window.ktCreatorMusicAudio!==audio){clearInterval(window.ktCreatorMusicFadeTimer);window.ktCreatorMusicFadeTimer=null;return;}
-          audio.volume=Math.min(target,audio.volume+.06);
+          audio.volume=Math.min(target,audio.volume+.05);
           if(audio.volume>=target){clearInterval(window.ktCreatorMusicFadeTimer);window.ktCreatorMusicFadeTimer=null;}
         },70);
       }).catch(function(){
