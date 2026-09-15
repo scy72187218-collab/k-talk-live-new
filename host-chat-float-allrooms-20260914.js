@@ -48,3 +48,74 @@
   install();
   document.addEventListener('DOMContentLoaded',install);
 })();
+
+/* 2026-09-15 구독자방 채팅만 보강: 글이 아래에서 계속 쌓여 위로 밀리고, 맨 위를 지난 글만 사라지게 한다. */
+(function(){
+  if(window.__ktSubscriberChatContinuousFlow20260915)return;
+  window.__ktSubscriberChatContinuousFlow20260915=true;
+
+  var syncing=false;
+  var lastKey='';
+
+  function esc(v){
+    return String(v==null?'':v).replace(/[&<>"']/g,function(ch){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+    });
+  }
+
+  function ensureStyle(){
+    if(document.getElementById('ktSubscriberChatContinuousFlowStyle'))return;
+    var s=document.createElement('style');
+    s.id='ktSubscriberChatContinuousFlowStyle';
+    s.textContent=''
+      +'.ktsubscriber-chat-line{flex:0 0 auto!important;opacity:1!important;visibility:visible!important;}'
+      +'.ktsubscriber-chat-line.kt-chat-new{animation:ktSubscriberChatRiseIn .22s ease-out both!important;}'
+      +'@keyframes ktSubscriberChatRiseIn{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}';
+    document.head.appendChild(s);
+  }
+
+  function syncSubscriberChat(){
+    var box=document.getElementById('ktsubscriberChatList');
+    if(!box||syncing)return;
+    var msgs=window.ktSubscriberChatMessages;
+    if(!Array.isArray(msgs)||!msgs.length)return;
+
+    var view=msgs.slice(-24);
+    var key=view.map(function(m,i){return i+'|'+String(m&&m.name||'')+'|'+String(m&&m.text||'');}).join('\u0001');
+    var currentCount=box.querySelectorAll('.ktsubscriber-chat-line').length;
+    if(key===lastKey&&currentCount===view.length)return;
+
+    syncing=true;
+    box.innerHTML=view.map(function(m){
+      return '<div class="ktsubscriber-chat-line"><b>'+esc(m&&m.name||'나')+'</b><span>'+esc(m&&m.text||'')+'</span></div>';
+    }).join('');
+    var lines=box.querySelectorAll('.ktsubscriber-chat-line');
+    if(lines.length)lines[lines.length-1].classList.add('kt-chat-new');
+    box.scrollTop=box.scrollHeight;
+    lastKey=key;
+    syncing=false;
+  }
+
+  function attach(){
+    ensureStyle();
+    var box=document.getElementById('ktsubscriberChatList');
+    if(!box)return;
+    if(!box.__ktContinuousChatObserver){
+      box.__ktContinuousChatObserver=new MutationObserver(function(){
+        setTimeout(syncSubscriberChat,0);
+      });
+      box.__ktContinuousChatObserver.observe(box,{childList:true,subtree:false});
+    }
+    syncSubscriberChat();
+  }
+
+  attach();
+  [100,300,700,1200].forEach(function(ms){setTimeout(attach,ms);});
+  try{
+    var mo=new MutationObserver(function(){
+      clearTimeout(window.__ktSubscriberChatAttachTimer);
+      window.__ktSubscriberChatAttachTimer=setTimeout(attach,20);
+    });
+    mo.observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+})();
