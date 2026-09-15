@@ -49,9 +49,15 @@
     }
     setTimeout(next,60);
   }
+
+  /* 각 안내는 그 화면에 들어갔을 때만 읽는다. */
   function isGuideTitle(title){
     title=clean(title);
     return /(사용방법|이용방법|이용·혜택|혜택|안내|구독|VIP|장미 충전|선물|보물상자|제비뽑기|투자자|광고|신고|수익률)/i.test(title);
+  }
+  function isFullGuideTitle(title){
+    title=clean(title);
+    return /(사용방법|이용방법|이용·혜택)/i.test(title);
   }
 
   function fullGuideHtml(){
@@ -81,7 +87,7 @@
     var title=document.getElementById('sheetTitle');
     var body=document.getElementById('sheetBody');
     var t=clean(title&&title.textContent);
-    if(!body||!isGuideTitle(t)||body.querySelector('#ktFullGuide20260915'))return;
+    if(!body||!isFullGuideTitle(t)||body.querySelector('#ktFullGuide20260915'))return;
     try{body.insertAdjacentHTML('beforeend',fullGuideHtml());}catch(e){}
   }
 
@@ -106,7 +112,10 @@
       var oldShow=window.showSheet;
       var wrapped=function(title,html){
         var r=oldShow.apply(this,arguments);
-        if(isGuideTitle(title))setTimeout(function(){appendFullGuide();readCurrentSheet();},90);
+        if(isGuideTitle(title))setTimeout(function(){
+          appendFullGuide();
+          readCurrentSheet();
+        },90);
         return r;
       };
       wrapped.__ktAiHelpWrapped=true;
@@ -118,9 +127,10 @@
         var r=oldToggle.apply(this,arguments);
         setTimeout(function(){
           if(voiceOn()){
+            /* 현재 안내 화면 안에 있을 때만 읽는다. 다른 화면에서는 혜택/안내를 읽지 않는다. */
             appendFullGuide();
             var txt=currentSheetText();
-            if(txt)speakAll(txt);else speakAll('에이아이 음성 안내를 켰습니다. 사용 방법과 혜택 화면을 누르면 내용을 끝까지 읽어드립니다.');
+            if(txt)speakAll(txt);
           }else{
             speakingToken++;
             try{speechSynthesis.cancel();}catch(e){}
