@@ -407,3 +407,33 @@
     observer.observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 })();
+
+/* 2026-09-15 공유 버튼을 눌렀을 때 AI 사용안내 인사말이 잘못 시작되는 현상만 차단. 공유 기능 자체는 그대로 둠. */
+(function(){
+  if(window.__ktShareNoAiGreeting20260915)return;
+  window.__ktShareNoAiGreeting20260915=true;
+
+  function isShareTarget(e){
+    var el=e.target&&e.target.closest?e.target.closest('button,a,span,[role="button"]'):null;
+    if(!el)return false;
+    var text=String(el.textContent||el.getAttribute('aria-label')||'').replace(/\s+/g,'');
+    var onclick=String(el.getAttribute('onclick')||'');
+    return text.indexOf('공유')>-1||onclick.indexOf('shareApp')>-1;
+  }
+
+  function suppressGuideGreeting(e){
+    if(!isShareTarget(e))return;
+    var hadState=false,previous=true;
+    try{
+      hadState=!!window.state&&typeof state.aiVoiceOn!=='undefined';
+      if(hadState){previous=state.aiVoiceOn;state.aiVoiceOn=false;}
+    }catch(_e){}
+    try{if(window.speechSynthesis)speechSynthesis.cancel();}catch(_e2){}
+    setTimeout(function(){
+      try{if(hadState)state.aiVoiceOn=previous;}catch(_e3){}
+    },0);
+  }
+
+  document.addEventListener('touchend',suppressGuideGreeting,true);
+  document.addEventListener('click',suppressGuideGreeting,true);
+})();
