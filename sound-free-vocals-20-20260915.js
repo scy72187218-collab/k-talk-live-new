@@ -37,6 +37,7 @@
 
   function stopCreatorMusic(){
     try{
+      if(window.ktCreatorMusicFadeTimer){clearInterval(window.ktCreatorMusicFadeTimer);window.ktCreatorMusicFadeTimer=null;}
       if(window.ktCreatorMusicAudio){
         window.ktCreatorMusicAudio.pause();
         window.ktCreatorMusicAudio.removeAttribute('src');
@@ -52,11 +53,23 @@
     stopCreatorMusic();
     var audio=new Audio(t.url);
     audio.preload='auto';
-    audio.volume=.9;
+    audio.volume=.12;
     audio.loop=true;
     window.ktCreatorMusicAudio=audio;
     var p=audio.play();
-    if(p&&p.catch){
+    if(p&&p.then){
+      p.then(function(){
+        var target=.58;
+        window.ktCreatorMusicFadeTimer=setInterval(function(){
+          if(!window.ktCreatorMusicAudio||window.ktCreatorMusicAudio!==audio){clearInterval(window.ktCreatorMusicFadeTimer);window.ktCreatorMusicFadeTimer=null;return;}
+          audio.volume=Math.min(target,audio.volume+.06);
+          if(audio.volume>=target){clearInterval(window.ktCreatorMusicFadeTimer);window.ktCreatorMusicFadeTimer=null;}
+        },70);
+      }).catch(function(){
+        stopCreatorMusic();
+        alert('사운드를 재생하지 못했습니다. 곡을 한 번 더 눌러 주세요.');
+      });
+    }else if(p&&p.catch){
       p.catch(function(){
         stopCreatorMusic();
         alert('사운드를 재생하지 못했습니다. 곡을 한 번 더 눌러 주세요.');
