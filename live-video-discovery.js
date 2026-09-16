@@ -99,7 +99,6 @@
     if(document.getElementById('ktLiveVideoDiscoveryStyle'))return;
     var s=document.createElement('style');s.id='ktLiveVideoDiscoveryStyle';
     s.textContent=''
-      +'@keyframes ktVideoLivePulse{0%,45%{opacity:1}55%,100%{opacity:.45}}'
       +'@keyframes ktFollowLiveGlow{0%,100%{box-shadow:0 0 5px #ff244f,0 0 11px rgba(255,36,79,.5)}50%{box-shadow:0 0 9px #ff244f,0 0 18px rgba(255,36,79,.8)}}'
       +'.kt-video-live-peek{position:absolute!important;left:10px!important;top:56px!important;z-index:18!important;max-width:min(94vw,330px)!important;height:48px!important;padding:5px!important;border:1px solid rgba(255,64,103,.75)!important;border-radius:999px!important;background:rgba(8,8,12,.78)!important;color:#fff!important;display:flex!important;align-items:center!important;gap:5px!important;box-shadow:0 0 14px rgba(255,35,82,.3)!important;backdrop-filter:blur(5px)!important;touch-action:manipulation!important}'
       +'body.kt-follow-status-open .kt-video-live-peek{top:126px!important}'
@@ -111,7 +110,12 @@
       +'.kt-video-live-peek .ktvl-follow{width:28px!important;height:28px!important;flex:0 0 28px!important;border-radius:50%!important;background:#e91845!important;font-size:18px!important;font-weight:950!important;line-height:1!important}'
       +'.kt-video-live-peek .ktvl-follow.on{background:#4a4a52!important;font-size:13px!important}'
       +'.kt-video-live-peek .ktvl-bell{width:28px!important;height:28px!important;flex:0 0 28px!important;border-radius:50%!important;background:#23232b!important;font-size:14px!important}.kt-video-live-peek .ktvl-bell.on{background:#ff9f1a!important}'
-      +'.kt-video-live-peek .ktvl-live{flex:0 0 auto!important;color:#fff!important;background:#e91845!important;border-radius:999px!important;padding:5px 7px!important;font-size:8px!important;font-weight:950!important;animation:ktVideoLivePulse .9s linear infinite!important}'
+      +'.kt-video-live-peek .ktvl-live{flex:0 0 auto!important;color:#fff!important;background:#e91845!important;border-radius:999px!important;padding:5px 7px!important;font-size:8px!important;font-weight:950!important}'
+      +'.kt-feed-live-room{height:calc(100dvh - 78px)!important;min-height:560px!important;position:relative!important;scroll-snap-align:start!important;background:radial-gradient(circle at 50% 38%,#331124 0,#130a13 48%,#000 100%)!important;overflow:hidden!important;color:#fff!important;display:flex!important;align-items:center!important;justify-content:center!important;text-align:center!important}'
+      +'.kt-feed-live-room .ktfl-bg{position:absolute!important;inset:0!important;background-size:cover!important;background-position:center!important;filter:blur(22px) brightness(.32)!important;transform:scale(1.12)!important}'
+      +'.kt-feed-live-room .ktfl-content{position:relative!important;z-index:2!important;width:min(86vw,360px)!important;padding:28px 22px!important;border:1px solid rgba(255,255,255,.16)!important;border-radius:28px!important;background:rgba(10,8,13,.74)!important;box-shadow:0 18px 55px rgba(0,0,0,.55)!important;backdrop-filter:blur(8px)!important}'
+      +'.kt-feed-live-room .ktfl-avatar{width:112px!important;height:112px!important;margin:0 auto 14px!important;border-radius:50%!important;overflow:hidden!important;display:grid!important;place-items:center!important;background:#47101d!important;border:4px solid #ff244f!important;box-shadow:0 0 22px rgba(255,36,79,.65)!important;font-size:48px!important;font-weight:950!important}'
+      +'.kt-feed-live-room .ktfl-avatar img{width:100%!important;height:100%!important;object-fit:cover!important}.kt-feed-live-room .ktfl-live{display:inline-block!important;margin-bottom:10px!important;padding:7px 13px!important;border-radius:999px!important;background:#e91845!important;color:#fff!important;font-size:13px!important;font-weight:950!important}.kt-feed-live-room h2{margin:0 0 7px!important;font-size:25px!important}.kt-feed-live-room p{margin:0 0 20px!important;color:#ddd!important;font-size:14px!important}.kt-feed-live-room .ktfl-enter{width:100%!important;min-height:52px!important;border:0!important;border-radius:15px!important;background:linear-gradient(135deg,#ff244f,#d80785)!important;color:#fff!important;font-size:17px!important;font-weight:950!important;touch-action:manipulation!important}'
       +'.kt-follow-live-strip{position:fixed!important;left:8px!important;right:8px!important;top:53px!important;z-index:39!important;height:66px!important;padding:5px 7px!important;border-radius:16px!important;background:rgba(5,7,12,.64)!important;border:1px solid rgba(255,255,255,.13)!important;display:flex!important;align-items:flex-start!important;gap:8px!important;overflow-x:auto!important;overflow-y:hidden!important;backdrop-filter:blur(6px)!important;scrollbar-width:none!important}'
       +'.kt-follow-live-strip::-webkit-scrollbar{display:none!important}'
       +'.kt-follow-person{position:relative!important;width:50px!important;min-width:50px!important;height:56px!important;padding:0!important;border:0!important;background:transparent!important;color:#fff!important;display:flex!important;flex-direction:column!important;align-items:center!important;gap:2px!important;touch-action:manipulation!important}'
@@ -300,27 +304,27 @@
 
     var feedVideo=document.querySelector('#screen .kt-public-video');
     var host=document.querySelector('.video-home')||document.querySelector('#screen .media')||(feedVideo&&feedVideo.closest('section'));
-    if(!host||!rooms.length)return;
+    var liveCard=document.getElementById('ktFeedLiveRoom');
+    if(!host||!rooms.length){if(liveCard)liveCard.remove();return;}
 
     var r=rooms[0];
     var hostId=String(r.host_id||''),hostName=String(r.host_name||'K-Talk 방송자'),hostPhoto=String(r.host_photo||'');
     var photo=(hostPhoto&&(/^data:image/.test(hostPhoto)||/^https?:/.test(hostPhoto)))?'<img src="'+esc(hostPhoto)+'" alt="">':'🎥';
-    var b=document.createElement('div');
-    b.id='ktVideoLivePeek';b.className='kt-video-live-peek';
-    b.innerHTML='<button type="button" class="ktvl-person" aria-label="방송자 프로필"><span class="ktvl-avatar">'+photo+'</span><span class="ktvl-copy"><b>'+esc(hostName)+'</b><small>'+esc(r.title||r.room_name||'방송 중')+'</small></span></button>'
-      +'<button type="button" class="ktvl-follow" data-host="'+esc(hostId)+'" title="팔로우">+</button>'
-      +'<button type="button" class="ktvl-bell" data-host="'+esc(hostId)+'" title="방송 알림 켜기">🔔</button>'
-      +'<button type="button" class="ktvl-live">● LIVE</button>';
-    var person=b.querySelector('.ktvl-person');
-    var follow=b.querySelector('.ktvl-follow');
-    var bell=b.querySelector('.ktvl-bell');
-    var live=b.querySelector('.ktvl-live');
-    if(person)person.onclick=function(e){e.stopPropagation();window.ktOpenLiveHostActions(hostId,hostName,hostPhoto);};
-    if(follow)follow.onclick=function(e){e.stopPropagation();window.ktToggleLiveHostFollow(hostId,hostName,this);};
-    if(bell)bell.onclick=function(e){e.stopPropagation();window.ktToggleLiveHostAlert(hostId,hostName,this);};
-    if(live)live.onclick=function(e){e.stopPropagation();if(window.ktEnterRemoteLive)window.ktEnterRemoteLive(hostId);};
-    host.appendChild(b);
-    paintSocialState(hostId);
+    var feedSection=feedVideo&&feedVideo.closest('section');
+    var scroller=feedSection&&feedSection.parentElement;
+    if(!scroller)return;
+    var signature=hostId+'|'+String(r.updated_at||'');
+    if(liveCard&&liveCard.getAttribute('data-kt-signature')!==signature){liveCard.remove();liveCard=null;}
+    if(!liveCard){
+      liveCard=document.createElement('section');
+      liveCard.id='ktFeedLiveRoom';liveCard.className='kt-feed-live-room';
+      liveCard.setAttribute('data-kt-signature',signature);
+      var bg=hostPhoto&&(/^data:image/.test(hostPhoto)||/^https?:/.test(hostPhoto))?' style="background-image:url(&quot;'+esc(hostPhoto)+'&quot;)"':'';
+      liveCard.innerHTML='<div class="ktfl-bg"'+bg+'></div><div class="ktfl-content"><div class="ktfl-avatar">'+photo+'</div><span class="ktfl-live">● LIVE 방송 중</span><h2>'+esc(hostName)+'</h2><p>'+esc(r.title||r.room_name||'지금 방송 중입니다')+'</p><button type="button" class="ktfl-enter">방송방 들어가기</button></div>';
+      var first=feedSection;
+      if(first.nextSibling)scroller.insertBefore(liveCard,first.nextSibling);else scroller.appendChild(liveCard);
+      liveCard.onclick=function(e){try{e.preventDefault();e.stopPropagation();}catch(err){}if(window.ktEnterRemoteLive)window.ktEnterRemoteLive(hostId);};
+    }
   }
 
   window.ktRefreshVideoLivePeek=render;
