@@ -8,6 +8,7 @@
   var loading=false;
   var profileCache={};
   var renderTimer=null;
+  var lastDrawSignature='';
 
   function val(v){return v==null?'':String(v).trim();}
   function esc(v){return val(v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
@@ -138,6 +139,11 @@
     ensureStyle();
     var head=page.querySelector('.friends-head b');if(head)head.textContent='친구 · 방송';
     people=Array.isArray(people)?people:[];
+    var signature=people.map(function(p){
+      return [p.id,p.name,p.photo,p.live?'1':'0',p.title,p.roomName].join('|');
+    }).join('||')||'empty';
+    if(signature===lastDrawSignature&&list.querySelector('.kt-friend-status-wrap'))return;
+    lastDrawSignature=signature;
     if(!people.length){
       list.innerHTML='<div class="kt-friend-status-wrap"><div class="kt-friend-status-head"><b>방송 확인</b><span>빨강 방송중 · 파랑 방송 안 함</span></div><div class="kt-friend-empty">팔로우한 사람이나 현재 방송 중인 사람이 표시됩니다.</div></div>';
       return;
