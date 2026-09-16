@@ -209,12 +209,15 @@
   }
 
   async function renderFollowStatus(rooms){
-    var old=document.getElementById('ktFollowLiveStrip');if(old)old.remove();
-    try{document.body.classList.remove('kt-follow-status-open');}catch(e){}
-    if(!inVideoView())return;
+    var old=document.getElementById('ktFollowLiveStrip');
+    if(!inVideoView()){
+      if(old)old.remove();
+      try{document.body.classList.remove('kt-follow-status-open');}catch(e){}
+      return;
+    }
 
     var follows=await followedUsers();
-    if(!follows.length)return;
+    if(!follows.length){if(old)old.remove();try{document.body.classList.remove('kt-follow-status-open');}catch(e){}return;}
 
     var history=await roomHistory();
     var activeMap={},metaMap={};
@@ -228,8 +231,25 @@
       metaMap[id]={name:String(x.host_name||''),photo:String(x.host_photo||'')};
     });
 
+    /* 홈 위쪽에는 실제 방송 중인 팔로우만 표시한다. 오프라인 계정을 접속자로 오해하거나
+       5초마다 목록이 다시 그려져 깜빡이는 현상을 막는다. */
+    follows=follows.filter(function(f){return !!activeMap[String(f.following_id||'')];});
+    if(!follows.length){
+      if(old)old.remove();
+      try{document.body.classList.remove('kt-follow-status-open');}catch(e){}
+      return;
+    }
+
+    var signature=follows.map(function(f){
+      var id=String(f.following_id||''),r=activeMap[id]||{};
+      return [id,String(r.host_name||f.following_name||''),String(r.host_photo||'')].join(':');
+    }).join('|');
+    if(old&&old.getAttribute('data-kt-signature')===signature)return;
+    if(old)old.remove();
+
     var strip=document.createElement('div');
     strip.id='ktFollowLiveStrip';strip.className='kt-follow-live-strip';
+    strip.setAttribute('data-kt-signature',signature);
     strip.setAttribute('aria-label','팔로우 방송 상태');
     strip.innerHTML=follows.map(function(f){
       var id=String(f.following_id||'');
