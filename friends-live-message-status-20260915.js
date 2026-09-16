@@ -64,10 +64,10 @@
       +'.kt-friend-status-head{display:flex!important;align-items:center!important;justify-content:space-between!important;margin:2px 4px 10px!important}.kt-friend-status-head b{font-size:15px!important}.kt-friend-status-head span{font-size:10px!important;color:#b9bac3!important}'
       +'.kt-friend-status-scroll{display:flex!important;gap:12px!important;overflow-x:auto!important;padding:3px 2px 9px!important;scrollbar-width:none!important}.kt-friend-status-scroll::-webkit-scrollbar{display:none!important}'
       +'.kt-friend-bubble{width:74px!important;min-width:74px!important;border:0!important;background:none!important;color:#fff!important;padding:0!important;text-align:center!important;touch-action:manipulation!important}'
-      +'.kt-friend-bubble-photo{position:relative!important;width:66px!important;height:66px!important;margin:auto!important;border-radius:50%!important;padding:3px!important;background:#1677ff!important;box-shadow:0 0 0 1px #1677ff!important}'
-      +'.kt-friend-bubble.live .kt-friend-bubble-photo{background:#ff315f!important;box-shadow:0 0 0 1px #ff315f,0 0 14px rgba(255,49,95,.42)!important}'
+      +'.kt-friend-bubble-photo{position:relative!important;width:66px!important;height:66px!important;margin:auto!important;border-radius:50%!important;padding:3px!important;background:#1680ff!important;box-shadow:0 0 0 2px #1680ff!important;animation:none!important}'
+      +'.kt-friend-bubble.live .kt-friend-bubble-photo{background:#ff244f!important;box-shadow:0 0 0 2px #ff244f,0 0 14px rgba(255,36,79,.48)!important;animation:none!important}'
       +'.kt-friend-bubble-photo img,.kt-friend-bubble-fallback{width:100%!important;height:100%!important;border-radius:50%!important;object-fit:cover!important;display:grid!important;place-items:center!important;background:#171722!important;color:#fff!important;font-size:22px!important;font-weight:950!important;border:2px solid #07070b!important;overflow:hidden!important}'
-      +'.kt-friend-live-badge{position:absolute!important;left:50%!important;bottom:-5px!important;transform:translateX(-50%)!important;border-radius:999px!important;padding:2px 6px!important;background:#ff315f!important;color:#fff!important;font-size:8px!important;font-weight:950!important;white-space:nowrap!important;border:2px solid #07070b!important}'
+      +'.kt-friend-live-badge{position:absolute!important;left:50%!important;bottom:-5px!important;transform:translateX(-50%)!important;border-radius:999px!important;padding:2px 6px!important;background:#ff244f!important;color:#fff!important;font-size:8px!important;font-weight:950!important;white-space:nowrap!important;border:2px solid #07070b!important;animation:none!important}'
       +'.kt-friend-off-badge{position:absolute!important;right:-1px!important;bottom:2px!important;width:15px!important;height:15px!important;border-radius:50%!important;background:#1680ff!important;border:2px solid #07070b!important}'
       +'.kt-friend-bubble-name{display:block!important;margin-top:8px!important;font-size:10px!important;font-weight:850!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}'
       +'.kt-friend-legend{display:flex!important;gap:12px!important;align-items:center!important;margin:5px 4px 0!important;color:#c5c6cd!important;font-size:10px!important}.kt-friend-legend i{display:inline-block!important;width:9px!important;height:9px!important;border-radius:50%!important;margin-right:4px!important;vertical-align:-1px!important}.kt-friend-legend .red{background:#ff315f!important}.kt-friend-legend .blue{background:#1680ff!important}'
@@ -98,7 +98,8 @@
 
   async function loadPeople(){
     var me=currentUserId();
-    var cut=new Date(Date.now()-55000).toISOString();
+    /* 방송 기기의 순간적인 통신 지연에도 빨강/파랑 표시가 깜빡이지 않게 여유를 둔다. */
+    var cut=new Date(Date.now()-90000).toISOString();
     var follows=[],rooms=[];
     try{follows=await rest('ktalk_user_follows?select=following_id,following_name&follower_id=eq.'+enc(me)+'&order=updated_at.desc&limit=50');}catch(e){}
     try{rooms=await rest('ktalk_live_rooms?select=host_id,host_name,host_photo,title,room_name,active,updated_at&active=eq.true&updated_at=gte.'+enc(cut)+'&order=started_at.desc&limit=30');}catch(e){}
