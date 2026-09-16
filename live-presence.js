@@ -215,24 +215,31 @@
   }
 
   async function startHostPresence(){
-    if(hostActive||!hasLiveLocalVideo())return;
+    if(hostActive||window.__ktPrimaryLivePresenceStarting||!hasLiveLocalVideo())return;
+    window.__ktPrimaryLivePresenceStarting=true;
     var p=profile(),r=currentRoom(),hostId=deviceId(),stamp=nowIso();
     try{
       await req('ktalk_live_rooms?host_id=eq.'+enc(hostId)+'&active=eq.true',{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:stamp})});
       var rows=await req('ktalk_live_rooms',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify({host_id:hostId,host_name:p.name,title:r.title,room_type:r.type,room_name:r.name,active:true,started_at:stamp,updated_at:stamp,host_photo:p.photo||null})});
       hostRoomId=rows&&rows[0]?rows[0].id:'';hostActive=true;lastActivityStamp='';
+      window.__ktPrimaryLivePresenceStarting=false;
+      window.__ktPrimaryLivePresenceActive=true;
+      window.__ktPrimaryLiveRoomId=hostRoomId;
+      /* 동시에 실행된 보조 감시기가 만든 중복 방이 있으면 현재 방만 남긴다. */
+      try{if(hostRoomId)await req('ktalk_live_rooms?host_id=eq.'+enc(hostId)+'&active=eq.true&id=neq.'+enc(hostRoomId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})});}catch(e){}
       showActivity('🔴 방송이 시작되었습니다. 방송목록에 표시됩니다.');
       clearInterval(hostHeartbeat);clearInterval(hostSignalTimer);clearInterval(hostActivityTimer);
       hostHeartbeat=setInterval(async function(){if(!hostActive||!hostRoomId)return;try{await req('ktalk_live_rooms?id=eq.'+enc(hostRoomId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:true,updated_at:nowIso()})});}catch(e){}},12000);
       hostSignalTimer=setInterval(hostProcessSignals,1400);hostProcessSignals();
       hostActivityTimer=setInterval(hostPollActivity,1800);hostPollActivity();
       renderLiveCards();
-    }catch(e){hostActive=false;hostRoomId='';}
+    }catch(e){hostActive=false;hostRoomId='';window.__ktPrimaryLivePresenceStarting=false;window.__ktPrimaryLivePresenceActive=false;window.__ktPrimaryLiveRoomId='';}
   }
 
   async function stopHostPresence(){
     if(!hostActive&&!hostRoomId)return;
     var hostId=deviceId(),roomId=hostRoomId;hostActive=false;hostRoomId='';
+    window.__ktPrimaryLivePresenceStarting=false;window.__ktPrimaryLivePresenceActive=false;window.__ktPrimaryLiveRoomId='';
     clearInterval(hostHeartbeat);clearInterval(hostSignalTimer);clearInterval(hostActivityTimer);hostHeartbeat=hostSignalTimer=hostActivityTimer=null;
     Object.keys(hostPeers).forEach(function(k){try{hostPeers[k].pc.close();}catch(e){}});hostPeers={};
     try{if(roomId)await req('ktalk_live_rooms?id=eq.'+enc(roomId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})});else await req('ktalk_live_rooms?host_id=eq.'+enc(hostId)+'&active=eq.true',{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})});}catch(e){}

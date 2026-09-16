@@ -140,6 +140,11 @@
   }
 
   async function publishIfNeeded(force){
+    /* 기본 실시간 연결이 정상 작동 중이면 보조 감시기는 같은 방을 다시 만들지 않는다. */
+    if(window.__ktPrimaryLivePresenceActive||window.__ktPrimaryLivePresenceStarting){
+      if(window.__ktPrimaryLiveRoomId)roomId=String(window.__ktPrimaryLiveRoomId);
+      return;
+    }
     if(publishing||(!force&&!shouldBeLive()))return;
     publishing=true;
     var id=hostId(),stamp=now();
@@ -207,6 +212,10 @@
   }
 
   async function heartbeat(){
+    if(window.__ktPrimaryLivePresenceActive||window.__ktPrimaryLivePresenceStarting){
+      if(window.__ktPrimaryLiveRoomId)roomId=String(window.__ktPrimaryLiveRoomId);
+      return;
+    }
     if(shouldBeLive()){
       misses=0;
       if(!roomId){await publishIfNeeded(true);return;}
