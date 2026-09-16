@@ -114,6 +114,7 @@
       +'.kt-video-live-peek .ktvl-bell{width:28px!important;height:28px!important;flex:0 0 28px!important;border-radius:50%!important;background:#23232b!important;font-size:14px!important}.kt-video-live-peek .ktvl-bell.on{background:#ff9f1a!important}'
       +'.kt-video-live-peek .ktvl-live{flex:0 0 auto!important;color:#fff!important;background:#e91845!important;border-radius:999px!important;padding:5px 7px!important;font-size:8px!important;font-weight:950!important}'
       +'.kt-feed-live-room{height:calc(100dvh - 78px)!important;min-height:560px!important;position:relative!important;scroll-snap-align:start!important;background:radial-gradient(circle at 50% 38%,#331124 0,#130a13 48%,#000 100%)!important;overflow:hidden!important;color:#fff!important;display:flex!important;align-items:center!important;justify-content:center!important;text-align:center!important}'
+      +'.kt-feed-live-room.standalone{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important;z-index:12!important}'
       +'.kt-feed-live-room .ktfl-bg{position:absolute!important;inset:0!important;background-size:cover!important;background-position:center!important;filter:blur(22px) brightness(.32)!important;transform:scale(1.12)!important}'
       +'.kt-feed-live-room .ktfl-video{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;background:#08080b!important;z-index:1!important}'
       +'.kt-feed-live-room .ktfl-content{position:relative!important;z-index:2!important;width:min(86vw,360px)!important;padding:28px 22px!important;border:1px solid rgba(255,255,255,.16)!important;border-radius:28px!important;background:rgba(10,8,13,.74)!important;box-shadow:0 18px 55px rgba(0,0,0,.55)!important;backdrop-filter:blur(8px)!important}'
@@ -361,17 +362,18 @@
     var photo=(hostPhoto&&(/^data:image/.test(hostPhoto)||/^https?:/.test(hostPhoto)))?'<img src="'+esc(hostPhoto)+'" alt="">':'🎥';
     var feedSection=feedVideo&&feedVideo.closest('section');
     var scroller=feedSection&&feedSection.parentElement;
-    if(!scroller)return;
+    if(!scroller)scroller=host;
     var signature=hostId;
     if(liveCard&&liveCard.getAttribute('data-kt-signature')!==signature){liveCard.remove();liveCard=null;}
     if(!liveCard){
       liveCard=document.createElement('section');
       liveCard.id='ktFeedLiveRoom';liveCard.className='kt-feed-live-room';
+      if(!feedSection)liveCard.classList.add('standalone');
       liveCard.setAttribute('data-kt-signature',signature);
       var bg=hostPhoto&&(/^data:image/.test(hostPhoto)||/^https?:/.test(hostPhoto))?' style="background-image:url(&quot;'+esc(hostPhoto)+'&quot;)"':'';
       liveCard.innerHTML='<div class="ktfl-bg"'+bg+'></div><video class="ktfl-video" autoplay muted playsinline></video><div class="ktfl-content"><div class="ktfl-avatar">'+photo+'</div><span class="ktfl-live">● LIVE 방송 중</span><h2>'+esc(hostName)+'</h2><p>'+esc(r.title||r.room_name||'지금 방송 중입니다')+'</p><button type="button" class="ktfl-enter">한 번 더 눌러 방송방 들어가기</button></div>';
       var first=feedSection;
-      if(first.nextSibling)scroller.insertBefore(liveCard,first.nextSibling);else scroller.appendChild(liveCard);
+      if(first&&first.nextSibling)scroller.insertBefore(liveCard,first.nextSibling);else scroller.appendChild(liveCard);
       liveCard.onclick=async function(e){try{e.preventDefault();e.stopPropagation();}catch(err){}await stopPreview();if(window.ktEnterRemoteLive)window.ktEnterRemoteLive(hostId);};
       var previewVideo=liveCard.querySelector('.ktfl-video');
       if('IntersectionObserver'in window){
