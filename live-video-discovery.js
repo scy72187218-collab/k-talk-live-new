@@ -374,7 +374,7 @@
       liveCard.innerHTML='<div class="ktfl-bg"'+bg+'></div><video class="ktfl-video" autoplay muted playsinline></video><div class="ktfl-content"><div class="ktfl-avatar">'+photo+'</div><span class="ktfl-live">● LIVE 방송 중</span><h2>'+esc(hostName)+'</h2><p>'+esc(r.title||r.room_name||'지금 방송 중입니다')+'</p><button type="button" class="ktfl-enter">한 번 더 눌러 방송방 들어가기</button></div>';
       var first=feedSection;
       if(first&&first.nextSibling)scroller.insertBefore(liveCard,first.nextSibling);else scroller.appendChild(liveCard);
-      liveCard.onclick=async function(e){try{e.preventDefault();e.stopPropagation();}catch(err){}await stopPreview();if(window.ktEnterRemoteLive)window.ktEnterRemoteLive(hostId);};
+      liveCard.onclick=function(e){try{e.preventDefault();e.stopPropagation();}catch(err){}stopPreview();if(window.ktEnterRemoteLive)window.ktEnterRemoteLive(hostId);};
       var previewVideo=liveCard.querySelector('.ktfl-video');
       if('IntersectionObserver'in window){
         var observer=new IntersectionObserver(function(entries){entries.forEach(function(entry){if(entry.isIntersecting&&entry.intersectionRatio>.55)startPreview(hostId,previewVideo);else if(previewCtx&&previewCtx.hostId===hostId)stopPreview();});},{threshold:[.55]});
