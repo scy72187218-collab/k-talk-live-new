@@ -86,7 +86,7 @@
   window.ktSubscriberToggleEarnings=function(){
     var d=document.getElementById('ktSubscriberEarnDetail');
     if(!d)return;
-    d.style.display=d.style.display==='grid'?'none':'grid';
+    d.style.display='grid';
   };
 
   function equalizerBars(){
@@ -136,7 +136,7 @@
             +'<div class="ktsubscriber-people"><div class="ktsubscriber-host"><video id="ktLiveVideo" autoplay playsinline muted></video><span class="ktsubscriber-host-label">호스트</span></div>'+guestSlots()+'</div>'
             +'<div class="ktsubscriber-right"><button class="like" onclick="if(window.addHostLike)addHostLike(1)">💗<small>좋아요</small><b id="hostLikeCount">0</b></button><button onclick="ktSubscriberEffect()">✨<small>효과</small></button><button onclick="ktSubscriberTreasure()">🎁<small>보물상자</small></button><button onclick="if(window.openHostMatchArena)openHostMatchArena(\'1대1\')">⚔<small>매치</small></button></div>'
           +'</div>'
-          +'<div class="ktsubscriber-info"><div class="ktsubscriber-leftinfo"><div id="ktsubscriberChatList" class="ktsubscriber-chat" onclick="ktSubscriberOpenMessage()"></div><div class="ktsubscriber-wave">'+equalizerBars()+'</div></div><div class="ktsubscriber-earn"><button id="ktSubscriberEarnHud" class="ktsubscriber-earnhud" onclick="ktSubscriberToggleEarnings()"><div style="display:flex;align-items:center;justify-content:center;gap:5px"><span style="font-size:8px;color:#8fe8ff;font-weight:950;white-space:nowrap">🔒 내 수익 · 본인만 표시</span><b id="ktSubscriberEarnNet" style="font-size:12px;color:#ffe071;white-space:nowrap">'+esc(net)+'</b></div><div id="ktSubscriberEarnDetail" style="display:none;grid-template-columns:1fr 1fr;gap:4px;margin-top:2px;font-size:7px;color:#ddd"><span id="ktSubscriberEarnRoses">'+esc(roses)+'</span><span style="text-align:right">일반회원 35%</span><span>구독자회원 40%</span><span style="text-align:right">소속사 65%</span></div></button></div></div>'
+          +'<div class="ktsubscriber-info"><div class="ktsubscriber-leftinfo"><div id="ktsubscriberChatList" class="ktsubscriber-chat" onclick="ktSubscriberOpenMessage()"></div><div class="ktsubscriber-wave">'+equalizerBars()+'</div></div><div class="ktsubscriber-earn"><button id="ktSubscriberEarnHud" class="ktsubscriber-earnhud" onclick="ktSubscriberToggleEarnings()"><div style="display:flex;align-items:center;justify-content:center;gap:5px"><span style="font-size:8px;color:#8fe8ff;font-weight:950;white-space:nowrap">🔒 내 수익 · 본인만 표시</span><b id="ktSubscriberEarnNet" style="font-size:12px;color:#ffe071;white-space:nowrap">'+esc(net)+'</b></div><div id="ktSubscriberEarnDetail" style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:2px;font-size:7px;color:#ddd"><span id="ktSubscriberEarnRoses">'+esc(roses)+'</span><span style="text-align:right">일반회원 35%</span><span>구독자회원 40%</span><span style="text-align:right">소속사 65%</span></div></button></div></div>'
           +'<div class="ktsubscriber-gifts">'
             +gift('','1개','장미','rose-single.svg')
             +gift('','50개','장미다발','rose-bouquet-50.svg')

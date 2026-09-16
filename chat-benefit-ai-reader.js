@@ -4,9 +4,20 @@
   window.__ktChatBenefitAIReaderInstalled=true;
 
   function clean(v){return String(v==null?'':v).replace(/\s+/g,' ').trim();}
-  function speak(text){
+  function cleanName(v){
+    return clean(v).replace(/^[👤👥✅📣🔔\s]+/,'').replace(/님$/,'').trim()||'게스트';
+  }
+
+  /* 참여 신청/승인 알림은 같은 이벤트를 여러 감시기가 잡아도 한 번만 읽는다. */
+  var recentEventSpeech=Object.create(null);
+  function speak(text,eventKey){
     text=clean(text);
     if(!text)return;
+    if(eventKey){
+      var now=Date.now(),last=recentEventSpeech[eventKey]||0;
+      if(now-last<120000)return;
+      recentEventSpeech[eventKey]=now;
+    }
     try{
       if(typeof window.ktSpeak==='function'){
         window.ktSpeak(text);
@@ -31,15 +42,39 @@
       else msg=all;
     }
     if(!msg||/채팅.*표시|메시지가.*표시|입력하면/.test(msg))return '';
+
+    if(el.classList&&el.classList.contains('ktGuestPendingLine')){
+      return cleanName(name)+' 님이 방송 신청을 했습니다.';
+    }
+    if(/참여.*승인|승인했습니다|승인되었습니다/.test(msg)){
+      return '호스트님이 승인했습니다.';
+    }
     if(name&&name!=='나')return name+'님이 '+msg;
     if(name==='나')return '내 메시지 '+msg;
     return msg;
   }
 
+  function eventKeyForLine(el,say){
+    if(!el)return '';
+    var raw=clean(el.textContent||'');
+    var name=cleanName((el.querySelector('b,strong')||{}).textContent||'');
+    if((el.classList&&el.classList.contains('ktGuestPendingLine'))||/방송\s*신청|참여\s*신청/.test(raw)){
+      return 'guest-request:'+name;
+    }
+    if(/참여.*승인|승인했습니다|승인되었습니다/.test(raw)||say==='호스트님이 승인했습니다.'){
+      var m=raw.match(/([^\s👤👥✅]+)님\s*(?:참여를?\s*)?승인/);
+      return 'guest-approved:'+(m&&m[1]?cleanName(m[1]):name||raw);
+    }
+    return '';
+  }
+
   function getLines(box){
     if(!box)return [];
     var lines=[].slice.call(box.querySelectorAll('.ktsolo-chat-line,.ktsubscriber-chat-line,.ktg13-chat-line,.ktsecret-chat-line,.ktg9-chat-line,[class*="-chat-line"]'));
-    return lines.map(function(el){return {key:clean(el.textContent||''),say:lineText(el)};}).filter(function(x){return x.key&&x.say;});
+    return lines.map(function(el){
+      var say=lineText(el);
+      return {key:clean(el.textContent||''),say:say,eventKey:eventKeyForLine(el,say)};
+    }).filter(function(x){return x.key&&x.say;});
   }
 
   var snapshots=new WeakMap();
@@ -65,7 +100,7 @@
         var cur=rows.map(function(x){return x.key;});
         var prev=snapshots.get(box)||[];
         var start=overlap(prev,cur);
-        for(var i=start;i<rows.length;i++)speak(rows[i].say);
+        for(var i=start;i<rows.length;i++)speak(rows[i].say,rows[i].eventKey);
         snapshots.set(box,cur);
       },35);
     });

@@ -1,0 +1,65 @@
+name: Show guest-room earnings above gifts only
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/show-guest-earnings-above-gifts-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch-earnings-only:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Keep earnings rate visible above gifts only
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          # Subscriber room: earnings is already above the gift row; keep the rate detail visible.
+          p=Path('subscriber-approved-room.js')
+          s=p.read_text(encoding='utf-8')
+          old="d.style.display=d.style.display==='grid'?'none':'grid';"
+          if old in s:
+              s=s.replace(old,"d.style.display='grid';",1)
+          old_detail='id="ktSubscriberEarnDetail" style="display:none;grid-template-columns:1fr 1fr;'
+          if old_detail in s:
+              s=s.replace(old_detail,'id="ktSubscriberEarnDetail" style="display:grid;grid-template-columns:1fr 1fr;',1)
+          p.write_text(s,encoding='utf-8')
+
+          # Secret room: move the earnings box inside the camera area and place it directly above gifts.
+          p=Path('secret-room-password.js')
+          s=p.read_text(encoding='utf-8')
+          old_css='.ktsecret-earn-row{flex:0 0 30px;display:flex;align-items:center;justify-content:flex-end;padding:0 3px}'
+          new_css='.ktsecret-earn-row{position:absolute;right:6px;bottom:70px;z-index:12;width:92px;height:50px;display:flex;align-items:center;justify-content:flex-end;padding:0}'
+          if old_css not in s:
+              raise SystemExit('secret earnings css target not found')
+          s=s.replace(old_css,new_css,1)
+
+          # Make the percentage visible without an extra tap.
+          old_detail='id="myEarnDetail" style="display:none;grid-template-columns:1fr 1fr;'
+          if old_detail in s:
+              s=s.replace(old_detail,'id="myEarnDetail" style="display:grid;grid-template-columns:1fr 1fr;',1)
+
+          # Move only the existing earnings row above the existing gifts row.
+          pat=re.compile(r"(?P<gift>\s*\+'<div class=\"ktsecret-gifts\">'.*?\+'</div>'\s*)\n(?P<close>\s*\+'</div>'\s*)\n(?P<earn>\s*\+'<div class=\"ktsecret-earn-row\">.*?</button></div>'\s*)\n",re.S)
+          m=pat.search(s)
+          if not m:
+              raise SystemExit('secret gift/earn markup target not found')
+          repl=m.group('earn')+'\n'+m.group('gift')+'\n'+m.group('close')+'\n'
+          s=s[:m.start()]+repl+s[m.end():]
+          p.write_text(s,encoding='utf-8')
+
+      - name: Commit earnings placement only
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add subscriber-approved-room.js secret-room-password.js
+          git diff --cached --quiet && exit 0
+          git commit -m "Keep guest-room earnings rate above gift row"
+          git push

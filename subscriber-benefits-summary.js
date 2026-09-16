@@ -29,3 +29,13 @@
   setTimeout(install,200);
   setTimeout(install,700);
 })();
+
+/* 호스트 TV·영화·화면공유 기능만 별도 로드. 기존 방 배치는 건드리지 않음. */
+(function(){
+  if(document.querySelector('script[data-kt-host-tv-movie]'))return;
+  var s=document.createElement('script');
+  s.src='host-tv-movie-level20-20260915.js?v=20260915-tv1';
+  s.async=false;
+  s.setAttribute('data-kt-host-tv-movie','1');
+  document.head.appendChild(s);
+})();

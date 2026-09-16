@@ -87,3 +87,68 @@
     document.head.appendChild(s);
   }catch(e){}
 })();
+
+/* 2026-09-15: 방송 진입을 막는 K-Talk 아이콘 설치 안내를 항상 제거. 다른 기능은 변경하지 않음. */
+(function(){
+  if(window.__ktRemoveInstallOffer20260915)return;
+  window.__ktRemoveInstallOffer20260915=true;
+
+  function removeInstallOffer(){
+    try{
+      ['ktFirstJoinIconOffer','ktInstallOffer','ktInstallPrompt','ktHomeInstallBanner'].forEach(function(id){
+        var el=document.getElementById(id);
+        if(el)el.remove();
+      });
+      document.querySelectorAll('[data-kt-install-offer],[data-kt-install-banner]').forEach(function(el){el.remove();});
+      document.querySelectorAll('body *').forEach(function(el){
+        if(!el||!el.textContent)return;
+        var t=String(el.textContent).replace(/\s+/g,' ').trim();
+        if((t.indexOf('K-Talk 아이콘 설치')>-1||t.indexOf('K-Talk 새 아이콘')>-1) &&
+           (t.indexOf('설치 준비')>-1||t.indexOf('홈 화면')>-1||t.indexOf('아이콘 추가')>-1)){
+          var box=el;
+          while(box&&box.parentElement&&box.parentElement!==document.body){
+            var cs='';
+            try{cs=getComputedStyle(box).position;}catch(e){}
+            if(cs==='fixed'||cs==='sticky')break;
+            box=box.parentElement;
+          }
+          if(box&&box!==document.body)box.remove();
+        }
+      });
+    }catch(e){}
+  }
+
+  removeInstallOffer();
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',removeInstallOffer,{once:true});
+  setTimeout(removeInstallOffer,50);
+  setTimeout(removeInstallOffer,250);
+  setTimeout(removeInstallOffer,1000);
+  try{
+    var mo=new MutationObserver(removeInstallOffer);
+    mo.observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+})();
+
+/* 2026-09-15: 동영상 게시 시 휴대폰 저장 모듈 로더. 다른 기능은 변경하지 않음. */
+(function(){
+  if(window.__ktGallerySaveLoader20260915)return;
+  window.__ktGallerySaveLoader20260915=true;
+  try{
+    var s=document.createElement('script');
+    s.src='gallery-save-on-post-20260915.js?v=20260915-gallery1';
+    s.async=true;
+    document.head.appendChild(s);
+  }catch(e){}
+})();
+
+/* 2026-09-15: 장미 레벨 시스템 로더. 기존 방 UI와 선물 UI는 변경하지 않음. */
+(function(){
+  if(window.__ktLevelSystemLoader20260915)return;
+  window.__ktLevelSystemLoader20260915=true;
+  try{
+    var s=document.createElement('script');
+    s.src='level-system-20260915.js?v=20260915-level1';
+    s.async=true;
+    document.head.appendChild(s);
+  }catch(e){}
+})();

@@ -55,9 +55,15 @@
   /* 방송 파장만: 사진처럼 무지개 파장을 사람마다 하나씩 자동 표시. */
   load('participant-photo-wave-only-20260915.js','__ktParticipantPhotoWaveOnly20260915');
 
+  /* 선물상자를 누르면 회원 본인의 남은 장미 수량 표시 + 부족하면 충전 연결. */
+  load('gift-balance-box-20260915.js','__ktGiftBalanceBox20260915');
+
   /* 사용자가 방금 요청한 두 부분만 복구. 다른 화면/기능은 건드리지 않음. */
   load('group13-approved-room.js','__ktGroup13ApprovedRoomInstalled');
   load('feed-swipe-playback-fix.js','__ktFeedSwipePlaybackFixInstalled',function(){
     load('broadcast-video-resume-fix.js','__ktBroadcastVideoResumeFixInstalled');
   });
+
+  /* 방송 입장 순간 카메라가 끊기거나 1~2초 늦게 뜨는 현상만 보강. */
+  load('live-room-instant-video-fix-20260915.js','__ktLiveRoomInstantVideoFixInstalled');
 })();
