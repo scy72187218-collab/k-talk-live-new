@@ -297,6 +297,8 @@
 
     var rooms=await activeRooms();
     await renderFollowStatus(rooms);
+    /* 동영상 화면에는 위쪽 K 방송 상태만 유지하고 중복 방송자 막대는 표시하지 않는다. */
+    return;
 
     var feedVideo=document.querySelector('#screen .kt-public-video');
     var host=document.querySelector('.video-home')||document.querySelector('#screen .media')||(feedVideo&&feedVideo.closest('section'));
