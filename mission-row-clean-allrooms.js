@@ -52,3 +52,34 @@
     mo.observe(document.documentElement,{childList:true,subtree:true,characterData:true});
   }catch(e){}
 })();
+
+/* 2026-09-15 촬영/방송 카메라 구도만 세로형으로 보강. 기존 방/버튼/선물 UI는 변경하지 않음. */
+(function(){
+  if(window.__ktPortraitCameraRequestOnly20260915)return;
+  window.__ktPortraitCameraRequestOnly20260915=true;
+  try{
+    var md=navigator.mediaDevices;
+    if(!md||typeof md.getUserMedia!=='function')return;
+    var originalGetUserMedia=md.getUserMedia.bind(md);
+    md.getUserMedia=function(constraints){
+      try{
+        if(constraints&&constraints.video&&typeof constraints.video==='object'){
+          var v=constraints.video;
+          var w=v.width&&typeof v.width==='object'?(v.width.ideal||v.width.exact):v.width;
+          var h=v.height&&typeof v.height==='object'?(v.height.ideal||v.height.exact):v.height;
+          w=Number(w)||0;h=Number(h)||0;
+          if((w===1920&&h===1080)||(w===1280&&h===720)){
+            var next=Object.assign({},constraints);
+            var nv=Object.assign({},v);
+            if(w===1920){nv.width={ideal:1080};nv.height={ideal:1920};}
+            else{nv.width={ideal:720};nv.height={ideal:1280};}
+            nv.aspectRatio={ideal:9/16};
+            next.video=nv;
+            return originalGetUserMedia(next);
+          }
+        }
+      }catch(e){}
+      return originalGetUserMedia(constraints);
+    };
+  }catch(e){}
+})();

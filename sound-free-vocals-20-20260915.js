@@ -68,7 +68,8 @@
       if(!AC)return false;
       var ctx=window.ktCreatorMusicAudioContext;
       if(!ctx||ctx.state==='closed'){
-        ctx=new AC();
+        try{ctx=new AC({latencyHint:'interactive',sampleRate:44100});}
+        catch(_e){ctx=new AC();}
         window.ktCreatorMusicAudioContext=ctx;
       }
       if(ctx.state==='suspended')ctx.resume().catch(function(){});
@@ -76,24 +77,24 @@
       var source=ctx.createMediaElementSource(audio);
       var bass=ctx.createBiquadFilter();
       bass.type='lowshelf';
-      bass.frequency.value=140;
-      bass.gain.value=2.2;
+      bass.frequency.value=130;
+      bass.gain.value=.7;
 
       var presence=ctx.createBiquadFilter();
       presence.type='peaking';
-      presence.frequency.value=2600;
-      presence.Q.value=.85;
-      presence.gain.value=1.4;
+      presence.frequency.value=2400;
+      presence.Q.value=.72;
+      presence.gain.value=.55;
 
       var comp=ctx.createDynamicsCompressor();
-      comp.threshold.value=-21;
-      comp.knee.value=18;
-      comp.ratio.value=2.7;
-      comp.attack.value=.012;
-      comp.release.value=.24;
+      comp.threshold.value=-16;
+      comp.knee.value=10;
+      comp.ratio.value=1.8;
+      comp.attack.value=.008;
+      comp.release.value=.18;
 
       var gain=ctx.createGain();
-      gain.gain.value=.92;
+      gain.gain.value=.86;
 
       source.connect(bass);
       bass.connect(presence);
@@ -122,15 +123,15 @@
     audio.loop=true;
     audio.src=t.url;
     var processed=connectBroadcastSound(audio);
-    audio.volume=processed?.82:.16;
+    audio.volume=processed?.56:.16;
     window.ktCreatorMusicAudio=audio;
     var p=audio.play();
     if(p&&p.then){
       p.then(function(){
-        var target=processed?.92:.64;
+        var target=processed?.86:.64;
         window.ktCreatorMusicFadeTimer=setInterval(function(){
           if(!window.ktCreatorMusicAudio||window.ktCreatorMusicAudio!==audio){clearInterval(window.ktCreatorMusicFadeTimer);window.ktCreatorMusicFadeTimer=null;return;}
-          audio.volume=Math.min(target,audio.volume+.05);
+          audio.volume=Math.min(target,audio.volume+.04);
           if(audio.volume>=target){clearInterval(window.ktCreatorMusicFadeTimer);window.ktCreatorMusicFadeTimer=null;}
         },70);
       }).catch(function(){
