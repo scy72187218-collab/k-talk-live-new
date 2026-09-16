@@ -217,7 +217,6 @@
     }
 
     var follows=await followedUsers();
-    if(!follows.length){if(old)old.remove();try{document.body.classList.remove('kt-follow-status-open');}catch(e){}return;}
 
     var history=await roomHistory();
     var activeMap={},metaMap={};
@@ -231,9 +230,13 @@
       metaMap[id]={name:String(x.host_name||''),photo:String(x.host_photo||'')};
     });
 
-    /* 홈 위쪽에는 실제 방송 중인 팔로우만 표시한다. 오프라인 계정을 접속자로 오해하거나
-       5초마다 목록이 다시 그려져 깜빡이는 현상을 막는다. */
-    follows=follows.filter(function(f){return !!activeMap[String(f.following_id||'')];});
+    /* 홈 위쪽에는 팔로우 여부와 상관없이 실제 방송 중인 사람을 바로 표시한다. */
+    var followMap={};
+    (follows||[]).forEach(function(f){followMap[String(f.following_id||'')]=f;});
+    follows=Object.keys(activeMap).map(function(id){
+      var room=activeMap[id]||{},follow=followMap[id]||{};
+      return {following_id:id,following_name:String(room.host_name||follow.following_name||'K-Talk 방송자'),notify_live:!!follow.notify_live};
+    });
     if(!follows.length){
       if(old)old.remove();
       try{document.body.classList.remove('kt-follow-status-open');}catch(e){}
@@ -323,6 +326,6 @@
   window.ktRefreshVideoLivePeek=render;
   var mo=new MutationObserver(function(){setTimeout(render,80);});
   var screen=document.getElementById('screen');if(screen)mo.observe(screen,{childList:true,subtree:false});
-  setInterval(render,5000);
-  setTimeout(render,1000);
+  setInterval(render,1000);
+  setTimeout(render,120);
 })();
