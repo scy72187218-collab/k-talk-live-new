@@ -27,12 +27,14 @@
     }catch(e){if(done)done();}
   }
 
-  /* AI 읽기 → 기본 실시간 방송 등록/입장 → LIVE 표시 → 시청자 상호작용 순서. */
+  /* AI 읽기 → 기본 실시간 방송 등록/입장 → LIVE 표시 → 시청자 상호작용 → 게스트 영상 복구 순서. */
   load('chat-benefit-ai-reader.js','__ktChatBenefitAIReaderInstalled',function(){
     load('live-presence.js','__ktLivePresenceInstalled',function(){
       /* live-presence가 정상 설치되면 별도 watchdog을 같이 돌리지 않는다. 중복 방송 등록 방지. */
       load('live-video-discovery.js','__ktLiveVideoDiscoveryInstalled',function(){
-        load('live-viewer-interactions.js','__ktLiveViewerInteractionInstalled');
+        load('live-viewer-interactions.js','__ktLiveViewerInteractionInstalled',function(){
+          load('live-viewer-recovery.js','__ktRemoteViewerRecoveryInstalled');
+        });
       });
     });
   });
