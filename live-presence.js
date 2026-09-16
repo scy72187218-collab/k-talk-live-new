@@ -5,7 +5,8 @@
 
   var BASE='https://zupwbfmacwzexyvznlzq.supabase.co/rest/v1/';
   var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1cHdiZm1hY3d6ZXh5dnpubHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjEwNzYsImV4cCI6MjEwNDAzNzA3Nn0.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
-  var STALE_MS=50000;
+  /* 휴대폰이 잠깐 백그라운드로 가거나 Wi-Fi가 바뀌어도 방송 종료로 오인하지 않는다. */
+  var STALE_MS=90000;
   var ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
   var hostActive=false,hostRoomId='',hostHeartbeat=null,hostSignalTimer=null,hostActivityTimer=null;
   var hostPeers={};
@@ -170,9 +171,25 @@
       for(var i=0;i<(rows||[]).length;i++){
         var x=rows[i],entry=hostPeers[x.id];
         if(!entry&&x.offer_sdp==='pending'){
-          var pc=new RTCPeerConnection(ICE);hostPeers[x.id]={pc:pc,remoteSet:false};entry=hostPeers[x.id];
+          var pc=new RTCPeerConnection(ICE);hostPeers[x.id]={pc:pc,remoteSet:false,dropTimer:null};entry=hostPeers[x.id];
           stream.getTracks().forEach(function(t){try{pc.addTrack(t,stream);}catch(e){}});
-          pc.onconnectionstatechange=(function(id,p){return function(){if(['failed','closed','disconnected'].indexOf(p.connectionState)>-1&&hostPeers[id]){try{p.close();}catch(e){}delete hostPeers[id];}};})(x.id,pc);
+          pc.onconnectionstatechange=(function(id,p){return function(){
+            var item=hostPeers[id];if(!item)return;
+            if(p.connectionState==='connected'&&item.dropTimer){clearTimeout(item.dropTimer);item.dropTimer=null;return;}
+            if(p.connectionState==='disconnected'){
+              if(item.dropTimer)return;
+              item.dropTimer=setTimeout(function(){
+                var latest=hostPeers[id];if(!latest||latest.pc!==p)return;
+                if(p.connectionState==='disconnected'||p.connectionState==='failed'){try{p.close();}catch(e){}delete hostPeers[id];}
+                else latest.dropTimer=null;
+              },8000);
+              return;
+            }
+            if(p.connectionState==='failed'||p.connectionState==='closed'){
+              if(item.dropTimer)clearTimeout(item.dropTimer);
+              try{p.close();}catch(e){}delete hostPeers[id];
+            }
+          };})(x.id,pc);
           try{
             var offer=await pc.createOffer({offerToReceiveAudio:false,offerToReceiveVideo:false});await pc.setLocalDescription(offer);await waitIce(pc,5000);
             await req('ktalk_webrtc_sessions?id=eq.'+enc(x.id),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({offer_sdp:pc.localDescription.sdp,updated_at:nowIso()})});
@@ -236,7 +253,12 @@
     try{
       var rows=await req('ktalk_live_rooms?select=id,host_id,active,updated_at&host_id=eq.'+enc(c.hostId)+'&active=eq.true&order=started_at.desc&limit=1');
       var room=rows&&rows[0];
-      if(!room||Date.now()-new Date(room.updated_at).getTime()>STALE_MS){showActivity('방송이 종료되었습니다.');setTimeout(function(){window.ktLeaveRemoteLive();},700);return;}
+      if(!room||Date.now()-new Date(room.updated_at).getTime()>STALE_MS){
+        c.roomMisses=(c.roomMisses||0)+1;
+        if(c.roomMisses<3)return;
+        showActivity('방송이 종료되었습니다.');setTimeout(function(){window.ktLeaveRemoteLive();},700);return;
+      }
+      c.roomMisses=0;
       await req('ktalk_live_viewers?host_id=eq.'+enc(c.hostId)+'&viewer_id=eq.'+enc(c.viewerId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:true,updated_at:nowIso()})});
       var cut=new Date(Date.now()-STALE_MS).toISOString();
       var viewers=await req('ktalk_live_viewers?select=viewer_id&host_id=eq.'+enc(c.hostId)+'&active=eq.true&updated_at=gte.'+enc(cut)+'&limit=300');
@@ -281,7 +303,7 @@
       var sessions=await req('ktalk_webrtc_sessions',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify({host_id:hostId,viewer_id:viewerId,offer_sdp:'pending',answer_sdp:null,active:true,updated_at:nowIso()})});
       var sessionId=sessions&&sessions[0]?sessions[0].id:'';if(!sessionId)throw new Error('session');
       var pc=new RTCPeerConnection(ICE);
-      viewerCtx={hostId:hostId,viewerId:viewerId,viewerName:p.name||'게스트',sessionId:sessionId,pc:pc,answered:false,signalTimer:null,heartbeat:null,activityTimer:null,lastMsg:''};
+      viewerCtx={hostId:hostId,viewerId:viewerId,viewerName:p.name||'게스트',sessionId:sessionId,pc:pc,answered:false,signalTimer:null,heartbeat:null,activityTimer:null,lastMsg:'',roomMisses:0};
       pc.ontrack=function(ev){var v=document.getElementById('ktRemoteLiveVideo');if(v){v.srcObject=ev.streams[0]||new MediaStream([ev.track]);v.play().catch(function(){});}var st=document.getElementById('ktRemoteLiveStatus');if(st)st.style.display='none';};
       pc.onconnectionstatechange=function(){var st=document.getElementById('ktRemoteLiveStatus');if(!st)return;if(pc.connectionState==='connected')st.style.display='none';else if(pc.connectionState==='failed'||pc.connectionState==='disconnected'){st.style.display='block';st.textContent='영상 연결을 다시 확인해 주세요.';}};
       await insertSystem(hostId,viewerId,viewerCtx.viewerName,viewerCtx.viewerName+'님이 들어왔습니다.');showActivity(viewerCtx.viewerName+'님이 들어왔습니다.');
@@ -320,15 +342,8 @@
     if(b&&hostActive)stopHostPresence();
   },true);
 
-  window.addEventListener('pagehide',function(){
-    if(hostActive){
-      var body=JSON.stringify({active:false,updated_at:nowIso()});
-      try{fetch(BASE+'ktalk_live_rooms?host_id=eq.'+enc(deviceId())+'&active=eq.true',{method:'PATCH',headers:headers({Prefer:'return=minimal'}),body:body,keepalive:true});}catch(e){}
-    }
-    if(viewerCtx){
-      try{fetch(BASE+'ktalk_live_viewers?host_id=eq.'+enc(viewerCtx.hostId)+'&viewer_id=eq.'+enc(viewerCtx.viewerId),{method:'PATCH',headers:headers({Prefer:'return=minimal'}),body:JSON.stringify({active:false,updated_at:nowIso()}),keepalive:true});}catch(e){}
-    }
-  });
+  /* pagehide는 휴대폰 앱 전환·화면 잠금에도 발생한다. 여기서 퇴장 처리하지 않고
+     명시적인 나가기 버튼과 heartbeat 만료로만 방송/시청 종료를 판정한다. */
 
   setInterval(function(){
     if(document.querySelector('.kt-dashboard')||document.querySelector('.friends-list'))renderLiveCards();

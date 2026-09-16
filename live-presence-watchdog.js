@@ -216,7 +216,10 @@
           if(await syncExistingRows(hostId(),stamp,inf,p))return;
         }
         await req('ktalk_live_rooms?id=eq.'+enc(roomId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({host_name:p.name,active:true,room_type:inf.type,room_name:inf.name,title:inf.title,updated_at:stamp,host_photo:p.photo||null})});
-      }catch(e){roomId='';}
+      }catch(e){
+        /* 일시적인 네트워크 실패 때 방 ID를 버리면 새 방이 중복 등록된다. 기존 방을 유지한다. */
+        return;
+      }
       return;
     }
     if(!roomId)return;
@@ -259,11 +262,6 @@
   setTimeout(function(){publishIfNeeded(false);},1800);
   setTimeout(fastViewerRefresh,220);
 
-  window.addEventListener('pagehide',function(){
-    broadcastStarted=false;
-    if(!roomId)return;
-    ensureKey().then(function(){
-      try{fetch(BASE+'ktalk_live_rooms?id=eq.'+enc(roomId),{method:'PATCH',headers:headers({Prefer:'return=minimal'}),body:JSON.stringify({active:false,updated_at:now()}),keepalive:true});}catch(e){}
-    }).catch(function(){});
-  });
+  /* 휴대폰에서 pagehide는 앱 전환만으로도 발생한다. 실제 종료는 나가기 버튼에서 처리하고,
+     강제 종료된 경우에는 heartbeat 만료로 정리해 불필요한 입퇴장 반복을 막는다. */
 })();
