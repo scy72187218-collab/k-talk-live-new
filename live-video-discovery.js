@@ -9,7 +9,7 @@
   var roomMetaCache=[];
   var roomMetaAt=0;
 
-  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c];});}
   function enc(v){return encodeURIComponent(String(v==null?'':v));}
   function js(v){return String(v==null?'':v).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\r?\n/g,' ');}
   function me(){
@@ -99,8 +99,8 @@
     if(document.getElementById('ktLiveVideoDiscoveryStyle'))return;
     var s=document.createElement('style');s.id='ktLiveVideoDiscoveryStyle';
     s.textContent=''
-      +'@keyframes ktVideoLivePulse{0%,45%{opacity:1}55%,100%{opacity:.45}}'
-      +'@keyframes ktFollowLiveGlow{0%,100%{box-shadow:0 0 5px #ff244f,0 0 11px rgba(255,36,79,.5)}50%{box-shadow:0 0 9px #ff244f,0 0 18px rgba(255,36,79,.8)}}'
+      +'@keyframes ktVideoLivePulse{0%,100%{opacity:1}50%{opacity:.86}}'
+      +'@keyframes ktFollowLiveGlow{0%,100%{box-shadow:0 0 5px #ff244f,0 0 11px rgba(255,36,79,.5)}50%{box-shadow:0 0 8px #ff244f,0 0 15px rgba(255,36,79,.65)}}'
       +'.kt-video-live-peek{position:absolute!important;left:10px!important;top:56px!important;z-index:18!important;max-width:min(94vw,330px)!important;height:48px!important;padding:5px!important;border:1px solid rgba(255,64,103,.75)!important;border-radius:999px!important;background:rgba(8,8,12,.78)!important;color:#fff!important;display:flex!important;align-items:center!important;gap:5px!important;box-shadow:0 0 14px rgba(255,35,82,.3)!important;backdrop-filter:blur(5px)!important;touch-action:manipulation!important}'
       +'body.kt-follow-status-open .kt-video-live-peek{top:126px!important}'
       +'.kt-video-live-peek button{border:0!important;color:#fff!important;touch-action:manipulation!important}'
@@ -111,13 +111,13 @@
       +'.kt-video-live-peek .ktvl-follow{width:28px!important;height:28px!important;flex:0 0 28px!important;border-radius:50%!important;background:#e91845!important;font-size:18px!important;font-weight:950!important;line-height:1!important}'
       +'.kt-video-live-peek .ktvl-follow.on{background:#4a4a52!important;font-size:13px!important}'
       +'.kt-video-live-peek .ktvl-bell{width:28px!important;height:28px!important;flex:0 0 28px!important;border-radius:50%!important;background:#23232b!important;font-size:14px!important}.kt-video-live-peek .ktvl-bell.on{background:#ff9f1a!important}'
-      +'.kt-video-live-peek .ktvl-live{flex:0 0 auto!important;color:#fff!important;background:#e91845!important;border-radius:999px!important;padding:5px 7px!important;font-size:8px!important;font-weight:950!important;animation:ktVideoLivePulse .9s linear infinite!important}'
+      +'.kt-video-live-peek .ktvl-live{flex:0 0 auto!important;color:#fff!important;background:#e91845!important;border-radius:999px!important;padding:5px 7px!important;font-size:8px!important;font-weight:950!important;animation:ktVideoLivePulse 2.8s ease-in-out infinite!important}'
       +'.kt-follow-live-strip{position:fixed!important;left:8px!important;right:8px!important;top:53px!important;z-index:39!important;height:66px!important;padding:5px 7px!important;border-radius:16px!important;background:rgba(5,7,12,.64)!important;border:1px solid rgba(255,255,255,.13)!important;display:flex!important;align-items:flex-start!important;gap:8px!important;overflow-x:auto!important;overflow-y:hidden!important;backdrop-filter:blur(6px)!important;scrollbar-width:none!important}'
       +'.kt-follow-live-strip::-webkit-scrollbar{display:none!important}'
       +'.kt-follow-person{position:relative!important;width:50px!important;min-width:50px!important;height:56px!important;padding:0!important;border:0!important;background:transparent!important;color:#fff!important;display:flex!important;flex-direction:column!important;align-items:center!important;gap:2px!important;touch-action:manipulation!important}'
       +'.kt-follow-avatar{position:relative!important;width:42px!important;height:42px!important;border-radius:50%!important;overflow:hidden!important;display:grid!important;place-items:center!important;background:#132443!important;border:3px solid #2b8cff!important;color:#fff!important;font-size:19px!important;font-weight:950!important;box-sizing:border-box!important}'
       +'.kt-follow-avatar img{width:100%!important;height:100%!important;object-fit:cover!important;display:block!important}'
-      +'.kt-follow-person.live .kt-follow-avatar{border-color:#ff244f!important;background:#47101d!important;animation:ktFollowLiveGlow 1s ease-in-out infinite!important}'
+      +'.kt-follow-person.live .kt-follow-avatar{border-color:#ff244f!important;background:#47101d!important;animation:ktFollowLiveGlow 2.8s ease-in-out infinite!important}'
       +'.kt-follow-state{position:absolute!important;right:2px!important;top:29px!important;width:11px!important;height:11px!important;border-radius:50%!important;background:#2b8cff!important;border:2px solid #090b10!important;box-sizing:border-box!important}'
       +'.kt-follow-person.live .kt-follow-state{background:#ff244f!important}'
       +'.kt-follow-name{display:block!important;width:50px!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;text-align:center!important;font-size:8px!important;font-weight:850!important;line-height:10px!important;color:#fff!important;text-shadow:0 1px 3px #000!important}'
@@ -209,12 +209,19 @@
   }
 
   async function renderFollowStatus(rooms){
-    var old=document.getElementById('ktFollowLiveStrip');if(old)old.remove();
-    try{document.body.classList.remove('kt-follow-status-open');}catch(e){}
-    if(!inVideoView())return;
+    var old=document.getElementById('ktFollowLiveStrip');
+    if(!inVideoView()){
+      if(old)old.remove();
+      try{document.body.classList.remove('kt-follow-status-open');}catch(e){}
+      return;
+    }
 
     var follows=await followedUsers();
-    if(!follows.length)return;
+    if(!follows.length){
+      if(old)old.remove();
+      try{document.body.classList.remove('kt-follow-status-open');}catch(e){}
+      return;
+    }
 
     var history=await roomHistory();
     var activeMap={},metaMap={};
@@ -241,7 +248,7 @@
         +'<span class="kt-follow-avatar">'+photoHtml(photo,name)+'</span><i class="kt-follow-state"></i><span class="kt-follow-name">'+esc(name)+'</span></button>';
     }).join('');
 
-    document.body.appendChild(strip);
+    if(old&&old.parentNode)old.replaceWith(strip);else document.body.appendChild(strip);
     document.body.classList.add('kt-follow-status-open');
     strip.querySelectorAll('.kt-follow-person').forEach(function(btn){
       btn.onclick=function(e){
@@ -260,13 +267,15 @@
 
   async function render(){
     ensureStyle();
-    var old=document.getElementById('ktVideoLivePeek');if(old)old.remove();
+    var old=document.getElementById('ktVideoLivePeek');
     if(document.documentElement.classList.contains('kt-remote-viewing')){
+      if(old)old.remove();
       var fs=document.getElementById('ktFollowLiveStrip');if(fs)fs.remove();
       try{document.body.classList.remove('kt-follow-status-open');}catch(e){}
       return;
     }
     if(!inVideoView()){
+      if(old)old.remove();
       var fs2=document.getElementById('ktFollowLiveStrip');if(fs2)fs2.remove();
       try{document.body.classList.remove('kt-follow-status-open');}catch(e){}
       return;
@@ -277,13 +286,13 @@
 
     var feedVideo=document.querySelector('#screen .kt-public-video');
     var host=document.querySelector('.video-home')||document.querySelector('#screen .media')||(feedVideo&&feedVideo.closest('section'));
-    if(!host||!rooms.length)return;
+    if(!host||!rooms.length){if(old)old.remove();return;}
 
     var r=rooms[0];
     var hostId=String(r.host_id||''),hostName=String(r.host_name||'K-Talk 방송자'),hostPhoto=String(r.host_photo||'');
     var photo=(hostPhoto&&(/^data:image/.test(hostPhoto)||/^https?:/.test(hostPhoto)))?'<img src="'+esc(hostPhoto)+'" alt="">':'🎥';
     var b=document.createElement('div');
-    b.id='ktVideoLivePeek';b.className='kt-video-live-peek';
+    b.id='ktVideoLivePeek';b.className='kt-video-live-peek';b.dataset.host=hostId;
     b.innerHTML='<button type="button" class="ktvl-person" aria-label="방송자 프로필"><span class="ktvl-avatar">'+photo+'</span><span class="ktvl-copy"><b>'+esc(hostName)+'</b><small>'+esc(r.title||r.room_name||'방송 중')+'</small></span></button>'
       +'<button type="button" class="ktvl-follow" data-host="'+esc(hostId)+'" title="팔로우">+</button>'
       +'<button type="button" class="ktvl-bell" data-host="'+esc(hostId)+'" title="방송 알림 켜기">🔔</button>'
@@ -296,7 +305,7 @@
     if(follow)follow.onclick=function(e){e.stopPropagation();window.ktToggleLiveHostFollow(hostId,hostName,this);};
     if(bell)bell.onclick=function(e){e.stopPropagation();window.ktToggleLiveHostAlert(hostId,hostName,this);};
     if(live)live.onclick=function(e){e.stopPropagation();if(window.ktEnterRemoteLive)window.ktEnterRemoteLive(hostId);};
-    host.appendChild(b);
+    if(old&&old.parentNode)old.replaceWith(b);else host.appendChild(b);
     paintSocialState(hostId);
   }
 
