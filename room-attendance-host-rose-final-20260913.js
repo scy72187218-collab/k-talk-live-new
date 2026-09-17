@@ -101,10 +101,44 @@
     return countdownPromise;
   }
 
-  /* 클릭 처리 전에 바로 5를 띄워 5·4·3이 늦게 나타나는 현상을 막는다. */
+  /* 손을 대는 순간 5를 먼저 띄운다. */
   window.addEventListener('pointerdown',function(e){
     var btn=e.target&&e.target.closest?e.target.closest('.live-prep .prep-start'):null;
     if(btn)runCountdown();
+  },true);
+
+  /*
+   * 라이브 시작 버튼의 원래 click 처리는 카운트다운이 끝난 뒤 한 번만 실행한다.
+   * 이렇게 해야 준비화면이 먼저 검게 바뀌면서 5·4·3·2를 가리는 현상이 생기지 않는다.
+   */
+  var releaseStartButton=false;
+  window.addEventListener('click',function(e){
+    var btn=e.target&&e.target.closest?e.target.closest('.live-prep .prep-start'):null;
+    if(!btn||releaseStartButton)return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+    if(launching)return;
+
+    launching=true;
+    runCountdown().then(async function(){
+      try{
+        releaseStartButton=true;
+        bypassNestedCountdown=true;
+        await window.startBroadcast();
+      }finally{
+        releaseStartButton=false;
+        bypassNestedCountdown=false;
+        removeCountdown();
+        setTimeout(function(){launching=false;},300);
+      }
+    }).catch(function(){
+      releaseStartButton=false;
+      bypassNestedCountdown=false;
+      removeCountdown();
+      setTimeout(function(){launching=false;},300);
+    });
   },true);
 
   /* 기존 내부 코드가 또 카운트다운을 부르면 같은 카운트다운 완료만 기다린다. */
@@ -114,6 +148,7 @@
   };
 
   window.startBroadcast=async function(){
+    if(releaseStartButton)return previousStart.apply(this,arguments);
     if(launching)return;
     launching=true;
     bypassNestedCountdown=true;
