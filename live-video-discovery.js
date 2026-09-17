@@ -38,9 +38,14 @@
       if(!r.ok)return [];
       var rows=await r.json();rows=Array.isArray(rows)?rows:[];
       if(rows.length){stableActiveRooms=rows;stableActiveAt=Date.now();return rows;}
-      if(stableActiveRooms.length&&Date.now()-stableActiveAt<90000)return stableActiveRooms;
+      /* 방송 목록이 비었으면 종료된 방을 다시 표시하지 않는다. */
+      stableActiveRooms=[];stableActiveAt=0;
       return [];
-    }catch(e){return stableActiveRooms.length&&Date.now()-stableActiveAt<90000?stableActiveRooms:[];}
+    }catch(e){
+      /* 조회 실패도 이전 방송을 활성 상태로 오해하지 않도록 표시를 지운다. */
+      stableActiveRooms=[];stableActiveAt=0;
+      return [];
+    }
   }
 
   async function followedUsers(){
