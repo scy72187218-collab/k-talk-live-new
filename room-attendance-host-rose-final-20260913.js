@@ -101,17 +101,8 @@
     bypassNestedCountdown=true;
     var self=this,args=arguments;
 
-    /* 카메라는 5초 동안 뒤에서 준비하고, 카메라가 준비된 뒤에만 방 화면을 연다. */
-    var cameraReady=Promise.resolve(true);
-    try{
-      if(typeof window.ensureLiveCamera==='function'){
-        cameraReady=Promise.resolve(window.ensureLiveCamera((window.state&&state.cameraFacing)||'user')).catch(function(){return false;});
-      }
-    }catch(e){cameraReady=Promise.resolve(false);}
-
     try{
       await showFullCountdown();
-      await cameraReady;
       return await previousStart.apply(self,args);
     }finally{
       removeCountdown();
