@@ -87,7 +87,7 @@
   function bindAll(){
     videos().forEach(prepare);
     if(observer){try{observer.disconnect();}catch(e){}}
-    if('IntersectionObserver' in window){
+    if('IntersectionObserver'in window){
       observer=new IntersectionObserver(function(entries){
         entries.forEach(function(entry){
           var v=entry.target;
@@ -129,4 +129,14 @@
     if(document.body&&document.body.classList.contains('kt-video-mode'))playCurrent();
   },1800);
   setTimeout(bindAll,200);
+})();
+
+/* 멈춘 공개 동영상 재생 복구만 추가 연결. 다른 화면/방송/UI는 변경하지 않음. */
+(function(){
+  if(document.querySelector('script[data-kt-feed-swipe-playback-fix]'))return;
+  var s=document.createElement('script');
+  s.src='feed-swipe-playback-fix.js?v=20260917-freeze1';
+  s.async=false;
+  s.setAttribute('data-kt-feed-swipe-playback-fix','1');
+  document.head.appendChild(s);
 })();
