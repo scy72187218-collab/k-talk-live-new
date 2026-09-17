@@ -185,7 +185,7 @@
 
   window.startBroadcast=async function(){
     if(!isGroup13())return oldStartBroadcast.apply(this,arguments);
-    requestGroup13Fullscreen();
+    /* 시작 시 전체화면 전환은 하지 않음: 카운트다운이 5부터 바로 보이게 유지 */
     var result=await oldStartBroadcast.apply(this,arguments);
     setTimeout(renderApprovedGroup13,0);
     return result;
