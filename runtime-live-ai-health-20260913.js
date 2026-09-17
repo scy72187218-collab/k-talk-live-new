@@ -64,9 +64,6 @@
     load('broadcast-video-resume-fix.js','__ktBroadcastVideoResumeFixInstalled');
   });
 
-  /* 승인된 게스트 폰만 전체화면 시청에서 9/13명 방 격자로 전환. */
-  load('approved-guest-room-grid-only-20260917.js','__ktApprovedGuestRoomGridOnly20260917');
-
   /* 방송 입장 순간 카메라가 끊기거나 1~2초 늦게 뜨는 현상만 보강. */
   load('live-room-instant-video-fix-20260915.js','__ktLiveRoomInstantVideoFixInstalled');
 })();
