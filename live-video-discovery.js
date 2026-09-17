@@ -42,9 +42,8 @@
       stableActiveRooms=[];stableActiveAt=0;
       return [];
     }catch(e){
-      /* 조회 실패도 이전 방송을 활성 상태로 오해하지 않도록 표시를 지운다. */
-      stableActiveRooms=[];stableActiveAt=0;
-      return [];
+      /* 순간적인 네트워크 조회 실패 때만 현재 방송 표시를 유지해 깜빡임을 막는다. */
+      return stableActiveRooms.length&&Date.now()-stableActiveAt<90000?stableActiveRooms:[];
     }
   }
 
