@@ -67,6 +67,9 @@
   /* 방송 입장 순간 카메라가 끊기거나 1~2초 늦게 뜨는 현상만 보강. */
   load('live-room-instant-video-fix-20260915.js','__ktLiveRoomInstantVideoFixInstalled');
 
+  /* 승인된 게스트 폰: 겹쳐 보이는 작은 영상만 제거하고 방 격자로 정리. */
+  load('approved-guest-grid-clean-only-20260917.js','__ktApprovedGuestGridCleanOnly20260917');
+
   /* 호스트 방송방 아래 장미/하트/왕관/스포츠카/선물상자 7개 줄만 숨김. */
   load('host-gift-row-hide-only-20260917.js','__ktHostGiftRowHideOnly20260917');
 })();
