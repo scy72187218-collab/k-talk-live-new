@@ -3,7 +3,7 @@
   if(window.__ktRemoteLiveVideoFallback20260914)return;
   window.__ktRemoteLiveVideoFallback20260914=true;
 
-  var BASE='',KEY='',currentHost='',fallback=null,checkTimer=null,retryCount=0;
+  var BASE='',KEY='',currentHost='',fallback=null,checkTimer=null,retryCount=0,lastFallbackAt=0;
   var ICE={iceServers:[{urls:['stun:stun.l.google.com:19302','stun:stun1.l.google.com:19302','stun:stun.cloudflare.com:3478','stun:global.stun.twilio.com:3478']}],iceCandidatePoolSize:4};
 
   async function ensureConfig(){
@@ -20,6 +20,7 @@
   function enc(v){return encodeURIComponent(String(v==null?'':v));}
   function now(){return new Date().toISOString();}
   function deviceId(){var id='';try{id=localStorage.getItem('kt_live_device_id')||'';}catch(e){}if(!id){id='kt_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,10);try{localStorage.setItem('kt_live_device_id',id);}catch(e){}}return id;}
+  function canReconnect(){return !document.hidden&&navigator.onLine!==false&&!!document.querySelector('.kt-remote-live');}
   function videoWorking(){var v=document.getElementById('ktRemoteLiveVideo');if(!v)return false;try{var s=v.srcObject,tracks=s&&s.getVideoTracks?s.getVideoTracks():[];return !!(v.videoWidth>0&&v.readyState>=2&&tracks.some(function(t){return t.readyState==='live'&&!t.muted;}));}catch(e){return false;}}
   function mirrorRemote(){var v=document.getElementById('ktRemoteLiveVideo');if(!v)return;try{v.style.setProperty('transform','scaleX(-1)','important');v.style.setProperty('transform-origin','center center','important');}catch(e){}}
   function waitIce(pc,ms){return new Promise(function(resolve){if(pc.iceGatheringState==='complete')return resolve();var done=false,t=setTimeout(finish,ms||7000);function finish(){if(done)return;done=true;clearTimeout(t);try{pc.removeEventListener('icegatheringstatechange',on);}catch(e){}resolve();}function on(){if(pc.iceGatheringState==='complete')finish();}pc.addEventListener('icegatheringstatechange',on);});}
@@ -30,18 +31,21 @@
     if(!f)return;
     clearInterval(f.signalTimer);
     clearTimeout(f.failTimer);
+    clearTimeout(f.disconnectTimer);
     try{f.pc.close();}catch(e){}
     try{await req('ktalk_webrtc_sessions?id=eq.'+enc(f.sessionId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:now()})});}catch(e){}
   }
 
   async function startFallback(hostId){
-    if(!hostId||fallback||videoWorking()||!document.querySelector('.kt-remote-live'))return;
+    if(!hostId||fallback||videoWorking()||!canReconnect())return;
+    if(Date.now()-lastFallbackAt<7000)return;
+    lastFallbackAt=Date.now();
     try{
       var viewerId='viewer_fallback_'+deviceId()+'_'+Date.now().toString(36);
       var rows=await req('ktalk_webrtc_sessions',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify({host_id:hostId,viewer_id:viewerId,offer_sdp:'pending',answer_sdp:null,active:true,updated_at:now()})});
       var sessionId=rows&&rows[0]?rows[0].id:'';if(!sessionId)return;
       var pc=new RTCPeerConnection(ICE);
-      var ctx={hostId:hostId,viewerId:viewerId,sessionId:sessionId,pc:pc,answered:false,signalTimer:null,failTimer:null};
+      var ctx={hostId:hostId,viewerId:viewerId,sessionId:sessionId,pc:pc,answered:false,signalTimer:null,failTimer:null,disconnectTimer:null};
       fallback=ctx;
       pc.ontrack=function(ev){
         var v=document.getElementById('ktRemoteLiveVideo');
@@ -51,15 +55,21 @@
       pc.onconnectionstatechange=function(){
         if(fallback!==ctx)return;
         var st=document.getElementById('ktRemoteLiveStatus');
+        clearTimeout(ctx.disconnectTimer);ctx.disconnectTimer=null;
         if(pc.connectionState==='connected'){
+          retryCount=0;
           if(st)st.style.display='none';
-        }else if((pc.connectionState==='failed'||pc.connectionState==='disconnected')&&!videoWorking()){
+        }else if(pc.connectionState==='failed'){
           if(st){st.style.display='block';st.textContent='영상 다시 연결 중…';}
-          if(retryCount<2){retryCount++;setTimeout(function(){if(fallback===ctx){closeFallback().then(function(){startFallback(currentHost);});}},900);}
+          if(retryCount<2){retryCount++;ctx.disconnectTimer=setTimeout(function(){if(fallback===ctx&&!videoWorking()&&canReconnect()){closeFallback().then(function(){startFallback(currentHost);});}},1400);}
+        }else if(pc.connectionState==='disconnected'){
+          if(st){st.style.display='block';st.textContent='영상 연결 확인 중…';}
+          if(retryCount<2){ctx.disconnectTimer=setTimeout(function(){if(fallback===ctx&&!videoWorking()&&canReconnect()){retryCount++;closeFallback().then(function(){startFallback(currentHost);});}},4200);}
         }
       };
       ctx.signalTimer=setInterval(async function(){
         if(fallback!==ctx)return;
+        if(!canReconnect())return;
         try{
           var a=await req('ktalk_webrtc_sessions?select=id,offer_sdp,active&id=eq.'+enc(sessionId)+'&limit=1');var x=a&&a[0];
           if(!x||!x.active)return;
@@ -70,27 +80,29 @@
             ctx.answered=true;
           }
         }catch(e){}
-      },900);
+      },1200);
       ctx.failTimer=setTimeout(function(){
-        if(fallback===ctx&&!videoWorking()&&retryCount<2){retryCount++;closeFallback().then(function(){startFallback(currentHost);});}
-      },12000);
+        if(fallback===ctx&&!videoWorking()&&retryCount<2&&canReconnect()){retryCount++;closeFallback().then(function(){startFallback(currentHost);});}
+      },15000);
     }catch(e){}
   }
 
-  function schedule(hostId){
+  function schedule(hostId,delay){
     clearTimeout(checkTimer);
-    checkTimer=setTimeout(function(){if(!videoWorking())startFallback(hostId);},3500);
+    if(!hostId)return;
+    checkTimer=setTimeout(function(){if(!videoWorking()&&canReconnect())startFallback(hostId);},delay||9000);
   }
 
   function wrapEnter(){
     var old=window.ktEnterRemoteLive;
     if(typeof old!=='function'||old.__ktVideoFallbackWrapped)return;
     var fn=async function(hostId){
-      currentHost=String(hostId||'');retryCount=0;
+      currentHost=String(hostId||'');retryCount=0;lastFallbackAt=0;
       await closeFallback();
       var r=await old.apply(this,arguments);
       mirrorRemote();
-      schedule(currentHost);
+      /* 기본 연결이 먼저 충분히 시도되도록 기다린 뒤에만 보조 연결을 시작한다. */
+      schedule(currentHost,9000);
       return r;
     };
     fn.__ktVideoFallbackWrapped=true;
@@ -99,12 +111,14 @@
   function wrapLeave(){
     var old=window.ktLeaveRemoteLive;
     if(typeof old!=='function'||old.__ktVideoFallbackWrapped)return;
-    var fn=async function(){currentHost='';retryCount=0;await closeFallback();return old.apply(this,arguments);};
+    var fn=async function(){currentHost='';retryCount=0;lastFallbackAt=0;await closeFallback();return old.apply(this,arguments);};
     fn.__ktVideoFallbackWrapped=true;
     window.ktLeaveRemoteLive=fn;
   }
 
   wrapEnter();wrapLeave();
   setInterval(function(){wrapEnter();wrapLeave();mirrorRemote();},1800);
+  window.addEventListener('online',function(){if(currentHost)schedule(currentHost,1500);});
+  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'&&currentHost)schedule(currentHost,1800);});
   window.addEventListener('pagehide',function(){try{if(fallback&&fallback.pc)fallback.pc.close();}catch(e){}});
 })();
