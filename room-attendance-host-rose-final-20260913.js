@@ -50,17 +50,40 @@
   };
 })();
 
-/* 방송 시작 타이밍만 조정: 5초 카운트다운이 완전히 사라진 뒤 약 1초 후 방송방을 연다. 다른 기능/UI는 변경하지 않음. */
+/* 방송 시작 타이밍만 조정: 기존 카메라 준비 대기에 막히지 않고 5초 카운트가 끝난 뒤 약 1초 후 방송방을 연다. 다른 기능/UI는 변경하지 않음. */
 (function(){
   if(window.__ktLiveOpenOneSecondAfterCountdown20260917)return;
   window.__ktLiveOpenOneSecondAfterCountdown20260917=true;
 
-  var previousCountdown=window.ktLiveStartCountdown;
-  if(typeof previousCountdown!=='function')return;
-
   window.ktLiveStartCountdown=async function(){
-    var result=await previousCountdown.apply(this,arguments);
+    /* 카메라는 뒤에서 미리 준비하되, 준비 완료 Promise가 방송방 전환을 막지 않게 한다. */
+    try{
+      if(typeof window.ensureLiveCamera==='function'){
+        Promise.resolve(window.ensureLiveCamera((window.state&&state.cameraFacing)||'user')).catch(function(){});
+      }
+    }catch(e){}
+
+    var old=document.getElementById('ktLiveCountdown');
+    if(old)old.remove();
+
+    var wrap=document.createElement('div');
+    wrap.id='ktLiveCountdown';
+    wrap.style.cssText='position:fixed;inset:0;z-index:99999;display:grid;place-items:center;background:rgba(0,0,0,.22);pointer-events:none;';
+    var num=document.createElement('div');
+    num.style.cssText='width:116px;height:116px;border-radius:50%;display:grid;place-items:center;background:rgba(10,10,14,.72);border:4px solid rgba(255,255,255,.92);color:#fff;font:900 64px/1 system-ui,-apple-system,sans-serif;box-shadow:0 0 28px rgba(255,44,130,.7);text-shadow:0 0 12px rgba(255,255,255,.7);';
+    wrap.appendChild(num);
+    document.body.appendChild(wrap);
+
+    for(var n=5;n>=1;n--){
+      num.textContent=String(n);
+      num.style.transform='scale(1)';
+      await new Promise(function(resolve){
+        setTimeout(function(){num.style.transform='scale(.92)';},650);
+        setTimeout(resolve,1000);
+      });
+    }
+
+    wrap.remove();
     await new Promise(function(resolve){setTimeout(resolve,1000);});
-    return result;
   };
 })();
