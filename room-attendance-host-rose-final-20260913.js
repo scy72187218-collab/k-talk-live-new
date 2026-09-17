@@ -73,9 +73,28 @@
     removeCountdown();
     var wrap=document.createElement('div');
     wrap.id='ktLiveCountdown';
-    wrap.style.cssText='position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;background:rgba(0,0,0,.22);pointer-events:none;';
+    wrap.style.cssText='position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;background:transparent;overflow:hidden;pointer-events:none;';
+
+    /* 카운트다운 5초 동안 검은 화면 대신 준비 화면의 같은 카메라 영상을 그대로 유지한다. 새 카메라는 열지 않는다. */
+    var previewStream=null;
+    try{
+      previewStream=(window.state&&state.stream)||((document.getElementById('camera')||{}).srcObject)||null;
+      if(previewStream&&previewStream.getVideoTracks&&!previewStream.getVideoTracks().some(function(t){return t.readyState==='live';}))previewStream=null;
+    }catch(e){previewStream=null;}
+    if(previewStream){
+      var bg=document.createElement('video');
+      bg.autoplay=true;bg.muted=true;bg.defaultMuted=true;bg.playsInline=true;
+      bg.setAttribute('autoplay','');bg.setAttribute('muted','');bg.setAttribute('playsinline','');bg.setAttribute('webkit-playsinline','');
+      bg.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center center;background:#000;transform:scaleX(-1);';
+      try{bg.srcObject=previewStream;var bp=bg.play();if(bp&&bp.catch)bp.catch(function(){});}catch(e){}
+      wrap.appendChild(bg);
+    }
+    var shade=document.createElement('div');
+    shade.style.cssText='position:absolute;inset:0;background:rgba(0,0,0,.16);';
+    wrap.appendChild(shade);
+
     var num=document.createElement('div');
-    num.style.cssText='width:116px;height:116px;border-radius:50%;display:grid;place-items:center;background:rgba(10,10,14,.74);border:4px solid rgba(255,255,255,.94);color:#fff;font:900 64px/1 system-ui,-apple-system,sans-serif;box-shadow:0 0 28px rgba(255,44,130,.72);text-shadow:0 0 12px rgba(255,255,255,.72);';
+    num.style.cssText='position:relative;z-index:2;width:116px;height:116px;border-radius:50%;display:grid;place-items:center;background:rgba(10,10,14,.74);border:4px solid rgba(255,255,255,.94);color:#fff;font:900 64px/1 system-ui,-apple-system,sans-serif;box-shadow:0 0 28px rgba(255,44,130,.72);text-shadow:0 0 12px rgba(255,255,255,.72);';
     wrap.appendChild(num);
     document.body.appendChild(wrap);
 
