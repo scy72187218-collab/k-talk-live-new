@@ -53,5 +53,8 @@
   load('approved-guest-grid-clean-only-20260917.js','__ktApprovedGuestGridCleanOnly20260917');
   load('approved-guest-person-medium-only-20260917.js','__ktApprovedGuestPersonMediumOnly20260917');
 
+  /* 승인된 게스트 격자에서 내 칸은 반드시 해당 폰의 앞카메라만 표시. */
+  load('approved-guest-self-camera-only-20260917.js','__ktApprovedGuestSelfCameraOnly20260917');
+
   load('host-gift-row-hide-only-20260917.js','__ktHostGiftRowHideOnly20260917');
 })();
