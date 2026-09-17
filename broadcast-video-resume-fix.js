@@ -3,10 +3,19 @@
   if(window.__ktBroadcastVideoResumeFixInstalled)return;
   window.__ktBroadcastVideoResumeFixInstalled=true;
 
+  function liveRoomActive(){
+    try{return !!document.querySelector('.kt-remote-live,.ktg13-room,.ktsolo-room,.ktsubscriber-room,.ktsecret-room');}
+    catch(e){return false;}
+  }
+
   function isCameraOrLiveMedia(m){
     if(!m)return false;
     var id=m.id||'';
-    return id==='camera'||id==='cameraBg'||id==='ktLiveVideo'||id==='ktSept2Live'||id==='ktRemoteLive';
+    if(id==='camera'||id==='cameraBg'||id==='ktLiveVideo'||id==='ktSept2Live'||id==='ktRemoteLive'||id==='ktRemoteLiveVideo'||id==='ktRemoteHostPreview'||id==='ktRemoteGuestSelfVideo')return true;
+    try{
+      if(m.closest&&m.closest('.kt-remote-live,.ktg13-room,.ktsolo-room,.ktsubscriber-room,.ktsecret-room,.kt-approved-guest-grid'))return true;
+    }catch(e){}
+    return false;
   }
 
   function stopCompetingMedia(target){
@@ -41,7 +50,7 @@
   }
 
   function resumeVisibleVideo(){
-    if(document.hidden)return;
+    if(document.hidden||liveRoomActive())return;
     try{window.__ktPageMediaStopUntil=0;}catch(e){}
     var list=[].slice.call(document.querySelectorAll('.kt-public-video,#homeVideo'));
     if(!list.length)return;
@@ -70,10 +79,16 @@
     var v=e.target;
     if(!v||!v.matches)return;
     if(!v.matches('.kt-public-video,#homeVideo,#ktLibraryPlayer'))return;
+    /* 방송방이 열려 있을 때 뒤쪽 피드 영상이 다시 재생되어 통신을 뺏지 않게 한다. */
+    if(liveRoomActive()&&!isCameraOrLiveMedia(v)){
+      try{v.pause();}catch(err){}
+      return;
+    }
     stopCompetingMedia(v);
   },true);
 
   function resumeSequence(){
+    if(liveRoomActive())return;
     resumeVisibleVideo();
     [30,120,350,800].forEach(function(ms){setTimeout(resumeVisibleVideo,ms);});
   }
