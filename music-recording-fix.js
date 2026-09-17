@@ -30,7 +30,7 @@
   load('nine-host-profile-compact.js?v=20260913-compact1');
   load('room-person-layout-controls.js?v=20260911-layout2');
   load('room-person-layout-no-number.js?v=20260911-nonumber3');
-  load('group9-approved-room.js?v=20260917-group9-up1');
+  load('group9-approved-room.js?v=20260917-group9-down1');
   load('group9-general-button.js?v=20260911-general9-3');
   load('group9-13-camera-buttons.js?v=20260913-camera-all1');
   load('secret-right-controls-fix.js?v=20260913-float1');
