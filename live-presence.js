@@ -334,8 +334,27 @@
     var fn=function(){var args=arguments,self=this;if(before)try{before.apply(self,args);}catch(e){}var r=old.apply(self,args);if(r&&typeof r.then==='function')return r.then(function(v){if(after)try{after.apply(self,args);}catch(e){}return v;});if(after)try{after.apply(self,args);}catch(e){}return r;};fn.__ktLiveWrapped=true;window[name]=fn;
   }
 
+  async function syncHostPresenceAfterStart(){
+    var s=document.getElementById('screen');
+    var opened=!!(s&&s.querySelector('#ktLiveVideo,.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room'));
+    if(opened){
+      startHostPresence();
+      return;
+    }
+    /* 시작이 중간에 멈췄으면 준비 화면의 카메라를 방송 중으로 등록하지 않는다. */
+    var hostId=deviceId();
+    try{
+      await req('ktalk_live_rooms?host_id=eq.'+enc(hostId)+'&active=eq.true',{
+        method:'PATCH',
+        headers:{Prefer:'return=minimal'},
+        body:JSON.stringify({active:false,updated_at:nowIso()})
+      });
+    }catch(e){}
+    renderLiveCards();
+  }
+
   ensureStyle();
-  wrap('startBroadcast',null,function(){setTimeout(startHostPresence,260);});
+  wrap('startBroadcast',null,function(){setTimeout(syncHostPresenceAfterStart,260);});
   wrap('friends',null,function(){setTimeout(renderLiveCards,60);});
   wrap('openDashboard',null,function(){setTimeout(renderLiveCards,60);});
   wrap('openBroadcastList',null,function(){setTimeout(renderLiveCards,60);});
