@@ -27,14 +27,12 @@
     }catch(e){if(done)done();}
   }
 
-  /* AI 읽기 → 기본 실시간 방송 등록/입장 → LIVE 표시 → 시청자 상호작용 → 게스트 영상 복구 순서. */
+  /* AI 읽기 → 기본 실시간 방송 등록/입장 → LIVE 표시 → 시청자 상호작용 순서. */
   load('chat-benefit-ai-reader.js','__ktChatBenefitAIReaderInstalled',function(){
     load('live-presence.js','__ktLivePresenceInstalled',function(){
       /* live-presence가 정상 설치되면 별도 watchdog을 같이 돌리지 않는다. 중복 방송 등록 방지. */
       load('live-video-discovery.js','__ktLiveVideoDiscoveryInstalled',function(){
-        load('live-viewer-interactions.js','__ktLiveViewerInteractionInstalled',function(){
-          load('live-viewer-recovery.js','__ktRemoteViewerRecoveryInstalled');
-        });
+        load('live-viewer-interactions.js','__ktLiveViewerInteractionInstalled');
       });
     });
   });
@@ -65,9 +63,6 @@
   load('feed-swipe-playback-fix.js','__ktFeedSwipePlaybackFixInstalled',function(){
     load('broadcast-video-resume-fix.js','__ktBroadcastVideoResumeFixInstalled');
   });
-
-  /* 13명방 LED 전광판만 비거나 사라질 때 복구. 다른 화면/기능은 변경하지 않음. */
-  load('group13-led-stability-only-20260917.js','__ktGroup13LedStabilityOnly20260917');
 
   /* 방송 입장 순간 카메라가 끊기거나 1~2초 늦게 뜨는 현상만 보강. */
   load('live-room-instant-video-fix-20260915.js','__ktLiveRoomInstantVideoFixInstalled');
