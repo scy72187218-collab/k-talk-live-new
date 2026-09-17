@@ -149,7 +149,7 @@
   s.onload=function(){
     if(document.querySelector('script[data-kt-live-video-discovery]'))return;
     var v=document.createElement('script');
-    v.src='live-video-discovery.js?v=20260917-badge-fixed10';
+    v.src='live-video-discovery.js?v=20260917-compactonly1';
     v.async=false;
     v.setAttribute('data-kt-live-video-discovery','1');
     document.head.appendChild(v);
