@@ -63,7 +63,7 @@
   load('approved-guest-self-camera-only-20260917.js','__ktApprovedGuestSelfCameraOnly20260917');
 
   /* 승인된 게스트 화면에서 방 묶음이 두 번 생길 때 중복 묶음만 제거. */
-  load('approved-guest-single-room-dedupe-only-20260917.js','__ktApprovedGuestSingleRoomDedupeOnly20260917');
+  load('approved-guest-single-room-dedupe-only-20260918.js','__ktApprovedGuestSingleRoomDedupeOnly20260917');
 
   load('host-gift-row-hide-only-20260917.js','__ktHostGiftRowHideOnly20260917');
 })();
