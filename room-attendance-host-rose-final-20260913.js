@@ -50,84 +50,58 @@
   };
 })();
 
-/* 방송 시작 순서만 고정: 시작 버튼을 누르는 즉시 5→4→3→2→1을 전부 보여준 뒤 약 1초 후 기존 방송 시작 흐름을 실행한다. 다른 UI/방/선물/버튼은 변경하지 않음. */
+/* 방송 시작 카운트다운만 고정: 시작 버튼을 누르는 순간 5부터 바로 보이고 5→4→3→2→1을 전부 표시한 뒤 약 1초 후 기존 방송 시작 흐름을 계속한다. 다른 UI/방/선물/버튼은 변경하지 않음. */
 (function(){
   if(window.__ktFullFiveSecondStartGate20260917)return;
   window.__ktFullFiveSecondStartGate20260917=true;
 
-  var previousStart=window.startBroadcast;
-  var previousCountdown=window.ktLiveStartCountdown;
-  if(typeof previousStart!=='function')return;
-
-  var launching=false;
-  var bypassNestedCountdown=false;
-
-  function sleep(ms){return new Promise(function(resolve){setTimeout(resolve,ms);});}
+  var countdownPromise=null;
 
   function removeCountdown(){
     var old=document.getElementById('ktLiveCountdown');
     if(old&&old.parentNode)old.parentNode.removeChild(old);
   }
 
-  async function showFullCountdown(){
-    removeCountdown();
-    var wrap=document.createElement('div');
-    wrap.id='ktLiveCountdown';
-    wrap.style.cssText='position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;background:transparent;overflow:hidden;pointer-events:none;';
+  function runCountdown(){
+    if(countdownPromise)return countdownPromise;
 
-    /* 카운트다운 5초 동안 검은 화면 대신 준비 화면의 같은 카메라 영상을 그대로 유지한다. 새 카메라는 열지 않는다. */
-    var previewStream=null;
-    try{
-      previewStream=(window.state&&state.stream)||((document.getElementById('camera')||{}).srcObject)||null;
-      if(previewStream&&previewStream.getVideoTracks&&!previewStream.getVideoTracks().some(function(t){return t.readyState==='live';}))previewStream=null;
-    }catch(e){previewStream=null;}
-    if(previewStream){
-      var bg=document.createElement('video');
-      bg.autoplay=true;bg.muted=true;bg.defaultMuted=true;bg.playsInline=true;
-      bg.setAttribute('autoplay','');bg.setAttribute('muted','');bg.setAttribute('playsinline','');bg.setAttribute('webkit-playsinline','');
-      bg.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center center;background:#000;transform:scaleX(-1);';
-      try{bg.srcObject=previewStream;var bp=bg.play();if(bp&&bp.catch)bp.catch(function(){});}catch(e){}
-      wrap.appendChild(bg);
-    }
-    var shade=document.createElement('div');
-    shade.style.cssText='position:absolute;inset:0;background:rgba(0,0,0,.16);';
-    wrap.appendChild(shade);
+    countdownPromise=(async function(){
+      removeCountdown();
 
-    var num=document.createElement('div');
-    num.style.cssText='position:relative;z-index:2;width:116px;height:116px;border-radius:50%;display:grid;place-items:center;background:rgba(10,10,14,.74);border:4px solid rgba(255,255,255,.94);color:#fff;font:900 64px/1 system-ui,-apple-system,sans-serif;box-shadow:0 0 28px rgba(255,44,130,.72);text-shadow:0 0 12px rgba(255,255,255,.72);';
-    wrap.appendChild(num);
-    document.body.appendChild(wrap);
+      var wrap=document.createElement('div');
+      wrap.id='ktLiveCountdown';
+      wrap.style.cssText='position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;background:rgba(0,0,0,.18);pointer-events:none;';
+      var num=document.createElement('div');
+      num.style.cssText='width:116px;height:116px;border-radius:50%;display:grid;place-items:center;background:rgba(10,10,14,.74);border:4px solid rgba(255,255,255,.94);color:#fff;font:900 64px/1 system-ui,-apple-system,sans-serif;box-shadow:0 0 28px rgba(255,44,130,.72);text-shadow:0 0 12px rgba(255,255,255,.72);transition:transform .2s ease;';
+      wrap.appendChild(num);
+      document.body.appendChild(wrap);
 
-    for(var n=5;n>=1;n--){
-      num.textContent=String(n);
-      num.style.transform='scale(1)';
-      setTimeout(function(){try{num.style.transform='scale(.92)';}catch(e){}},650);
-      await sleep(1000);
-    }
-    removeCountdown();
+      for(var n=5;n>=1;n--){
+        num.textContent=String(n);
+        num.style.transform='scale(1)';
+        setTimeout(function(){try{num.style.transform='scale(.92)';}catch(e){}},650);
+        await new Promise(function(resolve){setTimeout(resolve,1000);});
+      }
+
+      removeCountdown();
+      await new Promise(function(resolve){setTimeout(resolve,1000);});
+      return true;
+    })();
+
+    countdownPromise.finally(function(){
+      setTimeout(function(){countdownPromise=null;},300);
+    });
+    return countdownPromise;
   }
 
-  /* 기존 내부 코드가 또 카운트다운을 부르면 중복 표시하지 않는다. */
+  /* 손을 대는 순간 바로 5를 띄워, 다른 준비 동작이 숫자 5~2를 먹지 못하게 한다. */
+  window.addEventListener('pointerdown',function(e){
+    var btn=e.target&&e.target.closest?e.target.closest('.live-prep .prep-start'):null;
+    if(btn)runCountdown();
+  },true);
+
   window.ktLiveStartCountdown=async function(){
-    if(bypassNestedCountdown)return true;
-    if(typeof previousCountdown==='function')return previousCountdown.apply(this,arguments);
-    return true;
-  };
-
-  window.startBroadcast=async function(){
-    if(launching)return;
-    launching=true;
-    bypassNestedCountdown=true;
-    var self=this,args=arguments;
-
-    try{
-      await showFullCountdown();
-      return await previousStart.apply(self,args);
-    }finally{
-      removeCountdown();
-      bypassNestedCountdown=false;
-      setTimeout(function(){launching=false;},300);
-    }
+    return runCountdown();
   };
 })();
 
