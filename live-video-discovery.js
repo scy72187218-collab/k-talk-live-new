@@ -214,7 +214,11 @@
   }
 
   async function renderFollowStatus(rooms){
+    /* 동영상에서는 아래 작은 방송 표시만 사용하고 위쪽 큰 목록은 표시하지 않는다. */
     var old=document.getElementById('ktFollowLiveStrip');
+    if(old)old.remove();
+    try{document.body.classList.remove('kt-follow-status-open');}catch(e){}
+    return;
     if(!inVideoView()){
       if(old)old.remove();
       try{document.body.classList.remove('kt-follow-status-open');}catch(e){}
