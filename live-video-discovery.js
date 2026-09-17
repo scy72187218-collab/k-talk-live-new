@@ -116,7 +116,7 @@
       +'.kt-video-live-peek .ktvl-follow{width:28px!important;height:28px!important;flex:0 0 28px!important;border-radius:50%!important;background:#e91845!important;font-size:18px!important;font-weight:950!important;line-height:1!important}'
       +'.kt-video-live-peek .ktvl-follow.on{background:#4a4a52!important;font-size:13px!important}'
       +'.kt-video-live-peek .ktvl-bell{width:28px!important;height:28px!important;flex:0 0 28px!important;border-radius:50%!important;background:#23232b!important;font-size:14px!important}.kt-video-live-peek .ktvl-bell.on{background:#ff9f1a!important}'
-      +'.kt-video-live-peek .ktvl-live{flex:0 0 auto!important;color:#fff!important;background:#e91845!important;border-radius:999px!important;padding:5px 7px!important;font-size:8px!important;font-weight:950!important;animation:ktVideoLivePulse .9s linear infinite!important}'
+      +'.kt-video-live-peek .ktvl-live{flex:0 0 auto!important;color:#fff!important;background:#e91845!important;border-radius:999px!important;padding:5px 7px!important;font-size:8px!important;font-weight:950!important;animation:none!important}'
       +'.kt-follow-live-strip{position:fixed!important;left:8px!important;right:8px!important;top:53px!important;z-index:39!important;height:66px!important;padding:5px 7px!important;border-radius:16px!important;background:rgba(5,7,12,.64)!important;border:1px solid rgba(255,255,255,.13)!important;display:flex!important;align-items:flex-start!important;gap:8px!important;overflow-x:auto!important;overflow-y:hidden!important;backdrop-filter:blur(6px)!important;scrollbar-width:none!important}'
       +'.kt-follow-live-strip::-webkit-scrollbar{display:none!important}'
       +'.kt-follow-person{position:relative!important;width:50px!important;min-width:50px!important;height:56px!important;padding:0!important;border:0!important;background:transparent!important;color:#fff!important;display:flex!important;flex-direction:column!important;align-items:center!important;gap:2px!important;touch-action:manipulation!important}'
@@ -285,7 +285,7 @@
 
   async function render(){
     ensureStyle();
-    var old=document.getElementById('ktVideoLivePeek');if(old)old.remove();
+    var old=document.getElementById('ktVideoLivePeek');
     if(document.documentElement.classList.contains('kt-remote-viewing')){
       var fs=document.getElementById('ktFollowLiveStrip');if(fs)fs.remove();
       try{document.body.classList.remove('kt-follow-status-open');}catch(e){}
@@ -302,13 +302,16 @@
 
     var feedVideo=document.querySelector('#screen .kt-public-video');
     var host=document.querySelector('.video-home')||document.querySelector('#screen .media')||(feedVideo&&feedVideo.closest('section'));
-    if(!host||!rooms.length)return;
+    if(!host||!rooms.length){if(old)old.remove();return;}
 
     var r=rooms[0];
     var hostId=String(r.host_id||''),hostName=String(r.host_name||'K-Talk 방송자'),hostPhoto=String(r.host_photo||'');
     var photo=(hostPhoto&&(/^data:image/.test(hostPhoto)||/^https?:/.test(hostPhoto)))?'<img src="'+esc(hostPhoto)+'" alt="">':'🎥';
+    var signature=hostId+'|'+hostName+'|'+hostPhoto;
+    if(old&&old.getAttribute('data-kt-signature')===signature)return;
+    if(old)old.remove();
     var b=document.createElement('div');
-    b.id='ktVideoLivePeek';b.className='kt-video-live-peek';
+    b.id='ktVideoLivePeek';b.className='kt-video-live-peek';b.setAttribute('data-kt-signature',signature);
     b.innerHTML='<button type="button" class="ktvl-person" aria-label="방송자 프로필"><span class="ktvl-avatar">'+photo+'</span><span class="ktvl-copy"><b>'+esc(hostName)+'</b><small>'+esc(r.title||r.room_name||'방송 중')+'</small></span></button>'
       +'<button type="button" class="ktvl-follow" data-host="'+esc(hostId)+'" title="팔로우">+</button>'
       +'<button type="button" class="ktvl-bell" data-host="'+esc(hostId)+'" title="방송 알림 켜기">🔔</button>'
