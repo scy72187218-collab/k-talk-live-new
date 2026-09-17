@@ -101,16 +101,17 @@
     bypassNestedCountdown=true;
     var self=this,args=arguments;
 
-    /* 카메라는 5초 동안 뒤에서 미리 준비한다. 준비 완료를 기다리느라 숫자가 늦게 뜨지 않게 한다. */
+    /* 카메라는 5초 동안 뒤에서 준비하고, 카메라가 준비된 뒤에만 방 화면을 연다. */
+    var cameraReady=Promise.resolve(true);
     try{
       if(typeof window.ensureLiveCamera==='function'){
-        Promise.resolve(window.ensureLiveCamera((window.state&&state.cameraFacing)||'user')).catch(function(){});
+        cameraReady=Promise.resolve(window.ensureLiveCamera((window.state&&state.cameraFacing)||'user')).catch(function(){return false;});
       }
-    }catch(e){}
+    }catch(e){cameraReady=Promise.resolve(false);}
 
     try{
       await showFullCountdown();
-      await sleep(1000);
+      await cameraReady;
       return await previousStart.apply(self,args);
     }finally{
       removeCountdown();
