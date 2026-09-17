@@ -147,7 +147,7 @@
   window.__ktLevelSystemLoader20260915=true;
   try{
     var s=document.createElement('script');
-    s.src='level-system-20260915.js?v=20260915-level1';
+    s.src='level-system-20260915.js?v=20260918-all-level-gates-open1';
     s.async=true;
     document.head.appendChild(s);
   }catch(e){}
