@@ -50,65 +50,65 @@
   };
 })();
 
-/* 방송 시작 카운트다운만 보강: 시작 버튼을 누르는 즉시 5부터 보이고, 5초 동안 카메라는 뒤에서 준비한다. 다른 기능/UI는 변경하지 않음. */
+/* 방송 시작 순서만 고정: 시작 버튼을 누르는 즉시 5→4→3→2→1을 전부 보여준 뒤 약 1초 후 기존 방송 시작 흐름을 실행한다. 다른 UI/방/선물/버튼은 변경하지 않음. */
 (function(){
-  if(window.__ktLiveCountdownFromFiveImmediately20260917)return;
-  window.__ktLiveCountdownFromFiveImmediately20260917=true;
+  if(window.__ktFullFiveSecondStartGate20260917)return;
+  window.__ktFullFiveSecondStartGate20260917=true;
 
-  var countdownPromise=null;
+  var previousStart=window.startBroadcast;
+  var previousCountdown=window.ktLiveStartCountdown;
+  if(typeof previousStart!=='function')return;
 
-  function warmCamera(){
-    try{
-      if(typeof window.ensureLiveCamera==='function'){
-        Promise.resolve(window.ensureLiveCamera((window.state&&state.cameraFacing)||'user')).catch(function(){});
-      }
-    }catch(e){}
+  var launching=false;
+  var bypassNestedCountdown=false;
+
+  function sleep(ms){return new Promise(function(resolve){setTimeout(resolve,ms);});}
+
+  function removeCountdown(){
+    var old=document.getElementById('ktLiveCountdown');
+    if(old&&old.parentNode)old.parentNode.removeChild(old);
   }
 
-  function runCountdown(){
-    if(countdownPromise)return countdownPromise;
+  async function showFullCountdown(){
+    removeCountdown();
+    var wrap=document.createElement('div');
+    wrap.id='ktLiveCountdown';
+    wrap.style.cssText='position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;background:rgba(0,0,0,.22);pointer-events:none;';
+    var num=document.createElement('div');
+    num.style.cssText='width:116px;height:116px;border-radius:50%;display:grid;place-items:center;background:rgba(10,10,14,.74);border:4px solid rgba(255,255,255,.94);color:#fff;font:900 64px/1 system-ui,-apple-system,sans-serif;box-shadow:0 0 28px rgba(255,44,130,.72);text-shadow:0 0 12px rgba(255,255,255,.72);';
+    wrap.appendChild(num);
+    document.body.appendChild(wrap);
 
-    warmCamera();
-    countdownPromise=(async function(){
-      var old=document.getElementById('ktLiveCountdown');
-      if(old)old.remove();
-
-      var wrap=document.createElement('div');
-      wrap.id='ktLiveCountdown';
-      wrap.style.cssText='position:fixed;inset:0;z-index:99999;display:grid;place-items:center;background:rgba(0,0,0,.22);pointer-events:none;';
-      var num=document.createElement('div');
-      num.style.cssText='width:116px;height:116px;border-radius:50%;display:grid;place-items:center;background:rgba(10,10,14,.72);border:4px solid rgba(255,255,255,.92);color:#fff;font:900 64px/1 system-ui,-apple-system,sans-serif;box-shadow:0 0 28px rgba(255,44,130,.7);text-shadow:0 0 12px rgba(255,255,255,.7);transition:transform .2s ease;';
-      wrap.appendChild(num);
-      document.body.appendChild(wrap);
-
-      for(var n=5;n>=1;n--){
-        num.textContent=String(n);
-        num.style.transform='scale(1)';
-        await new Promise(function(resolve){
-          setTimeout(function(){num.style.transform='scale(.92)';},650);
-          setTimeout(resolve,1000);
-        });
-      }
-
-      if(wrap&&wrap.parentNode)wrap.remove();
-      await new Promise(function(resolve){setTimeout(resolve,120);});
-    })();
-
-    countdownPromise.finally(function(){
-      setTimeout(function(){countdownPromise=null;},300);
-    });
-    return countdownPromise;
+    for(var n=5;n>=1;n--){
+      num.textContent=String(n);
+      num.style.transform='scale(1)';
+      setTimeout(function(){try{num.style.transform='scale(.92)';}catch(e){}},650);
+      await sleep(1000);
+    }
+    removeCountdown();
   }
 
-  /* 손을 대는 순간 5초 카운트를 시작해서 카메라 준비 때문에 1초부터 보이는 현상을 막는다. */
-  window.addEventListener('pointerdown',function(e){
-    var btn=e.target&&e.target.closest?e.target.closest('.live-prep .prep-start'):null;
-    if(btn)runCountdown();
-  },true);
-
+  /* 기존 내부 코드가 또 카운트다운을 부르면 중복 표시하지 않는다. */
   window.ktLiveStartCountdown=async function(){
-    warmCamera();
-    return runCountdown();
+    if(bypassNestedCountdown)return true;
+    if(typeof previousCountdown==='function')return previousCountdown.apply(this,arguments);
+    return true;
+  };
+
+  window.startBroadcast=async function(){
+    if(launching)return;
+    launching=true;
+    bypassNestedCountdown=true;
+    var self=this,args=arguments;
+
+    try{
+      await showFullCountdown();
+      return await previousStart.apply(self,args);
+    }finally{
+      removeCountdown();
+      bypassNestedCountdown=false;
+      setTimeout(function(){launching=false;},300);
+    }
   };
 })();
 
