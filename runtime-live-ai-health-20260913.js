@@ -52,7 +52,10 @@
   });
   load('live-room-instant-video-fix-20260915.js','__ktLiveRoomInstantVideoFixInstalled');
 
-  /* 조금 아까 정상 동작하던 상태: 승인된 게스트를 칸 안에 넣는 기존 격자 코드만 사용. */
+  /* 호스트가 승인하면 모든 게스트 폰을 호스트와 같은 9/13명 방 격자로 전환. */
+  load('approved-guest-all-devices-room-transition-20260917.js','__ktApprovedGuestAllDevicesRoomTransition20260917');
+
+  /* 승인된 게스트를 칸 안에 넣는 기존 격자 코드. */
   load('approved-guest-grid-clean-only-20260917.js','__ktApprovedGuestGridCleanOnly20260917');
   load('approved-guest-person-medium-only-20260917.js','__ktApprovedGuestPersonMediumOnly20260917');
 
