@@ -671,7 +671,9 @@
     }
 
     var ok=true;
-    if(window.ensureLiveCamera){
+    var hasLiveVideo=!!(window.state&&state.stream&&state.stream.getVideoTracks&&state.stream.getVideoTracks().some(function(track){return track.readyState==='live';}));
+    /* 준비 화면에 카메라가 이미 보이면 1초 뒤 다시 연결하지 않고 바로 방을 연다. */
+    if(!hasLiveVideo&&window.ensureLiveCamera){
       try{ok=await ensureLiveCamera((window.state&&state.cameraFacing)||'user');}catch(e){ok=false;}
     }
 
