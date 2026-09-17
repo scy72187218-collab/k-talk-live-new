@@ -27,58 +27,31 @@
     }catch(e){if(done)done();}
   }
 
-  /* AI 읽기 → 기본 실시간 방송 등록/입장 → LIVE 표시 → 시청자 상호작용 순서. */
   load('chat-benefit-ai-reader.js','__ktChatBenefitAIReaderInstalled',function(){
     load('live-presence.js','__ktLivePresenceInstalled',function(){
-      /* live-presence가 정상 설치되면 별도 watchdog을 같이 돌리지 않는다. 중복 방송 등록 방지. */
       load('live-video-discovery.js','__ktLiveVideoDiscoveryInstalled',function(){
         load('live-viewer-interactions.js','__ktLiveViewerInteractionInstalled');
       });
     });
   });
 
-  /* 비밀방 되돌리기 버튼 위치만 조금 아래로. */
   load('secret-return-down-20260914.js','__ktSecretReturnDown20260914');
-
-  /* 촬영 화면 방송 바로가기는 1인 방송만 표시. */
   load('creator-room-shortcuts-solo-only-20260914.js','__ktCreatorRoomShortcutsSoloOnly20260914');
-
-  /* 라이브 준비 화면의 중복 9명 방송 버튼 하나만 숨김. */
   load('live-prep-remove-duplicate-9only-20260914.js','__ktRemoveDuplicate9Only20260914');
-
-  /* 촬영 화면 위쪽 '라이브' 글씨만 '동영상 촬영 시간'으로 변경. */
   load('creator-top-live-label-only-20260914.js','__ktCreatorTopLiveLabelOnly20260914');
-
-  /* 촬영 화면의 게시·창작하기·라이브 줄만 시간 선택줄 바로 아래로 이동하고 조금 굵게. */
   load('creator-foot-under-timer-20260914.js','__ktCreatorFootUnderTimer20260914');
-
-  /* 촬영 화면 크기는 그대로, 카메라 속 사람만 덜 크게 표시. */
   load('creator-person-smaller-only-20260917.js','__ktCreatorPersonSmallerOnly20260917');
-
-  /* 방송 파장만: 사진처럼 무지개 파장을 사람마다 하나씩 자동 표시. */
   load('participant-photo-wave-only-20260915.js','__ktParticipantPhotoWaveOnly20260915');
-
-  /* 선물상자를 누르면 회원 본인의 남은 장미 수량 표시 + 부족하면 충전 연결. */
   load('gift-balance-box-20260915.js','__ktGiftBalanceBox20260915');
-
-  /* 사용자가 방금 요청한 두 부분만 복구. 다른 화면/기능은 건드리지 않음. */
   load('group13-approved-room.js','__ktGroup13ApprovedRoomInstalled');
   load('feed-swipe-playback-fix.js','__ktFeedSwipePlaybackFixInstalled',function(){
     load('broadcast-video-resume-fix.js','__ktBroadcastVideoResumeFixInstalled');
   });
-
-  /* 방송 입장 순간 카메라가 끊기거나 1~2초 늦게 뜨는 현상만 보강. */
   load('live-room-instant-video-fix-20260915.js','__ktLiveRoomInstantVideoFixInstalled');
 
-  /* 승인된 게스트 폰: 겹쳐 보이는 작은 영상만 제거하고 방 격자로 정리. */
+  /* 조금 아까 정상 동작하던 상태: 승인된 게스트를 칸 안에 넣는 기존 격자 코드만 사용. */
   load('approved-guest-grid-clean-only-20260917.js','__ktApprovedGuestGridCleanOnly20260917');
-
-  /* 승인된 모든 게스트 폰: 호스트 영상이 늦어도 같은 방 격자로 전환. */
-  load('approved-guest-all-devices-room-transition-20260917.js','__ktApprovedGuestAllDevicesRoomTransition20260917');
-
-  /* 승인된 게스트 방: 사람 영상만 너무 작지 않게 중간 크기로 표시. */
   load('approved-guest-person-medium-only-20260917.js','__ktApprovedGuestPersonMediumOnly20260917');
 
-  /* 호스트 방송방 아래 장미/하트/왕관/스포츠카/선물상자 7개 줄만 숨김. */
   load('host-gift-row-hide-only-20260917.js','__ktHostGiftRowHideOnly20260917');
 })();
