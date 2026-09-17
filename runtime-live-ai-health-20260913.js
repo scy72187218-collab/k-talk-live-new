@@ -73,6 +73,9 @@
   /* 승인된 게스트 폰: 겹쳐 보이는 작은 영상만 제거하고 방 격자로 정리. */
   load('approved-guest-grid-clean-only-20260917.js','__ktApprovedGuestGridCleanOnly20260917');
 
+  /* 승인된 게스트 방: 사람 영상만 너무 작지 않게 중간 크기로 표시. */
+  load('approved-guest-person-medium-only-20260917.js','__ktApprovedGuestPersonMediumOnly20260917');
+
   /* 호스트 방송방 아래 장미/하트/왕관/스포츠카/선물상자 7개 줄만 숨김. */
   load('host-gift-row-hide-only-20260917.js','__ktHostGiftRowHideOnly20260917');
 })();
