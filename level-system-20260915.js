@@ -114,7 +114,8 @@
     try{alert(msg);}catch(e){}
     return false;
   }
-  window.ktLevelCanOpen13=function(){return getLevel()>=UNLOCK_13_LEVEL;};
+  /* 임시 전체 해제: 레벨과 관계없이 13명방을 열 수 있다. */
+  window.ktLevelCanOpen13=function(){return true;};
 
   function installRoomGate(){
     if(typeof window.selectPrepRoom==='function'&&!window.selectPrepRoom.__ktLevelGate){
