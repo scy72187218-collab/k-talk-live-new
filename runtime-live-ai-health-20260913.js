@@ -73,6 +73,9 @@
   /* 승인된 게스트 폰: 겹쳐 보이는 작은 영상만 제거하고 방 격자로 정리. */
   load('approved-guest-grid-clean-only-20260917.js','__ktApprovedGuestGridCleanOnly20260917');
 
+  /* 승인된 모든 게스트 폰: 호스트 영상이 늦어도 같은 방 격자로 전환. */
+  load('approved-guest-all-devices-room-transition-20260917.js','__ktApprovedGuestAllDevicesRoomTransition20260917');
+
   /* 승인된 게스트 방: 사람 영상만 너무 작지 않게 중간 크기로 표시. */
   load('approved-guest-person-medium-only-20260917.js','__ktApprovedGuestPersonMediumOnly20260917');
 
