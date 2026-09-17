@@ -66,6 +66,9 @@
     load('broadcast-video-resume-fix.js','__ktBroadcastVideoResumeFixInstalled');
   });
 
+  /* 13명방 LED 전광판만 비거나 사라질 때 복구. 다른 화면/기능은 변경하지 않음. */
+  load('group13-led-stability-only-20260917.js','__ktGroup13LedStabilityOnly20260917');
+
   /* 방송 입장 순간 카메라가 끊기거나 1~2초 늦게 뜨는 현상만 보강. */
   load('live-room-instant-video-fix-20260915.js','__ktLiveRoomInstantVideoFixInstalled');
 })();
