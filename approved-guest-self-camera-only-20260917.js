@@ -6,10 +6,30 @@
   var localStream=null;
   var opening=false;
 
-  function streamLive(st){
+  function liveTracks(st){
+    try{return (st&&st.getVideoTracks?st.getVideoTracks():[]).filter(function(t){return t.readyState==='live';});}
+    catch(e){return [];}
+  }
+  function streamLive(st){return liveTracks(st).length>0;}
+  function sameVideoSource(a,b){
     try{
-      var tracks=st&&st.getVideoTracks?st.getVideoTracks():[];
-      return !!(tracks&&tracks.some(function(t){return t.readyState==='live';}));
+      var aa=liveTracks(a),bb=liveTracks(b);
+      if(!aa.length||!bb.length)return false;
+      return aa.some(function(x){return bb.some(function(y){return x===y||x.id===y.id;});});
+    }catch(e){return false;}
+  }
+  function attachSelf(v,st){
+    if(!v||!streamLive(st))return false;
+    try{
+      if(v.srcObject!==st)v.srcObject=st;
+      v.muted=true;
+      v.autoplay=true;
+      v.playsInline=true;
+      v.setAttribute('playsinline','');
+      v.setAttribute('webkit-playsinline','');
+      v.style.setProperty('transform','scaleX(-1)','important');
+      var p=v.play();if(p&&p.catch)p.catch(function(){});
+      return true;
     }catch(e){return false;}
   }
 
@@ -27,16 +47,14 @@
       var selfStream=selfVideo.srcObject||null;
       var hostStream=hostVideo&&hostVideo.srcObject||null;
 
-      /* 이미 서로 다른 정상 카메라면 그대로 둔다. */
-      if(streamLive(selfStream)&&selfStream!==hostStream)return;
-
+      /* 이미 확보한 이 기기의 앞카메라가 있으면 항상 그 스트림을 우선 사용한다. */
       if(streamLive(localStream)){
-        selfVideo.srcObject=localStream;
-        selfVideo.muted=true;
-        selfVideo.autoplay=true;
-        selfVideo.playsInline=true;
-        selfVideo.style.setProperty('transform','scaleX(-1)','important');
-        try{var p=selfVideo.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
+        attachSelf(selfVideo,localStream);
+        return;
+      }
+
+      /* 객체가 다르더라도 실제 영상 트랙이 호스트와 같으면 정상 게스트 영상으로 보지 않는다. */
+      if(streamLive(selfStream)&&!sameVideoSource(selfStream,hostStream)){
         return;
       }
 
@@ -52,12 +70,7 @@
       }
       opening=false;
       if(!streamLive(localStream))return;
-      selfVideo.srcObject=localStream;
-      selfVideo.muted=true;
-      selfVideo.autoplay=true;
-      selfVideo.playsInline=true;
-      selfVideo.style.setProperty('transform','scaleX(-1)','important');
-      try{var q=selfVideo.play();if(q&&q.catch)q.catch(function(){});}catch(e){}
+      attachSelf(selfVideo,localStream);
     }catch(e){opening=false;}
   }
 
