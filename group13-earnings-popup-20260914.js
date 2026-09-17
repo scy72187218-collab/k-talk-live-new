@@ -173,6 +173,8 @@
   var correctedClockObserver=null;
   var token=0;
   var countdownStartedToken=0;
+  var countdownDone=null;
+  var resolveCountdown=null;
 
   function selectedType(){
     try{return String((window.state&&state.liveRoomType)||'');}catch(e){return '';}
@@ -260,7 +262,7 @@
   window.ktLiveStartCountdown=async function(){
     if(launching||window.__ktRoomFirstCountdownBypass20260915){
       showFive();
-      return true;
+      return countdownDone||true;
     }
     if(typeof previousCountdown==='function')return previousCountdown.apply(this,arguments);
     return true;
@@ -315,6 +317,8 @@
     window.__ktRoomFirstCountdownBypass20260915=false;
     launching=false;
     warmPromise=null;
+    if(resolveCountdown){resolveCountdown(true);resolveCountdown=null;}
+    countdownDone=null;
     attachWarmStream();
     startCorrectedClock();
   }
@@ -359,6 +363,7 @@
     stopClockHelpers();
     token++;
     launching=true;
+    countdownDone=new Promise(function(resolve){resolveCountdown=resolve;});
     window.__ktRoomFirstCountdownBypass20260915=true;
     countFromFive(token);
     startWarm((window.state&&state.cameraFacing)||'user');
@@ -385,6 +390,8 @@
       overlay=null;numberEl=null;
       window.__ktRoomFirstCountdownBypass20260915=false;
       launching=false;warmPromise=null;
+      if(resolveCountdown){resolveCountdown(false);resolveCountdown=null;}
+      countdownDone=null;
       throw e;
     }
   };
