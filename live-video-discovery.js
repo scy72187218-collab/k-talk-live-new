@@ -8,6 +8,8 @@
   var STALE_MS=50000;
   var roomMetaCache=[];
   var roomMetaAt=0;
+  var stableActiveRooms=[];
+  var stableActiveAt=0;
 
   function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   function enc(v){return encodeURIComponent(String(v==null?'':v));}
@@ -34,8 +36,11 @@
     try{
       var r=await fetch(BASE+'ktalk_live_rooms?select=host_id,host_name,title,room_name,host_photo,updated_at&active=eq.true&updated_at=gte.'+enc(cut)+'&order=started_at.desc&limit=50',{headers:{apikey:KEY,Authorization:'Bearer '+KEY}});
       if(!r.ok)return [];
-      var rows=await r.json();return Array.isArray(rows)?rows:[];
-    }catch(e){return [];}
+      var rows=await r.json();rows=Array.isArray(rows)?rows:[];
+      if(rows.length){stableActiveRooms=rows;stableActiveAt=Date.now();return rows;}
+      if(stableActiveRooms.length&&Date.now()-stableActiveAt<90000)return stableActiveRooms;
+      return [];
+    }catch(e){return stableActiveRooms.length&&Date.now()-stableActiveAt<90000?stableActiveRooms:[];}
   }
 
   async function followedUsers(){
@@ -235,7 +240,7 @@
        5초마다 목록이 다시 그려져 깜빡이는 현상을 막는다. */
     follows=follows.filter(function(f){return !!activeMap[String(f.following_id||'')];});
     if(!follows.length){
-      if(old)old.remove();
+      if(old)return;
       try{document.body.classList.remove('kt-follow-status-open');}catch(e){}
       return;
     }
