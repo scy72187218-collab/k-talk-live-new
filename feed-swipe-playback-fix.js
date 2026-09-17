@@ -128,17 +128,29 @@
     }
   }
 
+  /* 통신이 잠깐 느려졌을 때 load()로 영상을 처음부터 다시 열지 않는다.
+     현재 프레임을 그대로 두고 play()만 천천히 재시도해서 깜빡임을 줄인다. */
   function retryOrSkip(v){
     if(!isFeedVideo(v)||v.dataset.ktFeedBroken==='1')return;
+    var errCode=0;
+    try{errCode=v.error&&v.error.code?Number(v.error.code):0;}catch(e){}
+    if(errCode===3||errCode===4){removeBroken(v);return;}
+
     var count=Number(v.dataset.ktFeedRetry||0);
-    if(count<1){
-      v.dataset.ktFeedRetry=String(count+1);
-      try{v.pause();}catch(e){}
-      try{v.load();}catch(e){}
-      setTimeout(function(){playVideo(v,true);},180);
-      return;
+    if(count>=4){
+      v.dataset.ktFeedRetry='0';
+      count=0;
     }
-    removeBroken(v);
+    v.dataset.ktFeedRetry=String(count+1);
+    clearTimeout(v.__ktFeedRetryTimer);
+    v.__ktFeedRetryTimer=setTimeout(function(){
+      if(document.hidden||!v.isConnected||v.dataset.ktFeedBroken==='1')return;
+      if(navigator.onLine===false)return;
+      try{
+        var p=v.play();
+        if(p&&p.catch)p.catch(function(){});
+      }catch(e){}
+    },count<1?500:Math.min(3000,900+(count*650)));
   }
 
   function playElement(v,force){
@@ -164,21 +176,25 @@
     if(!isFeedVideo(v)||v.dataset.ktFeedBroken==='1')return;
     setupSoundMemory(v);
     restoreSound(v);
-    if(force&&v.readyState===0){try{v.load();}catch(e){}}
+    /* 화면에 이미 영상 데이터가 있으면 강제 load() 하지 않는다. */
+    if(force&&v.readyState===0&&!v.srcObject){
+      try{if(!v.currentSrc&&v.getAttribute('src'))v.load();}catch(e){}
+    }
     var before=Number(v.currentTime||0);
     try{
       var p=v.play();
       if(p&&p.catch)p.catch(function(err){
         var name=String(err&&err.name||'');
-        if(name==='NotSupportedError'||name==='EncodingError')retryOrSkip(v);
+        if(name==='NotSupportedError'||name==='EncodingError')removeBroken(v);
+        else retryOrSkip(v);
       });
     }catch(e){retryOrSkip(v);}
     clearTimeout(v.__ktFeedWatch);
     v.__ktFeedWatch=setTimeout(function(){
-      if(v.dataset.ktFeedBroken==='1')return;
+      if(v.dataset.ktFeedBroken==='1'||document.hidden||!isVisiblePlayback(v))return;
       var moved=Math.abs(Number(v.currentTime||0)-before)>.05;
       if(v.readyState<2&&!moved)retryOrSkip(v);
-    },3500);
+    },6500);
   }
 
   function setupVideo(v){
@@ -186,12 +202,21 @@
     v.dataset.ktFeedSetup='1';
     try{if(v.getAttribute('preload')!=='auto')v.preload='metadata';v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');}catch(e){}
     setupSoundMemory(v);
-    v.addEventListener('loadeddata',function(){v.dataset.ktFeedRetry='0';clearTimeout(v.__ktFeedWatch);});
-    v.addEventListener('canplay',function(){v.dataset.ktFeedRetry='0';clearTimeout(v.__ktFeedWatch);});
+    v.addEventListener('loadeddata',function(){v.dataset.ktFeedRetry='0';clearTimeout(v.__ktFeedWatch);clearTimeout(v.__ktFeedRetryTimer);});
+    v.addEventListener('canplay',function(){v.dataset.ktFeedRetry='0';clearTimeout(v.__ktFeedWatch);clearTimeout(v.__ktFeedRetryTimer);});
+    v.addEventListener('playing',function(){v.dataset.ktFeedRetry='0';clearTimeout(v.__ktFeedRetryTimer);});
     v.addEventListener('error',function(){retryOrSkip(v);});
     v.addEventListener('stalled',function(){
       clearTimeout(v.__ktFeedStall);
-      v.__ktFeedStall=setTimeout(function(){if(v.readyState<2)retryOrSkip(v);},3000);
+      v.__ktFeedStall=setTimeout(function(){
+        if(v.readyState<2&&isVisiblePlayback(v)&&!document.hidden)retryOrSkip(v);
+      },8000);
+    });
+    v.addEventListener('waiting',function(){
+      clearTimeout(v.__ktFeedWaiting);
+      v.__ktFeedWaiting=setTimeout(function(){
+        if(v.readyState<2&&isVisiblePlayback(v)&&!document.hidden)retryOrSkip(v);
+      },6000);
     });
   }
 
