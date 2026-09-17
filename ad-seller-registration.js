@@ -143,7 +143,7 @@
 (function(){
   if(document.querySelector('script[data-kt-live-presence]'))return;
   var s=document.createElement('script');
-  s.src='live-presence.js?v=20260917-roomdedupe-final1';
+  s.src='live-presence.js?v=20260918-opened-room-only1';
   s.async=false;
   s.setAttribute('data-kt-live-presence','1');
   s.onload=function(){
