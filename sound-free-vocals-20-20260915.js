@@ -257,7 +257,7 @@
     if(document.getElementById('ktCreatorReferenceLookStyle20260915'))return;
     var s=document.createElement('style');
     s.id='ktCreatorReferenceLookStyle20260915';
-    s.textContent='#creator.creator.camera-on:not(.creator-review) video#camera{transform:scaleX(-1) scale(.78)!important;transform-origin:center center!important;}';
+    s.textContent='#creator.creator.camera-on:not(.creator-review) video#camera{transform:scaleX(-1) scale(1)!important;transform-origin:center center!important;}';
     document.head.appendChild(s);
   }
 
@@ -308,7 +308,7 @@
     try{
       var c=document.getElementById('camera');
       if(!c)return;
-      c.style.setProperty('transform','scaleX(-1) scale(.78)','important');
+      c.style.setProperty('transform','scaleX(-1) scale(1)','important');
       if(name==='strong')c.style.setProperty('filter','brightness(1.15) saturate(1.08) contrast(.82) blur(.88px)','important');
       if(name==='makeupStrong')c.style.setProperty('filter','brightness(1.16) saturate(1.20) contrast(.82) sepia(.05) hue-rotate(-4deg) blur(.92px)','important');
     }catch(e){}
