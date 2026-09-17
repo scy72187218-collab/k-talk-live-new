@@ -181,7 +181,7 @@
 (function(){
   if(document.querySelector('script[data-kt-live-chat-send-arrow]'))return;
   var s=document.createElement('script');
-  s.src='live-chat-send-arrow.js?v=20260917-roomdedupe1';
+  s.src='live-chat-send-arrow.js?v=20260917-roomdedupe2';
   s.async=false;
   s.setAttribute('data-kt-live-chat-send-arrow','1');
   document.head.appendChild(s);
