@@ -49,3 +49,18 @@
     if(typeof originalOpenAttendanceBenefits==='function')return originalOpenAttendanceBenefits.apply(this,arguments);
   };
 })();
+
+/* 방송 시작 타이밍만 조정: 5초 카운트다운이 완전히 사라진 뒤 약 1초 후 방송방을 연다. 다른 기능/UI는 변경하지 않음. */
+(function(){
+  if(window.__ktLiveOpenOneSecondAfterCountdown20260917)return;
+  window.__ktLiveOpenOneSecondAfterCountdown20260917=true;
+
+  var previousCountdown=window.ktLiveStartCountdown;
+  if(typeof previousCountdown!=='function')return;
+
+  window.ktLiveStartCountdown=async function(){
+    var result=await previousCountdown.apply(this,arguments);
+    await new Promise(function(resolve){setTimeout(resolve,1000);});
+    return result;
+  };
+})();
