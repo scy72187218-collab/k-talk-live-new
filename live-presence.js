@@ -232,11 +232,19 @@
 
   /* 원격 9명 방이 재연결 과정에서 두 번 붙는 경우 첫 방만 유지한다. */
   function dedupeRemoteGroupRooms(){
-    if(!document.documentElement.classList.contains('kt-remote-viewing'))return;
     var rooms=[].slice.call(document.querySelectorAll('.ktg13-room'));
-    if(rooms.length<2)return;
-    rooms.slice(1).forEach(function(room){
-      try{room.remove();}catch(e){if(room.parentNode)room.parentNode.removeChild(room);}
+    if(rooms.length>1){
+      rooms.slice(1).forEach(function(room){
+        try{room.remove();}catch(e){if(room.parentNode)room.parentNode.removeChild(room);}
+      });
+      return;
+    }
+    /* 일부 재연결 화면은 바깥 방 클래스 없이 내부 묶음만 두 번 붙는다. */
+    ['.ktg13-head','.ktg13-led','.ktg13-stats','.ktg13-main','.ktg13-mid','.ktg13-gifts','.ktg13-tools'].forEach(function(sel){
+      var parts=[].slice.call(document.querySelectorAll(sel));
+      if(parts.length>1)parts.slice(1).forEach(function(part){
+        try{part.remove();}catch(e){if(part.parentNode)part.parentNode.removeChild(part);}
+      });
     });
   }
 
