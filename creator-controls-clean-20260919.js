@@ -119,4 +119,59 @@
   else install();
 
   [100,300,800,1500].forEach(function(ms){setTimeout(install,ms);});
+
+  /* 안정화: 화면이 다시 그려져 버튼이 교체돼도 3개 버튼만 재연결한다.
+     다른 화면/방송/채팅/게스트 로직은 건드리지 않음. */
+  function stableRefresh(){
+    try{install();}catch(e){}
+  }
+
+  window.addEventListener('pageshow',stableRefresh);
+  window.addEventListener('focus',stableRefresh);
+  document.addEventListener('visibilitychange',function(){
+    if(document.visibilityState==='visible')setTimeout(stableRefresh,40);
+  });
+
+  try{
+    var mo=new MutationObserver(function(records){
+      var need=false;
+      for(var i=0;i<records.length&&!need;i++){
+        var list=records[i].addedNodes||[];
+        for(var j=0;j<list.length;j++){
+          var n=list[j];
+          if(!n||n.nodeType!==1)continue;
+          if((n.id==='creator')||
+             (n.matches&&n.matches('.creator-top,.creator-tools,.creator-rotate,.creator-tool-text'))||
+             (n.querySelector&&n.querySelector('.creator-top,.creator-tools,.creator-rotate,.creator-tool-text'))){
+            need=true;break;
+          }
+        }
+      }
+      if(need){
+        clearTimeout(window.__ktCreatorControlsStableTimer);
+        window.__ktCreatorControlsStableTimer=setTimeout(stableRefresh,35);
+      }
+    });
+    mo.observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+
+  /* 혹시 다른 코드가 pointer-events를 다시 막아도 이 3개만 복구 */
+  setInterval(function(){
+    var creator=document.getElementById('creator');
+    if(!creator||!creator.classList.contains('show'))return;
+    var list=[
+      creator.querySelector('.creator-top .creator-rotate'),
+      creator.querySelector('.creator-tools .creator-tool-text[aria-label="AI 보정"]'),
+      creator.querySelector('.creator-tools .creator-tool-text[aria-label="편집 효과"]')
+    ];
+    list.forEach(function(el){
+      if(!el)return;
+      try{
+        if(el.disabled)el.disabled=false;
+        if(el.getAttribute('aria-disabled')==='true')el.setAttribute('aria-disabled','false');
+        el.style.setProperty('pointer-events','auto','important');
+        el.style.setProperty('touch-action','manipulation','important');
+      }catch(e){}
+    });
+  },1200);
 })();
