@@ -37,13 +37,16 @@
       var r=await fetch(BASE+'ktalk_live_rooms?select=host_id,host_name,title,room_name,host_photo,updated_at&active=eq.true&updated_at=gte.'+enc(cut)+'&order=started_at.desc&limit=50',{headers:{apikey:KEY,Authorization:'Bearer '+KEY}});
       if(!r.ok)return [];
       var rows=await r.json();rows=Array.isArray(rows)?rows:[];
+      if(window.__ktHostEndLock&&window.__ktHostEndLockHostId){var ended=String(window.__ktHostEndLockHostId);rows=rows.filter(function(x){return String(x.host_id||'')!==ended;});}
       if(rows.length){stableActiveRooms=rows;stableActiveAt=Date.now();return rows;}
       /* 방송 목록이 비었으면 종료된 방을 다시 표시하지 않는다. */
       stableActiveRooms=[];stableActiveAt=0;
       return [];
     }catch(e){
       /* 순간적인 네트워크 조회 실패 때만 현재 방송 표시를 유지해 깜빡임을 막는다. */
-      return stableActiveRooms.length&&Date.now()-stableActiveAt<90000?stableActiveRooms:[];
+      var keep=stableActiveRooms.length&&Date.now()-stableActiveAt<90000?stableActiveRooms:[];
+      if(window.__ktHostEndLock&&window.__ktHostEndLockHostId){var ended=String(window.__ktHostEndLockHostId);keep=keep.filter(function(x){return String(x.host_id||'')!==ended;});}
+      return keep;
     }
   }
 
