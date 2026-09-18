@@ -122,10 +122,10 @@
     pathFrom(ctx,landmarks,RIGHT_EYE,map);
     pathFrom(ctx,landmarks,MOUTH,map);
     try{ctx.clip('evenodd');}catch(e){ctx.clip();}
-    ctx.globalAlpha=recording?.42:.46;
+    ctx.globalAlpha=recording?.58:.62;
     ctx.filter=recording
-      ?'blur(2.0px) brightness(1.055) contrast(.925) saturate(1.025)'
-      :'blur(1.65px) brightness(1.055) contrast(.930) saturate(1.025)';
+      ?'blur(2.8px) brightness(1.085) contrast(.890) saturate(1.040)'
+      :'blur(2.4px) brightness(1.080) contrast(.895) saturate(1.040)';
     drawMirroredVideo(ctx,v,w,map);
     ctx.restore();
 
@@ -134,7 +134,7 @@
     ctx.beginPath();
     pathFrom(ctx,landmarks,FACE_OVAL,map);
     ctx.clip();
-    ctx.globalAlpha=.030;
+    ctx.globalAlpha=.060;
     ctx.fillStyle='rgb(255,226,215)';
     ctx.fillRect(0,0,w,h);
     ctx.restore();
@@ -146,8 +146,8 @@
     [lc,rc].forEach(function(p){
       var radius=Math.max(12,w*.035);
       var g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,radius);
-      g.addColorStop(0,'rgba(229,91,112,.085)');
-      g.addColorStop(.45,'rgba(229,91,112,.040)');
+      g.addColorStop(0,'rgba(229,91,112,.135)');
+      g.addColorStop(.45,'rgba(229,91,112,.065)');
       g.addColorStop(1,'rgba(229,91,112,0)');
       ctx.fillStyle=g;
       ctx.beginPath();
@@ -159,7 +159,7 @@
     ctx.save();
     ctx.beginPath();
     pathFrom(ctx,landmarks,MOUTH,map);
-    ctx.globalAlpha=.10;
+    ctx.globalAlpha=.16;
     ctx.fillStyle='rgb(165,55,78)';
     ctx.filter='blur(.45px)';
     ctx.fill();
@@ -169,7 +169,7 @@
     [pt(159),pt(386)].forEach(function(p){
       var r=Math.max(8,w*.022);
       var g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,r);
-      g.addColorStop(0,'rgba(255,245,236,.050)');
+      g.addColorStop(0,'rgba(255,245,236,.085)');
       g.addColorStop(1,'rgba(255,245,236,0)');
       ctx.fillStyle=g;
       ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);ctx.fill();
