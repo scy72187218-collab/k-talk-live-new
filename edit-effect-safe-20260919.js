@@ -102,14 +102,12 @@
     if(s){
       try{
         s.classList.remove('show','camera-effect-sheet','stage-effect-sheet','beauty-control-sheet');
-        s.style.setProperty('display','none','important');
-        s.style.setProperty('pointer-events','none','important');
-        setTimeout(function(){
-          try{
-            s.style.removeProperty('display');
-            s.style.removeProperty('pointer-events');
-          }catch(e){}
-        },60);
+        /* 공유 sheet에 inline 잠금을 남기지 않는다.
+           CSS의 .sheet/.sheet.show 만으로 열고 닫아 다음 프로필/설정 화면도 바로 터치 가능 */
+        s.style.removeProperty('display');
+        s.style.removeProperty('pointer-events');
+        s.style.removeProperty('visibility');
+        if(s.hasAttribute('inert'))s.removeAttribute('inert');
       }catch(e){}
     }
 
