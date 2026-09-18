@@ -30,7 +30,19 @@
     +'@media(max-width:390px){.ktg13-request-rail{left:42%!important}.ktg13-request-chip{min-width:78px!important;height:32px!important;font-size:8px!important}.kt-remote-host-preview{width:78px!important;height:108px!important;top:106px!important}}';document.head.appendChild(s);}
 
   async function currentViewerHost(){try{var rows=await req('ktalk_live_viewers?select=host_id,viewer_id,active,updated_at&viewer_id=eq.'+enc(viewerId())+'&active=eq.true&order=updated_at.desc&limit=1');return rows&&rows[0]?String(rows[0].host_id||''):'';}catch(e){return '';}}
-  async function activeHostRoom(){try{var rows=await req('ktalk_live_rooms?select=host_id,started_at,room_type,room_name,active,updated_at&host_id=eq.'+enc(deviceId())+'&active=eq.true&order=started_at.desc&limit=1');return rows&&rows[0]?rows[0]:null;}catch(e){return null;}}
+  async function activeHostRoom(){
+    try{
+      var rows=await req('ktalk_live_rooms?select=host_id,started_at,room_type,room_name,active,updated_at&host_id=eq.'+enc(deviceId())+'&active=eq.true&order=started_at.desc&limit=1');
+      if(rows&&rows[0])return rows[0];
+      /* 화면에는 방송방이 열려 있는데 presence 행만 잠깐 inactive가 되는 경우,
+         방을 닫은 것으로 오해하지 말고 최근 방송행을 짧게 복구용으로 사용한다. */
+      rows=await req('ktalk_live_rooms?select=host_id,started_at,room_type,room_name,active,updated_at&host_id=eq.'+enc(deviceId())+'&order=started_at.desc&limit=1');
+      var r=rows&&rows[0]?rows[0]:null;
+      if(!r||!r.started_at)return null;
+      var age=Date.now()-new Date(r.started_at).getTime();
+      return age>=0&&age<15*60*1000?r:null;
+    }catch(e){return null;}
+  }
   async function postGuestMessage(hostId,type,message,senderId,senderName){if(!hostId)return false;try{await req('ktalk_live_messages',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({host_id:hostId,sender_id:senderId||viewerId(),sender_name:senderName||profile().name||'게스트',message:String(message||'').slice(0,300),message_type:String(type||'guest_request')})});return true;}catch(e){return false;}}
 
   async function sendGuestRequest(){var hostId=await currentViewerHost();if(!hostId)return;var p=profile(),vid=viewerId();var ok=await postGuestMessage(hostId,'guest_request:'+vid,'👥 '+(p.name||'게스트')+'님이 방송 참여를 신청했습니다.',vid,p.name||'게스트');var b=document.getElementById('ktRemoteGuestRequest');if(ok&&b){b.classList.add('kt-requested');b.setAttribute('title','참여 신청 완료');b.setAttribute('aria-label','참여 신청 완료');}}
@@ -50,7 +62,7 @@
   function wireChipDrag(chip,vid,name){if(chip.__ktDragBound)return;chip.__ktDragBound=true;var downX=0,downY=0,moved=false,floatEl=null;function moveFloat(x,y){if(!floatEl)return;floatEl.style.left=(x-45)+'px';floatEl.style.top=(y-18)+'px';clearDropReady();var el=document.elementFromPoint(x,y),slot=el&&el.closest?el.closest('.ktg13-guest'):null;if(slot&&!slot.dataset.ktGuestViewerId)slot.classList.add('kt-guest-drop-ready');}chip.addEventListener('pointerdown',function(e){downX=e.clientX;downY=e.clientY;moved=false;try{chip.setPointerCapture(e.pointerId);}catch(z){}floatEl=document.createElement('div');floatEl.className='kt-guest-float';floatEl.textContent='👤 '+name+' 올리기';document.body.appendChild(floatEl);moveFloat(e.clientX,e.clientY);});chip.addEventListener('pointermove',function(e){if(!floatEl)return;if(Math.abs(e.clientX-downX)>6||Math.abs(e.clientY-downY)>6)moved=true;moveFloat(e.clientX,e.clientY);});chip.addEventListener('pointerup',function(e){if(!floatEl)return;var el=document.elementFromPoint(e.clientX,e.clientY),slot=el&&el.closest?el.closest('.ktg13-guest'):null;floatEl.remove();floatEl=null;clearDropReady();if(slot&&!slot.dataset.ktGuestViewerId){approveGuest(vid,name,slot);return;}if(!moved)approveGuest(vid,name,null);});chip.addEventListener('pointercancel',function(){if(floatEl){floatEl.remove();floatEl=null;}clearDropReady();});}
   function renderRequestRail(pending){var main=document.querySelector('.ktg13-main');if(!main){var old=document.getElementById('ktg13RequestRail');if(old)old.remove();return;}var rail=document.getElementById('ktg13RequestRail');if(!pending.length){if(rail)rail.remove();return;}if(!rail){rail=document.createElement('div');rail.id='ktg13RequestRail';rail.className='ktg13-request-rail';main.appendChild(rail);}rail.innerHTML='';pending.forEach(function(x){var chip=document.createElement('button');chip.type='button';chip.className='ktg13-request-chip';chip.dataset.viewerId=x.vid;chip.innerHTML='👤 <b>'+esc(x.name)+'</b> 올리기';rail.appendChild(chip);wireChipDrag(chip,x.vid,x.name);});}
 
-  async function hostTick(){ensureStyle();bindRequestButton();removeDuplicateGroupRoom();if(!document.querySelector('.ktg13-room')){var old=document.getElementById('ktg13RequestRail');if(old)old.remove();return;}var room=await activeHostRoom();if(!room)return;var path='ktalk_live_messages?select=id,sender_id,sender_name,message,message_type,created_at&host_id=eq.'+enc(deviceId());if(room.started_at)path+='&created_at=gte.'+enc(room.started_at);path+='&order=created_at.desc&limit=80';var rows=[];try{rows=await req(path)||[];}catch(e){return;}var latest={},names={},approvedNow={};rows.forEach(function(m){var t=String(m.message_type||''),vid='';if(t.indexOf('guest_request:')===0){vid=t.slice(14);if(vid){names[vid]=String(m.sender_name||'게스트');if(!latest[vid])latest[vid]='request';}}else if(t.indexOf('guest_approved:')===0){vid=t.slice(15);if(vid){approvedNow[vid]=true;if(!latest[vid])latest[vid]='approved';}}});requestNames=names;var pending=[];Object.keys(latest).forEach(function(vid){var n=names[vid]||requestNames[vid]||'게스트';if(latest[vid]==='request')pending.push({vid:vid,name:n});});renderRequestRail(pending);await hostGuestSessionTick(approvedNow);}
+  async function hostTick(){ensureStyle();bindRequestButton();removeDuplicateGroupRoom();if(!document.querySelector('.ktg13-room')){var old=document.getElementById('ktg13RequestRail');if(old)old.remove();return;}var room=await activeHostRoom();if(!room)return;var path='ktalk_live_messages?select=id,sender_id,sender_name,message,message_type,created_at&host_id=eq.'+enc(deviceId());if(room.started_at)path+='&created_at=gte.'+enc(room.started_at);path+='&message_type=like.guest_*&order=created_at.desc&limit=120';var rows=[];try{rows=await req(path)||[];}catch(e){return;}var latest={},names={},approvedNow={};rows.forEach(function(m){var t=String(m.message_type||''),vid='';if(t.indexOf('guest_request:')===0){vid=t.slice(14);if(vid){names[vid]=String(m.sender_name||'게스트');if(!latest[vid])latest[vid]='request';}}else if(t.indexOf('guest_approved:')===0){vid=t.slice(15);if(vid){approvedNow[vid]=true;if(!latest[vid])latest[vid]='approved';}}});requestNames=names;var pending=[];Object.keys(latest).forEach(function(vid){var n=names[vid]||requestNames[vid]||'게스트';if(latest[vid]==='request')pending.push({vid:vid,name:n});});renderRequestRail(pending);await hostGuestSessionTick(approvedNow);}
 
   /* 현재 방송에서 호스트가 승인한 게스트만 호스트 화면에 카메라를 올린다. 예전/남은 WebRTC 세션은 표시하지 않는다. */
   async function hostGuestSessionTick(approvedNow){
@@ -92,7 +104,7 @@
       }
 
       if(!hostGuestMissingSince[vid])hostGuestMissingSince[vid]=Date.now();
-      if(Date.now()-hostGuestMissingSince[vid]>2200){
+      if(Date.now()-hostGuestMissingSince[vid]>12000){
         delete hostGuestMissingSince[vid];
         releaseGuestSlot(slot,vid);
       }
@@ -158,6 +170,18 @@
               delete hostGuestPeers[id];
               if(!hostGuestMissingSince[viewer])hostGuestMissingSince[viewer]=Date.now();
               /* 다음 hostTick에서 같은 활성 세션도 다시 연결 가능 */
+              return;
+            }
+            if(st==='disconnected'){
+              setTimeout(function(){
+                try{
+                  if(hostGuestPeers[id]===p&&p.connectionState==='disconnected'){
+                    p.close();
+                    delete hostGuestPeers[id];
+                    if(!hostGuestMissingSince[viewer])hostGuestMissingSince[viewer]=Date.now();
+                  }
+                }catch(e){}
+              },4000);
             }
           };
         })(x.id,pc,vid);
@@ -182,7 +206,23 @@
     }
   }
 
-  async function latestApproval(hostId,vid){try{var roomRows=await req('ktalk_live_rooms?select=started_at,active&host_id=eq.'+enc(hostId)+'&active=eq.true&order=started_at.desc&limit=1');var room=roomRows&&roomRows[0]?roomRows[0]:null;if(!room||!room.started_at)return null;var rows=await req('ktalk_live_messages?select=id,message_type,created_at&host_id=eq.'+enc(hostId)+'&message_type=eq.'+enc('guest_approved:'+vid)+'&created_at=gte.'+enc(room.started_at)+'&order=created_at.desc&limit=1');return rows&&rows[0]?rows[0]:null;}catch(e){return null;}}
+  async function latestApproval(hostId,vid){
+    try{
+      var roomRows=await req('ktalk_live_rooms?select=started_at,active&host_id=eq.'+enc(hostId)+'&active=eq.true&order=started_at.desc&limit=1');
+      var room=roomRows&&roomRows[0]?roomRows[0]:null;
+      if(!room){
+        roomRows=await req('ktalk_live_rooms?select=started_at,active&host_id=eq.'+enc(hostId)+'&order=started_at.desc&limit=1');
+        room=roomRows&&roomRows[0]?roomRows[0]:null;
+        if(room&&room.started_at){
+          var age=Date.now()-new Date(room.started_at).getTime();
+          if(age<0||age>=15*60*1000)room=null;
+        }
+      }
+      if(!room||!room.started_at)return null;
+      var rows=await req('ktalk_live_messages?select=id,message_type,created_at&host_id=eq.'+enc(hostId)+'&message_type=eq.'+enc('guest_approved:'+vid)+'&created_at=gte.'+enc(room.started_at)+'&order=created_at.desc&limit=1');
+      return rows&&rows[0]?rows[0]:null;
+    }catch(e){return null;}
+  }
   function ensurePrejoinRoomStyle(){
     if(document.getElementById('ktPrejoinRoomGridStyle'))return;
     var s=document.createElement('style');
