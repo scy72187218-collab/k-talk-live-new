@@ -98,13 +98,12 @@
     }
   }catch(e){}
 
-  /* 브라우저가 beforeinstallprompt를 주지 않는 환경(네이버/일부 Android/iOS)에도
-     K-Talk 자체 설치 안내 카드를 표시한다. 실제 설치는 사용자가 설치하기를 눌러 진행한다. */
+  /* 설치된 앱으로 실행한 경우가 아니면 브라우저 종류와 상관없이
+     K-Talk 자체 설치 안내 카드를 항상 한 번 표시한다. */
   setTimeout(function(){
     if(isStandalone()||offerShown)return;
-    var ua=navigator.userAgent||'';
-    if(/android|iphone|ipad|ipod|naver/i.test(ua))showOffer();
-  },1500);
+    showOffer();
+  },800);
 
   /* 동영상 홈으로 들어왔는데 아직 안내가 안 보인 경우 한 번 더 확인 */
   document.addEventListener('click',function(){
