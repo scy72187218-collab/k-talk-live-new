@@ -62,6 +62,31 @@
   window.ktSyncGiftToHost=async function(name,cost,sender){
     var c=parseInt(cost||0,10)||0;
     if(c<=0)return;
+
+    /* 호스트가 게스트를 선물 대상으로 선택한 경우 그 게스트에게 보낸다. */
+    try{
+      var target=window.ktGuestGiftTarget||null;
+      if(isHostRoom()&&target&&target.viewerId){
+        var hp={
+          name:String(name||'선물'),
+          cost:c,
+          targetViewerId:String(target.viewerId||''),
+          targetName:String(target.name||'게스트')
+        };
+        await req('ktalk_live_messages',{
+          method:'POST',headers:{Prefer:'return=minimal'},
+          body:JSON.stringify({
+            host_id:deviceId(),
+            sender_id:'hostgift:'+deviceId(),
+            sender_name:String(sender||senderName()),
+            message:JSON.stringify(hp),
+            message_type:'host_gift:'+String(target.viewerId)
+          })
+        });
+        return;
+      }
+    }catch(e){}
+
     var host=await targetHost();
     if(!host)return;
     var payload={name:String(name||'선물'),cost:c};
@@ -93,6 +118,33 @@
     }catch(e){}
   }
 
+  async function pollIncomingGuestGift(){
+    if(!document.querySelector('.kt-remote-live'))return;
+    try{
+      var host=await targetHost();
+      if(!host)return;
+      var vid='viewer_'+deviceId();
+      var since=new Date(Date.now()-15000).toISOString();
+      var rows=await req('ktalk_live_messages?select=id,sender_id,sender_name,message,message_type,created_at&host_id=eq.'+enc(host)+'&message_type=eq.'+enc('host_gift:'+vid)+'&created_at=gte.'+enc(since)+'&order=created_at.asc&limit=20');
+      (rows||[]).forEach(function(row){
+        var id=String(row.id||'');
+        if(!id||lastSeen[id])return;
+        lastSeen[id]=1;
+        try{
+          var data=JSON.parse(String(row.message||'{}'));
+          var cost=parseInt(data.cost||0,10)||0;
+          if(cost<=0)return;
+          if(cost>=1000&&typeof window.showPremiumGiftFx==='function'){
+            window.showPremiumGiftFx(String(data.name||'큰 선물'),cost,String(row.sender_name||'호스트'));
+          }else if(typeof window.showSmallGiftFx==='function'){
+            window.showSmallGiftFx(String(data.name||'선물'),cost,String(row.sender_name||'호스트'));
+          }
+          try{if(typeof window.ktAnnounceEvent==='function')window.ktAnnounceEvent('gift',{sender:row.sender_name||'호스트',name:data.name||'선물',count:cost});}catch(e){}
+        }catch(e){}
+      });
+    }catch(e){}
+  }
+
   async function poll(){
     if(polling||!isHostRoom())return;
     polling=true;
@@ -111,5 +163,6 @@
     polling=false;
   }
   setInterval(poll,800);
-  [300,900,1600].forEach(function(ms){setTimeout(poll,ms);});
+  setInterval(pollIncomingGuestGift,900);
+  [300,900,1600].forEach(function(ms){setTimeout(poll,ms);setTimeout(pollIncomingGuestGift,ms+120);});
 })();
