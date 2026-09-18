@@ -37,8 +37,17 @@
     catch(e){return false;}
   }
   function selfStream(){
-    var v=document.querySelector('.kt-guest-hostlike-room .kgh-cell.self video');
-    return v&&live(v.srcObject)?v.srcObject:null;
+    var host=window.__ktRemoteHostStream||null;
+    var list=[
+      document.querySelector('.kt-guest-hostlike-room .kgh-cell.self video'),
+      document.getElementById('ktRemoteGuestSelfVideo'),
+      document.getElementById('ktRemoteLiveVideo')
+    ].filter(Boolean);
+    for(var i=0;i<list.length;i++){
+      var st=list[i].srcObject||null;
+      if(live(st)&&st!==host)return st;
+    }
+    return null;
   }
   function waitIce(pc,ms){
     return new Promise(function(resolve){
@@ -54,6 +63,22 @@
     return 'mesh:'+x[0]+'|'+x[1];
   }
   function safeName(v){return String(v||'게스트').slice(0,24);}
+  function peerCellById(grid,peerId){
+    if(!grid)return null;
+    var cells=[].slice.call(grid.querySelectorAll('.kgh-cell[data-kt-peer-viewer]'));
+    for(var i=0;i<cells.length;i++)if(String(cells[i].dataset.ktPeerViewer||'')===String(peerId||''))return cells[i];
+    return null;
+  }
+  var debugSent={};
+  function debug(stage,detail){
+    if(debugSent[stage])return;debugSent[stage]=1;
+    try{
+      req('ktalk_live_debug',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({
+        device_id:deviceId(),stage:'peer_'+stage,detail:String(detail||'').slice(0,300),created_at:nowIso()
+      })}).catch(function(){});
+    }catch(e){}
+  }
+  debug('loaded','script');
 
   function ensureStyle(){
     if(document.getElementById('ktApprovedGuestPeerVideoSyncStyle'))return;
@@ -69,7 +94,7 @@
   function peerCell(peerId,name){
     var grid=document.querySelector('.kt-guest-hostlike-room .kgh-main');
     if(!grid)return null;
-    var current=grid.querySelector('.kgh-cell[data-kt-peer-viewer="'+CSS.escape(String(peerId))+'"]');
+    var current=peerCellById(grid,peerId);
     if(current)return current;
     var cells=[].slice.call(grid.querySelectorAll('.kgh-cell:not(.host):not(.self)'));
     var free=cells.find(function(c){return !c.dataset.ktPeerViewer;});
@@ -89,7 +114,7 @@
   function clearPeerCell(peerId){
     var grid=document.querySelector('.kt-guest-hostlike-room .kgh-main');
     if(!grid)return;
-    var c=grid.querySelector('.kgh-cell[data-kt-peer-viewer="'+CSS.escape(String(peerId))+'"]');
+    var c=peerCellById(grid,peerId);
     if(!c)return;
     delete c.dataset.ktPeerViewer;
     c.classList.remove('kt-peer-guest');
@@ -155,8 +180,7 @@
       });
       var pc=new RTCPeerConnection(ICE);entry.pc=pc;wirePc(pc,entry,name);
       var vt=stream.getVideoTracks()[0];if(vt)pc.addTrack(vt,stream);
-      try{pc.addTransceiver('video',{direction:'sendrecv'});}catch(e){}
-      var offer=await pc.createOffer();
+      var offer=await pc.createOffer({offerToReceiveVideo:true,offerToReceiveAudio:false});
       await pc.setLocalDescription(offer);await waitIce(pc,5000);
       var rows=await req('ktalk_webrtc_sessions',{
         method:'POST',headers:{Prefer:'return=representation'},
@@ -164,6 +188,7 @@
       });
       entry.sessionId=rows&&rows[0]?String(rows[0].id||''):'';
       if(!entry.sessionId)throw new Error('mesh session');
+      debug('offer_created',selfId+' -> '+peerId);
       var tries=0;
       entry.answerTimer=setInterval(async function(){
         if(peers[peerId]!==entry){clearInterval(entry.answerTimer);return;}
@@ -196,6 +221,7 @@
         method:'PATCH',headers:{Prefer:'return=minimal'},
         body:JSON.stringify({answer_sdp:pc.localDescription.sdp,updated_at:nowIso()})
       });
+      debug('answer_created',selfId+' <- '+peerId);
     }catch(e){
       await dropPeer(peerId);
     }
@@ -257,6 +283,7 @@
       var stream=selfStream();
       var selfId=selfViewerId();
       if(!room||!stream||!selfId){
+        debug('waiting',(room?'room ':'no-room ')+(stream?'stream ':'no-stream ')+(selfId?'self':'no-self'));
         if(!absentSince)absentSince=Date.now();
         if(Date.now()-absentSince>5000){
           var ks=Object.keys(peers);for(var i=0;i<ks.length;i++)await dropPeer(ks[i]);
@@ -265,9 +292,10 @@
         return;
       }
       absentSince=0;
-      var hostId=await currentHost(selfId);if(!hostId)return;
+      var hostId=await currentHost(selfId);if(!hostId){debug('no_host',selfId);return;}
       lastHost=hostId;lastSelf=selfId;
       var info=await participantInfo(hostId);
+      debug('ready',selfId+' peers='+info.ids.join(','));
       var active={};
       info.ids.forEach(function(id){if(id!==selfId)active[id]=true;});
       var old=Object.keys(peers);
