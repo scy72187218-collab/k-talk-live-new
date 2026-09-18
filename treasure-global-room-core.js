@@ -56,13 +56,13 @@
     s.textContent=''
       +'.kt-global-treasure-alert{position:fixed;left:50%;top:76px;transform:translateX(-50%);z-index:99990;width:min(92vw,430px);min-height:42px;border:2px solid #ff2fc5;border-radius:18px;background-color:#120712;background-image:radial-gradient(circle,#ff35ce 1.5px,transparent 2px);background-size:9px 9px;box-shadow:0 0 10px #ff2fc5,0 0 24px #ff2fc577;color:#ffe047;font:950 13px/1.2 system-ui,-apple-system,"Noto Sans KR",sans-serif;padding:7px 12px;display:flex;align-items:center;justify-content:center;gap:7px;text-align:center;touch-action:manipulation}'
       +'.kt-global-treasure-alert b{color:#fff}.kt-global-treasure-alert .chest{font-size:23px;filter:drop-shadow(0 0 6px #ffb000)}.kt-global-treasure-alert .time{color:#7ff7ff}'
-      +'.kt-global-treasure-hostbadge{position:absolute!important;right:6px!important;top:28px!important;z-index:80!important;width:56px!important;min-height:58px!important;border:1px solid #ffd45b!important;border-radius:16px!important;background:rgba(26,16,5,.92)!important;color:#fff!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:1px!important;padding:4px 3px!important;box-shadow:0 0 10px #ffb00099!important;font:950 9px/1.05 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;touch-action:manipulation!important}'
+      +'.kt-global-treasure-hostbadge{position:absolute!important;left:8px!important;right:auto!important;top:70px!important;z-index:80!important;width:56px!important;min-height:58px!important;border:1px solid #ffd45b!important;border-radius:16px!important;background:rgba(26,16,5,.92)!important;color:#fff!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:1px!important;padding:4px 3px!important;box-shadow:0 0 10px #ffb00099!important;font:950 9px/1.05 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;touch-action:manipulation!important}'
       +'.kt-global-treasure-hostbadge .ico{font-size:25px!important;line-height:1!important}.kt-global-treasure-hostbadge strong{font-size:9px!important;color:#ffe052!important}.kt-global-treasure-hostbadge small{font-size:8px!important;color:#fff!important}.kt-global-treasure-hostbadge.ready{animation:ktTreasurePulse .8s ease-in-out infinite alternate!important}'
       +'@keyframes ktTreasurePulse{from{box-shadow:0 0 8px #ffb00099}to{box-shadow:0 0 20px #ffe500}}'
       +'.kt-global-treasure-viewbadge{position:absolute!important;right:10px!important;top:76px!important;z-index:20!important;width:66px!important;min-height:72px!important;border:2px solid #ffd45b!important;border-radius:18px!important;background:rgba(26,16,5,.92)!important;color:#fff!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:2px!important;padding:5px!important;box-shadow:0 0 13px #ffb00099!important;font:950 10px/1.05 system-ui,-apple-system,"Noto Sans KR",sans-serif!important}'
       +'.kt-global-treasure-viewbadge .ico{font-size:31px!important}.kt-global-treasure-viewbadge strong{color:#ffe052!important}.kt-global-treasure-viewbadge.ready{animation:ktTreasurePulse .8s ease-in-out infinite alternate!important}'
       +'.kt-global-treasure-led{cursor:pointer!important}'
-      +'@media(max-width:390px){.kt-global-treasure-alert{top:68px;font-size:12px;padding:6px 9px}.kt-global-treasure-hostbadge{width:51px!important;min-height:54px!important;right:4px!important}.kt-global-treasure-viewbadge{width:60px!important;min-height:66px!important;right:7px!important}}';
+      +'@media(max-width:390px){.kt-global-treasure-alert{top:68px;font-size:12px;padding:6px 9px}.kt-global-treasure-hostbadge{width:51px!important;min-height:54px!important;left:6px!important;right:auto!important;top:68px!important}.kt-global-treasure-viewbadge{width:60px!important;min-height:66px!important;right:7px!important}}';
     document.head.appendChild(s);
   }
 
@@ -117,8 +117,7 @@
 
   async function fetchEvents(){
     try{
-      var iso=new Date().toISOString();
-      var path='ktalk_treasure_events?select=id,local_id,host_id,host_name,room_title,room_type,amount,placed_at,unlock_at,claim_close_at,active,settled&active=eq.true&claim_close_at=gt.'+enc(iso)+'&order=placed_at.desc&limit=8';
+      var path='ktalk_treasure_events?select=id,local_id,host_id,host_name,room_title,room_type,amount,placed_at,unlock_at,claim_close_at,active,settled&active=eq.true&order=placed_at.desc&limit=8';
       var rows=await req(path);
       latestEvents=Array.isArray(rows)?rows:[];
     }catch(e){latestEvents=[];}
@@ -154,14 +153,14 @@
     if(!b){b=document.createElement('button');b.type='button';b.id='ktGlobalTreasureHostBadge';b.className='kt-global-treasure-hostbadge';box.appendChild(b);}
     if(b.parentElement!==box)box.appendChild(b);
     b.dataset.eventId=ev.id;
-    var left=ms(ev.unlock_at)-now(),ready=left<=0;
+    var left=Math.max(0,ms(ev.claim_close_at)-now()),ready=left>0;
     b.classList.toggle('ready',ready);
-    b.innerHTML='<span class="ico">🎁</span><strong>'+ev.amount+'개</strong><small>'+(ready?'지금 열림':fmt(left))+'</small>';
+    b.innerHTML='<span class="ico">🎁</span><strong>'+ev.amount+'개</strong><small>'+fmt(left)+'</small>';
     var led=roomLed(root);
     if(led){
       if(led.dataset.ktTreasureLedOriginal==null)led.dataset.ktTreasureLedOriginal=led.innerHTML;
       led.dataset.ktTreasureEventId=ev.id;
-      led.innerHTML='🎁 보물상자 '+ev.amount+'개 떴습니다 · '+(ready?'지금 받기':'열림 '+fmt(left))+' · 눌러서 참여';
+      led.innerHTML='🎁 보물상자 '+ev.amount+'개 · 남은 시간 '+fmt(left)+' · 눌러서 받기';
       if(led.parentElement)led.parentElement.classList.add('kt-global-treasure-led');
     }
   }
@@ -175,10 +174,10 @@
     if(!b){b=document.createElement('button');b.type='button';b.id='ktGlobalTreasureViewBadge';b.className='kt-global-treasure-viewbadge';root.appendChild(b);}
     if(b.parentElement!==root)root.appendChild(b);
     b.dataset.eventId=ev.id;
-    var left=ms(ev.unlock_at)-now(),ready=left<=0;
+    var left=Math.max(0,ms(ev.claim_close_at)-now()),ready=left>0;
     b.classList.toggle('ready',ready);
     var joined=false;try{joined=localStorage.getItem('ktalk_treasure_joined:'+ev.id)==='1';}catch(e){}
-    b.innerHTML='<span class="ico">🎁</span><strong>'+ev.amount+'개</strong><small>'+(joined?'참여완료':(ready?'지금 받기':fmt(left)))+'</small>';
+    b.innerHTML='<span class="ico">🎁</span><strong>'+ev.amount+'개</strong><small>'+(joined?'참여완료':('받기 · '+fmt(left)))+'</small>';
   }
 
   function paintGlobalAlert(){
@@ -208,8 +207,8 @@
       }
       a.style.setProperty('top',(baseTop+(i*58))+'px','important');
       a.dataset.eventId=ev.id;
-      var left=ms(ev.unlock_at)-now(),ready=left<=0;
-      a.innerHTML='<span class="chest">🎁</span><span><b>'+String(ev.host_name||'호스트')+' 방</b> 보물상자 '+ev.amount+'개 떴습니다<br><span class="time">'+(ready?'지금 받으러 가기':'열림까지 '+fmt(left))+'</span> · 눌러서 방송방 입장</span>';
+      var left=Math.max(0,ms(ev.claim_close_at)-now());
+      a.innerHTML='<span class="chest">🎁</span><span><b>'+String(ev.host_name||'호스트')+' 방</b> 보물상자 '+ev.amount+'개 떴습니다<br><span class="time">남은 시간 '+fmt(left)+'</span> · 눌러서 방송방 입장</span>';
     });
     document.querySelectorAll('.kt-global-treasure-alert').forEach(function(a){
       if(!keep[a.id])a.remove();
@@ -261,8 +260,6 @@
 
   async function claimEvent(id){
     var ev=eventById(id);if(!ev){await fetchEvents();ev=eventById(id);}if(!ev)return;
-    var left=ms(ev.unlock_at)-now();
-    if(left>0){alert('🎁 아직 '+fmt(left)+' 남았습니다.');return;}
     if(now()>=ms(ev.claim_close_at)){alert('이 보물상자는 마감되었습니다.');return;}
     var p=profile(),viewer='viewer_'+deviceId();
     try{
@@ -289,7 +286,7 @@
     var h=t.closest('#ktGlobalTreasureHostBadge');
     if(h){
       e.preventDefault();e.stopPropagation();
-      var ev=eventById(h.dataset.eventId);if(ev){var left=ms(ev.unlock_at)-now();alert('🎁 보물상자 '+ev.amount+'개 · '+(left<=0?'지금 열렸습니다.':'열림까지 '+fmt(left)));}
+      var ev=eventById(h.dataset.eventId);if(ev){var left=Math.max(0,ms(ev.claim_close_at)-now());alert('🎁 보물상자 '+ev.amount+'개 · 남은 시간 '+fmt(left));}
       return;
     }
     var led=t.closest('.kt-global-treasure-led');
@@ -303,13 +300,12 @@
     installPublishWraps();
     try{var local=window.ktGetTreasure?ktGetTreasure():null;if(local)publishLocalTreasure(local);}catch(e){}
     await fetchEvents();
+    var expired=latestEvents.filter(function(ev){return ev&&now()>=ms(ev.claim_close_at);});
+    expired.forEach(function(ev){settleAndReward(ev);});
+    latestEvents=latestEvents.filter(function(ev){return ev&&now()<ms(ev.claim_close_at);});
     paintOwnRoom(ownEvent());
     paintGlobalAlert();
     paintViewerBadge();
-    latestEvents.forEach(function(ev){
-      var joined=false;try{joined=localStorage.getItem('ktalk_treasure_joined:'+ev.id)==='1';}catch(e){}
-      if(joined&&now()>=ms(ev.claim_close_at))settleAndReward(ev);
-    });
   }
 
   try{viewerEventId=sessionStorage.getItem('ktalk_treasure_viewing_event')||'';}catch(e){}
