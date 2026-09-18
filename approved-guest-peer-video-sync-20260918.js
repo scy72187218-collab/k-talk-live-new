@@ -253,13 +253,22 @@
     var sessions=[],viewers=[];
     try{
       sessions=await req('ktalk_webrtc_sessions?select=id,viewer_id,active,updated_at&host_id=eq.'+enc(hostId)+'&active=eq.true&order=updated_at.desc&limit=80')||[];
-      viewers=await req('ktalk_live_viewers?select=viewer_id,viewer_name,active,updated_at&host_id=eq.'+enc(hostId)+'&active=eq.true&limit=100')||[];
+      var cut=new Date(Date.now()-10000).toISOString();
+      viewers=await req('ktalk_live_viewers?select=viewer_id,viewer_name,active,updated_at&host_id=eq.'+enc(hostId)+'&active=eq.true&updated_at=gte.'+enc(cut)+'&limit=100')||[];
     }catch(e){}
-    var names={};viewers.forEach(function(v){names[String(v.viewer_id||'')]=String(v.viewer_name||'게스트');});
+    var names={},fresh={};
+    viewers.forEach(function(v){
+      var id=String(v.viewer_id||'');
+      names[id]=String(v.viewer_name||'게스트');
+      fresh[id]=true;
+    });
     var ids={};
     sessions.forEach(function(s){
       var tag=String(s.viewer_id||'');
-      if(tag.indexOf('guest:')===0){var id=tag.slice(6);if(id)ids[id]=true;}
+      if(tag.indexOf('guest:')===0){
+        var id=tag.slice(6);
+        if(id&&fresh[id])ids[id]=true;
+      }
     });
     return {ids:Object.keys(ids),names:names};
   }
