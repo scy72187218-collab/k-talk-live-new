@@ -331,7 +331,7 @@
     var c=viewerCtx;
     try{
       var rows=await req('ktalk_webrtc_sessions?select=id,offer_sdp,answer_sdp,active&id=eq.'+enc(c.sessionId)+'&limit=1');var x=rows&&rows[0];
-      if(!x||!x.active)return;
+      if(!x||!x.active){if(viewerCtx===c)window.ktLeaveRemoteLive();return;}
       if(x.offer_sdp&&x.offer_sdp!=='pending'){
         await c.pc.setRemoteDescription({type:'offer',sdp:x.offer_sdp});
         var answer=await c.pc.createAnswer();await c.pc.setLocalDescription(answer);await waitIce(c.pc,5000);
@@ -356,7 +356,7 @@
       var sessionId=sessions&&sessions[0]?sessions[0].id:'';if(!sessionId)throw new Error('session');
       var pc=new RTCPeerConnection(ICE);
       viewerCtx={hostId:hostId,viewerId:viewerId,viewerName:p.name||'게스트',sessionId:sessionId,pc:pc,answered:false,signalTimer:null,heartbeat:null,activityTimer:null,lastMsg:''};
-      pc.ontrack=function(ev){var hs=ev.streams[0]||new MediaStream([ev.track]);window.__ktRemoteHostStream=hs;var v=document.getElementById('ktRemoteLiveVideo');if(v){v.srcObject=hs;v.play().catch(function(){});}try{if(ev.track){ev.track.onended=function(){if(viewerCtx&&viewerCtx.pc===pc)window.ktLeaveRemoteLive();};}}catch(e){}var st=document.getElementById('ktRemoteLiveStatus');if(st)st.style.display='none';};
+      pc.ontrack=function(ev){var hs=ev.streams[0]||new MediaStream([ev.track]);window.__ktRemoteHostStream=hs;var v=document.getElementById('ktRemoteLiveVideo');if(v){v.srcObject=hs;v.play().catch(function(){});}try{if(ev.track){ev.track.onended=function(){if(viewerCtx&&viewerCtx.pc===pc)window.ktLeaveRemoteLive();};ev.track.onmute=function(){var tr=ev.track;setTimeout(function(){if(viewerCtx&&viewerCtx.pc===pc&&tr.muted)window.ktLeaveRemoteLive();},2500);};}}catch(e){}var st=document.getElementById('ktRemoteLiveStatus');if(st)st.style.display='none';};
       pc.onconnectionstatechange=function(){var st=document.getElementById('ktRemoteLiveStatus');if(pc.connectionState==='connected'){if(st)st.style.display='none';return;}if(pc.connectionState==='failed'||pc.connectionState==='disconnected'){if(st){st.style.display='block';st.textContent='영상 연결을 다시 확인해 주세요.';}setTimeout(function(){if(viewerCtx&&viewerCtx.pc===pc&&(pc.connectionState==='failed'||pc.connectionState==='disconnected'))window.ktLeaveRemoteLive();},2200);}};
       await insertSystem(hostId,viewerId,viewerCtx.viewerName,viewerCtx.viewerName+'님이 들어왔습니다.');showActivity(viewerCtx.viewerName+'님이 들어왔습니다.');
       viewerCtx.signalTimer=setInterval(remotePollSignal,1100);remotePollSignal();
