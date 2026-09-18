@@ -6,6 +6,21 @@
   window.__ktSwitchHitBridge20260919=true;
 
   var lastEl=null,lastAt=0;
+  var HOLD_MS=5*60*1000;
+  var holdUntil=Date.now()+HOLD_MS;
+
+  function holdFiveMinutes(){
+    holdUntil=Date.now()+HOLD_MS;
+    try{localStorage.setItem('ktalk_switch_unlock_until',String(holdUntil));}catch(e){}
+  }
+
+  try{
+    var saved=parseInt(localStorage.getItem('ktalk_switch_unlock_until')||'0',10)||0;
+    if(saved>Date.now())holdUntil=saved;
+    else holdFiveMinutes();
+  }catch(e){holdFiveMinutes();}
+
+  window.ktHoldSwitchesUnlocked5m=holdFiveMinutes;
 
   function visible(el){
     if(!el||!el.isConnected)return false;
@@ -191,6 +206,7 @@
 
   function run(el){
     if(!el)return false;
+    holdFiveMinutes();
     var ok=creatorAction(el);
     if(!ok)ok=switchAction(el);
     if(ok)pulse(el);
@@ -242,18 +258,21 @@
     }
   },true);
 
-  function unlock(){
-    document.querySelectorAll(
+  var unlockSelector=
       '.kt-switch,[role="switch"],.kt-total-admin-row,.kt-owner-monitor button,'+
       '.live-prep .room-switch,.live-prep .prep-bottom button,'+
       '.creator-bottom .modes span,.creator-bottom .modes button,'+
       '#creator .creator-top .creator-rotate,'+
       '#creator .creator-tools .creator-tool-text[aria-label="AI 보정"],'+
-      '#creator .creator-tools .creator-tool-text[aria-label="편집 효과"]'
-    ).forEach(function(el){
+      '#creator .creator-tools .creator-tool-text[aria-label="편집 효과"]';
+
+  function unlock(){
+    if(Date.now()>=holdUntil)return;
+    document.querySelectorAll(unlockSelector).forEach(function(el){
       try{
         if(el.disabled)el.disabled=false;
         if(el.getAttribute('aria-disabled')==='true')el.setAttribute('aria-disabled','false');
+        if(el.hasAttribute('inert'))el.removeAttribute('inert');
         el.style.setProperty('pointer-events','auto','important');
         el.style.setProperty('touch-action','manipulation','important');
       }catch(e){}
@@ -262,10 +281,23 @@
 
   unlock();
   [100,300,700,1200,2200].forEach(function(ms){setTimeout(unlock,ms);});
+
+  /* 자동 잠금이 다시 걸리더라도 5분 동안은 즉시 풀린 상태를 유지 */
+  var holdTimer=setInterval(function(){
+    if(Date.now()>=holdUntil){clearInterval(holdTimer);return;}
+    unlock();
+  },500);
+
   try{
     new MutationObserver(function(){
+      if(Date.now()>=holdUntil)return;
       clearTimeout(window.__ktSwitchHitBridgeTimer);
-      window.__ktSwitchHitBridgeTimer=setTimeout(unlock,30);
-    }).observe(document.documentElement,{childList:true,subtree:true});
+      window.__ktSwitchHitBridgeTimer=setTimeout(unlock,20);
+    }).observe(document.documentElement,{
+      childList:true,
+      subtree:true,
+      attributes:true,
+      attributeFilter:['disabled','aria-disabled','style','class','inert']
+    });
   }catch(e){}
 })();
