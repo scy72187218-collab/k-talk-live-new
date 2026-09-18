@@ -45,8 +45,8 @@
   function guard13Px(){
     if(standalone())return 6;
     var ua=String(navigator.userAgent||'').toLowerCase();
-    if(/naver/.test(ua))return 24;
-    if(/android|iphone|ipad|ipod/.test(ua))return 28;
+    if(/naver/.test(ua))return 14;
+    if(/android|iphone|ipad|ipod/.test(ua))return 18;
     return 8;
   }
 
