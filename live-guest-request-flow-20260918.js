@@ -450,9 +450,13 @@
   function bindGuestLeaveCleanup(){
     var old=window.ktLeaveRemoteLive;
     if(typeof old!=='function'||old.__ktGuestLeaveCleanup)return;
-    var wrapped=async function(){
-      await leaveApprovedGuestNow();
-      return old.apply(this,arguments);
+    var wrapped=function(){
+      var args=arguments,self=this;
+      try{
+        var cleaning=leaveApprovedGuestNow();
+        if(cleaning&&cleaning.catch)cleaning.catch(function(){});
+      }catch(e){}
+      return old.apply(self,args);
     };
     wrapped.__ktGuestLeaveCleanup=true;
     window.ktLeaveRemoteLive=wrapped;
