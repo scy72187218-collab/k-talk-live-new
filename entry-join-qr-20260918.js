@@ -18,6 +18,27 @@
     }
   }
 
+  function qrTargetUrl(){
+    var u=siteUrl();
+    return u+(u.indexOf('?')>-1?'&':'?')+'from=qr';
+  }
+
+  function showQrEntryHint(){
+    try{
+      var p=new URLSearchParams(location.search||'');
+      if(p.get('from')!=='qr')return;
+    }catch(e){return;}
+    if(document.getElementById('ktQrEntryHint'))return;
+    var d=document.createElement('div');
+    d.id='ktQrEntryHint';
+    d.className='kt-qr-entry-hint';
+    d.textContent='QR로 처음 접속해 영상이 멈춰 있으면 화면을 한 번 눌러 주세요.';
+    document.body.appendChild(d);
+    function hide(){try{if(d&&d.parentNode)d.remove();}catch(e){}}
+    setTimeout(hide,9000);
+    document.addEventListener('pointerdown',hide,{once:true,capture:true});
+  }
+
   function ensureStyle(){
     if(document.getElementById('ktEntryJoinQrStyle'))return;
     var s=document.createElement('style');
@@ -31,6 +52,7 @@
       +'.kt-join-card input{width:100%;height:46px;border-radius:13px;border:1px solid #ffffff2d;background:#0f0f16;color:#fff;padding:0 13px;font-size:15px;outline:none}'
       +'.kt-join-card .join-go{width:100%;height:46px;margin-top:9px;border:0;border-radius:13px;background:linear-gradient(135deg,#ff2f8d,#8f49ff);color:#fff;font-size:15px;font-weight:950}'
       +'.kt-qr-card{text-align:center;color:#fff}.kt-qr-card img{display:block;width:240px;height:240px;max-width:82vw;margin:8px auto 12px;background:#fff;padding:8px;border-radius:16px}.kt-qr-card .url{padding:9px 10px;border-radius:11px;background:#0c0c12;border:1px solid #ffffff1d;font-size:10px;word-break:break-all;color:#d9eaff}.kt-qr-card .copy{width:100%;height:42px;margin-top:9px;border:0;border-radius:12px;background:#2d7cf2;color:#fff;font-weight:950}'
+      +'.kt-qr-entry-hint{position:fixed;left:50%;top:10px;transform:translateX(-50%);z-index:100000;max-width:88vw;padding:6px 10px;border-radius:999px;background:rgba(0,0,0,.78);border:1px solid rgba(255,255,255,.28);color:#fff;font-size:10px;font-weight:900;line-height:1.3;text-align:center;box-shadow:0 3px 12px rgba(0,0,0,.35);pointer-events:none}'
       +'body:not(.kt-video-mode):not(.kt-home) .kt-entry-actions{display:none}';
     document.head.appendChild(s);
   }
@@ -88,7 +110,8 @@
   window.ktOpenSiteQr=function(){
     ensureStyle();
     var url=siteUrl();
-    var qr='https://api.qrserver.com/v1/create-qr-code/?size=260x260&margin=10&data='+encodeURIComponent(url);
+    var target=qrTargetUrl();
+    var qr='https://api.qrserver.com/v1/create-qr-code/?size=260x260&margin=10&data='+encodeURIComponent(target);
     var html='<div class="kt-qr-card">'
       +'<b style="font-size:18px">📱 K-Talk 접속 QR</b>'
       +'<img src="'+qr+'" alt="K-Talk 사이트 QR 코드">'
@@ -122,6 +145,8 @@
       +'<button class="qr" type="button" onclick="ktOpenSiteQr()">▣ QR</button>';
     document.body.appendChild(box);
   }
+
+  showQrEntryHint();
 
   var screen=document.getElementById('screen');
   if(screen){
