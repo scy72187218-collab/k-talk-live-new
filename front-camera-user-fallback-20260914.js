@@ -71,6 +71,8 @@
 (function(){
   if(window.__ktApprovedGuestSameRoomGrid20260917)return;
   window.__ktApprovedGuestSameRoomGrid20260917=true;
+  /* 2026-09-18: 이 예전 승인 게스트 화면은 새 호스트 동일화면 코드로 대체됨. */
+  return;
 
   function ensureStyle(){
     if(document.getElementById('ktApprovedGuestSameRoomGridStyle'))return;
