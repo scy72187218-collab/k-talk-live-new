@@ -1,4 +1,4 @@
-/* K-Talk 레벨 규칙. 현재 방 생성/입장 레벨 제한은 임시 해제. 다른 레벨 표시·비용 규칙은 그대로 유지. */
+/* K-Talk 레벨 규칙. 13명방/비밀방만 레벨 20 제한. 다른 레벨 표시·비용 규칙은 그대로 유지. */
 (function(){
   if(window.__ktLevelCostRulesInstalled)return;
   window.__ktLevelCostRulesInstalled=true;
@@ -101,14 +101,21 @@
     return isFinite(lv)&&lv>0?lv:1;
   };
 
-  /* 임시 해제: 레벨과 관계없이 모든 방 생성 가능. */
+  function ktIsLevel20Room(roomType){
+    var t=String(roomType==null?'':roomType).toLowerCase().replace(/\s+/g,'');
+    return t==='group'||t==='group13'||t==='13'||t==='password'||t==='secret'||t==='private';
+  }
+
+  /* 13명방/비밀방만 레벨 20부터 생성 가능. 나머지 방은 기존 그대로. */
   window.ktCanCreateRoomByLevel=function(roomType,level){
-    return true;
+    if(!ktIsLevel20Room(roomType))return true;
+    return window.ktEffectiveLevel(level)>=20;
   };
 
-  /* 임시 해제: 레벨과 관계없이 모든 방 입장 가능. */
+  /* 13명방/비밀방만 레벨 20부터 이용 가능. 나머지 방은 기존 그대로. */
   window.ktCanEnterRoomByLevel=function(roomType,level,isSubscriber){
-    return true;
+    if(!ktIsLevel20Room(roomType))return true;
+    return window.ktEffectiveLevel(level)>=20;
   };
 
   function wrapOwnerBypass(name){
