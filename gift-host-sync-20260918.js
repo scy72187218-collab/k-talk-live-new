@@ -134,6 +134,7 @@
           var data=JSON.parse(String(row.message||'{}'));
           var cost=parseInt(data.cost||0,10)||0;
           if(cost<=0)return;
+          try{if(typeof window.ktGuestAddEarnedRoses==='function')window.ktGuestAddEarnedRoses(cost);}catch(e){}
           if(cost>=1000&&typeof window.showPremiumGiftFx==='function'){
             window.showPremiumGiftFx(String(data.name||'큰 선물'),cost,String(row.sender_name||'호스트'));
           }else if(typeof window.showSmallGiftFx==='function'){
