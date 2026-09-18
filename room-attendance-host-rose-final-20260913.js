@@ -73,30 +73,45 @@
   function runCountdown(){
     if(countdownPromise)return countdownPromise;
 
-    countdownPromise=(async function(){
+    countdownPromise=new Promise(function(resolve){
       removeCountdown();
 
       var wrap=document.createElement('div');
       wrap.id='ktLiveCountdown';
       wrap.style.cssText='position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;background:transparent;pointer-events:none;';
       var num=document.createElement('div');
-      num.style.cssText='width:116px;height:116px;border-radius:50%;display:grid;place-items:center;background:rgba(10,10,14,.74);border:4px solid rgba(255,255,255,.94);color:#fff;font:900 64px/1 system-ui,-apple-system,sans-serif;box-shadow:0 0 28px rgba(255,44,130,.72);text-shadow:0 0 12px rgba(255,255,255,.72);transition:transform .2s ease;';
+      num.style.cssText='width:116px;height:116px;border-radius:50%;display:grid;place-items:center;background:rgba(10,10,14,.74);border:4px solid rgba(255,255,255,.94);color:#fff;font:900 64px/1 system-ui,-apple-system,sans-serif;box-shadow:0 0 28px rgba(255,44,130,.72);text-shadow:0 0 12px rgba(255,255,255,.72);transition:transform .18s ease;';
       wrap.appendChild(num);
       document.body.appendChild(wrap);
 
-      for(var n=5;n>=1;n--){
-        num.textContent=String(n);
-        num.style.transform='scale(1)';
-        setTimeout(function(){try{num.style.transform='scale(.92)';}catch(e){}},650);
-        await sleep(1000);
-      }
+      /* 타이머가 잠깐 밀려도 전체 5초가 늘어나지 않게 실제 경과시간 기준으로 숫자를 바꾼다. */
+      var started=performance.now();
+      var last=0;
+      num.textContent='5';
 
-      removeCountdown();
-      return true;
-    })();
+      function frame(now){
+        if(!document.documentElement.contains(wrap)){resolve(true);return;}
+        var elapsed=Math.max(0,now-started);
+        if(elapsed>=5000){
+          removeCountdown();
+          resolve(true);
+          return;
+        }
+
+        var next=Math.max(1,5-Math.floor(elapsed/1000));
+        if(next!==last){
+          last=next;
+          num.textContent=String(next);
+          num.style.transform='scale(1)';
+          setTimeout(function(){try{if(document.documentElement.contains(num))num.style.transform='scale(.92)';}catch(e){}},620);
+        }
+        requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    });
 
     countdownPromise.finally(function(){
-      setTimeout(function(){countdownPromise=null;},300);
+      setTimeout(function(){countdownPromise=null;},250);
     });
     return countdownPromise;
   }
