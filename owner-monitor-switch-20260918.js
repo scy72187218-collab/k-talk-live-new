@@ -67,19 +67,7 @@
   };
 
   function wrapRender(){
-    if(typeof window.ktProfileRender!=='function'||window.ktProfileRender.__ktOwnerMonitorWrapped)return;
-    var old=window.ktProfileRender;
-    var fn=function(){
-      var html=String(old.apply(this,arguments));
-      if(!isOwner()||html.indexOf('kt-owner-monitor')>-1)return html;
-      var marker='<button class="kt-profile-switch-btn"';
-      var pos=html.indexOf(marker);
-      if(pos>-1)return html.slice(0,pos)+blockHtml()+html.slice(pos);
-      var end=html.lastIndexOf('</div>');
-      return end>-1?html.slice(0,end)+blockHtml()+html.slice(end):html+blockHtml();
-    };
-    fn.__ktOwnerMonitorWrapped=true;
-    window.ktProfileRender=fn;
+    /* 프로필에 별도 스위치를 만들지 않음: 총관리 안에서만 사용 */
   }
 
   function addVisibleBadge(){
@@ -100,10 +88,8 @@
     ensureStyle();
     wrapRender();
     try{
-      if(isOwner()&&document.querySelector('.kt-my-profile')&&!document.getElementById('ktOwnerMonitorSwitch')){
-        var target=document.querySelector('.kt-profile-switch-btn');
-        if(target)target.insertAdjacentHTML('beforebegin',blockHtml());
-      }
+      var stray=document.getElementById('ktOwnerMonitorSwitch');
+      if(stray&&stray.parentNode)stray.parentNode.removeChild(stray);
     }catch(e){}
     addVisibleBadge();
   }
