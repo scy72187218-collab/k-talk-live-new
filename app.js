@@ -542,53 +542,10 @@ window.makeEffectRecordingStream=function(){
     }
     ctx.restore();
 
-    /* 저장 영상도 얼굴 부분만 부드럽게: 배경은 흐리지 않음 */
+    /* 실시간 얼굴 랜드마크 보정을 저장 영상에도 동일하게 적용 */
     try{
-      var makeupAnchor=document.getElementById('ktCreatorMakeupAnchor');
-      var creatorRect=creator&&creator.getBoundingClientRect?creator.getBoundingClientRect():null;
-      var makeupRect=makeupAnchor&&makeupAnchor.getBoundingClientRect?makeupAnchor.getBoundingClientRect():null;
-      if(makeupRect&&creatorRect&&creatorRect.width&&creatorRect.height&&makeupRect.width&&makeupRect.height){
-        var mx=((makeupRect.left-creatorRect.left)+(makeupRect.width/2))/creatorRect.width*canvas.width;
-        var my=((makeupRect.top-creatorRect.top)+(makeupRect.height/2))/creatorRect.height*canvas.height;
-        var mw=makeupRect.width/creatorRect.width*canvas.width;
-        var mh=makeupRect.height/creatorRect.height*canvas.height;
-
-        /* 얼굴 안쪽만 원본 카메라를 다시 부드럽게 합성 */
-        ctx.save();
-        ctx.beginPath();
-        ctx.ellipse(mx,my+mh*.01,mw*.39,mh*.42,0,0,Math.PI*2);
-        ctx.clip();
-        ctx.globalAlpha=.70;
-        ctx.filter='blur(2.1px) brightness(1.060) contrast(.900) saturate(1.035)';
-        ctx.translate(canvas.width,0);ctx.scale(-1,1);
-        try{ctx.drawImage(camera,dx,dy,dw,dh);}catch(e){}
-        ctx.restore();
-
-        /* 피부 톤은 옅게 */
-        ctx.save();
-        ctx.globalAlpha=.055;
-        ctx.fillStyle='rgb(255,226,216)';
-        ctx.beginPath();ctx.ellipse(mx,my,mw*.36,mh*.39,0,0,Math.PI*2);ctx.fill();
-        ctx.restore();
-
-        /* 볼터치도 티 나지 않을 정도로만 */
-        function paintCheek(px){
-          var g=ctx.createRadialGradient(px,my+mh*.055,0,px,my+mh*.055,mw*.105);
-          g.addColorStop(0,'rgba(236,92,116,.075)');
-          g.addColorStop(.45,'rgba(236,92,116,.035)');
-          g.addColorStop(1,'rgba(236,92,116,0)');
-          ctx.fillStyle=g;
-          ctx.beginPath();ctx.ellipse(px,my+mh*.055,mw*.12,mh*.075,0,0,Math.PI*2);ctx.fill();
-        }
-        paintCheek(mx-mw*.225);paintCheek(mx+mw*.225);
-
-        /* 입술색은 아주 약하게 */
-        ctx.save();
-        ctx.globalAlpha=.10;
-        ctx.filter='blur(.8px)';
-        ctx.fillStyle='rgb(165,57,78)';
-        ctx.beginPath();ctx.ellipse(mx,my+mh*.225,mw*.105,mh*.030,0,0,Math.PI*2);ctx.fill();
-        ctx.restore();
+      if(window.ktDrawFaceBeautyForRecording){
+        window.ktDrawFaceBeautyForRecording(ctx,canvas.width,canvas.height,camera,dx,dy,dw,dh);
       }
     }catch(e){}
 
