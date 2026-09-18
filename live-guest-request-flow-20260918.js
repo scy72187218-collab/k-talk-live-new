@@ -408,7 +408,57 @@
 
   async function viewerTick(){ensureStyle();bindRequestButton();if(!document.querySelector('.kt-remote-live')){endViewerGuestSession(false);if(viewerGuest.pc){try{viewerGuest.pc.close();}catch(e){}viewerGuest.pc=null;}stopLocalGuestViewGuard();viewerGuest.prejoinHostStream=null;if(viewerGuest.stream){try{viewerGuest.stream.getTracks().forEach(function(t){t.stop();});}catch(e){}viewerGuest.stream=null;}viewerGuest.approvedKey='';return;}var hostId=await currentViewerHost();if(!hostId){ensurePrejoinRoomGrid();return;}var vid=viewerId(),ap=await latestApproval(hostId,vid);if(ap)startViewerGuestUplink(hostId,vid,String(ap.id||ap.created_at||'approved'));else ensurePrejoinRoomGrid();}
 
-  function start(){if(started)return;started=true;ensureStyle();bindRequestButton();hostPoll=setInterval(hostTick,1200);viewerPoll=setInterval(viewerTick,1300);setInterval(removeDuplicateGroupRoom,350);setTimeout(hostTick,100);setTimeout(viewerTick,180);var dedupeTimer=null,obs=new MutationObserver(function(){bindRequestButton();clearTimeout(dedupeTimer);dedupeTimer=setTimeout(removeDuplicateGroupRoom,30);});obs.observe(document.documentElement,{childList:true,subtree:true});}
+
+  async function leaveApprovedGuestNow(){
+    var hostId=viewerGuest.hostId||'';
+    var vid=viewerId();
+    var sid=viewerGuest.sessionId||'';
+
+    /* 게스트가 방에서 나가는 순간 업링크 세션을 바로 종료해서 호스트 칸도 즉시 내려가게 한다. */
+    try{
+      if(sid){
+        await req('ktalk_webrtc_sessions?id=eq.'+enc(sid),{
+          method:'PATCH',
+          headers:{Prefer:'return=minimal'},
+          body:JSON.stringify({active:false,updated_at:nowIso()})
+        });
+      }
+    }catch(e){}
+    try{
+      if(hostId){
+        await req('ktalk_webrtc_sessions?host_id=eq.'+enc(hostId)+'&viewer_id=eq.'+enc('guest:'+vid)+'&active=eq.true',{
+          method:'PATCH',
+          headers:{Prefer:'return=minimal'},
+          body:JSON.stringify({active:false,updated_at:nowIso()})
+        });
+      }
+    }catch(e){}
+
+    if(viewerGuest.pc){try{viewerGuest.pc.close();}catch(e){}viewerGuest.pc=null;}
+    viewerGuest.sessionId='';
+    viewerGuest.connectStartedAt=0;
+    stopLocalGuestViewGuard();
+    viewerGuest.prejoinHostStream=null;
+    if(viewerGuest.stream){
+      try{viewerGuest.stream.getTracks().forEach(function(t){t.stop();});}catch(e){}
+      viewerGuest.stream=null;
+    }
+    viewerGuest.hostId='';
+    viewerGuest.approvedKey='';
+  }
+
+  function bindGuestLeaveCleanup(){
+    var old=window.ktLeaveRemoteLive;
+    if(typeof old!=='function'||old.__ktGuestLeaveCleanup)return;
+    var wrapped=async function(){
+      await leaveApprovedGuestNow();
+      return old.apply(this,arguments);
+    };
+    wrapped.__ktGuestLeaveCleanup=true;
+    window.ktLeaveRemoteLive=wrapped;
+  }
+
+  function start(){if(started)return;started=true;bindGuestLeaveCleanup();setInterval(bindGuestLeaveCleanup,800);ensureStyle();bindRequestButton();hostPoll=setInterval(hostTick,1200);viewerPoll=setInterval(viewerTick,1300);setInterval(removeDuplicateGroupRoom,350);setTimeout(hostTick,100);setTimeout(viewerTick,180);var dedupeTimer=null,obs=new MutationObserver(function(){bindRequestButton();clearTimeout(dedupeTimer);dedupeTimer=setTimeout(removeDuplicateGroupRoom,30);});obs.observe(document.documentElement,{childList:true,subtree:true});}
   document.addEventListener('DOMContentLoaded',start);if(document.readyState!=='loading')start();
   window.addEventListener('pagehide',function(){clearInterval(hostPoll);clearInterval(viewerPoll);endViewerGuestSession(true);stopLocalGuestViewGuard();removePrejoinRoomGrid();Object.keys(hostGuestPeers).forEach(function(k){try{hostGuestPeers[k].close();}catch(e){}});hostGuestPeers={};if(viewerGuest.pc){try{viewerGuest.pc.close();}catch(e){}}if(viewerGuest.stream){try{viewerGuest.stream.getTracks().forEach(function(t){t.stop();});}catch(e){}}});
 })();
