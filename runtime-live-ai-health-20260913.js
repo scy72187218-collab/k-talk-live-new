@@ -50,7 +50,7 @@
   load('feed-swipe-playback-fix.js','__ktFeedSwipePlaybackFixInstalled',function(){
     load('broadcast-video-resume-fix.js','__ktBroadcastVideoResumeFixInstalled');
   });
-  load('live-room-instant-video-fix-20260915.js','__ktLiveRoomInstantVideoFixInstalled');
+  load('live-room-instant-video-fix-20260915.js?v=20260918-no-black-after5-1','__ktLiveRoomInstantVideoFixInstalled');
 
   /* 호스트가 승인하면 모든 게스트 폰을 호스트와 같은 9/13명 방 격자로 전환. */
   load('approved-guest-all-devices-room-transition-20260917.js','__ktApprovedGuestAllDevicesRoomTransition20260917');
