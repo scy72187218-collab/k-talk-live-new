@@ -1,10 +1,10 @@
-/* K-Talk 레벨 시스템: 장미 누적 5,000개마다 1레벨, 레벨 21부터 13명방 개설 허용. 기존 구독/VIP/출석 혜택은 건드리지 않음. */
+/* K-Talk 레벨 시스템: 장미 누적 5,000개마다 1레벨, 레벨 20부터 13명방 개설 허용. 기존 구독/VIP/출석 혜택은 건드리지 않음. */
 (function(){
   if(window.__ktLevelSystem20260915)return;
   window.__ktLevelSystem20260915=true;
 
   var STEP=5000;
-  var UNLOCK_13_LEVEL=21;
+  var UNLOCK_13_LEVEL=20;
   var STORE='ktalk_level_rose_total';
 
   function n(v){
@@ -32,8 +32,7 @@
     return {name:'🌱 시작 전',color:'#b8ffcf',edge:'#4cd67b'};
   }
   function benefitText(level){
-    if(level>=21)return '13명 방송 개설 가능 · 크라운 레벨 배지 · 기존 구독/VIP/출석 혜택 중복 적용';
-    if(level>=20)return '일반 방송 이용 · 13명 방송 개설까지 1레벨 · 기존 구독/VIP/출석 혜택 유지';
+    if(level>=20)return '13명 방송 · 비밀방 사용 가능 · 기존 구독/VIP/출석 혜택 유지';
     if(level>=15)return '일반 방송 이용 · 다이아 레벨 배지 · 기존 구독/VIP/출석 혜택 유지';
     if(level>=10)return '일반 방송 이용 · 골드 레벨 배지 · 기존 구독/VIP/출석 혜택 유지';
     if(level>=5)return '일반 방송 이용 · 실버 레벨 배지 · 기존 구독/VIP/출석 혜택 유지';
@@ -62,7 +61,7 @@
   function levelUpNotice(oldLevel,newLevel){
     if(newLevel<=oldLevel)return;
     var msg='레벨 '+newLevel+' 달성!';
-    if(newLevel===21)msg+=' 13명 방송 개설이 열렸습니다.';
+    if(newLevel===20)msg+=' 13명 방송과 비밀방 사용이 열렸습니다.';
     else msg+=' 다음 레벨까지 장미 '+fmt(STEP)+'개입니다.';
     try{if(typeof window.ktSpeak==='function')window.ktSpeak(msg);}catch(e){}
     try{
@@ -109,13 +108,16 @@
   function deny13(){
     var info=window.ktLevelInfo();
     var need=Math.max(0,UNLOCK_13_LEVEL*STEP-info.total);
-    var msg='13명 방송은 레벨 21부터 열 수 있습니다. 현재 레벨 '+info.level+' · 장미 '+fmt(info.total)+'개 · '+fmt(need)+'개 더 필요합니다.';
+    var msg='13명 방송은 레벨 20부터 열 수 있습니다. 현재 레벨 '+info.level+' · 장미 '+fmt(info.total)+'개 · '+fmt(need)+'개 더 필요합니다.';
     try{if(typeof window.ktSpeak==='function')window.ktSpeak(msg);}catch(e){}
     try{alert(msg);}catch(e){}
     return false;
   }
-  /* 임시 전체 해제: 레벨과 관계없이 13명방을 열 수 있다. */
-  window.ktLevelCanOpen13=function(){return true;};
+  /* 레벨 20부터 13명방 개설. 관리자 계정은 기존 1000레벨 우회 유지. */
+  window.ktLevelCanOpen13=function(){
+    try{if(typeof window.ktIsOwnerLevelExempt==='function'&&window.ktIsOwnerLevelExempt())return true;}catch(e){}
+    return getLevel()>=UNLOCK_13_LEVEL;
+  };
 
   function installRoomGate(){
     if(typeof window.selectPrepRoom==='function'&&!window.selectPrepRoom.__ktLevelGate){
@@ -176,13 +178,13 @@
       if(lv===5)special='일반 방송 · 실버 배지';
       if(lv===10)special='일반 방송 · 골드 배지';
       if(lv===15)special='일반 방송 · 다이아 배지';
-      if(lv===20)special='일반 방송 · 13명방 개설 준비';
-      if(lv===21)special='13명 방송 개설 가능 · 크라운 배지';
+      if(lv===20)special='13명 방송 · 비밀방 사용 가능';
+      if(lv===21)special='13명 방송 · 비밀방 사용 가능 · 크라운 배지';
       rows+='<div style="display:grid;grid-template-columns:52px 92px 1fr;gap:8px;padding:9px 8px;border-bottom:1px solid #ffffff12;align-items:center"><b>Lv.'+lv+'</b><span style="color:#ffd84a">🌹 '+fmt(lv*STEP)+'</span><span style="font-size:11px;color:#ddd">'+special+'</span></div>';
     }
     var html='<div style="padding:4px 0;color:#fff">'
       +'<div class="rowbox"><b>현재 레벨 '+info.level+'</b><br>누적 장미 '+fmt(info.total)+'개<br>레벨은 장미 5,000개마다 1단계 올라갑니다.</div>'
-      +'<div class="rowbox"><b>13명 방송</b><br>레벨 21 · 누적 장미 105,000개부터 개설할 수 있습니다.</div>'
+      +'<div class="rowbox"><b>13명 방송</b><br>레벨 20 · 누적 장미 100,000개부터 개설할 수 있습니다.</div>'
       +'<div style="margin-top:8px;border:1px solid #ffffff1e;border-radius:14px;overflow:hidden;background:#0c0c12">'+rows+'</div>'
       +'<div class="rowbox" style="margin-top:10px"><b>기존 혜택</b><br>구독자 · VIP · 출석 · 이벤트 등 기존 혜택은 레벨과 별도로 그대로 적용됩니다.</div>'
       +'</div>';
