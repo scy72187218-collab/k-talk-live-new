@@ -40,6 +40,8 @@
     var host=window.__ktRemoteHostStream||null;
     var list=[
       document.querySelector('.kt-guest-hostlike-room .kgh-cell.self video'),
+      document.querySelector('.kt-approved-guest-grid .kt-approved-guest-cell.self video'),
+      document.querySelector('.kt-guest-room-grid .kt-guest-room-cell.self video'),
       document.getElementById('ktRemoteGuestSelfVideo'),
       document.getElementById('ktRemoteLiveVideo')
     ].filter(Boolean);
@@ -85,19 +87,32 @@
     var s=document.createElement('style');
     s.id='ktApprovedGuestPeerVideoSyncStyle';
     s.textContent=''
-      +'.kgh-cell.kt-peer-guest{background:#090b0f!important;color:#fff!important}'
-      +'.kgh-cell.kt-peer-guest video{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center center!important;background:#090b0f!important;transform:scaleX(-1)!important}'
-      +'.kgh-cell.kt-peer-guest .kgh-label{z-index:4!important}';
+      +'.kgh-cell.kt-peer-guest,.kt-approved-guest-cell.kt-peer-guest,.kt-guest-room-cell.kt-peer-guest{position:relative!important;background:#090b0f!important;color:#fff!important;overflow:hidden!important}'
+      +'.kgh-cell.kt-peer-guest video,.kt-approved-guest-cell.kt-peer-guest video,.kt-guest-room-cell.kt-peer-guest video{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;object-fit:cover!important;object-position:center center!important;background:#090b0f!important;transform:scaleX(-1)!important}'
+      +'.kgh-cell.kt-peer-guest .kgh-label,.kt-approved-guest-cell.kt-peer-guest label,.kt-guest-room-cell.kt-peer-guest label{position:absolute!important;left:5px!important;bottom:5px!important;z-index:4!important;padding:2px 6px!important;border-radius:8px!important;background:#000b!important;color:#fff!important;font-size:8px!important;font-weight:950!important}';
     document.head.appendChild(s);
   }
 
+  function gridInfo(){
+    var g=document.querySelector('.kt-guest-hostlike-room .kgh-main');
+    if(g)return {grid:g,cellClass:'kgh-cell',labelTag:'span',labelClass:'kgh-label'};
+    g=document.querySelector('.kt-approved-guest-grid');
+    if(g)return {grid:g,cellClass:'kt-approved-guest-cell',labelTag:'label',labelClass:''};
+    g=document.querySelector('.kt-guest-room-grid');
+    if(g)return {grid:g,cellClass:'kt-guest-room-cell',labelTag:'label',labelClass:''};
+    return null;
+  }
+
   function peerCell(peerId,name){
-    var grid=document.querySelector('.kt-guest-hostlike-room .kgh-main');
-    if(!grid)return null;
+    var info=gridInfo();
+    if(!info)return null;
+    var grid=info.grid;
     var current=peerCellById(grid,peerId);
     if(current)return current;
-    var cells=[].slice.call(grid.querySelectorAll('.kgh-cell:not(.host):not(.self)'));
-    var free=cells.find(function(c){return !c.dataset.ktPeerViewer;});
+    var cells=[].slice.call(grid.querySelectorAll('.'+info.cellClass));
+    var free=cells.find(function(cell){
+      return !cell.classList.contains('host')&&!cell.classList.contains('self')&&!cell.dataset.ktPeerViewer;
+    });
     if(!free)return null;
     free.dataset.ktPeerViewer=peerId;
     free.classList.add('kt-peer-guest');
@@ -105,16 +120,16 @@
     var v=document.createElement('video');
     v.autoplay=true;v.playsInline=true;v.muted=true;
     v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');
-    var l=document.createElement('span');
-    l.className='kgh-label';
+    var l=document.createElement(info.labelTag);
+    if(info.labelClass)l.className=info.labelClass;
     l.textContent=safeName(name);
     free.appendChild(v);free.appendChild(l);
     return free;
   }
   function clearPeerCell(peerId){
-    var grid=document.querySelector('.kt-guest-hostlike-room .kgh-main');
-    if(!grid)return;
-    var c=peerCellById(grid,peerId);
+    var info=gridInfo();
+    if(!info)return;
+    var c=peerCellById(info.grid,peerId);
     if(!c)return;
     delete c.dataset.ktPeerViewer;
     c.classList.remove('kt-peer-guest');
@@ -279,11 +294,11 @@
   async function tick(){
     if(ticking)return;ticking=true;
     try{
-      var room=document.querySelector('.kt-guest-hostlike-room');
+      var infoGrid=gridInfo();
       var stream=selfStream();
       var selfId=selfViewerId();
-      if(!room||!stream||!selfId){
-        debug('waiting',(room?'room ':'no-room ')+(stream?'stream ':'no-stream ')+(selfId?'self':'no-self'));
+      if(!infoGrid||!stream||!selfId){
+        debug('waiting',(infoGrid?'grid ':'no-grid ')+(stream?'stream ':'no-stream ')+(selfId?'self':'no-self'));
         if(!absentSince)absentSince=Date.now();
         if(Date.now()-absentSince>5000){
           var ks=Object.keys(peers);for(var i=0;i<ks.length;i++)await dropPeer(ks[i]);
