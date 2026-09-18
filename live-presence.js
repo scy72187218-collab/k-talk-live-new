@@ -349,16 +349,25 @@
       var rows=await req('ktalk_live_rooms?select=id,host_id,host_name,title,room_type,room_name,active,updated_at&host_id=eq.'+enc(hostId)+'&active=eq.true&order=started_at.desc&limit=1');
       var room=rows&&rows[0];if(!room||Date.now()-new Date(room.updated_at).getTime()>STALE_MS){alert('방송이 종료되었거나 연결할 수 없습니다.');renderLiveCards();return;}
       renderRemote(room);
-      var p=profile(),viewerId='viewer_'+deviceId();
-      await req('ktalk_live_viewers?on_conflict=host_id,viewer_id',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({host_id:hostId,viewer_id:viewerId,viewer_name:p.name||'게스트',active:true,updated_at:nowIso()})});
+      var p=profile(),monitorMode=false;
+      try{monitorMode=!!(window.ktAdminMonitorModeEnabled&&window.ktAdminMonitorModeEnabled());}catch(e){}
+      var viewerId=(monitorMode?'monitor_':'viewer_')+deviceId();
+      var viewerName=monitorMode?'👑 관리자 모니터링':(p.name||'게스트');
+      await req('ktalk_live_viewers?on_conflict=host_id,viewer_id',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({host_id:hostId,viewer_id:viewerId,viewer_name:viewerName,active:true,updated_at:nowIso()})});
       await req('ktalk_webrtc_sessions?host_id=eq.'+enc(hostId)+'&viewer_id=eq.'+enc(viewerId)+'&active=eq.true',{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})});
       var sessions=await req('ktalk_webrtc_sessions',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify({host_id:hostId,viewer_id:viewerId,offer_sdp:'pending',answer_sdp:null,active:true,updated_at:nowIso()})});
       var sessionId=sessions&&sessions[0]?sessions[0].id:'';if(!sessionId)throw new Error('session');
       var pc=new RTCPeerConnection(ICE);
-      viewerCtx={hostId:hostId,viewerId:viewerId,viewerName:p.name||'게스트',sessionId:sessionId,pc:pc,answered:false,signalTimer:null,heartbeat:null,activityTimer:null,lastMsg:''};
+      viewerCtx={hostId:hostId,viewerId:viewerId,viewerName:viewerName,monitorMode:monitorMode,sessionId:sessionId,pc:pc,answered:false,signalTimer:null,heartbeat:null,activityTimer:null,lastMsg:''};
       pc.ontrack=function(ev){var hs=ev.streams[0]||new MediaStream([ev.track]);window.__ktRemoteHostStream=hs;var v=document.getElementById('ktRemoteLiveVideo');if(v){v.srcObject=hs;v.play().catch(function(){});}try{if(ev.track){ev.track.onended=function(){if(viewerCtx&&viewerCtx.pc===pc)window.ktLeaveRemoteLive();};ev.track.onmute=function(){var tr=ev.track;setTimeout(function(){if(viewerCtx&&viewerCtx.pc===pc&&tr.muted)window.ktLeaveRemoteLive();},2500);};}}catch(e){}var st=document.getElementById('ktRemoteLiveStatus');if(st)st.style.display='none';};
       pc.onconnectionstatechange=function(){var st=document.getElementById('ktRemoteLiveStatus');if(pc.connectionState==='connected'){if(st)st.style.display='none';return;}if(pc.connectionState==='failed'||pc.connectionState==='disconnected'){if(st){st.style.display='block';st.textContent='영상 연결을 다시 확인해 주세요.';}setTimeout(function(){if(viewerCtx&&viewerCtx.pc===pc&&(pc.connectionState==='failed'||pc.connectionState==='disconnected'))window.ktLeaveRemoteLive();},2200);}};
-      await insertSystem(hostId,viewerId,viewerCtx.viewerName,viewerCtx.viewerName+'님이 들어왔습니다.');showActivity(viewerCtx.viewerName+'님이 들어왔습니다.');
+      if(viewerCtx.monitorMode){
+        await insertSystem(hostId,viewerId,viewerCtx.viewerName,'👑 관리자 모니터링이 시작되었습니다.');
+        showActivity('👑 관리자 모니터링으로 입장했습니다.');
+      }else{
+        await insertSystem(hostId,viewerId,viewerCtx.viewerName,viewerCtx.viewerName+'님이 들어왔습니다.');
+        showActivity(viewerCtx.viewerName+'님이 들어왔습니다.');
+      }
       viewerCtx.signalTimer=setInterval(remotePollSignal,1100);remotePollSignal();
       viewerCtx.heartbeat=setInterval(remotePollRoom,1500);remotePollRoom();
       viewerCtx.activityTimer=setInterval(remotePollActivity,1800);remotePollActivity();
@@ -371,7 +380,8 @@
       clearInterval(c.signalTimer);clearInterval(c.heartbeat);clearInterval(c.activityTimer);try{c.pc.close();}catch(e){}
       try{await req('ktalk_live_viewers?host_id=eq.'+enc(c.hostId)+'&viewer_id=eq.'+enc(c.viewerId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})});}catch(e){}
       try{await req('ktalk_webrtc_sessions?id=eq.'+enc(c.sessionId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})});}catch(e){}
-      await insertSystem(c.hostId,c.viewerId,c.viewerName,c.viewerName+'님이 나갔습니다.');
+      if(c.monitorMode)await insertSystem(c.hostId,c.viewerId,c.viewerName,'👑 관리자 모니터링이 종료되었습니다.');
+      else await insertSystem(c.hostId,c.viewerId,c.viewerName,c.viewerName+'님이 나갔습니다.');
     }
     if(!silent){if(window.openBroadcastList)window.openBroadcastList();else if(window.friends)window.friends();setTimeout(renderLiveCards,80);}
   };
