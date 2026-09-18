@@ -559,6 +559,33 @@ window.makeEffectRecordingStream=function(){
     }
     ctx.restore();
 
+    /* 동영상 저장본에도 촬영 화면과 같은 자연스러운 메이크업을 포함 */
+    try{
+      var makeupAnchor=document.getElementById('ktCreatorMakeupAnchor');
+      var creatorRect=creator&&creator.getBoundingClientRect?creator.getBoundingClientRect():null;
+      var makeupRect=makeupAnchor&&makeupAnchor.getBoundingClientRect?makeupAnchor.getBoundingClientRect():null;
+      if(makeupRect&&creatorRect&&creatorRect.width&&creatorRect.height&&makeupRect.width&&makeupRect.height){
+        var mx=((makeupRect.left-creatorRect.left)+(makeupRect.width/2))/creatorRect.width*canvas.width;
+        var my=((makeupRect.top-creatorRect.top)+(makeupRect.height/2))/creatorRect.height*canvas.height;
+        var mw=makeupRect.width/creatorRect.width*canvas.width;
+        var mh=makeupRect.height/creatorRect.height*canvas.height;
+        ctx.save();
+        ctx.filter='blur(10px)';
+        ctx.globalAlpha=.17;
+        ctx.fillStyle='rgb(238,80,112)';
+        ctx.beginPath();ctx.ellipse(mx-mw*.27,my+mh*.08,mw*.14,mh*.08,0,0,Math.PI*2);ctx.fill();
+        ctx.beginPath();ctx.ellipse(mx+mw*.27,my+mh*.08,mw*.14,mh*.08,0,0,Math.PI*2);ctx.fill();
+        ctx.restore();
+
+        ctx.save();
+        ctx.filter='blur(2px)';
+        ctx.globalAlpha=.25;
+        ctx.fillStyle='rgb(172,42,74)';
+        ctx.beginPath();ctx.ellipse(mx,my+mh*.29,mw*.14,mh*.045,0,0,Math.PI*2);ctx.fill();
+        ctx.restore();
+      }
+    }catch(e){}
+
     var anchor=document.getElementById('ktFaceAnchor');
     var cr=creator.getBoundingClientRect();
     var ar=anchor&&anchor.getBoundingClientRect();
