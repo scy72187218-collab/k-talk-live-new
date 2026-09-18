@@ -504,7 +504,7 @@ window.stopEffectRecordingCanvas=function(){
 window.makeEffectRecordingStream=function(){
   var selected=state.appliedEditEffect||state.pendingEditEffect||'off';
   var hasStage=!!state.stageBackground;
-  if((selected==='off'&&!hasStage)||!camera||!camera.videoWidth)return state.stream;
+  if(!camera||!camera.videoWidth)return state.stream;
 
   var canvas=document.createElement('canvas');
   canvas.width=1080;canvas.height=1920;
@@ -512,12 +512,43 @@ window.makeEffectRecordingStream=function(){
   if(!ctx||!canvas.captureStream)return state.stream;
   ktEffectRecordCanvas=canvas;
 
+  function clamp100(v,d){
+    v=Number(v);
+    if(!isFinite(v)||v<=0)v=d;
+    return Math.max(1,Math.min(100,v));
+  }
+
+  /* 동영상 촬영 결과에만 적용하는 자연스러운 피부·주름 완화 + 메이크업 톤.
+     방송방/게스트방/버튼/레이아웃은 건드리지 않는다. */
+  function creatorVideoBeautyFilter(){
+    var skin=clamp100(state.beautySkin,94);
+    var wrinkle=clamp100(state.beautyWrinkle,98);
+    var bright=clamp100(state.beautyBright,80);
+    var tone=clamp100(state.beautyTone,70);
+    var makeup=clamp100(state.beautyMakeup,58);
+
+    var b=1.035+(bright/100)*.085+(makeup/100)*.012;
+    var c=.965-(skin/100)*.035-(wrinkle/100)*.055;
+    var s=1.005+(tone/100)*.045+(makeup/100)*.040;
+    var blur=.45+(skin/100)*.62+(wrinkle/100)*.58;
+    var sep=Math.max(0,(tone-45)*.0007+(makeup/100)*.018);
+
+    b=Math.max(1.02,Math.min(1.16,b));
+    c=Math.max(.84,Math.min(.98,c));
+    s=Math.max(1.00,Math.min(1.12,s));
+    blur=Math.max(.55,Math.min(1.75,blur));
+    sep=Math.max(0,Math.min(.055,sep));
+
+    return 'brightness('+b.toFixed(3)+') contrast('+c.toFixed(3)+') saturate('+s.toFixed(3)+') sepia('+sep.toFixed(3)+') blur('+blur.toFixed(2)+'px)';
+  }
+
   function draw(){
     if(!ktCreatorRecording&&ktCreatorRecorder&&ktCreatorRecorder.state==='inactive')return;
     var sw=camera.videoWidth||1920,sh=camera.videoHeight||1080;
     var scale=Math.max(canvas.width/sw,canvas.height/sh);
     var dw=sw*scale,dh=sh*scale,dx=(canvas.width-dw)/2,dy=(canvas.height-dh)/2;
     ctx.save();ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.filter=creatorVideoBeautyFilter();
     if(hasStage&&window.ktStageCanvas&&window.ktStageCanvas.width){
       var sc=window.ktStageCanvas,ss=Math.max(canvas.width/sc.width,canvas.height/sc.height);
       var sdw=sc.width*ss,sdh=sc.height*ss,sdx=(canvas.width-sdw)/2,sdy=(canvas.height-sdh)/2;
