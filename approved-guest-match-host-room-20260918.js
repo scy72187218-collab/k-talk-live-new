@@ -136,7 +136,7 @@
     var hostCell=makeCell('host','호스트');
     var selfCell=makeCell('self','나 · 게스트');
 
-    hostVideo.id='ktRemoteLiveVideo';
+    hostVideo.id='ktRemoteHostPreview';
     hostVideo.className='';
     hostVideo.autoplay=true;
     hostVideo.playsInline=true;
@@ -144,7 +144,7 @@
     hostVideo.style.cssText='';
     hostVideo.srcObject=hostStream;
 
-    selfVideo.id='ktRemoteGuestSelfVideo';
+    selfVideo.id='ktRemoteLiveVideo';
     selfVideo.className='';
     selfVideo.autoplay=true;
     selfVideo.playsInline=true;
