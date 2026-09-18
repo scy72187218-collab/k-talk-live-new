@@ -2094,15 +2094,35 @@ window.showPremiumGiftFx=function(name,cost,sender){
   ensurePremiumGiftFxStyle();
   var old=document.getElementById('ktPremiumGiftFx');
   if(old)old.remove();
-  var type=getPremiumGiftFxType(name,cost);
-  if(!type)return false;
+
+  var icon='🎁';
+  try{
+    var list=window.ktalkGifts||[];
+    for(var i=0;i<list.length;i++){
+      if(String(list[i][0])===String(name)){icon=String(list[i][2]||icon);break;}
+    }
+  }catch(e){}
+
+  if(!document.getElementById('ktExactGiftFxStyle')){
+    var st=document.createElement('style');
+    st.id='ktExactGiftFxStyle';
+    st.textContent=''
+      +'.kt-exact-gift-fx{position:fixed;inset:0;z-index:10030;pointer-events:none;overflow:hidden}'
+      +'.kt-exact-gift-fx .kt-premium-gift-banner{position:absolute;left:50%;top:max(72px,calc(env(safe-area-inset-top) + 56px));transform:translateX(-50%);max-width:88vw;padding:9px 15px;border-radius:999px;background:rgba(12,8,18,.93);border:1px solid #ffd75a;color:#fff;font-size:13px;font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 0 18px #ffcf4966;animation:ktExactGiftBanner 9.6s ease both}'
+      +'.kt-exact-gift-emoji{position:absolute;left:50%;top:43%;transform:translate(-50%,-50%);font-size:min(31vw,148px);line-height:1;filter:drop-shadow(0 0 18px rgba(255,215,90,.7));animation:ktExactGiftFloat 9.6s ease both}'
+      +'.kt-exact-gift-name{position:absolute;left:50%;top:61%;transform:translateX(-50%);max-width:88vw;color:#fff6a8;font-size:18px;font-weight:1000;text-shadow:0 0 12px #ffba39;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;animation:ktExactGiftBanner 9.6s ease both}'
+      +'@keyframes ktExactGiftBanner{0%{opacity:0;transform:translate(-50%,-12px) scale(.96)}10%,82%{opacity:1;transform:translate(-50%,0) scale(1)}100%{opacity:0;transform:translate(-50%,-8px) scale(.98)}}'
+      +'@keyframes ktExactGiftFloat{0%{opacity:0;transform:translate(-50%,-42%) scale(.35) rotate(-8deg)}12%{opacity:1;transform:translate(-50%,-50%) scale(1.08) rotate(3deg)}55%{opacity:1;transform:translate(-50%,-54%) scale(.98) rotate(-2deg)}86%{opacity:1;transform:translate(-50%,-50%) scale(1.03) rotate(2deg)}100%{opacity:0;transform:translate(-50%,-62%) scale(1.18) rotate(6deg)}}';
+    document.head.appendChild(st);
+  }
 
   var wrap=document.createElement('div');
   wrap.id='ktPremiumGiftFx';
-  wrap.className='kt-premium-gift-fx '+type;
+  wrap.className='kt-exact-gift-fx';
   var who=sender?sender:'누군가';
-  wrap.innerHTML='<div class="kt-premium-gift-banner"><b>'+who+'</b> · '+name+' 선물!</div>'
-    +'<div class="kt-premium-gift-obj">'+getPremiumGiftSvg(type)+'</div>';
+  wrap.innerHTML='<div class="kt-premium-gift-banner"><b>'+who+'</b> · '+String(name||'선물')+' 선물!</div>'
+    +'<div class="kt-exact-gift-emoji">'+icon+'</div>'
+    +'<div class="kt-exact-gift-name">'+String(name||'선물')+' · '+String(cost||'')+'개</div>';
   document.body.appendChild(wrap);
   setTimeout(function(){if(wrap&&wrap.parentNode)wrap.remove();},10000);
   return true;
