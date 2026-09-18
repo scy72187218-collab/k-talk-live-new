@@ -33,7 +33,7 @@
         +'padding-bottom:calc(17px + env(safe-area-inset-bottom) + var(--kt-room-browser-bottom-safe))!important;'
       +'}'
       +'.ktg13-room[data-kt-room="9"]{'
-        +'padding-bottom:calc(3px + env(safe-area-inset-bottom))!important;'
+        +'padding-bottom:calc(10px + env(safe-area-inset-bottom))!important;'
       +'}'
       +'.ktsolo-tools,.ktg13-tools,.ktsubscriber-tools,.ktsecret-tools{'
         +'position:relative!important;z-index:30!important;flex-shrink:0!important;'
