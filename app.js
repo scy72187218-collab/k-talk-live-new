@@ -2689,9 +2689,12 @@ window.selectKTalkSubAccount=function(key){
   var info=ktSubAccountInfo(key);
   var storage='ktalk_profile_v1:sub:'+key;
   try{
-    if(!localStorage.getItem(storage)){
-      localStorage.setItem(storage,JSON.stringify({name:info.name,bio:'',photo:''}));
-    }
+    var cur={};
+    try{cur=JSON.parse(localStorage.getItem(storage)||'{}')||{};}catch(z){}
+    cur.name=info.name;
+    if(cur.bio==null)cur.bio='';
+    if(cur.photo==null)cur.photo='';
+    localStorage.setItem(storage,JSON.stringify(cur));
   }catch(e){}
   closeSheet();
   setTimeout(function(){openProfileDirect();},60);
@@ -2703,7 +2706,7 @@ window.ktSubProfileCard=function(key){
     var raw=localStorage.getItem('ktalk_profile_v1:sub:'+key);
     if(raw){
       var x=JSON.parse(raw)||{};
-      if(x.name)p.name=String(x.name);
+      p.name=info.name;
       if(x.photo)p.photo=String(x.photo);
     }
   }catch(e){}
@@ -2759,6 +2762,12 @@ window.ktProfileLoad=function(){
       base.link=String(p.link||'');
     }
   }catch(e){}
+  /* 태권1/하이네2 닉네임은 고정 */
+  try{
+    var fixedSub=ktGetSelectedSubAccount();
+    if(fixedSub)base.name=ktSubAccountInfo(fixedSub).name;
+  }catch(e){}
+
   if(!base.name){
     try{
       var sub=ktGetSelectedSubAccount();
@@ -2800,7 +2809,7 @@ window.ktProfileRender=function(){
       +'<div><b>'+(p.likes||0).toLocaleString('ko-KR')+'</b><small>좋아요</small></div>'
     +'</div>'
     +'<button class="kt-profile-public-link" type="button" onclick="ktOpenProfileLink()"><span>🔗</span><b>'+linkText+'</b><em>›</em></button>'
-    +'<label>닉네임<input id="ktProfileName" class="form" maxlength="20" value="'+ktProfileEscape(p.name)+'" placeholder="닉네임"></label>'
+    +'<label>닉네임<div id="ktProfileNameFixed" class="form" style="display:flex;align-items:center;min-height:44px;font-weight:900;opacity:.95">'+ktProfileEscape(ktSubAccountInfo(ktGetSelectedSubAccount()||'taekwon1').name)+'</div></label>'
     +'<label>소개<input id="ktProfileBio" class="form" maxlength="60" value="'+ktProfileEscape(p.bio)+'" placeholder="간단한 소개를 입력하세요"></label>'
     +'<label>프로필 링크<input id="ktProfileLink" class="form" maxlength="180" value="'+ktProfileEscape(p.link||'')+'" placeholder="https:// 또는 사이트 주소"></label>'
     +'<button class="act" type="button" onclick="ktProfileSave()">프로필 저장</button>'
@@ -2830,10 +2839,10 @@ window.ktProfileSave=function(){
   var nameEl=document.getElementById('ktProfileName');
   var bioEl=document.getElementById('ktProfileBio');
   var linkEl=document.getElementById('ktProfileLink');
-  var name=String(nameEl?nameEl.value:'').trim();
+  var fixed=ktSubAccountInfo(ktGetSelectedSubAccount()||'taekwon1');
+  var name=fixed.name;
   var bio=String(bioEl?bioEl.value:'').trim();
   var link=String(linkEl?linkEl.value:'').trim();
-  if(!name){alert('닉네임을 입력해 주세요.');return;}
   var data={name:name,bio:bio,photo:old.photo||'',followers:old.followers||0,likes:old.likes||0,link:link};
   try{localStorage.setItem(ktProfileStorageKey(),JSON.stringify(data));}catch(e){
     alert('프로필을 저장하지 못했습니다. 다시 눌러 주세요.');return;
@@ -2864,7 +2873,7 @@ window.ktProfilePickPhoto=function(input){
         var nameEl=document.getElementById('ktProfileName');
         var bioEl=document.getElementById('ktProfileBio');
         var linkEl=document.getElementById('ktProfileLink');
-        if(nameEl&&nameEl.value.trim())p.name=nameEl.value.trim();
+        p.name=ktSubAccountInfo(ktGetSelectedSubAccount()||'taekwon1').name;
         if(bioEl)p.bio=bioEl.value.trim();
         if(linkEl)p.link=linkEl.value.trim();
         localStorage.setItem(ktProfileStorageKey(),JSON.stringify(p));
