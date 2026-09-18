@@ -2676,8 +2676,8 @@ window.ktGetSelectedSubAccount=function(){
   return '';
 };
 window.ktSubAccountInfo=function(key){
-  if(key==='haine2')return {key:'haine2',name:'K-톡 하이네2',icon:'H'};
-  return {key:'taekwon1',name:'K-톡 태권1',icon:'T'};
+  if(key==='haine2')return {key:'haine2',name:'하이네2',icon:'H'};
+  return {key:'taekwon1',name:'태권1',icon:'T'};
 };
 window.ktCurrentSubAccountInfo=function(){
   return ktSubAccountInfo(ktGetSelectedSubAccount()||'taekwon1');
@@ -2779,8 +2779,8 @@ window.ktProfileLoad=function(){
       }
     }catch(e){}
   }
-  if(base.name==='태권이'||base.name==='K-톡태권')base.name='K-톡 태권1';
-  if(base.name==='하이네'||base.name==='K-톡하이네')base.name='K-톡 하이네2';
+  if(base.name==='태권이'||base.name==='K-톡태권'||base.name==='K-톡 태권1')base.name='태권1';
+  if(base.name==='하이네'||base.name==='K-톡하이네'||base.name==='K-톡 하이네2')base.name='하이네2';
   if(!base.name)base.name='K-Talk';
   return base;
 };
