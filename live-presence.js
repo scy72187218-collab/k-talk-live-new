@@ -194,7 +194,20 @@
       var rows=await req('ktalk_live_messages?select=id,sender_name,message,message_type,created_at&host_id=eq.'+enc(hostId)+'&message_type=eq.system&order=created_at.desc&limit=6');
       if(rows&&rows.length){
         var newest=rows[0];
-        if(lastActivityStamp&&newest.created_at!==lastActivityStamp)showActivity(newest.message);
+        if(lastActivityStamp&&newest.created_at!==lastActivityStamp){
+          showActivity(newest.message);
+          try{
+            var msg=String(newest.message||'');
+            if(msg.indexOf('님이 들어왔습니다.')>-1){
+              var nm=String(newest.sender_name||'').trim();
+              if(typeof window.ktAnnounceEvent==='function'){
+                window.ktAnnounceEvent('join',{name:nm});
+              }else if(typeof window.ktSpeak==='function'){
+                window.ktSpeak((nm?nm+'님, ':'')+'K-Talk에 오신 것을 환영합니다.');
+              }
+            }
+          }catch(e){}
+        }
         lastActivityStamp=newest.created_at;
       }
     }catch(e){}
