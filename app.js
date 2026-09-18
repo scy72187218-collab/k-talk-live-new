@@ -2047,13 +2047,13 @@ window.ensurePremiumGiftFxStyle=function(){
   st.id='ktPremiumGiftFxStyle';
   st.textContent=
     '.kt-premium-gift-fx{position:fixed;inset:0;z-index:10020;pointer-events:none;overflow:hidden}'
-   +'.kt-premium-gift-banner{position:absolute;left:50%;top:max(74px,calc(env(safe-area-inset-top) + 58px));transform:translateX(-50%);min-width:220px;max-width:82vw;padding:9px 14px;border-radius:999px;border:1px solid #ffd96a99;background:linear-gradient(135deg,rgba(18,10,20,.92),rgba(69,24,63,.91));box-shadow:0 0 22px #ffcf5944,inset 0 0 15px #ffffff0d;color:#fff;text-align:center;font-size:12px;font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;animation:ktGiftBanner 7.6s ease both}'
+   +'.kt-premium-gift-banner{position:absolute;left:50%;top:max(74px,calc(env(safe-area-inset-top) + 58px));transform:translateX(-50%);min-width:220px;max-width:82vw;padding:9px 14px;border-radius:999px;border:1px solid #ffd96a99;background:linear-gradient(135deg,rgba(18,10,20,.92),rgba(69,24,63,.91));box-shadow:0 0 22px #ffcf5944,inset 0 0 15px #ffffff0d;color:#fff;text-align:center;font-size:12px;font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;animation:ktGiftBanner 9.6s ease both}'
    +'.kt-premium-gift-banner b{color:#ffe06f}.kt-premium-gift-obj{position:absolute;filter:drop-shadow(0 8px 16px rgba(0,0,0,.58));will-change:transform,opacity}.kt-premium-gift-obj svg{display:block;width:100%;height:100%}'
-   +'.kt-premium-gift-fx.whale .kt-premium-gift-obj{width:min(52vw,270px);height:min(26vw,135px);left:-58vw;top:25%;animation:ktGiftWhale 7.8s cubic-bezier(.2,.65,.2,1) both}'
-   +'.kt-premium-gift-fx.rocket .kt-premium-gift-obj{width:min(27vw,145px);height:min(50vw,250px);right:8%;bottom:-52vw;animation:ktGiftRocket 7.5s cubic-bezier(.18,.68,.25,1) both}'
-   +'.kt-premium-gift-fx.yacht .kt-premium-gift-obj{width:min(58vw,300px);height:min(26vw,135px);left:-64vw;bottom:19%;animation:ktGiftYacht 7.8s cubic-bezier(.2,.65,.2,1) both}'
-   +'.kt-premium-gift-fx.diamond .kt-premium-gift-obj{width:min(40vw,210px);height:min(40vw,210px);left:50%;top:22%;animation:ktGiftDiamond 7.4s ease both}'
-   +'.kt-premium-gift-fx.gold .kt-premium-gift-obj{width:min(44vw,230px);height:min(34vw,180px);left:-50vw;top:30%;animation:ktGiftGold 7.7s cubic-bezier(.18,.7,.2,1) both}'
+   +'.kt-premium-gift-fx.whale .kt-premium-gift-obj{width:min(52vw,270px);height:min(26vw,135px);left:-58vw;top:25%;animation:ktGiftWhale 9.8s cubic-bezier(.2,.65,.2,1) both}'
+   +'.kt-premium-gift-fx.rocket .kt-premium-gift-obj{width:min(27vw,145px);height:min(50vw,250px);right:8%;bottom:-52vw;animation:ktGiftRocket 9.5s cubic-bezier(.18,.68,.25,1) both}'
+   +'.kt-premium-gift-fx.yacht .kt-premium-gift-obj{width:min(58vw,300px);height:min(26vw,135px);left:-64vw;bottom:19%;animation:ktGiftYacht 9.8s cubic-bezier(.2,.65,.2,1) both}'
+   +'.kt-premium-gift-fx.diamond .kt-premium-gift-obj{width:min(40vw,210px);height:min(40vw,210px);left:50%;top:22%;animation:ktGiftDiamond 9.4s ease both}'
+   +'.kt-premium-gift-fx.gold .kt-premium-gift-obj{width:min(44vw,230px);height:min(34vw,180px);left:-50vw;top:30%;animation:ktGiftGold 9.7s cubic-bezier(.18,.7,.2,1) both}'
    +'@keyframes ktGiftBanner{0%{opacity:0;transform:translate(-50%,-12px) scale(.96)}12%,80%{opacity:1;transform:translate(-50%,0) scale(1)}100%{opacity:0;transform:translate(-50%,-7px) scale(.98)}}'
    +'@keyframes ktGiftWhale{0%{opacity:0;transform:translate3d(0,18px,0) scale(.82) rotate(-3deg)}12%{opacity:1}55%{transform:translate3d(78vw,-8px,0) scale(1.04) rotate(2deg)}100%{opacity:0;transform:translate3d(170vw,8px,0) scale(.96) rotate(-2deg)}}'
    +'@keyframes ktGiftRocket{0%{opacity:0;transform:translate3d(0,0,0) rotate(12deg) scale(.78)}10%{opacity:1}70%{opacity:1;transform:translate3d(-35vw,-92vh,0) rotate(-12deg) scale(1.03)}100%{opacity:0;transform:translate3d(-48vw,-130vh,0) rotate(-17deg) scale(.90)}}'
@@ -2104,19 +2104,42 @@ window.showPremiumGiftFx=function(name,cost,sender){
   wrap.innerHTML='<div class="kt-premium-gift-banner"><b>'+who+'</b> · '+name+' 선물!</div>'
     +'<div class="kt-premium-gift-obj">'+getPremiumGiftSvg(type)+'</div>';
   document.body.appendChild(wrap);
-  setTimeout(function(){if(wrap&&wrap.parentNode)wrap.remove();},8000);
+  setTimeout(function(){if(wrap&&wrap.parentNode)wrap.remove();},10000);
+  return true;
+};
+
+window.showSmallGiftFx=function(name,cost,sender){
+  var old=document.getElementById('ktSmallGiftFx');
+  if(old)old.remove();
+  var icon='🎁';
+  try{
+    var list=window.ktalkGifts||[];
+    for(var i=0;i<list.length;i++){
+      if(String(list[i][0])===String(name)){icon=String(list[i][2]||icon);break;}
+    }
+  }catch(e){}
+  var who=sender?sender:'누군가';
+  var n=document.createElement('div');
+  n.id='ktSmallGiftFx';
+  n.style.cssText='position:fixed;left:50%;top:max(88px,calc(env(safe-area-inset-top) + 70px));transform:translateX(-50%);z-index:10020;max-width:86vw;padding:10px 16px;border-radius:999px;background:linear-gradient(135deg,rgba(24,10,28,.94),rgba(84,25,72,.94));border:1px solid rgba(255,126,211,.75);box-shadow:0 0 20px rgba(255,67,187,.34);color:#fff;font-size:13px;font-weight:950;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none;opacity:0;transition:opacity .18s ease,transform .18s ease';
+  n.innerHTML='<span style="font-size:20px;vertical-align:-2px">'+icon+'</span> <b style="color:#ffe36a">'+who+'</b> · '+String(name||'선물')+' '+String(cost||1)+'개';
+  document.body.appendChild(n);
+  requestAnimationFrame(function(){n.style.opacity='1';n.style.transform='translateX(-50%) translateY(4px)';});
+  setTimeout(function(){try{n.style.opacity='0';n.style.transform='translateX(-50%) translateY(-4px)';}catch(e){}},2200);
+  setTimeout(function(){try{if(n&&n.parentNode)n.remove();}catch(e){}},2600);
   return true;
 };
 
 window.giftSend=function(name,cost,sender){
   var c=parseInt(cost||0,10)||0;
+  if(c<=0)return;
   var isPremium=c>=1000;
   if(!isPremium&&(name.indexOf('왕관')>-1||name.indexOf('크라운')>-1)){showHostCrown(name);}
-  ktAnnounceEvent('gift',{sender:sender||'',name:name,count:cost});
+  ktAnnounceEvent('gift',{sender:sender||'',name:name,count:c});
   if(isPremium){
-    showPremiumGiftFx(name,cost,sender||'');
+    showPremiumGiftFx(name,c,sender||'');
   }else{
-    alert(name+' · '+cost+'개 선물을 선택했습니다.');
+    showSmallGiftFx(name,c,sender||'');
   }
   try{if(typeof window.ktSyncGiftToHost==='function')window.ktSyncGiftToHost(name,c,sender||'');}catch(e){}
 };
