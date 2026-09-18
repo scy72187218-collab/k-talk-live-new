@@ -48,6 +48,7 @@
       +'<button type="button" onclick="ktTotalAdminAction(\'suspend\')">⛔ 회원 정지 <span>›</span></button>'
       +'<button type="button" onclick="ktTotalAdminAction(\'release\')">✅ 정지 해제 <span>›</span></button>'
       +'<button type="button" onclick="ktTotalAdminAction(\'monitor\')">👁 관리 모니터링 '+(monitorOn?'켜짐':'꺼짐')+' <span>›</span></button>'
+      +'<button type="button" onclick="ktTotalAdminAction(\'content\')">📣 광고·동영상 승인 <span>›</span></button>'
       +'<div class="kt-admin-locked-note">관리 기능은 총관리 스위치 안에서만 사용합니다.</div>'
       +'</div></div>';
   }
@@ -61,6 +62,10 @@
 
   window.ktTotalAdminAction=function(kind){
     if(!isOwner())return false;
+    if(kind==='content'){
+      try{if(typeof window.ktOpenContentApprovalAdmin==='function')window.ktOpenContentApprovalAdmin();}catch(e){}
+      return false;
+    }
     if(kind==='monitor'){
       try{
         if(typeof window.ktToggleOwnerMonitorMode==='function'){
