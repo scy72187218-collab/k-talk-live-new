@@ -14,6 +14,11 @@
     }
   }
 
+  function qrTargetUrl(){
+    var u=siteUrl();
+    return u+(u.indexOf('?')>-1?'&':'?')+'from=qr';
+  }
+
   function esc(v){
     return String(v==null?'':v).replace(/[&<>"']/g,function(ch){
       return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
@@ -21,7 +26,7 @@
   }
 
   function qrUrl(size){
-    var url=siteUrl();
+    var url=qrTargetUrl();
     size=size||260;
     return 'https://api.qrserver.com/v1/create-qr-code/?size='+size+'x'+size+'&margin=12&data='+encodeURIComponent(url);
   }
