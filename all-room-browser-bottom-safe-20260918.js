@@ -39,11 +39,27 @@
     document.head.appendChild(s);
   }
 
+  function applyRemoteBottomSafe(px){
+    var bottom=px+10;
+    var chat=px+64;
+    try{
+      document.querySelectorAll('.kt-remote-bottom').forEach(function(el){
+        el.style.setProperty('bottom','calc('+bottom+'px + env(safe-area-inset-bottom))','important');
+        el.style.setProperty('z-index','90','important');
+      });
+      document.querySelectorAll('.kt-remote-chat').forEach(function(el){
+        el.style.setProperty('bottom','calc('+chat+'px + env(safe-area-inset-bottom))','important');
+      });
+    }catch(e){}
+  }
+
   function apply(){
     ensureStyle();
+    var px=guardPx();
     try{
-      document.documentElement.style.setProperty('--kt-room-browser-bottom-safe',guardPx()+'px');
+      document.documentElement.style.setProperty('--kt-room-browser-bottom-safe',px+'px');
     }catch(e){}
+    applyRemoteBottomSafe(px);
   }
 
   apply();
