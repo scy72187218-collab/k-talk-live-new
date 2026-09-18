@@ -27,6 +27,14 @@
   function isOwnerGiftExempt(){
     /* 태권1/하이네2는 선물 테스트용 관리자: 장미 부족/차감 제한 없이 사용 */
     try{
+      var ak=typeof window.ktProfileAccountKey==='function'?String(window.ktProfileAccountKey()||''):'';
+      if(ak==='sub:taekwon1'||ak==='sub:haine2')return true;
+    }catch(e){}
+    try{
+      var an=String(localStorage.getItem('ktalk_active_account_name')||localStorage.getItem('ktalk_profile_name')||'');
+      if(/태권1|하이네2/.test(an))return true;
+    }catch(e){}
+    try{
       var k=localStorage.getItem('ktalk_sub_account')||'';
       if(k==='taekwon1'||k==='haine2')return true;
     }catch(e){}
