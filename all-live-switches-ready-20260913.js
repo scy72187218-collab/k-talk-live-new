@@ -416,3 +416,86 @@
     observer.observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 })();
+
+
+/* 2026-09-19 스위치 관련만 전체 잠금 해제/터치 보강 */
+(function(){
+  if(window.__ktSwitchOnlyUnlock20260919)return;
+  window.__ktSwitchOnlyUnlock20260919=true;
+
+  var selector=[
+    '.kt-switch',
+    '[role="switch"]',
+    '.live-prep .room-switch',
+    '.live-prep .prep-bottom span',
+    '.live-prep .prep-bottom button',
+    '.creator-bottom .modes span',
+    '.creator-bottom .modes button'
+  ].join(',');
+
+  function unlockSwitches(root){
+    root=root||document;
+    var list=[];
+    try{
+      if(root.matches&&root.matches(selector))list.push(root);
+      if(root.querySelectorAll)list=list.concat([].slice.call(root.querySelectorAll(selector)));
+    }catch(e){}
+
+    list.forEach(function(el){
+      if(!el)return;
+      try{
+        /* 스위치만 잠금 해제. 다른 버튼/화면은 손대지 않음 */
+        if(el.disabled)el.disabled=false;
+        if(el.getAttribute('aria-disabled')==='true')el.setAttribute('aria-disabled','false');
+        el.style.setProperty('pointer-events','auto','important');
+        el.style.setProperty('touch-action','manipulation','important');
+        el.style.setProperty('-webkit-tap-highlight-color','transparent','important');
+        el.style.setProperty('user-select','none','important');
+      }catch(e){}
+    });
+  }
+
+  /* 별도 onclick이 없는 순수 스위치만, 기존 코드가 상태를 안 바꿨을 때 fallback 토글 */
+  document.addEventListener('click',function(e){
+    var sw=e.target&&e.target.closest?e.target.closest('.kt-switch,[role="switch"]'):null;
+    if(!sw)return;
+
+    var attr=sw.hasAttribute('aria-checked')?'aria-checked':'aria-pressed';
+    var before=sw.getAttribute(attr);
+    if(before!=='true'&&before!=='false')before=sw.classList.contains('on')?'true':'false';
+
+    setTimeout(function(){
+      try{
+        var after=sw.getAttribute(attr);
+        var classChanged=sw.classList.contains('on')!==(before==='true');
+        /* 기존 기능이 이미 바꿨으면 그대로 둔다 */
+        if(after!==before||classChanged)return;
+
+        /* onclick이 있는 스위치는 기존 동작을 존중한다 */
+        if(sw.getAttribute('onclick'))return;
+
+        var next=before!=='true';
+        sw.classList.toggle('on',next);
+        sw.setAttribute(attr,next?'true':'false');
+      }catch(x){}
+    },0);
+  },false);
+
+  function refresh(){unlockSwitches(document);}
+  refresh();
+  [80,220,500,1000,1800,3000].forEach(function(ms){setTimeout(refresh,ms);});
+
+  try{
+    var mo=new MutationObserver(function(records){
+      records.forEach(function(r){
+        [].slice.call(r.addedNodes||[]).forEach(function(n){
+          if(n&&n.nodeType===1)unlockSwitches(n);
+        });
+      });
+    });
+    mo.observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+
+  window.addEventListener('pageshow',refresh);
+  window.addEventListener('focus',refresh);
+})();
