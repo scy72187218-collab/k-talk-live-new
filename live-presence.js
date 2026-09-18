@@ -446,6 +446,34 @@
     }
   });
 
+  /* 휴대폰에서 홈 버튼/다른 앱으로 나가면 pagehide가 안 오는 브라우저가 있어
+     시청자 쪽만 즉시 퇴장 처리한다. 호스트 방송은 건드리지 않는다. */
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden||!viewerCtx)return;
+    var c=viewerCtx;
+    try{
+      fetch(BASE+'ktalk_live_viewers?host_id=eq.'+enc(c.hostId)+'&viewer_id=eq.'+enc(c.viewerId),{
+        method:'PATCH',headers:headers({Prefer:'return=minimal'}),
+        body:JSON.stringify({active:false,updated_at:nowIso()}),keepalive:true
+      });
+    }catch(e){}
+    try{
+      fetch(BASE+'ktalk_webrtc_sessions?id=eq.'+enc(c.sessionId),{
+        method:'PATCH',headers:headers({Prefer:'return=minimal'}),
+        body:JSON.stringify({active:false,updated_at:nowIso()}),keepalive:true
+      });
+    }catch(e){}
+    try{
+      if(String(c.viewerId||'').indexOf('viewer_')===0){
+        fetch(BASE+'ktalk_webrtc_sessions?host_id=eq.'+enc(c.hostId)+'&viewer_id=eq.'+enc('guest:'+c.viewerId)+'&active=eq.true',{
+          method:'PATCH',headers:headers({Prefer:'return=minimal'}),
+          body:JSON.stringify({active:false,updated_at:nowIso()}),keepalive:true
+        });
+      }
+    }catch(e){}
+    try{window.ktLeaveRemoteLive(true);}catch(e){}
+  });
+
   setInterval(function(){
     if(document.querySelector('.kt-dashboard')||document.querySelector('.friends-list'))renderLiveCards();
   },5000);
