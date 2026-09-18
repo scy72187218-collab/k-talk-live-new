@@ -214,15 +214,50 @@
   }
 
   async function stopHostPresence(){
-    if(!hostActive&&!hostRoomId)return;
+    /* 방송 종료 때 상태값이 이미 풀렸어도 서버의 빨간 LIVE 표시를 반드시 끈다. */
     var hostId=deviceId(),roomId=hostRoomId;hostActive=false;hostRoomId='';
     clearInterval(hostHeartbeat);clearInterval(hostSignalTimer);clearInterval(hostActivityTimer);hostHeartbeat=hostSignalTimer=hostActivityTimer=null;
     Object.keys(hostPeers).forEach(function(k){try{hostPeers[k].pc.close();}catch(e){}});hostPeers={};
-    try{if(roomId)await req('ktalk_live_rooms?id=eq.'+enc(roomId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})});else await req('ktalk_live_rooms?host_id=eq.'+enc(hostId)+'&active=eq.true',{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})});}catch(e){}
-    try{await req('ktalk_webrtc_sessions?host_id=eq.'+enc(hostId)+'&active=eq.true',{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})});}catch(e){}
+
+    /* 내 LIVE 배지는 서버 응답을 기다리지 않고 화면에서 즉시 제거 */
+    try{
+      var peek=document.getElementById('ktVideoLivePeek');
+      if(peek){
+        var own=peek.querySelector('[data-host="'+CSS.escape(String(hostId))+'"]');
+        if(own)peek.remove();
+      }
+    }catch(e){}
+
+    /* roomId 유무와 관계없이 현재 기기의 모든 활성 방송/세션을 종료 */
+    try{
+      await req('ktalk_live_rooms?host_id=eq.'+enc(hostId)+'&active=eq.true',{
+        method:'PATCH',
+        headers:{Prefer:'return=minimal'},
+        body:JSON.stringify({active:false,updated_at:nowIso()})
+      });
+    }catch(e){}
+    try{
+      await req('ktalk_webrtc_sessions?host_id=eq.'+enc(hostId)+'&active=eq.true',{
+        method:'PATCH',
+        headers:{Prefer:'return=minimal'},
+        body:JSON.stringify({active:false,updated_at:nowIso()})
+      });
+    }catch(e){}
     renderLiveCards();
+    try{if(window.ktRefreshVideoLivePeek)window.ktRefreshVideoLivePeek();}catch(e){}
   }
   window.ktStopHostPresence=stopHostPresence;
+
+  /* 방송 화면이 이미 닫혔는데 LIVE 상태만 남는 경우 자동 정리. 다른 화면은 변경하지 않음. */
+  setInterval(function(){
+    try{
+      if(!hostActive&&!hostRoomId)return;
+      if(document.documentElement.classList.contains('kt-remote-viewing'))return;
+      var s=document.getElementById('screen');
+      var opened=!!(s&&s.querySelector('#ktLiveVideo,.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room'));
+      if(!opened)stopHostPresence();
+    }catch(e){}
+  },1200);
 
   function renderRemote(room){
     ensureStyle();document.documentElement.classList.add('kt-remote-viewing');
