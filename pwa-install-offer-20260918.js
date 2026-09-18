@@ -42,7 +42,7 @@
     box.className='kt-pwa-install-offer';
     box.innerHTML=''
       +'<div class="kt-pwa-install-top">'
-      +'<span class="kt-pwa-install-icon"><img src="/ktalk-icon-192.png?v=20260918-install4" alt="K-Talk"></span>'
+      +'<span class="kt-pwa-install-icon"><img src="/ktalk-icon.svg?v=20260918-install7stall4" alt="K-Talk"></span>'
       +'<span class="kt-pwa-install-copy"><b>K-Talk 아이콘을 설치할까요?</b><small>휴대폰 홈 화면에서 바로 K-Talk을 열 수 있습니다.</small></span>'
       +'</div>'
       +'<div class="kt-pwa-install-actions">'
@@ -93,7 +93,7 @@
   try{
     if('serviceWorker' in navigator){
       window.addEventListener('load',function(){
-        navigator.serviceWorker.register('/sw.js?v=20260918-install4').catch(function(){});
+        navigator.serviceWorker.register('/sw.js?v=20260918-install7stall4').catch(function(){});
       });
     }
   }catch(e){}
