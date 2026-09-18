@@ -101,7 +101,8 @@
     selfVideo=main;
     hostVideo=preview;
     selfStream=main.srcObject;
-    hostStream=preview.srcObject;
+    hostStream=(window.__ktRemoteHostStream&&live(window.__ktRemoteHostStream))?window.__ktRemoteHostStream:preview.srcObject;
+    if(hostVideo.srcObject!==hostStream)hostVideo.srcObject=hostStream;
 
     var info=roomInfo(root);
 
@@ -212,6 +213,8 @@
         /* 기존 연결 스트림이 바뀌어도 두 영상만 유지 */
         var hv=room.querySelector('.kgh-cell.host video');
         var sv=room.querySelector('.kgh-cell.self video');
+        var trueHost=(window.__ktRemoteHostStream&&live(window.__ktRemoteHostStream))?window.__ktRemoteHostStream:hostStream;
+        if(trueHost&&trueHost!==selfStream)hostStream=trueHost;
         if(hv&&hostStream&&hv.srcObject!==hostStream)hv.srcObject=hostStream;
         if(sv&&selfStream&&sv.srcObject!==selfStream)sv.srcObject=selfStream;
         return;
