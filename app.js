@@ -521,25 +521,8 @@ window.makeEffectRecordingStream=function(){
   /* 동영상 촬영 결과에만 적용하는 자연스러운 피부·주름 완화 + 메이크업 톤.
      방송방/게스트방/버튼/레이아웃은 건드리지 않는다. */
   function creatorVideoBeautyFilter(){
-    var skin=clamp100(state.beautySkin,94);
-    var wrinkle=clamp100(state.beautyWrinkle,98);
-    var bright=clamp100(state.beautyBright,80);
-    var tone=clamp100(state.beautyTone,70);
-    var makeup=clamp100(state.beautyMakeup,58);
-
-    var b=1.035+(bright/100)*.085+(makeup/100)*.012;
-    var c=.965-(skin/100)*.035-(wrinkle/100)*.055;
-    var s=1.005+(tone/100)*.045+(makeup/100)*.040;
-    var blur=.45+(skin/100)*.62+(wrinkle/100)*.58;
-    var sep=Math.max(0,(tone-45)*.0007+(makeup/100)*.018);
-
-    b=Math.max(1.02,Math.min(1.16,b));
-    c=Math.max(.84,Math.min(.98,c));
-    s=Math.max(1.00,Math.min(1.12,s));
-    blur=Math.max(.55,Math.min(1.75,blur));
-    sep=Math.max(0,Math.min(.055,sep));
-
-    return 'brightness('+b.toFixed(3)+') contrast('+c.toFixed(3)+') saturate('+s.toFixed(3)+') sepia('+sep.toFixed(3)+') blur('+blur.toFixed(2)+'px)';
+    /* 저장 영상 전체는 선명하게 유지하고, 얼굴만 아래에서 별도로 주름 완화 */
+    return 'brightness(1.055) contrast(.945) saturate(1.040)';
   }
 
   function draw(){
@@ -559,7 +542,7 @@ window.makeEffectRecordingStream=function(){
     }
     ctx.restore();
 
-    /* 동영상 저장본에도 촬영 화면과 같은 자연스러운 메이크업을 포함 */
+    /* 저장 영상도 얼굴 부분만 부드럽게: 배경은 흐리지 않음 */
     try{
       var makeupAnchor=document.getElementById('ktCreatorMakeupAnchor');
       var creatorRect=creator&&creator.getBoundingClientRect?creator.getBoundingClientRect():null;
@@ -569,19 +552,42 @@ window.makeEffectRecordingStream=function(){
         var my=((makeupRect.top-creatorRect.top)+(makeupRect.height/2))/creatorRect.height*canvas.height;
         var mw=makeupRect.width/creatorRect.width*canvas.width;
         var mh=makeupRect.height/creatorRect.height*canvas.height;
+
+        /* 얼굴 안쪽만 원본 카메라를 다시 부드럽게 합성 */
         ctx.save();
-        ctx.filter='blur(10px)';
-        ctx.globalAlpha=.17;
-        ctx.fillStyle='rgb(238,80,112)';
-        ctx.beginPath();ctx.ellipse(mx-mw*.27,my+mh*.08,mw*.14,mh*.08,0,0,Math.PI*2);ctx.fill();
-        ctx.beginPath();ctx.ellipse(mx+mw*.27,my+mh*.08,mw*.14,mh*.08,0,0,Math.PI*2);ctx.fill();
+        ctx.beginPath();
+        ctx.ellipse(mx,my+mh*.01,mw*.39,mh*.42,0,0,Math.PI*2);
+        ctx.clip();
+        ctx.globalAlpha=.70;
+        ctx.filter='blur(2.1px) brightness(1.060) contrast(.900) saturate(1.035)';
+        ctx.translate(canvas.width,0);ctx.scale(-1,1);
+        try{ctx.drawImage(camera,dx,dy,dw,dh);}catch(e){}
         ctx.restore();
 
+        /* 피부 톤은 옅게 */
         ctx.save();
-        ctx.filter='blur(2px)';
-        ctx.globalAlpha=.25;
-        ctx.fillStyle='rgb(172,42,74)';
-        ctx.beginPath();ctx.ellipse(mx,my+mh*.29,mw*.14,mh*.045,0,0,Math.PI*2);ctx.fill();
+        ctx.globalAlpha=.055;
+        ctx.fillStyle='rgb(255,226,216)';
+        ctx.beginPath();ctx.ellipse(mx,my,mw*.36,mh*.39,0,0,Math.PI*2);ctx.fill();
+        ctx.restore();
+
+        /* 볼터치도 티 나지 않을 정도로만 */
+        function paintCheek(px){
+          var g=ctx.createRadialGradient(px,my+mh*.055,0,px,my+mh*.055,mw*.105);
+          g.addColorStop(0,'rgba(236,92,116,.075)');
+          g.addColorStop(.45,'rgba(236,92,116,.035)');
+          g.addColorStop(1,'rgba(236,92,116,0)');
+          ctx.fillStyle=g;
+          ctx.beginPath();ctx.ellipse(px,my+mh*.055,mw*.12,mh*.075,0,0,Math.PI*2);ctx.fill();
+        }
+        paintCheek(mx-mw*.225);paintCheek(mx+mw*.225);
+
+        /* 입술색은 아주 약하게 */
+        ctx.save();
+        ctx.globalAlpha=.10;
+        ctx.filter='blur(.8px)';
+        ctx.fillStyle='rgb(165,57,78)';
+        ctx.beginPath();ctx.ellipse(mx,my+mh*.225,mw*.105,mh*.030,0,0,Math.PI*2);ctx.fill();
         ctx.restore();
       }
     }catch(e){}
