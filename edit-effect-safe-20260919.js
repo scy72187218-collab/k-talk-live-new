@@ -69,9 +69,9 @@
     }catch(e){}
   }
 
-  /* 편집효과를 나온 뒤 자동 잠금이 다시 걸리지 않도록 5분 동안 이 화면 버튼만 열린 상태 유지 */
+  /* 편집효과를 나온 뒤 자동 잠금이 다시 걸리지 않도록 작업 중 열린 상태 유지 */
   function holdCreatorUnlocked5Min(){
-    var until=Date.now()+300000;
+    var until=Date.now()+(365*24*60*60*1000); /* 작업 중 수동 잠금 전까지 유지 */
     window.__ktCreatorUnlockHoldUntil=until;
 
     try{
@@ -181,7 +181,7 @@
   window.ktCloseSafeEditEffect=hardClose;
 
   /* 혹시 예전 효과가 남아 있으면 최초 로드 시 바로 정리.
-     현재 테스트 중 자동 잠금 방지를 위해 최초 5분도 열린 상태 유지 */
+     현재 작업 중 자동 잠금 방지를 위해 열린 상태 유지 */
   removeProblemEffects();
   unlockCreator();
   holdCreatorUnlocked5Min();
