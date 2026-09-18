@@ -6,7 +6,7 @@
   var BASE='',KEY='';
   var ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
   var hostPoll=null,viewerPoll=null,hostGuestPeers={},requestNames={},hostGuestMissingSince={};
-  var viewerGuest={pc:null,stream:null,sessionId:'',hostId:'',approvedKey:'',viewTimer:null,prejoinHostStream:null,connectStartedAt:0};
+  var viewerGuest={pc:null,stream:null,sessionId:'',hostId:'',approvedKey:'',viewTimer:null,prejoinHostStream:null,connectStartedAt:0,mediaDenied:false,mediaOpening:false};
 
   function enc(v){return encodeURIComponent(String(v==null?'':v));}
   function esc(v){return String(v==null?'':v).replace(/[&<>\"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c];});}
@@ -292,20 +292,37 @@
     if(viewerGuest.pc)resetViewerGuestPc(viewerGuest.pc);
     stopLocalGuestViewGuard();
 
-    if(viewerGuest.stream){
-      try{viewerGuest.stream.getTracks().forEach(function(t){t.stop();});}catch(e){}
-      viewerGuest.stream=null;
-    }
+    var stream=viewerGuest.stream||null;
+    var liveVideo=false;
+    try{liveVideo=!!(stream&&stream.getVideoTracks&&stream.getVideoTracks().some(function(t){return t.readyState==='live';}));}catch(e){liveVideo=false;}
 
-    var stream=null;
-    try{
-      stream=await navigator.mediaDevices.getUserMedia({
-        video:{facingMode:{ideal:'user'},width:{ideal:1280},height:{ideal:960},aspectRatio:{ideal:1.333333},resizeMode:'none',frameRate:{ideal:30,max:30}},
-        audio:true
-      });
-    }catch(e){
-      try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});}
-      catch(z){return;}
+    /* 이미 한 번 허용해서 살아 있는 게스트 카메라는 재사용한다.
+       권한을 거절한 경우 같은 접속에서 브라우저 허용창을 반복해서 띄우지 않는다. */
+    if(!liveVideo){
+      if(viewerGuest.mediaDenied||viewerGuest.mediaOpening)return;
+      viewerGuest.mediaOpening=true;
+      try{
+        stream=await navigator.mediaDevices.getUserMedia({
+          video:{facingMode:{ideal:'user'},width:{ideal:1280},height:{ideal:960},aspectRatio:{ideal:1.333333},resizeMode:'none',frameRate:{ideal:30,max:30}},
+          audio:true
+        });
+      }catch(e){
+        var denied=String((e&&e.name)||'').toLowerCase();
+        if(denied==='notallowederror'||denied==='permissiondeniederror'||denied==='securityerror'){
+          viewerGuest.mediaDenied=true;
+          viewerGuest.mediaOpening=false;
+          return;
+        }
+        try{
+          stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});
+        }catch(z){
+          var denied2=String((z&&z.name)||'').toLowerCase();
+          if(denied2==='notallowederror'||denied2==='permissiondeniederror'||denied2==='securityerror')viewerGuest.mediaDenied=true;
+          viewerGuest.mediaOpening=false;
+          return;
+        }
+      }
+      viewerGuest.mediaOpening=false;
     }
 
     try{
