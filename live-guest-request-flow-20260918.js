@@ -90,13 +90,23 @@
     });
 
     requestNames=names;
+
+    /* 실제로 지금 방을 보고 있는 기기만 승인 상태로 유지한다.
+       홈 화면/앱 전환 등으로 heartbeat가 끊기면 몇 초 뒤 자동으로 게스트 칸에서 내려간다. */
+    var freshCut=new Date(Date.now()-10000).toISOString();
+    var freshViewers={};
+    try{
+      var vr=await req('ktalk_live_viewers?select=viewer_id,active,updated_at&host_id=eq.'+enc(deviceId())+'&active=eq.true&updated_at=gte.'+enc(freshCut)+'&limit=300')||[];
+      vr.forEach(function(v){freshViewers[String(v.viewer_id||'')]=true;});
+    }catch(e){}
+
     Object.keys(requestAt).forEach(function(vid){
       var reqTs=requestAt[vid],joinTs=joinAt[vid]||'';
       /* 현재 입장 뒤에 직접 신청한 요청만 유효하다. 예전 승인/예전 신청은 재사용하지 않는다. */
       if(joinTs&&reqTs<joinTs)return;
       var apTs=approvedAt[vid]||'';
-      if(apTs&&apTs>=reqTs)approvedNow[vid]=true;
-      else pending.push({vid:vid,name:names[vid]||'게스트'});
+      if(apTs&&apTs>=reqTs&&freshViewers[vid])approvedNow[vid]=true;
+      else if(freshViewers[vid]&&!apTs)pending.push({vid:vid,name:names[vid]||'게스트'});
     });
 
     renderRequestRail(pending);
