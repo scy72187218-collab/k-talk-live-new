@@ -30,26 +30,19 @@
 
   function merge(){
     if(!isOwnerProfile())return;
+
+    var body=document.getElementById('sheetBody');
     var root=document.querySelector('.kt-my-profile');
-    if(!root)return;
+    if(!body||!root)return;
 
-    var cards=[].slice.call(root.querySelectorAll('.kt-level-card'));
-    var owner=root.querySelector('.kt-owner-single-level-card');
-
-    if(!owner){
-      if(cards.length){
-        cards[0].outerHTML=cardHtml();
-      }else{
-        root.insertAdjacentHTML('afterbegin',cardHtml());
-      }
-      owner=root.querySelector('.kt-owner-single-level-card');
-    }
-
-    [].slice.call(root.querySelectorAll('.kt-level-card')).forEach(function(el){
-      if(el!==owner&&el.parentNode)el.parentNode.removeChild(el);
+    /* 프로필 위/안에 중복으로 생긴 기존 레벨 카드 전부 제거 */
+    [].slice.call(body.querySelectorAll('.kt-level-card')).forEach(function(el){
+      if(el&&el.parentNode)el.parentNode.removeChild(el);
     });
-  }
 
+    /* 태권1/하이네2에는 최종 카드 딱 1개만 표시 */
+    root.insertAdjacentHTML('beforebegin',cardHtml());
+  }
   function install(){
     merge();
     [40,120,300,700,1400].forEach(function(ms){setTimeout(merge,ms);});
