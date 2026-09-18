@@ -55,9 +55,11 @@
     if(sh&&!sh.classList.contains('show')){
       try{
         sh.classList.remove('camera-effect-sheet','stage-effect-sheet','beauty-control-sheet');
-        sh.style.setProperty('display','none','important');
-        sh.style.setProperty('pointer-events','none','important');
-        sh.style.setProperty('visibility','hidden','important');
+        /* 닫힌 편집효과가 다음 프로필/설정 sheet를 막지 않도록 inline 차단값 자체를 제거 */
+        sh.style.removeProperty('display');
+        sh.style.removeProperty('pointer-events');
+        sh.style.removeProperty('visibility');
+        if(sh.hasAttribute('inert'))sh.removeAttribute('inert');
       }catch(e){}
     }
 
