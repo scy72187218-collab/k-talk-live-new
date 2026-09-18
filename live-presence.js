@@ -344,8 +344,8 @@
       var sessionId=sessions&&sessions[0]?sessions[0].id:'';if(!sessionId)throw new Error('session');
       var pc=new RTCPeerConnection(ICE);
       viewerCtx={hostId:hostId,viewerId:viewerId,viewerName:p.name||'게스트',sessionId:sessionId,pc:pc,answered:false,signalTimer:null,heartbeat:null,activityTimer:null,lastMsg:''};
-      pc.ontrack=function(ev){var v=document.getElementById('ktRemoteLiveVideo');if(v){v.srcObject=ev.streams[0]||new MediaStream([ev.track]);v.play().catch(function(){});}var st=document.getElementById('ktRemoteLiveStatus');if(st)st.style.display='none';};
-      pc.onconnectionstatechange=function(){var st=document.getElementById('ktRemoteLiveStatus');if(!st)return;if(pc.connectionState==='connected')st.style.display='none';else if(pc.connectionState==='failed'||pc.connectionState==='disconnected'){st.style.display='block';st.textContent='영상 연결을 다시 확인해 주세요.';}};
+      pc.ontrack=function(ev){var v=document.getElementById('ktRemoteLiveVideo');if(v){v.srcObject=ev.streams[0]||new MediaStream([ev.track]);v.play().catch(function(){});}try{if(ev.track){ev.track.onended=function(){if(viewerCtx&&viewerCtx.pc===pc)window.ktLeaveRemoteLive();};}}catch(e){}var st=document.getElementById('ktRemoteLiveStatus');if(st)st.style.display='none';};
+      pc.onconnectionstatechange=function(){var st=document.getElementById('ktRemoteLiveStatus');if(pc.connectionState==='connected'){if(st)st.style.display='none';return;}if(pc.connectionState==='failed'||pc.connectionState==='disconnected'){if(st){st.style.display='block';st.textContent='영상 연결을 다시 확인해 주세요.';}setTimeout(function(){if(viewerCtx&&viewerCtx.pc===pc&&(pc.connectionState==='failed'||pc.connectionState==='disconnected'))window.ktLeaveRemoteLive();},2200);}};
       await insertSystem(hostId,viewerId,viewerCtx.viewerName,viewerCtx.viewerName+'님이 들어왔습니다.');showActivity(viewerCtx.viewerName+'님이 들어왔습니다.');
       viewerCtx.signalTimer=setInterval(remotePollSignal,1100);remotePollSignal();
       viewerCtx.heartbeat=setInterval(remotePollRoom,1500);remotePollRoom();
