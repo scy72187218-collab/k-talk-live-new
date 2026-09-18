@@ -1,15 +1,17 @@
-/* 태권1 프로필 전용 총관리 스위치.
+/* 태권1/하이네2 프로필 전용 총관리 스위치.
    다른 계정/방송/카메라/채팅 기능은 변경하지 않음. */
 (function(){
-  if(window.__ktTaekwon1TotalAdminSwitch20260918)return;
-  window.__ktTaekwon1TotalAdminSwitch20260918=true;
+  if(window.__ktOwnerTotalAdminSwitch20260918)return;
+  window.__ktOwnerTotalAdminSwitch20260918=true;
 
-  function isTaekwon1(){
+  function ownerKey(){
     try{
-      return typeof window.ktGetSelectedSubAccount==='function' &&
-             window.ktGetSelectedSubAccount()==='taekwon1';
-    }catch(e){return false;}
+      if(typeof window.ktGetSelectedSubAccount!=='function')return '';
+      var k=window.ktGetSelectedSubAccount();
+      return (k==='taekwon1'||k==='haine2')?k:'';
+    }catch(e){return '';}
   }
+  function isOwner(){return !!ownerKey();}
 
   function ensureStyle(){
     if(document.getElementById('ktTaekwon1AdminSwitchStyle'))return;
@@ -32,29 +34,47 @@
   }
 
   function panelHtml(){
+    var label=ownerKey()==='haine2'?'하이네2':'태권1';
+    var monitorOn=false;
+    try{monitorOn=!!(window.ktAdminMonitorModeEnabled&&window.ktAdminMonitorModeEnabled());}catch(e){}
     return '<div class="kt-total-admin-wrap" id="ktTotalAdminWrap">'
       +'<button class="kt-total-admin-row" type="button" onclick="ktToggleTotalAdminPanel()">'
       +'<span class="kt-admin-icon">🔐</span>'
-      +'<span class="kt-admin-copy"><b>총관리</b><small>태권1 관리자 전용</small></span>'
+      +'<span class="kt-admin-copy"><b>총관리</b><small>'+label+' 관리자 전용</small></span>'
       +'<span class="kt-admin-toggle" aria-hidden="true"><i></i></span>'
       +'</button>'
       +'<div class="kt-total-admin-panel">'
       +'<button type="button" onclick="ktTotalAdminAction(\'coin\')">🪙 회원 코인 지급 <span>›</span></button>'
       +'<button type="button" onclick="ktTotalAdminAction(\'suspend\')">⛔ 회원 정지 <span>›</span></button>'
       +'<button type="button" onclick="ktTotalAdminAction(\'release\')">✅ 정지 해제 <span>›</span></button>'
+      +'<button type="button" onclick="ktTotalAdminAction(\'monitor\')">👁 관리 모니터링 '+(monitorOn?'켜짐':'꺼짐')+' <span>›</span></button>'
       +'<div class="kt-admin-locked-note">관리 기능은 총관리 스위치 안에서만 사용합니다.</div>'
       +'</div></div>';
   }
 
   window.ktToggleTotalAdminPanel=function(){
-    if(!isTaekwon1())return false;
+    if(!isOwner())return false;
     var box=document.getElementById('ktTotalAdminWrap');
     if(box)box.classList.toggle('open');
     return false;
   };
 
   window.ktTotalAdminAction=function(kind){
-    if(!isTaekwon1())return false;
+    if(!isOwner())return false;
+    if(kind==='monitor'){
+      try{
+        if(typeof window.ktToggleOwnerMonitorMode==='function'){
+          window.ktToggleOwnerMonitorMode();
+          setTimeout(function(){
+            var old=document.getElementById('ktTotalAdminWrap');
+            if(old&&old.parentNode)old.outerHTML=panelHtml();
+            var fresh=document.getElementById('ktTotalAdminWrap');
+            if(fresh)fresh.classList.add('open');
+          },30);
+        }
+      }catch(e){}
+      return false;
+    }
     var name=kind==='coin'?'회원 코인 지급':(kind==='suspend'?'회원 정지':'정지 해제');
     try{alert('🔐 '+name+' 관리 화면입니다.\n보안 관리코드 설정 후 실제 처리 기능을 연결합니다.');}catch(e){}
     return false;
@@ -65,7 +85,7 @@
     var old=window.ktProfileRender;
     var fn=function(){
       var html=String(old.apply(this,arguments));
-      if(!isTaekwon1()||html.indexOf('kt-total-admin-wrap')>-1)return html;
+      if(!isOwner()||html.indexOf('kt-total-admin-wrap')>-1)return html;
       var marker='<button class="kt-profile-switch-btn"';
       var pos=html.indexOf(marker);
       if(pos>-1)return html.slice(0,pos)+panelHtml()+html.slice(pos);
@@ -80,7 +100,7 @@
     ensureStyle();
     wrapRender();
     try{
-      if(isTaekwon1()&&document.querySelector('.kt-my-profile')&&!document.getElementById('ktTotalAdminWrap')){
+      if(isOwner()&&document.querySelector('.kt-my-profile')&&!document.getElementById('ktTotalAdminWrap')){
         var target=document.querySelector('.kt-profile-switch-btn');
         if(target)target.insertAdjacentHTML('beforebegin',panelHtml());
       }
