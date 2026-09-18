@@ -47,7 +47,7 @@
       +'.kgh-cell.host video{transform:none!important}.kgh-cell.self video{left:0!important;top:0!important;width:100%!important;height:100%!important;object-fit:contain!important;object-position:center center!important;transform:scaleX(-1)!important}.kgh-cell.self{outline:2px solid #61d9ff;outline-offset:-2px}'
       +'.kgh-label{position:absolute;left:7px;bottom:6px;z-index:3;padding:3px 7px;border-radius:10px;background:#111d;color:#fff;font-size:10px;font-weight:950}'
       +'.kgh-chat{flex:0 0 64px;position:relative;overflow:hidden;background:#000;display:flex;align-items:flex-end;padding:2px 6px 3px}.kgh-chatbox{width:100%;max-height:60px;overflow:hidden;font-size:10px;font-weight:850;line-height:1.35;color:#fff}'
-      +'.kgh-tools{flex:0 0 52px;display:grid;grid-template-columns:repeat(6,1fr);gap:3px;align-items:start}.kgh-tool{border:0;background:none;color:#fff;min-width:0;font-weight:900;font-size:9px;display:grid;justify-items:center;gap:2px}.kgh-tool i{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#1b1b20,#0b0b0f);border:1px solid #35363d;font-style:normal;font-size:18px;box-shadow:inset 0 0 13px #ffffff08}.kgh-tool span{font-size:8px;color:#fff;white-space:nowrap}'
+      +'.kgh-tools{flex:0 0 52px;display:grid;grid-template-columns:repeat(8,1fr);gap:2px;align-items:start}.kgh-tool{border:0;background:none;color:#fff;min-width:0;font-weight:900;font-size:9px;display:grid;justify-items:center;gap:2px}.kgh-tool i{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#1b1b20,#0b0b0f);border:1px solid #35363d;font-style:normal;font-size:18px;box-shadow:inset 0 0 13px #ffffff08}.kgh-tool span{font-size:8px;color:#fff;white-space:nowrap}'
       +'@media(max-width:390px){.kt-guest-hostlike-room{padding-left:4px;padding-right:4px;gap:3px}.kgh-head{flex-basis:58px;padding:4px 8px}.kgh-air strong{font-size:17px}.kgh-air small{font-size:10px}.kgh-brand{font-size:17px}.kgh-attend{min-width:108px;height:38px;font-size:15px;padding:0 8px}.kgh-led{flex-basis:50px}.kgh-led-track{font-size:20px}.kgh-quick{flex-basis:31px}.kgh-stats{flex-basis:39px}.kgh-stats button,.kgh-viewers{font-size:10px}.kgh-cell{font-size:11px}.kgh-chat{flex-basis:60px}.kgh-tools{flex-basis:48px}.kgh-tool i{width:32px;height:32px;font-size:16px}}';
     document.head.appendChild(s);
   }
@@ -170,6 +170,8 @@
     tools.appendChild(makeTool('🔗','매치',function(){try{if(window.openHostMatchArena)window.openHostMatchArena('1대1');}catch(e){}}));
     tools.appendChild(makeTool('👥','친구',safeAction('shareApp')));
     tools.appendChild(makeTool('💬','메시지',function(){try{var inp=document.querySelector('.kt-remote-chat input, .kt-remote-bottom input');if(inp){inp.focus();return;}if(window.ktGroup13OpenMessage)window.ktGroup13OpenMessage();}catch(e){}}));
+    tools.appendChild(makeTool('🌹','장미',function(){try{if(window.openGifts)window.openGifts();}catch(e){}}));
+    tools.appendChild(makeTool('🎁','선물',function(){try{if(window.openGifts)window.openGifts();}catch(e){}}));
     tools.appendChild(makeTool('↗','공유',safeAction('shareApp')));
     tools.appendChild(makeTool('🪄','효과',function(){try{if(window.openEditEffectPanel)window.openEditEffectPanel();else if(window.ktGroup13Effect)window.ktGroup13Effect();}catch(e){}}));
     tools.appendChild(makeTool('•••','더보기',function(){try{if(window.openLiveSettings)window.openLiveSettings();else if(window.ktGroup13More)window.ktGroup13More();}catch(e){}}));
