@@ -7,6 +7,31 @@
   var UNLOCK_13_LEVEL=20;
   var STORE='ktalk_level_rose_total';
 
+  function ownerAccountKey(){
+    try{
+      var k=localStorage.getItem('ktalk_sub_account')||'';
+      if(k==='taekwon1'||k==='haine2')return k;
+    }catch(e){}
+    try{
+      var s=window.state||{};
+      if(s.ktSubAccount==='taekwon1'||s.ktSubAccount==='haine2')return s.ktSubAccount;
+    }catch(e){}
+    try{
+      if(typeof window.ktGetSelectedSubAccount==='function'){
+        var x=window.ktGetSelectedSubAccount();
+        if(x==='taekwon1'||x==='haine2')return x;
+      }
+    }catch(e){}
+    return '';
+  }
+
+  function ownerBypass(){
+    if(ownerAccountKey())return true;
+    try{if(typeof window.ktIsOwnerLevelExempt==='function'&&window.ktIsOwnerLevelExempt())return true;}catch(e){}
+    try{if(window.state&&(state.ktOwnerAdmin||state.ktOwnerLevelBypass))return true;}catch(e){}
+    return false;
+  }
+
   function n(v){
     v=parseInt(String(v==null?0:v).replace(/[^0-9]/g,''),10);
     return isFinite(v)&&v>0?v:0;
@@ -21,7 +46,7 @@
     return v;
   }
   function getLevelFromTotal(total){return Math.floor(n(total)/STEP);}
-  function getLevel(){return getLevelFromTotal(getTotal());}
+  function getLevel(){return ownerBypass()?1000:getLevelFromTotal(getTotal());}
   function nextNeed(level){return Math.max(0,(level+1)*STEP-getTotal());}
   function badge(level){
     if(level>=21)return {name:'👑 크라운',color:'#ffd84a',edge:'#ffb300'};
@@ -43,8 +68,8 @@
   window.ktLevelGetTotal=getTotal;
   window.ktLevelGetLevel=getLevel;
   window.ktLevelInfo=function(){
-    var total=getTotal();
-    var level=getLevelFromTotal(total);
+    var total=ownerBypass()?50000:getTotal();
+    var level=ownerBypass()?1000:getLevelFromTotal(total);
     return {
       total:total,
       level:level,
@@ -115,7 +140,7 @@
   }
   /* 레벨 20부터 13명방 개설. 관리자 계정은 기존 1000레벨 우회 유지. */
   window.ktLevelCanOpen13=function(){
-    try{if(typeof window.ktIsOwnerLevelExempt==='function'&&window.ktIsOwnerLevelExempt())return true;}catch(e){}
+    if(ownerBypass())return true;
     return getLevel()>=UNLOCK_13_LEVEL;
   };
 
