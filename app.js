@@ -15,6 +15,7 @@ try{
 window.ktSpeak=function(text){
   if(!state.aiVoiceOn||!text||!('speechSynthesis' in window))return;
   try{
+    try{if(speechSynthesis.paused)speechSynthesis.resume();}catch(z){}
     var u=new SpeechSynthesisUtterance(String(text));
     u.lang='ko-KR';
     u.rate=1.02;
