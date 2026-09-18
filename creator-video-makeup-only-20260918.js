@@ -74,7 +74,7 @@
   }
 
   function setNeutralCameraLook(){
-    var f='brightness(1.075) contrast(.975) saturate(1.035)';
+    var f='brightness(1.085) contrast(.975) saturate(1.035)';
     ['camera','cameraBg'].forEach(function(id){
       var v=document.getElementById(id);
       if(!v)return;
@@ -145,8 +145,8 @@
     wc.clearRect(0,0,slot.work.width,slot.work.height);
     wc.save();
     wc.filter=recording
-      ?'blur(.75px) brightness(1.100) contrast(.930) saturate(1.040)'
-      :'blur(.55px) brightness(1.095) contrast(.935) saturate(1.035)';
+      ?'blur(.75px) brightness(1.110) contrast(.930) saturate(1.040)'
+      :'blur(.55px) brightness(1.105) contrast(.935) saturate(1.035)';
     drawMirroredVideo(wc,v,w,map);
     wc.restore();
 
