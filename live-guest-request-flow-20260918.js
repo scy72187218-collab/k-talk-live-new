@@ -92,7 +92,7 @@
       }
 
       if(!hostGuestMissingSince[vid])hostGuestMissingSince[vid]=Date.now();
-      if(Date.now()-hostGuestMissingSince[vid]>12000){
+      if(Date.now()-hostGuestMissingSince[vid]>2200){
         delete hostGuestMissingSince[vid];
         releaseGuestSlot(slot,vid);
       }
