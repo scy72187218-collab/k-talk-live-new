@@ -1,7 +1,7 @@
 /* K-Talk: 승인된 게스트 화면에서 위/아래로 중복되는 방 묶음만 하나로 정리. 호스트/통신/버튼 변경 없음. */
 (function(){
-  if(window.__ktApprovedGuestSingleRoomDedupeOnly20260917)return;
-  window.__ktApprovedGuestSingleRoomDedupeOnly20260917=true;
+  if(window.__ktApprovedGuestSingleRoomDedupeOnly20260918)return;
+  window.__ktApprovedGuestSingleRoomDedupeOnly20260918=true;
 
   function keepOne(root,selector,preferred){
     try{
