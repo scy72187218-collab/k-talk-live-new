@@ -101,6 +101,7 @@
     selfVideo=main;
     hostVideo=preview;
     selfStream=main.srcObject;
+    window.__ktApprovedGuestSelfStream=selfStream;
     hostStream=(window.__ktRemoteHostStream&&live(window.__ktRemoteHostStream))?window.__ktRemoteHostStream:preview.srcObject;
     if(hostVideo.srcObject!==hostStream)hostVideo.srcObject=hostStream;
 
@@ -217,6 +218,7 @@
         if(trueHost&&trueHost!==selfStream)hostStream=trueHost;
         if(hv&&hostStream&&hv.srcObject!==hostStream)hv.srcObject=hostStream;
         if(sv&&selfStream&&sv.srcObject!==selfStream)sv.srcObject=selfStream;
+        if(selfStream&&live(selfStream))window.__ktApprovedGuestSelfStream=selfStream;
         return;
       }
       build(root);
