@@ -39,9 +39,18 @@
     document.head.appendChild(s);
   }
 
-  function applyRemoteBottomSafe(px){
-    var bottom=px+10;
-    var chat=px+64;
+  function remoteGuardPx(){
+    if(standalone())return 6;
+    var ua=String(navigator.userAgent||'').toLowerCase();
+    if(/naver/.test(ua))return 20;
+    if(/android|iphone|ipad|ipod/.test(ua))return 16;
+    return 8;
+  }
+
+  function applyRemoteBottomSafe(){
+    var px=remoteGuardPx();
+    var bottom=px+8;
+    var chat=px+62;
     try{
       document.querySelectorAll('.kt-remote-bottom').forEach(function(el){
         el.style.setProperty('bottom','calc('+bottom+'px + env(safe-area-inset-bottom))','important');
@@ -59,7 +68,7 @@
     try{
       document.documentElement.style.setProperty('--kt-room-browser-bottom-safe',px+'px');
     }catch(e){}
-    applyRemoteBottomSafe(px);
+    applyRemoteBottomSafe();
   }
 
   apply();
