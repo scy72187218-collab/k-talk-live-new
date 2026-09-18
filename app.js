@@ -2348,7 +2348,7 @@ window.openTreasure=function(){
       +'</button>';
   };
   var html='<div class="kt-treasure-shop">'
-    +'<div class="kt-treasure-help"><b>🗝️ 보물상자</b><span>호스트 머리 위에 2분 30초 동안 표시됩니다.<br>시간이 끝나면 누구든지 눌러 받을 수 있습니다.</span></div>'
+    +'<div class="kt-treasure-help"><b>🗝️ 보물상자</b><span>호스트 화면 왼쪽에 2분 30초 동안 표시됩니다.<br>그동안 눌러 참여하고, 시간이 끝나면 남은 수량은 호스트에게 돌아갑니다.</span></div>'
     +'<div class="kt-treasure-picks">'+chest(10)+chest(50)+chest(100)+'</div>'
     +'</div>';
   showSheet('보물상자 올리기',html);
@@ -2400,7 +2400,7 @@ window.goToTreasureRoom=function(){
     +'<div class="kt-view-room-head"><b>🔴 '+t.roomTitle+'</b><button onclick="home()">나가기</button></div>'
     +'<div class="kt-view-host"><div class="kt-view-host-avatar">♛</div><b>HOST LIVE</b><span>보물상자 이벤트 진행 중</span></div>'
     +'<div id="ktViewerTreasureZone" class="kt-live-treasure-zone viewer-zone"></div>'
-    +'<div class="kt-view-room-note">상단 보물상자가 열릴 때까지 기다린 뒤 눌러서 받으세요.</div>'
+    +'<div class="kt-view-room-note">보물상자가 보이는 2분 30초 안에 눌러 참여하세요.</div>'
     +'</section>';
   ktRenderTreasure();
 };
