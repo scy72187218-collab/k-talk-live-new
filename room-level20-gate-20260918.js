@@ -13,6 +13,20 @@
   }
 
   function ownerExempt(){
+    try{
+      var k=localStorage.getItem('ktalk_sub_account')||'';
+      if(k==='taekwon1'||k==='haine2')return true;
+    }catch(e){}
+    try{
+      var s=window.state||{};
+      if(s.ktSubAccount==='taekwon1'||s.ktSubAccount==='haine2')return true;
+    }catch(e){}
+    try{
+      if(typeof window.ktGetSelectedSubAccount==='function'){
+        var x=window.ktGetSelectedSubAccount();
+        if(x==='taekwon1'||x==='haine2')return true;
+      }
+    }catch(e){}
     try{if(typeof window.ktIsOwnerLevelExempt==='function'&&window.ktIsOwnerLevelExempt())return true;}catch(e){}
     try{if(window.state&&(state.ktOwnerAdmin||state.ktOwnerLevelBypass))return true;}catch(e){}
     return false;
