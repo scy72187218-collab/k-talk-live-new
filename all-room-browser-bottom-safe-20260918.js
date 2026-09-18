@@ -13,11 +13,11 @@
   }
 
   function guardPx(){
-    if(standalone())return 6;
+    if(standalone())return 4;
     var ua=String(navigator.userAgent||'').toLowerCase();
-    if(/naver/.test(ua))return 74;
-    if(/android|iphone|ipad|ipod/.test(ua))return 62;
-    return 8;
+    if(/naver/.test(ua))return 18;
+    if(/android|iphone|ipad|ipod/.test(ua))return 14;
+    return 6;
   }
 
   function ensureStyle(){
@@ -27,16 +27,16 @@
     s.textContent=''
       +':root{--kt-room-browser-bottom-safe:62px;--kt-room13-browser-bottom-safe:24px;--kt-subscriber-browser-bottom-safe:14px}'
       +'.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room{'
-        +'padding-bottom:calc(17px + env(safe-area-inset-bottom) + var(--kt-room-browser-bottom-safe))!important;'
+        +'padding-bottom:calc(8px + env(safe-area-inset-bottom) + var(--kt-room-browser-bottom-safe))!important;'
       +'}'
       +'.ktsubscriber-room{'
-        +'padding-bottom:calc(10px + env(safe-area-inset-bottom) + var(--kt-subscriber-browser-bottom-safe))!important;'
+        +'padding-bottom:calc(8px + env(safe-area-inset-bottom) + var(--kt-subscriber-browser-bottom-safe))!important;'
       +'}'
       +'.ktg13-room:not([data-kt-room="9"]):not([data-kt-room="15"]){'
-        +'padding-bottom:calc(17px + env(safe-area-inset-bottom) + var(--kt-room13-browser-bottom-safe))!important;'
+        +'padding-bottom:calc(8px + env(safe-area-inset-bottom) + var(--kt-room13-browser-bottom-safe))!important;'
       +'}'
       +'.ktsolo-tools,.ktg13-tools,.ktsubscriber-tools,.ktsecret-tools{'
-        +'position:relative!important;z-index:30!important;flex-shrink:0!important;padding-bottom:4px!important;'
+        +'position:relative!important;z-index:30!important;flex-shrink:0!important;padding-bottom:2px!important;'
       +'}'
       +'.ktsolo-tool span,.ktg13-tool span,.ktsubscriber-tool span,.ktsecret-tool span{'
         +'position:relative!important;z-index:31!important;line-height:1.2!important;'
@@ -46,19 +46,19 @@
   }
 
   function guardSubscriberPx(){
-    if(standalone())return 6;
+    if(standalone())return 4;
     var ua=String(navigator.userAgent||'').toLowerCase();
-    if(/naver/.test(ua))return 12;
-    if(/android|iphone|ipad|ipod/.test(ua))return 14;
-    return 8;
+    if(/naver/.test(ua))return 10;
+    if(/android|iphone|ipad|ipod/.test(ua))return 10;
+    return 6;
   }
 
   function guard13Px(){
-    if(standalone())return 6;
+    if(standalone())return 4;
     var ua=String(navigator.userAgent||'').toLowerCase();
-    if(/naver/.test(ua))return 14;
-    if(/android|iphone|ipad|ipod/.test(ua))return 18;
-    return 8;
+    if(/naver/.test(ua))return 10;
+    if(/android|iphone|ipad|ipod/.test(ua))return 10;
+    return 6;
   }
 
   function remoteGuardPx(){
