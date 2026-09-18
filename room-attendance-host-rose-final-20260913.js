@@ -73,6 +73,13 @@
   function runCountdown(){
     if(countdownPromise)return countdownPromise;
 
+    /* 5초를 세는 동안 카메라를 뒤에서 미리 준비해서 1 다음에 검은 화면으로 기다리지 않게 한다. */
+    try{
+      if(typeof window.ensureLiveCamera==='function'){
+        Promise.resolve(window.ensureLiveCamera((window.state&&state.cameraFacing)||'user')).catch(function(){});
+      }
+    }catch(e){}
+
     countdownPromise=new Promise(function(resolve){
       removeCountdown();
 
