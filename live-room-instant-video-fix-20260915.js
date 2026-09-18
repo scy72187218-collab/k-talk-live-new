@@ -86,14 +86,14 @@
     if(handoff)return;
     var cam=document.getElementById('camera');
     var s=currentStream();
-    if(!cam||!cam.parentNode||!s)return;
+    if(!cam||!cam.parentNode||!s||cam.readyState<2)return;
 
     var parent=cam.parentNode;
     var next=cam.nextSibling;
     var oldStyle=cam.getAttribute('style');
     var box=document.createElement('div');
     box.id='ktLiveInstantHandoff';
-    box.style.cssText='position:fixed;inset:0;z-index:99990;overflow:hidden;background:#000;pointer-events:none;';
+    box.style.cssText='position:fixed;inset:0;z-index:99990;overflow:hidden;background:transparent;pointer-events:none;';
     document.body.appendChild(box);
     box.appendChild(cam);
 
