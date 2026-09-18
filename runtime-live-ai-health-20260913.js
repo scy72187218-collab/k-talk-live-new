@@ -56,7 +56,7 @@
   load('approved-guest-all-devices-room-transition-20260917.js','__ktApprovedGuestAllDevicesRoomTransition20260917');
 
   /* 승인된 게스트 화면은 호스트의 9/13명방과 같은 한 화면으로 표시. */
-  load('approved-guest-match-host-room-20260918.js?v=20260918-guest50-1','__ktApprovedGuestMatchHostRoom20260918');
+  load('approved-guest-match-host-room-20260918.js?v=20260918-facefit50-1','__ktApprovedGuestMatchHostRoom20260918');
 
   load('host-gift-row-hide-only-20260917.js','__ktHostGiftRowHideOnly20260917');
 })();
