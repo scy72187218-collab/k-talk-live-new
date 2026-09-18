@@ -9,7 +9,7 @@
     s.id='ktAllLiveSwitchesReadyStyle';
     s.textContent=''
       +'.live-prep,.live-prep .prep-grid,.live-prep .prep-card,.live-prep .room-switch-row,.live-prep .prep-bottom{pointer-events:auto!important;position:relative!important;z-index:40!important}'
-      +'.live-prep button,.live-prep input,.live-prep .prep-item,.live-prep .room-switch,.live-prep .prep-bottom span{pointer-events:auto!important;touch-action:manipulation!important;-webkit-tap-highlight-color:transparent!important;position:relative!important;z-index:41!important}'
+      +'.live-prep button,.live-prep input,.live-prep .prep-item,.live-prep .room-switch,.live-prep .prep-bottom span,.live-prep .prep-bottom button,.creator-tools button,.kt-switch,[role="switch"]{pointer-events:auto!important;touch-action:manipulation!important;-webkit-tap-highlight-color:transparent!important;position:relative!important;z-index:41!important}'
       +'.live-prep .room-switch-row{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important}'
       +'.live-prep .room-switch{min-height:48px!important;white-space:nowrap!important}'
       +'.live-prep .room-switch.on{outline:2px solid #ff5ccf!important;box-shadow:0 0 14px rgba(255,76,196,.55)!important}'
@@ -255,6 +255,39 @@
     var tabs=[].slice.call(document.querySelectorAll('.live-prep .prep-bottom span,.live-prep .prep-bottom button'));
     markOne(tabs,el);
     var text=String(el.textContent||'').replace(/\s+/g,'');
+
+    var d=null,label='';
+    if(text.indexOf('1인')>-1){d={type:'solo',name:'1인 방송',max:1};label='1인';}
+    else if(text.indexOf('9명')>-1){d={type:'group9',name:'9명 방송',max:9};label='9명';}
+    else if(text.indexOf('13명')>-1){d={type:'group13',name:'13명 방송',max:13};label='13명';}
+    else if(text.indexOf('구독')>-1){d={type:'subscriber',name:'구독자 방송',max:10};label='구독자';}
+    else if(text.indexOf('비밀')>-1){d={type:'password',name:'비밀방',max:7};label='비밀';}
+
+    if(d){
+      if(typeof window.ktPickBottomRoom==='function'){
+        window.ktPickBottomRoom(el,label,d.type,d.name,d.max);
+      }else{
+        try{
+          if(window.state){
+            state.liveRoomType=d.type;
+            state.liveRoomName=d.name;
+            state.liveRoomMax=d.max;
+          }
+          var title=document.getElementById('liveTitle');
+          if(title){title.value=d.name;title.dataset.autoRoom='1';}
+          var rooms=[].slice.call(document.querySelectorAll('.live-prep .room-switch'));
+          var rb=rooms.find(function(b){return String(b.textContent||'').replace(/\s+/g,'').indexOf(label)>-1;});
+          if(rb&&typeof window.selectPrepRoom==='function')window.selectPrepRoom(rb,d.type,d.name,d.max);
+          var secret=document.getElementById('ktSecretPasswordBox');
+          if(secret){
+            secret.classList.toggle('on',d.type==='password');
+            secret.style.setProperty('display',d.type==='password'?'block':'none','important');
+          }
+        }catch(e){}
+      }
+      return;
+    }
+
     if(text.indexOf('뷰티')>-1||text.indexOf('보정')>-1){
       if(typeof window.openBeautyPanel==='function')window.openBeautyPanel();
     }else if(text.indexOf('편집')>-1||text.indexOf('효과')>-1){
@@ -272,11 +305,19 @@
     var modes=[].slice.call(el.parentNode.querySelectorAll('span,button'));
     markOne(modes,el);
     var text=String(el.textContent||'').replace(/\s+/g,'');
-    var seconds=parseInt(text,10);
+    var ms=0;
+    if(text.indexOf('10분')>-1)ms=600000;
+    else if(text.indexOf('60초')>-1)ms=60000;
+    else if(text.indexOf('15초')>-1)ms=15000;
     try{
       if(window.state){
         state.creatorMode=text.indexOf('라이브')>-1?'live':'record';
-        if(seconds>0)state.recordSeconds=seconds;
+        if(ms>0)state.recordSeconds=Math.round(ms/1000);
+      }
+      if(text.indexOf('라이브')>-1){
+        if(typeof window.openTikLivePrep==='function')window.openTikLivePrep();
+      }else if(ms>0&&typeof window.selectCreatorDuration==='function'){
+        window.selectCreatorDuration(el,ms);
       }
     }catch(e){}
   }
@@ -309,16 +350,58 @@
       return;
     }
 
+    var creatorTool=target.closest('.creator-tools button');
+    if(creatorTool&&!creatorTool.getAttribute('onclick')){
+      var label=String(creatorTool.getAttribute('aria-label')||creatorTool.textContent||'').replace(/\s+/g,'');
+      if(label.indexOf('플래시')>-1){
+        e.preventDefault();e.stopPropagation();
+        var next=!creatorTool.classList.contains('on');
+        creatorTool.classList.toggle('on',next);
+        creatorTool.setAttribute('aria-pressed',next?'true':'false');
+        try{
+          var stream=(window.state&&state.stream)||null;
+          var track=stream&&stream.getVideoTracks?stream.getVideoTracks()[0]:null;
+          var caps=track&&track.getCapabilities?track.getCapabilities():null;
+          if(track&&caps&&caps.torch){
+            track.applyConstraints({advanced:[{torch:next}]}).catch(function(){
+              creatorTool.classList.remove('on');
+              creatorTool.setAttribute('aria-pressed','false');
+            });
+          }else if(typeof window.showSheet==='function'){
+            window.showSheet('플래시','<div class="rowbox"><b>플래시</b><br>이 휴대폰 카메라에서 지원되는 경우 켜고 끌 수 있습니다.</div>');
+          }
+        }catch(err){}
+        return;
+      }
+      if(label.indexOf('타이머')>-1){
+        e.preventDefault();e.stopPropagation();
+        var cur=parseInt(creatorTool.getAttribute('data-kt-timer')||'0',10)||0;
+        var nextTimer=cur===0?3:(cur===3?10:0);
+        creatorTool.setAttribute('data-kt-timer',String(nextTimer));
+        creatorTool.classList.toggle('on',nextTimer>0);
+        creatorTool.setAttribute('aria-pressed',nextTimer>0?'true':'false');
+        creatorTool.textContent=nextTimer?('◔ '+nextTimer+'초'):'◔';
+        try{if(window.state)state.creatorTimerSeconds=nextTimer;}catch(err){}
+        return;
+      }
+      if(label.indexOf('더보기')>-1||String(creatorTool.textContent||'').indexOf('⌄')>-1){
+        e.preventDefault();e.stopPropagation();
+        if(typeof window.openLiveSettings==='function')window.openLiveSettings();
+        return;
+      }
+    }
+
     var sw=target.closest('[role="switch"]');
-    if(sw){
-      var checked=sw.getAttribute('aria-checked')==='true';
-      sw.setAttribute('aria-checked',checked?'false':'true');
+    if(sw&&!sw.getAttribute('onclick')){
+      var attr=sw.hasAttribute('aria-pressed')?'aria-pressed':'aria-checked';
+      var checked=sw.getAttribute(attr)==='true';
+      sw.setAttribute(attr,checked?'false':'true');
       sw.classList.toggle('on',!checked);
     }
   },true);
 
   function strengthen(){
-    var q='.live-prep button,.live-prep span,.creator button,.creator [role="switch"],.sheet button,.sheet [role="switch"]';
+    var q='.live-prep button,.live-prep span,.creator button,.creator [role="switch"],.sheet button,.sheet [role="switch"],.kt-switch,.live-prep .prep-bottom button';
     document.querySelectorAll(q).forEach(function(el){
       el.style.setProperty('pointer-events','auto','important');
       el.style.setProperty('touch-action','manipulation','important');
