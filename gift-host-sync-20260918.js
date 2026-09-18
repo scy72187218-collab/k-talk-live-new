@@ -1,5 +1,5 @@
-/* K-Talk 큰 선물 호스트 화면 동기화.
-   1000개 이상 선물을 호스트 화면에 약 8초 표시. 다른 방송 UI는 변경하지 않음. */
+/* K-Talk 선물 호스트 화면 동기화.
+   장미 1송이부터 모든 선물을 호스트 화면에 표시하고, 1000개 이상은 약 10초 크게 표시. */
 (function(){
   if(window.__ktGiftHostSync20260918)return;
   window.__ktGiftHostSync20260918=true;
@@ -61,10 +61,10 @@
   }
   window.ktSyncGiftToHost=async function(name,cost,sender){
     var c=parseInt(cost||0,10)||0;
-    if(c<1000)return;
+    if(c<=0)return;
     var host=await targetHost();
     if(!host)return;
-    var payload={name:String(name||'큰 선물'),cost:c};
+    var payload={name:String(name||'선물'),cost:c};
     try{
       await req('ktalk_live_messages',{
         method:'POST',headers:{Prefer:'return=minimal'},
@@ -83,11 +83,13 @@
     try{
       var data=JSON.parse(String(row.message||'{}'));
       var cost=parseInt(data.cost||0,10)||0;
-      if(cost<1000)return;
-      if(typeof window.showPremiumGiftFx==='function'){
+      if(cost<=0)return;
+      if(cost>=1000&&typeof window.showPremiumGiftFx==='function'){
         window.showPremiumGiftFx(String(data.name||'큰 선물'),cost,String(row.sender_name||'회원'));
+      }else if(typeof window.showSmallGiftFx==='function'){
+        window.showSmallGiftFx(String(data.name||'선물'),cost,String(row.sender_name||'회원'));
       }
-      try{if(typeof window.ktAnnounceEvent==='function')window.ktAnnounceEvent('gift',{sender:row.sender_name||'',name:data.name||'큰 선물',count:cost});}catch(e){}
+      try{if(typeof window.ktAnnounceEvent==='function')window.ktAnnounceEvent('gift',{sender:row.sender_name||'',name:data.name||'선물',count:cost});}catch(e){}
     }catch(e){}
   }
 
