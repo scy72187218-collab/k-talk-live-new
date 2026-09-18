@@ -1,5 +1,5 @@
 /* K-Talk 카메라 얼굴 보정 전용.
-   카메라를 켜면 얼굴을 추적해서 피부/주름/톤/아주 약한 메이크업만 적용.
+   카메라를 켜면 얼굴을 빠르게 추적해서 피부/주름 보정만 얼굴 윤곽에 붙여 적용.
    방송방·게스트방·채팅·스위치·버튼·레이아웃은 건드리지 않음. */
 (function(){
   if(window.__ktCreatorFaceBeautyV4Installed)return;
@@ -10,6 +10,9 @@
   var raf=0;
   var busy=false;
   var lastAt=0;
+  var lastSeen=0;
+  var scratchPreview=null;
+  var scratchRecording=null;
 
   var FACE_OVAL=[10,338,297,332,284,251,389,356,454,323,361,288,397,365,379,378,400,377,152,148,176,149,150,136,172,58,132,93,234,127,162,21,54,103,67,109];
   var LEFT_EYE=[33,160,158,133,153,144];
@@ -111,73 +114,65 @@
     ctx.restore();
   }
 
+  function getScratch(recording,w,h){
+    var slot=recording?scratchRecording:scratchPreview;
+    var W=Math.max(2,Math.round(w)),H=Math.max(2,Math.round(h));
+    if(!slot){
+      slot={work:document.createElement('canvas'),mask:document.createElement('canvas')};
+      if(recording)scratchRecording=slot;else scratchPreview=slot;
+    }
+    if(slot.work.width!==W||slot.work.height!==H){
+      slot.work.width=W;slot.work.height=H;
+      slot.mask.width=W;slot.mask.height=H;
+    }
+    return slot;
+  }
+
   function drawBeauty(ctx,w,h,v,landmarks,map,recording){
     if(!landmarks||!landmarks.length)return;
 
-    /* 피부 부분만 부드럽게 합성하고 눈/입은 선명하게 남김 */
+    /*
+      얼굴 앞에 떠 보이는 색/화장 레이어는 사용하지 않는다.
+      얼굴 윤곽을 따라가는 '부드러운 피부' 영상만 얇게 겹치고,
+      가장자리는 흐리게 페더링해서 얼굴에 붙어 보이게 한다.
+    */
+    var slot=getScratch(!!recording,w,h);
+    var wc=slot.work.getContext('2d');
+    var mc=slot.mask.getContext('2d');
+    if(!wc||!mc)return;
+
+    wc.setTransform(1,0,0,1,0,0);
+    wc.clearRect(0,0,slot.work.width,slot.work.height);
+    wc.save();
+    wc.filter=recording
+      ?'blur(2.25px) brightness(1.065) contrast(.900) saturate(1.025)'
+      :'blur(1.95px) brightness(1.060) contrast(.905) saturate(1.020)';
+    drawMirroredVideo(wc,v,w,map);
+    wc.restore();
+
+    mc.setTransform(1,0,0,1,0,0);
+    mc.clearRect(0,0,slot.mask.width,slot.mask.height);
+    mc.save();
+    mc.filter=recording?'blur(13px)':'blur(8px)';
+    mc.fillStyle='rgba(255,255,255,.96)';
+    mc.beginPath();
+    pathFrom(mc,landmarks,FACE_OVAL,map);
+    mc.fill();
+    mc.restore();
+
+    wc.save();
+    wc.globalCompositeOperation='destination-in';
+    wc.drawImage(slot.mask,0,0,w,h);
+    wc.restore();
+
     ctx.save();
-    ctx.beginPath();
-    pathFrom(ctx,landmarks,FACE_OVAL,map);
-    pathFrom(ctx,landmarks,LEFT_EYE,map);
-    pathFrom(ctx,landmarks,RIGHT_EYE,map);
-    pathFrom(ctx,landmarks,MOUTH,map);
-    try{ctx.clip('evenodd');}catch(e){ctx.clip();}
-    ctx.globalAlpha=recording?.58:.62;
-    ctx.filter=recording
-      ?'blur(2.8px) brightness(1.085) contrast(.890) saturate(1.040)'
-      :'blur(2.4px) brightness(1.080) contrast(.895) saturate(1.040)';
-    drawMirroredVideo(ctx,v,w,map);
+    ctx.globalAlpha=recording?.64:.66;
+    ctx.drawImage(slot.work,0,0,w,h);
     ctx.restore();
-
-    /* 얇은 베이스 메이크업 */
-    ctx.save();
-    ctx.beginPath();
-    pathFrom(ctx,landmarks,FACE_OVAL,map);
-    ctx.clip();
-    ctx.globalAlpha=.060;
-    ctx.fillStyle='rgb(255,226,215)';
-    ctx.fillRect(0,0,w,h);
-    ctx.restore();
-
-    function pt(i){return map.point(landmarks[i]);}
-
-    /* 볼은 아주 연하게 */
-    var lc=pt(205),rc=pt(425);
-    [lc,rc].forEach(function(p){
-      var radius=Math.max(12,w*.035);
-      var g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,radius);
-      g.addColorStop(0,'rgba(229,91,112,.135)');
-      g.addColorStop(.45,'rgba(229,91,112,.065)');
-      g.addColorStop(1,'rgba(229,91,112,0)');
-      ctx.fillStyle=g;
-      ctx.beginPath();
-      ctx.arc(p.x,p.y,radius,0,Math.PI*2);
-      ctx.fill();
-    });
-
-    /* 입술은 본래 모양을 따라 아주 약하게 */
-    ctx.save();
-    ctx.beginPath();
-    pathFrom(ctx,landmarks,MOUTH,map);
-    ctx.globalAlpha=.16;
-    ctx.fillStyle='rgb(165,55,78)';
-    ctx.filter='blur(.45px)';
-    ctx.fill();
-    ctx.restore();
-
-    /* 눈가 밝기만 살짝 */
-    [pt(159),pt(386)].forEach(function(p){
-      var r=Math.max(8,w*.022);
-      var g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,r);
-      g.addColorStop(0,'rgba(255,245,236,.085)');
-      g.addColorStop(1,'rgba(255,245,236,0)');
-      ctx.fillStyle=g;
-      ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);ctx.fill();
-    });
   }
 
   async function detect(now){
-    if(busy||now-lastAt<70)return;
+    if(busy||now-lastAt<32)return;
     var v=camera();
     if(!active()||!v||v.readyState<2||!v.videoWidth)return;
     busy=true;lastAt=now;
@@ -185,7 +180,8 @@
       var lm=await loadLandmarker();
       if(!lm)return;
       var r=lm.detectForVideo(v,Math.round(performance.now()));
-      if(r&&r.faceLandmarks&&r.faceLandmarks.length)latest=r.faceLandmarks[0];
+      if(r&&r.faceLandmarks&&r.faceLandmarks.length){latest=r.faceLandmarks[0];lastSeen=performance.now();}
+      else if(performance.now()-lastSeen>110)latest=null;
     }catch(e){}finally{busy=false;}
   }
 
@@ -206,7 +202,7 @@
     if(!ctx)return;
     ctx.setTransform(dpr,0,0,dpr,0,0);
     ctx.clearRect(0,0,r.width,r.height);
-    if(latest&&v.readyState>=2){
+    if(latest&&v.readyState>=2&&performance.now()-lastSeen<120){
       var map=coverMap(v,r.width,r.height,true);
       drawBeauty(ctx,r.width,r.height,v,latest,map,false);
     }
@@ -229,7 +225,7 @@
 
   window.ktDrawFaceBeautyForRecording=function(ctx,w,h,v,dx,dy,dw,dh){
     try{
-      if(!latest||!ctx||!v)return;
+      if(!latest||!ctx||!v||performance.now()-lastSeen>140)return;
       var map={
         dx:dx,dy:dy,dw:dw,dh:dh,
         point:function(lm){return {x:w-(dx+lm.x*dw),y:dy+lm.y*dh};}
