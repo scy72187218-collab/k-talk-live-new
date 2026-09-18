@@ -5,6 +5,7 @@
 
   var localStream=null;
   var opening=false;
+  var permissionDenied=false;
 
   function liveTracks(st){
     try{return (st&&st.getVideoTracks?st.getVideoTracks():[]).filter(function(t){return t.readyState==='live';});}
@@ -58,7 +59,7 @@
         return;
       }
 
-      if(opening||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return;
+      if(permissionDenied||opening||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return;
       opening=true;
       try{
         localStream=await navigator.mediaDevices.getUserMedia({
@@ -66,7 +67,18 @@
           audio:false
         });
       }catch(e){
-        try{localStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});}catch(z){localStream=null;}
+        var denied=String((e&&e.name)||'').toLowerCase();
+        if(denied==='notallowederror'||denied==='permissiondeniederror'||denied==='securityerror'){
+          permissionDenied=true;
+          localStream=null;
+        }else{
+          try{localStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});}
+          catch(z){
+            var denied2=String((z&&z.name)||'').toLowerCase();
+            if(denied2==='notallowederror'||denied2==='permissiondeniederror'||denied2==='securityerror')permissionDenied=true;
+            localStream=null;
+          }
+        }
       }
       opening=false;
       if(!streamLive(localStream))return;
