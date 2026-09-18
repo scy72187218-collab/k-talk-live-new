@@ -6,7 +6,7 @@
   window.__ktSwitchHitBridge20260919=true;
 
   var lastEl=null,lastAt=0;
-  var HOLD_MS=365*24*60*60*1000; /* 임시 작업 잠금해제: 수동 재잠금 전까지 유지 */
+  var HOLD_MS=5*60*1000; /* 작업 중 잠금해제 유지: 5분 */
   var holdUntil=Date.now()+HOLD_MS;
 
   function holdFiveMinutes(){
@@ -21,6 +21,10 @@
   }catch(e){holdFiveMinutes();}
 
   window.ktHoldSwitchesUnlocked5m=holdFiveMinutes;
+  window.ktEndSwitchWork=function(){
+    holdUntil=0;
+    try{localStorage.removeItem('ktalk_switch_unlock_until');}catch(e){}
+  };
 
   function visible(el){
     if(!el||!el.isConnected)return false;
