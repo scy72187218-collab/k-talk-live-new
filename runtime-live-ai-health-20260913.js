@@ -55,15 +55,8 @@
   /* 호스트가 승인하면 모든 게스트 폰을 호스트와 같은 9/13명 방 격자로 전환. */
   load('approved-guest-all-devices-room-transition-20260917.js','__ktApprovedGuestAllDevicesRoomTransition20260917');
 
-  /* 승인된 게스트를 칸 안에 넣는 기존 격자 코드. */
-  load('approved-guest-grid-clean-only-20260917.js','__ktApprovedGuestGridCleanOnly20260917');
-  load('approved-guest-person-medium-only-20260917.js','__ktApprovedGuestPersonMediumOnly20260917');
-
-  /* 승인된 게스트 격자에서 내 칸은 반드시 해당 폰의 앞카메라만 표시. */
-  load('approved-guest-self-camera-only-20260917.js','__ktApprovedGuestSelfCameraOnly20260917');
-
-  /* 승인된 게스트 화면에서 방 묶음이 두 번 생길 때 중복 묶음만 제거. */
-  load('approved-guest-one-room-only-20260918.js','__ktApprovedGuestOneRoomOnly20260918');
+  /* 승인된 게스트 화면은 호스트의 9/13명방과 같은 한 화면으로 표시. */
+  load('approved-guest-match-host-room-20260918.js','__ktApprovedGuestMatchHostRoom20260918');
 
   load('host-gift-row-hide-only-20260917.js','__ktHostGiftRowHideOnly20260917');
 })();
