@@ -8,6 +8,7 @@
   var STALE_MS=50000;
   var ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
   var hostActive=false,hostRoomId='',hostHeartbeat=null,hostSignalTimer=null,hostActivityTimer=null;
+  var hostEndLock=false,hostRunToken=0;
   var hostPeers={};
   var viewerCtx=null;
   var lastActivityStamp='';
@@ -114,7 +115,9 @@
     var cut=new Date(Date.now()-STALE_MS).toISOString();
     try{
       var rows=await req('ktalk_live_rooms?select=id,host_id,host_name,title,room_type,room_name,active,started_at,updated_at,host_photo&active=eq.true&updated_at=gte.'+enc(cut)+'&order=started_at.desc&limit=20');
-      return Array.isArray(rows)?rows:[];
+      rows=Array.isArray(rows)?rows:[];
+      if(hostEndLock){var own=deviceId();rows=rows.filter(function(x){return String(x.host_id||'')!==String(own);});}
+      return rows;
     }catch(e){return [];}
   }
   async function viewerCounts(){
@@ -198,7 +201,7 @@
   }
 
   async function startHostPresence(){
-    if(hostActive||!hasLiveLocalVideo())return;
+    if(hostEndLock||hostActive||!hasLiveLocalVideo())return;
     var p=profile(),r=currentRoom(),hostId=deviceId(),stamp=nowIso();
     try{
       await req('ktalk_live_rooms?host_id=eq.'+enc(hostId)+'&active=eq.true',{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:stamp})});
@@ -206,7 +209,8 @@
       hostRoomId=rows&&rows[0]?rows[0].id:'';hostActive=true;lastActivityStamp='';
       showActivity('🔴 방송이 시작되었습니다. 방송목록에 표시됩니다.');
       clearInterval(hostHeartbeat);clearInterval(hostSignalTimer);clearInterval(hostActivityTimer);
-      hostHeartbeat=setInterval(async function(){if(!hostActive||!hostRoomId)return;try{await req('ktalk_live_rooms?id=eq.'+enc(hostRoomId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:true,updated_at:nowIso()})});}catch(e){}},12000);
+      var beatToken=hostRunToken;
+      hostHeartbeat=setInterval(async function(){if(hostEndLock||beatToken!==hostRunToken||!hostActive||!hostRoomId)return;try{await req('ktalk_live_rooms?id=eq.'+enc(hostRoomId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:true,updated_at:nowIso()})});}catch(e){}},12000);
       hostSignalTimer=setInterval(hostProcessSignals,1400);hostProcessSignals();
       hostActivityTimer=setInterval(hostPollActivity,1800);hostPollActivity();
       renderLiveCards();
@@ -215,7 +219,8 @@
 
   async function stopHostPresence(){
     /* 방송 종료 때 상태값이 이미 풀렸어도 서버의 빨간 LIVE 표시를 반드시 끈다. */
-    var hostId=deviceId(),roomId=hostRoomId;hostActive=false;hostRoomId='';
+    var hostId=deviceId(),roomId=hostRoomId;hostEndLock=true;hostRunToken++;var stopToken=hostRunToken;hostActive=false;hostRoomId='';
+    window.__ktHostEndLock=true;window.__ktHostEndLockHostId=hostId;
     clearInterval(hostHeartbeat);clearInterval(hostSignalTimer);clearInterval(hostActivityTimer);hostHeartbeat=hostSignalTimer=hostActivityTimer=null;
     Object.keys(hostPeers).forEach(function(k){try{hostPeers[k].pc.close();}catch(e){}});hostPeers={};
 
@@ -243,6 +248,13 @@
         body:JSON.stringify({active:false,updated_at:nowIso()})
       });
     }catch(e){}
+    /* 종료 직전 실행 중이던 비동기 heartbeat가 늦게 active:true를 쓰는 경우를 다시 덮어쓴다. */
+    [350,1400].forEach(function(delay){setTimeout(function(){
+      if(!hostEndLock||hostRunToken!==stopToken)return;
+      req('ktalk_live_rooms?host_id=eq.'+enc(hostId)+'&active=eq.true',{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})}).catch(function(){});
+      req('ktalk_webrtc_sessions?host_id=eq.'+enc(hostId)+'&active=eq.true',{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})}).catch(function(){});
+      try{if(window.ktRefreshVideoLivePeek)window.ktRefreshVideoLivePeek();}catch(e){}
+    },delay);});
     renderLiveCards();
     try{if(window.ktRefreshVideoLivePeek)window.ktRefreshVideoLivePeek();}catch(e){}
   }
@@ -389,7 +401,7 @@
   }
 
   ensureStyle();
-  wrap('startBroadcast',null,function(){setTimeout(syncHostPresenceAfterStart,260);});
+  wrap('startBroadcast',function(){hostEndLock=false;hostRunToken++;window.__ktHostEndLock=false;window.__ktHostEndLockHostId='';},function(){setTimeout(syncHostPresenceAfterStart,260);});
   wrap('friends',null,function(){setTimeout(renderLiveCards,60);});
   wrap('openDashboard',null,function(){setTimeout(renderLiveCards,60);});
   wrap('openBroadcastList',null,function(){setTimeout(renderLiveCards,60);});
