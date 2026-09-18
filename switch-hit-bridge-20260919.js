@@ -6,7 +6,7 @@
   window.__ktSwitchHitBridge20260919=true;
 
   var lastEl=null,lastAt=0;
-  var HOLD_MS=5*60*1000;
+  var HOLD_MS=365*24*60*60*1000; /* 임시 작업 잠금해제: 수동 재잠금 전까지 유지 */
   var holdUntil=Date.now()+HOLD_MS;
 
   function holdFiveMinutes(){
@@ -282,7 +282,7 @@
   unlock();
   [100,300,700,1200,2200].forEach(function(ms){setTimeout(unlock,ms);});
 
-  /* 자동 잠금이 다시 걸리더라도 5분 동안은 즉시 풀린 상태를 유지 */
+  /* 작업 중 자동 잠금이 다시 걸리더라도 잠금 해제 상태를 계속 유지 */
   var holdTimer=setInterval(function(){
     if(Date.now()>=holdUntil){clearInterval(holdTimer);return;}
     unlock();
