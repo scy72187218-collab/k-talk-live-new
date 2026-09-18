@@ -35,8 +35,8 @@
       +'.kt-remote-live.kt-guest-hostlike-active> :not(.kt-guest-hostlike-room):not(.kt-remote-chat):not(.kt-remote-bottom){display:none!important}'
       +'.kt-guest-hostlike-room{width:100%;height:100dvh;min-height:620px;display:flex;flex-direction:column;overflow:hidden;background:#000;color:#fff;font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif;padding:4px 7px calc(62px + env(safe-area-inset-bottom));gap:4px}'
       +'.kgh-head{flex:0 0 64px;position:relative;border-radius:16px;background:linear-gradient(180deg,#17171a,#0d0d10);box-shadow:inset 0 0 18px #ffffff08;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:5px 12px}'
-      +'.kgh-air{font-weight:950;line-height:1.05}.kgh-air strong{display:block;font-size:20px;white-space:nowrap}.kgh-air strong i{font-style:normal;color:#ff2e67}.kgh-air small{display:block;margin-top:5px;color:#fff;font-size:12px;font-weight:900;white-space:nowrap}.kgh-air small i{font-style:normal;color:#ff315f}.kgh-brand{grid-column:3;justify-self:end;color:#ff3d78;font-size:20px;font-weight:950;white-space:nowrap}'
-      +'.kgh-attend{justify-self:center;min-width:132px;height:43px;padding:0 14px;border-radius:19px;border:2px solid #ff2bbd;background:#130714;color:#ffd52f;font-size:18px;font-weight:950;box-shadow:0 0 8px #ff2bbd,0 0 18px #ff2bbd66;white-space:nowrap}.kgh-led>.kgh-attend{position:absolute!important;left:50%!important;top:50%!important;transform:translate(-50%,-50%)!important;z-index:4!important}'
+      +'.kgh-air{font-weight:950;line-height:1.05}.kgh-air strong{display:block;font-size:20px;white-space:nowrap}.kgh-air strong i{font-style:normal;color:#ff2e67}.kgh-air small{display:block;margin-top:5px;color:#fff;font-size:12px;font-weight:900;white-space:nowrap}.kgh-air small i{font-style:normal;color:#ff315f}.kgh-brand{justify-self:end;color:#ff3d78;font-size:20px;font-weight:950;white-space:nowrap}'
+      +'.kgh-attend{justify-self:center;min-width:132px;height:43px;padding:0 14px;border-radius:19px;border:2px solid #ff2bbd;background:#130714;color:#ffd52f;font-size:18px;font-weight:950;box-shadow:0 0 8px #ff2bbd,0 0 18px #ff2bbd66;white-space:nowrap}'
       +'.kgh-led{flex:0 0 58px;position:relative;border:2px solid #ff28c4;border-radius:22px;background-color:#120712;background-image:radial-gradient(circle,#ff35ce 2px,transparent 2.7px);background-size:13px 13px;overflow:hidden;box-shadow:0 0 9px #ff28c4,0 0 22px #ff28c466}'
       +'.kgh-led-track{position:absolute;left:0;top:0;height:100%;display:flex;align-items:center;white-space:nowrap;will-change:transform;animation:kghMarquee 12s linear infinite;font-size:24px;font-weight:950;color:#ffd62d;text-shadow:0 0 7px #ff8b00}.kgh-led-track span{display:inline-block;padding-right:80px}.kgh-led-track b{color:#ff59c9}@keyframes kghMarquee{from{transform:translateX(55%)}to{transform:translateX(-100%)}}'
       +'.kgh-quick{flex:0 0 35px;display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.kgh-quick button{border:0;border-radius:11px;background:#101014;color:#fff;font-size:11px;font-weight:900}'
@@ -124,7 +124,6 @@
     var led=document.createElement('div');
     led.className='kgh-led';
     led.innerHTML='<div class="kgh-led-track"><span>💗 <b>K-Talk LIVE</b> 환영합니다 ✨ 즐거운 방송 되세요 🌹</span><span>💗 <b>K-Talk LIVE</b> 환영합니다 ✨ 즐거운 방송 되세요 🌹</span></div>';
-    led.appendChild(attend);
 
     var quick=document.createElement('div');
     quick.className='kgh-quick';
