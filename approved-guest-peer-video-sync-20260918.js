@@ -38,6 +38,8 @@
   }
   function selfStream(){
     var host=window.__ktRemoteHostStream||null;
+    var direct=window.__ktApprovedGuestSelfStream||null;
+    if(live(direct)&&direct!==host)return direct;
     var list=[
       document.querySelector('.kt-guest-hostlike-room .kgh-cell.self video'),
       document.querySelector('.kt-approved-guest-grid .kt-approved-guest-cell.self video'),
