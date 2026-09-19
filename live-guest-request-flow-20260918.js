@@ -93,7 +93,7 @@
 
     /* 실제로 지금 방을 보고 있는 기기만 승인 상태로 유지한다.
        홈 화면/앱 전환 등으로 heartbeat가 끊기면 몇 초 뒤 자동으로 게스트 칸에서 내려간다. */
-    var freshCut=new Date(Date.now()-10000).toISOString();
+    var freshCut=new Date(Date.now()-60000).toISOString();
     var freshViewers={};
     try{
       var vr=await req('ktalk_live_viewers?select=viewer_id,active,updated_at&host_id=eq.'+enc(deviceId())+'&active=eq.true&updated_at=gte.'+enc(freshCut)+'&limit=300')||[];
@@ -153,7 +153,7 @@
       }
 
       if(!hostGuestMissingSince[vid])hostGuestMissingSince[vid]=Date.now();
-      if(Date.now()-hostGuestMissingSince[vid]>12000){
+      if(Date.now()-hostGuestMissingSince[vid]>60000){
         delete hostGuestMissingSince[vid];
         releaseGuestSlot(slot,vid);
       }
@@ -164,7 +164,7 @@
       var old=hostGuestPeers[id];
       try{old.close();}catch(e){}
       delete hostGuestPeers[id];
-      /* 자리는 위의 12초 재연결 유예가 관리하므로 여기서 바로 지우지 않음 */
+      /* 자리는 위의 60초 재연결 유예가 관리하므로 여기서 바로 지우지 않음 */
     });
 
     for(var i=0;i<rows.length;i++){
