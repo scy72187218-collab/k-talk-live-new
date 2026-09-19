@@ -26,6 +26,52 @@
     return false;
   }
 
+  async function localRows(){
+    try{
+      if(!('indexedDB' in window))return [];
+      return await new Promise(function(resolve){
+        var req=indexedDB.open('KTALK_VIDEO_DB',1);
+        req.onerror=function(){resolve([]);};
+        req.onupgradeneeded=function(){
+          try{
+            var db=req.result;
+            if(!db.objectStoreNames.contains('videos'))db.createObjectStore('videos',{keyPath:'id'});
+          }catch(e){}
+        };
+        req.onsuccess=function(){
+          var db=req.result;
+          try{
+            var tx=db.transaction('videos','readonly');
+            var q=tx.objectStore('videos').getAll();
+            q.onerror=function(){try{db.close();}catch(e){}resolve([]);};
+            q.onsuccess=function(){
+              var list=(q.result||[])
+                .filter(function(v){return v&&v.blob&&(v.posted||v.publicPosted||!v.draft);})
+                .sort(function(a,b){return (b.postedAt||b.createdAt||0)-(a.postedAt||a.createdAt||0);})
+                .slice(0,40)
+                .map(function(v){
+                  var u='';
+                  try{u=URL.createObjectURL(v.blob);}catch(e){}
+                  return {
+                    id:v.id||('local-'+Date.now()),
+                    author_name:'K-Talk',
+                    title:v.name||'내 동영상',
+                    video_url:u,
+                    created_at:new Date(v.createdAt||Date.now()).toISOString(),
+                    likes:0,
+                    _local:true
+                  };
+                })
+                .filter(function(v){return !!v.video_url;});
+              try{db.close();}catch(e){}
+              resolve(list);
+            };
+          }catch(e){try{db.close();}catch(x){}resolve([]);}
+        };
+      });
+    }catch(e){return [];}
+  }
+
   async function rows(){
     /* 예전에 잘 나오던 영상 목록이 있으면 네트워크를 기다리지 말고 즉시 먼저 표시 */
     try{
@@ -63,6 +109,10 @@
         }
       }
     }catch(e){}
+
+    /* 서버/공개목록이 잠시 안 될 때는 이 휴대폰에 저장되어 있던 동영상을 즉시 보여준다. */
+    var local=await localRows();
+    if(local.length)return local;
     return [];
   }
 
@@ -143,7 +193,7 @@
 
       var a=await rows();
       if(!a.length){
-        screen.innerHTML='<div style="height:calc(100dvh - 78px);display:grid;place-items:center;background:#000;color:#ddd;text-align:center;padding:24px"><div><b style="font-size:16px">동영상을 불러오지 못했습니다.</b><br><span style="font-size:12px;opacity:.75">잠시 후 홈을 다시 눌러 주세요.</span></div></div>';
+        screen.innerHTML='<div style="height:calc(100dvh - 78px);display:grid;place-items:center;background:#000;color:#ddd;text-align:center;padding:24px"><div><b style="font-size:16px">동영상 연결을 다시 확인하고 있습니다.</b><br><span style="font-size:12px;opacity:.75">잠시만 기다려 주세요.</span></div></div>';
         return;
       }
 
