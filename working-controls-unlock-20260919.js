@@ -15,8 +15,8 @@
     try{return localStorage.getItem(KEY)==='1';}catch(e){return false;}
   }
 
-  /* 지금 사용자가 다시 잠금 요청했으므로 잠금 상태로 고정 */
-  setStore(false);
+  /* 사용자가 수정 작업을 다시 허용했으므로 작업 중 잠금 해제 */
+  setStore(true);
 
   var selector=[
     '.kt-switch',
