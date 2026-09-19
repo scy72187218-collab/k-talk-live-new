@@ -73,34 +73,49 @@
     }catch(e){return [];}
   }
 
-  async function rows(){
-    var cached=[];
+  async function fetchRows(url,headersObj,timeoutMs){
+    var ctl=('AbortController' in window)?new AbortController():null;
+    var timer=ctl?setTimeout(function(){try{ctl.abort();}catch(e){}},timeoutMs||4500):0;
     try{
-      var old=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');
-      if(Array.isArray(old))cached=old;
-    }catch(e){}
+      var r=await fetch(url,{
+        cache:'no-store',
+        signal:ctl?ctl.signal:void 0,
+        headers:headersObj||{}
+      });
+      if(timer)clearTimeout(timer);
+      if(!r.ok)return [];
+      var a=await r.json();
+      return Array.isArray(a)?a:[];
+    }catch(e){
+      if(timer)clearTimeout(timer);
+      return [];
+    }
+  }
 
-    /* 항상 서버 최신 공개 동영상 목록을 우선. 삭제 직후에도 남은 영상을 즉시 다시 받는다. */
-    for(var attempt=0;attempt<3;attempt++){
-      try{
-        var ctl=('AbortController' in window)?new AbortController():null;
-        var timer=ctl?setTimeout(function(){try{ctl.abort();}catch(e){}},5000):0;
-        var url='https://zupwbfmacwzexyvznlzq.supabase.co/functions/v1/ktalk-video-feed';
-        var r=await fetch(url,{cache:'no-store',signal:ctl?ctl.signal:void 0,headers:{'x-ktalk-feed':'shared-public-v1'}});
-        if(timer)clearTimeout(timer);
-        if(r.ok){
-          var a=await r.json();
-          if(Array.isArray(a)&&a.length){
-            try{localStorage.setItem('ktalk_fast_feed',JSON.stringify(a));}catch(e){}
-            return a;
-          }
-        }
-      }catch(e){}
-      if(attempt<2)await new Promise(function(resolve){setTimeout(resolve,250+(attempt*250));});
+  async function rows(){
+    var a=[];
+
+    /* 1차: K-Talk 전용 서버 */
+    a=await fetchRows('https://zupwbfmacwzexyvznlzq.supabase.co/functions/v1/ktalk-video-feed',{'x-ktalk-feed':'shared-public-v1'},4500);
+
+    /* 2차: 직접 공개목록 */
+    if(!a.length){
+      a=await fetchRows('https://zupwbfmacwzexyvznlzq.supabase.co/rest/v1/ktalk_videos?select=id,author_name,title,video_url,created_at,likes&order=created_at.desc&limit=40',{apikey:KEY,Authorization:'Bearer '+KEY,'Cache-Control':'no-cache'},4500);
     }
 
-    /* 공용 홈 피드는 모든 기기에서 동일해야 하므로
-       휴대폰별 캐시/IndexedDB 영상을 섞지 않는다. */
+    if(a.length){
+      try{
+        localStorage.setItem('ktalk_fast_feed',JSON.stringify(a));
+        localStorage.setItem('ktalk_fast_feed_saved_at',String(Date.now()));
+      }catch(e){}
+      return a;
+    }
+
+    /* 3차: 마지막 정상 공용 목록 */
+    try{
+      var cached=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');
+      if(Array.isArray(cached)&&cached.length)return cached;
+    }catch(e){}
     return [];
   }
 
