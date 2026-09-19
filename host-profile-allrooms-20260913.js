@@ -139,7 +139,7 @@
   try{
     var mo=new MutationObserver(function(){
       clearTimeout(window.__ktHostProfileAllRoomsTimer);
-      window.__ktHostProfileAllRoomsTimer=setTimeout(apply,140);
+      window.__ktHostProfileAllRoomsTimer=setTimeout(apply,25);
     });
     mo.observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['data-nickname','data-profile-photo','data-level','data-user-level','data-host-level']});
   }catch(e){}
