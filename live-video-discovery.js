@@ -113,7 +113,7 @@
     s.textContent=''
       +'@keyframes ktVideoLivePulse{0%,45%{opacity:1}55%,100%{opacity:.45}}'
       +'@keyframes ktFollowLiveGlow{0%,100%{box-shadow:0 0 5px #ff244f,0 0 11px rgba(255,36,79,.5)}50%{box-shadow:0 0 9px #ff244f,0 0 18px rgba(255,36,79,.8)}}'
-      +'.kt-video-live-peek{position:absolute!important;left:10px!important;top:56px!important;z-index:18!important;max-width:min(88vw,260px)!important;height:48px!important;cursor:pointer!important;pointer-events:auto!important;padding:5px!important;border:1px solid rgba(255,64,103,.75)!important;border-radius:999px!important;background:rgba(8,8,12,.78)!important;color:#fff!important;display:flex!important;align-items:center!important;gap:5px!important;box-shadow:0 0 14px rgba(255,35,82,.3)!important;backdrop-filter:blur(5px)!important;touch-action:manipulation!important}'
+      +'.kt-video-live-peek{position:absolute!important;left:10px!important;top:56px!important;z-index:18!important;max-width:min(94vw,330px)!important;height:48px!important;padding:5px!important;border:1px solid rgba(255,64,103,.75)!important;border-radius:999px!important;background:rgba(8,8,12,.78)!important;color:#fff!important;display:flex!important;align-items:center!important;gap:5px!important;box-shadow:0 0 14px rgba(255,35,82,.3)!important;backdrop-filter:blur(5px)!important;touch-action:manipulation!important}'
       +'body.kt-follow-status-open .kt-video-live-peek{top:126px!important}'
       +'.kt-video-live-peek button{border:0!important;color:#fff!important;touch-action:manipulation!important}'
       +'.kt-video-live-peek .ktvl-person{min-width:0!important;flex:1 1 auto!important;height:38px!important;padding:0!important;background:transparent!important;display:flex!important;align-items:center!important;gap:7px!important;text-align:left!important}'
@@ -323,37 +323,20 @@
     if(old)old.remove();
     var b=document.createElement('div');
     b.id='ktVideoLivePeek';b.className='kt-video-live-peek';b.setAttribute('data-kt-signature',signature);
-    b.setAttribute('role','button');
-    b.setAttribute('tabindex','0');
-    b.setAttribute('aria-label',hostName+' 방송 들어가기');
-    b.innerHTML='<button type="button" class="ktvl-person" aria-label="'+esc(hostName)+' 방송 들어가기"><span class="ktvl-avatar">'+photo+'</span><span class="ktvl-copy"><b>'+esc(hostName)+'</b><small>'+esc(r.title||r.room_name||'방송 중')+'</small></span></button>'
-      +'<button type="button" class="ktvl-live" aria-label="LIVE 방송 들어가기">● LIVE</button>';
+    b.innerHTML='<button type="button" class="ktvl-person" aria-label="방송자 프로필"><span class="ktvl-avatar">'+photo+'</span><span class="ktvl-copy"><b>'+esc(hostName)+'</b><small>'+esc(r.title||r.room_name||'방송 중')+'</small></span></button>'
+      +'<button type="button" class="ktvl-follow" data-host="'+esc(hostId)+'" title="팔로우">+</button>'
+      +'<button type="button" class="ktvl-bell" data-host="'+esc(hostId)+'" title="방송 알림 켜기">🔔</button>'
+      +'<button type="button" class="ktvl-live">● LIVE</button>';
     var person=b.querySelector('.ktvl-person');
+    var follow=b.querySelector('.ktvl-follow');
+    var bell=b.querySelector('.ktvl-bell');
     var live=b.querySelector('.ktvl-live');
-
-    function enterLive(e){
-      try{
-        if(e){
-          e.preventDefault();
-          e.stopPropagation();
-          if(e.stopImmediatePropagation)e.stopImmediatePropagation();
-        }
-      }catch(x){}
-      if(window.ktEnterRemoteLive)window.ktEnterRemoteLive(hostId);
-      return false;
-    }
-
-    /* 아래 동영상 터치로 새지 않게 이 표시 자체가 방송 입장 버튼이 되게 함 */
-    b.addEventListener('pointerdown',function(e){
-      try{e.stopPropagation();}catch(x){}
-    },true);
-    b.onclick=enterLive;
-    if(person)person.onclick=enterLive;
-    if(live)live.onclick=enterLive;
-    b.onkeydown=function(e){
-      if(e&&(e.key==='Enter'||e.key===' '))enterLive(e);
-    };
+    if(person)person.onclick=function(e){e.stopPropagation();window.ktOpenLiveHostActions(hostId,hostName,hostPhoto);};
+    if(follow)follow.onclick=function(e){e.stopPropagation();window.ktToggleLiveHostFollow(hostId,hostName,this);};
+    if(bell)bell.onclick=function(e){e.stopPropagation();window.ktToggleLiveHostAlert(hostId,hostName,this);};
+    if(live)live.onclick=function(e){e.stopPropagation();if(window.ktEnterRemoteLive)window.ktEnterRemoteLive(hostId);};
     host.appendChild(b);
+    paintSocialState(hostId);
   }
 
   window.ktRefreshVideoLivePeek=render;
