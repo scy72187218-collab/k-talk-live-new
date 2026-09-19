@@ -132,8 +132,8 @@
       var rr=room.getBoundingClientRect();
       var er=earn.getBoundingClientRect();
 
-      /* 채팅의 최신 줄 바닥을 오른쪽 노란 수익 박스 바닥과 같은 높이에 맞춤.
-         새 글은 이 높이에서 시작해서 위로 쌓이게 함. */
+      /* 9명방만: 최신 채팅 줄을 오른쪽 노란 수익 박스의 아래 높이와 정확히 맞춤.
+         채팅은 이 높이에서 시작해 새 글이 위로 쌓임. */
       var bottom=Math.max(0, rr.bottom-er.bottom);
 
       chat.style.setProperty('position','absolute','important');
@@ -143,7 +143,9 @@
       chat.style.setProperty('right','40%','important');
       chat.style.setProperty('height','auto','important');
       chat.style.setProperty('max-height','96px','important');
+      chat.style.setProperty('padding','4px 6px 0','important');
       chat.style.setProperty('justify-content','flex-end','important');
+      chat.style.setProperty('transform','translateY(1px)','important');
       chat.dataset.ktNineChatAtEarnBox='1';
     }catch(e){}
   }
