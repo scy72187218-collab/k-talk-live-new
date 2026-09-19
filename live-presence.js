@@ -218,6 +218,9 @@
     var p=profile(),r=currentRoom(),hostId=deviceId(),stamp=nowIso();
     try{
       await req('ktalk_live_rooms?host_id=eq.'+enc(hostId)+'&active=eq.true',{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:stamp})});
+      /* 새 방송 시작 때 이 호스트의 오래 남은 시청자/연결 세션만 정리 */
+      try{await req('ktalk_live_viewers?host_id=eq.'+enc(hostId)+'&active=eq.true',{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:stamp})});}catch(e){}
+      try{await req('ktalk_webrtc_sessions?host_id=eq.'+enc(hostId)+'&active=eq.true',{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:stamp})});}catch(e){}
       var rows=await req('ktalk_live_rooms',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify({host_id:hostId,host_name:p.name,title:r.title,room_type:r.type,room_name:r.name,active:true,started_at:stamp,updated_at:stamp,host_photo:p.photo||null})});
       hostRoomId=rows&&rows[0]?rows[0].id:'';hostActive=true;lastActivityStamp='';
       showActivity('🔴 방송이 시작되었습니다. 방송목록에 표시됩니다.');
