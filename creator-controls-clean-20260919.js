@@ -1,6 +1,6 @@
-/* K-Talk 촬영화면 4개 버튼 잠금/묶음 해제 (2026-09-19)
-   대상만 수정: 되돌리기 / AI 보정 / 편집효과 / 사운드 추가.
-   다른 방송방·게스트·채팅·스위치·하단 촬영 기능은 건드리지 않음. */
+/* K-Talk 촬영화면 버튼 잠금/묶음 해제 (2026-09-19)
+   편집효과 기능은 제거하고, 되돌리기 / AI 보정 / 사운드 추가만 유지.
+   다른 방송방·게스트·채팅·하단 촬영 기능은 건드리지 않음. */
 (function(){
   if(window.__ktCreatorControlsFree20260919)return;
   window.__ktCreatorControlsFree20260919=true;
@@ -14,8 +14,36 @@
     var beauty=creator.querySelector('.creator-tools .creator-tool-text[aria-label="AI 보정"]');
     var effects=creator.querySelector('.creator-tools .creator-tool-text[aria-label="편집 효과"]');
 
+    /* 편집효과는 완전히 제거: 얼굴 앞 장식/배경 분리(투명인간처럼 보이는 화면)도 정리 */
+    if(effects){
+      try{effects.style.setProperty('display','none','important');effects.disabled=true;}catch(e){}
+    }
+    creator.querySelectorAll('.live-prep .prep-item').forEach(function(btn){
+      try{
+        if(String(btn.textContent||'').replace(/\s+/g,'').indexOf('편집효과')>-1){
+          btn.style.setProperty('display','none','important');
+          btn.disabled=true;
+        }
+      }catch(e){}
+    });
+    try{
+      var fx=document.getElementById('ktFaceEffectLayer'); if(fx)fx.remove();
+      var sc=document.getElementById('ktStageCanvas'); if(sc)sc.remove();
+      creator.classList.remove('stage-bg-active','beauty-preview-open');
+      if(window.state){
+        state.editFilter='';
+        state.editSticker='';
+        state.pendingEditEffect='off';
+        state.appliedEditEffect='off';
+        state.stageBackground='';
+        state.stageBackgroundUrl='';
+      }
+      window.ktStageBgImage=null;
+      window.ktStageCanvas=null;
+    }catch(e){}
+
     /* 이전에 묶어둔 캡처/중복 터치 바인딩 흔적 해제 */
-    [rotate,sound,beauty,effects].forEach(function(el){
+    [rotate,sound,beauty].forEach(function(el){
       if(!el)return;
       try{
         delete el.dataset.ktFourButtonsBound;
@@ -64,17 +92,13 @@
       };
     }
 
-    if(effects){
-      effects.onclick=function(){
-        try{if(typeof window.openEditEffectPanel==='function')window.openEditEffectPanel();}catch(e){}
-      };
-    }
 
     if(!document.getElementById('ktCreatorControlsFree20260919Style')){
       var s=document.createElement('style');
       s.id='ktCreatorControlsFree20260919Style';
       s.textContent=`
 #creator:not(.live-prep-open) .creator-tools > button:not(.creator-tool-text){display:none!important}
+#creator .creator-tools .creator-tool-text[aria-label="편집 효과"]{display:none!important}
 #creator:not(.live-prep-open) .creator-tools{
   right:15px!important;top:230px!important;gap:18px!important;
   display:flex!important;flex-direction:column!important;align-items:center!important;
@@ -113,6 +137,27 @@
       document.head.appendChild(s);
     }
   }
+
+  /* 다른 경로에서 편집효과를 호출해도 열리지 않게 하고 잔여 효과만 정리 */
+  window.openEditEffectPanel=function(){
+    try{
+      var creator=document.getElementById('creator');
+      var fx=document.getElementById('ktFaceEffectLayer'); if(fx)fx.remove();
+      var sc=document.getElementById('ktStageCanvas'); if(sc)sc.remove();
+      if(creator)creator.classList.remove('stage-bg-active','beauty-preview-open');
+      if(window.state){
+        state.editFilter='';
+        state.editSticker='';
+        state.pendingEditEffect='off';
+        state.appliedEditEffect='off';
+        state.stageBackground='';
+        state.stageBackgroundUrl='';
+      }
+      var sh=document.getElementById('sheet');
+      if(sh)sh.classList.remove('show','camera-effect-sheet','stage-effect-sheet');
+    }catch(e){}
+    return false;
+  };
 
   window.ktFixCreatorFourButtons=install;
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});
@@ -161,8 +206,7 @@
     if(!creator||!creator.classList.contains('show'))return;
     var list=[
       creator.querySelector('.creator-top .creator-rotate'),
-      creator.querySelector('.creator-tools .creator-tool-text[aria-label="AI 보정"]'),
-      creator.querySelector('.creator-tools .creator-tool-text[aria-label="편집 효과"]')
+      creator.querySelector('.creator-tools .creator-tool-text[aria-label="AI 보정"]')
     ];
     list.forEach(function(el){
       if(!el)return;
