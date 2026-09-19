@@ -201,7 +201,7 @@
 
       var rr=room.getBoundingClientRect();
       var tr=tools.getBoundingClientRect();
-      var bottom=(rr.bottom-tr.top)+3;
+      var bottom=(rr.bottom-tr.top)-22;
       if(!isFinite(bottom))return;
       bottom=Math.max(0,Math.min(140,bottom));
 
