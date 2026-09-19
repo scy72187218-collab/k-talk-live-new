@@ -46,6 +46,44 @@
     var t=await r.text();
     return t?JSON.parse(t):null;
   }
+  /* 빨간 LIVE 입장만 보강: 기존 시청자 행이 있어도 확실히 다시 활성화하고 세션을 재생성한다. */
+  async function ensureViewerPresence(hostId,viewerId,viewerName){
+    var path='ktalk_live_viewers?host_id=eq.'+enc(hostId)+'&viewer_id=eq.'+enc(viewerId);
+    try{
+      var rows=await req(path+'&select=id,active&limit=1');
+      if(rows&&rows.length){
+        await req(path,{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({viewer_name:viewerName,active:true,updated_at:nowIso()})});
+        return true;
+      }
+    }catch(e){}
+    try{
+      await req('ktalk_live_viewers',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({host_id:hostId,viewer_id:viewerId,viewer_name:viewerName,active:true,updated_at:nowIso()})});
+      return true;
+    }catch(e){
+      try{
+        await req(path,{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({viewer_name:viewerName,active:true,updated_at:nowIso()})});
+        var chk=await req(path+'&select=id&limit=1');
+        return !!(chk&&chk.length);
+      }catch(z){return false;}
+    }
+  }
+
+  async function createViewerSession(hostId,viewerId){
+    try{
+      await req('ktalk_webrtc_sessions?host_id=eq.'+enc(hostId)+'&viewer_id=eq.'+enc(viewerId)+'&active=eq.true',{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})});
+    }catch(e){}
+    for(var attempt=0;attempt<2;attempt++){
+      try{
+        var sessions=await req('ktalk_webrtc_sessions',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify({host_id:hostId,viewer_id:viewerId,offer_sdp:'pending',answer_sdp:null,active:true,updated_at:nowIso()})});
+        var sid=sessions&&sessions[0]?sessions[0].id:'';
+        if(sid)return sid;
+      }catch(e){
+        if(attempt===0)await new Promise(function(resolve){setTimeout(resolve,450);});
+      }
+    }
+    return '';
+  }
+
   function enc(v){return encodeURIComponent(String(v==null?'':v));}
   function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   function nowIso(){return new Date().toISOString();}
@@ -366,10 +404,10 @@
       try{monitorMode=!!(window.ktAdminMonitorModeEnabled&&window.ktAdminMonitorModeEnabled());}catch(e){}
       var viewerId=(monitorMode?'monitor_':'viewer_')+deviceId();
       var viewerName=monitorMode?'👑 관리자 모니터링':(p.name||'게스트');
-      await req('ktalk_live_viewers?on_conflict=host_id,viewer_id',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({host_id:hostId,viewer_id:viewerId,viewer_name:viewerName,active:true,updated_at:nowIso()})});
-      await req('ktalk_webrtc_sessions?host_id=eq.'+enc(hostId)+'&viewer_id=eq.'+enc(viewerId)+'&active=eq.true',{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})});
-      var sessions=await req('ktalk_webrtc_sessions',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify({host_id:hostId,viewer_id:viewerId,offer_sdp:'pending',answer_sdp:null,active:true,updated_at:nowIso()})});
-      var sessionId=sessions&&sessions[0]?sessions[0].id:'';if(!sessionId)throw new Error('session');
+      var viewerReady=await ensureViewerPresence(hostId,viewerId,viewerName);
+      if(!viewerReady)throw new Error('viewer-presence');
+      var sessionId=await createViewerSession(hostId,viewerId);
+      if(!sessionId)throw new Error('session');
       var pc=new RTCPeerConnection(ICE);
       viewerCtx={hostId:hostId,viewerId:viewerId,viewerName:viewerName,monitorMode:monitorMode,sessionId:sessionId,pc:pc,answered:false,signalTimer:null,heartbeat:null,activityTimer:null,lastMsg:''};
       pc.ontrack=function(ev){var hs=ev.streams[0]||new MediaStream([ev.track]);window.__ktRemoteHostStream=hs;var v=document.getElementById('ktRemoteLiveVideo');if(v){v.srcObject=hs;v.play().catch(function(){});}try{if(ev.track){ev.track.onended=function(){if(viewerCtx&&viewerCtx.pc===pc)window.ktLeaveRemoteLive();};ev.track.onmute=function(){var tr=ev.track;setTimeout(function(){if(viewerCtx&&viewerCtx.pc===pc&&tr.muted)window.ktLeaveRemoteLive();},2500);};}}catch(e){}var st=document.getElementById('ktRemoteLiveStatus');if(st)st.style.display='none';};
