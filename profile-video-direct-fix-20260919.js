@@ -170,7 +170,19 @@
     document.head.appendChild(s);
   }
 
+  function clearOldVideoLock(){
+    try{
+      document.querySelectorAll('.kt-video-lock-cover').forEach(function(el){el.remove();});
+      document.querySelectorAll('video[data-kt-video-locked]').forEach(function(v){
+        v.removeAttribute('data-kt-video-locked');
+        v.style.removeProperty('pointer-events');
+        v.controls=false;
+      });
+    }catch(e){}
+  }
+
   function install(){
+    clearOldVideoLock();
     installProfileDirect();
     wrapCloseSheet();
     ensureStyle();
