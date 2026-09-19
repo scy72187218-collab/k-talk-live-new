@@ -190,7 +190,7 @@
       if(guard&&window[guard]){if(done)done();return;}
       var exists=[].slice.call(document.scripts).some(function(s){return String(s.src||'').indexOf(src)>-1;});
       if(exists){if(done)setTimeout(done,80);return;}
-      var sc=document.createElement('script');sc.src=src+'?v=20260918-no-start-fullscreen1';sc.onload=function(){if(done)done();};sc.onerror=function(){if(done)done();};document.body.appendChild(sc);
+      var sc=document.createElement('script');sc.src=src+'?v=20260919-chat-lower1';sc.onload=function(){if(done)done();};sc.onerror=function(){if(done)done();};document.body.appendChild(sc);
     }catch(e){if(done)done();}
   }
 
