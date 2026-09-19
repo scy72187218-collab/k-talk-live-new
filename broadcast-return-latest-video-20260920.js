@@ -26,15 +26,16 @@
       if(typeof window.ktStopHostPresence==='function')window.ktStopHostPresence();
     }catch(e){}
 
-    /* 서버 최신 목록 강제 새로고침 */
+    /* 동영상 홈은 공용 서버 피드 하나만 사용 */
     try{
-      if(typeof window.ktForceHomeVideoRecovery==='function'){
-        window.ktForceHomeVideoRecovery(true);
-        setTimeout(function(){try{window.ktForceHomeVideoRecovery(true);}catch(e){}},420);
-        return;
-      }
       if(typeof window.ktShowSharedServerFeed==='function'){
         window.ktShowSharedServerFeed();
+        setTimeout(function(){
+          try{
+            var s=document.getElementById('screen');
+            if(s&&!s.querySelector('.kt-public-video'))window.ktShowSharedServerFeed();
+          }catch(e){}
+        },900);
         return;
       }
     }catch(e){}
