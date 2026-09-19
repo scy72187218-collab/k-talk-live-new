@@ -20,10 +20,10 @@
     if(retrying||busyElsewhere())return;
     retrying=true;
     try{
-      if(typeof window.ktShowSharedServerFeed==='function'){
-        await window.ktShowSharedServerFeed();
-      }else if(typeof window.ktForceHomeVideoRecovery==='function'){
+      if(typeof window.ktForceHomeVideoRecovery==='function'){
         await window.ktForceHomeVideoRecovery(true);
+      }else if(typeof window.ktShowSharedServerFeed==='function'){
+        await window.ktShowSharedServerFeed();
       }else if(typeof window.home==='function'){
         window.home();
       }
