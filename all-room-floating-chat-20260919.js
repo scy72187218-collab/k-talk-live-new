@@ -129,17 +129,21 @@
       var tools=room.querySelector('.ktg13-tools');
       if(!chat||!tools)return;
 
-      chat.style.setProperty('position','absolute','important');
-      chat.style.setProperty('bottom','auto','important');
-      chat.style.setProperty('left','8px','important');
-      chat.style.setProperty('right','40%','important');
-
-      /* 내용 높이를 실제로 재서, 최신 채팅 줄의 아래쪽이 매치 버튼 위 6px에 오게 한다. */
       var rr=room.getBoundingClientRect();
       var tr=tools.getBoundingClientRect();
-      var ch=Math.max(22,Math.min(96,chat.getBoundingClientRect().height||22));
-      var top=Math.max(0,(tr.top-rr.top)-ch-6);
-      chat.style.setProperty('top',top+'px','important');
+
+      /* 채팅의 맨 아래 줄을 '매치' 버튼 줄 바로 위 2px에 고정.
+         새 글은 이 자리에서 시작해서 위로 쌓임. */
+      var bottom=Math.max(0,(rr.bottom-tr.top)+2);
+
+      chat.style.setProperty('position','absolute','important');
+      chat.style.setProperty('top','auto','important');
+      chat.style.setProperty('bottom',bottom+'px','important');
+      chat.style.setProperty('left','8px','important');
+      chat.style.setProperty('right','40%','important');
+      chat.style.setProperty('height','auto','important');
+      chat.style.setProperty('max-height','96px','important');
+      chat.style.setProperty('justify-content','flex-end','important');
       chat.dataset.ktNineChatAtMatchTop='1';
     }catch(e){}
   }
@@ -167,4 +171,6 @@
       window.__ktAllRoomFloatingChatTimer=setTimeout(keepBottom,25);
     }).observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
+  window.addEventListener('resize',function(){setTimeout(placeNineChat,30);});
+  window.addEventListener('orientationchange',function(){setTimeout(placeNineChat,120);});
 })();
