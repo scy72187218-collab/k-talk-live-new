@@ -25,7 +25,7 @@
       echoCancellation:false,
       noiseSuppression:false,
       autoGainControl:false,
-      sampleRate:{ideal:44100},
+      sampleRate:{ideal:48000},
       channelCount:{ideal:2}
     };
     var tries=[];
