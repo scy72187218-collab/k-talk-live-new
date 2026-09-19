@@ -1,102 +1,47 @@
-/* K-Talk: AI 보정 / 편집효과 완전 제거 (2026-09-19)
-   이 두 기능만 제거. 다른 촬영/방송/채팅/게스트/스위치 기능은 변경하지 않음. */
+/* K-Talk: AI 보정 / 편집효과 버튼만 제거 (2026-09-19)
+   다른 촬영/방송/채팅/게스트/스위치 기능은 변경하지 않음. */
 (function(){
   if(window.__ktRemoveAiEditControls20260919)return;
   window.__ktRemoveAiEditControls20260919=true;
 
-  function removeNode(el){
+  function hideOne(el){
     if(!el)return;
     try{
-      if(el.parentNode)el.parentNode.removeChild(el);
+      el.style.setProperty('display','none','important');
+      el.style.setProperty('pointer-events','none','important');
+      el.setAttribute('aria-hidden','true');
+      if(el.tagName==='BUTTON')el.disabled=true;
     }catch(e){}
   }
 
-  function clearOldEffectLayers(){
-    try{if(typeof window.ktStopFaceTrackingFor==='function')window.ktStopFaceTrackingFor('creator');}catch(e){}
-    removeNode(document.getElementById('ktFaceEffectLayer'));
-    removeNode(document.getElementById('ktStageCanvas'));
-    try{
-      if(window.state){
-        state.editSticker='';
-        state.editFilter='';
-        state.pendingEditEffect='off';
-        state.appliedEditEffect='off';
-        state.stageBackground='';
-        state.stageBackgroundUrl='';
-      }
-      window.ktStageCanvas=null;
-      window.ktStageBgImage=null;
-      window.ktStageLoopRunning=false;
-    }catch(e){}
-    try{
-      var c=document.getElementById('creator');
-      if(c){
-        c.classList.remove('stage-bg-active','beauty-preview-open');
-        c.removeAttribute('data-beauty-char');
-      }
-    }catch(e){}
-  }
+  function apply(){
+    /* 촬영 화면 오른쪽 AI 보정 / 편집효과 */
+    hideOne(document.querySelector('#creator .creator-tools .creator-tool-text[aria-label="AI 보정"]'));
+    hideOne(document.querySelector('#creator .creator-tools .creator-tool-text[aria-label="편집 효과"]'));
 
-  function closeRemovedPanel(){
-    try{
-      var sh=document.getElementById('sheet');
-      var title=document.getElementById('sheetTitle');
-      var txt=title?String(title.textContent||'').replace(/\s+/g,''):'';
-      if(sh&&sh.classList.contains('show')&&(txt.indexOf('뷰티')>-1||txt.indexOf('편집효과')>-1)){
-        if(typeof window.closeSheet==='function')window.closeSheet();
-        else sh.classList.remove('show');
-      }
-    }catch(e){}
-  }
-
-  function removeControls(){
-    /* 촬영 화면 오른쪽 두 버튼 완전 제거 */
-    document.querySelectorAll(
-      '#creator .creator-tools .creator-tool-text[aria-label="AI 보정"],'+
-      '#creator .creator-tools .creator-tool-text[aria-label="편집 효과"]'
-    ).forEach(removeNode);
-
-    /* 라이브 준비 화면의 같은 두 버튼 완전 제거 */
+    /* 라이브 준비 화면의 같은 두 기능도 숨김 */
     document.querySelectorAll('#creator .live-prep .prep-item').forEach(function(btn){
       var t=String(btn.textContent||'').replace(/\s+/g,'');
-      if(t.indexOf('AI보정')>-1||t.indexOf('편집효과')>-1)removeNode(btn);
+      if(t.indexOf('AI보정')>-1||t.indexOf('편집효과')>-1)hideOne(btn);
     });
 
-    closeRemovedPanel();
-    clearOldEffectLayers();
+    /* 이미 해당 패널이 열려 있다면 그 패널만 닫고 촬영 화면으로 복귀 */
+    try{
+      var sheet=document.getElementById('sheet');
+      var title=document.getElementById('sheetTitle');
+      var txt=title?String(title.textContent||'').replace(/\s+/g,''):'';
+      if(sheet&&sheet.classList.contains('show')&&(txt.indexOf('뷰티')>-1||txt.indexOf('편집효과')>-1)){
+        if(typeof window.closeSheet==='function')window.closeSheet();
+      }
+    }catch(e){}
   }
 
-  /* 혹시 다른 코드가 호출해도 해당 패널이 다시 열리지 않게 차단 */
-  window.openBeautyPanel=function(){
-    closeRemovedPanel();
-    return false;
-  };
-  window.openEditEffectPanel=function(){
-    closeRemovedPanel();
-    clearOldEffectLayers();
-    return false;
-  };
-
-  /* CSS도 마지막 안전망으로 유지 */
-  if(!document.getElementById('ktRemoveAiEditControlsStyle20260919')){
-    var s=document.createElement('style');
-    s.id='ktRemoveAiEditControlsStyle20260919';
-    s.textContent=
-      '#creator .creator-tools .creator-tool-text[aria-label="AI 보정"],'+
-      '#creator .creator-tools .creator-tool-text[aria-label="편집 효과"]{display:none!important;visibility:hidden!important;pointer-events:none!important}';
-    document.head.appendChild(s);
-  }
-
-  removeControls();
-  [60,180,420,900,1600,2600].forEach(function(ms){setTimeout(removeControls,ms);});
-
+  apply();
+  [80,220,500,1000,1800,3000].forEach(function(ms){setTimeout(apply,ms);});
   try{
     new MutationObserver(function(){
       clearTimeout(window.__ktRemoveAiEditTimer);
-      window.__ktRemoveAiEditTimer=setTimeout(removeControls,20);
+      window.__ktRemoveAiEditTimer=setTimeout(apply,25);
     }).observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
-
-  window.addEventListener('pageshow',removeControls);
-  window.addEventListener('focus',removeControls);
 })();
