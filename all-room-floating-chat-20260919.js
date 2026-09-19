@@ -161,6 +161,47 @@
       chat.dataset.ktNineChatAtMatch='fixed-exact-above-match-20260919-v4';
     }catch(e){}
   }
+
+  function placeSubscriberChat(){
+    try{
+      var room=document.querySelector('#screen .ktsubscriber-room');
+      if(!room)return;
+      var chat=room.querySelector('.ktsubscriber-chat');
+      var match=room.querySelector('.ktsubscriber-tools .ktsubscriber-tool:first-child');
+      if(!chat||!match)return;
+
+      /* 구독자방 채팅만: 매치/친구/메시지/장미 버튼줄 바로 위에서 시작 */
+      var mr=match.getBoundingClientRect();
+      var rr=room.getBoundingClientRect();
+      var h=72;
+      var top=Math.round(mr.top-h-4);
+      if(!isFinite(top))return;
+
+      chat.style.setProperty('position','fixed','important');
+      chat.style.setProperty('left',Math.round(rr.left+8)+'px','important');
+      chat.style.setProperty('right','auto','important');
+      chat.style.setProperty('top',top+'px','important');
+      chat.style.setProperty('bottom','auto','important');
+      chat.style.setProperty('width',Math.max(180,Math.round((rr.width||window.innerWidth)*0.58))+'px','important');
+      chat.style.setProperty('height',h+'px','important');
+      chat.style.setProperty('min-height',h+'px','important');
+      chat.style.setProperty('max-height',h+'px','important');
+      chat.style.setProperty('padding','0 6px 2px','important');
+      chat.style.setProperty('margin','0','important');
+      chat.style.setProperty('display','flex','important');
+      chat.style.setProperty('flex-direction','column','important');
+      chat.style.setProperty('justify-content','flex-end','important');
+      chat.style.setProperty('overflow','hidden','important');
+      chat.style.setProperty('background','transparent','important');
+      chat.style.setProperty('border','0','important');
+      chat.style.setProperty('box-shadow','none','important');
+      chat.style.setProperty('transform','none','important');
+      chat.style.setProperty('z-index','500','important');
+      chat.style.setProperty('pointer-events','none','important');
+      chat.dataset.ktSubscriberChatAtMatch='fixed-exact-above-match-20260919-v1';
+    }catch(e){}
+  }
+
   window.__ktNineChatMatchTop20260919=true;
 
   function keepBottom(){
@@ -174,6 +215,7 @@
       try{box.scrollTop=box.scrollHeight;}catch(e){}
     });
     placeNineChat();
+    placeSubscriberChat();
   }
 
   install();
@@ -185,7 +227,7 @@
       window.__ktAllRoomFloatingChatTimer=setTimeout(keepBottom,25);
     }).observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
-  window.addEventListener('resize',function(){setTimeout(placeNineChat,30);});
-  window.addEventListener('orientationchange',function(){setTimeout(placeNineChat,120);});
-  window.__ktNineChatExactFollowTimer20260919=setInterval(placeNineChat,300);
+  window.addEventListener('resize',function(){setTimeout(function(){placeNineChat();placeSubscriberChat();},30);});
+  window.addEventListener('orientationchange',function(){setTimeout(function(){placeNineChat();placeSubscriberChat();},120);});
+  window.__ktNineChatExactFollowTimer20260919=setInterval(function(){placeNineChat();placeSubscriberChat();},300);
 })();
