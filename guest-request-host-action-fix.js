@@ -48,7 +48,7 @@
       +'.ktg13-chat .ktGuestPendingLine b{color:#7deaff!important}.ktg13-chat .ktGuestPendingLine span{color:#fff!important}'
       +'#ktGuestHostChoice{position:absolute!important;left:6px!important;bottom:76px!important;z-index:90!important;display:flex!important;align-items:center!important;gap:5px!important;padding:5px!important;border:1px solid #454954!important;border-radius:12px!important;background:rgba(7,9,13,.98)!important;box-shadow:0 4px 18px #000b!important;pointer-events:auto!important}'
       +'#ktGuestHostChoice .kt-choice-name{max-width:92px!important;color:#fff!important;font-size:9px!important;font-weight:950!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;padding:0 3px!important}'
-      +'#ktGuestHostChoice button{height:30px!important;border-radius:10px!important;padding:0 9px!important;font-size:9px!important;font-weight:950!important;color:#fff!important;border:1px solid #444!important;background:#17191f!important;pointer-events:auto!important;touch-action:manipulation!important;position:relative!important;z-index:2147483001!important}'
+      +'#ktGuestHostChoice button{height:30px!important;border-radius:10px!important;padding:0 9px!important;font-size:9px!important;font-weight:950!important;color:#fff!important;border:1px solid #444!important;background:#17191f!important}'
       +'#ktGuestHostChoice .approve{border-color:#52dfff!important;background:#073342!important}'
       +'#ktGuestHostChoice .reject{border-color:#a8acb7!important;background:#292b31!important}'
       +'#ktGuestHostChoice .block{border-color:#ff657e!important;background:#43131c!important}'
@@ -72,8 +72,6 @@
     ensureStyle();closeChoice();
     var mid=document.querySelector('.ktg13-mid');if(!mid)return;
     var box=document.createElement('div');box.id='ktGuestHostChoice';
-    box.dataset.viewerId=String(x.vid||'');
-    box.dataset.viewerName=String(x.name||'게스트');
     box.innerHTML='<span class="kt-choice-name">👤 '+esc(x.name||'게스트')+'</span>'
       +'<button type="button" class="approve">올리기</button>'
       +'<button type="button" class="reject">거부하기</button>'
@@ -102,31 +100,6 @@
     });
     try{list.scrollTop=list.scrollHeight;}catch(e){}
   }
-
-  /* 9명방 호스트의 올리기/거부/차단 버튼을 터치 즉시 처리.
-     클릭 이벤트가 채팅/오버레이에 먹히는 경우를 막는다. */
-  var __ktGuestChoiceLastTap=0;
-  function directChoiceTap(e){
-    var btn=e.target&&e.target.closest?e.target.closest('#ktGuestHostChoice button'):null;
-    if(!btn)return;
-    var now=Date.now();
-    if(now-__ktGuestChoiceLastTap<450){
-      try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(z){}
-      return;
-    }
-    var box=btn.closest('#ktGuestHostChoice');
-    if(!box)return;
-    var x={vid:String(box.dataset.viewerId||''),name:String(box.dataset.viewerName||'게스트')};
-    if(!x.vid)return;
-    __ktGuestChoiceLastTap=now;
-    try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(z){}
-    if(btn.classList.contains('approve')){approve(x);return;}
-    if(btn.classList.contains('reject')){reject(x);return;}
-    if(btn.classList.contains('block')){block(x);return;}
-  }
-  window.__ktGuestChoiceDirectTap20260919=true;
-  window.addEventListener('pointerdown',directChoiceTap,true);
-  window.addEventListener('touchstart',directChoiceTap,{capture:true,passive:false});
 
   async function tick(){
     ensureStyle();
