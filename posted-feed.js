@@ -110,7 +110,9 @@
     var a=[];
 
     /* 1차: K-Talk 전용 동영상 서버 */
-    a=await fetchFeedJson('/api/video-feed?t='+Date.now(),{},3500);
+    a=await fetchFeedJson('https://zupwbfmacwzexyvznlzq.supabase.co/functions/v1/ktalk-video-feed',{
+      headers:{'x-ktalk-feed':'shared-public-v1'}
+    },4500);
 
     /* 2차: 전용 서버가 잠깐 안 되면 Supabase 공개목록 직접 읽기 */
     if(!a.length){
@@ -209,89 +211,27 @@
   window.ktPublicShare=async function(url){try{if(navigator.share){await navigator.share({title:'K-Talk 동영상',url:url});return;}if(navigator.clipboard){await navigator.clipboard.writeText(url);alert('동영상 주소를 복사했습니다.');return;}if(window.shareApp)shareApp();}catch(e){}};
 
   var oldHome=window.home,oldMedia=window.media;
-  var showingFeed=false;
-  function renderFeed(a){
-    var target=document.getElementById('screen');
-    if(!target||!Array.isArray(a)||!a.length)return false;
+  async function show(fallback){
+    var a=await getFeed();
+    if(!a.length){
+      document.body.classList.remove('kt-home');
+      document.body.classList.add('kt-video-mode');
+      screen.innerHTML='<div style="height:calc(100dvh - 78px);display:grid;place-items:center;background:#000;color:#ddd;text-align:center;padding:24px"><div><b>공용 동영상 목록 연결 중...</b><br><small style="opacity:.7">잠시 후 자동으로 다시 불러옵니다.</small></div></div>';
+      setTimeout(function(){try{show(fallback);}catch(e){}},1200);
+      return;
+    }
     document.body.classList.remove('kt-home');
     document.body.classList.add('kt-video-mode');
-    target.innerHTML='<div class="kt-public-feed-scroller" data-kt-shared-feed="1" style="height:calc(100dvh - 78px);overflow-y:auto;scroll-snap-type:y mandatory;background:#000">'+a.map(card).join('')+'</div>';
+    screen.innerHTML='<div class="kt-public-feed-scroller" data-kt-shared-feed="1" style="height:calc(100dvh - 78px);overflow-y:auto;scroll-snap-type:y mandatory;background:#000">'+a.map(card).join('')+'</div>';
     try{
-      var sc=target.querySelector('.kt-public-feed-scroller');
+      var sc=screen.querySelector('.kt-public-feed-scroller');
       if(sc)sc.scrollTop=0;
     }catch(e){}
     bind();
-    return true;
   }
-
-  async function show(fallback){
-    if(showingFeed)return;
-    var target=document.getElementById('screen');
-    if(!target)return;
-    showingFeed=true;
-
-    var cached=[];
-    try{
-      cached=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');
-      if(!Array.isArray(cached))cached=[];
-    }catch(e){cached=[];}
-
-    /* 마지막 정상 목록이 있으면 즉시 먼저 표시 */
-    if(cached.length)renderFeed(cached);
-    else{
-      document.body.classList.remove('kt-home');
-      document.body.classList.add('kt-video-mode');
-      target.innerHTML='<div style="height:calc(100dvh - 78px);display:grid;place-items:center;background:#000;color:#ddd;font-size:14px">동영상 연결 중...</div>';
-    }
-
-    try{
-      var a=await getFeed();
-      if(a.length){
-        renderFeed(a);
-      }else if(!cached.length){
-        setTimeout(function(){showingFeed=false;show(fallback);},1800);
-        return;
-      }
-    }catch(e){
-      if(!cached.length){
-        setTimeout(function(){showingFeed=false;show(fallback);},1800);
-        return;
-      }
-    }
-    showingFeed=false;
-  }
-
-  window.ktShowSharedServerFeed=function(){
-    homeRun++;
-    return show(oldHome);
-  };
-  window.home=function(){
-    try{if(window.activate)activate('home');}catch(e){}
-    homeRun++;
-    return show(oldHome);
-  };
-  window.media=function(type){
-    try{if(window.activate)activate(type);}catch(e){}
-    homeRun++;
-    return show(function(){if(oldMedia)oldMedia(type);});
-  };
-
-  function ensureSharedHome(){
-    try{
-      var target=document.getElementById('screen');
-      if(!target||document.hidden)return;
-      if(target.querySelector('.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room,.kt-remote-live'))return;
-      var creator=document.getElementById('creator');
-      if(creator&&creator.classList.contains('show'))return;
-      if(target.querySelector('.kt-public-video'))return;
-      window.ktShowSharedServerFeed();
-    }catch(e){}
-  }
-  setTimeout(ensureSharedHome,180);
-  window.addEventListener('pageshow',function(){setTimeout(ensureSharedHome,180);});
-  document.addEventListener('visibilitychange',function(){
-    if(!document.hidden)setTimeout(ensureSharedHome,180);
-  });
+  window.ktShowSharedServerFeed=function(){return show(oldHome);};
+  window.home=function(){try{if(window.activate)activate('home');}catch(e){}return show(oldHome);};
+  window.media=function(type){try{if(window.activate)activate(type);}catch(e){}return show(function(){if(oldMedia)oldMedia(type);});};
 
   /* 저장한 동영상은 세로 화면으로 크게 보여 주고, 소리를 켠 상태로 재생한다. */
   window.playStoredVideo=async function(id){
