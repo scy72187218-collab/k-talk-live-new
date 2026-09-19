@@ -145,15 +145,15 @@
     wc.clearRect(0,0,slot.work.width,slot.work.height);
     wc.save();
     wc.filter=recording
-      ?'blur(.75px) brightness(1.110) contrast(.930) saturate(1.040)'
-      :'blur(.55px) brightness(1.105) contrast(.935) saturate(1.035)';
+      ?'blur(1.10px) brightness(1.135) contrast(.915) saturate(1.055)'
+      :'blur(.90px) brightness(1.130) contrast(.920) saturate(1.050)';
     drawMirroredVideo(wc,v,w,map);
     wc.restore();
 
     mc.setTransform(1,0,0,1,0,0);
     mc.clearRect(0,0,slot.mask.width,slot.mask.height);
     mc.save();
-    mc.filter=recording?'blur(8px)':'blur(6px)';
+    mc.filter=recording?'blur(7px)':'blur(5px)';
     mc.fillStyle='rgba(255,255,255,.96)';
     mc.beginPath();
     pathFrom(mc,landmarks,FACE_OVAL,map);
@@ -166,7 +166,7 @@
     wc.restore();
 
     ctx.save();
-    ctx.globalAlpha=recording?.46:.44;
+    ctx.globalAlpha=recording?.64:.60;
     ctx.drawImage(slot.work,0,0,w,h);
     ctx.restore();
   }
