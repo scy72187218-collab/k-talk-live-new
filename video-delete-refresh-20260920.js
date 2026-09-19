@@ -7,7 +7,11 @@
     try{localStorage.removeItem('ktalk_fast_feed');}catch(e){}
     setTimeout(function(){
       try{
-        if(typeof window.ktForceHomeVideoRecovery==='function'){
+        if(typeof window.ktShowSharedServerFeed==='function'){
+          window.ktShowSharedServerFeed();
+        }else if(typeof window.ktShowSharedServerFeed==='function'){
+          window.ktShowSharedServerFeed();
+        }else if(typeof window.ktForceHomeVideoRecovery==='function'){
           window.ktForceHomeVideoRecovery(true);
         }else if(typeof window.home==='function'){
           window.home();
