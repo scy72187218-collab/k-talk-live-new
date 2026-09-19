@@ -149,6 +149,25 @@
         releaseStartButton=true;
         bypassNestedCountdown=true;
         await window.startBroadcast();
+
+        /* 13명방만: 첫 5초 뒤 최종 13명방 화면이 아직 안 만들어졌으면
+           사용자가 다시 누르지 않아도 시작 호출을 한 번 자동 재실행한다.
+           재실행 중에는 카운트다운을 다시 띄우지 않는다. */
+        var isGroup13=false;
+        try{
+          var st=window.state||{};
+          var rt=String(st.liveRoomType||st.prepRoomType||st.roomType||'');
+          var rn=String(st.liveRoomName||st.prepRoomName||'');
+          var rm=Number(st.liveRoomMax||st.prepRoomMax||0);
+          isGroup13=(rt==='group'||rt==='group13'||rn.indexOf('13명')>-1||rm===13);
+        }catch(e){}
+
+        if(isGroup13){
+          await new Promise(function(resolve){setTimeout(resolve,180);});
+          if(!document.querySelector('#screen .ktg13-room')){
+            await window.startBroadcast();
+          }
+        }
       }finally{
         releaseStartButton=false;
         bypassNestedCountdown=false;
