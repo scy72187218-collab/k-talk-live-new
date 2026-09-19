@@ -179,6 +179,13 @@
 
   async function forceHome(){
     if(rendering||busyElsewhere())return;
+    try{
+      var existing=document.querySelector('#screen .kt-public-video,#screen #homeVideo,#screen .kt-hard-public-video');
+      if(existing){
+        playVisible();
+        return;
+      }
+    }catch(e){}
     var now=Date.now();
     if(now-lastRender<350)return;
     lastRender=now;
@@ -223,16 +230,28 @@
 
   window.ktForceHomeVideoRecovery=forceHome;
 
+  function ensureHomeOnce(){
+    try{
+      if(busyElsewhere()||document.hidden)return;
+      var s=document.getElementById('screen');
+      if(!s)return;
+      var v=s.querySelector('.kt-public-video,#homeVideo,.kt-hard-public-video');
+      if(v){
+        playVisible();
+        return;
+      }
+      forceHome();
+    }catch(e){}
+  }
+
   /* 앱 첫 진입 때 방송방이 아니면 공개 동영상부터 연다 */
   [120,350,800,1500].forEach(function(ms){
-    setTimeout(function(){
-      if(!busyElsewhere())forceHome();
-    },ms);
+    setTimeout(ensureHomeOnce,ms);
   });
 
-  window.addEventListener('pageshow',function(){setTimeout(function(){if(!busyElsewhere())forceHome();},120);});
+  window.addEventListener('pageshow',function(){setTimeout(ensureHomeOnce,120);});
   document.addEventListener('visibilitychange',function(){
-    if(!document.hidden)setTimeout(function(){if(!busyElsewhere())forceHome();},120);
+    if(!document.hidden)setTimeout(ensureHomeOnce,120);
   });
 
   window.__ktHomeVideoHardWatch20260919=setInterval(function(){
