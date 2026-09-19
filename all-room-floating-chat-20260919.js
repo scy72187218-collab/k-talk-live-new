@@ -129,24 +129,23 @@
       var match=room.querySelector('.ktg13-tools .ktg13-tool:first-child');
       if(!chat||!match)return;
 
-      /* 9명방 채팅만: 실제 '매치' 버튼 바로 위에서 시작하도록 고정.
-         다른 버튼/방/게스트칸/스위치는 변경하지 않음. */
-      if(chat.parentElement!==room)room.appendChild(chat);
-
-      var rr=room.getBoundingClientRect();
+      /* 9명방 채팅만: 화면에서 실제 매치 버튼 바로 위 4px에 고정.
+         다른 방/버튼/게스트/스위치/방송 기능은 건드리지 않음. */
       var mr=match.getBoundingClientRect();
-      var bottomGap=Math.round(rr.bottom-mr.top+4);
-      if(!isFinite(bottomGap))return;
-      bottomGap=Math.max(42,Math.min(220,bottomGap));
+      var rr=room.getBoundingClientRect();
+      var h=72;
+      var top=Math.round(mr.top-h-4);
+      if(!isFinite(top))return;
 
-      chat.style.setProperty('position','absolute','important');
-      chat.style.setProperty('left','8px','important');
-      chat.style.setProperty('right','40%','important');
-      chat.style.setProperty('top','auto','important');
-      chat.style.setProperty('bottom',bottomGap+'px','important');
-      chat.style.setProperty('height','86px','important');
-      chat.style.setProperty('min-height','0','important');
-      chat.style.setProperty('max-height','86px','important');
+      chat.style.setProperty('position','fixed','important');
+      chat.style.setProperty('left',Math.round(rr.left+8)+'px','important');
+      chat.style.setProperty('right','auto','important');
+      chat.style.setProperty('top',top+'px','important');
+      chat.style.setProperty('bottom','auto','important');
+      chat.style.setProperty('width',Math.max(180,Math.round((rr.width||window.innerWidth)*0.58))+'px','important');
+      chat.style.setProperty('height',h+'px','important');
+      chat.style.setProperty('min-height',h+'px','important');
+      chat.style.setProperty('max-height',h+'px','important');
       chat.style.setProperty('padding','0 6px 2px','important');
       chat.style.setProperty('margin','0','important');
       chat.style.setProperty('display','flex','important');
@@ -157,9 +156,9 @@
       chat.style.setProperty('border','0','important');
       chat.style.setProperty('box-shadow','none','important');
       chat.style.setProperty('transform','none','important');
-      chat.style.setProperty('z-index','18','important');
+      chat.style.setProperty('z-index','500','important');
       chat.style.setProperty('pointer-events','none','important');
-      chat.dataset.ktNineChatAtMatch='exact-above-match-20260919-v3';
+      chat.dataset.ktNineChatAtMatch='fixed-exact-above-match-20260919-v4';
     }catch(e){}
   }
   window.__ktNineChatMatchTop20260919=true;
@@ -188,4 +187,5 @@
   }catch(e){}
   window.addEventListener('resize',function(){setTimeout(placeNineChat,30);});
   window.addEventListener('orientationchange',function(){setTimeout(placeNineChat,120);});
+  window.__ktNineChatExactFollowTimer20260919=setInterval(placeNineChat,300);
 })();
