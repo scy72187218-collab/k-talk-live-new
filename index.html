@@ -1058,5 +1058,25 @@
 <script src="group13-host-three-rows.js?v=20260919-grid4441"></script>
 <script src="approved-guest-match-host-room-20260918.js?v=20260919-grid4441"></script>
 <script src="group13-grid-chat-empty-safe-20260919.js?v=20260919-safe4441chat1"></script>\n<script src="group13-grid-chat-empty-safe-20260919.js?v=20260919-safe4441chat2"></script>\n<script src="subscriber-secret-chat-bottom-20260919.js?v=20260919-bottomchat1"></script>\n<script src="secret-room-password.js?v=20260907"></script>
-<script src="all-five-room-layout-lock-20260919.js?v=20260919-lock1"></script>\n<script src="video-open-recovery-20260919.js?v=20260919-videoopen1"></script>\n<script src="home-video-feed-recovery-20260919.js?v=20260919-homevideo2"></script>\n<script src="home-video-hard-recover-20260919.js?v=20260919-homehard1"></script>\n</body>
+<script src="all-five-room-layout-lock-20260919.js?v=20260919-lock1"></script>\n<script src="video-open-recovery-20260919.js?v=20260919-videoopen1"></script>\n<script src="home-video-feed-recovery-20260919.js?v=20260919-homevideo2"></script>\n<script src="home-video-hard-recover-20260919.js?v=20260919-homehard2"></script>\n<script id="ktHomeBlackFailsafe20260919">
+(function(){
+  function kick(){
+    try{
+      if(document.querySelector('#screen .ktsolo-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room,#screen .kt-remote-live'))return;
+      var c=document.getElementById('creator');
+      if(c&&c.classList.contains('show'))return;
+      var s=document.getElementById('screen');
+      if(!s)return;
+      if(!s.querySelector('video') && typeof window.ktForceHomeVideoRecovery==='function'){
+        window.ktForceHomeVideoRecovery();
+      }
+    }catch(e){}
+  }
+  setTimeout(kick,300);
+  setTimeout(kick,900);
+  setTimeout(kick,1800);
+  setInterval(kick,1500);
+})();
+</script>
+</body>
 </html>
