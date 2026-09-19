@@ -145,7 +145,8 @@
       chat.style.setProperty('max-height','96px','important');
       chat.style.setProperty('padding','4px 6px 0','important');
       chat.style.setProperty('justify-content','flex-end','important');
-      chat.style.setProperty('transform','translateY(1px)','important');
+      /* 사진 기준으로 채팅 한 줄이 노란 수익 박스보다 위에 보여서 9명방만 더 아래로 내림 */
+      chat.style.setProperty('transform','translateY(34px)','important');
       chat.dataset.ktNineChatAtEarnBox='1';
     }catch(e){}
   }
