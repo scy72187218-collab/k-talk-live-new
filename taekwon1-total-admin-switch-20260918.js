@@ -35,8 +35,6 @@
 
   function panelHtml(){
     var label=ownerKey()==='haine2'?'하이네2':'태권1';
-    var monitorOn=false;
-    try{monitorOn=!!(window.ktAdminMonitorModeEnabled&&window.ktAdminMonitorModeEnabled());}catch(e){}
     return '<div class="kt-total-admin-wrap" id="ktTotalAdminWrap">'
       +'<button class="kt-total-admin-row" type="button" onclick="ktToggleTotalAdminPanel()">'
       +'<span class="kt-admin-icon">🛡️</span>'
@@ -100,14 +98,13 @@
     }
     if(kind==='monitor'){
       try{
-        if(typeof window.ktToggleOwnerMonitorMode==='function'){
-          window.ktToggleOwnerMonitorMode();
-          setTimeout(function(){
-            var old=document.getElementById('ktTotalAdminWrap');
-            if(old&&old.parentNode)old.outerHTML=panelHtml();
-            var fresh=document.getElementById('ktTotalAdminWrap');
-            if(fresh){fresh.classList.add('open');syncLockState(fresh);armAutoLock(fresh);}
-          },30);
+        /* 관리자 입장/투명 모드는 쓰지 않고 현재 방송 목록만 확인 */
+        try{localStorage.removeItem('ktalk_admin_monitor_mode');}catch(e){}
+        if(typeof window.closeSheet==='function')window.closeSheet();
+        if(typeof window.friends==='function')window.friends();
+        if(typeof window.ktRefreshLiveCards==='function'){
+          setTimeout(function(){try{window.ktRefreshLiveCards();}catch(e){}},80);
+          setTimeout(function(){try{window.ktRefreshLiveCards();}catch(e){}},500);
         }
       }catch(e){}
       return false;
