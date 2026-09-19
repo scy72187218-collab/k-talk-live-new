@@ -157,6 +157,46 @@
   }
   window.__ktNineChatMatchTop20260919=true;
 
+  /* 13명방/구독방/비밀방도 최신 채팅 줄의 끝을
+     맨 아래 '매치 · 친구 · 메시지' 도구줄 바로 위 4px에 맞춘다.
+     세 방의 채팅 위치만 조정하고 다른 UI/기능은 변경하지 않는다. */
+  function placeChatAboveTools(roomSel,chatSel,matchSel,mark){
+    try{
+      var room=document.querySelector('#screen '+roomSel);
+      if(!room)return;
+      var chat=room.querySelector(chatSel);
+      var match=room.querySelector(matchSel);
+      if(!chat||!match)return;
+
+      chat.style.setProperty('position','absolute','important');
+      chat.style.setProperty('top','auto','important');
+      chat.style.setProperty('height','auto','important');
+      chat.style.setProperty('min-height','0','important');
+      chat.style.setProperty('justify-content','flex-end','important');
+      chat.style.setProperty('margin','0','important');
+
+      /* 먼저 기존 변환을 지운 뒤 실제 화면 좌표로 정확히 맞춤 */
+      chat.style.setProperty('transform','none','important');
+      var last=chat.lastElementChild;
+      var cr=(last||chat).getBoundingClientRect();
+      var mr=match.getBoundingClientRect();
+      var delta=(mr.top-4)-cr.bottom;
+      if(isFinite(delta)){
+        delta=Math.max(-220,Math.min(220,delta));
+        chat.style.setProperty('transform','translateY('+delta.toFixed(1)+'px)','important');
+      }
+      chat.dataset[mark]='1';
+    }catch(e){}
+  }
+
+  function placeRequestedChats(){
+    /* 13명방만: 9명방은 위의 전용 보정이 따로 있음 */
+    var r13=document.querySelector('#screen .ktg13-room:not([data-kt-room="9"])');
+    if(r13)placeChatAboveTools('.ktg13-room:not([data-kt-room="9"])','.ktg13-chat','.ktg13-tools .ktg13-tool:first-child','ktChatAtTools');
+    placeChatAboveTools('.ktsubscriber-room','.ktsubscriber-chat','.ktsubscriber-tools .ktsubscriber-tool:first-child','ktChatAtTools');
+    placeChatAboveTools('.ktsecret-room','.ktsecret-chat','.ktsecret-tools .ktsecret-tool:first-child','ktChatAtTools');
+  }
+
   function keepBottom(){
     [
       document.getElementById('ktsoloChatList'),
@@ -168,6 +208,7 @@
       try{box.scrollTop=box.scrollHeight;}catch(e){}
     });
     placeNineChat();
+    placeRequestedChats();
   }
 
   install();
@@ -179,6 +220,6 @@
       window.__ktAllRoomFloatingChatTimer=setTimeout(keepBottom,25);
     }).observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
-  window.addEventListener('resize',function(){setTimeout(placeNineChat,30);});
-  window.addEventListener('orientationchange',function(){setTimeout(placeNineChat,120);});
+  window.addEventListener('resize',function(){setTimeout(function(){placeNineChat();placeRequestedChats();},30);});
+  window.addEventListener('orientationchange',function(){setTimeout(function(){placeNineChat();placeRequestedChats();},120);});
 })();
