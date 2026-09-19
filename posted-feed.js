@@ -110,7 +110,7 @@
     var a=[];
 
     /* 1차: K-Talk 전용 동영상 서버 */
-    a=await fetchFeedJson('https://zupwbfmacwzexyvznlzq.supabase.co/functions/v1/ktalk-video-feed',{},4500);
+    a=await fetchFeedJson('/api/video-feed?t='+Date.now(),{},3500);
 
     /* 2차: 전용 서버가 잠깐 안 되면 Supabase 공개목록 직접 읽기 */
     if(!a.length){
