@@ -9,7 +9,7 @@
   var s=document.createElement('style');
   s.id='ktGroup9HostVideoSizeMatchGuestStyle';
   s.textContent=''
-    +'#screen .ktg13-room[data-kt-room="9"] .ktg13-host > video{object-fit:contain!important;object-position:center center!important;background:#08090c!important}'
-    +'.kt-guest-hostlike-room .kgh-main:not(.is13) .kgh-cell.host > video{object-fit:contain!important;object-position:center center!important;background:#08090c!important}';
+    +'#screen .ktg13-room[data-kt-room="9"] .ktg13-host > video{object-fit:cover!important;object-position:center center!important;background:#08090c!important}'
+    +'.kt-guest-hostlike-room .kgh-main:not(.is13) .kgh-cell.host > video{object-fit:cover!important;object-position:center center!important;background:#08090c!important}';
   document.head.appendChild(s);
 })();
