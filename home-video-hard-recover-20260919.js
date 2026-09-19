@@ -96,7 +96,7 @@
     var a=[];
 
     /* 1차: K-Talk 전용 서버 */
-    a=await fetchRows('https://zupwbfmacwzexyvznlzq.supabase.co/functions/v1/ktalk-video-feed',{'x-ktalk-feed':'shared-public-v1'},4500);
+    a=await fetchRows('https://zupwbfmacwzexyvznlzq.supabase.co/functions/v1/ktalk-video-feed',{},4500);
 
     /* 2차: 직접 공개목록 */
     if(!a.length){
