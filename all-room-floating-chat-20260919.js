@@ -126,15 +126,16 @@
       var room=document.querySelector('#screen .ktg13-room[data-kt-room="9"]');
       if(!room)return;
       var chat=room.querySelector('.ktg13-chat');
-      var earn=room.querySelector('.ktg13-earn #myEarnHud')||room.querySelector('.ktg13-earn');
-      if(!chat||!earn)return;
+      var match=room.querySelector('.ktg13-tools .ktg13-tool:first-child');
+      if(!chat||!match)return;
 
       var rr=room.getBoundingClientRect();
-      var er=earn.getBoundingClientRect();
+      var mr=match.getBoundingClientRect();
 
-      /* 9명방만: 최신 채팅 줄을 오른쪽 노란 수익 박스의 아래 높이와 정확히 맞춤.
-         채팅은 이 높이에서 시작해 새 글이 위로 쌓임. */
-      var bottom=Math.max(0, rr.bottom-er.bottom);
+      /* 9명 호스트방만:
+         최신 채팅 한 줄의 맨 아래를 하단 '매치' 버튼 바로 위 4px에 고정.
+         새 채팅은 여기서 시작하고 그 다음 줄부터 위로 쌓임. */
+      var bottom=Math.max(0,(rr.bottom-mr.top)+4);
 
       chat.style.setProperty('position','absolute','important');
       chat.style.setProperty('top','auto','important');
@@ -142,12 +143,13 @@
       chat.style.setProperty('left','8px','important');
       chat.style.setProperty('right','40%','important');
       chat.style.setProperty('height','auto','important');
+      chat.style.setProperty('min-height','0','important');
       chat.style.setProperty('max-height','96px','important');
-      chat.style.setProperty('padding','4px 6px 0','important');
+      chat.style.setProperty('padding','0 6px','important');
+      chat.style.setProperty('margin','0','important');
       chat.style.setProperty('justify-content','flex-end','important');
-      /* 사진 기준으로 채팅 한 줄이 노란 수익 박스보다 위에 보여서 9명방만 더 아래로 내림 */
-      chat.style.setProperty('transform','translateY(34px)','important');
-      chat.dataset.ktNineChatAtEarnBox='1';
+      chat.style.setProperty('transform','none','important');
+      chat.dataset.ktNineChatAtMatch='1';
     }catch(e){}
   }
   window.__ktNineChatMatchTop20260919=true;
