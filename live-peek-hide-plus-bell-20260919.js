@@ -1,0 +1,44 @@
+/* K-Talk 동영상 방송자 표시: + 팔로우 / 종 버튼만 숨김.
+   이름, 사진, LIVE, 영상, 다른 버튼/방은 변경하지 않음. */
+(function(){
+  if(window.__ktLivePeekHidePlusBell20260919)return;
+  window.__ktLivePeekHidePlusBell20260919=true;
+
+  function ensureStyle(){
+    if(document.getElementById('ktLivePeekHidePlusBellStyle'))return;
+    var s=document.createElement('style');
+    s.id='ktLivePeekHidePlusBellStyle';
+    s.textContent=
+      '.kt-video-live-peek .ktvl-follow,'+
+      '.kt-video-live-peek .ktvl-bell{display:none!important;visibility:hidden!important;pointer-events:none!important}';
+    document.head.appendChild(s);
+  }
+
+  function clean(root){
+    root=root||document;
+    try{
+      root.querySelectorAll('.kt-video-live-peek .ktvl-follow,.kt-video-live-peek .ktvl-bell').forEach(function(el){
+        if(el&&el.parentNode)el.parentNode.removeChild(el);
+      });
+    }catch(e){}
+  }
+
+  ensureStyle();
+  clean(document);
+
+  try{
+    new MutationObserver(function(records){
+      var need=false;
+      records.forEach(function(r){
+        [].slice.call(r.addedNodes||[]).forEach(function(n){
+          if(n&&n.nodeType===1)need=true;
+        });
+      });
+      if(need){ensureStyle();clean(document);}
+    }).observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+
+  [100,300,800,1500,3000].forEach(function(ms){
+    setTimeout(function(){ensureStyle();clean(document);},ms);
+  });
+})();
