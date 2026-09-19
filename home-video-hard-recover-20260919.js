@@ -72,31 +72,40 @@
     }catch(e){return [];}
   }
 
+  async function fetchServerRows(){
+    try{
+      var ctl=('AbortController' in window)?new AbortController():null;
+      var timer=ctl?setTimeout(function(){try{ctl.abort();}catch(e){}},8000):0;
+      var url=SB+'/rest/v1/ktalk_videos?select=id,author_name,title,video_url,created_at,likes&order=created_at.desc&limit=40&_='+Date.now();
+      var r=await fetch(url,{cache:'no-store',signal:ctl?ctl.signal:void 0,headers:{apikey:KEY,Authorization:'Bearer '+KEY}});
+      if(timer)clearTimeout(timer);
+      if(!r.ok)return [];
+      var a=await r.json();
+      if(Array.isArray(a)&&a.length){
+        try{localStorage.setItem('ktalk_fast_feed',JSON.stringify(a));}catch(e){}
+        return a;
+      }
+    }catch(e){}
+    return [];
+  }
+
   async function rows(){
     var cached=[];
     try{
       var old=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');
-      if(Array.isArray(old))cached=old;
+      if(Array.isArray(old))cached=old.filter(function(x){return x&&x.video_url;});
     }catch(e){}
 
-    /* 검은 화면을 막기 위해 항상 서버의 최신 공개 동영상 목록을 먼저 짧게 확인 */
-    try{
-      var ctl=('AbortController' in window)?new AbortController():null;
-      var timer=ctl?setTimeout(function(){try{ctl.abort();}catch(e){}},3000):0;
-      var url=SB+'/rest/v1/ktalk_videos?select=id,author_name,title,video_url,created_at,likes&order=created_at.desc&limit=40&_='+Date.now();
-      var r=await fetch(url,{cache:'no-store',signal:ctl?ctl.signal:void 0,headers:{apikey:KEY,Authorization:'Bearer '+KEY}});
-      if(timer)clearTimeout(timer);
-      if(r.ok){
-        var a=await r.json();
-        if(Array.isArray(a)&&a.length){
-          try{localStorage.setItem('ktalk_fast_feed',JSON.stringify(a));}catch(e){}
-          return a;
-        }
-      }
-    }catch(e){}
+    /* 마지막으로 정상 재생됐던 동영상이 있으면 즉시 보여 준다.
+       서버 확인 때문에 이미 보이던 화면을 검게 만들지 않는다. */
+    if(cached.length){
+      fetchServerRows().catch(function(){});
+      return cached;
+    }
 
-    /* 네트워크가 잠깐 안 될 때만 마지막 정상 목록을 사용 */
-    if(cached.length)return cached;
+    /* 캐시가 정말 없을 때만 서버를 기다린다. */
+    var server=await fetchServerRows();
+    if(server.length)return server;
 
     /* 그래도 없으면 이 휴대폰에 저장된 동영상 사용 */
     var local=await localRows();
@@ -151,6 +160,13 @@
           var card=v.closest('.kt-hard-video-card');
           if(card)card.style.display='none';
           setTimeout(playVisible,30);
+          fetchServerRows().then(function(fresh){
+            if(!fresh||!fresh.length||busyElsewhere())return;
+            var screen=document.getElementById('screen');
+            if(!screen)return;
+            screen.innerHTML='<div class="kt-hard-video-scroller" style="height:calc(100dvh - 78px);overflow-y:auto;scroll-snap-type:y mandatory;background:#000">'+fresh.map(card).join('')+'</div>';
+            bind();
+          }).catch(function(){});
         }catch(e){}
       });
     });
@@ -188,7 +204,10 @@
 
       var a=await rows();
       if(!a.length){
-        screen.innerHTML='<div style="height:calc(100dvh - 78px);display:grid;place-items:center;background:#000;color:#ddd;text-align:center;padding:24px"><div><b style="font-size:16px">동영상 연결을 다시 확인하고 있습니다.</b><br><span style="font-size:12px;opacity:.75">잠시만 기다려 주세요.</span></div></div>';
+        /* 일시적인 통신 끊김은 검은 화면에 고정하지 않고 계속 짧게 재시도 */
+        screen.innerHTML='<div style="height:calc(100dvh - 78px);display:grid;place-items:center;background:#000;color:#ddd;text-align:center;padding:24px"><div><b style="font-size:16px">동영상 다시 연결 중...</b><br><span style="font-size:12px;opacity:.75">자동으로 다시 재생합니다.</span></div></div>';
+        setTimeout(function(){try{forceHome();}catch(e){}},1200);
+        setTimeout(function(){try{forceHome();}catch(e){}},3200);
         return;
       }
 
