@@ -15,8 +15,9 @@
     try{return localStorage.getItem(KEY)==='1';}catch(e){return false;}
   }
 
-  /* 요청 작업 완료 후 다시 잠금 상태로 유지 */
-  setStore(false);
+  /* 작업 시작: 지금부터 5분 동안 잠금 해제 */
+  setStore(true);
+  setTimeout(function(){ setStore(false); }, 5*60*1000);
 
   var selector=[
     '.kt-switch',
