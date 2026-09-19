@@ -215,9 +215,18 @@
 
   /* 13명방 시작 전용 안전 진입점: 카운트가 끝났는데 화면 전환만 빠진 경우
      두 번째 버튼 터치 없이 현재 승인된 13명방 화면만 즉시 연다. */
-  window.ktOpenApprovedGroup13Now=function(){
-    if(!isGroup13())return false;
+  window.ktOpenApprovedGroup13Now=function(force){
+    if(!force&&!isGroup13())return false;
     try{
+      if(force&&window.state){
+        state.liveRoomType='group13';
+        state.liveRoomName='13명 방송';
+        state.liveRoomMax=13;
+        state.prepRoomType='group13';
+        state.prepRoomName='13명 방송';
+        state.prepRoomMax=13;
+        state.roomType='group13';
+      }
       markGroup13Opening();
       renderApprovedGroup13();
       return !!document.querySelector('#screen .ktg13-room');
