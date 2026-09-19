@@ -193,6 +193,45 @@
     },1000);
   }
 
+  function placeSecretChatBottomExact(){
+    try{
+      var room=document.querySelector('#screen .ktsecret-room');
+      if(!room)return;
+      var chat=room.querySelector('#ktsecretChatList,.ktsecret-chat');
+      var match=room.querySelector('.ktsecret-tools .ktsecret-tool:first-child');
+      if(!chat||!match)return;
+
+      var rr=room.getBoundingClientRect();
+      var mr=match.getBoundingClientRect();
+      var h=72;
+      var top=Math.round(mr.top-h-4);
+      if(!isFinite(top)||!rr.width)return;
+
+      chat.style.setProperty('position','fixed','important');
+      chat.style.setProperty('left',Math.round(rr.left+8)+'px','important');
+      chat.style.setProperty('right','auto','important');
+      chat.style.setProperty('top',top+'px','important');
+      chat.style.setProperty('bottom','auto','important');
+      chat.style.setProperty('width',Math.max(180,Math.round(rr.width*0.58))+'px','important');
+      chat.style.setProperty('height',h+'px','important');
+      chat.style.setProperty('min-height',h+'px','important');
+      chat.style.setProperty('max-height',h+'px','important');
+      chat.style.setProperty('padding','0 6px 2px','important');
+      chat.style.setProperty('margin','0','important');
+      chat.style.setProperty('display','flex','important');
+      chat.style.setProperty('flex-direction','column','important');
+      chat.style.setProperty('justify-content','flex-end','important');
+      chat.style.setProperty('overflow','hidden','important');
+      chat.style.setProperty('background','transparent','important');
+      chat.style.setProperty('border','0','important');
+      chat.style.setProperty('box-shadow','none','important');
+      chat.style.setProperty('transform','none','important');
+      chat.style.setProperty('z-index','700','important');
+      chat.style.setProperty('pointer-events','none','important');
+      chat.dataset.ktSecretChatBottomExact='1';
+    }catch(e){}
+  }
+
   function renderSecretRoom(){
     if(!isSecretRoom())return;
     var screen=document.getElementById('screen');
@@ -235,6 +274,8 @@
     var v=document.getElementById('ktLiveVideo');
     try{if(v&&window.state&&state.stream){v.srcObject=state.stream;var p=v.play();if(p&&p.catch)p.catch(function(){});}}catch(e){}
     renderSecretChat();
+    placeSecretChatBottomExact();
+    [80,220,500,1000,1800].forEach(function(ms){setTimeout(placeSecretChatBottomExact,ms);});
     startSecretClock(clock);
     try{if(window.ktRenderTreasure)ktRenderTreasure();}catch(e){}
   }
@@ -261,6 +302,9 @@
     };
   }
 
-  new MutationObserver(function(){updatePrep();}).observe(document.documentElement,{childList:true,subtree:true});
+  new MutationObserver(function(){updatePrep();setTimeout(placeSecretChatBottomExact,20);}).observe(document.documentElement,{childList:true,subtree:true});
+  window.__ktSecretChatBottomFollowTimer20260919=setInterval(placeSecretChatBottomExact,300);
+  window.addEventListener('resize',function(){setTimeout(placeSecretChatBottomExact,30);});
+  window.addEventListener('orientationchange',function(){setTimeout(placeSecretChatBottomExact,120);});
   setTimeout(updatePrep,100);
 })();
