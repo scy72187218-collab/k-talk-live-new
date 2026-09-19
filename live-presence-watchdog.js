@@ -4,7 +4,7 @@
   window.__ktLivePresenceWatchdogInstalled=true;
 
   var BASE='https://zupwbfmacwzexyvznlzq.supabase.co/rest/v1/';
-  var KEY='';
+  var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1cHdiZm1hY3d6ZXh5dnpubHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjEwNzYsImV4cCI6MjEwNDAzNzA3Nn0.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
   var roomId='';
   var publishing=false;
   var misses=0;
@@ -166,6 +166,7 @@
 
   async function stopFallbackPresence(){
     broadcastStarted=false;
+    window.__ktHostBroadcastActive=false;
     misses=0;
     var old=roomId;roomId='';
     if(!old)return;
@@ -175,9 +176,14 @@
 
   function markBroadcastStarted(){
     broadcastStarted=true;
+    window.__ktHostBroadcastActive=true;
     publishIfNeeded(true);
-    [250,700,1600].forEach(function(ms){setTimeout(function(){publishIfNeeded(true);},ms);});
+    [120,350,800,1600].forEach(function(ms){setTimeout(function(){publishIfNeeded(true);},ms);});
   }
+  window.ktForcePublishLiveNow=function(){
+    markBroadcastStarted();
+    return true;
+  };
 
   function wrapStartBroadcast(){
     var old=window.startBroadcast;
