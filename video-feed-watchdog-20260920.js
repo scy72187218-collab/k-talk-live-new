@@ -20,10 +20,10 @@
     if(retrying||busyElsewhere())return;
     retrying=true;
     try{
-      if(typeof window.ktForceHomeVideoRecovery==='function'){
-        await window.ktForceHomeVideoRecovery(true);
-      }else if(typeof window.ktShowSharedServerFeed==='function'){
+      if(typeof window.ktShowSharedServerFeed==='function'){
         await window.ktShowSharedServerFeed();
+      }else if(typeof window.ktForceHomeVideoRecovery==='function'){
+        await window.ktForceHomeVideoRecovery(true);
       }else if(typeof window.home==='function'){
         window.home();
       }
@@ -43,11 +43,11 @@
       }
 
       var t=String(s.textContent||'');
-      var loading=/동영상 불러오는 중|동영상 연결 중|공용 동영상 목록 연결 중|동영상 연결을 다시 확인/.test(t);
+      var loading=/동영상 불러오는 중|공용 동영상 목록 연결 중|동영상 연결을 다시 확인/.test(t);
 
       if(loading){
         if(!stuckSince)stuckSince=Date.now();
-        if(Date.now()-stuckSince>3000){
+        if(Date.now()-stuckSince>6000){
           stuckSince=Date.now();
           recover();
         }
