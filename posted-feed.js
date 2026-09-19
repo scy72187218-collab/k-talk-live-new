@@ -1,6 +1,8 @@
 /* K-Talk public video feed: simple profile + public feed posting behavior. */
 (function(){
   var SB='https://zupwbfmacwzexyvznlzq.supabase.co';
+  var KT_API='/ktalk-api';
+  var KT_STORAGE='/ktalk-storage';
   var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1cHdiZm1hY3d6ZXh5dnpubHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjEwNzYsImV4cCI6MjEwNDAzNzA3Nn0.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
   function headers(extra){var h={apikey:KEY,Authorization:'Bearer '+KEY};if(extra)Object.keys(extra).forEach(function(k){h[k]=extra[k];});return h;}
   function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
@@ -82,6 +84,7 @@
 
   async function ktTusUpload(blob,path){
     var endpoints=[
+      KT_STORAGE+'/storage/v1/upload/resumable',
       'https://zupwbfmacwzexyvznlzq.storage.supabase.co/storage/v1/upload/resumable',
       SB+'/storage/v1/upload/resumable'
     ];
@@ -105,7 +108,14 @@
         if(created.status!==201)throw new Error('대용량 동영상 업로드 준비 실패 '+created.status);
         var location=created.location;
         if(!location)throw new Error('대용량 동영상 업로드 주소 없음');
-        try{location=new URL(location,endpoint).href;}catch(e){}
+        try{
+          var resolved=new URL(location,window.location.origin);
+          if(resolved.hostname==='zupwbfmacwzexyvznlzq.storage.supabase.co'){
+            location=KT_STORAGE+resolved.pathname+resolved.search;
+          }else{
+            location=resolved.href;
+          }
+        }catch(e){}
 
         var chunk=6*1024*1024;
         var offset=0,total=Number(blob.size||0);
@@ -143,7 +153,7 @@
       }catch(e){
         /* 분할 전송이 막힌 휴대폰에서는 일반 업로드를 마지막으로 한 번 더 시도 */
         path=base+'-s.'+suffix;
-        var bigUp=await ktUploadFetch(SB+'/storage/v1/object/ktalk-videos/'+path,{
+        var bigUp=await ktUploadFetch(KT_STORAGE+'/storage/v1/object/ktalk-videos/'+path,{
           method:'POST',
           headers:headers({'Content-Type':blob.type||'video/mp4','x-upsert':'false'}),
           body:blob,
@@ -153,7 +163,7 @@
       }
     }else{
       try{
-        var up=await ktUploadFetch(SB+'/storage/v1/object/ktalk-videos/'+path,{
+        var up=await ktUploadFetch(KT_STORAGE+'/storage/v1/object/ktalk-videos/'+path,{
           method:'POST',
           headers:headers({'Content-Type':blob.type||'video/webm','x-upsert':'false'}),
           body:blob,
@@ -168,7 +178,7 @@
     }
 
     var url=SB+'/storage/v1/object/public/ktalk-videos/'+path;
-    var ins=await ktUploadFetch(SB+'/rest/v1/ktalk_videos',{method:'POST',headers:headers({'Content-Type':'application/json','Prefer':'return=representation'}),body:JSON.stringify({author_id:a.id,author_name:a.name,title:title||'K-Talk 동영상',video_path:path,video_url:url})});
+    var ins=await ktUploadFetch(KT_API+'/rest/v1/ktalk_videos',{method:'POST',headers:headers({'Content-Type':'application/json','Prefer':'return=representation'}),body:JSON.stringify({author_id:a.id,author_name:a.name,title:title||'K-Talk 동영상',video_path:path,video_url:url})});
     if(!ins.ok)throw new Error('동영상 목록 등록에 실패했습니다. 다시 눌러 주세요.');
     var rows=await ins.json();
     try{localStorage.removeItem('ktalk_fast_feed');}catch(e){}
