@@ -230,8 +230,24 @@ window.showSheet=function(title,html){
 window.closeSheet=function(){
   ktStopSheetMedia();
   try{if(window.ktStopSoundPreview)window.ktStopSoundPreview();}catch(e){}
-  try{creator.classList.remove('beauty-preview-open');}catch(e){}
-  try{var lp=creator.querySelector('.live-prep');if(lp)lp.style.removeProperty('display');}catch(e){}
+
+  /* 편집효과/뷰티를 닫으면 즉시 완전 해제. 자동 재잠금 없음. */
+  try{
+    creator.classList.remove('beauty-preview-open');
+    var lp=creator.querySelector('.live-prep');
+    if(lp)lp.style.removeProperty('display');
+    var controls=creator.querySelectorAll(
+      '.creator-top button,.creator-tools button,.creator-bottom button,'+
+      '.creator-bottom .modes span,.creator-bottom .creator-foot span'
+    );
+    controls.forEach(function(el){
+      if(el.disabled)el.disabled=false;
+      if(el.getAttribute('aria-disabled')==='true')el.setAttribute('aria-disabled','false');
+      el.style.setProperty('pointer-events','auto','important');
+      el.style.setProperty('touch-action','manipulation','important');
+    });
+  }catch(e){}
+
   try{sheetBody.innerHTML='';}catch(e){}
   sheet.classList.remove('show');
   sheet.classList.remove('gift-exact');
@@ -1762,8 +1778,16 @@ window.selectStageBackground=function(id){
 
 window.openEditEffectPanel=function(tab){
   tab=tab||'face';
-  creator.classList.add('beauty-preview-open');
-  try{var lp=creator.querySelector('.live-prep');if(lp)lp.style.setProperty('display','none','important');}catch(e){}
+
+  /* 편집효과는 촬영화면 상태를 잠그지 않는다.
+     이전 beauty-preview-open / live-prep 강제 숨김이 남아서
+     편집효과를 닫은 뒤 버튼이 안 먹는 문제와 이중 카메라(투명인간처럼 보이는 화면)를 만들 수 있어 제거. */
+  try{
+    creator.classList.remove('beauty-preview-open');
+    var lp=creator.querySelector('.live-prep');
+    if(lp)lp.style.removeProperty('display');
+  }catch(e){}
+
   try{if(window.ensureLiveCamera)ensureLiveCamera(state.cameraFacing||'user').catch(function(){});}catch(e){}
   ktEnsureFaceEffectStyle();
 
