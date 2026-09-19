@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/ktalk-storage/:path*",
+      "destination": "https://zupwbfmacwzexyvznlzq.storage.supabase.co/:path*"
+    },
+    {
+      "source": "/ktalk-api/:path*",
+      "destination": "https://zupwbfmacwzexyvznlzq.supabase.co/:path*"
+    }
+  ]
+}
