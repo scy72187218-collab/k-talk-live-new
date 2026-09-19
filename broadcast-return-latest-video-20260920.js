@@ -22,14 +22,29 @@
     try{if(window.closeSheet)window.closeSheet();}catch(e){}
     stopCamera();
 
+    /* 예전 홈/꽃 화면이 한 프레임도 보이지 않게 먼저 검은 로딩 화면으로 교체 */
+    try{
+      var s=document.getElementById('screen');
+      if(s){
+        s.innerHTML='<div style="height:calc(100dvh - 78px);display:grid;place-items:center;background:#000;color:#bbb;font-size:14px">최신 동영상 불러오는 중...</div>';
+      }
+      document.body.classList.remove('kt-home');
+      document.body.classList.add('kt-video-mode');
+    }catch(e){}
+
     try{
       if(typeof window.ktStopHostPresence==='function')window.ktStopHostPresence();
     }catch(e){}
 
-    /* 동영상 홈은 공용 서버 피드 하나만 사용 */
+    /* 서버 최신 목록 강제 새로고침 */
     try{
       if(typeof window.ktShowSharedServerFeed==='function'){
-        window.ktShowSharedServerFeed();
+          window.ktShowSharedServerFeed();
+        }else if(typeof window.ktForceHomeVideoRecovery==='function'){
+          window.ktForceHomeVideoRecovery(true);
+        setTimeout(function(){
+          try{window.ktForceHomeVideoRecovery(true);}catch(e){}
+        },180);
         return;
       }
     }catch(e){}
