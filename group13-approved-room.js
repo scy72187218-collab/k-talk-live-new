@@ -18,6 +18,30 @@
     }catch(e){return false;}
   }
 
+  /* 13명방 전환 중 예전 방 화면이 한 프레임이라도 보이지 않게 가린다.
+     승인된 현재 13명방을 그린 직후 바로 해제한다. */
+  function ensureNoOld13FlashStyle(){
+    if(document.getElementById('ktNoOld13FlashStyle'))return;
+    var st=document.createElement('style');
+    st.id='ktNoOld13FlashStyle';
+    st.textContent='html.kt-g13-opening #screen .ktg13-room{visibility:hidden!important;opacity:0!important}';
+    (document.head||document.documentElement).appendChild(st);
+  }
+  function markGroup13Opening(){
+    try{
+      ensureNoOld13FlashStyle();
+      document.documentElement.classList.add('kt-g13-opening');
+      clearTimeout(window.__ktG13OpeningFailsafe);
+      window.__ktG13OpeningFailsafe=setTimeout(function(){
+        try{
+          if(!document.querySelector('#screen .ktg13-room[data-kt-approved13="1"]')){
+            document.documentElement.classList.remove('kt-g13-opening');
+          }
+        }catch(e){}
+      },8000);
+    }catch(e){}
+  }
+
   function setupStandaloneShell(){
     try{
       var head=document.head||document.getElementsByTagName('head')[0];
@@ -137,7 +161,7 @@
       +'.ktg13-tools{flex:0 0 50px;display:grid;grid-template-columns:repeat(8,1fr);gap:2px;align-items:start}.ktg13-tool{border:0;background:none;color:#fff;min-width:0;font-weight:900;font-size:9px;display:grid;justify-items:center;gap:2px}.ktg13-tool i{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#1b1b20,#0b0b0f);border:1px solid #35363d;font-style:normal;font-size:18px;box-shadow:inset 0 0 13px #ffffff08}.ktg13-tool:first-child i{color:#fff;box-shadow:0 0 12px #a53fff66,inset 0 0 13px #ffffff08}.ktg13-tool span{font-size:8px;color:#fff;white-space:nowrap}'
       +'@media(max-width:390px){.ktg13-room{padding-left:4px;padding-right:4px;gap:3px}.ktg13-head{flex-basis:58px;padding:4px 8px}.ktg13-air strong{font-size:18px}.ktg13-air small{font-size:10px}.ktg13-brand{font-size:17px}.ktg13-attend{min-width:112px;height:38px;font-size:17px;padding:0 9px}.ktg13-led{flex-basis:50px}.ktg13-led-track{font-size:21px}.ktg13-stats{flex-basis:42px;gap:4px}.ktg13-stats button,.ktg13-viewers{font-size:12px}.ktg13-main{grid-template-columns:42% 58%}.ktg13-guest{font-size:12px}.ktg13-mid{flex-basis:70px;grid-template-columns:minmax(0,1fr) 40%;gap:5px}.ktg13-chat{height:70px;max-height:70px;padding-left:3px;padding-right:3px;transform:none}.ktg13-chat-line{font-size:9px}.ktg13-earn{height:62px}.ktg13-earn #myEarnHud{padding:2px 4px!important}.ktg13-gifts{flex-basis:52px}.ktg13-gift img{height:23px}.ktg13-emoji{height:23px;font-size:20px}.ktg13-gift b{font-size:8px}.ktg13-gift small{font-size:6.5px}.ktg13-tools{flex-basis:47px}.ktg13-tool i{width:32px;height:32px;font-size:16px}.ktg13-tool span{font-size:8px}}'
       +'</style>'
-      +'<section class="ktg13-room">'
+      +'<section class="ktg13-room" data-kt-approved13="1">'
         +'<div class="ktg13-head">'
           +'<div class="ktg13-air"><strong><i>●</i> 13명 방송</strong><small><i>● ON AIR</i> <span id="ktLiveClock">'+esc(clock)+'</span></small></div>'
           +'<button class="ktg13-attend" onclick="if(window.ktAttendanceCheck)ktAttendanceCheck()">🪽 출석체크 🪽</button>'
@@ -183,6 +207,10 @@
     }catch(e){}
     renderChat();
     try{if(window.ktRenderTreasure)ktRenderTreasure();}catch(e){}
+    try{
+      document.documentElement.classList.remove('kt-g13-opening');
+      clearTimeout(window.__ktG13OpeningFailsafe);
+    }catch(e){}
   }
 
   /* 13명방 시작 전용 안전 진입점: 카운트가 끝났는데 화면 전환만 빠진 경우
@@ -190,6 +218,7 @@
   window.ktOpenApprovedGroup13Now=function(){
     if(!isGroup13())return false;
     try{
+      markGroup13Opening();
       renderApprovedGroup13();
       return !!document.querySelector('#screen .ktg13-room');
     }catch(e){return false;}
@@ -198,8 +227,19 @@
   window.startBroadcast=async function(){
     if(!isGroup13())return oldStartBroadcast.apply(this,arguments);
     /* 시작 시 전체화면 전환은 하지 않음: 카운트다운이 5부터 바로 보이게 유지 */
+    markGroup13Opening();
     var result=await oldStartBroadcast.apply(this,arguments);
     setTimeout(renderApprovedGroup13,0);
     return result;
   };
+
+  /* 시작 버튼을 누르는 순간부터 옛 13명방 화면을 가려 카운트 후 번쩍임 방지 */
+  document.addEventListener('pointerdown',function(e){
+    try{
+      var btn=e.target&&e.target.closest?e.target.closest('.live-prep .prep-start'):null;
+      if(btn&&isGroup13())markGroup13Opening();
+    }catch(err){}
+  },true);
+
+  ensureNoOld13FlashStyle();
 })();
