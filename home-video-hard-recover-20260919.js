@@ -197,7 +197,11 @@
       }
     }catch(e){}
     var now=Date.now();
-    if(now-lastRender<350)return;
+    if(now-lastRender<350){
+      clearTimeout(window.__ktHardVideoShortRetry);
+      window.__ktHardVideoShortRetry=setTimeout(function(){try{forceHome(!!forceServer);}catch(e){}},380);
+      return;
+    }
     lastRender=now;
     rendering=true;
     try{
@@ -219,7 +223,7 @@
         screen.innerHTML='<div class="kt-hard-video-scroller" data-kt-instant-cache="1" style="height:calc(100dvh - 78px);overflow-y:auto;scroll-snap-type:y mandatory;background:#000">'+cached.map(card).join('')+'</div>';
         bind();
       }else{
-        screen.innerHTML='<div style="height:calc(100dvh - 78px);display:grid;place-items:center;background:#000;color:#bbb;font-size:14px">동영상 연결 중...</div>';
+        screen.innerHTML='<div data-kt-video-loading="1" style="height:calc(100dvh - 78px);display:grid;place-items:center;background:#000;color:#bbb;font-size:14px">동영상 연결 중...</div>';
       }
 
       var a=await rows();
