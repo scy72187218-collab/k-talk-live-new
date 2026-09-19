@@ -21,8 +21,7 @@
       if(document.querySelector('#screen .ktsolo-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room,#screen .kt-remote-live'))return true;
       var creator=document.getElementById('creator');
       if(creator&&creator.classList.contains('show'))return true;
-      var sheet=document.getElementById('sheet');
-      if(sheet&&sheet.classList.contains('show'))return true;
+      /* 숨겨진 시트 상태는 홈 동영상 복구를 막지 않는다. */
     }catch(e){}
     return false;
   }
@@ -164,4 +163,16 @@
   document.addEventListener('visibilitychange',function(){
     if(!document.hidden)setTimeout(function(){if(!busyElsewhere())forceHome();},120);
   });
+
+  window.__ktHomeVideoHardWatch20260919=setInterval(function(){
+    try{
+      if(document.hidden||busyElsewhere())return;
+      var s=document.getElementById('screen');
+      if(!s)return;
+      var hasVideo=!!s.querySelector('.kt-public-video,#homeVideo,.kt-hard-public-video');
+      var hasFallback=String(s.textContent||'').indexOf('동영상을 불러오지 못했습니다')>-1;
+      if(!hasVideo&&!hasFallback)forceHome();
+      else if(hasVideo)playVisible();
+    }catch(e){}
+  },1000);
 })();
