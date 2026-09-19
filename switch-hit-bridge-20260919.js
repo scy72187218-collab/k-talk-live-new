@@ -6,25 +6,10 @@
   window.__ktSwitchHitBridge20260919=true;
 
   var lastEl=null,lastAt=0;
-  var HOLD_MS=5*60*1000; /* 작업 중 잠금해제 유지: 5분 */
-  var holdUntil=Date.now()+HOLD_MS;
 
-  function holdFiveMinutes(){
-    holdUntil=Date.now()+HOLD_MS;
-    try{localStorage.setItem('ktalk_switch_unlock_until',String(holdUntil));}catch(e){}
-  }
-
-  try{
-    var saved=parseInt(localStorage.getItem('ktalk_switch_unlock_until')||'0',10)||0;
-    if(saved>Date.now())holdUntil=saved;
-    else holdFiveMinutes();
-  }catch(e){holdFiveMinutes();}
-
-  window.ktHoldSwitchesUnlocked5m=holdFiveMinutes;
-  window.ktEndSwitchWork=function(){
-    holdUntil=0;
-    try{localStorage.removeItem('ktalk_switch_unlock_until');}catch(e){}
-  };
+  /* 자동 재잠금 없음: 스위치는 항상 잠금 해제 상태를 유지 */
+  window.ktHoldSwitchesUnlocked5m=function(){ return true; };
+  window.ktEndSwitchWork=function(){ return true; };
 
   function visible(el){
     if(!el||!el.isConnected)return false;
@@ -52,8 +37,7 @@
 
     if(!sheetOpen() && el.matches(
       '#creator .creator-top .creator-rotate,'+
-      '#creator .creator-tools .creator-tool-text[aria-label="AI 보정"],'+
-      '#creator .creator-tools .creator-tool-text[aria-label="편집 효과"]'
+      '#creator .creator-tools .creator-tool-text[aria-label="AI 보정"],'
     )) return true;
 
     return el.matches(
@@ -74,8 +58,7 @@
           '.live-prep .room-switch,.live-prep .prep-bottom button,'+
           '.creator-bottom .modes span,.creator-bottom .modes button,'+
           '#creator .creator-top .creator-rotate,'+
-          '#creator .creator-tools .creator-tool-text[aria-label="AI 보정"],'+
-          '#creator .creator-tools .creator-tool-text[aria-label="편집 효과"]'
+          '#creator .creator-tools .creator-tool-text[aria-label="AI 보정"],'
         );
         if(c&&wanted(c)&&visible(c))return c;
       }
@@ -121,14 +104,6 @@
       return false;
     }
 
-    if(el.matches('.creator-tool-text[aria-label="편집 효과"]')){
-      try{
-        if(typeof window.openEditEffectPanel==='function'){
-          window.openEditEffectPanel(); return true;
-        }
-      }catch(e){}
-      return false;
-    }
     return false;
   }
 
@@ -210,7 +185,6 @@
 
   function run(el){
     if(!el)return false;
-    holdFiveMinutes();
     var ok=creatorAction(el);
     if(!ok)ok=switchAction(el);
     if(ok)pulse(el);
@@ -254,8 +228,7 @@
       '.live-prep .room-switch,.live-prep .prep-bottom button,'+
       '.creator-bottom .modes span,.creator-bottom .modes button,'+
       '#creator .creator-top .creator-rotate,'+
-      '#creator .creator-tools .creator-tool-text[aria-label="AI 보정"],'+
-      '#creator .creator-tools .creator-tool-text[aria-label="편집 효과"]'
+      '#creator .creator-tools .creator-tool-text[aria-label="AI 보정"],'
     ):null;
     if(el&&lastEl===el&&Date.now()-lastAt<700){
       try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(x){}
@@ -267,11 +240,9 @@
       '.live-prep .room-switch,.live-prep .prep-bottom button,'+
       '.creator-bottom .modes span,.creator-bottom .modes button,'+
       '#creator .creator-top .creator-rotate,'+
-      '#creator .creator-tools .creator-tool-text[aria-label="AI 보정"],'+
-      '#creator .creator-tools .creator-tool-text[aria-label="편집 효과"]';
+      '#creator .creator-tools .creator-tool-text[aria-label="AI 보정"],';
 
   function unlock(){
-    if(Date.now()>=holdUntil)return;
     document.querySelectorAll(unlockSelector).forEach(function(el){
       try{
         if(el.disabled)el.disabled=false;
@@ -286,15 +257,11 @@
   unlock();
   [100,300,700,1200,2200].forEach(function(ms){setTimeout(unlock,ms);});
 
-  /* 작업 중 자동 잠금이 다시 걸리더라도 잠금 해제 상태를 계속 유지 */
-  var holdTimer=setInterval(function(){
-    if(Date.now()>=holdUntil){clearInterval(holdTimer);return;}
-    unlock();
-  },500);
+  /* 자동 재잠금 방지: 계속 잠금 해제 상태 유지 */
+  setInterval(unlock,700);
 
   try{
     new MutationObserver(function(){
-      if(Date.now()>=holdUntil)return;
       clearTimeout(window.__ktSwitchHitBridgeTimer);
       window.__ktSwitchHitBridgeTimer=setTimeout(unlock,20);
     }).observe(document.documentElement,{
