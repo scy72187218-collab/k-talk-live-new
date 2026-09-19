@@ -10,14 +10,30 @@
 
   async function markLocalPosted(){try{var db=await ktOpenVideoDB(),tx=db.transaction('videos','readwrite'),st=tx.objectStore('videos'),rq=st.getAll();await new Promise(function(ok){rq.onsuccess=function(){var a=(rq.result||[]).filter(function(v){return v&&!v.draft;}).sort(function(a,b){return (b.createdAt||0)-(a.createdAt||0);}),x=a[0];if(x){x.posted=true;x.postedAt=x.postedAt||Date.now();st.put(x);}ok();};rq.onerror=ok;});await new Promise(function(ok){tx.oncomplete=ok;tx.onerror=ok;tx.onabort=ok;});try{db.close();}catch(e){}try{if(window.ktRenderProfilePostedVideos)window.ktRenderProfilePostedVideos();}catch(e){}}catch(e){}}
   function ext(t){t=String(t||'').toLowerCase();if(t.indexOf('mp4')>=0)return'mp4';if(t.indexOf('quicktime')>=0)return'mov';if(t.indexOf('m4v')>=0)return'm4v';return'webm';}
+  async function ktUploadFetch(url,opt){
+    var last=null;
+    for(var i=0;i<2;i++){
+      try{return await fetch(url,opt);}
+      catch(e){
+        last=e;
+        if(i===0)await new Promise(function(resolve){setTimeout(resolve,700);});
+      }
+    }
+    var msg=String(last&&last.message||last||'');
+    if(msg.indexOf('Failed to fetch')>-1||msg.indexOf('NetworkError')>-1||msg.indexOf('Load failed')>-1){
+      throw new Error('서버 연결에 실패했습니다. 인터넷 연결을 확인한 뒤 다시 눌러 주세요.');
+    }
+    throw last||new Error('동영상 업로드 연결에 실패했습니다.');
+  }
+
   async function publicUpload(blob,title){
     var a=who(),clean=a.id.replace(/[^a-zA-Z0-9_-]/g,'_')||'guest';
     var path=clean+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext(blob.type);
-    var up=await fetch(SB+'/storage/v1/object/ktalk-videos/'+path,{method:'POST',headers:headers({'Content-Type':blob.type||'video/webm','x-upsert':'false'}),body:blob});
-    if(!up.ok)throw new Error('upload');
+    var up=await ktUploadFetch(SB+'/storage/v1/object/ktalk-videos/'+path,{method:'POST',headers:headers({'Content-Type':blob.type||'video/webm','x-upsert':'false'}),body:blob});
+    if(!up.ok)throw new Error('동영상 서버 저장에 실패했습니다. 다시 눌러 주세요.');
     var url=SB+'/storage/v1/object/public/ktalk-videos/'+path;
-    var ins=await fetch(SB+'/rest/v1/ktalk_videos',{method:'POST',headers:headers({'Content-Type':'application/json','Prefer':'return=representation'}),body:JSON.stringify({author_id:a.id,author_name:a.name,title:title||'K-Talk 동영상',video_path:path,video_url:url})});
-    if(!ins.ok)throw new Error('insert');
+    var ins=await ktUploadFetch(SB+'/rest/v1/ktalk_videos',{method:'POST',headers:headers({'Content-Type':'application/json','Prefer':'return=representation'}),body:JSON.stringify({author_id:a.id,author_name:a.name,title:title||'K-Talk 동영상',video_path:path,video_url:url})});
+    if(!ins.ok)throw new Error('동영상 목록 등록에 실패했습니다. 다시 눌러 주세요.');
     var rows=await ins.json();
     return rows&&rows[0]?rows[0]:{id:'',video_url:url};
   }
@@ -163,6 +179,20 @@
   };
 
   window.ktPublicShare=async function(url){try{if(navigator.share){await navigator.share({title:'K-Talk 동영상',url:url});return;}if(navigator.clipboard){await navigator.clipboard.writeText(url);alert('동영상 주소를 복사했습니다.');return;}if(window.shareApp)shareApp();}catch(e){}};
+
+  /* 모바일에서 영어 네트워크 오류가 그대로 뜨지 않게 동영상 업로드 오류만 한글로 처리 */
+  if(!window.__ktVideoUploadKoreanNetworkError20260919){
+    window.__ktVideoUploadKoreanNetworkError20260919=true;
+    window.addEventListener('unhandledrejection',function(ev){
+      try{
+        var reason=ev&&ev.reason;
+        var msg=String(reason&&reason.message||reason||'');
+        if(msg.indexOf('Failed to fetch')<0&&msg.indexOf('NetworkError')<0&&msg.indexOf('Load failed')<0)return;
+        if(ev&&ev.preventDefault)ev.preventDefault();
+        alert('서버 연결에 실패했습니다. 인터넷 연결을 확인한 뒤 다시 눌러 주세요.');
+      }catch(e){}
+    });
+  }
 
   var oldHome=window.home,oldMedia=window.media;
   async function show(fallback){var a=[];try{a=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');}catch(e){}if(!a.length)a=await getFeed();if(!a.length){if(fallback)fallback();return;}document.body.classList.remove('kt-home');document.body.classList.add('kt-video-mode');screen.innerHTML='<div style="height:calc(100dvh - 78px);overflow-y:auto;scroll-snap-type:y mandatory;background:#000">'+a.map(card).join('')+'</div>';bind();}
