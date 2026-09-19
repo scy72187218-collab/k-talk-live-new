@@ -206,14 +206,6 @@
     document.querySelectorAll('.ktvl-bell[data-host="'+CSS.escape(String(hostId))+'"]').forEach(function(b){b.classList.toggle('on',st.notify);b.title=st.notify?'방송 알림 켜짐':'방송 알림 켜기';});
   }
 
-  function removeLegacyPeekButtons(){
-    try{
-      document.querySelectorAll('.kt-video-live-peek .ktvl-follow,.kt-video-live-peek .ktvl-bell').forEach(function(el){
-        try{el.remove();}catch(e){if(el.parentNode)el.parentNode.removeChild(el);}
-      });
-    }catch(e){}
-  }
-
   function inVideoView(){
     if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
     try{
@@ -303,7 +295,6 @@
   }
 
   async function render(){
-    removeLegacyPeekButtons();
     ensureStyle();
     var old=document.getElementById('ktVideoLivePeek');
     if(document.documentElement.classList.contains('kt-remote-viewing')){
@@ -333,13 +324,19 @@
     var b=document.createElement('div');
     b.id='ktVideoLivePeek';b.className='kt-video-live-peek';b.setAttribute('data-kt-signature',signature);
     b.innerHTML='<button type="button" class="ktvl-person" aria-label="방송자 프로필"><span class="ktvl-avatar">'+photo+'</span><span class="ktvl-copy"><b>'+esc(hostName)+'</b><small>'+esc(r.title||r.room_name||'방송 중')+'</small></span></button>'
+      +'<button type="button" class="ktvl-follow" data-host="'+esc(hostId)+'" title="팔로우">+</button>'
+      +'<button type="button" class="ktvl-bell" data-host="'+esc(hostId)+'" title="방송 알림 켜기">🔔</button>'
       +'<button type="button" class="ktvl-live">● LIVE</button>';
     var person=b.querySelector('.ktvl-person');
+    var follow=b.querySelector('.ktvl-follow');
+    var bell=b.querySelector('.ktvl-bell');
     var live=b.querySelector('.ktvl-live');
     if(person)person.onclick=function(e){e.stopPropagation();window.ktOpenLiveHostActions(hostId,hostName,hostPhoto);};
+    if(follow)follow.onclick=function(e){e.stopPropagation();window.ktToggleLiveHostFollow(hostId,hostName,this);};
+    if(bell)bell.onclick=function(e){e.stopPropagation();window.ktToggleLiveHostAlert(hostId,hostName,this);};
     if(live)live.onclick=function(e){e.stopPropagation();if(window.ktEnterRemoteLive)window.ktEnterRemoteLive(hostId);};
     host.appendChild(b);
-    removeLegacyPeekButtons();
+    paintSocialState(hostId);
   }
 
   window.ktRefreshVideoLivePeek=render;
