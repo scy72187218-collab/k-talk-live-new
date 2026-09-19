@@ -107,11 +107,81 @@
   }
   function bind(){
     var vs=[].slice.call(document.querySelectorAll('.kt-public-video'));
-    vs.forEach(function(v){v.onclick=function(){v.muted=false;v.volume=1;if(v.paused){var p=v.play();if(p&&p.catch)p.catch(function(){});}else{v.pause();}};});
+
+    function playOne(v){
+      if(!v)return;
+      try{
+        v.muted=true;
+        v.defaultMuted=true;
+        v.setAttribute('playsinline','');
+        var p=v.play();
+        if(p&&p.catch)p.catch(function(){});
+      }catch(e){}
+    }
+
+    function moveToNext(v){
+      var i=vs.indexOf(v);
+      for(var n=i+1;n<vs.length;n++){
+        var next=vs[n];
+        if(!next||!next.isConnected)continue;
+        try{
+          var sec=next.closest('section');
+          if(sec&&sec.scrollIntoView)sec.scrollIntoView({block:'start'});
+        }catch(e){}
+        playOne(next);
+        return;
+      }
+    }
+
+    vs.forEach(function(v,i){
+      v.onclick=function(){
+        v.muted=false;
+        v.defaultMuted=false;
+        v.volume=1;
+        if(v.paused){var p=v.play();if(p&&p.catch)p.catch(function(){});}else{v.pause();}
+      };
+
+      v.addEventListener('canplay',function(){
+        if(i===0)playOne(v);
+      },{once:true});
+
+      v.addEventListener('error',function(){
+        try{
+          var sec=v.closest('section');
+          if(sec)sec.style.display='none';
+        }catch(e){}
+        moveToNext(v);
+      });
+
+      /* 첫 동영상이 검은 화면으로 오래 멈추면 한 번만 다시 불러온다. */
+      if(i===0){
+        setTimeout(function(){
+          try{
+            if(!v.isConnected||v.readyState>=2)return;
+            var src=String(v.currentSrc||v.getAttribute('src')||'');
+            if(!src)return;
+            if(v.dataset.ktReloaded==='1'){moveToNext(v);return;}
+            v.dataset.ktReloaded='1';
+            var sep=src.indexOf('?')>-1?'&':'?';
+            v.src=src+sep+'ktreload='+Date.now();
+            v.load();
+            playOne(v);
+          }catch(e){}
+        },4500);
+      }
+    });
+
     if('IntersectionObserver'in window){
-      var ob=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting&&e.intersectionRatio>.6){e.target.play().catch(function(){});}else{e.target.pause();}});},{threshold:[.6]});
+      var ob=new IntersectionObserver(function(es){
+        es.forEach(function(e){
+          if(e.isIntersecting&&e.intersectionRatio>.6)playOne(e.target);
+          else{try{e.target.pause();}catch(x){}}
+        });
+      },{threshold:[.6]});
       vs.forEach(function(v){ob.observe(v);});
     }
+
+    if(vs[0])setTimeout(function(){playOne(vs[0]);},80);
   }
 
   window.ktPublicSendRose=async function(id,recipientName,btn){
@@ -165,7 +235,25 @@
   window.ktPublicShare=async function(url){try{if(navigator.share){await navigator.share({title:'K-Talk 동영상',url:url});return;}if(navigator.clipboard){await navigator.clipboard.writeText(url);alert('동영상 주소를 복사했습니다.');return;}if(window.shareApp)shareApp();}catch(e){}};
 
   var oldHome=window.home,oldMedia=window.media;
-  async function show(fallback){var a=[];try{a=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');}catch(e){}if(!a.length)a=await getFeed();if(!a.length){if(fallback)fallback();return;}document.body.classList.remove('kt-home');document.body.classList.add('kt-video-mode');screen.innerHTML='<div style="height:calc(100dvh - 78px);overflow-y:auto;scroll-snap-type:y mandatory;background:#000">'+a.map(card).join('')+'</div>';bind();}
+  async function show(fallback){
+    var cached=[];
+    try{cached=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');}catch(e){cached=[];}
+
+    /* 오래된 캐시만 붙잡지 않고 공개 목록을 매번 새로 확인한다. */
+    var fresh=await getFeed();
+    var a=(fresh&&fresh.length)?fresh:cached;
+
+    if(!a.length){
+      try{localStorage.removeItem('ktalk_fast_feed');}catch(e){}
+      if(fallback)fallback();
+      return;
+    }
+
+    document.body.classList.remove('kt-home');
+    document.body.classList.add('kt-video-mode');
+    screen.innerHTML='<div style="height:calc(100dvh - 78px);overflow-y:auto;scroll-snap-type:y mandatory;background:#000">'+a.map(card).join('')+'</div>';
+    bind();
+  }
   window.home=function(){try{if(window.activate)activate('home');}catch(e){}show(oldHome);};
   window.media=function(type){try{if(window.activate)activate(type);}catch(e){}show(function(){if(oldMedia)oldMedia(type);});};
 
