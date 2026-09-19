@@ -5,17 +5,7 @@
   if(window.__ktWorkingControlsUnlock20260919)return;
   window.__ktWorkingControlsUnlock20260919=true;
 
-  var KEY='ktalk_work_controls_unlocked';
-
-  function setStore(v){
-    try{localStorage.setItem(KEY,v?'1':'0');}catch(e){}
-  }
-  function isUnlocked(){
-    try{return localStorage.getItem(KEY)==='1';}catch(e){return true;}
-  }
-
-  /* 지금은 사용자가 직접 "풀었어요"라고 한 작업 상태이므로 해제 유지 */
-  setStore(true);
+  /* 잠금 상태 자체를 사용하지 않는다. 지정 조작부는 항상 터치 가능 상태 유지. */
 
   var selector=[
     '.kt-switch',
@@ -46,12 +36,10 @@
   }
 
   function refresh(){
-    if(!isUnlocked())return;
     try{document.querySelectorAll(selector).forEach(unlockOne);}catch(e){}
   }
 
   function clearClosedOverlayBlock(){
-    if(!isUnlocked())return;
     try{
       var sh=document.getElementById('sheet');
       if(sh && !sh.classList.contains('show')){
@@ -76,18 +64,15 @@
   }
 
   window.ktKeepWorkingControlsUnlocked=function(){
-    setStore(true);
     refresh();
     clearClosedOverlayBlock();
     return true;
   };
 
+  /* 잠금 기능 제거: 다른 코드가 호출해도 다시 잠기지 않음. */
   window.ktLockWorkingControls=function(){
-    setStore(false);
-    try{
-      var sh=document.getElementById('sheet');
-      if(sh)sh.style.removeProperty('pointer-events');
-    }catch(e){}
+    refresh();
+    clearClosedOverlayBlock();
     return true;
   };
 
@@ -107,8 +92,7 @@
 
   try{
     var mo=new MutationObserver(function(){
-      if(!isUnlocked())return;
-      clearTimeout(window.__ktWorkUnlockTimer);
+        clearTimeout(window.__ktWorkUnlockTimer);
       window.__ktWorkUnlockTimer=setTimeout(run,25);
     });
     mo.observe(document.documentElement,{
@@ -117,7 +101,5 @@
     });
   }catch(e){}
 
-  setInterval(function(){
-    if(isUnlocked())run();
-  },900);
+  setInterval(run,900);
 })();
