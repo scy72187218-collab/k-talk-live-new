@@ -6,7 +6,7 @@
   window.__ktHomeVideoHardRecover20260919=true;
 
   var SB='https://zupwbfmacwzexyvznlzq.supabase.co';
-  var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXB3YmZtYWN3emV4eXZ6bmx6cSIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzg4NDYxMDc2LCJleHAiOjIxMDQwMzcwNzZ9.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
+  var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1cHdiZm1hY3d6ZXh5dnpubHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjEwNzYsImV4cCI6MjEwNDAzNzA3Nn0.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
   var rendering=false;
   var lastRender=0;
   var initialServerRefreshDone=false;
@@ -80,21 +80,24 @@
       if(Array.isArray(old))cached=old;
     }catch(e){}
 
-    /* 검은 화면을 막기 위해 항상 서버의 최신 공개 동영상 목록을 먼저 짧게 확인 */
-    try{
-      var ctl=('AbortController' in window)?new AbortController():null;
-      var timer=ctl?setTimeout(function(){try{ctl.abort();}catch(e){}},3000):0;
-      var url=SB+'/rest/v1/ktalk_videos?select=id,author_name,title,video_url,created_at,likes&order=created_at.desc&limit=40&_='+Date.now();
-      var r=await fetch(url,{cache:'no-store',signal:ctl?ctl.signal:void 0,headers:{apikey:KEY,Authorization:'Bearer '+KEY}});
-      if(timer)clearTimeout(timer);
-      if(r.ok){
-        var a=await r.json();
-        if(Array.isArray(a)&&a.length){
-          try{localStorage.setItem('ktalk_fast_feed',JSON.stringify(a));}catch(e){}
-          return a;
+    /* 항상 서버 최신 공개 동영상 목록을 우선. 삭제 직후에도 남은 영상을 즉시 다시 받는다. */
+    for(var attempt=0;attempt<3;attempt++){
+      try{
+        var ctl=('AbortController' in window)?new AbortController():null;
+        var timer=ctl?setTimeout(function(){try{ctl.abort();}catch(e){}},5000):0;
+        var url=SB+'/rest/v1/ktalk_videos?select=id,author_name,title,video_url,created_at,likes&order=created_at.desc&limit=40&_='+Date.now()+'_'+attempt;
+        var r=await fetch(url,{cache:'no-store',signal:ctl?ctl.signal:void 0,headers:{apikey:KEY,Authorization:'Bearer '+KEY,'Cache-Control':'no-cache'}});
+        if(timer)clearTimeout(timer);
+        if(r.ok){
+          var a=await r.json();
+          if(Array.isArray(a)&&a.length){
+            try{localStorage.setItem('ktalk_fast_feed',JSON.stringify(a));}catch(e){}
+            return a;
+          }
         }
-      }
-    }catch(e){}
+      }catch(e){}
+      if(attempt<2)await new Promise(function(resolve){setTimeout(resolve,250+(attempt*250));});
+    }
 
     /* 네트워크가 잠깐 안 될 때만 마지막 정상 목록을 사용 */
     if(cached.length)return cached;
@@ -167,7 +170,14 @@
   }
 
   async function forceHome(forceServer){
-    if(rendering||busyElsewhere())return;
+    if(busyElsewhere())return;
+    if(rendering){
+      if(forceServer){
+        clearTimeout(window.__ktHardVideoQueuedRefresh);
+        window.__ktHardVideoQueuedRefresh=setTimeout(function(){try{forceHome(true);}catch(e){}},180);
+      }
+      return;
+    }
     try{
       var existing=document.querySelector('#screen .kt-public-video,#screen #homeVideo,#screen .kt-hard-public-video');
       if(existing&&!forceServer){
