@@ -23,9 +23,7 @@
       +'#screen .ktg13-room[data-kt-room="9"] .ktg13-host{grid-column:1!important;grid-row:1!important}'
       +'#screen .ktg13-room[data-kt-room="9"] .ktg13-host>video,#screen .ktg13-room[data-kt-room="9"] .ktg13-guests>.ktg13-guest>video{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;object-fit:cover!important;object-position:center center!important;margin:0!important;padding:0!important;border:0!important}'
       +'#screen .ktg13-room[data-kt-room="9"] .ktg13-guests{display:contents!important}'
-      +'#screen .ktg13-room[data-kt-room="9"] .ktg13-host-extra{display:none!important}'
-      +'#screen .ktg13-room[data-kt-room="9"] .ktg13-host .kt-allhost-profile{display:none!important}'
-      +'#screen .ktg13-room[data-kt-room="9"] .ktg13-host .ktg13-host-label{display:block!important;position:absolute!important;left:7px!important;top:auto!important;bottom:6px!important;z-index:30!important;padding:3px 7px!important;border-radius:10px!important;background:#111d!important;color:#fff!important;font-size:10px!important;font-weight:950!important}';
+      +'#screen .ktg13-room[data-kt-room="9"] .ktg13-host-extra{display:none!important}';
     document.head.appendChild(s);
   }
 
@@ -35,20 +33,6 @@
     var room=document.querySelector('#screen .ktg13-room');
     if(!room)return;
     room.setAttribute('data-kt-room','9');
-
-    var host=room.querySelector('.ktg13-host');
-    if(host){
-      var profile=host.querySelector(':scope > .kt-allhost-profile');
-      if(profile)profile.style.setProperty('display','none','important');
-      var hostLabel=host.querySelector(':scope > .ktg13-host-label');
-      if(!hostLabel){
-        hostLabel=document.createElement('span');
-        hostLabel.className='ktg13-host-label';
-        host.appendChild(hostLabel);
-      }
-      hostLabel.textContent='호스트';
-      hostLabel.style.setProperty('display','block','important');
-    }
 
     var guestBox=room.querySelector('.ktg13-guests');
     if(!guestBox)return;
