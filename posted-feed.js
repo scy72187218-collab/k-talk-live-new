@@ -16,7 +16,7 @@
       try{
         var x=new XMLHttpRequest();
         x.open(opt.method||'GET',url,true);
-        x.timeout=45000;
+        x.timeout=Number(opt.timeout||180000);
         var hs=opt.headers||{};
         Object.keys(hs).forEach(function(k){
           try{x.setRequestHeader(k,hs[k]);}catch(e){}
@@ -81,41 +81,53 @@
   }
 
   async function ktTusUpload(blob,path){
-    var endpoint='https://zupwbfmacwzexyvznlzq.storage.supabase.co/storage/v1/upload/resumable';
+    var endpoints=[
+      'https://zupwbfmacwzexyvznlzq.storage.supabase.co/storage/v1/upload/resumable',
+      SB+'/storage/v1/upload/resumable'
+    ];
     var meta=[
       'bucketName '+ktB64('ktalk-videos'),
       'objectName '+ktB64(path),
       'contentType '+ktB64(blob.type||'video/mp4'),
       'cacheControl '+ktB64('3600')
     ].join(',');
+    var last=null;
 
-    var common={Authorization:'Bearer '+KEY,apikey:KEY,'Tus-Resumable':'1.0.0'};
-    var createHeaders=Object.assign({},common,{
-      'Upload-Length':String(blob.size||0),
-      'Upload-Metadata':meta
-    });
-    var created=await ktTusRequest('POST',endpoint,createHeaders,null,45000);
-    if(created.status!==201)throw new Error('대용량 동영상 업로드 준비에 실패했습니다. 다시 눌러 주세요.');
-    var location=created.location;
-    if(!location)throw new Error('대용량 동영상 업로드 주소를 받지 못했습니다.');
-    try{location=new URL(location,endpoint).href;}catch(e){}
+    for(var ep=0;ep<endpoints.length;ep++){
+      var endpoint=endpoints[ep];
+      try{
+        var common={Authorization:'Bearer '+KEY,apikey:KEY,'Tus-Resumable':'1.0.0'};
+        var createHeaders=Object.assign({},common,{
+          'Upload-Length':String(blob.size||0),
+          'Upload-Metadata':meta
+        });
+        var created=await ktTusRequest('POST',endpoint,createHeaders,null,60000);
+        if(created.status!==201)throw new Error('대용량 동영상 업로드 준비 실패 '+created.status);
+        var location=created.location;
+        if(!location)throw new Error('대용량 동영상 업로드 주소 없음');
+        try{location=new URL(location,endpoint).href;}catch(e){}
 
-    var chunk=6*1024*1024;
-    var offset=0,total=Number(blob.size||0);
-    while(offset<total){
-      var end=Math.min(total,offset+chunk);
-      var part=blob.slice(offset,end);
-      var patchHeaders=Object.assign({},common,{
-        'Upload-Offset':String(offset),
-        'Content-Type':'application/offset+octet-stream'
-      });
-      var patched=await ktTusRequest('PATCH',location,patchHeaders,part,90000);
-      if(patched.status!==204)throw new Error('대용량 동영상 전송 중 오류가 발생했습니다. 다시 눌러 주세요.');
-      var next=Number(patched.offset||end);
-      if(!isFinite(next)||next<=offset)next=end;
-      offset=next;
+        var chunk=6*1024*1024;
+        var offset=0,total=Number(blob.size||0);
+        while(offset<total){
+          var end=Math.min(total,offset+chunk);
+          var part=blob.slice(offset,end);
+          var patchHeaders=Object.assign({},common,{
+            'Upload-Offset':String(offset),
+            'Content-Type':'application/offset+octet-stream'
+          });
+          var patched=await ktTusRequest('PATCH',location,patchHeaders,part,120000);
+          if(patched.status!==204)throw new Error('대용량 동영상 전송 실패 '+patched.status);
+          var next=Number(patched.offset||end);
+          if(!isFinite(next)||next<=offset)next=end;
+          offset=next;
+        }
+        return true;
+      }catch(e){
+        last=e;
+      }
     }
-    return true;
+    throw last||new Error('대용량 동영상 업로드 연결에 실패했습니다.');
   }
 
   async function publicUpload(blob,title){
@@ -126,10 +138,27 @@
     var useTus=Number(blob&&blob.size||0)>6*1024*1024;
 
     if(useTus){
-      await ktTusUpload(blob,path);
+      try{
+        await ktTusUpload(blob,path);
+      }catch(e){
+        /* 분할 전송이 막힌 휴대폰에서는 일반 업로드를 마지막으로 한 번 더 시도 */
+        path=base+'-s.'+suffix;
+        var bigUp=await ktUploadFetch(SB+'/storage/v1/object/ktalk-videos/'+path,{
+          method:'POST',
+          headers:headers({'Content-Type':blob.type||'video/mp4','x-upsert':'false'}),
+          body:blob,
+          timeout:180000
+        });
+        if(!bigUp.ok)throw new Error('동영상 서버 저장 실패 '+bigUp.status);
+      }
     }else{
       try{
-        var up=await ktUploadFetch(SB+'/storage/v1/object/ktalk-videos/'+path,{method:'POST',headers:headers({'Content-Type':blob.type||'video/webm','x-upsert':'false'}),body:blob});
+        var up=await ktUploadFetch(SB+'/storage/v1/object/ktalk-videos/'+path,{
+          method:'POST',
+          headers:headers({'Content-Type':blob.type||'video/webm','x-upsert':'false'}),
+          body:blob,
+          timeout:120000
+        });
         if(!up.ok)throw new Error('standard '+up.status);
       }catch(e){
         /* 작은 파일도 모바일 전송이 끊기면 6MB 분할 업로드로 한 번 더 시도 */
@@ -194,6 +223,7 @@
     await putStoredItem(item);
     try{if(window.ktRenderProfilePostedVideos)window.ktRenderProfilePostedVideos();}catch(e){}
 
+    window.__ktVideoUploadInProgress=true;
     try{
       if(!item.publicVideoId){
         var row=await publicUpload(item.blob,item.name||'K-Talk 동영상');
@@ -207,7 +237,9 @@
       setTimeout(function(){try{window.home();}catch(e){}},100);
     }catch(e){
       if(btn){btn.disabled=false;btn.textContent='다시 올리기';}
-      alert('내 프로필에는 올라갔습니다. 공개 영상 등록만 다시 눌러 주세요.');
+      alert('내 프로필에는 저장됐습니다. 공개 영상만 다시 올리기를 눌러 주세요.');
+    }finally{
+      window.__ktVideoUploadInProgress=false;
     }
   };
 
@@ -312,7 +344,8 @@
         var msg=String(reason&&reason.message||reason||'');
         if(msg.indexOf('Failed to fetch')<0&&msg.indexOf('NetworkError')<0&&msg.indexOf('Load failed')<0)return;
         if(ev&&ev.preventDefault)ev.preventDefault();
-        alert('서버 연결에 실패했습니다. 인터넷 연결을 확인한 뒤 다시 눌러 주세요.');
+        if(window.__ktVideoUploadInProgress)return;
+        alert('서버 연결에 실패했습니다. 잠시 후 다시 눌러 주세요.');
       }catch(e){}
     });
   }
