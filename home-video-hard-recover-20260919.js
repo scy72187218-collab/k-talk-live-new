@@ -85,8 +85,8 @@
       try{
         var ctl=('AbortController' in window)?new AbortController():null;
         var timer=ctl?setTimeout(function(){try{ctl.abort();}catch(e){}},5000):0;
-        var url=SB+'/rest/v1/ktalk_videos?select=id,author_name,title,video_url,created_at,likes&order=created_at.desc&limit=40';
-        var r=await fetch(url,{cache:'no-store',signal:ctl?ctl.signal:void 0,headers:{apikey:KEY,Authorization:'Bearer '+KEY,'Cache-Control':'no-cache'}});
+        var url='https://zupwbfmacwzexyvznlzq.supabase.co/functions/v1/ktalk-video-feed';
+        var r=await fetch(url,{cache:'no-store',signal:ctl?ctl.signal:void 0,headers:{'x-ktalk-feed':'shared-public-v1'}});
         if(timer)clearTimeout(timer);
         if(r.ok){
           var a=await r.json();
