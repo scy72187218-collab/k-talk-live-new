@@ -185,6 +185,16 @@
     try{if(window.ktRenderTreasure)ktRenderTreasure();}catch(e){}
   }
 
+  /* 13명방 시작 전용 안전 진입점: 카운트가 끝났는데 화면 전환만 빠진 경우
+     두 번째 버튼 터치 없이 현재 승인된 13명방 화면만 즉시 연다. */
+  window.ktOpenApprovedGroup13Now=function(){
+    if(!isGroup13())return false;
+    try{
+      renderApprovedGroup13();
+      return !!document.querySelector('#screen .ktg13-room');
+    }catch(e){return false;}
+  };
+
   window.startBroadcast=async function(){
     if(!isGroup13())return oldStartBroadcast.apply(this,arguments);
     /* 시작 시 전체화면 전환은 하지 않음: 카운트다운이 5부터 바로 보이게 유지 */
