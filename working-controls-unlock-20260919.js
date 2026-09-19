@@ -15,8 +15,8 @@
     try{return localStorage.getItem(KEY)==='1';}catch(e){return false;}
   }
 
-  /* 요청 작업 완료 후 다시 잠금 상태로 유지 */
-  setStore(false);
+  /* 실제 앱 조작부는 자동 잠금하지 않는다. 작업 보호는 코드 수정 범위로만 유지한다. */
+  if(localStorage.getItem(KEY)==null)setStore(true);
 
   var selector=[
     '.kt-switch',
