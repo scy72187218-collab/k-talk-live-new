@@ -209,17 +209,10 @@
   window.ktPublicShare=async function(url){try{if(navigator.share){await navigator.share({title:'K-Talk 동영상',url:url});return;}if(navigator.clipboard){await navigator.clipboard.writeText(url);alert('동영상 주소를 복사했습니다.');return;}if(window.shareApp)shareApp();}catch(e){}};
 
   var oldHome=window.home,oldMedia=window.media;
-  async function show(fallback){
+  var showingFeed=false;
+  function renderFeed(a){
     var target=document.getElementById('screen');
-    if(!target)return;
-    var a=await getFeed();
-    if(!a.length){
-      document.body.classList.remove('kt-home');
-      document.body.classList.add('kt-video-mode');
-      target.innerHTML='<div style="height:calc(100dvh - 78px);display:grid;place-items:center;background:#000;color:#ddd;text-align:center;padding:24px"><div><b>공용 동영상 목록 연결 중...</b><br><small style="opacity:.7">잠시 후 자동으로 다시 불러옵니다.</small></div></div>';
-      setTimeout(function(){try{show(fallback);}catch(e){}},1200);
-      return;
-    }
+    if(!target||!Array.isArray(a)||!a.length)return false;
     document.body.classList.remove('kt-home');
     document.body.classList.add('kt-video-mode');
     target.innerHTML='<div class="kt-public-feed-scroller" data-kt-shared-feed="1" style="height:calc(100dvh - 78px);overflow-y:auto;scroll-snap-type:y mandatory;background:#000">'+a.map(card).join('')+'</div>';
@@ -228,8 +221,46 @@
       if(sc)sc.scrollTop=0;
     }catch(e){}
     bind();
+    return true;
   }
-  var homeRun=0;
+
+  async function show(fallback){
+    if(showingFeed)return;
+    var target=document.getElementById('screen');
+    if(!target)return;
+    showingFeed=true;
+
+    var cached=[];
+    try{
+      cached=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');
+      if(!Array.isArray(cached))cached=[];
+    }catch(e){cached=[];}
+
+    /* 마지막 정상 목록이 있으면 즉시 먼저 표시 */
+    if(cached.length)renderFeed(cached);
+    else{
+      document.body.classList.remove('kt-home');
+      document.body.classList.add('kt-video-mode');
+      target.innerHTML='<div style="height:calc(100dvh - 78px);display:grid;place-items:center;background:#000;color:#ddd;font-size:14px">동영상 연결 중...</div>';
+    }
+
+    try{
+      var a=await getFeed();
+      if(a.length){
+        renderFeed(a);
+      }else if(!cached.length){
+        setTimeout(function(){showingFeed=false;show(fallback);},1800);
+        return;
+      }
+    }catch(e){
+      if(!cached.length){
+        setTimeout(function(){showingFeed=false;show(fallback);},1800);
+        return;
+      }
+    }
+    showingFeed=false;
+  }
+
   window.ktShowSharedServerFeed=function(){
     homeRun++;
     return show(oldHome);
@@ -256,9 +287,11 @@
       window.ktShowSharedServerFeed();
     }catch(e){}
   }
-  [120,500,1200].forEach(function(ms){setTimeout(ensureSharedHome,ms);});
-  window.addEventListener('pageshow',function(){setTimeout(ensureSharedHome,120);});
-  document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(ensureSharedHome,120);});
+  setTimeout(ensureSharedHome,180);
+  window.addEventListener('pageshow',function(){setTimeout(ensureSharedHome,180);});
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden)setTimeout(ensureSharedHome,180);
+  });
 
   /* 저장한 동영상은 세로 화면으로 크게 보여 주고, 소리를 켠 상태로 재생한다. */
   window.playStoredVideo=async function(id){
