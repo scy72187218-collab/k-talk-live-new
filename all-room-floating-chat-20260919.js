@@ -119,6 +119,32 @@
     document.head.appendChild(s);
   }
 
+  /* 9명방 채팅의 마지막 줄을 하단 '매치' 버튼 바로 위에 맞춘다.
+     다른 방/버튼/게스트칸은 건드리지 않음. */
+  function placeNineChat(){
+    try{
+      var room=document.querySelector('#screen .ktg13-room[data-kt-room="9"]');
+      if(!room)return;
+      var chat=room.querySelector('.ktg13-chat');
+      var tools=room.querySelector('.ktg13-tools');
+      if(!chat||!tools)return;
+
+      chat.style.setProperty('position','absolute','important');
+      chat.style.setProperty('bottom','auto','important');
+      chat.style.setProperty('left','8px','important');
+      chat.style.setProperty('right','40%','important');
+
+      /* 내용 높이를 실제로 재서, 최신 채팅 줄의 아래쪽이 매치 버튼 위 6px에 오게 한다. */
+      var rr=room.getBoundingClientRect();
+      var tr=tools.getBoundingClientRect();
+      var ch=Math.max(22,Math.min(96,chat.getBoundingClientRect().height||22));
+      var top=Math.max(0,(tr.top-rr.top)-ch-6);
+      chat.style.setProperty('top',top+'px','important');
+      chat.dataset.ktNineChatAtMatchTop='1';
+    }catch(e){}
+  }
+  window.__ktNineChatMatchTop20260919=true;
+
   function keepBottom(){
     [
       document.getElementById('ktsoloChatList'),
@@ -129,6 +155,7 @@
       if(!box)return;
       try{box.scrollTop=box.scrollHeight;}catch(e){}
     });
+    placeNineChat();
   }
 
   install();
