@@ -10,7 +10,7 @@
   var locked={
     solo:true,
     group9:true,
-    group13:true,
+    group13:false,
     subscriber:true,
     secret:true
   };
@@ -29,6 +29,7 @@
           type=room.getAttribute('data-kt-room')==='9'?'group9':'group13';
         }
         if(locked[type])room.setAttribute('data-kt-layout-locked','1');
+        else if(type==='group13')room.removeAttribute('data-kt-layout-locked');
       });
     }catch(e){}
   }
@@ -40,7 +41,7 @@
     return !!locked[type];
   };
   window.ktLockAllFiveRoomLayouts=function(){
-    locked={solo:true,group9:true,group13:true,subscriber:true,secret:true};
+    locked={solo:true,group9:true,group13:false,subscriber:true,secret:true};
     save();mark();return true;
   };
   window.ktUnlockRoomLayout=function(type){
