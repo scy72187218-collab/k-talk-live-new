@@ -96,7 +96,7 @@
     var a=[];
 
     /* 1차: K-Talk 전용 서버 */
-    a=await fetchRows('/api/video-feed?t='+Date.now(),{},3500);
+    a=await fetchRows('https://zupwbfmacwzexyvznlzq.supabase.co/functions/v1/ktalk-video-feed',{'x-ktalk-feed':'shared-public-v1'},4500);
 
     /* 2차: 직접 공개목록 */
     if(!a.length){
@@ -197,11 +197,7 @@
       }
     }catch(e){}
     var now=Date.now();
-    if(now-lastRender<350){
-      clearTimeout(window.__ktHardVideoShortRetry);
-      window.__ktHardVideoShortRetry=setTimeout(function(){try{forceHome(!!forceServer);}catch(e){}},380);
-      return;
-    }
+    if(now-lastRender<350)return;
     lastRender=now;
     rendering=true;
     try{
@@ -210,26 +206,10 @@
 
       document.body.classList.remove('kt-home');
       document.body.classList.add('kt-video-mode');
-
-      /* 서버 응답을 기다리는 동안 검은 로딩 화면을 보여주지 않는다.
-         마지막 정상 공용목록이 있으면 즉시 먼저 표시한다. */
-      var cached=[];
-      try{
-        cached=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');
-        if(!Array.isArray(cached))cached=[];
-      }catch(e){cached=[];}
-
-      if(cached.length){
-        screen.innerHTML='<div class="kt-hard-video-scroller" data-kt-instant-cache="1" style="height:calc(100dvh - 78px);overflow-y:auto;scroll-snap-type:y mandatory;background:#000">'+cached.map(card).join('')+'</div>';
-        bind();
-      }else{
-        screen.innerHTML='<div data-kt-video-loading="1" style="height:calc(100dvh - 78px);display:grid;place-items:center;background:#000;color:#bbb;font-size:14px">동영상 연결 중...</div>';
-      }
+      screen.innerHTML='<div style="height:calc(100dvh - 78px);display:grid;place-items:center;background:#000;color:#bbb;font-size:14px">동영상 불러오는 중...</div>';
 
       var a=await rows();
       if(!a.length){
-        /* 이미 마지막 정상목록을 띄웠으면 그대로 유지한다. */
-        if(cached.length)return;
         screen.innerHTML='<div style="height:calc(100dvh - 78px);display:grid;place-items:center;background:#000;color:#ddd;text-align:center;padding:24px"><div><b style="font-size:16px">동영상 연결을 다시 확인하고 있습니다.</b><br><span style="font-size:12px;opacity:.75">잠시만 기다려 주세요.</span></div></div>';
         return;
       }
