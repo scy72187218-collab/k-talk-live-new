@@ -91,9 +91,9 @@
 
   async function getFeed(){
     try{
-      var r=await fetch(SB+'/rest/v1/ktalk_videos?select=id,author_name,title,video_url,created_at,likes&order=created_at.desc&limit=40',{
+      var r=await fetch('https://zupwbfmacwzexyvznlzq.supabase.co/functions/v1/ktalk-video-feed',{
         cache:'no-store',
-        headers:headers({'Cache-Control':'no-cache'})
+        headers:{'x-ktalk-feed':'shared-public-v1'}
       });
       var a=r.ok?await r.json():[];
       try{if(a.length)localStorage.setItem('ktalk_fast_feed',JSON.stringify(a));}catch(e){}
