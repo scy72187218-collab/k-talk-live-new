@@ -206,6 +206,14 @@
     document.querySelectorAll('.ktvl-bell[data-host="'+CSS.escape(String(hostId))+'"]').forEach(function(b){b.classList.toggle('on',st.notify);b.title=st.notify?'방송 알림 켜짐':'방송 알림 켜기';});
   }
 
+  function removeLegacyPeekButtons(){
+    try{
+      document.querySelectorAll('.kt-video-live-peek .ktvl-follow,.kt-video-live-peek .ktvl-bell').forEach(function(el){
+        try{el.remove();}catch(e){if(el.parentNode)el.parentNode.removeChild(el);}
+      });
+    }catch(e){}
+  }
+
   function inVideoView(){
     if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
     try{
@@ -295,6 +303,7 @@
   }
 
   async function render(){
+    removeLegacyPeekButtons();
     ensureStyle();
     var old=document.getElementById('ktVideoLivePeek');
     if(document.documentElement.classList.contains('kt-remote-viewing')){
@@ -330,7 +339,7 @@
     if(person)person.onclick=function(e){e.stopPropagation();window.ktOpenLiveHostActions(hostId,hostName,hostPhoto);};
     if(live)live.onclick=function(e){e.stopPropagation();if(window.ktEnterRemoteLive)window.ktEnterRemoteLive(hostId);};
     host.appendChild(b);
-    paintSocialState(hostId);
+    removeLegacyPeekButtons();
   }
 
   window.ktRefreshVideoLivePeek=render;
