@@ -12,6 +12,7 @@
   var lastHost='';
   var lastSelf='';
   var absentSince=0;
+  var retryAfter={};
 
   function enc(v){return encodeURIComponent(String(v==null?'':v));}
   function headers(extra){
@@ -164,24 +165,39 @@
     await deactivate(e);
   }
 
+  function schedulePeerRetry(peerId,delay){
+    retryAfter[peerId]=Date.now()+(delay||900);
+    setTimeout(function(){try{tick();}catch(e){}},delay||900);
+  }
+
   function wirePc(pc,entry,name){
     pc.ontrack=function(ev){
       var st=ev.streams&&ev.streams[0]?ev.streams[0]:new MediaStream([ev.track]);
       entry.remoteStream=st;
+      retryAfter[entry.peerId]=0;
       showPeer(entry.peerId,name,st);
     };
     pc.onconnectionstatechange=function(){
       var st=String(pc.connectionState||'');
+      if(st==='connected'){
+        retryAfter[entry.peerId]=0;
+        return;
+      }
       if(st==='failed'||st==='closed'){
-        if(peers[entry.peerId]===entry){delete peers[entry.peerId];clearPeerCell(entry.peerId);}
+        if(peers[entry.peerId]===entry){
+          delete peers[entry.peerId];
+          clearPeerCell(entry.peerId);
+          schedulePeerRetry(entry.peerId,650);
+        }
       }else if(st==='disconnected'){
         setTimeout(function(){
           if(peers[entry.peerId]===entry&&pc.connectionState==='disconnected'){
             try{pc.close();}catch(e){}
             delete peers[entry.peerId];
             clearPeerCell(entry.peerId);
+            schedulePeerRetry(entry.peerId,650);
           }
-        },4500);
+        },1800);
       }
     };
   }
@@ -284,21 +300,34 @@
 
   async function ensurePeer(hostId,selfId,peerId,name,stream){
     if(peerId===selfId||peers[peerId])return;
+    if(retryAfter[peerId]&&Date.now()<retryAfter[peerId])return;
     var key=pairKey(selfId,peerId);
     var offerer=String(selfId)<String(peerId);
     if(offerer){
       var existing=await meshRow(hostId,key);
-      if(existing&&existing.offer_sdp&&existing.offer_sdp!=='pending'&&!existing.answer_sdp){
-        /* 내가 이전 시도에서 만든 행이 남은 경우 새로 정리해서 다시 연결 */
-        try{await req('ktalk_webrtc_sessions?id=eq.'+enc(existing.id),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})});}catch(e){}
-      }else if(existing&&existing.answer_sdp){
-        /* 새 화면 접속에서는 예전 연결을 재사용할 수 없으므로 다시 만든다. */
-        try{await req('ktalk_webrtc_sessions?id=eq.'+enc(existing.id),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})});}catch(e){}
+      if(existing){
+        var age=999999;
+        try{age=Date.now()-new Date(existing.updated_at).getTime();}catch(e){}
+        if(existing.answer_sdp || age>7000 || !existing.offer_sdp || existing.offer_sdp==='pending'){
+          try{await req('ktalk_webrtc_sessions?id=eq.'+enc(existing.id),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})});}catch(e){}
+        }else{
+          /* 방금 만든 정상 offer는 상대가 받을 시간을 준다. */
+          return;
+        }
       }
       await makeOffer(hostId,selfId,peerId,name,stream,key);
     }else{
       var row=await meshRow(hostId,key);
-      if(row&&row.offer_sdp&&row.offer_sdp!=='pending')await answerOffer(hostId,selfId,peerId,name,stream,key,row);
+      if(row&&row.offer_sdp&&row.offer_sdp!=='pending'){
+        var rowAge=999999;
+        try{rowAge=Date.now()-new Date(row.updated_at).getTime();}catch(e){}
+        if(rowAge<=9000){
+          await answerOffer(hostId,selfId,peerId,name,stream,key,row);
+        }else{
+          try{await req('ktalk_webrtc_sessions?id=eq.'+enc(row.id),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})});}catch(e){}
+          schedulePeerRetry(peerId,500);
+        }
+      }
     }
   }
 
@@ -338,8 +367,8 @@
     finally{ticking=false;}
   }
 
-  setInterval(tick,1200);
-  [300,700,1300,2200].forEach(function(ms){setTimeout(tick,ms);});
+  setInterval(tick,1500);
+  [250,650,1200,2000].forEach(function(ms){setTimeout(tick,ms);});
 
   window.addEventListener('pagehide',function(){
     Object.keys(peers).forEach(function(pid){
