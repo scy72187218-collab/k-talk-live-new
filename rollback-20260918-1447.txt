@@ -1,0 +1,1 @@
+K-Talk rollback marker: restored to the site state from 2026-09-18 14:46:31 KST (the last commit before 14:47). No app logic is changed by this file.
