@@ -108,7 +108,10 @@
     if(server.length)return server;
 
     /* 그래도 없으면 이 휴대폰에 저장된 동영상 사용 */
-    var local=await localRows();
+    var local=await Promise.race([
+      localRows(),
+      new Promise(function(resolve){setTimeout(function(){resolve([]);},1800);})
+    ]);
     if(local.length)return local;
     return [];
   }
