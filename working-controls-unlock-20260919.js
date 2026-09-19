@@ -14,10 +14,7 @@
     '.live-prep .prep-bottom button',
     '.creator-bottom .modes span',
     '.creator-bottom .modes button',
-    '#creator .creator-top .creator-rotate',
-    '#creator .creator-tools .creator-tool-text[aria-label="AI 보정"]',
-    '#creator .creator-tools .creator-tool-text[aria-label="편집 효과"]',
-    '.kt-total-admin-row',
+    '#creator .creator-top .creator-rotate',    '.kt-total-admin-row',
     '.kt-live-profile-follow[data-self="1"]',
     '.kt-allhost-photo',
     '.kt-allhost-fallback'
