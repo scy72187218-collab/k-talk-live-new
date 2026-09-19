@@ -1,69 +1,113 @@
-/* K-Talk 13명방 전용 안전 배치:
-   - 호스트/게스트 화면의 13칸만 4-4-4-1로 정렬
-   - 마지막 줄의 빈 3칸(2~4열)에 채팅 표시
-   - 스위치/방송연결/선물/카메라/마이크/다른 방은 건드리지 않음 */
+/* K-Talk 13명방 호스트 화면만 안전 수정
+   목표: 두 번째 참고 사진처럼 4-4-4-1 동일 크기 13칸 + 마지막 줄 빈 3칸 채팅
+   스위치/방송연결/선물/카메라/마이크/다른 방은 변경하지 않음 */
 (function(){
-  if(window.__ktGroup13GridChatEmptySafe20260919)return;
-  window.__ktGroup13GridChatEmptySafe20260919=true;
+  if(window.__ktGroup13GridChatEmptySafe20260919V2)return;
+  window.__ktGroup13GridChatEmptySafe20260919V2=true;
 
-  function ensureStyle(){
-    if(document.getElementById('ktGroup13GridChatEmptySafeStyle'))return;
-    var s=document.createElement('style');
-    s.id='ktGroup13GridChatEmptySafeStyle';
-    s.textContent='#screen .ktg13-room.kt-grid-chat-empty-safe .ktg13-main{position:relative!important;display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;grid-template-rows:repeat(4,minmax(0,1fr))!important;gap:2px!important;overflow:hidden!important;}#screen .ktg13-room.kt-grid-chat-empty-safe .ktg13-host{grid-column:auto!important;grid-row:auto!important;min-width:0!important;min-height:0!important;}#screen .ktg13-room.kt-grid-chat-empty-safe .ktg13-guests{display:contents!important;}#screen .ktg13-room.kt-grid-chat-empty-safe .ktg13-chat{grid-column:2/5!important;grid-row:4!important;position:relative!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;width:100%!important;height:100%!important;min-height:0!important;max-height:none!important;margin:0!important;padding:5px 7px!important;align-self:stretch!important;justify-self:stretch!important;display:flex!important;flex-direction:column!important;justify-content:flex-end!important;overflow:hidden!important;background:transparent!important;border:0!important;box-shadow:none!important;transform:none!important;z-index:18!important;pointer-events:none!important;}#screen .ktg13-room.kt-grid-chat-empty-safe .ktg13-chat:empty:before{content:""!important;}#screen .ktg13-room.kt-grid-chat-empty-safe .ktg13-chat-line{font-size:11px!important;line-height:1.3!important;margin-top:2px!important;text-shadow:0 1px 3px #000,0 0 5px #000!important;}.kt-guest-hostlike-room.kt-grid-chat-empty-safe .kgh-main.is13{position:relative!important;display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;grid-template-rows:repeat(4,minmax(0,1fr))!important;gap:2px!important;overflow:hidden!important;}.kt-guest-hostlike-room.kt-grid-chat-empty-safe .kgh-main.is13>.kgh-chatbox{grid-column:2/5!important;grid-row:4!important;position:relative!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;width:100%!important;max-width:none!important;height:100%!important;max-height:none!important;margin:0!important;padding:5px 7px!important;align-self:stretch!important;justify-self:stretch!important;display:flex!important;flex-direction:column!important;justify-content:flex-end!important;overflow:hidden!important;background:transparent!important;border:0!important;box-shadow:none!important;color:#fff!important;z-index:18!important;pointer-events:none!important;}.kt-guest-hostlike-room.kt-grid-chat-empty-safe .kgh-main.is13>.kgh-chatbox>div{font-size:10px!important;line-height:1.3!important;text-shadow:0 1px 3px #000,0 0 5px #000!important;}@media(max-width:390px){#screen .ktg13-room.kt-grid-chat-empty-safe .ktg13-chat{padding:3px 5px!important}#screen .ktg13-room.kt-grid-chat-empty-safe .ktg13-chat-line{font-size:9px!important}.kt-guest-hostlike-room.kt-grid-chat-empty-safe .kgh-main.is13>.kgh-chatbox{padding:3px 5px!important}.kt-guest-hostlike-room.kt-grid-chat-empty-safe .kgh-main.is13>.kgh-chatbox>div{font-size:9px!important;}}';
-    document.head.appendChild(s);
-  }
-
-  function isHost13(room){
+  function isExact13HostRoom(room){
     if(!room)return false;
     if(room.getAttribute('data-kt-room')==='9'||room.getAttribute('data-kt-room')==='15')return false;
-    try{
-      var t=String((window.state&&state.liveRoomType)||'');
-      var n=String((window.state&&state.liveRoomName)||'');
-      if(t==='group'||t==='group13'||n==='13명 방송')return true;
-    }catch(e){}
+    var guests=room.querySelectorAll('.ktg13-guests .ktg13-guest,.ktg13-main>.ktg13-guest');
+    if(guests.length!==12)return false;
     try{
       var txt=String(room.textContent||'');
-      return txt.indexOf('13명 방송')>-1;
+      if(txt.indexOf('13명 방송')>-1)return true;
+    }catch(e){}
+    try{
+      var n=String((window.state&&state.liveRoomName)||'');
+      var t=String((window.state&&state.liveRoomType)||'');
+      return n==='13명 방송'||t==='group13'||t==='group';
     }catch(e){return false;}
   }
 
-  function applyHost(){
-    var room=document.querySelector('#screen .ktg13-room');
-    if(!isHost13(room))return;
-    var main=room.querySelector('.ktg13-main');
-    var chat=document.getElementById('ktg13ChatList')||room.querySelector('.ktg13-chat');
-    if(!main||!chat)return;
-    ensureStyle();
-    room.classList.add('kt-grid-chat-empty-safe');
-    if(chat.parentElement!==main)main.appendChild(chat);
+  function setImp(el,name,val){
+    if(el)el.style.setProperty(name,val,'important');
   }
 
-  function applyGuest(){
-    document.querySelectorAll('.kt-guest-hostlike-room').forEach(function(room){
-      var main=room.querySelector('.kgh-main.is13');
-      if(!main)return;
-      var chatbox=room.querySelector('.kgh-chatbox');
-      if(!chatbox)return;
-      ensureStyle();
-      room.classList.add('kt-grid-chat-empty-safe');
-      if(chatbox.parentElement!==main)main.appendChild(chatbox);
-    });
+  function forceLayout(){
+    try{
+      var room=document.querySelector('#screen .ktg13-room');
+      if(!isExact13HostRoom(room))return;
+
+      var main=room.querySelector('.ktg13-main');
+      var host=room.querySelector('.ktg13-host');
+      var guests=room.querySelector('.ktg13-guests');
+      var chat=document.getElementById('ktg13ChatList')||room.querySelector('.ktg13-chat');
+      if(!main||!host||!guests||!chat)return;
+
+      /* 13칸을 실제 4x4 한 그리드로 강제. 호스트가 첫 칸, 게스트 12명이 다음 12칸. */
+      setImp(main,'position','relative');
+      setImp(main,'display','grid');
+      setImp(main,'grid-template-columns','repeat(4,minmax(0,1fr))');
+      setImp(main,'grid-template-rows','repeat(4,minmax(0,1fr))');
+      setImp(main,'gap','2px');
+      setImp(main,'overflow','hidden');
+      setImp(main,'min-height','0');
+
+      setImp(host,'grid-column','1');
+      setImp(host,'grid-row','1');
+      setImp(host,'width','auto');
+      setImp(host,'height','auto');
+      setImp(host,'min-width','0');
+      setImp(host,'min-height','0');
+      setImp(host,'margin','0');
+      setImp(host,'align-self','stretch');
+      setImp(host,'justify-self','stretch');
+
+      /* wrapper는 칸을 차지하지 않고 12개 게스트가 main 그리드의 직접 항목처럼 배치됨 */
+      setImp(guests,'display','contents');
+
+      var tiles=room.querySelectorAll('.ktg13-guest');
+      tiles.forEach(function(tile){
+        setImp(tile,'width','auto');
+        setImp(tile,'height','auto');
+        setImp(tile,'min-width','0');
+        setImp(tile,'min-height','0');
+        setImp(tile,'margin','0');
+        setImp(tile,'align-self','stretch');
+        setImp(tile,'justify-self','stretch');
+      });
+
+      /* 채팅은 마지막 줄의 남는 2~4열에만 표시 */
+      if(chat.parentElement!==main)main.appendChild(chat);
+      setImp(chat,'grid-column','2 / 5');
+      setImp(chat,'grid-row','4');
+      setImp(chat,'position','relative');
+      setImp(chat,'left','auto');
+      setImp(chat,'right','auto');
+      setImp(chat,'top','auto');
+      setImp(chat,'bottom','auto');
+      setImp(chat,'width','100%');
+      setImp(chat,'height','100%');
+      setImp(chat,'min-height','0');
+      setImp(chat,'max-height','none');
+      setImp(chat,'margin','0');
+      setImp(chat,'padding','5px 7px');
+      setImp(chat,'display','flex');
+      setImp(chat,'flex-direction','column');
+      setImp(chat,'justify-content','flex-end');
+      setImp(chat,'overflow','hidden');
+      setImp(chat,'background','transparent');
+      setImp(chat,'border','0');
+      setImp(chat,'box-shadow','none');
+      setImp(chat,'transform','none');
+      setImp(chat,'z-index','18');
+      setImp(chat,'pointer-events','none');
+
+      room.setAttribute('data-kt-13-grid','4441-chat-empty');
+    }catch(e){}
   }
 
-  function apply(){
-    try{applyHost();}catch(e){}
-    try{applyGuest();}catch(e){}
-  }
-
-  ensureStyle();
-  apply();
-  [50,120,250,500,900,1500,2500].forEach(function(ms){setTimeout(apply,ms);});
+  forceLayout();
+  [40,100,200,400,800,1400,2400].forEach(function(ms){setTimeout(forceLayout,ms);});
   try{
     var mo=new MutationObserver(function(){
-      clearTimeout(window.__ktGroup13GridChatEmptySafeTimer);
-      window.__ktGroup13GridChatEmptySafeTimer=setTimeout(apply,25);
+      clearTimeout(window.__ktGroup13GridChatEmptySafeTimerV2);
+      window.__ktGroup13GridChatEmptySafeTimerV2=setTimeout(forceLayout,20);
     });
     mo.observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
+  window.addEventListener('resize',function(){setTimeout(forceLayout,30);});
+  window.addEventListener('orientationchange',function(){setTimeout(forceLayout,120);});
 })();
