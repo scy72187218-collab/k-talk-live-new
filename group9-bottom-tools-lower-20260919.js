@@ -78,7 +78,10 @@
         if(typeof window.ktGroup13Friends==='function'){window.ktGroup13Friends();return true;}
       }else if(k.indexOf('메시지')>-1){
         if(typeof window.ktGroup13OpenMessage==='function'){window.ktGroup13OpenMessage();return true;}
-      }else if(k.indexOf('장미')>-1||k.indexOf('선물')>-1){
+      }else if(k.indexOf('장미')>-1){
+        if(typeof window.giftSend==='function'){window.giftSend('장미',1);return true;}
+        if(typeof window.ktAnnounceEvent==='function'){window.ktAnnounceEvent('gift',{name:'장미',count:1});return true;}
+      }else if(k.indexOf('선물')>-1){
         if(typeof window.openGifts==='function'){window.openGifts();return true;}
       }else if(k.indexOf('공유')>-1){
         if(typeof window.shareApp==='function'){window.shareApp();return true;}
