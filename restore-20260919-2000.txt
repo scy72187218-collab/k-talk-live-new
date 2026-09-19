@@ -1,2 +1,0 @@
-Restored K-Talk LIVE to the last READY production state before 20:00 KST on 2026-09-19.
-Target snapshot: 9d381f324b231d3fa2a782633e4acf86145b9ceb

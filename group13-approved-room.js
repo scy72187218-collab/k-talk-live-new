@@ -149,6 +149,13 @@
           +'<div class="ktg13-host"><video id="ktLiveVideo" autoplay playsinline muted></video><span class="ktg13-host-label">호스트</span></div>'
           +'<div class="ktg13-guests">'+guestSlots()+'</div>'
         +'</div>'
+        +'<div class="ktg13-mid">'
+          +'<div id="ktg13ChatList" class="ktg13-chat"></div>'
+          +'<div class="ktg13-earn"><button id="myEarnHud" onclick="toggleMyEarnings()">'
+            +'<div style="display:flex;align-items:center;justify-content:center;gap:4px"><span style="font-size:8px;color:#8fe8ff;font-weight:950;white-space:nowrap">🔒 내 수익 · 본인만 표시</span><b id="hudEarnNet" style="font-size:12px;color:#ffe071;white-space:nowrap">'+esc(net)+'</b></div>'
+            +'<div id="myEarnDetail" style="display:grid;grid-template-columns:1fr auto;gap:1px 4px;margin-top:1px;font-size:7px;color:#ddd;line-height:1.15"><span id="hudEarnRoses">'+esc(roses)+'</span><span id="hudEarnRate" style="text-align:right;white-space:nowrap">일반회원 35%</span><span style="grid-column:1/-1;text-align:right;white-space:nowrap">구독자회원 40% · 소속사 65%</span><span style="grid-column:1/-1;text-align:right;color:#ffe071;white-space:nowrap">소속사 가입은 소속사가 결정</span></div>'
+          +'</button></div>'
+        +'</div>'
         +'<div class="ktg13-gifts">'
           +gift('','1개','장미','rose-single.svg')
           +gift('','50개','장미다발','rose-bouquet-50.svg')
@@ -157,13 +164,6 @@
           +gift('👑','100개','왕관','')
           +gift('🏎️','50개','스포츠카','')
           +gift('','선물상자','큰 선물 보기','gift-box.svg')
-        +'</div>'
-        +'<div class="ktg13-mid">'
-          +'<div id="ktg13ChatList" class="ktg13-chat"></div>'
-          +'<div class="ktg13-earn"><button id="myEarnHud" onclick="toggleMyEarnings()">'
-            +'<div style="display:flex;align-items:center;justify-content:center;gap:4px"><span style="font-size:8px;color:#8fe8ff;font-weight:950;white-space:nowrap">🔒 내 수익 · 본인만 표시</span><b id="hudEarnNet" style="font-size:12px;color:#ffe071;white-space:nowrap">'+esc(net)+'</b></div>'
-            +'<div id="myEarnDetail" style="display:grid;grid-template-columns:1fr auto;gap:1px 4px;margin-top:1px;font-size:7px;color:#ddd;line-height:1.15"><span id="hudEarnRoses">'+esc(roses)+'</span><span id="hudEarnRate" style="text-align:right;white-space:nowrap">일반회원 35%</span><span style="grid-column:1/-1;text-align:right;white-space:nowrap">구독자회원 40% · 소속사 65%</span><span style="grid-column:1/-1;text-align:right;color:#ffe071;white-space:nowrap">소속사 가입은 소속사가 결정</span></div>'
-          +'</button></div>'
         +'</div>'
         +'<div class="ktg13-tools">'
           +'<button class="ktg13-tool" onclick="if(window.openHostMatchArena)openHostMatchArena(\'1대1\')"><i>🔗</i><span>매치</span></button>'

@@ -1,8 +1,6 @@
 /* K-Talk public video feed: simple profile + public feed posting behavior. */
 (function(){
   var SB='https://zupwbfmacwzexyvznlzq.supabase.co';
-  var KT_API='/ktalk-api';
-  var KT_STORAGE='/ktalk-storage';
   var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1cHdiZm1hY3d6ZXh5dnpubHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjEwNzYsImV4cCI6MjEwNDAzNzA3Nn0.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
   function headers(extra){var h={apikey:KEY,Authorization:'Bearer '+KEY};if(extra)Object.keys(extra).forEach(function(k){h[k]=extra[k];});return h;}
   function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
@@ -12,176 +10,15 @@
 
   async function markLocalPosted(){try{var db=await ktOpenVideoDB(),tx=db.transaction('videos','readwrite'),st=tx.objectStore('videos'),rq=st.getAll();await new Promise(function(ok){rq.onsuccess=function(){var a=(rq.result||[]).filter(function(v){return v&&!v.draft;}).sort(function(a,b){return (b.createdAt||0)-(a.createdAt||0);}),x=a[0];if(x){x.posted=true;x.postedAt=x.postedAt||Date.now();st.put(x);}ok();};rq.onerror=ok;});await new Promise(function(ok){tx.oncomplete=ok;tx.onerror=ok;tx.onabort=ok;});try{db.close();}catch(e){}try{if(window.ktRenderProfilePostedVideos)window.ktRenderProfilePostedVideos();}catch(e){}}catch(e){}}
   function ext(t){t=String(t||'').toLowerCase();if(t.indexOf('mp4')>=0)return'mp4';if(t.indexOf('quicktime')>=0)return'mov';if(t.indexOf('m4v')>=0)return'm4v';return'webm';}
-  function ktXhrUpload(url,opt){
-    opt=opt||{};
-    return new Promise(function(resolve,reject){
-      try{
-        var x=new XMLHttpRequest();
-        x.open(opt.method||'GET',url,true);
-        x.timeout=Number(opt.timeout||180000);
-        var hs=opt.headers||{};
-        Object.keys(hs).forEach(function(k){
-          try{x.setRequestHeader(k,hs[k]);}catch(e){}
-        });
-        x.onload=function(){
-          var body=String(x.responseText||'');
-          resolve({
-            ok:x.status>=200&&x.status<300,
-            status:x.status,
-            text:function(){return Promise.resolve(body);},
-            json:function(){try{return Promise.resolve(body?JSON.parse(body):null);}catch(e){return Promise.reject(e);}}
-          });
-        };
-        x.onerror=function(){reject(new Error('서버 연결에 실패했습니다.'));};
-        x.ontimeout=function(){reject(new Error('서버 응답 시간이 초과되었습니다.'));};
-        x.onabort=function(){reject(new Error('동영상 업로드가 중단되었습니다.'));};
-        x.send(opt.body==null?null:opt.body);
-      }catch(e){reject(e);}
-    });
-  }
-
-  async function ktUploadFetch(url,opt){
-    var last=null;
-    /* 1차: 기존 fetch */
-    try{return await fetch(url,opt);}
-    catch(e){last=e;}
-
-    /* 2차: 삼성 인터넷/PWA에서 fetch가 실패할 때 XHR로 같은 요청 재시도 */
-    try{return await ktXhrUpload(url,opt);}
-    catch(e){last=e;}
-
-    var msg=String(last&&last.message||last||'');
-    if(msg.indexOf('Failed to fetch')>-1||msg.indexOf('NetworkError')>-1||msg.indexOf('Load failed')>-1||msg.indexOf('서버 연결')>-1){
-      throw new Error('서버 연결에 실패했습니다. 인터넷 연결을 확인한 뒤 다시 눌러 주세요.');
-    }
-    throw last||new Error('동영상 업로드 연결에 실패했습니다.');
-  }
-
-  function ktB64(v){
-    try{return btoa(unescape(encodeURIComponent(String(v==null?'':v))));}
-    catch(e){try{return btoa(String(v==null?'':v));}catch(x){return '';}}
-  }
-
-  function ktTusRequest(method,url,headers,body,timeout){
-    return new Promise(function(resolve,reject){
-      try{
-        var x=new XMLHttpRequest();
-        x.open(method,url,true);
-        x.timeout=timeout||60000;
-        Object.keys(headers||{}).forEach(function(k){
-          try{x.setRequestHeader(k,headers[k]);}catch(e){}
-        });
-        x.onload=function(){
-          resolve({status:x.status,location:x.getResponseHeader('Location')||'',offset:x.getResponseHeader('Upload-Offset')||''});
-        };
-        x.onerror=function(){reject(new Error('대용량 동영상 전송 연결에 실패했습니다.'));};
-        x.ontimeout=function(){reject(new Error('대용량 동영상 전송 시간이 초과되었습니다.'));};
-        x.onabort=function(){reject(new Error('대용량 동영상 전송이 중단되었습니다.'));};
-        x.send(body==null?null:body);
-      }catch(e){reject(e);}
-    });
-  }
-
-  async function ktTusUpload(blob,path){
-    var endpoints=[
-      KT_STORAGE+'/storage/v1/upload/resumable',
-      'https://zupwbfmacwzexyvznlzq.storage.supabase.co/storage/v1/upload/resumable',
-      SB+'/storage/v1/upload/resumable'
-    ];
-    var meta=[
-      'bucketName '+ktB64('ktalk-videos'),
-      'objectName '+ktB64(path),
-      'contentType '+ktB64(blob.type||'video/mp4'),
-      'cacheControl '+ktB64('3600')
-    ].join(',');
-    var last=null;
-
-    for(var ep=0;ep<endpoints.length;ep++){
-      var endpoint=endpoints[ep];
-      try{
-        var common={Authorization:'Bearer '+KEY,apikey:KEY,'Tus-Resumable':'1.0.0'};
-        var createHeaders=Object.assign({},common,{
-          'Upload-Length':String(blob.size||0),
-          'Upload-Metadata':meta
-        });
-        var created=await ktTusRequest('POST',endpoint,createHeaders,null,60000);
-        if(created.status!==201)throw new Error('대용량 동영상 업로드 준비 실패 '+created.status);
-        var location=created.location;
-        if(!location)throw new Error('대용량 동영상 업로드 주소 없음');
-        try{
-          var resolved=new URL(location,window.location.origin);
-          if(resolved.hostname==='zupwbfmacwzexyvznlzq.storage.supabase.co'){
-            location=KT_STORAGE+resolved.pathname+resolved.search;
-          }else{
-            location=resolved.href;
-          }
-        }catch(e){}
-
-        var chunk=6*1024*1024;
-        var offset=0,total=Number(blob.size||0);
-        while(offset<total){
-          var end=Math.min(total,offset+chunk);
-          var part=blob.slice(offset,end);
-          var patchHeaders=Object.assign({},common,{
-            'Upload-Offset':String(offset),
-            'Content-Type':'application/offset+octet-stream'
-          });
-          var patched=await ktTusRequest('PATCH',location,patchHeaders,part,120000);
-          if(patched.status!==204)throw new Error('대용량 동영상 전송 실패 '+patched.status);
-          var next=Number(patched.offset||end);
-          if(!isFinite(next)||next<=offset)next=end;
-          offset=next;
-        }
-        return true;
-      }catch(e){
-        last=e;
-      }
-    }
-    throw last||new Error('대용량 동영상 업로드 연결에 실패했습니다.');
-  }
-
   async function publicUpload(blob,title){
     var a=who(),clean=a.id.replace(/[^a-zA-Z0-9_-]/g,'_')||'guest';
-    var suffix=ext(blob.type);
-    var base=clean+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,8);
-    var path=base+'.'+suffix;
-    var useTus=Number(blob&&blob.size||0)>6*1024*1024;
-
-    if(useTus){
-      try{
-        await ktTusUpload(blob,path);
-      }catch(e){
-        /* 분할 전송이 막힌 휴대폰에서는 일반 업로드를 마지막으로 한 번 더 시도 */
-        path=base+'-s.'+suffix;
-        var bigUp=await ktUploadFetch(KT_STORAGE+'/storage/v1/object/ktalk-videos/'+path,{
-          method:'POST',
-          headers:headers({'Content-Type':blob.type||'video/mp4','x-upsert':'false'}),
-          body:blob,
-          timeout:180000
-        });
-        if(!bigUp.ok)throw new Error('동영상 서버 저장 실패 '+bigUp.status);
-      }
-    }else{
-      try{
-        var up=await ktUploadFetch(KT_STORAGE+'/storage/v1/object/ktalk-videos/'+path,{
-          method:'POST',
-          headers:headers({'Content-Type':blob.type||'video/webm','x-upsert':'false'}),
-          body:blob,
-          timeout:120000
-        });
-        if(!up.ok)throw new Error('standard '+up.status);
-      }catch(e){
-        /* 작은 파일도 모바일 전송이 끊기면 6MB 분할 업로드로 한 번 더 시도 */
-        path=base+'-r.'+suffix;
-        await ktTusUpload(blob,path);
-      }
-    }
-
+    var path=clean+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext(blob.type);
+    var up=await fetch(SB+'/storage/v1/object/ktalk-videos/'+path,{method:'POST',headers:headers({'Content-Type':blob.type||'video/webm','x-upsert':'false'}),body:blob});
+    if(!up.ok)throw new Error('upload');
     var url=SB+'/storage/v1/object/public/ktalk-videos/'+path;
-    var ins=await ktUploadFetch(KT_API+'/rest/v1/ktalk_videos',{method:'POST',headers:headers({'Content-Type':'application/json','Prefer':'return=representation'}),body:JSON.stringify({author_id:a.id,author_name:a.name,title:title||'K-Talk 동영상',video_path:path,video_url:url})});
-    if(!ins.ok)throw new Error('동영상 목록 등록에 실패했습니다. 다시 눌러 주세요.');
+    var ins=await fetch(SB+'/rest/v1/ktalk_videos',{method:'POST',headers:headers({'Content-Type':'application/json','Prefer':'return=representation'}),body:JSON.stringify({author_id:a.id,author_name:a.name,title:title||'K-Talk 동영상',video_path:path,video_url:url})});
+    if(!ins.ok)throw new Error('insert');
     var rows=await ins.json();
-    try{localStorage.removeItem('ktalk_fast_feed');}catch(e){}
     return rows&&rows[0]?rows[0]:{id:'',video_url:url};
   }
 
@@ -233,7 +70,6 @@
     await putStoredItem(item);
     try{if(window.ktRenderProfilePostedVideos)window.ktRenderProfilePostedVideos();}catch(e){}
 
-    window.__ktVideoUploadInProgress=true;
     try{
       if(!item.publicVideoId){
         var row=await publicUpload(item.blob,item.name||'K-Talk 동영상');
@@ -247,9 +83,7 @@
       setTimeout(function(){try{window.home();}catch(e){}},100);
     }catch(e){
       if(btn){btn.disabled=false;btn.textContent='다시 올리기';}
-      alert('내 프로필에는 저장됐습니다. 공개 영상만 다시 올리기를 눌러 주세요.');
-    }finally{
-      window.__ktVideoUploadInProgress=false;
+      alert('내 프로필에는 올라갔습니다. 공개 영상 등록만 다시 눌러 주세요.');
     }
   };
 
@@ -329,36 +163,6 @@
   };
 
   window.ktPublicShare=async function(url){try{if(navigator.share){await navigator.share({title:'K-Talk 동영상',url:url});return;}if(navigator.clipboard){await navigator.clipboard.writeText(url);alert('동영상 주소를 복사했습니다.');return;}if(window.shareApp)shareApp();}catch(e){}};
-
-  /* 브라우저/다른 업로드 래퍼가 'Failed to fetch'를 직접 alert해도 해당 문구만 한글로 바꾼다. */
-  if(!window.__ktExactFailedFetchAlertKo20260919){
-    window.__ktExactFailedFetchAlertKo20260919=true;
-    try{
-      var nativeAlert=window.alert;
-      window.alert=function(msg){
-        var s=String(msg==null?'':msg).trim();
-        if(s==='Failed to fetch'||s==='TypeError: Failed to fetch'){
-          return nativeAlert.call(window,'서버 연결에 실패했습니다. 인터넷 연결을 확인한 뒤 다시 눌러 주세요.');
-        }
-        return nativeAlert.call(window,msg);
-      };
-    }catch(e){}
-  }
-
-  /* 모바일에서 영어 네트워크 오류가 그대로 뜨지 않게 동영상 업로드 오류만 한글로 처리 */
-  if(!window.__ktVideoUploadKoreanNetworkError20260919){
-    window.__ktVideoUploadKoreanNetworkError20260919=true;
-    window.addEventListener('unhandledrejection',function(ev){
-      try{
-        var reason=ev&&ev.reason;
-        var msg=String(reason&&reason.message||reason||'');
-        if(msg.indexOf('Failed to fetch')<0&&msg.indexOf('NetworkError')<0&&msg.indexOf('Load failed')<0)return;
-        if(ev&&ev.preventDefault)ev.preventDefault();
-        if(window.__ktVideoUploadInProgress)return;
-        alert('서버 연결에 실패했습니다. 잠시 후 다시 눌러 주세요.');
-      }catch(e){}
-    });
-  }
 
   var oldHome=window.home,oldMedia=window.media;
   async function show(fallback){var a=[];try{a=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');}catch(e){}if(!a.length)a=await getFeed();if(!a.length){if(fallback)fallback();return;}document.body.classList.remove('kt-home');document.body.classList.add('kt-video-mode');screen.innerHTML='<div style="height:calc(100dvh - 78px);overflow-y:auto;scroll-snap-type:y mandatory;background:#000">'+a.map(card).join('')+'</div>';bind();}
