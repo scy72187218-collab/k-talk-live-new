@@ -62,6 +62,33 @@
   var launching=false;
   var bypassNestedCountdown=false;
   var countdownPromise=null;
+  var pendingGroup13=false;
+
+  function detect13Selection(){
+    try{
+      var on=[].slice.call(document.querySelectorAll('.live-prep .room-switch.on,.live-prep .room-switch[aria-pressed="true"]'));
+      if(on.some(function(b){return /13\s*명/.test(String(b.textContent||''));}))return true;
+      var st=window.state||{};
+      var vals=[st.liveRoomType,st.prepRoomType,st.roomType,st.liveRoomName,st.prepRoomName].join(' ');
+      if(/group13|13명/.test(String(vals)))return true;
+      var title=document.getElementById('liveTitle');
+      if(title&&/13\s*명/.test(String(title.value||'')))return true;
+    }catch(e){}
+    return false;
+  }
+
+  function force13State(){
+    try{
+      if(!window.state)return;
+      state.liveRoomType='group13';
+      state.liveRoomName='13명 방송';
+      state.liveRoomMax=13;
+      state.prepRoomType='group13';
+      state.prepRoomName='13명 방송';
+      state.prepRoomMax=13;
+      state.roomType='group13';
+    }catch(e){}
+  }
 
   function sleep(ms){return new Promise(function(resolve){setTimeout(resolve,ms);});}
 
@@ -126,7 +153,11 @@
   /* 손을 대는 순간 5를 먼저 띄운다. */
   window.addEventListener('pointerdown',function(e){
     var btn=e.target&&e.target.closest?e.target.closest('.live-prep .prep-start'):null;
-    if(btn)runCountdown();
+    if(btn){
+      pendingGroup13=detect13Selection();
+      if(pendingGroup13)force13State();
+      runCountdown();
+    }
   },true);
 
   /*
@@ -153,39 +184,32 @@
         /* 13명방만: 첫 5초 뒤 최종 13명방 화면이 아직 안 만들어졌으면
            사용자가 다시 누르지 않아도 시작 호출을 한 번 자동 재실행한다.
            재실행 중에는 카운트다운을 다시 띄우지 않는다. */
-        var isGroup13=false;
-        try{
-          var st=window.state||{};
-          var rt=String(st.liveRoomType||st.prepRoomType||st.roomType||'');
-          var rn=String(st.liveRoomName||st.prepRoomName||'');
-          var rm=Number(st.liveRoomMax||st.prepRoomMax||0);
-          isGroup13=(rt==='group'||rt==='group13'||rn.indexOf('13명')>-1||rm===13);
-        }catch(e){}
+        var isGroup13=pendingGroup13;
+        if(!isGroup13){
+          try{
+            var st=window.state||{};
+            var rt=String(st.liveRoomType||st.prepRoomType||st.roomType||'');
+            var rn=String(st.liveRoomName||st.prepRoomName||'');
+            var rm=Number(st.liveRoomMax||st.prepRoomMax||0);
+            isGroup13=(rt==='group'||rt==='group13'||rn.indexOf('13명')>-1||rm===13);
+          }catch(e){}
+        }
 
         if(isGroup13){
-          await new Promise(function(resolve){setTimeout(resolve,120);});
-          if(!document.querySelector('#screen .ktg13-room')){
-            try{
-              if(typeof window.ktOpenApprovedGroup13Now==='function'){
-                window.ktOpenApprovedGroup13Now();
-              }
-            }catch(e){}
-          }
-          /* 동적 로딩이 아주 늦은 기기에서도 두 번째 터치 없이 한 번 더 화면만 확인 */
-          if(!document.querySelector('#screen .ktg13-room')){
-            await new Promise(function(resolve){setTimeout(resolve,220);});
-            try{
-              if(typeof window.ktOpenApprovedGroup13Now==='function'){
-                window.ktOpenApprovedGroup13Now();
-              }
-            }catch(e){}
-          }
+          force13State();
+          await new Promise(function(resolve){setTimeout(resolve,60);});
           try{
-            if(typeof window.ktEnsureHostPresenceNow==='function'){
-              window.ktEnsureHostPresenceNow();
+            if(typeof window.ktOpenApprovedGroup13Now==='function'){
+              window.ktOpenApprovedGroup13Now(true);
+            }
+          }catch(e){}
+          try{
+            if(typeof window.ktForcePublishLiveNow==='function'){
+              window.ktForcePublishLiveNow();
             }
           }catch(e){}
         }
+        pendingGroup13=false;
       }finally{
         releaseStartButton=false;
         bypassNestedCountdown=false;
@@ -193,6 +217,7 @@
         setTimeout(function(){launching=false;},300);
       }
     }).catch(function(){
+      pendingGroup13=false;
       releaseStartButton=false;
       bypassNestedCountdown=false;
       removeCountdown();
