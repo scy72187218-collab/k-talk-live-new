@@ -13,6 +13,12 @@
       var match=room.querySelector(toolsSel+' > *:first-child');
       if(!chat||!match)return;
 
+      /* 비밀방은 채팅이 ktsecret-main 안에 있으면 overflow에 걸릴 수 있으므로
+         채팅 요소만 room 바로 아래로 이동한다. 다른 요소는 건드리지 않음. */
+      if(roomSel==='.ktsecret-room'&&chat.parentElement!==room){
+        room.appendChild(chat);
+      }
+
       var rr=room.getBoundingClientRect();
       var mr=match.getBoundingClientRect();
       if(!rr.width||!mr.width)return;
