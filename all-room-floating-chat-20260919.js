@@ -61,7 +61,7 @@
   transform:none!important;
 }
 .ktg13-room[data-kt-room="9"] .ktg13-chat{
-  bottom:108px!important;
+  bottom:58px!important;
 }
 
 /* 구독자방: 채팅을 하단 선물/도구 바로 위 영상 위에 띄움 */
@@ -104,6 +104,9 @@
     max-height:88px!important;
     padding-left:3px!important;
     padding-right:3px!important;
+  }
+  .ktg13-room[data-kt-room="9"] .ktg13-chat{
+    bottom:54px!important;
   }
   .ktsubscriber-room .ktsubscriber-chat{
     left:5px!important;
