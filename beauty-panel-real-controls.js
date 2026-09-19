@@ -3,7 +3,7 @@
   if(window.__ktRealCameraControlsInstalled)return;
   window.__ktRealCameraControlsInstalled=true;
 
-  var defaults={bright:60,contrast:50,color:54,warm:52,sharp:52,soft:42};
+  var defaults={bright:68,contrast:49,color:60,warm:57,sharp:50,soft:36};
   var neutral={bright:50,contrast:50,color:50,warm:50,sharp:50,soft:1};
   var map={
     bright:{label:'밝기',key:'ktRealBright'},
@@ -36,8 +36,8 @@
     var bright=get('bright'),contrast=get('contrast'),color=get('color'),warm=get('warm'),sharp=get('sharp'),soft=get('soft');
     var b=1+(bright-50)*0.0032;
     var c=1+(contrast-50)*0.0030+(sharp-50)*0.0010;
-    var s=1+(color-50)*0.0030;
-    var sep=Math.max(0,warm-50)*0.0020;
+    var s=1+(color-50)*0.0036;
+    var sep=Math.max(0,warm-50)*0.0024;
     var hue=Math.min(0,(50-warm)*0.10);
     var blur=Math.max(0,(soft-1))*0.0045;
     return 'brightness('+b.toFixed(3)+') contrast('+c.toFixed(3)+') saturate('+s.toFixed(3)+') sepia('+sep.toFixed(3)+') hue-rotate('+hue.toFixed(1)+'deg) blur('+blur.toFixed(2)+'px)';
