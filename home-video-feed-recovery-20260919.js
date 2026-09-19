@@ -67,7 +67,7 @@
       /* 저장된 피드 주소가 오래되어 전부 안 열릴 때 한 번만 새 목록을 받음 */
       if(!cacheRefreshDone&&typeof window.home==='function'){
         cacheRefreshDone=true;
-        try{localStorage.removeItem('ktalk_fast_feed');}catch(e){}
+        /* 마지막으로 정상 재생된 목록은 지우지 않는다. */
         setTimeout(function(){try{window.home();}catch(e){}},80);
       }
     });
