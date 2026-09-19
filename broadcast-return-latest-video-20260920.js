@@ -30,12 +30,6 @@
     try{
       if(typeof window.ktShowSharedServerFeed==='function'){
         window.ktShowSharedServerFeed();
-        setTimeout(function(){
-          try{
-            var s=document.getElementById('screen');
-            if(s&&!s.querySelector('.kt-public-video'))window.ktShowSharedServerFeed();
-          }catch(e){}
-        },900);
         return;
       }
     }catch(e){}
