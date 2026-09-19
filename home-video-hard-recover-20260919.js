@@ -27,9 +27,34 @@
   }
 
   async function rows(){
+    /* 예전에 잘 나오던 영상 목록이 있으면 네트워크를 기다리지 말고 즉시 먼저 표시 */
     try{
+      var cached=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');
+      if(Array.isArray(cached)&&cached.length){
+        /* 새 목록은 뒤에서 조용히 갱신 */
+        setTimeout(function(){
+          try{
+            var ctl=('AbortController' in window)?new AbortController():null;
+            var timer=ctl?setTimeout(function(){try{ctl.abort();}catch(e){}},2500):0;
+            var url=SB+'/rest/v1/ktalk_videos?select=id,author_name,title,video_url,created_at,likes&order=created_at.desc&limit=40&_='+Date.now();
+            fetch(url,{cache:'no-store',signal:ctl?ctl.signal:void 0,headers:{apikey:KEY,Authorization:'Bearer '+KEY}})
+              .then(function(r){return r.ok?r.json():[];})
+              .then(function(a){if(Array.isArray(a)&&a.length){try{localStorage.setItem('ktalk_fast_feed',JSON.stringify(a));}catch(e){}}})
+              .catch(function(){})
+              .finally(function(){if(timer)clearTimeout(timer);});
+          }catch(e){}
+        },0);
+        return cached;
+      }
+    }catch(e){}
+
+    /* 캐시가 없을 때만 서버를 짧게 기다린다. 오래 멈추지 않게 2.5초 제한 */
+    try{
+      var ctl=('AbortController' in window)?new AbortController():null;
+      var timer=ctl?setTimeout(function(){try{ctl.abort();}catch(e){}},2500):0;
       var url=SB+'/rest/v1/ktalk_videos?select=id,author_name,title,video_url,created_at,likes&order=created_at.desc&limit=40&_='+Date.now();
-      var r=await fetch(url,{cache:'no-store',headers:{apikey:KEY,Authorization:'Bearer '+KEY}});
+      var r=await fetch(url,{cache:'no-store',signal:ctl?ctl.signal:void 0,headers:{apikey:KEY,Authorization:'Bearer '+KEY}});
+      if(timer)clearTimeout(timer);
       if(r.ok){
         var a=await r.json();
         if(Array.isArray(a)&&a.length){
@@ -37,10 +62,6 @@
           return a;
         }
       }
-    }catch(e){}
-    try{
-      var b=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');
-      if(Array.isArray(b))return b;
     }catch(e){}
     return [];
   }
