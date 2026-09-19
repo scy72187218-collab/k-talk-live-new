@@ -56,16 +56,46 @@
     }catch(e){}
   }
 
+  function profileIsOpen(){
+    try{
+      var sh=document.getElementById('sheet');
+      var title=document.getElementById('sheetTitle');
+      return !!(sh&&sh.classList.contains('show')&&title&&String(title.textContent||'').indexOf('프로필')>-1);
+    }catch(e){return false;}
+  }
+
+  function refreshProfileVideoOnly(){
+    if(!profileIsOpen())return;
+    renderLocalProfileVideos();
+  }
+
   var oldOpen=window.openProfileDirect;
   if(typeof oldOpen==='function'){
     var wrapped=function(){
       var r=oldOpen.apply(this,arguments);
-      [120,260,520].forEach(function(ms){setTimeout(renderLocalProfileVideos,ms);});
+      [80,180,350,700,1200].forEach(function(ms){setTimeout(refreshProfileVideoOnly,ms);});
       return r;
     };
     wrapped.__ktProfileLocalVideoVisibleRecover20260919=true;
     window.openProfileDirect=wrapped;
   }
+
+  /* 프로필이 이미 열린 뒤 새 동영상을 올린 경우도 목록만 다시 읽는다. */
+  try{
+    var body=document.getElementById('sheetBody');
+    if(body){
+      var timer=0;
+      new MutationObserver(function(){
+        clearTimeout(timer);
+        timer=setTimeout(refreshProfileVideoOnly,90);
+      }).observe(body,{childList:true,subtree:true});
+    }
+  }catch(e){}
+
+  window.addEventListener('focus',function(){setTimeout(refreshProfileVideoOnly,120);});
+  document.addEventListener('visibilitychange',function(){
+    if(document.visibilityState==='visible')setTimeout(refreshProfileVideoOnly,120);
+  });
 
   window.ktRecoverProfileLocalVideos=renderLocalProfileVideos;
 })();
