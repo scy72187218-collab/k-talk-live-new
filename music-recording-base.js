@@ -95,8 +95,9 @@
       var out=new MediaStream();
       base.getVideoTracks().forEach(function(t){out.addTrack(t);});
 
-      var ctx=new AC();
+      var ctx; try{ctx=new AC({sampleRate:44100});}catch(_e){ctx=new AC();}
       var dest=ctx.createMediaStreamDestination();
+      try{dest.channelCount=2;dest.channelCountMode='explicit';}catch(e){}
       var micTracks=base.getAudioTracks?base.getAudioTracks():[];
       if(!micTracks.length && window.state&&state.stream&&state.stream.getAudioTracks){
         micTracks=state.stream.getAudioTracks();
@@ -122,7 +123,7 @@
 
       var musicSource=ctx.createMediaElementSource(audio);
       var musicGain=ctx.createGain();
-      musicGain.gain.value=0.62;
+      musicGain.gain.value=0.57;
       musicSource.connect(musicGain);
       musicGain.connect(dest);
       musicGain.connect(ctx.destination);
