@@ -224,7 +224,7 @@
       clearInterval(hostHeartbeat);clearInterval(hostSignalTimer);clearInterval(hostActivityTimer);
       var beatToken=hostRunToken;
       hostHeartbeat=setInterval(async function(){if(hostEndLock||beatToken!==hostRunToken||!hostActive||!hostRoomId)return;try{await req('ktalk_live_rooms?id=eq.'+enc(hostRoomId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:true,updated_at:nowIso()})});}catch(e){}},12000);
-      hostSignalTimer=setInterval(hostProcessSignals,1400);hostProcessSignals();
+      hostSignalTimer=setInterval(hostProcessSignals,300);hostProcessSignals();
       hostActivityTimer=setInterval(hostPollActivity,1800);hostPollActivity();
       renderLiveCards();
     }catch(e){hostActive=false;hostRoomId='';}
@@ -381,7 +381,7 @@
         await insertSystem(hostId,viewerId,viewerCtx.viewerName,viewerCtx.viewerName+'님이 들어왔습니다.');
         showActivity(viewerCtx.viewerName+'님이 들어왔습니다.');
       }
-      viewerCtx.signalTimer=setInterval(remotePollSignal,1100);remotePollSignal();
+      viewerCtx.signalTimer=setInterval(remotePollSignal,250);remotePollSignal();
       viewerCtx.heartbeat=setInterval(remotePollRoom,1500);remotePollRoom();
       viewerCtx.activityTimer=setInterval(remotePollActivity,1800);remotePollActivity();
     }catch(e){document.documentElement.classList.remove('kt-remote-viewing');viewerCtx=null;alert('방송 영상 연결을 시작하지 못했습니다. 잠시 후 다시 눌러 주세요.');}
