@@ -180,6 +180,11 @@
               }
             }catch(e){}
           }
+          try{
+            if(typeof window.ktEnsureHostPresenceNow==='function'){
+              window.ktEnsureHostPresenceNow();
+            }
+          }catch(e){}
         }
       }finally{
         releaseStartButton=false;
@@ -251,6 +256,7 @@
 
   function cleanStaleSelf(){
     if(hostRoomVisible())return;
+    if(window.__ktHostBroadcastActive===true)return;
     var id=localHostId();
     if(!id)return;
 
