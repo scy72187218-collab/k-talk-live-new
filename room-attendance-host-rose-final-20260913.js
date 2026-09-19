@@ -163,9 +163,22 @@
         }catch(e){}
 
         if(isGroup13){
-          await new Promise(function(resolve){setTimeout(resolve,180);});
+          await new Promise(function(resolve){setTimeout(resolve,120);});
           if(!document.querySelector('#screen .ktg13-room')){
-            await window.startBroadcast();
+            try{
+              if(typeof window.ktOpenApprovedGroup13Now==='function'){
+                window.ktOpenApprovedGroup13Now();
+              }
+            }catch(e){}
+          }
+          /* 동적 로딩이 아주 늦은 기기에서도 두 번째 터치 없이 한 번 더 화면만 확인 */
+          if(!document.querySelector('#screen .ktg13-room')){
+            await new Promise(function(resolve){setTimeout(resolve,220);});
+            try{
+              if(typeof window.ktOpenApprovedGroup13Now==='function'){
+                window.ktOpenApprovedGroup13Now();
+              }
+            }catch(e){}
           }
         }
       }finally{
