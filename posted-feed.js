@@ -110,9 +110,7 @@
     var a=[];
 
     /* 1차: K-Talk 전용 동영상 서버 */
-    a=await fetchFeedJson('https://zupwbfmacwzexyvznlzq.supabase.co/functions/v1/ktalk-video-feed',{
-      headers:{'x-ktalk-feed':'shared-public-v1'}
-    },4500);
+    a=await fetchFeedJson('https://zupwbfmacwzexyvznlzq.supabase.co/functions/v1/ktalk-video-feed',{},4500);
 
     /* 2차: 전용 서버가 잠깐 안 되면 Supabase 공개목록 직접 읽기 */
     if(!a.length){
@@ -212,19 +210,21 @@
 
   var oldHome=window.home,oldMedia=window.media;
   async function show(fallback){
+    var target=document.getElementById('screen');
+    if(!target)return;
     var a=await getFeed();
     if(!a.length){
       document.body.classList.remove('kt-home');
       document.body.classList.add('kt-video-mode');
-      screen.innerHTML='<div style="height:calc(100dvh - 78px);display:grid;place-items:center;background:#000;color:#ddd;text-align:center;padding:24px"><div><b>공용 동영상 목록 연결 중...</b><br><small style="opacity:.7">잠시 후 자동으로 다시 불러옵니다.</small></div></div>';
+      target.innerHTML='<div style="height:calc(100dvh - 78px);display:grid;place-items:center;background:#000;color:#ddd;text-align:center;padding:24px"><div><b>공용 동영상 목록 연결 중...</b><br><small style="opacity:.7">잠시 후 자동으로 다시 불러옵니다.</small></div></div>';
       setTimeout(function(){try{show(fallback);}catch(e){}},1200);
       return;
     }
     document.body.classList.remove('kt-home');
     document.body.classList.add('kt-video-mode');
-    screen.innerHTML='<div class="kt-public-feed-scroller" data-kt-shared-feed="1" style="height:calc(100dvh - 78px);overflow-y:auto;scroll-snap-type:y mandatory;background:#000">'+a.map(card).join('')+'</div>';
+    target.innerHTML='<div class="kt-public-feed-scroller" data-kt-shared-feed="1" style="height:calc(100dvh - 78px);overflow-y:auto;scroll-snap-type:y mandatory;background:#000">'+a.map(card).join('')+'</div>';
     try{
-      var sc=screen.querySelector('.kt-public-feed-scroller');
+      var sc=target.querySelector('.kt-public-feed-scroller');
       if(sc)sc.scrollTop=0;
     }catch(e){}
     bind();
