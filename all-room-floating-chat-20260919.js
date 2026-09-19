@@ -129,19 +129,12 @@
       var match=room.querySelector('.ktg13-tools .ktg13-tool:first-child');
       if(!chat||!match)return;
 
-      var rr=room.getBoundingClientRect();
-      var mr=match.getBoundingClientRect();
-
-      /* 9명 호스트방만:
-         최신 채팅 한 줄의 맨 아래를 하단 '매치' 버튼 바로 위 4px에 고정.
-         새 채팅은 여기서 시작하고 그 다음 줄부터 위로 쌓임. */
-      var bottom=Math.max(0,(rr.bottom-mr.top)+4);
-
+      /* 9명 호스트방만: 채팅 최신 줄을 실제 화면의 '매치' 버튼 바로 위 4px에 맞춤. */
       chat.style.setProperty('position','absolute','important');
-      chat.style.setProperty('top','auto','important');
-      chat.style.setProperty('bottom',bottom+'px','important');
       chat.style.setProperty('left','8px','important');
       chat.style.setProperty('right','40%','important');
+      chat.style.setProperty('top','auto','important');
+      chat.style.setProperty('bottom','58px','important');
       chat.style.setProperty('height','auto','important');
       chat.style.setProperty('min-height','0','important');
       chat.style.setProperty('max-height','96px','important');
@@ -149,6 +142,16 @@
       chat.style.setProperty('margin','0','important');
       chat.style.setProperty('justify-content','flex-end','important');
       chat.style.setProperty('transform','none','important');
+
+      /* 기존 CSS/브라우저 하단바 높이가 달라도 실제 좌표를 재서 자동 보정 */
+      var last=chat.lastElementChild;
+      var cr=(last||chat).getBoundingClientRect();
+      var mr=match.getBoundingClientRect();
+      var delta=(mr.top-4)-cr.bottom;
+      if(isFinite(delta)){
+        delta=Math.max(-180,Math.min(180,delta));
+        chat.style.setProperty('transform','translateY('+delta.toFixed(1)+'px)','important');
+      }
       chat.dataset.ktNineChatAtMatch='1';
     }catch(e){}
   }
