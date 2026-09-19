@@ -89,16 +89,52 @@
 
   window.saveCreatorDraft=async function(){if(!blobNow()){alert('저장할 동영상이 없습니다.');return;}if(window.postCreatorRecording)await window.postCreatorRecording();};
 
-  async function getFeed(){
+  async function fetchFeedJson(url,opts,timeoutMs){
+    var ctl=('AbortController' in window)?new AbortController():null;
+    var timer=ctl?setTimeout(function(){try{ctl.abort();}catch(e){}},timeoutMs||4500):0;
     try{
-      var r=await fetch(SB+'/rest/v1/ktalk_videos?select=id,author_name,title,video_url,created_at,likes&order=created_at.desc&limit=40&_='+Date.now(),{
-        cache:'no-store',
-        headers:headers({'Cache-Control':'no-cache'})
-      });
-      var a=r.ok?await r.json():[];
-      try{if(a.length)localStorage.setItem('ktalk_fast_feed',JSON.stringify(a));}catch(e){}
+      var o=Object.assign({cache:'no-store'},opts||{});
+      if(ctl)o.signal=ctl.signal;
+      var r=await fetch(url,o);
+      if(timer)clearTimeout(timer);
+      if(!r.ok)return [];
+      var a=await r.json();
       return Array.isArray(a)?a:[];
-    }catch(e){return[];}
+    }catch(e){
+      if(timer)clearTimeout(timer);
+      return [];
+    }
+  }
+
+  async function getFeed(){
+    var a=[];
+
+    /* 1차: K-Talk 전용 동영상 서버 */
+    a=await fetchFeedJson('https://zupwbfmacwzexyvznlzq.supabase.co/functions/v1/ktalk-video-feed',{
+      headers:{'x-ktalk-feed':'shared-public-v1'}
+    },4500);
+
+    /* 2차: 전용 서버가 잠깐 안 되면 Supabase 공개목록 직접 읽기 */
+    if(!a.length){
+      a=await fetchFeedJson('https://zupwbfmacwzexyvznlzq.supabase.co/rest/v1/ktalk_videos?select=id,author_name,title,video_url,created_at,likes&order=created_at.desc&limit=40',{
+        headers:headers({'Cache-Control':'no-cache'})
+      },4500);
+    }
+
+    if(a.length){
+      try{
+        localStorage.setItem('ktalk_fast_feed',JSON.stringify(a));
+        localStorage.setItem('ktalk_fast_feed_saved_at',String(Date.now()));
+      }catch(e){}
+      return a;
+    }
+
+    /* 3차: 둘 다 잠깐 실패한 경우 마지막 정상 공용 목록으로 화면을 살린다. */
+    try{
+      var cached=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');
+      if(Array.isArray(cached)&&cached.length)return cached;
+    }catch(e){}
+    return [];
   }
   function card(x,i){
     var id=esc(x.id),u=esc(x.video_url),name=esc(x.author_name||'K-Talk'),title=esc(x.title||'K-Talk 동영상');
@@ -178,20 +214,24 @@
   async function show(fallback){
     var a=await getFeed();
     if(!a.length){
-      try{a=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');}catch(e){a=[];}
+      document.body.classList.remove('kt-home');
+      document.body.classList.add('kt-video-mode');
+      screen.innerHTML='<div style="height:calc(100dvh - 78px);display:grid;place-items:center;background:#000;color:#ddd;text-align:center;padding:24px"><div><b>공용 동영상 목록 연결 중...</b><br><small style="opacity:.7">잠시 후 자동으로 다시 불러옵니다.</small></div></div>';
+      setTimeout(function(){try{show(fallback);}catch(e){}},1200);
+      return;
     }
-    if(!a.length){if(fallback)fallback();return;}
     document.body.classList.remove('kt-home');
     document.body.classList.add('kt-video-mode');
-    screen.innerHTML='<div class="kt-public-feed-scroller" style="height:calc(100dvh - 78px);overflow-y:auto;scroll-snap-type:y mandatory;background:#000">'+a.map(card).join('')+'</div>';
+    screen.innerHTML='<div class="kt-public-feed-scroller" data-kt-shared-feed="1" style="height:calc(100dvh - 78px);overflow-y:auto;scroll-snap-type:y mandatory;background:#000">'+a.map(card).join('')+'</div>';
     try{
       var sc=screen.querySelector('.kt-public-feed-scroller');
       if(sc)sc.scrollTop=0;
     }catch(e){}
     bind();
   }
-  window.home=function(){try{if(window.activate)activate('home');}catch(e){}show(oldHome);};
-  window.media=function(type){try{if(window.activate)activate(type);}catch(e){}show(function(){if(oldMedia)oldMedia(type);});};
+  window.ktShowSharedServerFeed=function(){return show(oldHome);};
+  window.home=function(){try{if(window.activate)activate('home');}catch(e){}return show(oldHome);};
+  window.media=function(type){try{if(window.activate)activate(type);}catch(e){}return show(function(){if(oldMedia)oldMedia(type);});};
 
   /* 저장한 동영상은 세로 화면으로 크게 보여 주고, 소리를 켠 상태로 재생한다. */
   window.playStoredVideo=async function(id){
