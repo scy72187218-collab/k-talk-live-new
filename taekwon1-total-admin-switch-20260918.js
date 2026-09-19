@@ -21,7 +21,7 @@
       +'.kt-total-admin-wrap{margin:12px 0 8px;padding:11px 12px;border:1px solid rgba(255,206,72,.42);border-radius:15px;background:linear-gradient(135deg,rgba(41,27,4,.72),rgba(16,13,9,.88));color:#fff;box-shadow:0 0 15px rgba(255,190,55,.12)}'
       +'.kt-total-admin-row{width:100%;border:0;background:transparent;color:#fff;display:flex;align-items:center;gap:9px;padding:0;text-align:left;touch-action:manipulation}'
       +'.kt-total-admin-row .kt-admin-icon{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#2b2108;border:1px solid #e7b83d;font-size:17px}'
-      +'.kt-total-admin-row .kt-admin-copy{flex:1;min-width:0}.kt-total-admin-row .kt-admin-copy b{display:flex;align-items:center;gap:6px;font-size:14px;color:#ffe37c}.kt-total-admin-row .kt-admin-copy small{display:block;margin-top:2px;color:#cfcfcf;font-size:10px}.kt-admin-lock-state{font-size:15px;line-height:1}'
+      +'.kt-total-admin-row .kt-admin-copy{flex:1;min-width:0}.kt-total-admin-row .kt-admin-copy b{display:block;font-size:14px;color:#ffe37c}.kt-total-admin-row .kt-admin-copy small{display:block;margin-top:2px;color:#cfcfcf;font-size:10px}'
       +'.kt-admin-toggle{width:48px;height:27px;border-radius:999px;background:#3d3d44;border:1px solid #ffffff2b;padding:3px;display:flex;align-items:center;transition:.16s}'
       +'.kt-admin-toggle i{display:block;width:19px;height:19px;border-radius:50%;background:#fff;box-shadow:0 2px 5px #0008;transition:.16s}'
       +'.kt-total-admin-wrap.open .kt-admin-toggle{background:#d99d18}.kt-total-admin-wrap.open .kt-admin-toggle i{transform:translateX(19px)}'
@@ -38,55 +38,23 @@
     return '<div class="kt-total-admin-wrap" id="ktTotalAdminWrap">'
       +'<button class="kt-total-admin-row" type="button" onclick="ktToggleTotalAdminPanel()">'
       +'<span class="kt-admin-icon">🛡️</span>'
-      +'<span class="kt-admin-copy"><b>총관리 <span class="kt-admin-lock-state">🔒</span></b><small>'+label+' 관리자 전용 · 잠김</small></span>'
+      +'<span class="kt-admin-copy"><b>총관리</b><small>'+label+' 관리자 전용</small></span>'
       +'<span class="kt-admin-toggle" aria-hidden="true"><i></i></span>'
       +'</button>'
       +'<div class="kt-total-admin-panel">'
       +'<button type="button" onclick="ktTotalAdminAction(\'coin\')">🪙 회원 코인 지급 <span>›</span></button>'
       +'<button type="button" onclick="ktTotalAdminAction(\'suspend\')">⛔ 회원 정지 <span>›</span></button>'
       +'<button type="button" onclick="ktTotalAdminAction(\'release\')">✅ 정지 해제 <span>›</span></button>'
-      +'<button type="button" onclick="ktTotalAdminAction(\'monitor\')">👁 관리 모니터링 '+(monitorOn?'켜짐':'꺼짐')+' <span>›</span></button>'
+      +'<button type="button" onclick="ktTotalAdminAction(\'monitor\')">👁 방송 모니터링 <span>›</span></button>'
       +'<button type="button" onclick="ktTotalAdminAction(\'content\')">📣 광고·동영상 승인 <span>›</span></button>'
       +'<div class="kt-admin-locked-note">관리 기능은 총관리 스위치 안에서만 사용합니다.</div>'
       +'</div></div>';
   }
 
-  var adminLockTimer=0;
-
-  function syncLockState(box){
-    if(!box)return;
-    var open=box.classList.contains('open');
-    var icon=box.querySelector('.kt-admin-lock-state');
-    var sub=box.querySelector('.kt-admin-copy small');
-    if(icon)icon.textContent=open?'🔑':'🔒';
-    if(sub){
-      var label=ownerKey()==='haine2'?'하이네2':'태권1';
-      sub.textContent=label+' 관리자 전용 · '+(open?'열림':'잠김');
-    }
-  }
-
-  function armAutoLock(box){
-    clearTimeout(adminLockTimer);
-    if(!box||!box.classList.contains('open'))return;
-    adminLockTimer=setTimeout(function(){
-      try{
-        var current=document.getElementById('ktTotalAdminWrap');
-        if(current){
-          current.classList.remove('open');
-          syncLockState(current);
-        }
-      }catch(e){}
-    },5*60*1000);
-  }
-
   window.ktToggleTotalAdminPanel=function(){
     if(!isOwner())return false;
     var box=document.getElementById('ktTotalAdminWrap');
-    if(box){
-      box.classList.toggle('open');
-      syncLockState(box);
-      armAutoLock(box);
-    }
+    if(box)box.classList.toggle('open');
     return false;
   };
 
@@ -138,8 +106,6 @@
         var target=document.querySelector('.kt-profile-switch-btn');
         if(target)target.insertAdjacentHTML('beforebegin',panelHtml());
       }
-      var box=document.getElementById('ktTotalAdminWrap');
-      if(box)syncLockState(box);
     }catch(e){}
   }
 
