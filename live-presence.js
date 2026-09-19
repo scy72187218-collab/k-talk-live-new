@@ -470,8 +470,15 @@
   wrap('endBroadcastEarnings',function(){stopHostPresence();});
 
   document.addEventListener('click',function(e){
-    var b=e.target&&e.target.closest?e.target.closest('.ktsolo-back,.ktsubscriber-back,.ktsecret-back,.ktg13-back'):null;
-    if(b&&hostActive)stopHostPresence();
+    var t=e.target&&e.target.closest?e.target.closest('button,[role="button"],a'):null;
+    if(!t)return;
+    var cls=String(t.className||'');
+    var oc=String(t.getAttribute&&t.getAttribute('onclick')||'');
+    var txt=String(t.textContent||'').replace(/\s+/g,' ').trim();
+    var isHostExit=/ktsolo-back|ktsubscriber-back|ktsecret-back|ktg13-back/.test(cls)
+      ||/endBroadcastEarnings|leaveBroadcastToDashboard/.test(oc)
+      ||/방송 종료|방송 나가기/.test(txt);
+    if(isHostExit)stopHostPresence();
   },true);
 
   window.addEventListener('pagehide',function(){
