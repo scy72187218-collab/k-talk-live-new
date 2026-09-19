@@ -6,7 +6,7 @@
   window.__ktHomeVideoHardRecover20260919=true;
 
   var SB='https://zupwbfmacwzexyvznlzq.supabase.co';
-  var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXB3YmZtYWN3emV4eXZ6bmx6cSIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzg4NDYxMDc2LCJleHAiOjIxMDQwMzcwNzZ9.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
+  var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1cHdiZm1hY3d6ZXh5dnpubHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjEwNzYsImV4cCI6MjEwNDAzNzA3Nn0.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
   var rendering=false;
   var lastRender=0;
 
