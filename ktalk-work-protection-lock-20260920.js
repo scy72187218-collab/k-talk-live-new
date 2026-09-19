@@ -19,7 +19,9 @@
     group13:true,
     subscriber:true,
     secret:true,
-    videos:true
+    videos:true,
+    aiVoice:true,
+    helpReader:true
   };
 
   function save(){
@@ -49,6 +51,12 @@
       });
 
       document.querySelectorAll('video').forEach(function(el){
+        el.setAttribute('data-kt-work-protected','1');
+      });
+
+      document.querySelectorAll(
+        '.kt-setting-row,.kt-switch,[role="switch"],[data-bottom="help"]'
+      ).forEach(function(el){
         el.setAttribute('data-kt-work-protected','1');
       });
     }catch(e){}
