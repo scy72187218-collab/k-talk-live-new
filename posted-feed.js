@@ -165,9 +165,81 @@
   window.ktPublicShare=async function(url){try{if(navigator.share){await navigator.share({title:'K-Talk 동영상',url:url});return;}if(navigator.clipboard){await navigator.clipboard.writeText(url);alert('동영상 주소를 복사했습니다.');return;}if(window.shareApp)shareApp();}catch(e){}};
 
   var oldHome=window.home,oldMedia=window.media;
-  async function show(fallback){var a=[];try{a=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');}catch(e){}if(!a.length)a=await getFeed();if(!a.length){if(fallback)fallback();return;}document.body.classList.remove('kt-home');document.body.classList.add('kt-video-mode');screen.innerHTML='<div style="height:calc(100dvh - 78px);overflow-y:auto;scroll-snap-type:y mandatory;background:#000">'+a.map(card).join('')+'</div>';bind();}
+
+  function feedKey(a){
+    try{return (a||[]).map(function(x){return [x&&x.id,x&&x.video_url,x&&x.created_at,x&&x.likes].join('|');}).join('||');}
+    catch(e){return '';}
+  }
+
+  function renderFeed(a){
+    if(!a||!a.length)return false;
+    document.body.classList.remove('kt-home');
+    document.body.classList.add('kt-video-mode');
+    screen.innerHTML='<div style="height:calc(100dvh - 78px);overflow-y:auto;scroll-snap-type:y mandatory;background:#000">'+a.map(card).join('')+'</div>';
+    bind();
+    setTimeout(function(){
+      try{
+        var first=document.querySelector('.kt-public-video');
+        if(first){
+          first.muted=true;
+          first.defaultMuted=true;
+          first.playsInline=true;
+          var p=first.play();
+          if(p&&p.catch)p.catch(function(){});
+        }
+      }catch(e){}
+    },40);
+    return true;
+  }
+
+  async function show(fallback){
+    var cached=[];
+    try{cached=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');}catch(e){}
+    var rendered=renderFeed(cached);
+
+    var fresh=[];
+    try{fresh=await getFeed();}catch(e){fresh=[];}
+    if(fresh.length){
+      if(!rendered||feedKey(fresh)!==feedKey(cached))renderFeed(fresh);
+      return;
+    }
+    if(!rendered&&fallback)fallback();
+  }
+
   window.home=function(){try{if(window.activate)activate('home');}catch(e){}show(oldHome);};
   window.media=function(type){try{if(window.activate)activate(type);}catch(e){}show(function(){if(oldMedia)oldMedia(type);});};
+
+  /* 첫 화면의 기존 자리표시 영상만 남아 있으면 공개 동영상을 바로 불러온다. */
+  setTimeout(function(){
+    try{
+      var creator=document.getElementById('creator');
+      var sheetEl=document.getElementById('sheet');
+      var inCreator=!!(creator&&creator.classList.contains('show'));
+      var inSheet=!!(sheetEl&&sheetEl.classList.contains('show'));
+      var remote=document.documentElement.classList.contains('kt-remote-viewing');
+      var placeholder=screen&&screen.querySelector&&screen.querySelector('.media')&&!screen.querySelector('.kt-public-video');
+      if(!inCreator&&!inSheet&&!remote&&placeholder)show(oldHome);
+    }catch(e){}
+  },120);
+
+  /* 앱을 다시 열었을 때 첫 영상이 멈춰 있으면 재생만 복구한다. */
+  function resumeFirstPublicVideo(){
+    try{
+      var v=document.querySelector('.kt-public-video');
+      if(!v)return;
+      v.playsInline=true;
+      if(v.paused){
+        v.muted=true;
+        v.defaultMuted=true;
+        var p=v.play();
+        if(p&&p.catch)p.catch(function(){});
+      }
+    }catch(e){}
+  }
+  document.addEventListener('visibilitychange',function(){
+    if(document.visibilityState==='visible')setTimeout(resumeFirstPublicVideo,80);
+  });
+  window.addEventListener('pageshow',function(){setTimeout(resumeFirstPublicVideo,80);});
 
   /* 저장한 동영상은 세로 화면으로 크게 보여 주고, 소리를 켠 상태로 재생한다. */
   window.playStoredVideo=async function(id){
