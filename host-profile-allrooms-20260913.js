@@ -359,14 +359,26 @@
           +'<div class="kt-live-profile-stat"><b data-kt-follower-count>0</b><span>팔로워</span></div>'
           +'<div class="kt-live-profile-stat"><b>'+Number(person.likes||0).toLocaleString('ko-KR')+'</b><span>좋아요</span></div>'
         +'</div>'
-        +'<button type="button" class="kt-live-profile-follow"'+(self?' data-self="1" disabled':'')+'>'+(self?'내 프로필':'팔로우')+'</button>'
+        +'<button type="button" class="kt-live-profile-follow"'+(self?' data-self="1"':'')+'>'+(self?'내 프로필':'팔로우')+'</button>'
         +'<div class="kt-live-profile-note">처음 팔로우가 성립하면 회사에서 이 사람에게 🌹 장미 1송이를 1회 지급합니다.</div>'
         +'<div class="kt-live-profile-bio" style="display:'+(person.bio?'block':'none')+'">'+esc(person.bio)+'</div>'
       +'</div>';
     document.body.appendChild(pop);currentCard=pop;
     pop.querySelector('.kt-live-profile-close').onclick=closeCard;
     var btn=pop.querySelector('.kt-live-profile-follow');
-    if(!self)btn.onclick=function(){toggleFollow(person,btn);};
+    if(self){
+      btn.onclick=function(e){
+        try{if(e){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}}catch(x){}
+        closeCard();
+        try{
+          if(typeof window.openProfileDirect==='function')window.openProfileDirect();
+          else if(typeof window.openProfile==='function')window.openProfile();
+        }catch(x){}
+        return false;
+      };
+    }else{
+      btn.onclick=function(){toggleFollow(person,btn);};
+    }
 
     var remote=await remoteProfile(person.id);
     if(currentCard!==pop)return;
