@@ -51,8 +51,27 @@
     b.classList.remove('on');
     b.classList.add('kt-room9-switch');
     b.setAttribute('aria-pressed','false');
+    b.setAttribute('aria-disabled','false');
+    b.disabled=false;
+    b.style.setProperty('pointer-events','auto','important');
+    b.style.setProperty('touch-action','manipulation','important');
     b.innerHTML=String(thirteen.innerHTML||thirteen.textContent||'13명 방송').replace(/13명/g,'9명');
     thirteen.insertAdjacentElement('afterend',b);
+  }
+
+  function bindNineBottomButton(){
+    try{
+      var prep=document.querySelector('.live-prep');
+      if(!prep)return;
+      var list=[].slice.call(prep.querySelectorAll('.prep-bottom button'));
+      var btn=list.find(function(x){return String(x.textContent||'').replace(/\s+/g,'').indexOf('9명')>-1;});
+      if(!btn)return;
+      btn.setAttribute('data-kt-nine-direct','1');
+      btn.setAttribute('aria-disabled','false');
+      btn.disabled=false;
+      btn.style.setProperty('pointer-events','auto','important');
+      btn.style.setProperty('touch-action','manipulation','important');
+    }catch(e){}
   }
 
   window.addEventListener('click',function(e){
@@ -74,6 +93,48 @@
     selectGroup9(btn);
   },true);
 
+  var ktG9LastTouchAt=0;
+  function directNineSelect(btn,e){
+    if(!btn)return false;
+    var now=Date.now();
+    if(now-ktG9LastTouchAt<360)return true;
+    ktG9LastTouchAt=now;
+    try{
+      if(btn.classList.contains('kt-room9-switch')){
+        selectGroup9(btn);
+      }else if(btn.getAttribute('data-kt-nine-direct')==='1'){
+        if(typeof window.ktPickBottomRoom==='function'){
+          window.ktPickBottomRoom(btn,'9명','group9','9명 방송',9);
+        }else{
+          selectGroup9(null);
+        }
+      }else return false;
+      if(e){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}
+      return true;
+    }catch(x){return false;}
+  }
+
+  function directNineMission(btn,e){
+    if(!btn)return false;
+    var now=Date.now();
+    if(now-ktG9LastTouchAt<360)return true;
+    ktG9LastTouchAt=now;
+    try{
+      window.ktGroup9Mission();
+      if(e){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}
+      return true;
+    }catch(x){return false;}
+  }
+
+  ['pointerup','touchend'].forEach(function(ev){
+    window.addEventListener(ev,function(e){
+      var t=e.target&&e.target.closest?e.target.closest('.kt-room9-switch,.live-prep .prep-bottom button[data-kt-nine-direct="1"],.ktg13-room[data-kt-room="9"] .ktg9-mission-btn'):null;
+      if(!t)return;
+      if(t.classList.contains('ktg9-mission-btn'))directNineMission(t,e);
+      else directNineSelect(t,e);
+    },true);
+  });
+
   if(!document.getElementById('ktGroup9OnlyStyle')){
     var st=document.createElement('style');
     st.id='ktGroup9OnlyStyle';
@@ -85,7 +146,10 @@
       +'.ktg13-room[data-kt-room="9"] .ktg13-host-extra{display:none!important}'
       +'#screen .ktg13-room[data-kt-room="9"] .ktg13-host>video{width:100%!important;height:100%!important;left:0!important;top:0!important;position:absolute!important;object-fit:cover!important;object-position:center!important}'
       +'.ktg13-room[data-kt-room="9"] .ktg13-guest{font-size:13px!important}'
-      +'@media(max-width:390px){.ktg13-room[data-kt-room="9"] .ktg13-guest{font-size:11px!important}}';
+      +'#screen .ktg13-room[data-kt-room="9"] .ktg13-gifts{position:relative!important;transform:translateY(5px)!important;z-index:8!important}'
+      +'#screen .ktg13-room[data-kt-room="9"] .ktg9-mission-btn{pointer-events:auto!important;touch-action:manipulation!important;position:relative!important;z-index:12!important}'
+      +'.live-prep .kt-room9-switch,.live-prep .prep-bottom button[data-kt-nine-direct="1"]{pointer-events:auto!important;touch-action:manipulation!important;position:relative!important;z-index:12!important}'
+      +'@media(max-width:390px){.ktg13-room[data-kt-room="9"] .ktg13-guest{font-size:11px!important}#screen .ktg13-room[data-kt-room="9"] .ktg13-gifts{transform:translateY(4px)!important}}';
     document.head.appendChild(st);
   }
 
@@ -108,7 +172,12 @@
     var stats=room.querySelectorAll('.ktg13-stats > button');
     if(stats[1]){
       stats[1].innerHTML='🎯 미션';
-      stats[1].onclick=function(){window.ktGroup9Mission();};
+      stats[1].classList.add('ktg9-mission-btn');
+      stats[1].setAttribute('aria-disabled','false');
+      stats[1].disabled=false;
+      stats[1].style.setProperty('pointer-events','auto','important');
+      stats[1].style.setProperty('touch-action','manipulation','important');
+      stats[1].onclick=function(e){if(e)e.preventDefault();window.ktGroup9Mission();};
     }
 
     var guests=[].slice.call(room.querySelectorAll('.ktg13-guests > .ktg13-guest'));
@@ -153,12 +222,14 @@
   };
 
   addNineSwitch();
-  [80,220,500,900,1500].forEach(function(ms){setTimeout(addNineSwitch,ms);});
+  bindNineBottomButton();
+  [80,220,500,900,1500].forEach(function(ms){setTimeout(function(){addNineSwitch();bindNineBottomButton();},ms);});
   try{
     var mo=new MutationObserver(function(){
       clearTimeout(window.__ktGroup9RoomTimer);
       window.__ktGroup9RoomTimer=setTimeout(function(){
         addNineSwitch();
+        bindNineBottomButton();
         adaptNineRoom();
       },20);
     });
