@@ -38,8 +38,10 @@
 
     /* 서버 최신 목록 강제 새로고침 */
     try{
-      if(typeof window.ktForceHomeVideoRecovery==='function'){
-        window.ktForceHomeVideoRecovery(true);
+      if(typeof window.ktShowSharedServerFeed==='function'){
+          window.ktShowSharedServerFeed();
+        }else if(typeof window.ktForceHomeVideoRecovery==='function'){
+          window.ktForceHomeVideoRecovery(true);
         setTimeout(function(){
           try{window.ktForceHomeVideoRecovery(true);}catch(e){}
         },180);
