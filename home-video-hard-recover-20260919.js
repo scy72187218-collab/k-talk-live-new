@@ -9,6 +9,7 @@
   var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXB3YmZtYWN3emV4eXZ6bmx6cSIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzg4NDYxMDc2LCJleHAiOjIxMDQwMzcwNzZ9.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
   var rendering=false;
   var lastRender=0;
+  var initialServerRefreshDone=false;
 
   function esc(v){
     return String(v==null?'':v).replace(/[&<>"']/g,function(c){
@@ -165,11 +166,11 @@
     [0,80,220,500,900].forEach(function(ms){setTimeout(playVisible,ms);});
   }
 
-  async function forceHome(){
+  async function forceHome(forceServer){
     if(rendering||busyElsewhere())return;
     try{
       var existing=document.querySelector('#screen .kt-public-video,#screen #homeVideo,#screen .kt-hard-public-video');
-      if(existing){
+      if(existing&&!forceServer){
         playVisible();
         return;
       }
@@ -223,16 +224,24 @@
       if(busyElsewhere()||document.hidden)return;
       var s=document.getElementById('screen');
       if(!s)return;
+
+      /* 앱 아이콘으로 새로 연 첫 진입은 기기 로컬 캐시보다 서버 최신 목록을 우선한다. */
+      if(!initialServerRefreshDone){
+        initialServerRefreshDone=true;
+        forceHome(true);
+        return;
+      }
+
       var v=s.querySelector('.kt-public-video,#homeVideo,.kt-hard-public-video');
       if(v){
         playVisible();
         return;
       }
-      forceHome();
+      forceHome(false);
     }catch(e){}
   }
 
-  /* 앱 첫 진입 때 방송방이 아니면 공개 동영상부터 연다 */
+  /* 앱 첫 진입 때 방송방이 아니면 서버 최신 공개 동영상부터 연다 */
   [120,350,800,1500].forEach(function(ms){
     setTimeout(ensureHomeOnce,ms);
   });
