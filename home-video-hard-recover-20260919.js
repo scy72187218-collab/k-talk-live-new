@@ -99,12 +99,8 @@
       if(attempt<2)await new Promise(function(resolve){setTimeout(resolve,250+(attempt*250));});
     }
 
-    /* 네트워크가 잠깐 안 될 때만 마지막 정상 목록을 사용 */
-    if(cached.length)return cached;
-
-    /* 그래도 없으면 이 휴대폰에 저장된 동영상 사용 */
-    var local=await localRows();
-    if(local.length)return local;
+    /* 공용 홈 피드는 모든 기기에서 동일해야 하므로
+       휴대폰별 캐시/IndexedDB 영상을 섞지 않는다. */
     return [];
   }
 
