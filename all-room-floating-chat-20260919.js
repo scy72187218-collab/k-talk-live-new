@@ -157,80 +157,6 @@
   }
   window.__ktNineChatMatchTop20260919=true;
 
-  /* 13명방/구독방/비밀방도 최신 채팅 줄의 끝을
-     맨 아래 '매치 · 친구 · 메시지' 도구줄 바로 위 4px에 맞춘다.
-     세 방의 채팅 위치만 조정하고 다른 UI/기능은 변경하지 않는다. */
-  function placeChatAboveTools(roomSel,chatSel,matchSel,mark){
-    try{
-      var room=document.querySelector('#screen '+roomSel);
-      if(!room)return;
-      var chat=room.querySelector(chatSel);
-      var match=room.querySelector(matchSel);
-      if(!chat||!match)return;
-
-      chat.style.setProperty('position','absolute','important');
-      chat.style.setProperty('top','auto','important');
-      chat.style.setProperty('height','auto','important');
-      chat.style.setProperty('min-height','0','important');
-      chat.style.setProperty('justify-content','flex-end','important');
-      chat.style.setProperty('margin','0','important');
-
-      /* 먼저 기존 변환을 지운 뒤 실제 화면 좌표로 정확히 맞춤 */
-      chat.style.setProperty('transform','none','important');
-      var last=chat.lastElementChild;
-      var cr=(last||chat).getBoundingClientRect();
-      var mr=match.getBoundingClientRect();
-      var delta=(mr.top-4)-cr.bottom;
-      if(isFinite(delta)){
-        delta=Math.max(-220,Math.min(220,delta));
-        chat.style.setProperty('transform','translateY('+delta.toFixed(1)+'px)','important');
-      }
-      chat.dataset[mark]='1';
-    }catch(e){}
-  }
-
-  /* 13명방만: 채팅의 맨 아래를 실제 '매치 · 친구 · 메시지 · 장미' 도구줄
-     바로 위에 붙인다. 다른 방/기능/버튼은 변경하지 않는다. */
-  function placeThirteenChat(){
-    try{
-      var room=document.querySelector('#screen .ktg13-room:not([data-kt-room="9"])');
-      if(!room)return;
-      var chat=room.querySelector('.ktg13-chat');
-      var tools=room.querySelector('.ktg13-tools');
-      if(!chat||!tools)return;
-
-      var rr=room.getBoundingClientRect();
-      var tr=tools.getBoundingClientRect();
-      var bottom=(rr.bottom-tr.top)-22;
-      if(!isFinite(bottom))return;
-      bottom=Math.max(0,Math.min(140,bottom));
-
-      chat.style.setProperty('position','absolute','important');
-      chat.style.setProperty('left','8px','important');
-      chat.style.setProperty('right','40%','important');
-      chat.style.setProperty('top','auto','important');
-      chat.style.setProperty('bottom',bottom.toFixed(1)+'px','important');
-      chat.style.setProperty('width','auto','important');
-      chat.style.setProperty('height','auto','important');
-      chat.style.setProperty('min-height','0','important');
-      chat.style.setProperty('max-height','96px','important');
-      chat.style.setProperty('padding','0 6px','important');
-      chat.style.setProperty('margin','0','important');
-      chat.style.setProperty('justify-content','flex-end','important');
-      chat.style.setProperty('transform','none','important');
-      chat.style.setProperty('z-index','18','important');
-      chat.style.setProperty('overflow','hidden','important');
-      chat.style.setProperty('pointer-events','none','important');
-      chat.dataset.kt13ChatAboveTools='1';
-    }catch(e){}
-  }
-
-  function placeRequestedChats(){
-    placeThirteenChat();
-    placeChatAboveTools('.ktsubscriber-room','.ktsubscriber-chat','.ktsubscriber-tools .ktsubscriber-tool:first-child','ktChatAtTools');
-    placeChatAboveTools('.ktsecret-room','.ktsecret-chat','.ktsecret-tools .ktsecret-tool:first-child','ktChatAtTools');
-  }
-
   function keepBottom(){
     [
       document.getElementById('ktsoloChatList'),
@@ -242,7 +168,6 @@
       try{box.scrollTop=box.scrollHeight;}catch(e){}
     });
     placeNineChat();
-    placeRequestedChats();
   }
 
   install();
@@ -254,6 +179,6 @@
       window.__ktAllRoomFloatingChatTimer=setTimeout(keepBottom,25);
     }).observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
-  window.addEventListener('resize',function(){setTimeout(function(){placeNineChat();placeRequestedChats();},30);});
-  window.addEventListener('orientationchange',function(){setTimeout(function(){placeNineChat();placeRequestedChats();},120);});
+  window.addEventListener('resize',function(){setTimeout(placeNineChat,30);});
+  window.addEventListener('orientationchange',function(){setTimeout(placeNineChat,120);});
 })();
