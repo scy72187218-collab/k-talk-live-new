@@ -16,9 +16,9 @@
     var s=document.createElement('style');
     s.id='ktGroup13HostTopLayoutStyle';
     s.textContent='\
-      #screen .ktg13-room.ktg13-top-host-layout .ktg13-main{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:minmax(0,1.35fr) repeat(4,minmax(0,1fr))!important;gap:2px!important;}\
-      #screen .ktg13-room.ktg13-top-host-layout .ktg13-host{grid-column:1/4!important;grid-row:1!important;min-width:0!important;min-height:0!important;}\
-      #screen .ktg13-room.ktg13-top-host-layout .ktg13-guests{grid-column:1/4!important;grid-row:2/6!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:repeat(4,minmax(0,1fr))!important;gap:2px!important;min-width:0!important;min-height:0!important;}\
+      #screen .ktg13-room.ktg13-top-host-layout .ktg13-main{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;grid-template-rows:repeat(4,minmax(0,1fr))!important;gap:2px!important;}\
+      #screen .ktg13-room.ktg13-top-host-layout .ktg13-host{grid-column:auto!important;grid-row:auto!important;min-width:0!important;min-height:0!important;}\
+      #screen .ktg13-room.ktg13-top-host-layout .ktg13-guests{display:contents!important;}\
       #screen .ktg13-room.ktg13-top-host-layout .ktg13-host>video{width:100%!important;height:100%!important;position:absolute!important;left:0!important;top:0!important;object-fit:cover!important;object-position:center!important;}';
     document.head.appendChild(s);
   }
