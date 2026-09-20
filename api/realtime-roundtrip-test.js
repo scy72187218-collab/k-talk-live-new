@@ -40,8 +40,7 @@ module.exports=async function handler(req,res){
             presence:{enabled:false},
             postgres_changes:[],
             private:false
-          },
-          access_token:key
+          }
         },
         ref:'1',
         join_ref:'1'
