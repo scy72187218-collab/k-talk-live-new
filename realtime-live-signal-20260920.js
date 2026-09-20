@@ -59,6 +59,29 @@
     return p;
   }
 
+  async function pollActiveRooms(){
+    try{
+      var key=await readAnonKey();
+      if(!key)return;
+      var cut=new Date(Date.now()-50000).toISOString();
+      var url=SUPA+'/rest/v1/ktalk_live_rooms?select=host_id,host_name,title,room_type,room_name,updated_at&active=eq.true&updated_at=gte.'+encodeURIComponent(cut)+'&order=started_at.desc&limit=30';
+      var r=await fetch(url,{cache:'no-store',headers:{apikey:key,Authorization:'Bearer '+key}});
+      if(!r.ok)return;
+      var rows=await r.json();
+      if(!Array.isArray(rows))rows=[];
+      var now=Date.now(),fresh={};
+      rows.forEach(function(x){
+        var id=String(x&&x.host_id||'');
+        if(!id)return;
+        x._seen=now;
+        fresh[id]=x;
+      });
+      /* REST 조회가 성공했을 때만 현재 목록으로 맞춘다. 영상/방/채팅은 건드리지 않는다. */
+      liveMap=fresh;
+      showSignal();
+    }catch(e){}
+  }
+
   async function readAnonKey(){
     try{
       var r=await fetch('live-presence.js?v=20260920-speed1',{cache:'no-store'});
@@ -113,10 +136,18 @@
     });
   }
 
+  function inVideoView(){
+    try{
+      if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
+      if(document.body&&document.body.classList.contains('kt-video-mode'))return true;
+      return !!document.querySelector('#screen .kt-public-video,#screen .kt-hard-public-video,#homeVideo,.video-home,#screen .media');
+    }catch(e){return false;}
+  }
+
   function showSignal(){
     cleanup();
     var badge=document.getElementById('ktRealtimeLiveBadge');
-    var inVideo=!!document.querySelector('#screen .kt-public-video,#screen .kt-hard-public-video');
+    var inVideo=inVideoView();
     var rows=Object.keys(liveMap).map(function(id){return liveMap[id];}).sort(function(a,b){
       return (b._seen||0)-(a._seen||0);
     });
@@ -215,5 +246,11 @@
   }
 
   setInterval(showSignal,1000);
+  /* Realtime 이벤트를 놓쳐도 빨간 LIVE 신호가 보이도록 활성 방송만 짧게 확인한다. */
+  setInterval(pollActiveRooms,1800);
+  setTimeout(pollActiveRooms,250);
+  setTimeout(pollActiveRooms,900);
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(pollActiveRooms,120);});
+  window.addEventListener('focus',function(){setTimeout(pollActiveRooms,120);});
   boot();
 })();
