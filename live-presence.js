@@ -405,32 +405,44 @@
   }
 
   async function syncHostPresenceAfterStart(){
-    var s=document.getElementById('screen');
-    var opened=!!(s&&s.querySelector('#ktLiveVideo,.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room'));
-    if(opened){
-      /* 방이 열리면 실제 영상 트랙이 붙는 순간까지 LIVE 신호 등록을 재시도한다.
-         느린 기기에서도 빨간 방송불이 빠지지 않도록 최대 20초만 확인한다. */
-      var tries=0;
-      (function attachWhenVideoReady(){
-        if(hostEndLock||hostActive)return;
-        if(hasLiveLocalVideo()){ startHostPresence(); return; }
-        tries++;
-        if(tries<40)setTimeout(attachWhenVideoReady,500);
-      })();
-      return;
-    }
-    /* 시작이 중간에 멈췄으면 준비 화면의 카메라를 방송 중으로 등록하지 않는다. */
+    /* 느린 휴대폰에서도 방 화면이 열린 뒤 빨간 LIVE 신호를 붙인다.
+       예전처럼 260ms 시점에 방이 아직 안 열렸다고 바로 포기하지 않는다. */
+    var tries=0;
+    var maxTries=50; /* 0.4초 x 50 = 최대 약 20초 */
     var hostId=deviceId();
-    try{
-      await req('ktalk_live_rooms?host_id=eq.'+enc(hostId)+'&active=eq.true',{
-        method:'PATCH',
-        headers:{Prefer:'return=minimal'},
-        body:JSON.stringify({active:false,updated_at:nowIso()})
-      });
-    }catch(e){}
-    renderLiveCards();
-  }
 
+    (function waitForRealRoom(){
+      try{
+        if(hostEndLock||hostActive)return;
+
+        var s=document.getElementById('screen');
+        var opened=!!(s&&s.querySelector('#ktLiveVideo,.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room'));
+        var remote=document.documentElement.classList.contains('kt-remote-viewing');
+
+        if(!remote&&opened&&hasLiveLocalVideo()){
+          startHostPresence();
+          return;
+        }
+
+        tries++;
+        if(tries<maxTries){
+          setTimeout(waitForRealRoom,400);
+          return;
+        }
+
+        /* 20초 동안 실제 방송방+카메라가 확인되지 않았을 때만 오래된 LIVE 상태를 정리 */
+        req('ktalk_live_rooms?host_id=eq.'+enc(hostId)+'&active=eq.true',{
+          method:'PATCH',
+          headers:{Prefer:'return=minimal'},
+          body:JSON.stringify({active:false,updated_at:nowIso()})
+        }).catch(function(){});
+        renderLiveCards();
+      }catch(e){
+        tries++;
+        if(tries<maxTries)setTimeout(waitForRealRoom,400);
+      }
+    })();
+  }
   ensureStyle();
   wrap('startBroadcast',function(){hostEndLock=false;hostRunToken++;window.__ktHostEndLock=false;window.__ktHostEndLockHostId='';},function(){setTimeout(syncHostPresenceAfterStart,260);});
   wrap('friends',null,function(){setTimeout(renderLiveCards,60);});
