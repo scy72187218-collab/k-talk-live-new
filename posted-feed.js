@@ -294,3 +294,15 @@
     new MutationObserver(renameSaveLabel).observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 })();
+
+
+/* KT feed rose-message loader 20260920 */
+(function(){
+  try{
+    if(document.querySelector('script[data-kt-feed-rose-message="1"]'))return;
+    var s=document.createElement('script');
+    s.src='feed-profile-rose-message-20260920.js?v=20260920-rosemsg1';
+    s.setAttribute('data-kt-feed-rose-message','1');
+    document.body.appendChild(s);
+  }catch(e){}
+})();
