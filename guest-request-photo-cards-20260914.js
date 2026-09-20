@@ -4,6 +4,7 @@
   window.__ktGuestRequestPhotoCards20260914=true;
 
   var BASE='',KEY='',photoCache={},timer=null;
+  var MEM_INTERACT='/api/live-interaction-memory',MEM_BEACON='/api/live-beacon-memory';
 
   function enc(v){return encodeURIComponent(String(v==null?'':v));}
   function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
@@ -27,7 +28,46 @@
     }catch(e){return false;}
   }
   function headers(extra){var h={apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json'};Object.keys(extra||{}).forEach(function(k){h[k]=extra[k];});return h;}
-  async function req(path,opt){if(!(await ensureConfig()))throw new Error('config');opt=opt||{};opt.headers=headers(opt.headers);if(!opt.cache)opt.cache='no-store';var r=await fetch(BASE+path,opt);if(!r.ok)throw new Error('api '+r.status);if(r.status===204)return null;var t=await r.text();return t?JSON.parse(t):[];}
+  function qeq(sp,name){var v=String(sp.get(name)||'');return v.indexOf('eq.')===0?v.slice(3):v;}
+  async function memReq(path,opt){
+    opt=opt||{};var u=new URL('https://kt.local/'+path),sp=u.searchParams,method=String(opt.method||'GET').toUpperCase();
+    var table=u.pathname.replace(/^\//,''),body={};try{body=opt.body?JSON.parse(opt.body):{};}catch(e){}
+    if(table==='ktalk_live_rooms'&&method==='GET'){
+      var r=await fetch(MEM_BEACON+'?t='+Date.now(),{cache:'no-store'}),j=await r.json(),rows=Array.isArray(j&&j.rooms)?j.rooms:[];
+      var hid=qeq(sp,'host_id');if(hid)rows=rows.filter(function(x){return String(x.host_id||'')===hid;});
+      return rows.map(function(x){return {host_id:x.host_id,started_at:x.updated_at,active:true,updated_at:x.updated_at};});
+    }
+    if(table==='ktalk_live_messages'&&method==='POST'){
+      await fetch(MEM_INTERACT+'?t='+Date.now(),{method:'POST',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'message',host_id:String(body.host_id||''),sender_id:String(body.sender_id||''),sender_name:String(body.sender_name||'게스트'),message:String(body.message||''),message_type:String(body.message_type||'chat')})});
+      return null;
+    }
+    if(table==='ktalk_live_messages'&&method==='GET'){
+      var hid=qeq(sp,'host_id'),r=await fetch(MEM_INTERACT+'?action=messages&host_id='+enc(hid)+'&t='+Date.now(),{cache:'no-store'}),j=await r.json();
+      var rows=Array.isArray(j&&j.messages)?j.messages:[];
+      rows.sort(function(a,b){return (Date.parse(b.created_at)||0)-(Date.parse(a.created_at)||0);});
+      return rows;
+    }
+    if(table==='ktalk_profiles')return method==='GET'?[]:null;
+    throw new Error('memory unsupported');
+  }
+  async function req(path,opt){
+    if(Number(window.__ktPrimaryLiveDbDownUntil||0)>Date.now())return memReq(path,opt);
+    if(!(await ensureConfig()))return memReq(path,opt);
+    opt=opt||{};
+    var ctrl=typeof AbortController!=='undefined'?new AbortController():null,timer=ctrl?setTimeout(function(){ctrl.abort();},650):null;
+    try{
+      var next=Object.assign({},opt);next.headers=headers(next.headers);if(!next.cache)next.cache='no-store';if(ctrl)next.signal=ctrl.signal;
+      var r=await fetch(BASE+path,next);if(timer)clearTimeout(timer);
+      if(!r.ok)throw new Error('api '+r.status);
+      window.__ktPrimaryLiveDbDownUntil=0;
+      if(r.status===204)return null;
+      var t=await r.text();return t?JSON.parse(t):[];
+    }catch(e){
+      if(timer)clearTimeout(timer);
+      window.__ktPrimaryLiveDbDownUntil=Date.now()+120000;
+      return memReq(path,opt);
+    }
+  }
 
   async function syncViewerProfile(){
     var vid=viewerId(),p=profile();if(!vid)return;
