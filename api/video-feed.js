@@ -4,20 +4,38 @@ module.exports = async function handler(req,res){
     res.setHeader('Allow','GET');
     return res.end('Method Not Allowed');
   }
-  const base='https://zupwbfmacwzexyvznlzq.supabase.co';
-  const key='sb_publishable_AnyCMi4rAgSR2uWg_u1pvw_hHyqWlm3';
-  const url=base+'/rest/v1/ktalk_videos?select=id,author_name,title,video_url,created_at,likes&order=created_at.desc&limit=40';
+
+  const ctl=new AbortController();
+  const timer=setTimeout(()=>ctl.abort(),5000);
+
   try{
-    const r=await fetch(url,{headers:{apikey:key,'Cache-Control':'no-cache'}});
-    const body=await r.text();
+    const upstream=await fetch(
+      'https://zupwbfmacwzexyvznlzq.supabase.co/functions/v1/ktalk-video-feed',
+      {
+        signal:ctl.signal,
+        headers:{'x-ktalk-feed':'shared-public-v1'}
+      }
+    );
+    clearTimeout(timer);
+
+    const body=await upstream.text();
     res.setHeader('Content-Type','application/json; charset=utf-8');
     res.setHeader('Cache-Control','no-store, no-cache, must-revalidate');
-    res.statusCode=r.ok?200:502;
-    return res.end(r.ok?body:JSON.stringify({error:'feed',status:r.status}));
+
+    if(!upstream.ok){
+      console.log('ktalk-video-feed upstream',upstream.status,body.slice(0,200));
+      res.statusCode=502;
+      return res.end(JSON.stringify({error:'feed',status:upstream.status}));
+    }
+
+    res.statusCode=200;
+    return res.end(body);
   }catch(e){
+    clearTimeout(timer);
+    console.log('ktalk-video-feed error',String(e&&e.message||e));
     res.setHeader('Content-Type','application/json; charset=utf-8');
     res.setHeader('Cache-Control','no-store');
-    res.statusCode=500;
-    return res.end(JSON.stringify({error:'server'}));
+    res.statusCode=504;
+    return res.end(JSON.stringify({error:'timeout'}));
   }
 };
