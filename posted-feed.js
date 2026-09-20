@@ -110,7 +110,7 @@
       +'<div class="vh-tabs"><span>LIVE</span><span>커뮤니티</span><span>팔로잉</span><span class="on">추천</span><button>⌕</button></div>'
       +'<div class="vh-title"><b>♛ '+name+'</b><span>'+title+'</span></div>'
       +'<div class="vh-actions">'
-        +'<button class="kt-feed-profile-button" onclick="if(window.openProfileDirect){openProfileDirect()}else if(window.openProfile){openProfile()}"><span class="kt-feed-profile-circle">👤</span></button>'
+        +'<button class="kt-feed-profile-button" onclick="if(window.openProfileDirect){openProfileDirect()}else if(window.openProfile){openProfile()}"><span class="kt-feed-profile-circle">👤</span><small class="kt-feed-profile-name">'+name+'</small></button>'
         +'<button class="kt-feed-one-rose" onclick="ktPublicSendRose(\''+id+'\',\''+name.replace(/'/g,"\\'")+'\',this)">🌹<small>'+Number(x.likes||0)+'</small></button>'
         +'<button onclick="ktPublicComments(\''+id+'\')">💬<small>메시지</small></button>'
         +'<button onclick="ktPublicShare(\''+u+'\')">↗<small>공유</small></button>'
@@ -319,6 +319,7 @@
       +'.vh-actions .kt-feed-profile-button{background:transparent!important;border:0!important;padding:0!important}'
       +'.vh-actions .kt-feed-profile-circle{display:flex!important;width:48px!important;height:48px!important;border-radius:50%!important;overflow:hidden!important;align-items:center!important;justify-content:center!important;border:2px solid #fff!important;background:#222!important;font-size:28px!important;box-sizing:border-box!important;box-shadow:0 2px 8px rgba(0,0,0,.45)!important}'
       +'.vh-actions .kt-feed-profile-circle img{width:100%!important;height:100%!important;object-fit:cover!important;display:block!important}'
+      +'.vh-actions .kt-feed-profile-name{display:block!important;margin-top:3px!important;max-width:66px!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;font-size:10px!important;font-weight:850!important;color:#fff!important;text-shadow:0 1px 4px #000!important}'
       +'.vh-actions .kt-feed-one-rose small{font-size:11px!important;font-weight:950!important;margin-top:3px!important;color:#fff!important}'
       +'.vh-actions .kt-feed-one-rose{background:transparent!important;border:0!important}'
       +'@media(max-width:390px){.vh-actions .kt-feed-profile-circle{width:44px!important;height:44px!important}}';
