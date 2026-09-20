@@ -219,7 +219,7 @@
     try{
       await req('ktalk_live_rooms?host_id=eq.'+enc(hostId)+'&active=eq.true',{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:stamp})});
       var rows=await req('ktalk_live_rooms',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify({host_id:hostId,host_name:p.name,title:r.title,room_type:r.type,room_name:r.name,active:true,started_at:stamp,updated_at:stamp,host_photo:p.photo||null})});
-      hostRoomId=rows&&rows[0]?rows[0].id:'';hostActive=true;lastActivityStamp='';
+      hostRoomId=rows&&rows[0]?rows[0].id:'';hostActive=true;window.__ktHostBroadcastActive=true;lastActivityStamp='';
       showActivity('🔴 방송이 시작되었습니다. 방송목록에 표시됩니다.');
       clearInterval(hostHeartbeat);clearInterval(hostSignalTimer);clearInterval(hostActivityTimer);
       var beatToken=hostRunToken;
@@ -232,7 +232,7 @@
 
   async function stopHostPresence(){
     /* 방송 종료 때 상태값이 이미 풀렸어도 서버의 빨간 LIVE 표시를 반드시 끈다. */
-    var hostId=deviceId(),roomId=hostRoomId;hostEndLock=true;hostRunToken++;var stopToken=hostRunToken;hostActive=false;hostRoomId='';
+    var hostId=deviceId(),roomId=hostRoomId;hostEndLock=true;hostRunToken++;var stopToken=hostRunToken;hostActive=false;window.__ktHostBroadcastActive=false;hostRoomId='';
     window.__ktHostEndLock=true;window.__ktHostEndLockHostId=hostId;
     clearInterval(hostHeartbeat);clearInterval(hostSignalTimer);clearInterval(hostActivityTimer);hostHeartbeat=hostSignalTimer=hostActivityTimer=null;
     Object.keys(hostPeers).forEach(function(k){try{hostPeers[k].pc.close();}catch(e){}});hostPeers={};
@@ -272,6 +272,18 @@
     try{if(window.ktRefreshVideoLivePeek)window.ktRefreshVideoLivePeek();}catch(e){}
   }
   window.ktStopHostPresence=stopHostPresence;
+  /* 빨간 LIVE 표시 전용 재등록: 방/채팅/배치는 건드리지 않는다. */
+  window.ktEnsureHostPresenceNow=async function(){
+    try{
+      hostEndLock=false;
+      window.__ktHostEndLock=false;
+      window.__ktHostEndLockHostId='';
+      if(!hostActive)await startHostPresence();
+      if(hostActive)window.__ktHostBroadcastActive=true;
+      try{if(window.ktRefreshVideoLivePeek)window.ktRefreshVideoLivePeek();}catch(e){}
+      return !!hostActive;
+    }catch(e){return false;}
+  };
 
   /* 방송 화면이 이미 닫혔는데 LIVE 상태만 남는 경우 자동 정리. 다른 화면은 변경하지 않음. */
   setInterval(function(){
@@ -280,6 +292,8 @@
       if(document.documentElement.classList.contains('kt-remote-viewing'))return;
       var s=document.getElementById('screen');
       var opened=!!(s&&s.querySelector('#ktLiveVideo,.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room'));
+      /* 실제 카메라 스트림이 살아 있으면 동영상 화면으로 이동해도 방송 등록을 유지한다. */
+      if(!opened&&hasLiveLocalVideo())return;
       if(!opened)stopHostPresence();
     }catch(e){}
   },1200);
@@ -413,7 +427,17 @@
       var tries=0;
       (function attachWhenVideoReady(){
         if(hostEndLock||hostActive)return;
-        if(hasLiveLocalVideo()){ startHostPresence(); return; }
+        if(hasLiveLocalVideo()){
+          startHostPresence().then(function(){
+            try{
+              if(window.ktRefreshVideoLivePeek){
+                setTimeout(function(){try{window.ktRefreshVideoLivePeek();}catch(e){}},80);
+                setTimeout(function(){try{window.ktRefreshVideoLivePeek();}catch(e){}},450);
+              }
+            }catch(e){}
+          });
+          return;
+        }
         tries++;
         if(tries<40)setTimeout(attachWhenVideoReady,500);
       })();
