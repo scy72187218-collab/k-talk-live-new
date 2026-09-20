@@ -1,15 +1,18 @@
-/* K-Talk LIVE 빨간 신호 전용.
-   Supabase DB/Storage를 쓰지 않고 Realtime Presence만 사용.
-   방/영상/채팅/버튼 동작은 변경하지 않음. */
+/* K-Talk 빨간 LIVE 신호 전용 - Realtime Broadcast 방식.
+   DB/Storage를 쓰지 않는다.
+   프로필/장미/메시지/공유 및 방송방 UI는 변경하지 않는다. */
 (function(){
   if(window.__ktRealtimePresenceLive20260920)return;
   window.__ktRealtimePresenceLive20260920=true;
 
   var REF='zupwbfmacwzexyvznlzq';
   var KEY='sb_publishable_AnyCMi4rAgSR2uWg_u1pvw_hHyqWlm3';
-  var TOPIC='realtime:ktalk-live-presence-v1';
-  var ws=null,joined=false,tracked=false,joinRef='',seq=1;
-  var hosts={},reconnectTimer=null,heartbeatTimer=null,lastRoomOpen=false;
+  var CHANNEL='ktalk-live-signal-v3';
+  var TOPIC='realtime:'+CHANNEL;
+  var ws=null,joined=false,joinRef='',seq=1,reconnectTimer=null,heartbeatTimer=null;
+  var hostTimer=null,lastHostState=false;
+  var liveHosts={};
+  var DEVICE=deviceId();
 
   function deviceId(){
     var id='';
@@ -21,18 +24,30 @@
     return id;
   }
 
-  function hostRoomOpen(){
+  function roomVisible(){
     try{
       if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
-      var list=[].slice.call(document.querySelectorAll('.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room'));
-      if(!list.length)return false;
+      var list=[].slice.call(document.querySelectorAll(
+        '#screen .ktsolo-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room'
+      ));
       return list.some(function(el){
         try{
-          var r=el.getBoundingClientRect(),cs=getComputedStyle(el);
-          return cs.display!=='none'&&cs.visibility!=='hidden'&&r.width>2&&r.height>2;
+          var r=el.getBoundingClientRect(),s=getComputedStyle(el);
+          return s.display!=='none'&&s.visibility!=='hidden'&&r.width>4&&r.height>4;
         }catch(e){return true;}
       });
     }catch(e){return false;}
+  }
+
+  function localCameraLive(){
+    try{
+      var s=window.state&&state.stream;
+      return !!(s&&s.getVideoTracks&&s.getVideoTracks().some(function(t){return t.readyState==='live';}));
+    }catch(e){return false;}
+  }
+
+  function isHostLive(){
+    return roomVisible()&&localCameraLive();
   }
 
   function roomInfo(){
@@ -40,8 +55,6 @@
     try{
       type=String(st.liveRoomType||st.prepRoomType||'solo');
       name=String(st.liveRoomName||st.prepRoomName||'1인 방송');
-      if(type==='group')type='group13';
-      if(type==='password')type='secret';
     }catch(e){}
     return {type:type,name:name};
   }
@@ -57,155 +70,129 @@
     return 'K-Talk 방송자';
   }
 
-  function send(event,payload){
-    if(!ws||ws.readyState!==1)return false;
+  async function broadcast(eventName,payload){
     try{
-      ws.send(JSON.stringify({
-        topic:TOPIC,
-        event:event,
-        payload:payload||{},
-        ref:String(seq++),
-        join_ref:event==='heartbeat'?null:joinRef
-      }));
-      return true;
+      var res=await fetch('https://'+REF+'.supabase.co/realtime/v1/api/broadcast',{
+        method:'POST',
+        cache:'no-store',
+        headers:{'Content-Type':'application/json','apikey':KEY},
+        body:JSON.stringify({messages:[{
+          topic:CHANNEL,
+          event:eventName,
+          payload:payload||{}
+        }]})
+      });
+      return !!res.ok;
     }catch(e){return false;}
   }
 
-  function track(){
-    if(!joined||tracked||!hostRoomOpen())return;
+  function publishOn(){
+    if(!isHostLive())return;
     var r=roomInfo();
-    var ok=send('presence',{
-      type:'presence',
-      event:'track',
-      payload:{
-        role:'host',
-        live:true,
-        host_id:deviceId(),
-        host_name:profileName(),
-        room_type:r.type,
-        room_name:r.name,
-        online_at:new Date().toISOString()
-      }
+    broadcast('live_on',{
+      host_id:DEVICE,
+      host_name:profileName(),
+      room_type:r.type,
+      room_name:r.name,
+      at:Date.now()
     });
-    if(ok)tracked=true;
   }
 
-  function untrack(){
-    if(!joined||!tracked)return;
-    send('presence',{type:'presence',event:'untrack',payload:{}});
-    tracked=false;
+  function publishOff(){
+    broadcast('live_off',{host_id:DEVICE,at:Date.now()});
   }
 
-  function metaList(v){
-    if(!v)return [];
-    if(Array.isArray(v))return v;
-    if(Array.isArray(v.metas))return v.metas;
-    return [v];
+  function startHostBeacon(){
+    if(hostTimer)return;
+    publishOn();
+    hostTimer=setInterval(publishOn,1800);
   }
 
-  function rebuildFromState(state){
-    hosts={};
-    Object.keys(state||{}).forEach(function(k){
-      metaList(state[k]).forEach(function(m){
-        if(m&&m.role==='host'&&m.live!==false){
-          var id=String(m.host_id||k||'');
-          if(id)hosts[id]=m;
-        }
-      });
-    });
-    paint();
+  function stopHostBeacon(){
+    if(hostTimer){clearInterval(hostTimer);hostTimer=null;}
+    publishOff();
   }
 
-  function applyDiff(diff){
-    var joins=(diff&&diff.joins)||{};
-    var leaves=(diff&&diff.leaves)||{};
-    Object.keys(joins).forEach(function(k){
-      metaList(joins[k]).forEach(function(m){
-        if(m&&m.role==='host'&&m.live!==false){
-          var id=String(m.host_id||k||'');
-          if(id)hosts[id]=m;
-        }
-      });
-    });
-    Object.keys(leaves).forEach(function(k){
-      metaList(leaves[k]).forEach(function(m){
-        var id=String((m&&m.host_id)||k||'');
-        if(id)delete hosts[id];
-      });
-    });
-    paint();
-  }
-
-  function inVideoView(){
+  function visibleVideoHolder(){
     try{
-      if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
-      if(document.body&&document.body.classList.contains('kt-video-mode'))return true;
-      return !!document.querySelector('#screen .kt-public-video,#screen .kt-hard-public-video,#homeVideo,.video-home,.media video');
-    }catch(e){return false;}
-  }
-
-  function holder(){
-    try{
-      var vids=[].slice.call(document.querySelectorAll('#screen .kt-public-video,#screen .kt-hard-public-video,#homeVideo,.video-home video,.media video'));
-      var vh=window.innerHeight||document.documentElement.clientHeight||0,best=null,score=1e9;
+      var vids=[].slice.call(document.querySelectorAll('#screen .kt-public-video,#screen #homeVideo,.video-home video,.media video'));
+      var vh=innerHeight||document.documentElement.clientHeight||0,best=null,dist=Infinity;
       vids.forEach(function(v){
         try{
-          var b=v.getBoundingClientRect();
-          if(b.width<4||b.height<4||b.bottom<=0||b.top>=vh)return;
-          var s=Math.abs(((b.top+b.bottom)/2)-(vh/2));
-          if(s<score){score=s;best=v;}
+          var r=v.getBoundingClientRect();
+          if(r.width<4||r.height<4||r.bottom<=0||r.top>=vh)return;
+          var d=Math.abs(((r.top+r.bottom)/2)-(vh/2));
+          if(d<dist){dist=d;best=v;}
         }catch(e){}
       });
-      var v=best||vids[0];
-      if(v)return v.closest('section,.video-home,.media,.kt-hard-video-card,div')||v.parentElement;
-      return document.querySelector('.video-home,#screen .media,#screen');
+      if(!best)return null;
+      return best.closest('section,.video-home,.media')||best.parentElement;
     }catch(e){return null;}
   }
 
+  function cleanupHosts(){
+    var now=Date.now();
+    Object.keys(liveHosts).forEach(function(id){
+      if(now-Number(liveHosts[id].last||0)>5500)delete liveHosts[id];
+    });
+  }
+
   function paint(){
-    var old=document.getElementById('ktPresenceLiveBadge');
-    var ids=Object.keys(hosts);
-    if(!inVideoView()||!ids.length){
+    cleanupHosts();
+    var old=document.getElementById('ktRealtimeLiveRedBadge');
+    var ids=Object.keys(liveHosts).filter(function(id){return id!==DEVICE;});
+    var holder=visibleVideoHolder();
+
+    if(!holder||!ids.length||document.documentElement.classList.contains('kt-remote-viewing')){
       if(old)old.remove();
       return;
     }
-    var h=holder();
-    if(!h)return;
-    try{if(getComputedStyle(h).position==='static')h.style.setProperty('position','relative','important');}catch(e){}
-    var b=old;
-    if(!b){
-      b=document.createElement('div');
-      b.id='ktPresenceLiveBadge';
-      b.style.cssText='position:absolute!important;left:10px!important;top:10px!important;z-index:2147483000!important;display:flex!important;align-items:center!important;gap:5px!important;height:27px!important;padding:0 9px!important;border-radius:999px!important;background:#f01849!important;color:#fff!important;border:1px solid rgba(255,255,255,.75)!important;font:950 11px/1 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;box-shadow:0 2px 10px rgba(0,0,0,.48)!important;pointer-events:none!important;white-space:nowrap!important';
-      b.innerHTML='<span style="width:8px;height:8px;border-radius:50%;background:#fff"></span><b>LIVE</b>';
+
+    try{
+      if(getComputedStyle(holder).position==='static')holder.style.setProperty('position','relative','important');
+    }catch(e){}
+
+    var badge=old;
+    if(!badge){
+      badge=document.createElement('div');
+      badge.id='ktRealtimeLiveRedBadge';
+      badge.innerHTML='<span></span><b>LIVE</b>';
+      badge.style.cssText='position:absolute!important;left:10px!important;top:52px!important;z-index:2147483000!important;height:27px!important;padding:0 9px!important;border-radius:999px!important;background:#ed1745!important;color:#fff!important;border:1px solid rgba(255,255,255,.9)!important;display:flex!important;align-items:center!important;gap:5px!important;font:950 11px/1 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;box-shadow:0 2px 10px rgba(0,0,0,.5),0 0 9px rgba(237,23,69,.55)!important;pointer-events:none!important;white-space:nowrap!important';
+      var dot=badge.querySelector('span');
+      dot.style.cssText='width:8px!important;height:8px!important;border-radius:50%!important;background:#fff!important;display:block!important';
     }
-    if(b.parentElement!==h)h.appendChild(b);
+    if(badge.parentElement!==holder)holder.appendChild(badge);
   }
 
-  function handle(ev){
+  function handleBroadcast(payload){
+    var ev=String(payload&&payload.event||'');
+    var data=payload&&payload.payload||{};
+    var id=String(data.host_id||'');
+    if(!id)return;
+    if(ev==='live_on'){
+      liveHosts[id]={last:Date.now(),data:data};
+    }else if(ev==='live_off'){
+      delete liveHosts[id];
+    }
+    paint();
+  }
+
+  function handleMessage(ev){
     var m=null;
     try{m=JSON.parse(ev.data);}catch(e){return;}
     if(!m||m.topic!==TOPIC)return;
 
-    if(m.event==='phx_reply'&&m.topic===TOPIC&&String(m.ref||'')===String(joinRef)){
-      if(m.payload&&m.payload.status==='ok'){
-        joined=true;
-        if(hostRoomOpen())track();
-      }else{
-        joined=false;
-        tracked=false;
-      }
+    if(m.event==='phx_reply'&&String(m.ref||'')===String(joinRef)){
+      joined=!!(m.payload&&m.payload.status==='ok');
       return;
     }
-    if(m.event==='presence_state'){rebuildFromState(m.payload||{});return;}
-    if(m.event==='presence_diff'){applyDiff(m.payload||{});return;}
-    if(m.event==='phx_error'||m.event==='phx_close'){
-      joined=false;tracked=false;scheduleReconnect(350);
+    if(m.event==='broadcast'){
+      handleBroadcast(m.payload||{});
     }
   }
 
   function closeSocket(){
-    joined=false;tracked=false;
+    joined=false;
     if(heartbeatTimer){clearInterval(heartbeatTimer);heartbeatTimer=null;}
     try{if(ws)ws.close();}catch(e){}
     ws=null;
@@ -213,7 +200,7 @@
 
   function scheduleReconnect(ms){
     if(reconnectTimer)return;
-    reconnectTimer=setTimeout(function(){reconnectTimer=null;connect();},ms||600);
+    reconnectTimer=setTimeout(function(){reconnectTimer=null;connect();},ms||500);
   }
 
   function connect(){
@@ -229,7 +216,7 @@
             payload:{
               config:{
                 broadcast:{ack:false,self:false},
-                presence:{enabled:true,key:deviceId()},
+                presence:{enabled:false},
                 postgres_changes:[],
                 private:false
               }
@@ -240,39 +227,56 @@
         }catch(e){}
         heartbeatTimer=setInterval(function(){
           if(ws&&ws.readyState===1){
-            try{ws.send(JSON.stringify({topic:'phoenix',event:'heartbeat',payload:{},ref:String(seq++),join_ref:null}));}catch(e){}
+            try{
+              ws.send(JSON.stringify({
+                topic:'phoenix',
+                event:'heartbeat',
+                payload:{},
+                ref:String(seq++),
+                join_ref:null
+              }));
+            }catch(e){}
           }
         },20000);
       };
-      ws.onmessage=handle;
+      ws.onmessage=handleMessage;
       ws.onerror=function(){};
-      ws.onclose=function(){joined=false;tracked=false;scheduleReconnect(500);};
+      ws.onclose=function(){joined=false;scheduleReconnect(500);};
     }catch(e){scheduleReconnect(900);}
   }
 
   function reconcile(){
-    var open=hostRoomOpen();
-    if(open&&!lastRoomOpen){lastRoomOpen=true;track();}
-    else if(!open&&lastRoomOpen){lastRoomOpen=false;untrack();}
-    if(!ws||ws.readyState>1)scheduleReconnect(250);
+    var on=isHostLive();
+    if(on&&!lastHostState){lastHostState=true;startHostBeacon();}
+    else if(!on&&lastHostState){lastHostState=false;stopHostBeacon();}
+    else if(on&&!hostTimer){startHostBeacon();}
+    if(!ws||ws.readyState>1)scheduleReconnect(200);
     paint();
   }
 
   connect();
-  setInterval(reconcile,900);
-  setInterval(paint,700);
+  setInterval(reconcile,350);
+  setInterval(paint,500);
+
   try{
     new MutationObserver(function(){
-      clearTimeout(window.__ktPresenceLiveMo);
-      window.__ktPresenceLiveMo=setTimeout(reconcile,50);
+      clearTimeout(window.__ktRealtimeLiveSignalMo);
+      window.__ktRealtimeLiveSignalMo=setTimeout(reconcile,30);
     }).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['class','style','data-kt-room']});
   }catch(e){}
-  document.addEventListener('visibilitychange',function(){if(!document.hidden){reconcile();paint();}});
-  window.addEventListener('focus',function(){reconcile();paint();});
+
+  window.addEventListener('focus',reconcile);
   window.addEventListener('online',function(){scheduleReconnect(100);});
-  window.addEventListener('pagehide',function(){try{untrack();}catch(e){}});
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)reconcile();});
+  window.addEventListener('pagehide',function(){if(lastHostState)publishOff();});
 
   window.ktPresenceLiveSignalStatus=function(){
-    return {socket:ws?ws.readyState:-1,joined:joined,tracked:tracked,hosts:Object.keys(hosts).length,roomOpen:hostRoomOpen()};
+    cleanupHosts();
+    return {
+      socket:ws?ws.readyState:-1,
+      joined:joined,
+      hostLive:isHostLive(),
+      seenHosts:Object.keys(liveHosts).length
+    };
   };
 })();
