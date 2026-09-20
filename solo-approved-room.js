@@ -133,14 +133,31 @@
     try{if(window.ktRenderTreasure)ktRenderTreasure();}catch(e){}
   }
 
+  async function ktSoloKeepCameraWide(){
+    try{
+      if(!window.state||!state.stream||!state.stream.getVideoTracks)return;
+      var t=state.stream.getVideoTracks()[0];
+      if(!t||!t.getCapabilities||!t.applyConstraints)return;
+      var caps=t.getCapabilities()||{};
+      if(!caps.zoom||typeof caps.zoom.min!=='number')return;
+      var min=Number(caps.zoom.min);
+      if(!isFinite(min))return;
+      await t.applyConstraints({advanced:[{zoom:min}]});
+    }catch(e){}
+  }
+
   window.startBroadcast=async function(){
     var solo=isSolo();
     if(solo){
       try{if(window.state)state.cameraFacing='user';}catch(e){}
       try{if(window.ensureLiveCamera)await window.ensureLiveCamera('user');}catch(e){}
+      try{await ktSoloKeepCameraWide();}catch(e){}
     }
     var result=await oldStartBroadcast.apply(this,arguments);
-    if(solo)setTimeout(renderApprovedSolo,0);
+    if(solo){
+      setTimeout(renderApprovedSolo,0);
+      [80,250,700,1500].forEach(function(ms){setTimeout(ktSoloKeepCameraWide,ms);});
+    }
     return result;
   };
 })();
