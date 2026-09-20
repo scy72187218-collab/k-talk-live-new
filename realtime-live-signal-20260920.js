@@ -84,6 +84,27 @@
     });
   }
 
+  function visibleVideoHolder(){
+    try{
+      var list=[].slice.call(document.querySelectorAll(
+        '#screen .kt-public-video,#screen .kt-hard-public-video,#screen #homeVideo,.video-home video,.media video'
+      ));
+      if(!list.length)return document.querySelector('.video-home,#screen .media,#screen')||document.body;
+      var vh=window.innerHeight||document.documentElement.clientHeight||0;
+      var best=null,dist=Infinity;
+      list.forEach(function(v){
+        try{
+          var b=v.getBoundingClientRect();
+          if(b.width<4||b.height<4||b.bottom<=0||b.top>=vh)return;
+          var d=Math.abs(((b.top+b.bottom)/2)-(vh/2));
+          if(d<dist){dist=d;best=v;}
+        }catch(e){}
+      });
+      var v=best||list[0];
+      return v.closest('section,.kt-hard-video-card,.video-home,.media,div')||v.parentElement||document.body;
+    }catch(e){return document.body;}
+  }
+
   function showSignal(){
     cleanup();
     var old=document.getElementById('ktRealtimeLiveBadge');
@@ -92,16 +113,31 @@
     });
     if(!inVideoView()||!rows.length){
       if(old)old.remove();
+      try{document.documentElement.classList.remove('kt-realtime-live-on');}catch(e){}
       return;
     }
-    var r=rows[0],b=old;
+
+    var r=rows[0],b=old,holder=visibleVideoHolder();
+    if(!holder)return;
+    try{
+      if(getComputedStyle(holder).position==='static')holder.style.setProperty('position','relative','important');
+    }catch(e){}
+
     if(!b){
       b=document.createElement('div');
       b.id='ktRealtimeLiveBadge';
-      b.style.cssText='position:fixed;top:72px;right:12px;z-index:2147483000;display:flex;align-items:center;gap:6px;padding:8px 11px;border-radius:999px;background:#e6002d;color:white;font:900 13px/1 system-ui,-apple-system,sans-serif;box-shadow:0 2px 14px rgba(230,0,45,.48);pointer-events:none';
-      document.body.appendChild(b);
+      b.style.cssText='position:absolute!important;top:10px!important;left:10px!important;z-index:2147483000!important;display:flex!important;align-items:center!important;gap:5px!important;padding:6px 9px!important;border-radius:999px!important;background:#ef1748!important;color:#fff!important;border:1px solid rgba(255,255,255,.75)!important;font:950 11px/1 system-ui,-apple-system,sans-serif!important;box-shadow:0 0 0 2px rgba(239,23,72,.18),0 2px 11px rgba(0,0,0,.45)!important;pointer-events:none!important;white-space:nowrap!important';
     }
-    b.innerHTML='<span style="width:9px;height:9px;border-radius:50%;background:white;box-shadow:0 0 0 3px rgba(255,255,255,.23)"></span><b>LIVE</b><span style="max-width:86px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(r.host_name||'방송 중')+'</span>';
+    if(b.parentElement!==holder)holder.appendChild(b);
+    b.innerHTML='<span style="width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.22)"></span><b>LIVE</b>';
+    try{document.documentElement.classList.add('kt-realtime-live-on');}catch(e){}
+
+    if(!document.getElementById('ktRealtimeLiveBadgeStyle')){
+      var s=document.createElement('style');
+      s.id='ktRealtimeLiveBadgeStyle';
+      s.textContent='html.kt-realtime-live-on .kt-video-live-peek .ktvl-live{display:none!important}';
+      document.head.appendChild(s);
+    }
   }
 
   async function readKey(){
