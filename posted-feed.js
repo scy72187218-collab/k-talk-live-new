@@ -91,7 +91,7 @@
 
   async function getFeed(){
     try{
-      var r=await fetch(SB+'/rest/v1/ktalk_videos?select=id,author_name,title,video_url,created_at,likes&order=created_at.desc&limit=40&_='+Date.now(),{
+      var r=await fetch('/api/video-feed?t='+Date.now(),{
         cache:'no-store',
         headers:headers({'Cache-Control':'no-cache'})
       });
