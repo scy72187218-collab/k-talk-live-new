@@ -91,14 +91,16 @@
 
   async function getFeed(){
     try{
-      var r=await fetch(SB+'/rest/v1/ktalk_videos?select=id,author_name,title,video_url,created_at,likes&order=created_at.desc&limit=40',{
-        cache:'no-store',
-        headers:headers({'Cache-Control':'no-cache'})
-      });
+      var r=await fetch('/api/video-feed?t='+Date.now(),{cache:'no-store'});
       var a=r.ok?await r.json():[];
       try{if(a.length)localStorage.setItem('ktalk_fast_feed',JSON.stringify(a));}catch(e){}
       return Array.isArray(a)?a:[];
-    }catch(e){return[];}
+    }catch(e){
+      try{
+        var old=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');
+        return Array.isArray(old)?old:[];
+      }catch(_){return[];}
+    }
   }
   function card(x,i){
     var id=esc(x.id),u=esc(x.video_url),name=esc(x.author_name||'K-Talk'),title=esc(x.title||'K-Talk 동영상');
