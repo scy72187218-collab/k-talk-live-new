@@ -6,7 +6,7 @@
    - 동영상 표시/재생
    - 현재 정상 동영상 통신/공용 동영상 목록 연결
    - 현재 정상 영상 송수신 경로
-   빨간 LIVE 신호까지 포함해 전체를 보호 잠금한다. 사용자가 직접 풀어 달라고 요청하기 전에는 유지한다.
+   빨간 LIVE 신호는 아직 작업 대상이므로 보호 잠금에서 제외한다.
    실제 터치/입장/채팅/스위치/동영상 재생 기능은 막지 않는다.
    이후 수정 작업에서 이 플래그를 확인해 보호 대상을 건드리지 않기 위한 잠금이다. */
 (function(){
@@ -26,7 +26,7 @@
     videoFeed:true,
     videoCommunication:true,
     mediaTransport:true,
-    liveSignal:true,
+    liveSignal:false,
     aiVoice:true,
     helpReader:true
   };
@@ -78,12 +78,13 @@
   };
   window.ktLockCurrentApprovedState=function(){
     Object.keys(locked).forEach(function(k){
-      locked[k]=true;
+      if(k!=='liveSignal')locked[k]=true;
     });
+    locked.liveSignal=false;
     save();markAll();return true;
   };
   window.ktIsLiveSignalWorkAllowed=function(){
-    return false;
+    return locked.liveSignal===false;
   };
 
   /* 보호 잠금은 UI 기능을 비활성화하지 않는다. */
