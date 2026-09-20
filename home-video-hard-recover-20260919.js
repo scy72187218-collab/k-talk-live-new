@@ -19,6 +19,8 @@
 
   function busyElsewhere(){
     try{
+      if(window.__ktGroup13StartInProgress===true)return true;
+      if(document.documentElement.classList.contains('kt-g13-current-guard'))return true;
       if(document.querySelector('#screen .ktsolo-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room,#screen .kt-remote-live'))return true;
       var creator=document.getElementById('creator');
       if(creator&&creator.classList.contains('show'))return true;
@@ -192,6 +194,8 @@
       screen.innerHTML='<div style="height:calc(100dvh - 78px);display:grid;place-items:center;background:#000;color:#bbb;font-size:14px">동영상 불러오는 중...</div>';
 
       var a=await rows();
+      /* 느린 기기에서 동영상 목록을 기다리는 사이 13명방이 시작되면 절대 화면을 덮어쓰지 않는다. */
+      if(busyElsewhere())return;
       if(!a.length){
         screen.innerHTML='<div style="height:calc(100dvh - 78px);display:grid;place-items:center;background:#000;color:#ddd;text-align:center;padding:24px"><div><b style="font-size:16px">동영상 연결을 다시 확인하고 있습니다.</b><br><span style="font-size:12px;opacity:.75">잠시만 기다려 주세요.</span></div></div>';
         return;
