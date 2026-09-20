@@ -151,6 +151,7 @@
       var rows=await req(path),latest={};(rows||[]).forEach(function(m){var t=String(m.message_type||''),vid='';
         if(t.indexOf('guest_request:')===0){vid=t.slice(14);if(vid&&!latest[vid])latest[vid]={state:'request',name:String(m.sender_name||'게스트')};}
         else if(t.indexOf('guest_approved:')===0){vid=t.slice(15);if(vid&&!latest[vid])latest[vid]={state:'approved',name:String(m.sender_name||'게스트')};}
+        else if(t.indexOf('guest_cancelled:')===0){vid=t.slice(16);if(vid&&!latest[vid])latest[vid]={state:'cancelled',name:String(m.sender_name||'게스트')};}
         else if(t.indexOf('guest_rejected:')===0){vid=t.slice(15);if(vid&&!latest[vid])latest[vid]={state:'rejected',name:String(m.sender_name||'게스트')};}
         else if(t.indexOf('guest_blocked:')===0){vid=t.slice(14);if(vid&&!latest[vid])latest[vid]={state:'blocked',name:String(m.sender_name||'게스트')};}
       });
