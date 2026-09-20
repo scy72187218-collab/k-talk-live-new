@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "All current working K-Talk UI/controls are protected from edits. Runtime buttons remain usable. Change only after owner explicitly unlocks with PIN.",
+  "note": "When the owner says exactly 'K-톡 비밀번호 확인', check this lock file first. Ask for the PIN, verify it against the stored hash, and do not modify protected K-Talk work unless verification succeeds and the owner explicitly requests an unlock/change.",
   "default_policy": "locked_unless_owner_explicitly_unlocks",
   "protected_components": [
     "gift_button",
@@ -23,5 +23,12 @@
     "broadcast_switches",
     "room_entry_exit",
     "all_other_current_working_ui"
-  ]
+  ],
+  "check_trigger_phrase": "K-톡 비밀번호 확인",
+  "check_behavior": {
+    "on_trigger": "read_this_lock_file_first",
+    "then": "ask_for_pin_and_compare_hash",
+    "if_match": "report_lock_verified_only",
+    "if_not_match": "keep_locked_and_do_not_modify"
+  }
 }
