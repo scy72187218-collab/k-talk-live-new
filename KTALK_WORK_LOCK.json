@@ -1,14 +1,14 @@
 {
-  "version": 1,
+  "version": 2,
   "locked": true,
-  "scope": "all-current-k-talk-work-and-controls",
+  "scope": "selective-approved-working-components-only",
   "snapshot_branch": "ktalk-locked-20260920",
   "snapshot_commit": "6bd2870df980be7313c1259bf0c2c5f5fdfb0e30",
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "When the owner says exactly 'K-톡 비밀번호 확인', check this lock file first. Ask for the PIN, verify it against the stored hash, and do not modify protected K-Talk work unless verification succeeds and the owner explicitly requests an unlock/change.",
-  "default_policy": "locked_unless_owner_explicitly_unlocks",
+  "note": "Protect only components the owner has confirmed are working. New, broken, or actively edited areas remain editable. When a repaired area is confirmed working, add only that area to protected_components and require the PIN for later edits.",
+  "default_policy": "editable_unless_explicitly_listed_as_protected",
   "protected_components": [
     "gift_button",
     "match_button",
@@ -18,17 +18,22 @@
     "attendance_button",
     "chat_area",
     "live_room_layout",
-    "profile",
-    "camera_video",
     "broadcast_switches",
-    "room_entry_exit",
-    "all_other_current_working_ui"
+    "room_entry_exit"
   ],
   "check_trigger_phrase": "K-톡 비밀번호 확인",
   "check_behavior": {
-    "on_trigger": "read_this_lock_file_first",
-    "then": "ask_for_pin_and_compare_hash",
-    "if_match": "report_lock_verified_only",
-    "if_not_match": "keep_locked_and_do_not_modify"
-  }
+    "on_protected_change": "ask_for_pin_and_compare_hash",
+    "on_unprotected_change": "allow_narrow_edit_without_unlocking_other_components",
+    "after_owner_confirms_working": "add_only_that_component_to_protected_components",
+    "if_pin_mismatch": "keep_protected_components_locked"
+  },
+  "current_editable_components": [
+    "public_video_feed",
+    "public_video_actions",
+    "video_playback",
+    "video_communication",
+    "media_transport",
+    "live_signal"
+  ]
 }
