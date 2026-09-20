@@ -232,8 +232,7 @@
                 presence:{enabled:true,key:deviceId()},
                 postgres_changes:[],
                 private:false
-              },
-              access_token:KEY
+              }
             },
             ref:joinRef,
             join_ref:joinRef
