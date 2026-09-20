@@ -22,10 +22,10 @@
     group13:true,
     subscriber:true,
     secret:true,
-    videos:true,
-    videoFeed:true,
-    videoCommunication:true,
-    mediaTransport:true,
+    videos:false,
+    videoFeed:false,
+    videoCommunication:false,
+    mediaTransport:false,
     liveSignal:false,
     aiVoice:true,
     helpReader:true
@@ -37,7 +37,7 @@
 
   function markAll(){
     try{
-      document.documentElement.setAttribute('data-kt-work-protected','1');
+      document.documentElement.setAttribute('data-kt-work-protected','selective');
 
       document.querySelectorAll(
         '.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room'
@@ -58,8 +58,8 @@
       });
 
       document.querySelectorAll('video,.kt-public-feed-scroller,.kt-public-video').forEach(function(el){
-        el.setAttribute('data-kt-work-protected','1');
-        el.setAttribute('data-kt-video-communication-protected','1');
+        el.removeAttribute('data-kt-work-protected');
+        el.removeAttribute('data-kt-video-communication-protected');
       });
 
       document.querySelectorAll(
@@ -77,9 +77,20 @@
     return !!locked[name];
   };
   window.ktLockCurrentApprovedState=function(){
-    Object.keys(locked).forEach(function(k){
-      if(k!=='liveSignal')locked[k]=true;
-    });
+    /* 전체 잠금 금지: 현재 명시적으로 승인된 항목만 잠근다. */
+    locked.chat=true;
+    locked.switches=true;
+    locked.solo=true;
+    locked.group9=true;
+    locked.group13=true;
+    locked.subscriber=true;
+    locked.secret=true;
+    locked.aiVoice=true;
+    locked.helpReader=true;
+    locked.videos=false;
+    locked.videoFeed=false;
+    locked.videoCommunication=false;
+    locked.mediaTransport=false;
     locked.liveSignal=false;
     save();markAll();return true;
   };
