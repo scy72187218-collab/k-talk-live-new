@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Protect only components the owner has confirmed are working. New, broken, or actively edited areas remain editable. When a repaired area is confirmed working, add only that area to protected_components and require the PIN for later edits.",
+  "note": "Only the four public-video side-action items above are temporarily unlocked for the current edit. Other protected working components stay locked.",
   "default_policy": "editable_unless_explicitly_listed_as_protected",
   "protected_components": [
     "gift_button",
@@ -35,5 +35,11 @@
     "video_communication",
     "media_transport",
     "live_signal"
+  ],
+  "temporarily_unlocked_components": [
+    "public_video_side_actions",
+    "public_video_rose_button",
+    "public_video_rose_count",
+    "public_video_message_label"
   ]
 }
