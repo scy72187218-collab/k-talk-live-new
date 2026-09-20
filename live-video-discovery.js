@@ -120,9 +120,7 @@
       +'.kt-video-live-peek .ktvl-avatar{width:36px!important;height:36px!important;flex:0 0 36px!important;border-radius:50%!important;overflow:hidden!important;display:grid!important;place-items:center!important;background:linear-gradient(135deg,#70214e,#193d79)!important;font-size:19px!important;border:2px solid #ff315f!important}'
       +'.kt-video-live-peek .ktvl-avatar img{width:100%!important;height:100%!important;object-fit:cover!important}'
       +'.kt-video-live-peek .ktvl-copy{min-width:0!important;text-align:left!important;line-height:1.15!important}.kt-video-live-peek .ktvl-copy b{display:block!important;color:#fff!important;font-size:11px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}.kt-video-live-peek .ktvl-copy small{display:block!important;margin-top:3px!important;color:#ddd!important;font-size:9px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}'
-      +'.kt-video-live-peek .ktvl-follow{width:28px!important;height:28px!important;flex:0 0 28px!important;border-radius:50%!important;background:#e91845!important;font-size:18px!important;font-weight:950!important;line-height:1!important}'
-      +'.kt-video-live-peek .ktvl-follow.on{background:#4a4a52!important;font-size:13px!important}'
-      +'.kt-video-live-peek .ktvl-bell{width:28px!important;height:28px!important;flex:0 0 28px!important;border-radius:50%!important;background:#23232b!important;font-size:14px!important}.kt-video-live-peek .ktvl-bell.on{background:#ff9f1a!important}'
+      +'.kt-video-live-peek .ktvl-follow,.kt-video-live-peek .ktvl-bell{display:none!important}'
       +'.kt-video-live-peek .ktvl-live{flex:0 0 auto!important;color:#fff!important;background:#e91845!important;border-radius:999px!important;padding:5px 7px!important;font-size:8px!important;font-weight:950!important;animation:none!important}'
       +'.kt-follow-live-strip{position:fixed!important;left:8px!important;right:8px!important;top:53px!important;z-index:39!important;height:66px!important;padding:5px 7px!important;border-radius:16px!important;background:rgba(5,7,12,.64)!important;border:1px solid rgba(255,255,255,.13)!important;display:flex!important;align-items:flex-start!important;gap:8px!important;overflow-x:auto!important;overflow-y:hidden!important;backdrop-filter:blur(6px)!important;scrollbar-width:none!important}'
       +'.kt-follow-live-strip::-webkit-scrollbar{display:none!important}'
@@ -319,6 +317,10 @@
     var hostId=String(r.host_id||''),hostName=String(r.host_name||'K-Talk 방송자'),hostPhoto=String(r.host_photo||'');
     var photo=(hostPhoto&&(/^data:image/.test(hostPhoto)||/^https?:/.test(hostPhoto)))?'<img src="'+esc(hostPhoto)+'" alt="">':'🎥';
     var signature=hostId+'|'+hostName+'|'+hostPhoto;
+    /* 예전 화면에 남아 있는 + / 종 버튼은 같은 방송 배지라도 즉시 제거 */
+    if(old){
+      try{old.querySelectorAll('.ktvl-follow,.ktvl-bell').forEach(function(x){x.remove();});}catch(e){}
+    }
     if(old&&old.getAttribute('data-kt-signature')===signature)return;
     if(old)old.remove();
     var b=document.createElement('div');
