@@ -225,7 +225,15 @@
     rose.type='button';
     rose.className='kt-feed-final-rose';
     rose.setAttribute('aria-label','장미');
-    rose.innerHTML='<span class="kt-feed-final-rose-icon">🌹</span><small>'+count.toLocaleString('ko-KR')+'</small>';
+    rose.innerHTML='<span class="kt-feed-final-rose-icon">🌹</span><small class="kt-feed-rose-history-count">'+count.toLocaleString('ko-KR')+'</small>';
+    var countEl=rose.querySelector('.kt-feed-rose-history-count');
+    if(countEl){
+      countEl.setAttribute('title','장미 보낸 사람 보기');
+      countEl.onclick=function(e){
+        try{e.preventDefault();e.stopPropagation();}catch(x){}
+        try{if(id&&typeof window.ktPublicRoseHistory==='function')window.ktPublicRoseHistory(id,authorName(box));}catch(x){}
+      };
+    }
     rose.onclick=function(e){
       try{e.preventDefault();e.stopPropagation();}catch(x){}
       if(!id)return;
@@ -285,6 +293,7 @@
       +'.vh-actions>.kt-feed-final-rose{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;background:transparent!important;border:0!important;color:#fff!important;min-width:52px!important;min-height:54px!important;padding:0!important;text-shadow:0 1px 4px #000!important}'
       +'.vh-actions .kt-feed-final-rose-icon{display:block!important;font-size:31px!important;line-height:1!important}'
       +'.vh-actions>.kt-feed-final-rose small{display:block!important;margin-top:4px!important;font-size:11px!important;line-height:1!important;font-weight:950!important;color:#fff!important}'
+      +'.vh-actions .kt-feed-rose-history-count{pointer-events:auto!important;cursor:pointer!important;min-width:26px!important;padding:3px 5px!important;border-radius:999px!important}'
       +'.vh-actions>.kt-feed-final-message small{display:block!important;font-size:10px!important;font-weight:850!important;color:#fff!important}'
       +'@media(max-width:390px){.vh-actions{right:8px!important;bottom:98px!important;gap:10px!important}.vh-actions .kt-feed-profile-circle{width:44px!important;height:44px!important}.vh-actions .kt-feed-final-rose-icon{font-size:28px!important}.vh-actions>button:not(.kt-feed-profile-button){font-size:28px!important}}';
     document.head.appendChild(s);
