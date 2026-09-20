@@ -5,17 +5,65 @@
 
   var BASE='https://zupwbfmacwzexyvznlzq.supabase.co/rest/v1/';
   var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1cHdiZm1hY3d6ZXh5dnpubHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjEwNzYsImV4cCI6MjEwNDAzNzA3Nn0.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
+  var MEM_INTERACT='/api/live-interaction-memory';
+  var MEM_BEACON='/api/live-beacon-memory';
   var remote={hostId:'',viewerId:'',viewerName:'',roomStart:'',timer:null,lastLikeAt:0};
   var hostTimer=null,hostRoomStart='';
 
   function headers(extra){var h={apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json'};Object.keys(extra||{}).forEach(function(k){h[k]=extra[k];});return h;}
-  async function req(path,opt){opt=opt||{};opt.headers=headers(opt.headers);var r=await fetch(BASE+path,opt);if(!r.ok)throw new Error('live interaction api '+r.status);if(r.status===204)return null;var t=await r.text();return t?JSON.parse(t):null;}
+  async function req(path,opt){
+    if(Number(window.__ktPrimaryLiveDbDownUntil||0)>Date.now())throw new Error('primary live db temporarily unavailable');
+    opt=opt||{};
+    var ctrl=typeof AbortController!=='undefined'?new AbortController():null;
+    var timer=ctrl?setTimeout(function(){ctrl.abort();},650):null;
+    try{
+      var next=Object.assign({},opt);next.headers=headers(next.headers);if(ctrl)next.signal=ctrl.signal;
+      var r=await fetch(BASE+path,next);
+      if(timer)clearTimeout(timer);
+      if(!r.ok)throw new Error('live interaction api '+r.status);
+      window.__ktPrimaryLiveDbDownUntil=0;
+      if(r.status===204)return null;
+      var t=await r.text();return t?JSON.parse(t):null;
+    }catch(e){
+      if(timer)clearTimeout(timer);
+      window.__ktPrimaryLiveDbDownUntil=Date.now()+120000;
+      throw e;
+    }
+  }
+  async function memGet(url){
+    var r=await fetch(url,{cache:'no-store'});if(!r.ok)throw new Error('live memory '+r.status);return r.json();
+  }
+  async function memPost(body){
+    var r=await fetch(MEM_INTERACT+'?t='+Date.now(),{method:'POST',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(!r.ok)throw new Error('live memory '+r.status);return r.json();
+  }
   function enc(v){return encodeURIComponent(String(v==null?'':v));}
   function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   function deviceId(){var id='';try{id=localStorage.getItem('kt_live_device_id')||'';}catch(e){}if(!id){id='kt_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,10);try{localStorage.setItem('kt_live_device_id',id);}catch(e){}}return id;}
   function profile(){var p={name:'K-Talk',photo:''};try{if(window.ktProfileLoad){var x=window.ktProfileLoad()||{};p.name=String(x.nickname||x.name||x.displayName||p.name);p.photo=String(x.photo||'');}}catch(e){}try{var sub=window.ktGetSelectedSubAccount?window.ktGetSelectedSubAccount():'';if(sub&&window.ktSubProfileCard){var s=window.ktSubProfileCard(sub)||{};p.name=String(s.nickname||s.name||s.displayName||p.name);p.photo=String(s.photo||p.photo);}}catch(e){}try{p.name=localStorage.getItem('ktalk_nickname')||localStorage.getItem('ktalk_profile_name')||localStorage.getItem('ktalk_active_account_name')||p.name;}catch(e){}return p;}
-  async function activeRoom(hostId){try{var rows=await req('ktalk_live_rooms?select=host_id,host_name,title,room_name,started_at,active,updated_at&host_id=eq.'+enc(hostId)+'&active=eq.true&order=started_at.desc&limit=1');return rows&&rows[0]?rows[0]:null;}catch(e){return null;}}
-  async function postMessage(hostId,senderId,senderName,message,type){if(!hostId||!message)return false;try{await req('ktalk_live_messages',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({host_id:hostId,sender_id:senderId||'guest',sender_name:senderName||'게스트',message:String(message).slice(0,300),message_type:type||'chat'})});return true;}catch(e){return false;}}
+  async function activeRoom(hostId){
+    try{
+      var rows=await req('ktalk_live_rooms?select=host_id,host_name,title,room_name,started_at,active,updated_at&host_id=eq.'+enc(hostId)+'&active=eq.true&order=started_at.desc&limit=1');
+      if(rows&&rows[0])return rows[0];
+    }catch(e){}
+    try{
+      var j=await memGet(MEM_BEACON+'?t='+Date.now());
+      var rows=Array.isArray(j&&j.rooms)?j.rooms:[];
+      var x=rows.find(function(r){return String(r.host_id||'')===String(hostId);});
+      return x?{host_id:x.host_id,host_name:x.host_name,title:x.title,room_name:x.room_name,started_at:x.updated_at,active:true,updated_at:x.updated_at}:null;
+    }catch(e){return null;}
+  }
+  async function postMessage(hostId,senderId,senderName,message,type){
+    if(!hostId||!message)return false;
+    try{
+      await req('ktalk_live_messages',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({host_id:hostId,sender_id:senderId||'guest',sender_name:senderName||'게스트',message:String(message).slice(0,300),message_type:type||'chat'})});
+      return true;
+    }catch(e){}
+    try{
+      await memPost({action:'message',host_id:hostId,sender_id:senderId||'guest',sender_name:senderName||'게스트',message:String(message).slice(0,300),message_type:type||'chat'});
+      return true;
+    }catch(e){return false;}
+  }
 
   function systemType(t){t=String(t||'');return t==='system'||t==='attendance'||t==='like'||t.indexOf('gift:')===0;}
   function ensureStyle(){
@@ -42,7 +90,22 @@
     return true;
   }
 
-  async function fetchMessages(hostId,start){if(!hostId)return [];var path='ktalk_live_messages?select=id,sender_id,sender_name,message,message_type,created_at&host_id=eq.'+enc(hostId);if(start)path+='&created_at=gte.'+enc(start);path+='&order=created_at.asc&limit=80';try{var rows=await req(path);return Array.isArray(rows)?rows:[];}catch(e){return [];}}
+  async function fetchMessages(hostId,start){
+    if(!hostId)return [];
+    var path='ktalk_live_messages?select=id,sender_id,sender_name,message,message_type,created_at&host_id=eq.'+enc(hostId);
+    if(start)path+='&created_at=gte.'+enc(start);
+    path+='&order=created_at.asc&limit=80';
+    try{
+      var rows=await req(path);return Array.isArray(rows)?rows:[];
+    }catch(e){}
+    try{
+      var j=await memGet(MEM_INTERACT+'?action=messages&host_id='+enc(hostId)+'&t='+Date.now());
+      var rows=Array.isArray(j&&j.messages)?j.messages:[];
+      if(start){var cut=Date.parse(start)||0;rows=rows.filter(function(x){return (Date.parse(x.created_at)||0)>=cut;});}
+      rows.sort(function(a,b){return (Date.parse(a.created_at)||0)-(Date.parse(b.created_at)||0);});
+      return rows.slice(-80);
+    }catch(e){return [];}
+  }
   function paintRemoteMessages(rows){var box=document.getElementById('ktRemoteChatList');if(!box)return;var list=(rows||[]).slice(-7);box.innerHTML=list.map(function(m){var sys=systemType(m.message_type);return '<div class="kt-remote-chat-line'+(sys?' system':'')+'"><b>'+(sys?'●':esc(m.sender_name||'게스트'))+'</b><span>'+esc(m.message||'')+'</span></div>';}).join('');box.scrollTop=box.scrollHeight;}
   async function refreshRemote(){if(!remote.hostId||!document.querySelector('.kt-remote-live'))return;ensureRemoteUi();paintRemoteMessages(await fetchMessages(remote.hostId,remote.roomStart));}
   function clearRemote(){clearInterval(remote.timer);remote={hostId:'',viewerId:'',viewerName:'',roomStart:'',timer:null,lastLikeAt:0};}
