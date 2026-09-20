@@ -1,11 +1,27 @@
 {
   "version": 1,
   "locked": true,
-  "scope": "all-current-k-talk-work",
+  "scope": "all-current-k-talk-work-and-controls",
   "snapshot_branch": "ktalk-locked-20260920",
   "snapshot_commit": "6bd2870df980be7313c1259bf0c2c5f5fdfb0e30",
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Do not change protected K-Talk work unless the owner unlocks it with the PIN."
+  "note": "All current working K-Talk UI/controls are protected from edits. Runtime buttons remain usable. Change only after owner explicitly unlocks with PIN.",
+  "default_policy": "locked_unless_owner_explicitly_unlocks",
+  "protected_components": [
+    "gift_button",
+    "match_button",
+    "friend_button",
+    "message_button",
+    "share_button",
+    "attendance_button",
+    "chat_area",
+    "live_room_layout",
+    "profile",
+    "camera_video",
+    "broadcast_switches",
+    "room_entry_exit",
+    "all_other_current_working_ui"
+  ]
 }
