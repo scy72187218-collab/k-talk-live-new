@@ -87,7 +87,7 @@
       +'.ktsolo-att{justify-self:center;height:31px;min-width:98px;padding:0 4px;border-radius:19px;border:2px solid #ff2bbd;background-color:#130714;background-image:radial-gradient(circle,#ff35ce 1.5px,transparent 2px);background-size:8px 8px;color:#ffd52f;font-size:13px;font-weight:950;box-shadow:0 0 8px #ff2bbd,0 0 18px #ff2bbd66;display:flex;align-items:center;justify-content:center;gap:2px;white-space:nowrap}.ktsolo-att img{width:15px;height:15px;object-fit:contain;filter:drop-shadow(0 0 5px #41b8ff)}'
       +'.ktsolo-air{flex:0 0 36px;display:flex;align-items:center;padding:0 8px;font-size:14px;font-weight:950}.ktsolo-air .on{color:#ff315f;margin-right:7px}'
       +'.ktsolo-led{flex:0 0 58px;position:relative;border:2px solid #ff28c4;border-radius:22px;background-color:#120712;background-image:radial-gradient(circle,#ff35ce 2px,transparent 2.7px);background-size:13px 13px;overflow:hidden;box-shadow:0 0 9px #ff28c4,0 0 22px #ff28c466}.ktsolo-led-track{position:absolute;left:0;top:0;height:100%;display:flex;align-items:center;white-space:nowrap;will-change:transform;animation:ktsoloMarquee 12s linear infinite;font-size:24px;font-weight:950;color:#ffd62d;text-shadow:0 0 7px #ff8b00}.ktsolo-led-track span{display:inline-block;padding-right:80px}.ktsolo-led-track b{color:#ff59c9}@keyframes ktsoloMarquee{from{transform:translateX(45%)}to{transform:translateX(-100%)}}'
-      +'.ktsolo-main{position:relative;flex:1 1 0;min-height:0;overflow:hidden;border-radius:10px;background:#111}.ktsolo-main .ktsolo-fill-video{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;object-position:50% 50%;transform:scaleX(-1);filter:brightness(1.02) contrast(.96) saturate(1.01);opacity:1;background:#111;z-index:0}.ktsolo-main #ktLiveVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:50% 50%;transform:scaleX(-1);transform-origin:50% 50%;background:transparent;filter:brightness(1.08) contrast(.95) saturate(1.02);z-index:1;border:0;border-radius:0;box-shadow:none}.ktsolo-shade{position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(0,0,0,.06) 65%,rgba(0,0,0,.55) 100%);pointer-events:none;z-index:2}'
+      +'.ktsolo-main{position:relative;flex:1 1 0;min-height:0;overflow:hidden;border-radius:10px;background:#111}.ktsolo-main #ktLiveVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%;transform:scaleX(-1);transform-origin:50% 50%;background:#111;filter:brightness(1.08) contrast(.95) saturate(1.02);z-index:1;border:0;border-radius:0;box-shadow:none}.ktsolo-shade{position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(0,0,0,.06) 65%,rgba(0,0,0,.55) 100%);pointer-events:none;z-index:2}'
       +'.ktsolo-right{position:absolute;right:8px;bottom:158px;z-index:9;display:grid;gap:6px}.ktsolo-right button{width:44px;height:44px;border-radius:50%;border:1px solid #ffffff38;background:#101014d9;color:#fff;font-size:16px;font-weight:950}.ktsolo-right .like{height:50px;border-radius:16px;border-color:#ff65b788;background:#321024d9}.ktsolo-right small{display:block;font-size:8px;margin-top:1px}'
       +'.ktsolo-room .kt-inside-mic,.ktsolo-room .kt-person-mic,.ktsolo-room .kt-host-mic-toggle,.ktsolo-room [aria-label*="마이크"],.ktsolo-room [title*="마이크"]{display:none!important}'
       +'.ktsolo-wave{position:absolute;left:10px;right:62px;bottom:143px;height:44px;z-index:4;display:flex;align-items:end;gap:2px;opacity:.88}.ktsolo-wave i{flex:1;min-width:2px;height:var(--h);border-radius:3px;background:#ff38c6;box-shadow:0 0 5px currentColor;animation:ktsoloWave var(--d) ease-in-out infinite alternate}.ktsolo-wave i:nth-child(6n+2){background:#6f5cff}.ktsolo-wave i:nth-child(6n+3){background:#28d9ff}.ktsolo-wave i:nth-child(6n+4){background:#41e968}.ktsolo-wave i:nth-child(6n+5){background:#ffd43b}.ktsolo-wave i:nth-child(6n){background:#ff774f}@keyframes ktsoloWave{from{transform:scaleY(.45)}to{transform:scaleY(1)}}'
@@ -102,7 +102,6 @@
         +'<div class="ktsolo-air"><span class="on">● ON AIR</span><span id="ktLiveClock">'+esc(clock)+'</span></div>'
         +'<div class="ktsolo-led"><div class="ktsolo-led-track"><span>💗 ✨ <b>K-Talk LIVE</b> 환영합니다 ✨ 💗</span><span>💗 ✨ <b>K-Talk LIVE</b> 환영합니다 ✨ 💗</span></div></div>'
         +'<div class="ktsolo-main">'
-          +'<video id="ktLiveFillVideo" class="ktsolo-fill-video" autoplay playsinline muted></video>'
           +'<video id="ktLiveVideo" autoplay playsinline muted></video>'
           +'<div class="ktsolo-shade"></div>'
           +'<div class="ktsolo-right"><button class="like" onclick="if(window.addHostLike)addHostLike(1)">💗<small>좋아요</small><b id="hostLikeCount" style="display:block;font-size:8px">0</b></button><button onclick="openGifts()">🎁</button><button onclick="if(window.openHostMatchArena)openHostMatchArena(\'1대1\')">⚔<small>매치</small></button><button onclick="ktSoloEffect()">✨<small>효과</small></button></div>'
@@ -123,19 +122,11 @@
       +'</section>';
 
     var v=document.getElementById('ktLiveVideo');
-    var fill=document.getElementById('ktLiveFillVideo');
     try{
-      if(window.state&&state.stream){
-        if(fill){
-          fill.srcObject=state.stream;
-          var fp=fill.play();
-          if(fp&&fp.catch)fp.catch(function(){});
-        }
-        if(v){
-          v.srcObject=state.stream;
-          var p=v.play();
-          if(p&&p.catch)p.catch(function(){});
-        }
+      if(v&&window.state&&state.stream){
+        v.srcObject=state.stream;
+        var p=v.play();
+        if(p&&p.catch)p.catch(function(){});
       }
     }catch(e){}
     renderChat();
