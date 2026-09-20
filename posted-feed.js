@@ -1,7 +1,7 @@
 /* K-Talk public video feed: simple profile + public feed posting behavior. */
 (function(){
   var SB='https://zupwbfmacwzexyvznlzq.supabase.co';
-  var KEY='sb_publishable_AnyCMi4rAgSR2uWg_u1pvw_hHyqWlm3';
+  var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1cHdiZm1hY3d6ZXh5dnpubHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjEwNzYsImV4cCI6MjEwNDAzNzA3Nn0.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
   function headers(extra){var h={apikey:KEY,Authorization:'Bearer '+KEY};if(extra)Object.keys(extra).forEach(function(k){h[k]=extra[k];});return h;}
   function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   function blobNow(){try{if(window.ktCreatorBlob)return window.ktCreatorBlob;}catch(e){}try{return typeof ktCreatorBlob!=='undefined'?ktCreatorBlob:null;}catch(e){return null;}}
@@ -89,52 +89,16 @@
 
   window.saveCreatorDraft=async function(){if(!blobNow()){alert('저장할 동영상이 없습니다.');return;}if(window.postCreatorRecording)await window.postCreatorRecording();};
 
-  async function fetchFeedJson(url,opts,timeoutMs){
-    var ctl=('AbortController' in window)?new AbortController():null;
-    var timer=ctl?setTimeout(function(){try{ctl.abort();}catch(e){}},timeoutMs||4500):0;
-    try{
-      var o=Object.assign({cache:'no-store'},opts||{});
-      if(ctl)o.signal=ctl.signal;
-      var r=await fetch(url,o);
-      if(timer)clearTimeout(timer);
-      if(!r.ok)return [];
-      var a=await r.json();
-      return Array.isArray(a)?a:[];
-    }catch(e){
-      if(timer)clearTimeout(timer);
-      return [];
-    }
-  }
-
   async function getFeed(){
-    var a=[];
-
-    /* 1차: K-Talk 전용 동영상 서버 */
-    a=await fetchFeedJson('https://zupwbfmacwzexyvznlzq.supabase.co/functions/v1/ktalk-video-feed',{
-      headers:{'x-ktalk-feed':'shared-public-v1'}
-    },4500);
-
-    /* 2차: 전용 서버가 잠깐 안 되면 Supabase 공개목록 직접 읽기 */
-    if(!a.length){
-      a=await fetchFeedJson('https://zupwbfmacwzexyvznlzq.supabase.co/rest/v1/ktalk_videos?select=id,author_name,title,video_url,created_at,likes&order=created_at.desc&limit=40',{
-        headers:headers({'Cache-Control':'no-cache'})
-      },4500);
-    }
-
-    if(a.length){
-      try{
-        localStorage.setItem('ktalk_fast_feed',JSON.stringify(a));
-        localStorage.setItem('ktalk_fast_feed_saved_at',String(Date.now()));
-      }catch(e){}
-      return a;
-    }
-
-    /* 3차: 둘 다 잠깐 실패한 경우 마지막 정상 공용 목록으로 화면을 살린다. */
     try{
-      var cached=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');
-      if(Array.isArray(cached)&&cached.length)return cached;
-    }catch(e){}
-    return [];
+      var r=await fetch(SB+'/rest/v1/ktalk_videos?select=id,author_name,title,video_url,created_at,likes&order=created_at.desc&limit=40',{
+        cache:'no-store',
+        headers:headers({'Cache-Control':'no-cache'})
+      });
+      var a=r.ok?await r.json():[];
+      try{if(a.length)localStorage.setItem('ktalk_fast_feed',JSON.stringify(a));}catch(e){}
+      return Array.isArray(a)?a:[];
+    }catch(e){return[];}
   }
   function card(x,i){
     var id=esc(x.id),u=esc(x.video_url),name=esc(x.author_name||'K-Talk'),title=esc(x.title||'K-Talk 동영상');

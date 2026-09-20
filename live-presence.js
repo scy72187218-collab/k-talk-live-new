@@ -315,7 +315,7 @@
       remoteRoomDedupeTimer=setTimeout(dedupeRemoteGroupRooms,0);
     }).observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
-  setInterval(dedupeRemoteGroupRooms,900);
+  setInterval(dedupeRemoteGroupRooms,250);
 
   async function remotePollRoom(){
     if(!viewerCtx)return;

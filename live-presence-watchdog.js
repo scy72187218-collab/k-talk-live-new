@@ -258,9 +258,9 @@
 
   var mo=new MutationObserver(function(){setTimeout(function(){publishIfNeeded(false);fastViewerRefresh();},180);});
   try{mo.observe(document.getElementById('screen')||document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['data-kt-room']});}catch(e){}
-  setInterval(function(){wrapStartBroadcast();},2200);
+  setInterval(function(){wrapStartBroadcast();},1200);
   setInterval(heartbeat,2500);
-  setInterval(fastViewerRefresh,2200);
+  setInterval(fastViewerRefresh,1000);
   setTimeout(function(){publishIfNeeded(false);},700);
   setTimeout(function(){publishIfNeeded(false);},1800);
   setTimeout(fastViewerRefresh,220);
