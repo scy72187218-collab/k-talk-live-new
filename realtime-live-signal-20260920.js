@@ -12,6 +12,9 @@
   var reconnectTimer=null;
   var heartbeatTimer=null;
   var tickTimer=null;
+  var lastMessageAt=0;
+  var lastJoinAt=0;
+  var reconnecting=false;
 
   function esc(v){
     return String(v==null?'':v).replace(/[&<>"']/g,function(c){
@@ -165,6 +168,7 @@
   }
 
   function handleMessage(ev){
+    lastMessageAt=Date.now();
     var m=null;
     try{m=JSON.parse(ev.data);}catch(e){return;}
     if(!m)return;
@@ -173,6 +177,8 @@
       var st=m.payload&&m.payload.status;
       if(st==='ok'){
         joined=true;
+        lastJoinAt=Date.now();
+        reconnecting=false;
         publishNow();
         setTimeout(publishNow,250);
         setTimeout(publishNow,750);
@@ -203,12 +209,14 @@
     ws=null;
   }
 
-  function scheduleReconnect(){
-    if(reconnectTimer)return;
+  function scheduleReconnect(delay){
+    if(reconnectTimer||reconnecting)return;
+    reconnecting=true;
     reconnectTimer=setTimeout(function(){
       reconnectTimer=null;
+      reconnecting=false;
       connect();
-    },1200);
+    },Math.max(250,delay||900));
   }
 
   async function connect(){
@@ -218,6 +226,7 @@
     try{
       ws=new WebSocket('wss://'+REF+'.supabase.co/realtime/v1/websocket?apikey='+encodeURIComponent(key)+'&vsn=1.0.0');
       ws.onopen=function(){
+        lastMessageAt=Date.now();
         join();
         heartbeatTimer=setInterval(function(){
           sendRaw({topic:'phoenix',event:'heartbeat',payload:{},ref:String(msgRef++)});
@@ -225,7 +234,7 @@
       };
       ws.onmessage=handleMessage;
       ws.onerror=function(){};
-      ws.onclose=function(){joined=false;scheduleReconnect();};
+      ws.onclose=function(){joined=false;scheduleReconnect(500);};
     }catch(e){scheduleReconnect();}
   }
 
@@ -244,14 +253,32 @@
   try{mo.observe(document.getElementById('screen')||document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class','data-kt-room']});}catch(e){}
 
   document.addEventListener('visibilitychange',function(){
-    if(!document.hidden){kick();setTimeout(kick,220);}
+    if(!document.hidden){kick();if(!joined)scheduleReconnect(250);setTimeout(kick,220);setTimeout(kick,900);}
   });
-  window.addEventListener('focus',function(){kick();});
+  window.addEventListener('focus',function(){kick();if(!joined)scheduleReconnect(250);});
+  window.addEventListener('online',function(){kick();scheduleReconnect(250);});
+  /* LIVE reconnect watchdog */
+  setInterval(function(){
+    var now=Date.now();
+    var badSocket=!ws||ws.readyState!==1;
+    var staleSocket=ws&&ws.readyState===1&&lastMessageAt&&now-lastMessageAt>45000;
+    var stuckJoin=ws&&ws.readyState===1&&!joined&&lastJoinAt&&now-lastJoinAt>8000;
+    if(badSocket||staleSocket||stuckJoin){
+      try{if(ws)ws.close();}catch(e){}
+      joined=false;
+      scheduleReconnect(350);
+      return;
+    }
+    if(roomVisible()&&joined){
+      publishNow();
+    }
+  },3000);
+
   window.addEventListener('pagehide',function(){
     if(lastOpen)broadcast('end',{host_id:deviceId(),updated_at:new Date().toISOString()});
   });
 
-  window.ktForceLiveSignalNow=function(){kick();return {joined:joined,open:roomVisible(),live:Object.keys(liveMap).length};};
+  window.ktForceLiveSignalNow=function(){kick();if(!joined)scheduleReconnect(200);return {joined:joined,open:roomVisible(),live:Object.keys(liveMap).length,socket:ws?ws.readyState:-1,lastMessageAt:lastMessageAt};};
 
   connect();
 })();
