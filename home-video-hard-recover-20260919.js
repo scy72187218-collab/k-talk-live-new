@@ -176,9 +176,13 @@
     }
     try{
       var existing=document.querySelector('#screen .kt-public-video,#screen #homeVideo,#screen .kt-hard-public-video');
-      if(existing&&!forceServer){
-        playVisible();
-        return;
+      if(existing){
+        /* 정상 공개 피드가 이미 떠 있으면 복구용 화면이 절대 덮어쓰지 않는다. */
+        if(!existing.classList.contains('kt-hard-public-video'))return;
+        if(!forceServer){
+          playVisible();
+          return;
+        }
       }
     }catch(e){}
     var now=Date.now();
@@ -213,16 +217,17 @@
     }
   }
 
-  /* 홈 버튼은 검은 빈 화면 대신 이 복구 홈을 가장 먼저 실행 */
+  /* 정상 홈 렌더러를 먼저 사용하고, 정말 비어 있을 때만 복구 화면을 띄운다. */
   document.addEventListener('click',function(e){
     var b=e.target&&e.target.closest?e.target.closest('[data-bottom="home"]'):null;
     if(!b)return;
-    try{
-      e.preventDefault();
-      e.stopPropagation();
-      if(e.stopImmediatePropagation)e.stopImmediatePropagation();
-    }catch(x){}
-    forceHome();
+    setTimeout(function(){
+      try{
+        var s=document.getElementById('screen');
+        var v=s&&s.querySelector('.kt-public-video,#homeVideo,.kt-hard-public-video');
+        if(!v)forceHome(false);
+      }catch(x){}
+    },700);
   },true);
 
   window.ktForceHomeVideoRecovery=forceHome;
@@ -233,12 +238,9 @@
       var s=document.getElementById('screen');
       if(!s)return;
 
-      /* 앱 아이콘으로 새로 연 첫 진입은 기기 로컬 캐시보다 서버 최신 목록을 우선한다. */
-      if(!initialServerRefreshDone){
-        initialServerRefreshDone=true;
-        forceHome(true);
-        return;
-      }
+      /* 앱 아이콘 첫 진입도 정상 공개 피드가 먼저 그려지도록 기다린다.
+         복구용 화면은 정상 피드가 없는 경우에만 사용한다. */
+      if(!initialServerRefreshDone)initialServerRefreshDone=true;
 
       var v=s.querySelector('.kt-public-video,#homeVideo,.kt-hard-public-video');
       if(v){
