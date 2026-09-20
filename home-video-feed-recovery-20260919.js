@@ -10,6 +10,8 @@
 
   function inLiveOrCreator(){
     try{
+      if(window.__ktGroup13StartInProgress===true)return true;
+      if(document.documentElement.classList.contains('kt-g13-current-guard'))return true;
       if(document.querySelector('#screen .ktsolo-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room,#screen .kt-remote-live'))return true;
       var c=document.getElementById('creator');
       if(c&&c.classList.contains('show'))return true;
