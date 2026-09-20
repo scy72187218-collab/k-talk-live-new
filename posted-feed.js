@@ -147,6 +147,23 @@
       if(!r.ok)throw new Error('rose');
       var n=await r.json(),s=btn&&btn.querySelector('small');
       if(s)s.textContent=Number(n||0).toLocaleString('ko-KR');
+
+      /* 누가 장미를 보냈는지 기존 댓글 테이블에 숨은 기록으로 남긴다.
+         일반 메시지/댓글 화면에는 이 기록을 표시하지 않는다. */
+      try{
+        var giver=who();
+        await fetch(SB+'/rest/v1/ktalk_video_comments',{
+          method:'POST',
+          headers:headers({'Content-Type':'application/json','Prefer':'return=minimal'}),
+          body:JSON.stringify({
+            video_id:id,
+            author_id:giver.id,
+            author_name:giver.name,
+            body:'__KT_ROSE__|1'
+          })
+        });
+      }catch(logErr){}
+
       var toast=document.createElement('div');
       toast.style.cssText='position:fixed;left:50%;bottom:110px;transform:translateX(-50%);z-index:99999;padding:12px 18px;border-radius:999px;background:rgba(24,8,28,.94);border:1px solid #ff5aaf;color:#fff;font-weight:950;box-shadow:0 0 18px rgba(255,54,150,.45);white-space:nowrap';
       toast.textContent='🌹 '+(recipientName||'동영상 게시자')+'님에게 장미 1송이를 보냈습니다';
@@ -155,12 +172,57 @@
     }catch(e){alert('장미 전송에 실패했습니다. 다시 눌러 주세요.');}
     finally{if(btn)btn.disabled=false;}
   };
+
+  window.ktPublicRoseHistory=async function(videoId,recipientName){
+    try{
+      var me=who();
+      var owner=String(recipientName||'').trim();
+      if(owner&&String(me.name||'').trim()!==owner){
+        alert('장미를 받은 동영상 게시자만 보낸 사람을 확인할 수 있습니다.');
+        return;
+      }
+
+      var r=await fetch(SB+'/rest/v1/ktalk_video_comments?select=author_name,body,created_at&video_id=eq.'+encodeURIComponent(videoId)+'&order=created_at.desc&limit=200',{headers:headers()});
+      if(!r.ok)throw new Error('history');
+      var rows=await r.json();
+      var roses=(Array.isArray(rows)?rows:[]).filter(function(x){
+        return String(x&&x.body||'').indexOf('__KT_ROSE__|')===0;
+      });
+
+      var grouped={};
+      roses.forEach(function(x){
+        var name=String(x.author_name||'K-Talk').trim()||'K-Talk';
+        if(!grouped[name])grouped[name]={count:0,last:x.created_at||''};
+        grouped[name].count++;
+        if(String(x.created_at||'')>String(grouped[name].last||''))grouped[name].last=x.created_at||'';
+      });
+
+      var names=Object.keys(grouped).sort(function(a,b){
+        return grouped[b].count-grouped[a].count;
+      });
+      var html=names.length?names.map(function(name){
+        var d='';
+        try{d=grouped[name].last?new Date(grouped[name].last).toLocaleString('ko-KR'):'';}catch(e){}
+        return '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 2px;border-bottom:1px solid rgba(255,255,255,.1)">'
+          +'<div><b>'+esc(name)+'</b><small style="display:block;margin-top:3px;opacity:.65">'+esc(d)+'</small></div>'
+          +'<strong style="color:#ff7aa8">🌹 '+grouped[name].count+'송이</strong>'
+        +'</div>';
+      }).join(''):'<div style="padding:18px 2px;opacity:.75">아직 장미를 보낸 사람이 없습니다.</div>';
+
+      if(typeof window.showSheet==='function'){
+        showSheet('🌹 장미 보낸 사람',html);
+      }
+    }catch(e){
+      alert('장미 보낸 사람 목록을 불러오지 못했습니다.');
+    }
+  };
   window.ktPublicLike=function(id,btn){return ktPublicSendRose(id,'동영상 게시자',btn);};
 
   window.ktPublicComments=async function(videoId){
     try{
       var r=await fetch(SB+'/rest/v1/ktalk_video_comments?select=id,author_name,body,created_at&video_id=eq.'+encodeURIComponent(videoId)+'&order=created_at.asc&limit=100',{headers:headers()});
       var rows=r.ok?await r.json():[];
+      rows=(Array.isArray(rows)?rows:[]).filter(function(x){return String(x&&x.body||'').indexOf('__KT_ROSE__|')!==0;});
       var q=String(videoId).replace(/'/g,"\\'");
       var list=rows.length?rows.map(function(c){
         var d='';try{d=new Date(c.created_at).toLocaleString('ko-KR');}catch(e){}
