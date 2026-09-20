@@ -110,7 +110,7 @@
       +'<div class="vh-tabs"><span>LIVE</span><span>커뮤니티</span><span>팔로잉</span><span class="on">추천</span><button>⌕</button></div>'
       +'<div class="vh-title"><b>♛ '+name+'</b><span>'+title+'</span></div>'
       +'<div class="vh-actions">'
-        +'<button class="kt-feed-profile-button" onclick="if(window.openProfileDirect){openProfileDirect()}else if(window.openProfile){openProfile()}"><span class="kt-feed-profile-circle">👤</span><small class="kt-feed-profile-name">'+name+'</small></button>'
+        +'<button class="kt-feed-profile-button" onclick="if(window.openProfileDirect){openProfileDirect()}else if(window.openProfile){openProfile()}"><span class="kt-feed-profile-circle">👤</span></button>'
         +'<button class="kt-feed-one-rose" onclick="ktPublicSendRose(\''+id+'\',\''+name.replace(/'/g,"\\'")+'\',this)">🌹<small>'+Number(x.likes||0)+'</small></button>'
         +'<button onclick="ktPublicComments(\''+id+'\')">💬<small>메시지</small></button>'
         +'<button onclick="ktPublicShare(\''+u+'\')">↗<small>공유</small></button>'
