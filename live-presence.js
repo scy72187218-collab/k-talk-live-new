@@ -484,6 +484,6 @@
 
   setInterval(function(){
     if(document.querySelector('.kt-dashboard')||document.querySelector('.friends-list'))renderLiveCards();
-  },5000);
-  setTimeout(renderLiveCards,900);
+  },20000);
+  setTimeout(renderLiveCards,1500);
 })();
