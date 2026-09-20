@@ -205,7 +205,25 @@
   }
   async function postGuestMessage(hostId,type,message,senderId,senderName){if(!hostId)return false;try{await req('ktalk_live_messages',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({host_id:hostId,sender_id:senderId||viewerId(),sender_name:senderName||profile().name||'게스트',message:String(message||'').slice(0,300),message_type:String(type||'guest_request')})});return true;}catch(e){return false;}}
 
-  async function sendGuestRequest(){var hostId=await currentViewerHost();if(!hostId)return;var p=profile(),vid=viewerId();var ok=await postGuestMessage(hostId,'guest_request:'+vid,'👥 '+(p.name||'게스트')+'님이 방송 참여를 신청했습니다.',vid,p.name||'게스트');var b=document.getElementById('ktRemoteGuestRequest');if(ok&&b){b.classList.add('kt-requested');b.setAttribute('title','참여 신청 완료');b.setAttribute('aria-label','참여 신청 완료');}}
+  async function sendGuestRequest(){
+    var b=document.getElementById('ktRemoteGuestRequest');
+    if(b&&b.dataset.ktGuestToggleBusy==='1')return;
+    if(b)b.dataset.ktGuestToggleBusy='1';
+    try{
+      var hostId=await currentViewerHost();if(!hostId)return;
+      var p=profile(),vid=viewerId(),cancel=!!(b&&b.classList.contains('kt-requested'));
+      var ok=cancel
+        ?await postGuestMessage(hostId,'guest_cancelled:'+vid,'↩ '+(p.name||'게스트')+'님이 방송 참여 신청을 취소했습니다.',vid,p.name||'게스트')
+        :await postGuestMessage(hostId,'guest_request:'+vid,'👥 '+(p.name||'게스트')+'님이 방송 참여를 신청했습니다.',vid,p.name||'게스트');
+      if(ok&&b){
+        b.classList.toggle('kt-requested',!cancel);
+        b.setAttribute('title',cancel?'방송 참여 신청':'참여 신청 취소');
+        b.setAttribute('aria-label',cancel?'방송 참여 신청':'참여 신청 취소');
+      }
+    }finally{
+      if(b)delete b.dataset.ktGuestToggleBusy;
+    }
+  }
   window.ktRequestGuestJoin=sendGuestRequest;
   function bindRequestButton(){var b=document.getElementById('ktRemoteGuestRequest');if(!b)return;if(b.__ktGuestRequestBound)return;b.__ktGuestRequestBound=true;b.onclick=function(e){if(e)e.preventDefault();sendGuestRequest();};}
   function removeDuplicateGroupRoom(){var screen=document.getElementById('screen');if(!screen)return;var rooms=[].slice.call(screen.querySelectorAll('.ktg13-room'));if(rooms.length>1)rooms.slice(1).forEach(function(x){x.remove();});['.ktg13-head','.ktg13-led','.ktg13-stats','.ktg13-main','.ktg13-mid','.ktg13-gifts','.ktg13-tools'].forEach(function(sel){var parts=[].slice.call(screen.querySelectorAll(sel));if(parts.length>1)parts.slice(1).forEach(function(x){x.remove();});});var root=screen.querySelector('.kt-remote-live');if(root&&root.querySelector('.kt-approved-guest-grid')){root.querySelectorAll('.kt-prejoin-room-led,.kt-prejoin-room-stats,.kt-prejoin-room-grid').forEach(function(x){try{x.remove();}catch(e){}});root.classList.remove('kt-prejoin-room-view');}}
@@ -233,7 +251,7 @@
     path+='&order=created_at.desc&limit=240';
     var rows=[];try{rows=await req(path)||[];}catch(e){return;}
 
-    var names={},requestAt={},approvedAt={},joinAt={},approvedNow={},pending=[];
+    var names={},requestAt={},approvedAt={},cancelledAt={},joinAt={},approvedNow={},pending=[];
     rows.forEach(function(m){
       var t=String(m.message_type||''),vid='',ts=String(m.created_at||'');
       if(t.indexOf('guest_request:')===0){
@@ -242,6 +260,9 @@
       }else if(t.indexOf('guest_approved:')===0){
         vid=t.slice(15);
         if(vid&&!approvedAt[vid])approvedAt[vid]=ts;
+      }else if(t.indexOf('guest_cancelled:')===0){
+        vid=t.slice(16);
+        if(vid&&!cancelledAt[vid])cancelledAt[vid]=ts;
       }else if(t==='system'){
         vid=String(m.sender_id||'');
         var msg=String(m.message||'');
@@ -264,9 +285,10 @@
       var reqTs=requestAt[vid],joinTs=joinAt[vid]||'';
       /* 현재 입장 뒤에 직접 신청한 요청만 유효하다. 예전 승인/예전 신청은 재사용하지 않는다. */
       if(joinTs&&reqTs<joinTs)return;
-      var apTs=approvedAt[vid]||'';
+      var apTs=approvedAt[vid]||'',cancelTs=cancelledAt[vid]||'';
+      if(cancelTs&&cancelTs>=reqTs)return;
       if(apTs&&apTs>=reqTs&&freshViewers[vid])approvedNow[vid]=true;
-      else if(freshViewers[vid]&&!apTs)pending.push({vid:vid,name:names[vid]||'게스트'});
+      else if(freshViewers[vid]&&(!apTs||apTs<reqTs))pending.push({vid:vid,name:names[vid]||'게스트'});
     });
 
     renderRequestRail(pending);
@@ -430,19 +452,22 @@
       if(!room||!room.started_at)return null;
 
       var rows=await req('ktalk_live_messages?select=id,sender_id,message,message_type,created_at&host_id=eq.'+enc(hostId)+'&created_at=gte.'+enc(room.started_at)+'&order=created_at.desc&limit=240')||[];
-      var reqRow=null,apRow=null,joinRow=null;
+      var reqRow=null,apRow=null,cancelRow=null,joinRow=null;
       for(var i=0;i<rows.length;i++){
         var m=rows[i],t=String(m.message_type||'');
         if(!reqRow&&t==='guest_request:'+vid)reqRow=m;
         else if(!apRow&&t==='guest_approved:'+vid)apRow=m;
+        else if(!cancelRow&&t==='guest_cancelled:'+vid)cancelRow=m;
         else if(!joinRow&&t==='system'&&String(m.sender_id||'')===vid&&String(m.message||'').indexOf('님이 들어왔습니다.')>-1)joinRow=m;
-        if(reqRow&&apRow&&joinRow)break;
+        if(reqRow&&apRow&&cancelRow&&joinRow)break;
       }
 
-      /* 새로 들어온 뒤 신청 -> 호스트 승인 순서가 모두 맞아야만 게스트 카메라를 올린다. */
+      /* 새로 들어온 뒤 신청 -> 호스트 승인 순서가 모두 맞아야만 게스트 카메라를 올린다.
+         신청 후 다시 사람 버튼을 눌러 취소하면 승인을 진행하지 않는다. */
       if(!reqRow||!apRow)return null;
-      var reqTs=String(reqRow.created_at||''),apTs=String(apRow.created_at||''),joinTs=joinRow?String(joinRow.created_at||''):'';
+      var reqTs=String(reqRow.created_at||''),apTs=String(apRow.created_at||''),cancelTs=cancelRow?String(cancelRow.created_at||''):'',joinTs=joinRow?String(joinRow.created_at||''):'';
       if(joinTs&&reqTs<joinTs)return null;
+      if(cancelTs&&cancelTs>=reqTs)return null;
       if(apTs<reqTs)return null;
       return apRow;
     }catch(e){return null;}
