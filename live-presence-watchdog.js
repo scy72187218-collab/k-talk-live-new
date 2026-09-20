@@ -10,6 +10,8 @@
   var misses=0;
   var broadcastStarted=false;
   var lastDedupeAt=0;
+  var BEACON='/api/live-beacon-memory';
+  var beaconBusy=false;
 
   async function ensureKey(){
     if(KEY)return KEY;
@@ -117,6 +119,39 @@
     try{if(window.ktRefreshVideoLivePeek)window.ktRefreshVideoLivePeek();}catch(e){}
   }
 
+  function beaconShouldBeLive(){
+    if(broadcastStarted)return true;
+    try{
+      return !!document.querySelector('.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room');
+    }catch(e){return false;}
+  }
+
+  async function beacon(action){
+    if(beaconBusy&&action!=='end')return false;
+    beaconBusy=true;
+    try{
+      var r=roomInfo(),p=profile();
+      var response=await fetch(BEACON+'?t='+Date.now(),{
+        method:'POST',
+        cache:'no-store',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          action:action,
+          host_id:hostId(),
+          host_name:p.name,
+          title:r.title,
+          room_type:r.type,
+          room_name:r.name
+        })
+      });
+      return !!response.ok;
+    }catch(e){
+      return false;
+    }finally{
+      beaconBusy=false;
+    }
+  }
+
   function fastViewerRefresh(){
     try{
       if(document.hidden)return;
@@ -140,6 +175,7 @@
   }
 
   async function publishIfNeeded(force){
+    if(force||beaconShouldBeLive())beacon('publish');
     if(publishing||(!force&&!shouldBeLive()))return;
     publishing=true;
     var id=hostId(),stamp=now();
@@ -165,6 +201,7 @@
   }
 
   async function stopFallbackPresence(){
+    beacon('end');
     broadcastStarted=false;
     window.__ktHostBroadcastActive=false;
     misses=0;
@@ -176,6 +213,7 @@
 
   function markBroadcastStarted(){
     broadcastStarted=true;
+    beacon('publish');
     window.__ktHostBroadcastActive=true;
     publishIfNeeded(true);
     [120,350,800,1600].forEach(function(ms){setTimeout(function(){publishIfNeeded(true);},ms);});
@@ -213,6 +251,7 @@
   }
 
   async function heartbeat(){
+    if(beaconShouldBeLive())beacon('heartbeat');
     if(shouldBeLive()){
       misses=0;
       if(!roomId){await publishIfNeeded(true);return;}
@@ -266,6 +305,7 @@
   setTimeout(fastViewerRefresh,220);
 
   window.addEventListener('pagehide',function(){
+    try{fetch(BEACON+'?t='+Date.now(),{method:'POST',keepalive:true,headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'end',host_id:hostId()})});}catch(e){}
     broadcastStarted=false;
     if(!roomId)return;
     ensureKey().then(function(){
