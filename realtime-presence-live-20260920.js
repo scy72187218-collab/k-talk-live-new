@@ -104,8 +104,12 @@
 
   function startHostBeacon(){
     if(hostTimer)return;
+    /* 방송 시작 순간 빠르게 여러 번 알리고 이후에도 짧은 간격으로 유지 */
     publishOn();
-    hostTimer=setInterval(publishOn,1800);
+    setTimeout(publishOn,180);
+    setTimeout(publishOn,450);
+    setTimeout(publishOn,850);
+    hostTimer=setInterval(publishOn,1000);
   }
 
   function stopHostBeacon(){
@@ -167,6 +171,14 @@
   function handleBroadcast(payload){
     var ev=String(payload&&payload.event||'');
     var data=payload&&payload.payload||{};
+
+    /* 새 시청기기가 들어오면 방송 중인 호스트가 즉시 신호를 다시 보낸다.
+       다음 주기까지 기다리지 않고 예전처럼 바로 표시되게 하는 용도. */
+    if(ev==='live_query'){
+      if(isHostLive())publishOn();
+      return;
+    }
+
     var id=String(data.host_id||'');
     if(!id)return;
     if(ev==='live_on'){
@@ -184,6 +196,11 @@
 
     if(m.event==='phx_reply'&&String(m.ref||'')===String(joinRef)){
       joined=!!(m.payload&&m.payload.status==='ok');
+      if(joined){
+        broadcast('live_query',{requester:DEVICE,at:Date.now()});
+        setTimeout(function(){broadcast('live_query',{requester:DEVICE,at:Date.now()});},250);
+        setTimeout(function(){broadcast('live_query',{requester:DEVICE,at:Date.now()});},700);
+      }
       return;
     }
     if(m.event==='broadcast'){
@@ -265,7 +282,10 @@
     }).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['class','style','data-kt-room']});
   }catch(e){}
 
-  window.addEventListener('focus',reconcile);
+  window.addEventListener('focus',function(){
+    reconcile();
+    if(joined)broadcast('live_query',{requester:DEVICE,at:Date.now()});
+  });
   window.addEventListener('online',function(){scheduleReconnect(100);});
   document.addEventListener('visibilitychange',function(){if(!document.hidden)reconcile();});
   window.addEventListener('pagehide',function(){if(lastHostState)publishOff();});
