@@ -336,6 +336,6 @@
   window.ktRefreshVideoLivePeek=render;
   var mo=new MutationObserver(function(){setTimeout(render,80);});
   var screen=document.getElementById('screen');if(screen)mo.observe(screen,{childList:true,subtree:false});
-  setInterval(render,15000);
-  setTimeout(render,1800);
+  setInterval(render,5000);
+  setTimeout(render,1000);
 })();
