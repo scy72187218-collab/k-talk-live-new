@@ -4,6 +4,9 @@
   window.__ktGuestRequestFlow20260914=true;
   var started=false;
   var BASE='',KEY='';
+  var MEM_INTERACT='/api/live-interaction-memory';
+  var MEM_PEER='/api/live-peer-memory';
+  var MEM_BEACON='/api/live-beacon-memory';
   var ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
   var hostPoll=null,viewerPoll=null,hostGuestPeers={},requestNames={},hostGuestMissingSince={};
   var viewerGuest={pc:null,stream:null,sessionId:'',hostId:'',approvedKey:'',viewTimer:null,prejoinHostStream:null,connectStartedAt:0,mediaDenied:false,mediaOpening:false};
@@ -18,7 +21,164 @@
 
   async function ensureConfig(){if(BASE&&KEY)return true;try{var r=await fetch('live-presence.js?v=20260914-guestflow',{cache:'no-store'});if(!r.ok)return false;var t=await r.text(),b=t.match(/var BASE='([^']+)'/),k=t.match(/var KEY='([^']+)'/);if(!b||!k)return false;BASE=b[1];KEY=k[1];return true;}catch(e){return false;}}
   function headers(extra){var h={apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json'};Object.keys(extra||{}).forEach(function(k){h[k]=extra[k];});return h;}
-  async function req(path,opt){if(!(await ensureConfig()))throw new Error('guest config');opt=opt||{};opt.headers=headers(opt.headers);var r=await fetch(BASE+path,opt);if(!r.ok)throw new Error('guest api '+r.status);if(r.status===204)return null;var t=await r.text();return t?JSON.parse(t):null;}
+
+  async function memJson(url,opt,timeout){
+    var ctrl=typeof AbortController!=='undefined'?new AbortController():null;
+    var timer=ctrl?setTimeout(function(){ctrl.abort();},timeout||1200):null;
+    try{
+      var o=Object.assign({cache:'no-store'},opt||{});
+      if(ctrl)o.signal=ctrl.signal;
+      var r=await fetch(url,o);
+      if(timer)clearTimeout(timer);
+      if(!r.ok)throw new Error('memory '+r.status);
+      return await r.json();
+    }catch(e){
+      if(timer)clearTimeout(timer);
+      throw e;
+    }
+  }
+  function qeq(sp,name){
+    var v=String(sp.get(name)||'');
+    return v.indexOf('eq.')===0?v.slice(3):v;
+  }
+  async function memoryReq(path,opt){
+    opt=opt||{};
+    var u=new URL('https://kt.local/'+path);
+    var table=u.pathname.replace(/^\//,'');
+    var sp=u.searchParams,method=String(opt.method||'GET').toUpperCase();
+    var body={};try{body=opt.body?JSON.parse(opt.body):{};}catch(e){body={};}
+
+    if(table==='ktalk_live_rooms'&&method==='GET'){
+      var j=await memJson(MEM_BEACON+'?t='+Date.now(),null,900);
+      var rows=Array.isArray(j&&j.rooms)?j.rooms:[];
+      var hid=qeq(sp,'host_id');
+      if(hid)rows=rows.filter(function(x){return String(x.host_id||'')===hid;});
+      return rows.map(function(x){return {
+        id:'memory:'+String(x.host_id||''),
+        host_id:String(x.host_id||''),
+        host_name:String(x.host_name||'K-Talk 방송자'),
+        started_at:String(x.updated_at||nowIso()),
+        room_type:String(x.room_type||'group13'),
+        room_name:String(x.room_name||'방송'),
+        active:true,
+        updated_at:String(x.updated_at||nowIso())
+      };});
+    }
+
+    if(table==='ktalk_live_viewers'){
+      var viewer=qeq(sp,'viewer_id'),host=qeq(sp,'host_id');
+      if(method==='GET'&&viewer){
+        var vh=await memJson(MEM_INTERACT+'?action=viewer_host&viewer_id='+enc(viewer)+'&t='+Date.now(),null,900);
+        return vh&&vh.host_id?[{host_id:String(vh.host_id),viewer_id:viewer,active:true,updated_at:nowIso()}]:[];
+      }
+      if(method==='GET'&&host){
+        var vv=await memJson(MEM_INTERACT+'?action=viewers&host_id='+enc(host)+'&t='+Date.now(),null,900);
+        return Array.isArray(vv&&vv.viewers)?vv.viewers:[];
+      }
+      return [];
+    }
+
+    if(table==='ktalk_live_messages'){
+      var mh=qeq(sp,'host_id')||String(body.host_id||'');
+      if(method==='POST'){
+        var pm=await memJson(MEM_INTERACT+'?t='+Date.now(),{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({
+            action:'message',host_id:String(body.host_id||''),
+            sender_id:String(body.sender_id||''),sender_name:String(body.sender_name||'게스트'),
+            message:String(body.message||''),message_type:String(body.message_type||'chat')
+          })
+        },1000);
+        return pm&&pm.message?[pm.message]:null;
+      }
+      if(method==='GET'&&mh){
+        var mm=await memJson(MEM_INTERACT+'?action=messages&host_id='+enc(mh)+'&t='+Date.now(),null,900);
+        var rows=Array.isArray(mm&&mm.messages)?mm.messages:[];
+        var gte=String(sp.get('created_at')||'');
+        if(gte.indexOf('gte.')===0){
+          var cut=Date.parse(gte.slice(4))||0;
+          rows=rows.filter(function(x){return (Date.parse(x.created_at)||0)>=cut;});
+        }
+        var ord=String(sp.get('order')||'');
+        rows.sort(function(a,b){return (Date.parse(b.created_at)||0)-(Date.parse(a.created_at)||0);});
+        if(ord.indexOf('.asc')>-1)rows.reverse();
+        return rows;
+      }
+      return [];
+    }
+
+    if(table==='ktalk_webrtc_sessions'){
+      var sid=qeq(sp,'id'),ph=qeq(sp,'host_id'),pv=qeq(sp,'viewer_id');
+      if(method==='GET'&&sid){
+        var one=await memJson(MEM_PEER+'?session_id='+enc(sid)+'&t='+Date.now(),null,900);
+        return one&&one.session?[one.session]:[];
+      }
+      if(method==='GET'&&ph){
+        var all=await memJson(MEM_PEER+'?host_id='+enc(ph)+'&t='+Date.now(),null,900);
+        var sessions=Array.isArray(all&&all.sessions)?all.sessions:[];
+        if(pv)sessions=sessions.filter(function(x){return String(x.viewer_id||'')===pv;});
+        return sessions;
+      }
+      if(method==='POST'){
+        var made=await memJson(MEM_PEER+'?t='+Date.now(),{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({action:'create',host_id:String(body.host_id||''),viewer_id:String(body.viewer_id||'')})
+        },1000);
+        if(!made||!made.id)return [];
+        if(body.offer_sdp&&body.offer_sdp!=='pending'){
+          await memJson(MEM_PEER+'?t='+Date.now(),{
+            method:'POST',headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({action:'offer',session_id:made.id,offer_sdp:String(body.offer_sdp)})
+          },1000);
+        }
+        return [{id:made.id,host_id:String(body.host_id||''),viewer_id:String(body.viewer_id||''),offer_sdp:String(body.offer_sdp||'pending'),answer_sdp:null,active:true,updated_at:nowIso()}];
+      }
+      if(method==='PATCH'){
+        if(!sid&&ph){
+          await memJson(MEM_PEER+'?t='+Date.now(),{
+            method:'POST',headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({action:'end_match',host_id:ph,viewer_id:pv})
+          },1000);
+          return null;
+        }
+        if(sid){
+          var action='touch',payload={action:'touch',session_id:sid};
+          if(body.active===false){action='end';payload={action:'end',session_id:sid};}
+          else if(body.answer_sdp){action='answer';payload={action:'answer',session_id:sid,answer_sdp:String(body.answer_sdp)};}
+          else if(body.offer_sdp){action='offer';payload={action:'offer',session_id:sid,offer_sdp:String(body.offer_sdp)};}
+          await memJson(MEM_PEER+'?t='+Date.now(),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)},1000);
+          return null;
+        }
+      }
+      return [];
+    }
+    throw new Error('memory route unsupported');
+  }
+
+  async function req(path,opt){
+    if(Number(window.__ktPrimaryLiveDbDownUntil||0)>Date.now()){
+      return memoryReq(path,opt);
+    }
+    if(!(await ensureConfig()))return memoryReq(path,opt);
+    opt=opt||{};
+    var ctrl=typeof AbortController!=='undefined'?new AbortController():null;
+    var timer=ctrl?setTimeout(function(){ctrl.abort();},650):null;
+    try{
+      var next=Object.assign({},opt);
+      next.headers=headers(next.headers);
+      if(ctrl)next.signal=ctrl.signal;
+      var r=await fetch(BASE+path,next);
+      if(timer)clearTimeout(timer);
+      if(!r.ok)throw new Error('guest api '+r.status);
+      window.__ktPrimaryLiveDbDownUntil=0;
+      if(r.status===204)return null;
+      var t=await r.text();return t?JSON.parse(t):null;
+    }catch(e){
+      if(timer)clearTimeout(timer);
+      window.__ktPrimaryLiveDbDownUntil=Date.now()+120000;
+      return memoryReq(path,opt);
+    }
+  }
   function waitIce(pc,ms){return new Promise(function(resolve){if(!pc||pc.iceGatheringState==='complete')return resolve();var done=false,t=setTimeout(finish,ms||5000);function finish(){if(done)return;done=true;clearTimeout(t);try{pc.removeEventListener('icegatheringstatechange',on);}catch(e){}resolve();}function on(){if(pc.iceGatheringState==='complete')finish();}pc.addEventListener('icegatheringstatechange',on);});}
 
   function ensureStyle(){if(document.getElementById('ktGuestRequestFlowStyle'))return;var s=document.createElement('style');s.id='ktGuestRequestFlowStyle';s.textContent=''
