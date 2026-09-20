@@ -35,7 +35,7 @@
     if(table==='ktalk_live_rooms'&&method==='GET'){
       var r=await fetch(MEM_BEACON+'?t='+Date.now(),{cache:'no-store'}),j=await r.json(),rows=Array.isArray(j&&j.rooms)?j.rooms:[];
       var hid=qeq(sp,'host_id');if(hid)rows=rows.filter(function(x){return String(x.host_id||'')===hid;});
-      return rows.map(function(x){return {host_id:x.host_id,started_at:x.updated_at,active:true,updated_at:x.updated_at};});
+      return rows.map(function(x){return {host_id:x.host_id,started_at:new Date(Date.now()-30*60*1000).toISOString(),active:true,updated_at:x.updated_at};});
     }
     if(table==='ktalk_live_messages'&&method==='POST'){
       await fetch(MEM_INTERACT+'?t='+Date.now(),{method:'POST',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'message',host_id:String(body.host_id||''),sender_id:String(body.sender_id||''),sender_name:String(body.sender_name||'게스트'),message:String(body.message||''),message_type:String(body.message_type||'chat')})});
