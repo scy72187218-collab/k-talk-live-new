@@ -1590,6 +1590,15 @@ window.applyEditEffect=function(name,el){ktApplyFaceEffect(name||state.pendingEd
 
 window.closeEditEffectPanel=function(){
   /* 편집효과 창을 닫은 뒤 남아 있는 투명 레이어/터치 잠금을 확실히 해제 */
+  try{
+    if(!state.stageBackground){
+      creator.classList.remove('stage-bg-active');
+      var ghostCanvas=document.getElementById('ktStageCanvas');
+      if(ghostCanvas){try{ghostCanvas.remove();}catch(e){}}
+      window.ktStageCanvas=null;
+      window.ktStageBgImage=null;
+    }
+  }catch(e){}
   try{closeSheet();}catch(e){}
   try{
     creator.classList.remove('beauty-preview-open');
@@ -1778,6 +1787,17 @@ window.selectStageBackground=function(id){
 
 window.openEditEffectPanel=function(tab){
   tab=tab||'face';
+
+  /* 남아 있는 투명/유령 레이어 정리: 실제 배경효과를 선택한 경우는 유지 */
+  try{
+    if(!state.stageBackground){
+      creator.classList.remove('stage-bg-active');
+      var ghostCanvas=document.getElementById('ktStageCanvas');
+      if(ghostCanvas){try{ghostCanvas.remove();}catch(e){}}
+      window.ktStageCanvas=null;
+      window.ktStageBgImage=null;
+    }
+  }catch(e){}
 
   /* 편집효과는 촬영화면 상태를 잠그지 않는다.
      이전 beauty-preview-open / live-prep 강제 숨김이 남아서
