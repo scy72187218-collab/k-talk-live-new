@@ -8,6 +8,7 @@
   var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1cHdiZm1hY3d6ZXh5dnpubHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjEwNzYsImV4cCI6MjEwNDAzNzA3Nn0.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
   var API='/api/live-peer-memory';
   var BEACON='/api/live-beacon-memory';
+  var INTERACT='/api/live-interaction-memory';
   var ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
   var hostPeers={};
   var viewer=null;
@@ -67,14 +68,32 @@
   }
 
   async function dbAvailable(hostId){
+    if(Number(window.__ktPrimaryLiveDbDownUntil||0)>Date.now())return false;
     try{
+      var ctrl=new AbortController();
+      var timer=setTimeout(function(){ctrl.abort();},450);
       var r=await fetch(BASE+'ktalk_live_rooms?select=id&host_id=eq.'+enc(hostId)+'&active=eq.true&limit=1',{
         cache:'no-store',
         headers:{apikey:KEY,Authorization:'Bearer '+KEY},
-        signal:(function(){var c=new AbortController();setTimeout(function(){c.abort();},1100);return c.signal;})()
+        signal:ctrl.signal
       });
-      return r.ok;
-    }catch(e){return false;}
+      clearTimeout(timer);
+      if(r.ok){window.__ktPrimaryLiveDbDownUntil=0;return true;}
+      window.__ktPrimaryLiveDbDownUntil=Date.now()+120000;
+      return false;
+    }catch(e){
+      window.__ktPrimaryLiveDbDownUntil=Date.now()+120000;
+      return false;
+    }
+  }
+
+  function interactionPost(action,hostId,viewerId,viewerName){
+    try{
+      fetch(INTERACT+'?t='+Date.now(),{
+        method:'POST',cache:'no-store',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:action,host_id:hostId,viewer_id:viewerId,viewer_name:viewerName||profileName()})
+      }).catch(function(){});
+    }catch(e){}
   }
 
   async function beaconRoom(hostId){
@@ -118,6 +137,7 @@
         body:JSON.stringify({action:'end',session_id:c.sessionId})
       });
     }catch(e){}
+    interactionPost('leave',c.hostId,c.viewerId,c.viewerName);
     window.__ktRemoteHostStream=null;
     document.documentElement.classList.remove('kt-remote-viewing');
     if(!silent){
@@ -164,6 +184,7 @@
 
     var pc=new RTCPeerConnection(ICE);
     viewer={hostId:hostId,viewerId:viewerId,viewerName:profileName(),sessionId:sid,pc:pc,answered:false,poll:null,touch:null};
+    interactionPost('join',hostId,viewerId,viewer.viewerName);
 
     pc.ontrack=function(ev){
       var hs=ev.streams[0]||new MediaStream([ev.track]);
@@ -190,7 +211,8 @@
         method:'POST',cache:'no-store',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'touch',session_id:sid})
       }).catch(function(){});
-    },3500);
+      interactionPost('heartbeat',hostId,viewerId,viewer.viewerName);
+    },2500);
     pollViewer();
     return true;
   }
