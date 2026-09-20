@@ -63,21 +63,56 @@
     }catch(e){return 'K-Talk';}
   }
 
+  function roseCountFromBox(box){
+    var count=0;
+    try{
+      var buttons=[].slice.call(box.querySelectorAll(':scope > button'));
+      buttons.forEach(function(btn){
+        if(btn.classList.contains('kt-feed-one-rose'))return;
+        var txt=String(btn.textContent||'');
+        if(txt.indexOf('🌹')>-1||txt.indexOf('장미')>-1){
+          var m=txt.replace(/,/g,'').match(/\d+/);
+          if(m)count=Math.max(count,parseInt(m[0],10)||0);
+        }
+      });
+    }catch(e){}
+    return count;
+  }
+
+  function normalizeRoseCount(rose){
+    if(!rose)return;
+    var sm=rose.querySelector('small');
+    if(!sm)return;
+    var m=String(sm.textContent||'').replace(/,/g,'').match(/\d+/);
+    var n=m?parseInt(m[0],10)||0:0;
+    sm.textContent=n.toLocaleString('ko-KR');
+  }
+
   function ensureRose(box,profile){
     var rose=box.querySelector('.kt-feed-one-rose');
     if(!rose){
       var id=videoId(box);
       if(!id)return null;
+      var initial=roseCountFromBox(box);
       rose=document.createElement('button');
       rose.type='button';
       rose.className='kt-feed-one-rose';
       rose.setAttribute('aria-label','장미 1송이');
       rose.onclick=function(e){
         try{e.preventDefault();e.stopPropagation();}catch(x){}
-        try{if(typeof window.ktPublicSendRose==='function')window.ktPublicSendRose(id,authorName(box),rose);}catch(x){}
+        try{
+          if(typeof window.ktPublicSendRose==='function'){
+            var q=window.ktPublicSendRose(id,authorName(box),rose);
+            if(q&&typeof q.then==='function')q.then(function(){normalizeRoseCount(rose);});
+          }
+        }catch(x){}
       };
-      rose.innerHTML='<small></small>';
+      rose.innerHTML='<small>'+initial.toLocaleString('ko-KR')+'</small>';
+      try{
+        new MutationObserver(function(){normalizeRoseCount(rose);}).observe(rose.querySelector('small'),{childList:true,subtree:true,characterData:true});
+      }catch(e){}
     }
+    normalizeRoseCount(rose);
     if(profile&&profile.nextSibling!==rose)box.insertBefore(rose,profile.nextSibling);
     return rose;
   }
@@ -145,7 +180,7 @@
       +'.vh-actions .kt-feed-profile-circle img{width:100%!important;height:100%!important;object-fit:cover!important;display:block!important}'
       +'.vh-actions .kt-feed-one-rose{min-width:52px!important;min-height:46px!important;background:transparent!important;border:0!important;color:#fff!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;text-shadow:0 1px 4px #000!important}'
       +'.vh-actions .kt-feed-one-rose:before{content:"🌹";font-size:31px!important;line-height:1!important}'
-      +'.vh-actions .kt-feed-one-rose small{display:none!important}'
+      +'.vh-actions .kt-feed-one-rose small{display:block!important;margin-top:4px!important;font-size:11px!important;line-height:1!important;font-weight:950!important;color:#fff!important;white-space:nowrap!important;text-shadow:0 1px 4px #000!important}'
       +'.vh-actions .kt-feed-message-button small{display:none!important}'
       +'.vh-actions .kt-feed-message-button:after{content:"메시지";display:block!important;margin-top:2px!important;font-size:10px!important;line-height:1.1!important;font-weight:850!important;color:#fff!important;white-space:nowrap!important}'
       +'@media(max-width:390px){.vh-actions .kt-feed-profile-circle{width:44px!important;height:44px!important}.vh-actions .kt-feed-one-rose:before{font-size:28px!important}}';
