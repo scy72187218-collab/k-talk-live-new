@@ -57,7 +57,7 @@
         id:'memory:'+String(x.host_id||''),
         host_id:String(x.host_id||''),
         host_name:String(x.host_name||'K-Talk 방송자'),
-        started_at:String(x.updated_at||nowIso()),
+        started_at:new Date(Date.now()-30*60*1000).toISOString(),
         room_type:String(x.room_type||'group13'),
         room_name:String(x.room_name||'방송'),
         active:true,
