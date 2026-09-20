@@ -1,0 +1,102 @@
+/* K-Talk 13명방 첫 진입 안정화 전용.
+   첫 입장 때 예전 13명방 DOM이 잠깐 다시 그려지면 즉시 현재 승인 화면으로 복구한다.
+   13명방 외 다른 방/카메라/채팅/선물/스위치/프로필은 변경하지 않음. */
+(function(){
+  if(window.__ktGroup13FirstOpenCurrentGuard20260920)return;
+  window.__ktGroup13FirstOpenCurrentGuard20260920=true;
+
+  var guardUntil=0;
+  var repairing=false;
+
+  function is13(){
+    try{
+      var st=window.state||{};
+      var t=String(st.liveRoomType||'');
+      var n=String(st.liveRoomName||'');
+      var max=Number(st.liveRoomMax||0);
+      if(t==='group13')return true;
+      if(t==='group'&&max===13)return true;
+      if(n==='13명 방송')return true;
+    }catch(e){}
+    try{
+      var title=document.getElementById('liveTitle');
+      if(title&&String(title.value||'').trim()==='13명 방송')return true;
+    }catch(e){}
+    return false;
+  }
+
+  function opening(){
+    return Date.now()<guardUntil;
+  }
+
+  function arm(){
+    guardUntil=Date.now()+10000;
+    try{document.documentElement.classList.add('kt-g13-current-guard');}catch(e){}
+    check();
+  }
+
+  function disarmIfDone(){
+    if(opening())return;
+    try{
+      if(!document.querySelector('#screen .ktg13-room')){
+        document.documentElement.classList.remove('kt-g13-current-guard');
+      }
+    }catch(e){}
+  }
+
+  function check(){
+    if(repairing)return;
+    if(!is13()&&!opening()){disarmIfDone();return;}
+
+    var room=null;
+    try{room=document.querySelector('#screen .ktg13-room');}catch(e){}
+    if(!room)return;
+
+    if(room.getAttribute('data-kt-room')==='9'||room.getAttribute('data-kt-room')==='15')return;
+    if(room.getAttribute('data-kt-approved13')==='1')return;
+
+    if(typeof window.ktOpenApprovedGroup13Now!=='function')return;
+    repairing=true;
+    try{
+      window.ktOpenApprovedGroup13Now(true);
+    }catch(e){}
+    setTimeout(function(){repairing=false;},60);
+  }
+
+  function ensureStyle(){
+    if(document.getElementById('ktGroup13CurrentOnlyGuardStyle'))return;
+    var s=document.createElement('style');
+    s.id='ktGroup13CurrentOnlyGuardStyle';
+    s.textContent=
+      'html.kt-g13-current-guard #screen .ktg13-room:not([data-kt-approved13="1"]){visibility:hidden!important;opacity:0!important}';
+    document.head.appendChild(s);
+  }
+
+  ensureStyle();
+
+  document.addEventListener('pointerdown',function(e){
+    try{
+      var btn=e.target&&e.target.closest?e.target.closest('.live-prep .prep-start'):null;
+      if(btn&&is13())arm();
+    }catch(err){}
+  },true);
+
+  document.addEventListener('click',function(e){
+    try{
+      var b=e.target&&e.target.closest?e.target.closest('.live-prep .prep-start'):null;
+      if(b&&is13())arm();
+    }catch(err){}
+  },true);
+
+  try{
+    new MutationObserver(function(){
+      clearTimeout(window.__ktG13FirstOpenGuardTimer);
+      window.__ktG13FirstOpenGuardTimer=setTimeout(check,10);
+    }).observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+
+  [50,120,250,500,900,1500,2500,4000,6500,9000].forEach(function(ms){
+    setTimeout(check,ms);
+  });
+  setInterval(function(){check();disarmIfDone();},220);
+})();
