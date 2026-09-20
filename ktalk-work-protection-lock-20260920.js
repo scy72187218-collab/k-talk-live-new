@@ -27,10 +27,12 @@
     videoCommunication:false,
     mediaTransport:false,
     liveSignal:false,
-    publicVideoSideActions:false,
-    publicVideoRoseButton:false,
-    publicVideoRoseCount:false,
-    publicVideoMessageLabel:false,
+    publicVideoSideActions:true,
+    publicVideoRoseButton:true,
+    publicVideoRoseCount:true,
+    publicVideoMessageLabel:true,
+    publicVideoProfileButton:true,
+    publicVideoShareButton:true,
     aiVoice:true,
     helpReader:true
   };
@@ -62,8 +64,8 @@
       });
 
       document.querySelectorAll('.vh-actions').forEach(function(el){
-        el.removeAttribute('data-kt-work-protected');
-        el.setAttribute('data-kt-public-video-actions-unlocked','1');
+        el.setAttribute('data-kt-work-protected','1');
+        el.removeAttribute('data-kt-public-video-actions-unlocked');
       });
 
       document.querySelectorAll('video,.kt-public-feed-scroller,.kt-public-video').forEach(function(el){
@@ -101,6 +103,12 @@
     locked.videoCommunication=false;
     locked.mediaTransport=false;
     locked.liveSignal=false;
+    locked.publicVideoSideActions=true;
+    locked.publicVideoRoseButton=true;
+    locked.publicVideoRoseCount=true;
+    locked.publicVideoMessageLabel=true;
+    locked.publicVideoProfileButton=true;
+    locked.publicVideoShareButton=true;
     save();markAll();return true;
   };
   window.ktIsLiveSignalWorkAllowed=function(){
