@@ -36,6 +36,17 @@ module.exports=async function handler(req,res){
         });
         return res.end(JSON.stringify({ok:true,id:sid}));
       }
+      if(action==='end_match'){
+        const host=String(b.host_id||'').slice(0,120);
+        const viewer=String(b.viewer_id||'').slice(0,140);
+        for(const [sid,s] of g.__ktLivePeerMemory.entries()){
+          if(s.active&&(!host||s.host_id===host)&&(!viewer||s.viewer_id===viewer)){
+            s.active=false;s.updated=Date.now();g.__ktLivePeerMemory.set(sid,s);
+          }
+        }
+        clean();
+        return res.end(JSON.stringify({ok:true}));
+      }
       const sid=String(b.session_id||'');
       const s=g.__ktLivePeerMemory.get(sid);
       if(!s)return res.end(JSON.stringify({ok:false,error:'not_found'}));
