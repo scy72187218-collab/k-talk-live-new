@@ -110,14 +110,27 @@
       +'<div class="vh-tabs"><span>LIVE</span><span>커뮤니티</span><span>팔로잉</span><span class="on">추천</span><button>⌕</button></div>'
       +'<div class="vh-title"><b>♛ '+name+'</b><span>'+title+'</span></div>'
       +'<div class="vh-actions">'
-        +'<button onclick="ktPublicSendRose(\''+id+'\',\''+name.replace(/'/g,"\\'")+'\',this)">🌹<small>장미 '+Number(x.likes||0)+'송이</small></button>'
-        +'<button onclick="ktPublicComments(\''+id+'\')">💬<small>댓글</small></button>'
-        +'<button onclick="openGifts()">🎁<small>선물</small></button>'
+        +'<button class="kt-feed-profile-button" onclick="if(window.openProfileDirect){openProfileDirect()}else if(window.openProfile){openProfile()}"><span class="kt-feed-profile-circle">👤</span></button>'
+        +'<button class="kt-feed-one-rose" onclick="ktPublicSendRose(\''+id+'\',\''+name.replace(/'/g,"\\'")+'\',this)">🌹<small>'+Number(x.likes||0)+'</small></button>'
+        +'<button onclick="ktPublicComments(\''+id+'\')">💬<small>메시지</small></button>'
         +'<button onclick="ktPublicShare(\''+u+'\')">↗<small>공유</small></button>'
       +'</div>'
     +'</section>';
   }
   function bind(){
+    try{
+      var photo='';
+      if(typeof window.ktProfileLoad==='function'){
+        var pp=window.ktProfileLoad()||{};
+        if(pp.photo)photo=String(pp.photo);
+      }
+      if(!photo){
+        photo=localStorage.getItem('ktalk_profile_photo')||localStorage.getItem('ktalk_profile_image')||localStorage.getItem('ktalk_profile_avatar')||'';
+      }
+      document.querySelectorAll('.kt-feed-profile-button .kt-feed-profile-circle').forEach(function(el){
+        if(photo)el.innerHTML='<img src="'+photo.replace(/"/g,'&quot;')+'" alt="">';
+      });
+    }catch(e){}
     var vs=[].slice.call(document.querySelectorAll('.kt-public-video'));
     vs.forEach(function(v){v.onclick=function(){v.muted=false;v.volume=1;if(v.paused){var p=v.play();if(p&&p.catch)p.catch(function(){});}else{v.pause();}};});
     if('IntersectionObserver'in window){
@@ -133,7 +146,7 @@
       var r=await fetch(SB+'/rest/v1/rpc/ktalk_like_video',{method:'POST',headers:headers({'Content-Type':'application/json'}),body:JSON.stringify({video_id:id})});
       if(!r.ok)throw new Error('rose');
       var n=await r.json(),s=btn&&btn.querySelector('small');
-      if(s)s.textContent='장미 '+Number(n||0)+'송이';
+      if(s)s.textContent=Number(n||0).toLocaleString('ko-KR');
       var toast=document.createElement('div');
       toast.style.cssText='position:fixed;left:50%;bottom:110px;transform:translateX(-50%);z-index:99999;padding:12px 18px;border-radius:999px;background:rgba(24,8,28,.94);border:1px solid #ff5aaf;color:#fff;font-weight:950;box-shadow:0 0 18px rgba(255,54,150,.45);white-space:nowrap';
       toast.textContent='🌹 '+(recipientName||'동영상 게시자')+'님에게 장미 1송이를 보냈습니다';
