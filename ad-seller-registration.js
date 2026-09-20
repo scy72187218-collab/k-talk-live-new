@@ -143,13 +143,13 @@
 (function(){
   if(document.querySelector('script[data-kt-live-presence]'))return;
   var s=document.createElement('script');
-  s.src='live-presence.js?v=20260918-opened-room-only1';
+  s.src='live-presence.js?v=20260921-redonly1';
   s.async=false;
   s.setAttribute('data-kt-live-presence','1');
   s.onload=function(){
     if(document.querySelector('script[data-kt-live-video-discovery]'))return;
     var v=document.createElement('script');
-    v.src='live-video-discovery.js?v=20260919-no-plus-bell1';
+    v.src='live-video-discovery.js?v=20260921-redonly1';
     v.async=false;
     v.setAttribute('data-kt-live-video-discovery','1');
     document.head.appendChild(v);
@@ -191,7 +191,7 @@
 (function(){
   if(document.querySelector('script[data-kt-live-watchdog]'))return;
   var s=document.createElement('script');
-  s.src='live-presence-watchdog.js?v=20260913-live3';
+  s.src='live-presence-watchdog.js?v=20260921-redonly1';
   s.async=false;
   s.setAttribute('data-kt-live-watchdog','1');
   document.head.appendChild(s);
