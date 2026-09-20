@@ -6,7 +6,7 @@
   window.__ktHomeVideoHardRecover20260919=true;
 
   var SB='https://zupwbfmacwzexyvznlzq.supabase.co';
-  var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1cHdiZm1hY3d6ZXh5dnpubHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjEwNzYsImV4cCI6MjEwNDAzNzA3Nn0.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
+  var KEY='sb_publishable_AnyCMi4rAgSR2uWg_u1pvw_hHyqWlm3';
   var rendering=false;
   var lastRender=0;
   var initialServerRefreshDone=false;
@@ -100,7 +100,7 @@
 
     /* 2차: 직접 공개목록 */
     if(!a.length){
-      a=await fetchRows('https://zupwbfmacwzexyvznlzq.supabase.co/rest/v1/ktalk_videos?select=id,author_name,title,video_url,created_at,likes&order=created_at.desc&limit=40',{apikey:KEY,Authorization:'Bearer '+KEY,'Cache-Control':'no-cache'},4500);
+      a=await fetchRows('https://zupwbfmacwzexyvznlzq.supabase.co/rest/v1/ktalk_videos?select=id,author_name,title,video_url,created_at,likes&order=created_at.desc&limit=40',{apikey:KEY,'Cache-Control':'no-cache'},4500);
     }
 
     if(a.length){
