@@ -187,10 +187,13 @@
     try{m=JSON.parse(ev.data);}catch(e){return;}
     if(!m||m.topic!==TOPIC)return;
 
-    if(m.event==='phx_reply'&&String(m.ref||'')===String(joinRef)){
+    if(m.event==='phx_reply'&&m.topic===TOPIC&&String(m.ref||'')===String(joinRef)){
       if(m.payload&&m.payload.status==='ok'){
         joined=true;
         if(hostRoomOpen())track();
+      }else{
+        joined=false;
+        tracked=false;
       }
       return;
     }
@@ -219,15 +222,23 @@
       ws=new WebSocket('wss://'+REF+'.supabase.co/realtime/v1/websocket?apikey='+encodeURIComponent(KEY)+'&vsn=1.0.0');
       ws.onopen=function(){
         joinRef=String(seq++);
-        send('phx_join',{
-          config:{
-            broadcast:{ack:false,self:false},
-            presence:{enabled:true,key:deviceId()},
-            postgres_changes:[],
-            private:false
-          },
-          access_token:KEY
-        });
+        try{
+          ws.send(JSON.stringify({
+            topic:TOPIC,
+            event:'phx_join',
+            payload:{
+              config:{
+                broadcast:{ack:false,self:false},
+                presence:{enabled:true,key:deviceId()},
+                postgres_changes:[],
+                private:false
+              },
+              access_token:KEY
+            },
+            ref:joinRef,
+            join_ref:joinRef
+          }));
+        }catch(e){}
         heartbeatTimer=setInterval(function(){
           if(ws&&ws.readyState===1){
             try{ws.send(JSON.stringify({topic:'phoenix',event:'heartbeat',payload:{},ref:String(seq++),join_ref:null}));}catch(e){}
