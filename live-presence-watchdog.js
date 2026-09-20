@@ -178,7 +178,7 @@
     broadcastStarted=true;
     window.__ktHostBroadcastActive=true;
     publishIfNeeded(true);
-    [250,1200].forEach(function(ms){setTimeout(function(){publishIfNeeded(true);},ms);});
+    [120,350,800,1600].forEach(function(ms){setTimeout(function(){publishIfNeeded(true);},ms);});
   }
   window.ktForcePublishLiveNow=function(){
     markBroadcastStarted();
@@ -218,7 +218,7 @@
       if(!roomId){await publishIfNeeded(true);return;}
       try{
         var inf=roomInfo(),p=profile(),stamp=now();
-        if(Date.now()-lastDedupeAt>30000){
+        if(Date.now()-lastDedupeAt>9000){
           if(await syncExistingRows(hostId(),stamp,inf,p))return;
         }
         await req('ktalk_live_rooms?id=eq.'+enc(roomId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({host_name:p.name,active:true,room_type:inf.type,room_name:inf.name,title:inf.title,updated_at:stamp,host_photo:p.photo||null})});
@@ -256,14 +256,14 @@
   document.addEventListener('visibilitychange',function(){if(!document.hidden)fastViewerRefresh();});
   window.addEventListener('focus',fastViewerRefresh);
 
-  var mo=new MutationObserver(function(){clearTimeout(window.__ktLiveWatchdogMo);window.__ktLiveWatchdogMo=setTimeout(function(){publishIfNeeded(false);},1200);});
+  var mo=new MutationObserver(function(){setTimeout(function(){publishIfNeeded(false);fastViewerRefresh();},180);});
   try{mo.observe(document.getElementById('screen')||document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['data-kt-room']});}catch(e){}
-  setInterval(function(){wrapStartBroadcast();},10000);
-  setInterval(heartbeat,12000);
-  setInterval(fastViewerRefresh,15000);
-  setTimeout(function(){publishIfNeeded(false);},1200);
-  setTimeout(function(){publishIfNeeded(false);},3500);
-  setTimeout(fastViewerRefresh,1800);
+  setInterval(function(){wrapStartBroadcast();},2200);
+  setInterval(heartbeat,2500);
+  setInterval(fastViewerRefresh,2200);
+  setTimeout(function(){publishIfNeeded(false);},700);
+  setTimeout(function(){publishIfNeeded(false);},1800);
+  setTimeout(fastViewerRefresh,220);
 
   window.addEventListener('pagehide',function(){
     broadcastStarted=false;
