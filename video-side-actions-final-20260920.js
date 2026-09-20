@@ -6,6 +6,16 @@
   window.__ktVideoSideActionsFinal20260920=true;
 
   function txt(el){return String(el&&el.textContent||'').replace(/\s+/g,'').trim();}
+  function directButtons(box){
+    var out=[];
+    try{
+      var kids=box&&box.children?box.children:[];
+      for(var i=0;i<kids.length;i++){
+        if(kids[i]&&String(kids[i].tagName||'').toUpperCase()==='BUTTON')out.push(kids[i]);
+      }
+    }catch(e){}
+    return out;
+  }
   function onclickText(el){return String(el&&el.getAttribute&&el.getAttribute('onclick')||'');}
   function firstNumber(v){
     var m=String(v||'').replace(/,/g,'').match(/\d+/);
@@ -44,7 +54,7 @@
   function findProfile(box){
     var b=box.querySelector('.kt-feed-profile-button');
     if(b)return b;
-    var list=[].slice.call(box.querySelectorAll(':scope > button'));
+    var list=directButtons(box);
     b=list.find(function(x){
       var a=String(x.getAttribute('aria-label')||'');
       return /프로필/.test(a)||/프로필/.test(txt(x))||!!x.querySelector('img');
@@ -86,7 +96,7 @@
 
   function findOldRoseCount(box){
     var n=0;
-    [].slice.call(box.querySelectorAll(':scope > button')).forEach(function(b){
+    directButtons(box).forEach(function(b){
       var s=onclickText(b),t=txt(b);
       if(/ktPublicSendRose/.test(s)||/장미|🌹/.test(t)){
         n=Math.max(n,firstNumber(t));
@@ -126,7 +136,7 @@
   }
 
   function findMessage(box){
-    var list=[].slice.call(box.querySelectorAll(':scope > button'));
+    var list=directButtons(box);
     var b=list.find(function(x){
       var s=onclickText(x),t=txt(x);
       return /ktPublicComments|openComments/.test(s)||/댓글|메시지/.test(t);
@@ -147,7 +157,7 @@
   }
 
   function findShare(box){
-    var list=[].slice.call(box.querySelectorAll(':scope > button'));
+    var list=directButtons(box);
     return list.find(function(x){
       var s=onclickText(x),t=txt(x);
       return /ktPublicShare|shareApp/.test(s)||/공유|↗/.test(t);
@@ -155,7 +165,7 @@
   }
 
   function removeExtras(box,keep){
-    [].slice.call(box.querySelectorAll(':scope > button')).forEach(function(b){
+    directButtons(box).forEach(function(b){
       if(keep.indexOf(b)>=0)return;
       var s=onclickText(b),t=txt(b);
       if(/openGifts/.test(s)||/선물|🎁/.test(t)||/좋아요/.test(t)){
@@ -200,6 +210,11 @@
 
   run();
   [60,180,420,900,1600,2600].forEach(function(ms){setTimeout(run,ms);});
+  try{
+    if(!window.__ktVideoSideActionsFinalInterval){
+      window.__ktVideoSideActionsFinalInterval=setInterval(run,400);
+    }
+  }catch(e){}
   try{
     new MutationObserver(function(){
       clearTimeout(window.__ktVideoSideActionsFinalTimer);
