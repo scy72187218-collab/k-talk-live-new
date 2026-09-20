@@ -80,13 +80,12 @@
       if(Array.isArray(old))cached=old;
     }catch(e){}
 
-    /* 항상 서버 최신 공개 동영상 목록을 우선. 삭제 직후에도 남은 영상을 즉시 다시 받는다. */
     for(var attempt=0;attempt<3;attempt++){
       try{
         var ctl=('AbortController' in window)?new AbortController():null;
-        var timer=ctl?setTimeout(function(){try{ctl.abort();}catch(e){}},5000):0;
-        var url=SB+'/rest/v1/ktalk_videos?select=id,author_name,title,video_url,created_at,likes&order=created_at.desc&limit=40';
-        var r=await fetch(url,{cache:'no-store',signal:ctl?ctl.signal:void 0,headers:{apikey:KEY,Authorization:'Bearer '+KEY,'Cache-Control':'no-cache'}});
+        var timer=ctl?setTimeout(function(){try{ctl.abort();}catch(e){}},3000):0;
+        var url='/api/video-feed?t='+Date.now()+'_'+attempt;
+        var r=await fetch(url,{cache:'no-store',signal:ctl?ctl.signal:void 0});
         if(timer)clearTimeout(timer);
         if(r.ok){
           var a=await r.json();
@@ -96,11 +95,10 @@
           }
         }
       }catch(e){}
-      if(attempt<2)await new Promise(function(resolve){setTimeout(resolve,250+(attempt*250));});
+      if(attempt<2)await new Promise(function(resolve){setTimeout(resolve,200+(attempt*200));});
     }
 
-    /* 공용 홈 피드는 모든 기기에서 동일해야 하므로
-       휴대폰별 캐시/IndexedDB 영상을 섞지 않는다. */
+    if(cached.length)return cached;
     return [];
   }
 
