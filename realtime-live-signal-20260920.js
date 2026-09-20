@@ -6,7 +6,7 @@
 
   var REF='zupwbfmacwzexyvznlzq';
   var TOPIC='realtime:ktalk-live-signal-v2';
-  var ws=null,key='',joined=false,joinRef=1,msgRef=10;
+  var ws=null,key='',joined=false,joinRef=1,msgRef=10,currentJoinRef='';
   var liveMap={};
   var lastOpen=false;
   var reconnectTimer=null;
@@ -122,6 +122,7 @@
   function join(){
     if(!key||!ws||ws.readyState!==1)return;
     joined=false;
+    currentJoinRef=String(joinRef++);
     sendRaw({
       topic:TOPIC,
       event:'phx_join',
@@ -129,11 +130,13 @@
         config:{
           broadcast:{ack:false,self:false},
           presence:{enabled:false},
-          postgres_changes:[]
+          postgres_changes:[],
+          private:false
         },
         access_token:key
       },
-      ref:String(joinRef++)
+      ref:currentJoinRef,
+      join_ref:currentJoinRef
     });
   }
 
@@ -143,7 +146,8 @@
       topic:TOPIC,
       event:'broadcast',
       payload:{type:'broadcast',event:event,payload:payload},
-      ref:String(msgRef++)
+      ref:String(msgRef++),
+      join_ref:currentJoinRef
     });
   }
 
@@ -204,6 +208,7 @@
 
   function closeSocket(){
     joined=false;
+    currentJoinRef='';
     if(heartbeatTimer){clearInterval(heartbeatTimer);heartbeatTimer=null;}
     try{if(ws)ws.close();}catch(e){}
     ws=null;
