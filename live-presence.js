@@ -408,14 +408,14 @@
     var s=document.getElementById('screen');
     var opened=!!(s&&s.querySelector('#ktLiveVideo,.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room'));
     if(opened){
-      /* 방 UI가 먼저 열리고 카메라 스트림이 몇 초 늦게 붙는 기기에서도
-         빨간 LIVE만 뜨고 영상 신호가 빠지는 일을 막기 위해 짧게 재확인한다. */
+      /* 방이 열리면 실제 영상 트랙이 붙는 순간까지 LIVE 신호 등록을 재시도한다.
+         느린 기기에서도 빨간 방송불이 빠지지 않도록 최대 20초만 확인한다. */
       var tries=0;
       (function attachWhenVideoReady(){
         if(hostEndLock||hostActive)return;
         if(hasLiveLocalVideo()){ startHostPresence(); return; }
         tries++;
-        if(tries<12)setTimeout(attachWhenVideoReady,500);
+        if(tries<40)setTimeout(attachWhenVideoReady,500);
       })();
       return;
     }
