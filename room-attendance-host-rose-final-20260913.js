@@ -209,12 +209,6 @@
             }
           }catch(e){}
         }
-        /* 빨간 LIVE 표시만 확실히 등록한다. 다른 방 UI는 변경하지 않는다. */
-        try{
-          if(typeof window.ktEnsureHostPresenceNow==='function'){
-            window.ktEnsureHostPresenceNow();
-          }
-        }catch(e){}
         pendingGroup13=false;
       }finally{
         releaseStartButton=false;
