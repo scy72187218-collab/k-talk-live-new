@@ -408,7 +408,15 @@
     var s=document.getElementById('screen');
     var opened=!!(s&&s.querySelector('#ktLiveVideo,.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room'));
     if(opened){
-      startHostPresence();
+      /* 방 UI가 먼저 열리고 카메라 스트림이 몇 초 늦게 붙는 기기에서도
+         빨간 LIVE만 뜨고 영상 신호가 빠지는 일을 막기 위해 짧게 재확인한다. */
+      var tries=0;
+      (function attachWhenVideoReady(){
+        if(hostEndLock||hostActive)return;
+        if(hasLiveLocalVideo()){ startHostPresence(); return; }
+        tries++;
+        if(tries<12)setTimeout(attachWhenVideoReady,500);
+      })();
       return;
     }
     /* 시작이 중간에 멈췄으면 준비 화면의 카메라를 방송 중으로 등록하지 않는다. */
