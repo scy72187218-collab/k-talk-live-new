@@ -6,7 +6,7 @@
   window.__ktRealtimePresenceLive20260920=true;
 
   var REF='zupwbfmacwzexyvznlzq';
-  var KEY='sb_publishable_AnyCMi4rAgSR2uWg_u1pvw_hHyqWlm3';
+  var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6Inp1cHdiZm1hY3d6ZXh5dnpubHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjEwNzYsImV4cCI6MjEwNDAzNzA3Nn0.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
   var CHANNEL='ktalk-live-signal-v3';
   var TOPIC='realtime:'+CHANNEL;
   var ws=null,joined=false,joinRef='',seq=1,reconnectTimer=null,heartbeatTimer=null;
@@ -42,12 +42,27 @@
   function localCameraLive(){
     try{
       var s=window.state&&state.stream;
-      return !!(s&&s.getVideoTracks&&s.getVideoTracks().some(function(t){return t.readyState==='live';}));
-    }catch(e){return false;}
+      if(s&&s.getVideoTracks&&s.getVideoTracks().some(function(t){return t.readyState==='live';}))return true;
+    }catch(e){}
+    try{
+      var room=document.querySelector('#screen .ktsolo-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room');
+      if(!room)return false;
+      var v=room.querySelector('video');
+      if(!v)return false;
+      var s2=v.srcObject;
+      if(s2&&s2.getVideoTracks&&s2.getVideoTracks().some(function(t){return t.readyState==='live';}))return true;
+      if(v.readyState>=2&&!v.ended)return true;
+    }catch(e){}
+    return false;
   }
 
   function isHostLive(){
-    return roomVisible()&&localCameraLive();
+    if(!roomVisible())return false;
+    if(localCameraLive())return true;
+    /* 방송방 자체가 실제로 열린 뒤에는 즉시 신호를 올린다. */
+    try{
+      return !!document.querySelector('#screen .ktsolo-room video,#screen .ktg13-room video,#screen .ktsubscriber-room video,#screen .ktsecret-room video');
+    }catch(e){return false;}
   }
 
   function roomInfo(){
@@ -161,7 +176,7 @@
       badge=document.createElement('div');
       badge.id='ktRealtimeLiveRedBadge';
       badge.innerHTML='<span></span><b>LIVE</b>';
-      badge.style.cssText='position:absolute!important;left:10px!important;top:52px!important;z-index:2147483000!important;height:27px!important;padding:0 9px!important;border-radius:999px!important;background:#ed1745!important;color:#fff!important;border:1px solid rgba(255,255,255,.9)!important;display:flex!important;align-items:center!important;gap:5px!important;font:950 11px/1 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;box-shadow:0 2px 10px rgba(0,0,0,.5),0 0 9px rgba(237,23,69,.55)!important;pointer-events:none!important;white-space:nowrap!important';
+      badge.style.cssText='position:absolute!important;left:10px!important;top:10px!important;z-index:2147483000!important;height:27px!important;padding:0 9px!important;border-radius:999px!important;background:#ed1745!important;color:#fff!important;border:1px solid rgba(255,255,255,.9)!important;display:flex!important;align-items:center!important;gap:5px!important;font:950 11px/1 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;box-shadow:0 2px 10px rgba(0,0,0,.5),0 0 9px rgba(237,23,69,.55)!important;pointer-events:none!important;white-space:nowrap!important';
       var dot=badge.querySelector('span');
       dot.style.cssText='width:8px!important;height:8px!important;border-radius:50%!important;background:#fff!important;display:block!important';
     }
@@ -232,7 +247,7 @@
             event:'phx_join',
             payload:{
               config:{
-                broadcast:{ack:false,self:false},
+                broadcast:{ack:false,self:true},
                 presence:{enabled:false},
                 postgres_changes:[],
                 private:false
