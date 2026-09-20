@@ -8,13 +8,13 @@
   var s=document.createElement('style');
   s.id='ktSecretEarningsSizeSyncStyle';
   s.textContent=''
-    +'.ktsolo-room .ktsolo-earn{left:auto!important;right:0!important;top:8px!important;width:88px!important;max-width:88px!important;transform:scale(.82)!important;transform-origin:top right!important}'
+    +'.ktsolo-room .ktsolo-earn{left:auto!important;right:0!important;top:8px!important;width:82px!important;max-width:82px!important;transform:scale(.78)!important;transform-origin:top right!important}'
     +'.ktg13-room .ktg13-mid{grid-template-columns:minmax(0,1fr) 110px!important}'
     +'.ktsubscriber-room .ktsubscriber-info{grid-template-columns:minmax(0,1fr) 110px!important}'
     +'.ktg13-room .ktg13-earn{grid-column:2!important;justify-self:end!important;width:110px!important;max-width:110px!important;display:flex!important;justify-content:flex-end!important}'
     +'.ktg13-room .ktg13-earn,.ktsubscriber-room .ktsubscriber-earn{height:64px!important;min-height:64px!important;align-items:flex-end!important}'
-    +'.ktsolo-room .ktsolo-earn #myEarnHud{width:88px!important;max-width:88px!important;min-width:88px!important;height:54px!important;max-height:54px!important;padding:1px 2px!important}'
-    +'.ktsolo-room .ktsolo-main #ktLiveVideo{left:50%!important;right:auto!important;inset-block:0!important;width:112%!important;height:100%!important;max-width:none!important;object-fit:cover!important;object-position:center center!important;transform:translateX(-50%) scaleX(-1) scale(1.08)!important;transform-origin:center center!important}'
+    +'.ktsolo-room .ktsolo-earn #myEarnHud{width:82px!important;max-width:82px!important;min-width:82px!important;height:50px!important;max-height:50px!important;padding:1px 2px!important}'
+    +'.ktsolo-room .ktsolo-main #ktLiveVideo{left:50%!important;right:auto!important;inset-block:0!important;width:100%!important;height:100%!important;max-width:none!important;object-fit:cover!important;object-position:center center!important;transform:translateX(-50%) scaleX(-1)!important;transform-origin:center center!important}'
     +'.ktg13-room .ktg13-earn #myEarnHud,'
     +'.ktg13-room .ktg13-earn #myEarnHud,'
     +'.ktsubscriber-room #ktSubscriberEarnHud,'
