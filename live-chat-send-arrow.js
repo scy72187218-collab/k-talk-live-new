@@ -136,7 +136,7 @@
 (function(){
   if(document.querySelector('script[data-kt-guest-request-flow]'))return;
   var s=document.createElement('script');
-  s.src='live-guest-request-flow-20260918.js?v=20260921-guest-stay1';
+  s.src='live-guest-request-flow-20260918.js?v=20260921-guest-toggle1';
   s.async=false;
   s.setAttribute('data-kt-guest-request-flow','1');
   document.head.appendChild(s);
@@ -146,7 +146,7 @@
 (function(){
   if(document.querySelector('script[data-kt-guest-host-action-fix]'))return;
   var s=document.createElement('script');
-  s.src='guest-request-host-action-fix.js?v=20260921-guest-stay1';
+  s.src='guest-request-host-action-fix.js?v=20260921-guest-toggle1';
   s.async=false;
   s.setAttribute('data-kt-guest-host-action-fix','1');
   document.head.appendChild(s);
@@ -186,7 +186,7 @@
 (function(){
   if(document.querySelector('script[data-kt-guest-photo-cards]'))return;
   var s=document.createElement('script');
-  s.src='guest-request-photo-cards-20260914.js?v=20260921-guest-stay1';
+  s.src='guest-request-photo-cards-20260914.js?v=20260921-guest-toggle1';
   s.async=false;
   s.setAttribute('data-kt-guest-photo-cards','1');
   document.head.appendChild(s);
