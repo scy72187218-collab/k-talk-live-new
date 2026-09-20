@@ -98,3 +98,98 @@
     }).observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 })();
+
+/* 동영상 홈 빨간 LIVE 신호 보강.
+   방송중인 방이 서버에 실제로 있을 때만 동영상 화면 오른쪽 위에 빨간 불 표시.
+   동영상 재생/업로드/방송방/채팅/스위치는 변경하지 않음. */
+(function(){
+  if(window.__ktVideoFeedLivePresenceSignal20260920)return;
+  window.__ktVideoFeedLivePresenceSignal20260920=true;
+
+  var BASE='https://zupwbfmacwzexyvznlzq.supabase.co/rest/v1/';
+  var key='';
+  var busy=false;
+
+  function ensureFeedStyle(){
+    if(document.getElementById('ktVideoFeedLiveSignalStyle'))return;
+    var s=document.createElement('style');
+    s.id='ktVideoFeedLiveSignalStyle';
+    s.textContent=''
+      +'@keyframes ktFeedLivePulse{0%,45%{opacity:1;box-shadow:0 0 6px #ff163e,0 0 15px #ff163e}55%,100%{opacity:.48;box-shadow:0 0 2px #ff163e}}'
+      +'.kt-video-feed-live-signal{position:absolute!important;right:10px!important;top:10px!important;z-index:80!important;width:15px!important;height:15px!important;border-radius:50%!important;background:#ff163e!important;border:2px solid #fff!important;box-sizing:border-box!important;animation:ktFeedLivePulse .9s linear infinite!important;pointer-events:none!important}';
+    document.head.appendChild(s);
+  }
+
+  async function readKey(){
+    if(key)return key;
+    try{
+      var res=await fetch('live-presence.js?v=20260920-relief1',{cache:'no-store'});
+      if(!res.ok)return '';
+      var t=await res.text();
+      var m=t.match(/var KEY='([^']+)'/);
+      key=m?m[1]:'';
+    }catch(e){}
+    return key;
+  }
+
+  function feedHolder(){
+    try{
+      return document.querySelector('.video-home,.kt-public-feed-scroller,.kt-hard-public-video-wrap')||null;
+    }catch(e){return null;}
+  }
+
+  function setBadge(on){
+    ensureFeedStyle();
+    var h=feedHolder();
+    var old=document.querySelector('.kt-video-feed-live-signal');
+    if(!on||!h){
+      if(old)old.remove();
+      return;
+    }
+    try{
+      if(getComputedStyle(h).position==='static')h.style.setProperty('position','relative','important');
+    }catch(e){}
+    if(!old){
+      old=document.createElement('i');
+      old.className='kt-video-feed-live-signal';
+      old.setAttribute('aria-hidden','true');
+      h.appendChild(old);
+    }else if(old.parentElement!==h){
+      h.appendChild(old);
+    }
+  }
+
+  async function refresh(){
+    if(busy)return;
+    busy=true;
+    try{
+      var k=await readKey();
+      if(!k){setBadge(false);return;}
+      var cut=new Date(Date.now()-50000).toISOString();
+      var url=BASE+'ktalk_live_rooms?select=id&active=eq.true&updated_at=gte.'+encodeURIComponent(cut)+'&limit=1';
+      var res=await fetch(url,{
+        cache:'no-store',
+        headers:{apikey:k,Authorization:'Bearer '+k}
+      });
+      if(!res.ok){setBadge(false);return;}
+      var rows=await res.json();
+      setBadge(Array.isArray(rows)&&rows.length>0);
+    }catch(e){
+      setBadge(false);
+    }finally{
+      busy=false;
+    }
+  }
+
+  refresh();
+  [250,800,1800].forEach(function(ms){setTimeout(refresh,ms);});
+  setInterval(refresh,3000);
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(refresh,80);});
+  window.addEventListener('focus',function(){setTimeout(refresh,80);});
+  try{
+    new MutationObserver(function(){
+      clearTimeout(window.__ktFeedLiveSignalMo);
+      window.__ktFeedLiveSignalMo=setTimeout(refresh,70);
+    }).observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+})();
