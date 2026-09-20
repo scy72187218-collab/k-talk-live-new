@@ -7,6 +7,7 @@
 
   var guardUntil=0;
   var repairing=false;
+  var startWrapped=false;
 
   function is13(){
     try{
@@ -30,13 +31,17 @@
   }
 
   function arm(){
-    guardUntil=Date.now()+10000;
+    /* 사양이 낮은 기기에서는 13명방 DOM 생성 전에 홈 동영상 복구가 먼저 실행될 수 있어
+       방송 시작 터치 순간부터 13명방이 실제로 그려질 때까지 홈 복구를 막는다. */
+    guardUntil=Date.now()+20000;
+    window.__ktGroup13StartInProgress=true;
     try{document.documentElement.classList.add('kt-g13-current-guard');}catch(e){}
     check();
   }
 
   function disarmIfDone(){
     if(opening())return;
+    window.__ktGroup13StartInProgress=false;
     try{
       if(!document.querySelector('#screen .ktg13-room')){
         document.documentElement.classList.remove('kt-g13-current-guard');
@@ -53,7 +58,11 @@
     if(!room)return;
 
     if(room.getAttribute('data-kt-room')==='9'||room.getAttribute('data-kt-room')==='15')return;
-    if(room.getAttribute('data-kt-approved13')==='1')return;
+    if(room.getAttribute('data-kt-approved13')==='1'){
+      window.__ktGroup13StartInProgress=false;
+      try{document.documentElement.classList.remove('kt-g13-current-guard');}catch(e){}
+      return;
+    }
 
     if(typeof window.ktOpenApprovedGroup13Now!=='function')return;
     repairing=true;
@@ -73,6 +82,21 @@
   }
 
   ensureStyle();
+
+  function wrapStartBroadcastForSlowPhone(){
+    if(startWrapped)return;
+    var old=window.startBroadcast;
+    if(typeof old!=='function'||old.__ktG13SlowStartGuard)return;
+    var fn=function(){
+      if(is13())arm();
+      return old.apply(this,arguments);
+    };
+    fn.__ktG13SlowStartGuard=true;
+    window.startBroadcast=fn;
+    startWrapped=true;
+  }
+  wrapStartBroadcastForSlowPhone();
+  [120,400,900,1800].forEach(function(ms){setTimeout(wrapStartBroadcastForSlowPhone,ms);});
 
   document.addEventListener('pointerdown',function(e){
     try{
