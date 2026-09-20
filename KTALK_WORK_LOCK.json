@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Only the four public-video side-action items above are temporarily unlocked for the current edit. Other protected working components stay locked.",
+  "note": "Selective lock only. The approved public-video side controls (profile, rose/count, message, share) are protected. Other editable areas remain editable.",
   "default_policy": "editable_unless_explicitly_listed_as_protected",
   "protected_components": [
     "gift_button",
@@ -19,7 +19,13 @@
     "chat_area",
     "live_room_layout",
     "broadcast_switches",
-    "room_entry_exit"
+    "room_entry_exit",
+    "public_video_side_actions",
+    "public_video_profile_button",
+    "public_video_rose_button",
+    "public_video_rose_count",
+    "public_video_message_button",
+    "public_video_share_button"
   ],
   "check_trigger_phrase": "K-톡 비밀번호 확인",
   "check_behavior": {
@@ -36,10 +42,5 @@
     "media_transport",
     "live_signal"
   ],
-  "temporarily_unlocked_components": [
-    "public_video_side_actions",
-    "public_video_rose_button",
-    "public_video_rose_count",
-    "public_video_message_label"
-  ]
+  "temporarily_unlocked_components": []
 }
