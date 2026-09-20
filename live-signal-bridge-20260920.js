@@ -94,7 +94,7 @@
   }
 
   async function tick(force){
-    var live=roomVisible()&&hasHostVideo();
+    var live=roomVisible();
     if(live){
       var now=Date.now();
       if(force||!wasHost||now-lastPublish>24000){
