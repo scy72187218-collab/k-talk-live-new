@@ -32,32 +32,20 @@
   }
 
   async function activeRooms(){
-    try{
-      var r=await fetch('https://zupwbfmacwzexyvznlzq.supabase.co/functions/v1/ktalk-live-signal?t='+Date.now(),{cache:'no-store'});
-      if(r.ok){
-        var rows=await r.json();rows=Array.isArray(rows)?rows:[];
-        if(window.__ktHostEndLock&&window.__ktHostEndLockHostId){
-          var ended=String(window.__ktHostEndLockHostId);
-          rows=rows.filter(function(x){return String(x.host_id||'')!==ended;});
-        }
-        if(rows.length){stableActiveRooms=rows;stableActiveAt=Date.now();return rows;}
-        stableActiveRooms=[];stableActiveAt=0;return [];
-      }
-    }catch(e){}
-
     var cut=new Date(Date.now()-STALE_MS).toISOString();
     try{
-      var r2=await fetch(BASE+'ktalk_live_rooms?select=host_id,host_name,title,room_name,host_photo,updated_at&active=eq.true&updated_at=gte.'+enc(cut)+'&order=started_at.desc&limit=50',{headers:{apikey:KEY,Authorization:'Bearer '+KEY}});
-      if(!r2.ok)return [];
-      var rows2=await r2.json();rows2=Array.isArray(rows2)?rows2:[];
-      if(window.__ktHostEndLock&&window.__ktHostEndLockHostId){
-        var ended2=String(window.__ktHostEndLockHostId);
-        rows2=rows2.filter(function(x){return String(x.host_id||'')!==ended2;});
-      }
-      if(rows2.length){stableActiveRooms=rows2;stableActiveAt=Date.now();return rows2;}
-      stableActiveRooms=[];stableActiveAt=0;return [];
+      var r=await fetch(BASE+'ktalk_live_rooms?select=host_id,host_name,title,room_name,host_photo,updated_at&active=eq.true&updated_at=gte.'+enc(cut)+'&order=started_at.desc&limit=50',{headers:{apikey:KEY,Authorization:'Bearer '+KEY}});
+      if(!r.ok)return [];
+      var rows=await r.json();rows=Array.isArray(rows)?rows:[];
+      if(window.__ktHostEndLock&&window.__ktHostEndLockHostId){var ended=String(window.__ktHostEndLockHostId);rows=rows.filter(function(x){return String(x.host_id||'')!==ended;});}
+      if(rows.length){stableActiveRooms=rows;stableActiveAt=Date.now();return rows;}
+      /* 방송 목록이 비었으면 종료된 방을 다시 표시하지 않는다. */
+      stableActiveRooms=[];stableActiveAt=0;
+      return [];
     }catch(e){
+      /* 순간적인 네트워크 조회 실패 때만 현재 방송 표시를 유지해 깜빡임을 막는다. */
       var keep=stableActiveRooms.length&&Date.now()-stableActiveAt<90000?stableActiveRooms:[];
+      if(window.__ktHostEndLock&&window.__ktHostEndLockHostId){var ended=String(window.__ktHostEndLockHostId);keep=keep.filter(function(x){return String(x.host_id||'')!==ended;});}
       return keep;
     }
   }
