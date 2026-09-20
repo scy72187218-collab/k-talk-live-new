@@ -27,6 +27,10 @@
     videoCommunication:false,
     mediaTransport:false,
     liveSignal:false,
+    publicVideoSideActions:false,
+    publicVideoRoseButton:false,
+    publicVideoRoseCount:false,
+    publicVideoMessageLabel:false,
     aiVoice:true,
     helpReader:true
   };
@@ -55,6 +59,11 @@
         '.kt-switch,[role="switch"],.live-prep .room-switch,.live-prep .prep-bottom button'
       ).forEach(function(el){
         el.setAttribute('data-kt-work-protected','1');
+      });
+
+      document.querySelectorAll('.vh-actions').forEach(function(el){
+        el.removeAttribute('data-kt-work-protected');
+        el.setAttribute('data-kt-public-video-actions-unlocked','1');
       });
 
       document.querySelectorAll('video,.kt-public-feed-scroller,.kt-public-video').forEach(function(el){
