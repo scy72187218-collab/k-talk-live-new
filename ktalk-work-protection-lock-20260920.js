@@ -4,6 +4,9 @@
    - 모든 스위치
    - 1인방 / 9명방 / 13명방 / 구독자방 / 비밀방
    - 동영상 표시/재생
+   - 현재 정상 동영상 통신/공용 동영상 목록 연결
+   - 현재 정상 영상 송수신 경로
+   빨간 LIVE 신호는 아직 작업 대상이므로 보호 잠금에서 제외한다.
    실제 터치/입장/채팅/스위치/동영상 재생 기능은 막지 않는다.
    이후 수정 작업에서 이 플래그를 확인해 보호 대상을 건드리지 않기 위한 잠금이다. */
 (function(){
@@ -20,6 +23,10 @@
     subscriber:true,
     secret:true,
     videos:true,
+    videoFeed:true,
+    videoCommunication:true,
+    mediaTransport:true,
+    liveSignal:false,
     aiVoice:true,
     helpReader:true
   };
@@ -50,8 +57,9 @@
         el.setAttribute('data-kt-work-protected','1');
       });
 
-      document.querySelectorAll('video').forEach(function(el){
+      document.querySelectorAll('video,.kt-public-feed-scroller,.kt-public-video').forEach(function(el){
         el.setAttribute('data-kt-work-protected','1');
+        el.setAttribute('data-kt-video-communication-protected','1');
       });
 
       document.querySelectorAll(
@@ -69,8 +77,14 @@
     return !!locked[name];
   };
   window.ktLockCurrentApprovedState=function(){
-    Object.keys(locked).forEach(function(k){locked[k]=true;});
+    Object.keys(locked).forEach(function(k){
+      if(k!=='liveSignal')locked[k]=true;
+    });
+    locked.liveSignal=false;
     save();markAll();return true;
+  };
+  window.ktIsLiveSignalWorkAllowed=function(){
+    return locked.liveSignal===false;
   };
 
   /* 보호 잠금은 UI 기능을 비활성화하지 않는다. */
