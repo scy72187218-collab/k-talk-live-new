@@ -6,6 +6,7 @@
   window.__ktGroup13FirstOpenCurrentGuard20260920=true;
 
   var guardUntil=0;
+  var stableUntil=0;
   var repairing=false;
   var startWrapped=false;
 
@@ -34,6 +35,7 @@
     /* 사양이 낮은 기기에서는 13명방 DOM 생성 전에 홈 동영상 복구가 먼저 실행될 수 있어
        방송 시작 터치 순간부터 13명방이 실제로 그려질 때까지 홈 복구를 막는다. */
     guardUntil=Date.now()+20000;
+    stableUntil=0;
     window.__ktGroup13StartInProgress=true;
     try{document.documentElement.classList.add('kt-g13-current-guard');}catch(e){}
     check();
@@ -41,11 +43,10 @@
 
   function disarmIfDone(){
     if(opening())return;
+    if(Date.now()<stableUntil)return;
     window.__ktGroup13StartInProgress=false;
     try{
-      if(!document.querySelector('#screen .ktg13-room')){
-        document.documentElement.classList.remove('kt-g13-current-guard');
-      }
+      document.documentElement.classList.remove('kt-g13-current-guard');
     }catch(e){}
   }
 
@@ -59,8 +60,11 @@
 
     if(room.getAttribute('data-kt-room')==='9'||room.getAttribute('data-kt-room')==='15')return;
     if(room.getAttribute('data-kt-approved13')==='1'){
+      /* 현재 승인 화면이 떠도 보호를 바로 풀지 않는다.
+         느린 기기에서 뒤늦게 옛 13명방 렌더가 한 번 더 들어오는 구간을 6초간 막는다. */
+      stableUntil=Math.max(stableUntil,Date.now()+6000);
       window.__ktGroup13StartInProgress=false;
-      try{document.documentElement.classList.remove('kt-g13-current-guard');}catch(e){}
+      try{document.documentElement.classList.add('kt-g13-current-guard');}catch(e){}
       return;
     }
 
@@ -122,5 +126,8 @@
   [50,120,250,500,900,1500,2500,4000,6500,9000].forEach(function(ms){
     setTimeout(check,ms);
   });
-  setInterval(function(){check();disarmIfDone();},220);
+  setInterval(function(){
+    check();
+    disarmIfDone();
+  },120);
 })();
