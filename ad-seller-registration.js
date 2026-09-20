@@ -149,7 +149,7 @@
   s.onload=function(){
     if(document.querySelector('script[data-kt-live-video-discovery]'))return;
     var v=document.createElement('script');
-    v.src='live-video-discovery.js?v=20260919-no-plus-bell1';
+    v.src='live-video-discovery.js?v=20260920-no-plus-bell2';
     v.async=false;
     v.setAttribute('data-kt-live-video-discovery','1');
     document.head.appendChild(v);
