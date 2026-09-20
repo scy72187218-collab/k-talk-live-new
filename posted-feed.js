@@ -307,3 +307,21 @@
     new MutationObserver(renameSaveLabel).observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 })();
+
+
+/* K-Talk public feed action layout 20260920 */
+(function(){
+  try{
+    if(document.getElementById('ktPublicFeedActionLayout20260920'))return;
+    var s=document.createElement('style');
+    s.id='ktPublicFeedActionLayout20260920';
+    s.textContent=''
+      +'.vh-actions .kt-feed-profile-button{background:transparent!important;border:0!important;padding:0!important}'
+      +'.vh-actions .kt-feed-profile-circle{display:flex!important;width:48px!important;height:48px!important;border-radius:50%!important;overflow:hidden!important;align-items:center!important;justify-content:center!important;border:2px solid #fff!important;background:#222!important;font-size:28px!important;box-sizing:border-box!important;box-shadow:0 2px 8px rgba(0,0,0,.45)!important}'
+      +'.vh-actions .kt-feed-profile-circle img{width:100%!important;height:100%!important;object-fit:cover!important;display:block!important}'
+      +'.vh-actions .kt-feed-one-rose small{font-size:11px!important;font-weight:950!important;margin-top:3px!important;color:#fff!important}'
+      +'.vh-actions .kt-feed-one-rose{background:transparent!important;border:0!important}'
+      +'@media(max-width:390px){.vh-actions .kt-feed-profile-circle{width:44px!important;height:44px!important}}';
+    document.head.appendChild(s);
+  }catch(e){}
+})();
