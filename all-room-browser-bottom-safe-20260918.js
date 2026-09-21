@@ -75,6 +75,8 @@
     var chat=px+62;
     try{
       document.querySelectorAll('.kt-remote-bottom').forEach(function(el){
+        /* 13명 승인 게스트방은 전용 하단 배치가 흰 브라우저선 바로 위를 담당한다. */
+        if(el.closest&&el.closest('.kt-remote-live.kt-guest13-bottom-compact'))return;
         el.style.setProperty('bottom','calc('+bottom+'px + env(safe-area-inset-bottom))','important');
         el.style.setProperty('z-index','90','important');
       });
