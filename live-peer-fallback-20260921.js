@@ -11,7 +11,7 @@
   var INTERACT='/api/live-interaction-memory';
   var ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
   var hostPeers={};
-  var viewer=null;
+  var viewer=null,enterBusy=false;
   var oldEnter=window.ktEnterRemoteLive;
   var oldLeave=window.ktLeaveRemoteLive;
   var remoteEndHost='',remoteEndArmed=false,remoteEndMisses=0,remoteEndBusy=false,hostWasOpen=false;
@@ -184,8 +184,8 @@
     }catch(e){}
   }
 
-  async function enterMemory(hostId){
-    var room=await beaconRoom(hostId);
+  async function enterMemory(hostId,roomOverride){
+    var room=roomOverride||await beaconRoom(hostId);
     if(!room)return false;
     if(!renderRemote(room))return false;
 
@@ -291,25 +291,35 @@
   }
 
   window.ktEnterRemoteLive=async function(hostId){
-    hostId=String(hostId||'');if(!hostId)return;
+    hostId=String(hostId||'');if(!hostId||enterBusy)return;
+    enterBusy=true;
     remoteEndHost=hostId;remoteEndMisses=0;remoteEndArmed=false;
     window.__ktRemoteHostId=hostId;
-    /* If DB signaling responds, preserve the original working path. */
-    if(await dbAvailable(hostId)){
-      remoteEndArmed=true;
-      return oldEnter?oldEnter(hostId):undefined;
-    }
+    var cached=window.__ktLastLiveRoom&&String(window.__ktLastLiveRoom.host_id||'')===hostId?window.__ktLastLiveRoom:null;
     try{
-      var ok=await enterMemory(hostId);
-      if(ok)remoteEndArmed=true;
-      if(!ok){
-        if(oldEnter)return oldEnter(hostId);
-        alert('방송 연결 정보를 찾지 못했습니다.');
+      /* 빨간 LIVE가 이미 떠 있었다면 그 정보를 그대로 써서 화면부터 즉시 연다. */
+      if(cached){
+        var ok=await enterMemory(hostId,cached);
+        if(ok){remoteEndArmed=true;return;}
       }
+
+      /* 캐시가 없을 때만 짧게 기존 경로를 확인한다. */
+      if(await dbAvailable(hostId)){
+        remoteEndArmed=true;
+        if(oldEnter)return oldEnter(hostId);
+      }
+
+      var ok2=await enterMemory(hostId,cached);
+      if(ok2){remoteEndArmed=true;return;}
+
+      /* 팝업 대신 화면 안에서만 조용히 상태를 표시한다. */
+      var st=document.getElementById('ktRemoteLiveStatus');
+      if(st){st.style.display='block';st.textContent='방송 연결을 확인 중입니다…';}
     }catch(e){
-      document.documentElement.classList.remove('kt-remote-viewing');
-      viewer=null;
-      alert('방송 영상 연결을 시작하지 못했습니다. 다시 눌러 주세요.');
+      var st2=document.getElementById('ktRemoteLiveStatus');
+      if(st2){st2.style.display='block';st2.textContent='방송 연결을 확인 중입니다…';}
+    }finally{
+      setTimeout(function(){enterBusy=false;},250);
     }
   };
 
