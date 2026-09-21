@@ -244,9 +244,18 @@
     if(!isGroup13())return oldStartBroadcast.apply(this,arguments);
 
     /* 13명방 전용:
-       5→4→3→2→1 카운트가 끝나는 즉시 현재 승인 13명방을 먼저 보여준다.
-       그 뒤 기존 시작 로직이 잠깐 만드는 옛 기본 방송 화면은 opening guard 뒤에서만
-       실행되므로 사용자에게는 보이지 않는다. 다른 방은 기존 로직 그대로 둔다. */
+       카메라/영상 준비를 먼저 끝낸 뒤 5→4→3→2→1 카운트를 시작한다.
+       그래서 1이 끝난 뒤에는 검은 준비시간 없이 현재 승인 13명방으로 바로 들어간다.
+       옛 기본 13명방은 opening guard 뒤에서만 처리되어 화면에 보이지 않는다. */
+    var hasLiveVideo=false;
+    try{
+      hasLiveVideo=!!(window.state&&state.stream&&state.stream.getVideoTracks&&
+        state.stream.getVideoTracks().some(function(t){return t.readyState==='live';}));
+    }catch(e){}
+    if(!hasLiveVideo&&typeof window.ensureLiveCamera==='function'){
+      try{await window.ensureLiveCamera((window.state&&state.cameraFacing)||'user');}catch(e){}
+    }
+
     markGroup13Opening();
 
     var originalCountdown=window.ktLiveStartCountdown;
