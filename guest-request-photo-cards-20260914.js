@@ -142,6 +142,7 @@
   }
 
   async function tick(){
+    if(window.__ktGuestRealtimeFlowActive)return;
     wrapGuestRequest();
     if(document.documentElement.classList.contains('kt-remote-viewing')||!document.querySelector('.ktg13-room')){removeRail();return;}
     var hid=deviceId();if(!hid)return;
