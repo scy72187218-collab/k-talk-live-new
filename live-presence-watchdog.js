@@ -10,7 +10,7 @@
   var misses=0;
   var broadcastStarted=false;
   var lastDedupeAt=0;
-  var endLock=false;
+  var endLock=false,notLiveSince=0;
   var BEACON='/api/live-beacon-memory';
   var beaconBusy=false;
 
@@ -79,13 +79,30 @@
     }catch(e){}
     return false;
   }
+  function elementVisible(el){
+    if(!el||!el.isConnected)return false;
+    try{
+      var st=getComputedStyle(el),r=el.getBoundingClientRect();
+      return st.display!=='none'&&st.visibility!=='hidden'&&Number(st.opacity)!==0&&r.width>8&&r.height>8;
+    }catch(e){return false;}
+  }
   function liveRoomVisible(){
-    if(group9Open())return true;
-    return !!document.querySelector('.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room,#ktLiveVideo');
+    var rooms=[].slice.call(document.querySelectorAll('.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room'));
+    return rooms.some(elementVisible);
+  }
+  function hasLocalLiveStream(){
+    try{
+      if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
+      var s=window.state&&state.stream;
+      return !!(s&&s.getVideoTracks&&s.getVideoTracks().some(function(t){return t.readyState==='live'&&t.enabled!==false;}));
+    }catch(e){return false;}
+  }
+  function actualHostLiveNow(){
+    if(endLock||!broadcastStarted)return false;
+    return liveRoomVisible()&&hasLocalLiveStream();
   }
   function shouldBeLive(){
-    if(endLock)return false;
-    return broadcastStarted||liveRoomVisible();
+    return actualHostLiveNow();
   }
   function roomInfo(){
     var type='solo',name='1인 방송',title='';
@@ -122,11 +139,7 @@
   }
 
   function beaconShouldBeLive(){
-    if(endLock)return false;
-    if(broadcastStarted)return true;
-    try{
-      return !!document.querySelector('.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room');
-    }catch(e){return false;}
+    return actualHostLiveNow();
   }
 
   async function beacon(action){
@@ -178,9 +191,9 @@
   }
 
   async function publishIfNeeded(force){
-    if(endLock)return;
+    if(endLock||!actualHostLiveNow())return;
     if(force||beaconShouldBeLive())beacon('publish');
-    if(publishing||(!force&&!shouldBeLive()))return;
+    if(publishing)return;
     publishing=true;
     var id=hostId(),stamp=now();
     try{
@@ -219,12 +232,11 @@
 
   function markBroadcastStarted(){
     endLock=false;
+    notLiveSince=0;
     window.__ktLiveWatchdogEndLock=false;
     broadcastStarted=true;
-    beacon('publish');
     window.__ktHostBroadcastActive=true;
-    publishIfNeeded(true);
-    [120,350,800,1600].forEach(function(ms){setTimeout(function(){publishIfNeeded(true);},ms);});
+    [180,450,900,1600,2600].forEach(function(ms){setTimeout(function(){publishIfNeeded(true);},ms);});
   }
   window.ktForcePublishLiveNow=function(){
     markBroadcastStarted();
@@ -260,8 +272,9 @@
 
   async function heartbeat(){
     if(endLock)return;
-    if(beaconShouldBeLive())beacon('heartbeat');
-    if(shouldBeLive()){
+    if(actualHostLiveNow()){
+      notLiveSince=0;
+      beacon('heartbeat');
       misses=0;
       if(!roomId){await publishIfNeeded(true);return;}
       try{
@@ -273,9 +286,9 @@
       }catch(e){roomId='';}
       return;
     }
-    if(!roomId)return;
-    misses++;
-    if(misses<4)return;
+    if(!broadcastStarted&&!roomId)return;
+    if(!notLiveSince)notLiveSince=Date.now();
+    if(Date.now()-notLiveSince<1400)return;
     await stopFallbackPresence();
   }
 
