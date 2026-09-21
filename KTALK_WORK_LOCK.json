@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Selective lock restored after owner-authorized 13-person-room transition fix. Only the 13-room countdown/entry path was edited; protected runtime controls remain usable.",
+  "note": "Locked after owner confirmation on 2026-09-21. Keep the current 13-person approved guest layout, bottom controls position, earnings HUD size/position, room entry/exit, live signal, and working runtime controls unchanged unless the owner explicitly unlocks with the PIN.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -27,7 +27,10 @@
     "public_video_message_button",
     "public_video_share_button",
     "group13_current_room_entry",
-    "group13_countdown_transition"
+    "group13_countdown_transition",
+    "guest13_bottom_controls_layout",
+    "guest13_earnings_hud_position",
+    "guest13_earnings_hud_size"
   ],
   "check_trigger_phrase": "K-톡 비밀번호 확인",
   "check_behavior": {
@@ -36,9 +39,6 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "group13_current_room_entry",
-    "group13_countdown_transition"
-  ],
+  "current_editable_components": [],
   "temporarily_unlocked_components": []
 }
