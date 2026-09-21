@@ -32,7 +32,8 @@
     "guest13_earnings_hud_position",
     "guest13_earnings_hud_size",
     "webrtc_transport_stability",
-    "group13_guest_uplink"
+    "group13_guest_uplink",
+    "approved_guest_earnings_hud"
   ],
   "check_trigger_phrase": "K-톡 비밀번호 확인",
   "check_behavior": {
@@ -45,7 +46,5 @@
     "webrtc_transport_stability",
     "group13_guest_uplink"
   ],
-  "temporarily_unlocked_components": [
-    "approved_guest_earnings_hud"
-  ]
+  "temporarily_unlocked_components": []
 }
