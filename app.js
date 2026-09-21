@@ -524,8 +524,18 @@ window.makeEffectRecordingStream=function(){
   if(!camera||!camera.videoWidth)return state.stream;
 
   var canvas=document.createElement('canvas');
-  canvas.width=1080;canvas.height=1920;
-  var ctx=canvas.getContext('2d');
+  /* 실제 카메라 해상도보다 억지로 키우지 않는다.
+     720x1280 카메라를 1080x1920으로 매 프레임 확대하던 부하를 줄여 흔들림/끊김을 낮춘다. */
+  var srcW=Math.max(2,Number(camera.videoWidth)||720);
+  var srcH=Math.max(2,Number(camera.videoHeight)||1280);
+  var portrait=srcH>=srcW;
+  var shortSide=Math.min(portrait?srcW:srcH,1080);
+  var longSide=Math.min(portrait?srcH:srcW,1920);
+  shortSide=Math.max(2,Math.floor(shortSide/2)*2);
+  longSide=Math.max(2,Math.floor(longSide/2)*2);
+  canvas.width=portrait?shortSide:longSide;
+  canvas.height=portrait?longSide:shortSide;
+  var ctx=canvas.getContext('2d',{alpha:false,desynchronized:true});
   if(!ctx||!canvas.captureStream)return state.stream;
   ktEffectRecordCanvas=canvas;
 
@@ -606,20 +616,50 @@ window.startCreatorRecording=async function(){
   var ok=await ensureLiveCamera(state.cameraFacing||'user');
   if(!ok)return;
 
+  /* 촬영할 때만 30fps를 우선하고, 정지화면(detail)보다 움직임(motion)을 우선한다.
+     기기가 최소 24fps를 못 받으면 기존 카메라 설정을 그대로 사용한다. */
+  try{
+    var recordTrack=state.stream&&state.stream.getVideoTracks&&state.stream.getVideoTracks()[0];
+    if(recordTrack){
+      try{recordTrack.contentHint='motion';}catch(e){}
+      try{
+        await recordTrack.applyConstraints({frameRate:{ideal:30,min:24,max:30}});
+      }catch(e){
+        try{await recordTrack.applyConstraints({frameRate:{ideal:30,max:30}});}catch(_e){}
+      }
+      try{
+        var rcaps=recordTrack.getCapabilities?recordTrack.getCapabilities():{};
+        if(rcaps.focusMode&&rcaps.focusMode.indexOf('continuous')>-1){
+          await recordTrack.applyConstraints({advanced:[{focusMode:'continuous'}]});
+        }
+      }catch(e){}
+    }
+  }catch(e){}
+
   ktCreatorChunks=[];
   ktCreatorBlob=null;
   ktImportedVideoName='';
   if(ktCreatorBlobUrl){try{URL.revokeObjectURL(ktCreatorBlobUrl);}catch(e){} ktCreatorBlobUrl='';}
 
+  var ktRecordStream=makeEffectRecordingStream();
   try{
-    /* 브라우저가 자기 기기에서 가장 안정적인 영상 형식을 직접 선택하게 합니다. */
-    ktCreatorRecorder=new MediaRecorder(makeEffectRecordingStream());
+    /* 휴대폰에서 VP9 같은 무거운 코덱으로 떨어지지 않게 VP8을 우선하고,
+       720p~1080p 세로영상에 충분한 비트레이트를 확보한다. */
+    var recOpt={videoBitsPerSecond:5000000,audioBitsPerSecond:128000};
+    if(MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')){
+      recOpt.mimeType='video/webm;codecs=vp8,opus';
+    }
+    ktCreatorRecorder=new MediaRecorder(ktRecordStream,recOpt);
   }catch(e){
     try{
-      ktCreatorRecorder=new MediaRecorder(makeEffectRecordingStream(),{mimeType:'video/webm;codecs=vp8,opus'});
+      ktCreatorRecorder=new MediaRecorder(ktRecordStream,{videoBitsPerSecond:4000000,audioBitsPerSecond:128000});
     }catch(err){
-      alert('동영상 촬영을 시작할 수 없습니다.');
-      return;
+      try{
+        ktCreatorRecorder=new MediaRecorder(ktRecordStream);
+      }catch(lastErr){
+        alert('동영상 촬영을 시작할 수 없습니다.');
+        return;
+      }
     }
   }
 
@@ -682,7 +722,7 @@ window.startCreatorRecording=async function(){
   };
 
   try{
-    ktCreatorRecorder.start(500);
+    ktCreatorRecorder.start(1000);
     ktCreatorRecording=true;
     if(ktCreatorDurationTimer)clearTimeout(ktCreatorDurationTimer);
     ktCreatorDurationTimer=setTimeout(function(){if(ktCreatorRecording)stopCreatorRecording();},ktCreatorDuration);
