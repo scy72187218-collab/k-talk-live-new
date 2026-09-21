@@ -408,7 +408,7 @@
   };
 
   window.ktLeaveRemoteLive=async function(silent){
-    var c=viewerCtx;viewerCtx=null;window.__ktRemoteHostStream=null;document.documentElement.classList.remove('kt-remote-viewing');
+    var c=viewerCtx;viewerCtx=null;window.__ktRemoteHostStream=null;window.__ktRemoteHostId='';try{sessionStorage.removeItem('kt_remote_host_id');}catch(e){}document.documentElement.classList.remove('kt-remote-viewing');
     if(c){
       clearInterval(c.signalTimer);clearInterval(c.heartbeat);clearInterval(c.activityTimer);try{c.pc.close();}catch(e){}
       try{await req('ktalk_live_viewers?host_id=eq.'+enc(c.hostId)+'&viewer_id=eq.'+enc(c.viewerId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})});}catch(e){}
