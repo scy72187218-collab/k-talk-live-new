@@ -67,9 +67,9 @@
     if(!armedAt)return;
 
     /* Host broadcast ended: browsers can keep the last video frame frozen.
-       If no new frame/time progress arrives for 2.6s after video had played,
+       If no new frame/time progress arrives for 8.5s after video had played,
        close the room and go back to the normal video feed. */
-    if(now-lastProgress>2600)returnToVideo();
+    if(now-lastProgress>8500)returnToVideo();
   }
 
   setInterval(tick,400);
