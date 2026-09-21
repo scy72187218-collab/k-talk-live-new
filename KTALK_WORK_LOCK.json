@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Selective lock only. Current approved working state saved 2026-09-21 12:49 KST. 13-person room opens only after countdown reaches 1, with no old-version flash; protected after verification deployment.",
+  "note": "Selective lock restored after owner-authorized 13-person-room transition fix. Only the 13-room countdown/entry path was edited; protected runtime controls remain usable.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -40,8 +40,5 @@
     "group13_current_room_entry",
     "group13_countdown_transition"
   ],
-  "temporarily_unlocked_components": [
-    "group13_current_room_entry",
-    "group13_countdown_transition"
-  ]
+  "temporarily_unlocked_components": []
 }
