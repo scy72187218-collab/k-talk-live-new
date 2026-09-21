@@ -243,48 +243,80 @@
   window.startBroadcast=async function(){
     if(!isGroup13())return oldStartBroadcast.apply(this,arguments);
 
-    /* 13명방 전용:
-       카메라/영상 준비를 먼저 끝낸 뒤 5→4→3→2→1 카운트를 시작한다.
-       그래서 1이 끝난 뒤에는 검은 준비시간 없이 현재 승인 13명방으로 바로 들어간다.
-       옛 기본 13명방은 opening guard 뒤에서만 처리되어 화면에 보이지 않는다. */
-    var hasLiveVideo=false;
-    try{
-      hasLiveVideo=!!(window.state&&state.stream&&state.stream.getVideoTracks&&
-        state.stream.getVideoTracks().some(function(t){return t.readyState==='live';}));
-    }catch(e){}
-    if(!hasLiveVideo&&typeof window.ensureLiveCamera==='function'){
-      try{await window.ensureLiveCamera((window.state&&state.cameraFacing)||'user');}catch(e){}
-    }
+    /* 13명방만: 카운트다운은 딱 한 번 5→4→3→2→1까지 보여주고
+       1이 끝난 즉시 현재 승인된 13명방을 연다.
+       기존 시작 로직의 두 번째 카운트다운/옛 방 DOM은 화면에 보이지 않게 처리한다. */
+    if(window.__ktG13SingleCountdownRunning)return;
+    window.__ktG13SingleCountdownRunning=true;
 
-    markGroup13Opening();
-
+    var overlay=null;
     var originalCountdown=window.ktLiveStartCountdown;
-    var countdownWrapped=false;
-    if(typeof originalCountdown==='function'&&!originalCountdown.__ktG13AfterOneCurrent){
-      var g13Countdown=async function(){
-        var r=await originalCountdown.apply(this,arguments);
-        try{
-          var cr=window.creator||document.getElementById('creator');
-          if(cr)cr.classList.remove('show','live-prep-open');
-        }catch(e){}
-        renderApprovedGroup13(true);
-        return r;
-      };
-      g13Countdown.__ktG13AfterOneCurrent=true;
-      window.ktLiveStartCountdown=g13Countdown;
-      countdownWrapped=true;
-    }
+    var screenEl=document.getElementById('screen');
+    var guardObserver=null;
 
     try{
+      var host=window.creator||document.getElementById('creator');
+      if(!host)throw new Error('creator not found');
+
+      var oldOverlay=document.getElementById('ktG13SingleCountdown');
+      if(oldOverlay)oldOverlay.remove();
+
+      overlay=document.createElement('div');
+      overlay.id='ktG13SingleCountdown';
+      overlay.style.cssText='position:absolute;inset:0;z-index:99999;display:grid;place-items:center;background:rgba(0,0,0,.22);pointer-events:none;color:#fff;text-align:center;text-shadow:0 3px 16px rgba(0,0,0,.72)';
+      host.appendChild(overlay);
+
+      var num=document.createElement('div');
+      num.style.cssText='width:116px;height:116px;border-radius:50%;display:grid;place-items:center;background:rgba(10,10,14,.72);border:4px solid rgba(255,255,255,.92);color:#fff;font:900 64px/1 system-ui,-apple-system,sans-serif;box-shadow:0 0 28px rgba(255,44,130,.7);text-shadow:0 0 12px rgba(255,255,255,.7)';
+      overlay.appendChild(num);
+
+      for(var n=5;n>=1;n--){
+        num.textContent=String(n);
+        num.style.transform='scale(1)';
+        await new Promise(function(resolve){
+          setTimeout(function(){num.style.transform='scale(.92)';},650);
+          setTimeout(resolve,1000);
+        });
+      }
+
+      if(overlay){overlay.remove();overlay=null;}
+
+      /* 1초 표시가 완전히 끝난 뒤 현재 방을 바로 연다. */
+      markGroup13Opening();
+      try{host.classList.remove('show','live-prep-open');}catch(e){}
+      renderApprovedGroup13(true);
+
+      /* 아래 기존 시작 로직은 세션/수익/타이머 초기화만 사용한다.
+         두 번째 카운트다운은 건너뛴다. */
+      if(typeof originalCountdown==='function'){
+        window.ktLiveStartCountdown=async function(){return;};
+      }
+
+      /* 기존 로직이 옛 13명방 DOM을 잠깐 만들더라도 같은 프레임 안에서
+         승인된 현재 13명방으로 되돌려 화면에는 보이지 않게 한다. */
+      if(screenEl&&window.MutationObserver){
+        guardObserver=new MutationObserver(function(){
+          try{
+            var current=screenEl.querySelector('.ktg13-room[data-kt-approved13="1"]');
+            if(!current)renderApprovedGroup13(true);
+          }catch(e){}
+        });
+        guardObserver.observe(screenEl,{childList:true,subtree:false});
+      }
+
       var result=await oldStartBroadcast.apply(this,arguments);
-      /* 기존 시작 로직이 끝난 직후 현재 승인 화면으로 한 번 더 확정 */
+
+      if(guardObserver){try{guardObserver.disconnect();}catch(e){}guardObserver=null;}
       renderApprovedGroup13(false);
       return result;
     }catch(e){
+      if(guardObserver){try{guardObserver.disconnect();}catch(_e){}guardObserver=null;}
+      try{if(overlay)overlay.remove();}catch(_e){}
       try{renderApprovedGroup13(false);}catch(_e){}
       throw e;
     }finally{
-      if(countdownWrapped)window.ktLiveStartCountdown=originalCountdown;
+      if(originalCountdown)window.ktLiveStartCountdown=originalCountdown;
+      window.__ktG13SingleCountdownRunning=false;
     }
   };
 
