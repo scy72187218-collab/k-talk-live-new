@@ -309,7 +309,25 @@
      }
 
      if(window.startTestBroadcast){
-       await window.startTestBroadcast();
+       var is13=false;
+       try{
+         is13=!!(window.state&&(
+           state.liveRoomType==='group13'||
+           (state.liveRoomType==='group'&&Number(state.liveRoomMax||0)===13)||
+           String(state.liveRoomName||'')==='13명 방송'
+         ));
+       }catch(_e){}
+       if(is13&&typeof window.ktOpenApprovedGroup13Now==='function'){
+         /* 13명방에서는 예전 테스트 방송 화면을 절대 만들지 않는다.
+            카운트다운 뒤 바로 현재 승인된 13명방만 연다. */
+         try{
+           var cr=window.creator||document.getElementById('creator');
+           if(cr)cr.classList.remove('show','live-prep-open');
+         }catch(_e){}
+         window.ktOpenApprovedGroup13Now(true);
+       }else{
+         await window.startTestBroadcast();
+       }
      }else{
        throw new Error('broadcast screen not available');
      }
