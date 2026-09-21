@@ -121,18 +121,21 @@
       /* 타이머가 잠깐 밀려도 전체 5초가 늘어나지 않게 실제 경과시간 기준으로 숫자를 바꾼다. */
       var started=performance.now();
       var last=0;
+      var isGroup13Countdown=!!(pendingGroup13||detect13Selection());
+      var totalMs=isGroup13Countdown?4000:5000;
+      var minNum=isGroup13Countdown?2:1;
       num.textContent='5';
 
       function frame(now){
         if(!document.documentElement.contains(wrap)){resolve(true);return;}
         var elapsed=Math.max(0,now-started);
-        if(elapsed>=5000){
+        if(elapsed>=totalMs){
           removeCountdown();
           resolve(true);
           return;
         }
 
-        var next=Math.max(1,5-Math.floor(elapsed/1000));
+        var next=Math.max(minNum,5-Math.floor(elapsed/1000));
         if(next!==last){
           last=next;
           num.textContent=String(next);
