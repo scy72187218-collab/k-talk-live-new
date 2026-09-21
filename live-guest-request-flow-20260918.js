@@ -203,7 +203,41 @@
       return age>=0&&age<15*60*1000?r:null;
     }catch(e){return null;}
   }
-  async function postGuestMessage(hostId,type,message,senderId,senderName){if(!hostId)return false;try{await req('ktalk_live_messages',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({host_id:hostId,sender_id:senderId||viewerId(),sender_name:senderName||profile().name||'게스트',message:String(message||'').slice(0,300),message_type:String(type||'guest_request')})});return true;}catch(e){return false;}}
+  async function postGuestMessage(hostId,type,message,senderId,senderName){
+    if(!hostId)return false;
+    var payload={
+      host_id:hostId,
+      sender_id:senderId||viewerId(),
+      sender_name:senderName||profile().name||'게스트',
+      message:String(message||'').slice(0,300),
+      message_type:String(type||'guest_request')
+    };
+    var ok=false;
+
+    /* 승인/신청 상태는 DB와 메모리 신호 양쪽에 같이 남긴다.
+       한쪽 연결이 순간 흔들려도 다음 폴링에서 승인 상태가 사라지지 않게 한다. */
+    try{
+      if(await ensureConfig()){
+        var ctrl=typeof AbortController!=='undefined'?new AbortController():null;
+        var timer=ctrl?setTimeout(function(){ctrl.abort();},1800):null;
+        var opt={method:'POST',headers:headers({Prefer:'return=minimal'}),body:JSON.stringify(payload),cache:'no-store'};
+        if(ctrl)opt.signal=ctrl.signal;
+        var rr=await fetch(BASE+'ktalk_live_messages',opt);
+        if(timer)clearTimeout(timer);
+        if(rr&&rr.ok)ok=true;
+      }
+    }catch(e){}
+
+    try{
+      await memoryReq('ktalk_live_messages',{
+        method:'POST',
+        body:JSON.stringify(payload)
+      });
+      ok=true;
+    }catch(e){}
+
+    return ok;
+  }
 
   async function sendGuestRequest(){
     var b=document.getElementById('ktRemoteGuestRequest');
@@ -298,12 +332,12 @@
     });
 
     renderRequestRail(pending);
-    await hostGuestSessionTick(approvedNow);
+    await hostGuestSessionTick(approvedNow,cancelledAt,requestAt);
   }
 
   /* 현재 방송에서 호스트가 승인한 게스트만 호스트 화면에 카메라를 올린다. 예전/남은 WebRTC 세션은 표시하지 않는다. */
-  async function hostGuestSessionTick(approvedNow){
-    approvedNow=approvedNow||{};
+  async function hostGuestSessionTick(approvedNow,cancelledAt,requestAt){
+    approvedNow=approvedNow||{};cancelledAt=cancelledAt||{};requestAt=requestAt||{};
     if(!document.querySelector('.ktg13-room'))return;
 
     var hid=deviceId(),rows=[];
@@ -330,8 +364,20 @@
       if(!vid)return;
 
       if(!approvedNow[vid]){
-        delete hostGuestMissingSince[vid];
+        var cancelled=!!(cancelledAt[vid]&&(!requestAt[vid]||String(cancelledAt[vid])>=String(requestAt[vid])));
+        if(cancelled){
+          delete hostGuestMissingSince[vid];
+          releaseGuestSlot(slot,vid);
+          return;
+        }
+
+        /* 승인 직후 DB/메모리 신호가 잠깐 엇갈려도 게스트 칸을 바로 지우지 않는다.
+           최대 2분 동안 같은 자리에서 재연결을 기다린다. */
+        if(!hostGuestMissingSince[vid])hostGuestMissingSince[vid]=Date.now();
+        if(Date.now()-hostGuestMissingSince[vid]<120000)return;
+
         releaseGuestSlot(slot,vid);
+        delete hostGuestMissingSince[vid];
         return;
       }
 
@@ -739,7 +785,7 @@
          30초 동안 같은 자리와 카메라를 유지하며 자동 재연결한다. */
       if(viewerGuest.approvedKey&&viewerGuest.hostId===hostId){
         if(!viewerGuest.approvalMissingSince)viewerGuest.approvalMissingSince=Date.now();
-        if(Date.now()-viewerGuest.approvalMissingSince<60000){
+        if(Date.now()-viewerGuest.approvalMissingSince<120000){
           if(viewerGuest.stream)startLocalGuestViewGuard(viewerGuest.stream);
           return;
         }
