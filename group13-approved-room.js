@@ -235,11 +235,39 @@
 
   window.startBroadcast=async function(){
     if(!isGroup13())return oldStartBroadcast.apply(this,arguments);
-    /* 시작 시 전체화면 전환은 하지 않음: 카운트다운이 5부터 바로 보이게 유지 */
+    /* 13명방만 1초 단계는 없앤다: 5→4→3→2 후 바로 현재 13명방을 연다.
+       다른 방의 카운트다운은 그대로 둔다. */
     markGroup13Opening();
-    var result=await oldStartBroadcast.apply(this,arguments);
-    setTimeout(renderApprovedGroup13,0);
-    return result;
+    var originalCountdown=window.ktLiveStartCountdown;
+    if(typeof originalCountdown==='function'){
+      window.ktLiveStartCountdown=async function(){
+        var old=document.getElementById('ktLiveCountdown');
+        if(old)old.remove();
+        var wrap=document.createElement('div');
+        wrap.id='ktLiveCountdown';
+        wrap.style.cssText='position:fixed;inset:0;z-index:99999;display:grid;place-items:center;background:rgba(0,0,0,.22);pointer-events:none;';
+        var num=document.createElement('div');
+        num.style.cssText='width:116px;height:116px;border-radius:50%;display:grid;place-items:center;background:rgba(10,10,14,.72);border:4px solid rgba(255,255,255,.92);color:#fff;font:900 64px/1 system-ui,-apple-system,sans-serif;box-shadow:0 0 28px rgba(255,44,130,.7);text-shadow:0 0 12px rgba(255,255,255,.7);';
+        wrap.appendChild(num);
+        document.body.appendChild(wrap);
+        for(var n=5;n>=2;n--){
+          num.textContent=String(n);
+          num.style.transform='scale(1)';
+          await new Promise(function(resolve){
+            setTimeout(function(){num.style.transform='scale(.92)';},650);
+            setTimeout(resolve,1000);
+          });
+        }
+        wrap.remove();
+      };
+    }
+    try{
+      var result=await oldStartBroadcast.apply(this,arguments);
+      setTimeout(renderApprovedGroup13,0);
+      return result;
+    }finally{
+      if(originalCountdown)window.ktLiveStartCountdown=originalCountdown;
+    }
   };
 
   /* 시작 버튼을 누르는 순간부터 옛 13명방 화면을 가려 카운트 후 번쩍임 방지 */
