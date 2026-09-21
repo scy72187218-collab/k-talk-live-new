@@ -40,5 +40,8 @@
     "group13_current_room_entry",
     "group13_countdown_transition"
   ],
-  "temporarily_unlocked_components": []
+  "temporarily_unlocked_components": [
+    "group13_current_room_entry",
+    "group13_countdown_transition"
+  ]
 }
