@@ -24,15 +24,16 @@
     try{return JSON.parse(JSON.stringify(list||[]));}catch(e){return list||[];}
   }
 
-  window.ktGetRtcConfig=function(){
+  window.ktGetRtcConfig=function(mode){
     var extra=[];
     try{
       if(Array.isArray(window.__ktCustomTurnIceServers))extra=window.__ktCustomTurnIceServers;
     }catch(e){}
+    var relayOnly=(mode==='relay')||!!(mode&&mode.relayOnly);
     return {
       iceServers:cloneServers(stunServers().concat(relayServers,extra)),
-      iceTransportPolicy:'all',
-      iceCandidatePoolSize:2,
+      iceTransportPolicy:(relayOnly&&relayServers.length)?'relay':'all',
+      iceCandidatePoolSize:4,
       bundlePolicy:'max-bundle',
       rtcpMuxPolicy:'require'
     };
