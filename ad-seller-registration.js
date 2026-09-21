@@ -149,7 +149,7 @@
   s.onload=function(){
     if(document.querySelector('script[data-kt-live-video-discovery]'))return;
     var v=document.createElement('script');
-    v.src='live-video-discovery.js?v=20260921-fastoff1';
+    v.src='live-video-discovery.js?v=20260921-centerreq-live-swipe1';
     v.async=false;
     v.setAttribute('data-kt-live-video-discovery','1');
     document.head.appendChild(v);
