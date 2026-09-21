@@ -115,7 +115,7 @@
 
   function publishOn(){
     if(forcedOff)return;
-    if(!isHostLive()&&!(lastHostState&&hostHealthyAt&&Date.now()-hostHealthyAt<12000))return;
+    if(!isHostLive()&&!(lastHostState&&hostHealthyAt&&Date.now()-hostHealthyAt<30000))return;
     var r=roomInfo();
     broadcast('live_on',{
       host_id:DEVICE,
@@ -306,7 +306,7 @@
     }else if(lastHostState){
       /* 방송 화면/카메라가 잠깐 흔들려도 즉시 LIVE를 내리지 않는다.
          명시적 종료 버튼은 아래 래퍼에서 바로 live_off를 보낸다. */
-      if(!hostHealthyAt||Date.now()-hostHealthyAt>12000){
+      if(!hostHealthyAt||Date.now()-hostHealthyAt>30000){
         lastHostState=false;stopHostBeacon();
       }
     }
