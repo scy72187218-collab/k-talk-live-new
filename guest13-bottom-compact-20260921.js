@@ -14,12 +14,12 @@
     s.textContent=''
       +'.kt-remote-live.kt-guest13-bottom-compact>.kt-remote-bottom{bottom:0!important;transform:none!important}'
       +'.kt-remote-live.kt-guest13-bottom-compact .kt-remote-bottom .kt-remote-action.gift{position:relative!important;top:0!important;transform:none!important}'
-      +'.kt-remote-live.kt-guest13-bottom-compact .kgh-earn{width:70px!important;min-width:70px!important;max-width:70px!important;height:39px!important;max-height:39px!important;right:2px!important;padding:1px 2px!important;border-radius:7px!important}'
+      +'.kt-remote-live.kt-guest13-bottom-compact .kgh-earn{width:62px!important;min-width:62px!important;max-width:62px!important;height:36px!important;max-height:36px!important;right:2px!important;padding:1px 2px!important;border-radius:7px!important}'
       +'.kt-remote-live.kt-guest13-bottom-compact .kgh-earn .top{gap:1px!important}'
       +'.kt-remote-live.kt-guest13-bottom-compact .kgh-earn .top span{font-size:4.3px!important}'
       +'.kt-remote-live.kt-guest13-bottom-compact .kgh-earn .top b{font-size:6.8px!important}'
       +'.kt-remote-live.kt-guest13-bottom-compact .kgh-earn-detail{font-size:4.1px!important;gap:1px!important;margin-top:1px!important;line-height:1!important}'
-      +'.kt-remote-live.kt-guest13-bottom-compact .kt-allroom-guest-earn{width:72px!important;min-width:72px!important;max-width:72px!important;height:41px!important;max-height:41px!important;right:3px!important;bottom:52px!important;padding:1px 2px!important;border-radius:7px!important}'
+      +'.kt-remote-live.kt-guest13-bottom-compact .kt-allroom-guest-earn{width:64px!important;min-width:64px!important;max-width:64px!important;height:38px!important;max-height:38px!important;right:3px!important;bottom:48px!important;padding:1px 2px!important;border-radius:7px!important}'
       +'.kt-remote-live.kt-guest13-bottom-compact .kt-allroom-guest-earn .kt-ge-top span{font-size:4.2px!important}'
       +'.kt-remote-live.kt-guest13-bottom-compact .kt-allroom-guest-earn .kt-ge-top b{font-size:6.7px!important}'
       +'.kt-remote-live.kt-guest13-bottom-compact .kt-allroom-guest-earn .kt-ge-detail{font-size:4px!important;gap:1px!important;line-height:1!important;margin-top:1px!important}'
@@ -47,24 +47,24 @@
       /* 기존 게스트 수익표만 더 작게 */
       var earn=root.querySelector('.kgh-earn');
       if(earn){
-        earn.style.setProperty('width','70px','important');
-        earn.style.setProperty('min-width','70px','important');
-        earn.style.setProperty('max-width','70px','important');
-        earn.style.setProperty('height','39px','important');
-        earn.style.setProperty('max-height','39px','important');
+        earn.style.setProperty('width','62px','important');
+        earn.style.setProperty('min-width','62px','important');
+        earn.style.setProperty('max-width','62px','important');
+        earn.style.setProperty('height','36px','important');
+        earn.style.setProperty('max-height','36px','important');
         earn.style.setProperty('right','2px','important');
         earn.style.setProperty('padding','1px 2px','important');
       }
 
       var generic=root.querySelector('.kt-allroom-guest-earn');
       if(generic){
-        generic.style.setProperty('width','72px','important');
-        generic.style.setProperty('min-width','72px','important');
-        generic.style.setProperty('max-width','72px','important');
-        generic.style.setProperty('height','41px','important');
-        generic.style.setProperty('max-height','41px','important');
+        generic.style.setProperty('width','64px','important');
+        generic.style.setProperty('min-width','64px','important');
+        generic.style.setProperty('max-width','64px','important');
+        generic.style.setProperty('height','38px','important');
+        generic.style.setProperty('max-height','38px','important');
         generic.style.setProperty('right','3px','important');
-        generic.style.setProperty('bottom','52px','important');
+        generic.style.setProperty('bottom','48px','important');
         generic.style.setProperty('padding','1px 2px','important');
       }
     }catch(e){}
