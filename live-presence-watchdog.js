@@ -296,8 +296,9 @@
     }
     if(!broadcastStarted&&!roomId)return;
     if(!notLiveSince)notLiveSince=Date.now();
-    if(Date.now()-notLiveSince<7500)return;
-    await stopFallbackPresence();
+    /* 짧은 신호/DOM 흔들림은 절대 방송 종료로 처리하지 않는다.
+       실제 종료는 방송 종료/뒤로가기/pagehide 같은 명시적 종료 경로만 처리한다. */
+    return;
   }
 
   function startTarget(e){
