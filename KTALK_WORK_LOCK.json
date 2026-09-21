@@ -7,8 +7,8 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Selective lock only. Current approved working state saved 2026-09-21 11:26 KST. Protect the working 13-person room opening/countdown/current-room transition and existing approved live signal/room controls. Runtime controls remain usable.",
-  "default_policy": "editable_unless_explicitly_listed_as_protected",
+  "note": "Current approved working state remains protected. Only the 13-person room opening/countdown/current-room transition is temporarily unlocked for the next narrow edit. Runtime controls remain usable.",
+  "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
     "match_button",
@@ -37,12 +37,11 @@
     "if_pin_mismatch": "keep_protected_components_locked"
   },
   "current_editable_components": [
-    "public_video_feed",
-    "public_video_actions",
-    "video_playback",
-    "video_communication",
-    "media_transport",
-    "live_signal"
+    "group13_current_room_entry",
+    "group13_countdown_transition"
   ],
-  "temporarily_unlocked_components": []
+  "temporarily_unlocked_components": [
+    "group13_current_room_entry",
+    "group13_countdown_transition"
+  ]
 }
