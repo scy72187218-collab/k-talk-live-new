@@ -7,7 +7,7 @@
   window.__ktAllDeviceBroadcastEndSync20260921=true;
 
   var API='/api/live-beacon-memory';
-  var pollBusy=false,returnBusy=false,lastHandled='',wrapTimer=null;
+  var pollBusy=false,returnBusy=false,lastHandled='',wrapTimer=null,lastRealtimeEndSeen='';
 
   function deviceId(){
     var id='';
@@ -75,13 +75,29 @@
     },60);
   }
 
-  async function poll(){
+  function realtimeEndCheck(){
+    if(!inJoinedLive())return;
+    var hostId=currentViewedHost();if(!hostId)return;
+    var x=window.__ktRealtimeLastEndedHost||null;
+    if(!x||String(x.host_id||'')!==hostId)return;
+    var at=Number(x.at||0);
+    if(!at||Date.now()-at>45000)return;
+    var key=hostId+'|'+at;
+    if(key===lastHandled||key===lastRealtimeEndSeen)return;
+    lastRealtimeEndSeen=key;lastHandled=key;
+    goVideo();
+  }
+
+  async function fallbackPoll(){
+    /* Shared Realtime is primary. Only if it is not connected do a slow
+       fallback check, so phones on the same Wi-Fi do not flood Vercel. */
+    if(window.__ktRealtimeSignalReady)return;
     if(pollBusy||!inJoinedLive())return;
     var hostId=currentViewedHost();if(!hostId)return;
     pollBusy=true;
     try{
       var ctrl=typeof AbortController!=='undefined'?new AbortController():null;
-      var timer=ctrl?setTimeout(function(){ctrl.abort();},700):null;
+      var timer=ctrl?setTimeout(function(){ctrl.abort();},900):null;
       var r=await fetch(API+'?t='+Date.now(),{cache:'no-store',signal:ctrl?ctrl.signal:undefined});
       if(timer)clearTimeout(timer);
       if(!r.ok)return;
@@ -127,8 +143,9 @@
 
   function wrapAll(){wrapStop('leaveBroadcastToDashboard');wrapStop('endBroadcastEarnings');}
   wrapAll();
-  wrapTimer=setInterval(wrapAll,450);
-  setInterval(poll,550);
-  document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(poll,60);});
-  window.addEventListener('focus',function(){setTimeout(poll,60);});
+  wrapTimer=setInterval(wrapAll,700);
+  setInterval(realtimeEndCheck,350);
+  setInterval(fallbackPoll,8000);
+  document.addEventListener('visibilitychange',function(){if(!document.hidden){setTimeout(realtimeEndCheck,60);setTimeout(fallbackPoll,250);}});
+  window.addEventListener('focus',function(){setTimeout(realtimeEndCheck,60);setTimeout(fallbackPoll,250);});
 })();
