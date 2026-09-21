@@ -41,7 +41,7 @@
   load('message-recipient-picker.js?v=20260911-message1');
   load('host-face-like-reward.js?v=20260911-hostlike1');
   load('live-presence.js?v=20260921-redonly1');
-  load('live-presence-watchdog.js?v=20260921-integrated-live2');
+  load('live-presence-watchdog.js?v=20260921-liveoff1');
 })();
 
 /* 촬영 화면의 편집효과 바로 아래 V(더보기) 버튼만 제거. 다른 버튼/기능은 건드리지 않음. */
