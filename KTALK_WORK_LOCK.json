@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Owner authorized WebRTC signal-stability work with PIN verification. Only ICE/TURN transport configuration may be edited; UI/layout/buttons remain protected.",
+  "note": "Re-locked after owner-authorized WebRTC ICE/TURN signal-stability update. UI/layout/buttons remain unchanged; network transport is now protected too.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -30,7 +30,8 @@
     "group13_countdown_transition",
     "guest13_bottom_controls_layout",
     "guest13_earnings_hud_position",
-    "guest13_earnings_hud_size"
+    "guest13_earnings_hud_size",
+    "webrtc_transport_stability"
   ],
   "check_trigger_phrase": "K-톡 비밀번호 확인",
   "check_behavior": {
@@ -39,10 +40,6 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "webrtc_transport_stability"
-  ],
-  "temporarily_unlocked_components": [
-    "webrtc_transport_stability"
-  ]
+  "current_editable_components": [],
+  "temporarily_unlocked_components": []
 }
