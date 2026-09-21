@@ -24,7 +24,7 @@
     if(document.getElementById('ktNoOld13FlashStyle'))return;
     var st=document.createElement('style');
     st.id='ktNoOld13FlashStyle';
-    st.textContent='html.kt-g13-opening #screen{background:#000!important}html.kt-g13-opening #screen>*:not(.ktg13-room[data-kt-approved13="1"]){visibility:hidden!important;opacity:0!important}html.kt-g13-opening #screen .ktg13-room[data-kt-approved13="1"]{visibility:visible!important;opacity:1!important}';
+    st.textContent='html.kt-g13-opening #screen{background:#000!important}html.kt-g13-opening #screen>*:not(.ktg13-room[data-kt-approved13="1"]){opacity:0!important;pointer-events:none!important}html.kt-g13-opening #screen .ktg13-room[data-kt-approved13="1"]{opacity:1!important;pointer-events:auto!important}';
     (document.head||document.documentElement).appendChild(st);
   }
   function markGroup13Opening(){
