@@ -2,12 +2,12 @@
   "version": 2,
   "locked": true,
   "scope": "selective-approved-working-components-only",
-  "snapshot_branch": "ktalk-locked-20260920",
-  "snapshot_commit": "6bd2870df980be7313c1259bf0c2c5f5fdfb0e30",
+  "snapshot_branch": "saved-working-k-talk-20260921-1126",
+  "snapshot_commit": "057c4a41ea1b2600c0ec53793738d3d5bc44eddf",
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Selective lock only. The approved public-video side controls (profile, rose/count, message, share) are protected. Other editable areas remain editable.",
+  "note": "Selective lock only. Current approved working state saved 2026-09-21 11:26 KST. Protect the working 13-person room opening/countdown/current-room transition and existing approved live signal/room controls. Runtime controls remain usable.",
   "default_policy": "editable_unless_explicitly_listed_as_protected",
   "protected_components": [
     "gift_button",
@@ -25,7 +25,9 @@
     "public_video_rose_button",
     "public_video_rose_count",
     "public_video_message_button",
-    "public_video_share_button"
+    "public_video_share_button",
+    "group13_current_room_entry",
+    "group13_countdown_transition"
   ],
   "check_trigger_phrase": "K-톡 비밀번호 확인",
   "check_behavior": {
