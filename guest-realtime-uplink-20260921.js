@@ -8,7 +8,8 @@
   var URL='https://zupwbfmacwzexyvznlzq.supabase.co';
   var KEY='sb_publishable_AnyCMi4rAgSR2uWg_u1pvw_hHyqWlm3';
   var client=null,libLoading=false;
-  var channels={},requests={},approved={},readyGuests={};
+  var channels={},nativeSockets={},requests={},approved={},readyGuests={};
+  var nativeRef=1,nativeHeartbeat=null;
   var sourcePeers={},receivePeers={},watchAt={};
   var localGuestStream=null,selfApprovedHost='',selfApprovedToken='';
   var requestedHost='';
@@ -33,7 +34,7 @@
     return p;
   }
   function hostRoomId(){return document.querySelector('.ktg13-room')?deviceId():'';}
-  function remoteHostId(){return String(window.__ktRemoteHostId||'');}
+  function remoteHostId(){var x=String(window.__ktRemoteHostId||'');if(x)return x;try{return String(sessionStorage.getItem('kt_remote_host_id')||'');}catch(e){return '';}}
   function channelName(hostId){return 'ktalk-guest-room-'+String(hostId||'').replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,110);}
   function token(){return 'ap_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,10);}
   function sessionId(){return 'gp_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,9);}
@@ -86,8 +87,78 @@
     document.head.appendChild(s);
   }
 
+  function nativeDispatch(hostId,event,payload){
+    if(event==='guest_request')onRequest(hostId,payload||{});
+    else if(event==='guest_cancel')onCancel(hostId,payload||{});
+    else if(event==='guest_approved')onApproved(hostId,payload||{});
+    else if(event==='approved_roster')onRoster(hostId,payload||{});
+    else if(event==='guest_ready')onReady(hostId,payload||{});
+    else if(event==='guest_watch')onWatch(hostId,payload||{});
+    else if(event==='guest_offer')onOffer(hostId,payload||{});
+    else if(event==='guest_answer')onAnswer(hostId,payload||{});
+    else if(event==='guest_left')onGuestLeft(hostId,payload||{});
+    else if(event==='room_closed')onRoomClosed(hostId,payload||{});
+  }
+  function nativeState(hostId){
+    hostId=String(hostId||'');if(!hostId)return null;
+    if(nativeSockets[hostId])return nativeSockets[hostId];
+    var st={hostId:hostId,ws:null,ready:false,queue:[],topic:'realtime:'+channelName(hostId),joinRef:String(nativeRef++),reconnect:null};
+    nativeSockets[hostId]=st;
+    function open(){
+      if(st.ws&&(st.ws.readyState===0||st.ws.readyState===1))return;
+      try{
+        var ws=new WebSocket('wss://zupwbfmacwzexyvznlzq.supabase.co/realtime/v1/websocket?apikey='+encodeURIComponent(KEY)+'&vsn=1.0.0');
+        st.ws=ws;st.ready=false;
+        ws.onopen=function(){
+          try{
+            ws.send(JSON.stringify({topic:st.topic,event:'phx_join',payload:{config:{broadcast:{ack:false,self:false},presence:{enabled:false},postgres_changes:[],private:false},access_token:KEY},ref:st.joinRef,join_ref:st.joinRef}));
+          }catch(e){}
+        };
+        ws.onmessage=function(ev){
+          var m=null;try{m=JSON.parse(String(ev.data||''));}catch(e){return;}
+          if(Array.isArray(m)&&m.length>=5){
+            m={join_ref:m[0],ref:m[1],topic:m[2],event:m[3],payload:m[4]};
+          }
+          if(!m||String(m.topic||'')!==st.topic)return;
+          if(m.event==='phx_reply'&&m.payload&&m.payload.status==='ok'){
+            st.ready=true;
+            var q=st.queue.splice(0);q.forEach(function(x){nativeSend(hostId,x.event,x.payload);});
+            if(hostRoomId()===hostId)broadcastRoster(hostId);
+            return;
+          }
+          if(m.event==='broadcast'){
+            var p=m.payload||{},evn=String(p.event||p.type_event||'');
+            var dat=p.payload!==undefined?p.payload:p;
+            if(evn)nativeDispatch(hostId,evn,dat);
+            return;
+          }
+          if(/^guest_/.test(String(m.event||''))||m.event==='approved_roster'||m.event==='room_closed'){
+            nativeDispatch(hostId,String(m.event),m.payload||{});
+          }
+        };
+        ws.onclose=function(){st.ready=false;clearTimeout(st.reconnect);st.reconnect=setTimeout(open,900);};
+        ws.onerror=function(){};
+      }catch(e){clearTimeout(st.reconnect);st.reconnect=setTimeout(open,1200);}
+    }
+    st.open=open;open();return st;
+  }
+  function nativeSend(hostId,event,payload){
+    var st=nativeState(hostId);if(!st)return;
+    if(!st.ready||!st.ws||st.ws.readyState!==1){
+      st.queue.push({event:event,payload:payload});
+      if(st.queue.length>30)st.queue.splice(0,st.queue.length-30);
+      if(st.open)st.open();
+      return;
+    }
+    try{
+      st.ws.send(JSON.stringify({topic:st.topic,event:'broadcast',payload:{type:'broadcast',event:event,payload:payload||{}},ref:String(nativeRef++),join_ref:st.joinRef}));
+    }catch(e){}
+  }
+
   function getChannelState(hostId){
-    hostId=String(hostId||'');if(!hostId||!client)return null;
+    hostId=String(hostId||'');if(!hostId)return null;
+    nativeState(hostId);
+    if(!client)return null;
     if(channels[hostId])return channels[hostId];
     var st={hostId:hostId,ch:null,ready:false,queue:[]};
     var ch=client.channel(channelName(hostId),{config:{broadcast:{self:false,ack:false},presence:{key:deviceId()}}});
@@ -118,11 +189,18 @@
     try{return Promise.resolve(st.ch.send({type:'broadcast',event:event,payload:payload||{}})).catch(function(){});}catch(e){return Promise.resolve();}
   }
   function emit(hostId,event,payload,retry){
-    var st=getChannelState(hostId);if(!st)return;
-    if(!st.ready){st.queue.push({event:event,payload:payload});return;}
-    sendNow(st,event,payload);
+    hostId=String(hostId||'');if(!hostId)return;
+    nativeSend(hostId,event,payload);
+    var st=getChannelState(hostId);
+    if(st){
+      if(!st.ready)st.queue.push({event:event,payload:payload});
+      else sendNow(st,event,payload);
+    }
     if(retry){
-      [260,720,1450].forEach(function(ms){setTimeout(function(){if(st.ready)sendNow(st,event,payload);},ms);});
+      [260,720,1450].forEach(function(ms){setTimeout(function(){
+        nativeSend(hostId,event,payload);
+        var x=channels[hostId];if(x&&x.ready)sendNow(x,event,payload);
+      },ms);});
     }
   }
 
@@ -483,5 +561,7 @@
     if(localGuestStream){try{localGuestStream.getTracks().forEach(function(t){t.stop();});}catch(e){}}
   });
 
+  try{var h0=remoteHostId();if(h0)nativeState(h0);}catch(e){}
+  setInterval(function(){var h=hostRoomId()||remoteHostId();if(h)nativeState(h);},700);
   loadLib();
 })();
