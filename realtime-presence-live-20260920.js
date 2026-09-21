@@ -10,8 +10,10 @@
   var CHANNEL='ktalk-live-signal-v3';
   var TOPIC='realtime:'+CHANNEL;
   var ws=null,joined=false,joinRef='',seq=1,reconnectTimer=null,heartbeatTimer=null;
-  var hostTimer=null,lastHostState=false;
+  var hostTimer=null,lastHostState=false,hostHealthyAt=0,forcedOff=false;
   var liveHosts={};
+  window.__ktRealtimeLiveHosts=liveHosts;
+  window.__ktRealtimeSignalReady=false;
   var DEVICE=deviceId();
 
   function deviceId(){
@@ -86,23 +88,34 @@
   }
 
   async function broadcast(eventName,payload){
+    /* WebSocket first: one stable realtime channel is much less jumpy than
+       serverless/REST polling. REST remains only as a fallback. */
+    try{
+      if(joined&&ws&&ws.readyState===1){
+        ws.send(JSON.stringify({
+          topic:TOPIC,
+          event:'broadcast',
+          payload:{type:'broadcast',event:eventName,payload:payload||{}},
+          ref:String(seq++),
+          join_ref:joinRef
+        }));
+        return true;
+      }
+    }catch(e){}
     try{
       var res=await fetch('https://'+REF+'.supabase.co/realtime/v1/api/broadcast',{
         method:'POST',
         cache:'no-store',
         headers:{'Content-Type':'application/json','apikey':KEY},
-        body:JSON.stringify({messages:[{
-          topic:CHANNEL,
-          event:eventName,
-          payload:payload||{}
-        }]})
+        body:JSON.stringify({messages:[{topic:CHANNEL,event:eventName,payload:payload||{}}]})
       });
       return !!res.ok;
     }catch(e){return false;}
   }
 
   function publishOn(){
-    if(!isHostLive())return;
+    if(forcedOff)return;
+    if(!isHostLive()&&!(lastHostState&&hostHealthyAt&&Date.now()-hostHealthyAt<12000))return;
     var r=roomInfo();
     broadcast('live_on',{
       host_id:DEVICE,
@@ -118,7 +131,7 @@
   }
 
   function startHostBeacon(){
-    if(hostTimer)return;
+    if(hostTimer||forcedOff)return;
     /* 방송 시작 순간 빠르게 여러 번 알리고 이후에도 짧은 간격으로 유지 */
     publishOn();
     setTimeout(publishOn,180);
@@ -152,7 +165,9 @@
   function cleanupHosts(){
     var now=Date.now();
     Object.keys(liveHosts).forEach(function(id){
-      if(now-Number(liveHosts[id].last||0)>5500)delete liveHosts[id];
+      /* 짧은 Wi-Fi/모바일 흔들림에는 LIVE가 내려가지 않게 15초 여유.
+         실제 방송 종료는 live_off 이벤트로 즉시 제거된다. */
+      if(now-Number(liveHosts[id].last||0)>15000)delete liveHosts[id];
     });
   }
 
@@ -200,7 +215,9 @@
       liveHosts[id]={last:Date.now(),data:data};
     }else if(ev==='live_off'){
       delete liveHosts[id];
+      window.__ktRealtimeLastEndedHost={host_id:id,at:Date.now()};
     }
+    window.__ktRealtimeLiveHosts=liveHosts;
     paint();
   }
 
@@ -211,6 +228,7 @@
 
     if(m.event==='phx_reply'&&String(m.ref||'')===String(joinRef)){
       joined=!!(m.payload&&m.payload.status==='ok');
+      window.__ktRealtimeSignalReady=joined;
       if(joined){
         broadcast('live_query',{requester:DEVICE,at:Date.now()});
         setTimeout(function(){broadcast('live_query',{requester:DEVICE,at:Date.now()});},250);
@@ -225,6 +243,7 @@
 
   function closeSocket(){
     joined=false;
+    window.__ktRealtimeSignalReady=false;
     if(heartbeatTimer){clearInterval(heartbeatTimer);heartbeatTimer=null;}
     try{if(ws)ws.close();}catch(e){}
     ws=null;
@@ -273,20 +292,55 @@
       };
       ws.onmessage=handleMessage;
       ws.onerror=function(){};
-      ws.onclose=function(){joined=false;scheduleReconnect(500);};
+      ws.onclose=function(){joined=false;window.__ktRealtimeSignalReady=false;scheduleReconnect(500);};
     }catch(e){scheduleReconnect(900);}
   }
 
   function reconcile(){
     var on=isHostLive();
-    if(on&&!lastHostState){lastHostState=true;startHostBeacon();}
-    else if(!on&&lastHostState){lastHostState=false;stopHostBeacon();}
-    else if(on&&!hostTimer){startHostBeacon();}
+    if(on){
+      hostHealthyAt=Date.now();
+      if(forcedOff)forcedOff=false;
+      if(!lastHostState){lastHostState=true;startHostBeacon();}
+      else if(!hostTimer)startHostBeacon();
+    }else if(lastHostState){
+      /* 방송 화면/카메라가 잠깐 흔들려도 즉시 LIVE를 내리지 않는다.
+         명시적 종료 버튼은 아래 래퍼에서 바로 live_off를 보낸다. */
+      if(!hostHealthyAt||Date.now()-hostHealthyAt>12000){
+        lastHostState=false;stopHostBeacon();
+      }
+    }
     if(!ws||ws.readyState>1)scheduleReconnect(200);
     paint();
   }
 
+  function wrapBroadcastState(){
+    var start=window.startBroadcast;
+    if(typeof start==='function'&&!start.__ktRealtimeLiveStartWrap){
+      var s=function(){
+        forcedOff=false;hostHealthyAt=Date.now();
+        var r=start.apply(this,arguments);
+        setTimeout(reconcile,80);setTimeout(reconcile,300);
+        return r;
+      };
+      s.__ktRealtimeLiveStartWrap=true;window.startBroadcast=s;
+    }
+    ['leaveBroadcastToDashboard','endBroadcastEarnings'].forEach(function(name){
+      var old=window[name];
+      if(typeof old!=='function'||old.__ktRealtimeLiveEndWrap)return;
+      var fn=function(){
+        forcedOff=true;lastHostState=false;hostHealthyAt=0;
+        stopHostBeacon();
+        var r=old.apply(this,arguments);
+        return r;
+      };
+      fn.__ktRealtimeLiveEndWrap=true;window[name]=fn;
+    });
+  }
+
   connect();
+  wrapBroadcastState();
+  setInterval(wrapBroadcastState,450);
   setInterval(reconcile,350);
   setInterval(paint,500);
 
