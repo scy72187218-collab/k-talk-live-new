@@ -23,44 +23,9 @@
     }
 
     /* 기존에 승인한 무지개 파장은 그대로 유지 */
-    .ktsolo-wave,.ktsubscriber-wave,.ktsecret-wave,.kt-secret-wave,.secret-wave{
-      position:absolute!important;
-      left:0!important;
-      right:0!important;
-      width:auto!important;
-      bottom:72px!important;
-      height:34px!important;
-      z-index:6!important;
-      display:block!important;
-      pointer-events:none!important;
-      background-image:url("k-talk-rainbow-waveform.svg?v=20260907-wavebottom1")!important;
-      background-repeat:no-repeat!important;
-      background-position:center!important;
-      background-size:100% 100%!important;
-      opacity:.96!important;
-      transform-origin:center bottom!important;
-      animation:ktRainbowWaveBeat .62s ease-in-out infinite alternate!important;
-      filter:drop-shadow(0 0 4px rgba(255,65,210,.35))!important;
-    }
-    .ktsolo-wave>i,.ktsubscriber-wave>i,.ktsecret-wave>i,.kt-secret-wave>i,.secret-wave>i{display:none!important}
-    .ktg13-main::after{
-      content:"";
-      position:absolute;
-      left:0;
-      right:0;
-      bottom:2px;
-      height:32px;
-      z-index:8;
-      pointer-events:none;
-      background-image:url("k-talk-rainbow-waveform.svg?v=20260907-wavebottom1");
-      background-repeat:no-repeat;
-      background-position:center;
-      background-size:100% 100%;
-      opacity:.96;
-      transform-origin:center bottom;
-      animation:ktRainbowWaveBeat .62s ease-in-out infinite alternate;
-      filter:drop-shadow(0 0 4px rgba(255,65,210,.35));
-    }
+    .ktsolo-wave,.ktsubscriber-wave,.ktsecret-wave,.kt-secret-wave,.secret-wave{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}
+
+    .ktg13-main::after{content:none!important;display:none!important;visibility:hidden!important;opacity:0!important}
 
     /* 1인/구독자/비밀방: 큰 네모 채팅 배경 제거, 파장 위에서 새 글이 아래부터 위로 쌓임 */
     .ktsolo-chat,.ktsubscriber-chat,.ktsecret-chat{
