@@ -130,6 +130,7 @@
     if(!remoteEndHost)return;
     remoteEndHost='';remoteEndArmed=false;remoteEndMisses=0;
     window.__ktRemoteHostId='';
+    try{sessionStorage.removeItem('kt_remote_host_id');}catch(e){}
     try{if(viewer)closeViewer(true);else if(oldLeave)oldLeave(true);}catch(e){}
     setTimeout(function(){
       try{
@@ -297,6 +298,7 @@
     enterBusy=true;
     remoteEndHost=hostId;remoteEndMisses=0;remoteEndArmed=false;
     window.__ktRemoteHostId=hostId;
+    try{sessionStorage.setItem('kt_remote_host_id',hostId);}catch(e){}
     var cached=window.__ktLastLiveRoom&&String(window.__ktLastLiveRoom.host_id||'')===hostId?window.__ktLastLiveRoom:null;
     try{
       /* 빨간 LIVE가 이미 떠 있었다면 그 정보를 그대로 써서 화면부터 즉시 연다. */
