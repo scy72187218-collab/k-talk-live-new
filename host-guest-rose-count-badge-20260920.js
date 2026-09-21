@@ -15,7 +15,7 @@
     if(document.getElementById('ktRoseCountBadgesStyle'))return;
     var s=document.createElement('style');
     s.id='ktRoseCountBadgesStyle';
-    s.textContent='.kt-rose-count-badge{position:absolute!important;left:5px!important;top:5px!important;z-index:60!important;height:24px!important;min-width:44px!important;padding:0 7px!important;border-radius:999px!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:3px!important;background:rgba(30,30,34,.9)!important;border:1px solid rgba(255,255,255,.5)!important;color:#fff!important;font:950 13px/1 system-ui,sans-serif!important;box-shadow:0 2px 8px #0008!important;pointer-events:none!important}.kt-rose-count-badge:before{content:"🌹";font-size:12px!important}';
+    s.textContent='.kt-rose-count-badge{position:absolute!important;left:4px!important;top:4px!important;z-index:60!important;height:12px!important;min-width:22px!important;padding:0 3px!important;border-radius:999px!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:1px!important;background:rgba(30,30,34,.9)!important;border:1px solid rgba(255,255,255,.5)!important;color:#fff!important;font:950 6.5px/1 system-ui,sans-serif!important;box-shadow:0 1px 4px #0008!important;pointer-events:none!important}.kt-rose-count-badge:before{content:"🌹";font-size:6px!important}';
     document.head.appendChild(s);
   }
   function badge(target,value){
