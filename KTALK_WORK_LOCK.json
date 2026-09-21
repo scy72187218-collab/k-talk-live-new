@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Owner authorized connection-stability work only. UI/layout/buttons/earnings remain protected.",
+  "note": "Re-locked after owner-authorized connection reliability update. UI/layout/buttons/earnings remain unchanged and protected.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -40,10 +40,6 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "webrtc_transport_stability"
-  ],
-  "temporarily_unlocked_components": [
-    "webrtc_transport_stability"
-  ]
+  "current_editable_components": [],
+  "temporarily_unlocked_components": []
 }
