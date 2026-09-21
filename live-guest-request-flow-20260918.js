@@ -241,7 +241,6 @@
   function renderRequestRail(pending){var main=document.querySelector('.ktg13-main');if(!main){var old=document.getElementById('ktg13RequestRail');if(old)old.remove();return;}var rail=document.getElementById('ktg13RequestRail');if(!pending.length){if(rail)rail.remove();return;}if(!rail){rail=document.createElement('div');rail.id='ktg13RequestRail';rail.className='ktg13-request-rail';main.appendChild(rail);}rail.innerHTML='';pending.forEach(function(x){var chip=document.createElement('button');chip.type='button';chip.className='ktg13-request-chip';chip.dataset.viewerId=x.vid;chip.innerHTML='👤 <b>'+esc(x.name)+'</b> 올리기';rail.appendChild(chip);wireChipDrag(chip,x.vid,x.name);});}
 
   async function hostTick(){
-    if(window.__ktGuestRealtimeFlowActive){var old=document.getElementById('ktg13RequestRail');if(old)old.remove();return;}
     ensureStyle();bindRequestButton();removeDuplicateGroupRoom();
     if(!document.querySelector('.ktg13-room')){
       var old=document.getElementById('ktg13RequestRail');if(old)old.remove();return;
@@ -715,7 +714,6 @@
 
   async function viewerTick(){
     ensureStyle();bindRequestButton();
-    if(window.__ktGuestRealtimeFlowActive){if(document.querySelector('.kt-remote-live'))ensurePrejoinRoomGrid();return;}
     if(!document.querySelector('.kt-remote-live')){
       endViewerGuestSession(false);
       if(viewerGuest.pc){try{viewerGuest.pc.close();}catch(e){}viewerGuest.pc=null;}
