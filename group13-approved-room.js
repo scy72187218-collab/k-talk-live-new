@@ -240,25 +240,40 @@
   window.startBroadcast=async function(){
     if(!isGroup13())return oldStartBroadcast.apply(this,arguments);
 
-    /* 13명방 전용:
-       앞쪽 공용 카운트다운이 끝나면 옛 테스트/구버전 방을 거치지 않고
-       현재 승인된 13명방 화면을 바로 연다. */
+    /* 13명방은 카운트다운/옛 버전 화면을 거치지 않고 현재 방을 즉시 연다.
+       다른 방의 시작 방식은 그대로 둔다. */
     markGroup13Opening();
     try{
-      var hasLiveVideo=!!(window.state&&state.stream&&state.stream.getVideoTracks&&
-        state.stream.getVideoTracks().some(function(t){return t.readyState==='live';}));
-      if(!hasLiveVideo&&window.ensureLiveCamera){
-        await window.ensureLiveCamera((window.state&&state.cameraFacing)||'user');
+      if(window.creator)creator.classList.remove('show','live-prep-open');
+    }catch(e){}
+
+    /* 현재 13명방 UI를 먼저 바로 표시 */
+    renderApprovedGroup13(true);
+
+    /* 기존 group13 시작 체인 대신 필요한 카메라 준비만 수행.
+       이후에 로드된 LIVE 신호/방송 상태 래퍼는 이 함수를 그대로 감싸므로 유지된다. */
+    var ok=true;
+    try{
+      if(window.state)state.cameraFacing=state.cameraFacing||'user';
+      if(window.ensureLiveCamera)ok=await window.ensureLiveCamera((window.state&&state.cameraFacing)||'user');
+    }catch(e){ok=false;}
+
+    /* 카메라가 준비되면 현재 방의 호스트 영상에 바로 연결 */
+    try{
+      var v=document.getElementById('ktLiveVideo');
+      if(v&&window.state&&state.stream){
+        v.srcObject=state.stream;
+        var p=v.play();
+        if(p&&p.catch)p.catch(function(){});
       }
     }catch(e){}
 
     try{
-      if(window.creator)creator.classList.remove('show','live-prep-open');
-      document.body.classList.remove('kt-home');
+      document.documentElement.classList.remove('kt-g13-opening');
+      clearTimeout(window.__ktG13OpeningFailsafe);
     }catch(e){}
 
-    renderApprovedGroup13(false);
-    return true;
+    return ok;
   };
 
   /* 시작 버튼을 누르는 순간부터 옛 13명방 화면을 가려 카운트 후 번쩍임 방지 */
