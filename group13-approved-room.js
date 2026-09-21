@@ -242,50 +242,8 @@
 
   window.startBroadcast=async function(){
     if(!isGroup13())return oldStartBroadcast.apply(this,arguments);
-
-    /* 13명방 전용:
-       1) 카메라를 먼저 준비한다. 준비 시간에는 기존 라이브 준비 화면을 그대로 유지한다.
-       2) 준비가 끝난 뒤 5→4→3→2→1을 끊김 없이 모두 보여준다.
-       3) 1이 완전히 끝난 다음 현재 승인된 13명방만 바로 연다.
-       옛 13명방 화면은 전환 중 계속 가려 둔다. */
     markGroup13Opening();
-
-    var result;
-    try{
-      result=await oldStartBroadcast.apply(this,arguments);
-    }catch(e){
-      try{document.documentElement.classList.remove('kt-g13-opening');}catch(z){}
-      throw e;
-    }
-
-    var old=document.getElementById('ktLiveCountdown');
-    if(old)old.remove();
-
-    var wrap=document.createElement('div');
-    wrap.id='ktLiveCountdown';
-    wrap.setAttribute('data-kt-g13-countdown','current');
-    wrap.style.cssText='position:fixed;inset:0;z-index:99999;display:grid;place-items:center;background:rgba(0,0,0,.08);pointer-events:none;';
-    var num=document.createElement('div');
-    num.style.cssText='width:116px;height:116px;border-radius:50%;display:grid;place-items:center;background:rgba(10,10,14,.72);border:4px solid rgba(255,255,255,.92);color:#fff;font:900 64px/1 system-ui,-apple-system,sans-serif;box-shadow:0 0 28px rgba(255,44,130,.7);text-shadow:0 0 12px rgba(255,255,255,.7);transition:transform .22s ease;';
-    wrap.appendChild(num);
-    document.body.appendChild(wrap);
-
-    for(var n=5;n>=1;n--){
-      num.textContent=String(n);
-      num.style.transform='scale(1)';
-      await new Promise(function(resolve){
-        setTimeout(function(){num.style.transform='scale(.92)';},650);
-        setTimeout(resolve,1000);
-      });
-    }
-
-    /* 1초 표시가 완전히 끝난 뒤에만 방을 전환한다. */
-    try{wrap.remove();}catch(e){}
-    try{
-      if(window.creator)creator.classList.remove('show','live-prep-open');
-    }catch(e){}
-    renderApprovedGroup13(false);
-    return result;
+    return oldStartBroadcast.apply(this,arguments);
   };
 
   /* 시작 버튼을 누르는 순간부터 옛 13명방 화면을 가려 카운트 후 번쩍임 방지 */
