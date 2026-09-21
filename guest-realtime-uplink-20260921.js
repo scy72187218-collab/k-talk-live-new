@@ -293,9 +293,20 @@
     var sid=sessionId();
     try{
       var pc=new RTCPeerConnection(window.ktGetRtcConfig?window.ktGetRtcConfig():{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]});
-      sourcePeers[key]={pc:pc,session_id:sid};
+      sourcePeers[key]={pc:pc,session_id:sid,disconnectTimer:null};
       localGuestStream.getTracks().forEach(function(t){try{pc.addTrack(t,localGuestStream);}catch(e){}});
-      pc.onconnectionstatechange=function(){if(['failed','closed'].indexOf(String(pc.connectionState||''))>-1){try{pc.close();}catch(e){}delete sourcePeers[key];}};
+      pc.onconnectionstatechange=function(){
+        var st=String(pc.connectionState||''),entry=sourcePeers[key];
+        if(st==='connected'&&entry&&entry.disconnectTimer){clearTimeout(entry.disconnectTimer);entry.disconnectTimer=null;return;}
+        if(['failed','closed'].indexOf(st)>-1){if(entry&&entry.disconnectTimer)clearTimeout(entry.disconnectTimer);try{pc.close();}catch(e){}delete sourcePeers[key];return;}
+        if(st==='disconnected'&&entry&&!entry.disconnectTimer){
+          entry.disconnectTimer=setTimeout(function(){
+            if(sourcePeers[key]!==entry||String(pc.connectionState||'')!=='disconnected')return;
+            try{pc.close();}catch(e){}delete sourcePeers[key];
+            setTimeout(function(){onWatch(hostId,{guest_id:viewerId(),receiver_id:receiver});},300);
+          },4000);
+        }
+      };
       var offer=await pc.createOffer({offerToReceiveAudio:false,offerToReceiveVideo:false});await pc.setLocalDescription(offer);await waitIce(pc,3200);
       emit(hostId,'guest_offer',{guest_id:viewerId(),guest_name:profile().name,receiver_id:receiver,session_id:sid,offer_sdp:pc.localDescription.sdp},true);
     }catch(e){try{if(sourcePeers[key])sourcePeers[key].pc.close();}catch(z){}delete sourcePeers[key];}
@@ -308,9 +319,20 @@
     if(receivePeers[sid])return;
     try{
       var pc=new RTCPeerConnection(window.ktGetRtcConfig?window.ktGetRtcConfig():{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]});
-      receivePeers[sid]={pc:pc,guest_id:guestId};
+      receivePeers[sid]={pc:pc,guest_id:guestId,disconnectTimer:null};
       pc.ontrack=function(ev){attachStream(guestId,String(p.guest_name||ap.name||'게스트'),ev.streams[0]||new MediaStream([ev.track]));};
-      pc.onconnectionstatechange=function(){if(['failed','closed'].indexOf(String(pc.connectionState||''))>-1){try{pc.close();}catch(e){}delete receivePeers[sid];setTimeout(function(){requestGuestStream(hostId,guestId);},500);}};
+      pc.onconnectionstatechange=function(){
+        var st=String(pc.connectionState||''),entry=receivePeers[sid];
+        if(st==='connected'&&entry&&entry.disconnectTimer){clearTimeout(entry.disconnectTimer);entry.disconnectTimer=null;return;}
+        if(['failed','closed'].indexOf(st)>-1){if(entry&&entry.disconnectTimer)clearTimeout(entry.disconnectTimer);try{pc.close();}catch(e){}delete receivePeers[sid];setTimeout(function(){requestGuestStream(hostId,guestId);},500);return;}
+        if(st==='disconnected'&&entry&&!entry.disconnectTimer){
+          entry.disconnectTimer=setTimeout(function(){
+            if(receivePeers[sid]!==entry||String(pc.connectionState||'')!=='disconnected')return;
+            try{pc.close();}catch(e){}delete receivePeers[sid];
+            setTimeout(function(){requestGuestStream(hostId,guestId);},300);
+          },4000);
+        }
+      };
       await pc.setRemoteDescription({type:'offer',sdp:sdp});var ans=await pc.createAnswer();await pc.setLocalDescription(ans);await waitIce(pc,3200);
       emit(hostId,'guest_answer',{guest_id:guestId,receiver_id:deviceId(),session_id:sid,answer_sdp:pc.localDescription.sdp},true);
     }catch(e){try{if(receivePeers[sid])receivePeers[sid].pc.close();}catch(z){}delete receivePeers[sid];}
