@@ -330,6 +330,24 @@
     });
   }
 
+  function visibleVideoNode(v){
+    if(!v||!v.isConnected)return false;
+    try{
+      var st=getComputedStyle(v);if(st.display==='none'||st.visibility==='hidden'||Number(st.opacity)===0)return false;
+      var r=v.getBoundingClientRect(),vw=innerWidth||document.documentElement.clientWidth||0,vh=innerHeight||document.documentElement.clientHeight||0;
+      if(r.width<3||r.height<3||r.right<=0||r.bottom<=0||r.left>=vw||r.top>=vh)return false;
+      var cx=Math.max(0,Math.min(vw,r.left+r.width/2)),cy=Math.max(0,Math.min(vh,r.top+r.height/2));
+      return cx>=0&&cx<=vw&&cy>=0&&cy<=vh;
+    }catch(e){return false;}
+  }
+  function currentFeedHost(){
+    var vids=[].slice.call(document.querySelectorAll('#screen .kt-public-video,#screen #homeVideo'));
+    var v=vids.find(visibleVideoNode)||vids[0]||null;
+    if(v)return v.closest('.video-home,.media,section,.kt-hard-video-card')||v.parentElement;
+    var homes=[].slice.call(document.querySelectorAll('#screen .video-home,#screen .media'));
+    return homes.find(visibleVideoNode)||homes[0]||null;
+  }
+
   async function render(){
     ensureStyle();
     var old=document.getElementById('ktVideoLivePeek');
@@ -355,15 +373,17 @@
 
     await renderFollowStatus(rooms);
 
-    var feedVideo=document.querySelector('#screen .kt-public-video');
-    var host=document.querySelector('.video-home')||document.querySelector('#screen .media')||(feedVideo&&feedVideo.closest('section'));
+    var host=currentFeedHost();
     if(!host){if(old)old.remove();return;}
 
     var r=rooms[0];
     var hostId=String(r.host_id||''),hostName=String(r.host_name||'K-Talk 방송자'),hostPhoto=String(r.host_photo||'');
     var photo=(hostPhoto&&(/^data:image/.test(hostPhoto)||/^https?:/.test(hostPhoto)))?'<img src="'+esc(hostPhoto)+'" alt="">':'🎥';
     var signature=hostId+'|'+hostName+'|'+hostPhoto;
-    if(old&&old.getAttribute('data-kt-signature')===signature)return;
+    if(old&&old.getAttribute('data-kt-signature')===signature){
+      if(old.parentElement!==host)host.appendChild(old);
+      return;
+    }
     if(old)old.remove();
     var b=document.createElement('div');
     b.id='ktVideoLivePeek';b.className='kt-video-live-peek';b.setAttribute('data-kt-signature',signature);
@@ -379,7 +399,10 @@
 
   window.ktRefreshVideoLivePeek=render;
   var mo=new MutationObserver(function(){setTimeout(render,80);});
-  var screen=document.getElementById('screen');if(screen)mo.observe(screen,{childList:true,subtree:false});
+  var screen=document.getElementById('screen');if(screen)mo.observe(screen,{childList:true,subtree:true});
+  if(screen)screen.addEventListener('scroll',function(){clearTimeout(window.__ktLiveSwipeRender);window.__ktLiveSwipeRender=setTimeout(render,40);},true);
+  document.addEventListener('touchend',function(){setTimeout(render,40);},true);
+  document.addEventListener('pointerup',function(){setTimeout(render,40);},true);
   setInterval(render,500);
-  setTimeout(render,1000);
+  setTimeout(render,600);
 })();
