@@ -20,13 +20,13 @@
     solo:true,
     group9:true,
     group13:true,
-    group13Transition:true,
+    group13Transition:false,
     subscriber:true,
     secret:true,
-    videos:false,
-    videoFeed:false,
-    videoCommunication:false,
-    mediaTransport:false,
+    videos:true,
+    videoFeed:true,
+    videoCommunication:true,
+    mediaTransport:true,
     liveSignal:true,
     publicVideoSideActions:true,
     publicVideoRoseButton:true,
@@ -95,15 +95,15 @@
     locked.solo=true;
     locked.group9=true;
     locked.group13=true;
-    locked.group13Transition=true;
+    locked.group13Transition=false;
     locked.subscriber=true;
     locked.secret=true;
     locked.aiVoice=true;
     locked.helpReader=true;
-    locked.videos=false;
-    locked.videoFeed=false;
-    locked.videoCommunication=false;
-    locked.mediaTransport=false;
+    locked.videos=true;
+    locked.videoFeed=true;
+    locked.videoCommunication=true;
+    locked.mediaTransport=true;
     locked.liveSignal=true;
     locked.publicVideoSideActions=true;
     locked.publicVideoRoseButton=true;
