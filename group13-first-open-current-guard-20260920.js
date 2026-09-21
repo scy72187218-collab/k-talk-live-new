@@ -83,7 +83,8 @@
     s.textContent=
       'html.kt-g13-current-guard #screen{background:#000!important}'+
       'html.kt-g13-current-guard #screen>*:not(.ktg13-room[data-kt-approved13="1"]){opacity:0!important;pointer-events:none!important}'+
-      'html.kt-g13-current-guard #screen .ktg13-room[data-kt-approved13="1"]{opacity:1!important;pointer-events:auto!important}';
+      'html.kt-g13-current-guard #screen .ktg13-room[data-kt-approved13="1"]{opacity:1!important;pointer-events:auto!important}'+
+      'html.kt-g13-current-guard #ktLiveInstantHandoff{display:none!important;opacity:0!important;visibility:hidden!important}';
     document.head.appendChild(s);
   }
 
