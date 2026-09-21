@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Owner authorized 13-person guest earnings HUD move/shrink. Only earnings HUD position/size is editable; bottom controls and all other UI remain protected.",
+  "note": "Re-locked after 13-person guest earnings HUD was moved above the gift/share controls and slightly reduced. All other UI remains protected.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -41,12 +41,6 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "guest13_earnings_hud_position",
-    "guest13_earnings_hud_size"
-  ],
-  "temporarily_unlocked_components": [
-    "guest13_earnings_hud_position",
-    "guest13_earnings_hud_size"
-  ]
+  "current_editable_components": [],
+  "temporarily_unlocked_components": []
 }
