@@ -32,21 +32,23 @@
       +'#screen .ktsecret-slot.host>.kt-allhost-profile,'
       +'#screen .ktsecret-host>.kt-allhost-profile,'
       +'#screen .ktg9-host>.kt-allhost-profile{'
-        +'display:flex!important;left:4px!important;right:auto!important;top:auto!important;bottom:4px!important;'
-        +'transform:none!important;transform-origin:left bottom!important;gap:2px!important;'
-        +'max-width:calc(100% - 8px)!important;padding:1px 3px 1px 1px!important;border-radius:999px!important;'
-        +'background:rgba(0,0,0,.64)!important;z-index:70!important'
+        +'display:flex!important;left:5px!important;right:auto!important;top:auto!important;bottom:5px!important;'
+        +'transform:none!important;transform-origin:left bottom!important;gap:4px!important;'
+        +'max-width:calc(100% - 10px)!important;min-height:22px!important;padding:2px 5px 2px 2px!important;border-radius:999px!important;'
+        +'background:rgba(20,10,30,.78)!important;border:1px solid rgba(255,65,210,.45)!important;z-index:70!important'
       +'}'
       /* 프로필 사진은 작게 유지, 닉네임/레벨은 기존 대비 약 50% */
       +'#screen .kt-allhost-profile .kt-allhost-photo,#screen .kt-allhost-profile .kt-allhost-fallback{'
-        +'width:13px!important;height:13px!important;min-width:13px!important;font-size:6px!important;border-width:1px!important'
-      +'}'
-      +'#screen .kt-allhost-profile .kt-allhost-level{'
-        +'height:8px!important;padding:0 2px!important;font-size:4.5px!important;line-height:1!important'
+        +'order:1!important;width:18px!important;height:18px!important;min-width:18px!important;font-size:8px!important;border-width:1px!important;background:#7b2cff!important'
       +'}'
       +'#screen .kt-allhost-profile .kt-allhost-name{'
-        +'max-width:48px!important;font-size:5px!important;line-height:1!important'
+        +'order:2!important;display:block!important;max-width:72px!important;font-size:10px!important;line-height:1!important;color:#fff!important;font-weight:950!important'
       +'}'
+      +'#screen .kt-allhost-profile .kt-allhost-level{'
+        +'order:3!important;height:16px!important;padding:0 5px!important;font-size:9px!important;line-height:1!important;background:rgba(15,15,20,.88)!important;color:#fff!important;border:1px solid rgba(255,255,255,.18)!important'
+      +'}'
+      +'#screen .ktsolo-main [class*="wave"],#screen .ktg13-host [class*="wave"],#screen .ktsubscriber-host [class*="wave"],#screen .ktsecret-slot.host [class*="wave"],#screen .ktsecret-host [class*="wave"],#screen .ktg9-host [class*="wave"]{display:none!important;visibility:hidden!important;opacity:0!important}'
+      +'#screen .ktg13-host::after,#screen .ktsubscriber-host::after,#screen .ktsecret-slot.host::after,#screen .ktg9-host::after{content:none!important;display:none!important}'
       /* 기존 호스트 글자는 숨기고 프로필/닉네임/레벨만 표시 */
       +'#screen .ktg13-host-label,#screen .ktsubscriber-host-label,'
       +'#screen .ktsecret-slot.host>.ktsecret-slot-label,#screen .ktsecret-host-label,#screen .ktg9-host-label{display:none!important}'
@@ -82,11 +84,21 @@
       var p=tile.querySelector(':scope > .kt-allhost-profile');
       if(p){
         p.style.setProperty('display','flex','important');
-        p.style.setProperty('left','4px','important');
+        p.style.setProperty('left','5px','important');
         p.style.setProperty('right','auto','important');
         p.style.setProperty('top','auto','important');
-        p.style.setProperty('bottom','4px','important');
+        p.style.setProperty('bottom','5px','important');
         p.style.setProperty('transform','none','important');
+        p.style.setProperty('display','flex','important');
+        p.style.setProperty('gap','4px','important');
+        p.style.setProperty('padding','2px 5px 2px 2px','important');
+        p.style.setProperty('min-height','22px','important');
+        var ph=p.querySelector('.kt-allhost-photo,.kt-allhost-fallback');
+        var nm=p.querySelector('.kt-allhost-name');
+        var lv=p.querySelector('.kt-allhost-level');
+        if(ph){ph.style.setProperty('order','1','important');ph.style.setProperty('width','18px','important');ph.style.setProperty('height','18px','important');ph.style.setProperty('min-width','18px','important');}
+        if(nm){nm.style.setProperty('order','2','important');nm.style.setProperty('font-size','10px','important');nm.style.setProperty('max-width','72px','important');}
+        if(lv){lv.style.setProperty('order','3','important');lv.style.setProperty('font-size','9px','important');lv.style.setProperty('height','16px','important');lv.style.setProperty('background','rgba(15,15,20,.88)','important');lv.style.setProperty('color','#fff','important');}
       }
     });
 
