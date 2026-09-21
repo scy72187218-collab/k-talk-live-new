@@ -14,6 +14,7 @@
   var viewer=null;
   var oldEnter=window.ktEnterRemoteLive;
   var oldLeave=window.ktLeaveRemoteLive;
+  var remoteEndHost='',remoteEndArmed=false,remoteEndMisses=0,remoteEndBusy=false;
 
   function deviceId(){
     var id='';
@@ -260,12 +261,16 @@
 
   window.ktEnterRemoteLive=async function(hostId){
     hostId=String(hostId||'');if(!hostId)return;
+    remoteEndHost=hostId;remoteEndMisses=0;remoteEndArmed=false;
+    window.__ktRemoteHostId=hostId;
     /* If DB signaling responds, preserve the original working path. */
     if(await dbAvailable(hostId)){
+      remoteEndArmed=true;
       return oldEnter?oldEnter(hostId):undefined;
     }
     try{
       var ok=await enterMemory(hostId);
+      if(ok)remoteEndArmed=true;
       if(!ok){
         if(oldEnter)return oldEnter(hostId);
         alert('방송 연결 정보를 찾지 못했습니다.');
@@ -278,6 +283,8 @@
   };
 
   window.ktLeaveRemoteLive=async function(silent){
+    remoteEndHost='';remoteEndArmed=false;remoteEndMisses=0;
+    window.__ktRemoteHostId='';
     if(viewer){
       closeViewer(!!silent);
       return;
