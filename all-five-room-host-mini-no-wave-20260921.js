@@ -13,6 +13,15 @@
     s.textContent=''
       /* 파장만 제거 */
       +'#screen .ktsolo-wave,#screen .ktg13-wave,#screen .ktsubscriber-wave,#screen .ktsecret-wave,#screen .kt-room-live-wave{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}'
+      +'#screen .ktg13-main::after{content:none!important;display:none!important;visibility:hidden!important;opacity:0!important}'
+      +'#screen .ktg13-room:not([data-kt-room="9"]) .ktg13-main{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;grid-template-rows:repeat(4,minmax(0,1fr))!important;gap:2px!important}'
+      +'#screen .ktg13-room:not([data-kt-room="9"]) .ktg13-guests{display:contents!important}'
+      +'#screen .ktg13-room:not([data-kt-room="9"]) .ktg13-host{grid-column:auto!important;grid-row:auto!important;border:1px solid #ff42c9!important;box-shadow:inset 0 0 0 1px rgba(255,66,201,.18)!important}'
+      +'#screen .ktg13-room[data-kt-room="9"] .ktg13-host{border:1px solid #ff42c9!important;box-shadow:inset 0 0 0 1px rgba(255,66,201,.18)!important}'
+      +'#screen .ktsubscriber-people{grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:repeat(4,minmax(0,1fr))!important}'
+      +'#screen .ktsubscriber-host{grid-column:auto!important;grid-row:auto!important;border-color:#ff42c9!important}'
+      +'#screen .ktsecret-slot.host{border-color:#ff42c9!important}'
+      +'#screen .ktsolo-main{border:1px solid #ff42c9!important}'
       /* 장미 0/수량 배지 약 50% */
       +'#screen .kt-rose-count-badge{left:4px!important;top:4px!important;height:12px!important;min-width:22px!important;padding:0 3px!important;gap:1px!important;border-radius:999px!important;font-size:6.5px!important;line-height:1!important;border-width:1px!important}'
       +'#screen .kt-rose-count-badge:before{font-size:6px!important}'
