@@ -243,25 +243,55 @@
   window.startBroadcast=async function(){
     if(!isGroup13())return oldStartBroadcast.apply(this,arguments);
 
-    /* 13명방은 카운트다운/옛 버전 화면을 거치지 않고 현재 방을 즉시 연다.
-       다른 방의 시작 방식은 그대로 둔다. */
+    /* 13명방만: 준비 화면은 그대로 둔 채 5→4→3→2→1을 끝까지 보여주고,
+       1초 표시가 끝난 뒤 현재 13명방으로 바로 전환한다.
+       옛 13명방 시작 체인은 호출하지 않는다. */
     markGroup13Opening();
+
+    var cameraPromise=null;
+    try{
+      if(window.state)state.cameraFacing=state.cameraFacing||'user';
+      if(window.ensureLiveCamera){
+        cameraPromise=Promise.resolve(
+          window.ensureLiveCamera((window.state&&state.cameraFacing)||'user')
+        ).catch(function(){return false;});
+      }
+    }catch(e){cameraPromise=Promise.resolve(false);}
+
+    var old=document.getElementById('ktLiveCountdown');
+    if(old)old.remove();
+
+    var wrap=document.createElement('div');
+    wrap.id='ktLiveCountdown';
+    wrap.style.cssText='position:fixed;inset:0;z-index:99999;display:grid;place-items:center;background:transparent;pointer-events:none;';
+    var num=document.createElement('div');
+    num.style.cssText='width:116px;height:116px;border-radius:50%;display:grid;place-items:center;background:rgba(10,10,14,.72);border:4px solid rgba(255,255,255,.92);color:#fff;font:900 64px/1 system-ui,-apple-system,sans-serif;box-shadow:0 0 28px rgba(255,44,130,.7);text-shadow:0 0 12px rgba(255,255,255,.7);';
+    wrap.appendChild(num);
+    document.body.appendChild(wrap);
+
+    for(var n=5;n>=1;n--){
+      num.textContent=String(n);
+      num.style.transform='scale(1)';
+      await new Promise(function(resolve){
+        setTimeout(function(){num.style.transform='scale(.92)';},650);
+        setTimeout(resolve,1000);
+      });
+    }
+
+    /* 1초가 완전히 끝난 뒤에만 준비 화면을 닫는다. */
+    try{wrap.remove();}catch(e){}
     try{
       if(window.creator)creator.classList.remove('show','live-prep-open');
     }catch(e){}
 
-    /* 현재 13명방 UI를 먼저 바로 표시 */
-    renderApprovedGroup13(true);
-
-    /* 기존 group13 시작 체인 대신 필요한 카메라 준비만 수행.
-       이후에 로드된 LIVE 신호/방송 상태 래퍼는 이 함수를 그대로 감싸므로 유지된다. */
     var ok=true;
     try{
-      if(window.state)state.cameraFacing=state.cameraFacing||'user';
-      if(window.ensureLiveCamera)ok=await window.ensureLiveCamera((window.state&&state.cameraFacing)||'user');
+      if(cameraPromise)ok=await cameraPromise;
     }catch(e){ok=false;}
 
-    /* 카메라가 준비되면 현재 방의 호스트 영상에 바로 연결 */
+    /* 옛 버전 화면 없이 현재 승인된 13명방만 바로 표시 */
+    renderApprovedGroup13(false);
+
     try{
       var v=document.getElementById('ktLiveVideo');
       if(v&&window.state&&state.stream){
