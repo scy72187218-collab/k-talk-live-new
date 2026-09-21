@@ -73,7 +73,7 @@
     if(Number(window.__ktPrimaryLiveDbDownUntil||0)>Date.now())return false;
     try{
       var ctrl=new AbortController();
-      var timer=setTimeout(function(){ctrl.abort();},450);
+      var timer=setTimeout(function(){ctrl.abort();},1500);
       var r=await fetch(BASE+'ktalk_live_rooms?select=id&host_id=eq.'+enc(hostId)+'&active=eq.true&limit=1',{
         cache:'no-store',
         headers:{apikey:KEY,Authorization:'Bearer '+KEY},
@@ -234,9 +234,19 @@
         if(st){st.style.display='block';st.textContent='신호 다시 연결 중...';}
         var c=viewer;
         if(c&&c.pc===pc&&!c.disconnectTimer){
-          c.disconnectTimer=setTimeout(function(){
-            if(viewer===c&&c.pc===pc&&(pc.connectionState==='failed'||pc.connectionState==='disconnected'))returnToVideoAfterHostEnd();
-          },15000);
+          c.disconnectTimer=setTimeout(async function(){
+            if(!(viewer===c&&c.pc===pc&&(pc.connectionState==='failed'||pc.connectionState==='disconnected')))return;
+            var host=c.hostId;
+            var room=window.__ktLastLiveRoom&&String(window.__ktLastLiveRoom.host_id||'')===String(host)?window.__ktLastLiveRoom:null;
+            try{closeViewer(true);}catch(e){}
+            window.__ktRemoteHostId=host;
+            try{sessionStorage.setItem('kt_remote_host_id',host);}catch(e){}
+            try{
+              var ok=await enterMemory(host,room);
+              if(ok){remoteEndHost=host;remoteEndArmed=true;return;}
+            }catch(e){}
+            returnToVideoAfterHostEnd();
+          },8000);
         }
       }
     };
@@ -317,18 +327,29 @@
     try{sessionStorage.setItem('kt_remote_host_id',hostId);}catch(e){}
     var cached=window.__ktLastLiveRoom&&String(window.__ktLastLiveRoom.host_id||'')===hostId?window.__ktLastLiveRoom:null;
     try{
-      /* 빨간 LIVE가 이미 떠 있었다면 그 정보를 그대로 써서 화면부터 즉시 연다. */
-      if(cached){
-        var ok=await enterMemory(hostId,cached);
-        if(ok){remoteEndArmed=true;return;}
-      }
-
-      /* 캐시가 없을 때만 짧게 기존 경로를 확인한다. */
+      /* 기본 실시간 DB 경로를 먼저 사용한다. 느린 휴대폰에서도 너무 빨리 fallback으로 빠지지 않는다. */
       if(await dbAvailable(hostId)){
         remoteEndArmed=true;
-        if(oldEnter)return oldEnter(hostId);
+        if(oldEnter){
+          await oldEnter(hostId);
+          /* 실제 영상이 늦게 붙는 경우 7초 뒤 fallback으로 한 번 더 자동 시도한다. */
+          setTimeout(async function(){
+            try{
+              if(String(window.__ktRemoteHostId||'')!==hostId)return;
+              if(window.__ktRemoteHostStream)return;
+              if(viewer)return;
+              if(oldLeave)await oldLeave(true);
+              window.__ktRemoteHostId=hostId;
+              try{sessionStorage.setItem('kt_remote_host_id',hostId);}catch(e){}
+              var ok=await enterMemory(hostId,cached);
+              if(ok)remoteEndArmed=true;
+            }catch(e){}
+          },7000);
+          return;
+        }
       }
 
+      /* 기본 경로가 unavailable일 때만 메모리 fallback을 사용한다. */
       var ok2=await enterMemory(hostId,cached);
       if(ok2){remoteEndArmed=true;return;}
 
