@@ -242,8 +242,41 @@
 
   window.startBroadcast=async function(){
     if(!isGroup13())return oldStartBroadcast.apply(this,arguments);
+
+    /* 13명방 전용:
+       5→4→3→2→1 카운트가 끝나는 즉시 현재 승인 13명방을 먼저 보여준다.
+       그 뒤 기존 시작 로직이 잠깐 만드는 옛 기본 방송 화면은 opening guard 뒤에서만
+       실행되므로 사용자에게는 보이지 않는다. 다른 방은 기존 로직 그대로 둔다. */
     markGroup13Opening();
-    return oldStartBroadcast.apply(this,arguments);
+
+    var originalCountdown=window.ktLiveStartCountdown;
+    var countdownWrapped=false;
+    if(typeof originalCountdown==='function'&&!originalCountdown.__ktG13AfterOneCurrent){
+      var g13Countdown=async function(){
+        var r=await originalCountdown.apply(this,arguments);
+        try{
+          var cr=window.creator||document.getElementById('creator');
+          if(cr)cr.classList.remove('show','live-prep-open');
+        }catch(e){}
+        renderApprovedGroup13(true);
+        return r;
+      };
+      g13Countdown.__ktG13AfterOneCurrent=true;
+      window.ktLiveStartCountdown=g13Countdown;
+      countdownWrapped=true;
+    }
+
+    try{
+      var result=await oldStartBroadcast.apply(this,arguments);
+      /* 기존 시작 로직이 끝난 직후 현재 승인 화면으로 한 번 더 확정 */
+      renderApprovedGroup13(false);
+      return result;
+    }catch(e){
+      try{renderApprovedGroup13(false);}catch(_e){}
+      throw e;
+    }finally{
+      if(countdownWrapped)window.ktLiveStartCountdown=originalCountdown;
+    }
   };
 
   /* 시작 버튼을 누르는 순간부터 옛 13명방 화면을 가려 카운트 후 번쩍임 방지 */
