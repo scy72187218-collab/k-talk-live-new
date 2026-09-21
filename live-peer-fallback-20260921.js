@@ -9,7 +9,8 @@
   var API='/api/live-peer-memory';
   var BEACON='/api/live-beacon-memory';
   var INTERACT='/api/live-interaction-memory';
-  var ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};\n  function ktIceConfig20260921(){return window.ktGetRtcConfig?window.ktGetRtcConfig():ICE;}
+  var ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
+  function ktIceConfig20260921(){return window.ktGetRtcConfig?window.ktGetRtcConfig():ICE;}
   var hostPeers={};
   var viewer=null,enterBusy=false;
   var oldEnter=window.ktEnterRemoteLive;
