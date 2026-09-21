@@ -7,7 +7,7 @@
     document.head.appendChild(s);
   }
   load('music-recording-base.js?v=20260919-firstaudio1');
-  load('group13-approved-room.js?v=20260907-group13');
+  load('group13-approved-room.js?v=20260921-direct-current2');
   load('group13-host-three-rows.js?v=20260913-tophost2');
   load('room-stats-mission-copy.js?v=20260911-mission2');
   load('earnings-rooms-copy.js?v=20260909-earnings-restore1');
