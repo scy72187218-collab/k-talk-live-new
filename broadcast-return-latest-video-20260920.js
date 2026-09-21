@@ -39,9 +39,11 @@
     /* 서버 최신 목록 강제 새로고침 */
     try{
       if(typeof window.ktShowSharedServerFeed==='function'){
-          window.ktShowSharedServerFeed();
-        }else if(typeof window.ktForceHomeVideoRecovery==='function'){
-          window.ktForceHomeVideoRecovery(true);
+        window.ktShowSharedServerFeed();
+        return;
+      }
+      if(typeof window.ktForceHomeVideoRecovery==='function'){
+        window.ktForceHomeVideoRecovery(true);
         setTimeout(function(){
           try{window.ktForceHomeVideoRecovery(true);}catch(e){}
         },180);
@@ -79,22 +81,41 @@
     }catch(e){}
   }
 
-  var oldEnd=window.endBroadcastEarnings;
-  if(typeof oldEnd==='function'&&!oldEnd.__ktLatestVideoReturn){
+  function wrapEnd(){
+    var oldEnd=window.endBroadcastEarnings;
+    if(typeof oldEnd!=='function'||oldEnd.__ktLatestVideoReturn)return;
     var wrapped=function(){
       var r=oldEnd.apply(this,arguments);
-      setTimeout(patchEndSheet,0);
-      setTimeout(patchEndSheet,60);
+      /* 방송 종료를 누르면 수익창에 머물지 않고 바로 동영상으로 복귀 */
+      setTimeout(latestVideoNow,40);
       return r;
     };
     wrapped.__ktLatestVideoReturn=true;
     window.endBroadcastEarnings=wrapped;
   }
 
+  function wrapLeave(){
+    var oldLeave=window.leaveBroadcastToDashboard;
+    if(typeof oldLeave!=='function'||oldLeave.__ktLatestVideoReturn)return;
+    var wrapped=function(){
+      var r=oldLeave.apply(this,arguments);
+      setTimeout(latestVideoNow,40);
+      return r;
+    };
+    wrapped.__ktLatestVideoReturn=true;
+    window.leaveBroadcastToDashboard=wrapped;
+  }
+
+  wrapEnd();wrapLeave();
+  setInterval(function(){wrapEnd();wrapLeave();},500);
+
   /* 다른 방에서 뒤로/나가기 버튼으로 방송을 닫는 경우도 최신 동영상으로 복귀 */
   document.addEventListener('click',function(e){
-    var b=e.target&&e.target.closest?e.target.closest('.ktg13-back,.ktsolo-back,.ktsubscriber-back,.ktsecret-back'):null;
+    var b=e.target&&e.target.closest?e.target.closest('button,.ktg13-back,.ktsolo-back,.ktsubscriber-back,.ktsecret-back'):null;
     if(!b)return;
-    setTimeout(latestVideoNow,20);
+    var isBack=!!(b.matches&&b.matches('.ktg13-back,.ktsolo-back,.ktsubscriber-back,.ktsecret-back'));
+    var txt=String(b.textContent||'').replace(/\s+/g,'');
+    if(!isBack&&txt.indexOf('방송종료')<0)return;
+    setTimeout(latestVideoNow,50);
   },true);
 })();
