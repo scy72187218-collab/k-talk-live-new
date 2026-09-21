@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Owner resumed work on weak guest signal. Only WebRTC transport and 13-person guest uplink recovery may be edited; UI/layout/buttons/earnings remain protected.",
+  "note": "PIN verified for one narrow edit: lower 13-person room bottom controls only. Re-lock immediately after the edit.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -44,7 +44,10 @@
   },
   "current_editable_components": [
     "webrtc_transport_stability",
-    "group13_guest_uplink"
+    "group13_guest_uplink",
+    "guest13_bottom_controls_layout"
   ],
-  "temporarily_unlocked_components": []
+  "temporarily_unlocked_components": [
+    "guest13_bottom_controls_layout"
+  ]
 }
