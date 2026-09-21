@@ -142,8 +142,23 @@
   },true);
 
   function wrapAll(){wrapStop('leaveBroadcastToDashboard');wrapStop('endBroadcastEarnings');}
+  function directRealtimeEnd(e){
+    var id=String(e&&e.detail&&e.detail.host_id||'');
+    if(!id)return;
+    var h=currentViewedHost();
+    var last='';
+    try{last=String(window.__ktLastLiveRoom&&window.__ktLastLiveRoom.host_id||'');}catch(z){}
+    /* 내가 보고 있던 방송이면, 방 DOM이 이미 사라져 방송목록 화면이 되었어도
+       기다리지 말고 즉시 일반 동영상 화면으로 보낸다. */
+    if(h===id||last===id||(inJoinedLive()&&!h)){
+      lastHandled=id+'|direct|'+Date.now();
+      goVideo();
+    }
+  }
+
   wrapAll();
   wrapTimer=setInterval(wrapAll,700);
+  window.addEventListener('kt-live-off',directRealtimeEnd);
   setInterval(realtimeEndCheck,350);
   setInterval(fallbackPoll,8000);
   document.addEventListener('visibilitychange',function(){if(!document.hidden){setTimeout(realtimeEndCheck,60);setTimeout(fallbackPoll,250);}});
