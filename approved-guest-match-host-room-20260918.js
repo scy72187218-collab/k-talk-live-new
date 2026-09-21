@@ -20,14 +20,14 @@
   function guestEarnRate(){
     try{
       var saved=localStorage.getItem('ktalk_member_type');
-      if(saved==='subscriber')return {rate:.40,label:'구독자회원 40%'};
+      if(saved==='subscriber')return {rate:.40,label:'구독자 · 40%'};
     }catch(e){}
     try{
       if(window.state&&(state.memberType==='subscriber'||state.subscribed===true||state.subscriptionActive===true)){
-        return {rate:.40,label:'구독자회원 40%'};
+        return {rate:.40,label:'구독자 · 40%'};
       }
     }catch(e){}
-    return {rate:.35,label:'일반회원 35%'};
+    return {rate:.35,label:'일반회원 · 35%'};
   }
   function guestEarnMoney(){
     var r=guestEarnRate();
@@ -84,11 +84,11 @@
       +'.kgh-cell video{position:absolute;inset:0;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;border:0!important;object-fit:cover!important;object-position:center center!important;background:#111}'
       +'.kgh-cell.host video{transform:none!important}.kgh-cell.self video{left:0!important;top:0!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center center!important;transform:scaleX(-1)!important}.kgh-cell.self{outline:2px solid #61d9ff;outline-offset:-2px}'
       +'.kgh-label{position:absolute;left:7px;bottom:6px;z-index:3;padding:3px 7px;border-radius:10px;background:#111d;color:#fff;font-size:10px;font-weight:950}'
-      +'.kt-remote-live.kt-guest-hostlike-active>.kt-remote-bottom{display:flex!important;z-index:80!important;bottom:-8px!important}.kt-remote-live.kt-guest-hostlike-active>.kt-remote-chat{display:flex!important;z-index:79!important;bottom:48px!important;max-height:70px!important}'
-      +'.kgh-chat{flex:0 0 48px;position:relative;overflow:hidden;background:#000;display:flex;align-items:flex-end;padding:1px 5px 1px}.kgh-chatbox{width:calc(100% - 94px)!important;max-height:45px;overflow:hidden;font-size:9px;font-weight:850;line-height:1.28;color:#fff}'
-      +'.kgh-earn{position:absolute;right:4px;bottom:-10px;z-index:6;width:110px;height:64px;border:1px solid #d2a936;border-radius:10px;background:linear-gradient(135deg,#17140be8,#0d0d12e8);color:#fff;padding:2px 4px;text-align:center;overflow:hidden;box-sizing:border-box}.kgh-earn .top{display:flex;align-items:center;justify-content:center;gap:3px;white-space:nowrap}.kgh-earn .top span{font-size:6.5px;color:#8fe8ff;font-weight:950}.kgh-earn .top b{font-size:9px;color:#ffe071}.kgh-earn-detail{display:grid;grid-template-columns:1fr auto;gap:1px 3px;margin-top:2px;font-size:6px;line-height:1.08;color:#ddd;white-space:nowrap}.kgh-earn-detail .full{grid-column:1/-1;text-align:right}.kgh-earn-detail .gold{color:#ffe071}'
+      +'.kt-remote-live.kt-guest-hostlike-active>.kt-remote-bottom{display:flex!important;z-index:80!important}.kt-remote-live.kt-guest-hostlike-active>.kt-remote-chat{display:flex!important;z-index:79!important;bottom:68px!important;max-height:78px!important}'
+      +'.kgh-chat{flex:0 0 64px;position:relative;overflow:hidden;background:#000;display:flex;align-items:flex-end;padding:2px 6px 3px}.kgh-chatbox{width:calc(100% - 112px)!important;max-height:60px;overflow:hidden;font-size:10px;font-weight:850;line-height:1.35;color:#fff}'
+      +'.kgh-earn{position:absolute;right:5px;bottom:4px;z-index:6;width:104px;height:54px;border:1px solid #d2a936;border-radius:10px;background:linear-gradient(135deg,#17140be8,#0d0d12e8);color:#fff;padding:3px 4px;text-align:center;overflow:hidden}.kgh-earn .top{display:flex;align-items:center;justify-content:center;gap:3px;white-space:nowrap}.kgh-earn .top span{font-size:6px;color:#8fe8ff;font-weight:950}.kgh-earn .top b{font-size:9px;color:#ffe071}.kgh-earn-detail{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-top:3px;font-size:6px;color:#ddd;white-space:nowrap}'
       +'.kgh-tools{display:none!important}.kgh-tool{border:0;background:none;color:#fff;min-width:0;font-weight:900;font-size:9px;display:grid;justify-items:center;gap:2px}.kgh-tool i{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#1b1b20,#0b0b0f);border:1px solid #35363d;font-style:normal;font-size:18px;box-shadow:inset 0 0 13px #ffffff08}.kgh-tool span{font-size:8px;color:#fff;white-space:nowrap}'
-      +'@media(max-width:390px){.kt-guest-hostlike-room{padding-left:4px;padding-right:4px;gap:3px}.kgh-head{flex-basis:58px;padding:4px 8px}.kgh-air strong{font-size:17px}.kgh-air small{font-size:10px}.kgh-brand{font-size:17px}.kgh-attend{min-width:108px;height:38px;font-size:15px;padding:0 8px}.kgh-led{flex-basis:50px}.kgh-led-track{font-size:20px}.kgh-quick{flex-basis:31px}.kgh-stats{flex-basis:39px}.kgh-stats button,.kgh-viewers{font-size:10px}.kgh-cell{font-size:11px}.kgh-chat{flex-basis:46px}.kgh-earn{width:84px;height:41px}.kgh-tools{flex-basis:48px}.kgh-tool i{width:32px;height:32px;font-size:16px}}';
+      +'@media(max-width:390px){.kt-guest-hostlike-room{padding-left:4px;padding-right:4px;gap:3px}.kgh-head{flex-basis:58px;padding:4px 8px}.kgh-air strong{font-size:17px}.kgh-air small{font-size:10px}.kgh-brand{font-size:17px}.kgh-attend{min-width:108px;height:38px;font-size:15px;padding:0 8px}.kgh-led{flex-basis:50px}.kgh-led-track{font-size:20px}.kgh-quick{flex-basis:31px}.kgh-stats{flex-basis:39px}.kgh-stats button,.kgh-viewers{font-size:10px}.kgh-cell{font-size:11px}.kgh-chat{flex-basis:60px}.kgh-tools{flex-basis:48px}.kgh-tool i{width:32px;height:32px;font-size:16px}}';
     document.head.appendChild(s);
   }
 
@@ -211,12 +211,8 @@
     earn.className='kgh-earn';
     earn.id='ktGuestEarnHud';
     earn.onclick=window.ktGuestToggleEarnings;
-    earn.innerHTML='<div class="top"><span>🔒 내 수익 · 본인만 표시</span><b id="ktGuestEarnNet">0원</b></div>'
-      +'<div id="ktGuestEarnDetail" class="kgh-earn-detail">'
-      +'<span id="ktGuestEarnRoses">🌹 0송이</span><span id="ktGuestEarnRate">일반회원 35%</span>'
-      +'<span class="full">구독자회원 40% · 소속사 65%</span>'
-      +'<span class="full gold">소속사 가입은 소속사가 결정</span>'
-      +'</div>';
+    earn.innerHTML='<div class="top"><span>🔒 내 수익</span><b id="ktGuestEarnNet">0원</b></div>'
+      +'<div id="ktGuestEarnDetail" class="kgh-earn-detail"><span id="ktGuestEarnRoses">🌹 0송이</span><span id="ktGuestEarnRate">일반회원 · 35%</span></div>';
     chat.appendChild(earn);
     setTimeout(updateGuestEarnHud,0);
 
