@@ -37,16 +37,12 @@
         +'max-width:calc(100% - 4px)!important;min-height:13px!important;padding:1px 3px 1px 1px!important;border-radius:999px!important;'
         +'background:rgba(20,10,30,.78)!important;border:1px solid rgba(255,65,210,.45)!important;z-index:70!important'
       +'}'
-      /* 프로필 사진은 작게 유지, 닉네임/레벨은 기존 대비 약 50% */
-      +'#screen .kt-allhost-profile .kt-allhost-photo,#screen .kt-allhost-profile .kt-allhost-fallback{'
-        +'order:1!important;width:11px!important;height:11px!important;min-width:11px!important;font-size:5px!important;border-width:1px!important;background:#7b2cff!important'
-      +'}'
-      +'#screen .kt-allhost-profile .kt-allhost-name{'
-        +'order:2!important;display:block!important;max-width:44px!important;font-size:6px!important;line-height:1!important;color:#fff!important;font-weight:950!important'
-      +'}'
-      +'#screen .kt-allhost-profile .kt-allhost-level{'
-        +'order:3!important;height:10px!important;padding:0 3px!important;font-size:6px!important;line-height:1!important;background:rgba(15,15,20,.88)!important;color:#fff!important;border:1px solid rgba(255,255,255,.18)!important'
-      +'}'
+      /* 승인 사진 기준: 얼굴을 가리지 않게 하단 표시는 아주 얇게 */
+      +'#screen .kt-allhost-profile{height:12px!important;min-height:12px!important;max-height:12px!important;left:2px!important;bottom:0!important;padding:0 3px 0 1px!important;gap:2px!important;border-radius:7px!important;overflow:hidden!important;align-items:center!important}'
+      /* 큰 K 원형/프로필 사진은 숨기고, 닉네임 + 레벨만 한 줄로 표시 */
+      +'#screen .kt-allhost-profile .kt-allhost-photo,#screen .kt-allhost-profile .kt-allhost-fallback{display:none!important;width:0!important;height:0!important;min-width:0!important;margin:0!important;padding:0!important;border:0!important}'
+      +'#screen .kt-allhost-profile .kt-allhost-name{order:1!important;display:block!important;max-width:48px!important;font-size:6px!important;line-height:10px!important;color:#fff!important;font-weight:950!important}'
+      +'#screen .kt-allhost-profile .kt-allhost-level{order:2!important;height:10px!important;padding:0 3px!important;font-size:6px!important;line-height:10px!important;background:rgba(15,15,20,.88)!important;color:#fff!important;border:0!important}'
       +'#screen .ktsolo-main [class*="wave"],#screen .ktg13-host [class*="wave"],#screen .ktsubscriber-host [class*="wave"],#screen .ktsecret-slot.host [class*="wave"],#screen .ktsecret-host [class*="wave"],#screen .ktg9-host [class*="wave"]{display:none!important;visibility:hidden!important;opacity:0!important}'
       +'#screen .ktg13-host::after,#screen .ktsubscriber-host::after,#screen .ktsecret-slot.host::after,#screen .ktg9-host::after{content:none!important;display:none!important}'
       /* 기존 호스트 글자는 숨기고 프로필/닉네임/레벨만 표시 */
@@ -127,18 +123,18 @@
         p.style.setProperty('left','2px','important');
         p.style.setProperty('right','auto','important');
         p.style.setProperty('top','auto','important');
-        p.style.setProperty('bottom','1px','important');
+        p.style.setProperty('bottom','0','important');
         p.style.setProperty('transform','none','important');
         p.style.setProperty('display','flex','important');
         p.style.setProperty('gap','1px','important');
         p.style.setProperty('padding','1px 3px 1px 1px','important');
-        p.style.setProperty('min-height','13px','important');
+        p.style.setProperty('min-height','12px','important');p.style.setProperty('height','12px','important');p.style.setProperty('max-height','12px','important');p.style.setProperty('overflow','hidden','important');
         var ph=p.querySelector('.kt-allhost-photo,.kt-allhost-fallback');
         var nm=p.querySelector('.kt-allhost-name');
         var lv=p.querySelector('.kt-allhost-level');
-        if(ph){ph.style.setProperty('order','1','important');ph.style.setProperty('width','11px','important');ph.style.setProperty('height','11px','important');ph.style.setProperty('min-width','11px','important');}
-        if(nm){nm.style.setProperty('order','2','important');nm.style.setProperty('font-size','6px','important');nm.style.setProperty('max-width','44px','important');}
-        if(lv){lv.style.setProperty('order','3','important');lv.style.setProperty('font-size','6px','important');lv.style.setProperty('height','10px','important');lv.style.setProperty('background','rgba(15,15,20,.88)','important');lv.style.setProperty('color','#fff','important');}
+        if(ph){ph.style.setProperty('display','none','important');ph.style.setProperty('width','0','important');ph.style.setProperty('height','0','important');ph.style.setProperty('min-width','0','important');}
+        if(nm){nm.style.setProperty('order','1','important');nm.style.setProperty('font-size','6px','important');nm.style.setProperty('max-width','48px','important');nm.style.setProperty('line-height','10px','important');}
+        if(lv){lv.style.setProperty('order','2','important');lv.style.setProperty('font-size','6px','important');lv.style.setProperty('height','10px','important');lv.style.setProperty('background','rgba(15,15,20,.88)','important');lv.style.setProperty('color','#fff','important');lv.style.setProperty('border','0','important');}
       }
     });
 
