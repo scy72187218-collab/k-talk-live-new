@@ -163,7 +163,7 @@
     if(!(await ensureConfig()))return memoryReq(path,opt);
     opt=opt||{};
     var ctrl=typeof AbortController!=='undefined'?new AbortController():null;
-    var timer=ctrl?setTimeout(function(){ctrl.abort();},650):null;
+    var timer=ctrl?setTimeout(function(){ctrl.abort();},1500):null;
     try{
       var next=Object.assign({},opt);
       next.headers=headers(next.headers);
@@ -176,9 +176,12 @@
       var t=await r.text();return t?JSON.parse(t):null;
     }catch(e){
       if(timer)clearTimeout(timer);
-      window.__ktPrimaryLiveDbDownUntil=Date.now()+120000;
+      window.__ktPrimaryLiveDbDownUntil=Date.now()+15000;
       return memoryReq(path,opt);
     }
+  }
+  async function ktEnsureTurnReady20260921(){
+    try{if(window.ktRefreshTurnRelay)await window.ktRefreshTurnRelay();}catch(e){}
   }
   function waitIce(pc,ms){return new Promise(function(resolve){if(!pc||pc.iceGatheringState==='complete')return resolve();var done=false,t=setTimeout(finish,ms||5000);function finish(){if(done)return;done=true;clearTimeout(t);try{pc.removeEventListener('icegatheringstatechange',on);}catch(e){}resolve();}function on(){if(pc.iceGatheringState==='complete')finish();}pc.addEventListener('icegatheringstatechange',on);});}
 
@@ -190,7 +193,17 @@
     +'.kt-remote-host-preview{position:absolute!important;right:10px!important;top:112px!important;z-index:6!important;width:92px!important;height:128px!important;border:2px solid rgba(255,255,255,.7)!important;border-radius:12px!important;object-fit:cover!important;background:#111!important;box-shadow:0 3px 12px #0008!important}.kt-guest-float{position:fixed!important;z-index:100000!important;pointer-events:none!important;min-width:86px!important;height:36px!important;border:1px solid #62d8ff!important;border-radius:18px!important;background:#06121cf2!important;color:#fff!important;padding:0 10px!important;display:grid!important;place-items:center!important;font-size:9px!important;font-weight:950!important;box-shadow:0 0 14px #38cfff88!important}'
     +'@media(max-width:390px){.ktg13-request-rail{left:42%!important}.ktg13-request-chip{min-width:78px!important;height:32px!important;font-size:8px!important}.kt-remote-host-preview{width:78px!important;height:108px!important;top:106px!important}}';document.head.appendChild(s);}
 
-  async function currentViewerHost(){try{var rows=await req('ktalk_live_viewers?select=host_id,viewer_id,active,updated_at&viewer_id=eq.'+enc(viewerId())+'&active=eq.true&order=updated_at.desc&limit=1');var h=rows&&rows[0]?String(rows[0].host_id||''):'';if(h){window.__ktRemoteHostId=h;try{sessionStorage.setItem('kt_remote_host_id',h);}catch(e){}}return h;}catch(e){return '';}}
+  async function currentViewerHost(){
+    try{
+      var cached=String(window.__ktRemoteHostId||'');
+      if(!cached)try{cached=String(sessionStorage.getItem('kt_remote_host_id')||'');}catch(e){}
+      if(cached)return cached;
+      var rows=await req('ktalk_live_viewers?select=host_id,viewer_id,active,updated_at&viewer_id=eq.'+enc(viewerId())+'&active=eq.true&order=updated_at.desc&limit=1');
+      var h=rows&&rows[0]?String(rows[0].host_id||''):'';
+      if(h){window.__ktRemoteHostId=h;try{sessionStorage.setItem('kt_remote_host_id',h);}catch(e){}}
+      return h;
+    }catch(e){return '';}
+  }
   async function activeHostRoom(){
     try{
       var rows=await req('ktalk_live_rooms?select=host_id,started_at,room_type,room_name,active,updated_at&host_id=eq.'+enc(deviceId())+'&active=eq.true&order=started_at.desc&limit=1');
@@ -213,54 +226,30 @@
       message:String(message||'').slice(0,300),
       message_type:String(type||'guest_request')
     };
-    var ok=false;
 
-    /* 승인/신청 상태는 DB와 메모리 신호 양쪽에 같이 남긴다.
-       한쪽 연결이 순간 흔들려도 다음 폴링에서 승인 상태가 사라지지 않게 한다. */
-    try{
-      if(await ensureConfig()){
+    var primary=(async function(){
+      try{
+        if(!(await ensureConfig()))return false;
         var ctrl=typeof AbortController!=='undefined'?new AbortController():null;
-        var timer=ctrl?setTimeout(function(){ctrl.abort();},1800):null;
+        var timer=ctrl?setTimeout(function(){ctrl.abort();},1500):null;
         var opt={method:'POST',headers:headers({Prefer:'return=minimal'}),body:JSON.stringify(payload),cache:'no-store'};
         if(ctrl)opt.signal=ctrl.signal;
         var rr=await fetch(BASE+'ktalk_live_messages',opt);
         if(timer)clearTimeout(timer);
-        if(rr&&rr.ok)ok=true;
-      }
-    }catch(e){}
+        return !!(rr&&rr.ok);
+      }catch(e){return false;}
+    })();
 
-    try{
-      await memoryReq('ktalk_live_messages',{
-        method:'POST',
-        body:JSON.stringify(payload)
-      });
-      ok=true;
-    }catch(e){}
-
-    return ok;
-  }
-
-  async function prewarmGuestMedia20260921(){
-    try{
-      var s=viewerGuest.stream||null;
-      var live=!!(s&&s.getVideoTracks&&s.getVideoTracks().some(function(t){return t.readyState==='live';}));
-      if(live||viewerGuest.mediaOpening||viewerGuest.mediaDenied)return;
-      viewerGuest.mediaOpening=true;
+    var memory=(async function(){
       try{
-        s=await navigator.mediaDevices.getUserMedia({
-          video:{facingMode:{ideal:'user'},width:{ideal:640,max:640},height:{ideal:480,max:480},frameRate:{ideal:20,max:24}},
-          audio:true
-        });
-      }catch(e){
-        try{s=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:640},height:{ideal:480}},audio:false});}
-        catch(z){viewerGuest.mediaDenied=true;return;}
-      }finally{
-        viewerGuest.mediaOpening=false;
-      }
-      viewerGuest.stream=s;
-    }catch(e){viewerGuest.mediaOpening=false;}
-  }
+        await memoryReq('ktalk_live_messages',{method:'POST',body:JSON.stringify(payload)});
+        return true;
+      }catch(e){return false;}
+    })();
 
+    var done=await Promise.all([primary,memory]);
+    return !!(done[0]||done[1]);
+  }
   async function sendGuestRequest(){
     var b=document.getElementById('ktRemoteGuestRequest');
     if(b&&b.dataset.ktGuestToggleBusy==='1')return;
@@ -426,6 +415,7 @@
       /* 자리는 위의 60초 재연결 유예가 관리하므로 여기서 바로 지우지 않음 */
     });
 
+    await ktEnsureTurnReady20260921();
     for(var i=0;i<rows.length;i++){
       var x=rows[i],vtag=String(x.viewer_id||'');
       if(vtag.indexOf('guest:')!==0||!x.offer_sdp||x.offer_sdp==='pending'||hostGuestPeers[x.id])continue;
@@ -497,7 +487,7 @@
         await pc.setRemoteDescription({type:'offer',sdp:x.offer_sdp});
         var ans=await pc.createAnswer();
         await pc.setLocalDescription(ans);
-        await waitIce(pc,5000);
+        await waitIce(pc,3000);
 
         await req('ktalk_webrtc_sessions?id=eq.'+enc(x.id),{
           method:'PATCH',
@@ -714,6 +704,7 @@
         body:JSON.stringify({active:false,updated_at:nowIso()})
       });
 
+      await ktEnsureTurnReady20260921();
       pc=new RTCPeerConnection(ktIceConfig20260921());
       viewerGuest.pc=pc;
       viewerGuest.connectStartedAt=Date.now();
@@ -739,7 +730,7 @@
       stream.getTracks().forEach(function(t){try{pc.addTrack(t,stream);}catch(e){}});
       var offer=await pc.createOffer({offerToReceiveAudio:false,offerToReceiveVideo:false});
       await pc.setLocalDescription(offer);
-      await waitIce(pc,5000);
+      await waitIce(pc,3000);
 
       var created=await req('ktalk_webrtc_sessions',{
         method:'POST',
