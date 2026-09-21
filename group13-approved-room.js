@@ -24,7 +24,7 @@
     if(document.getElementById('ktNoOld13FlashStyle'))return;
     var st=document.createElement('style');
     st.id='ktNoOld13FlashStyle';
-    st.textContent='html.kt-g13-opening #screen{background:#000!important}html.kt-g13-opening #screen>*:not(.ktg13-room[data-kt-approved13="1"]){opacity:0!important;pointer-events:none!important}html.kt-g13-opening #screen .ktg13-room[data-kt-approved13="1"]{opacity:1!important;pointer-events:auto!important}';
+    st.textContent='html.kt-g13-opening #screen{background:#000!important}html.kt-g13-opening #screen>*:not(.ktg13-room[data-kt-approved13="1"]){opacity:0!important;pointer-events:none!important}html.kt-g13-opening #screen .ktg13-room[data-kt-approved13="1"]{opacity:1!important;pointer-events:auto!important}html.kt-g13-opening #ktLiveInstantHandoff{display:none!important;opacity:0!important;visibility:hidden!important}';
     (document.head||document.documentElement).appendChild(st);
   }
   function markGroup13Opening(){
@@ -209,7 +209,10 @@
     try{if(window.ktRenderTreasure)ktRenderTreasure();}catch(e){}
     try{
       if(!keepOpeningGuard){
-        document.documentElement.classList.remove('kt-g13-opening');
+        clearTimeout(window.__ktG13OpeningRelease);
+        window.__ktG13OpeningRelease=setTimeout(function(){
+          try{document.documentElement.classList.remove('kt-g13-opening');}catch(e){}
+        },4600);
         clearTimeout(window.__ktG13OpeningFailsafe);
       }else{
         document.documentElement.classList.add('kt-g13-opening');
