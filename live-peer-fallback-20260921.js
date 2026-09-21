@@ -14,7 +14,7 @@
   var viewer=null;
   var oldEnter=window.ktEnterRemoteLive;
   var oldLeave=window.ktLeaveRemoteLive;
-  var remoteEndHost='',remoteEndArmed=false,remoteEndMisses=0,remoteEndBusy=false;
+  var remoteEndHost='',remoteEndArmed=false,remoteEndMisses=0,remoteEndBusy=false,hostWasOpen=false;
 
   function deviceId(){
     var id='';
@@ -126,6 +126,20 @@
     }catch(e){return false;}
   }
 
+  function returnToVideoAfterHostEnd(){
+    if(!remoteEndHost)return;
+    remoteEndHost='';remoteEndArmed=false;remoteEndMisses=0;
+    window.__ktRemoteHostId='';
+    try{if(viewer)closeViewer(true);else if(oldLeave)oldLeave(true);}catch(e){}
+    setTimeout(function(){
+      try{
+        if(typeof window.ktReturnLatestVideoAfterBroadcast==='function')window.ktReturnLatestVideoAfterBroadcast();
+        else if(typeof window.ktShowSharedServerFeed==='function')window.ktShowSharedServerFeed();
+        else if(typeof window.home==='function')window.home();
+      }catch(e){}
+    },40);
+  }
+
   function closeViewer(silent){
     var c=viewer;viewer=null;
     if(!c)return false;
@@ -196,12 +210,17 @@
       if(st)st.style.display='none';
       var badge=document.getElementById('ktRemoteViewerCount');
       if(badge)badge.textContent='👁 LIVE';
+      try{ev.track.addEventListener('ended',returnToVideoAfterHostEnd,{once:true});}catch(e){}
     };
     pc.onconnectionstatechange=function(){
       var st=document.getElementById('ktRemoteLiveStatus');
       if(pc.connectionState==='connected'){if(st)st.style.display='none';return;}
-      if(pc.connectionState==='failed'){
-        if(st){st.style.display='block';st.textContent='영상 연결을 다시 확인해 주세요.';}
+      if(pc.connectionState==='failed'||pc.connectionState==='closed'){
+        returnToVideoAfterHostEnd();
+      }else if(pc.connectionState==='disconnected'){
+        setTimeout(function(){
+          try{if(pc.connectionState==='disconnected'||pc.connectionState==='failed')returnToVideoAfterHostEnd();}catch(e){}
+        },900);
       }
     };
 
@@ -219,7 +238,19 @@
   }
 
   async function hostPoll(){
-    if(!actualHostRoomVisible()||!hasLiveVideo())return;
+    var open=actualHostRoomVisible()&&hasLiveVideo();
+    if(!open){
+      if(hostWasOpen){
+        Object.keys(hostPeers).forEach(function(sid){
+          try{hostPeers[sid].pc.close();}catch(e){}
+          try{fetch(API+'?t='+Date.now(),{method:'POST',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'end',session_id:sid})});}catch(e){}
+          delete hostPeers[sid];
+        });
+      }
+      hostWasOpen=false;
+      return;
+    }
+    hostWasOpen=true;
     var hostId=deviceId(),s=stream();if(!s)return;
     try{
       var j=await jfetch(API+'?host_id='+enc(hostId)+'&t='+Date.now(),null,1600);
