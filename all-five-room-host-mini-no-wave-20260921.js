@@ -52,6 +52,13 @@
       /* 기존 호스트 글자는 숨기고 프로필/닉네임/레벨만 표시 */
       +'#screen .ktg13-host-label,#screen .ktsubscriber-host-label,'
       +'#screen .ktsecret-slot.host>.ktsecret-slot-label,#screen .ktsecret-host-label,#screen .ktg9-host-label{display:none!important}'
+      /* 예전 위쪽 호스트 프로필/레벨 띠는 숨김: 장미 배지와 겹치지 않게 */
+      +'#screen .ktsolo-main>.kt-hg-host-identity,'
+      +'#screen .ktg13-host>.kt-hg-host-identity,'
+      +'#screen .ktsubscriber-host>.kt-hg-host-identity,'
+      +'#screen .ktsecret-slot.host>.kt-hg-host-identity,'
+      +'#screen .ktsecret-host>.kt-hg-host-identity,'
+      +'#screen .ktg9-host>.kt-hg-host-identity{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}'
       /* 게스트 칸은 기존 위치/크기 그대로: 호스트만 내부 좌하단 표기 */
       +'#screen .ktg13-host,#screen .ktsubscriber-host,#screen .ktsecret-slot.host,#screen .ktsecret-host,#screen .ktg9-host,#screen .ktsolo-main{position:relative!important}'
       /* 게스트 화면에서도 호스트 영상 라벨은 영상 안쪽, 게스트는 기존 칸 바깥 배열 유지 */
@@ -81,7 +88,40 @@
     /* 9명방의 기존 스크립트가 프로필을 숨겨도 다시 승인된 표시로 복구 */
     hostTiles().forEach(function(tile){
       try{tile.style.setProperty('position','relative','important');}catch(e){}
+      /* 예전 상단 프로필 띠는 호스트에서만 숨김 */
+      var legacy=tile.querySelector(':scope > .kt-hg-host-identity');
+      if(legacy){
+        try{legacy.style.setProperty('display','none','important');legacy.style.setProperty('visibility','hidden','important');}catch(e){}
+      }
       var p=tile.querySelector(':scope > .kt-allhost-profile');
+      /* 다른 스크립트 순서 때문에 아래 프로필이 빠져도 두 번째 사진 모양으로 즉시 복구 */
+      if(!p){
+        try{
+          var name='';
+          var level='';
+          var photo='';
+          var d=tile.dataset||{};
+          name=String(d.nickname||d.displayName||d.userName||d.username||d.hostName||'').trim();
+          level=String(d.level||d.userLevel||d.memberLevel||d.hostLevel||'').trim();
+          photo=String(d.profilePhoto||d.profileImage||d.avatar||d.avatarUrl||d.photo||'').trim();
+          if(!name&&window.state)name=String(state.nickname||state.nickName||state.displayName||state.userName||state.username||state.name||'').trim();
+          if(!level&&window.state)level=String(state.level||state.userLevel||state.memberLevel||state.hostLevel||'').trim();
+          if(!photo&&window.state)photo=String(state.profilePhoto||state.profileImage||state.avatar||state.avatarUrl||state.photo||'').trim();
+          if(!name&&legacy){var ln=legacy.querySelector('.kt-hg-name');if(ln)name=String(ln.textContent||'').trim();}
+          if(!level&&legacy){var ll=legacy.querySelector('.kt-hg-level');if(ll)level=String(ll.textContent||'').trim();}
+          if(!photo&&legacy){var li=legacy.querySelector('img.kt-hg-photo');if(li&&li.src)photo=li.src;}
+          if(!name){try{name=localStorage.getItem('ktalk_nickname')||localStorage.getItem('kt_profile_name')||localStorage.getItem('nickname')||'';}catch(e){}}
+          if(!level){try{level=localStorage.getItem('ktalk_level')||localStorage.getItem('ktalk_user_level')||localStorage.getItem('level')||'';}catch(e){}}
+          if(!photo){try{photo=localStorage.getItem('ktalk_profile_photo')||localStorage.getItem('kt_profile_photo')||'';}catch(e){}}
+          var n=parseInt(String(level||'1').replace(/[^0-9]/g,''),10);if(!isFinite(n)||n<1)n=1;
+          try{if(typeof window.ktEffectiveLevel==='function')n=window.ktEffectiveLevel(n);}catch(e){}
+          p=document.createElement('div');p.className='kt-allhost-profile';
+          if(photo){var im=document.createElement('img');im.className='kt-allhost-photo';im.alt='프로필';im.src=photo;p.appendChild(im);}else{var fb=document.createElement('span');fb.className='kt-allhost-fallback';fb.textContent=(name||'K').charAt(0);p.appendChild(fb);}
+          var nm=document.createElement('span');nm.className='kt-allhost-name';nm.textContent=name||'K-Talk';p.appendChild(nm);
+          var lv=document.createElement('span');lv.className='kt-allhost-level';lv.textContent='Lv.'+n;p.appendChild(lv);
+          tile.appendChild(p);
+        }catch(e){}
+      }
       if(p){
         p.style.setProperty('display','flex','important');
         p.style.setProperty('left','5px','important');
