@@ -378,6 +378,14 @@
 
     var r=rooms[0];
     var hostId=String(r.host_id||''),hostName=String(r.host_name||'K-Talk 방송자'),hostPhoto=String(r.host_photo||'');
+    window.__ktLastLiveRoom={
+      host_id:hostId,
+      host_name:hostName,
+      title:String(r.title||r.room_name||'방송 중'),
+      room_name:String(r.room_name||'방송'),
+      host_photo:hostPhoto,
+      updated_at:String(r.updated_at||new Date().toISOString())
+    };
     var photo=(hostPhoto&&(/^data:image/.test(hostPhoto)||/^https?:/.test(hostPhoto)))?'<img src="'+esc(hostPhoto)+'" alt="">':'🎥';
     var signature=hostId+'|'+hostName+'|'+hostPhoto;
     if(old&&old.getAttribute('data-kt-signature')===signature){
@@ -392,7 +400,7 @@
     var person=b.querySelector('.ktvl-person');
     var live=b.querySelector('.ktvl-live');
     if(person)person.onclick=function(e){e.stopPropagation();window.ktOpenLiveHostActions(hostId,hostName,hostPhoto);};
-    if(live)live.onclick=function(e){e.stopPropagation();if(window.ktEnterRemoteLive)window.ktEnterRemoteLive(hostId);};
+    if(live)live.onclick=function(e){e.preventDefault();e.stopPropagation();if(window.ktEnterRemoteLive)window.ktEnterRemoteLive(hostId);};
     host.appendChild(b);
     paintSocialState(hostId);
   }
