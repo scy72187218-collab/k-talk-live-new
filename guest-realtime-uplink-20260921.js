@@ -292,7 +292,7 @@
     }
     var sid=sessionId();
     try{
-      var pc=new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]});
+      var pc=new RTCPeerConnection(window.ktGetRtcConfig?window.ktGetRtcConfig():{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]});
       sourcePeers[key]={pc:pc,session_id:sid};
       localGuestStream.getTracks().forEach(function(t){try{pc.addTrack(t,localGuestStream);}catch(e){}});
       pc.onconnectionstatechange=function(){if(['failed','closed'].indexOf(String(pc.connectionState||''))>-1){try{pc.close();}catch(e){}delete sourcePeers[key];}};
@@ -307,7 +307,7 @@
     var ap=approvalList(hostId)[guestId];if(!ap)return;
     if(receivePeers[sid])return;
     try{
-      var pc=new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]});
+      var pc=new RTCPeerConnection(window.ktGetRtcConfig?window.ktGetRtcConfig():{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]});
       receivePeers[sid]={pc:pc,guest_id:guestId};
       pc.ontrack=function(ev){attachStream(guestId,String(p.guest_name||ap.name||'게스트'),ev.streams[0]||new MediaStream([ev.track]));};
       pc.onconnectionstatechange=function(){if(['failed','closed'].indexOf(String(pc.connectionState||''))>-1){try{pc.close();}catch(e){}delete receivePeers[sid];setTimeout(function(){requestGuestStream(hostId,guestId);},500);}};
