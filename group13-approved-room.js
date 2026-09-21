@@ -135,7 +135,7 @@
     showSheet('더보기','<button class="act" onclick="closeSheet();if(window.openLiveSettings)openLiveSettings()">⚙ 설정</button><button class="act" onclick="closeSheet();if(window.endBroadcastEarnings)endBroadcastEarnings()" style="background:linear-gradient(135deg,#d9274c,#ff4669)">■ 방송 종료</button>');
   };
 
-  function renderApprovedGroup13(){
+  function renderApprovedGroup13(keepOpeningGuard){
     var s=document.getElementById('screen');
     if(!s)return;
     var net=(document.getElementById('hudEarnNet')||{}).textContent||'0원';
@@ -208,8 +208,12 @@
     renderChat();
     try{if(window.ktRenderTreasure)ktRenderTreasure();}catch(e){}
     try{
-      document.documentElement.classList.remove('kt-g13-opening');
-      clearTimeout(window.__ktG13OpeningFailsafe);
+      if(!keepOpeningGuard){
+        document.documentElement.classList.remove('kt-g13-opening');
+        clearTimeout(window.__ktG13OpeningFailsafe);
+      }else{
+        document.documentElement.classList.add('kt-g13-opening');
+      }
     }catch(e){}
   }
 
@@ -235,9 +239,16 @@
 
   window.startBroadcast=async function(){
     if(!isGroup13())return oldStartBroadcast.apply(this,arguments);
-    /* 13명방만 1초 단계는 없앤다: 5→4→3→2 후 바로 현재 13명방을 연다.
-       다른 방의 카운트다운은 그대로 둔다. */
+
+    /* 13명방은 옛 버전 화면을 거치지 않는다.
+       시작 버튼을 누르는 즉시 현재 13명방을 먼저 보여주고,
+       기존 시작 로직은 화면 뒤에서만 상태/타이머를 준비한다. */
     markGroup13Opening();
+    try{
+      if(window.creator)creator.classList.remove('show','live-prep-open');
+    }catch(e){}
+    renderApprovedGroup13(true);
+
     var originalCountdown=window.ktLiveStartCountdown;
     if(typeof originalCountdown==='function'){
       window.ktLiveStartCountdown=async function(){
@@ -245,7 +256,7 @@
         if(old)old.remove();
         var wrap=document.createElement('div');
         wrap.id='ktLiveCountdown';
-        wrap.style.cssText='position:fixed;inset:0;z-index:99999;display:grid;place-items:center;background:rgba(0,0,0,.22);pointer-events:none;';
+        wrap.style.cssText='position:fixed;inset:0;z-index:99999;display:grid;place-items:center;background:rgba(0,0,0,.08);pointer-events:none;';
         var num=document.createElement('div');
         num.style.cssText='width:116px;height:116px;border-radius:50%;display:grid;place-items:center;background:rgba(10,10,14,.72);border:4px solid rgba(255,255,255,.92);color:#fff;font:900 64px/1 system-ui,-apple-system,sans-serif;box-shadow:0 0 28px rgba(255,44,130,.7);text-shadow:0 0 12px rgba(255,255,255,.7);';
         wrap.appendChild(num);
@@ -261,10 +272,16 @@
         wrap.remove();
       };
     }
+
     try{
       var result=await oldStartBroadcast.apply(this,arguments);
-      setTimeout(renderApprovedGroup13,0);
+      /* 기존 시작 로직이 만든 옛 13명방 DOM은 사용자에게 보이지 않은 채
+         바로 현재 승인 화면으로 교체한다. */
+      renderApprovedGroup13(false);
       return result;
+    }catch(e){
+      renderApprovedGroup13(false);
+      throw e;
     }finally{
       if(originalCountdown)window.ktLiveStartCountdown=originalCountdown;
     }
