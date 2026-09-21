@@ -389,7 +389,7 @@
     if(viewerCtx)await window.ktLeaveRemoteLive(true);
     try{
       var rows=await req('ktalk_live_rooms?select=id,host_id,host_name,title,room_type,room_name,active,updated_at&host_id=eq.'+enc(hostId)+'&active=eq.true&order=started_at.desc&limit=1');
-      var room=rows&&rows[0];if(!room||Date.now()-new Date(room.updated_at).getTime()>STALE_MS){alert('방송이 종료되었거나 연결할 수 없습니다.');renderLiveCards();return;}
+      var room=rows&&rows[0];if(!room||Date.now()-new Date(room.updated_at).getTime()>STALE_MS){renderLiveCards();return;}
       renderRemote(room);
       var p=profile(),viewerId='viewer_'+deviceId();
       await req('ktalk_live_viewers?on_conflict=host_id,viewer_id',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({host_id:hostId,viewer_id:viewerId,viewer_name:p.name||'게스트',active:true,updated_at:nowIso()})});
@@ -404,7 +404,7 @@
       viewerCtx.signalTimer=setInterval(remotePollSignal,1100);remotePollSignal();
       viewerCtx.heartbeat=setInterval(remotePollRoom,1500);remotePollRoom();
       viewerCtx.activityTimer=setInterval(remotePollActivity,1800);remotePollActivity();
-    }catch(e){document.documentElement.classList.remove('kt-remote-viewing');viewerCtx=null;alert('방송 영상 연결을 시작하지 못했습니다. 잠시 후 다시 눌러 주세요.');}
+    }catch(e){document.documentElement.classList.remove('kt-remote-viewing');viewerCtx=null;}
   };
 
   window.ktLeaveRemoteLive=async function(silent){
