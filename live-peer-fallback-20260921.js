@@ -261,6 +261,7 @@
   window.ktEnterRemoteLive=async function(hostId){
     hostId=String(hostId||'');if(!hostId)return;
     window.__ktRemoteHostId=hostId;
+    try{sessionStorage.setItem('kt_remote_host_id',hostId);}catch(e){}
     /* If DB signaling responds, preserve the original working path. */
     if(await dbAvailable(hostId)){
       return oldEnter?oldEnter(hostId):undefined;
@@ -280,6 +281,7 @@
 
   window.ktLeaveRemoteLive=async function(silent){
     window.__ktRemoteHostId='';
+    try{sessionStorage.removeItem('kt_remote_host_id');}catch(e){}
     if(viewer){
       closeViewer(!!silent);
       return;
