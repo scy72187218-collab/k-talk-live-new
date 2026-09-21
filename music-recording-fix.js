@@ -40,7 +40,7 @@
   load('treasure-global-room.js?v=20260913-treasure3');
   load('message-recipient-picker.js?v=20260911-message1');
   load('host-face-like-reward.js?v=20260911-hostlike1');
-  load('live-presence.js?v=20260921-redonly1');
+  load('live-presence.js?v=20260921-fastentry-nopopup1');
   load('live-presence-watchdog.js?v=20260921-strict-live-stop1');
 })();
 
