@@ -6,7 +6,7 @@
 
   var BASE='https://zupwbfmacwzexyvznlzq.supabase.co/rest/v1/';
   var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm1hY3d6ZXh5dnpubHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjEwNzYsImV4cCI6MjEwNDAzNzA3Nn0.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
-  var ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
+  var ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};\n  function ktIceConfig20260921(){return window.ktGetRtcConfig?window.ktGetRtcConfig():ICE;}
   var peers={};
   var ticking=false;
   var lastHost='';
@@ -195,7 +195,7 @@
         method:'PATCH',headers:{Prefer:'return=minimal'},
         body:JSON.stringify({active:false,updated_at:nowIso()})
       });
-      var pc=new RTCPeerConnection(ICE);entry.pc=pc;wirePc(pc,entry,name);
+      var pc=new RTCPeerConnection(ktIceConfig20260921());entry.pc=pc;wirePc(pc,entry,name);
       var vt=stream.getVideoTracks()[0];if(vt)pc.addTrack(vt,stream);
       var offer=await pc.createOffer({offerToReceiveVideo:true,offerToReceiveAudio:false});
       await pc.setLocalDescription(offer);await waitIce(pc,5000);
@@ -229,7 +229,7 @@
     var entry={peerId:peerId,key:key,role:'answer',pc:null,sessionId:String(row.id||''),remoteStream:null};
     peers[peerId]=entry;
     try{
-      var pc=new RTCPeerConnection(ICE);entry.pc=pc;wirePc(pc,entry,name);
+      var pc=new RTCPeerConnection(ktIceConfig20260921());entry.pc=pc;wirePc(pc,entry,name);
       var vt=stream.getVideoTracks()[0];if(vt)pc.addTrack(vt,stream);
       await pc.setRemoteDescription({type:'offer',sdp:row.offer_sdp});
       var answer=await pc.createAnswer();
