@@ -1,9 +1,8 @@
-/* K-Talk: 모든 방송방의 모든 사람 얼굴/프로필 사진 터치 확대.
-   대상: 1인방 / 9명방 / 13명방 / 구독방 / 비밀방 + 게스트 화면.
-   다른 기능은 변경하지 않음. */
+/* K-Talk: 모든 방송방 모든 사람의 얼굴 사진/영상 터치 확대.
+   1인방 / 9명방 / 13명방 / 구독방 / 비밀방. 다른 기능은 변경하지 않음. */
 (function(){
-  if(window.__ktLiveProfilePhotoZoom20260921V2)return;
-  window.__ktLiveProfilePhotoZoom20260921V2=true;
+  if(window.__ktLiveFaceZoom20260921V3)return;
+  window.__ktLiveFaceZoom20260921V3=true;
 
   function ensureStyle(){
     if(document.getElementById('ktLiveProfilePhotoZoomStyle20260921'))return;
@@ -11,9 +10,9 @@
     s.id='ktLiveProfilePhotoZoomStyle20260921';
     s.textContent=''
       +'.kt-photo-zoom-overlay{position:fixed!important;inset:0!important;z-index:2147483647!important;display:flex!important;align-items:center!important;justify-content:center!important;background:rgba(0,0,0,.88)!important;padding:18px!important;box-sizing:border-box!important}'
-      +'.kt-photo-zoom-box{position:relative!important;width:min(92vw,520px)!important;height:min(92vw,520px)!important;max-height:80vh!important;border-radius:22px!important;overflow:hidden!important;background:#08080b!important;border:1px solid rgba(255,255,255,.22)!important;box-shadow:0 18px 60px rgba(0,0,0,.72)!important}'
-      +'.kt-photo-zoom-box img{width:100%!important;height:100%!important;display:block!important;object-fit:contain!important;background:#050507!important}'
-      +'.kt-photo-zoom-close{position:absolute!important;right:10px!important;top:10px!important;z-index:2!important;width:42px!important;height:42px!important;border:0!important;border-radius:50%!important;background:rgba(0,0,0,.7)!important;color:#fff!important;font:400 30px/1 system-ui,sans-serif!important;display:grid!important;place-items:center!important}'
+      +'.kt-photo-zoom-box{position:relative!important;width:min(94vw,560px)!important;height:min(94vw,560px)!important;max-height:82vh!important;border-radius:22px!important;overflow:hidden!important;background:#08080b!important;border:1px solid rgba(255,255,255,.22)!important;box-shadow:0 18px 60px rgba(0,0,0,.72)!important}'
+      +'.kt-photo-zoom-box img,.kt-photo-zoom-box video{width:100%!important;height:100%!important;display:block!important;object-fit:contain!important;background:#050507!important}'
+      +'.kt-photo-zoom-close{position:absolute!important;right:10px!important;top:10px!important;z-index:3!important;width:42px!important;height:42px!important;border:0!important;border-radius:50%!important;background:rgba(0,0,0,.72)!important;color:#fff!important;font:400 30px/1 system-ui,sans-serif!important;display:grid!important;place-items:center!important}'
       +'.kt-photo-zoomable{cursor:zoom-in!important;pointer-events:auto!important;touch-action:manipulation!important}';
     (document.head||document.documentElement).appendChild(s);
   }
@@ -40,16 +39,16 @@
     ):null;
   }
 
-  function isUiIcon(img){
-    if(!img)return true;
-    return !!img.closest(
+  function isUiIcon(el){
+    if(!el)return true;
+    return !!el.closest(
       '.gift-grid,.gift-big,.quick-gifts,.creator-tools,.creator-bottom,'+
       '.kt-live-tools,.kt-room-tools,.kt-gift-row,.kt-live-clock-heart,'+
       '.kt-photo-zoom-overlay'
     );
   }
 
-  function imageSrcFromElement(el){
+  function imageSrc(el){
     if(!el)return '';
     if(el.tagName==='IMG')return el.currentSrc||el.src||'';
     try{
@@ -69,20 +68,69 @@
       'img.kt-guest-profile-photo,'+
       'img.kt-profile-photo,'+
       'img[class*="avatar"],'+
-      'img[class*="profile"],'+
-      'img'
+      'img[class*="profile"]'
     );
   }
 
-  function clickedFace(target){
-    if(!target)return null;
-    var room=roomRoot(target);
-    if(!room)return null;
+  function closeZoom(){
+    var old=document.getElementById('ktPhotoZoomOverlay20260921');
+    if(!old)return;
+    try{
+      old.querySelectorAll('video').forEach(function(v){
+        try{v.pause();v.srcObject=null;v.removeAttribute('src');v.load();}catch(e){}
+      });
+    }catch(e){}
+    old.remove();
+  }
+
+  function shell(){
+    ensureStyle(); closeZoom();
+    var ov=document.createElement('div');
+    ov.id='ktPhotoZoomOverlay20260921';
+    ov.className='kt-photo-zoom-overlay';
+    var box=document.createElement('div');
+    box.className='kt-photo-zoom-box';
+    var close=document.createElement('button');
+    close.type='button';close.className='kt-photo-zoom-close';close.setAttribute('aria-label','닫기');close.textContent='×';
+    close.onclick=function(e){e.preventDefault();e.stopPropagation();closeZoom();};
+    box.appendChild(close);ov.appendChild(box);
+    ov.addEventListener('click',function(e){if(e.target===ov)closeZoom();});
+    document.body.appendChild(ov);
+    return box;
+  }
+
+  function openImage(src,alt){
+    if(!src)return;
+    var box=shell();
+    var img=document.createElement('img');
+    img.src=src;img.alt=alt||'프로필 사진 확대';
+    box.insertBefore(img,box.firstChild);
+  }
+
+  function openVideo(source){
+    if(!source)return;
+    var box=shell();
+    var v=document.createElement('video');
+    v.autoplay=true;v.playsInline=true;v.muted=true;
+    try{
+      if(source.srcObject)v.srcObject=source.srcObject;
+      else if(source.currentSrc||source.src)v.src=source.currentSrc||source.src;
+      if(source.poster)v.poster=source.poster;
+      var p=v.play();if(p&&p.catch)p.catch(function(){});
+    }catch(e){}
+    box.insertBefore(v,box.firstChild);
+  }
+
+  function clickTarget(target){
+    if(!target||!roomRoot(target))return null;
+
+    var video=target.closest&&target.closest('video');
+    if(video&&personTile(video)&&!isUiIcon(video))return {kind:'video',el:video};
 
     var img=target.closest&&target.closest('img');
-    if(img && roomRoot(img) && !isUiIcon(img)){
-      var tile=personTile(img);
-      if(tile)return {el:img,src:imageSrcFromElement(img)};
+    if(img&&personTile(img)&&!isUiIcon(img)){
+      var src=imageSrc(img);
+      if(src)return {kind:'image',el:img,src:src};
     }
 
     var explicit=target.closest&&target.closest(
@@ -90,68 +138,52 @@
       '.kt-profile-photo,[class*="avatar"],[class*="profile-photo"]'
     );
     if(explicit){
-      var src=imageSrcFromElement(explicit);
-      if(src)return {el:explicit,src:src};
+      var src2=imageSrc(explicit);
+      if(src2)return {kind:'image',el:explicit,src:src2};
     }
 
     var tile=personTile(target);
     if(tile){
       var p=profileImageInTile(tile);
-      if(p&&!isUiIcon(p))return {el:p,src:imageSrcFromElement(p)};
-      var src2=imageSrcFromElement(tile);
-      if(src2)return {el:tile,src:src2};
+      if(p&&!isUiIcon(p)){
+        var src3=imageSrc(p);
+        if(src3)return {kind:'image',el:p,src:src3};
+      }
     }
     return null;
-  }
-
-  function closeZoom(){
-    var old=document.getElementById('ktPhotoZoomOverlay20260921');
-    if(old)old.remove();
-  }
-
-  function openZoom(src,alt){
-    if(!src)return;
-    ensureStyle(); closeZoom();
-    var ov=document.createElement('div');
-    ov.id='ktPhotoZoomOverlay20260921';
-    ov.className='kt-photo-zoom-overlay';
-    ov.innerHTML='<div class="kt-photo-zoom-box"><img alt=""><button type="button" class="kt-photo-zoom-close" aria-label="닫기">×</button></div>';
-    var img=ov.querySelector('img');
-    img.src=src; img.alt=alt||'프로필 사진 확대';
-    ov.querySelector('.kt-photo-zoom-close').onclick=function(e){e.preventDefault();e.stopPropagation();closeZoom();};
-    ov.addEventListener('click',function(e){if(e.target===ov)closeZoom();});
-    document.body.appendChild(ov);
   }
 
   function mark(){
     ensureStyle();
     document.querySelectorAll(
-      '#screen .ktsolo-room img,'+
-      '#screen .ktg13-room img,'+
-      '#screen .ktsubscriber-room img,'+
-      '#screen .ktsecret-room img,'+
-      '#screen .ktg9-room img,'+
-      '.kt-guest-hostlike-room img'
-    ).forEach(function(img){
-      if(personTile(img)&&!isUiIcon(img))img.classList.add('kt-photo-zoomable');
+      '#screen .ktsolo-room video,#screen .ktsolo-room img,'+
+      '#screen .ktg13-room video,#screen .ktg13-room img,'+
+      '#screen .ktsubscriber-room video,#screen .ktsubscriber-room img,'+
+      '#screen .ktsecret-room video,#screen .ktsecret-room img,'+
+      '#screen .ktg9-room video,#screen .ktg9-room img,'+
+      '.kt-guest-hostlike-room video,.kt-guest-hostlike-room img'
+    ).forEach(function(el){
+      if(personTile(el)&&!isUiIcon(el))el.classList.add('kt-photo-zoomable');
     });
   }
 
   document.addEventListener('click',function(e){
     if(e.target&&e.target.closest&&e.target.closest('.kt-photo-zoom-overlay'))return;
-    var hit=clickedFace(e.target);
-    if(!hit||!hit.src)return;
+    var hit=clickTarget(e.target);
+    if(!hit)return;
     try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(err){}
-    openZoom(hit.src,(hit.el&&hit.el.alt)||'프로필 사진 확대');
+    if(hit.kind==='video')openVideo(hit.el);
+    else openImage(hit.src,(hit.el&&hit.el.alt)||'프로필 사진 확대');
   },true);
 
   document.addEventListener('keydown',function(e){if(e.key==='Escape')closeZoom();});
+
   mark();
-  [60,160,350,700,1400,2800].forEach(function(ms){setTimeout(mark,ms);});
+  [40,120,260,520,1000,2000].forEach(function(ms){setTimeout(mark,ms);});
   try{
     new MutationObserver(function(){
       clearTimeout(window.__ktLiveProfilePhotoZoomTimer20260921);
-      window.__ktLiveProfilePhotoZoomTimer20260921=setTimeout(mark,25);
+      window.__ktLiveProfilePhotoZoomTimer20260921=setTimeout(mark,20);
     }).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['src','style','data-profile-photo','data-avatar','data-photo']});
   }catch(e){}
 })();
