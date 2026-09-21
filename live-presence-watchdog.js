@@ -10,7 +10,7 @@
   var misses=0;
   var broadcastStarted=false;
   var lastDedupeAt=0;
-  var endLock=false,notLiveSince=0;
+  var endLock=false,notLiveSince=0,lastHealthyLiveAt=0;
   var BEACON='/api/live-beacon-memory';
   var beaconBusy=false;
 
@@ -99,10 +99,17 @@
   }
   function actualHostLiveNow(){
     if(endLock||!broadcastStarted)return false;
-    return liveRoomVisible()&&hasLocalLiveStream();
+    var ok=liveRoomVisible()&&hasLocalLiveStream();
+    if(ok)lastHealthyLiveAt=Date.now();
+    return ok;
+  }
+  function hostSignalAlive(){
+    if(endLock||!broadcastStarted)return false;
+    if(actualHostLiveNow())return true;
+    return !!lastHealthyLiveAt&&Date.now()-lastHealthyLiveAt<9000;
   }
   function shouldBeLive(){
-    return actualHostLiveNow();
+    return hostSignalAlive();
   }
   function roomInfo(){
     var type='solo',name='1인 방송',title='';
@@ -139,7 +146,7 @@
   }
 
   function beaconShouldBeLive(){
-    return actualHostLiveNow();
+    return hostSignalAlive();
   }
 
   async function beacon(action){
@@ -191,7 +198,7 @@
   }
 
   async function publishIfNeeded(force){
-    if(endLock||!actualHostLiveNow())return;
+    if(endLock||!hostSignalAlive())return;
     if(force||beaconShouldBeLive())beacon('publish');
     if(publishing)return;
     publishing=true;
@@ -233,6 +240,7 @@
   function markBroadcastStarted(){
     endLock=false;
     notLiveSince=0;
+    lastHealthyLiveAt=0;
     window.__ktLiveWatchdogEndLock=false;
     broadcastStarted=true;
     window.__ktHostBroadcastActive=true;
@@ -272,7 +280,7 @@
 
   async function heartbeat(){
     if(endLock)return;
-    if(actualHostLiveNow()){
+    if(hostSignalAlive()){
       notLiveSince=0;
       beacon('heartbeat');
       misses=0;
@@ -288,7 +296,7 @@
     }
     if(!broadcastStarted&&!roomId)return;
     if(!notLiveSince)notLiveSince=Date.now();
-    if(Date.now()-notLiveSince<1400)return;
+    if(Date.now()-notLiveSince<7500)return;
     await stopFallbackPresence();
   }
 
