@@ -14,7 +14,7 @@
   var viewer=null,enterBusy=false;
   var oldEnter=window.ktEnterRemoteLive;
   var oldLeave=window.ktLeaveRemoteLive;
-  var remoteEndHost='',remoteEndArmed=false,remoteEndMisses=0,remoteEndBusy=false,hostWasOpen=false;
+  var remoteEndHost='',remoteEndArmed=false,remoteEndMisses=0,remoteEndBusy=false,hostWasOpen=false,hostMissingSince=0;
 
   function deviceId(){
     var id='';
@@ -220,7 +220,7 @@
       }else if(pc.connectionState==='disconnected'){
         setTimeout(function(){
           try{if(pc.connectionState==='disconnected'||pc.connectionState==='failed')returnToVideoAfterHostEnd();}catch(e){}
-        },900);
+        },6500);
       }
     };
 
@@ -240,16 +240,18 @@
   async function hostPoll(){
     var open=actualHostRoomVisible()&&hasLiveVideo();
     if(!open){
-      if(hostWasOpen){
-        Object.keys(hostPeers).forEach(function(sid){
-          try{hostPeers[sid].pc.close();}catch(e){}
-          try{fetch(API+'?t='+Date.now(),{method:'POST',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'end',session_id:sid})});}catch(e){}
-          delete hostPeers[sid];
-        });
-      }
-      hostWasOpen=false;
+      if(!hostWasOpen)return;
+      if(!hostMissingSince)hostMissingSince=Date.now();
+      if(Date.now()-hostMissingSince<7000)return;
+      Object.keys(hostPeers).forEach(function(sid){
+        try{hostPeers[sid].pc.close();}catch(e){}
+        try{fetch(API+'?t='+Date.now(),{method:'POST',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'end',session_id:sid})});}catch(e){}
+        delete hostPeers[sid];
+      });
+      hostWasOpen=false;hostMissingSince=0;
       return;
     }
+    hostMissingSince=0;
     hostWasOpen=true;
     var hostId=deviceId(),s=stream();if(!s)return;
     try{
