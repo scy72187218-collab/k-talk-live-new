@@ -216,6 +216,11 @@
     }else if(ev==='live_off'){
       delete liveHosts[id];
       window.__ktRealtimeLastEndedHost={host_id:id,at:Date.now()};
+      try{
+        window.dispatchEvent(new CustomEvent('kt-live-off',{
+          detail:{host_id:id,at:Date.now()}
+        }));
+      }catch(e){}
     }
     window.__ktRealtimeLiveHosts=liveHosts;
     paint();
