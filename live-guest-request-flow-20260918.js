@@ -287,7 +287,9 @@
       if(joinTs&&reqTs<joinTs)return;
       var apTs=approvedAt[vid]||'',cancelTs=cancelledAt[vid]||'';
       if(cancelTs&&cancelTs>=reqTs)return;
-      if(apTs&&apTs>=reqTs&&freshViewers[vid])approvedNow[vid]=true;
+      /* 승인 후에는 시청자 heartbeat가 잠깐 빠져도 승인 상태를 유지한다.
+         실제 게스트 연결 종료는 WebRTC 세션/명시적 나가기에서 정리한다. */
+      if(apTs&&apTs>=reqTs)approvedNow[vid]=true;
       else if(freshViewers[vid]&&(!apTs||apTs<reqTs))pending.push({vid:vid,name:names[vid]||'게스트'});
     });
 
@@ -335,7 +337,7 @@
       }
 
       if(!hostGuestMissingSince[vid])hostGuestMissingSince[vid]=Date.now();
-      if(Date.now()-hostGuestMissingSince[vid]>60000){
+      if(Date.now()-hostGuestMissingSince[vid]>15000){
         delete hostGuestMissingSince[vid];
         releaseGuestSlot(slot,vid);
       }
@@ -412,7 +414,7 @@
                     if(!hostGuestMissingSince[viewer])hostGuestMissingSince[viewer]=Date.now();
                   }
                 }catch(e){}
-              },4000);
+              },12000);
             }
           };
         })(x.id,pc,vid);
@@ -655,7 +657,7 @@
         if(s==='disconnected'){
           setTimeout(function(){
             if(viewerGuest.pc===pc&&pc.connectionState==='disconnected')resetViewerGuestPc(pc);
-          },3500);
+          },12000);
         }
       };
 
