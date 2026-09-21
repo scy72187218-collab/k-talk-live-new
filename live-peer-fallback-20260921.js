@@ -168,7 +168,12 @@
     try{
       var j=await jfetch(API+'?session_id='+enc(c.sessionId)+'&t='+Date.now(),null,1800);
       var x=j&&j.session;
-      if(!x||!x.active){closeViewer(false);return;}
+      if(!x||!x.active){
+        if(!c.missingSince)c.missingSince=Date.now();
+        if(Date.now()-c.missingSince>15000)closeViewer(false);
+        return;
+      }
+      c.missingSince=0;
       if(x.offer_sdp&&x.offer_sdp!=='pending'){
         await c.pc.setRemoteDescription({type:'offer',sdp:x.offer_sdp});
         var answer=await c.pc.createAnswer();
@@ -199,7 +204,7 @@
     if(!sid)throw new Error('memory session');
 
     var pc=new RTCPeerConnection(ICE);
-    viewer={hostId:hostId,viewerId:viewerId,viewerName:profileName(),sessionId:sid,pc:pc,answered:false,poll:null,touch:null};
+    viewer={hostId:hostId,viewerId:viewerId,viewerName:profileName(),sessionId:sid,pc:pc,answered:false,poll:null,touch:null,missingSince:0,disconnectTimer:null};
     interactionPost('join',hostId,viewerId,viewer.viewerName);
 
     pc.ontrack=function(ev){
@@ -211,17 +216,27 @@
       if(st)st.style.display='none';
       var badge=document.getElementById('ktRemoteViewerCount');
       if(badge)badge.textContent='👁 LIVE';
-      try{ev.track.addEventListener('ended',returnToVideoAfterHostEnd,{once:true});}catch(e){}
+      try{ev.track.addEventListener('ended',function(){
+        var st=document.getElementById('ktRemoteLiveStatus');
+        if(st){st.style.display='block';st.textContent='신호 다시 연결 중...';}
+        /* 실제 방송 종료 판단은 별도 방송상태 확인이 맡는다. 순간 트랙 종료만으로 방을 나가지 않는다. */
+      },{once:true});}catch(e){}
     };
     pc.onconnectionstatechange=function(){
       var st=document.getElementById('ktRemoteLiveStatus');
-      if(pc.connectionState==='connected'){if(st)st.style.display='none';return;}
-      if(pc.connectionState==='failed'||pc.connectionState==='closed'){
-        returnToVideoAfterHostEnd();
-      }else if(pc.connectionState==='disconnected'){
-        setTimeout(function(){
-          try{if(pc.connectionState==='disconnected'||pc.connectionState==='failed')returnToVideoAfterHostEnd();}catch(e){}
-        },6500);
+      if(pc.connectionState==='connected'){
+        if(viewer&&viewer.pc===pc&&viewer.disconnectTimer){clearTimeout(viewer.disconnectTimer);viewer.disconnectTimer=null;}
+        if(st)st.style.display='none';
+        return;
+      }
+      if(pc.connectionState==='failed'||pc.connectionState==='disconnected'){
+        if(st){st.style.display='block';st.textContent='신호 다시 연결 중...';}
+        var c=viewer;
+        if(c&&c.pc===pc&&!c.disconnectTimer){
+          c.disconnectTimer=setTimeout(function(){
+            if(viewer===c&&c.pc===pc&&(pc.connectionState==='failed'||pc.connectionState==='disconnected'))returnToVideoAfterHostEnd();
+          },15000);
+        }
       }
     };
 
@@ -243,7 +258,7 @@
     if(!open){
       if(!hostWasOpen)return;
       if(!hostMissingSince)hostMissingSince=Date.now();
-      if(Date.now()-hostMissingSince<7000)return;
+      if(Date.now()-hostMissingSince<15000)return;
       Object.keys(hostPeers).forEach(function(sid){
         try{hostPeers[sid].pc.close();}catch(e){}
         try{fetch(API+'?t='+Date.now(),{method:'POST',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'end',session_id:sid})});}catch(e){}
