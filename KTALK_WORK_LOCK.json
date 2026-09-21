@@ -2,12 +2,12 @@
   "version": 2,
   "locked": true,
   "scope": "selective-approved-working-components-only",
-  "snapshot_branch": "saved-working-k-talk-20260921-1126",
-  "snapshot_commit": "057c4a41ea1b2600c0ec53793738d3d5bc44eddf",
+  "snapshot_branch": "saved-working-k-talk-20260921-instant13",
+  "snapshot_commit": "5f0101489f767e6c35360593c9f2f59e0db137fb",
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Current approved working state remains protected. Only the 13-person room opening/countdown/current-room transition is temporarily unlocked for the next narrow edit. Runtime controls remain usable.",
+  "note": "Selective lock only. Current approved working state includes instant 13-person room entry with no countdown/old-screen flash. Runtime controls remain usable.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -40,8 +40,5 @@
     "group13_current_room_entry",
     "group13_countdown_transition"
   ],
-  "temporarily_unlocked_components": [
-    "group13_current_room_entry",
-    "group13_countdown_transition"
-  ]
+  "temporarily_unlocked_components": []
 }
