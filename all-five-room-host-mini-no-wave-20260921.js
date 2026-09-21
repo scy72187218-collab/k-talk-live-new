@@ -43,6 +43,12 @@
       +'#screen .kt-allhost-profile .kt-allhost-photo,#screen .kt-allhost-profile .kt-allhost-fallback{display:none!important;width:0!important;height:0!important;min-width:0!important;margin:0!important;padding:0!important;border:0!important}'
       +'#screen .kt-allhost-profile .kt-allhost-name{order:1!important;display:block!important;max-width:48px!important;font-size:6px!important;line-height:10px!important;color:#fff!important;font-weight:950!important}'
       +'#screen .kt-allhost-profile .kt-allhost-level{order:2!important;height:10px!important;padding:0 3px!important;font-size:6px!important;line-height:10px!important;background:rgba(15,15,20,.88)!important;color:#fff!important;border:0!important}'
+
+      /* FINAL APPROVED: K/profile circle hidden; nickname + level only; tiny bottom-left */
+      +'#screen .kt-allhost-profile{display:flex!important;position:absolute!important;left:2px!important;right:auto!important;top:auto!important;bottom:0!important;height:11px!important;min-height:11px!important;max-height:11px!important;max-width:calc(100% - 4px)!important;padding:0 2px!important;gap:2px!important;border-radius:6px!important;background:rgba(0,0,0,.56)!important;border:0!important;box-shadow:none!important;overflow:hidden!important;align-items:center!important;z-index:70!important;pointer-events:none!important}'
+      +'#screen .kt-allhost-profile .kt-allhost-photo,#screen .kt-allhost-profile .kt-allhost-fallback{display:none!important;width:0!important;height:0!important;min-width:0!important;max-width:0!important;margin:0!important;padding:0!important;border:0!important;opacity:0!important}'
+      +'#screen .kt-allhost-profile .kt-allhost-name{order:1!important;display:block!important;max-width:46px!important;margin:0!important;padding:0!important;font-size:6px!important;line-height:10px!important;color:#fff!important;font-weight:950!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}'
+      +'#screen .kt-allhost-profile .kt-allhost-level{order:2!important;display:inline-flex!important;align-items:center!important;height:9px!important;margin:0!important;padding:0 2px!important;border:0!important;border-radius:4px!important;background:rgba(18,18,22,.82)!important;color:#fff!important;font-size:5.5px!important;line-height:9px!important;font-weight:950!important;white-space:nowrap!important}'
       +'#screen .ktsolo-main [class*="wave"],#screen .ktg13-host [class*="wave"],#screen .ktsubscriber-host [class*="wave"],#screen .ktsecret-slot.host [class*="wave"],#screen .ktsecret-host [class*="wave"],#screen .ktg9-host [class*="wave"]{display:none!important;visibility:hidden!important;opacity:0!important}'
       +'#screen .ktg13-host::after,#screen .ktsubscriber-host::after,#screen .ktsecret-slot.host::after,#screen .ktg9-host::after{content:none!important;display:none!important}'
       /* 기존 호스트 글자는 숨기고 프로필/닉네임/레벨만 표시 */
@@ -129,12 +135,23 @@
         p.style.setProperty('gap','1px','important');
         p.style.setProperty('padding','1px 3px 1px 1px','important');
         p.style.setProperty('min-height','12px','important');p.style.setProperty('height','12px','important');p.style.setProperty('max-height','12px','important');p.style.setProperty('overflow','hidden','important');
+        p.setAttribute('data-kt-final-host-text-only','1');
+        p.style.setProperty('left','2px','important');
+        p.style.setProperty('bottom','0','important');
+        p.style.setProperty('height','11px','important');
+        p.style.setProperty('min-height','11px','important');
+        p.style.setProperty('max-height','11px','important');
+        p.style.setProperty('padding','0 2px','important');
+        p.style.setProperty('gap','2px','important');
+        p.style.setProperty('border','0','important');
+        p.style.setProperty('box-shadow','none','important');
+        p.style.setProperty('background','rgba(0,0,0,.56)','important');
         var ph=p.querySelector('.kt-allhost-photo,.kt-allhost-fallback');
         var nm=p.querySelector('.kt-allhost-name');
         var lv=p.querySelector('.kt-allhost-level');
-        if(ph){ph.style.setProperty('display','none','important');ph.style.setProperty('width','0','important');ph.style.setProperty('height','0','important');ph.style.setProperty('min-width','0','important');}
-        if(nm){nm.style.setProperty('order','1','important');nm.style.setProperty('font-size','6px','important');nm.style.setProperty('max-width','48px','important');nm.style.setProperty('line-height','10px','important');}
-        if(lv){lv.style.setProperty('order','2','important');lv.style.setProperty('font-size','6px','important');lv.style.setProperty('height','10px','important');lv.style.setProperty('background','rgba(15,15,20,.88)','important');lv.style.setProperty('color','#fff','important');lv.style.setProperty('border','0','important');}
+        if(ph){ph.style.setProperty('display','none','important');ph.style.setProperty('width','0','important');ph.style.setProperty('height','0','important');ph.style.setProperty('min-width','0','important');ph.style.setProperty('max-width','0','important');ph.style.setProperty('opacity','0','important');}
+        if(nm){nm.style.setProperty('order','1','important');nm.style.setProperty('font-size','6px','important');nm.style.setProperty('max-width','46px','important');nm.style.setProperty('line-height','10px','important');}
+        if(lv){lv.style.setProperty('order','2','important');lv.style.setProperty('font-size','5.5px','important');lv.style.setProperty('height','9px','important');lv.style.setProperty('background','rgba(18,18,22,.82)','important');lv.style.setProperty('color','#fff','important');lv.style.setProperty('border','0','important');}
       }
     });
 
@@ -166,5 +183,5 @@
   }catch(e){}
 
   /* 기존 9명방 보정 타이머가 계속 도는 동안에도 표시를 유지 */
-  window.__ktFiveRoomHostMiniNoWaveInterval20260921=setInterval(enforce,350);
+  window.__ktFinalHostTextOnly20260921=true;window.__ktFiveRoomHostMiniNoWaveInterval20260921=setInterval(enforce,350);
 })();
