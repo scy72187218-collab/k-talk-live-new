@@ -6,7 +6,8 @@
   var BASE='https://zupwbfmacwzexyvznlzq.supabase.co/rest/v1/';
   var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1cHdiZm1hY3d6ZXh5dnpubHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjEwNzYsImV4cCI6MjEwNDAzNzA3Nn0.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
   var STALE_MS=50000;
-  var ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};\n  function ktIceConfig20260921(){return window.ktGetRtcConfig?window.ktGetRtcConfig():ICE;}
+  var ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
+  function ktIceConfig20260921(){return window.ktGetRtcConfig?window.ktGetRtcConfig():ICE;}
   var hostActive=false,hostRoomId='',hostHeartbeat=null,hostSignalTimer=null,hostActivityTimer=null;
   var hostEndLock=false,hostRunToken=0,hostStarting=false;
   var hostRoomMissingSince=0;
