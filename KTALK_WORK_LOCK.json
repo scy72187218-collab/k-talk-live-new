@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "PIN verified for one narrow edit: lower 13-person room bottom controls only. Re-lock immediately after the edit.",
+  "note": "13-person room bottom controls lowered with owner PIN approval and re-locked immediately. Other protected components were not changed.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -44,10 +44,7 @@
   },
   "current_editable_components": [
     "webrtc_transport_stability",
-    "group13_guest_uplink",
-    "guest13_bottom_controls_layout"
+    "group13_guest_uplink"
   ],
-  "temporarily_unlocked_components": [
-    "guest13_bottom_controls_layout"
-  ]
+  "temporarily_unlocked_components": []
 }
