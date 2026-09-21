@@ -8,9 +8,8 @@
   var MEM_PEER='/api/live-peer-memory';
   var MEM_BEACON='/api/live-beacon-memory';
   var ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
-  function ktIceConfig20260921(){return window.ktGetRtcConfig?window.ktGetRtcConfig():ICE;}
   var hostPoll=null,viewerPoll=null,hostGuestPeers={},requestNames={},hostGuestMissingSince={};
-  var viewerGuest={pc:null,stream:null,sessionId:'',hostId:'',approvedKey:'',viewTimer:null,prejoinHostStream:null,connectStartedAt:0,approvalMissingSince:0,mediaDenied:false,mediaOpening:false,forceRelay:false};
+  var viewerGuest={pc:null,stream:null,sessionId:'',hostId:'',approvedKey:'',viewTimer:null,prejoinHostStream:null,connectStartedAt:0,mediaDenied:false,mediaOpening:false};
 
   function enc(v){return encodeURIComponent(String(v==null?'':v));}
   function esc(v){return String(v==null?'':v).replace(/[&<>\"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c];});}
@@ -163,7 +162,7 @@
     if(!(await ensureConfig()))return memoryReq(path,opt);
     opt=opt||{};
     var ctrl=typeof AbortController!=='undefined'?new AbortController():null;
-    var timer=ctrl?setTimeout(function(){ctrl.abort();},1500):null;
+    var timer=ctrl?setTimeout(function(){ctrl.abort();},650):null;
     try{
       var next=Object.assign({},opt);
       next.headers=headers(next.headers);
@@ -176,12 +175,9 @@
       var t=await r.text();return t?JSON.parse(t):null;
     }catch(e){
       if(timer)clearTimeout(timer);
-      window.__ktPrimaryLiveDbDownUntil=Date.now()+15000;
+      window.__ktPrimaryLiveDbDownUntil=Date.now()+120000;
       return memoryReq(path,opt);
     }
-  }
-  async function ktEnsureTurnReady20260921(){
-    try{if(window.ktRefreshTurnRelay)await window.ktRefreshTurnRelay();}catch(e){}
   }
   function waitIce(pc,ms){return new Promise(function(resolve){if(!pc||pc.iceGatheringState==='complete')return resolve();var done=false,t=setTimeout(finish,ms||5000);function finish(){if(done)return;done=true;clearTimeout(t);try{pc.removeEventListener('icegatheringstatechange',on);}catch(e){}resolve();}function on(){if(pc.iceGatheringState==='complete')finish();}pc.addEventListener('icegatheringstatechange',on);});}
 
@@ -193,17 +189,7 @@
     +'.kt-remote-host-preview{position:absolute!important;right:10px!important;top:112px!important;z-index:6!important;width:92px!important;height:128px!important;border:2px solid rgba(255,255,255,.7)!important;border-radius:12px!important;object-fit:cover!important;background:#111!important;box-shadow:0 3px 12px #0008!important}.kt-guest-float{position:fixed!important;z-index:100000!important;pointer-events:none!important;min-width:86px!important;height:36px!important;border:1px solid #62d8ff!important;border-radius:18px!important;background:#06121cf2!important;color:#fff!important;padding:0 10px!important;display:grid!important;place-items:center!important;font-size:9px!important;font-weight:950!important;box-shadow:0 0 14px #38cfff88!important}'
     +'@media(max-width:390px){.ktg13-request-rail{left:42%!important}.ktg13-request-chip{min-width:78px!important;height:32px!important;font-size:8px!important}.kt-remote-host-preview{width:78px!important;height:108px!important;top:106px!important}}';document.head.appendChild(s);}
 
-  async function currentViewerHost(){
-    try{
-      var cached=String(window.__ktRemoteHostId||'');
-      if(!cached)try{cached=String(sessionStorage.getItem('kt_remote_host_id')||'');}catch(e){}
-      if(cached)return cached;
-      var rows=await req('ktalk_live_viewers?select=host_id,viewer_id,active,updated_at&viewer_id=eq.'+enc(viewerId())+'&active=eq.true&order=updated_at.desc&limit=1');
-      var h=rows&&rows[0]?String(rows[0].host_id||''):'';
-      if(h){window.__ktRemoteHostId=h;try{sessionStorage.setItem('kt_remote_host_id',h);}catch(e){}}
-      return h;
-    }catch(e){return '';}
-  }
+  async function currentViewerHost(){try{var rows=await req('ktalk_live_viewers?select=host_id,viewer_id,active,updated_at&viewer_id=eq.'+enc(viewerId())+'&active=eq.true&order=updated_at.desc&limit=1');var h=rows&&rows[0]?String(rows[0].host_id||''):'';if(h){window.__ktRemoteHostId=h;try{sessionStorage.setItem('kt_remote_host_id',h);}catch(e){}}return h;}catch(e){return '';}}
   async function activeHostRoom(){
     try{
       var rows=await req('ktalk_live_rooms?select=host_id,started_at,room_type,room_name,active,updated_at&host_id=eq.'+enc(deviceId())+'&active=eq.true&order=started_at.desc&limit=1');
@@ -217,39 +203,8 @@
       return age>=0&&age<15*60*1000?r:null;
     }catch(e){return null;}
   }
-  async function postGuestMessage(hostId,type,message,senderId,senderName){
-    if(!hostId)return false;
-    var payload={
-      host_id:hostId,
-      sender_id:senderId||viewerId(),
-      sender_name:senderName||profile().name||'게스트',
-      message:String(message||'').slice(0,300),
-      message_type:String(type||'guest_request')
-    };
+  async function postGuestMessage(hostId,type,message,senderId,senderName){if(!hostId)return false;try{await req('ktalk_live_messages',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({host_id:hostId,sender_id:senderId||viewerId(),sender_name:senderName||profile().name||'게스트',message:String(message||'').slice(0,300),message_type:String(type||'guest_request')})});return true;}catch(e){return false;}}
 
-    var primary=(async function(){
-      try{
-        if(!(await ensureConfig()))return false;
-        var ctrl=typeof AbortController!=='undefined'?new AbortController():null;
-        var timer=ctrl?setTimeout(function(){ctrl.abort();},1500):null;
-        var opt={method:'POST',headers:headers({Prefer:'return=minimal'}),body:JSON.stringify(payload),cache:'no-store'};
-        if(ctrl)opt.signal=ctrl.signal;
-        var rr=await fetch(BASE+'ktalk_live_messages',opt);
-        if(timer)clearTimeout(timer);
-        return !!(rr&&rr.ok);
-      }catch(e){return false;}
-    })();
-
-    var memory=(async function(){
-      try{
-        await memoryReq('ktalk_live_messages',{method:'POST',body:JSON.stringify(payload)});
-        return true;
-      }catch(e){return false;}
-    })();
-
-    var done=await Promise.all([primary,memory]);
-    return !!(done[0]||done[1]);
-  }
   async function sendGuestRequest(){
     var b=document.getElementById('ktRemoteGuestRequest');
     if(b&&b.dataset.ktGuestToggleBusy==='1')return;
@@ -257,7 +212,6 @@
     try{
       var hostId=await currentViewerHost();if(!hostId)return;
       var p=profile(),vid=viewerId(),cancel=!!(b&&b.classList.contains('kt-requested'));
-      if(!cancel){try{prewarmGuestMedia20260921();}catch(e){}}
       var ok=cancel
         ?await postGuestMessage(hostId,'guest_cancelled:'+vid,'↩ '+(p.name||'게스트')+'님이 방송 참여 신청을 취소했습니다.',vid,p.name||'게스트')
         :await postGuestMessage(hostId,'guest_request:'+vid,'👥 '+(p.name||'게스트')+'님이 방송 참여를 신청했습니다.',vid,p.name||'게스트');
@@ -265,13 +219,6 @@
         b.classList.toggle('kt-requested',!cancel);
         b.setAttribute('title',cancel?'방송 참여 신청':'참여 신청 취소');
         b.setAttribute('aria-label',cancel?'방송 참여 신청':'참여 신청 취소');
-      }
-      if(ok&&cancel&&viewerGuest.approvedKey){
-        viewerGuest.approvalMissingSince=0;
-        try{var leaving=leaveApprovedGuestNow();if(leaving&&leaving.catch)leaving.catch(function(){});}catch(e){}
-      }else if(ok&&cancel&&!viewerGuest.approvedKey&&viewerGuest.stream){
-        try{viewerGuest.stream.getTracks().forEach(function(t){t.stop();});}catch(e){}
-        viewerGuest.stream=null;
       }
     }finally{
       if(b)delete b.dataset.ktGuestToggleBusy;
@@ -336,8 +283,8 @@
 
     Object.keys(requestAt).forEach(function(vid){
       var reqTs=requestAt[vid],joinTs=joinAt[vid]||'';
-      /* 자동 재연결 때 생기는 '들어왔습니다' 기록은 기존 참여승인을 취소하지 않는다.
-         취소 버튼을 직접 누른 경우만 승인 상태를 해제한다. */
+      /* 현재 입장 뒤에 직접 신청한 요청만 유효하다. 예전 승인/예전 신청은 재사용하지 않는다. */
+      if(joinTs&&reqTs<joinTs)return;
       var apTs=approvedAt[vid]||'',cancelTs=cancelledAt[vid]||'';
       if(cancelTs&&cancelTs>=reqTs)return;
       /* 승인 후에는 시청자 heartbeat가 잠깐 빠져도 승인 상태를 유지한다.
@@ -347,12 +294,12 @@
     });
 
     renderRequestRail(pending);
-    await hostGuestSessionTick(approvedNow,cancelledAt,requestAt);
+    await hostGuestSessionTick(approvedNow);
   }
 
   /* 현재 방송에서 호스트가 승인한 게스트만 호스트 화면에 카메라를 올린다. 예전/남은 WebRTC 세션은 표시하지 않는다. */
-  async function hostGuestSessionTick(approvedNow,cancelledAt,requestAt){
-    approvedNow=approvedNow||{};cancelledAt=cancelledAt||{};requestAt=requestAt||{};
+  async function hostGuestSessionTick(approvedNow){
+    approvedNow=approvedNow||{};
     if(!document.querySelector('.ktg13-room'))return;
 
     var hid=deviceId(),rows=[];
@@ -379,20 +326,8 @@
       if(!vid)return;
 
       if(!approvedNow[vid]){
-        var cancelled=!!(cancelledAt[vid]&&(!requestAt[vid]||String(cancelledAt[vid])>=String(requestAt[vid])));
-        if(cancelled){
-          delete hostGuestMissingSince[vid];
-          releaseGuestSlot(slot,vid);
-          return;
-        }
-
-        /* 승인 직후 DB/메모리 신호가 잠깐 엇갈려도 게스트 칸을 바로 지우지 않는다.
-           최대 2분 동안 같은 자리에서 재연결을 기다린다. */
-        if(!hostGuestMissingSince[vid])hostGuestMissingSince[vid]=Date.now();
-        if(Date.now()-hostGuestMissingSince[vid]<120000)return;
-
-        releaseGuestSlot(slot,vid);
         delete hostGuestMissingSince[vid];
+        releaseGuestSlot(slot,vid);
         return;
       }
 
@@ -401,10 +336,11 @@
         return;
       }
 
-      /* 승인된 게스트는 수신이 잠깐 끊겨도 칸 자체를 내리지 않는다.
-         영상은 같은 자리에서 재연결하고, 실제 취소/나가기 때만 칸을 비운다. */
       if(!hostGuestMissingSince[vid])hostGuestMissingSince[vid]=Date.now();
-      return;
+      if(Date.now()-hostGuestMissingSince[vid]>15000){
+        delete hostGuestMissingSince[vid];
+        releaseGuestSlot(slot,vid);
+      }
     });
 
     Object.keys(hostGuestPeers).forEach(function(id){
@@ -415,7 +351,6 @@
       /* 자리는 위의 60초 재연결 유예가 관리하므로 여기서 바로 지우지 않음 */
     });
 
-    await ktEnsureTurnReady20260921();
     for(var i=0;i<rows.length;i++){
       var x=rows[i],vtag=String(x.viewer_id||'');
       if(vtag.indexOf('guest:')!==0||!x.offer_sdp||x.offer_sdp==='pending'||hostGuestPeers[x.id])continue;
@@ -429,7 +364,7 @@
       if(!slot.dataset.ktGuestViewerId)decorateSlot(slot,vid,name);
 
       try{
-        var pc=new RTCPeerConnection(ktIceConfig20260921());
+        var pc=new RTCPeerConnection(ICE);
         pc.__ktSlot=slot;
         pc.__ktVid=vid;
         hostGuestPeers[x.id]=pc;
@@ -479,7 +414,7 @@
                     if(!hostGuestMissingSince[viewer])hostGuestMissingSince[viewer]=Date.now();
                   }
                 }catch(e){}
-              },6000);
+              },12000);
             }
           };
         })(x.id,pc,vid);
@@ -487,7 +422,7 @@
         await pc.setRemoteDescription({type:'offer',sdp:x.offer_sdp});
         var ans=await pc.createAnswer();
         await pc.setLocalDescription(ans);
-        await waitIce(pc,3000);
+        await waitIce(pc,5000);
 
         await req('ktalk_webrtc_sessions?id=eq.'+enc(x.id),{
           method:'PATCH',
@@ -533,7 +468,7 @@
          신청 후 다시 사람 버튼을 눌러 취소하면 승인을 진행하지 않는다. */
       if(!reqRow||!apRow)return null;
       var reqTs=String(reqRow.created_at||''),apTs=String(apRow.created_at||''),cancelTs=cancelRow?String(cancelRow.created_at||''):'',joinTs=joinRow?String(joinRow.created_at||''):'';
-      /* 통신 재접속으로 새 입장기록이 생겨도 승인 자체는 유지한다. */
+      if(joinTs&&reqTs<joinTs)return null;
       if(cancelTs&&cancelTs>=reqTs)return null;
       if(apTs<reqTs)return null;
       return apRow;
@@ -639,9 +574,7 @@
       var st='';
       try{st=String(viewerGuest.pc.connectionState||'');}catch(e){}
       var age=viewerGuest.connectStartedAt?Date.now()-viewerGuest.connectStartedAt:0;
-      if(st==='connected')return;
-      if((st==='connecting'||st==='disconnected'||st==='new')&&age<7000)return;
-      if(!viewerGuest.forceRelay)viewerGuest.forceRelay=true;
+      if(st==='connected'||st==='connecting'||(st==='new'&&age<18000))return;
       resetViewerGuestPc(viewerGuest.pc);
     }
 
@@ -661,7 +594,7 @@
       viewerGuest.mediaOpening=true;
       try{
         stream=await navigator.mediaDevices.getUserMedia({
-          video:{facingMode:{ideal:'user'},width:{ideal:480,max:640},height:{ideal:360,max:480},aspectRatio:{ideal:1.333333},frameRate:{ideal:15,max:20}},
+          video:{facingMode:{ideal:'user'},width:{ideal:1280},height:{ideal:960},aspectRatio:{ideal:1.333333},resizeMode:'none',frameRate:{ideal:30,max:30}},
           audio:true
         });
       }catch(e){
@@ -706,9 +639,7 @@
         body:JSON.stringify({active:false,updated_at:nowIso()})
       });
 
-      await ktEnsureTurnReady20260921();
-      var rtcCfg=window.ktGetRtcConfig?window.ktGetRtcConfig(viewerGuest.forceRelay?'relay':'all'):ktIceConfig20260921();
-      pc=new RTCPeerConnection(rtcCfg);
+      pc=new RTCPeerConnection(ICE);
       viewerGuest.pc=pc;
       viewerGuest.connectStartedAt=Date.now();
 
@@ -719,41 +650,21 @@
           viewerGuest.connectStartedAt=0;
           return;
         }
-        if(s==='failed'){
-          if(!viewerGuest.forceRelay)viewerGuest.forceRelay=true;
-          resetViewerGuestPc(pc);
-          return;
-        }
-        if(s==='closed'){
+        if(s==='failed'||s==='closed'){
           resetViewerGuestPc(pc);
           return;
         }
         if(s==='disconnected'){
           setTimeout(function(){
             if(viewerGuest.pc===pc&&pc.connectionState==='disconnected')resetViewerGuestPc(pc);
-          },6000);
+          },12000);
         }
       };
 
-      stream.getTracks().forEach(function(t){
-        try{
-          var sender=pc.addTrack(t,stream);
-          if(sender&&sender.getParameters&&sender.setParameters){
-            var prm=sender.getParameters()||{};
-            if(!prm.encodings||!prm.encodings.length)prm.encodings=[{}];
-            if(t.kind==='video'){
-              prm.encodings[0].maxBitrate=420000;
-              prm.encodings[0].maxFramerate=18;
-            }else if(t.kind==='audio'){
-              prm.encodings[0].maxBitrate=48000;
-            }
-            Promise.resolve(sender.setParameters(prm)).catch(function(){});
-          }
-        }catch(e){}
-      });
+      stream.getTracks().forEach(function(t){try{pc.addTrack(t,stream);}catch(e){}});
       var offer=await pc.createOffer({offerToReceiveAudio:false,offerToReceiveVideo:false});
       await pc.setLocalDescription(offer);
-      await waitIce(pc,3000);
+      await waitIce(pc,5000);
 
       var created=await req('ktalk_webrtc_sessions',{
         method:'POST',
@@ -780,7 +691,6 @@
         /* 호스트 답이 오래 안 오면 이 연결만 닫고 viewerTick이 자동 재시도한다. */
         if(tries>24){
           clearInterval(t);
-          if(!viewerGuest.forceRelay)viewerGuest.forceRelay=true;
           resetViewerGuestPc(pc);
           return;
         }
@@ -798,7 +708,7 @@
             clearInterval(t);
           }
         }catch(e){}
-      },500);
+      },850);
     }catch(e){
       resetViewerGuestPc(pc);
     }
@@ -819,20 +729,9 @@
     if(!hostId){ensurePrejoinRoomGrid();return;}
     var vid=viewerId(),ap=await latestApproval(hostId,vid);
     if(ap){
-      viewerGuest.approvalMissingSince=0;
       startViewerGuestUplink(hostId,vid,String(ap.id||ap.created_at||'approved'));
     }else{
-      /* 이미 승인되어 올라간 상태라면 DB/수신이 잠깐 흔들렸다고 바로 내리지 않는다.
-         30초 동안 같은 자리와 카메라를 유지하며 자동 재연결한다. */
-      if(viewerGuest.approvedKey&&viewerGuest.hostId===hostId){
-        if(!viewerGuest.approvalMissingSince)viewerGuest.approvalMissingSince=Date.now();
-        if(Date.now()-viewerGuest.approvalMissingSince<120000){
-          if(viewerGuest.stream)startLocalGuestViewGuard(viewerGuest.stream);
-          return;
-        }
-      }
-      viewerGuest.approvalMissingSince=0;
-      /* 신청/승인이 없는 새 입장에서는 예전 게스트 업링크를 끈다. */
+      /* 신청/승인이 없는 새 입장에서는 예전 게스트 업링크를 즉시 끈다. */
       if(viewerGuest.sessionId||viewerGuest.pc||viewerGuest.hostId){
         try{
           await req('ktalk_webrtc_sessions?host_id=eq.'+enc(hostId)+'&viewer_id=eq.'+enc('guest:'+vid)+'&active=eq.true',{
@@ -845,7 +744,6 @@
         viewerGuest.hostId='';
         viewerGuest.approvedKey='';
         viewerGuest.connectStartedAt=0;
-        viewerGuest.approvalMissingSince=0;
         stopLocalGuestViewGuard();
         if(viewerGuest.stream){try{viewerGuest.stream.getTracks().forEach(function(t){t.stop();});}catch(e){}viewerGuest.stream=null;}
       }
@@ -890,7 +788,6 @@
     }
     viewerGuest.hostId='';
     viewerGuest.approvedKey='';
-    viewerGuest.forceRelay=false;
   }
 
   function bindGuestLeaveCleanup(){
@@ -908,7 +805,7 @@
     window.ktLeaveRemoteLive=wrapped;
   }
 
-  function start(){if(started)return;started=true;bindGuestLeaveCleanup();setInterval(bindGuestLeaveCleanup,800);ensureStyle();bindRequestButton();hostPoll=setInterval(hostTick,700);viewerPoll=setInterval(viewerTick,700);setInterval(removeDuplicateGroupRoom,350);setTimeout(hostTick,100);setTimeout(viewerTick,180);var dedupeTimer=null,obs=new MutationObserver(function(){bindRequestButton();clearTimeout(dedupeTimer);dedupeTimer=setTimeout(removeDuplicateGroupRoom,30);});obs.observe(document.documentElement,{childList:true,subtree:true});}
+  function start(){if(started)return;started=true;bindGuestLeaveCleanup();setInterval(bindGuestLeaveCleanup,800);ensureStyle();bindRequestButton();hostPoll=setInterval(hostTick,1200);viewerPoll=setInterval(viewerTick,1300);setInterval(removeDuplicateGroupRoom,350);setTimeout(hostTick,100);setTimeout(viewerTick,180);var dedupeTimer=null,obs=new MutationObserver(function(){bindRequestButton();clearTimeout(dedupeTimer);dedupeTimer=setTimeout(removeDuplicateGroupRoom,30);});obs.observe(document.documentElement,{childList:true,subtree:true});}
   document.addEventListener('DOMContentLoaded',start);if(document.readyState!=='loading')start();
   window.addEventListener('pagehide',function(){clearInterval(hostPoll);clearInterval(viewerPoll);endViewerGuestSession(true);stopLocalGuestViewGuard();removePrejoinRoomGrid();Object.keys(hostGuestPeers).forEach(function(k){try{hostGuestPeers[k].close();}catch(e){}});hostGuestPeers={};if(viewerGuest.pc){try{viewerGuest.pc.close();}catch(e){}}if(viewerGuest.stream){try{viewerGuest.stream.getTracks().forEach(function(t){t.stop();});}catch(e){}}});
 })();
