@@ -10,7 +10,7 @@
   var ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
   function ktIceConfig20260921(){return window.ktGetRtcConfig?window.ktGetRtcConfig():ICE;}
   var hostPoll=null,viewerPoll=null,hostGuestPeers={},requestNames={},hostGuestMissingSince={};
-  var viewerGuest={pc:null,stream:null,sessionId:'',hostId:'',approvedKey:'',viewTimer:null,prejoinHostStream:null,connectStartedAt:0,approvalMissingSince:0,mediaDenied:false,mediaOpening:false};
+  var viewerGuest={pc:null,stream:null,sessionId:'',hostId:'',approvedKey:'',viewTimer:null,prejoinHostStream:null,connectStartedAt:0,approvalMissingSince:0,mediaDenied:false,mediaOpening:false,forceRelay:false};
 
   function enc(v){return encodeURIComponent(String(v==null?'':v));}
   function esc(v){return String(v==null?'':v).replace(/[&<>\"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c];});}
@@ -639,7 +639,9 @@
       var st='';
       try{st=String(viewerGuest.pc.connectionState||'');}catch(e){}
       var age=viewerGuest.connectStartedAt?Date.now()-viewerGuest.connectStartedAt:0;
-      if(st==='connected'||st==='connecting'||st==='disconnected'||(st==='new'&&age<30000))return;
+      if(st==='connected')return;
+      if((st==='connecting'||st==='disconnected'||st==='new')&&age<7000)return;
+      if(!viewerGuest.forceRelay)viewerGuest.forceRelay=true;
       resetViewerGuestPc(viewerGuest.pc);
     }
 
@@ -659,7 +661,7 @@
       viewerGuest.mediaOpening=true;
       try{
         stream=await navigator.mediaDevices.getUserMedia({
-          video:{facingMode:{ideal:'user'},width:{ideal:640,max:640},height:{ideal:480,max:480},aspectRatio:{ideal:1.333333},frameRate:{ideal:20,max:24}},
+          video:{facingMode:{ideal:'user'},width:{ideal:480,max:640},height:{ideal:360,max:480},aspectRatio:{ideal:1.333333},frameRate:{ideal:15,max:20}},
           audio:true
         });
       }catch(e){
@@ -705,7 +707,8 @@
       });
 
       await ktEnsureTurnReady20260921();
-      pc=new RTCPeerConnection(ktIceConfig20260921());
+      var rtcCfg=window.ktGetRtcConfig?window.ktGetRtcConfig(viewerGuest.forceRelay?'relay':'all'):ktIceConfig20260921();
+      pc=new RTCPeerConnection(rtcCfg);
       viewerGuest.pc=pc;
       viewerGuest.connectStartedAt=Date.now();
 
@@ -716,7 +719,12 @@
           viewerGuest.connectStartedAt=0;
           return;
         }
-        if(s==='failed'||s==='closed'){
+        if(s==='failed'){
+          if(!viewerGuest.forceRelay)viewerGuest.forceRelay=true;
+          resetViewerGuestPc(pc);
+          return;
+        }
+        if(s==='closed'){
           resetViewerGuestPc(pc);
           return;
         }
@@ -727,7 +735,22 @@
         }
       };
 
-      stream.getTracks().forEach(function(t){try{pc.addTrack(t,stream);}catch(e){}});
+      stream.getTracks().forEach(function(t){
+        try{
+          var sender=pc.addTrack(t,stream);
+          if(sender&&sender.getParameters&&sender.setParameters){
+            var prm=sender.getParameters()||{};
+            if(!prm.encodings||!prm.encodings.length)prm.encodings=[{}];
+            if(t.kind==='video'){
+              prm.encodings[0].maxBitrate=420000;
+              prm.encodings[0].maxFramerate=18;
+            }else if(t.kind==='audio'){
+              prm.encodings[0].maxBitrate=48000;
+            }
+            Promise.resolve(sender.setParameters(prm)).catch(function(){});
+          }
+        }catch(e){}
+      });
       var offer=await pc.createOffer({offerToReceiveAudio:false,offerToReceiveVideo:false});
       await pc.setLocalDescription(offer);
       await waitIce(pc,3000);
@@ -757,6 +780,7 @@
         /* 호스트 답이 오래 안 오면 이 연결만 닫고 viewerTick이 자동 재시도한다. */
         if(tries>24){
           clearInterval(t);
+          if(!viewerGuest.forceRelay)viewerGuest.forceRelay=true;
           resetViewerGuestPc(pc);
           return;
         }
@@ -866,6 +890,7 @@
     }
     viewerGuest.hostId='';
     viewerGuest.approvedKey='';
+    viewerGuest.forceRelay=false;
   }
 
   function bindGuestLeaveCleanup(){
