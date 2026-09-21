@@ -240,51 +240,25 @@
   window.startBroadcast=async function(){
     if(!isGroup13())return oldStartBroadcast.apply(this,arguments);
 
-    /* 13명방은 옛 버전 화면을 거치지 않는다.
-       시작 버튼을 누르는 즉시 현재 13명방을 먼저 보여주고,
-       기존 시작 로직은 화면 뒤에서만 상태/타이머를 준비한다. */
+    /* 13명방 전용:
+       앞쪽 공용 카운트다운이 끝나면 옛 테스트/구버전 방을 거치지 않고
+       현재 승인된 13명방 화면을 바로 연다. */
     markGroup13Opening();
     try{
-      if(window.creator)creator.classList.remove('show','live-prep-open');
+      var hasLiveVideo=!!(window.state&&state.stream&&state.stream.getVideoTracks&&
+        state.stream.getVideoTracks().some(function(t){return t.readyState==='live';}));
+      if(!hasLiveVideo&&window.ensureLiveCamera){
+        await window.ensureLiveCamera((window.state&&state.cameraFacing)||'user');
+      }
     }catch(e){}
-    renderApprovedGroup13(true);
-
-    var originalCountdown=window.ktLiveStartCountdown;
-    if(typeof originalCountdown==='function'){
-      window.ktLiveStartCountdown=async function(){
-        var old=document.getElementById('ktLiveCountdown');
-        if(old)old.remove();
-        var wrap=document.createElement('div');
-        wrap.id='ktLiveCountdown';
-        wrap.style.cssText='position:fixed;inset:0;z-index:99999;display:grid;place-items:center;background:rgba(0,0,0,.08);pointer-events:none;';
-        var num=document.createElement('div');
-        num.style.cssText='width:116px;height:116px;border-radius:50%;display:grid;place-items:center;background:rgba(10,10,14,.72);border:4px solid rgba(255,255,255,.92);color:#fff;font:900 64px/1 system-ui,-apple-system,sans-serif;box-shadow:0 0 28px rgba(255,44,130,.7);text-shadow:0 0 12px rgba(255,255,255,.7);';
-        wrap.appendChild(num);
-        document.body.appendChild(wrap);
-        for(var n=5;n>=2;n--){
-          num.textContent=String(n);
-          num.style.transform='scale(1)';
-          await new Promise(function(resolve){
-            setTimeout(function(){num.style.transform='scale(.92)';},650);
-            setTimeout(resolve,1000);
-          });
-        }
-        wrap.remove();
-      };
-    }
 
     try{
-      var result=await oldStartBroadcast.apply(this,arguments);
-      /* 기존 시작 로직이 만든 옛 13명방 DOM은 사용자에게 보이지 않은 채
-         바로 현재 승인 화면으로 교체한다. */
-      renderApprovedGroup13(false);
-      return result;
-    }catch(e){
-      renderApprovedGroup13(false);
-      throw e;
-    }finally{
-      if(originalCountdown)window.ktLiveStartCountdown=originalCountdown;
-    }
+      if(window.creator)creator.classList.remove('show','live-prep-open');
+      document.body.classList.remove('kt-home');
+    }catch(e){}
+
+    renderApprovedGroup13(false);
+    return true;
   };
 
   /* 시작 버튼을 누르는 순간부터 옛 13명방 화면을 가려 카운트 후 번쩍임 방지 */
