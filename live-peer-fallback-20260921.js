@@ -120,7 +120,7 @@
     try{
       document.documentElement.classList.add('kt-remote-viewing');
       var s=document.getElementById('screen');if(!s)return false;
-      s.innerHTML='<section class="kt-remote-live"><video id="ktRemoteLiveVideo" autoplay playsinline></video><div class="kt-remote-shade"></div><div class="kt-remote-top"><button class="kt-remote-back" type="button">‹</button><div class="kt-remote-meta"><b><i class="kt-live-dot"></i>'+String(room.host_name||'K-Talk').replace(/[&<>"]/g,'')+'</b><span>'+String(room.title||room.room_name||'라이브').replace(/[&<>"]/g,'')+' · '+String(room.room_name||'방송').replace(/[&<>"]/g,'')+'</span></div><div id="ktRemoteViewerCount" class="kt-remote-viewers">👁 연결 중</div></div><div id="ktRemoteLiveStatus" class="kt-remote-status">방송 영상 연결 중…</div></section>';
+      s.innerHTML='<section class="kt-remote-live"><video id="ktRemoteLiveVideo" autoplay playsinline muted></video><div class="kt-remote-shade"></div><div class="kt-remote-top"><button class="kt-remote-back" type="button">‹</button><div class="kt-remote-meta"><b><i class="kt-live-dot"></i>'+String(room.host_name||'K-Talk').replace(/[&<>"]/g,'')+'</b><span>'+String(room.title||room.room_name||'라이브').replace(/[&<>"]/g,'')+' · '+String(room.room_name||'방송').replace(/[&<>"]/g,'')+'</span></div><div id="ktRemoteViewerCount" class="kt-remote-viewers">👁 연결 중</div></div><div id="ktRemoteLiveStatus" class="kt-remote-status">방송 영상 연결 중…</div></section>';
       var back=s.querySelector('.kt-remote-back');
       if(back)back.onclick=function(){window.ktLeaveRemoteLive();};
       return true;
@@ -175,7 +175,7 @@
         return;
       }
       c.missingSince=0;
-      if(x.offer_sdp&&x.offer_sdp!=='pending'){
+      if(x.offer_sdp&&x.offer_sdp!=='pending'&&x.offer_sdp!=='fallback_pending'){
         await c.pc.setRemoteDescription({type:'offer',sdp:x.offer_sdp});
         var answer=await c.pc.createAnswer();
         await c.pc.setLocalDescription(answer);
@@ -212,7 +212,7 @@
       var hs=ev.streams[0]||new MediaStream([ev.track]);
       window.__ktRemoteHostStream=hs;
       var v=document.getElementById('ktRemoteLiveVideo');
-      if(v){v.srcObject=hs;v.play().catch(function(){});}
+      if(v){v.muted=true;v.defaultMuted=true;v.srcObject=hs;v.play().catch(function(){});}
       var st=document.getElementById('ktRemoteLiveStatus');
       if(st)st.style.display='none';
       var badge=document.getElementById('ktRemoteViewerCount');
@@ -251,7 +251,7 @@
       }
     };
 
-    viewer.poll=setInterval(pollViewer,700);
+    viewer.poll=setInterval(pollViewer,900);
     viewer.touch=setInterval(function(){
       if(!viewer)return;
       fetch(API+'?t='+Date.now(),{
@@ -259,7 +259,7 @@
         body:JSON.stringify({action:'touch',session_id:sid})
       }).catch(function(){});
       interactionPost('heartbeat',hostId,viewerId,viewer.viewerName);
-    },2500);
+    },3500);
     pollViewer();
     return true;
   }
@@ -286,7 +286,7 @@
       var sessions=Array.isArray(j&&j.sessions)?j.sessions:[];
       for(var i=0;i<sessions.length;i++){
         var x=sessions[i],entry=hostPeers[x.id];
-        if(!entry&&x.offer_sdp==='pending'){
+        if(!entry&&x.offer_sdp==='fallback_pending'){
           var pc=new RTCPeerConnection(ktIceConfig20260921());
           hostPeers[x.id]={pc:pc,remoteSet:false};
           entry=hostPeers[x.id];
@@ -332,7 +332,7 @@
         remoteEndArmed=true;
         if(oldEnter){
           await oldEnter(hostId);
-          /* 실제 영상이 늦게 붙는 경우 7초 뒤 fallback으로 한 번 더 자동 시도한다. */
+          /* 양옆 수신 화면이 멈추면 2초 뒤 durable fallback으로 자동 전환한다. */
           setTimeout(async function(){
             try{
               if(String(window.__ktRemoteHostId||'')!==hostId)return;
@@ -344,7 +344,7 @@
               var ok=await enterMemory(hostId,cached);
               if(ok)remoteEndArmed=true;
             }catch(e){}
-          },7000);
+          },2000);
           return;
         }
       }
@@ -374,6 +374,6 @@
     if(oldLeave)return oldLeave(silent);
   };
 
-  setInterval(hostPoll,650);
+  setInterval(hostPoll,900);
   setTimeout(hostPoll,350);
 })();
