@@ -10,6 +10,7 @@
   var misses=0;
   var broadcastStarted=false;
   var lastDedupeAt=0;
+  var endLock=false;
   var BEACON='/api/live-beacon-memory';
   var beaconBusy=false;
 
@@ -83,6 +84,7 @@
     return !!document.querySelector('.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room,#ktLiveVideo');
   }
   function shouldBeLive(){
+    if(endLock)return false;
     return broadcastStarted||liveRoomVisible();
   }
   function roomInfo(){
@@ -120,6 +122,7 @@
   }
 
   function beaconShouldBeLive(){
+    if(endLock)return false;
     if(broadcastStarted)return true;
     try{
       return !!document.querySelector('.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room');
@@ -175,6 +178,7 @@
   }
 
   async function publishIfNeeded(force){
+    if(endLock)return;
     if(force||beaconShouldBeLive())beacon('publish');
     if(publishing||(!force&&!shouldBeLive()))return;
     publishing=true;
@@ -201,6 +205,8 @@
   }
 
   async function stopFallbackPresence(){
+    endLock=true;
+    window.__ktLiveWatchdogEndLock=true;
     beacon('end');
     broadcastStarted=false;
     window.__ktHostBroadcastActive=false;
@@ -212,6 +218,8 @@
   }
 
   function markBroadcastStarted(){
+    endLock=false;
+    window.__ktLiveWatchdogEndLock=false;
     broadcastStarted=true;
     beacon('publish');
     window.__ktHostBroadcastActive=true;
@@ -251,6 +259,7 @@
   }
 
   async function heartbeat(){
+    if(endLock)return;
     if(beaconShouldBeLive())beacon('heartbeat');
     if(shouldBeLive()){
       misses=0;
@@ -289,13 +298,13 @@
     if(startTarget(e))markBroadcastStarted();
     var t=e.target&&e.target.closest?e.target.closest('.ktsolo-back,.ktsubscriber-back,.ktsecret-back,.ktg13-back'):null;
     if(t)stopFallbackPresence();
-    setTimeout(function(){publishIfNeeded(false);},650);
+    setTimeout(function(){if(!endLock)publishIfNeeded(false);},650);
   },true);
 
   document.addEventListener('visibilitychange',function(){if(!document.hidden)fastViewerRefresh();});
   window.addEventListener('focus',fastViewerRefresh);
 
-  var mo=new MutationObserver(function(){setTimeout(function(){publishIfNeeded(false);fastViewerRefresh();},180);});
+  var mo=new MutationObserver(function(){setTimeout(function(){if(!endLock)publishIfNeeded(false);fastViewerRefresh();},180);});
   try{mo.observe(document.getElementById('screen')||document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['data-kt-room']});}catch(e){}
   setInterval(function(){wrapStartBroadcast();},2200);
   setInterval(heartbeat,2500);
@@ -305,6 +314,8 @@
   setTimeout(fastViewerRefresh,220);
 
   window.addEventListener('pagehide',function(){
+    endLock=true;
+    window.__ktLiveWatchdogEndLock=true;
     try{fetch(BEACON+'?t='+Date.now(),{method:'POST',keepalive:true,headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'end',host_id:hostId()})});}catch(e){}
     broadcastStarted=false;
     if(!roomId)return;
