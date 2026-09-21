@@ -67,7 +67,9 @@
         urls:[
           'turn:'+STATIC_HOST+':80?transport=udp',
           'turn:'+STATIC_HOST+':80?transport=tcp',
-          'turn:'+STATIC_HOST+':443?transport=tcp'
+          'turn:'+STATIC_HOST+':443?transport=udp',
+          'turn:'+STATIC_HOST+':443?transport=tcp',
+          'turns:'+STATIC_HOST+':443?transport=tcp'
         ],
         username:username,
         credential:credential
