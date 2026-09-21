@@ -2,11 +2,15 @@
    Stores only short-lived LIVE beacon data in warm function memory. */
 const g=globalThis;
 if(!g.__ktLiveBeaconMemory)g.__ktLiveBeaconMemory=new Map();
+if(!g.__ktLiveEndedMemory)g.__ktLiveEndedMemory=new Map();
 
 function clean(){
   const now=Date.now();
   for(const [id,row] of g.__ktLiveBeaconMemory.entries()){
     if(now-Number(row.seen||0)>8000)g.__ktLiveBeaconMemory.delete(id);
+  }
+  for(const [id,row] of g.__ktLiveEndedMemory.entries()){
+    if(now-Number(row.ended||0)>45000)g.__ktLiveEndedMemory.delete(id);
   }
 }
 function cors(res){
@@ -25,8 +29,9 @@ module.exports=async function handler(req,res){
       const b=req.body||{};
       const action=String(b.action||'');
       const id=String(b.host_id||'').slice(0,120);
-      if(action==='end'&&id)g.__ktLiveBeaconMemory.delete(id);
+      if(action==='end'&&id){g.__ktLiveBeaconMemory.delete(id);g.__ktLiveEndedMemory.set(id,{host_id:id,ended:Date.now()});}
       if((action==='publish'||action==='heartbeat')&&id){
+        g.__ktLiveEndedMemory.delete(id);
         g.__ktLiveBeaconMemory.set(id,{
           host_id:id,
           host_name:String(b.host_name||'K-Talk 방송자').slice(0,100),
@@ -46,7 +51,7 @@ module.exports=async function handler(req,res){
       const id=String(q.host_id).slice(0,120);
       g.__ktLiveBeaconMemory.set(id,{host_id:id,host_name:'selftest',title:'test',room_type:'test',room_name:'test',seen:Date.now()});
     }else if(String(q.test_action||'')==='end'&&q.host_id){
-      g.__ktLiveBeaconMemory.delete(String(q.host_id));
+      const id=String(q.host_id).slice(0,120);g.__ktLiveBeaconMemory.delete(id);g.__ktLiveEndedMemory.set(id,{host_id:id,ended:Date.now()});
     }
     clean();
     res.end(JSON.stringify({
@@ -54,6 +59,9 @@ module.exports=async function handler(req,res){
       rooms:Array.from(g.__ktLiveBeaconMemory.values()).map(x=>({
         host_id:x.host_id,host_name:x.host_name,title:x.title,room_type:x.room_type,room_name:x.room_name,
         updated_at:new Date(x.seen).toISOString()
+      })),
+      ended:Array.from(g.__ktLiveEndedMemory.values()).map(x=>({
+        host_id:x.host_id,ended_at:new Date(x.ended).toISOString()
       }))
     }));
   }catch(e){
