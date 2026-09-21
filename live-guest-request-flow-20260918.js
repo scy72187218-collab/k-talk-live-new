@@ -287,8 +287,8 @@
 
     Object.keys(requestAt).forEach(function(vid){
       var reqTs=requestAt[vid],joinTs=joinAt[vid]||'';
-      /* 현재 입장 뒤에 직접 신청한 요청만 유효하다. 예전 승인/예전 신청은 재사용하지 않는다. */
-      if(joinTs&&reqTs<joinTs)return;
+      /* 자동 재연결 때 생기는 '들어왔습니다' 기록은 기존 참여승인을 취소하지 않는다.
+         취소 버튼을 직접 누른 경우만 승인 상태를 해제한다. */
       var apTs=approvedAt[vid]||'',cancelTs=cancelledAt[vid]||'';
       if(cancelTs&&cancelTs>=reqTs)return;
       /* 승인 후에는 시청자 heartbeat가 잠깐 빠져도 승인 상태를 유지한다.
@@ -471,7 +471,7 @@
          신청 후 다시 사람 버튼을 눌러 취소하면 승인을 진행하지 않는다. */
       if(!reqRow||!apRow)return null;
       var reqTs=String(reqRow.created_at||''),apTs=String(apRow.created_at||''),cancelTs=cancelRow?String(cancelRow.created_at||''):'',joinTs=joinRow?String(joinRow.created_at||''):'';
-      if(joinTs&&reqTs<joinTs)return null;
+      /* 통신 재접속으로 새 입장기록이 생겨도 승인 자체는 유지한다. */
       if(cancelTs&&cancelTs>=reqTs)return null;
       if(apTs<reqTs)return null;
       return apRow;
@@ -739,7 +739,7 @@
          30초 동안 같은 자리와 카메라를 유지하며 자동 재연결한다. */
       if(viewerGuest.approvedKey&&viewerGuest.hostId===hostId){
         if(!viewerGuest.approvalMissingSince)viewerGuest.approvalMissingSince=Date.now();
-        if(Date.now()-viewerGuest.approvalMissingSince<30000){
+        if(Date.now()-viewerGuest.approvalMissingSince<60000){
           if(viewerGuest.stream)startLocalGuestViewGuard(viewerGuest.stream);
           return;
         }
