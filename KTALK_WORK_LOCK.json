@@ -46,7 +46,6 @@
     "group13_guest_uplink"
   ],
   "temporarily_unlocked_components": [
-    "webrtc_transport_stability",
-    "group13_guest_uplink"
+    "approved_guest_earnings_hud"
   ]
 }
