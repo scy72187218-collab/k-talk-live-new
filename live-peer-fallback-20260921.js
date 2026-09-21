@@ -9,7 +9,7 @@
   var API='/api/live-peer-memory';
   var BEACON='/api/live-beacon-memory';
   var INTERACT='/api/live-interaction-memory';
-  var ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
+  var ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};\n  function ktIceConfig20260921(){return window.ktGetRtcConfig?window.ktGetRtcConfig():ICE;}
   var hostPeers={};
   var viewer=null,enterBusy=false;
   var oldEnter=window.ktEnterRemoteLive;
@@ -203,7 +203,7 @@
     var sid=created&&created.id;
     if(!sid)throw new Error('memory session');
 
-    var pc=new RTCPeerConnection(ICE);
+    var pc=new RTCPeerConnection(ktIceConfig20260921());
     viewer={hostId:hostId,viewerId:viewerId,viewerName:profileName(),sessionId:sid,pc:pc,answered:false,poll:null,touch:null,missingSince:0,disconnectTimer:null};
     interactionPost('join',hostId,viewerId,viewer.viewerName);
 
@@ -276,7 +276,7 @@
       for(var i=0;i<sessions.length;i++){
         var x=sessions[i],entry=hostPeers[x.id];
         if(!entry&&x.offer_sdp==='pending'){
-          var pc=new RTCPeerConnection(ICE);
+          var pc=new RTCPeerConnection(ktIceConfig20260921());
           hostPeers[x.id]={pc:pc,remoteSet:false};
           entry=hostPeers[x.id];
           s.getTracks().forEach(function(t){try{pc.addTrack(t,s);}catch(e){}});
