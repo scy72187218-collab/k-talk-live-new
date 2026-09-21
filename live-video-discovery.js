@@ -51,6 +51,33 @@
   }
 
   async function activeRooms(){
+    /* Supabase Realtime broadcast is the primary LIVE source.
+       It is shared by all devices, unlike warm serverless memory. */
+    try{
+      var rh=window.__ktRealtimeLiveHosts||null;
+      if(rh){
+        var realtimeRows=Object.keys(rh).map(function(id){
+          var x=rh[id]||{},d=x.data||{};
+          return {
+            host_id:String(d.host_id||id||''),
+            host_name:String(d.host_name||'K-Talk 방송자'),
+            title:String(d.title||d.room_name||'방송 중'),
+            room_name:String(d.room_name||'방송'),
+            host_photo:String(d.host_photo||''),
+            updated_at:new Date(Number(d.at||x.last||Date.now())).toISOString()
+          };
+        }).filter(function(x){return !!x.host_id;});
+        if(realtimeRows.length){
+          stableActiveRooms=realtimeRows;stableActiveAt=Date.now();
+          return realtimeRows;
+        }
+        if(window.__ktRealtimeSignalReady){
+          stableActiveRooms=[];stableActiveAt=0;
+          return [];
+        }
+      }
+    }catch(e){}
+
     var cut=new Date(Date.now()-STALE_MS).toISOString();
     var beaconPromise=beaconActiveRooms();
     var rows=[];
