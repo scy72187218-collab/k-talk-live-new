@@ -6,7 +6,7 @@
   var BASE='https://zupwbfmacwzexyvznlzq.supabase.co/rest/v1/';
   var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1cHdiZm1hY3d6ZXh5dnpubHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjEwNzYsImV4cCI6MjEwNDAzNzA3Nn0.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
   var STALE_MS=50000;
-  var ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
+  var ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};\n  function ktIceConfig20260921(){return window.ktGetRtcConfig?window.ktGetRtcConfig():ICE;}
   var hostActive=false,hostRoomId='',hostHeartbeat=null,hostSignalTimer=null,hostActivityTimer=null;
   var hostEndLock=false,hostRunToken=0,hostStarting=false;
   var hostRoomMissingSince=0;
@@ -174,7 +174,7 @@
       for(var i=0;i<(rows||[]).length;i++){
         var x=rows[i],entry=hostPeers[x.id];
         if(!entry&&x.offer_sdp==='pending'){
-          var pc=new RTCPeerConnection(ICE);hostPeers[x.id]={pc:pc,remoteSet:false};entry=hostPeers[x.id];
+          var pc=new RTCPeerConnection(ktIceConfig20260921());hostPeers[x.id]={pc:pc,remoteSet:false};entry=hostPeers[x.id];
           stream.getTracks().forEach(function(t){try{pc.addTrack(t,stream);}catch(e){}});
           pc.onconnectionstatechange=(function(id,p){return function(){if(p.connectionState==='closed'||p.connectionState==='failed'){if(hostPeers[id]){try{p.close();}catch(e){}delete hostPeers[id];}return;}if(p.connectionState==='disconnected'){setTimeout(function(){if(hostPeers[id]&&p.connectionState==='disconnected'){/* 짧은 신호 끊김은 브라우저 WebRTC 자체 복구를 기다린다. */}},12000);}};})(x.id,pc);
           try{
@@ -410,7 +410,7 @@
       await req('ktalk_webrtc_sessions?host_id=eq.'+enc(hostId)+'&viewer_id=eq.'+enc(viewerId)+'&active=eq.true',{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})});
       var sessions=await req('ktalk_webrtc_sessions',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify({host_id:hostId,viewer_id:viewerId,offer_sdp:'pending',answer_sdp:null,active:true,updated_at:nowIso()})});
       var sessionId=sessions&&sessions[0]?sessions[0].id:'';if(!sessionId)throw new Error('session');
-      var pc=new RTCPeerConnection(ICE);
+      var pc=new RTCPeerConnection(ktIceConfig20260921());
       viewerCtx={hostId:hostId,viewerId:viewerId,viewerName:p.name||'게스트',sessionId:sessionId,pc:pc,answered:false,signalTimer:null,heartbeat:null,activityTimer:null,lastMsg:'',roomMissingSince:0,signalMissingSince:0,disconnectTimer:null};
       pc.ontrack=function(ev){var hs=ev.streams[0]||new MediaStream([ev.track]);window.__ktRemoteHostStream=hs;var v=document.getElementById('ktRemoteLiveVideo');if(v){v.srcObject=hs;v.play().catch(function(){});}try{if(ev.track){ev.track.onended=function(){if(viewerCtx&&viewerCtx.pc===pc)window.ktLeaveRemoteLive();};ev.track.onmute=function(){var tr=ev.track;var st=document.getElementById('ktRemoteLiveStatus');if(st){st.style.display='block';st.textContent='신호 다시 연결 중...';}setTimeout(function(){if(viewerCtx&&viewerCtx.pc===pc&&!tr.muted){var s=document.getElementById('ktRemoteLiveStatus');if(s)s.style.display='none';}},12000);};ev.track.onunmute=function(){var st=document.getElementById('ktRemoteLiveStatus');if(st)st.style.display='none';};}}catch(e){}var st=document.getElementById('ktRemoteLiveStatus');if(st)st.style.display='none';};
       pc.onconnectionstatechange=function(){var st=document.getElementById('ktRemoteLiveStatus');if(pc.connectionState==='connected'){if(viewerCtx&&viewerCtx.pc===pc&&viewerCtx.disconnectTimer){clearTimeout(viewerCtx.disconnectTimer);viewerCtx.disconnectTimer=null;}if(st)st.style.display='none';return;}if(pc.connectionState==='disconnected'||pc.connectionState==='failed'){if(st){st.style.display='block';st.textContent='신호 다시 연결 중...';}var c=viewerCtx;if(c&&c.pc===pc&&!c.disconnectTimer){c.disconnectTimer=setTimeout(function(){if(viewerCtx===c&&c.pc===pc&&(pc.connectionState==='failed'||pc.connectionState==='disconnected'))window.ktLeaveRemoteLive();},12000);}}};
