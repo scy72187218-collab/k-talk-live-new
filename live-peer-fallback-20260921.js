@@ -260,7 +260,6 @@
 
   window.ktEnterRemoteLive=async function(hostId){
     hostId=String(hostId||'');if(!hostId)return;
-    window.__ktRemoteHostId=hostId;
     /* If DB signaling responds, preserve the original working path. */
     if(await dbAvailable(hostId)){
       return oldEnter?oldEnter(hostId):undefined;
@@ -279,7 +278,6 @@
   };
 
   window.ktLeaveRemoteLive=async function(silent){
-    window.__ktRemoteHostId='';
     if(viewer){
       closeViewer(!!silent);
       return;
