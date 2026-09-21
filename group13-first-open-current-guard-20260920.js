@@ -82,8 +82,8 @@
     s.id='ktGroup13CurrentOnlyGuardStyle';
     s.textContent=
       'html.kt-g13-current-guard #screen{background:#000!important}'+
-      'html.kt-g13-current-guard #screen>*:not(.ktg13-room[data-kt-approved13="1"]){visibility:hidden!important;opacity:0!important}'+
-      'html.kt-g13-current-guard #screen .ktg13-room[data-kt-approved13="1"]{visibility:visible!important;opacity:1!important}';
+      'html.kt-g13-current-guard #screen>*:not(.ktg13-room[data-kt-approved13="1"]){opacity:0!important;pointer-events:none!important}'+
+      'html.kt-g13-current-guard #screen .ktg13-room[data-kt-approved13="1"]{opacity:1!important;pointer-events:auto!important}';
     document.head.appendChild(s);
   }
 
