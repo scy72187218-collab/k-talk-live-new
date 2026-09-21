@@ -1,5 +1,6 @@
-/* K-Talk 레벨 20 제한 전용.
-   13명방 + 비밀방만 제한하고 다른 방/카메라/채팅/버튼 기능은 건드리지 않음. */
+/* K-Talk 레벨 방 입장 제한 해제.
+   레벨 표시는 유지하고, 방 입장/방 만들기에서 레벨 조건만 사용하지 않는다.
+   비밀방 비밀번호/구독자 전용 조건 등 다른 조건은 건드리지 않음. */
 (function(){
   if(window.__ktRoomLevel20Gate20260918)return;
   window.__ktRoomLevel20Gate20260918=true;
@@ -79,8 +80,7 @@
   }
 
   function allowed(type,label,max){
-    if(!restricted(type,label,max))return true;
-    return currentLevel()>=MIN;
+    return true;
   }
 
   function notice(type,label,max){
@@ -96,28 +96,18 @@
   }
 
   window.ktLevel20RoomAllowed=allowed;
-  window.ktLevelCanOpen13=function(){return ownerExempt()||currentLevel()>=MIN;};
-  window.ktLevelCanUseSecret=function(){return ownerExempt()||currentLevel()>=MIN;};
+  window.ktLevelCanOpen13=function(){return true;};
+  window.ktLevelCanUseSecret=function(){return true;};
 
   var oldCreate=window.ktCanCreateRoomByLevel;
   window.ktCanCreateRoomByLevel=function(roomType,level){
-    if(restricted(roomType,'',0)){
-      if(ownerExempt())return true;
-      var lv=num(level);
-      if(!lv)lv=currentLevel();
-      return lv>=MIN;
-    }
+    if(restricted(roomType,'',0))return true;
     return typeof oldCreate==='function'?oldCreate.apply(this,arguments):true;
   };
 
   var oldEnter=window.ktCanEnterRoomByLevel;
   window.ktCanEnterRoomByLevel=function(roomType,level,isSubscriber){
-    if(restricted(roomType,'',0)){
-      if(ownerExempt())return true;
-      var lv=num(level);
-      if(!lv)lv=currentLevel();
-      return lv>=MIN;
-    }
+    if(restricted(roomType,'',0))return true;
     return typeof oldEnter==='function'?oldEnter.apply(this,arguments):true;
   };
 
