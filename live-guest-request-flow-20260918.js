@@ -8,6 +8,7 @@
   var MEM_PEER='/api/live-peer-memory';
   var MEM_BEACON='/api/live-beacon-memory';
   var ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
+  function ktIceConfig20260921(){return window.ktGetRtcConfig?window.ktGetRtcConfig():ICE;}
   var hostPoll=null,viewerPoll=null,hostGuestPeers={},requestNames={},hostGuestMissingSince={};
   var viewerGuest={pc:null,stream:null,sessionId:'',hostId:'',approvedKey:'',viewTimer:null,prejoinHostStream:null,connectStartedAt:0,approvalMissingSince:0,mediaDenied:false,mediaOpening:false};
 
@@ -239,6 +240,27 @@
     return ok;
   }
 
+  async function prewarmGuestMedia20260921(){
+    try{
+      var s=viewerGuest.stream||null;
+      var live=!!(s&&s.getVideoTracks&&s.getVideoTracks().some(function(t){return t.readyState==='live';}));
+      if(live||viewerGuest.mediaOpening||viewerGuest.mediaDenied)return;
+      viewerGuest.mediaOpening=true;
+      try{
+        s=await navigator.mediaDevices.getUserMedia({
+          video:{facingMode:{ideal:'user'},width:{ideal:640,max:640},height:{ideal:480,max:480},frameRate:{ideal:20,max:24}},
+          audio:true
+        });
+      }catch(e){
+        try{s=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:640},height:{ideal:480}},audio:false});}
+        catch(z){viewerGuest.mediaDenied=true;return;}
+      }finally{
+        viewerGuest.mediaOpening=false;
+      }
+      viewerGuest.stream=s;
+    }catch(e){viewerGuest.mediaOpening=false;}
+  }
+
   async function sendGuestRequest(){
     var b=document.getElementById('ktRemoteGuestRequest');
     if(b&&b.dataset.ktGuestToggleBusy==='1')return;
@@ -246,6 +268,7 @@
     try{
       var hostId=await currentViewerHost();if(!hostId)return;
       var p=profile(),vid=viewerId(),cancel=!!(b&&b.classList.contains('kt-requested'));
+      if(!cancel){try{prewarmGuestMedia20260921();}catch(e){}}
       var ok=cancel
         ?await postGuestMessage(hostId,'guest_cancelled:'+vid,'↩ '+(p.name||'게스트')+'님이 방송 참여 신청을 취소했습니다.',vid,p.name||'게스트')
         :await postGuestMessage(hostId,'guest_request:'+vid,'👥 '+(p.name||'게스트')+'님이 방송 참여를 신청했습니다.',vid,p.name||'게스트');
@@ -257,6 +280,9 @@
       if(ok&&cancel&&viewerGuest.approvedKey){
         viewerGuest.approvalMissingSince=0;
         try{var leaving=leaveApprovedGuestNow();if(leaving&&leaving.catch)leaving.catch(function(){});}catch(e){}
+      }else if(ok&&cancel&&!viewerGuest.approvedKey&&viewerGuest.stream){
+        try{viewerGuest.stream.getTracks().forEach(function(t){t.stop();});}catch(e){}
+        viewerGuest.stream=null;
       }
     }finally{
       if(b)delete b.dataset.ktGuestToggleBusy;
@@ -413,7 +439,7 @@
       if(!slot.dataset.ktGuestViewerId)decorateSlot(slot,vid,name);
 
       try{
-        var pc=new RTCPeerConnection(ICE);
+        var pc=new RTCPeerConnection(ktIceConfig20260921());
         pc.__ktSlot=slot;
         pc.__ktVid=vid;
         hostGuestPeers[x.id]=pc;
@@ -463,7 +489,7 @@
                     if(!hostGuestMissingSince[viewer])hostGuestMissingSince[viewer]=Date.now();
                   }
                 }catch(e){}
-              },12000);
+              },6000);
             }
           };
         })(x.id,pc,vid);
@@ -643,7 +669,7 @@
       viewerGuest.mediaOpening=true;
       try{
         stream=await navigator.mediaDevices.getUserMedia({
-          video:{facingMode:{ideal:'user'},width:{ideal:1280},height:{ideal:960},aspectRatio:{ideal:1.333333},resizeMode:'none',frameRate:{ideal:30,max:30}},
+          video:{facingMode:{ideal:'user'},width:{ideal:640,max:640},height:{ideal:480,max:480},aspectRatio:{ideal:1.333333},frameRate:{ideal:20,max:24}},
           audio:true
         });
       }catch(e){
@@ -688,7 +714,7 @@
         body:JSON.stringify({active:false,updated_at:nowIso()})
       });
 
-      pc=new RTCPeerConnection(ICE);
+      pc=new RTCPeerConnection(ktIceConfig20260921());
       viewerGuest.pc=pc;
       viewerGuest.connectStartedAt=Date.now();
 
@@ -706,7 +732,7 @@
         if(s==='disconnected'){
           setTimeout(function(){
             if(viewerGuest.pc===pc&&pc.connectionState==='disconnected')resetViewerGuestPc(pc);
-          },30000);
+          },6000);
         }
       };
 
@@ -738,7 +764,7 @@
         tries++;
 
         /* 호스트 답이 오래 안 오면 이 연결만 닫고 viewerTick이 자동 재시도한다. */
-        if(tries>40){
+        if(tries>24){
           clearInterval(t);
           resetViewerGuestPc(pc);
           return;
@@ -757,7 +783,7 @@
             clearInterval(t);
           }
         }catch(e){}
-      },850);
+      },500);
     }catch(e){
       resetViewerGuestPc(pc);
     }
@@ -866,7 +892,7 @@
     window.ktLeaveRemoteLive=wrapped;
   }
 
-  function start(){if(started)return;started=true;bindGuestLeaveCleanup();setInterval(bindGuestLeaveCleanup,800);ensureStyle();bindRequestButton();hostPoll=setInterval(hostTick,1200);viewerPoll=setInterval(viewerTick,1300);setInterval(removeDuplicateGroupRoom,350);setTimeout(hostTick,100);setTimeout(viewerTick,180);var dedupeTimer=null,obs=new MutationObserver(function(){bindRequestButton();clearTimeout(dedupeTimer);dedupeTimer=setTimeout(removeDuplicateGroupRoom,30);});obs.observe(document.documentElement,{childList:true,subtree:true});}
+  function start(){if(started)return;started=true;bindGuestLeaveCleanup();setInterval(bindGuestLeaveCleanup,800);ensureStyle();bindRequestButton();hostPoll=setInterval(hostTick,700);viewerPoll=setInterval(viewerTick,700);setInterval(removeDuplicateGroupRoom,350);setTimeout(hostTick,100);setTimeout(viewerTick,180);var dedupeTimer=null,obs=new MutationObserver(function(){bindRequestButton();clearTimeout(dedupeTimer);dedupeTimer=setTimeout(removeDuplicateGroupRoom,30);});obs.observe(document.documentElement,{childList:true,subtree:true});}
   document.addEventListener('DOMContentLoaded',start);if(document.readyState!=='loading')start();
   window.addEventListener('pagehide',function(){clearInterval(hostPoll);clearInterval(viewerPoll);endViewerGuestSession(true);stopLocalGuestViewGuard();removePrejoinRoomGrid();Object.keys(hostGuestPeers).forEach(function(k){try{hostGuestPeers[k].close();}catch(e){}});hostGuestPeers={};if(viewerGuest.pc){try{viewerGuest.pc.close();}catch(e){}}if(viewerGuest.stream){try{viewerGuest.stream.getTracks().forEach(function(t){t.stop();});}catch(e){}}});
 })();
