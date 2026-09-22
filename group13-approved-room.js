@@ -312,16 +312,20 @@
       }
 
       /* 1이 모두 끝난 뒤에만 방 전환을 시작한다.
-         전환 순간에는 준비 화면을 계속 위에 잡아두므로 옛 버전/검은 화면이 보이지 않는다. */
+         승인된 현재 13명방을 먼저 화면에 준비한 뒤 기존 방송 시작 로직을 실행해서,
+         1 다음에 검은 화면/준비 화면/옛 13명방이 끼어들 틈을 없앤다. */
       markGroup13Opening();
 
-      var startPromise=Promise.resolve(oldStartBroadcast.apply(this,arguments));
       renderApprovedGroup13(true);
-
-      /* 현재 방이 실제 한 프레임 준비된 뒤 준비 화면과 숫자를 동시에 치운다. */
       await new Promise(function(resolve){
         requestAnimationFrame(function(){requestAnimationFrame(resolve);});
       });
+
+      /* 기존 시작 체인이 동기적으로 화면을 잠깐 건드려도
+         카운트 오버레이를 치우기 전에 현재 13명방을 즉시 다시 고정한다. */
+      var startPromise=Promise.resolve(oldStartBroadcast.apply(this,arguments));
+      renderApprovedGroup13(true);
+      await new Promise(function(resolve){requestAnimationFrame(resolve);});
 
       if(overlay){overlay.remove();overlay=null;}
       document.documentElement.classList.remove('kt-g13-prep-hold');
