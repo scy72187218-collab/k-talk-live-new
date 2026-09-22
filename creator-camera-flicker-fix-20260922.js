@@ -1,7 +1,6 @@
 /* K-Talk creator camera flicker reduction (2026-09-22)
    Creator preview only.
-   Locks exposure/white balance at the current settled values when supported
-   and removes fractional CSS blur from the live camera to avoid video-compositor flicker.
+   Applies beauty tone once without fractional blur and locks settled camera metering where supported.
    No live-room, guest, chat, gift, earnings or switch changes. */
 (function(){
   if(window.__ktCreatorCameraFlickerFix20260922)return;
@@ -9,6 +8,7 @@
 
   var lockedTrack=null;
   var lockTimer=null;
+  var originalBeauty=window.applyBeautyPreview;
 
   function cam(){return document.getElementById('camera');}
   function creator(){return document.getElementById('creator');}
@@ -16,23 +16,56 @@
     var c=creator();
     return !!(c&&c.classList.contains('show')&&!c.classList.contains('creator-review'));
   }
+  function clamp(v,d){
+    v=Number(v);
+    if(!isFinite(v))v=d;
+    return Math.max(1,Math.min(100,v));
+  }
 
-  function stripFractionalBlur(){
-    var v=cam();if(!v||!isCreatorVisible())return;
+  /* Write one stable filter only. Do not write blur first and remove it afterward. */
+  function stableBeauty(){
+    if(!isCreatorVisible()){
+      if(typeof originalBeauty==='function')return originalBeauty.apply(this,arguments);
+      return;
+    }
+    var v=cam();if(!v)return;
+
+    var st=window.state||{};
+    var skin=clamp(st.beautySkin,72);
+    var bright=clamp(st.beautyBright,68);
+    var sharp=clamp(st.beautySharp,52);
+    var face=clamp(st.beautyFace,50);
+    var eyes=clamp(st.beautyEyes,50);
+    var nose=clamp(st.beautyNose,50);
+    var mouth=clamp(st.beautyMouth,50);
+    var tone=clamp(st.beautyTone,58);
+
+    var brightness=1.00+(bright/100)*.18+(eyes-50)*.0007;
+    var saturation=.98+(sharp/100)*.10+(mouth-50)*.0014;
+    var contrast=.94+(sharp/100)*.08+(nose-50)*.0007;
+    var sepia=Math.max(0,(tone-45)*.0018);
+    var faceScale=1+(face-50)*.0008;
+
+    var filter='brightness('+brightness.toFixed(3)+') saturate('+saturation.toFixed(3)+') contrast('+contrast.toFixed(3)+') sepia('+sepia.toFixed(3)+')';
+    var transform='scaleX(-1) scale('+faceScale.toFixed(3)+')';
+
     try{
-      var f=v.style.getPropertyValue('filter')||'';
-      if(f&&/blur\(/i.test(f)){
-        f=f.replace(/\s*blur\([^)]*\)/ig,'').replace(/\s{2,}/g,' ').trim();
-        v.style.setProperty('filter',f||'none','important');
-        v.style.setProperty('-webkit-filter',f||'none','important');
+      if(v.style.getPropertyValue('filter')!==filter){
+        v.style.setProperty('filter',filter,'important');
+        v.style.setProperty('-webkit-filter',filter,'important');
+      }
+      if(v.style.getPropertyValue('transform')!==transform){
+        v.style.setProperty('transform',transform,'important');
       }
       v.style.setProperty('transition','none','important');
       v.style.setProperty('animation','none','important');
-      v.style.setProperty('will-change','transform,filter','important');
+      v.style.setProperty('transform-origin','50% 50%','important');
       v.style.setProperty('backface-visibility','hidden','important');
       v.style.setProperty('-webkit-backface-visibility','hidden','important');
+      v.style.removeProperty('will-change');
     }catch(e){}
   }
+  stableBeauty.__ktCreatorFlickerStable=true;
 
   async function applyOne(track,obj){
     try{await track.applyConstraints({advanced:[obj]});return true;}catch(e){return false;}
@@ -42,27 +75,21 @@
     if(!track||track===lockedTrack||track.readyState!=='live')return;
     if(!track.getCapabilities||!track.getSettings||!track.applyConstraints)return;
 
-    var caps={},st={};
-    try{caps=track.getCapabilities()||{};st=track.getSettings()||{};}catch(e){return;}
+    var caps={},settings={};
+    try{caps=track.getCapabilities()||{};settings=track.getSettings()||{};}catch(e){return;}
 
-    /* Preserve the currently settled exposure instead of choosing a new brightness. */
     try{
       if(Array.isArray(caps.exposureMode)&&caps.exposureMode.indexOf('manual')>-1 &&
-         typeof st.exposureTime==='number'&&caps.exposureTime){
-        await applyOne(track,{exposureMode:'manual',exposureTime:st.exposureTime});
-      }else if(Array.isArray(caps.exposureMode)&&caps.exposureMode.indexOf('single-shot')>-1){
-        await applyOne(track,{exposureMode:'single-shot'});
+         typeof settings.exposureTime==='number'&&caps.exposureTime){
+        await applyOne(track,{exposureMode:'manual',exposureTime:settings.exposureTime});
       }
     }catch(e){}
 
-    /* Preserve the current color temperature when the camera exposes it. */
     try{
-      st=track.getSettings?track.getSettings()||{}:st;
+      settings=track.getSettings?track.getSettings()||{}:settings;
       if(Array.isArray(caps.whiteBalanceMode)&&caps.whiteBalanceMode.indexOf('manual')>-1 &&
-         typeof st.colorTemperature==='number'&&caps.colorTemperature){
-        await applyOne(track,{whiteBalanceMode:'manual',colorTemperature:st.colorTemperature});
-      }else if(Array.isArray(caps.whiteBalanceMode)&&caps.whiteBalanceMode.indexOf('single-shot')>-1){
-        await applyOne(track,{whiteBalanceMode:'single-shot'});
+         typeof settings.colorTemperature==='number'&&caps.colorTemperature){
+        await applyOne(track,{whiteBalanceMode:'manual',colorTemperature:settings.colorTemperature});
       }
     }catch(e){}
 
@@ -75,49 +102,43 @@
       var v=cam(),track=null;
       try{track=v&&v.srcObject&&v.srcObject.getVideoTracks&&v.srcObject.getVideoTracks()[0];}catch(e){}
       if(track&&track!==lockedTrack)lockMetering(track);
-      stripFractionalBlur();
+      stableBeauty();
     },900);
   }
 
-  function wrapBeauty(){
-    var old=window.applyBeautyPreview;
-    if(typeof old!=='function'||old.__ktCreatorFlickerStable)return;
-    var fn=function(){
-      var r=old.apply(this,arguments);
-      stripFractionalBlur();
-      return r;
-    };
-    fn.__ktCreatorFlickerStable=true;
-    window.applyBeautyPreview=fn;
-  }
-
   function install(){
-    wrapBeauty();
-    stripFractionalBlur();
+    /* If another camera helper replaces the beauty function later, keep creator preview on this single-pass path. */
+    if(window.applyBeautyPreview!==stableBeauty){
+      if(typeof window.applyBeautyPreview==='function'&&!window.applyBeautyPreview.__ktCreatorFlickerStable){
+        originalBeauty=window.applyBeautyPreview;
+      }
+      window.applyBeautyPreview=stableBeauty;
+    }
+    stableBeauty();
     scheduleLock();
   }
 
   install();
-  [150,500,1200,2200].forEach(function(ms){setTimeout(install,ms);});
+  [120,350,800,1500,2600].forEach(function(ms){setTimeout(install,ms);});
 
   var v=cam();
   if(v){
     v.addEventListener('loadedmetadata',function(){lockedTrack=null;scheduleLock();});
-    v.addEventListener('playing',function(){stripFractionalBlur();scheduleLock();});
+    v.addEventListener('playing',function(){stableBeauty();scheduleLock();});
   }
 
   try{
     var c=creator();
     if(c&&window.MutationObserver){
       new MutationObserver(function(){
-        if(isCreatorVisible()){wrapBeauty();stripFractionalBlur();scheduleLock();}
+        if(isCreatorVisible())setTimeout(install,30);
       }).observe(c,{attributes:true,attributeFilter:['class']});
     }
   }catch(e){}
 
   document.addEventListener('visibilitychange',function(){
     if(document.visibilityState==='visible'&&isCreatorVisible()){
-      setTimeout(function(){stripFractionalBlur();scheduleLock();},120);
+      setTimeout(install,120);
     }
   });
 })();
