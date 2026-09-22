@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Owner asked to restore only the 9-person room to the 09:00 KST behavior. Other rooms and current UI/network work remain protected.",
+  "note": "Re-locked after restoring only the 9-person room opening/countdown behavior to the 2026-09-22 09:00 KST snapshot. Other rooms remain on their current working behavior.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -49,12 +49,6 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "group9_countdown_transition",
-    "group9_current_room_entry"
-  ],
-  "temporarily_unlocked_components": [
-    "group9_countdown_transition",
-    "group9_current_room_entry"
-  ]
+  "current_editable_components": [],
+  "temporarily_unlocked_components": []
 }
