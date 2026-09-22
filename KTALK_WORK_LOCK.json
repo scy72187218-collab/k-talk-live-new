@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Re-locked after restoring only the 13-person countdown/room transition to the 09:00 KST version. All other current UI/network work remains unchanged.",
+  "note": "Owner approved the current state and requested it be locked. Keep the current 13-person room layout, 09:00 countdown/room transition, earnings HUD, bottom controls, guest uplink, WebRTC transport, room entry/exit, and working runtime controls unchanged unless the owner explicitly unlocks with the PIN.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
