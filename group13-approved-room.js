@@ -295,11 +295,28 @@
       /* 준비 화면 위에서 숫자만 5→1까지 정확히 보여준다. */
       overlay=document.createElement('div');
       overlay.id='ktG13SingleCountdown';
-      overlay.style.cssText='position:fixed;inset:0;z-index:2147483646;display:grid;place-items:center;background:#000;pointer-events:none;color:#fff;text-align:center;text-shadow:0 3px 16px rgba(0,0,0,.72)';
+      overlay.style.cssText='position:fixed;inset:0;z-index:2147483646;display:grid;place-items:center;background:#000;overflow:hidden;pointer-events:none;color:#fff;text-align:center;text-shadow:0 3px 16px rgba(0,0,0,.72)';
       document.body.appendChild(overlay);
 
+      /* 카운트 5→1 뒤에는 검은 화면 대신 현재 휴대폰 카메라를 그대로 보여준다.
+         준비화면/옛 13명방은 노출하지 않는다. */
+      try{
+        var previewStream=(window.state&&state.stream)?state.stream:null;
+        if(previewStream&&previewStream.getVideoTracks&&previewStream.getVideoTracks().some(function(t){return t.readyState==='live';})){
+          var countdownVideo=document.createElement('video');
+          countdownVideo.autoplay=true;
+          countdownVideo.playsInline=true;
+          countdownVideo.muted=true;
+          countdownVideo.srcObject=previewStream;
+          countdownVideo.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center center;transform:scaleX(-1);background:#000;z-index:0';
+          overlay.appendChild(countdownVideo);
+          var pv=countdownVideo.play();
+          if(pv&&pv.catch)pv.catch(function(){});
+        }
+      }catch(_e){}
+
       var num=document.createElement('div');
-      num.style.cssText='width:116px;height:116px;border-radius:50%;display:grid;place-items:center;background:rgba(10,10,14,.72);border:4px solid rgba(255,255,255,.92);color:#fff;font:900 64px/1 system-ui,-apple-system,sans-serif;box-shadow:0 0 28px rgba(255,44,130,.7);text-shadow:0 0 12px rgba(255,255,255,.7)';
+      num.style.cssText='position:relative;z-index:2;width:116px;height:116px;border-radius:50%;display:grid;place-items:center;background:rgba(10,10,14,.72);border:4px solid rgba(255,255,255,.92);color:#fff;font:900 64px/1 system-ui,-apple-system,sans-serif;box-shadow:0 0 28px rgba(255,44,130,.7);text-shadow:0 0 12px rgba(255,255,255,.7)';
       overlay.appendChild(num);
 
       for(var n=5;n>=1;n--){
