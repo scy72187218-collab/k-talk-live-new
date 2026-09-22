@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Owner reported the countdown became pitch black. Only the 13-room countdown visual handoff is editable; all other components remain protected.",
+  "note": "Re-locked after restoring the live camera behind the 5→1 countdown while still hiding the old/prep screen. Other components remain unchanged.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -44,12 +44,6 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "group13_countdown_transition",
-    "group13_current_room_entry"
-  ],
-  "temporarily_unlocked_components": [
-    "group13_countdown_transition",
-    "group13_current_room_entry"
-  ]
+  "current_editable_components": [],
+  "temporarily_unlocked_components": []
 }
