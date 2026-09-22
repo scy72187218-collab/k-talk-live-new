@@ -422,7 +422,7 @@
         await pc.setRemoteDescription({type:'offer',sdp:x.offer_sdp});
         var ans=await pc.createAnswer();
         await pc.setLocalDescription(ans);
-        await waitIce(pc,5000);
+        await waitIce(pc,1200);
 
         await req('ktalk_webrtc_sessions?id=eq.'+enc(x.id),{
           method:'PATCH',
@@ -664,7 +664,7 @@
       stream.getTracks().forEach(function(t){try{pc.addTrack(t,stream);}catch(e){}});
       var offer=await pc.createOffer({offerToReceiveAudio:false,offerToReceiveVideo:false});
       await pc.setLocalDescription(offer);
-      await waitIce(pc,5000);
+      await waitIce(pc,1200);
 
       var created=await req('ktalk_webrtc_sessions',{
         method:'POST',
@@ -708,7 +708,7 @@
             clearInterval(t);
           }
         }catch(e){}
-      },850);
+      },500);
     }catch(e){
       resetViewerGuestPc(pc);
     }
@@ -805,7 +805,7 @@
     window.ktLeaveRemoteLive=wrapped;
   }
 
-  function start(){if(started)return;started=true;bindGuestLeaveCleanup();setInterval(bindGuestLeaveCleanup,800);ensureStyle();bindRequestButton();hostPoll=setInterval(hostTick,1200);viewerPoll=setInterval(viewerTick,1300);setInterval(removeDuplicateGroupRoom,350);setTimeout(hostTick,100);setTimeout(viewerTick,180);var dedupeTimer=null,obs=new MutationObserver(function(){bindRequestButton();clearTimeout(dedupeTimer);dedupeTimer=setTimeout(removeDuplicateGroupRoom,30);});obs.observe(document.documentElement,{childList:true,subtree:true});}
+  function start(){if(started)return;started=true;bindGuestLeaveCleanup();setInterval(bindGuestLeaveCleanup,800);ensureStyle();bindRequestButton();hostPoll=setInterval(hostTick,700);viewerPoll=setInterval(viewerTick,700);setInterval(removeDuplicateGroupRoom,350);setTimeout(hostTick,100);setTimeout(viewerTick,180);var dedupeTimer=null,obs=new MutationObserver(function(){bindRequestButton();clearTimeout(dedupeTimer);dedupeTimer=setTimeout(removeDuplicateGroupRoom,30);});obs.observe(document.documentElement,{childList:true,subtree:true});}
   document.addEventListener('DOMContentLoaded',start);if(document.readyState!=='loading')start();
   window.addEventListener('pagehide',function(){clearInterval(hostPoll);clearInterval(viewerPoll);endViewerGuestSession(true);stopLocalGuestViewGuard();removePrejoinRoomGrid();Object.keys(hostGuestPeers).forEach(function(k){try{hostGuestPeers[k].close();}catch(e){}});hostGuestPeers={};if(viewerGuest.pc){try{viewerGuest.pc.close();}catch(e){}}if(viewerGuest.stream){try{viewerGuest.stream.getTracks().forEach(function(t){t.stop();});}catch(e){}}});
 })();
