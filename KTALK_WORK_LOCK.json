@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Owner reports 9-person room briefly shows the 13-person room before changing to 9. Only the 9-room opening handoff is editable.",
+  "note": "Re-locked after fixing the 9-person room handoff so a 13-person room is never visibly shown first. 9-room state and header are forced before paint; other rooms remain unchanged.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -39,7 +39,8 @@
     "solo_countdown_transition",
     "group9_countdown_transition",
     "subscriber_countdown_transition",
-    "secret_countdown_transition"
+    "secret_countdown_transition",
+    "group9_current_room_entry"
   ],
   "check_trigger_phrase": "K-톡 비밀번호 확인",
   "check_behavior": {
@@ -48,12 +49,6 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "group9_countdown_transition",
-    "group9_current_room_entry"
-  ],
-  "temporarily_unlocked_components": [
-    "group9_countdown_transition",
-    "group9_current_room_entry"
-  ]
+  "current_editable_components": [],
+  "temporarily_unlocked_components": []
 }
