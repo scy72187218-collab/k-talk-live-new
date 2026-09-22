@@ -258,7 +258,7 @@
       }
     };
 
-    viewer.poll=setInterval(pollViewer,900);
+    viewer.poll=setInterval(pollViewer,450);
     viewer.touch=setInterval(function(){
       if(!viewer)return;
       fetch(API+'?t='+Date.now(),{
@@ -338,55 +338,37 @@
     remoteEndHost=hostId;remoteEndMisses=0;remoteEndArmed=false;
     window.__ktRemoteHostId=hostId;
     window.__ktCurrentRemoteHostId=hostId;
+    window.__ktUseMemoryGuestVideo20260922=true;
     try{sessionStorage.setItem('kt_remote_host_id',hostId);}catch(e){}
 
     var cached=window.__ktLastLiveRoom&&String(window.__ktLastLiveRoom.host_id||'')===hostId?window.__ktLastLiveRoom:null;
 
     try{
-      /* 2026-09-22: direct realtime WebRTC owns guest video receive.
-         Keep this fallback only for drawing the remote-room shell/metadata.
-         Do not create a second memory WebRTC session because two receivers
-         competing for the same video element caused the guest black screen. */
-      if(window.__ktDirectRealtimeRtc20260922){
-        var room=cached||await beaconRoom(hostId);
-        if(room){
-          renderRemote(room);
-          remoteEndArmed=true;
-          try{window.dispatchEvent(new CustomEvent('kt-remote-host-selected',{detail:{host_id:hostId}}));}catch(e){}
-          return;
-        }
-      }
-
-      /* Legacy path only when direct realtime is unavailable. */
-      if(await dbAvailable(hostId)){
+      /* 2026-09-22 stable path:
+         Use one signalling transport only for remote host video.
+         The memory API already proved it can exchange offers/answers on these phones.
+         Avoid DB + raw realtime racing for the same <video>. */
+      if(viewer)closeViewer(true);
+      var ok=await enterMemory(hostId,cached);
+      if(ok){
         remoteEndArmed=true;
-        if(oldEnter){
-          await oldEnter(hostId);
-          setTimeout(async function(){
-            try{
-              if(String(window.__ktRemoteHostId||'')!==hostId)return;
-              if(window.__ktRemoteHostStream)return;
-              if(viewer)return;
-              if(window.__ktDirectRealtimeRtc20260922)return;
-              if(oldLeave)await oldLeave(true);
-              window.__ktRemoteHostId=hostId;
-              try{sessionStorage.setItem('kt_remote_host_id',hostId);}catch(e){}
-              var ok=await enterMemory(hostId,cached);
-              if(ok)remoteEndArmed=true;
-            }catch(e){}
-          },2000);
-          return;
-        }
+        return;
       }
-
-      var ok2=await enterMemory(hostId,cached);
-      if(ok2){remoteEndArmed=true;return;}
 
       var st=document.getElementById('ktRemoteLiveStatus');
-      if(st){st.style.display='block';st.textContent='방송 연결을 확인 중입니다…';}
+      if(st){st.style.display='block';st.textContent='방송 영상 다시 연결 중…';}
+
+      /* One clean retry, not parallel transports. */
+      setTimeout(async function(){
+        try{
+          if(String(window.__ktRemoteHostId||'')!==hostId||viewer)return;
+          var ok2=await enterMemory(hostId,cached);
+          if(ok2)remoteEndArmed=true;
+        }catch(e){}
+      },700);
     }catch(e){
       var st2=document.getElementById('ktRemoteLiveStatus');
-      if(st2){st2.style.display='block';st2.textContent='방송 연결을 확인 중입니다…';}
+      if(st2){st2.style.display='block';st2.textContent='방송 영상 다시 연결 중…';}
     }finally{
       setTimeout(function(){enterBusy=false;},120);
     }
@@ -402,6 +384,6 @@
     if(oldLeave)return oldLeave(silent);
   };
 
-  setInterval(hostPoll,1000);
-  setTimeout(hostPoll,350);
+  setInterval(hostPoll,500);
+  setTimeout(hostPoll,120);
 })();
