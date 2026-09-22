@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Owner clarified: when 9-room is selected, the first 13-room 5-second countdown must not run. Only add a 9-room bypass to the 13-room detector and keep the later 9-room 5→1 countdown.",
+  "note": "Re-locked after removing the wrong first 13-room countdown from 9-room. If bottom 9-room is selected, the 13-room module now refuses to start, and 9-room state is forced before start. The later single 5→4→3→2→1 over the opened 9-room remains. Actual 13-room behavior is unchanged.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -50,14 +50,6 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "group9_countdown_transition",
-    "group9_current_room_entry",
-    "group13_countdown_transition"
-  ],
-  "temporarily_unlocked_components": [
-    "group9_countdown_transition",
-    "group9_current_room_entry",
-    "group13_countdown_transition"
-  ]
+  "current_editable_components": [],
+  "temporarily_unlocked_components": []
 }
