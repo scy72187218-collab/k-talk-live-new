@@ -256,7 +256,10 @@
   }
   function guestSlot(vid,name){
     var slot=null;
-    try{slot=document.querySelector('.ktg13-guest[data-kt-direct-guest="'+CSS.escape(vid)+'"]');}catch(e){}
+    try{
+      slot=document.querySelector('.ktg13-guest[data-kt-direct-guest="'+CSS.escape(vid)+'"]')
+        ||document.querySelector('.ktg13-guest[data-kt-guest-viewer-id="'+CSS.escape(vid)+'"]');
+    }catch(e){}
     if(!slot){
       var all=[].slice.call(document.querySelectorAll('#screen .ktg13-room .ktg13-guest'));
       for(var i=0;i<all.length;i++){
@@ -267,7 +270,10 @@
     if(!slot.dataset.ktDirectGuest){
       slot.dataset.ktDirectGuest=vid;
       slot.classList.add('kt-guest-approved');
-      slot.innerHTML='<video autoplay playsinline muted style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#08090c"></video><small style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:8px">게스트 연결 중...</small><span class="kt-guest-name" style="position:absolute;left:4px;bottom:4px;z-index:3;font-size:8px;background:#000b;padding:2px 5px;border-radius:8px">👤 '+esc(name)+'</span>';
+      var existingVideo=slot.querySelector('video');
+      if(!existingVideo){
+        slot.innerHTML='<video autoplay playsinline muted style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#08090c"></video><small style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:8px">게스트 연결 중...</small><span class="kt-guest-name" style="position:absolute;left:4px;bottom:4px;z-index:3;font-size:8px;background:#000b;padding:2px 5px;border-radius:8px">👤 '+esc(name)+'</span>';
+      }
     }
     return slot;
   }
