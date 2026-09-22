@@ -54,6 +54,11 @@
 
   function tune(v){
     if(!isNineHostVideo(v))return;
+    /* 9명방 호스트 화면만 좌우 반전 해제. 다른 방/게스트/송출 스트림은 건드리지 않음. */
+    try{
+      v.style.setProperty('transform','none','important');
+      v.style.setProperty('-webkit-transform','none','important');
+    }catch(e){}
     var run=function(){setTimeout(function(){sampleOnce(v);},320);};
     if(v.readyState>=2)run();
     else{
