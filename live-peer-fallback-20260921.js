@@ -387,6 +387,21 @@
     }
   };
 
+  window.ktCloseRemoteFallbackInApp20260923=function(){
+    remoteEndHost='';remoteEndArmed=false;remoteEndMisses=0;
+    window.__ktRemoteHostId='';
+    window.__ktCurrentRemoteHostId='';
+    window.__ktUseMemoryGuestVideo20260922=false;
+    try{sessionStorage.removeItem('kt_remote_host_id');}catch(e){}
+    if(viewer){
+      closeViewer(true);
+    }else{
+      try{document.documentElement.classList.remove('kt-remote-viewing');}catch(e){}
+      window.__ktRemoteHostStream=null;
+    }
+    return true;
+  };
+
   window.ktLeaveRemoteLive=async function(silent){
     remoteEndHost='';remoteEndArmed=false;remoteEndMisses=0;
     window.__ktRemoteHostId='';
