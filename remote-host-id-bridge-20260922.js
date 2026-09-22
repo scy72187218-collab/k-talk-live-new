@@ -64,10 +64,6 @@
     wrapLeave();
   },500);
 
-  window.addEventListener('kt-remote-host-selected',function(e){
-    try{
-      var id=e&&e.detail&&e.detail.host_id;
-      if(id)remember(id);
-    }catch(z){}
-  });
+  /* Do not re-dispatch the same host-selected event from its own listener.
+     The previous loop could recursively fire and delay guest video entry. */
 })();
