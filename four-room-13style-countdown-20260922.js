@@ -65,23 +65,24 @@
     var self=this,args=arguments;
 
     try{
-      /* 13명방과 동일: 기존 내부 카운트다운은 잠시 막고 실제 방송 준비를 먼저 병렬 시작. */
+      /* 승인된 13명방처럼 카운트 숫자 뒤에 '방 화면'이 보이게 한다.
+         내부 카운트다운은 막은 채 방을 먼저 실제로 열고 렌더링을 끝낸 다음,
+         그 완성된 방 위에서 5→4→3→2→1을 딱 한 번만 보여준다. */
       if(typeof originalCountdown==='function'){
         window.ktLiveStartCountdown=async function(){return true;};
       }
 
-      var startPromise=Promise.resolve(oldStart.apply(self,args));
-      overlay=await showCountdown();
+      var result=await Promise.resolve(oldStart.apply(self,args));
 
-      /* 숫자 1이 끝났을 때 실제 방 준비 완료를 확인하고,
-         setTimeout(0)/MutationObserver로 최종 방 화면이 붙을 시간을 짧게 준 뒤 가림막 제거. */
-      var result=await startPromise;
+      /* 각 방의 setTimeout(0~30ms) 렌더까지 기다린 뒤 숫자를 올린다.
+         그래서 카운트 동안 검은/빈 준비화면이 아니라 최종 방이 그대로 보인다. */
       await new Promise(function(resolve){
         requestAnimationFrame(function(){
-          requestAnimationFrame(function(){setTimeout(resolve,70);});
+          requestAnimationFrame(function(){setTimeout(resolve,80);});
         });
       });
 
+      overlay=await showCountdown();
       if(overlay){overlay.remove();overlay=null;}
       return result;
     }catch(e){
