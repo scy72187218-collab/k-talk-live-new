@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Re-locked after making 1-person, 9-person, subscriber, and secret room countdowns match the approved 13-room 09:00 5→4→3→2→1 countdown. Other approved UI/network settings remain unchanged.",
+  "note": "Owner approved the current K-Talk state and requested it be locked. Preserve the current 5→4→3→2→1 countdown behavior for 1-person, 9-person, 13-person, subscriber, and secret rooms, plus all currently approved UI/network behavior, unless explicitly unlocked with the PIN.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
