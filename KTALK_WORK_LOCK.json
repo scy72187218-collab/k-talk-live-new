@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Communications only remains unlocked. Fixed guest bouncing by honoring guest_alive heartbeat, extending heartbeat grace, ignoring brief remote-host-id gaps, lengthening disconnected grace, and keeping the old guest stream until replacement video arrives. All non-communication UI/layout/control components remain locked.",
+  "note": "Communications only remains unlocked. Remote host video on guest screens now uses true left-right direction (no horizontal mirror): left hand appears left, right hand appears right. All non-communication UI/layout/control components remain locked.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
