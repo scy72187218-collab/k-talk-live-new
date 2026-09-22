@@ -77,6 +77,22 @@
     return false;
   }
 
+  function detectDedicatedCountdownSelection(){
+    try{
+      if(detect13Selection())return true;
+      var st=window.state||{};
+      var type=String(st.liveRoomType||st.prepRoomType||st.roomType||'');
+      var name=String(st.liveRoomName||st.prepRoomName||'');
+      var max=Number(st.liveRoomMax||st.prepRoomMax||0);
+      var title=String(((document.getElementById('liveTitle')||{}).value)||'');
+      if(type==='solo'||max===1||name.indexOf('1인')>-1||title.indexOf('1인 방송')>-1)return true;
+      if(type==='group9'||max===9||name.indexOf('9명')>-1||title.indexOf('9명 방송')>-1)return true;
+      if(type==='subscriber'||name.indexOf('구독자')>-1||title.indexOf('구독자 방송')>-1)return true;
+      if(type==='password'||type==='secret'||name.indexOf('비밀')>-1||title.indexOf('비밀방')>-1)return true;
+    }catch(e){}
+    return false;
+  }
+
   function force13State(){
     try{
       if(!window.state)return;
@@ -162,6 +178,8 @@
         force13State();
         return;
       }
+      /* 1인/9명/구독자/비밀방은 13명방과 같은 전용 카운트다운 래퍼가 담당한다. */
+      if(detectDedicatedCountdownSelection())return;
       runCountdown();
     }
   },true);
@@ -181,6 +199,8 @@
       force13State();
       return;
     }
+    /* 1인/9명/구독자/비밀방도 공용 게이트에서 세지 않고 전용 래퍼로 넘긴다. */
+    if(detectDedicatedCountdownSelection())return;
 
     e.preventDefault();
     e.stopPropagation();
@@ -249,8 +269,8 @@
   };
 
   window.startBroadcast=async function(){
-    /* 13명방은 이 공용 게이트에서 다시 세지 않는다. */
-    if(detect13Selection())return previousStart.apply(this,arguments);
+    /* 13명방과 동일하게, 1인/9명/구독자/비밀방도 각 전용 래퍼에서 한 번만 센다. */
+    if(detectDedicatedCountdownSelection())return previousStart.apply(this,arguments);
     if(releaseStartButton)return previousStart.apply(this,arguments);
     if(launching)return;
     launching=true;
