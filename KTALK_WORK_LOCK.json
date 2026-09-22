@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Re-locked after video-confirmed 9-room cleanup. When 9-room Start is pressed, the 9-room is rendered immediately; any intermediate test/single-video/13-room screen created by underlying start logic is replaced within the same mutation cycle before paint; then exactly one 5→4→3→2→1 countdown runs over the visible 9-room. Other rooms unchanged.",
+  "note": "Owner requested full re-lock of every component protected so far. Unlock remains PIN-protected with the existing owner PIN hash. No protected component is currently editable.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
