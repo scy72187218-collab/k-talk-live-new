@@ -465,10 +465,39 @@
 
   function onGuestApproved(p){
     if(String(p.viewer_id||'')!==viewerId())return;
-    var hid=remoteHostId();if(!hid||String(p.host_id||'')!==hid)return;
-    requestOn=false;guestApproved=true;guestApprovedHost=hid;
-    var b=document.getElementById('ktRemoteGuestRequest');if(b){b.classList.remove('kt-requested');b.style.removeProperty('box-shadow');}
+
+    /* 승인 수신 전용 보강:
+       게스트 화면에서 호스트 ID가 잠깐 비어도 승인 신호에 들어있는 host_id로 즉시 복구한다.
+       다른 UI/방배치/채팅/선물/스위치는 변경하지 않는다. */
+    var signalHost=String(p.host_id||'').trim();
+    var hid=remoteHostId()||String(activeHostId||'').trim()||signalHost;
+    if(!hid||!signalHost)return;
+    if(String(activeHostId||'').trim()&&String(activeHostId)!==signalHost)return;
+    if(hid!==signalHost)hid=signalHost;
+
+    window.__ktRemoteHostId=hid;
+    try{sessionStorage.setItem('kt_remote_host_id',hid);}catch(e){}
+
+    requestOn=false;
+    guestApproved=true;
+    guestApprovedHost=hid;
+
+    var b=document.getElementById('ktRemoteGuestRequest');
+    if(b){
+      b.classList.remove('kt-requested');
+      b.style.removeProperty('box-shadow');
+      b.setAttribute('title','참여 승인됨');
+      b.setAttribute('aria-label','참여 승인됨');
+    }
+
+    /* 승인 직후 카메라 연결을 즉시 시작하고, 모바일에서 권한/스트림 생성이
+       한 박자 늦는 경우만 짧게 재시도한다. */
     startGuestCamera(hid);
+    setTimeout(function(){if(guestApproved&&guestApprovedHost===hid)startGuestCamera(hid);},250);
+    setTimeout(function(){if(guestApproved&&guestApprovedHost===hid)startGuestCamera(hid);},700);
+    setTimeout(function(){if(guestApproved&&guestApprovedHost===hid)startGuestCamera(hid);},1500);
+
+    try{window.dispatchEvent(new CustomEvent('kt-guest-approval-received',{detail:{host_id:hid,viewer_id:viewerId()}}));}catch(e){}
   }
   function handleSignal(ev,p){
     if(ev==='host_ready'&&!isHostRole()){
