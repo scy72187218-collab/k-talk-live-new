@@ -25,8 +25,8 @@
     secret:true,
     videos:true,
     videoFeed:true,
-    videoCommunication:true,
-    mediaTransport:true,
+    videoCommunication:false,
+    mediaTransport:false,
     liveSignal:true,
     publicVideoSideActions:true,
     publicVideoRoseButton:true,
@@ -102,8 +102,8 @@
     locked.helpReader=true;
     locked.videos=true;
     locked.videoFeed=true;
-    locked.videoCommunication=true;
-    locked.mediaTransport=true;
+    locked.videoCommunication=false;
+    locked.mediaTransport=false;
     locked.liveSignal=true;
     locked.publicVideoSideActions=true;
     locked.publicVideoRoseButton=true;
