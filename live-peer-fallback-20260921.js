@@ -132,6 +132,7 @@
     if(!remoteEndHost)return;
     remoteEndHost='';remoteEndArmed=false;remoteEndMisses=0;
     window.__ktRemoteHostId='';
+    window.__ktUseMemoryGuestVideo20260922=false;
     try{sessionStorage.removeItem('kt_remote_host_id');}catch(e){}
     try{if(viewer)closeViewer(true);else if(oldLeave)oldLeave(true);}catch(e){}
     setTimeout(function(){
@@ -338,37 +339,49 @@
     remoteEndHost=hostId;remoteEndMisses=0;remoteEndArmed=false;
     window.__ktRemoteHostId=hostId;
     window.__ktCurrentRemoteHostId=hostId;
-    window.__ktUseMemoryGuestVideo20260922=true;
+    window.__ktUseMemoryGuestVideo20260922=false;
     try{sessionStorage.setItem('kt_remote_host_id',hostId);}catch(e){}
 
     var cached=window.__ktLastLiveRoom&&String(window.__ktLastLiveRoom.host_id||'')===hostId?window.__ktLastLiveRoom:null;
 
     try{
-      /* 2026-09-22 stable path:
-         Use one signalling transport only for remote host video.
-         The memory API already proved it can exchange offers/answers on these phones.
-         Avoid DB + raw realtime racing for the same <video>. */
-      if(viewer)closeViewer(true);
-      var ok=await enterMemory(hostId,cached);
-      if(ok){
+      /* Primary path: cluster-wide Supabase Realtime signaling.
+         Only draw the room shell here; direct-realtime-webrtc owns video receive. */
+      var room=cached||await beaconRoom(hostId);
+      if(room){
+        renderRemote(room);
         remoteEndArmed=true;
-        return;
+        try{window.dispatchEvent(new CustomEvent('kt-remote-host-selected',{detail:{host_id:hostId}}));}catch(e){}
       }
 
-      var st=document.getElementById('ktRemoteLiveStatus');
-      if(st){st.style.display='block';st.textContent='방송 영상 다시 연결 중…';}
-
-      /* One clean retry, not parallel transports. */
+      /* If the cluster-wide path still has no host stream after a short grace period,
+         use the old memory signaling only as a last-resort fallback. Never run both. */
       setTimeout(async function(){
         try{
-          if(String(window.__ktRemoteHostId||'')!==hostId||viewer)return;
-          var ok2=await enterMemory(hostId,cached);
-          if(ok2)remoteEndArmed=true;
+          if(String(window.__ktRemoteHostId||'')!==hostId)return;
+          if(window.__ktRemoteHostStream)return;
+          if(viewer)return;
+          window.__ktUseMemoryGuestVideo20260922=true;
+          var ok=await enterMemory(hostId,cached||room||null);
+          if(ok)remoteEndArmed=true;
         }catch(e){}
-      },700);
+      },5000);
+
+      if(!room){
+        var st=document.getElementById('ktRemoteLiveStatus');
+        if(st){st.style.display='block';st.textContent='방송 영상 연결 중…';}
+      }
     }catch(e){
       var st2=document.getElementById('ktRemoteLiveStatus');
-      if(st2){st2.style.display='block';st2.textContent='방송 영상 다시 연결 중…';}
+      if(st2){st2.style.display='block';st2.textContent='방송 영상 연결 중…';}
+      setTimeout(async function(){
+        try{
+          if(String(window.__ktRemoteHostId||'')!==hostId||viewer||window.__ktRemoteHostStream)return;
+          window.__ktUseMemoryGuestVideo20260922=true;
+          var ok2=await enterMemory(hostId,cached);
+          if(ok2)remoteEndArmed=true;
+        }catch(z){}
+      },1200);
     }finally{
       setTimeout(function(){enterBusy=false;},120);
     }
