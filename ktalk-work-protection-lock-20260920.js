@@ -25,8 +25,8 @@
     secret:true,
     videos:true,
     videoFeed:true,
-    videoCommunication:false,
-    mediaTransport:false,
+    videoCommunication:true,
+    mediaTransport:true,
     liveSignal:true,
     publicVideoSideActions:true,
     publicVideoRoseButton:true,
@@ -70,8 +70,8 @@
       });
 
       document.querySelectorAll('video,.kt-public-feed-scroller,.kt-public-video').forEach(function(el){
-        el.removeAttribute('data-kt-work-protected');
-        el.removeAttribute('data-kt-video-communication-protected');
+        el.setAttribute('data-kt-work-protected','1');
+        el.setAttribute('data-kt-video-communication-protected','1');
       });
 
       document.querySelectorAll(
@@ -102,8 +102,8 @@
     locked.helpReader=true;
     locked.videos=true;
     locked.videoFeed=true;
-    locked.videoCommunication=false;
-    locked.mediaTransport=false;
+    locked.videoCommunication=true;
+    locked.mediaTransport=true;
     locked.liveSignal=true;
     locked.publicVideoSideActions=true;
     locked.publicVideoRoseButton=true;
