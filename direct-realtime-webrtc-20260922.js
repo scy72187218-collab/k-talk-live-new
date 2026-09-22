@@ -277,11 +277,20 @@
     var sm=slot.querySelector('small');if(sm)sm.style.display='none';
   }
   function approveDirectGuest(vid,name){
+    vid=String(vid||'').trim();
+    if(!vid)return;
     approvedGuests[vid]={name:name||'게스트',at:Date.now()};
     delete pendingRequests[vid];guestSlot(vid,name);renderDirectRequests();
     var data={host_id:DEVICE,viewer_id:vid,name:name||'게스트',at:Date.now()};
-    send('guest_approved',data);setTimeout(function(){send('guest_approved',data);},300);setTimeout(function(){send('guest_approved',data);},900);
+    send('guest_approved',data);
+    setTimeout(function(){send('guest_approved',data);},300);
+    setTimeout(function(){send('guest_approved',data);},900);
+    setTimeout(function(){send('guest_approved',data);},1800);
   }
+  window.ktDirectApproveGuest20260922=function(vid,name){
+    approveDirectGuest(vid,name);
+    return true;
+  };
 
   async function startGuestCamera(hid){
     if(!guestApproved||guestApprovedHost!==hid)return;
