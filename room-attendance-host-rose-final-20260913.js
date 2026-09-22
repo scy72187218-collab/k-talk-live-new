@@ -80,6 +80,16 @@
   function detectDedicatedCountdownSelection(){
     try{
       if(detect13Selection())return true;
+
+      /* 실제 선택된 방 버튼을 먼저 본다.
+         상태값이 아직 갱신되기 전 pointerdown에서도 검은 첫 카운트다운이 뜨지 않게 한다. */
+      var active=[].slice.call(document.querySelectorAll(
+        '.live-prep .kt-room-bottom5 button.on,.kt-room-bottom5 button.on,'+
+        '.live-prep .room-switch.on,.live-prep .room-switch[aria-pressed="true"]'
+      ));
+      var txt=active.map(function(b){return String(b.textContent||'').replace(/\s+/g,'');}).join(' ');
+      if(/1인방|1인방송|9명방|9명방송|구독방|구독자방송|비밀방/.test(txt))return true;
+
       var st=window.state||{};
       var type=String(st.liveRoomType||st.prepRoomType||st.roomType||'');
       var name=String(st.liveRoomName||st.prepRoomName||'');
