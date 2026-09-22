@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "PIN 1111 confirmed. Narrow change only: broadcast-end guest/session cleanup.",
+  "note": "Re-locked after broadcast-end cleanup. Host broadcast end/back now clears all approved/pending guest slots and peer sessions, sends a broadcast-ended signal, and guest phones leave immediately. The next broadcast starts with no previous guest/session state.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -76,16 +76,6 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "room_entry_exit",
-    "shared_guest_request_approval_signaling",
-    "guest_approval_to_slot",
-    "video_communication_stability_only"
-  ],
-  "temporarily_unlocked_components": [
-    "room_entry_exit",
-    "shared_guest_request_approval_signaling",
-    "guest_approval_to_slot",
-    "video_communication_stability_only"
-  ]
+  "current_editable_components": [],
+  "temporarily_unlocked_components": []
 }
