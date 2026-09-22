@@ -80,7 +80,6 @@
   function detectDedicatedCountdownSelection(){
     try{
       if(detect13Selection())return true;
-      if(window.__ktNineRoomSelectedBeforeStart===true)return true;
 
       /* 실제 선택된 방 버튼을 먼저 본다.
          상태값이 아직 갱신되기 전 pointerdown에서도 검은 첫 카운트다운이 뜨지 않게 한다. */
@@ -89,7 +88,7 @@
         '.live-prep .room-switch.on,.live-prep .room-switch[aria-pressed="true"]'
       ));
       var txt=active.map(function(b){return String(b.textContent||'').replace(/\s+/g,'');}).join(' ');
-      if(/1인방|1인방송|9명방|9명방송|구독방|구독자방송|비밀방/.test(txt))return true;
+      if(/1인방|1인방송|구독방|구독자방송|비밀방/.test(txt))return true;
 
       var st=window.state||{};
       var type=String(st.liveRoomType||st.prepRoomType||st.roomType||'');
@@ -97,8 +96,7 @@
       var max=Number(st.liveRoomMax||st.prepRoomMax||0);
       var title=String(((document.getElementById('liveTitle')||{}).value)||'');
       if(type==='solo'||max===1||name.indexOf('1인')>-1||title.indexOf('1인 방송')>-1)return true;
-      if(type==='group9'||max===9||name.indexOf('9명')>-1||title.indexOf('9명 방송')>-1)return true;
-      if(type==='subscriber'||name.indexOf('구독자')>-1||title.indexOf('구독자 방송')>-1)return true;
+            if(type==='subscriber'||name.indexOf('구독자')>-1||title.indexOf('구독자 방송')>-1)return true;
       if(type==='password'||type==='secret'||name.indexOf('비밀')>-1||title.indexOf('비밀방')>-1)return true;
     }catch(e){}
     return false;
