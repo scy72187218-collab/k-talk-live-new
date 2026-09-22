@@ -205,6 +205,32 @@
   }
   async function postGuestMessage(hostId,type,message,senderId,senderName){if(!hostId)return false;try{await req('ktalk_live_messages',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({host_id:hostId,sender_id:senderId||viewerId(),sender_name:senderName||profile().name||'게스트',message:String(message||'').slice(0,300),message_type:String(type||'guest_request')})});return true;}catch(e){return false;}}
 
+  async function prepareViewerGuestMedia(){
+    try{
+      var s=viewerGuest.stream||null;
+      var live=!!(s&&s.getVideoTracks&&s.getVideoTracks().some(function(t){return t.readyState==='live';}));
+      if(live||viewerGuest.mediaOpening||viewerGuest.mediaDenied)return s;
+      viewerGuest.mediaOpening=true;
+      try{
+        s=await navigator.mediaDevices.getUserMedia({
+          video:{facingMode:{ideal:'user'},width:{ideal:1280},height:{ideal:960},frameRate:{ideal:30,max:30}},
+          audio:true
+        });
+      }catch(e){
+        try{s=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});}
+        catch(z){
+          var n=String((z&&z.name)||(e&&e.name)||'').toLowerCase();
+          if(n==='notallowederror'||n==='permissiondeniederror'||n==='securityerror')viewerGuest.mediaDenied=true;
+          return null;
+        }
+      }
+      viewerGuest.stream=s;
+      return s;
+    }finally{
+      viewerGuest.mediaOpening=false;
+    }
+  }
+
   async function sendGuestRequest(){
     var b=document.getElementById('ktRemoteGuestRequest');
     if(b&&b.dataset.ktGuestToggleBusy==='1')return;
@@ -212,6 +238,7 @@
     try{
       var hostId=await currentViewerHost();if(!hostId)return;
       var p=profile(),vid=viewerId(),cancel=!!(b&&b.classList.contains('kt-requested'));
+      if(!cancel)prepareViewerGuestMedia();
       var ok=cancel
         ?await postGuestMessage(hostId,'guest_cancelled:'+vid,'↩ '+(p.name||'게스트')+'님이 방송 참여 신청을 취소했습니다.',vid,p.name||'게스트')
         :await postGuestMessage(hostId,'guest_request:'+vid,'👥 '+(p.name||'게스트')+'님이 방송 참여를 신청했습니다.',vid,p.name||'게스트');
@@ -422,7 +449,7 @@
         await pc.setRemoteDescription({type:'offer',sdp:x.offer_sdp});
         var ans=await pc.createAnswer();
         await pc.setLocalDescription(ans);
-        await waitIce(pc,1200);
+        await waitIce(pc,700);
 
         await req('ktalk_webrtc_sessions?id=eq.'+enc(x.id),{
           method:'PATCH',
@@ -664,7 +691,7 @@
       stream.getTracks().forEach(function(t){try{pc.addTrack(t,stream);}catch(e){}});
       var offer=await pc.createOffer({offerToReceiveAudio:false,offerToReceiveVideo:false});
       await pc.setLocalDescription(offer);
-      await waitIce(pc,1200);
+      await waitIce(pc,700);
 
       var created=await req('ktalk_webrtc_sessions',{
         method:'POST',
@@ -708,7 +735,7 @@
             clearInterval(t);
           }
         }catch(e){}
-      },500);
+      },300);
     }catch(e){
       resetViewerGuestPc(pc);
     }
