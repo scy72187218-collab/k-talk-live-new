@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Selective lock only. Current approved working state saved 2026-09-22 after raising only the 13-room gift box by 2px. Existing approved room, signal, chat, switches, and transitions remain protected.",
+  "note": "Selective lock only. Current approved working state saved. The approved live/guest connection transport is now protected after the 2026-09-22 connection-speed adjustment. Runtime controls remain usable.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -33,7 +33,9 @@
     "guest13_earnings_hud_size",
     "webrtc_transport_stability",
     "group13_guest_uplink",
-    "approved_guest_earnings_hud"
+    "approved_guest_earnings_hud",
+    "video_communication",
+    "media_transport"
   ],
   "check_trigger_phrase": "K-톡 비밀번호 확인",
   "check_behavior": {
