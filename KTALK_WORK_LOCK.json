@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Re-locked after restoring 9-person room to the state present at 2026-09-21 17:00 KST. Snapshot basis: commit 093316994b4d4db36b1ee5200bd9a5eb9b63bce3 (16:49:16 KST, latest commit before 17:00). The four 9-room layout files are byte-identical to that snapshot and were cache-refreshed; a dedicated 9-room start gate now reproduces the 17:00-era single 5→1 flow. Other rooms remain unchanged.",
+  "note": "Owner confirmed PIN 1111 and requested 9-person room only: open the 9-room first, then start the single 5→4→3→2→1 countdown over that opened room.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -50,6 +50,12 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [],
-  "temporarily_unlocked_components": []
+  "current_editable_components": [
+    "group9_countdown_transition",
+    "group9_current_room_entry"
+  ],
+  "temporarily_unlocked_components": [
+    "group9_countdown_transition",
+    "group9_current_room_entry"
+  ]
 }
