@@ -337,20 +337,37 @@
     enterBusy=true;
     remoteEndHost=hostId;remoteEndMisses=0;remoteEndArmed=false;
     window.__ktRemoteHostId=hostId;
+    window.__ktCurrentRemoteHostId=hostId;
     try{sessionStorage.setItem('kt_remote_host_id',hostId);}catch(e){}
+
     var cached=window.__ktLastLiveRoom&&String(window.__ktLastLiveRoom.host_id||'')===hostId?window.__ktLastLiveRoom:null;
+
     try{
-      /* 기본 실시간 DB 경로를 먼저 사용한다. 느린 휴대폰에서도 너무 빨리 fallback으로 빠지지 않는다. */
+      /* 2026-09-22: direct realtime WebRTC owns guest video receive.
+         Keep this fallback only for drawing the remote-room shell/metadata.
+         Do not create a second memory WebRTC session because two receivers
+         competing for the same video element caused the guest black screen. */
+      if(window.__ktDirectRealtimeRtc20260922){
+        var room=cached||await beaconRoom(hostId);
+        if(room){
+          renderRemote(room);
+          remoteEndArmed=true;
+          try{window.dispatchEvent(new CustomEvent('kt-remote-host-selected',{detail:{host_id:hostId}}));}catch(e){}
+          return;
+        }
+      }
+
+      /* Legacy path only when direct realtime is unavailable. */
       if(await dbAvailable(hostId)){
         remoteEndArmed=true;
         if(oldEnter){
           await oldEnter(hostId);
-          /* 양옆 수신 화면이 멈추면 2초 뒤 durable fallback으로 자동 전환한다. */
           setTimeout(async function(){
             try{
               if(String(window.__ktRemoteHostId||'')!==hostId)return;
               if(window.__ktRemoteHostStream)return;
               if(viewer)return;
+              if(window.__ktDirectRealtimeRtc20260922)return;
               if(oldLeave)await oldLeave(true);
               window.__ktRemoteHostId=hostId;
               try{sessionStorage.setItem('kt_remote_host_id',hostId);}catch(e){}
@@ -362,18 +379,16 @@
         }
       }
 
-      /* 기본 경로가 unavailable일 때만 메모리 fallback을 사용한다. */
       var ok2=await enterMemory(hostId,cached);
       if(ok2){remoteEndArmed=true;return;}
 
-      /* 팝업 대신 화면 안에서만 조용히 상태를 표시한다. */
       var st=document.getElementById('ktRemoteLiveStatus');
       if(st){st.style.display='block';st.textContent='방송 연결을 확인 중입니다…';}
     }catch(e){
       var st2=document.getElementById('ktRemoteLiveStatus');
       if(st2){st2.style.display='block';st2.textContent='방송 연결을 확인 중입니다…';}
     }finally{
-      setTimeout(function(){enterBusy=false;},250);
+      setTimeout(function(){enterBusy=false;},120);
     }
   };
 
