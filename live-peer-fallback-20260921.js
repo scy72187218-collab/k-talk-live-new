@@ -179,7 +179,7 @@
         await c.pc.setRemoteDescription({type:'offer',sdp:x.offer_sdp});
         var answer=await c.pc.createAnswer();
         await c.pc.setLocalDescription(answer);
-        await waitIce(c.pc,4500);
+        await waitIce(c.pc,1200);
         await jfetch(API+'?t='+Date.now(),{
           method:'POST',headers:{'Content-Type':'application/json'},
           body:JSON.stringify({action:'answer',session_id:c.sessionId,answer_sdp:c.pc.localDescription.sdp})
@@ -251,7 +251,7 @@
       }
     };
 
-    viewer.poll=setInterval(pollViewer,900);
+    viewer.poll=setInterval(pollViewer,650);
     viewer.touch=setInterval(function(){
       if(!viewer)return;
       fetch(API+'?t='+Date.now(),{
@@ -300,7 +300,7 @@
           try{
             var offer=await pc.createOffer({offerToReceiveAudio:false,offerToReceiveVideo:false});
             await pc.setLocalDescription(offer);
-            await waitIce(pc,4500);
+            await waitIce(pc,1200);
             await jfetch(API+'?t='+Date.now(),{
               method:'POST',headers:{'Content-Type':'application/json'},
               body:JSON.stringify({action:'offer',session_id:x.id,offer_sdp:pc.localDescription.sdp})
@@ -374,6 +374,6 @@
     if(oldLeave)return oldLeave(silent);
   };
 
-  setInterval(hostPoll,900);
+  setInterval(hostPoll,650);
   setTimeout(hostPoll,350);
 })();
