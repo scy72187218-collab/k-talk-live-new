@@ -51,19 +51,26 @@
   function goVideo(){
     if(returnBusy)return;
     returnBusy=true;
+
+    /* 방송 종료 때는 브라우저/앱의 뒤로가기를 거치지 않는다.
+       원격 세션만 조용히 정리한 뒤 K-Talk 내부 공개 피드로 바로 돌아간다. */
     try{
-      var leave=window.ktLeaveRemoteLive;
-      if(typeof leave==='function'){
-        var r=leave(true);
-        if(r&&typeof r.catch==='function')r.catch(function(){});
+      if(typeof window.ktCloseRemoteFallbackInApp20260923==='function'){
+        window.ktCloseRemoteFallbackInApp20260923();
       }
     }catch(e){}
+    try{
+      if(typeof window.ktCloseRemotePresenceInApp20260923==='function'){
+        var q=window.ktCloseRemotePresenceInApp20260923();
+        if(q&&typeof q.catch==='function')q.catch(function(){});
+      }
+    }catch(e){}
+
     clearRemoteState();
+
     setTimeout(function(){
       try{
-        if(typeof window.ktReturnLatestVideoAfterBroadcast==='function'){
-          window.ktReturnLatestVideoAfterBroadcast();
-        }else if(typeof window.ktShowSharedServerFeed==='function'){
+        if(typeof window.ktShowSharedServerFeed==='function'){
           window.ktShowSharedServerFeed();
         }else if(typeof window.ktForceHomeVideoRecovery==='function'){
           window.ktForceHomeVideoRecovery(true);
