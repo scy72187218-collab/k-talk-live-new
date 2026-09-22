@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "PIN 1111 confirmed. Narrow fix only: explicit guest leave must immediately notify host and clear that guest slot/session. Everything else remains locked.",
+  "note": "Re-locked after explicit guest-leave fix. Tapping leave now sends guest_left to the host before local IDs/sessions are cleared, then closes the guest WebRTC/DB session. Host should immediately empty the old guest slot. All components are locked again.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -76,14 +76,6 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "room_entry_exit",
-    "shared_guest_request_approval_signaling",
-    "guest_approval_to_slot"
-  ],
-  "temporarily_unlocked_components": [
-    "room_entry_exit",
-    "shared_guest_request_approval_signaling",
-    "guest_approval_to_slot"
-  ]
+  "current_editable_components": [],
+  "temporarily_unlocked_components": []
 }
