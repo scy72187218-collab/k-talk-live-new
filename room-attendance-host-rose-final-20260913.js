@@ -122,8 +122,8 @@
       var started=performance.now();
       var last=0;
       var isGroup13Countdown=!!(pendingGroup13||detect13Selection());
-      var totalMs=isGroup13Countdown?4000:5000;
-      var minNum=isGroup13Countdown?2:1;
+      var totalMs=5000;
+      var minNum=1;
       num.textContent='5';
 
       function frame(now){
@@ -182,6 +182,8 @@
       try{
         releaseStartButton=true;
         bypassNestedCountdown=true;
+        var finished13=!!(pendingGroup13||detect13Selection());
+        if(finished13)window.__ktGroup13CountdownDone=true;
         await window.startBroadcast();
 
         /* 13명방만: 첫 5초 뒤 최종 13명방 화면이 아직 안 만들어졌으면
@@ -214,12 +216,14 @@
         }
         pendingGroup13=false;
       }finally{
+        window.__ktGroup13CountdownDone=false;
         releaseStartButton=false;
         bypassNestedCountdown=false;
         removeCountdown();
         setTimeout(function(){launching=false;},300);
       }
     }).catch(function(){
+      window.__ktGroup13CountdownDone=false;
       pendingGroup13=false;
       releaseStartButton=false;
       bypassNestedCountdown=false;
