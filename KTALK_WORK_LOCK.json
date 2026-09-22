@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Re-locked after explicit guest-leave fix. Tapping leave now sends guest_left to the host before local IDs/sessions are cleared, then closes the guest WebRTC/DB session. Host should immediately empty the old guest slot. All components are locked again.",
+  "note": "Temporary narrow edit: remote broadcast end cleanup and in-app return only. All unrelated components remain locked.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -76,6 +76,14 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [],
-  "temporarily_unlocked_components": []
+  "current_editable_components": [
+    "room_entry_exit",
+    "video_communication_stability_only",
+    "shared_live_peer_signaling_cache"
+  ],
+  "temporarily_unlocked_components": [
+    "room_entry_exit",
+    "video_communication_stability_only",
+    "shared_live_peer_signaling_cache"
+  ]
 }
