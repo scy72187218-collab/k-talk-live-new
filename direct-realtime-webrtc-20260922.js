@@ -14,7 +14,7 @@
   var viewerPc=null,viewerSession='',viewerWatchToken='',viewerConnected=false,viewerIce={},viewerConnectTimer=null;
   var pendingRequests={},approvedGuests={},hostGuestPeers={},guestPc=null,guestSession='',guestApprovedHost='',guestApproved=false,guestStream=null,guestIce={};
   var requestOn=false,lastRemoteHost='',lastHostRole='',lastWatchAt=0;
-  var sharedApprovalPollBusy=false;
+  var sharedApprovalPollBusy=false,leaveAnnouncedHost='';
 
   function deviceId(){
     var id='';
@@ -110,7 +110,7 @@
       host_id:hostId,
       sender_id:vid,
       sender_name:String(name||'게스트').slice(0,100),
-      message:type.indexOf('approved')>-1?'참여 승인':(type.indexOf('cancelled')>-1?'참여 신청 취소':'방송 참여 신청'),
+      message:type.indexOf('approved')>-1?'참여 승인':(type.indexOf('cancelled')>-1?'참여 신청 취소':(type.indexOf('left')>-1?'방송 나감':'방송 참여 신청')),
       message_type:type+':'+vid
     };
     try{
@@ -125,6 +125,89 @@
 
   function sharedMsgTime(m){
     var t=Date.parse(String(m&&m.created_at||''));return isFinite(t)?t:0;
+  }
+
+  function clearApprovedGuestFromHost(vid){
+    vid=String(vid||'').trim();
+    if(!vid)return;
+    delete pendingRequests[vid];
+    delete approvedGuests[vid];
+
+    var hp=hostGuestPeers[vid];
+    if(hp){try{closePc(hp.pc);}catch(e){}delete hostGuestPeers[vid];}
+
+    var slots=[];
+    try{
+      slots=[].slice.call(document.querySelectorAll(
+        '[data-kt-direct-guest="'+CSS.escape(vid)+'"],'+
+        '[data-kt-guest-viewer-id="'+CSS.escape(vid)+'"]'
+      ));
+    }catch(e){}
+
+    slots.forEach(function(slot){
+      try{
+        var v=slot.querySelector('video');
+        if(v){try{v.pause();}catch(e){}v.srcObject=null;}
+        delete slot.dataset.ktDirectGuest;
+        delete slot.dataset.ktGuestViewerId;
+        slot.classList.remove('kt-guest-approved');
+
+        if(slot.classList.contains('ktg13-guest')){
+          slot.innerHTML='<span>게스트</span>';
+        }else if(slot.classList.contains('ktsubscriber-guest')){
+          var n=String(slot.getAttribute('data-guest-slot')||'').trim();
+          slot.innerHTML='<span>👤</span><b>게스트'+(n?' '+n:'')+'</b>';
+        }else if(slot.classList.contains('ktsecret-guest-slot')){
+          var empty=slot.querySelector('.ktsecret-guest-empty');
+          var name=slot.querySelector('.ktsecret-guest-name');
+          if(empty)empty.style.display='';
+          if(name)name.textContent='게스트';
+        }else{
+          var sm=slot.querySelector('small');if(sm){sm.style.display='';sm.textContent='게스트';}
+          var nm=slot.querySelector('.kt-guest-name');if(nm)nm.textContent='게스트';
+        }
+      }catch(e){}
+    });
+
+    renderDirectRequests();
+  }
+
+  function postGuestLeaveShared(hostId){
+    hostId=String(hostId||'').trim();
+    if(!hostId)return;
+    var vid=viewerId(),name=profileName();
+    var payload={
+      action:'message',
+      host_id:hostId,
+      sender_id:vid,
+      sender_name:name,
+      message:'방송 나감',
+      message_type:'guest_left:'+vid
+    };
+    try{
+      fetch('/api/live-interaction-memory?t='+Date.now(),{
+        method:'POST',
+        cache:'no-store',
+        keepalive:true,
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(payload)
+      }).catch(function(){});
+    }catch(e){}
+  }
+
+  function announceGuestLeave(hostId){
+    hostId=String(hostId||guestApprovedHost||remoteHostId()||lastRemoteHost||'').trim();
+    if(!hostId||leaveAnnouncedHost===hostId)return;
+    leaveAnnouncedHost=hostId;
+    var vid=viewerId(),data={host_id:hostId,viewer_id:vid,name:profileName(),at:Date.now()};
+    postGuestLeaveShared(hostId);
+    try{send('guest_left',data);}catch(e){}
+    try{closePc(guestPc);}catch(e){}
+    guestPc=null;guestSession='';guestApproved=false;guestApprovedHost='';requestOn=false;
+    try{
+      if(guestStream){guestStream.getTracks().forEach(function(t){try{t.stop();}catch(e){}});}
+    }catch(e){}
+    guestStream=null;
   }
 
   async function syncSharedApprovalSignals(){
@@ -155,6 +238,7 @@
           }else{
             delete pendingRequests[vid];
             if(x.kind==='approved')approvedGuests[vid]=approvedGuests[vid]||{name:x.name||'게스트',at:x.ts||Date.now()};
+            else if(x.kind==='left')clearApprovedGuestFromHost(vid);
           }
         });
         renderDirectRequests();
@@ -680,6 +764,7 @@
     requestOn=false;
     guestApproved=true;
     guestApprovedHost=hid;
+    leaveAnnouncedHost='';
 
     var b=document.getElementById('ktRemoteGuestRequest');
     if(b){
@@ -714,6 +799,9 @@
     if(ev==='guest_cancel'&&isHostRole()){
       delete pendingRequests[String(p.viewer_id||'')];renderDirectRequests();return;
     }
+    if(ev==='guest_left'&&isHostRole()&&String(p.host_id||'')===DEVICE){
+      clearApprovedGuestFromHost(String(p.viewer_id||''));return;
+    }
     if(ev==='guest_approved'){onGuestApproved(p);return;}
     if(ev==='guest_offer'){hostGuestOffer(p);return;}
     if(ev==='guest_answer'){guestHandleAnswer(p);return;}
@@ -741,6 +829,7 @@
     var host=isHostRole(),hid=host?DEVICE:remoteHostId();
     var role=host?'host':(hid?'viewer':'');
     if(!hid){
+      if(guestApprovedHost)announceGuestLeave(guestApprovedHost);
       lastHostRole='';
       if(lastRemoteHost){
         lastRemoteHost='';
@@ -793,8 +882,15 @@
   }catch(e){}
 
   window.addEventListener('online',function(){if(activeHostId)connect(activeHostId);});
-  document.addEventListener('visibilitychange',function(){if(!document.hidden){roleTick();setTimeout(function(){attachRemoteStreamNow();},0);}});
+  document.addEventListener('visibilitychange',function(){
+    if(document.hidden){
+      if(guestApprovedHost)announceGuestLeave(guestApprovedHost);
+      return;
+    }
+    roleTick();setTimeout(function(){attachRemoteStreamNow();},0);
+  });
   window.addEventListener('pagehide',function(){
+    if(guestApprovedHost||lastRemoteHost)announceGuestLeave(guestApprovedHost||lastRemoteHost);
     clearViewerConnectTimer();
     closeSocket();closePc(viewerPc);closePc(guestPc);
     Object.keys(hostViewPeers).forEach(function(k){closePc(hostViewPeers[k].pc);});
