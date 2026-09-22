@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Owner authorized with PIN 1111 to make 1-person, 9-person, subscriber, and secret room countdowns match the approved 13-room 09:00 5→4→3→2→1 countdown. Only these countdown transitions are editable.",
+  "note": "Re-locked after making 1-person, 9-person, subscriber, and secret room countdowns match the approved 13-room 09:00 5→4→3→2→1 countdown. Other approved UI/network settings remain unchanged.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -35,7 +35,11 @@
     "group13_guest_uplink",
     "approved_guest_earnings_hud",
     "video_communication",
-    "media_transport"
+    "media_transport",
+    "solo_countdown_transition",
+    "group9_countdown_transition",
+    "subscriber_countdown_transition",
+    "secret_countdown_transition"
   ],
   "check_trigger_phrase": "K-톡 비밀번호 확인",
   "check_behavior": {
@@ -44,16 +48,6 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "solo_countdown_transition",
-    "group9_countdown_transition",
-    "subscriber_countdown_transition",
-    "secret_countdown_transition"
-  ],
-  "temporarily_unlocked_components": [
-    "solo_countdown_transition",
-    "group9_countdown_transition",
-    "subscriber_countdown_transition",
-    "secret_countdown_transition"
-  ]
+  "current_editable_components": [],
+  "temporarily_unlocked_components": []
 }
