@@ -255,68 +255,54 @@
     if(!isGroup13())return oldStartBroadcast.apply(this,arguments);
 
     /* 13명방 전용:
-       준비 화면 위에서 5→4→3→2→1을 끝까지 보여준 다음,
-       1이 사라진 뒤 현재 13명방만 바로 연다.
-       카운트 중에는 옛 13명방/현재 13명방을 미리 화면에 보여주지 않는다. */
+       화면에는 카운트다운 5→4→3→2→1을 딱 한 번만 연속으로 보여준다.
+       그 5초 동안 기존 방송 준비 로직은 뒤에서 동시에 끝낸다.
+       그래서 2 다음 검은 화면이 생기거나, 1이 늦게 다시 뜨지 않는다. */
     if(window.__ktG13SingleCountdownRunning)return;
     window.__ktG13SingleCountdownRunning=true;
 
     var overlay=null;
     var originalCountdown=window.ktLiveStartCountdown;
-    var creatorEl=document.getElementById('creator');
-    var result;
-
-    function ensurePrepHoldStyle(){
-      if(document.getElementById('ktG13PrepHoldStyle'))return;
-      var st=document.createElement('style');
-      st.id='ktG13PrepHoldStyle';
-      st.textContent=
-        'html.kt-g13-prep-hold #creator{display:block!important;visibility:visible!important;opacity:1!important;z-index:2147483644!important}'+
-        'html.kt-g13-prep-hold #creator .live-prep{display:flex!important}'+
-        'html.kt-g13-prep-hold #creator .creator-top,html.kt-g13-prep-hold #creator .creator-tools,html.kt-g13-prep-hold #creator .creator-bottom{display:none!important}';
-      (document.head||document.documentElement).appendChild(st);
-    }
+    var screenEl=document.getElementById('screen');
+    var guardObserver=null;
+    var startPromise=null;
 
     try{
       var oldOverlay=document.getElementById('ktG13SingleCountdown');
       if(oldOverlay)oldOverlay.remove();
 
-      /* 기존 시작 로직의 자체 카운트다운은 13명방에서만 막는다. */
+      /* 기존 시작 로직의 자체 카운트다운은 13명방에서만 막는다.
+         실제 상태/세션/수익/타이머 초기화는 그대로 실행한다. */
       if(typeof originalCountdown==='function'){
         window.ktLiveStartCountdown=async function(){return;};
       }
 
-      ensurePrepHoldStyle();
-      document.documentElement.classList.add('kt-g13-prep-hold');
-      if(creatorEl){
-        creatorEl.classList.add('show','live-prep-open');
+      markGroup13Opening();
+
+      /* 기존 로직이 옛 13명방 DOM을 만들면 같은 프레임 안에서 현재 화면으로 교체.
+         이 작업은 아래 카운트다운 가림막 뒤에서만 일어난다. */
+      if(screenEl&&window.MutationObserver){
+        guardObserver=new MutationObserver(function(){
+          try{
+            var current=screenEl.querySelector('.ktg13-room[data-kt-approved13="1"]');
+            if(!current)renderApprovedGroup13(true);
+          }catch(e){}
+        });
+        guardObserver.observe(screenEl,{childList:true,subtree:false});
       }
 
-      /* 준비 화면 위에서 숫자만 5→1까지 정확히 보여준다. */
+      /* 방송 준비를 카운트다운과 동시에 시작한다. */
+      startPromise=Promise.resolve(oldStartBroadcast.apply(this,arguments)).catch(function(e){throw e;});
+
+      /* 카운트다운은 creator 안이 아니라 body 최상단에 고정.
+         준비화면/옛방/검은 전환이 뒤에서 생겨도 사용자에게는 숫자만 연속으로 보인다. */
       overlay=document.createElement('div');
       overlay.id='ktG13SingleCountdown';
-      overlay.style.cssText='position:fixed;inset:0;z-index:2147483646;display:grid;place-items:center;background:#000;overflow:hidden;pointer-events:none;color:#fff;text-align:center;text-shadow:0 3px 16px rgba(0,0,0,.72)';
+      overlay.style.cssText='position:fixed;inset:0;z-index:2147483646;display:grid;place-items:center;background:rgba(0,0,0,.16);pointer-events:none;color:#fff;text-align:center;text-shadow:0 3px 16px rgba(0,0,0,.72)';
       document.body.appendChild(overlay);
 
-      /* 카운트 5→1 뒤에는 검은 화면 대신 현재 휴대폰 카메라를 그대로 보여준다.
-         준비화면/옛 13명방은 노출하지 않는다. */
-      try{
-        var previewStream=(window.state&&state.stream)?state.stream:null;
-        if(previewStream&&previewStream.getVideoTracks&&previewStream.getVideoTracks().some(function(t){return t.readyState==='live';})){
-          var countdownVideo=document.createElement('video');
-          countdownVideo.autoplay=true;
-          countdownVideo.playsInline=true;
-          countdownVideo.muted=true;
-          countdownVideo.srcObject=previewStream;
-          countdownVideo.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center center;transform:scaleX(-1);background:#000;z-index:0';
-          overlay.appendChild(countdownVideo);
-          var pv=countdownVideo.play();
-          if(pv&&pv.catch)pv.catch(function(){});
-        }
-      }catch(_e){}
-
       var num=document.createElement('div');
-      num.style.cssText='position:relative;z-index:2;width:116px;height:116px;border-radius:50%;display:grid;place-items:center;background:rgba(10,10,14,.72);border:4px solid rgba(255,255,255,.92);color:#fff;font:900 64px/1 system-ui,-apple-system,sans-serif;box-shadow:0 0 28px rgba(255,44,130,.7);text-shadow:0 0 12px rgba(255,255,255,.7)';
+      num.style.cssText='width:116px;height:116px;border-radius:50%;display:grid;place-items:center;background:rgba(10,10,14,.72);border:4px solid rgba(255,255,255,.92);color:#fff;font:900 64px/1 system-ui,-apple-system,sans-serif;box-shadow:0 0 28px rgba(255,44,130,.7);text-shadow:0 0 12px rgba(255,255,255,.7)';
       overlay.appendChild(num);
 
       for(var n=5;n>=1;n--){
@@ -328,33 +314,18 @@
         });
       }
 
-      /* 1이 모두 끝난 뒤에만 방 전환을 시작한다.
-         승인된 현재 13명방을 먼저 화면에 준비한 뒤 기존 방송 시작 로직을 실행해서,
-         1 다음에 검은 화면/준비 화면/옛 13명방이 끼어들 틈을 없앤다. */
-      markGroup13Opening();
-
+      /* 1초가 끝날 때쯤 기존 준비는 이미 끝나 있어야 한다.
+         끝나지 않았더라도 현재 13명방 화면을 먼저 고정하고 결과를 기다린다. */
       renderApprovedGroup13(true);
-      await new Promise(function(resolve){
-        requestAnimationFrame(function(){requestAnimationFrame(resolve);});
-      });
-
-      /* 기존 시작 체인이 동기적으로 화면을 잠깐 건드려도
-         카운트 오버레이를 치우기 전에 현재 13명방을 즉시 다시 고정한다. */
-      var startPromise=Promise.resolve(oldStartBroadcast.apply(this,arguments));
-      renderApprovedGroup13(true);
-      await new Promise(function(resolve){requestAnimationFrame(resolve);});
+      var result=await startPromise;
+      renderApprovedGroup13(false);
 
       if(overlay){overlay.remove();overlay=null;}
-      document.documentElement.classList.remove('kt-g13-prep-hold');
-      if(creatorEl)creatorEl.classList.remove('show','live-prep-open');
-
-      result=await startPromise;
-      renderApprovedGroup13(false);
+      if(guardObserver){try{guardObserver.disconnect();}catch(e){}guardObserver=null;}
       return result;
     }catch(e){
+      if(guardObserver){try{guardObserver.disconnect();}catch(_e){}guardObserver=null;}
       try{if(overlay)overlay.remove();}catch(_e){}
-      try{document.documentElement.classList.remove('kt-g13-prep-hold');}catch(_e){}
-      try{if(creatorEl)creatorEl.classList.remove('show','live-prep-open');}catch(_e){}
       try{renderApprovedGroup13(false);}catch(_e){}
       throw e;
     }finally{
