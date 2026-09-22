@@ -469,6 +469,20 @@
         })(x.id,pc,vid);
 
         await pc.setRemoteDescription({type:'offer',sdp:x.offer_sdp});
+
+        /* 같은 승인 연결로 호스트 카메라도 게스트에게 돌려보낸다.
+           화면/방 배치는 건드리지 않고 미디어 트랙만 추가한다. */
+        try{
+          var hostStream=(window.state&&state.stream)||null;
+          if(hostStream&&hostStream.getTracks){
+            hostStream.getTracks().forEach(function(track){
+              try{
+                if(track&&track.readyState==='live')pc.addTrack(track,hostStream);
+              }catch(_e){}
+            });
+          }
+        }catch(_e){}
+
         var ans=await pc.createAnswer();
         await pc.setLocalDescription(ans);
         await waitIce(pc,5000);
@@ -692,6 +706,24 @@
       viewerGuest.pc=pc;
       viewerGuest.connectStartedAt=Date.now();
 
+      /* 승인된 게스트 연결 하나에서 게스트→호스트뿐 아니라
+         호스트→게스트 영상도 같이 받는다. 기존 시청용 연결이 흔들려도
+         이 연결로 두 휴대폰 화면이 서로 보이게 한다. */
+      pc.ontrack=function(ev){
+        if(viewerGuest.pc!==pc)return;
+        try{
+          var hs=(ev.streams&&ev.streams[0])?ev.streams[0]:new MediaStream([ev.track]);
+          window.__ktRemoteHostStream=hs;
+          viewerGuest.prejoinHostStream=hs;
+          if(viewerGuest.stream)showLocalGuestView(viewerGuest.stream);
+
+          var st=document.getElementById('ktRemoteLiveStatus');
+          if(st)st.style.display='none';
+          var badge=document.getElementById('ktRemoteViewerCount');
+          if(badge)badge.textContent='👁 LIVE';
+        }catch(e){}
+      };
+
       pc.onconnectionstatechange=function(){
         if(viewerGuest.pc!==pc)return;
         var s=String(pc.connectionState||'');
@@ -711,7 +743,7 @@
       };
 
       stream.getTracks().forEach(function(t){try{pc.addTrack(t,stream);}catch(e){}});
-      var offer=await pc.createOffer({offerToReceiveAudio:false,offerToReceiveVideo:false});
+      var offer=await pc.createOffer({offerToReceiveAudio:true,offerToReceiveVideo:true});
       await pc.setLocalDescription(offer);
       await waitIce(pc,5000);
 
