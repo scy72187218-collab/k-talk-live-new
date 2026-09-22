@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Owner approved the current K-Talk state and requested it be locked. Preserve the current 5→4→3→2→1 countdown behavior for 1-person, 9-person, 13-person, subscriber, and secret rooms, plus all currently approved UI/network behavior, unless explicitly unlocked with the PIN.",
+  "note": "Owner reported a duplicate/dark second countdown after 1. Only the 1-person, 9-person, subscriber, and secret room countdown transitions are editable.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -48,6 +48,16 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [],
-  "temporarily_unlocked_components": []
+  "current_editable_components": [
+    "solo_countdown_transition",
+    "group9_countdown_transition",
+    "subscriber_countdown_transition",
+    "secret_countdown_transition"
+  ],
+  "temporarily_unlocked_components": [
+    "solo_countdown_transition",
+    "group9_countdown_transition",
+    "subscriber_countdown_transition",
+    "secret_countdown_transition"
+  ]
 }
