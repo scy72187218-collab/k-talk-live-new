@@ -338,13 +338,31 @@
     s.textContent='#ktDirectGuestRequestRail{position:absolute!important;left:44%!important;right:4px!important;bottom:4px!important;z-index:2147482000!important;display:flex!important;gap:5px!important;overflow-x:auto!important;padding:3px!important;pointer-events:auto!important}#ktDirectGuestRequestRail button{flex:0 0 auto!important;min-width:86px!important;height:34px!important;border:1px solid #62d8ff!important;border-radius:18px!important;background:rgba(6,18,28,.96)!important;color:#fff!important;padding:0 10px!important;font-size:9px!important;font-weight:950!important;box-shadow:0 0 9px #38cfff55!important}';
     document.head.appendChild(s);
   }
+  function requestMount(){
+    return document.querySelector(
+      '#screen .ktg13-room .ktg13-main,'+
+      '#screen .ktsolo-room .ktsolo-main,'+
+      '#screen .ktsubscriber-room .ktsubscriber-people,'+
+      '#screen .ktsecret-room .ktsecret-main'
+    );
+  }
   function renderDirectRequests(){
     ensureDirectStyle();
-    var main=document.querySelector('#screen .ktg13-room .ktg13-main');if(!main){var o=document.getElementById('ktDirectGuestRequestRail');if(o)o.remove();return;}
+    var main=requestMount();
+    if(!main){var o=document.getElementById('ktDirectGuestRequestRail');if(o)o.remove();return;}
+    try{
+      if(getComputedStyle(main).position==='static')main.style.setProperty('position','relative','important');
+    }catch(e){}
     var ids=Object.keys(pendingRequests).filter(function(id){return !approvedGuests[id];});
     var rail=document.getElementById('ktDirectGuestRequestRail');
     if(!ids.length){if(rail)rail.remove();return;}
-    if(!rail){rail=document.createElement('div');rail.id='ktDirectGuestRequestRail';main.appendChild(rail);}
+    if(!rail){
+      rail=document.createElement('div');
+      rail.id='ktDirectGuestRequestRail';
+      main.appendChild(rail);
+    }else if(rail.parentNode!==main){
+      main.appendChild(rail);
+    }
     rail.innerHTML='';
     ids.forEach(function(id){
       var x=pendingRequests[id],b=document.createElement('button');b.type='button';b.textContent='👤 '+String(x.name||'게스트')+' 올리기';
