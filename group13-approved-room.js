@@ -295,7 +295,7 @@
       /* 준비 화면 위에서 숫자만 5→1까지 정확히 보여준다. */
       overlay=document.createElement('div');
       overlay.id='ktG13SingleCountdown';
-      overlay.style.cssText='position:fixed;inset:0;z-index:2147483646;display:grid;place-items:center;background:rgba(0,0,0,.10);pointer-events:none;color:#fff;text-align:center;text-shadow:0 3px 16px rgba(0,0,0,.72)';
+      overlay.style.cssText='position:fixed;inset:0;z-index:2147483646;display:grid;place-items:center;background:#000;pointer-events:none;color:#fff;text-align:center;text-shadow:0 3px 16px rgba(0,0,0,.72)';
       document.body.appendChild(overlay);
 
       var num=document.createElement('div');
