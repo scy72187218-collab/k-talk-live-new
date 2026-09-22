@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Re-locked after guest-side receive-only repair. Increased WebRTC disconnect grace, reduced watch-signal spam, allowed longer ICE/TURN negotiation, and delayed memory fallback so it no longer interrupts the primary receive path. All components are locked again.",
+  "note": "PIN 1111 confirmed. Narrow fix only: when the same guest requests to join again, clear the previous approved slot/peer first so the old video does not remain. Other UI/layout/controls stay locked.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -76,6 +76,16 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [],
-  "temporarily_unlocked_components": []
+  "current_editable_components": [
+    "shared_guest_request_approval_signaling",
+    "guest_request_host_card_approval_only",
+    "guest_approval_to_slot",
+    "communication_auto_reconnect_only"
+  ],
+  "temporarily_unlocked_components": [
+    "shared_guest_request_approval_signaling",
+    "guest_request_host_card_approval_only",
+    "guest_approval_to_slot",
+    "communication_auto_reconnect_only"
+  ]
 }
