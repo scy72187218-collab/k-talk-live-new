@@ -80,6 +80,7 @@
   function detectDedicatedCountdownSelection(){
     try{
       if(detect13Selection())return true;
+      if(window.__ktNineRoomSelectedBeforeStart===true)return true;
 
       /* 실제 선택된 방 버튼을 먼저 본다.
          상태값이 아직 갱신되기 전 pointerdown에서도 검은 첫 카운트다운이 뜨지 않게 한다. */
