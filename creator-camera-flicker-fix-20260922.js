@@ -71,37 +71,35 @@
     try{await track.applyConstraints({advanced:[obj]});return true;}catch(e){return false;}
   }
 
-  async function lockMetering(track){
+  async function restoreAutoMetering(track){
     if(!track||track===lockedTrack||track.readyState!=='live')return;
-    if(!track.getCapabilities||!track.getSettings||!track.applyConstraints)return;
+    if(!track.getCapabilities||!track.applyConstraints)return;
 
-    var caps={},settings={};
-    try{caps=track.getCapabilities()||{};settings=track.getSettings()||{};}catch(e){return;}
+    var caps={};
+    try{caps=track.getCapabilities()||{};}catch(e){return;}
+    var adv={};
 
-    try{
-      if(Array.isArray(caps.exposureMode)&&caps.exposureMode.indexOf('manual')>-1 &&
-         typeof settings.exposureTime==='number'&&caps.exposureTime){
-        await applyOne(track,{exposureMode:'manual',exposureTime:settings.exposureTime});
-      }
-    }catch(e){}
+    if(Array.isArray(caps.exposureMode)&&caps.exposureMode.indexOf('continuous')>-1){
+      adv.exposureMode='continuous';
+    }
+    if(Array.isArray(caps.whiteBalanceMode)&&caps.whiteBalanceMode.indexOf('continuous')>-1){
+      adv.whiteBalanceMode='continuous';
+    }
+    if(Array.isArray(caps.focusMode)&&caps.focusMode.indexOf('continuous')>-1){
+      adv.focusMode='continuous';
+    }
 
-    try{
-      settings=track.getSettings?track.getSettings()||{}:settings;
-      if(Array.isArray(caps.whiteBalanceMode)&&caps.whiteBalanceMode.indexOf('manual')>-1 &&
-         typeof settings.colorTemperature==='number'&&caps.colorTemperature){
-        await applyOne(track,{whiteBalanceMode:'manual',colorTemperature:settings.colorTemperature});
-      }
-    }catch(e){}
-
+    if(Object.keys(adv).length){
+      try{await track.applyConstraints({advanced:[adv]});}catch(e){}
+    }
     lockedTrack=track;
   }
-
   function scheduleLock(){
     clearTimeout(lockTimer);
     lockTimer=setTimeout(function(){
       var v=cam(),track=null;
       try{track=v&&v.srcObject&&v.srcObject.getVideoTracks&&v.srcObject.getVideoTracks()[0];}catch(e){}
-      if(track&&track!==lockedTrack)lockMetering(track);
+      if(track&&track!==lockedTrack)restoreAutoMetering(track);
       stableBeauty();
     },900);
   }
