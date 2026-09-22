@@ -320,7 +320,11 @@
     pc.onconnectionstatechange=function(){
       var st=String(pc.connectionState||'');
       if(st==='failed'||st==='closed'){if(hostViewPeers[vid]===entry)delete hostViewPeers[vid];}
-      if(st==='disconnected')setTimeout(function(){if(hostViewPeers[vid]===entry&&pc.connectionState==='disconnected'){closePc(pc);delete hostViewPeers[vid];}},8000);
+      if(st==='disconnected')setTimeout(function(){
+        if(hostViewPeers[vid]===entry&&pc.connectionState==='disconnected'){
+          closePc(pc);delete hostViewPeers[vid];
+        }
+      },3000);
     };
     try{
       var offer=await pc.createOffer({offerToReceiveAudio:false,offerToReceiveVideo:false});
@@ -356,8 +360,18 @@
         clearViewerConnectTimer();
         var x=document.getElementById('ktRemoteLiveStatus');if(x)x.style.display='none';
       }
-      if(st==='failed'||st==='closed'){if(viewerPc===pc){viewerConnected=false;viewerPc=null;viewerSession='';viewerWatchToken=sid('watch');showConnecting();}}
-      if(st==='disconnected')setTimeout(function(){if(viewerPc===pc&&pc.connectionState==='disconnected'){closePc(pc);viewerPc=null;viewerSession='';viewerConnected=false;viewerWatchToken=sid('watch');showConnecting();}},5000);
+      if(st==='failed'||st==='closed'){
+        if(viewerPc===pc){
+          viewerConnected=false;viewerPc=null;viewerSession='';viewerWatchToken=sid('watch');showConnecting();
+          setTimeout(function(){ensureViewerWatch(true);},180);
+        }
+      }
+      if(st==='disconnected')setTimeout(function(){
+        if(viewerPc===pc&&pc.connectionState==='disconnected'){
+          closePc(pc);viewerPc=null;viewerSession='';viewerConnected=false;viewerWatchToken=sid('watch');showConnecting();
+          setTimeout(function(){ensureViewerWatch(true);},180);
+        }
+      },2500);
     };
     try{
       await pc.setRemoteDescription({type:'offer',sdp:sdp});
@@ -581,8 +595,14 @@
     pc.onicecandidate=function(ev){if(ev.candidate)send('guest_ice',{host_id:hid,viewer_id:viewerId(),session_id:guestSession,from:'guest',candidate:ev.candidate.toJSON?ev.candidate.toJSON():ev.candidate});};
     pc.onconnectionstatechange=function(){
       var st=String(pc.connectionState||'');
-      if(st==='failed'||st==='closed'){if(guestPc===pc){guestPc=null;setTimeout(function(){makeGuestOffer(hid);},800);}}
-      if(st==='disconnected')setTimeout(function(){if(guestPc===pc&&pc.connectionState==='disconnected'){closePc(pc);guestPc=null;setTimeout(function(){makeGuestOffer(hid);},500);}},5000);
+      if(st==='failed'||st==='closed'){
+        if(guestPc===pc){guestPc=null;setTimeout(function(){makeGuestOffer(hid);},350);}
+      }
+      if(st==='disconnected')setTimeout(function(){
+        if(guestPc===pc&&pc.connectionState==='disconnected'){
+          closePc(pc);guestPc=null;setTimeout(function(){makeGuestOffer(hid);},300);
+        }
+      },2500);
     };
     try{
       var offer=await pc.createOffer({offerToReceiveAudio:false,offerToReceiveVideo:false});await pc.setLocalDescription(offer);
@@ -599,8 +619,20 @@
     pc.onicecandidate=function(ev){if(ev.candidate)send('guest_ice',{host_id:DEVICE,viewer_id:vid,session_id:session,from:'host',candidate:ev.candidate.toJSON?ev.candidate.toJSON():ev.candidate});};
     pc.onconnectionstatechange=function(){
       var st=String(pc.connectionState||'');
-      if(st==='failed'||st==='closed'){if(hostGuestPeers[vid]===entry)delete hostGuestPeers[vid];}
-      if(st==='disconnected')setTimeout(function(){if(hostGuestPeers[vid]===entry&&pc.connectionState==='disconnected'){closePc(pc);delete hostGuestPeers[vid];}},8000);
+      if(st==='failed'||st==='closed'){
+        if(hostGuestPeers[vid]===entry){
+          delete hostGuestPeers[vid];
+          var ap=approvedGuests[vid];
+          if(ap)setTimeout(function(){send('guest_approved',{host_id:DEVICE,viewer_id:vid,name:ap.name||'게스트',at:Date.now(),reconnect:true});},180);
+        }
+      }
+      if(st==='disconnected')setTimeout(function(){
+        if(hostGuestPeers[vid]===entry&&pc.connectionState==='disconnected'){
+          closePc(pc);delete hostGuestPeers[vid];
+          var ap=approvedGuests[vid];
+          if(ap)setTimeout(function(){send('guest_approved',{host_id:DEVICE,viewer_id:vid,name:ap.name||'게스트',at:Date.now(),reconnect:true});},180);
+        }
+      },3000);
     };
     try{
       await pc.setRemoteDescription({type:'offer',sdp:sdp});
