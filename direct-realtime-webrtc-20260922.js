@@ -138,11 +138,42 @@
   function attachRemoteStreamNow(stream){
     stream=stream||window.__ktRemoteHostStream||null;
     if(!stream)return false;
-    var v=document.getElementById('ktRemoteLiveVideo');
-    if(!v)return false;
-    if(v.srcObject!==stream)v.srcObject=stream;
-    v.autoplay=true;v.playsInline=true;v.muted=true;v.defaultMuted=true;
-    try{var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
+
+    var targets=[];
+    function add(v){if(v&&targets.indexOf(v)<0)targets.push(v);}
+
+    /* Guest layouts rename/move the real host video after room entry/approval. */
+    add(document.getElementById('ktRemoteHostPreview'));
+    try{
+      document.querySelectorAll(
+        '.kt-guest-hostlike-room .kgh-cell.host video,'+
+        '.kt-approved-guest-grid .kt-approved-guest-cell.host video,'+
+        '.kt-prejoin-room-grid .kt-prejoin-room-cell.host video,'+
+        '.kt-guest-room-grid .kt-guest-room-cell.host video'
+      ).forEach(add);
+    }catch(e){}
+
+    var main=document.getElementById('ktRemoteLiveVideo');
+    var self=window.__ktApprovedGuestSelfStream||null;
+    if(main&&(!self||main.srcObject!==self))add(main);
+
+    if(!targets.length)return false;
+
+    targets.forEach(function(v){
+      try{
+        if(v.srcObject!==stream)v.srcObject=stream;
+        v.autoplay=true;
+        v.playsInline=true;
+        /* Keep remote host muted so mobile autoplay cannot be blocked. */
+        v.muted=true;
+        v.defaultMuted=true;
+        v.setAttribute('autoplay','');
+        v.setAttribute('playsinline','');
+        v.setAttribute('muted','');
+        var p=v.play();if(p&&p.catch)p.catch(function(){});
+      }catch(e){}
+    });
+
     var st=document.getElementById('ktRemoteLiveStatus');if(st)st.style.display='none';
     var badge=document.getElementById('ktRemoteViewerCount');if(badge)badge.textContent='👁 LIVE';
     return true;
