@@ -173,6 +173,32 @@
     renderDirectRequests();
   }
 
+  window.ktDirectEndAllGuestSessions20260923=function(){
+    if(!isHostRole())return false;
+    var ids={};
+    Object.keys(approvedGuests).forEach(function(id){ids[id]=1;});
+    Object.keys(pendingRequests).forEach(function(id){ids[id]=1;});
+    Object.keys(hostGuestPeers).forEach(function(id){ids[id]=1;});
+
+    Object.keys(ids).forEach(function(vid){
+      var nm=(approvedGuests[vid]&&approvedGuests[vid].name)||(pendingRequests[vid]&&pendingRequests[vid].name)||'게스트';
+      try{sharedApprovalPost(DEVICE,'guest_left',vid,nm);}catch(e){}
+      try{send('guest_left',{host_id:DEVICE,viewer_id:vid,name:nm,at:Date.now(),broadcast_end:true});}catch(e){}
+      try{clearApprovedGuestFromHost(vid);}catch(e){}
+    });
+
+    Object.keys(hostViewPeers).forEach(function(id){
+      try{closePc(hostViewPeers[id]&&hostViewPeers[id].pc);}catch(e){}
+    });
+    hostViewPeers={};
+    pendingRequests={};
+    approvedGuests={};
+    hostGuestPeers={};
+    hostGuestAliveAt={};
+    try{send('broadcast_ended',{host_id:DEVICE,at:Date.now()});}catch(e){}
+    return true;
+  };
+
   function postGuestLeaveShared(hostId){
     hostId=String(hostId||'').trim();
     if(!hostId)return;
@@ -818,6 +844,32 @@
     try{window.dispatchEvent(new CustomEvent('kt-guest-approval-received',{detail:{host_id:hid,viewer_id:viewerId()}}));}catch(e){}
   }
   function handleSignal(ev,p){
+    if(ev==='broadcast_ended'&&!isHostRole()){
+      var ended=String(p&&p.host_id||'').trim();
+      var current=String(remoteHostId()||lastRemoteHost||activeHostId||'').trim();
+      if(!ended||!current||ended!==current)return;
+
+      try{closePc(viewerPc);}catch(e){}
+      try{closePc(guestPc);}catch(e){}
+      viewerPc=null;viewerSession='';viewerConnected=false;
+      guestPc=null;guestSession='';guestApproved=false;guestApprovedHost='';requestOn=false;
+      clearViewerConnectTimer();
+      window.__ktRemoteHostStream=null;
+      window.__ktRemoteHostId='';
+      window.__ktCurrentRemoteHostId='';
+      window.__ktUseMemoryGuestVideo20260922=false;
+      lastRemoteHost='';activeHostId='';
+      try{sessionStorage.removeItem('kt_remote_host_id');}catch(e){}
+      try{if(typeof window.ktLeaveRemoteLive==='function')window.ktLeaveRemoteLive(true);}catch(e){}
+      setTimeout(function(){
+        try{
+          if(typeof window.ktReturnLatestVideoAfterBroadcast==='function')window.ktReturnLatestVideoAfterBroadcast();
+          else if(typeof window.ktShowSharedServerFeed==='function')window.ktShowSharedServerFeed();
+          else if(typeof window.home==='function')window.home();
+        }catch(e){}
+      },60);
+      return;
+    }
     if(ev==='host_ready'&&!isHostRole()){
       var hid=remoteHostId();
       if(hid&&String(p.host_id||'')===hid&&!viewerConnected)ensureViewerWatch(false);
