@@ -236,8 +236,12 @@
         Object.keys(latest).forEach(function(vid){
           var x=latest[vid];
           if(x.kind==='request'){
+            /* 같은 게스트가 다시 참여 신청하면 예전 승인 슬롯/영상/peer를 먼저 정리한다.
+               이전 영상이 남은 채 새 세션이 겹치지 않게 하고, 새 승인 후 새 연결만 올린다. */
+            if(approvedGuests[vid]||hostGuestPeers[vid]){
+              clearApprovedGuestFromHost(vid);
+            }
             pendingRequests[vid]={name:x.name||'게스트',at:x.ts||Date.now()};
-            delete approvedGuests[vid];
           }else{
             delete pendingRequests[vid];
             if(x.kind==='approved'){
@@ -824,7 +828,16 @@
     if(ev==='video_answer'){hostHandleAnswer(p);return;}
     if(ev==='video_ice'){handleVideoIce(p);return;}
     if(ev==='guest_request'&&isHostRole()&&String(p.host_id||'')===DEVICE){
-      var vid=String(p.viewer_id||'');if(vid){pendingRequests[vid]={name:String(p.name||'게스트'),at:Date.now()};renderDirectRequests();}return;
+      var vid=String(p.viewer_id||'');
+      if(vid){
+        /* 재입장 신청은 새 세션으로 취급: 기존 게스트 영상/승인/peer를 즉시 비운다. */
+        if(approvedGuests[vid]||hostGuestPeers[vid]){
+          clearApprovedGuestFromHost(vid);
+        }
+        pendingRequests[vid]={name:String(p.name||'게스트'),at:Date.now()};
+        renderDirectRequests();
+      }
+      return;
     }
     if(ev==='guest_cancel'&&isHostRole()){
       delete pendingRequests[String(p.viewer_id||'')];renderDirectRequests();return;
