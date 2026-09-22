@@ -16,10 +16,35 @@
     }catch(e){return false;}
   }
 
+  function selectedNineNow(){
+    try{
+      var b=document.querySelector('.live-prep .kt-room-bottom5 button.on,.kt-room-bottom5 button.on');
+      if(b&&/9\s*명/.test(String(b.textContent||'')))return true;
+      return isGroup9();
+    }catch(e){return isGroup9();}
+  }
+
+  /* 첫 카운트다운을 시작하는 순간 9명방 선택을 12초 동안 기억한다.
+     첫 5→1이 끝난 뒤 내부 코드가 상태값을 잠깐 바꿔도 두 번째 카운트다운은 막는다. */
+  window.addEventListener('pointerdown',function(e){
+    try{
+      var btn=e.target&&e.target.closest?e.target.closest('.live-prep .prep-start'):null;
+      if(btn&&selectedNineNow())window.__ktGroup9FirstCountdownUntil=Date.now()+12000;
+    }catch(_e){}
+  },true);
+
+  window.addEventListener('click',function(e){
+    try{
+      var btn=e.target&&e.target.closest?e.target.closest('.live-prep .prep-start'):null;
+      if(btn&&selectedNineNow())window.__ktGroup9FirstCountdownUntil=Date.now()+12000;
+    }catch(_e){}
+  },true);
+
   var oldCountdown=window.ktLiveStartCountdown;
   if(typeof oldCountdown==='function'&&!oldCountdown.__ktGroup9SingleCountdownDirectOpen){
     var fn=async function(){
-      if(isGroup9())return true;
+      var remembered=Number(window.__ktGroup9FirstCountdownUntil||0)>Date.now();
+      if(remembered||isGroup9())return true;
       return oldCountdown.apply(this,arguments);
     };
     fn.__ktGroup9SingleCountdownDirectOpen=true;
