@@ -9,7 +9,7 @@
   var MEM_BEACON='/api/live-beacon-memory';
   var ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
   var hostPoll=null,viewerPoll=null,hostGuestPeers={},requestNames={},hostGuestMissingSince={};
-  var viewerGuest={pc:null,stream:null,sessionId:'',hostId:'',approvedKey:'',viewTimer:null,prejoinHostStream:null,connectStartedAt:0,mediaDenied:false,mediaOpening:false};
+  var viewerGuest={pc:null,stream:null,sessionId:'',hostId:'',approvedKey:'',viewTimer:null,prejoinHostStream:null,connectStartedAt:0,approvalMissingSince:0,mediaDenied:false,mediaOpening:false};
 
   function enc(v){return encodeURIComponent(String(v==null?'':v));}
   function esc(v){return String(v==null?'':v).replace(/[&<>\"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c];});}
@@ -203,32 +203,40 @@
       return age>=0&&age<15*60*1000?r:null;
     }catch(e){return null;}
   }
-  async function postGuestMessage(hostId,type,message,senderId,senderName){if(!hostId)return false;try{await req('ktalk_live_messages',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({host_id:hostId,sender_id:senderId||viewerId(),sender_name:senderName||profile().name||'게스트',message:String(message||'').slice(0,300),message_type:String(type||'guest_request')})});return true;}catch(e){return false;}}
+  async function postGuestMessage(hostId,type,message,senderId,senderName){
+    if(!hostId)return false;
+    var payload={
+      host_id:hostId,
+      sender_id:senderId||viewerId(),
+      sender_name:senderName||profile().name||'게스트',
+      message:String(message||'').slice(0,300),
+      message_type:String(type||'guest_request')
+    };
+    var ok=false;
 
-  async function prepareViewerGuestMedia(){
+    /* 승인/신청 상태는 DB와 메모리 신호 양쪽에 같이 남긴다.
+       한쪽 연결이 순간 흔들려도 다음 폴링에서 승인 상태가 사라지지 않게 한다. */
     try{
-      var s=viewerGuest.stream||null;
-      var live=!!(s&&s.getVideoTracks&&s.getVideoTracks().some(function(t){return t.readyState==='live';}));
-      if(live||viewerGuest.mediaOpening||viewerGuest.mediaDenied)return s;
-      viewerGuest.mediaOpening=true;
-      try{
-        s=await navigator.mediaDevices.getUserMedia({
-          video:{facingMode:{ideal:'user'},width:{ideal:1280},height:{ideal:960},frameRate:{ideal:30,max:30}},
-          audio:true
-        });
-      }catch(e){
-        try{s=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});}
-        catch(z){
-          var n=String((z&&z.name)||(e&&e.name)||'').toLowerCase();
-          if(n==='notallowederror'||n==='permissiondeniederror'||n==='securityerror')viewerGuest.mediaDenied=true;
-          return null;
-        }
+      if(await ensureConfig()){
+        var ctrl=typeof AbortController!=='undefined'?new AbortController():null;
+        var timer=ctrl?setTimeout(function(){ctrl.abort();},1800):null;
+        var opt={method:'POST',headers:headers({Prefer:'return=minimal'}),body:JSON.stringify(payload),cache:'no-store'};
+        if(ctrl)opt.signal=ctrl.signal;
+        var rr=await fetch(BASE+'ktalk_live_messages',opt);
+        if(timer)clearTimeout(timer);
+        if(rr&&rr.ok)ok=true;
       }
-      viewerGuest.stream=s;
-      return s;
-    }finally{
-      viewerGuest.mediaOpening=false;
-    }
+    }catch(e){}
+
+    try{
+      await memoryReq('ktalk_live_messages',{
+        method:'POST',
+        body:JSON.stringify(payload)
+      });
+      ok=true;
+    }catch(e){}
+
+    return ok;
   }
 
   async function sendGuestRequest(){
@@ -238,7 +246,6 @@
     try{
       var hostId=await currentViewerHost();if(!hostId)return;
       var p=profile(),vid=viewerId(),cancel=!!(b&&b.classList.contains('kt-requested'));
-      if(!cancel)prepareViewerGuestMedia();
       var ok=cancel
         ?await postGuestMessage(hostId,'guest_cancelled:'+vid,'↩ '+(p.name||'게스트')+'님이 방송 참여 신청을 취소했습니다.',vid,p.name||'게스트')
         :await postGuestMessage(hostId,'guest_request:'+vid,'👥 '+(p.name||'게스트')+'님이 방송 참여를 신청했습니다.',vid,p.name||'게스트');
@@ -246,6 +253,10 @@
         b.classList.toggle('kt-requested',!cancel);
         b.setAttribute('title',cancel?'방송 참여 신청':'참여 신청 취소');
         b.setAttribute('aria-label',cancel?'방송 참여 신청':'참여 신청 취소');
+      }
+      if(ok&&cancel&&viewerGuest.approvedKey){
+        viewerGuest.approvalMissingSince=0;
+        try{var leaving=leaveApprovedGuestNow();if(leaving&&leaving.catch)leaving.catch(function(){});}catch(e){}
       }
     }finally{
       if(b)delete b.dataset.ktGuestToggleBusy;
@@ -310,8 +321,8 @@
 
     Object.keys(requestAt).forEach(function(vid){
       var reqTs=requestAt[vid],joinTs=joinAt[vid]||'';
-      /* 현재 입장 뒤에 직접 신청한 요청만 유효하다. 예전 승인/예전 신청은 재사용하지 않는다. */
-      if(joinTs&&reqTs<joinTs)return;
+      /* 자동 재연결 때 생기는 '들어왔습니다' 기록은 기존 참여승인을 취소하지 않는다.
+         취소 버튼을 직접 누른 경우만 승인 상태를 해제한다. */
       var apTs=approvedAt[vid]||'',cancelTs=cancelledAt[vid]||'';
       if(cancelTs&&cancelTs>=reqTs)return;
       /* 승인 후에는 시청자 heartbeat가 잠깐 빠져도 승인 상태를 유지한다.
@@ -321,12 +332,12 @@
     });
 
     renderRequestRail(pending);
-    await hostGuestSessionTick(approvedNow);
+    await hostGuestSessionTick(approvedNow,cancelledAt,requestAt);
   }
 
   /* 현재 방송에서 호스트가 승인한 게스트만 호스트 화면에 카메라를 올린다. 예전/남은 WebRTC 세션은 표시하지 않는다. */
-  async function hostGuestSessionTick(approvedNow){
-    approvedNow=approvedNow||{};
+  async function hostGuestSessionTick(approvedNow,cancelledAt,requestAt){
+    approvedNow=approvedNow||{};cancelledAt=cancelledAt||{};requestAt=requestAt||{};
     if(!document.querySelector('.ktg13-room'))return;
 
     var hid=deviceId(),rows=[];
@@ -353,8 +364,20 @@
       if(!vid)return;
 
       if(!approvedNow[vid]){
-        delete hostGuestMissingSince[vid];
+        var cancelled=!!(cancelledAt[vid]&&(!requestAt[vid]||String(cancelledAt[vid])>=String(requestAt[vid])));
+        if(cancelled){
+          delete hostGuestMissingSince[vid];
+          releaseGuestSlot(slot,vid);
+          return;
+        }
+
+        /* 승인 직후 DB/메모리 신호가 잠깐 엇갈려도 게스트 칸을 바로 지우지 않는다.
+           최대 2분 동안 같은 자리에서 재연결을 기다린다. */
+        if(!hostGuestMissingSince[vid])hostGuestMissingSince[vid]=Date.now();
+        if(Date.now()-hostGuestMissingSince[vid]<120000)return;
+
         releaseGuestSlot(slot,vid);
+        delete hostGuestMissingSince[vid];
         return;
       }
 
@@ -363,11 +386,10 @@
         return;
       }
 
+      /* 승인된 게스트는 수신이 잠깐 끊겨도 칸 자체를 내리지 않는다.
+         영상은 같은 자리에서 재연결하고, 실제 취소/나가기 때만 칸을 비운다. */
       if(!hostGuestMissingSince[vid])hostGuestMissingSince[vid]=Date.now();
-      if(Date.now()-hostGuestMissingSince[vid]>15000){
-        delete hostGuestMissingSince[vid];
-        releaseGuestSlot(slot,vid);
-      }
+      return;
     });
 
     Object.keys(hostGuestPeers).forEach(function(id){
@@ -449,7 +471,7 @@
         await pc.setRemoteDescription({type:'offer',sdp:x.offer_sdp});
         var ans=await pc.createAnswer();
         await pc.setLocalDescription(ans);
-        await waitIce(pc,700);
+        await waitIce(pc,5000);
 
         await req('ktalk_webrtc_sessions?id=eq.'+enc(x.id),{
           method:'PATCH',
@@ -495,7 +517,7 @@
          신청 후 다시 사람 버튼을 눌러 취소하면 승인을 진행하지 않는다. */
       if(!reqRow||!apRow)return null;
       var reqTs=String(reqRow.created_at||''),apTs=String(apRow.created_at||''),cancelTs=cancelRow?String(cancelRow.created_at||''):'',joinTs=joinRow?String(joinRow.created_at||''):'';
-      if(joinTs&&reqTs<joinTs)return null;
+      /* 통신 재접속으로 새 입장기록이 생겨도 승인 자체는 유지한다. */
       if(cancelTs&&cancelTs>=reqTs)return null;
       if(apTs<reqTs)return null;
       return apRow;
@@ -601,7 +623,7 @@
       var st='';
       try{st=String(viewerGuest.pc.connectionState||'');}catch(e){}
       var age=viewerGuest.connectStartedAt?Date.now()-viewerGuest.connectStartedAt:0;
-      if(st==='connected'||st==='connecting'||(st==='new'&&age<18000))return;
+      if(st==='connected'||st==='connecting'||st==='disconnected'||(st==='new'&&age<30000))return;
       resetViewerGuestPc(viewerGuest.pc);
     }
 
@@ -684,14 +706,14 @@
         if(s==='disconnected'){
           setTimeout(function(){
             if(viewerGuest.pc===pc&&pc.connectionState==='disconnected')resetViewerGuestPc(pc);
-          },12000);
+          },30000);
         }
       };
 
       stream.getTracks().forEach(function(t){try{pc.addTrack(t,stream);}catch(e){}});
       var offer=await pc.createOffer({offerToReceiveAudio:false,offerToReceiveVideo:false});
       await pc.setLocalDescription(offer);
-      await waitIce(pc,700);
+      await waitIce(pc,5000);
 
       var created=await req('ktalk_webrtc_sessions',{
         method:'POST',
@@ -716,7 +738,7 @@
         tries++;
 
         /* 호스트 답이 오래 안 오면 이 연결만 닫고 viewerTick이 자동 재시도한다. */
-        if(tries>24){
+        if(tries>40){
           clearInterval(t);
           resetViewerGuestPc(pc);
           return;
@@ -735,7 +757,7 @@
             clearInterval(t);
           }
         }catch(e){}
-      },300);
+      },850);
     }catch(e){
       resetViewerGuestPc(pc);
     }
@@ -756,9 +778,20 @@
     if(!hostId){ensurePrejoinRoomGrid();return;}
     var vid=viewerId(),ap=await latestApproval(hostId,vid);
     if(ap){
+      viewerGuest.approvalMissingSince=0;
       startViewerGuestUplink(hostId,vid,String(ap.id||ap.created_at||'approved'));
     }else{
-      /* 신청/승인이 없는 새 입장에서는 예전 게스트 업링크를 즉시 끈다. */
+      /* 이미 승인되어 올라간 상태라면 DB/수신이 잠깐 흔들렸다고 바로 내리지 않는다.
+         30초 동안 같은 자리와 카메라를 유지하며 자동 재연결한다. */
+      if(viewerGuest.approvedKey&&viewerGuest.hostId===hostId){
+        if(!viewerGuest.approvalMissingSince)viewerGuest.approvalMissingSince=Date.now();
+        if(Date.now()-viewerGuest.approvalMissingSince<120000){
+          if(viewerGuest.stream)startLocalGuestViewGuard(viewerGuest.stream);
+          return;
+        }
+      }
+      viewerGuest.approvalMissingSince=0;
+      /* 신청/승인이 없는 새 입장에서는 예전 게스트 업링크를 끈다. */
       if(viewerGuest.sessionId||viewerGuest.pc||viewerGuest.hostId){
         try{
           await req('ktalk_webrtc_sessions?host_id=eq.'+enc(hostId)+'&viewer_id=eq.'+enc('guest:'+vid)+'&active=eq.true',{
@@ -771,6 +804,7 @@
         viewerGuest.hostId='';
         viewerGuest.approvedKey='';
         viewerGuest.connectStartedAt=0;
+        viewerGuest.approvalMissingSince=0;
         stopLocalGuestViewGuard();
         if(viewerGuest.stream){try{viewerGuest.stream.getTracks().forEach(function(t){t.stop();});}catch(e){}viewerGuest.stream=null;}
       }
@@ -832,7 +866,7 @@
     window.ktLeaveRemoteLive=wrapped;
   }
 
-  function start(){if(started)return;started=true;bindGuestLeaveCleanup();setInterval(bindGuestLeaveCleanup,800);ensureStyle();bindRequestButton();hostPoll=setInterval(hostTick,700);viewerPoll=setInterval(viewerTick,700);setInterval(removeDuplicateGroupRoom,350);setTimeout(hostTick,100);setTimeout(viewerTick,180);var dedupeTimer=null,obs=new MutationObserver(function(){bindRequestButton();clearTimeout(dedupeTimer);dedupeTimer=setTimeout(removeDuplicateGroupRoom,30);});obs.observe(document.documentElement,{childList:true,subtree:true});}
+  function start(){if(started)return;started=true;bindGuestLeaveCleanup();setInterval(bindGuestLeaveCleanup,800);ensureStyle();bindRequestButton();hostPoll=setInterval(hostTick,1200);viewerPoll=setInterval(viewerTick,1300);setInterval(removeDuplicateGroupRoom,350);setTimeout(hostTick,100);setTimeout(viewerTick,180);var dedupeTimer=null,obs=new MutationObserver(function(){bindRequestButton();clearTimeout(dedupeTimer);dedupeTimer=setTimeout(removeDuplicateGroupRoom,30);});obs.observe(document.documentElement,{childList:true,subtree:true});}
   document.addEventListener('DOMContentLoaded',start);if(document.readyState!=='loading')start();
   window.addEventListener('pagehide',function(){clearInterval(hostPoll);clearInterval(viewerPoll);endViewerGuestSession(true);stopLocalGuestViewGuard();removePrejoinRoomGrid();Object.keys(hostGuestPeers).forEach(function(k){try{hostGuestPeers[k].close();}catch(e){}});hostGuestPeers={};if(viewerGuest.pc){try{viewerGuest.pc.close();}catch(e){}}if(viewerGuest.stream){try{viewerGuest.stream.getTracks().forEach(function(t){t.stop();});}catch(e){}}});
 })();
