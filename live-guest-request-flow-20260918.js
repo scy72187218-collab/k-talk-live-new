@@ -49,7 +49,9 @@
     try{
       var deg=ktDeviceVideoRotation180();
       var host=document.querySelector('#screen .ktg13-room[data-kt-room="9"] .ktg13-host>video');
-      if(host)ktApplyVideoRotation(host,deg,true);
+      /* 9명방 첫 번째 호스트 화면은 좌우반전하지 않는다.
+         180도 회전 보정만 적용해서 실제 손 방향과 화면 방향을 맞춘다. */
+      if(host)ktApplyVideoRotation(host,deg,false);
       var self=document.querySelector('.kt-guest-hostlike-room .kgh-cell.self video,#ktRemoteLiveVideo[data-kt-local-guest-view="1"]');
       if(self)ktApplyVideoRotation(self,deg,true);
     }catch(e){}
