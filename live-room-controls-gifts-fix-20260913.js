@@ -387,7 +387,7 @@
     try{
       var t=(window.state&&state.liveRoomType)||'';
       var n=(window.state&&state.liveRoomName)||'';
-      if(t==='group9'||n==='9명 방송')return null; /* 9명방은 검은 가림막 없이 바로 연다 */
+      if(t==='group9'||n==='9명 방송')return {selector:'.ktg13-room[data-kt-room="9"]'};
       if(t==='group15'||n==='15명 방송')return {selector:'.ktg13-room[data-kt-room="15"]'};
       if(t==='group'||t==='group13'||n==='13명 방송')return {selector:'.ktg13-room:not([data-kt-room="9"]):not([data-kt-room="15"])'};
       if(t==='subscriber'||String(n).indexOf('구독자')>-1)return {selector:'.ktsubscriber-room'};
