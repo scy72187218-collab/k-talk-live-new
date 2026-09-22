@@ -933,6 +933,14 @@
     var vid=viewerId();
     var sid=viewerGuest.sessionId||'';
 
+    /* 실제 퇴장 버튼은 호스트에게 즉시 guest_left를 먼저 보낸다.
+       그래야 호스트 칸에 마지막 프레임이 남지 않고 바로 빈 칸으로 돌아간다. */
+    try{
+      if(hostId&&typeof window.ktDirectGuestLeaveNow20260923==='function'){
+        window.ktDirectGuestLeaveNow20260923(hostId);
+      }
+    }catch(e){}
+
     /* 게스트가 방에서 나가는 순간 업링크 세션을 바로 종료해서 호스트 칸도 즉시 내려가게 한다. */
     try{
       if(sid){
