@@ -294,6 +294,7 @@
   }
 
   function ensureViewerWatch(force){
+    if(window.__ktUseMemoryGuestVideo20260922)return;
     var hid=remoteHostId();if(!hid||isHostRole())return;
     if(!viewerWatchToken)viewerWatchToken=sid('watch');
     var now=Date.now();
@@ -511,6 +512,7 @@
       var hid=String(e&&e.detail&&e.detail.host_id||'').trim();
       if(!hid)return;
       lastRemoteHost=hid;
+      if(window.__ktUseMemoryGuestVideo20260922)return;
       viewerWatchToken=sid('watch');
       viewerConnected=false;
       lastWatchAt=0;
