@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "PIN 1111 confirmed. Narrow fix only: when the same guest requests to join again, clear the previous approved slot/peer first so the old video does not remain. Other UI/layout/controls stay locked.",
+  "note": "Re-locked after guest re-entry cleanup. A fresh guest request now clears that guest's old approved slot/video/peer first; the guest must be approved into a new session. All components are locked again.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -76,16 +76,6 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "shared_guest_request_approval_signaling",
-    "guest_request_host_card_approval_only",
-    "guest_approval_to_slot",
-    "communication_auto_reconnect_only"
-  ],
-  "temporarily_unlocked_components": [
-    "shared_guest_request_approval_signaling",
-    "guest_request_host_card_approval_only",
-    "guest_approval_to_slot",
-    "communication_auto_reconnect_only"
-  ]
+  "current_editable_components": [],
+  "temporarily_unlocked_components": []
 }
