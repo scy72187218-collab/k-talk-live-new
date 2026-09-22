@@ -64,7 +64,24 @@
   var countdownPromise=null;
   var pendingGroup13=false;
 
+  function detect9Selection0900(){
+    try{
+      var bottom=[].slice.call(document.querySelectorAll('.live-prep .kt-room-bottom5 button.on,.kt-room-bottom5 button.on'));
+      if(bottom.some(function(b){return /9\s*명/.test(String(b.textContent||''));}))return true;
+      var st=window.state||{};
+      var vals=[st.liveRoomType,st.prepRoomType,st.roomType,st.liveRoomName,st.prepRoomName].join(' ');
+      if(/group9|9명/.test(String(vals)))return true;
+      if(Number(st.liveRoomMax||st.prepRoomMax||0)===9)return true;
+      var title=document.getElementById('liveTitle');
+      if(title&&/9\s*명/.test(String(title.value||'')))return true;
+    }catch(e){}
+    return false;
+  }
+
   function detect13Selection(){
+    /* 9명방이 선택돼 있으면 위쪽 13명 버튼의 예전 on 표시가 남아 있어도
+       13명방으로 판단하지 않는다. 9명방은 오전 9시 흐름을 그대로 탄다. */
+    if(detect9Selection0900())return false;
     try{
       var on=[].slice.call(document.querySelectorAll('.live-prep .room-switch.on,.live-prep .room-switch[aria-pressed="true"]'));
       if(on.some(function(b){return /13\s*명/.test(String(b.textContent||''));}))return true;
@@ -79,6 +96,7 @@
 
   function detectDedicatedCountdownSelection(){
     try{
+      if(detect9Selection0900())return false;
       if(detect13Selection())return true;
 
       /* 실제 선택된 방 버튼을 먼저 본다.
@@ -278,8 +296,10 @@
   };
 
   window.startBroadcast=async function(){
-    /* 13명방과 동일하게, 1인/9명/구독자/비밀방도 각 전용 래퍼에서 한 번만 센다. */
-    if(detectDedicatedCountdownSelection())return previousStart.apply(this,arguments);
+    /* 9명방은 09:00 원래 공용 5→1 시작 흐름을 그대로 사용한다.
+       다른 전용 래퍼 판단보다 먼저 9명방을 고정한다. */
+    var nine0900=detect9Selection0900();
+    if(!nine0900&&detectDedicatedCountdownSelection())return previousStart.apply(this,arguments);
     if(releaseStartButton)return previousStart.apply(this,arguments);
     if(launching)return;
     launching=true;
