@@ -27,6 +27,22 @@
     }catch(e){return false;}
   }
 
+  function forceNineState(){
+    try{
+      if(window.state){
+        state.liveRoomType='group9';
+        state.liveRoomName='9명 방송';
+        state.liveRoomMax=9;
+        state.prepRoomType='group9';
+        state.prepRoomName='9명 방송';
+        state.prepRoomMax=9;
+        state.roomType='group9';
+      }
+      var title=document.getElementById('liveTitle');
+      if(title)title.value='9명 방송';
+    }catch(e){}
+  }
+
   function removeCountdown(){
     try{
       var old=document.getElementById('ktLiveCountdown');
@@ -80,6 +96,8 @@
   window.addEventListener('pointerdown',function(e){
     var btn=e.target&&e.target.closest?e.target.closest('.live-prep .prep-start'):null;
     if(btn&&isNine()){
+      window.__ktGroup9RoomFirstCountdown=true;
+      forceNineState();
       /* 카메라만 미리 준비하고 숫자는 방이 열린 뒤에 시작한다. */
       try{
         if(typeof window.ensureLiveCamera==='function'){
@@ -132,7 +150,8 @@
         window.__ktGroup9RoomFirstCountdown=true;
         window.ktLiveStartCountdown=async function(){return true;};
 
-        /* 1) 먼저 9명방을 연다. */
+        /* 1) 13명방 상태가 끼어들지 못하게 9명방을 확정한 뒤 먼저 연다. */
+        forceNineState();
         await previousStart();
 
         /* 2) 9명방 화면이 실제 DOM에 붙고 한 번 그려질 때까지 기다린다. */
@@ -164,6 +183,7 @@
     var self=this,args=arguments;
     try{
       window.__ktGroup9RoomFirstCountdown=true;
+      forceNineState();
       window.ktLiveStartCountdown=async function(){return true;};
       var result=await previousStart.apply(self,args);
       await waitNineRoom();
