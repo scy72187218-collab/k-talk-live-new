@@ -25,9 +25,9 @@
     secret:true,
     videos:true,
     videoFeed:true,
-    videoCommunication:true,
-    mediaTransport:true,
-    liveSignal:true,
+    videoCommunication:false,
+    mediaTransport:false,
+    liveSignal:false,
     publicVideoSideActions:true,
     publicVideoRoseButton:true,
     publicVideoRoseCount:true,
@@ -102,9 +102,9 @@
     locked.helpReader=true;
     locked.videos=true;
     locked.videoFeed=true;
-    locked.videoCommunication=true;
-    locked.mediaTransport=true;
-    locked.liveSignal=true;
+    locked.videoCommunication=false;
+    locked.mediaTransport=false;
+    locked.liveSignal=false;
     locked.publicVideoSideActions=true;
     locked.publicVideoRoseButton=true;
     locked.publicVideoRoseCount=true;
@@ -114,7 +114,7 @@
     save();markAll();return true;
   };
   window.ktIsLiveSignalWorkAllowed=function(){
-    return false;
+    return true;
   };
 
   /* 보호 잠금은 UI 기능을 비활성화하지 않는다. */
