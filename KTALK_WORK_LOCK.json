@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260922-camera-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Creator camera stability remains locked. Communications only are explicitly unlocked for repair: group13_guest_uplink, video_communication, media_transport, webrtc_transport_stability. All other UI/layout/chat/button/switch/countdown/gift/earnings components remain locked.",
+  "note": "Owner confirmed current repaired state and locked it with PIN 1111. Protected now: guest uplink/approval video bridge, remote host-id bridge, remote video connection speed, WebRTC/media transport, and 9-room host video brightness. Creator camera stability and all previously protected UI/layout/chat/button/switch/countdown/gift/earnings components remain locked.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -41,7 +41,15 @@
     "creator_camera_preview_stability",
     "creator_camera_flicker_stability",
     "creator_camera_person_sizing",
-    "creator_camera_metering_stability"
+    "creator_camera_metering_stability",
+    "group13_guest_uplink",
+    "video_communication",
+    "media_transport",
+    "webrtc_transport_stability",
+    "remote_host_id_bridge",
+    "approved_guest_direct_video_bridge",
+    "remote_video_connect_speed",
+    "group9_host_video_brightness"
   ],
   "check_trigger_phrase": "K-톡 비밀번호 확인",
   "check_behavior": {
@@ -50,16 +58,6 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "group13_guest_uplink",
-    "video_communication",
-    "media_transport",
-    "webrtc_transport_stability"
-  ],
-  "temporarily_unlocked_components": [
-    "group13_guest_uplink",
-    "video_communication",
-    "media_transport",
-    "webrtc_transport_stability"
-  ]
+  "current_editable_components": [],
+  "temporarily_unlocked_components": []
 }
