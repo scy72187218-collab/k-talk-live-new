@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260922-giftup1",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Communications only remains unlocked per owner request. Added bidirectional media to approved guest connection so host video can return to guest while guest video uplinks to host. All UI/layout/chat/button/switch/countdown/gift/earnings components remain locked.",
+  "note": "Owner confirmed creator camera preview is now stable. Lock creator camera shake/flicker/person-sizing/metering stability. Communications remain temporarily unlocked. All previously protected UI/layout/chat/button/switch/countdown/gift/earnings components remain locked.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -41,7 +41,11 @@
     "subscriber_countdown_transition",
     "secret_countdown_transition",
     "group9_current_room_entry",
-    "group9_layout_snapshot"
+    "group9_layout_snapshot",
+    "creator_camera_preview_stability",
+    "creator_camera_flicker_stability",
+    "creator_camera_person_sizing",
+    "creator_camera_metering_stability"
   ],
   "check_trigger_phrase": "K-톡 비밀번호 확인",
   "check_behavior": {
