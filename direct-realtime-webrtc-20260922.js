@@ -14,7 +14,7 @@
   var viewerPc=null,viewerSession='',viewerWatchToken='',viewerConnected=false,viewerIce={},viewerConnectTimer=null;
   var pendingRequests={},approvedGuests={},hostGuestPeers={},guestPc=null,guestSession='',guestApprovedHost='',guestApproved=false,guestStream=null,guestIce={};
   var requestOn=false,lastRemoteHost='',lastHostRole='',lastWatchAt=0;
-  var sharedApprovalPollBusy=false,leaveAnnouncedHost='',hiddenLeaveTimer=null;
+  var sharedApprovalPollBusy=false,leaveAnnouncedHost='',guestAliveLastSent=0,hostGuestAliveAt={};
 
   function deviceId(){
     var id='';
@@ -110,7 +110,7 @@
       host_id:hostId,
       sender_id:vid,
       sender_name:String(name||'게스트').slice(0,100),
-      message:type.indexOf('approved')>-1?'참여 승인':(type.indexOf('cancelled')>-1?'참여 신청 취소':(type.indexOf('left')>-1?'방송 나감':'방송 참여 신청')),
+      message:type.indexOf('approved')>-1?'참여 승인':(type.indexOf('cancelled')>-1?'참여 신청 취소':(type.indexOf('left')>-1?'방송 나감':(type.indexOf('alive')>-1?'방송 참여 유지':'방송 참여 신청'))),
       message_type:type+':'+vid
     };
     try{
@@ -132,6 +132,7 @@
     if(!vid)return;
     delete pendingRequests[vid];
     delete approvedGuests[vid];
+    delete hostGuestAliveAt[vid];
 
     var hp=hostGuestPeers[vid];
     if(hp){try{closePc(hp.pc);}catch(e){}delete hostGuestPeers[vid];}
@@ -237,8 +238,24 @@
             delete approvedGuests[vid];
           }else{
             delete pendingRequests[vid];
-            if(x.kind==='approved')approvedGuests[vid]=approvedGuests[vid]||{name:x.name||'게스트',at:x.ts||Date.now()};
-            else if(x.kind==='left')clearApprovedGuestFromHost(vid);
+            if(x.kind==='approved'){
+              approvedGuests[vid]=approvedGuests[vid]||{name:x.name||'게스트',at:x.ts||Date.now()};
+              hostGuestAliveAt[vid]=Math.max(Number(hostGuestAliveAt[vid]||0),Number(x.ts||Date.now()));
+            }else if(x.kind==='alive'){
+              approvedGuests[vid]=approvedGuests[vid]||{name:x.name||'게스트',at:x.ts||Date.now()};
+              hostGuestAliveAt[vid]=Math.max(Number(hostGuestAliveAt[vid]||0),Number(x.ts||Date.now()));
+            }else if(x.kind==='left'){
+              delete hostGuestAliveAt[vid];
+              clearApprovedGuestFromHost(vid);
+            }
+          }
+        });
+        var now=Date.now();
+        Object.keys(approvedGuests).forEach(function(vid){
+          var seen=Number(hostGuestAliveAt[vid]||0);
+          if(seen&&now-seen>12000){
+            delete hostGuestAliveAt[vid];
+            clearApprovedGuestFromHost(vid);
           }
         });
         renderDirectRequests();
@@ -765,6 +782,7 @@
     guestApproved=true;
     guestApprovedHost=hid;
     leaveAnnouncedHost='';
+    guestAliveLastSent=0;
 
     var b=document.getElementById('ktRemoteGuestRequest');
     if(b){
@@ -848,7 +866,14 @@
       if(lastRemoteHost!==hid){lastRemoteHost=hid;viewerWatchToken=sid('watch');viewerConnected=false;}
       ensureViewerWatch(false);
       if(requestOn)send('guest_request',{host_id:hid,viewer_id:viewerId(),name:profileName(),at:Date.now()});
-      if(guestApproved&&guestApprovedHost===hid&&(!guestPc||['failed','closed'].indexOf(String(guestPc.connectionState||''))>-1))startGuestCamera(hid);
+      if(guestApproved&&guestApprovedHost===hid){
+        var n=Date.now();
+        if(!document.hidden&&n-guestAliveLastSent>2000){
+          guestAliveLastSent=n;
+          sharedApprovalPost(hid,'guest_alive',viewerId(),profileName());
+        }
+        if(!guestPc||['failed','closed'].indexOf(String(guestPc.connectionState||''))>-1)startGuestCamera(hid);
+      }
     }
   }
   setInterval(roleTick,250);
@@ -883,21 +908,13 @@
 
   window.addEventListener('online',function(){if(activeHostId)connect(activeHostId);});
   document.addEventListener('visibilitychange',function(){
-    if(document.hidden){
-      /* Mobile browsers briefly hide the page during UI/camera transitions.
-         Do not treat a short hide as leaving the live room. */
-      if(hiddenLeaveTimer)clearTimeout(hiddenLeaveTimer);
-      hiddenLeaveTimer=setTimeout(function(){
-        hiddenLeaveTimer=null;
-        if(document.hidden&&guestApprovedHost)announceGuestLeave(guestApprovedHost);
-      },8000);
-      return;
-    }
-    if(hiddenLeaveTimer){clearTimeout(hiddenLeaveTimer);hiddenLeaveTimer=null;}
+    /* Do not announce leave on a brief mobile visibility change.
+       Heartbeat stops while hidden; the host clears only after a sustained absence. */
+    if(document.hidden)return;
+    guestAliveLastSent=0;
     roleTick();setTimeout(function(){attachRemoteStreamNow();},0);
   });
   window.addEventListener('pagehide',function(){
-    if(hiddenLeaveTimer){clearTimeout(hiddenLeaveTimer);hiddenLeaveTimer=null;}
     if(guestApprovedHost||lastRemoteHost)announceGuestLeave(guestApprovedHost||lastRemoteHost);
     clearViewerConnectTimer();
     closeSocket();closePc(viewerPc);closePc(guestPc);
