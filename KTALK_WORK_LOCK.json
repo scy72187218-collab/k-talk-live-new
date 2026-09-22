@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 5,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260922-communication-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Owner confirmed current repaired state and locked it with PIN 1111. Protected now: guest uplink/approval video bridge, remote host-id bridge, remote video connection speed, WebRTC/media transport, and 9-room host video brightness. Creator camera stability and all previously protected UI/layout/chat/button/switch/countdown/gift/earnings components remain locked.",
+  "note": "Owner confirmed and locked the latest working state with PIN 1111. Newly protected: five-room host rose badge + nickname/level display and automatic camera exposure recovery for creator/live rooms. Existing communication, camera stability, UI/layout/chat/button/switch/countdown/gift/earnings protections remain locked.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -49,7 +49,12 @@
     "remote_host_id_bridge",
     "approved_guest_direct_video_bridge",
     "remote_video_connect_speed",
-    "group9_host_video_brightness"
+    "group9_host_video_brightness",
+    "five_room_host_rose_profile_unified",
+    "all_room_host_rose_badge",
+    "all_room_host_nickname_level",
+    "creator_camera_auto_exposure_recovery",
+    "host_room_auto_exposure_recovery"
   ],
   "check_trigger_phrase": "K-톡 비밀번호 확인",
   "check_behavior": {
