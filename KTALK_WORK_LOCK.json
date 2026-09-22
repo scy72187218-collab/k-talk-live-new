@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Re-locked after aligning the 13-person room gift-box button with the rose/share buttons. All other approved UI, 09:00 transition, earnings, and network settings remain unchanged.",
+  "note": "Owner confirmed the current K-Talk state is approved and requested it remain locked. Preserve the current 13-person room layout, 09:00 transition behavior, aligned gift button position, earnings HUD, bottom controls, guest uplink, WebRTC transport, room entry/exit, and working runtime controls unless explicitly unlocked with the PIN.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
