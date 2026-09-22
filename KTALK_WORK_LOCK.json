@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Temporary narrow edit: remote broadcast end cleanup and in-app return only. All unrelated components remain locked.",
+  "note": "Re-locked after guest in-app return fix. When a remote broadcast ends, remote viewer/session state is cleaned silently and the guest returns directly to the K-Talk shared feed without invoking browser/app back navigation. All components are locked again.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -76,14 +76,6 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "room_entry_exit",
-    "video_communication_stability_only",
-    "shared_live_peer_signaling_cache"
-  ],
-  "temporarily_unlocked_components": [
-    "room_entry_exit",
-    "video_communication_stability_only",
-    "shared_live_peer_signaling_cache"
-  ]
+  "current_editable_components": [],
+  "temporarily_unlocked_components": []
 }
