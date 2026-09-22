@@ -23,18 +23,23 @@
     if(busy)return;
     busy=true;
     try{
-      var leave=window.ktLeaveRemoteLive;
-      if(typeof leave==='function'){
-        var r=leave(true);
-        if(r&&typeof r.catch==='function')r.catch(function(){});
+      if(typeof window.ktCloseRemoteFallbackInApp20260923==='function'){
+        window.ktCloseRemoteFallbackInApp20260923();
       }
     }catch(e){}
+    try{
+      if(typeof window.ktCloseRemotePresenceInApp20260923==='function'){
+        var q=window.ktCloseRemotePresenceInApp20260923();
+        if(q&&typeof q.catch==='function')q.catch(function(){});
+      }
+    }catch(e){}
+    try{document.documentElement.classList.remove('kt-remote-viewing');}catch(e){}
     setTimeout(function(){
       try{
-        if(typeof window.ktReturnLatestVideoAfterBroadcast==='function'){
-          window.ktReturnLatestVideoAfterBroadcast();
-        }else if(typeof window.ktShowSharedServerFeed==='function'){
+        if(typeof window.ktShowSharedServerFeed==='function'){
           window.ktShowSharedServerFeed();
+        }else if(typeof window.ktForceHomeVideoRecovery==='function'){
+          window.ktForceHomeVideoRecovery(true);
         }else if(typeof window.home==='function'){
           window.home();
         }
