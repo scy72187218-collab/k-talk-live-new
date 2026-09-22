@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Owner requested full lock. All previously protected K-Talk components, including communications, media transport, guest uplink, reconnect stability, and host video direction, are now locked. No component is currently editable. Runtime buttons and normal app use remain enabled.",
+  "note": "PIN 1111 confirmed. Narrow repair only: guest-side host video receive/reconnect stability. No room layout, buttons, switches, chat, gifts, countdowns, earnings, or host/guest placement changes.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -76,6 +76,16 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [],
-  "temporarily_unlocked_components": []
+  "current_editable_components": [
+    "guest_remote_video_receive_only",
+    "remote_video_connect_speed",
+    "communication_auto_reconnect_only",
+    "video_communication_stability_only"
+  ],
+  "temporarily_unlocked_components": [
+    "guest_remote_video_receive_only",
+    "remote_video_connect_speed",
+    "communication_auto_reconnect_only",
+    "video_communication_stability_only"
+  ]
 }
