@@ -427,7 +427,7 @@
         if(hostViewPeers[vid]===entry&&pc.connectionState==='disconnected'){
           closePc(pc);delete hostViewPeers[vid];
         }
-      },3000);
+      },10000);
     };
     try{
       var offer=await pc.createOffer({offerToReceiveAudio:false,offerToReceiveVideo:false});
@@ -472,9 +472,9 @@
       if(st==='disconnected')setTimeout(function(){
         if(viewerPc===pc&&pc.connectionState==='disconnected'){
           closePc(pc);viewerPc=null;viewerSession='';viewerConnected=false;viewerWatchToken=sid('watch');showConnecting();
-          setTimeout(function(){ensureViewerWatch(true);},180);
+          setTimeout(function(){ensureViewerWatch(true);},240);
         }
-      },2500);
+      },10000);
     };
     try{
       await pc.setRemoteDescription({type:'offer',sdp:sdp});
@@ -482,7 +482,7 @@
       for(var i=0;i<q.length;i++)try{await pc.addIceCandidate(q[i]);}catch(e){}
       var ans=await pc.createAnswer();await pc.setLocalDescription(ans);
       send('video_answer',{host_id:hid,viewer_id:viewerId(),session_id:session,answer_sdp:pc.localDescription.sdp});
-      retryViewerSoon(2800);
+      retryViewerSoon(8000);
     }catch(e){
       closePc(pc);
       if(viewerPc===pc){viewerPc=null;viewerSession='';viewerConnected=false;}
@@ -517,7 +517,7 @@
     if(!viewerWatchToken)viewerWatchToken=sid('watch');
     var now=Date.now();
     if(!force&&viewerConnected)return;
-    if(!force&&now-lastWatchAt<250)return;
+    if(!force&&now-lastWatchAt<900)return;
     lastWatchAt=now;
     send('video_watch',{host_id:hid,viewer_id:viewerId(),watch_token:viewerWatchToken,at:now});
   }
