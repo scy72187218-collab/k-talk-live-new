@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Owner authorized with PIN 1111 to align only the 13-person room gift-box button with the neighboring rose/share buttons. All other components remain protected.",
+  "note": "Re-locked after aligning the 13-person room gift-box button with the rose/share buttons. All other approved UI, 09:00 transition, earnings, and network settings remain unchanged.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -44,10 +44,6 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "gift_button"
-  ],
-  "temporarily_unlocked_components": [
-    "gift_button"
-  ]
+  "current_editable_components": [],
+  "temporarily_unlocked_components": []
 }
