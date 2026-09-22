@@ -438,7 +438,7 @@
     }
     rail.innerHTML='';
     ids.forEach(function(id){
-      var x=pendingRequests[id],b=document.createElement('button');b.type='button';b.textContent='👤 '+String(x.name||'게스트')+' 올리기';
+      var x=pendingRequests[id],b=document.createElement('button');b.type='button';b.dataset.viewerId=id;b.dataset.viewerName=String(x.name||'게스트');b.textContent='👤 '+String(x.name||'게스트')+' 올리기';
       b.onclick=function(e){
         e.preventDefault();e.stopPropagation();
         var nm=x.name||'게스트';
@@ -503,6 +503,65 @@
     approveDirectGuest(vid,name);
     return true;
   };
+
+  var __ktApprovalTapAt=0;
+  function approvalTargetData(btn){
+    if(!btn)return null;
+    var vid=String((btn.dataset&&btn.dataset.viewerId)||'').trim();
+    var name=String((btn.dataset&&btn.dataset.viewerName)||'').trim();
+    if(!vid){
+      var p=btn.closest&&btn.closest('[data-viewer-id]');
+      if(p){
+        vid=String(p.getAttribute('data-viewer-id')||'').trim();
+        name=name||String(p.getAttribute('data-viewer-name')||'').trim();
+      }
+    }
+    if(!vid){
+      var box=btn.closest&&btn.closest('#ktGuestHostChoice');
+      if(box){
+        vid=String(box.dataset.viewerId||'').trim();
+        name=name||String(box.dataset.viewerName||'').trim();
+      }
+    }
+    if(!vid)return null;
+    if(!name){
+      var x=pendingRequests[vid];
+      name=String(x&&x.name||'게스트');
+    }
+    return {vid:vid,name:name||'게스트'};
+  }
+  function forceApprovalTap(e){
+    var btn=e.target&&e.target.closest?e.target.closest(
+      '#ktDirectGuestRequestRail button,'+
+      '.ktg13-request-chip,'+
+      '#ktGuestHostChoice button.approve,'+
+      '#ktGuestRealtimeChoice button.approve'
+    ):null;
+    if(!btn)return;
+    var data=approvalTargetData(btn);
+    if(!data)return;
+    var now=Date.now();
+    if(now-__ktApprovalTapAt<450){
+      try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
+      return;
+    }
+    __ktApprovalTapAt=now;
+    try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
+    try{
+      if(typeof window.ktApproveGuest==='function'){
+        var old=window.ktApproveGuest(data.vid,data.name,null);
+        if(old&&old.catch)old.catch(function(){});
+      }
+    }catch(_e){}
+    approveDirectGuest(data.vid,data.name);
+    try{
+      document.querySelectorAll('.ktg13-request-chip[data-viewer-id="'+CSS.escape(data.vid)+'"]').forEach(function(x){x.remove();});
+      var choice=document.getElementById('ktGuestHostChoice');
+      if(choice&&String(choice.dataset.viewerId||'')===data.vid)choice.remove();
+    }catch(_e){}
+  }
+  document.addEventListener('pointerdown',forceApprovalTap,true);
+  document.addEventListener('touchstart',forceApprovalTap,{capture:true,passive:false});
 
   async function startGuestCamera(hid){
     if(!guestApproved||guestApprovedHost!==hid)return;
