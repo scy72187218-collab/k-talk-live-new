@@ -158,7 +158,10 @@
     var btn=e.target&&e.target.closest?e.target.closest('.live-prep .prep-start'):null;
     if(btn){
       pendingGroup13=detect13Selection();
-      if(pendingGroup13)force13State();
+      if(pendingGroup13){
+        force13State();
+        return;
+      }
       runCountdown();
     }
   },true);
@@ -171,6 +174,13 @@
   window.addEventListener('click',function(e){
     var btn=e.target&&e.target.closest?e.target.closest('.live-prep .prep-start'):null;
     if(!btn||releaseStartButton)return;
+
+    /* 13명방은 group13-approved-room.js의 단일 5→1 카운트다운에 맡긴다. */
+    if(detect13Selection()){
+      pendingGroup13=true;
+      force13State();
+      return;
+    }
 
     e.preventDefault();
     e.stopPropagation();
@@ -239,6 +249,8 @@
   };
 
   window.startBroadcast=async function(){
+    /* 13명방은 이 공용 게이트에서 다시 세지 않는다. */
+    if(detect13Selection())return previousStart.apply(this,arguments);
     if(releaseStartButton)return previousStart.apply(this,arguments);
     if(launching)return;
     launching=true;
