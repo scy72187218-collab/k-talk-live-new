@@ -237,6 +237,13 @@
     guestStream=null;
   }
 
+  window.ktDirectGuestLeaveNow20260923=function(hostId){
+    var hid=String(hostId||guestApprovedHost||remoteHostId()||lastRemoteHost||'').trim();
+    if(!hid)return false;
+    announceGuestLeave(hid);
+    return true;
+  };
+
   async function syncSharedApprovalSignals(){
     if(sharedApprovalPollBusy)return;
     var host=isHostRole(),hid=host?DEVICE:remoteHostId();
