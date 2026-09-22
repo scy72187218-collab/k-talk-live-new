@@ -365,7 +365,7 @@
           var ok=await enterMemory(hostId,cached||room||null);
           if(ok)remoteEndArmed=true;
         }catch(e){}
-      },5000);
+      },900);
 
       if(!room){
         var st=document.getElementById('ktRemoteLiveStatus');
@@ -381,7 +381,7 @@
           var ok2=await enterMemory(hostId,cached);
           if(ok2)remoteEndArmed=true;
         }catch(z){}
-      },1200);
+      },700);
     }finally{
       setTimeout(function(){enterBusy=false;},120);
     }
