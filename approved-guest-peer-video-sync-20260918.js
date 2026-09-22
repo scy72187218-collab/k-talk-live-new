@@ -195,7 +195,7 @@
         method:'PATCH',headers:{Prefer:'return=minimal'},
         body:JSON.stringify({active:false,updated_at:nowIso()})
       });
-      var pc=new RTCPeerConnection(ICE);entry.pc=pc;wirePc(pc,entry,name);
+      var pc=new RTCPeerConnection(window.ktGetRtcConfig?window.ktGetRtcConfig():ICE);entry.pc=pc;wirePc(pc,entry,name);
       var vt=stream.getVideoTracks()[0];if(vt)pc.addTrack(vt,stream);
       var offer=await pc.createOffer({offerToReceiveVideo:true,offerToReceiveAudio:false});
       await pc.setLocalDescription(offer);await waitIce(pc,5000);
@@ -229,7 +229,7 @@
     var entry={peerId:peerId,key:key,role:'answer',pc:null,sessionId:String(row.id||''),remoteStream:null};
     peers[peerId]=entry;
     try{
-      var pc=new RTCPeerConnection(ICE);entry.pc=pc;wirePc(pc,entry,name);
+      var pc=new RTCPeerConnection(window.ktGetRtcConfig?window.ktGetRtcConfig():ICE);entry.pc=pc;wirePc(pc,entry,name);
       var vt=stream.getVideoTracks()[0];if(vt)pc.addTrack(vt,stream);
       await pc.setRemoteDescription({type:'offer',sdp:row.offer_sdp});
       var answer=await pc.createAnswer();
