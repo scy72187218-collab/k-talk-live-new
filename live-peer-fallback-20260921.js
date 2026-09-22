@@ -13,6 +13,7 @@
   function ktIceConfig20260921(){return window.ktGetRtcConfig?window.ktGetRtcConfig():ICE;}
   var hostPeers={};
   var viewer=null,enterBusy=false;
+  var hostPollBusy=false,viewerPollBusy=false;
   var oldEnter=window.ktEnterRemoteLive;
   var oldLeave=window.ktLeaveRemoteLive;
   var remoteEndHost='',remoteEndArmed=false,remoteEndMisses=0,remoteEndBusy=false,hostWasOpen=false,hostMissingSince=0;
@@ -163,7 +164,7 @@
     return true;
   }
 
-  async function pollViewer(){
+  async function pollViewerCore(){
     if(!viewer||viewer.answered)return;
     var c=viewer;
     try{
@@ -189,6 +190,12 @@
         if(st)st.textContent='영상 연결 확인 중…';
       }
     }catch(e){}
+  }
+
+  async function pollViewer(){
+    if(viewerPollBusy)return;
+    viewerPollBusy=true;
+    try{await pollViewerCore();}finally{viewerPollBusy=false;}
   }
 
   async function enterMemory(hostId,roomOverride){
@@ -251,7 +258,7 @@
       }
     };
 
-    viewer.poll=setInterval(pollViewer,650);
+    viewer.poll=setInterval(pollViewer,900);
     viewer.touch=setInterval(function(){
       if(!viewer)return;
       fetch(API+'?t='+Date.now(),{
@@ -264,7 +271,7 @@
     return true;
   }
 
-  async function hostPoll(){
+  async function hostPollCore(){
     var open=actualHostRoomVisible()&&hasLiveVideo();
     if(!open){
       if(!hostWasOpen)return;
@@ -317,6 +324,12 @@
         }
       }
     }catch(e){}
+  }
+
+  async function hostPoll(){
+    if(hostPollBusy)return;
+    hostPollBusy=true;
+    try{await hostPollCore();}finally{hostPollBusy=false;}
   }
 
   window.ktEnterRemoteLive=async function(hostId){
@@ -374,6 +387,6 @@
     if(oldLeave)return oldLeave(silent);
   };
 
-  setInterval(hostPoll,650);
+  setInterval(hostPoll,1000);
   setTimeout(hostPoll,350);
 })();
