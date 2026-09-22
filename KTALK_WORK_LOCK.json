@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Communications only remains unlocked. Added a last-loaded host-video direction guard that removes horizontal mirroring only from the 9-room host video and guest-side host video targets. Guest/self video and all non-communication UI remain untouched and locked.",
+  "note": "PIN 1111 confirmed. Communications/video display only remains unlocked. Host video left/right mirroring is disabled for solo, 9-person, 13-person, subscriber and secret rooms, plus guest-side host preview. All room layout, buttons, switches, chat, gifts, countdowns and earnings remain locked.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
