@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "PIN 1111 confirmed. Communications/video display only remains unlocked. Host video left/right mirroring is disabled for solo, 9-person, 13-person, subscriber and secret rooms, plus guest-side host preview. All room layout, buttons, switches, chat, gifts, countdowns and earnings remain locked.",
+  "note": "Owner requested full lock. All previously protected K-Talk components, including communications, media transport, guest uplink, reconnect stability, and host video direction, are now locked. No component is currently editable. Runtime buttons and normal app use remain enabled.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -65,7 +65,9 @@
     "guest_request_host_card_approval_only",
     "guest_approval_to_slot",
     "all_room_guest_approval_request_ui",
-    "communication_auto_reconnect_only"
+    "communication_auto_reconnect_only",
+    "host_video_direction",
+    "all_room_host_video_direction"
   ],
   "check_trigger_phrase": "K-톡 비밀번호 확인",
   "check_behavior": {
@@ -74,16 +76,6 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "group13_guest_uplink",
-    "video_communication",
-    "media_transport",
-    "webrtc_transport_stability"
-  ],
-  "temporarily_unlocked_components": [
-    "group13_guest_uplink",
-    "video_communication",
-    "media_transport",
-    "webrtc_transport_stability"
-  ]
+  "current_editable_components": [],
+  "temporarily_unlocked_components": []
 }
