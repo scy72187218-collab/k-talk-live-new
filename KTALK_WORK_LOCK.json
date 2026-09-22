@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Owner confirmed PIN 1111. Everything remains locked except communications/guest transport: group13_guest_uplink, video_communication, media_transport, webrtc_transport_stability. No UI/layout/countdown/chat/gift/switch component is editable.",
+  "note": "Communications only remains unlocked per owner request. Added bidirectional media to approved guest connection so host video can return to guest while guest video uplinks to host. All UI/layout/chat/button/switch/countdown/gift/earnings components remain locked.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
