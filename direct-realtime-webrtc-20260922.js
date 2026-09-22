@@ -12,7 +12,7 @@
   var hostViewPeers={};
   var viewerPc=null,viewerSession='',viewerWatchToken='',viewerConnected=false,viewerIce={};
   var pendingRequests={},approvedGuests={},hostGuestPeers={},guestPc=null,guestSession='',guestApprovedHost='',guestApproved=false,guestStream=null,guestIce={};
-  var requestOn=false,lastRemoteHost='',lastHostRole='';
+  var requestOn=false,lastRemoteHost='',lastHostRole='',lastWatchAt=0;
 
   function deviceId(){
     var id='';
@@ -135,17 +135,22 @@
     }
   }
 
+  function attachRemoteStreamNow(stream){
+    stream=stream||window.__ktRemoteHostStream||null;
+    if(!stream)return false;
+    var v=document.getElementById('ktRemoteLiveVideo');
+    if(!v)return false;
+    if(v.srcObject!==stream)v.srcObject=stream;
+    v.autoplay=true;v.playsInline=true;v.muted=true;v.defaultMuted=true;
+    try{var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
+    var st=document.getElementById('ktRemoteLiveStatus');if(st)st.style.display='none';
+    var badge=document.getElementById('ktRemoteViewerCount');if(badge)badge.textContent='👁 LIVE';
+    return true;
+  }
   function showRemoteStream(stream){
     if(!stream)return;
     window.__ktRemoteHostStream=stream;
-    var v=document.getElementById('ktRemoteLiveVideo');
-    if(v){
-      if(v.srcObject!==stream)v.srcObject=stream;
-      v.autoplay=true;v.playsInline=true;v.muted=true;v.defaultMuted=true;
-      try{var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
-    }
-    var st=document.getElementById('ktRemoteLiveStatus');if(st)st.style.display='none';
-    var badge=document.getElementById('ktRemoteViewerCount');if(badge)badge.textContent='👁 LIVE';
+    attachRemoteStreamNow(stream);
   }
   function showConnecting(){
     var st=document.getElementById('ktRemoteLiveStatus');
@@ -231,7 +236,11 @@
   function ensureViewerWatch(force){
     var hid=remoteHostId();if(!hid||isHostRole())return;
     if(!viewerWatchToken)viewerWatchToken=sid('watch');
-    if(force||!viewerConnected)send('video_watch',{host_id:hid,viewer_id:viewerId(),watch_token:viewerWatchToken,at:Date.now()});
+    var now=Date.now();
+    if(!force&&viewerConnected)return;
+    if(!force&&now-lastWatchAt<250)return;
+    lastWatchAt=now;
+    send('video_watch',{host_id:hid,viewer_id:viewerId(),watch_token:viewerWatchToken,at:now});
   }
 
   function ensureDirectStyle(){
@@ -423,9 +432,34 @@
       if(guestApproved&&guestApprovedHost===hid&&(!guestPc||['failed','closed'].indexOf(String(guestPc.connectionState||''))>-1))startGuestCamera(hid);
     }
   }
-  setInterval(roleTick,800);
-  setTimeout(roleTick,120);
+  setInterval(roleTick,250);
+  setTimeout(roleTick,20);
+
+  window.addEventListener('kt-remote-host-selected',function(e){
+    try{
+      var hid=String(e&&e.detail&&e.detail.host_id||'').trim();
+      if(!hid)return;
+      lastRemoteHost=hid;
+      viewerWatchToken=sid('watch');
+      viewerConnected=false;
+      lastWatchAt=0;
+      if(activeHostId!==hid)connect(hid);
+      else if(joined)ensureViewerWatch(true);
+      setTimeout(function(){ensureViewerWatch(true);attachRemoteStreamNow();},80);
+      setTimeout(function(){ensureViewerWatch(true);attachRemoteStreamNow();},220);
+    }catch(z){}
+  });
+
+  try{
+    var screen=document.getElementById('screen');
+    if(screen&&window.MutationObserver){
+      new MutationObserver(function(){
+        if(window.__ktRemoteHostStream)setTimeout(function(){attachRemoteStreamNow();},0);
+      }).observe(screen,{childList:true,subtree:true});
+    }
+  }catch(e){}
+
   window.addEventListener('online',function(){if(activeHostId)connect(activeHostId);});
-  document.addEventListener('visibilitychange',function(){if(!document.hidden)roleTick();});
+  document.addEventListener('visibilitychange',function(){if(!document.hidden){roleTick();setTimeout(function(){attachRemoteStreamNow();},0);}});
   window.addEventListener('pagehide',function(){closeSocket();closePc(viewerPc);closePc(guestPc);Object.keys(hostViewPeers).forEach(function(k){closePc(hostViewPeers[k].pc);});Object.keys(hostGuestPeers).forEach(function(k){closePc(hostGuestPeers[k].pc);});});
 })();
