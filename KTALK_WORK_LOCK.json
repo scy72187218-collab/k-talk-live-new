@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "PIN 1111 verified. Temporarily unlocked only guest badge display for 9-person, 13-person, subscriber, and secret rooms: rose 0 + nickname + level. Communication, approval, room layout, camera, chat, buttons, and all other protected components remain locked.",
+  "note": "Communications only remains unlocked. Added media-only 180-degree orientation metadata/correction for approved host↔guest video. All room layout, controls, chat, gifts, switches, countdowns and earnings remain locked.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -75,9 +75,15 @@
     "if_pin_mismatch": "keep_protected_components_locked"
   },
   "current_editable_components": [
-    "guest_badge_display_9_13_subscriber_secret_only"
+    "group13_guest_uplink",
+    "video_communication",
+    "media_transport",
+    "webrtc_transport_stability"
   ],
   "temporarily_unlocked_components": [
-    "guest_badge_display_9_13_subscriber_secret_only"
+    "group13_guest_uplink",
+    "video_communication",
+    "media_transport",
+    "webrtc_transport_stability"
   ]
 }
