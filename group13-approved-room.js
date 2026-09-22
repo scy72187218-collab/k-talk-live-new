@@ -12,6 +12,12 @@
   }
   function isGroup13(){
     try{
+      /* 9명방을 선택한 상태에서는 예전 상단 13명 상태가 잠깐 남아 있어도
+         13명방 카운트다운을 절대 시작하지 않는다. */
+      if(window.__ktGroup9RoomFirstCountdown===true)return false;
+      var nine=[].slice.call(document.querySelectorAll('.live-prep .kt-room-bottom5 button.on,.kt-room-bottom5 button.on'));
+      if(nine.some(function(b){return /9\s*명/.test(String(b.textContent||''));}))return false;
+
       var t=(window.state&&state.liveRoomType)||'';
       var n=(window.state&&state.liveRoomName)||'';
       return t==='group'||t==='group13'||n==='13명 방송';
