@@ -181,7 +181,7 @@
             delete peers[entry.peerId];
             clearPeerCell(entry.peerId);
           }
-        },4500);
+        },15000);
       }
     };
   }
@@ -255,7 +255,7 @@
     var sessions=[],viewers=[];
     try{
       sessions=await req('ktalk_webrtc_sessions?select=id,viewer_id,active,updated_at&host_id=eq.'+enc(hostId)+'&active=eq.true&order=updated_at.desc&limit=80')||[];
-      var cut=new Date(Date.now()-10000).toISOString();
+      var cut=new Date(Date.now()-30000).toISOString();
       viewers=await req('ktalk_live_viewers?select=viewer_id,viewer_name,active,updated_at&host_id=eq.'+enc(hostId)+'&active=eq.true&updated_at=gte.'+enc(cut)+'&limit=100')||[];
     }catch(e){}
     var names={},fresh={};
@@ -311,7 +311,7 @@
       if(!infoGrid||!stream||!selfId){
         debug('waiting',(infoGrid?'grid ':'no-grid ')+(stream?'stream ':'no-stream ')+(selfId?'self':'no-self'));
         if(!absentSince)absentSince=Date.now();
-        if(Date.now()-absentSince>5000){
+        if(Date.now()-absentSince>12000){
           var ks=Object.keys(peers);for(var i=0;i<ks.length;i++)await dropPeer(ks[i]);
           lastHost='';lastSelf='';
         }
