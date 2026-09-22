@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Communications only remains unlocked. Added media-only 180-degree orientation metadata/correction for approved host↔guest video. All room layout, controls, chat, gifts, switches, countdowns and earnings remain locked.",
+  "note": "Communications only remains unlocked. Fixed only the first 9-room host video left/right direction: no mirror, while 180-degree orientation correction remains. All other UI/layout/control components remain locked.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
