@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Selective lock only. Current approved working state saved. The approved live/guest connection transport is now protected after the 2026-09-22 connection-speed adjustment. Runtime controls remain usable.",
+  "note": "Owner sent a video showing a brief blank delay after 5→4→3→2→1. Only the 13-person countdown-to-room transition is editable; all other UI/network work remains protected.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -45,8 +45,11 @@
     "if_pin_mismatch": "keep_protected_components_locked"
   },
   "current_editable_components": [
-    "webrtc_transport_stability",
-    "group13_guest_uplink"
+    "group13_countdown_transition",
+    "group13_current_room_entry"
   ],
-  "temporarily_unlocked_components": []
+  "temporarily_unlocked_components": [
+    "group13_countdown_transition",
+    "group13_current_room_entry"
+  ]
 }
