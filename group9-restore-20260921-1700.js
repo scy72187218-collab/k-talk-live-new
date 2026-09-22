@@ -43,6 +43,81 @@
     }catch(e){}
   }
 
+  function adaptNineRoomNow(){
+    try{
+      forceNineState();
+      var room=document.querySelector('#screen .ktg13-room');
+      if(!room)return false;
+
+      room.setAttribute('data-kt-room','9');
+      room.removeAttribute('data-kt-approved13');
+
+      var head=room.querySelector('.ktg13-air strong');
+      if(head)head.innerHTML='<i>●</i> 9명 방송';
+
+      var guests=[].slice.call(room.querySelectorAll('.ktg13-guests > .ktg13-guest'));
+      guests.slice(8).forEach(function(g){try{g.remove();}catch(e){}});
+
+      var stats=room.querySelectorAll('.ktg13-stats > button');
+      if(stats[1]&&String(stats[1].textContent||'').indexOf('지금 추가')>-1){
+        stats[1].textContent='🎯 미션';
+        stats[1].classList.add('ktg9-mission-btn');
+        if(typeof window.ktGroup9Mission==='function'){
+          stats[1].onclick=function(){window.ktGroup9Mission();};
+        }
+      }
+
+      try{
+        var cr=window.creator||document.getElementById('creator');
+        if(cr)cr.classList.remove('show','live-prep-open');
+        document.body.classList.remove('kt-home');
+      }catch(e){}
+      return true;
+    }catch(e){return false;}
+  }
+
+  function openNineRoomNow(){
+    try{
+      window.__ktGroup9RoomFirstCountdown=true;
+      forceNineState();
+
+      /* 현재 승인된 방 틀을 같은 JS 턴 안에서 만들고 바로 9명방으로 바꾼다.
+         브라우저가 중간 13명방/단일영상/테스트 화면을 그릴 틈을 주지 않는다. */
+      if(typeof window.ktOpenApprovedGroup13Now==='function'){
+        window.ktOpenApprovedGroup13Now(true);
+        forceNineState();
+        return adaptNineRoomNow();
+      }
+
+      return adaptNineRoomNow();
+    }catch(e){return false;}
+  }
+
+  function keepOnlyNineRoomVisible(){
+    var screen=document.getElementById('screen');
+    if(!screen||!window.MutationObserver)return null;
+    var busy=false;
+    var mo=new MutationObserver(function(){
+      if(busy||window.__ktGroup9RoomFirstCountdown!==true)return;
+      try{
+        var room=screen.querySelector('.ktg13-room[data-kt-room="9"]');
+        if(room)return;
+        busy=true;
+        openNineRoomNow();
+      }catch(e){}finally{busy=false;}
+    });
+    try{mo.observe(screen,{childList:true,subtree:false});}catch(e){return null;}
+    return mo;
+  }
+
+  function waitPaint(){
+    return new Promise(function(resolve){
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){resolve();});
+      });
+    });
+  }
+
   function removeCountdown(){
     try{
       var old=document.getElementById('ktLiveCountdown');
@@ -144,22 +219,34 @@
     launching=true;
     (async function(){
       var originalCountdown=window.ktLiveStartCountdown;
+      var keepObserver=null;
+      var startPromise=null;
       try{
         releaseStart=true;
-        /* 방을 여는 동안 기존 내부 카운트다운/검은 가림막은 막는다. */
         window.__ktGroup9RoomFirstCountdown=true;
         window.ktLiveStartCountdown=async function(){return true;};
 
-        /* 1) 13명방 상태가 끼어들지 못하게 9명방을 확정한 뒤 먼저 연다. */
+        /* 1) 화면에 9명방부터 즉시 연다. */
         forceNineState();
-        await previousStart();
+        openNineRoomNow();
+        keepObserver=keepOnlyNineRoomVisible();
 
-        /* 2) 9명방 화면이 실제 DOM에 붙고 한 번 그려질 때까지 기다린다. */
-        await waitNineRoom();
+        /* 2) 방송 세션 준비는 뒤에서 시작하되, 중간 화면은 MutationObserver가
+              같은 프레임 안에서 다시 9명방으로 돌려서 사용자에게 보이지 않게 한다. */
+        startPromise=Promise.resolve(previousStart()).catch(function(e){throw e;});
 
-        /* 3) 열린 9명방 위에서 5→4→3→2→1을 한 번만 센다. */
+        /* 실제 9명방이 한 번 그려진 뒤 숫자를 시작한다. */
+        await waitPaint();
+        openNineRoomNow();
+
+        /* 3) 열린 9명방 위에서 5→4→3→2→1 딱 한 번만 센다. */
         await runCountdown();
+
+        await startPromise;
+        openNineRoomNow();
       }finally{
+        if(keepObserver){try{keepObserver.disconnect();}catch(e){}}
+        openNineRoomNow();
         window.__ktGroup9RoomFirstCountdown=false;
         if(originalCountdown)window.ktLiveStartCountdown=originalCountdown;
         releaseStart=false;
@@ -181,15 +268,25 @@
     launching=true;
     var originalCountdown=window.ktLiveStartCountdown;
     var self=this,args=arguments;
+    var keepObserver=null;
+    var startPromise=null;
     try{
       window.__ktGroup9RoomFirstCountdown=true;
       forceNineState();
       window.ktLiveStartCountdown=async function(){return true;};
-      var result=await previousStart.apply(self,args);
-      await waitNineRoom();
+
+      openNineRoomNow();
+      keepObserver=keepOnlyNineRoomVisible();
+      startPromise=Promise.resolve(previousStart.apply(self,args));
+      await waitPaint();
+      openNineRoomNow();
       await runCountdown();
+      var result=await startPromise;
+      openNineRoomNow();
       return result;
     }finally{
+      if(keepObserver){try{keepObserver.disconnect();}catch(e){}}
+      openNineRoomNow();
       window.__ktGroup9RoomFirstCountdown=false;
       if(originalCountdown)window.ktLiveStartCountdown=originalCountdown;
       removeCountdown();
