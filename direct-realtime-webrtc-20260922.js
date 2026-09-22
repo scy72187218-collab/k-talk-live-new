@@ -8,6 +8,7 @@
 
   var REF='zupwbfmacwzexyvznlzq';
   var KEY='sb_publishable_AnyCMi4rAgSR2uWg_u1pvw_hHyqWlm3';
+  var REST_BROADCAST='https://'+REF+'.supabase.co/realtime/v1/api/broadcast';
   var ws=null,joined=false,joinRef='',seq=1,topic='',activeHostId='',queue=[],reconnectTimer=null,heartbeatTimer=null;
   var hostViewPeers={};
   var viewerPc=null,viewerSession='',viewerWatchToken='',viewerConnected=false,viewerIce={},viewerConnectTimer=null;
@@ -55,17 +56,40 @@
   function rtcConfig(){return window.ktGetRtcConfig?window.ktGetRtcConfig():{iceServers:[{urls:'stun:stun.cloudflare.com:3478'},{urls:'stun:stun.l.google.com:19302'}]};}
   function sid(prefix){return prefix+'_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,9);}
   function channelFor(hostId){return 'ktalk-direct-rtc-'+String(hostId||'').replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,110);}
+  function restBroadcast(eventName,payload){
+    if(!activeHostId)return Promise.resolve(false);
+    var body={messages:[{
+      topic:channelFor(activeHostId),
+      event:eventName,
+      payload:payload||{}
+    }]};
+    try{
+      return fetch(REST_BROADCAST,{
+        method:'POST',
+        cache:'no-store',
+        headers:{'Content-Type':'application/json','apikey':KEY},
+        body:JSON.stringify(body)
+      }).then(function(r){return !!(r&&r.ok);}).catch(function(){return false;});
+    }catch(e){return Promise.resolve(false);}
+  }
+
   function send(eventName,payload){
     if(!activeHostId)return;
+    payload=payload||{};
+
+    /* Durable signaling: REST Broadcast is cluster-wide and does not depend
+       on one Vercel function instance. Keep WS send as a low-latency second path. */
+    restBroadcast(eventName,payload);
+
     if(!joined||!ws||ws.readyState!==1){
-      queue.push({event:eventName,payload:payload||{}});
+      queue.push({event:eventName,payload:payload});
       if(queue.length>40)queue=queue.slice(-40);
       return;
     }
     try{
       ws.send(JSON.stringify({
         topic:topic,event:'broadcast',
-        payload:{type:'broadcast',event:eventName,payload:payload||{}},
+        payload:{type:'broadcast',event:eventName,payload:payload},
         ref:String(seq++),join_ref:joinRef
       }));
     }catch(e){}
@@ -83,7 +107,7 @@
   }
   function scheduleReconnect(){
     if(reconnectTimer)return;
-    reconnectTimer=setTimeout(function(){reconnectTimer=null;if(activeHostId)connect(activeHostId);},450);
+    reconnectTimer=setTimeout(function(){reconnectTimer=null;if(activeHostId)connect(activeHostId);},250);
   }
   function connect(hostId){
     hostId=String(hostId||'');if(!hostId)return;
@@ -241,6 +265,10 @@
     closePc(viewerPc);viewerPc=null;viewerSession=session;viewerConnected=false;showConnecting();
     var pc=new RTCPeerConnection(rtcConfig());viewerPc=pc;
     pc.ontrack=function(ev){
+      if(window.__ktUseMemoryGuestVideo20260922){
+        try{pc.close();}catch(e){}
+        return;
+      }
       viewerConnected=true;
       clearViewerConnectTimer();
       showRemoteStream((ev.streams&&ev.streams[0])||new MediaStream([ev.track]));
