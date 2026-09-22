@@ -79,8 +79,40 @@
 
   window.addEventListener('pointerdown',function(e){
     var btn=e.target&&e.target.closest?e.target.closest('.live-prep .prep-start'):null;
-    if(btn&&isNine())runCountdown();
+    if(btn&&isNine()){
+      /* 카메라만 미리 준비하고 숫자는 방이 열린 뒤에 시작한다. */
+      try{
+        if(typeof window.ensureLiveCamera==='function'){
+          Promise.resolve(window.ensureLiveCamera((window.state&&state.cameraFacing)||'user')).catch(function(){});
+        }
+      }catch(_e){}
+    }
   },true);
+
+  function waitNineRoom(){
+    return new Promise(function(resolve){
+      var done=false,mo=null,timer=null;
+      function finish(){
+        if(done)return;
+        done=true;
+        try{if(mo)mo.disconnect();}catch(e){}
+        try{if(timer)clearTimeout(timer);}catch(e){}
+        requestAnimationFrame(function(){requestAnimationFrame(resolve);});
+      }
+      function check(){
+        try{
+          var room=document.querySelector('#screen .ktg13-room[data-kt-room="9"],.ktg13-room[data-kt-room="9"]');
+          if(room){finish();return;}
+        }catch(e){}
+      }
+      try{
+        mo=new MutationObserver(check);
+        mo.observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['data-kt-room','class']});
+      }catch(e){}
+      timer=setTimeout(finish,1800);
+      check();
+    });
+  }
 
   window.addEventListener('click',function(e){
     var btn=e.target&&e.target.closest?e.target.closest('.live-prep .prep-start'):null;
@@ -92,19 +124,31 @@
     if(launching)return;
 
     launching=true;
-    runCountdown().then(async function(){
+    (async function(){
       var originalCountdown=window.ktLiveStartCountdown;
       try{
         releaseStart=true;
+        /* 방을 여는 동안 기존 내부 카운트다운/검은 가림막은 막는다. */
+        window.__ktGroup9RoomFirstCountdown=true;
         window.ktLiveStartCountdown=async function(){return true;};
+
+        /* 1) 먼저 9명방을 연다. */
         await previousStart();
+
+        /* 2) 9명방 화면이 실제 DOM에 붙고 한 번 그려질 때까지 기다린다. */
+        await waitNineRoom();
+
+        /* 3) 열린 9명방 위에서 5→4→3→2→1을 한 번만 센다. */
+        await runCountdown();
       }finally{
+        window.__ktGroup9RoomFirstCountdown=false;
         if(originalCountdown)window.ktLiveStartCountdown=originalCountdown;
         releaseStart=false;
         removeCountdown();
         setTimeout(function(){launching=false;},300);
       }
-    }).catch(function(){
+    })().catch(function(){
+      window.__ktGroup9RoomFirstCountdown=false;
       releaseStart=false;
       removeCountdown();
       setTimeout(function(){launching=false;},300);
@@ -119,10 +163,14 @@
     var originalCountdown=window.ktLiveStartCountdown;
     var self=this,args=arguments;
     try{
-      await runCountdown();
+      window.__ktGroup9RoomFirstCountdown=true;
       window.ktLiveStartCountdown=async function(){return true;};
-      return await previousStart.apply(self,args);
+      var result=await previousStart.apply(self,args);
+      await waitNineRoom();
+      await runCountdown();
+      return result;
     }finally{
+      window.__ktGroup9RoomFirstCountdown=false;
       if(originalCountdown)window.ktLiveStartCountdown=originalCountdown;
       removeCountdown();
       setTimeout(function(){launching=false;},300);
