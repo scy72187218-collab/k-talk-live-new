@@ -20,7 +20,7 @@
     solo:true,
     group9:true,
     group13:true,
-    group13Transition:false,
+    group13Transition:true,
     subscriber:true,
     secret:true,
     videos:true,
@@ -95,7 +95,7 @@
     locked.solo=true;
     locked.group9=true;
     locked.group13=true;
-    locked.group13Transition=false;
+    locked.group13Transition=true;
     locked.subscriber=true;
     locked.secret=true;
     locked.aiVoice=true;
