@@ -14,7 +14,7 @@
   var viewerPc=null,viewerSession='',viewerWatchToken='',viewerConnected=false,viewerIce={},viewerConnectTimer=null;
   var pendingRequests={},approvedGuests={},hostGuestPeers={},guestPc=null,guestSession='',guestApprovedHost='',guestApproved=false,guestStream=null,guestIce={};
   var requestOn=false,lastRemoteHost='',lastHostRole='',lastWatchAt=0;
-  var sharedApprovalPollBusy=false,leaveAnnouncedHost='';
+  var sharedApprovalPollBusy=false,leaveAnnouncedHost='',hiddenLeaveTimer=null;
 
   function deviceId(){
     var id='';
@@ -884,12 +884,20 @@
   window.addEventListener('online',function(){if(activeHostId)connect(activeHostId);});
   document.addEventListener('visibilitychange',function(){
     if(document.hidden){
-      if(guestApprovedHost)announceGuestLeave(guestApprovedHost);
+      /* Mobile browsers briefly hide the page during UI/camera transitions.
+         Do not treat a short hide as leaving the live room. */
+      if(hiddenLeaveTimer)clearTimeout(hiddenLeaveTimer);
+      hiddenLeaveTimer=setTimeout(function(){
+        hiddenLeaveTimer=null;
+        if(document.hidden&&guestApprovedHost)announceGuestLeave(guestApprovedHost);
+      },8000);
       return;
     }
+    if(hiddenLeaveTimer){clearTimeout(hiddenLeaveTimer);hiddenLeaveTimer=null;}
     roleTick();setTimeout(function(){attachRemoteStreamNow();},0);
   });
   window.addEventListener('pagehide',function(){
+    if(hiddenLeaveTimer){clearTimeout(hiddenLeaveTimer);hiddenLeaveTimer=null;}
     if(guestApprovedHost||lastRemoteHost)announceGuestLeave(guestApprovedHost||lastRemoteHost);
     clearViewerConnectTimer();
     closeSocket();closePc(viewerPc);closePc(guestPc);
