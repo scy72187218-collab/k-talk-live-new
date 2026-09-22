@@ -439,7 +439,20 @@
     rail.innerHTML='';
     ids.forEach(function(id){
       var x=pendingRequests[id],b=document.createElement('button');b.type='button';b.textContent='👤 '+String(x.name||'게스트')+' 올리기';
-      b.onclick=function(e){e.preventDefault();e.stopPropagation();approveDirectGuest(id,x.name||'게스트');};
+      b.onclick=function(e){
+        e.preventDefault();e.stopPropagation();
+        var nm=x.name||'게스트';
+        /* Host approval UI only:
+           run the proven room approval flow first so the guest slot + durable approval
+           are created, then mirror the same approval into the direct realtime path. */
+        try{
+          if(typeof window.ktApproveGuest==='function'){
+            var old=window.ktApproveGuest(id,nm,null);
+            if(old&&old.catch)old.catch(function(){});
+          }
+        }catch(_e){}
+        approveDirectGuest(id,nm);
+      };
       rail.appendChild(b);
     });
   }
@@ -478,6 +491,9 @@
     delete pendingRequests[vid];guestSlot(vid,name);renderDirectRequests();
     var data={host_id:DEVICE,viewer_id:vid,name:name||'게스트',at:Date.now()};
     sharedApprovalPost(DEVICE,'guest_approved',vid,profileName());
+    setTimeout(function(){sharedApprovalPost(DEVICE,'guest_approved',vid,profileName());},250);
+    setTimeout(function(){sharedApprovalPost(DEVICE,'guest_approved',vid,profileName());},800);
+    setTimeout(function(){sharedApprovalPost(DEVICE,'guest_approved',vid,profileName());},1600);
     send('guest_approved',data);
     setTimeout(function(){send('guest_approved',data);},300);
     setTimeout(function(){send('guest_approved',data);},900);
