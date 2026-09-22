@@ -244,7 +244,11 @@
     if(b&&b.dataset.ktGuestToggleBusy==='1')return;
     if(b)b.dataset.ktGuestToggleBusy='1';
     try{
-      var hostId=await currentViewerHost();if(!hostId)return;
+      var hostId=await currentViewerHost();
+      if(!hostId){
+        try{hostId=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||sessionStorage.getItem('kt_remote_host_id')||'');}catch(e){hostId='';}
+      }
+      if(!hostId)return;
       var p=profile(),vid=viewerId(),cancel=!!(b&&b.classList.contains('kt-requested'));
       var ok=cancel
         ?await postGuestMessage(hostId,'guest_cancelled:'+vid,'↩ '+(p.name||'게스트')+'님이 방송 참여 신청을 취소했습니다.',vid,p.name||'게스트')
@@ -283,7 +287,10 @@
     if(!document.querySelector('.ktg13-room')){
       var old=document.getElementById('ktg13RequestRail');if(old)old.remove();return;
     }
-    var room=await activeHostRoom();if(!room)return;
+    var room=await activeHostRoom();
+    /* The host room is visibly open, so do not suppress guest requests just because
+       the room-presence beacon missed one poll. Use a short recent window instead. */
+    if(!room)room={started_at:new Date(Date.now()-15*60*1000).toISOString(),active:true};
     var path='ktalk_live_messages?select=id,sender_id,sender_name,message,message_type,created_at&host_id=eq.'+enc(deviceId());
     if(room.started_at)path+='&created_at=gte.'+enc(room.started_at);
     path+='&order=created_at.desc&limit=240';
@@ -328,7 +335,14 @@
       /* 승인 후에는 시청자 heartbeat가 잠깐 빠져도 승인 상태를 유지한다.
          실제 게스트 연결 종료는 WebRTC 세션/명시적 나가기에서 정리한다. */
       if(apTs&&apTs>=reqTs)approvedNow[vid]=true;
-      else if(freshViewers[vid]&&(!apTs||apTs<reqTs))pending.push({vid:vid,name:names[vid]||'게스트'});
+      else if(!apTs||apTs<reqTs){
+        /* A fresh explicit request is enough to show the host card.
+           Viewer heartbeat can miss a serverless poll and must not hide the request. */
+        var reqAge=Date.now()-(Date.parse(reqTs)||0);
+        if(freshViewers[vid]||(reqAge>=0&&reqAge<5*60*1000)){
+          pending.push({vid:vid,name:names[vid]||'게스트'});
+        }
+      }
     });
 
     renderRequestRail(pending);
