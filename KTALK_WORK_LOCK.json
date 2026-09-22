@@ -1,5 +1,5 @@
 {
-  "version": 5,
+  "version": 6,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260922-display-exposure-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Owner confirmed and locked the latest working state with PIN 1111. Newly protected: five-room host rose badge + nickname/level display and automatic camera exposure recovery for creator/live rooms. Existing communication, camera stability, UI/layout/chat/button/switch/countdown/gift/earnings protections remain locked.",
+  "note": "PIN 1111 verified. Temporarily unlock guest_remote_video_receive_only for repair. All host room, camera stability/exposure, layout, chat, buttons, rose/profile display, and other communication components remain protected.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -63,6 +63,10 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [],
-  "temporarily_unlocked_components": []
+  "current_editable_components": [
+    "guest_remote_video_receive_only"
+  ],
+  "temporarily_unlocked_components": [
+    "guest_remote_video_receive_only"
+  ]
 }
