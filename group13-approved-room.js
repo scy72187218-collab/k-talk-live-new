@@ -203,16 +203,27 @@
 
     var v=document.getElementById('ktLiveVideo');
     try{
-      if(v&&window.state&&state.stream){v.srcObject=state.stream;var p=v.play();if(p&&p.catch)p.catch(function(){});}
+      var liveStream=(window.state&&state.stream)||null;
+      if(!liveStream){
+        var prepCam=document.getElementById('camera');
+        if(prepCam&&prepCam.srcObject)liveStream=prepCam.srcObject;
+      }
+      if(!liveStream){
+        var prepBg=document.getElementById('cameraBg');
+        if(prepBg&&prepBg.srcObject)liveStream=prepBg.srcObject;
+      }
+      if(v&&liveStream){
+        v.srcObject=liveStream;
+        var p=v.play();
+        if(p&&p.catch)p.catch(function(){});
+      }
     }catch(e){}
     renderChat();
     try{if(window.ktRenderTreasure)ktRenderTreasure();}catch(e){}
     try{
       if(!keepOpeningGuard){
         clearTimeout(window.__ktG13OpeningRelease);
-        window.__ktG13OpeningRelease=setTimeout(function(){
-          try{document.documentElement.classList.remove('kt-g13-opening');}catch(e){}
-        },4600);
+        try{document.documentElement.classList.remove('kt-g13-opening');}catch(e){}
         clearTimeout(window.__ktG13OpeningFailsafe);
       }else{
         document.documentElement.classList.add('kt-g13-opening');
@@ -303,12 +314,25 @@
         });
       }
 
-      /* 1초는 정확히 1초만 보여주고 즉시 현재 13명방으로 전환한다.
-         기존 준비가 조금 늦어도 숫자 1을 붙잡아 두지 않는다.
-         준비가 끝날 때까지는 가드가 옛 화면을 뒤에서만 숨긴다. */
+      /* 1초는 정확히 1초까지 모두 보여준 뒤 즉시 현재 13명방으로 전환한다.
+         준비화면/옛 13명방/검은 화면은 중간에 보이지 않게 한다. */
+      try{
+        if(window.creator)creator.classList.remove('show','live-prep-open');
+        var creatorEl=document.getElementById('creator');
+        if(creatorEl)creatorEl.classList.remove('show','live-prep-open');
+      }catch(e){}
+
       renderApprovedGroup13(true);
+
+      /* 현재 방 DOM과 영상이 실제 한 프레임 그려진 다음 숫자 가림막을 치운다. */
+      await new Promise(function(resolve){
+        requestAnimationFrame(function(){
+          requestAnimationFrame(resolve);
+        });
+      });
       if(overlay){overlay.remove();overlay=null;}
 
+      /* 기존 세션 준비가 조금 늦어져도 사용자는 이미 현재 13명방을 보고 있다. */
       var result=await startPromise;
       renderApprovedGroup13(false);
 
