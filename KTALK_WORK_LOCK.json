@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Video 23201 confirms 9-room is not visible before countdown; an intermediate single-video/test screen appears. Owner wants only: open 9-room first, then one 5→4→3→2→1. Remove all other visible handoff screens.",
+  "note": "Re-locked after video-confirmed 9-room cleanup. When 9-room Start is pressed, the 9-room is rendered immediately; any intermediate test/single-video/13-room screen created by underlying start logic is replaced within the same mutation cycle before paint; then exactly one 5→4→3→2→1 countdown runs over the visible 9-room. Other rooms unchanged.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -50,12 +50,6 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "group9_countdown_transition",
-    "group9_current_room_entry"
-  ],
-  "temporarily_unlocked_components": [
-    "group9_countdown_transition",
-    "group9_current_room_entry"
-  ]
+  "current_editable_components": [],
+  "temporarily_unlocked_components": []
 }
