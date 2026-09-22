@@ -410,12 +410,26 @@
 
   window.ktEnterRemoteLive=async function(hostId){
     hostId=String(hostId||'');if(!hostId)return;
+
+    /* Guest receive repair: publish the selected host immediately, before any DB wait. */
+    window.__ktRemoteHostId=hostId;
+    window.__ktCurrentRemoteHostId=hostId;
+    try{sessionStorage.setItem('kt_remote_host_id',hostId);}catch(e){}
+    try{window.dispatchEvent(new CustomEvent('kt-remote-host-selected',{detail:{host_id:hostId}}));}catch(e){}
+
     if(hostId===deviceId()&&hostActive){showActivity('현재 내가 방송 중인 방입니다.');return;}
     if(viewerCtx)await window.ktLeaveRemoteLive(true);
     try{
       var rows=await req('ktalk_live_rooms?select=id,host_id,host_name,title,room_type,room_name,active,updated_at&host_id=eq.'+enc(hostId)+'&active=eq.true&order=started_at.desc&limit=1');
       var room=rows&&rows[0];if(!room||Date.now()-new Date(room.updated_at).getTime()>STALE_MS){renderLiveCards();return;}
       renderRemote(room);
+
+      /* Re-announce after the remote video element exists so an early stream can attach immediately. */
+      window.__ktRemoteHostId=hostId;
+      window.__ktCurrentRemoteHostId=hostId;
+      try{sessionStorage.setItem('kt_remote_host_id',hostId);}catch(e){}
+      try{window.dispatchEvent(new CustomEvent('kt-remote-host-selected',{detail:{host_id:hostId}}));}catch(e){}
+
       var p=profile(),viewerId='viewer_'+deviceId();
       await req('ktalk_live_viewers?on_conflict=host_id,viewer_id',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({host_id:hostId,viewer_id:viewerId,viewer_name:p.name||'게스트',active:true,updated_at:nowIso()})});
       await req('ktalk_webrtc_sessions?host_id=eq.'+enc(hostId)+'&viewer_id=eq.'+enc(viewerId)+'&active=eq.true',{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})});
