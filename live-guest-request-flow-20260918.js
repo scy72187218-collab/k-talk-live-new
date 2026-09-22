@@ -214,26 +214,26 @@
     };
     var ok=false;
 
-    /* 승인/신청 상태는 DB와 메모리 신호 양쪽에 같이 남긴다.
-       한쪽 연결이 순간 흔들려도 다음 폴링에서 승인 상태가 사라지지 않게 한다. */
-    try{
-      if(await ensureConfig()){
-        var ctrl=typeof AbortController!=='undefined'?new AbortController():null;
-        var timer=ctrl?setTimeout(function(){ctrl.abort();},1800):null;
-        var opt={method:'POST',headers:headers({Prefer:'return=minimal'}),body:JSON.stringify(payload),cache:'no-store'};
-        if(ctrl)opt.signal=ctrl.signal;
-        var rr=await fetch(BASE+'ktalk_live_messages',opt);
-        if(timer)clearTimeout(timer);
-        if(rr&&rr.ok)ok=true;
-      }
-    }catch(e){}
-
+    /* 신청/승인은 공유 메모리 신호를 먼저 써서 호스트에 즉시 보이게 한다.
+       DB는 두 번째 경로로 같이 기록하되, DB 지연 때문에 화면 표시가 늦어지지 않게 한다. */
     try{
       await memoryReq('ktalk_live_messages',{
         method:'POST',
         body:JSON.stringify(payload)
       });
       ok=true;
+    }catch(e){}
+
+    try{
+      if(await ensureConfig()){
+        var ctrl=typeof AbortController!=='undefined'?new AbortController():null;
+        var timer=ctrl?setTimeout(function(){ctrl.abort();},900):null;
+        var opt={method:'POST',headers:headers({Prefer:'return=minimal'}),body:JSON.stringify(payload),cache:'no-store'};
+        if(ctrl)opt.signal=ctrl.signal;
+        var rr=await fetch(BASE+'ktalk_live_messages',opt);
+        if(timer)clearTimeout(timer);
+        if(rr&&rr.ok)ok=true;
+      }
     }catch(e){}
 
     return ok;
@@ -294,7 +294,26 @@
     var path='ktalk_live_messages?select=id,sender_id,sender_name,message,message_type,created_at&host_id=eq.'+enc(deviceId());
     if(room.started_at)path+='&created_at=gte.'+enc(room.started_at);
     path+='&order=created_at.desc&limit=240';
-    var rows=[];try{rows=await req(path)||[];}catch(e){return;}
+    /* 호스트는 DB 결과와 공유 메모리 결과를 항상 합쳐서 본다.
+       한쪽 통신이 흔들려도 게스트 신청 카드가 사라지지 않게 한다. */
+    var rows=[],dbRows=[],memRows=[];
+    try{dbRows=await req(path)||[];}catch(e){}
+    try{memRows=await memoryReq(path,{})||[];}catch(e){}
+    var seenRows={};
+    [dbRows,memRows].forEach(function(list){
+      (list||[]).forEach(function(m){
+        var key=String(m.id||'')||[
+          String(m.message_type||''),
+          String(m.sender_id||''),
+          String(m.created_at||''),
+          String(m.message||'')
+        ].join('|');
+        if(seenRows[key])return;
+        seenRows[key]=1;
+        rows.push(m);
+      });
+    });
+    rows.sort(function(a,b){return (Date.parse(b.created_at)||0)-(Date.parse(a.created_at)||0);});
 
     var names={},requestAt={},approvedAt={},cancelledAt={},joinAt={},approvedNow={},pending=[];
     rows.forEach(function(m){
