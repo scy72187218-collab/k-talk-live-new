@@ -352,6 +352,9 @@
   openCreator();
 };
  window.ktPickBottomRoom=function(btn,label,type,name,max){
+  /* 9명방은 시작 버튼을 누르기 전부터 선택 상태를 기억해
+     공용 첫 카운트다운이 끼어들지 않게 한다. 다른 방 선택 시 즉시 해제. */
+  window.__ktNineRoomSelectedBeforeStart=(type==='group9'||Number(max)===9||String(name||'').indexOf('9명')>-1);
   var prep=document.querySelector('.live-prep');
   var target=null;
   if(prep){
