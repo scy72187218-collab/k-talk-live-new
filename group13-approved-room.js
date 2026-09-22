@@ -303,13 +303,15 @@
         });
       }
 
-      /* 1초가 끝날 때쯤 기존 준비는 이미 끝나 있어야 한다.
-         끝나지 않았더라도 현재 13명방 화면을 먼저 고정하고 결과를 기다린다. */
+      /* 1초는 정확히 1초만 보여주고 즉시 현재 13명방으로 전환한다.
+         기존 준비가 조금 늦어도 숫자 1을 붙잡아 두지 않는다.
+         준비가 끝날 때까지는 가드가 옛 화면을 뒤에서만 숨긴다. */
       renderApprovedGroup13(true);
+      if(overlay){overlay.remove();overlay=null;}
+
       var result=await startPromise;
       renderApprovedGroup13(false);
 
-      if(overlay){overlay.remove();overlay=null;}
       if(guardObserver){try{guardObserver.disconnect();}catch(e){}guardObserver=null;}
       return result;
     }catch(e){
