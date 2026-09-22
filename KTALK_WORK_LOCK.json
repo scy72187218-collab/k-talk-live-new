@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Re-locked after removing the extra four-room countdown wrapper. 1-person, 9-person, subscriber, and secret rooms now use the app's existing single 5→4→3→2→1 countdown so the room can open directly after 1 without a second dark countdown.",
+  "note": "Owner reports only the 9-person room still starts a second countdown after the first 1. Only the 9-person countdown transition is editable.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -48,6 +48,10 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [],
-  "temporarily_unlocked_components": []
+  "current_editable_components": [
+    "group9_countdown_transition"
+  ],
+  "temporarily_unlocked_components": [
+    "group9_countdown_transition"
+  ]
 }
