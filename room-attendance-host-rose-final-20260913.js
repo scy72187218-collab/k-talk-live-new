@@ -200,6 +200,7 @@
   window.addEventListener('pointerdown',function(e){
     var btn=e.target&&e.target.closest?e.target.closest('.live-prep .prep-start'):null;
     if(btn){
+      if(detect9Selection0900())return;
       pendingGroup13=detect13Selection();
       if(pendingGroup13){
         force13State();
@@ -219,6 +220,7 @@
   window.addEventListener('click',function(e){
     var btn=e.target&&e.target.closest?e.target.closest('.live-prep .prep-start'):null;
     if(!btn||releaseStartButton)return;
+    if(detect9Selection0900())return;
 
     /* 13명방은 group13-approved-room.js의 단일 5→1 카운트다운에 맡긴다. */
     if(detect13Selection()){
@@ -296,10 +298,10 @@
   };
 
   window.startBroadcast=async function(){
-    /* 9명방은 09:00 원래 공용 5→1 시작 흐름을 그대로 사용한다.
-       다른 전용 래퍼 판단보다 먼저 9명방을 고정한다. */
+    /* 9명방은 2026-09-21 17:00 전용 복구 게이트가 담당한다. */
     var nine0900=detect9Selection0900();
-    if(!nine0900&&detectDedicatedCountdownSelection())return previousStart.apply(this,arguments);
+    if(nine0900)return previousStart.apply(this,arguments);
+    if(detectDedicatedCountdownSelection())return previousStart.apply(this,arguments);
     if(releaseStartButton)return previousStart.apply(this,arguments);
     if(launching)return;
     launching=true;
