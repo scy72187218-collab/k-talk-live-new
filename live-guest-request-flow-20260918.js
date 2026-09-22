@@ -413,7 +413,7 @@
       if(!slot.dataset.ktGuestViewerId)decorateSlot(slot,vid,name);
 
       try{
-        var pc=new RTCPeerConnection(ICE);
+        var pc=new RTCPeerConnection(window.ktGetRtcConfig?window.ktGetRtcConfig():ICE);
         pc.__ktSlot=slot;
         pc.__ktVid=vid;
         hostGuestPeers[x.id]=pc;
@@ -688,7 +688,7 @@
         body:JSON.stringify({active:false,updated_at:nowIso()})
       });
 
-      pc=new RTCPeerConnection(ICE);
+      pc=new RTCPeerConnection(window.ktGetRtcConfig?window.ktGetRtcConfig():ICE);
       viewerGuest.pc=pc;
       viewerGuest.connectStartedAt=Date.now();
 
