@@ -12,7 +12,6 @@
     '#screen .ktsubscriber-room .ktsubscriber-guest',
     '#screen .ktsecret-room .ktsecret-slot:not(.host)',
     '#screen .ktsecret-room .ktsecret-guest-slot',
-    '#screen .ktsolo-room .ktsolo-guest',
     '#screen .kt-guest-hostlike-room .kgh-cell.self',
     '#screen .kt-approved-guest-grid .kt-approved-guest-cell.self',
     '#screen .kt-prejoin-room-grid .kt-prejoin-room-cell.self',
@@ -84,6 +83,13 @@
   }
   function guestLevel(tile){
     var raw=value(tile,['level','userLevel','memberLevel','guestLevel','profileLevel']);
+    if(!raw){
+      try{
+        var txt=String(tile&&tile.textContent||'');
+        var m=txt.match(/Lv\.?\s*(\d+)/i);
+        if(m)raw=m[1];
+      }catch(e){}
+    }
     if(!raw&&isSelf(tile)){
       try{
         var s=window.state||{};
@@ -98,8 +104,9 @@
       }
     }
     var n=parseInt(String(raw||'').replace(/[^0-9]/g,''),10);
-    if(!isFinite(n)||n<1)return '';
+    if(!isFinite(n)||n<1)n=1;
     try{if(typeof window.ktEffectiveLevel==='function')n=window.ktEffectiveLevel(n);}catch(e){}
+    if(!isFinite(n)||n<1)n=1;
     return n;
   }
   function roseCount(tile){
@@ -136,6 +143,9 @@
       +'#screen .kt-allguest-name{display:block!important;max-width:62px!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;font:950 7px/12px system-ui,-apple-system,"Noto Sans KR",sans-serif!important;color:#fff!important}'
       +'#screen .kt-allguest-level{display:inline-flex!important;align-items:center!important;height:11px!important;padding:0 3px!important;border-radius:4px!important;background:rgba(18,18,22,.86)!important;color:#fff!important;font:950 7px/10px system-ui,-apple-system,"Noto Sans KR",sans-serif!important;white-space:nowrap!important}'
       +'#screen .kgh-cell.self>.kgh-label,#screen .kt-approved-guest-cell.self>.kt-approved-guest-label,#screen .kt-prejoin-room-cell.self>.kt-prejoin-room-label,#screen .kt-guest-room-cell.self>.kt-guest-room-label{display:none!important}'
+      +'#screen .ktsubscriber-guest.kt-allguest-occupied>b{display:none!important}'
+      +'#screen .ktsubscriber-guest.kt-allguest-occupied>span:not(.kt-allguest-rose){display:none!important}'
+      +'#screen .ktsecret-guest-slot.kt-allguest-occupied>.ktsecret-guest-empty{display:none!important}'
       +'@media(max-width:390px){#screen .kt-allguest-rose{left:3px!important;top:3px!important;height:14px!important;min-width:26px!important;padding:0 4px!important;font-size:7px!important}#screen .kt-allguest-profile{left:2px!important;bottom:1px!important;height:13px!important;padding:0 3px!important;gap:2px!important}#screen .kt-allguest-name,#screen .kt-allguest-level{font-size:6.5px!important}}';
     document.head.appendChild(s);
   }
@@ -147,10 +157,12 @@
     var r=tile.querySelector(':scope > .kt-allguest-rose');
     var p=tile.querySelector(':scope > .kt-allguest-profile');
     if(!yes){
+      tile.classList.remove('kt-allguest-occupied');
       if(r)r.remove();
       if(p)p.remove();
       return;
     }
+    tile.classList.add('kt-allguest-occupied');
     try{tile.style.setProperty('position','relative','important');}catch(e){}
 
     if(!r){
@@ -171,8 +183,8 @@
     if(n)n.textContent=guestName(tile);
     var lv=guestLevel(tile);
     if(l){
-      l.textContent=lv?'Lv.'+lv:'';
-      l.style.display=lv?'inline-flex':'none';
+      l.textContent='Lv.'+lv;
+      l.style.display='inline-flex';
     }
 
     /* Hide only the old generic guest-name labels in an occupied tile. */
@@ -196,7 +208,7 @@
       window.__ktAllRoomGuestRoseNameLevelTimer20260922=setTimeout(apply,35);
     }).observe(document.getElementById('screen')||document.documentElement,{
       childList:true,subtree:true,attributes:true,
-      attributeFilter:['data-kt-guest-viewer-id','data-kt-direct-guest','data-user-id','data-level','data-nickname','class']
+      attributeFilter:['data-kt-guest-viewer-id','data-kt-direct-guest','data-user-id','data-level','data-user-level','data-member-level','data-guest-level','data-nickname','data-display-name','class']
     });
   }catch(e){}
 })();
