@@ -555,8 +555,11 @@
         /* 같은 승인 연결로 호스트 카메라도 게스트에게 돌려보낸다.
            화면/방 배치는 건드리지 않고 미디어 트랙만 추가한다. */
         try{
+          /* 직접 시청 연결이 이미 호스트 영상을 보내고 있으면 승인 게스트 연결에서는
+             호스트 영상을 한 번 더 보내지 않는다. 업로드 대역폭을 절반 가까이 줄인다. */
+          var directHostView=!!window.__ktDirectRealtimeRtc20260922;
           var hostStream=(window.state&&state.stream)||null;
-          if(hostStream&&hostStream.getTracks){
+          if(!directHostView&&hostStream&&hostStream.getTracks){
             hostStream.getTracks().forEach(function(track){
               try{
                 if(track&&track.readyState==='live')pc.addTrack(track,hostStream);
@@ -741,7 +744,7 @@
       viewerGuest.mediaOpening=true;
       try{
         stream=await navigator.mediaDevices.getUserMedia({
-          video:{facingMode:{ideal:'user'},width:{ideal:1280},height:{ideal:960},aspectRatio:{ideal:1.333333},resizeMode:'none',frameRate:{ideal:30,max:30}},
+          video:{facingMode:{ideal:'user'},width:{ideal:640,max:640},height:{ideal:480,max:480},aspectRatio:{ideal:1.333333},frameRate:{ideal:15,max:18}},
           audio:true
         });
       }catch(e){
@@ -828,8 +831,25 @@
         }
       };
 
-      stream.getTracks().forEach(function(t){try{pc.addTrack(t,stream);}catch(e){}});
-      var offer=await pc.createOffer({offerToReceiveAudio:true,offerToReceiveVideo:true});
+      stream.getTracks().forEach(function(t){
+        try{
+          var sender=pc.addTrack(t,stream);
+          if(t&&t.kind==='video'&&sender&&sender.getParameters&&sender.setParameters){
+            var p=sender.getParameters()||{};
+            if(!p.encodings||!p.encodings.length)p.encodings=[{}];
+            p.encodings.forEach(function(enc){
+              enc.maxBitrate=350000;
+              enc.maxFramerate=15;
+              if(!enc.scaleResolutionDownBy||enc.scaleResolutionDownBy<1)enc.scaleResolutionDownBy=1;
+              try{enc.networkPriority='high';}catch(_e){}
+            });
+            try{p.degradationPreference='balanced';}catch(_e){}
+            var q=sender.setParameters(p);if(q&&q.catch)q.catch(function(){});
+          }
+        }catch(e){}
+      });
+      var directHostView=!!window.__ktDirectRealtimeRtc20260922;
+      var offer=await pc.createOffer({offerToReceiveAudio:!directHostView,offerToReceiveVideo:!directHostView});
       await pc.setLocalDescription(offer);
       await waitIce(pc,5000);
 
