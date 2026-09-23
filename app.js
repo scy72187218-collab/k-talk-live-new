@@ -1413,7 +1413,7 @@ window.applyBeautyPreview=function(){
     'brightness('+brightness.toFixed(3)+') saturate('+saturation.toFixed(3)+') contrast('+contrast.toFixed(3)+') blur('+blur.toFixed(2)+'px) sepia('+sepia.toFixed(3)+')',
     'important'
   );
-  camera.style.setProperty('transform','scaleX(-1) scale('+faceScale.toFixed(3)+')','important');
+  camera.style.setProperty('transform','scale('+faceScale.toFixed(3)+')','important');
 };
 
 window.adjustBeautyControl=function(step){
