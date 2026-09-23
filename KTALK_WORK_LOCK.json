@@ -1,5 +1,5 @@
 {
-  "version": 31,
+  "version": 32,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260922-guest-live-reconnect-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "PIN 1111 previously verified in this flow. Temporarily unlocked only broadcast-end synchronization. No layout/text/button styling changes.",
+  "note": "Broadcast-end sync re-locked: repeated end publish, 2.2s shared fallback check, and 5s frozen-frame exit. UI/layout/text/styling unchanged.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -68,7 +68,8 @@
     "communication_auto_reconnect_only",
     "host_video_direction",
     "all_room_host_video_direction",
-    "public_video_live_indicator_border"
+    "public_video_live_indicator_border",
+    "broadcast_end_sync_only"
   ],
   "check_trigger_phrase": "K-톡 비밀번호 확인",
   "check_behavior": {
@@ -77,12 +78,6 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "room_entry_exit",
-    "broadcast_end_sync_only"
-  ],
-  "temporarily_unlocked_components": [
-    "room_entry_exit",
-    "broadcast_end_sync_only"
-  ]
+  "current_editable_components": [],
+  "temporarily_unlocked_components": []
 }
