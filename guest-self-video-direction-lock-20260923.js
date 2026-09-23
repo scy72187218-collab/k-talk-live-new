@@ -1,5 +1,5 @@
 /* K-Talk approved guest self-video direction hard lock (2026-09-23)
-   First-photo orientation is the reference.
+   First-photo orientation is the reference. Front-camera self preview is mirrored once to match that reference.
    Only the approved guest's OWN video is affected.
    Host video, remote guest tiles, layout, chat, gifts, approval and transport are untouched. */
 (function(){
@@ -20,15 +20,15 @@
     if(document.getElementById('ktGuestSelfVideoDirectionLockStyle20260923'))return;
     var s=document.createElement('style');
     s.id='ktGuestSelfVideoDirectionLockStyle20260923';
-    s.textContent=SEL+'{transform:none!important;-webkit-transform:none!important;transform-origin:50% 50%!important;}';
+    s.textContent=SEL+'{transform:scaleX(-1)!important;-webkit-transform:scaleX(-1)!important;transform-origin:50% 50%!important;}';
     document.head.appendChild(s);
   }
 
   function fix(v){
     if(!v)return;
     try{
-      v.style.setProperty('transform','none','important');
-      v.style.setProperty('-webkit-transform','none','important');
+      v.style.setProperty('transform','scaleX(-1)','important');
+      v.style.setProperty('-webkit-transform','scaleX(-1)','important');
       v.style.setProperty('transform-origin','50% 50%','important');
     }catch(e){}
   }
