@@ -5,6 +5,7 @@
   window.__ktApprovedGuestPeerVideoSync20260918=true;
 
   var BASE='https://zupwbfmacwzexyvznlzq.supabase.co/rest/v1/';
+  var MEM_PEER='/api/live-peer-memory';
   var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm1hY3d6ZXh5dnpubHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjEwNzYsImV4cCI6MjEwNDAzNzA3Nn0.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
   var ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
   var peers={};
@@ -25,6 +26,36 @@
     if(!r.ok)throw new Error('peer api '+r.status);
     if(r.status===204)return null;
     var t=await r.text();return t?JSON.parse(t):null;
+  }
+  async function memPeerPost(body,timeout){
+    var ctrl=typeof AbortController!=='undefined'?new AbortController():null;
+    var timer=ctrl?setTimeout(function(){ctrl.abort();},timeout||900):null;
+    try{
+      var opt={method:'POST',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify(body||{})};
+      if(ctrl)opt.signal=ctrl.signal;
+      var r=await fetch(MEM_PEER+'?t='+Date.now(),opt);
+      if(timer)clearTimeout(timer);
+      if(!r.ok)throw new Error('mem peer '+r.status);
+      return await r.json();
+    }catch(e){
+      if(timer)clearTimeout(timer);
+      throw e;
+    }
+  }
+  async function memPeerGet(query,timeout){
+    var ctrl=typeof AbortController!=='undefined'?new AbortController():null;
+    var timer=ctrl?setTimeout(function(){ctrl.abort();},timeout||900):null;
+    try{
+      var opt={cache:'no-store'};
+      if(ctrl)opt.signal=ctrl.signal;
+      var r=await fetch(MEM_PEER+'?'+query+'&t='+Date.now(),opt);
+      if(timer)clearTimeout(timer);
+      if(!r.ok)throw new Error('mem peer '+r.status);
+      return await r.json();
+    }catch(e){
+      if(timer)clearTimeout(timer);
+      throw e;
+    }
   }
   async function interactionState(hostId){
     var ctrl=typeof AbortController!=='undefined'?new AbortController():null;
@@ -162,15 +193,31 @@
     try{var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
   }
 
+  async function endSignalRow(row,hostId,key){
+    if(!row)return;
+    if(row.__source==='memory'){
+      try{await memPeerPost({action:'end',session_id:String(row.id||'')},700);}catch(e){}
+      return;
+    }
+    try{await req('ktalk_webrtc_sessions?id=eq.'+enc(row.id),{
+      method:'PATCH',headers:{Prefer:'return=minimal'},
+      body:JSON.stringify({active:false,updated_at:nowIso()})
+    });}catch(e){}
+  }
+
   async function deactivate(entry){
     if(!entry)return;
     try{if(entry.trackTimer)clearTimeout(entry.trackTimer);}catch(e){}
     try{if(entry.pc)entry.pc.close();}catch(e){}
     if(entry.sessionId){
-      try{await req('ktalk_webrtc_sessions?id=eq.'+enc(entry.sessionId),{
-        method:'PATCH',headers:{Prefer:'return=minimal'},
-        body:JSON.stringify({active:false,updated_at:nowIso()})
-      });}catch(e){}
+      if(entry.signalSource==='memory'){
+        try{await memPeerPost({action:'end',session_id:entry.sessionId},700);}catch(e){}
+      }else{
+        try{await req('ktalk_webrtc_sessions?id=eq.'+enc(entry.sessionId),{
+          method:'PATCH',headers:{Prefer:'return=minimal'},
+          body:JSON.stringify({active:false,updated_at:nowIso()})
+        });}catch(e){}
+      }
     }
     clearPeerCell(entry.peerId);
   }
@@ -218,13 +265,9 @@
 
   async function makeOffer(hostId,selfId,peerId,name,stream,key){
     if(peers[peerId])return;
-    var entry={peerId:peerId,key:key,role:'offer',pc:null,sessionId:'',remoteStream:null,gotTrack:false,trackTimer:null};
+    var entry={peerId:peerId,key:key,role:'offer',pc:null,sessionId:'',signalSource:'',remoteStream:null,gotTrack:false,trackTimer:null};
     peers[peerId]=entry;
     try{
-      await req('ktalk_webrtc_sessions?host_id=eq.'+enc(hostId)+'&viewer_id=eq.'+enc(key)+'&active=eq.true',{
-        method:'PATCH',headers:{Prefer:'return=minimal'},
-        body:JSON.stringify({active:false,updated_at:nowIso()})
-      });
       var pc=new RTCPeerConnection(window.ktGetRtcConfig?window.ktGetRtcConfig():ICE);entry.pc=pc;wirePc(pc,entry,name);
       var vt=stream.getVideoTracks()[0];
       if(vt){
@@ -238,28 +281,52 @@
         }catch(_e){}
       }
       var offer=await pc.createOffer({offerToReceiveVideo:true,offerToReceiveAudio:false});
-      await pc.setLocalDescription(offer);await waitIce(pc,900);
-      var rows=await req('ktalk_webrtc_sessions',{
-        method:'POST',headers:{Prefer:'return=representation'},
-        body:JSON.stringify({host_id:hostId,viewer_id:key,offer_sdp:pc.localDescription.sdp,answer_sdp:null,active:true,updated_at:nowIso()})
-      });
-      entry.sessionId=rows&&rows[0]?String(rows[0].id||''):'';
-      if(!entry.sessionId)throw new Error('mesh session');
+      await pc.setLocalDescription(offer);await waitIce(pc,850);
+
+      /* 공유 Runtime Cache를 먼저 사용한다. DB는 실패할 때만 보조로 쓴다. */
+      try{
+        await memPeerPost({action:'end_match',host_id:hostId,viewer_id:key},650);
+        var created=await memPeerPost({action:'create',host_id:hostId,viewer_id:key},850);
+        entry.sessionId=String(created&&created.id||'');
+        if(!entry.sessionId)throw new Error('memory mesh create');
+        await memPeerPost({action:'offer',session_id:entry.sessionId,offer_sdp:pc.localDescription.sdp},850);
+        entry.signalSource='memory';
+      }catch(memErr){
+        await req('ktalk_webrtc_sessions?host_id=eq.'+enc(hostId)+'&viewer_id=eq.'+enc(key)+'&active=eq.true',{
+          method:'PATCH',headers:{Prefer:'return=minimal'},
+          body:JSON.stringify({active:false,updated_at:nowIso()})
+        });
+        var rows=await req('ktalk_webrtc_sessions',{
+          method:'POST',headers:{Prefer:'return=representation'},
+          body:JSON.stringify({host_id:hostId,viewer_id:key,offer_sdp:pc.localDescription.sdp,answer_sdp:null,active:true,updated_at:nowIso()})
+        });
+        entry.sessionId=rows&&rows[0]?String(rows[0].id||''):'';
+        if(!entry.sessionId)throw new Error('db mesh session');
+        entry.signalSource='db';
+      }
+
       armPeerTrackWatchdog(entry,3500);
-      debug('offer_created',selfId+' -> '+peerId);
+      debug('offer_created',selfId+' -> '+peerId+' via '+entry.signalSource);
       var tries=0;
       entry.answerTimer=setInterval(async function(){
         if(peers[peerId]!==entry){clearInterval(entry.answerTimer);return;}
         if(++tries>30){clearInterval(entry.answerTimer);await dropPeer(peerId);return;}
         try{
-          var a=await req('ktalk_webrtc_sessions?select=id,answer_sdp,active&id=eq.'+enc(entry.sessionId)+'&limit=1');
-          var x=a&&a[0];if(!x||!x.active){clearInterval(entry.answerTimer);await dropPeer(peerId);return;}
+          var x=null;
+          if(entry.signalSource==='memory'){
+            var j=await memPeerGet('session_id='+enc(entry.sessionId),650);
+            x=j&&j.session||null;
+          }else{
+            var a=await req('ktalk_webrtc_sessions?select=id,answer_sdp,active&id=eq.'+enc(entry.sessionId)+'&limit=1');
+            x=a&&a[0]||null;
+          }
+          if(!x||!x.active){clearInterval(entry.answerTimer);await dropPeer(peerId);return;}
           if(x.answer_sdp&&!pc.currentRemoteDescription){
             await pc.setRemoteDescription({type:'answer',sdp:x.answer_sdp});
             clearInterval(entry.answerTimer);
           }
         }catch(e){}
-      },200);
+      },160);
     }catch(e){
       await dropPeer(peerId);
     }
@@ -267,7 +334,7 @@
 
   async function answerOffer(hostId,selfId,peerId,name,stream,key,row){
     if(peers[peerId])return;
-    var entry={peerId:peerId,key:key,role:'answer',pc:null,sessionId:String(row.id||''),remoteStream:null,gotTrack:false,trackTimer:null};
+    var entry={peerId:peerId,key:key,role:'answer',pc:null,sessionId:String(row.id||''),signalSource:row.__source||'db',remoteStream:null,gotTrack:false,trackTimer:null};
     peers[peerId]=entry;
     try{
       var pc=new RTCPeerConnection(window.ktGetRtcConfig?window.ktGetRtcConfig():ICE);entry.pc=pc;wirePc(pc,entry,name);
@@ -284,13 +351,18 @@
       }
       await pc.setRemoteDescription({type:'offer',sdp:row.offer_sdp});
       var answer=await pc.createAnswer();
-      await pc.setLocalDescription(answer);await waitIce(pc,900);
-      await req('ktalk_webrtc_sessions?id=eq.'+enc(entry.sessionId),{
-        method:'PATCH',headers:{Prefer:'return=minimal'},
-        body:JSON.stringify({answer_sdp:pc.localDescription.sdp,updated_at:nowIso()})
-      });
+      await pc.setLocalDescription(answer);await waitIce(pc,850);
+
+      if(entry.signalSource==='memory'){
+        await memPeerPost({action:'answer',session_id:entry.sessionId,answer_sdp:pc.localDescription.sdp},850);
+      }else{
+        await req('ktalk_webrtc_sessions?id=eq.'+enc(entry.sessionId),{
+          method:'PATCH',headers:{Prefer:'return=minimal'},
+          body:JSON.stringify({answer_sdp:pc.localDescription.sdp,updated_at:nowIso()})
+        });
+      }
       armPeerTrackWatchdog(entry,3500);
-      debug('answer_created',selfId+' <- '+peerId);
+      debug('answer_created',selfId+' <- '+peerId+' via '+entry.signalSource);
     }catch(e){
       await dropPeer(peerId);
     }
@@ -376,9 +448,17 @@
 
   async function meshRow(hostId,key){
     try{
+      var j=await memPeerGet('host_id='+enc(hostId),800);
+      var rows=j&&Array.isArray(j.sessions)?j.sessions:[];
+      var found=rows.filter(function(x){return x&&x.active&&String(x.viewer_id||'')===String(key);});
+      found.sort(function(a,b){return (Date.parse(b.updated_at||'')||0)-(Date.parse(a.updated_at||'')||0);});
+      if(found[0]){found[0].__source='memory';return found[0];}
+    }catch(e){}
+    try{
       var rows=await req('ktalk_webrtc_sessions?select=id,viewer_id,offer_sdp,answer_sdp,active,updated_at&host_id=eq.'+enc(hostId)+'&viewer_id=eq.'+enc(key)+'&active=eq.true&order=created_at.desc&limit=1');
-      return rows&&rows[0]?rows[0]:null;
-    }catch(e){return null;}
+      if(rows&&rows[0]){rows[0].__source='db';return rows[0];}
+    }catch(e){}
+    return null;
   }
 
   async function ensurePeer(hostId,selfId,peerId,name,stream){
@@ -387,12 +467,9 @@
     var offerer=String(selfId)<String(peerId);
     if(offerer){
       var existing=await meshRow(hostId,key);
-      if(existing&&existing.offer_sdp&&existing.offer_sdp!=='pending'&&!existing.answer_sdp){
-        /* 내가 이전 시도에서 만든 행이 남은 경우 새로 정리해서 다시 연결 */
-        try{await req('ktalk_webrtc_sessions?id=eq.'+enc(existing.id),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})});}catch(e){}
-      }else if(existing&&existing.answer_sdp){
-        /* 새 화면 접속에서는 예전 연결을 재사용할 수 없으므로 다시 만든다. */
-        try{await req('ktalk_webrtc_sessions?id=eq.'+enc(existing.id),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})});}catch(e){}
+      if(existing){
+        /* 새 화면 접속에서는 예전 peer 세션을 재사용하지 않는다. */
+        await endSignalRow(existing,hostId,key);
       }
       await makeOffer(hostId,selfId,peerId,name,stream,key);
     }else{
