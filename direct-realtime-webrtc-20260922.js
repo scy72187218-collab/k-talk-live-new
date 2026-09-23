@@ -13,6 +13,7 @@
   var hostViewPeers={};
   var viewerPc=null,viewerSession='',viewerWatchToken='',viewerConnected=false,viewerIce={},viewerConnectTimer=null;
   var pendingRequests={},approvedGuests={},hostGuestPeers={},guestPc=null,guestSession='',guestApprovedHost='',guestApproved=false,guestStream=null,guestIce={};
+  var pendingHostGuestOffers={},pendingHostGuestIce={};
   var requestOn=false,lastRemoteHost='',lastHostRole='',lastWatchAt=0;
   var sharedApprovalPollBusy=false,leaveAnnouncedHost='',guestAliveLastSent=0,hostGuestAliveAt={},remoteHostMissingSince=0;
   var signalSeen={},viewerOfferInFlight='',lastHostReadyAt=0,lastGuestRequestAt=0;
@@ -156,6 +157,10 @@
     delete pendingRequests[vid];
     delete approvedGuests[vid];
     delete hostGuestAliveAt[vid];
+    delete pendingHostGuestOffers[vid];
+    Object.keys(pendingHostGuestIce).forEach(function(k){
+      if(k.indexOf(vid+'|')===0)delete pendingHostGuestIce[k];
+    });
 
     var hp=hostGuestPeers[vid];
     if(hp){try{closePc(hp.pc);}catch(e){}delete hostGuestPeers[vid];}
@@ -303,6 +308,8 @@
             if(x.kind==='approved'){
               approvedGuests[vid]=approvedGuests[vid]||{name:x.name||'게스트',at:x.ts||Date.now()};
               hostGuestAliveAt[vid]=Math.max(Number(hostGuestAliveAt[vid]||0),Number(x.ts||Date.now()));
+              replayPendingHostGuestOffer(vid);
+              replayPendingHostGuestOffer(vid);
             }else if(x.kind==='alive'){
               approvedGuests[vid]=approvedGuests[vid]||{name:x.name||'게스트',at:x.ts||Date.now()};
               hostGuestAliveAt[vid]=Math.max(Number(hostGuestAliveAt[vid]||0),Number(x.ts||Date.now()));
@@ -766,6 +773,7 @@
     if(!vid)return;
     approvedGuests[vid]={name:name||'게스트',at:Date.now()};
     delete pendingRequests[vid];guestSlot(vid,name);renderDirectRequests();
+    replayPendingHostGuestOffer(vid);
     var data={host_id:DEVICE,viewer_id:vid,name:name||'게스트',at:Date.now()};
     sharedApprovalPost(DEVICE,'guest_approved',vid,profileName());
     setTimeout(function(){sharedApprovalPost(DEVICE,'guest_approved',vid,profileName());},250);
@@ -934,10 +942,32 @@
       },7000);
     }catch(e){clearGuestOfferRetryTimers(pc);closePc(pc);if(guestPc===pc)guestPc=null;}
   }
+  function hostGuestSignalKey(vid,session){
+    return String(vid||'')+'|'+String(session||'');
+  }
+  function replayPendingHostGuestOffer(vid){
+    vid=String(vid||'');
+    var box=pendingHostGuestOffers[vid];
+    if(!box)return;
+    delete pendingHostGuestOffers[vid];
+    if(Date.now()-Number(box.at||0)>20000)return;
+    setTimeout(function(){
+      try{
+        var q=hostGuestOffer(box.payload);
+        if(q&&q.catch)q.catch(function(){});
+      }catch(e){}
+    },0);
+  }
+
   async function hostGuestOffer(p){
     if(!isHostRole()||String(p.host_id||'')!==DEVICE)return;
-    var vid=String(p.viewer_id||'');if(!vid||!approvedGuests[vid])return;
-    var session=String(p.session_id||''),sdp=String(p.offer_sdp||'');if(!session||!sdp)return;
+    var vid=String(p.viewer_id||'');
+    var session=String(p.session_id||''),sdp=String(p.offer_sdp||'');if(!vid||!session||!sdp)return;
+    if(!approvedGuests[vid]){
+      pendingHostGuestOffers[vid]={payload:p,at:Date.now()};
+      return;
+    }
+    delete pendingHostGuestOffers[vid];
     var old=hostGuestPeers[vid]||null;
 
     /* REST + WebSocket 이중 신호로 같은 guest_offer가 중복 도착할 수 있다.
@@ -950,7 +980,10 @@
       return;
     }
 
-    var pc=new RTCPeerConnection(rtcConfig()),entry={pc:pc,sid:session,ice:[],old:old,answer:''};hostGuestPeers[vid]=entry;
+    var iceKey=hostGuestSignalKey(vid,session);
+    var cachedGuestIce=pendingHostGuestIce[iceKey]||[];
+    delete pendingHostGuestIce[iceKey];
+    var pc=new RTCPeerConnection(rtcConfig()),entry={pc:pc,sid:session,ice:cachedGuestIce.slice(0,32),old:old,answer:''};hostGuestPeers[vid]=entry;
     pc.ontrack=function(ev){
       attachGuestToHost(vid,String(p.name||approvedGuests[vid].name||'게스트'),(ev.streams&&ev.streams[0])||new MediaStream([ev.track]));
       /* 새 영상이 실제로 도착한 뒤에만 예전 연결을 닫아 화면 깜빡임을 줄인다. */
@@ -1004,9 +1037,16 @@
       if(guestPc&&guestSession===session&&guestPc.remoteDescription){try{await guestPc.addIceCandidate(cand);}catch(e){}}
       else{if(!guestIce[session])guestIce[session]=[];guestIce[session].push(cand);}
     }else if(String(p.from||'')==='guest'&&isHostRole()&&String(p.host_id||'')===DEVICE){
-      var e=hostGuestPeers[String(p.viewer_id||'')];if(!e||e.sid!==session)return;
+      var gvid=String(p.viewer_id||'');
+      var e=hostGuestPeers[gvid];
+      if(!e||e.sid!==session){
+        var k=hostGuestSignalKey(gvid,session);
+        if(!pendingHostGuestIce[k])pendingHostGuestIce[k]=[];
+        if(pendingHostGuestIce[k].length<32)pendingHostGuestIce[k].push(cand);
+        return;
+      }
       if(e.pc.remoteDescription){try{await e.pc.addIceCandidate(cand);}catch(z){}}
-      else e.ice.push(cand);
+      else if(e.ice.length<32)e.ice.push(cand);
     }
   }
 
