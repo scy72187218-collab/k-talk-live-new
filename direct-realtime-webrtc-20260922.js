@@ -889,6 +889,20 @@
     }
     makeGuestOffer(hid);
   }
+  function waitIceCompleteDirect(pc,ms){
+    return new Promise(function(resolve){
+      if(!pc||pc.iceGatheringState==='complete')return resolve();
+      var done=false,t=setTimeout(finish,ms||1400);
+      function finish(){
+        if(done)return;done=true;clearTimeout(t);
+        try{pc.removeEventListener('icegatheringstatechange',on);}catch(e){}
+        resolve();
+      }
+      function on(){if(pc.iceGatheringState==='complete')finish();}
+      try{pc.addEventListener('icegatheringstatechange',on);}catch(e){finish();}
+    });
+  }
+
   function clearGuestOfferRetryTimers(pc){
     try{
       var list=pc&&pc.__ktGuestOfferRetryTimers||[];
@@ -947,6 +961,7 @@
     };
     try{
       var offer=await pc.createOffer({offerToReceiveAudio:false,offerToReceiveVideo:false});await pc.setLocalDescription(offer);
+      await waitIceCompleteDirect(pc,1400);
       var guestOfferPayload={host_id:hid,viewer_id:viewerId(),name:profileName(),session_id:guestSession,offer_sdp:pc.localDescription.sdp};
       send('guest_offer',guestOfferPayload);
       scheduleGuestOfferRetries(hid,pc,guestOfferPayload);
@@ -1006,8 +1021,9 @@
     var iceKey=hostGuestSignalKey(vid,session);
     var cachedGuestIce=pendingHostGuestIce[iceKey]||[];
     delete pendingHostGuestIce[iceKey];
-    var pc=new RTCPeerConnection(rtcConfig()),entry={pc:pc,sid:session,ice:cachedGuestIce.slice(0,32),old:old,answer:''};hostGuestPeers[vid]=entry;
+    var pc=new RTCPeerConnection(rtcConfig()),entry={pc:pc,sid:session,ice:cachedGuestIce.slice(0,32),old:old,answer:'',gotTrack:false};hostGuestPeers[vid]=entry;
     pc.ontrack=function(ev){
+      entry.gotTrack=true;
       attachGuestToHost(vid,String(p.name||approvedGuests[vid].name||'게스트'),(ev.streams&&ev.streams[0])||new MediaStream([ev.track]));
       /* 새 영상이 실제로 도착한 뒤에만 예전 연결을 닫아 화면 깜빡임을 줄인다. */
       if(entry.old&&entry.old.pc){try{closePc(entry.old.pc);}catch(e){}entry.old=null;}
@@ -1034,8 +1050,34 @@
       await pc.setRemoteDescription({type:'offer',sdp:sdp});
       var q=entry.ice.splice(0);for(var i=0;i<q.length;i++)try{await pc.addIceCandidate(q[i]);}catch(e){}
       var ans=await pc.createAnswer();await pc.setLocalDescription(ans);
+      await waitIceCompleteDirect(pc,1400);
       entry.answer=pc.localDescription.sdp;
-      send('guest_answer',{host_id:DEVICE,viewer_id:vid,session_id:session,answer_sdp:entry.answer});
+      var guestAnswerPayload={host_id:DEVICE,viewer_id:vid,session_id:session,answer_sdp:entry.answer};
+      send('guest_answer',guestAnswerPayload);
+      [700,1800,3600].forEach(function(ms){
+        setTimeout(function(){
+          if(hostGuestPeers[vid]!==entry||entry.gotTrack)return;
+          var cs=String(pc.connectionState||'');
+          if(cs==='failed'||cs==='closed')return;
+          send('guest_answer',guestAnswerPayload);
+        },ms);
+      });
+
+      /* 호스트 칸이 계속 '게스트 연결 중'이면 그 게스트 연결만 새로 요청한다.
+         다른 게스트 peer나 방 UI는 건드리지 않는다. */
+      setTimeout(function(){
+        if(hostGuestPeers[vid]!==entry||entry.gotTrack)return;
+        var cs=String(pc.connectionState||'');
+        if(cs==='closed')return;
+        try{closePc(pc);}catch(e){}
+        if(hostGuestPeers[vid]===entry)delete hostGuestPeers[vid];
+        var ap=approvedGuests[vid];
+        if(ap){
+          var reconnect={host_id:DEVICE,viewer_id:vid,name:ap.name||'게스트',at:Date.now(),reconnect:true};
+          send('guest_approved',reconnect);
+          setTimeout(function(){send('guest_approved',reconnect);},500);
+        }
+      },7500);
     }catch(e){
       closePc(pc);
       if(hostGuestPeers[vid]===entry){
