@@ -7,7 +7,10 @@
   window.__ktHostVideoTrueDirection20260922=true;
 
   var SEL=[
-    '#screen .ktg13-room[data-kt-room="9"] .ktg13-host > video',
+    '#screen .ktg13-room .ktg13-host > video',
+    '#screen .ktsolo-room .ktsolo-host > video',
+    '#screen .ktsubscriber-room .ktsubscriber-host > video',
+    '#screen .ktsecret-room .ktsecret-host > video',
     '.kt-guest-hostlike-room .kgh-cell.host > video',
     '.kt-approved-guest-grid .kt-approved-guest-cell.host > video',
     '.kt-prejoin-room-grid .kt-prejoin-room-cell.host > video',
@@ -18,8 +21,8 @@
   function apply(v){
     if(!v)return;
     try{
-      v.style.setProperty('transform','none','important');
-      v.style.setProperty('-webkit-transform','none','important');
+      v.style.setProperty('transform','scaleX(-1)','important');
+      v.style.setProperty('-webkit-transform','scaleX(-1)','important');
       v.style.setProperty('transform-origin','50% 50%','important');
     }catch(e){}
   }
