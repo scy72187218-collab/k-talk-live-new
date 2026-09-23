@@ -49,6 +49,12 @@
     }catch(e){}
     return null;
   }
+  function useLegacyApprovedGuestUplink(){
+    try{
+      return window.__ktGuestRequestFlow20260914===true && typeof window.ktRequestGuestJoin==='function';
+    }catch(e){return false;}
+  }
+
   function remoteHostId(){
     var id='';
     try{id=String(window.__ktRemoteHostId||'');}catch(e){}
@@ -994,12 +1000,15 @@
       b.setAttribute('aria-label','참여 승인됨');
     }
 
-    /* 승인 직후 카메라 연결을 즉시 시작하고, 모바일에서 권한/스트림 생성이
-       한 박자 늦는 경우만 짧게 재시도한다. */
-    startGuestCamera(hid);
-    setTimeout(function(){if(guestApproved&&guestApprovedHost===hid)startGuestCamera(hid);},250);
-    setTimeout(function(){if(guestApproved&&guestApprovedHost===hid)startGuestCamera(hid);},700);
-    setTimeout(function(){if(guestApproved&&guestApprovedHost===hid)startGuestCamera(hid);},1500);
+    /* 승인된 게스트 카메라는 기존 승인 게스트 전용 연결이 맡는다.
+       두 WebRTC 경로가 동시에 카메라를 열면 일부 휴대폰에서 승인 후 영상이 못 올라가거나
+       연결이 반복해서 재협상되므로, 직접 경로는 중복 카메라 uplink를 만들지 않는다. */
+    if(!useLegacyApprovedGuestUplink()){
+      startGuestCamera(hid);
+      setTimeout(function(){if(guestApproved&&guestApprovedHost===hid)startGuestCamera(hid);},250);
+      setTimeout(function(){if(guestApproved&&guestApprovedHost===hid)startGuestCamera(hid);},700);
+      setTimeout(function(){if(guestApproved&&guestApprovedHost===hid)startGuestCamera(hid);},1500);
+    }
 
     try{window.dispatchEvent(new CustomEvent('kt-guest-approval-received',{detail:{host_id:hid,viewer_id:viewerId()}}));}catch(e){}
   }
@@ -1120,13 +1129,13 @@
     requestOn=!requestOn;
     if(requestOn){
       b.classList.add('kt-requested');b.style.setProperty('box-shadow','0 0 12px #39e575','important');
-      /* Trigger camera/mic permission from the user's actual tap.
-         If permission is already granted this is immediate; if not, the browser asks now
-         instead of interrupting the room later after host approval. */
-      try{
-        var prep=prepareGuestCameraFromJoinTap20260923();
-        if(prep&&prep.catch)prep.catch(function(){});
-      }catch(e){}
+      /* 기존 승인 게스트 연결이 카메라를 맡는 경우 여기서 두 번째 카메라 스트림을 열지 않는다. */
+      if(!useLegacyApprovedGuestUplink()){
+        try{
+          var prep=prepareGuestCameraFromJoinTap20260923();
+          if(prep&&prep.catch)prep.catch(function(){});
+        }catch(e){}
+      }
       sharedApprovalPost(hid,'guest_request',viewerId(),profileName());
       send('guest_request',{host_id:hid,viewer_id:viewerId(),name:profileName(),at:Date.now()});
     }else{
@@ -1179,7 +1188,7 @@
           guestAliveLastSent=tickNow;
           sharedApprovalPost(hid,'guest_alive',viewerId(),profileName());
         }
-        if(!guestPc||['failed','closed'].indexOf(String(guestPc.connectionState||''))>-1)startGuestCamera(hid);
+        if(!useLegacyApprovedGuestUplink()&&(!guestPc||['failed','closed'].indexOf(String(guestPc.connectionState||''))>-1))startGuestCamera(hid);
       }
     }
   }
