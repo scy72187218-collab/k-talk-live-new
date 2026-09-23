@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "PIN 1111 confirmed after latest video. Communication-only fix: prevent direct WebRTC and memory fallback from fighting each other. No UI/layout/guest badges/yellow cleanup/buttons/chat/gifts/countdowns/earnings/video direction changes.",
+  "note": "Re-locked after communication-only viewer transport race fix. Direct WebRTC remains primary; memory fallback no longer takes over until it has a real video track, and it no longer rebuilds the remote shell if already shown. If direct video wins first, fallback is aborted without clearing the working direct stream. All UI/layout/guest badges/yellow cleanup/buttons/chat/gifts/countdowns/earnings/video direction unchanged.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -76,16 +76,6 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "video_communication_stability_only",
-    "communication_auto_reconnect_only",
-    "guest_remote_video_receive_only",
-    "shared_live_peer_signaling_cache"
-  ],
-  "temporarily_unlocked_components": [
-    "video_communication_stability_only",
-    "communication_auto_reconnect_only",
-    "guest_remote_video_receive_only",
-    "shared_live_peer_signaling_cache"
-  ]
+  "current_editable_components": [],
+  "temporarily_unlocked_components": []
 }
