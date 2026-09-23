@@ -474,7 +474,7 @@
       await makeOffer(hostId,selfId,peerId,name,stream,key);
     }else{
       var row=await meshRow(hostId,key);
-      if(row&&row.offer_sdp&&row.offer_sdp!=='pending')await answerOffer(hostId,selfId,peerId,name,stream,key,row);
+      if(row&&row.offer_sdp&&row.offer_sdp!=='pending'&&row.offer_sdp!=='fallback_pending')await answerOffer(hostId,selfId,peerId,name,stream,key,row);
     }
   }
 
