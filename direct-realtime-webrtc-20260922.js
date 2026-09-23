@@ -849,9 +849,33 @@
     }
     makeGuestOffer(hid);
   }
+  function clearGuestOfferRetryTimers(pc){
+    try{
+      var list=pc&&pc.__ktGuestOfferRetryTimers||[];
+      list.forEach(function(t){clearTimeout(t);});
+      if(pc)pc.__ktGuestOfferRetryTimers=[];
+    }catch(e){}
+  }
+
+  function scheduleGuestOfferRetries(hid,pc,payload){
+    if(!pc||!payload)return;
+    clearGuestOfferRetryTimers(pc);
+    pc.__ktGuestOfferRetryTimers=[];
+    [550,1300,2400,3800].forEach(function(ms){
+      var t=setTimeout(function(){
+        if(guestPc!==pc||guestSession!==payload.session_id||!guestApproved||guestApprovedHost!==hid)return;
+        var cs=String(pc.connectionState||''),is=String(pc.iceConnectionState||'');
+        if(cs==='connected'||is==='connected'||is==='completed')return;
+        send('guest_offer',payload);
+      },ms);
+      pc.__ktGuestOfferRetryTimers.push(t);
+    });
+  }
+
   async function makeGuestOffer(hid){
     if(!guestApproved||guestApprovedHost!==hid||!guestStream)return;
     if(guestPc&&['new','connecting','connected'].indexOf(String(guestPc.connectionState||''))>-1)return;
+    clearGuestOfferRetryTimers(guestPc);
     closePc(guestPc);guestPc=null;guestSession=sid('guest');
     var pc=new RTCPeerConnection(rtcConfig());guestPc=pc;
     guestStream.getTracks().forEach(function(t){
@@ -865,6 +889,7 @@
     pc.oniceconnectionstatechange=function(){
       var s=String(pc.iceConnectionState||'');
       if(s==='failed'&&guestPc===pc){
+        clearGuestOfferRetryTimers(pc);
         closePc(pc);guestPc=null;
         setTimeout(function(){makeGuestOffer(hid);},250);
       }
@@ -872,17 +897,19 @@
     pc.onconnectionstatechange=function(){
       var st=String(pc.connectionState||'');
       if(st==='failed'||st==='closed'){
-        if(guestPc===pc){guestPc=null;setTimeout(function(){makeGuestOffer(hid);},350);}
+        if(guestPc===pc){clearGuestOfferRetryTimers(pc);guestPc=null;setTimeout(function(){makeGuestOffer(hid);},350);}
       }
       if(st==='disconnected')setTimeout(function(){
         if(guestPc===pc&&pc.connectionState==='disconnected'){
-          closePc(pc);guestPc=null;setTimeout(function(){makeGuestOffer(hid);},300);
+          clearGuestOfferRetryTimers(pc);closePc(pc);guestPc=null;setTimeout(function(){makeGuestOffer(hid);},300);
         }
       },10000);
     };
     try{
       var offer=await pc.createOffer({offerToReceiveAudio:false,offerToReceiveVideo:false});await pc.setLocalDescription(offer);
-      send('guest_offer',{host_id:hid,viewer_id:viewerId(),name:profileName(),session_id:guestSession,offer_sdp:pc.localDescription.sdp});
+      var guestOfferPayload={host_id:hid,viewer_id:viewerId(),name:profileName(),session_id:guestSession,offer_sdp:pc.localDescription.sdp};
+      send('guest_offer',guestOfferPayload);
+      scheduleGuestOfferRetries(hid,pc,guestOfferPayload);
 
       /* connectionState가 new/connecting에 오래 멈춘 경우 기존 코드는 계속 기다릴 수 있었다.
          4.5초 안에 실제 연결이 안 되면 그 세션만 새로 만들어 빠르게 재시도한다. */
@@ -890,11 +917,12 @@
         if(guestPc!==pc||!guestApproved||guestApprovedHost!==hid)return;
         var cs=String(pc.connectionState||''),is=String(pc.iceConnectionState||'');
         if(cs==='connected'||is==='connected'||is==='completed')return;
+        clearGuestOfferRetryTimers(pc);
         try{closePc(pc);}catch(e){}
         if(guestPc===pc)guestPc=null;
         setTimeout(function(){makeGuestOffer(hid);},180);
       },7000);
-    }catch(e){closePc(pc);if(guestPc===pc)guestPc=null;}
+    }catch(e){clearGuestOfferRetryTimers(pc);closePc(pc);if(guestPc===pc)guestPc=null;}
   }
   async function hostGuestOffer(p){
     if(!isHostRole()||String(p.host_id||'')!==DEVICE)return;
@@ -954,6 +982,7 @@
     if(String(p.viewer_id||'')!==viewerId()||String(p.host_id||'')!==guestApprovedHost)return;
     if(!guestPc||guestSession!==String(p.session_id||''))return;
     try{
+      clearGuestOfferRetryTimers(guestPc);
       if(!guestPc.currentRemoteDescription)await guestPc.setRemoteDescription({type:'answer',sdp:String(p.answer_sdp||'')});
       var q=guestIce[guestSession]||[];guestIce[guestSession]=[];
       for(var i=0;i<q.length;i++)try{await guestPc.addIceCandidate(q[i]);}catch(e){}
