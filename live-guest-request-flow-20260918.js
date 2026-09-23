@@ -360,7 +360,7 @@
     });
     rows.sort(function(a,b){return (Date.parse(b.created_at)||0)-(Date.parse(a.created_at)||0);});
 
-    var names={},requestAt={},approvedAt={},cancelledAt={},joinAt={},approvedNow={},pending=[];
+    var names={},requestAt={},approvedAt={},cancelledAt={},leftAt={},joinAt={},approvedNow={},pending=[];
     rows.forEach(function(m){
       var t=String(m.message_type||''),vid='',ts=String(m.created_at||'');
       if(t.indexOf('guest_request:')===0){
@@ -372,6 +372,9 @@
       }else if(t.indexOf('guest_cancelled:')===0){
         vid=t.slice(16);
         if(vid&&!cancelledAt[vid])cancelledAt[vid]=ts;
+      }else if(t.indexOf('guest_left:')===0){
+        vid=t.slice(11);
+        if(vid&&!leftAt[vid])leftAt[vid]=ts;
       }else if(t==='system'){
         vid=String(m.sender_id||'');
         var msg=String(m.message||'');
@@ -394,8 +397,9 @@
       var reqTs=requestAt[vid],joinTs=joinAt[vid]||'';
       /* 자동 재연결 때 생기는 '들어왔습니다' 기록은 기존 참여승인을 취소하지 않는다.
          취소 버튼을 직접 누른 경우만 승인 상태를 해제한다. */
-      var apTs=approvedAt[vid]||'',cancelTs=cancelledAt[vid]||'';
+      var apTs=approvedAt[vid]||'',cancelTs=cancelledAt[vid]||'',leftTs=leftAt[vid]||'';
       if(cancelTs&&cancelTs>=reqTs)return;
+      if(leftTs&&leftTs>=reqTs)return;
       /* 승인 후에는 시청자 heartbeat가 잠깐 빠져도 승인 상태를 유지한다.
          실제 게스트 연결 종료는 WebRTC 세션/명시적 나가기에서 정리한다. */
       if(apTs&&apTs>=reqTs)approvedNow[vid]=true;
@@ -410,12 +414,12 @@
     });
 
     renderRequestRail(pending);
-    await hostGuestSessionTick(approvedNow,cancelledAt,requestAt);
+    await hostGuestSessionTick(approvedNow,cancelledAt,leftAt,requestAt);
   }
 
   /* 현재 방송에서 호스트가 승인한 게스트만 호스트 화면에 카메라를 올린다. 예전/남은 WebRTC 세션은 표시하지 않는다. */
-  async function hostGuestSessionTick(approvedNow,cancelledAt,requestAt){
-    approvedNow=approvedNow||{};cancelledAt=cancelledAt||{};requestAt=requestAt||{};
+  async function hostGuestSessionTick(approvedNow,cancelledAt,leftAt,requestAt){
+    approvedNow=approvedNow||{};cancelledAt=cancelledAt||{};leftAt=leftAt||{};requestAt=requestAt||{};
     if(!document.querySelector('.ktg13-room'))return;
 
     var hid=deviceId(),rows=[];
@@ -443,7 +447,8 @@
 
       if(!approvedNow[vid]){
         var cancelled=!!(cancelledAt[vid]&&(!requestAt[vid]||String(cancelledAt[vid])>=String(requestAt[vid])));
-        if(cancelled){
+        var left=!!(leftAt[vid]&&(!requestAt[vid]||String(leftAt[vid])>=String(requestAt[vid])));
+        if(cancelled||left){
           delete hostGuestMissingSince[vid];
           releaseGuestSlot(slot,vid);
           return;
@@ -464,9 +469,13 @@
         return;
       }
 
-      /* 승인된 게스트는 수신이 잠깐 끊겨도 칸 자체를 내리지 않는다.
-         영상은 같은 자리에서 재연결하고, 실제 취소/나가기 때만 칸을 비운다. */
+      /* 승인된 게스트가 통신 문제로 잠깐 끊긴 경우에는 짧게 재연결을 기다린다.
+         실제 나가기 신호는 위에서 즉시 비우고, 신호 없이 끊긴 경우도 오래 남지 않게 정리한다. */
       if(!hostGuestMissingSince[vid])hostGuestMissingSince[vid]=Date.now();
+      if(Date.now()-hostGuestMissingSince[vid]>=15000){
+        releaseGuestSlot(slot,vid);
+        delete hostGuestMissingSince[vid];
+      }
       return;
     });
 
@@ -597,22 +606,24 @@
       if(!room||!room.started_at)return null;
 
       var rows=await req('ktalk_live_messages?select=id,sender_id,message,message_type,created_at&host_id=eq.'+enc(hostId)+'&created_at=gte.'+enc(room.started_at)+'&order=created_at.desc&limit=240')||[];
-      var reqRow=null,apRow=null,cancelRow=null,joinRow=null;
+      var reqRow=null,apRow=null,cancelRow=null,leftRow=null,joinRow=null;
       for(var i=0;i<rows.length;i++){
         var m=rows[i],t=String(m.message_type||'');
         if(!reqRow&&t==='guest_request:'+vid)reqRow=m;
         else if(!apRow&&t==='guest_approved:'+vid)apRow=m;
         else if(!cancelRow&&t==='guest_cancelled:'+vid)cancelRow=m;
+        else if(!leftRow&&t==='guest_left:'+vid)leftRow=m;
         else if(!joinRow&&t==='system'&&String(m.sender_id||'')===vid&&String(m.message||'').indexOf('님이 들어왔습니다.')>-1)joinRow=m;
-        if(reqRow&&apRow&&cancelRow&&joinRow)break;
+        if(reqRow&&apRow&&cancelRow&&leftRow&&joinRow)break;
       }
 
       /* 새로 들어온 뒤 신청 -> 호스트 승인 순서가 모두 맞아야만 게스트 카메라를 올린다.
          신청 후 다시 사람 버튼을 눌러 취소하면 승인을 진행하지 않는다. */
       if(!reqRow||!apRow)return null;
-      var reqTs=String(reqRow.created_at||''),apTs=String(apRow.created_at||''),cancelTs=cancelRow?String(cancelRow.created_at||''):'',joinTs=joinRow?String(joinRow.created_at||''):'';
+      var reqTs=String(reqRow.created_at||''),apTs=String(apRow.created_at||''),cancelTs=cancelRow?String(cancelRow.created_at||''):'',leftTs=leftRow?String(leftRow.created_at||''):'',joinTs=joinRow?String(joinRow.created_at||''):'';
       /* 통신 재접속으로 새 입장기록이 생겨도 승인 자체는 유지한다. */
       if(cancelTs&&cancelTs>=reqTs)return null;
+      if(leftTs&&leftTs>=reqTs)return null;
       if(apTs<reqTs)return null;
       return apRow;
     }catch(e){return null;}
