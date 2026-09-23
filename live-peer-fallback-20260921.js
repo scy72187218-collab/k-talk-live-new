@@ -188,7 +188,16 @@
       var x=j&&j.session;
       if(!x||!x.active){
         if(!c.missingSince)c.missingSince=Date.now();
-        if(Date.now()-c.missingSince>15000)closeViewer(false);
+        if(Date.now()-c.missingSince>15000){
+          var host=c.hostId;
+          closeViewer(true);
+          window.__ktRemoteHostId=host;
+          window.__ktCurrentRemoteHostId=host;
+          try{sessionStorage.setItem('kt_remote_host_id',host);}catch(e){}
+          setTimeout(function(){
+            try{if(typeof window.ktEnterRemoteLive==='function')window.ktEnterRemoteLive(host);}catch(e){}
+          },350);
+        }
         return;
       }
       c.missingSince=0;
@@ -278,7 +287,14 @@
               var ok=await enterMemory(host,room);
               if(ok){remoteEndHost=host;remoteEndArmed=true;return;}
             }catch(e){}
-            returnToVideoAfterHostEnd();
+            /* A failed fallback reconnect is not proof that the host ended.
+               Stay in K-Talk and retry the same live room instead of returning to the feed. */
+            window.__ktRemoteHostId=host;
+            window.__ktCurrentRemoteHostId=host;
+            try{sessionStorage.setItem('kt_remote_host_id',host);}catch(e){}
+            setTimeout(function(){
+              try{if(typeof window.ktEnterRemoteLive==='function')window.ktEnterRemoteLive(host);}catch(e){}
+            },500);
           },8000);
         }
       }
