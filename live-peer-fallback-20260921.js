@@ -144,6 +144,21 @@
     },40);
   }
 
+  function abortMemoryViewerKeepDirect20260923(){
+    var c=viewer;viewer=null;
+    if(!c)return false;
+    try{clearInterval(c.poll);}catch(e){}
+    try{clearInterval(c.touch);}catch(e){}
+    try{c.pc.close();}catch(e){}
+    try{
+      fetch(API+'?t='+Date.now(),{
+        method:'POST',cache:'no-store',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'end',session_id:c.sessionId})
+      }).catch(function(){});
+    }catch(e){}
+    return true;
+  }
+
   function closeViewer(silent){
     var c=viewer;viewer=null;
     if(!c)return false;
@@ -202,7 +217,9 @@
   async function enterMemory(hostId,roomOverride){
     var room=roomOverride||await beaconRoom(hostId);
     if(!room)return false;
-    if(!renderRemote(room))return false;
+    if(!document.querySelector('#screen .kt-remote-live')){
+      if(!renderRemote(room))return false;
+    }
 
     var viewerId='viewer_'+deviceId();
     var created=await jfetch(API+'?t='+Date.now(),{
@@ -217,6 +234,14 @@
     interactionPost('join',hostId,viewerId,viewer.viewerName);
 
     pc.ontrack=function(ev){
+      /* Direct Realtime may finish while the fallback is still negotiating.
+         If direct video already won, stop only the fallback session and keep the direct stream.
+         Otherwise the first real fallback track wins and becomes authoritative. */
+      if(window.__ktRemoteHostStream&&!window.__ktUseMemoryGuestVideo20260922){
+        abortMemoryViewerKeepDirect20260923();
+        return;
+      }
+      window.__ktUseMemoryGuestVideo20260922=true;
       var hs=ev.streams[0]||new MediaStream([ev.track]);
       window.__ktRemoteHostStream=hs;
       var v=document.getElementById('ktRemoteLiveVideo');
@@ -361,7 +386,6 @@
           if(String(window.__ktRemoteHostId||'')!==hostId)return;
           if(window.__ktRemoteHostStream)return;
           if(viewer)return;
-          window.__ktUseMemoryGuestVideo20260922=true;
           var ok=await enterMemory(hostId,cached||room||null);
           if(ok)remoteEndArmed=true;
         }catch(e){}
@@ -377,7 +401,6 @@
       setTimeout(async function(){
         try{
           if(String(window.__ktRemoteHostId||'')!==hostId||viewer||window.__ktRemoteHostStream)return;
-          window.__ktUseMemoryGuestVideo20260922=true;
           var ok2=await enterMemory(hostId,cached);
           if(ok2)remoteEndArmed=true;
         }catch(z){}
