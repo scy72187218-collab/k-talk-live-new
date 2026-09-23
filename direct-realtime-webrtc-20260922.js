@@ -436,6 +436,13 @@
     window.__ktRemoteHostStream=stream;
     attachRemoteStreamNow(stream);
   }
+  function ktRemoteStreamStillLive20260923(){
+    try{
+      var s=window.__ktRemoteHostStream;
+      if(!s||!s.getVideoTracks)return false;
+      return s.getVideoTracks().some(function(t){return t&&t.readyState==='live';});
+    }catch(e){return false;}
+  }
   function showConnecting(){
     var st=document.getElementById('ktRemoteLiveStatus');
     if(st){st.style.display='block';st.textContent='방송 영상 연결 중...';}
@@ -500,16 +507,34 @@
     var hid=remoteHostId();if(!hid||String(p.host_id||'')!==hid)return;
     var session=String(p.session_id||''),sdp=String(p.offer_sdp||'');if(!session||!sdp)return;
     if(viewerSession===session&&viewerPc&&viewerPc.currentRemoteDescription)return;
-    closePc(viewerPc);viewerPc=null;viewerSession=session;viewerConnected=false;showConnecting();
+
+    /* 재연결용 새 offer가 와도 기존 영상부터 끊지 않는다.
+       새 PeerConnection이 실제 영상 트랙을 받을 때까지 이전 연결/화면을 유지해
+       신호가 잠깐 흔들릴 때 검은 화면으로 바뀌는 시간을 줄인다. */
+    var previousPc=viewerPc;
+    var previousSession=viewerSession;
+    var previousUsable=!!(previousPc&&String(previousPc.connectionState||'')!=='failed'&&String(previousPc.connectionState||'')!=='closed'&&ktRemoteStreamStillLive20260923());
+    viewerSession=session;
+    if(!previousUsable){viewerConnected=false;showConnecting();}
+    window.__ktDirectRtcProgressAt=Date.now();
+    window.__ktDirectRtcPhase='offer';
     var pc=new RTCPeerConnection(rtcConfig());viewerPc=pc;
     pc.ontrack=function(ev){
       if(window.__ktUseMemoryGuestVideo20260922){
         try{pc.close();}catch(e){}
         return;
       }
+      pc.__ktGotRemoteTrack20260923=true;
       viewerConnected=true;
+      window.__ktDirectRtcProgressAt=Date.now();
+      window.__ktDirectRtcPhase='connected';
       clearViewerConnectTimer();
       showRemoteStream((ev.streams&&ev.streams[0])||new MediaStream([ev.track]));
+
+      /* 새 영상이 화면에 붙은 뒤에만 이전 PeerConnection을 닫는다. */
+      if(previousPc&&previousPc!==pc){
+        setTimeout(function(){try{closePc(previousPc);}catch(e){}},120);
+      }
     };
     pc.onicecandidate=function(ev){
       if(ev.candidate)send('video_ice',{host_id:hid,viewer_id:viewerId(),session_id:session,from:'viewer',candidate:ev.candidate.toJSON?ev.candidate.toJSON():ev.candidate});
@@ -518,8 +543,18 @@
     pc.oniceconnectionstatechange=function(){
       var s=String(pc.iceConnectionState||'');
       if(s==='failed'&&viewerPc===pc){
-        closePc(pc);viewerPc=null;viewerSession='';viewerConnected=false;viewerWatchToken=sid('watch');showConnecting();
-        setTimeout(function(){ensureViewerWatch(true);},220);
+        window.__ktDirectRtcProgressAt=Date.now();
+        window.__ktDirectRtcPhase='failed';
+        closePc(pc);
+        if(previousUsable&&previousPc&&String(previousPc.connectionState||'')!=='closed'){
+          viewerPc=previousPc;
+          viewerSession=previousSession;
+          viewerConnected=true;
+          attachRemoteStreamNow();
+        }else{
+          viewerPc=null;viewerSession='';viewerConnected=false;viewerWatchToken=sid('watch');showConnecting();
+          setTimeout(function(){ensureViewerWatch(true);},220);
+        }
       }
     };
     pc.onconnectionstatechange=function(){
@@ -531,28 +566,76 @@
       }
       if(st==='failed'||st==='closed'){
         if(viewerPc===pc){
-          viewerConnected=false;viewerPc=null;viewerSession='';viewerWatchToken=sid('watch');showConnecting();
-          setTimeout(function(){ensureViewerWatch(true);},180);
+          window.__ktDirectRtcProgressAt=Date.now();
+          window.__ktDirectRtcPhase=st;
+          if(previousUsable&&previousPc&&String(previousPc.connectionState||'')!=='closed'){
+            viewerPc=previousPc;
+            viewerSession=previousSession;
+            viewerConnected=true;
+            attachRemoteStreamNow();
+          }else{
+            viewerConnected=false;viewerPc=null;viewerSession='';viewerWatchToken=sid('watch');showConnecting();
+            setTimeout(function(){ensureViewerWatch(true);},180);
+          }
         }
       }
-      if(st==='disconnected')setTimeout(function(){
-        if(viewerPc===pc&&pc.connectionState==='disconnected'){
-          closePc(pc);viewerPc=null;viewerSession='';viewerConnected=false;viewerWatchToken=sid('watch');showConnecting();
-          setTimeout(function(){ensureViewerWatch(true);},240);
-        }
-      },6000);
+      if(st==='disconnected'){
+        window.__ktDirectRtcProgressAt=Date.now();
+        window.__ktDirectRtcPhase='disconnected';
+
+        /* 1.8초 이상 끊기면 기존 화면은 그대로 둔 채 새 watch 세션을 병렬 요청한다.
+           새 영상이 도착하면 위 ontrack에서 자연스럽게 교체된다. */
+        setTimeout(function(){
+          if(viewerPc===pc&&pc.connectionState==='disconnected'){
+            viewerWatchToken=sid('watch');
+            lastWatchAt=0;
+            ensureViewerWatch(true);
+          }
+        },1800);
+
+        /* 장시간 복구되지 않을 때만 기존 연결을 정리한다. */
+        setTimeout(function(){
+          if(viewerPc===pc&&pc.connectionState==='disconnected'){
+            closePc(pc);viewerPc=null;viewerSession='';viewerConnected=false;viewerWatchToken=sid('watch');showConnecting();
+            setTimeout(function(){ensureViewerWatch(true);},240);
+          }
+        },7500);
+      }
     };
     try{
       await pc.setRemoteDescription({type:'offer',sdp:sdp});
       var q=viewerIce[session]||[];viewerIce[session]=[];
       for(var i=0;i<q.length;i++)try{await pc.addIceCandidate(q[i]);}catch(e){}
       var ans=await pc.createAnswer();await pc.setLocalDescription(ans);
+      window.__ktDirectRtcProgressAt=Date.now();
+      window.__ktDirectRtcPhase='answer-sent';
       send('video_answer',{host_id:hid,viewer_id:viewerId(),session_id:session,answer_sdp:pc.localDescription.sdp});
-      retryViewerSoon(4500);
+
+      /* 기존 영상이 살아 있으면 새 연결 확인 동안 화면을 유지한다.
+         기존 영상이 없는 최초 연결만 기존 4.5초 watchdog을 사용한다. */
+      if(!previousUsable)retryViewerSoon(4500);
+      else setTimeout(function(){
+        if(viewerPc===pc&&!pc.__ktGotRemoteTrack20260923&&pc.connectionState!=='connected'){
+          try{closePc(pc);}catch(e){}
+          viewerPc=previousPc;
+          viewerSession=previousSession;
+          viewerConnected=true;
+          attachRemoteStreamNow();
+        }
+      },4500);
     }catch(e){
       closePc(pc);
-      if(viewerPc===pc){viewerPc=null;viewerSession='';viewerConnected=false;}
-      retryViewerSoon(900);
+      if(viewerPc===pc){
+        if(previousUsable&&previousPc&&String(previousPc.connectionState||'')!=='closed'){
+          viewerPc=previousPc;
+          viewerSession=previousSession;
+          viewerConnected=true;
+          attachRemoteStreamNow();
+        }else{
+          viewerPc=null;viewerSession='';viewerConnected=false;
+          retryViewerSoon(900);
+        }
+      }
     }
   }
 
