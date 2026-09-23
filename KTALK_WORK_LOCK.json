@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Re-locked after communication-only delayed-connection fix. Duplicate guest offers are deduped, stalled guest handshakes retry after 4.5s, viewer no-media retry is 4.5s, and fallback starts sooner. UI/layout/guest badges/yellow cleanup/buttons/chat/gifts/countdowns/earnings/video direction unchanged.",
+  "note": "PIN 1111 confirmed after 23402.mp4. Remote-viewer receive/reconnect only: keep the old stream visible while a replacement WebRTC connection is prepared, and request a parallel replacement after a short disconnect. No room UI, guest tile UI, buttons, chat, gifts, countdowns, earnings, or video direction changes.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -76,6 +76,16 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [],
-  "temporarily_unlocked_components": []
+  "current_editable_components": [
+    "guest_remote_video_receive_only",
+    "remote_video_connect_speed",
+    "communication_auto_reconnect_only",
+    "video_communication_stability_only"
+  ],
+  "temporarily_unlocked_components": [
+    "guest_remote_video_receive_only",
+    "remote_video_connect_speed",
+    "communication_auto_reconnect_only",
+    "video_communication_stability_only"
+  ]
 }
