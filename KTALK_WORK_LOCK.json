@@ -1,5 +1,5 @@
 {
-  "version": 53,
+  "version": 54,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260923-guest-direction-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "PIN 1111 verified for current host guest receive issue. Also temporarily unlocked only approved guest camera guard during DOM/room transition so a brief missing remote-live root cannot stop the active guest camera. All other protected UI/layout/direction/buttons/badges remain locked.",
+  "note": "PIN 1111 verified. Temporarily unlocked only video direction normalization across host/self/remote guest tiles so competing none vs scaleX(-1) rules cannot flip by load order. UI/layout/transport/buttons/badges remain locked.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -85,11 +85,15 @@
   "current_editable_components": [
     "host_multi_guest_signal_order_recovery_only",
     "approved_guest_stay_connected",
-    "approved_guest_camera_dom_transition_guard_only"
+    "approved_guest_camera_dom_transition_guard_only",
+    "all_room_guest_video_direction",
+    "all_room_host_video_direction"
   ],
   "temporarily_unlocked_components": [
     "host_multi_guest_signal_order_recovery_only",
     "approved_guest_stay_connected",
-    "approved_guest_camera_dom_transition_guard_only"
+    "approved_guest_camera_dom_transition_guard_only",
+    "all_room_guest_video_direction",
+    "all_room_host_video_direction"
   ]
 }
