@@ -11,6 +11,10 @@
   var hostPoll=null,viewerPoll=null,hostGuestPeers={},requestNames={},hostGuestMissingSince={};
   var viewerGuest={pc:null,stream:null,sessionId:'',hostId:'',approvedKey:'',viewTimer:null,prejoinHostStream:null,connectStartedAt:0,approvalMissingSince:0,mediaDenied:false,mediaOpening:false,prewarmTimer:null};
   var viewerRootMissingSince=0;
+  try{
+    window.__ktLegacyGuestUplinkState20260923='idle';
+    window.__ktLegacyGuestUplinkStateAt20260923=Date.now();
+  }catch(e){}
 
   function enc(v){return encodeURIComponent(String(v==null?'':v));}
   function ktDeviceVideoRotation180(){
@@ -811,11 +815,18 @@
   function stopLocalGuestViewGuard(){if(viewerGuest.viewTimer){clearInterval(viewerGuest.viewTimer);viewerGuest.viewTimer=null;}var main=document.getElementById('ktRemoteLiveVideo');if(main)delete main.dataset.ktLocalGuestView;}
   function startLocalGuestViewGuard(stream){stopLocalGuestViewGuard();showLocalGuestView(stream);viewerGuest.viewTimer=setInterval(function(){if(!viewerGuest.stream||viewerGuest.stream!==stream||!document.querySelector('.kt-remote-live')){stopLocalGuestViewGuard();return;}var main=document.getElementById('ktRemoteLiveVideo');var pv=document.getElementById('ktRemoteHostPreview');if(!pv||(main&&main.srcObject!==stream)||(main&&main.paused)||(pv&&window.__ktRemoteHostStream&&pv.srcObject!==window.__ktRemoteHostStream)||(pv&&pv.paused))showLocalGuestView(stream);},500);}
   function endViewerGuestSession(keepalive){var sid=viewerGuest.sessionId;viewerGuest.sessionId='';if(!sid)return;if(keepalive&&BASE&&KEY){try{fetch(BASE+'ktalk_webrtc_sessions?id=eq.'+enc(sid),{method:'PATCH',headers:headers({Prefer:'return=minimal'}),body:JSON.stringify({active:false,updated_at:nowIso()}),keepalive:true});}catch(e){}return;}req('ktalk_webrtc_sessions?id=eq.'+enc(sid),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})}).catch(function(){});}
+  function setLegacyGuestUplinkState(state){
+    try{
+      window.__ktLegacyGuestUplinkState20260923=String(state||'idle');
+      window.__ktLegacyGuestUplinkStateAt20260923=Date.now();
+    }catch(e){}
+  }
   function resetViewerGuestPc(pc){
     try{if(pc)pc.close();}catch(e){}
     if(!pc||viewerGuest.pc===pc)viewerGuest.pc=null;
     viewerGuest.sessionId='';
     viewerGuest.connectStartedAt=0;
+    setLegacyGuestUplinkState('idle');
   }
 
   async function startViewerGuestUplink(hostId,vid,approvalId){
@@ -898,6 +909,7 @@
       pc=new RTCPeerConnection(window.ktGetRtcConfig?window.ktGetRtcConfig():ICE);
       viewerGuest.pc=pc;
       viewerGuest.connectStartedAt=Date.now();
+      setLegacyGuestUplinkState('connecting');
 
       /* 승인된 게스트 연결 하나에서 게스트→호스트뿐 아니라
          호스트→게스트 영상도 같이 받는다. 기존 시청용 연결이 흔들려도
@@ -924,13 +936,16 @@
         var s=String(pc.connectionState||'');
         if(s==='connected'){
           viewerGuest.connectStartedAt=0;
+          setLegacyGuestUplinkState('connected');
           return;
         }
         if(s==='failed'||s==='closed'){
+          setLegacyGuestUplinkState('failed');
           resetViewerGuestPc(pc);
           return;
         }
         if(s==='disconnected'){
+          setLegacyGuestUplinkState('disconnected');
           setTimeout(function(){
             if(viewerGuest.pc===pc&&pc.connectionState==='disconnected')resetViewerGuestPc(pc);
           },30000);
