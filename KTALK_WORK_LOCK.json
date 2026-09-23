@@ -1,5 +1,5 @@
 {
-  "version": 51,
+  "version": 52,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260923-guest-direction-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "PIN 1111 verified. Temporarily unlocked only host-side recovery when approved guest video offer/ICE arrives before approval state. Guest direction, layout, UI, buttons, badges and other protected components remain locked.",
+  "note": "PIN 1111 verified for current host guest receive issue. Temporarily unlocked only host multi-guest signal recovery and approved guest stay-connected cleanup. Direction, layout, UI, buttons, badges and other protected components remain locked.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -83,9 +83,11 @@
     "if_pin_mismatch": "keep_protected_components_locked"
   },
   "current_editable_components": [
-    "host_multi_guest_signal_order_recovery_only"
+    "host_multi_guest_signal_order_recovery_only",
+    "approved_guest_stay_connected"
   ],
   "temporarily_unlocked_components": [
-    "host_multi_guest_signal_order_recovery_only"
+    "host_multi_guest_signal_order_recovery_only",
+    "approved_guest_stay_connected"
   ]
 }
