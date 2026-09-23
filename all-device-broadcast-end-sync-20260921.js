@@ -30,7 +30,7 @@
         !!document.querySelector('.kt-remote-live,.kt-prejoin-room-grid,.kt-approved-guest-grid');
     }catch(e){return false;}
   }
-  function postEnd(hostId){
+  function postEndOnce(hostId){
     hostId=String(hostId||deviceId());if(!hostId)return;
     try{
       fetch(API+'?t='+Date.now(),{
@@ -40,6 +40,18 @@
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'end',host_id:hostId})
       }).catch(function(){});
+    }catch(e){}
+  }
+  function postEnd(hostId){
+    hostId=String(hostId||deviceId());if(!hostId)return;
+    postEndOnce(hostId);
+    setTimeout(function(){postEndOnce(hostId);},450);
+    setTimeout(function(){postEndOnce(hostId);},1400);
+    try{
+      if(typeof window.ktStopHostPresence==='function'){
+        var p=window.ktStopHostPresence();
+        if(p&&typeof p.catch==='function')p.catch(function(){});
+      }
     }catch(e){}
   }
   function clearRemoteState(){
@@ -96,9 +108,9 @@
   }
 
   async function fallbackPoll(){
-    /* Shared Realtime is primary. Only if it is not connected do a slow
-       fallback check, so phones on the same Wi-Fi do not flood Vercel. */
-    if(window.__ktRealtimeSignalReady)return;
+    /* Realtime is primary, but even a connected socket can miss the exact
+       broadcast-end event during a brief network switch. Always keep one
+       lightweight shared end-state check so stale rooms cannot remain. */
     if(pollBusy||!inJoinedLive())return;
     var hostId=currentViewedHost();if(!hostId)return;
     pollBusy=true;
@@ -167,7 +179,7 @@
   wrapTimer=setInterval(wrapAll,700);
   window.addEventListener('kt-live-off',directRealtimeEnd);
   setInterval(realtimeEndCheck,350);
-  setInterval(fallbackPoll,8000);
+  setInterval(fallbackPoll,2200);
   document.addEventListener('visibilitychange',function(){if(!document.hidden){setTimeout(realtimeEndCheck,60);setTimeout(fallbackPoll,250);}});
   window.addEventListener('focus',function(){setTimeout(realtimeEndCheck,60);setTimeout(fallbackPoll,250);});
 })();
