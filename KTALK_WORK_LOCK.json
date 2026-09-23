@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "PIN 1111 confirmed. Communication-only stabilization: lower live video send load and improve ICE/WebRTC recovery. No room UI, guest badges, yellow-overlay cleanup, buttons, chat, gifts, countdowns, earnings, or video direction changes.",
+  "note": "Re-locked after communication-only stabilization. Video sender load reduced, genuinely lost connections recover after 6s instead of 10s, and ICE failed states trigger targeted reconnects. UI/layout/guest badges/yellow cleanup/buttons/chat/gifts/countdowns/earnings/video direction were not changed.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -76,18 +76,6 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "video_communication_stability_only",
-    "communication_auto_reconnect_only",
-    "guest_remote_video_receive_only",
-    "webrtc_transport_stability",
-    "group13_guest_uplink"
-  ],
-  "temporarily_unlocked_components": [
-    "video_communication_stability_only",
-    "communication_auto_reconnect_only",
-    "guest_remote_video_receive_only",
-    "webrtc_transport_stability",
-    "group13_guest_uplink"
-  ]
+  "current_editable_components": [],
+  "temporarily_unlocked_components": []
 }
