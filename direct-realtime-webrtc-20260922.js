@@ -548,7 +548,7 @@
       for(var i=0;i<q.length;i++)try{await pc.addIceCandidate(q[i]);}catch(e){}
       var ans=await pc.createAnswer();await pc.setLocalDescription(ans);
       send('video_answer',{host_id:hid,viewer_id:viewerId(),session_id:session,answer_sdp:pc.localDescription.sdp});
-      retryViewerSoon(8000);
+      retryViewerSoon(4500);
     }catch(e){
       closePc(pc);
       if(viewerPc===pc){viewerPc=null;viewerSession='';viewerConnected=false;}
@@ -789,6 +789,17 @@
     try{
       var offer=await pc.createOffer({offerToReceiveAudio:false,offerToReceiveVideo:false});await pc.setLocalDescription(offer);
       send('guest_offer',{host_id:hid,viewer_id:viewerId(),name:profileName(),session_id:guestSession,offer_sdp:pc.localDescription.sdp});
+
+      /* connectionState가 new/connecting에 오래 멈춘 경우 기존 코드는 계속 기다릴 수 있었다.
+         4.5초 안에 실제 연결이 안 되면 그 세션만 새로 만들어 빠르게 재시도한다. */
+      setTimeout(function(){
+        if(guestPc!==pc||!guestApproved||guestApprovedHost!==hid)return;
+        var cs=String(pc.connectionState||''),is=String(pc.iceConnectionState||'');
+        if(cs==='connected'||is==='connected'||is==='completed')return;
+        try{closePc(pc);}catch(e){}
+        if(guestPc===pc)guestPc=null;
+        setTimeout(function(){makeGuestOffer(hid);},180);
+      },4500);
     }catch(e){closePc(pc);if(guestPc===pc)guestPc=null;}
   }
   async function hostGuestOffer(p){
@@ -796,7 +807,18 @@
     var vid=String(p.viewer_id||'');if(!vid||!approvedGuests[vid])return;
     var session=String(p.session_id||''),sdp=String(p.offer_sdp||'');if(!session||!sdp)return;
     var old=hostGuestPeers[vid]||null;
-    var pc=new RTCPeerConnection(rtcConfig()),entry={pc:pc,sid:session,ice:[],old:old};hostGuestPeers[vid]=entry;
+
+    /* REST + WebSocket 이중 신호로 같은 guest_offer가 중복 도착할 수 있다.
+       같은 세션을 다시 PeerConnection으로 만들면 서로 덮어써서 연결이 늦어질 수 있으므로
+       기존 세션을 유지하고, 이미 만든 answer가 있으면 다시 보내기만 한다. */
+    if(old&&old.sid===session&&old.pc&&String(old.pc.connectionState||'')!=='closed'){
+      if(old.answer){
+        send('guest_answer',{host_id:DEVICE,viewer_id:vid,session_id:session,answer_sdp:old.answer});
+      }
+      return;
+    }
+
+    var pc=new RTCPeerConnection(rtcConfig()),entry={pc:pc,sid:session,ice:[],old:old,answer:''};hostGuestPeers[vid]=entry;
     pc.ontrack=function(ev){
       attachGuestToHost(vid,String(p.name||approvedGuests[vid].name||'게스트'),(ev.streams&&ev.streams[0])||new MediaStream([ev.track]));
       /* 새 영상이 실제로 도착한 뒤에만 예전 연결을 닫아 화면 깜빡임을 줄인다. */
@@ -824,7 +846,8 @@
       await pc.setRemoteDescription({type:'offer',sdp:sdp});
       var q=entry.ice.splice(0);for(var i=0;i<q.length;i++)try{await pc.addIceCandidate(q[i]);}catch(e){}
       var ans=await pc.createAnswer();await pc.setLocalDescription(ans);
-      send('guest_answer',{host_id:DEVICE,viewer_id:vid,session_id:session,answer_sdp:pc.localDescription.sdp});
+      entry.answer=pc.localDescription.sdp;
+      send('guest_answer',{host_id:DEVICE,viewer_id:vid,session_id:session,answer_sdp:entry.answer});
     }catch(e){
       closePc(pc);
       if(hostGuestPeers[vid]===entry){
