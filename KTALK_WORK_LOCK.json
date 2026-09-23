@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Re-locked after all-room guest badge unification. In every guest-capable host room, only occupied guest tiles show top-left rose count and bottom nickname + level. Empty guest tiles and all unrelated layout, transport, controls, chat, gifts, countdowns and earnings remain unchanged.",
+  "note": "PIN 1111 confirmed. Narrow communication-speed tuning only. No room layout, guest badges, buttons, chat, gifts, countdowns, earnings, or video direction changes.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -76,6 +76,12 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [],
-  "temporarily_unlocked_components": []
+  "current_editable_components": [
+    "remote_video_connect_speed",
+    "communication_auto_reconnect_only"
+  ],
+  "temporarily_unlocked_components": [
+    "remote_video_connect_speed",
+    "communication_auto_reconnect_only"
+  ]
 }
