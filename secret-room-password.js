@@ -4,6 +4,7 @@
   window.__ktSecretPasswordInstalled=true;
   window.ktSecretChatMessages=window.ktSecretChatMessages||[];
   var secretSetupRequested=false;
+  var DEFAULT_SECRET_PASSWORD='1111';
 
   function esc(v){
     return String(v==null?'':v).replace(/[&<>"']/g,function(ch){
@@ -32,7 +33,10 @@
   }
 
   function getSaved(){
-    try{return String(localStorage.getItem('kt_secret_room_password')||'').replace(/\D/g,'').slice(0,4);}catch(e){return '';}
+    try{
+      var v=String(localStorage.getItem('kt_secret_room_password')||'').replace(/\D/g,'').slice(0,4);
+      return v||DEFAULT_SECRET_PASSWORD;
+    }catch(e){return DEFAULT_SECRET_PASSWORD;}
   }
 
   function savePassword(v){
@@ -111,6 +115,8 @@
       secretSetupRequested=(type==='password');
       if(window.state&&type==='password'){
         state.liveRoomType='password';state.liveRoomName='비밀방';state.liveRoomMax=5;
+        state.liveRoomPassword=getSaved();
+        state.roomPassword=getSaved();
       }
       setTimeout(updatePrep,0);
       return r;
@@ -124,6 +130,8 @@
       secretSetupRequested=String(name||'').indexOf('비밀')>-1;
       if(String(name||'').indexOf('비밀')>-1&&window.state){
         state.liveRoomType='password';state.liveRoomName='비밀방';state.liveRoomMax=5;
+        state.liveRoomPassword=getSaved();
+        state.roomPassword=getSaved();
       }
       setTimeout(updatePrep,30);
       return r;
@@ -287,7 +295,9 @@
       if(secret){
         updatePrep();
         var input=document.getElementById('ktSecretPassword');
+        if(input&&!input.value)input.value=getSaved();
         var v=savePassword(input?input.value:((window.state&&state.liveRoomPassword)||getSaved()));
+        if(window.state){state.liveRoomPassword=v;state.roomPassword=v;}
         if(v.length!==4){
           var er=document.getElementById('ktSecretPasswordError');if(er)er.style.display='block';
           if(input){input.focus();input.select();}
