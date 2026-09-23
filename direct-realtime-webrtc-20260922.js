@@ -519,7 +519,7 @@
       for(var i=0;i<q.length;i++)try{await pc.addIceCandidate(q[i]);}catch(e){}
       var ans=await pc.createAnswer();await pc.setLocalDescription(ans);
       send('video_answer',{host_id:hid,viewer_id:viewerId(),session_id:session,answer_sdp:pc.localDescription.sdp});
-      retryViewerSoon(8000);
+      retryViewerSoon(3000);
     }catch(e){
       closePc(pc);
       if(viewerPc===pc){viewerPc=null;viewerSession='';viewerConnected=false;}
@@ -554,7 +554,7 @@
     if(!viewerWatchToken)viewerWatchToken=sid('watch');
     var now=Date.now();
     if(!force&&viewerConnected)return;
-    if(!force&&now-lastWatchAt<900)return;
+    if(!force&&now-lastWatchAt<500)return;
     lastWatchAt=now;
     send('video_watch',{host_id:hid,viewer_id:viewerId(),watch_token:viewerWatchToken,at:now});
   }
@@ -978,10 +978,10 @@
       }
     }
   }
-  setInterval(roleTick,250);
+  setInterval(roleTick,200);
   setTimeout(roleTick,20);
-  setInterval(syncSharedApprovalSignals,700);
-  setTimeout(syncSharedApprovalSignals,120);
+  setInterval(syncSharedApprovalSignals,500);
+  setTimeout(syncSharedApprovalSignals,80);
 
   window.addEventListener('kt-remote-host-selected',function(e){
     try{
