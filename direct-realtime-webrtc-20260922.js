@@ -1070,6 +1070,21 @@
     if(ev==='guest_ice'){handleGuestIce(p);return;}
   }
 
+  async function prepareGuestCameraFromJoinTap20260923(){
+    var live=false;
+    try{live=!!(guestStream&&guestStream.getVideoTracks().some(function(t){return t.readyState==='live';}));}catch(e){}
+    if(live)return true;
+    try{
+      guestStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'user'}},audio:true});
+      return true;
+    }catch(e){
+      try{
+        guestStream=await navigator.mediaDevices.getUserMedia({video:true,audio:false});
+        return true;
+      }catch(z){return false;}
+    }
+  }
+
   function directRequestClick(e){
     var b=e.target&&e.target.closest?e.target.closest('#ktRemoteGuestRequest'):null;if(!b)return;
     var hid=remoteHostId();if(!hid)return;
@@ -1077,6 +1092,13 @@
     requestOn=!requestOn;
     if(requestOn){
       b.classList.add('kt-requested');b.style.setProperty('box-shadow','0 0 12px #39e575','important');
+      /* Trigger camera/mic permission from the user's actual tap.
+         If permission is already granted this is immediate; if not, the browser asks now
+         instead of interrupting the room later after host approval. */
+      try{
+        var prep=prepareGuestCameraFromJoinTap20260923();
+        if(prep&&prep.catch)prep.catch(function(){});
+      }catch(e){}
       sharedApprovalPost(hid,'guest_request',viewerId(),profileName());
       send('guest_request',{host_id:hid,viewer_id:viewerId(),name:profileName(),at:Date.now()});
     }else{
