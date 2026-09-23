@@ -300,7 +300,7 @@
       }
     };
 
-    viewer.poll=setInterval(pollViewer,450);
+    viewer.poll=setInterval(pollViewer,800);
     viewer.touch=setInterval(function(){
       if(!viewer)return;
       fetch(API+'?t='+Date.now(),{
@@ -308,7 +308,7 @@
         body:JSON.stringify({action:'touch',session_id:sid})
       }).catch(function(){});
       interactionPost('heartbeat',hostId,viewerId,viewer.viewerName);
-    },3500);
+    },7000);
     pollViewer();
     return true;
   }
@@ -420,7 +420,7 @@
           var ok2=await enterMemory(hostId,cached);
           if(ok2)remoteEndArmed=true;
         }catch(z){}
-      },2500);
+      },5000);
     }finally{
       setTimeout(function(){enterBusy=false;},120);
     }
@@ -451,6 +451,6 @@
     if(oldLeave)return oldLeave(silent);
   };
 
-  setInterval(hostPoll,500);
+  setInterval(hostPoll,1500);
   setTimeout(hostPoll,120);
 })();
