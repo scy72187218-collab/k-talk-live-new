@@ -18,6 +18,14 @@
     '#ktRemoteHostPreview'
   ].join(',');
 
+  function ensureDirectionLockStyle(){
+    if(document.getElementById('ktHostVideoDirectionHardLock20260923'))return;
+    var s=document.createElement('style');
+    s.id='ktHostVideoDirectionHardLock20260923';
+    s.textContent=SEL+'{transform:scaleX(-1)!important;-webkit-transform:scaleX(-1)!important;transform-origin:50% 50%!important;}';
+    document.head.appendChild(s);
+  }
+
   function apply(v){
     if(!v)return;
     try{
@@ -31,12 +39,13 @@
     try{document.querySelectorAll(SEL).forEach(apply);}catch(e){}
   }
 
+  ensureDirectionLockStyle();
   scan();
   [0,60,180,420,900,1600,3000].forEach(function(ms){setTimeout(scan,ms);});
-  setInterval(scan,1200);
+  setInterval(scan,600);
 
   try{
-    new MutationObserver(function(){scan();}).observe(document.documentElement,{
+    new MutationObserver(function(){ensureDirectionLockStyle();scan();}).observe(document.documentElement,{
       childList:true,subtree:true,attributes:true,attributeFilter:['style','class','data-kt-room']
     });
   }catch(e){}
