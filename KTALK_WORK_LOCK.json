@@ -1,5 +1,5 @@
 {
-  "version": 41,
+  "version": 42,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260922-guest-live-reconnect-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "PIN 1111 previously verified in this flow. Temporarily unlocked only the public live-indicator red border/glow. Other UI and transport unchanged.",
+  "note": "Public live-indicator red border/glow removed at source and hard-guarded every 500ms against redraws. Size/text/LIVE content/other UI/transport unchanged.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -81,10 +81,6 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "public_video_live_indicator_border"
-  ],
-  "temporarily_unlocked_components": [
-    "public_video_live_indicator_border"
-  ]
+  "current_editable_components": [],
+  "temporarily_unlocked_components": []
 }
