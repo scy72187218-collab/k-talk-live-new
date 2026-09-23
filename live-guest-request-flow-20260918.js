@@ -877,6 +877,7 @@
     }catch(e){}
 
     viewerGuest.stream=stream;
+    window.__ktApprovedGuestSelfStream=stream;
     viewerGuest.hostId=hostId;
     viewerGuest.approvedKey=approvalId;
     if(viewerGuest.prewarmTimer){clearTimeout(viewerGuest.prewarmTimer);viewerGuest.prewarmTimer=null;}
