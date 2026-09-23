@@ -1,13 +1,13 @@
 {
-  "version": 49,
+  "version": 50,
   "locked": true,
   "scope": "selective-approved-working-components-only",
-  "snapshot_branch": "saved-working-k-talk-20260922-guest-live-reconnect-stable",
-  "snapshot_commit": "4b150930e932d249af8b2e4f95eea73dd0fcb801",
+  "snapshot_branch": "saved-working-k-talk-20260923-guest-direction-stable",
+  "snapshot_commit": "299968b6f0e3e0de69e64acb017babb729dd9e29",
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "PIN 1111 verified. Temporarily unlocked only approved guest self-video direction. Other UI, layout, transport, approval, host video, chat, buttons, rose/name/level remain locked.",
+  "note": "Approved guest self-video direction saved as stable and re-locked. First-photo direction is the reference. Other protected components remain unchanged.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -82,10 +82,6 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "all_room_guest_video_direction"
-  ],
-  "temporarily_unlocked_components": [
-    "all_room_guest_video_direction"
-  ]
+  "current_editable_components": [],
+  "temporarily_unlocked_components": []
 }
