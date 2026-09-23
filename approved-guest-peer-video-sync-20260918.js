@@ -26,6 +26,21 @@
     if(r.status===204)return null;
     var t=await r.text();return t?JSON.parse(t):null;
   }
+  async function interactionState(hostId){
+    var ctrl=typeof AbortController!=='undefined'?new AbortController():null;
+    var timer=ctrl?setTimeout(function(){ctrl.abort();},900):null;
+    try{
+      var opt={cache:'no-store'};
+      if(ctrl)opt.signal=ctrl.signal;
+      var r=await fetch('/api/live-interaction-memory?action=state&host_id='+enc(hostId)+'&t='+Date.now(),opt);
+      if(timer)clearTimeout(timer);
+      if(!r.ok)return null;
+      return await r.json();
+    }catch(e){
+      if(timer)clearTimeout(timer);
+      return null;
+    }
+  }
   function nowIso(){return new Date().toISOString();}
   function deviceId(){
     var id='';try{id=localStorage.getItem('kt_live_device_id')||'';}catch(e){}
@@ -294,25 +309,67 @@
   }
 
   async function participantInfo(hostId){
-    var sessions=[],viewers=[];
-    try{
-      sessions=await req('ktalk_webrtc_sessions?select=id,viewer_id,active,updated_at&host_id=eq.'+enc(hostId)+'&active=eq.true&order=updated_at.desc&limit=80')||[];
-      var cut=new Date(Date.now()-30000).toISOString();
-      viewers=await req('ktalk_live_viewers?select=viewer_id,viewer_name,active,updated_at&host_id=eq.'+enc(hostId)+'&active=eq.true&updated_at=gte.'+enc(cut)+'&limit=100')||[];
-    }catch(e){}
+    var sessions=[],viewers=[],mem=null;
+    var cut=new Date(Date.now()-30000).toISOString();
+
+    var jobs=[
+      req('ktalk_webrtc_sessions?select=id,viewer_id,active,updated_at&host_id=eq.'+enc(hostId)+'&active=eq.true&order=updated_at.desc&limit=80')
+        .then(function(x){sessions=x||[];}).catch(function(){}),
+      req('ktalk_live_viewers?select=viewer_id,viewer_name,active,updated_at&host_id=eq.'+enc(hostId)+'&active=eq.true&updated_at=gte.'+enc(cut)+'&limit=100')
+        .then(function(x){viewers=x||[];}).catch(function(){}),
+      interactionState(hostId).then(function(x){mem=x||null;}).catch(function(){})
+    ];
+    await Promise.all(jobs);
+
     var names={};
     viewers.forEach(function(v){
       var id=String(v.viewer_id||'');
       if(id)names[id]=String(v.viewer_name||'게스트');
     });
+    var mv=mem&&Array.isArray(mem.viewers)?mem.viewers:[];
+    mv.forEach(function(v){
+      var id=String(v.viewer_id||'');
+      if(id&&!names[id])names[id]=String(v.viewer_name||'게스트');
+    });
+
     var ids={};
-    sessions.forEach(function(s){
-      var tag=String(s.viewer_id||'');
+
+    /* 기존 DB guest 세션은 계속 fallback 명단으로 사용한다. */
+    sessions.forEach(function(row){
+      var tag=String(row.viewer_id||'');
       if(tag.indexOf('guest:')===0){
         var id=tag.slice(6);
         if(id)ids[id]=true;
       }
     });
+
+    /* 빠른 Realtime 경로에서는 별도 DB guest 세션이 없을 수 있다.
+       승인/heartbeat 메시지를 합쳐 모든 폰이 같은 승인 게스트 명단을 보게 한다. */
+    var msgs=mem&&Array.isArray(mem.messages)?mem.messages:[];
+    var state={},aliveName={};
+    msgs.forEach(function(m){
+      var type=String(m.message_type||''),id='',kind='';
+      if(type.indexOf('guest_approved:')===0){id=type.slice(15);kind='approved';}
+      else if(type.indexOf('guest_alive:')===0){id=type.slice(12);kind='alive';}
+      else if(type.indexOf('guest_left:')===0){id=type.slice(11);kind='left';}
+      else if(type.indexOf('guest_cancelled:')===0){id=type.slice(16);kind='left';}
+      else if(type.indexOf('guest_cancel:')===0){id=type.slice(13);kind='left';}
+      if(!id)return;
+      var ts=Date.parse(m.created_at||'')||0;
+      if(kind==='alive'&&m.sender_name)aliveName[id]={name:String(m.sender_name),ts:ts};
+      if(!state[id]||ts>=state[id].ts)state[id]={kind:kind,ts:ts};
+    });
+    var now=Date.now();
+    Object.keys(state).forEach(function(id){
+      var st=state[id];
+      if((st.kind==='approved'||st.kind==='alive')&&now-st.ts<60000){
+        ids[id]=true;
+        if(!names[id]&&aliveName[id])names[id]=aliveName[id].name;
+      }else if(st.kind==='left'){
+        delete ids[id];
+      }
+    });
+
     Object.keys(ids).forEach(function(id){if(!names[id])names[id]='게스트';});
     return {ids:Object.keys(ids),names:names};
   }
@@ -381,6 +438,9 @@
 
   setInterval(tick,350);
   [60,180,400,800,1400].forEach(function(ms){setTimeout(tick,ms);});
+  window.addEventListener('kt-guest-approval-received',function(){
+    [0,80,220,500].forEach(function(ms){setTimeout(tick,ms);});
+  });
 
   window.addEventListener('pagehide',function(){
     Object.keys(peers).forEach(function(pid){
