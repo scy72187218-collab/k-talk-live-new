@@ -260,11 +260,27 @@
       var room=root.querySelector('.kt-guest-hostlike-room');
       if(room){
         /* 기존 연결 스트림이 바뀌어도 두 영상만 유지 */
-        var hv=room.querySelector('.kgh-cell.host video');
+        var hostCell=room.querySelector('.kgh-cell.host');
+        var hv=hostCell&&hostCell.querySelector('video');
         var sv=room.querySelector('.kgh-cell.self video');
-        var trueHost=(window.__ktRemoteHostStream&&live(window.__ktRemoteHostStream))?window.__ktRemoteHostStream:hostStream;
-        if(trueHost&&trueHost!==selfStream)hostStream=trueHost;
-        if(hv&&hostStream&&hv.srcObject!==hostStream)hv.srcObject=hostStream;
+        var candidates=[window.__ktRemoteHostStream,window.__ktLastApprovedGuestHostStream,hostStream];
+        var trueHost=null;
+        for(var ci=0;ci<candidates.length;ci++){
+          if(candidates[ci]&&candidates[ci]!==selfStream&&live(candidates[ci])){trueHost=candidates[ci];break;}
+        }
+        if(trueHost){
+          hostStream=trueHost;
+          window.__ktLastApprovedGuestHostStream=trueHost;
+        }
+        if(!hv&&hostCell&&hostStream&&live(hostStream)){
+          hv=document.createElement('video');
+          hv.autoplay=true;hv.playsInline=true;hv.muted=false;
+          hostCell.appendChild(hv);
+        }
+        if(hv&&hostStream&&live(hostStream)){
+          if(hv.srcObject!==hostStream)hv.srcObject=hostStream;
+          if(hv.paused){try{var hp=hv.play();if(hp&&hp.catch)hp.catch(function(){});}catch(e){}}
+        }
         if(sv&&selfStream&&sv.srcObject!==selfStream)sv.srcObject=selfStream;
         if(sv){
           try{
