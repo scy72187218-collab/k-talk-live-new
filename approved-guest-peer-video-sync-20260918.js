@@ -208,7 +208,7 @@
         }catch(_e){}
       }
       var offer=await pc.createOffer({offerToReceiveVideo:true,offerToReceiveAudio:false});
-      await pc.setLocalDescription(offer);await waitIce(pc,5000);
+      await pc.setLocalDescription(offer);await waitIce(pc,1800);
       var rows=await req('ktalk_webrtc_sessions',{
         method:'POST',headers:{Prefer:'return=representation'},
         body:JSON.stringify({host_id:hostId,viewer_id:key,offer_sdp:pc.localDescription.sdp,answer_sdp:null,active:true,updated_at:nowIso()})
@@ -228,7 +228,7 @@
             clearInterval(entry.answerTimer);
           }
         }catch(e){}
-      },800);
+      },400);
     }catch(e){
       await dropPeer(peerId);
     }
@@ -253,7 +253,7 @@
       }
       await pc.setRemoteDescription({type:'offer',sdp:row.offer_sdp});
       var answer=await pc.createAnswer();
-      await pc.setLocalDescription(answer);await waitIce(pc,5000);
+      await pc.setLocalDescription(answer);await waitIce(pc,1800);
       await req('ktalk_webrtc_sessions?id=eq.'+enc(entry.sessionId),{
         method:'PATCH',headers:{Prefer:'return=minimal'},
         body:JSON.stringify({answer_sdp:pc.localDescription.sdp,updated_at:nowIso()})
@@ -363,7 +363,7 @@
     finally{ticking=false;}
   }
 
-  setInterval(tick,1200);
+  setInterval(tick,800);
   [300,700,1300,2200].forEach(function(ms){setTimeout(tick,ms);});
 
   window.addEventListener('pagehide',function(){
