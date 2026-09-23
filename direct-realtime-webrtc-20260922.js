@@ -873,8 +873,8 @@
   async function startGuestCamera(hid){
     if(!guestApproved||guestApprovedHost!==hid)return;
 
-    /* 기존 승인 게스트 업링크를 우선 사용하고, 실패할 때만 direct fallback을 연다.
-       같은 카메라를 호스트로 두 번 동시에 보내는 부담을 줄인다. */
+    /* 빠른 Realtime 경로를 우선 사용하고, 느린 DB 경로는 실패 시 보조로 둔다.
+       신청 때 미리 연 카메라 스트림을 그대로 재사용한다. */
     var live=false;try{live=!!(guestStream&&guestStream.getVideoTracks().some(function(t){return t.readyState==='live';}));}catch(e){}
     if(!live){
       try{
@@ -888,6 +888,7 @@
       try{guestStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'user'}},audio:true});}
       catch(e){try{guestStream=await navigator.mediaDevices.getUserMedia({video:true,audio:false});}catch(z){return;}}
     }
+    try{if(guestStream)window.__ktApprovedGuestSelfStream=guestStream;}catch(e){}
     makeGuestOffer(hid);
   }
   function waitIceCompleteDirect(pc,ms){
@@ -986,7 +987,10 @@
         if(guestPc===pc)guestPc=null;
         setTimeout(function(){makeGuestOffer(hid);},180);
       },3500);
-    }catch(e){clearGuestOfferRetryTimers(pc);closePc(pc);if(guestPc===pc)guestPc=null;}
+    }catch(e){
+      try{window.__ktDirectGuestUplinkState20260923='failed';window.__ktDirectGuestUplinkStateAt20260923=Date.now();}catch(_e){}
+      clearGuestOfferRetryTimers(pc);closePc(pc);if(guestPc===pc)guestPc=null;
+    }
   }
   function hostGuestSignalKey(vid,session){
     return String(vid||'')+'|'+String(session||'');
