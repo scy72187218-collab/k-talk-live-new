@@ -218,6 +218,16 @@
     }
   }
   function waitIce(pc,ms){return new Promise(function(resolve){if(!pc||pc.iceGatheringState==='complete')return resolve();var done=false,t=setTimeout(finish,ms||5000);function finish(){if(done)return;done=true;clearTimeout(t);try{pc.removeEventListener('icegatheringstatechange',on);}catch(e){}resolve();}function on(){if(pc.iceGatheringState==='complete')finish();}pc.addEventListener('icegatheringstatechange',on);});}
+  function guestRtcConfig(){
+    var cfg=null;
+    try{cfg=window.ktGetRtcConfig?window.ktGetRtcConfig():null;}catch(e){}
+    if(!cfg)cfg={iceServers:ICE.iceServers.slice()};
+    try{
+      cfg=Object.assign({},cfg);
+      if(!cfg.iceCandidatePoolSize)cfg.iceCandidatePoolSize=4;
+    }catch(e){}
+    return cfg;
+  }
 
   function ensureStyle(){if(document.getElementById('ktGuestRequestFlowStyle'))return;var s=document.createElement('style');s.id='ktGuestRequestFlowStyle';s.textContent=''
     +'.kt-remote-bottom #ktRemoteGuestRequest.kt-requested{color:#77ff9e!important;border-color:#77ff9e88!important;box-shadow:0 0 9px #32d86c66!important}'
@@ -454,7 +464,7 @@
 
     var hid=deviceId(),rows=[];
     try{
-      rows=await req('ktalk_webrtc_sessions?select=id,host_id,viewer_id,offer_sdp,answer_sdp,active,updated_at&host_id=eq.'+enc(hid)+'&active=eq.true&order=created_at.asc&limit=60')||[];
+      rows=await req('ktalk_webrtc_sessions?select=id,host_id,viewer_id,offer_sdp,answer_sdp,active,updated_at&host_id=eq.'+enc(hid)+'&active=eq.true&order=created_at.desc&limit=60')||[];
     }catch(e){return;}
 
     var activeIds={},activeGuestIds={};
@@ -530,7 +540,7 @@
       if(!slot.dataset.ktGuestViewerId)decorateSlot(slot,vid,name);
 
       try{
-        var pc=new RTCPeerConnection(window.ktGetRtcConfig?window.ktGetRtcConfig():ICE);
+        var pc=new RTCPeerConnection(guestRtcConfig());
         pc.__ktSlot=slot;
         pc.__ktVid=vid;
         hostGuestPeers[x.id]=pc;
@@ -607,7 +617,7 @@
 
         var ans=await pc.createAnswer();
         await pc.setLocalDescription(ans);
-        await waitIce(pc,1800);
+        await waitIce(pc,5000);
 
         await req('ktalk_webrtc_sessions?id=eq.'+enc(x.id),{
           method:'PATCH',
@@ -889,7 +899,7 @@
       var directHostView=!!window.__ktDirectRealtimeRtc20260922;
       var offer=await pc.createOffer({offerToReceiveAudio:!directHostView,offerToReceiveVideo:!directHostView});
       await pc.setLocalDescription(offer);
-      await waitIce(pc,1800);
+      await waitIce(pc,5000);
 
       var created=await req('ktalk_webrtc_sessions',{
         method:'POST',
