@@ -564,10 +564,12 @@
         var pc=new RTCPeerConnection(guestRtcConfig());
         pc.__ktSlot=slot;
         pc.__ktVid=vid;
+        pc.__ktGotGuestTrack=false;
         hostGuestPeers[x.id]=pc;
 
         pc.ontrack=(function(target,viewer){
           return function(ev){
+            pc.__ktGotGuestTrack=true;
             delete hostGuestMissingSince[viewer];
             var v=target.querySelector('video'),sm=target.querySelector('small');
             if(v){
@@ -593,7 +595,7 @@
           return function(){
             var st=String(p.connectionState||'');
             if(st==='connected'){
-              delete hostGuestMissingSince[viewer];
+              if(p.__ktGotGuestTrack)delete hostGuestMissingSince[viewer];
               return;
             }
             if(st==='failed'||st==='closed'){
@@ -612,7 +614,7 @@
                     if(!hostGuestMissingSince[viewer])hostGuestMissingSince[viewer]=Date.now();
                   }
                 }catch(e){}
-              },30000);
+              },7000);
             }
           };
         })(x.id,pc,vid);
@@ -645,6 +647,26 @@
           headers:{Prefer:'return=minimal'},
           body:JSON.stringify({answer_sdp:ktTagSdpRotation(pc.localDescription.sdp),updated_at:nowIso()})
         });
+
+        /* PeerConnection만 connected이고 실제 게스트 영상 track이 안 온 경우가 있다.
+           8초 안에 영상이 안 오면 이 세션만 종료해서 게스트가 새 offer를 만들게 한다. */
+        (function(sessionId,p,viewer){
+          setTimeout(async function(){
+            try{
+              if(hostGuestPeers[sessionId]!==p||p.__ktGotGuestTrack)return;
+              try{p.close();}catch(_e){}
+              delete hostGuestPeers[sessionId];
+              if(!hostGuestMissingSince[viewer])hostGuestMissingSince[viewer]=Date.now();
+              try{
+                await req('ktalk_webrtc_sessions?id=eq.'+enc(sessionId),{
+                  method:'PATCH',
+                  headers:{Prefer:'return=minimal'},
+                  body:JSON.stringify({active:false,updated_at:nowIso()})
+                });
+              }catch(_e){}
+            }catch(_e){}
+          },8000);
+        })(x.id,pc,vid);
       }catch(e){
         if(hostGuestPeers[x.id]){
           try{hostGuestPeers[x.id].close();}catch(z){}
@@ -949,7 +971,7 @@
           setLegacyGuestUplinkState('disconnected');
           setTimeout(function(){
             if(viewerGuest.pc===pc&&pc.connectionState==='disconnected')resetViewerGuestPc(pc);
-          },30000);
+          },7000);
         }
       };
 
