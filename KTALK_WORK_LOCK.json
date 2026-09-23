@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Re-locked after communication-speed-only tuning. Initial viewer retry reduced from 8s to 3s, watch signaling cadence shortened, and role/shared approval polling slightly accelerated. No UI/layout/badge/control changes.",
+  "note": "PIN 1111 confirmed. Restore the interrupted communication timing edit to its prior values, then UI-only cleanup: occupied guest tiles keep only rose count + nickname/level; hide yellow gift-target border/badge and duplicate old badges. No room layout, buttons, chat, gifts logic, countdowns, earnings, or video direction changes.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -76,6 +76,18 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [],
-  "temporarily_unlocked_components": []
+  "current_editable_components": [
+    "remote_video_connect_speed",
+    "communication_auto_reconnect_only",
+    "all_room_guest_rose_name_level",
+    "all_room_guest_rose_badge",
+    "all_room_guest_nickname_level"
+  ],
+  "temporarily_unlocked_components": [
+    "remote_video_connect_speed",
+    "communication_auto_reconnect_only",
+    "all_room_guest_rose_name_level",
+    "all_room_guest_rose_badge",
+    "all_room_guest_nickname_level"
+  ]
 }
