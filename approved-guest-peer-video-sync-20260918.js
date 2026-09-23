@@ -196,7 +196,7 @@
             delete peers[entry.peerId];
             clearPeerCell(entry.peerId);
           }
-        },7000);
+        },3000);
       }
     };
   }
@@ -223,14 +223,14 @@
         }catch(_e){}
       }
       var offer=await pc.createOffer({offerToReceiveVideo:true,offerToReceiveAudio:false});
-      await pc.setLocalDescription(offer);await waitIce(pc,1800);
+      await pc.setLocalDescription(offer);await waitIce(pc,900);
       var rows=await req('ktalk_webrtc_sessions',{
         method:'POST',headers:{Prefer:'return=representation'},
         body:JSON.stringify({host_id:hostId,viewer_id:key,offer_sdp:pc.localDescription.sdp,answer_sdp:null,active:true,updated_at:nowIso()})
       });
       entry.sessionId=rows&&rows[0]?String(rows[0].id||''):'';
       if(!entry.sessionId)throw new Error('mesh session');
-      armPeerTrackWatchdog(entry,8000);
+      armPeerTrackWatchdog(entry,3500);
       debug('offer_created',selfId+' -> '+peerId);
       var tries=0;
       entry.answerTimer=setInterval(async function(){
@@ -244,7 +244,7 @@
             clearInterval(entry.answerTimer);
           }
         }catch(e){}
-      },400);
+      },200);
     }catch(e){
       await dropPeer(peerId);
     }
@@ -269,12 +269,12 @@
       }
       await pc.setRemoteDescription({type:'offer',sdp:row.offer_sdp});
       var answer=await pc.createAnswer();
-      await pc.setLocalDescription(answer);await waitIce(pc,1800);
+      await pc.setLocalDescription(answer);await waitIce(pc,900);
       await req('ktalk_webrtc_sessions?id=eq.'+enc(entry.sessionId),{
         method:'PATCH',headers:{Prefer:'return=minimal'},
         body:JSON.stringify({answer_sdp:pc.localDescription.sdp,updated_at:nowIso()})
       });
-      armPeerTrackWatchdog(entry,8000);
+      armPeerTrackWatchdog(entry,3500);
       debug('answer_created',selfId+' <- '+peerId);
     }catch(e){
       await dropPeer(peerId);
@@ -367,12 +367,11 @@
       var active={};
       info.ids.forEach(function(id){if(id!==selfId)active[id]=true;});
       var old=Object.keys(peers);
-      for(var j=0;j<old.length;j++)if(!active[old[j]])await dropPeer(old[j]);
+      await Promise.all(old.filter(function(id){return !active[id];}).map(function(id){return dropPeer(id);}));
       var ids=Object.keys(active);
-      for(var k=0;k<ids.length;k++){
-        var pid=ids[k];
-        await ensurePeer(hostId,selfId,pid,info.names[pid]||'게스트',stream);
-      }
+      await Promise.all(ids.map(function(pid){
+        return ensurePeer(hostId,selfId,pid,info.names[pid]||'게스트',stream);
+      }));
       Object.keys(peers).forEach(function(pid){
         var e=peers[pid];if(e&&e.remoteStream)showPeer(pid,info.names[pid]||'게스트',e.remoteStream);
       });
@@ -380,8 +379,8 @@
     finally{ticking=false;}
   }
 
-  setInterval(tick,800);
-  [300,700,1300,2200].forEach(function(ms){setTimeout(tick,ms);});
+  setInterval(tick,350);
+  [60,180,400,800,1400].forEach(function(ms){setTimeout(tick,ms);});
 
   window.addEventListener('pagehide',function(){
     Object.keys(peers).forEach(function(pid){
