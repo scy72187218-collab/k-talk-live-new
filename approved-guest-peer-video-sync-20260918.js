@@ -149,6 +149,7 @@
 
   async function deactivate(entry){
     if(!entry)return;
+    try{if(entry.trackTimer)clearTimeout(entry.trackTimer);}catch(e){}
     try{if(entry.pc)entry.pc.close();}catch(e){}
     if(entry.sessionId){
       try{await req('ktalk_webrtc_sessions?id=eq.'+enc(entry.sessionId),{
@@ -164,8 +165,22 @@
     await deactivate(e);
   }
 
+  function armPeerTrackWatchdog(entry,ms){
+    if(!entry)return;
+    try{if(entry.trackTimer)clearTimeout(entry.trackTimer);}catch(e){}
+    entry.trackTimer=setTimeout(function(){
+      if(peers[entry.peerId]!==entry||entry.gotTrack)return;
+      try{
+        var q=dropPeer(entry.peerId);
+        if(q&&q.catch)q.catch(function(){});
+      }catch(e){}
+    },ms||8000);
+  }
+
   function wirePc(pc,entry,name){
     pc.ontrack=function(ev){
+      entry.gotTrack=true;
+      try{if(entry.trackTimer)clearTimeout(entry.trackTimer);}catch(e){}
       var st=ev.streams&&ev.streams[0]?ev.streams[0]:new MediaStream([ev.track]);
       entry.remoteStream=st;
       showPeer(entry.peerId,name,st);
@@ -181,14 +196,14 @@
             delete peers[entry.peerId];
             clearPeerCell(entry.peerId);
           }
-        },15000);
+        },7000);
       }
     };
   }
 
   async function makeOffer(hostId,selfId,peerId,name,stream,key){
     if(peers[peerId])return;
-    var entry={peerId:peerId,key:key,role:'offer',pc:null,sessionId:'',remoteStream:null};
+    var entry={peerId:peerId,key:key,role:'offer',pc:null,sessionId:'',remoteStream:null,gotTrack:false,trackTimer:null};
     peers[peerId]=entry;
     try{
       await req('ktalk_webrtc_sessions?host_id=eq.'+enc(hostId)+'&viewer_id=eq.'+enc(key)+'&active=eq.true',{
@@ -215,6 +230,7 @@
       });
       entry.sessionId=rows&&rows[0]?String(rows[0].id||''):'';
       if(!entry.sessionId)throw new Error('mesh session');
+      armPeerTrackWatchdog(entry,8000);
       debug('offer_created',selfId+' -> '+peerId);
       var tries=0;
       entry.answerTimer=setInterval(async function(){
@@ -236,7 +252,7 @@
 
   async function answerOffer(hostId,selfId,peerId,name,stream,key,row){
     if(peers[peerId])return;
-    var entry={peerId:peerId,key:key,role:'answer',pc:null,sessionId:String(row.id||''),remoteStream:null};
+    var entry={peerId:peerId,key:key,role:'answer',pc:null,sessionId:String(row.id||''),remoteStream:null,gotTrack:false,trackTimer:null};
     peers[peerId]=entry;
     try{
       var pc=new RTCPeerConnection(window.ktGetRtcConfig?window.ktGetRtcConfig():ICE);entry.pc=pc;wirePc(pc,entry,name);
@@ -258,6 +274,7 @@
         method:'PATCH',headers:{Prefer:'return=minimal'},
         body:JSON.stringify({answer_sdp:pc.localDescription.sdp,updated_at:nowIso()})
       });
+      armPeerTrackWatchdog(entry,8000);
       debug('answer_created',selfId+' <- '+peerId);
     }catch(e){
       await dropPeer(peerId);
