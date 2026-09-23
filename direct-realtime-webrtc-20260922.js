@@ -16,7 +16,7 @@
   var pendingHostGuestOffers={},pendingHostGuestIce={};
   var requestOn=false,lastRemoteHost='',lastHostRole='',lastWatchAt=0;
   var sharedApprovalPollBusy=false,leaveAnnouncedHost='',guestAliveLastSent=0,hostGuestAliveAt={},remoteHostMissingSince=0;
-  var signalSeen={},viewerOfferInFlight='',lastHostReadyAt=0,lastGuestRequestAt=0;
+  var signalSeen={},viewerOfferInFlight='',lastHostReadyAt=0,lastGuestRequestAt=0,guestApprovedAt=0;
 
   function deviceId(){
     var id='';
@@ -872,6 +872,22 @@
 
   async function startGuestCamera(hid){
     if(!guestApproved||guestApprovedHost!==hid)return;
+
+    /* 기존 승인 게스트 업링크를 우선 사용하고, 실패할 때만 direct fallback을 연다.
+       같은 카메라를 호스트로 두 번 동시에 보내는 부담을 줄인다. */
+    if(useLegacyApprovedGuestUplink()){
+      var legacyState='',legacyAt=0,age=Date.now()-Number(guestApprovedAt||0);
+      try{
+        legacyState=String(window.__ktLegacyGuestUplinkState20260923||'');
+        legacyAt=Number(window.__ktLegacyGuestUplinkStateAt20260923||0);
+      }catch(e){}
+      if(legacyState==='connected')return;
+      if(legacyState==='connecting'&&Date.now()-legacyAt<12000)return;
+      if(legacyState==='disconnected'&&Date.now()-legacyAt<5000)return;
+      if(!legacyState&&age<6000)return;
+      if(legacyState==='idle'&&age<6000)return;
+    }
+
     var live=false;try{live=!!(guestStream&&guestStream.getVideoTracks().some(function(t){return t.readyState==='live';}));}catch(e){}
     if(!live){
       try{
@@ -1134,6 +1150,7 @@
     requestOn=false;
     guestApproved=true;
     guestApprovedHost=hid;
+    guestApprovedAt=Date.now();
     leaveAnnouncedHost='';
     guestAliveLastSent=0;
 
