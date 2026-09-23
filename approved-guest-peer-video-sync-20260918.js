@@ -69,7 +69,7 @@
   function safeName(v){return String(v||'게스트').slice(0,24);}
   function peerCellById(grid,peerId){
     if(!grid)return null;
-    var cells=[].slice.call(grid.querySelectorAll('.kgh-cell[data-kt-peer-viewer]'));
+    var cells=[].slice.call(grid.querySelectorAll('[data-kt-peer-viewer]'));
     for(var i=0;i<cells.length;i++)if(String(cells[i].dataset.ktPeerViewer||'')===String(peerId||''))return cells[i];
     return null;
   }
@@ -196,7 +196,17 @@
         body:JSON.stringify({active:false,updated_at:nowIso()})
       });
       var pc=new RTCPeerConnection(window.ktGetRtcConfig?window.ktGetRtcConfig():ICE);entry.pc=pc;wirePc(pc,entry,name);
-      var vt=stream.getVideoTracks()[0];if(vt)pc.addTrack(vt,stream);
+      var vt=stream.getVideoTracks()[0];
+      if(vt){
+        var sender=pc.addTrack(vt,stream);
+        try{
+          var p=sender.getParameters()||{};
+          if(!p.encodings||!p.encodings.length)p.encodings=[{}];
+          p.encodings.forEach(function(enc){enc.maxBitrate=220000;enc.maxFramerate=12;enc.scaleResolutionDownBy=1.25;});
+          p.degradationPreference='balanced';
+          var q=sender.setParameters(p);if(q&&q.catch)q.catch(function(){});
+        }catch(_e){}
+      }
       var offer=await pc.createOffer({offerToReceiveVideo:true,offerToReceiveAudio:false});
       await pc.setLocalDescription(offer);await waitIce(pc,5000);
       var rows=await req('ktalk_webrtc_sessions',{
@@ -230,7 +240,17 @@
     peers[peerId]=entry;
     try{
       var pc=new RTCPeerConnection(window.ktGetRtcConfig?window.ktGetRtcConfig():ICE);entry.pc=pc;wirePc(pc,entry,name);
-      var vt=stream.getVideoTracks()[0];if(vt)pc.addTrack(vt,stream);
+      var vt=stream.getVideoTracks()[0];
+      if(vt){
+        var sender=pc.addTrack(vt,stream);
+        try{
+          var p=sender.getParameters()||{};
+          if(!p.encodings||!p.encodings.length)p.encodings=[{}];
+          p.encodings.forEach(function(enc){enc.maxBitrate=220000;enc.maxFramerate=12;enc.scaleResolutionDownBy=1.25;});
+          p.degradationPreference='balanced';
+          var q=sender.setParameters(p);if(q&&q.catch)q.catch(function(){});
+        }catch(_e){}
+      }
       await pc.setRemoteDescription({type:'offer',sdp:row.offer_sdp});
       var answer=await pc.createAnswer();
       await pc.setLocalDescription(answer);await waitIce(pc,5000);
@@ -246,6 +266,11 @@
 
   async function currentHost(selfId){
     try{
+      var direct=String(window.__ktRemoteHostId||'');
+      if(!direct)try{direct=String(sessionStorage.getItem('kt_remote_host_id')||'');}catch(_e){}
+      if(direct)return direct;
+    }catch(e){}
+    try{
       var rows=await req('ktalk_live_viewers?select=host_id,viewer_id,active,updated_at&viewer_id=eq.'+enc(selfId)+'&active=eq.true&order=updated_at.desc&limit=1');
       return rows&&rows[0]?String(rows[0].host_id||''):'';
     }catch(e){return '';}
@@ -258,20 +283,20 @@
       var cut=new Date(Date.now()-30000).toISOString();
       viewers=await req('ktalk_live_viewers?select=viewer_id,viewer_name,active,updated_at&host_id=eq.'+enc(hostId)+'&active=eq.true&updated_at=gte.'+enc(cut)+'&limit=100')||[];
     }catch(e){}
-    var names={},fresh={};
+    var names={};
     viewers.forEach(function(v){
       var id=String(v.viewer_id||'');
-      names[id]=String(v.viewer_name||'게스트');
-      fresh[id]=true;
+      if(id)names[id]=String(v.viewer_name||'게스트');
     });
     var ids={};
     sessions.forEach(function(s){
       var tag=String(s.viewer_id||'');
       if(tag.indexOf('guest:')===0){
         var id=tag.slice(6);
-        if(id&&fresh[id])ids[id]=true;
+        if(id)ids[id]=true;
       }
     });
+    Object.keys(ids).forEach(function(id){if(!names[id])names[id]='게스트';});
     return {ids:Object.keys(ids),names:names};
   }
 
