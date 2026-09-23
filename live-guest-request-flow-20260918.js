@@ -10,6 +10,7 @@
   var ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
   var hostPoll=null,viewerPoll=null,hostGuestPeers={},requestNames={},hostGuestMissingSince={};
   var viewerGuest={pc:null,stream:null,sessionId:'',hostId:'',approvedKey:'',viewTimer:null,prejoinHostStream:null,connectStartedAt:0,approvalMissingSince:0,mediaDenied:false,mediaOpening:false,prewarmTimer:null};
+  var viewerRootMissingSince=0;
 
   function enc(v){return encodeURIComponent(String(v==null?'':v));}
   function ktDeviceVideoRotation180(){
@@ -826,7 +827,8 @@
       var st='';
       try{st=String(viewerGuest.pc.connectionState||'');}catch(e){}
       var age=viewerGuest.connectStartedAt?Date.now()-viewerGuest.connectStartedAt:0;
-      if(st==='connected'||st==='connecting'||st==='disconnected'||(st==='new'&&age<30000))return;
+      var mediaLive=ktGuestStreamLive(viewerGuest.stream);
+      if(mediaLive&&(st==='connected'||st==='connecting'||st==='disconnected'||(st==='new'&&age<30000)))return;
       resetViewerGuestPc(viewerGuest.pc);
     }
 
@@ -1009,14 +1011,23 @@
   async function viewerTick(){
     ensureStyle();bindRequestButton();
     if(!document.querySelector('.kt-remote-live')){
+      if(!viewerRootMissingSince)viewerRootMissingSince=Date.now();
+
+      /* 승인 직후 방 DOM이 잠깐 교체될 때는 실제 퇴장이 아니다.
+         이 짧은 구간에 카메라 track을 stop하면 호스트와 자기 칸이 동시에 검게 된다.
+         승인 상태가 있으면 20초 동안 카메라/peer를 그대로 살려 둔다. */
+      if((viewerGuest.approvedKey||viewerGuest.hostId)&&Date.now()-viewerRootMissingSince<20000)return;
+
       endViewerGuestSession(false);
       if(viewerGuest.pc){try{viewerGuest.pc.close();}catch(e){}viewerGuest.pc=null;}
       stopLocalGuestViewGuard();
       viewerGuest.prejoinHostStream=null;
       if(viewerGuest.stream){try{viewerGuest.stream.getTracks().forEach(function(t){t.stop();});}catch(e){}viewerGuest.stream=null;}
       viewerGuest.approvedKey='';
+      viewerRootMissingSince=0;
       return;
     }
+    viewerRootMissingSince=0;
     var hostId=await currentViewerHost();
     if(!hostId){ensurePrejoinRoomGrid();return;}
     var vid=viewerId(),ap=await latestApproval(hostId,vid);
@@ -1029,7 +1040,12 @@
       if(viewerGuest.approvedKey&&viewerGuest.hostId===hostId){
         if(!viewerGuest.approvalMissingSince)viewerGuest.approvalMissingSince=Date.now();
         if(Date.now()-viewerGuest.approvalMissingSince<120000){
-          if(viewerGuest.stream)startLocalGuestViewGuard(viewerGuest.stream);
+          if(ktGuestStreamLive(viewerGuest.stream)){
+            startLocalGuestViewGuard(viewerGuest.stream);
+          }else{
+            /* 승인 조회가 잠깐 비어도 카메라 track이 죽었으면 같은 승인으로 즉시 다시 연다. */
+            await startViewerGuestUplink(hostId,vid,viewerGuest.approvedKey);
+          }
           return;
         }
       }
