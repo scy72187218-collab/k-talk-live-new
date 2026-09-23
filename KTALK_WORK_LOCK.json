@@ -1,5 +1,5 @@
 {
-  "version": 47,
+  "version": 48,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260922-guest-live-reconnect-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "PIN 1111 verified. Temporarily unlocked only host receive retry for approved guest video. UI, room layout, approval, camera appearance, rose/name/level, chat, buttons, direction and all other protected components remain locked.",
+  "note": "PIN 1111 verified. Temporarily unlocked only approved guest self-video direction. First-photo orientation is the reference. Reconnect/redraw must not reapply horizontal mirroring. All other UI, layout, approval, communication, camera appearance, rose/name/level, chat and buttons remain locked.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -83,9 +83,9 @@
     "if_pin_mismatch": "keep_protected_components_locked"
   },
   "current_editable_components": [
-    "host_guest_video_receive_retry_only"
+    "all_room_guest_video_direction"
   ],
   "temporarily_unlocked_components": [
-    "host_guest_video_receive_retry_only"
+    "all_room_guest_video_direction"
   ]
 }
