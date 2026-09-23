@@ -1,5 +1,5 @@
 {
-  "version": 43,
+  "version": 44,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260922-guest-live-reconnect-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "PIN 1111 was verified earlier in this work flow. Temporarily unlocked only guest self-video left/right direction. UI/layout/text/buttons/transport unchanged.",
+  "note": "Guest self-video left/right direction fixed to true direction and locked. Host video, UI/layout/text/buttons/transport unchanged.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -72,7 +72,8 @@
     "broadcast_end_sync_only",
     "approved_guest_peer_video_sync_only",
     "all_room_guest_wave_effect",
-    "approved_guest_stay_connected"
+    "approved_guest_stay_connected",
+    "all_room_guest_video_direction"
   ],
   "check_trigger_phrase": "K-톡 비밀번호 확인",
   "check_behavior": {
@@ -81,10 +82,6 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "all_room_guest_video_direction"
-  ],
-  "temporarily_unlocked_components": [
-    "all_room_guest_video_direction"
-  ]
+  "current_editable_components": [],
+  "temporarily_unlocked_components": []
 }
