@@ -48,9 +48,23 @@
     },60);
   }
 
+  function watchedVideo(){
+    try{
+      var hostLike=document.querySelector('.kt-guest-hostlike-room .kgh-cell.host video');
+      if(hostLike&&hostLike.isConnected)return hostLike;
+      var approved=document.querySelector('.kt-approved-guest-grid .kt-approved-guest-cell.host video');
+      if(approved&&approved.isConnected)return approved;
+      var prejoin=document.querySelector('.kt-prejoin-room-grid .kt-prejoin-room-cell.host video');
+      if(prejoin&&prejoin.isConnected)return prejoin;
+      var preview=document.getElementById('ktRemoteHostPreview');
+      if(preview&&preview.isConnected)return preview;
+    }catch(e){}
+    return document.getElementById('ktRemoteLiveVideo');
+  }
+
   function tick(){
     if(!inRemote()){reset();return;}
-    var v=document.getElementById('ktRemoteLiveVideo');
+    var v=watchedVideo();
     if(!v||!v.isConnected)return;
 
     if(watched!==v){
@@ -74,7 +88,20 @@
     /* Host broadcast ended: browsers can keep the last video frame frozen.
        If no new frame/time progress arrives for 8.5s after video had played,
        close the room and go back to the normal video feed. */
-    if(now-lastProgress>5000)returnToVideo();
+    if(now-lastProgress>5000){
+      try{
+        var approvedRoom=!!document.querySelector('.kt-guest-hostlike-room,.kt-approved-guest-grid');
+        if(approvedRoom){
+          var hs=window.__ktRemoteHostStream||null;
+          var liveHost=!!(hs&&hs.getVideoTracks&&hs.getVideoTracks().some(function(t){return t.readyState==='live';}));
+          if(liveHost){
+            lastProgress=now;
+            return;
+          }
+        }
+      }catch(e){}
+      returnToVideo();
+    }
   }
 
   setInterval(tick,400);
