@@ -302,6 +302,7 @@
         video:{facingMode:{ideal:'user'},width:{ideal:640,max:640},height:{ideal:480,max:480},aspectRatio:{ideal:1.333333},frameRate:{ideal:15,max:18}},
         audio:true
       });
+      window.__ktApprovedGuestSelfStream=viewerGuest.stream;
       if(viewerGuest.prewarmTimer)clearTimeout(viewerGuest.prewarmTimer);
       viewerGuest.prewarmTimer=setTimeout(function(){
         if(viewerGuest.approvedKey||viewerGuest.pc)return;
@@ -314,6 +315,7 @@
       if(denied==='notallowederror'||denied==='permissiondeniederror'||denied==='securityerror')viewerGuest.mediaDenied=true;
       try{
         viewerGuest.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});
+        window.__ktApprovedGuestSelfStream=viewerGuest.stream;
         return viewerGuest.stream;
       }catch(z){return null;}
     }finally{
@@ -640,7 +642,7 @@
 
         var ans=await pc.createAnswer();
         await pc.setLocalDescription(ans);
-        await waitIce(pc,5000);
+        await waitIce(pc,1200);
 
         await req('ktalk_webrtc_sessions?id=eq.'+enc(x.id),{
           method:'PATCH',
@@ -855,6 +857,20 @@
   async function startViewerGuestUplink(hostId,vid,approvalId){
     approvalId=approvalId||'approved';
 
+    try{
+      var ds=String(window.__ktDirectGuestUplinkState20260923||'');
+      var da=Number(window.__ktDirectGuestUplinkStateAt20260923||0);
+      var shared=viewerGuest.stream||window.__ktApprovedGuestSelfStream||null;
+      if((ds==='connected'||(ds==='connecting'&&Date.now()-da<2500))&&ktGuestStreamLive(shared)){
+        viewerGuest.stream=shared;
+        viewerGuest.hostId=hostId;
+        viewerGuest.approvedKey=approvalId;
+        if(viewerGuest.prewarmTimer){clearTimeout(viewerGuest.prewarmTimer);viewerGuest.prewarmTimer=null;}
+        startLocalGuestViewGuard(shared);
+        return;
+      }
+    }catch(_e){}
+
     /* 같은 승인이라도 연결이 실제로 살아 있을 때만 그대로 둔다.
        실패/끊김/오래 멈춘 new 상태면 게스트 카메라 연결만 다시 만든다. */
     if(viewerGuest.pc&&viewerGuest.approvedKey===approvalId){
@@ -995,7 +1011,7 @@
       var directHostView=!!window.__ktDirectRealtimeRtc20260922;
       var offer=await pc.createOffer({offerToReceiveAudio:!directHostView,offerToReceiveVideo:!directHostView});
       await pc.setLocalDescription(offer);
-      await waitIce(pc,5000);
+      await waitIce(pc,1200);
 
       var created=await req('ktalk_webrtc_sessions',{
         method:'POST',
@@ -1171,8 +1187,8 @@
     window.ktLeaveRemoteLive=wrapped;
   }
 
-  function start(){if(started)return;started=true;bindGuestLeaveCleanup();setInterval(bindGuestLeaveCleanup,800);ensureStyle();bindRequestButton();hostPoll=setInterval(hostTick,700);viewerPoll=setInterval(viewerTick,900);setInterval(removeDuplicateGroupRoom,350);setTimeout(hostTick,80);setTimeout(viewerTick,120);var dedupeTimer=null,obs=new MutationObserver(function(){bindRequestButton();clearTimeout(dedupeTimer);dedupeTimer=setTimeout(removeDuplicateGroupRoom,30);});obs.observe(document.documentElement,{childList:true,subtree:true});}
-  window.addEventListener('kt-guest-approval-received',function(){setTimeout(viewerTick,20);setTimeout(viewerTick,220);});
+  function start(){if(started)return;started=true;bindGuestLeaveCleanup();setInterval(bindGuestLeaveCleanup,800);ensureStyle();bindRequestButton();hostPoll=setInterval(hostTick,400);viewerPoll=setInterval(viewerTick,500);setInterval(removeDuplicateGroupRoom,350);setTimeout(hostTick,80);setTimeout(viewerTick,120);var dedupeTimer=null,obs=new MutationObserver(function(){bindRequestButton();clearTimeout(dedupeTimer);dedupeTimer=setTimeout(removeDuplicateGroupRoom,30);});obs.observe(document.documentElement,{childList:true,subtree:true});}
+  window.addEventListener('kt-guest-approval-received',function(){setTimeout(viewerTick,10);setTimeout(viewerTick,120);setTimeout(viewerTick,420);});
   /* kt-video-orientation-refresh-20260922: media orientation only */
   window.addEventListener('orientationchange',function(){setTimeout(ktRefreshLocalNineOrientation,120);});
   try{if(screen.orientation&&screen.orientation.addEventListener)screen.orientation.addEventListener('change',function(){setTimeout(ktRefreshLocalNineOrientation,120);});}catch(e){}
