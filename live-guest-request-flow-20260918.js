@@ -462,10 +462,26 @@
     approvedNow=approvedNow||{};cancelledAt=cancelledAt||{};leftAt=leftAt||{};requestAt=requestAt||{};
     if(!document.querySelector('.ktg13-room'))return;
 
-    var hid=deviceId(),rows=[];
-    try{
-      rows=await req('ktalk_webrtc_sessions?select=id,host_id,viewer_id,offer_sdp,answer_sdp,active,updated_at&host_id=eq.'+enc(hid)+'&active=eq.true&order=created_at.desc&limit=60')||[];
-    }catch(e){return;}
+    var hid=deviceId(),rows=[],dbRows=[],memRows=[];
+    var sessionPath='ktalk_webrtc_sessions?select=id,host_id,viewer_id,offer_sdp,answer_sdp,active,updated_at&host_id=eq.'+enc(hid)+'&active=eq.true&order=created_at.desc&limit=60';
+    try{dbRows=await req(sessionPath)||[];}catch(e){}
+    try{memRows=await memoryReq(sessionPath,{})||[];}catch(e){}
+    var sessionSeen={};
+    [dbRows,memRows].forEach(function(list){
+      (list||[]).forEach(function(r){
+        var key=String(r.id||'')||[
+          String(r.host_id||''),
+          String(r.viewer_id||''),
+          String(r.offer_sdp||'').slice(0,64)
+        ].join('|');
+        if(sessionSeen[key])return;
+        sessionSeen[key]=1;
+        rows.push(r);
+      });
+    });
+    rows.sort(function(a,b){
+      return (Date.parse(b.updated_at||b.created_at)||0)-(Date.parse(a.updated_at||a.created_at)||0);
+    });
 
     var activeIds={},activeGuestIds={};
 
@@ -509,22 +525,22 @@
         return;
       }
 
-      /* 승인된 게스트가 통신 문제로 잠깐 끊긴 경우에는 짧게 재연결을 기다린다.
-         실제 나가기 신호는 위에서 즉시 비우고, 신호 없이 끊긴 경우도 오래 남지 않게 정리한다. */
+      /* 승인된 게스트는 세션 조회가 잠깐 비어도 호스트 방에서 내리지 않는다.
+         실제 취소/나가기 신호만 위에서 즉시 자리를 비우고,
+         통신 흔들림은 같은 칸을 유지한 채 재연결만 기다린다. */
       if(!hostGuestMissingSince[vid])hostGuestMissingSince[vid]=Date.now();
-      if(Date.now()-hostGuestMissingSince[vid]>=15000){
-        releaseGuestSlot(slot,vid);
-        delete hostGuestMissingSince[vid];
-      }
       return;
     });
 
     Object.keys(hostGuestPeers).forEach(function(id){
       if(activeIds[id])return;
       var old=hostGuestPeers[id];
+      var vid=String(old&&old.__ktVid||'');
+      var st='';
+      try{st=String(old&&old.connectionState||'');}catch(e){}
+      if(vid&&approvedNow[vid]&&st!=='failed'&&st!=='closed')return;
       try{old.close();}catch(e){}
       delete hostGuestPeers[id];
-      /* 자리는 위의 60초 재연결 유예가 관리하므로 여기서 바로 지우지 않음 */
     });
 
     for(var i=0;i<rows.length;i++){
@@ -591,7 +607,7 @@
                     if(!hostGuestMissingSince[viewer])hostGuestMissingSince[viewer]=Date.now();
                   }
                 }catch(e){}
-              },12000);
+              },30000);
             }
           };
         })(x.id,pc,vid);
