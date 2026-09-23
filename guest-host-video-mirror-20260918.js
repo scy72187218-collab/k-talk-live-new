@@ -14,7 +14,7 @@
       +'.kt-approved-guest-grid .kt-approved-guest-cell.host video,'
       +'.kt-guest-room-grid .kt-guest-room-cell.host video,'
       +'.kt-prejoin-room-grid .kt-prejoin-room-cell.host video'
-      +'{transform:none!important;}';
+      +'{transform:scaleX(-1)!important;-webkit-transform:scaleX(-1)!important;}';
     document.head.appendChild(s);
   }
 
