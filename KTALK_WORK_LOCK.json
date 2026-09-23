@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "PIN 1111 confirmed after video 23404. Communication-only fix: keep viewer inside live room during temporary fallback loss and request guest camera permission on the user's join tap so approval does not trigger a delayed permission interruption. No layout, badges, buttons, chat, gifts, countdowns, earnings, or direction changes.",
+  "note": "Re-locked after communication-only video 23404 fix. Temporary fallback/session loss now retries the same live room instead of returning to the feed, and guest camera permission is requested on the user's join tap rather than after host approval. UI/layout/badges/yellow cleanup/buttons/chat/gifts/countdowns/earnings/video direction unchanged.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -76,18 +76,6 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "video_communication_stability_only",
-    "communication_auto_reconnect_only",
-    "shared_live_peer_signaling_cache",
-    "shared_guest_request_approval_signaling",
-    "approved_guest_direct_video_bridge"
-  ],
-  "temporarily_unlocked_components": [
-    "video_communication_stability_only",
-    "communication_auto_reconnect_only",
-    "shared_live_peer_signaling_cache",
-    "shared_guest_request_approval_signaling",
-    "approved_guest_direct_video_bridge"
-  ]
+  "current_editable_components": [],
+  "temporarily_unlocked_components": []
 }
