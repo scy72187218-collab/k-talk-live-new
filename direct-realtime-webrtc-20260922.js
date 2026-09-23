@@ -322,7 +322,29 @@
         var now=Date.now();
         Object.keys(approvedGuests).forEach(function(vid){
           var seen=Number(hostGuestAliveAt[vid]||0);
-          if(seen&&now-seen>45000){
+          if(!seen)return;
+
+          /* 기존 승인 게스트 WebRTC 경로가 같이 동작하는 경우에는
+             direct heartbeat 하나가 늦었다는 이유만으로 호스트 슬롯을 지우지 않는다.
+             실제 guest_left/cancel 신호는 위에서 그대로 즉시 정리한다. */
+          if(useLegacyApprovedGuestUplink())return;
+
+          if(now-seen>45000){
+            var entry=hostGuestPeers[vid]||null;
+            var pc=entry&&entry.pc||null;
+            var cs='',is='';
+            try{cs=String(pc&&pc.connectionState||'');is=String(pc&&pc.iceConnectionState||'');}catch(e){}
+            if(cs==='connected'||is==='connected'||is==='completed'){
+              hostGuestAliveAt[vid]=now;
+              return;
+            }
+
+            if(now-seen<90000){
+              var ap=approvedGuests[vid];
+              if(ap)send('guest_approved',{host_id:DEVICE,viewer_id:vid,name:ap.name||'게스트',at:now,reconnect:true});
+              return;
+            }
+
             delete hostGuestAliveAt[vid];
             clearApprovedGuestFromHost(vid);
           }
@@ -967,6 +989,7 @@
       pendingHostGuestOffers[vid]={payload:p,at:Date.now()};
       return;
     }
+    hostGuestAliveAt[vid]=Date.now();
     delete pendingHostGuestOffers[vid];
     var old=hostGuestPeers[vid]||null;
 
@@ -1038,6 +1061,7 @@
       else{if(!guestIce[session])guestIce[session]=[];guestIce[session].push(cand);}
     }else if(String(p.from||'')==='guest'&&isHostRole()&&String(p.host_id||'')===DEVICE){
       var gvid=String(p.viewer_id||'');
+      if(approvedGuests[gvid])hostGuestAliveAt[gvid]=Date.now();
       var e=hostGuestPeers[gvid];
       if(!e||e.sid!==session){
         var k=hostGuestSignalKey(gvid,session);
