@@ -26,6 +26,22 @@
       root.querySelectorAll('.kt-video-live-peek .ktvl-follow,.kt-video-live-peek .ktvl-bell').forEach(function(el){
         if(el&&el.parentNode)el.parentNode.removeChild(el);
       });
+      root.querySelectorAll('.kt-video-live-peek').forEach(function(el){
+        try{
+          el.style.setProperty('border','0','important');
+          el.style.setProperty('outline','0','important');
+          el.style.setProperty('box-shadow','none','important');
+        }catch(e){}
+      });
+      root.querySelectorAll('.kt-video-live-peek .ktvl-avatar,.kt-video-live-peek .ktvl-person,.kt-video-live-peek .ktvl-live').forEach(function(el){
+        try{
+          el.style.setProperty('outline','0','important');
+          el.style.setProperty('box-shadow','none','important');
+        }catch(e){}
+      });
+      root.querySelectorAll('.kt-video-live-peek .ktvl-avatar,.kt-video-live-peek .ktvl-person').forEach(function(el){
+        try{el.style.setProperty('border','0','important');}catch(e){}
+      });
     }catch(e){}
   }
 
@@ -44,7 +60,8 @@
     }).observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 
-  [100,300,800,1500,3000].forEach(function(ms){
+  [50,100,300,800,1500,3000].forEach(function(ms){
     setTimeout(function(){ensureStyle();clean(document);},ms);
   });
+  setInterval(function(){ensureStyle();clean(document);},500);
 })();
