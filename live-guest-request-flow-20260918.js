@@ -9,7 +9,7 @@
   var MEM_BEACON='/api/live-beacon-memory';
   var ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
   var hostPoll=null,viewerPoll=null,hostGuestPeers={},requestNames={},hostGuestMissingSince={};
-  var viewerGuest={pc:null,stream:null,sessionId:'',hostId:'',approvedKey:'',viewTimer:null,prejoinHostStream:null,connectStartedAt:0,approvalMissingSince:0,mediaDenied:false,mediaOpening:false};
+  var viewerGuest={pc:null,stream:null,sessionId:'',hostId:'',approvedKey:'',viewTimer:null,prejoinHostStream:null,connectStartedAt:0,approvalMissingSince:0,mediaDenied:false,mediaOpening:false,prewarmTimer:null};
 
   function enc(v){return encodeURIComponent(String(v==null?'':v));}
   function ktDeviceVideoRotation180(){
@@ -277,11 +277,44 @@
     return ok;
   }
 
+  async function prewarmViewerGuestMedia(){
+    var liveVideo=false;
+    try{liveVideo=!!(viewerGuest.stream&&viewerGuest.stream.getVideoTracks&&viewerGuest.stream.getVideoTracks().some(function(t){return t.readyState==='live';}));}catch(e){}
+    if(liveVideo||viewerGuest.mediaOpening||viewerGuest.mediaDenied)return viewerGuest.stream||null;
+    viewerGuest.mediaOpening=true;
+    try{
+      viewerGuest.stream=await navigator.mediaDevices.getUserMedia({
+        video:{facingMode:{ideal:'user'},width:{ideal:640,max:640},height:{ideal:480,max:480},aspectRatio:{ideal:1.333333},frameRate:{ideal:15,max:18}},
+        audio:true
+      });
+      if(viewerGuest.prewarmTimer)clearTimeout(viewerGuest.prewarmTimer);
+      viewerGuest.prewarmTimer=setTimeout(function(){
+        if(viewerGuest.approvedKey||viewerGuest.pc)return;
+        try{if(viewerGuest.stream)viewerGuest.stream.getTracks().forEach(function(t){t.stop();});}catch(e){}
+        viewerGuest.stream=null;viewerGuest.prewarmTimer=null;
+      },45000);
+      return viewerGuest.stream;
+    }catch(e){
+      var denied=String((e&&e.name)||'').toLowerCase();
+      if(denied==='notallowederror'||denied==='permissiondeniederror'||denied==='securityerror')viewerGuest.mediaDenied=true;
+      try{
+        viewerGuest.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});
+        return viewerGuest.stream;
+      }catch(z){return null;}
+    }finally{
+      viewerGuest.mediaOpening=false;
+    }
+  }
+
   async function sendGuestRequest(){
     var b=document.getElementById('ktRemoteGuestRequest');
     if(b&&b.dataset.ktGuestToggleBusy==='1')return;
     if(b)b.dataset.ktGuestToggleBusy='1';
     try{
+      var preCancel=!!(b&&b.classList.contains('kt-requested'));
+      if(!preCancel){
+        try{var warm=prewarmViewerGuestMedia();if(warm&&warm.catch)warm.catch(function(){});}catch(e){}
+      }
       var hostId=await currentViewerHost();
       if(!hostId){
         try{hostId=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||sessionStorage.getItem('kt_remote_host_id')||'');}catch(e){hostId='';}
@@ -299,6 +332,10 @@
       if(ok&&cancel&&viewerGuest.approvedKey){
         viewerGuest.approvalMissingSince=0;
         try{var leaving=leaveApprovedGuestNow();if(leaving&&leaving.catch)leaving.catch(function(){});}catch(e){}
+      }else if(ok&&cancel&&!viewerGuest.approvedKey&&viewerGuest.stream){
+        try{viewerGuest.stream.getTracks().forEach(function(t){t.stop();});}catch(e){}
+        viewerGuest.stream=null;
+        if(viewerGuest.prewarmTimer){clearTimeout(viewerGuest.prewarmTimer);viewerGuest.prewarmTimer=null;}
       }
     }finally{
       if(b)delete b.dataset.ktGuestToggleBusy;
@@ -570,7 +607,7 @@
 
         var ans=await pc.createAnswer();
         await pc.setLocalDescription(ans);
-        await waitIce(pc,5000);
+        await waitIce(pc,1800);
 
         await req('ktalk_webrtc_sessions?id=eq.'+enc(x.id),{
           method:'PATCH',
@@ -777,6 +814,7 @@
     viewerGuest.stream=stream;
     viewerGuest.hostId=hostId;
     viewerGuest.approvedKey=approvalId;
+    if(viewerGuest.prewarmTimer){clearTimeout(viewerGuest.prewarmTimer);viewerGuest.prewarmTimer=null;}
     startLocalGuestViewGuard(stream);
 
     var guestViewerId='guest:'+vid;
@@ -851,7 +889,7 @@
       var directHostView=!!window.__ktDirectRealtimeRtc20260922;
       var offer=await pc.createOffer({offerToReceiveAudio:!directHostView,offerToReceiveVideo:!directHostView});
       await pc.setLocalDescription(offer);
-      await waitIce(pc,5000);
+      await waitIce(pc,1800);
 
       var created=await req('ktalk_webrtc_sessions',{
         method:'POST',
@@ -896,7 +934,7 @@
             clearInterval(t);
           }
         }catch(e){}
-      },850);
+      },350);
     }catch(e){
       resetViewerGuestPc(pc);
     }
@@ -1013,7 +1051,8 @@
     window.ktLeaveRemoteLive=wrapped;
   }
 
-  function start(){if(started)return;started=true;bindGuestLeaveCleanup();setInterval(bindGuestLeaveCleanup,800);ensureStyle();bindRequestButton();hostPoll=setInterval(hostTick,1200);viewerPoll=setInterval(viewerTick,1300);setInterval(removeDuplicateGroupRoom,350);setTimeout(hostTick,100);setTimeout(viewerTick,180);var dedupeTimer=null,obs=new MutationObserver(function(){bindRequestButton();clearTimeout(dedupeTimer);dedupeTimer=setTimeout(removeDuplicateGroupRoom,30);});obs.observe(document.documentElement,{childList:true,subtree:true});}
+  function start(){if(started)return;started=true;bindGuestLeaveCleanup();setInterval(bindGuestLeaveCleanup,800);ensureStyle();bindRequestButton();hostPoll=setInterval(hostTick,700);viewerPoll=setInterval(viewerTick,900);setInterval(removeDuplicateGroupRoom,350);setTimeout(hostTick,80);setTimeout(viewerTick,120);var dedupeTimer=null,obs=new MutationObserver(function(){bindRequestButton();clearTimeout(dedupeTimer);dedupeTimer=setTimeout(removeDuplicateGroupRoom,30);});obs.observe(document.documentElement,{childList:true,subtree:true});}
+  window.addEventListener('kt-guest-approval-received',function(){setTimeout(viewerTick,20);setTimeout(viewerTick,220);});
   /* kt-video-orientation-refresh-20260922: media orientation only */
   window.addEventListener('orientationchange',function(){setTimeout(ktRefreshLocalNineOrientation,120);});
   try{if(screen.orientation&&screen.orientation.addEventListener)screen.orientation.addEventListener('change',function(){setTimeout(ktRefreshLocalNineOrientation,120);});}catch(e){}
