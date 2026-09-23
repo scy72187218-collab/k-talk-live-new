@@ -591,7 +591,7 @@
             lastWatchAt=0;
             ensureViewerWatch(true);
           }
-        },1800);
+        },3500);
 
         /* 장시간 복구되지 않을 때만 기존 연결을 정리한다. */
         setTimeout(function(){
@@ -599,7 +599,7 @@
             closePc(pc);viewerPc=null;viewerSession='';viewerConnected=false;viewerWatchToken=sid('watch');showConnecting();
             setTimeout(function(){ensureViewerWatch(true);},240);
           }
-        },7500);
+        },11000);
       }
     };
     try{
