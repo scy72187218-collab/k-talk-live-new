@@ -309,10 +309,10 @@
               approvedGuests[vid]=approvedGuests[vid]||{name:x.name||'게스트',at:x.ts||Date.now()};
               hostGuestAliveAt[vid]=Math.max(Number(hostGuestAliveAt[vid]||0),Number(x.ts||Date.now()));
               replayPendingHostGuestOffer(vid);
-              replayPendingHostGuestOffer(vid);
             }else if(x.kind==='alive'){
               approvedGuests[vid]=approvedGuests[vid]||{name:x.name||'게스트',at:x.ts||Date.now()};
               hostGuestAliveAt[vid]=Math.max(Number(hostGuestAliveAt[vid]||0),Number(x.ts||Date.now()));
+              replayPendingHostGuestOffer(vid);
             }else if(x.kind==='left'){
               delete hostGuestAliveAt[vid];
               clearApprovedGuestFromHost(vid);
