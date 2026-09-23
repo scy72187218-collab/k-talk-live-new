@@ -844,6 +844,16 @@
     if(!guestApproved||guestApprovedHost!==hid)return;
     var live=false;try{live=!!(guestStream&&guestStream.getVideoTracks().some(function(t){return t.readyState==='live';}));}catch(e){}
     if(!live){
+      try{
+        var shared=window.__ktApprovedGuestSelfStream||null;
+        var sharedLive=!!(shared&&shared.getVideoTracks&&shared.getVideoTracks().some(function(t){return t.readyState==='live';}));
+        if(sharedLive){guestStream=shared;live=true;}
+      }catch(e){}
+    }
+    /* 기존 승인 게스트 카메라가 준비되는 동안에는 새 카메라를 또 열지 않는다.
+       같은 카메라 스트림이 준비되면 그 스트림으로 실시간 fallback uplink만 추가한다. */
+    if(!live&&useLegacyApprovedGuestUplink())return;
+    if(!live){
       try{guestStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'user'}},audio:true});}
       catch(e){try{guestStream=await navigator.mediaDevices.getUserMedia({video:true,audio:false});}catch(z){return;}}
     }
@@ -1029,15 +1039,12 @@
       b.setAttribute('aria-label','참여 승인됨');
     }
 
-    /* 승인된 게스트 카메라는 기존 승인 게스트 전용 연결이 맡는다.
-       두 WebRTC 경로가 동시에 카메라를 열면 일부 휴대폰에서 승인 후 영상이 못 올라가거나
-       연결이 반복해서 재협상되므로, 직접 경로는 중복 카메라 uplink를 만들지 않는다. */
-    if(!useLegacyApprovedGuestUplink()){
-      startGuestCamera(hid);
-      setTimeout(function(){if(guestApproved&&guestApprovedHost===hid)startGuestCamera(hid);},250);
-      setTimeout(function(){if(guestApproved&&guestApprovedHost===hid)startGuestCamera(hid);},700);
-      setTimeout(function(){if(guestApproved&&guestApprovedHost===hid)startGuestCamera(hid);},1500);
-    }
+    /* 기존 승인 게스트 카메라가 준비되면 그 같은 스트림을 실시간 경로에도 붙인다.
+       카메라를 두 번 열지 않고, 호스트 수신 경로만 이중화한다. */
+    startGuestCamera(hid);
+    [250,700,1500,2500,5000].forEach(function(ms){
+      setTimeout(function(){if(guestApproved&&guestApprovedHost===hid)startGuestCamera(hid);},ms);
+    });
 
     try{window.dispatchEvent(new CustomEvent('kt-guest-approval-received',{detail:{host_id:hid,viewer_id:viewerId()}}));}catch(e){}
   }
@@ -1217,7 +1224,7 @@
           guestAliveLastSent=tickNow;
           sharedApprovalPost(hid,'guest_alive',viewerId(),profileName());
         }
-        if(!useLegacyApprovedGuestUplink()&&(!guestPc||['failed','closed'].indexOf(String(guestPc.connectionState||''))>-1))startGuestCamera(hid);
+        if(!guestPc||['failed','closed'].indexOf(String(guestPc.connectionState||''))>-1)startGuestCamera(hid);
       }
     }
   }
