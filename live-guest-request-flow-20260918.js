@@ -13,13 +13,8 @@
 
   function enc(v){return encodeURIComponent(String(v==null?'':v));}
   function ktDeviceVideoRotation180(){
-    try{
-      var a=0;
-      if(screen.orientation&&typeof screen.orientation.angle==='number')a=Number(screen.orientation.angle)||0;
-      else if(typeof window.orientation==='number')a=Number(window.orientation)||0;
-      a=((a%360)+360)%360;
-      return a===180?180:0;
-    }catch(e){return 0;}
+    /* 브라우저/기기가 영상 방향을 이미 보정하므로 추가 180도 회전을 하지 않는다. */
+    return 0;
   }
   function ktTagSdpRotation(sdp){
     var s=String(sdp||'');
@@ -29,10 +24,8 @@
     return s+tag+'\r\n';
   }
   function ktReadSdpRotation(sdp){
-    try{
-      var m=String(sdp||'').match(/a=x-kt-video-rotation:(\d+)/);
-      return m&&Number(m[1])===180?180:0;
-    }catch(e){return 0;}
+    /* 상대 영상도 추가 180도 회전을 적용하지 않는다. */
+    return 0;
   }
   function ktApplyVideoRotation(v,deg,mirror){
     if(!v)return;
