@@ -875,19 +875,6 @@
 
     /* 기존 승인 게스트 업링크를 우선 사용하고, 실패할 때만 direct fallback을 연다.
        같은 카메라를 호스트로 두 번 동시에 보내는 부담을 줄인다. */
-    if(useLegacyApprovedGuestUplink()){
-      var legacyState='',legacyAt=0,age=Date.now()-Number(guestApprovedAt||0);
-      try{
-        legacyState=String(window.__ktLegacyGuestUplinkState20260923||'');
-        legacyAt=Number(window.__ktLegacyGuestUplinkStateAt20260923||0);
-      }catch(e){}
-      if(legacyState==='connected')return;
-      if(legacyState==='connecting'&&Date.now()-legacyAt<12000)return;
-      if(legacyState==='disconnected'&&Date.now()-legacyAt<5000)return;
-      if(!legacyState&&age<6000)return;
-      if(legacyState==='idle'&&age<6000)return;
-    }
-
     var live=false;try{live=!!(guestStream&&guestStream.getVideoTracks().some(function(t){return t.readyState==='live';}));}catch(e){}
     if(!live){
       try{
@@ -896,9 +883,7 @@
         if(sharedLive){guestStream=shared;live=true;}
       }catch(e){}
     }
-    /* 기존 승인 게스트 카메라가 준비되는 동안에는 새 카메라를 또 열지 않는다.
-       같은 카메라 스트림이 준비되면 그 스트림으로 실시간 fallback uplink만 추가한다. */
-    if(!live&&useLegacyApprovedGuestUplink())return;
+    /* 신청 순간 미리 연 카메라를 그대로 재사용한다. 없을 때만 한 번 연다. */
     if(!live){
       try{guestStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'user'}},audio:true});}
       catch(e){try{guestStream=await navigator.mediaDevices.getUserMedia({video:true,audio:false});}catch(z){return;}}
@@ -931,7 +916,7 @@
     if(!pc||!payload)return;
     clearGuestOfferRetryTimers(pc);
     pc.__ktGuestOfferRetryTimers=[];
-    [550,1300,2400,3800].forEach(function(ms){
+    [180,450,900,1600].forEach(function(ms){
       var t=setTimeout(function(){
         if(guestPc!==pc||guestSession!==payload.session_id||!guestApproved||guestApprovedHost!==hid)return;
         var cs=String(pc.connectionState||''),is=String(pc.iceConnectionState||'');
@@ -948,6 +933,7 @@
     clearGuestOfferRetryTimers(guestPc);
     closePc(guestPc);guestPc=null;guestSession=sid('guest');
     var pc=new RTCPeerConnection(rtcConfig());guestPc=pc;
+    try{window.__ktDirectGuestUplinkState20260923='connecting';window.__ktDirectGuestUplinkStateAt20260923=Date.now();}catch(e){}
     guestStream.getTracks().forEach(function(t){
       try{
         var sender=pc.addTrack(t,guestStream);
@@ -959,6 +945,7 @@
     pc.oniceconnectionstatechange=function(){
       var s=String(pc.iceConnectionState||'');
       if(s==='failed'&&guestPc===pc){
+        try{window.__ktDirectGuestUplinkState20260923='failed';window.__ktDirectGuestUplinkStateAt20260923=Date.now();}catch(e){}
         clearGuestOfferRetryTimers(pc);
         closePc(pc);guestPc=null;
         setTimeout(function(){makeGuestOffer(hid);},250);
@@ -966,18 +953,24 @@
     };
     pc.onconnectionstatechange=function(){
       var st=String(pc.connectionState||'');
+      if(st==='connected'){
+        try{window.__ktDirectGuestUplinkState20260923='connected';window.__ktDirectGuestUplinkStateAt20260923=Date.now();}catch(e){}
+      }
       if(st==='failed'||st==='closed'){
+        try{window.__ktDirectGuestUplinkState20260923=st;window.__ktDirectGuestUplinkStateAt20260923=Date.now();}catch(e){}
         if(guestPc===pc){clearGuestOfferRetryTimers(pc);guestPc=null;setTimeout(function(){makeGuestOffer(hid);},350);}
       }
-      if(st==='disconnected')setTimeout(function(){
+      if(st==='disconnected'){
+        try{window.__ktDirectGuestUplinkState20260923='disconnected';window.__ktDirectGuestUplinkStateAt20260923=Date.now();}catch(e){}
+        setTimeout(function(){
         if(guestPc===pc&&pc.connectionState==='disconnected'){
           clearGuestOfferRetryTimers(pc);closePc(pc);guestPc=null;setTimeout(function(){makeGuestOffer(hid);},300);
         }
-      },10000);
+      },2500);
+      }
     };
     try{
       var offer=await pc.createOffer({offerToReceiveAudio:false,offerToReceiveVideo:false});await pc.setLocalDescription(offer);
-      await waitIceCompleteDirect(pc,1400);
       var guestOfferPayload={host_id:hid,viewer_id:viewerId(),name:profileName(),session_id:guestSession,offer_sdp:pc.localDescription.sdp};
       send('guest_offer',guestOfferPayload);
       scheduleGuestOfferRetries(hid,pc,guestOfferPayload);
@@ -992,7 +985,7 @@
         try{closePc(pc);}catch(e){}
         if(guestPc===pc)guestPc=null;
         setTimeout(function(){makeGuestOffer(hid);},180);
-      },7000);
+      },3500);
     }catch(e){clearGuestOfferRetryTimers(pc);closePc(pc);if(guestPc===pc)guestPc=null;}
   }
   function hostGuestSignalKey(vid,session){
@@ -1066,7 +1059,6 @@
       await pc.setRemoteDescription({type:'offer',sdp:sdp});
       var q=entry.ice.splice(0);for(var i=0;i<q.length;i++)try{await pc.addIceCandidate(q[i]);}catch(e){}
       var ans=await pc.createAnswer();await pc.setLocalDescription(ans);
-      await waitIceCompleteDirect(pc,1400);
       entry.answer=pc.localDescription.sdp;
       var guestAnswerPayload={host_id:DEVICE,viewer_id:vid,session_id:session,answer_sdp:entry.answer};
       send('guest_answer',guestAnswerPayload);
@@ -1093,7 +1085,7 @@
           send('guest_approved',reconnect);
           setTimeout(function(){send('guest_approved',reconnect);},500);
         }
-      },7500);
+      },4000);
     }catch(e){
       closePc(pc);
       if(hostGuestPeers[vid]===entry){
@@ -1165,7 +1157,7 @@
     /* 기존 승인 게스트 카메라가 준비되면 그 같은 스트림을 실시간 경로에도 붙인다.
        카메라를 두 번 열지 않고, 호스트 수신 경로만 이중화한다. */
     startGuestCamera(hid);
-    [250,700,1500,2500,5000].forEach(function(ms){
+    [80,250,600,1200,2200].forEach(function(ms){
       setTimeout(function(){if(guestApproved&&guestApprovedHost===hid)startGuestCamera(hid);},ms);
     });
 
@@ -1351,9 +1343,9 @@
       }
     }
   }
-  setInterval(roleTick,500);
+  setInterval(roleTick,300);
   setTimeout(roleTick,20);
-  setInterval(syncSharedApprovalSignals,1200);
+  setInterval(syncSharedApprovalSignals,700);
   setTimeout(syncSharedApprovalSignals,120);
 
   window.addEventListener('kt-remote-host-selected',function(e){
