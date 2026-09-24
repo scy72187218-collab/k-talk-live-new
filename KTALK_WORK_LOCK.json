@@ -1,5 +1,5 @@
 {
-  "version": 60,
+  "version": 61,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260923-guest-direction-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "PIN 1111 verified. Temporarily unlocked only room enter/exit/rejoin cleanup. Leaving a room now clears stale guest transport immediately so the next entry starts clean; existing layout, buttons, badges, direction, first-page video and other room UI remain unchanged.",
+  "note": "PIN 1111 verified. Refreshed only current-broadcast guest transport scripts so stale guests from the previous broadcast cannot appear before a new request/approval. Layout, buttons, badges, direction and other room UI remain unchanged.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
