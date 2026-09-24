@@ -122,8 +122,8 @@
 <div class="live-prep"><div class="prep-top"><button class="prep-close" onclick="closeCreator()">×</button><div class="prep-title">K-Talk 라이브 준비</div><button class="prep-mini prep-reward" onclick="prepTap(this,'코인 리워드')">★ 코인 리워드</button></div><div class="prep-topic"><input id="liveTitle" value="오늘 라이브 제목을 입력하세요" aria-label="라이브 제목"></div><div class="prep-grid"><button class="prep-item" onclick="prepTap(this,'전환')"><b>↻</b>전환</button><button class="prep-item" onclick="prepTap(this,'보정')"><b>✦</b>AI 보정</button><button class="prep-item" onclick="prepTap(this,'편집효과')"><b>✺</b>편집효과</button><button class="prep-item" onclick="prepTap(this,'설정')"><b>⚙</b>설정</button><button class="prep-item" onclick="prepTap(this,'멀티게스트')"><b>▦</b>멀티게스트</button><button class="prep-item" onclick="prepTap(this,'서비스')"><b>▣</b>서비스+</button><button class="prep-item" onclick="prepTap(this,'팬클럽')"><b>♡</b>팬클럽</button><button class="prep-item" onclick="prepTap(this,'소통하기')"><b>☵</b>소통하기</button><button class="prep-item" onclick="prepTap(this,'공유')"><b>↗</b>공유</button></div><div class="prep-goal"><label for="liveGoal">방송 목표</label><input id="liveGoal" type="text" value="" placeholder="오늘 방송 목표를 입력하세요" aria-label="방송 목표"></div><div class="prep-card"><div class="room-switch-row"><button class="room-switch on" onclick="selectPrepRoom(this,'solo','1인 방송',1)">1인 방송</button><button class="room-switch" onclick="selectPrepRoom(this,'group','13명 방송',13)">13명 방송</button><button class="room-switch" onclick="selectPrepRoom(this,'subscriber','구독자 방송',10)">구독자 방송</button><button class="room-switch" onclick="selectPrepRoom(this,'password','비밀방',7)">비밀방</button></div><button class="prep-start" onclick="startBroadcast()">라이브 시작</button></div><div class="prep-bottom kt-room-bottom5"><button type="button" class="on" onclick="ktPickBottomRoom(this,'1인','solo','1인 방송',1)">1인방</button><button type="button" onclick="ktPickBottomRoom(this,'9명','group9','9명 방송',9)">9명방</button><button type="button" onclick="ktPickBottomRoom(this,'13명','group13','13명 방송',13)">13명방</button><button type="button" onclick="ktPickBottomRoom(this,'구독자','subscriber','구독자 방송',10)">구독방</button><button type="button" onclick="ktPickBottomRoom(this,'비밀','password','비밀방',7)">비밀방</button></div></div>
 </div>
 <div id="sheet" class="sheet"><div class="sheet-inner"><div class="sheet-head"><h3 id="sheetTitle">메뉴</h3><button onclick="closeSheet()">닫기</button></div><div id="sheetBody"></div></div></div>
-<script src="app.js?v=20260923-left-right-fix1"></script>
-<script src="public-video-first-paint-20260924.js?v=20260924-firstvideo-fast4"></script>
+<script src="public-video-first-paint-20260924.js?v=20260924-firstvideo-fast5"></script>
+<script src="app.js?v=20260924-firstvideo-fast5"></script>
 <style id="ktGiftFinalInlineStyle">
 #sheet.kt-gift-force{background:rgba(0,0,0,.92)!important;backdrop-filter:blur(8px)!important}
 #sheet.kt-gift-force .sheet-inner{width:min(100%,560px)!important;max-height:97dvh!important;padding:0!important;overflow:auto!important;border-radius:26px 26px 0 0!important;border:1px solid #6f2c5f!important;border-bottom:0!important;background:radial-gradient(circle at 10% 0%,rgba(194,50,190,.17),transparent 24%),radial-gradient(circle at 90% 4%,rgba(93,55,166,.14),transparent 26%),linear-gradient(180deg,#09070d,#050407 58%,#020203)!important;box-shadow:0 -16px 55px #000e!important}
@@ -1035,7 +1035,7 @@
 
 <script src="solo-approved-room.js?v=20260920-solochat-float1"></script>
 <script src="subscriber-approved-room.js?v=20260918-chat-above-tools1"></script>
-<script src="posted-feed.js?v=20260924-firstvideo-fast4"></script>
+<script src="posted-feed.js?v=20260924-firstvideo-fast5"></script>
 <script src="music-recording-fix.js?v=20260921-g13-sync1"></script>
 <script src="creator-record-timer.js?v=20260907-recordtimer1"></script>
 <script src="secret-room-password.js?v=20260923-password1111-1"></script>
@@ -1053,7 +1053,7 @@
 <script src="owner-admin-all-access-20260913.js?v=20260913-owneradmin1"></script>
 <script src="webrtc-ice-turn-stability-20260921.js?v=20260921-turn3"></script>
 \n<script src="communication-fetch-coalescer-20260922.js?v=20260922-comm1"></script>\n<script src="live-presence.js?v=20260923-stay-in-app14"></script>\n<script src="live-guest-request-flow-20260918.js?v=20260924-runreset1"></script>\n
-<script src="live-peer-fallback-20260921.js?v=20260923-stable-entry21"></script>\n<script src="remote-host-id-bridge-20260922.js?v=20260922-hostbridge2"></script>\n<script src="direct-realtime-webrtc-20260922.js?v=20260924-runisolated3"></script>\n<script src="approved-guest-direct-bridge-20260922.js?v=20260922-guestbridge1"></script>\n<script src="livekit-sfu-bridge-20260924.js?v=20260924-runisolated3"></script>\n\n
+<script src="live-peer-fallback-20260921.js?v=20260923-stable-entry21"></script>\n<script src="remote-host-id-bridge-20260922.js?v=20260922-hostbridge2"></script>\n<script src="direct-realtime-webrtc-20260922.js?v=20260924-rapidrestart4"></script>\n<script src="approved-guest-direct-bridge-20260922.js?v=20260922-guestbridge1"></script>\n<script src="livekit-sfu-bridge-20260924.js?v=20260924-runisolated3"></script>\n\n
 <script src="runtime-live-ai-health-20260913.js?v=20260921-bottom-down1"></script>
 <script src="ai-dj-photo-data-20260913.js?v=20260913-aidj1"></script>
 <script src="ai-dj-9-room-20260913.js?v=20260913-aidj1"></script>
@@ -1078,7 +1078,7 @@
 <script src="content-approval-workflow-20260918.js?v=20260918-approval1"></script>
 <script src="profile-round-qr-20260918.js?v=20260918-qr2"></script>
 <script src="gift-host-sync-20260918.js?v=20260918-guestearn1stgift1s1s1"></script>
-<script src="host-guest-gift-target-20260918.js?v=20260918-guestgift1"></script><script src="approved-guest-peer-video-sync-20260918.js?v=20260923-sharedpeer2"></script>\n<script src="guest-host-video-mirror-20260918.js?v=20260923-direction-unified4"></script>\n<script src="creator-controls-clean-20260919.js?v=20260919-single1stable1"></script>\n\n
+<script src="host-guest-gift-target-20260918.js?v=20260918-guestgift1"></script><script src="approved-guest-peer-video-sync-20260918.js?v=20260924-currentrunpeer1"></script>\n<script src="guest-host-video-mirror-20260918.js?v=20260923-direction-unified4"></script>\n<script src="creator-controls-clean-20260919.js?v=20260919-single1stable1"></script>\n\n
 \n\n\n\n\n
 \n<script src="remove-ai-edit-controls-20260919.js?v=20260919-remove2"></script>\n
 <script src="working-controls-unlock-20260919.js?v=20260920-switches-unlocked1"></script>\n<script src="owner-profile-photo-open-20260919.js?v=20260919-profile2"></script>\n<script src="profile-video-direct-fix-20260919.js?v=20260919-videoresume2"></script>\n<script src="profile-two-account-chooser-fix-20260919.js?v=20260919-profile2"></script>\n<script src="profile-entry-chooser-20260919.js?v=20260919-chooser1"></script>\n<script src="hide-live-host-plus-bell-20260919.js?v=20260919-hide1"></script>\n<script src="live-peek-hide-plus-bell-20260919.js?v=20260923-no-red-ring-hard6"></script>\n<script src="group9-bottom-tools-lower-20260919.js?v=20260921-1700restore1"></script>\n<script src="group9-host-video-size-match-guest-20260919.js?v=20260921-1700restore1"></script>\n<script src="group9-host-dark-video-fix-20260922.js?v=20260922-darkhost2"></script>\n\n<script src="group9-host-grid-match-guest-20260919.js?v=20260921-1700restore1"></script>
@@ -1088,7 +1088,7 @@
 <script src="approved-guest-match-host-room-20260918.js?v=20260924-preapproval-guard1"></script>\n<script src="all-room-guest-earnings-hud-20260921.js?v=20260921-allguestearn2"></script>
 <script src="group13-grid-chat-empty-safe-20260919.js?v=20260920-chatbottom-gridlarge1"></script>
 \n\n<script src="subscriber-secret-chat-bottom-20260919.js?v=20260919-bottomchat1"></script>\n<script src="secret-room-password.js?v=20260923-password1111-1"></script>
-<script src="all-five-room-layout-lock-20260919.js?v=20260919-group13relock2"></script>\n<script src="video-open-recovery-20260919.js?v=20260919-videoopen1"></script>\n<script src="home-video-feed-recovery-20260919.js?v=20260924-firstvideo-fast3"></script>\n
+<script src="all-five-room-layout-lock-20260919.js?v=20260919-group13relock2"></script>\n<script src="video-open-recovery-20260919.js?v=20260919-videoopen1"></script>\n<script src="home-video-feed-recovery-20260919.js?v=20260924-firstvideo-fast5"></script>\n
 <script src="old-phone-video-compat-20260920.js?v=20260920-oldphone1"></script>\n
 
 <script src="ktalk-work-protection-lock-20260920.js?v=20260922-full-lock-all3"></script>\n<script src="switch-hit-bridge-20260919.js?v=20260920-switches-live1"></script>\n<script src="ai-voice-fix.js?v=20260920-aihelp1"></script>\n<script src="ai-help-reader-20260915.js?v=20260920-aihelp1"></script>\n
@@ -1108,5 +1108,5 @@
 <script src="room-attendance-host-rose-final-20260913.js?v=20260921-g9-1700restore1"></script>
 <script src="group9-restore-20260921-1700.js?v=20260922-roomfirst-only7"></script>\n<script src="room-attendance-host-rose-final-20260913.js?v=20260913-hostrose1"></script>
 <script src="live-room-controls-gifts-fix-20260913.js?v=20260913-controls-gifts1"></script>
-<script src="host-video-true-direction-20260922.js?v=20260923-direction-unified4"></script>\n<script src="guest-self-video-direction-lock-20260923.js?v=20260923-direction-unified4"></script>\n<script src="broadcast-end-session-reset-20260923.js?v=20260923-endreset1"></script>\n<script src="room-enter-exit-rejoin-cleanup-20260924.js?v=20260924-rejoin-clean1"></script>\n</body>
+<script src="host-video-true-direction-20260922.js?v=20260923-direction-unified4"></script>\n<script src="guest-self-video-direction-lock-20260923.js?v=20260923-direction-unified4"></script>\n<script src="broadcast-end-session-reset-20260923.js?v=20260924-rapidrestart1"></script>\n<script src="room-enter-exit-rejoin-cleanup-20260924.js?v=20260924-rejoin-clean1"></script>\n</body>
 </html>
