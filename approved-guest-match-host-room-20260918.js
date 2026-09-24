@@ -14,6 +14,28 @@
      before the viewer has even requested or been approved for guest participation. */
   var approvalActive=false;
 
+  function localViewerId20260924(){
+    try{
+      var d=String(localStorage.getItem('kt_live_device_id')||'').trim();
+      return d?'viewer_'+d:'';
+    }catch(e){return '';}
+  }
+  function approvedByRealtimeRoster20260924(){
+    try{
+      var id=localViewerId20260924();
+      var map=window.__ktApprovedGuestIds20260924||{};
+      return !!(id&&map[id]===true);
+    }catch(e){return false;}
+  }
+  function forceApprovedGridNow20260924(){
+    if(!approvedByRealtimeRoster20260924()&&!approvalActive)return false;
+    approvalActive=true;
+    repair();
+    [15,40,90,180].forEach(function(ms){setTimeout(repair,ms);});
+    return true;
+  }
+  window.ktForceApprovedGuestGridNow20260924=forceApprovedGridNow20260924;
+
   function live(st){
     try{
       var ts=st&&st.getVideoTracks?st.getVideoTracks():[];
@@ -358,8 +380,14 @@
     setTimeout(repair,40);
   });
   window.addEventListener('kt-livekit-state',function(){
-    if(!approvalActive)return;
-    setTimeout(repair,0);
+    if(!approvalActive&&!approvedByRealtimeRoster20260924())return;
+    forceApprovedGridNow20260924();
+  });
+  window.addEventListener('kt-any-guest-approved',function(){
+    forceApprovedGridNow20260924();
+  });
+  window.addEventListener('kt-three-person-sync-now',function(){
+    forceApprovedGridNow20260924();
   });
 
   function clearApprovedViewForFreshRoom(){
