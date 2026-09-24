@@ -1,5 +1,5 @@
 {
-  "version": 92,
+  "version": 93,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260924-video-connection-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "K-Talk work relocked. Public video feed is now explicitly locked too: first-video fast paint, full 7-video feed append behavior, video list/order/loading behavior, and related playback flow must not be changed unless the user explicitly unlocks video work with PIN 1111. Communication/live-room protections remain locked as before.",
+  "note": "All switch-related behavior explicitly locked at user's request. Includes AI voice, live settings, room selection, admin/owner-monitor, creator camera/beauty/edit-effect switches, and switch touch/unlock bridges. Do not modify these switch components unless the user explicitly unlocks them with PIN 1111. Other existing protections remain unchanged.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -95,7 +95,25 @@
   "locked_components": [
     "public-video-feed",
     "first-video-fast-paint",
-    "full-video-feed-loading"
+    "full-video-feed-loading",
+    "all-switches",
+    "ai-voice-switch",
+    "live-settings-switches",
+    "noise-suppression-switch",
+    "stable-broadcast-switch",
+    "live-gift-switch",
+    "room-selection-switches",
+    "room-bottom-switches",
+    "role-switch-controls",
+    "admin-switch",
+    "owner-monitor-switch",
+    "creator-camera-switch",
+    "creator-ai-beauty-switch",
+    "creator-edit-effect-switch",
+    "working-controls-unlock-guard",
+    "switch-hit-bridge",
+    "switch-touch-bridge"
   ],
-  "last_video_feed_lock": "2026-09-24-video-feed-explicit-lock1"
+  "last_video_feed_lock": "2026-09-24-video-feed-explicit-lock1",
+  "last_switch_lock": "2026-09-24-all-switches-explicit-lock"
 }
