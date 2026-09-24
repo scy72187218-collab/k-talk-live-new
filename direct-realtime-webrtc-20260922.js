@@ -885,11 +885,29 @@
       rail.appendChild(b);
     });
   }
-  function guestSlot(vid,name){
-    var slot=null;
+  function resetDuplicateGuestSlot(slot,vid){
+    if(!slot)return;
     try{
-      slot=document.querySelector('.ktg13-guest[data-kt-direct-guest="'+CSS.escape(vid)+'"]')
-        ||document.querySelector('.ktg13-guest[data-kt-guest-viewer-id="'+CSS.escape(vid)+'"]');
+      var v=slot.querySelector('video');
+      if(v){try{v.pause();}catch(e){}v.srcObject=null;}
+      if(String(slot.dataset.ktDirectGuest||'')===String(vid||''))delete slot.dataset.ktDirectGuest;
+      if(String(slot.dataset.ktGuestViewerId||'')===String(vid||''))delete slot.dataset.ktGuestViewerId;
+      slot.classList.remove('kt-guest-approved');
+      slot.innerHTML='<span>게스트</span>';
+    }catch(e){}
+  }
+  function guestSlot(vid,name){
+    var slot=null,matches=[];
+    try{
+      matches=[].slice.call(document.querySelectorAll(
+        '.ktg13-guest[data-kt-direct-guest="'+CSS.escape(vid)+'"],'+
+        '.ktg13-guest[data-kt-guest-viewer-id="'+CSS.escape(vid)+'"]'
+      ));
+      /* direct/legacy가 동시에 승인돼도 같은 viewer는 한 칸만 유지 */
+      if(matches.length){
+        slot=matches.find(function(x){return !!x.querySelector('video');})||matches[0];
+        matches.forEach(function(x){if(x!==slot)resetDuplicateGuestSlot(x,vid);});
+      }
     }catch(e){}
     if(!slot){
       var all=[].slice.call(document.querySelectorAll('#screen .ktg13-room .ktg13-guest'));
@@ -898,13 +916,15 @@
       }
     }
     if(!slot)return null;
-    if(!slot.dataset.ktDirectGuest){
-      slot.dataset.ktDirectGuest=vid;
-      slot.classList.add('kt-guest-approved');
-      var existingVideo=slot.querySelector('video');
-      if(!existingVideo){
-        slot.innerHTML='<video autoplay playsinline muted style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#08090c"></video><small style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:8px">게스트 연결 중...</small><span class="kt-guest-name" style="position:absolute;left:4px;bottom:4px;z-index:3;font-size:8px;background:#000b;padding:2px 5px;border-radius:8px">👤 '+esc(name)+'</span>';
-      }
+
+    /* 두 연결 경로가 반드시 같은 슬롯을 찾도록 두 식별자를 동시에 기록 */
+    slot.dataset.ktDirectGuest=vid;
+    slot.dataset.ktGuestViewerId=vid;
+    slot.classList.add('kt-guest-approved');
+
+    var existingVideo=slot.querySelector('video');
+    if(!existingVideo){
+      slot.innerHTML='<video autoplay playsinline muted style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#08090c"></video><small style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:8px">게스트 연결 중...</small><span class="kt-guest-name" style="position:absolute;left:4px;bottom:4px;z-index:3;font-size:8px;background:#000b;padding:2px 5px;border-radius:8px">👤 '+esc(name)+'</span>';
     }
     return slot;
   }
