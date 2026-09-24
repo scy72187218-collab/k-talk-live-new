@@ -179,9 +179,13 @@
     var esc=identity;
     try{esc=CSS.escape(identity);}catch(e){}
     var selectors=[
+      '[data-kt-guest-viewer-id="'+esc+'"] video',
+      '[data-kt-direct-guest="'+esc+'"] video',
       '[data-viewer-id="'+esc+'"] video',
       '[data-kt-peer-viewer="'+esc+'"] video',
       '[data-kt-livekit-guest="'+esc+'"] video',
+      '.ktg13-guest[data-kt-guest-viewer-id="'+esc+'"] video',
+      '.ktg13-guest[data-kt-direct-guest="'+esc+'"] video',
       '.ktg13-guest[data-viewer-id="'+esc+'"] video',
       '.ktg9-guest[data-viewer-id="'+esc+'"] video'
     ];
@@ -189,6 +193,30 @@
       try{var v=document.querySelector(selectors[i]);if(v)return v;}catch(e){}
     }
     return null;
+  }
+
+  function clearDuplicateGuestTargets(identity,keepVideo){
+    var esc=identity;
+    try{esc=CSS.escape(identity);}catch(e){}
+    var selectors=[
+      '[data-kt-livekit-guest="'+esc+'"]',
+      '[data-kt-peer-viewer="'+esc+'"]'
+    ];
+    selectors.forEach(function(sel){
+      try{
+        document.querySelectorAll(sel).forEach(function(cell){
+          var v=cell.querySelector&&cell.querySelector('video');
+          if(v&&v===keepVideo)return;
+          var direct=String(cell.dataset&&cell.dataset.ktDirectGuest||'');
+          var legacy=String(cell.dataset&&cell.dataset.ktGuestViewerId||'');
+          if(direct===identity||legacy===identity)return;
+          try{if(v){v.pause();v.srcObject=null;}}catch(e){}
+          try{delete cell.dataset.ktLivekitGuest;delete cell.dataset.ktPeerViewer;}catch(e){}
+          try{cell.classList.remove('kt-livekit-peer-guest','kt-peer-guest');}catch(e){}
+          try{cell.innerHTML='<span>게스트</span>';}catch(e){}
+        });
+      }catch(e){}
+    });
   }
   function createGuestVideoTarget(identity){
     if(isHostRole())return null;
@@ -206,7 +234,9 @@
         var pid=String(cell.dataset&&cell.dataset.ktPeerViewer||'');
         var lid=String(cell.dataset&&cell.dataset.ktLivekitGuest||'');
         var direct=String(cell.dataset&&cell.dataset.ktDirectGuest||'');
-        if(pid||lid||direct)return false;
+        var legacy=String(cell.dataset&&cell.dataset.ktGuestViewerId||'');
+        var viewer=String(cell.dataset&&cell.dataset.viewerId||'');
+        if(pid||lid||direct||legacy||viewer)return false;
         var old=cell.querySelector('video');
         return !old||!hasLiveVideo(old);
       }catch(e){return false;}
@@ -234,7 +264,12 @@
     var known=guestVideoById[identity];
     if(known&&document.contains(known)){setVideo(known,stream);return;}
     var exact=exactGuestVideo(identity);
-    if(exact){guestVideoById[identity]=exact;setVideo(exact,stream);return;}
+    if(exact){
+      clearDuplicateGuestTargets(identity,exact);
+      guestVideoById[identity]=exact;
+      setVideo(exact,stream);
+      return;
+    }
     var candidates=[];
     try{
       document.querySelectorAll(
@@ -246,8 +281,14 @@
         '.kt-approved-guest-grid .kt-approved-guest-cell:not(.host):not(.self) video'
       ).forEach(function(v){if(!hasLiveVideo(v))candidates.push(v);});
     }catch(e){}
-    var target=candidates[0]||createGuestVideoTarget(identity);
-    if(target){guestVideoById[identity]=target;setVideo(target,stream);}
+    /* Do not grab an arbitrary empty video element that may belong to another
+       transport/guest. Only create one identity-bound fallback target. */
+    var target=createGuestVideoTarget(identity);
+    if(target){
+      clearDuplicateGuestTargets(identity,target);
+      guestVideoById[identity]=target;
+      setVideo(target,stream);
+    }
   }
   function reattachRemoteTracks(){
     if(!room||room.state!=='connected')return;
