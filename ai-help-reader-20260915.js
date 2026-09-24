@@ -66,7 +66,7 @@
 
   function isBenefitRoot(title){
     title=clean(title);
-    return /^(K-Talk 사용방법·혜택|K-Talk 사용방법 · 혜택|K-Talk 이용방법·혜택|K-Talk 이용방법 · 혜택|혜택 · 보상 센터)$/i.test(title);
+    return /^(K-Talk 사용방법·혜택|K-Talk 사용방법 · 혜택|K-Talk 이용방법·혜택|K-Talk 이용방법 · 혜택|사이트 사용방법|혜택 · 보상 센터)$/i.test(title);
   }
   function isBenefitChild(title){
     title=clean(title);
