@@ -9,6 +9,7 @@
   var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm1hY3d6ZXh5dnpubHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjEwNzYsImV4cCI6MjEwNDAzNzA3Nn0.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
   var ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
   var peers={};
+  var peerLastSeen={};
   var ticking=false;
   var lastHost='';
   var lastSelf='';
@@ -184,11 +185,23 @@
     c.innerHTML='';
     c.textContent='게스트';
   }
+  function videoLive(v){
+    try{
+      var s=v&&v.srcObject;
+      return !!(s&&s.getVideoTracks&&s.getVideoTracks().some(function(t){return t&&t.readyState==='live';}));
+    }catch(e){return false;}
+  }
+  function liveKitConnected(){
+    try{return !!(window.__ktLiveKitSfuState20260924&&window.__ktLiveKitSfuState20260924.connected);}catch(e){return false;}
+  }
   function showPeer(peerId,name,stream){
     if(!live(stream))return;
     ensureStyle();
     var c=peerCell(peerId,name);if(!c)return;
     var v=c.querySelector('video');if(!v)return;
+    /* LiveKit is primary. Keep mesh as a silent fallback instead of
+       repeatedly replacing a live picture in the same guest cell. */
+    if(liveKitConnected()&&videoLive(v)&&v.srcObject!==stream)return;
     if(v.srcObject!==stream)v.srcObject=stream;
     try{var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
   }
@@ -249,16 +262,25 @@
     };
     pc.onconnectionstatechange=function(){
       var st=String(pc.connectionState||'');
+      if(st==='connected'){
+        peerLastSeen[entry.peerId]=Date.now();
+        return;
+      }
       if(st==='failed'||st==='closed'){
-        if(peers[entry.peerId]===entry){delete peers[entry.peerId];clearPeerCell(entry.peerId);}
+        if(peers[entry.peerId]===entry){
+          /* Keep the visible cell/frame while only the transport is rebuilt. */
+          delete peers[entry.peerId];
+          setTimeout(tick,180);
+        }
       }else if(st==='disconnected'){
+        /* Give mobile Wi-Fi/5G handoffs time to recover without removing the guest. */
         setTimeout(function(){
           if(peers[entry.peerId]===entry&&pc.connectionState==='disconnected'){
             try{pc.close();}catch(e){}
             delete peers[entry.peerId];
-            clearPeerCell(entry.peerId);
+            setTimeout(tick,180);
           }
-        },3000);
+        },10000);
       }
     };
   }
@@ -476,10 +498,22 @@
   }
 
   function clearUnapprovedPeerCells(active){
+    var now=Date.now();
     try{
       document.querySelectorAll('[data-kt-peer-viewer]').forEach(function(cell){
         var id=String(cell.dataset&&cell.dataset.ktPeerViewer||'');
-        if(id&&!active[id])clearPeerCell(id);
+        if(!id)return;
+        if(active[id]){
+          peerLastSeen[id]=now;
+          return;
+        }
+        var seen=Number(peerLastSeen[id]||0);
+        if(!seen){peerLastSeen[id]=now;return;}
+        /* A single missed participant poll must not make a guest disappear. */
+        if(now-seen>30000){
+          delete peerLastSeen[id];
+          clearPeerCell(id);
+        }
       });
     }catch(e){}
   }
@@ -521,10 +555,20 @@
       lastHost=hostId;lastSelf=selfId;
       var info=await participantInfo(hostId);
       debug('ready',selfId+' peers='+info.ids.join(','));
-      var active={};
-      info.ids.forEach(function(id){if(id!==selfId)active[id]=true;});
+      var active={},now=Date.now();
+      info.ids.forEach(function(id){
+        if(id!==selfId){active[id]=true;peerLastSeen[id]=now;}
+      });
       var old=Object.keys(peers);
-      await Promise.all(old.filter(function(id){return !active[id];}).map(function(id){return dropPeer(id);}));
+      await Promise.all(old.filter(function(id){
+        if(active[id])return false;
+        var seen=Number(peerLastSeen[id]||0);
+        if(!seen){peerLastSeen[id]=now;return false;}
+        return now-seen>30000;
+      }).map(function(id){
+        delete peerLastSeen[id];
+        return dropPeer(id);
+      }));
       clearUnapprovedPeerCells(active);
       var ids=Object.keys(active);
       await Promise.all(ids.map(function(pid){
@@ -544,6 +588,7 @@
   });
 
   function clearAllPeerState(){
+    peerLastSeen={};
     var ids=Object.keys(peers);
     ids.forEach(function(pid){
       try{
