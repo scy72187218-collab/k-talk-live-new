@@ -1,5 +1,5 @@
 {
-  "version": 83,
+  "version": 84,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260924-video-connection-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Communication-only final three-person display timing fix completed and relocked. Approved guest devices now force the host-style grid immediately from the realtime approved roster even if the original per-device approval event is delayed/missed. Guest-to-guest fallback bypasses server reads when the realtime roster is already known. No unrelated UI/layout/buttons/chat/gifts changed.",
+  "note": "Communication-only stability fix completed and relocked. Re-selecting/refreshing the same remote host no longer clears an approved guest's 3-person grid or nulls the approved self camera stream. Only an actual host change, run reset, or broadcast end can reset the approved layout. No unrelated UI/layout/buttons/chat/gifts changed.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -90,5 +90,5 @@
   },
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "last_communication_fix": "2026-09-24-force-three-person-grid11"
+  "last_communication_fix": "2026-09-24-keep-approved-three-grid12"
 }
