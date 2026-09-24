@@ -1,5 +1,5 @@
 {
-  "version": 63,
+  "version": 64,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260924-video-connection-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "PIN 1111 verified. Temporarily unlocked only the first public/home video startup path to reduce the black wait on app open. Broadcast rooms, guest approval, LiveKit, direction, layout, buttons and other protected components remain unchanged.",
+  "note": "PIN 1111 verified. Temporarily unlocked only the pre-approval stale guest-slot guard while keeping the existing public/home first-video speed work open. Guest tiles must stay empty until an actual guest approval event. Layout, direction, buttons, badges, LiveKit transport and other protected components remain unchanged.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -89,9 +89,11 @@
     "if_pin_mismatch": "keep_protected_components_locked"
   },
   "current_editable_components": [
-    "public_video_first_load_speed_only"
+    "public_video_first_load_speed_only",
+    "stale_guest_approval_auto_restore_guard_only"
   ],
   "temporarily_unlocked_components": [
-    "public_video_first_load_speed_only"
+    "public_video_first_load_speed_only",
+    "stale_guest_approval_auto_restore_guard_only"
   ]
 }
