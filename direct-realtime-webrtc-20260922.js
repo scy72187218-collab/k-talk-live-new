@@ -975,6 +975,9 @@
     setTimeout(function(){send('guest_approved',data);},320);
     setTimeout(function(){send('guest_approved',data);},700);
     setTimeout(function(){send('guest_approved',data);},1200);
+    try{window.dispatchEvent(new CustomEvent('kt-host-guest-approved',{
+      detail:{host_id:DEVICE,viewer_id:vid,at:Date.now()}
+    }));}catch(e){}
   }
   window.ktDirectApproveGuest20260922=function(vid,name){
     approveDirectGuest(vid,name);
@@ -1103,6 +1106,66 @@
       },ms);
       pc.__ktGuestOfferRetryTimers.push(t);
     });
+  }
+
+  async function prepareGuestOfferBeforeApproval20260924(hid){
+    if(!requestOn||guestApproved||!hid||!guestStream)return;
+    if(guestPc&&['new','connecting','connected'].indexOf(String(guestPc.connectionState||''))>-1)return;
+    clearGuestOfferRetryTimers(guestPc);
+    closePc(guestPc);guestPc=null;guestSession=sid('guestpre');
+    var pc=new RTCPeerConnection(rtcConfig());guestPc=pc;
+    try{window.__ktDirectGuestUplinkState20260923='preconnecting';window.__ktDirectGuestUplinkStateAt20260923=Date.now();}catch(e){}
+    guestStream.getTracks().forEach(function(t){
+      try{
+        var sender=pc.addTrack(t,guestStream);
+        if(t&&t.kind==='video')ktTuneDirectVideoSender20260923(sender,'guest');
+      }catch(e){}
+    });
+    pc.onicecandidate=function(ev){
+      if(ev.candidate)send('guest_ice',{
+        host_id:hid,viewer_id:viewerId(),session_id:guestSession,from:'guest',
+        candidate:ev.candidate.toJSON?ev.candidate.toJSON():ev.candidate,
+        preapproval:true
+      });
+    };
+    pc.oniceconnectionstatechange=function(){
+      var st=String(pc.iceConnectionState||'');
+      if(st==='failed'&&guestPc===pc&&!guestApproved){
+        try{closePc(pc);}catch(e){}
+        guestPc=null;
+      }
+    };
+    pc.onconnectionstatechange=function(){
+      var st=String(pc.connectionState||'');
+      if(st==='connected'){
+        try{window.__ktDirectGuestUplinkState20260923='connected';window.__ktDirectGuestUplinkStateAt20260923=Date.now();}catch(e){}
+      }else if((st==='failed'||st==='closed')&&guestPc===pc&&!guestApproved){
+        guestPc=null;
+      }
+    };
+    try{
+      var offer=await pc.createOffer({offerToReceiveAudio:false,offerToReceiveVideo:false});
+      await pc.setLocalDescription(offer);
+      var payload={
+        host_id:hid,viewer_id:viewerId(),name:profileName(),
+        session_id:guestSession,offer_sdp:pc.localDescription.sdp,
+        preapproval:true,at:Date.now()
+      };
+      pc.__ktPreApprovalPayload=payload;
+      /* Host stores this offer while the guest is still awaiting approval.
+         No remote description is applied and no media is received by the host
+         until the host actually approves. */
+      send('guest_offer',payload);
+      [120,350,800].forEach(function(ms){
+        setTimeout(function(){
+          if(guestPc!==pc||!requestOn||guestApproved)return;
+          send('guest_offer',payload);
+        },ms);
+      });
+    }catch(e){
+      try{closePc(pc);}catch(_e){}
+      if(guestPc===pc)guestPc=null;
+    }
   }
 
   async function makeGuestOffer(hid){
@@ -1276,8 +1339,16 @@
     }
   }
   async function guestHandleAnswer(p){
-    if(String(p.viewer_id||'')!==viewerId()||String(p.host_id||'')!==guestApprovedHost)return;
+    if(String(p.viewer_id||'')!==viewerId())return;
+    var ansHost=String(p.host_id||'');
     if(!guestPc||guestSession!==String(p.session_id||''))return;
+    if(!guestApproved||ansHost!==guestApprovedHost){
+      var currentHost=String(remoteHostId()||'');
+      if(!guestApproved&&ansHost&&ansHost===currentHost){
+        try{guestPc.__ktPendingApprovalAnswer=p;}catch(e){}
+      }
+      return;
+    }
     try{
       clearGuestOfferRetryTimers(guestPc);
       if(!guestPc.currentRemoteDescription)await guestPc.setRemoteDescription({type:'answer',sdp:String(p.answer_sdp||'')});
@@ -1328,6 +1399,13 @@
     guestApprovedAt=Date.now();
     leaveAnnouncedHost='';
     guestAliveLastSent=0;
+    try{
+      var pre=guestPc&&guestPc.__ktPreApprovalPayload||null;
+      if(pre&&String(pre.host_id||'')===hid){
+        send('guest_offer',pre);
+        scheduleGuestOfferRetries(hid,guestPc,pre);
+      }
+    }catch(e){}
 
     var b=document.getElementById('ktRemoteGuestRequest');
     if(b){
@@ -1340,7 +1418,14 @@
     /* 기존 승인 게스트 카메라가 준비되면 그 같은 스트림을 실시간 경로에도 붙인다.
        카메라를 두 번 열지 않고, 호스트 수신 경로만 이중화한다. */
     startGuestCamera(hid);
-    [80,250,600,1200,2200].forEach(function(ms){
+    try{
+      var pa=guestPc&&guestPc.__ktPendingApprovalAnswer||null;
+      if(pa){
+        delete guestPc.__ktPendingApprovalAnswer;
+        var aq=guestHandleAnswer(pa);if(aq&&aq.catch)aq.catch(function(){});
+      }
+    }catch(e){}
+    [40,120,280,600,1200].forEach(function(ms){
       setTimeout(function(){if(guestApproved&&guestApprovedHost===hid)startGuestCamera(hid);},ms);
     });
 
@@ -1504,11 +1589,15 @@
       try{
         var prep=prepareGuestCameraFromJoinTap20260923();
         if(prep&&prep.then){
-          prep.then(function(){
-            if(requestOn){
+          prep.then(function(ok){
+            if(requestOn&&ok){
               try{window.dispatchEvent(new CustomEvent('kt-guest-camera-prewarmed',{
                 detail:{host_id:hid,viewer_id:viewerId(),at:Date.now()}
               }));}catch(e){}
+              try{
+                var q=prepareGuestOfferBeforeApproval20260924(hid);
+                if(q&&q.catch)q.catch(function(){});
+              }catch(e){}
             }
           }).catch(function(){});
         }
