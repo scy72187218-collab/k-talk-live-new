@@ -1,5 +1,5 @@
 {
-  "version": 70,
+  "version": 71,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260924-video-connection-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "PIN 1111 verified. Communication-only fix: Supabase WebSocket Broadcast is now the primary signaling path; REST Broadcast is fallback only when WebSocket is unavailable. Reconnect no longer replays already-sent REST signals, reducing duplicate offer/answer/ICE/guest events. No room UI, layout, buttons, gifts, chat, video direction, camera settings, or first-page video behavior changed.",
+  "note": "PIN 1111 verified. Temporarily unlocked only approved-guest stay-connected and communication auto-reconnect behavior for testing/fix. All UI/layout/buttons/chat/gifts/camera direction/room sizing remain protected.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -88,7 +88,13 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [],
-  "temporarily_unlocked_components": [],
+  "current_editable_components": [
+    "approved_guest_stay_connected",
+    "communication_auto_reconnect_only"
+  ],
+  "temporarily_unlocked_components": [
+    "approved_guest_stay_connected",
+    "communication_auto_reconnect_only"
+  ],
   "last_communication_fix": "2026-09-24-signal-singlepath1"
 }
