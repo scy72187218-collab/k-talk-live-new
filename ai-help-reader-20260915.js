@@ -5,6 +5,7 @@
 
   var speakingToken=0;
   var benefitContext=false;
+  var lastGuideReadAt=0;
 
   function voiceOn(){
     try{return !!(window.state&&state.aiVoiceOn);}catch(e){return true;}
@@ -121,10 +122,15 @@
     if(!isBenefitTitle(t))return '';
     return clean(t+' '+(body&&body.innerText||body&&body.textContent||''));
   }
-  function readCurrentSheet(){
+  function readCurrentSheet(force){
+    var now=Date.now();
+    if(!force&&now-lastGuideReadAt<1000)return;
     appendFullGuide();
     var txt=currentSheetText();
-    if(txt)speakAll(greetingText()+' '+txt);
+    if(txt){
+      lastGuideReadAt=now;
+      speakAll(greetingText()+' '+txt);
+    }
   }
   window.ktReadCurrentHelpSheet=readCurrentSheet;
   window.ktAiGreetingOnce=function(){
@@ -141,12 +147,13 @@
           localStorage.setItem('ktalk_ai_voice','on');
         }catch(e){}
         var r=oldGuide.apply(this,arguments);
-        setTimeout(function(){
-          try{
-            document.querySelectorAll('.kt-public-video,#homeVideo,#ktLibraryPlayer').forEach(function(v){try{v.pause();v.muted=true;}catch(e){}});
-          }catch(e){}
-          readCurrentSheet();
-        },20);
+        try{
+          document.querySelectorAll('.kt-public-video,#homeVideo,#ktLibraryPlayer').forEach(function(v){try{v.pause();v.muted=true;}catch(e){}});
+        }catch(e){}
+        /* Keep speech start inside the user's actual tap/click activation.
+           Some Android in-app browsers block delayed speech synthesis. */
+        readCurrentSheet(true);
+        setTimeout(function(){readCurrentSheet(false);},180);
         return r;
       };
       guideWrapped.__ktAiHelpDirectWrapped=true;
