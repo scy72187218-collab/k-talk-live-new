@@ -130,8 +130,44 @@
     }catch(e){return {};}
   }
 
+  var liveRoomCache20260924={};
+  function cacheLiveRooms20260924(rooms){
+    try{
+      (rooms||[]).forEach(function(r){
+        var id=String(r&&r.host_id||'').trim();
+        if(id)liveRoomCache20260924[id]=r;
+        if(r&&r.host_photo&&/^https?:/.test(String(r.host_photo))){
+          try{
+            var img=new Image();
+            img.decoding='async';
+            img.src=String(r.host_photo);
+          }catch(e){}
+        }
+      });
+    }catch(e){}
+  }
+  function cachedRemoteRoom20260924(hostId){
+    try{
+      var x=liveRoomCache20260924[String(hostId||'')];
+      if(x)return x;
+    }catch(e){}
+    return {host_id:String(hostId||''),host_name:'K-Talk',title:'라이브',room_type:'solo',room_name:'방송',active:true,updated_at:nowIso()};
+  }
+  function updateRemoteMeta20260924(room){
+    try{
+      if(!room)return;
+      liveRoomCache20260924[String(room.host_id||'')]=room;
+      var root=document.querySelector('.kt-remote-live');
+      if(!root)return;
+      var b=root.querySelector('.kt-remote-meta b');
+      var sp=root.querySelector('.kt-remote-meta span');
+      if(b)b.innerHTML='<i class="kt-live-dot"></i>'+esc(room.host_name||'K-Talk');
+      if(sp)sp.textContent=String(room.title||room.room_name||'라이브')+' · '+String(room.room_name||'방송');
+    }catch(e){}
+  }
+
   function roomCard(r,count,listMode){
-    var photo=r.host_photo&&/^data:image|^https?:/.test(r.host_photo)?'<img src="'+esc(r.host_photo)+'" alt="">':'🎥';
+    var photo=r.host_photo&&/^data:image|^https?:/.test(r.host_photo)?'<img src="'+esc(r.host_photo)+'" alt="" loading="eager" decoding="async" fetchpriority="high">':'🎥';
     if(listMode){
       return '<div class="kt-live-list-card"><div class="kt-live-list-thumb">'+photo+'</div><div class="kt-live-list-info"><b><i class="kt-live-dot"></i>'+esc(r.host_name||'K-Talk')+'</b><span>'+esc(r.title||r.room_name||'라이브')+' · '+esc(r.room_name||'방송')+'<br>👁 '+count+'명 시청 중</span></div><button class="kt-live-list-enter" onclick="ktEnterRemoteLive(\''+esc(r.host_id)+'\')">입장</button></div>';
     }
@@ -141,6 +177,7 @@
   async function renderLiveCards(){
     ensureStyle();
     var rooms=await activeRooms();
+    cacheLiveRooms20260924(rooms);
     var counts=await viewerCounts();
     var dash=document.querySelector('.kt-dashboard');
     var old=document.getElementById('ktLiveNowStrip');if(old)old.remove();
@@ -411,24 +448,34 @@
   window.ktEnterRemoteLive=async function(hostId){
     hostId=String(hostId||'');if(!hostId)return;
 
-    /* Guest receive repair: publish the selected host immediately, before any DB wait. */
+    if(hostId===deviceId()&&hostActive){showActivity('현재 내가 방송 중인 방입니다.');return;}
+    if(viewerCtx)await window.ktLeaveRemoteLive(true);
+
+    /* UI FIRST: open the room shell immediately from cached/card data.
+       Do not make the user wait for the live_rooms DB round trip before the
+       video element exists. Direct RTC/LiveKit can attach while metadata loads. */
+    var cached=cachedRemoteRoom20260924(hostId);
+    renderRemote(cached);
     window.__ktRemoteHostId=hostId;
     window.__ktCurrentRemoteHostId=hostId;
     try{sessionStorage.setItem('kt_remote_host_id',hostId);}catch(e){}
-    try{window.dispatchEvent(new CustomEvent('kt-remote-host-selected',{detail:{host_id:hostId}}));}catch(e){}
+    try{window.dispatchEvent(new CustomEvent('kt-remote-host-selected',{detail:{host_id:hostId,immediate:true}}));}catch(e){}
 
-    if(hostId===deviceId()&&hostActive){showActivity('현재 내가 방송 중인 방입니다.');return;}
-    if(viewerCtx)await window.ktLeaveRemoteLive(true);
     try{
       var rows=await req('ktalk_live_rooms?select=id,host_id,host_name,title,room_type,room_name,active,updated_at&host_id=eq.'+enc(hostId)+'&active=eq.true&order=started_at.desc&limit=1');
-      var room=rows&&rows[0];if(!room||Date.now()-new Date(room.updated_at).getTime()>STALE_MS){renderLiveCards();return;}
-      renderRemote(room);
+      var room=rows&&rows[0];
+      if(!room||Date.now()-new Date(room.updated_at).getTime()>STALE_MS){
+        try{await window.ktLeaveRemoteLive(true);}catch(e){}
+        renderLiveCards();
+        return;
+      }
+      updateRemoteMeta20260924(room);
 
-      /* Re-announce after the remote video element exists so an early stream can attach immediately. */
+      /* Re-announce without rebuilding the DOM. */
       window.__ktRemoteHostId=hostId;
       window.__ktCurrentRemoteHostId=hostId;
       try{sessionStorage.setItem('kt_remote_host_id',hostId);}catch(e){}
-      try{window.dispatchEvent(new CustomEvent('kt-remote-host-selected',{detail:{host_id:hostId}}));}catch(e){}
+      try{window.dispatchEvent(new CustomEvent('kt-remote-host-selected',{detail:{host_id:hostId,metadata_ready:true}}));}catch(e){}
 
       var p=profile(),viewerId='viewer_'+deviceId();
       await req('ktalk_live_viewers?on_conflict=host_id,viewer_id',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({host_id:hostId,viewer_id:viewerId,viewer_name:p.name||'게스트',active:true,updated_at:nowIso()})});
