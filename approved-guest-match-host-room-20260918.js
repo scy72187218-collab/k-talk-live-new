@@ -295,6 +295,32 @@
     }catch(e){}
   }
 
+  window.addEventListener('kt-host-session-reset',function(){
+    try{
+      var root=document.querySelector('.kt-remote-live');
+      if(!root)return;
+      var room=root.querySelector('.kt-guest-hostlike-room');
+      if(!room)return;
+      var main=room.querySelector('#ktRemoteLiveVideo')||document.getElementById('ktRemoteLiveVideo');
+      var trueHost=null;
+      var candidates=[window.__ktRemoteHostStream,window.__ktLastApprovedGuestHostStream,hostStream];
+      for(var i=0;i<candidates.length;i++){if(candidates[i]&&live(candidates[i])){trueHost=candidates[i];break;}}
+      if(main){
+        try{main.srcObject=trueHost||null;}catch(e){}
+        main.muted=true;main.autoplay=true;main.playsInline=true;
+        try{delete main.dataset.ktLocalGuestView;delete main.dataset.ktStableGuestStyle;}catch(e){}
+        try{root.insertBefore(main,root.firstChild);}catch(e){try{root.appendChild(main);}catch(_e){}}
+        if(trueHost){try{var p=main.play();if(p&&p.catch)p.catch(function(){});}catch(e){}}
+      }
+      var preview=document.getElementById('ktRemoteHostPreview');
+      if(preview&&preview!==main){try{preview.remove();}catch(e){}}
+      try{room.remove();}catch(e){}
+      root.classList.remove('kt-guest-hostlike-active','kt-approved-guest-room');
+      selfVideo=null;hostVideo=null;selfStream=null;builtRoot=null;
+      try{window.__ktApprovedGuestSelfStream=null;}catch(e){}
+    }catch(e){}
+  });
+
   repair();
   [50,120,250,500,900,1500,2400,4000].forEach(function(ms){setTimeout(repair,ms);});
   setInterval(repair,300);
