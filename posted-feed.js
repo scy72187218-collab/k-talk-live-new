@@ -305,9 +305,34 @@
   }
   function renderFeedNow(a){
     if(!Array.isArray(a)||!a.length)return false;
+
+    /* If the lightweight first-paint video is already buffering/playing,
+       keep that exact element when the full feed UI is built. This avoids
+       throwing away its buffered data and starting the first MP4 again. */
+    var bootVideo=null,bootUrl='';
+    try{
+      bootVideo=document.getElementById('ktPublicFirstPaintVideo')||window.__ktPublicFirstPaintVideo20260924||null;
+      if(bootVideo){
+        bootUrl=String(bootVideo.currentSrc||bootVideo.src||window.__ktPublicFirstPaintUrl20260924||'');
+        if(bootVideo.parentNode)bootVideo.parentNode.removeChild(bootVideo);
+      }
+    }catch(e){bootVideo=null;bootUrl='';}
+
     document.body.classList.remove('kt-home');
     document.body.classList.add('kt-video-mode');
     screen.innerHTML='<div class="kt-public-feed-scroller" data-kt-shared-feed="1" style="height:calc(100dvh - 78px);overflow-y:auto;scroll-snap-type:y mandatory;background:#000">'+a.map(card).join('')+'</div>';
+
+    try{
+      var firstNew=screen.querySelector('.kt-public-video');
+      var wanted=String(a[0]&&a[0].video_url||'');
+      if(bootVideo&&firstNew&&bootUrl&&wanted&&bootUrl===wanted){
+        bootVideo.id='';
+        bootVideo.className='kt-public-video';
+        bootVideo.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000';
+        firstNew.replaceWith(bootVideo);
+      }
+    }catch(e){}
+
     try{
       var sc=screen.querySelector('.kt-public-feed-scroller');
       if(sc)sc.scrollTop=0;
@@ -379,6 +404,24 @@
   window.ktShowSharedServerFeed=function(){return show(oldHome);};
   window.home=function(){try{if(window.activate)activate('home');}catch(e){}return show(oldHome);};
   window.media=function(type){try{if(window.activate)activate(type);}catch(e){}return show(function(){if(oldMedia)oldMedia(type);});};
+
+  /* app.js paints its simple home placeholder before this file loads.
+     If that placeholder is still on screen, swap it to the cached feed now
+     instead of waiting for a later recovery timer. */
+  try{
+    var currentScreen=document.getElementById('screen');
+    var creatorNow=document.getElementById('creator');
+    var initialOnly=!!(currentScreen&&currentScreen.querySelector('.media')) &&
+      !currentScreen.querySelector('.kt-public-video,.kt-remote-live,.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room') &&
+      !(creatorNow&&creatorNow.classList.contains('show'));
+    if(initialOnly){
+      var bootFeed=cachedFeed();
+      if(bootFeed&&bootFeed.length){
+        renderFeedNow(bootFeed);
+        refreshFeedInBackground(false);
+      }
+    }
+  }catch(e){}
 
   /* 저장한 동영상은 세로 화면으로 크게 보여 주고, 소리를 켠 상태로 재생한다. */
   window.playStoredVideo=async function(id){
