@@ -13,37 +13,22 @@
   }
   function warmFirstVideo(){
     try{
-      var url=firstFastUrl();
-      if(!url)return;
-      if(!document.getElementById('ktVideoFirstPreload')){
-        var l=document.createElement('link');
-        l.id='ktVideoFirstPreload';l.rel='preload';l.as='video';l.href=url;
-        document.head.appendChild(l);
-      }
-
-      /* index.html already starts the real visible first video from the HTML parser.
-         Never create a second hidden video for the same MP4: on phones it competes
-         for bandwidth and can make the visible first frame arrive later. */
+      /* index.html already owns the ONE preload and the real visible video.
+         Do not add another preload or hidden warm-up request here: on Android
+         duplicate media requests can compete with the visible first frame. */
       var visible=document.getElementById('ktPublicFirstPaintVideo')||window.__ktPublicFirstPaintVideo20260924||null;
-      if(visible){
-        visible.muted=true;
-        visible.defaultMuted=true;
-        visible.playsInline=true;
-        visible.preload='auto';
-        visible.setAttribute('playsinline','');
-        visible.setAttribute('webkit-playsinline','');
-        visible.setAttribute('fetchpriority','high');
-        try{var p=visible.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
-        return;
-      }
+      if(!visible)return;
+      visible.muted=true;
+      visible.defaultMuted=true;
+      visible.playsInline=true;
+      visible.preload='auto';
+      visible.setAttribute('playsinline','');
+      visible.setAttribute('webkit-playsinline','');
+      visible.setAttribute('fetchpriority','high');
+      try{var p=visible.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
     }catch(e){}
   }
   warmFirstVideo();
-  try{
-    if(!document.getElementById('ktVideoStoragePreconnect')){
-      var pc=document.createElement('link');pc.id='ktVideoStoragePreconnect';pc.rel='preconnect';pc.href=SB;pc.crossOrigin='anonymous';document.head.appendChild(pc);
-    }
-  }catch(e){}
   function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   function blobNow(){try{if(window.ktCreatorBlob)return window.ktCreatorBlob;}catch(e){}try{return typeof ktCreatorBlob!=='undefined'?ktCreatorBlob:null;}catch(e){return null;}}
   function titleNow(){try{return window.ktImportedVideoName||ktImportedVideoName||('K-Talk 동영상 '+new Date().toLocaleString('ko-KR'));}catch(e){return 'K-Talk 동영상';}}
