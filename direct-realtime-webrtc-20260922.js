@@ -275,7 +275,7 @@
     approvedGuests={};
     hostGuestPeers={};
     hostGuestAliveAt={};
-    try{send('broadcast_ended',{host_id:DEVICE,at:Date.now()});}catch(e){}
+    try{send('broadcast_ended',{host_id:DEVICE,run_id:hostRunId,run_started_at:hostRunStartedAt,at:Date.now()});}catch(e){}
     return true;
   };
 
@@ -1341,6 +1341,14 @@
       var ended=String(p&&p.host_id||'').trim();
       var current=String(remoteHostId()||lastRemoteHost||activeHostId||'').trim();
       if(!ended||!current||ended!==current)return;
+
+      /* Ignore a delayed end signal from an older broadcast run of the same host. */
+      var endedRun=String(p&&p.run_id||'').trim();
+      var endedAt=Number(p&&p.at||0);
+      var currentRun=String(remoteRunId||window.__ktRemoteHostRunId20260924||'').trim();
+      var currentStarted=Number(remoteRunStartedAt||window.__ktRemoteHostSessionStartedAt20260924||0);
+      if(endedRun&&currentRun&&endedRun!==currentRun)return;
+      if(endedAt&&currentStarted&&endedAt<currentStarted)return;
 
       try{closePc(viewerPc);}catch(e){}
       try{closePc(guestPc);}catch(e){}
