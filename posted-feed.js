@@ -26,9 +26,16 @@
         v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');
         v.style.cssText='position:fixed;width:2px;height:2px;left:-20px;top:-20px;opacity:.001;pointer-events:none;z-index:-1';
         (document.body||document.documentElement).appendChild(v);
+        /* 첫 화면이 뜨기 전에 네트워크 버퍼만 미리 받는다.
+           숨은 동영상까지 동시에 재생하면 저사양 휴대폰에서 디코더가 둘로 나뉘어
+           실제 첫 화면 재생이 늦어질 수 있으므로 여기서는 load만 한다. */
         try{v.load();}catch(e){}
-        try{var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
-        setTimeout(function(){try{if(v&&v.parentNode)v.remove();}catch(e){}},15000);
+        setTimeout(function(){
+          try{
+            /* 실제 첫 화면으로 옮겨진 warm video는 지우지 않는다. */
+            if(v&&v.parentNode&&v.id==='ktVideoFirstWarm')v.remove();
+          }catch(e){}
+        },15000);
       }
     }catch(e){}
   }
@@ -308,6 +315,34 @@
     document.body.classList.remove('kt-home');
     document.body.classList.add('kt-video-mode');
     screen.innerHTML='<div class="kt-public-feed-scroller" data-kt-shared-feed="1" style="height:calc(100dvh - 78px);overflow-y:auto;scroll-snap-type:y mandatory;background:#000">'+a.map(card).join('')+'</div>';
+
+    /* 앱 시작 때 이미 다운로드를 시작한 첫 동영상 DOM을 그대로 첫 화면으로 옮긴다.
+       새 video 태그를 다시 만들며 처음부터 버퍼링하는 시간을 없앤다. */
+    try{
+      var warm=document.getElementById('ktVideoFirstWarm');
+      var firstRendered=screen.querySelector('.kt-public-video');
+      var wanted=String(a[0]&&a[0].video_url||'');
+      var warmUrl=warm?String(warm.currentSrc||warm.src||''):'';
+      if(warm&&firstRendered&&wanted&&warmUrl===wanted){
+        warm.removeAttribute('id');
+        warm.className='kt-public-video';
+        warm.autoplay=true;
+        warm.loop=true;
+        warm.muted=true;
+        warm.defaultMuted=true;
+        warm.playsInline=true;
+        warm.preload='auto';
+        warm.setAttribute('autoplay','');
+        warm.setAttribute('loop','');
+        warm.setAttribute('muted','');
+        warm.setAttribute('playsinline','');
+        warm.setAttribute('webkit-playsinline','');
+        warm.setAttribute('fetchpriority','high');
+        warm.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover';
+        firstRendered.replaceWith(warm);
+      }
+    }catch(e){}
+
     try{
       var sc=screen.querySelector('.kt-public-feed-scroller');
       if(sc)sc.scrollTop=0;
@@ -379,6 +414,19 @@
   window.ktShowSharedServerFeed=function(){return show(oldHome);};
   window.home=function(){try{if(window.activate)activate('home');}catch(e){}return show(oldHome);};
   window.media=function(type){try{if(window.activate)activate(type);}catch(e){}return show(function(){if(oldMedia)oldMedia(type);});};
+
+  /* app.js의 예전 home()이 먼저 그려진 뒤 복구 타이머를 기다리지 않는다.
+     posted-feed가 준비되는 즉시 캐시된 첫 동영상을 첫 화면에 바로 붙인다.
+     방송방/게스트방/크리에이터 화면이 이미 열려 있으면 절대 건드리지 않는다. */
+  function initialFastFeedPaint20260924(){
+    try{
+      if(document.querySelector('#screen .ktsolo-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room,#screen .kt-remote-live,#creator.show'))return;
+      var s=document.getElementById('screen');
+      if(!s||s.querySelector('.kt-public-video'))return;
+      show(oldHome);
+    }catch(e){}
+  }
+  initialFastFeedPaint20260924();
 
   /* 저장한 동영상은 세로 화면으로 크게 보여 주고, 소리를 켠 상태로 재생한다. */
   window.playStoredVideo=async function(id){
