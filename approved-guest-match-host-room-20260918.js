@@ -305,13 +305,22 @@
     setTimeout(repair,80);
   });
 
-  window.addEventListener('kt-host-session-reset',function(){
+  function clearApprovedViewForFreshRoom(){
     approvalActive=false;
     try{
       var root=document.querySelector('.kt-remote-live');
-      if(!root)return;
+      if(!root){
+        selfVideo=null;hostVideo=null;selfStream=null;builtRoot=null;
+        try{window.__ktApprovedGuestSelfStream=null;}catch(e){}
+        return;
+      }
       var room=root.querySelector('.kt-guest-hostlike-room');
-      if(!room)return;
+      if(!room){
+        root.classList.remove('kt-guest-hostlike-active','kt-approved-guest-room');
+        selfVideo=null;hostVideo=null;selfStream=null;builtRoot=null;
+        try{window.__ktApprovedGuestSelfStream=null;}catch(e){}
+        return;
+      }
       var main=room.querySelector('#ktRemoteLiveVideo')||document.getElementById('ktRemoteLiveVideo');
       var trueHost=null;
       var candidates=[window.__ktRemoteHostStream,window.__ktLastApprovedGuestHostStream,hostStream];
@@ -330,7 +339,14 @@
       selfVideo=null;hostVideo=null;selfStream=null;builtRoot=null;
       try{window.__ktApprovedGuestSelfStream=null;}catch(e){}
     }catch(e){}
-  });
+  }
+
+  window.addEventListener('kt-host-session-reset',clearApprovedViewForFreshRoom);
+  /* A freshly selected/re-entered room must start as viewer-only until a NEW
+     approval signal arrives. This removes the old black "나 · 게스트" slot
+     immediately when the host starts a new broadcast or the viewer re-enters. */
+  window.addEventListener('kt-remote-host-selected',clearApprovedViewForFreshRoom);
+  window.addEventListener('kt-broadcast-ended',clearApprovedViewForFreshRoom);
 
   repair();
   [50,120,250,500,900,1500,2400,4000].forEach(function(ms){setTimeout(repair,ms);});
