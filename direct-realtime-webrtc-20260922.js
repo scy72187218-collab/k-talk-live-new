@@ -21,6 +21,7 @@
   var sharedRuntimeStartedAt=Date.now()-5000,sharedRoomCutCache={};
   var hostRunId='',hostRunStartedAt=0,remoteRunId='',remoteRunStartedAt=0;
   window.__ktApprovedGuestIds20260924=window.__ktApprovedGuestIds20260924||{};
+  window.__ktApprovedGuestNames20260924=window.__ktApprovedGuestNames20260924||{};
   function publishRunContext(hostId,runId,startedAt,role){
     try{
       if(role==='host'){
@@ -60,6 +61,10 @@
   function resetGuestForNewRun(hostId,runId,startedAt){
     try{closePc(guestPc);}catch(e){}
     guestPc=null;guestSession='';guestApproved=false;guestApprovedHost='';guestApprovedAt=0;requestOn=false;leaveAnnouncedHost='';guestAliveLastSent=0;
+    try{
+      window.__ktApprovedGuestIds20260924={};
+      window.__ktApprovedGuestNames20260924={};
+    }catch(e){}
     try{if(guestStream)guestStream.getTracks().forEach(function(t){try{t.stop();}catch(e){}});}catch(e){}
     guestStream=null;
     try{window.__ktApprovedGuestSelfStream=null;}catch(e){}
@@ -1534,6 +1539,10 @@
       try{closePc(guestPc);}catch(e){}
       viewerPc=null;viewerSession='';viewerConnected=false;
       guestPc=null;guestSession='';guestApproved=false;guestApprovedHost='';requestOn=false;
+      try{
+        window.__ktApprovedGuestIds20260924={};
+        window.__ktApprovedGuestNames20260924={};
+      }catch(e){}
       clearViewerConnectTimer();
       window.__ktRemoteHostStream=null;
       window.__ktRemoteHostId='';
@@ -1597,18 +1606,41 @@
       }
       return;
     }
-    if(ev==='guest_cancel'&&isHostRole()){
-      delete pendingRequests[String(p.viewer_id||'')];renderDirectRequests();return;
+    if(ev==='guest_cancel'){
+      try{
+        var cid=String(p.viewer_id||'').trim();
+        if(cid){
+          delete window.__ktApprovedGuestIds20260924[cid];
+          delete window.__ktApprovedGuestNames20260924[cid];
+          window.dispatchEvent(new CustomEvent('kt-any-guest-left',{detail:{host_id:String(p.host_id||''),viewer_id:cid,at:Date.now()}}));
+        }
+      }catch(e){}
+      if(isHostRole()){delete pendingRequests[String(p.viewer_id||'')];renderDirectRequests();}
+      return;
     }
-    if(ev==='guest_left'&&isHostRole()&&String(p.host_id||'')===DEVICE){
-      clearApprovedGuestFromHost(String(p.viewer_id||''));return;
+    if(ev==='guest_left'){
+      try{
+        var lid=String(p.viewer_id||'').trim();
+        if(lid){
+          delete window.__ktApprovedGuestIds20260924[lid];
+          delete window.__ktApprovedGuestNames20260924[lid];
+          window.dispatchEvent(new CustomEvent('kt-any-guest-left',{detail:{host_id:String(p.host_id||''),viewer_id:lid,at:Date.now()}}));
+        }
+      }catch(e){}
+      if(isHostRole()&&String(p.host_id||'')===DEVICE)clearApprovedGuestFromHost(String(p.viewer_id||''));
+      return;
     }
     if(ev==='guest_approved'){
       try{
+        var aid=String(p.viewer_id||'').trim();
+        if(aid){
+          window.__ktApprovedGuestIds20260924[aid]=true;
+          window.__ktApprovedGuestNames20260924[aid]=String(p.name||'게스트');
+        }
         window.dispatchEvent(new CustomEvent('kt-any-guest-approved',{
           detail:{
             host_id:String(p.host_id||''),
-            viewer_id:String(p.viewer_id||''),
+            viewer_id:aid,
             name:String(p.name||'게스트'),
             at:Number(p.at||Date.now())
           }
