@@ -277,6 +277,45 @@
     return true;
   };
 
+  /* Host rapid-restart cleanup (2026-09-24):
+     an explicit broadcast end must mark the host run ended immediately.
+     Otherwise a new room opened within the 12s viewer grace can inherit
+     the previous approved guest/video slots. */
+  window.ktDirectHostRunEnded20260924=function(){
+    try{
+      if(typeof window.ktDirectEndAllGuestSessions20260923==='function'){
+        window.ktDirectEndAllGuestSessions20260923();
+      }
+    }catch(e){}
+    Object.keys(hostViewPeers).forEach(function(id){
+      try{closePc(hostViewPeers[id]&&hostViewPeers[id].pc);}catch(e){}
+    });
+    hostViewPeers={};
+    pendingRequests={};
+    approvedGuests={};
+    hostGuestPeers={};
+    hostGuestAliveAt={};
+    pendingHostGuestOffers={};
+    pendingHostGuestIce={};
+    lastHostRole='';
+    hostRunId='';
+    hostRunStartedAt=0;
+    lastHostReadyAt=0;
+    sharedRuntimeStartedAt=Date.now();
+    sharedRoomCutCache={};
+    try{window.__ktApprovedGuestIds20260924={};}catch(e){}
+    try{
+      window.__ktHostRunId20260924='';
+      window.__ktHostRunStartedAt20260924=0;
+    }catch(e){}
+    try{
+      window.dispatchEvent(new CustomEvent('kt-host-session-reset',{
+        detail:{host_id:DEVICE,run_id:'',started_at:Date.now(),ended:true}
+      }));
+    }catch(e){}
+    return true;
+  };
+
   function postGuestLeaveShared(hostId){
     hostId=String(hostId||'').trim();
     if(!hostId)return;
