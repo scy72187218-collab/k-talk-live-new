@@ -1,5 +1,5 @@
 {
-  "version": 91,
+  "version": 92,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260924-video-connection-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Public video feed fix completed and relocked. The fast first video stays immediate, while missing server videos are appended to the existing feed without restarting the first video.",
+  "note": "K-Talk work relocked. Public video feed is now explicitly locked too: first-video fast paint, full 7-video feed append behavior, video list/order/loading behavior, and related playback flow must not be changed unless the user explicitly unlocks video work with PIN 1111. Communication/live-room protections remain locked as before.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -91,5 +91,11 @@
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
   "last_communication_fix": "2026-09-24-instant-room-shell-video-watch16",
-  "last_video_feed_fix": "2026-09-24-full-feed-after-first6"
+  "last_video_feed_fix": "2026-09-24-full-feed-after-first6",
+  "locked_components": [
+    "public-video-feed",
+    "first-video-fast-paint",
+    "full-video-feed-loading"
+  ],
+  "last_video_feed_lock": "2026-09-24-video-feed-explicit-lock1"
 }
