@@ -1,13 +1,13 @@
 {
-  "version": 61,
+  "version": 62,
   "locked": true,
   "scope": "selective-approved-working-components-only",
-  "snapshot_branch": "saved-working-k-talk-20260923-guest-direction-stable",
-  "snapshot_commit": "299968b6f0e3e0de69e64acb017babb729dd9e29",
+  "snapshot_branch": "saved-working-k-talk-20260924-video-connection-stable",
+  "snapshot_commit": "a5734b4231ded37045b12fb875eb82e2848906ce",
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "PIN 1111 verified. Refreshed only current-broadcast guest transport scripts so stale guests from the previous broadcast cannot appear before a new request/approval. Layout, buttons, badges, direction and other room UI remain unchanged.",
+  "note": "PIN 1111 verified. Owner confirmed the current video and connection state is the working state to preserve. Saved a stable snapshot and re-locked the active video/connection transport, multi-guest recovery, guest camera transition guard, LiveKit bridge, stale guest restore guard, first public video load path, room rejoin stability, guest stay-connected, peer sync, and video direction components. Other protected UI remains unchanged.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -73,7 +73,13 @@
     "approved_guest_peer_video_sync_only",
     "all_room_guest_wave_effect",
     "approved_guest_stay_connected",
-    "all_room_guest_video_direction"
+    "all_room_guest_video_direction",
+    "host_multi_guest_signal_order_recovery_only",
+    "approved_guest_camera_dom_transition_guard_only",
+    "livekit_sfu_transport_bridge_only",
+    "stale_guest_approval_auto_restore_guard_only",
+    "public_video_first_load_speed_only",
+    "room_entry_exit_rejoin_stability_only"
   ],
   "check_trigger_phrase": "K-톡 비밀번호 확인",
   "check_behavior": {
@@ -82,30 +88,6 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "host_multi_guest_signal_order_recovery_only",
-    "approved_guest_stay_connected",
-    "approved_guest_camera_dom_transition_guard_only",
-    "all_room_guest_video_direction",
-    "all_room_host_video_direction",
-    "approved_guest_peer_video_sync_only",
-    "remote_video_connect_speed",
-    "livekit_sfu_transport_bridge_only",
-    "stale_guest_approval_auto_restore_guard_only",
-    "public_video_first_load_speed_only",
-    "room_entry_exit_rejoin_stability_only"
-  ],
-  "temporarily_unlocked_components": [
-    "host_multi_guest_signal_order_recovery_only",
-    "approved_guest_stay_connected",
-    "approved_guest_camera_dom_transition_guard_only",
-    "all_room_guest_video_direction",
-    "all_room_host_video_direction",
-    "approved_guest_peer_video_sync_only",
-    "remote_video_connect_speed",
-    "livekit_sfu_transport_bridge_only",
-    "stale_guest_approval_auto_restore_guard_only",
-    "public_video_first_load_speed_only",
-    "room_entry_exit_rejoin_stability_only"
-  ]
+  "current_editable_components": [],
+  "temporarily_unlocked_components": []
 }
