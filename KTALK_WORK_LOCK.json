@@ -1,5 +1,5 @@
 {
-  "version": 80,
+  "version": 81,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260924-video-connection-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Communication-only approval latency fix completed and relocked. Guest media lanes are now SDP/ICE-negotiated before approval without sending camera/mic. On host approval the already-prewarmed tracks are replaceTrack()ed into the prepared connection and any waiting host stream is attached immediately. Long approval retry intervals were removed; only near-immediate safety checks remain. No unrelated UI/layout/buttons/chat/gifts changed.",
+  "note": "Communication-only final approval speed/three-device sync update completed and relocked. On every guest approval, all connected devices immediately rescan/re-attach the same room participants. An approved guest publishes its already-prewarmed stream immediately if the SFU room is connected, without waiting for scheduled polling. Host and both guests are driven toward the same host+guest1+guest2 three-person view. No unrelated UI/layout/buttons/chat/gifts changed.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -90,5 +90,5 @@
   },
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "last_communication_fix": "2026-09-24-instant-approval-lanes8"
+  "last_communication_fix": "2026-09-24-all-three-instant-sync9"
 }
