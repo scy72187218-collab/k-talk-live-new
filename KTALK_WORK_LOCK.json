@@ -1,5 +1,5 @@
 {
-  "version": 94,
+  "version": 95,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260924-video-connection-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Switch/AI-only fix completed under PIN 1111 and relocked. All switch controls now respond from pointerdown with existing duplicate guards, and the actual '사이트 사용방법' sheet is included in automatic AI voice reading. No video, live transport, chat, rose, layout, or other UI behavior was changed.",
+  "note": "Rose/AI-only fix completed under PIN 1111 and relocked. Public video rose controls now retain the correct video ID and are no longer destructively rebuilt every 400ms after binding. Site Usage AI reading directly pauses background feed media and help screens are exempt from playback-triggered speech cancellation. No live transport, room layout, chat, or unrelated controls changed.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -116,5 +116,6 @@
   ],
   "last_video_feed_lock": "2026-09-24-video-feed-explicit-lock1",
   "last_switch_lock": "2026-09-24-all-switches-explicit-lock",
-  "last_switch_ai_fix": "2026-09-24-first-touch-switch-site-guide-ai2"
+  "last_switch_ai_fix": "2026-09-24-first-touch-switch-site-guide-ai2",
+  "last_rose_ai_fix": "2026-09-24-rose-id-stable-direct-guide-read3"
 }
