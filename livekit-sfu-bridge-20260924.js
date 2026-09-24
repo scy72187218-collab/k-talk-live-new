@@ -345,6 +345,15 @@
       r.on(LK.RoomEvent.TrackUnsubscribed,function(track,publication,participant){
         var id=String(participant&&participant.identity||'');if(track.kind==='audio')stopAudio(id);
       });
+      if(LK.RoomEvent.ParticipantConnected)r.on(LK.RoomEvent.ParticipantConnected,function(){
+        [0,60,180,420].forEach(function(ms){setTimeout(reattachRemoteTracks,ms);});
+      });
+      if(LK.RoomEvent.TrackPublished)r.on(LK.RoomEvent.TrackPublished,function(){
+        [0,50,160].forEach(function(ms){setTimeout(reattachRemoteTracks,ms);});
+      });
+      if(LK.RoomEvent.Reconnected)r.on(LK.RoomEvent.Reconnected,function(){
+        [0,80,220].forEach(function(ms){setTimeout(reattachRemoteTracks,ms);});
+      });
       r.on(LK.RoomEvent.Disconnected,function(){
         if(room===r){setState({connected:false,connecting:false});}
       });
@@ -428,7 +437,15 @@
 
   window.addEventListener('kt-guest-approval-received',function(e){
     approvedHostId=String(e&&e.detail&&e.detail.host_id||'').trim();
-    if(approvedHostId){watchHostId=approvedHostId;setTimeout(hostTick,0);setTimeout(hostTick,180);}
+    if(approvedHostId){
+      watchHostId=approvedHostId;
+      [0,40,100,220,450,800].forEach(function(ms){setTimeout(hostTick,ms);});
+    }
+  });
+  window.addEventListener('kt-approved-guest-stream-ready',function(e){
+    var h=String(e&&e.detail&&e.detail.host_id||approvedHostId||remoteHostId()||'').trim();
+    if(h){approvedHostId=h;watchHostId=h;}
+    [0,30,90,180,350].forEach(function(ms){setTimeout(hostTick,ms);});
   });
   window.addEventListener('kt-remote-host-selected',function(e){
     var h=String(e&&e.detail&&e.detail.host_id||'').trim();
