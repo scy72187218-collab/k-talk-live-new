@@ -102,26 +102,23 @@
 <body>
 <div class="app">
 <header class="header"><div class="brand"><div class="logo">♛ K-Talk</div><div class="live">LIVE</div></div><div id="globalLed" class="led" onclick="handleLedClick()">♛ K-Talk · 신곡 광고 신청하세요! 🎵 🎤</div></header>
-<main id="screen"><section id="ktPublicFirstPaint" style="height:calc(100dvh - 78px);min-height:560px;position:relative;background:#000;overflow:hidden"><video id="ktPublicFirstPaintVideo" autoplay muted loop playsinline preload="auto" fetchpriority="high" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000"></video></section></main>
+<main id="screen"><section id="ktPublicFirstPaint" style="height:calc(100dvh - 78px);min-height:560px;position:relative;background:#000;overflow:hidden"><video id="ktPublicFirstPaintVideo" autoplay muted loop playsinline preload="auto" fetchpriority="high" src="https://zupwbfmacwzexyvznlzq.supabase.co/storage/v1/object/public/ktalk-videos/guest/1789858184221-0lyob9.mp4" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000"></video></section></main>
 <script>
 (function(){
   window.__ktPublicFirstPaint20260924=true;
   try{
     var v=document.getElementById('ktPublicFirstPaintVideo');
     if(!v)return;
-    var u='https://zupwbfmacwzexyvznlzq.supabase.co/storage/v1/object/public/ktalk-videos/guest/1789858184221-0lyob9.mp4';
-    try{
-      var a=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');
-      if(Array.isArray(a)&&a[0]&&a[0].video_url)u=String(a[0].video_url||u);
-    }catch(e){}
+    /* Start the first MP4 from the HTML parser itself.
+       Do not reset src/load here: on slower Android phones that can cancel the
+       parser-started media request and make the first frame appear later. */
+    var u=String(v.currentSrc||v.getAttribute('src')||'https://zupwbfmacwzexyvznlzq.supabase.co/storage/v1/object/public/ktalk-videos/guest/1789858184221-0lyob9.mp4');
     document.body.classList.remove('kt-home');
     document.body.classList.add('kt-video-mode');
     v.muted=true;v.defaultMuted=true;v.volume=0;v.playsInline=true;v.preload='auto';
     v.setAttribute('muted','');v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');v.setAttribute('fetchpriority','high');
-    v.src=u;
     window.__ktPublicFirstPaintUrl20260924=u;
     window.__ktPublicFirstPaintVideo20260924=v;
-    try{v.load();}catch(e){}
     try{var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
     [30,90,180,320].forEach(function(ms){setTimeout(function(){try{if(v.isConnected&&v.paused){var q=v.play();if(q&&q.catch)q.catch(function(){});}}catch(e){}},ms);});
   }catch(e){}
@@ -146,7 +143,7 @@
 <div class="live-prep"><div class="prep-top"><button class="prep-close" onclick="closeCreator()">×</button><div class="prep-title">K-Talk 라이브 준비</div><button class="prep-mini prep-reward" onclick="prepTap(this,'코인 리워드')">★ 코인 리워드</button></div><div class="prep-topic"><input id="liveTitle" value="오늘 라이브 제목을 입력하세요" aria-label="라이브 제목"></div><div class="prep-grid"><button class="prep-item" onclick="prepTap(this,'전환')"><b>↻</b>전환</button><button class="prep-item" onclick="prepTap(this,'보정')"><b>✦</b>AI 보정</button><button class="prep-item" onclick="prepTap(this,'편집효과')"><b>✺</b>편집효과</button><button class="prep-item" onclick="prepTap(this,'설정')"><b>⚙</b>설정</button><button class="prep-item" onclick="prepTap(this,'멀티게스트')"><b>▦</b>멀티게스트</button><button class="prep-item" onclick="prepTap(this,'서비스')"><b>▣</b>서비스+</button><button class="prep-item" onclick="prepTap(this,'팬클럽')"><b>♡</b>팬클럽</button><button class="prep-item" onclick="prepTap(this,'소통하기')"><b>☵</b>소통하기</button><button class="prep-item" onclick="prepTap(this,'공유')"><b>↗</b>공유</button></div><div class="prep-goal"><label for="liveGoal">방송 목표</label><input id="liveGoal" type="text" value="" placeholder="오늘 방송 목표를 입력하세요" aria-label="방송 목표"></div><div class="prep-card"><div class="room-switch-row"><button class="room-switch on" onclick="selectPrepRoom(this,'solo','1인 방송',1)">1인 방송</button><button class="room-switch" onclick="selectPrepRoom(this,'group','13명 방송',13)">13명 방송</button><button class="room-switch" onclick="selectPrepRoom(this,'subscriber','구독자 방송',10)">구독자 방송</button><button class="room-switch" onclick="selectPrepRoom(this,'password','비밀방',7)">비밀방</button></div><button class="prep-start" onclick="startBroadcast()">라이브 시작</button></div><div class="prep-bottom kt-room-bottom5"><button type="button" class="on" onclick="ktPickBottomRoom(this,'1인','solo','1인 방송',1)">1인방</button><button type="button" onclick="ktPickBottomRoom(this,'9명','group9','9명 방송',9)">9명방</button><button type="button" onclick="ktPickBottomRoom(this,'13명','group13','13명 방송',13)">13명방</button><button type="button" onclick="ktPickBottomRoom(this,'구독자','subscriber','구독자 방송',10)">구독방</button><button type="button" onclick="ktPickBottomRoom(this,'비밀','password','비밀방',7)">비밀방</button></div></div>
 </div>
 <div id="sheet" class="sheet"><div class="sheet-inner"><div class="sheet-head"><h3 id="sheetTitle">메뉴</h3><button onclick="closeSheet()">닫기</button></div><div id="sheetBody"></div></div></div>
-<script src="app.js?v=20260924-firstvideo-fast5"></script>\n<script src="public-video-first-paint-20260924.js?v=20260924-firstpaint-active1"></script>
+<script src="app.js?v=20260924-firstvideo-fast7"></script>\n<script src="public-video-first-paint-20260924.js?v=20260924-firstpaint-active1"></script>
 <style id="ktGiftFinalInlineStyle">
 #sheet.kt-gift-force{background:rgba(0,0,0,.92)!important;backdrop-filter:blur(8px)!important}
 #sheet.kt-gift-force .sheet-inner{width:min(100%,560px)!important;max-height:97dvh!important;padding:0!important;overflow:auto!important;border-radius:26px 26px 0 0!important;border:1px solid #6f2c5f!important;border-bottom:0!important;background:radial-gradient(circle at 10% 0%,rgba(194,50,190,.17),transparent 24%),radial-gradient(circle at 90% 4%,rgba(93,55,166,.14),transparent 26%),linear-gradient(180deg,#09070d,#050407 58%,#020203)!important;box-shadow:0 -16px 55px #000e!important}
@@ -1058,7 +1055,7 @@
 
 <script src="solo-approved-room.js?v=20260920-solochat-float1"></script>
 <script src="subscriber-approved-room.js?v=20260918-chat-above-tools1"></script>
-<script src="posted-feed.js?v=20260924-firstvideo-fast5"></script>
+<script src="posted-feed.js?v=20260924-firstvideo-fast7"></script>
 <script src="music-recording-fix.js?v=20260921-g13-sync1"></script>
 <script src="creator-record-timer.js?v=20260907-recordtimer1"></script>
 <script src="secret-room-password.js?v=20260923-password1111-1"></script>
@@ -1111,7 +1108,7 @@
 <script src="approved-guest-match-host-room-20260918.js?v=20260924-preapproval-guard2"></script>\n<script src="all-room-guest-earnings-hud-20260921.js?v=20260921-allguestearn2"></script>
 <script src="group13-grid-chat-empty-safe-20260919.js?v=20260920-chatbottom-gridlarge1"></script>
 \n\n<script src="subscriber-secret-chat-bottom-20260919.js?v=20260919-bottomchat1"></script>\n<script src="secret-room-password.js?v=20260923-password1111-1"></script>
-<script src="all-five-room-layout-lock-20260919.js?v=20260919-group13relock2"></script>\n<script src="video-open-recovery-20260919.js?v=20260919-videoopen1"></script>\n<script src="home-video-feed-recovery-20260919.js?v=20260924-firstvideo-fast6"></script>\n
+<script src="all-five-room-layout-lock-20260919.js?v=20260919-group13relock2"></script>\n<script src="video-open-recovery-20260919.js?v=20260919-videoopen1"></script>\n<script src="home-video-feed-recovery-20260919.js?v=20260924-firstvideo-fast7"></script>\n
 <script src="old-phone-video-compat-20260920.js?v=20260920-oldphone1"></script>\n
 
 <script src="ktalk-work-protection-lock-20260920.js?v=20260922-full-lock-all3"></script>\n<script src="switch-hit-bridge-20260919.js?v=20260920-switches-live1"></script>\n<script src="ai-voice-fix.js?v=20260920-aihelp1"></script>\n<script src="ai-help-reader-20260915.js?v=20260920-aihelp1"></script>\n
