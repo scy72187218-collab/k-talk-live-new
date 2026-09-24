@@ -183,8 +183,30 @@
   function apply(box){
     if(!box)return;
 
+    var sec=null;
+    try{sec=box.closest('section');}catch(e){}
+    var stableId='';
+    var stableShare='';
+    try{
+      stableId=String(box.dataset.ktFeedVideoId||'');
+      if(!stableId&&sec)stableId=String(sec.getAttribute('data-kt-feed-video-id')||'');
+      stableShare=String(box.dataset.ktFeedShareUrl||'');
+      if(!stableShare&&sec){
+        var vv=sec.querySelector('video');
+        stableShare=String(vv&&(vv.currentSrc||vv.src)||'');
+      }
+    }catch(e){}
+
+    /* Once this action row is bound to a real video ID, do not rebuild it every
+       400ms. Rebuilding during a tap was discarding the ID and swallowing roses. */
+    if(box.dataset.ktFinalActionsBound==='1'&&stableId){
+      box.dataset.ktFeedVideoId=stableId;
+      if(stableShare)box.dataset.ktFeedShareUrl=stableShare;
+      return;
+    }
+
     var oldButtons=directButtons(box);
-    var count=0,id='',shareUrl='',commentId='';
+    var count=0,id=stableId,shareUrl=stableShare,commentId=stableId;
     var existingProfile=box.querySelector('.kt-feed-profile-circle img');
     var photo=existingProfile&&existingProfile.src?existingProfile.src:currentPhoto();
 
@@ -200,6 +222,11 @@
     });
 
     if(!id)id=commentId||videoId(box);
+    if(!commentId)commentId=id;
+    try{
+      if(id)box.dataset.ktFeedVideoId=id;
+      if(shareUrl)box.dataset.ktFeedShareUrl=shareUrl;
+    }catch(e){}
 
     var profile=document.createElement('button');
     profile.type='button';
@@ -271,6 +298,13 @@
     box.appendChild(rose);
     box.appendChild(message);
     box.appendChild(share);
+    try{
+      if(id){
+        box.dataset.ktFeedVideoId=id;
+        box.dataset.ktFinalActionsBound='1';
+      }
+      if(shareUrl)box.dataset.ktFeedShareUrl=shareUrl;
+    }catch(e){}
   }
 
   function run(){
