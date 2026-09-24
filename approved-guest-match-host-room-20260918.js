@@ -9,6 +9,10 @@
   var hostStream=null;
   var selfStream=null;
   var guestEarnRoses=0;
+  /* Do not build the guest self slot until a real approval signal arrives.
+     This prevents an old/prewarmed camera stream from appearing as '나 · 게스트'
+     before the viewer has even requested or been approved for guest participation. */
+  var approvalActive=false;
 
   function live(st){
     try{
@@ -127,7 +131,7 @@
   }
 
   function build(root){
-    if(!root)return;
+    if(!root||!approvalActive)return;
     var main=document.getElementById('ktRemoteLiveVideo');
     var preview=document.getElementById('ktRemoteHostPreview');
 
@@ -295,7 +299,14 @@
     }catch(e){}
   }
 
+  window.addEventListener('kt-guest-approval-received',function(){
+    approvalActive=true;
+    setTimeout(repair,0);
+    setTimeout(repair,80);
+  });
+
   window.addEventListener('kt-host-session-reset',function(){
+    approvalActive=false;
     try{
       var root=document.querySelector('.kt-remote-live');
       if(!root)return;
