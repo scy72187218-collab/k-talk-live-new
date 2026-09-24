@@ -966,13 +966,14 @@
     replayPendingHostGuestOffer(vid);
     var data={host_id:DEVICE,viewer_id:vid,name:name||'게스트',at:Date.now()};
     sharedApprovalPost(DEVICE,'guest_approved',vid,profileName());
-    setTimeout(function(){sharedApprovalPost(DEVICE,'guest_approved',vid,profileName());},250);
+    setTimeout(function(){sharedApprovalPost(DEVICE,'guest_approved',vid,profileName());},120);
+    setTimeout(function(){sharedApprovalPost(DEVICE,'guest_approved',vid,profileName());},350);
     setTimeout(function(){sharedApprovalPost(DEVICE,'guest_approved',vid,profileName());},800);
-    setTimeout(function(){sharedApprovalPost(DEVICE,'guest_approved',vid,profileName());},1600);
     send('guest_approved',data);
-    setTimeout(function(){send('guest_approved',data);},300);
-    setTimeout(function(){send('guest_approved',data);},900);
-    setTimeout(function(){send('guest_approved',data);},1800);
+    setTimeout(function(){send('guest_approved',data);},120);
+    setTimeout(function(){send('guest_approved',data);},320);
+    setTimeout(function(){send('guest_approved',data);},700);
+    setTimeout(function(){send('guest_approved',data);},1200);
   }
   window.ktDirectApproveGuest20260922=function(vid,name){
     approveDirectGuest(vid,name);
@@ -1161,7 +1162,7 @@
         try{closePc(pc);}catch(e){}
         if(guestPc===pc)guestPc=null;
         setTimeout(function(){makeGuestOffer(hid);},180);
-      },10000);
+      },5000);
     }catch(e){
       try{window.__ktDirectGuestUplinkState20260923='failed';window.__ktDirectGuestUplinkStateAt20260923=Date.now();}catch(_e){}
       clearGuestOfferRetryTimers(pc);closePc(pc);if(guestPc===pc)guestPc=null;
@@ -1241,7 +1242,7 @@
       entry.answer=pc.localDescription.sdp;
       var guestAnswerPayload={host_id:DEVICE,viewer_id:vid,session_id:session,answer_sdp:entry.answer};
       send('guest_answer',guestAnswerPayload);
-      [700,1800,3600].forEach(function(ms){
+      [120,350,800,1600].forEach(function(ms){
         setTimeout(function(){
           if(hostGuestPeers[vid]!==entry||entry.gotTrack)return;
           var cs=String(pc.connectionState||'');
@@ -1262,9 +1263,9 @@
         if(ap){
           var reconnect={host_id:DEVICE,viewer_id:vid,name:ap.name||'게스트',at:Date.now(),reconnect:true};
           send('guest_approved',reconnect);
-          setTimeout(function(){send('guest_approved',reconnect);},500);
+          setTimeout(function(){send('guest_approved',reconnect);},220);
         }
-      },4000);
+      },2400);
     }catch(e){
       closePc(pc);
       if(hostGuestPeers[vid]===entry){
