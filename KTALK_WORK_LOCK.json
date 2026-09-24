@@ -1,5 +1,5 @@
 {
-  "version": 77,
+  "version": 78,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260924-video-connection-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Communication-only speed tuning completed and relocked. Approved guest retries and guest-answer retries are faster, and a stuck first handshake retries sooner, while existing room/grid UI and stability protections remain unchanged.",
+  "note": "Communication-only approval speed fix completed and relocked. Guest camera now prewarms on participation request even when the legacy request flow exists, because the direct capture handler consumes the click before the legacy onclick. The prewarmed stream is shared immediately and reused on approval, so approval no longer waits for getUserMedia. Unapproved prewarm is stopped on cancel/timeout. No room UI/layout/buttons/chat/gifts changed.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -90,5 +90,5 @@
   },
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "last_communication_fix": "2026-09-24-fast-host-approved-guests5"
+  "last_communication_fix": "2026-09-24-prewarm-before-approval6"
 }
