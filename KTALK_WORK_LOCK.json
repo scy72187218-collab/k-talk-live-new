@@ -1,5 +1,5 @@
 {
-  "version": 74,
+  "version": 75,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260924-video-connection-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Communication-only duplicate-small-guest-tile fix completed and relocked. LiveKit now reuses existing guest identity slots (including direct/legacy guest IDs), no longer grabs arbitrary empty video cells, and removes duplicate fallback targets for the same guest. UI/layout/buttons/chat/gifts/camera direction/room sizing unchanged.",
+  "note": "Communication-only false-exit stability fix completed and relocked. Remote video stalls/ended/emptied no longer send viewers back to the public feed; they trigger in-room recovery only. Fallback end records cannot eject a current run when a live heartbeat is still present or when the end record lacks the current run id. No UI/layout/buttons/chat/gifts/camera direction/room sizing changed.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -90,5 +90,5 @@
   },
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "last_communication_fix": "2026-09-24-no-duplicate-small-guest-tile2"
+  "last_communication_fix": "2026-09-24-never-exit-on-stall-current-run-only2"
 }
