@@ -333,6 +333,37 @@
     document.head.appendChild(s);
   }
 
+  var lastRoseTapAt=0,lastRoseTapBtn=null;
+  function directRoseTap20260924(e){
+    var t=e&&e.target;
+    if(!t||!t.closest)return;
+    if(t.closest('.kt-feed-rose-history-count'))return;
+    var rose=t.closest('.kt-feed-final-rose,.kt-feed-one-rose');
+    if(!rose)return;
+    var now=Date.now();
+    if(lastRoseTapBtn===rose&&now-lastRoseTapAt<700)return;
+
+    var box=rose.closest('.vh-actions');
+    var sec=rose.closest('section');
+    var id='';
+    try{
+      id=String(box&&box.dataset&&box.dataset.ktFeedVideoId||'');
+      if(!id&&sec)id=String(sec.getAttribute('data-kt-feed-video-id')||'');
+    }catch(x){}
+    if(!id)return;
+    if(typeof window.ktPublicSendRose!=='function')return;
+
+    lastRoseTapBtn=rose;
+    lastRoseTapAt=now;
+    try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(x){}
+    try{window.ktPublicSendRose(id,authorName(box),rose);}catch(x){}
+  }
+
+  /* Android/Naver WebView can lose the synthetic click after a video gesture.
+     Send on first physical touch instead. */
+  window.addEventListener('pointerdown',directRoseTap20260924,true);
+  if(!window.PointerEvent)window.addEventListener('touchstart',directRoseTap20260924,true);
+
   run();
   [60,180,420,900,1600,2600].forEach(function(ms){setTimeout(run,ms);});
   try{
