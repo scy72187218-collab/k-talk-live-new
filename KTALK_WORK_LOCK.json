@@ -1,5 +1,5 @@
 {
-  "version": 61,
+  "version": 62,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260923-guest-direction-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "PIN 1111 verified. Refreshed only current-broadcast guest transport scripts so stale guests from the previous broadcast cannot appear before a new request/approval. Layout, buttons, badges, direction and other room UI remain unchanged.",
+  "note": "PIN 1111 verified. Changed only first-page public video communication/load speed: cached first-video preconnect, preload and warm media now start immediately after app.js. Room layout, buttons, badges, directions, chat, guest approval and other UI remain unchanged.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -108,4 +108,4 @@
     "public_video_first_load_speed_only",
     "room_entry_exit_rejoin_stability_only"
   ]
-}
+}\n
