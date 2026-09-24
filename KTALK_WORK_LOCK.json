@@ -1,5 +1,5 @@
 {
-  "version": 82,
+  "version": 83,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260924-video-connection-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Communication-only three-person sync speed update completed and relocked. Every device now maintains the current-run approved guest roster directly from realtime guest_approved/guest_left signals. Guest-to-guest fallback starts immediately from that roster instead of waiting for server memory re-read. LiveKit SDK is preloaded before approval and participant rescans are tightened. Goal: host + guest1 + guest2 appear on host and both guest devices with minimal approval delay. No unrelated UI/layout/buttons/chat/gifts changed.",
+  "note": "Communication-only final three-person display timing fix completed and relocked. Approved guest devices now force the host-style grid immediately from the realtime approved roster even if the original per-device approval event is delayed/missed. Guest-to-guest fallback bypasses server reads when the realtime roster is already known. No unrelated UI/layout/buttons/chat/gifts changed.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -90,5 +90,5 @@
   },
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "last_communication_fix": "2026-09-24-shared-roster-three-person-fast10"
+  "last_communication_fix": "2026-09-24-force-three-person-grid11"
 }
