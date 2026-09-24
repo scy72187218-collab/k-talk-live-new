@@ -183,22 +183,27 @@
       var s=candidates[ci];
       if(s&&s!==approvedSelf&&live(s)){hostCandidate=s;break;}
     }
-    if(!hostCandidate)return;
 
+    /* Approval changes the layout immediately. A missing stream reference is
+       temporary and must not keep the device in the old one-person view. */
     var selfCandidate=null;
     if(approvedSelf&&approvedSelf!==hostCandidate&&live(approvedSelf))selfCandidate=approvedSelf;
     else if(mainStream&&mainStream!==hostCandidate&&live(mainStream))selfCandidate=mainStream;
 
-    hostStream=hostCandidate;
-    window.__ktLastApprovedGuestHostStream=hostCandidate;
+    if(hostCandidate){
+      hostStream=hostCandidate;
+      window.__ktLastApprovedGuestHostStream=hostCandidate;
+    }
     selfStream=selfCandidate||selfStream||null;
 
-    /* Reuse the current host video immediately; create the self video if the
-       camera is still opening. This makes approval visually instant. */
-    if(preview&&previewStream===hostCandidate){
+    /* Reuse the visible remote video even while its MediaStream reference is
+       being refreshed; do not delay the approved grid for that refresh. */
+    if(preview&&hostCandidate&&previewStream===hostCandidate){
       hostVideo=preview;
-    }else if(main&&mainStream===hostCandidate){
+    }else if(main&&(!hostCandidate||mainStream===hostCandidate)){
       hostVideo=main;
+    }else if(preview){
+      hostVideo=preview;
     }else{
       hostVideo=document.createElement('video');
     }
@@ -248,7 +253,7 @@
     hostVideo.playsInline=true;
     hostVideo.muted=false;
     hostVideo.style.cssText='';
-    hostVideo.srcObject=hostCandidate;
+    if(hostCandidate&&hostVideo.srcObject!==hostCandidate)hostVideo.srcObject=hostCandidate;
 
     selfVideo.id='ktRemoteLiveVideo';
     selfVideo.className='';
