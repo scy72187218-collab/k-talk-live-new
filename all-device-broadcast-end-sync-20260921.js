@@ -122,6 +122,7 @@
     if(!at||Date.now()-at>45000)return;
     var rr=currentViewedRun();
     var endedRun=String(x.run_id||'').trim();
+    if(rr.run_id&&!endedRun)return;
     if(endedRun&&rr.run_id&&endedRun!==rr.run_id)return;
     if(rr.started_at&&at<rr.started_at)return;
     var key=hostId+'|'+endedRun+'|'+at;
@@ -144,6 +145,16 @@
       if(timer)clearTimeout(timer);
       if(!r.ok)return;
       var j=await r.json(),ended=Array.isArray(j&&j.ended)?j.ended:[];
+      var rooms=Array.isArray(j&&j.rooms)?j.rooms:[];
+      /* If the same host is also reported live, never let a stale end record
+         eject the viewer. The live heartbeat wins. */
+      var liveHit=rooms.find(function(x){return String(x.host_id||'')===hostId;});
+      if(liveHit)return;
+      try{
+        var liveMap=window.__ktRealtimeLiveHosts||{};
+        var liveEntry=liveMap[hostId]||null;
+        if(liveEntry&&Date.now()-Number(liveEntry.last||0)<15000)return;
+      }catch(e){}
       var hit=ended.find(function(x){return String(x.host_id||'')===hostId;});
       if(!hit)return;
       var stamp=String(hit.ended_at||'');
@@ -152,6 +163,7 @@
       if(age<0||age>45000)return;
       var rr=currentViewedRun();
       var endedRun=String(hit.run_id||'').trim();
+      if(rr.run_id&&!endedRun)return;
       if(endedRun&&rr.run_id&&endedRun!==rr.run_id)return;
       if(rr.started_at&&endedMs&&endedMs<rr.started_at)return;
       var key=hostId+'|'+endedRun+'|'+stamp;
@@ -195,6 +207,7 @@
     var endRun=String(e&&e.detail&&e.detail.run_id||'').trim();
     var endAt=Number(e&&e.detail&&e.detail.at||0);
     var rr=currentViewedRun();
+    if(rr.run_id&&!endRun)return;
     if(endRun&&rr.run_id&&endRun!==rr.run_id)return;
     if(endAt&&rr.started_at&&endAt<rr.started_at)return;
     var h=currentViewedHost();
