@@ -36,10 +36,12 @@
     try{
       v.setAttribute('playsinline','');
       v.setAttribute('webkit-playsinline','');
+      v.setAttribute('fetchpriority','high');
       v.preload='auto';
       v.muted=true;
       v.defaultMuted=true;
       v.volume=0;
+      if(v.readyState<1){try{v.load();}catch(e){}}
       var p=v.play();
       if(p&&p.catch)p.catch(function(){});
     }catch(e){}
@@ -107,7 +109,7 @@
   }
 
   function sequence(){
-    [50,180,450,900,1500,2600].forEach(function(ms){setTimeout(recover,ms);});
+    [0,40,100,220,450,800,1400].forEach(function(ms){setTimeout(recover,ms);});
   }
 
   sequence();
