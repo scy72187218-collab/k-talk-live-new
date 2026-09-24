@@ -1018,11 +1018,14 @@
     }
     replayPendingHostGuestOffer(vid);
     var data={host_id:DEVICE,viewer_id:vid,name:name||'게스트',at:Date.now()};
+
+    /* Realtime approval is the first operation after the host presses approve.
+       Durable memory writes and retries are fallback only. */
+    send('guest_approved',data);
     sharedApprovalPost(DEVICE,'guest_approved',vid,profileName());
     setTimeout(function(){sharedApprovalPost(DEVICE,'guest_approved',vid,profileName());},120);
     setTimeout(function(){sharedApprovalPost(DEVICE,'guest_approved',vid,profileName());},350);
     setTimeout(function(){sharedApprovalPost(DEVICE,'guest_approved',vid,profileName());},800);
-    send('guest_approved',data);
     setTimeout(function(){send('guest_approved',data);},120);
     setTimeout(function(){send('guest_approved',data);},320);
     setTimeout(function(){send('guest_approved',data);},700);
@@ -1494,6 +1497,33 @@
     guestApprovedAt=Date.now();
     leaveAnnouncedHost='';
     guestAliveLastSent=0;
+
+    /* UI FIRST: approval must change the guest screen immediately.
+       Do not wait for camera/WebRTC/LiveKit work before showing the
+       approved multi-person room shell. */
+    try{
+      var selfVid=viewerId();
+      window.__ktApprovedGuestIds20260924=window.__ktApprovedGuestIds20260924||{};
+      window.__ktApprovedGuestNames20260924=window.__ktApprovedGuestNames20260924||{};
+      window.__ktApprovedGuestIds20260924[selfVid]=true;
+      window.__ktApprovedGuestNames20260924[selfVid]=profileName();
+      window.dispatchEvent(new CustomEvent('kt-guest-approval-received',{
+        detail:{
+          host_id:hid,
+          viewer_id:selfVid,
+          stream:guestStream||window.__ktApprovedGuestSelfStream||null,
+          at:Date.now(),
+          immediate:true
+        }
+      }));
+      if(typeof window.ktForceApprovedGuestGridNow20260924==='function'){
+        window.ktForceApprovedGuestGridNow20260924();
+      }
+      window.dispatchEvent(new CustomEvent('kt-three-person-sync-now',{
+        detail:{host_id:hid,viewer_id:selfVid,at:Date.now(),immediate:true}
+      }));
+    }catch(e){}
+
     try{
       var pre=guestPc&&guestPc.__ktPreApprovalPayload||null;
       if(pre&&String(pre.host_id||'')===hid){
@@ -1533,11 +1563,8 @@
     });
 
     try{
-      window.dispatchEvent(new CustomEvent('kt-guest-approval-received',{
-        detail:{host_id:hid,viewer_id:viewerId(),stream:guestStream||window.__ktApprovedGuestSelfStream||null,at:Date.now()}
-      }));
       window.dispatchEvent(new CustomEvent('kt-three-person-sync-now',{
-        detail:{host_id:hid,viewer_id:viewerId(),at:Date.now()}
+        detail:{host_id:hid,viewer_id:viewerId(),at:Date.now(),post_media:true}
       }));
     }catch(e){}
   }
