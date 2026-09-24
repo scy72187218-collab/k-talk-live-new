@@ -41,7 +41,7 @@
       v.muted=true;
       v.defaultMuted=true;
       v.volume=0;
-      if(v.readyState<1){try{v.load();}catch(e){}}
+      /* Never force load() during first paint; it can restart the same MP4 request. */
       var p=v.play();
       if(p&&p.catch)p.catch(function(){});
     }catch(e){}
