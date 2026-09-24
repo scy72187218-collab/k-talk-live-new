@@ -24,6 +24,22 @@
     }catch(e){}
     return h;
   }
+  function currentViewedRun(){
+    var run='',started=0;
+    try{
+      run=String(window.__ktRemoteHostRunId20260924||'').trim();
+      started=Number(window.__ktRemoteHostSessionStartedAt20260924||0);
+    }catch(e){}
+    return {run_id:run,started_at:started};
+  }
+  function currentHostRun(){
+    var run='',started=0;
+    try{
+      run=String(window.__ktHostRunId20260924||'').trim();
+      started=Number(window.__ktHostRunStartedAt20260924||0);
+    }catch(e){}
+    return {run_id:run,started_at:started};
+  }
   function inJoinedLive(){
     try{
       return document.documentElement.classList.contains('kt-remote-viewing')||
@@ -38,7 +54,10 @@
         cache:'no-store',
         keepalive:true,
         headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({action:'end',host_id:hostId})
+        body:JSON.stringify((function(){
+          var rr=currentHostRun();
+          return {action:'end',host_id:hostId,run_id:rr.run_id,run_started_at:rr.started_at};
+        })())
       }).catch(function(){});
     }catch(e){}
   }
@@ -101,7 +120,11 @@
     if(!x||String(x.host_id||'')!==hostId)return;
     var at=Number(x.at||0);
     if(!at||Date.now()-at>45000)return;
-    var key=hostId+'|'+at;
+    var rr=currentViewedRun();
+    var endedRun=String(x.run_id||'').trim();
+    if(endedRun&&rr.run_id&&endedRun!==rr.run_id)return;
+    if(rr.started_at&&at<rr.started_at)return;
+    var key=hostId+'|'+endedRun+'|'+at;
     if(key===lastHandled||key===lastRealtimeEndSeen)return;
     lastRealtimeEndSeen=key;lastHandled=key;
     goVideo();
@@ -124,9 +147,14 @@
       var hit=ended.find(function(x){return String(x.host_id||'')===hostId;});
       if(!hit)return;
       var stamp=String(hit.ended_at||'');
-      var age=Date.now()-(Date.parse(stamp)||0);
+      var endedMs=Date.parse(stamp)||0;
+      var age=Date.now()-endedMs;
       if(age<0||age>45000)return;
-      var key=hostId+'|'+stamp;
+      var rr=currentViewedRun();
+      var endedRun=String(hit.run_id||'').trim();
+      if(endedRun&&rr.run_id&&endedRun!==rr.run_id)return;
+      if(rr.started_at&&endedMs&&endedMs<rr.started_at)return;
+      var key=hostId+'|'+endedRun+'|'+stamp;
       if(key===lastHandled)return;
       lastHandled=key;
       goVideo();
@@ -164,13 +192,17 @@
   function directRealtimeEnd(e){
     var id=String(e&&e.detail&&e.detail.host_id||'');
     if(!id)return;
+    var endRun=String(e&&e.detail&&e.detail.run_id||'').trim();
+    var endAt=Number(e&&e.detail&&e.detail.at||0);
+    var rr=currentViewedRun();
+    if(endRun&&rr.run_id&&endRun!==rr.run_id)return;
+    if(endAt&&rr.started_at&&endAt<rr.started_at)return;
     var h=currentViewedHost();
     var last='';
     try{last=String(window.__ktLastLiveRoom&&window.__ktLastLiveRoom.host_id||'');}catch(z){}
-    /* 내가 보고 있던 방송이면, 방 DOM이 이미 사라져 방송목록 화면이 되었어도
-       기다리지 말고 즉시 일반 동영상 화면으로 보낸다. */
+    /* 내가 보고 있던 현재 방송 회차의 실제 종료만 처리한다. */
     if(h===id||last===id||(inJoinedLive()&&!h)){
-      lastHandled=id+'|direct|'+Date.now();
+      lastHandled=id+'|direct|'+endRun+'|'+Date.now();
       goVideo();
     }
   }
