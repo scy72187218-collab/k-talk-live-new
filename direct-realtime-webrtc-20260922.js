@@ -569,7 +569,16 @@
 
     var main=document.getElementById('ktRemoteLiveVideo');
     var self=window.__ktApprovedGuestSelfStream||null;
-    if(main&&(!self||main.srcObject!==self))add(main);
+    var mainIsSelf=false;
+    try{
+      mainIsSelf=!!(main&&main.closest&&main.closest(
+        '.kt-guest-hostlike-room .kgh-cell.self,'+
+        '.kt-approved-guest-grid .kt-approved-guest-cell.self,'+
+        '.kt-prejoin-room-grid .kt-prejoin-room-cell.self,'+
+        '.kt-guest-room-grid .kt-guest-room-cell.self'
+      ));
+    }catch(e){}
+    if(main&&!mainIsSelf&&(!self||main.srcObject!==self))add(main);
 
     if(!targets.length)return false;
 
