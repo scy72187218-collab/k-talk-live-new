@@ -1,5 +1,5 @@
 {
-  "version": 100,
+  "version": 101,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260924-video-connection-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "PIN 1111 confirmed. Temporarily unlock only LiveKit cloud transition configuration and token service. Existing switches, rose, AI, public video feed, chat, gifts, and room layout remain protected.",
+  "note": "LiveKit Cloud transition preparation completed under PIN 1111 and relocked. Supabase Edge Function ktalk-livekit-token v2 now prefers LIVEKIT_URL, LIVEKIT_API_KEY, and LIVEKIT_API_SECRET from server-side environment secrets. Until those Cloud credentials are configured, the existing development tunnel remains only as a fallback so current broadcasts do not break. No switches, rose, AI, public video feed, chat, gifts, or room layout were changed.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -88,14 +88,8 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "livekit-sfu-transport-bridge-only",
-    "livekit-token-service-cloud-config"
-  ],
-  "temporarily_unlocked_components": [
-    "livekit-sfu-transport-bridge-only",
-    "livekit-token-service-cloud-config"
-  ],
+  "current_editable_components": [],
+  "temporarily_unlocked_components": [],
   "last_communication_fix": "2026-09-24-fast-request-approve-leave17",
   "last_video_feed_fix": "2026-09-24-full-feed-after-first6",
   "locked_components": [
@@ -127,5 +121,6 @@
   "last_rose_ai_fix": "2026-09-24-rose-first-touch-guide-user-tap4",
   "last_unlock": "2026-09-25-livekit-cloud-config-only",
   "last_pwa_install_fix": "2026-09-24-first-touch-install9",
-  "last_critical_touch_fix": "2026-09-24-critical-touch1"
+  "last_critical_touch_fix": "2026-09-24-critical-touch1",
+  "last_livekit_cloud_prepare": "2026-09-25-edge-token-v2-env-first"
 }
