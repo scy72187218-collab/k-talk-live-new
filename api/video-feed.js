@@ -16,7 +16,7 @@ module.exports = async function handler(req,res){
   ];
 
   res.setHeader('Content-Type','application/json; charset=utf-8');
-  res.setHeader('Cache-Control','no-store, no-cache, must-revalidate');
+  res.setHeader('Cache-Control','public, max-age=30, s-maxage=300, stale-while-revalidate=86400');
   res.statusCode=200;
   return res.end(JSON.stringify(rows));
 };
