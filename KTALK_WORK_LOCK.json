@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "PIN 1111 verified. Temporarily unlocked only room enter/exit/rejoin session cleanup. On leave, immediately close old direct/WebRTC and LiveKit viewer transport so re-entry starts a fresh session. First-page video speed and existing UI/layout/direction/buttons remain unchanged.",
+  "note": "PIN 1111 verified. Temporarily unlocked only room enter/exit/rejoin cleanup. Leaving a room now clears stale guest transport immediately so the next entry starts clean; existing layout, buttons, badges, direction, first-page video and other room UI remain unchanged.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
