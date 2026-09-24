@@ -1019,15 +1019,18 @@
     replayPendingHostGuestOffer(vid);
     var data={host_id:DEVICE,viewer_id:vid,name:name||'게스트',at:Date.now()};
 
-    /* Realtime approval is the first operation after the host presses approve.
-       Durable memory writes and retries are fallback only. */
+    /* Approval is idempotent and duplicateSignal() already de-dupes it.
+       Send this ONE control event through both transports immediately so a
+       momentarily slow WebSocket cannot delay the visible approval. Keep
+       offer/answer/ICE on the single transport path to avoid RTC races. */
     send('guest_approved',data);
+    try{restBroadcast('guest_approved',data);}catch(e){}
     sharedApprovalPost(DEVICE,'guest_approved',vid,profileName());
     setTimeout(function(){sharedApprovalPost(DEVICE,'guest_approved',vid,profileName());},120);
     setTimeout(function(){sharedApprovalPost(DEVICE,'guest_approved',vid,profileName());},350);
     setTimeout(function(){sharedApprovalPost(DEVICE,'guest_approved',vid,profileName());},800);
-    setTimeout(function(){send('guest_approved',data);},120);
-    setTimeout(function(){send('guest_approved',data);},320);
+    setTimeout(function(){send('guest_approved',data);},50);
+    setTimeout(function(){send('guest_approved',data);},150);
     setTimeout(function(){send('guest_approved',data);},700);
     setTimeout(function(){send('guest_approved',data);},1200);
     try{
