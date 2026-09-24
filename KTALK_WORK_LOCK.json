@@ -1,5 +1,5 @@
 {
-  "version": 79,
+  "version": 80,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260924-video-connection-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Communication-only approval latency fix completed and relocked. When a viewer requests guest participation, the camera and a local WebRTC offer are prepared before approval. The host stores the offer without receiving media; on approval it answers the already-prepared offer immediately. SFU connection is also kept ready before approval and host reattaches tracks immediately after approval. No unrelated UI/layout/buttons/chat/gifts changed.",
+  "note": "Communication-only approval latency fix completed and relocked. Guest media lanes are now SDP/ICE-negotiated before approval without sending camera/mic. On host approval the already-prewarmed tracks are replaceTrack()ed into the prepared connection and any waiting host stream is attached immediately. Long approval retry intervals were removed; only near-immediate safety checks remain. No unrelated UI/layout/buttons/chat/gifts changed.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -90,5 +90,5 @@
   },
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "last_communication_fix": "2026-09-24-preoffer-before-approval7"
+  "last_communication_fix": "2026-09-24-instant-approval-lanes8"
 }
