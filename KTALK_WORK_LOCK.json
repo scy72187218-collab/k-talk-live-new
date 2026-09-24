@@ -1,5 +1,5 @@
 {
-  "version": 67,
+  "version": 68,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260924-video-connection-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "PIN 1111 verified. Temporarily unlocked only duplicate approved-guest video slot deduplication. Same guest ID must occupy one slot across direct and legacy signaling. Layout, direction, buttons, badges, gifts and other components remain unchanged.",
+  "note": "PIN 1111 verified. Activated immediate first public-video paint and strengthened fresh-room stale approved-guest cleanup only. Layout, direction, buttons, badges, gifts and other UI remain unchanged.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -106,4 +106,4 @@
     "livekit_sfu_transport_bridge_only",
     "duplicate_approved_guest_video_slot_only"
   ]
-}
+}\n
