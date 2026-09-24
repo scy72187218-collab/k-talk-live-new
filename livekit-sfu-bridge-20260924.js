@@ -456,6 +456,18 @@
     if(h){approvedHostId=h;watchHostId=h;}
     [0,30,90,180,350].forEach(function(ms){setTimeout(hostTick,ms);});
   });
+  window.addEventListener('kt-guest-camera-prewarmed',function(e){
+    var h=String(e&&e.detail&&e.detail.host_id||remoteHostId()||'').trim();
+    if(h)watchHostId=h;
+    /* Keep the viewer already connected to the SFU before approval so approval
+       only has to publish the prewarmed track, not create a new room connection. */
+    [0,40,120].forEach(function(ms){setTimeout(hostTick,ms);});
+  });
+  window.addEventListener('kt-host-guest-approved',function(){
+    /* Host may already know the participant. Re-scan immediately when approval
+       flips the identity gate so an existing/subscribing track fills its slot. */
+    [0,20,60,140,300].forEach(function(ms){setTimeout(reattachRemoteTracks,ms);});
+  });
   window.addEventListener('kt-remote-host-selected',function(e){
     var h=String(e&&e.detail&&e.detail.host_id||'').trim();
     if(h){watchHostId=h;setTimeout(hostTick,0);}
