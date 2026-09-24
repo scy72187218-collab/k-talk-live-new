@@ -693,7 +693,13 @@
       }
       if(!room||!room.started_at)return null;
 
-      var rows=await req('ktalk_live_messages?select=id,sender_id,message,message_type,created_at&host_id=eq.'+enc(hostId)+'&created_at=gte.'+enc(room.started_at)+'&order=created_at.desc&limit=240')||[];
+      var approvalCutoff=String(room.started_at||'');
+      try{
+        var directStart=Number(window.__ktRemoteHostSessionStartedAt20260924||0);
+        var roomStart=Date.parse(approvalCutoff)||0;
+        if(directStart&&directStart>roomStart+500)approvalCutoff=new Date(Math.max(0,directStart-800)).toISOString();
+      }catch(e){}
+      var rows=await req('ktalk_live_messages?select=id,sender_id,message,message_type,created_at&host_id=eq.'+enc(hostId)+'&created_at=gte.'+enc(approvalCutoff)+'&order=created_at.desc&limit=240')||[];
       var reqRow=null,apRow=null,cancelRow=null,leftRow=null,joinRow=null;
       for(var i=0;i<rows.length;i++){
         var m=rows[i],t=String(m.message_type||'');
@@ -1189,6 +1195,18 @@
 
   function start(){if(started)return;started=true;bindGuestLeaveCleanup();setInterval(bindGuestLeaveCleanup,800);ensureStyle();bindRequestButton();hostPoll=setInterval(hostTick,400);viewerPoll=setInterval(viewerTick,500);setInterval(removeDuplicateGroupRoom,350);setTimeout(hostTick,80);setTimeout(viewerTick,120);var dedupeTimer=null,obs=new MutationObserver(function(){bindRequestButton();clearTimeout(dedupeTimer);dedupeTimer=setTimeout(removeDuplicateGroupRoom,30);});obs.observe(document.documentElement,{childList:true,subtree:true});}
   window.addEventListener('kt-guest-approval-received',function(){setTimeout(viewerTick,10);setTimeout(viewerTick,120);setTimeout(viewerTick,420);});
+  window.addEventListener('kt-host-session-reset',function(e){
+    try{
+      var hid=String(e&&e.detail&&e.detail.host_id||'').trim();
+      if(hid&&viewerGuest.hostId&&viewerGuest.hostId!==hid)return;
+      if(viewerGuest.pc){try{viewerGuest.pc.close();}catch(_e){}viewerGuest.pc=null;}
+      viewerGuest.sessionId='';viewerGuest.hostId='';viewerGuest.approvedKey='';viewerGuest.connectStartedAt=0;viewerGuest.approvalMissingSince=0;
+      stopLocalGuestViewGuard();
+      if(viewerGuest.stream){try{viewerGuest.stream.getTracks().forEach(function(t){try{t.stop();}catch(_e){}});}catch(_e){}viewerGuest.stream=null;}
+      try{window.__ktApprovedGuestSelfStream=null;}catch(_e){}
+      setTimeout(viewerTick,20);setTimeout(viewerTick,180);
+    }catch(_e){}
+  });
   /* kt-video-orientation-refresh-20260922: media orientation only */
   window.addEventListener('orientationchange',function(){setTimeout(ktRefreshLocalNineOrientation,120);});
   try{if(screen.orientation&&screen.orientation.addEventListener)screen.orientation.addEventListener('change',function(){setTimeout(ktRefreshLocalNineOrientation,120);});}catch(e){}
