@@ -469,8 +469,22 @@
     /* DB guest sessions are fallback transport only, not approval authority.
        They are admitted only when this page already knows the guest was approved
        in the current run. */
-    var localApproved={};
-    try{localApproved=window.__ktApprovedGuestIds20260924||{};}catch(e){}
+    var localApproved={},localNames={};
+    try{
+      localApproved=window.__ktApprovedGuestIds20260924||{};
+      localNames=window.__ktApprovedGuestNames20260924||{};
+    }catch(e){}
+
+    /* Realtime guest_approved is current-run authority on this page.
+       Do not wait for the interaction-memory/API round trip before guest↔guest
+       video starts. The map is cleared on guest_left and host-run reset. */
+    Object.keys(localApproved).forEach(function(id){
+      if(localApproved[id]===true){
+        ids[id]=true;
+        if(!names[id])names[id]=String(localNames[id]||'게스트');
+      }
+    });
+
     sessions.forEach(function(row){
       var tag=String(row.viewer_id||'');
       if(tag.indexOf('guest:')!==0)return;
@@ -582,6 +596,17 @@
   }
 
   setInterval(tick,350);
+  window.addEventListener('kt-any-guest-approved',function(){
+    try{tick();}catch(e){}
+    [35,100,220].forEach(function(ms){setTimeout(function(){try{tick();}catch(e){}},ms);});
+  });
+  window.addEventListener('kt-three-person-sync-now',function(){
+    try{tick();}catch(e){}
+    [30,90,180].forEach(function(ms){setTimeout(function(){try{tick();}catch(e){}},ms);});
+  });
+  window.addEventListener('kt-any-guest-left',function(){
+    try{tick();}catch(e){}
+  });
   [60,180,400,800,1400].forEach(function(ms){setTimeout(tick,ms);});
   window.addEventListener('kt-guest-approval-received',function(){
     [0,80,220,500].forEach(function(ms){setTimeout(tick,ms);});
