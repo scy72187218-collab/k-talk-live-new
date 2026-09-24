@@ -524,9 +524,15 @@
         var seen=Number(peerLastSeen[id]||0);
         if(!seen){peerLastSeen[id]=now;return;}
         /* A single missed participant poll must not make a guest disappear. */
-        if(now-seen>30000){
-          delete peerLastSeen[id];
-          clearPeerCell(id);
+        /* Keep approved participant slots through long network gaps.
+           Explicit guest_left/cancel is the authority for removal. */
+        if(now-seen>120000){
+          var approved=false;
+          try{approved=!!((window.__ktApprovedGuestIds20260924||{})[id]);}catch(e){}
+          if(!approved){
+            delete peerLastSeen[id];
+            clearPeerCell(id);
+          }
         }
       });
     }catch(e){}
@@ -594,7 +600,9 @@
         if(active[id])return false;
         var seen=Number(peerLastSeen[id]||0);
         if(!seen){peerLastSeen[id]=now;return false;}
-        return now-seen>30000;
+        if(now-seen<=120000)return false;
+        try{if((window.__ktApprovedGuestIds20260924||{})[id]===true)return false;}catch(e){}
+        return true;
       }).map(function(id){
         delete peerLastSeen[id];
         return dropPeer(id);
@@ -620,7 +628,16 @@
     try{tick();}catch(e){}
     [30,90,180].forEach(function(ms){setTimeout(function(){try{tick();}catch(e){}},ms);});
   });
-  window.addEventListener('kt-any-guest-left',function(){
+  window.addEventListener('kt-any-guest-left',function(e){
+    var id=String(e&&e.detail&&e.detail.viewer_id||'').trim();
+    if(id){
+      try{
+        var q=dropPeer(id);
+        if(q&&q.catch)q.catch(function(){});
+      }catch(z){}
+      try{clearPeerCell(id);}catch(z){}
+      delete peerLastSeen[id];
+    }
     try{tick();}catch(e){}
   });
   [60,180,400,800,1400].forEach(function(ms){setTimeout(tick,ms);});
