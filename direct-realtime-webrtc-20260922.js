@@ -13,6 +13,7 @@
   var hostViewPeers={};
   var viewerPc=null,viewerSession='',viewerWatchToken='',viewerConnected=false,viewerIce={},viewerConnectTimer=null;
   var pendingRequests={},approvedGuests={},hostGuestPeers={},guestPc=null,guestSession='',guestApprovedHost='',guestApproved=false,guestStream=null,guestIce={};
+  var guestPrewarmTimer=null;
   var pendingHostGuestOffers={},pendingHostGuestIce={};
   var requestOn=false,lastRemoteHost='',lastHostRole='',lastWatchAt=0;
   var sharedApprovalPollBusy=false,leaveAnnouncedHost='',guestAliveLastSent=0,hostGuestAliveAt={},remoteHostMissingSince=0;
@@ -1321,6 +1322,8 @@
 
     requestOn=false;
     guestApproved=true;
+    try{if(guestPrewarmTimer)clearTimeout(guestPrewarmTimer);}catch(e){}
+    guestPrewarmTimer=null;
     guestApprovedHost=hid;
     guestApprovedAt=Date.now();
     leaveAnnouncedHost='';
@@ -1461,16 +1464,31 @@
   async function prepareGuestCameraFromJoinTap20260923(){
     var live=false;
     try{live=!!(guestStream&&guestStream.getVideoTracks().some(function(t){return t.readyState==='live';}));}catch(e){}
-    if(live)return true;
-    try{
-      guestStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'user'}},audio:true});
+    if(live){
+      try{window.__ktApprovedGuestSelfStream=guestStream;}catch(e){}
       return true;
-    }catch(e){
-      try{
-        guestStream=await navigator.mediaDevices.getUserMedia({video:true,audio:false});
-        return true;
-      }catch(z){return false;}
     }
+    try{
+      guestStream=await navigator.mediaDevices.getUserMedia({
+        video:{facingMode:{ideal:'user'},width:{ideal:640,max:640},height:{ideal:480,max:480},frameRate:{ideal:15,max:18}},
+        audio:true
+      });
+    }catch(e){
+      try{guestStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});}
+      catch(z){return false;}
+    }
+    try{window.__ktApprovedGuestSelfStream=guestStream;}catch(e){}
+    try{
+      if(guestPrewarmTimer)clearTimeout(guestPrewarmTimer);
+      guestPrewarmTimer=setTimeout(function(){
+        if(guestApproved||requestOn)return;
+        try{if(guestStream)guestStream.getTracks().forEach(function(t){try{t.stop();}catch(e){}});}catch(e){}
+        guestStream=null;
+        try{window.__ktApprovedGuestSelfStream=null;}catch(e){}
+        guestPrewarmTimer=null;
+      },45000);
+    }catch(e){}
+    return true;
   }
 
   function directRequestClick(e){
@@ -1480,17 +1498,32 @@
     requestOn=!requestOn;
     if(requestOn){
       b.classList.add('kt-requested');b.style.setProperty('box-shadow','0 0 12px #39e575','important');
-      /* 기존 승인 게스트 연결이 카메라를 맡는 경우 여기서 두 번째 카메라 스트림을 열지 않는다. */
-      if(!useLegacyApprovedGuestUplink()){
-        try{
-          var prep=prepareGuestCameraFromJoinTap20260923();
-          if(prep&&prep.catch)prep.catch(function(){});
-        }catch(e){}
-      }
+      /* 이 capture 핸들러가 기존 onclick보다 먼저 실행되므로 여기서 반드시
+         카메라를 미리 준비한다. 승인 뒤 getUserMedia를 시작하면 몇 초 늦어진다.
+         이미 열린 스트림은 재사용하므로 두 번째 카메라를 만들지 않는다. */
+      try{
+        var prep=prepareGuestCameraFromJoinTap20260923();
+        if(prep&&prep.then){
+          prep.then(function(){
+            if(requestOn){
+              try{window.dispatchEvent(new CustomEvent('kt-guest-camera-prewarmed',{
+                detail:{host_id:hid,viewer_id:viewerId(),at:Date.now()}
+              }));}catch(e){}
+            }
+          }).catch(function(){});
+        }
+      }catch(e){}
       sharedApprovalPost(hid,'guest_request',viewerId(),profileName());
       send('guest_request',{host_id:hid,viewer_id:viewerId(),name:profileName(),at:Date.now()});
     }else{
       b.classList.remove('kt-requested');b.style.removeProperty('box-shadow');
+      if(!guestApproved){
+        try{if(guestPrewarmTimer)clearTimeout(guestPrewarmTimer);}catch(e){}
+        guestPrewarmTimer=null;
+        try{if(guestStream)guestStream.getTracks().forEach(function(t){try{t.stop();}catch(e){}});}catch(e){}
+        guestStream=null;
+        try{window.__ktApprovedGuestSelfStream=null;}catch(e){}
+      }
       sharedApprovalPost(hid,'guest_cancelled',viewerId(),profileName());
       send('guest_cancel',{host_id:hid,viewer_id:viewerId(),at:Date.now()});
     }
