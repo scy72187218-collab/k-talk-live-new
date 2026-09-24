@@ -964,6 +964,10 @@
     approvedGuests[vid]={name:name||'게스트',at:Date.now()};
     try{window.__ktApprovedGuestIds20260924[vid]=true;}catch(e){}
     delete pendingRequests[vid];guestSlot(vid,name);renderDirectRequests();
+    var warmPeer=hostGuestPeers[vid]||null;
+    if(warmPeer&&warmPeer.pendingStream){
+      attachGuestToHost(vid,name||'게스트',warmPeer.pendingStream);
+    }
     replayPendingHostGuestOffer(vid);
     var data={host_id:DEVICE,viewer_id:vid,name:name||'게스트',at:Date.now()};
     sharedApprovalPost(DEVICE,'guest_approved',vid,profileName());
@@ -1115,12 +1119,18 @@
     closePc(guestPc);guestPc=null;guestSession=sid('guestpre');
     var pc=new RTCPeerConnection(rtcConfig());guestPc=pc;
     try{window.__ktDirectGuestUplinkState20260923='preconnecting';window.__ktDirectGuestUplinkStateAt20260923=Date.now();}catch(e){}
-    guestStream.getTracks().forEach(function(t){
-      try{
-        var sender=pc.addTrack(t,guestStream);
-        if(t&&t.kind==='video')ktTuneDirectVideoSender20260923(sender,'guest');
-      }catch(e){}
-    });
+    /* Pre-negotiate WITHOUT sending camera/mic before host approval.
+       The transceivers reserve the media lanes; approval only replaceTrack()s
+       the already-prewarmed tracks, so no new SDP round-trip is needed. */
+    try{
+      var vtx=pc.addTransceiver('video',{direction:'sendonly'});
+      pc.__ktPreVideoSender=vtx&&vtx.sender||null;
+      if(pc.__ktPreVideoSender)ktTuneDirectVideoSender20260923(pc.__ktPreVideoSender,'guest');
+    }catch(e){}
+    try{
+      var atx=pc.addTransceiver('audio',{direction:'sendonly'});
+      pc.__ktPreAudioSender=atx&&atx.sender||null;
+    }catch(e){}
     pc.onicecandidate=function(ev){
       if(ev.candidate)send('guest_ice',{
         host_id:hid,viewer_id:viewerId(),session_id:guestSession,from:'guest',
@@ -1166,6 +1176,24 @@
       try{closePc(pc);}catch(_e){}
       if(guestPc===pc)guestPc=null;
     }
+  }
+
+  async function activatePreparedGuestMedia20260924(hid){
+    var pc=guestPc;
+    if(!pc||!pc.__ktPreApprovalPayload||String(pc.__ktPreApprovalPayload.host_id||'')!==String(hid||''))return false;
+    if(!guestStream)return false;
+    try{
+      var vt=guestStream.getVideoTracks&&guestStream.getVideoTracks()[0]||null;
+      var at=guestStream.getAudioTracks&&guestStream.getAudioTracks()[0]||null;
+      if(pc.__ktPreVideoSender&&vt){
+        await pc.__ktPreVideoSender.replaceTrack(vt);
+        ktTuneDirectVideoSender20260923(pc.__ktPreVideoSender,'guest');
+      }
+      if(pc.__ktPreAudioSender)await pc.__ktPreAudioSender.replaceTrack(at||null);
+      pc.__ktPreApprovalActivated=true;
+      try{window.__ktDirectGuestUplinkState20260923='activating';window.__ktDirectGuestUplinkStateAt20260923=Date.now();}catch(e){}
+      return true;
+    }catch(e){return false;}
   }
 
   async function makeGuestOffer(hid){
@@ -1253,11 +1281,13 @@
     if(!isHostRole()||String(p.host_id||'')!==DEVICE)return;
     var vid=String(p.viewer_id||'');
     var session=String(p.session_id||''),sdp=String(p.offer_sdp||'');if(!vid||!session||!sdp)return;
-    if(!approvedGuests[vid]){
+    var isApproved=!!approvedGuests[vid];
+    var isRequested=!!pendingRequests[vid];
+    if(!isApproved&&!isRequested){
       pendingHostGuestOffers[vid]={payload:p,at:Date.now()};
       return;
     }
-    hostGuestAliveAt[vid]=Date.now();
+    if(isApproved)hostGuestAliveAt[vid]=Date.now();
     delete pendingHostGuestOffers[vid];
     var old=hostGuestPeers[vid]||null;
 
@@ -1276,10 +1306,21 @@
     delete pendingHostGuestIce[iceKey];
     var pc=new RTCPeerConnection(rtcConfig()),entry={pc:pc,sid:session,ice:cachedGuestIce.slice(0,32),old:old,answer:'',gotTrack:false};hostGuestPeers[vid]=entry;
     pc.ontrack=function(ev){
-      entry.gotTrack=true;
-      attachGuestToHost(vid,String(p.name||approvedGuests[vid].name||'게스트'),(ev.streams&&ev.streams[0])||new MediaStream([ev.track]));
-      /* 새 영상이 실제로 도착한 뒤에만 예전 연결을 닫아 화면 깜빡임을 줄인다. */
-      if(entry.old&&entry.old.pc){try{closePc(entry.old.pc);}catch(e){}entry.old=null;}
+      var rs=(ev.streams&&ev.streams[0])||new MediaStream([ev.track]);
+      entry.pendingStream=rs;
+      entry.pendingTrack=ev.track||null;
+      function showIfApproved(){
+        if(!approvedGuests[vid])return;
+        entry.gotTrack=true;
+        attachGuestToHost(vid,String(p.name||(approvedGuests[vid]&&approvedGuests[vid].name)||'게스트'),rs);
+        if(entry.old&&entry.old.pc){try{closePc(entry.old.pc);}catch(e){}entry.old=null;}
+      }
+      showIfApproved();
+      try{
+        if(ev.track){
+          ev.track.onunmute=function(){showIfApproved();};
+        }
+      }catch(e){}
     };
     pc.onicecandidate=function(ev){if(ev.candidate)send('guest_ice',{host_id:DEVICE,viewer_id:vid,session_id:session,from:'host',candidate:ev.candidate.toJSON?ev.candidate.toJSON():ev.candidate});};
     pc.onconnectionstatechange=function(){
@@ -1319,6 +1360,9 @@
          다른 게스트 peer나 방 UI는 건드리지 않는다. */
       setTimeout(function(){
         if(hostGuestPeers[vid]!==entry||entry.gotTrack)return;
+        /* Before approval there are intentionally no media frames yet.
+           Keep the already-negotiated connection warm. */
+        if(!approvedGuests[vid])return;
         var cs=String(pc.connectionState||'');
         if(cs==='closed')return;
         try{closePc(pc);}catch(e){}
@@ -1327,9 +1371,9 @@
         if(ap){
           var reconnect={host_id:DEVICE,viewer_id:vid,name:ap.name||'게스트',at:Date.now(),reconnect:true};
           send('guest_approved',reconnect);
-          setTimeout(function(){send('guest_approved',reconnect);},220);
+          setTimeout(function(){send('guest_approved',reconnect);},120);
         }
-      },2400);
+      },1800);
     }catch(e){
       closePc(pc);
       if(hostGuestPeers[vid]===entry){
@@ -1342,18 +1386,16 @@
     if(String(p.viewer_id||'')!==viewerId())return;
     var ansHost=String(p.host_id||'');
     if(!guestPc||guestSession!==String(p.session_id||''))return;
-    if(!guestApproved||ansHost!==guestApprovedHost){
-      var currentHost=String(remoteHostId()||'');
-      if(!guestApproved&&ansHost&&ansHost===currentHost){
-        try{guestPc.__ktPendingApprovalAnswer=p;}catch(e){}
-      }
-      return;
-    }
+    var currentHost=String(remoteHostId()||'');
+    var approvedPath=!!(guestApproved&&ansHost===guestApprovedHost);
+    var preapprovalPath=!!(!guestApproved&&requestOn&&ansHost&&ansHost===currentHost);
+    if(!approvedPath&&!preapprovalPath)return;
     try{
       clearGuestOfferRetryTimers(guestPc);
       if(!guestPc.currentRemoteDescription)await guestPc.setRemoteDescription({type:'answer',sdp:String(p.answer_sdp||'')});
       var q=guestIce[guestSession]||[];guestIce[guestSession]=[];
       for(var i=0;i<q.length;i++)try{await guestPc.addIceCandidate(q[i]);}catch(e){}
+      if(preapprovalPath)guestPc.__ktPreApprovalAnswerApplied=true;
     }catch(e){}
   }
   async function handleGuestIce(p){
@@ -1402,8 +1444,11 @@
     try{
       var pre=guestPc&&guestPc.__ktPreApprovalPayload||null;
       if(pre&&String(pre.host_id||'')===hid){
+        var act=activatePreparedGuestMedia20260924(hid);
+        if(act&&act.then)act.then(function(ok){
+          if(!ok&&guestApproved&&guestApprovedHost===hid)startGuestCamera(hid);
+        }).catch(function(){});
         send('guest_offer',pre);
-        scheduleGuestOfferRetries(hid,guestPc,pre);
       }
     }catch(e){}
 
@@ -1425,8 +1470,13 @@
         var aq=guestHandleAnswer(pa);if(aq&&aq.catch)aq.catch(function(){});
       }
     }catch(e){}
-    [40,120,280,600,1200].forEach(function(ms){
-      setTimeout(function(){if(guestApproved&&guestApprovedHost===hid)startGuestCamera(hid);},ms);
+    [60,180].forEach(function(ms){
+      setTimeout(function(){
+        if(!guestApproved||guestApprovedHost!==hid)return;
+        var pc=guestPc;
+        var prepared=!!(pc&&pc.__ktPreApprovalActivated);
+        if(!prepared)startGuestCamera(hid);
+      },ms);
     });
 
     try{window.dispatchEvent(new CustomEvent('kt-guest-approval-received',{detail:{host_id:hid,viewer_id:viewerId()}}));}catch(e){}
@@ -1531,6 +1581,7 @@
         }
         pendingRequests[vid]={name:String(p.name||'게스트'),at:Date.now()};
         renderDirectRequests();
+        replayPendingHostGuestOffer(vid);
       }
       return;
     }
