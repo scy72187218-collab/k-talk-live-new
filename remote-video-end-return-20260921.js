@@ -19,7 +19,32 @@
     watched=null;lastTime=-1;lastProgress=0;armedAt=0;busy=false;
   }
 
+  function inApprovedGuestRoom(){
+    try{
+      return !!document.querySelector(
+        '.kt-guest-hostlike-room,.kt-approved-guest-grid,.kt-prejoin-room-grid'
+      );
+    }catch(e){return false;}
+  }
+
+  function keepApprovedGuestConnected(){
+    if(!inApprovedGuestRoom())return false;
+    /* Approved guest rooms must never interpret a temporary WebRTC/LiveKit
+       track replacement, mute, ended, or stalled currentTime as a real host end.
+       Explicit host-end synchronization already handles genuine broadcast ends. */
+    lastProgress=Date.now();
+    armedAt=0;
+    busy=false;
+    try{
+      if(typeof window.ktAttachDirectRemoteStream20260922==='function'){
+        window.ktAttachDirectRemoteStream20260922();
+      }
+    }catch(e){}
+    return true;
+  }
+
   function returnToVideo(){
+    if(keepApprovedGuestConnected())return;
     if(busy)return;
     busy=true;
     try{
@@ -70,8 +95,13 @@
     if(watched!==v){
       watched=v;lastTime=Number(v.currentTime||0);lastProgress=Date.now();armedAt=0;busy=false;
       try{
-        v.addEventListener('ended',returnToVideo,{once:true});
-        v.addEventListener('emptied',function(){if(armedAt)returnToVideo();},{once:true});
+        v.addEventListener('ended',function(){
+          if(!keepApprovedGuestConnected())returnToVideo();
+        },{once:true});
+        v.addEventListener('emptied',function(){
+          if(!armedAt)return;
+          if(!keepApprovedGuestConnected())returnToVideo();
+        },{once:true});
       }catch(e){}
       return;
     }
@@ -89,17 +119,10 @@
        If no new frame/time progress arrives for 8.5s after video had played,
        close the room and go back to the normal video feed. */
     if(now-lastProgress>5000){
-      try{
-        var approvedRoom=!!document.querySelector('.kt-guest-hostlike-room,.kt-approved-guest-grid');
-        if(approvedRoom){
-          var hs=window.__ktRemoteHostStream||null;
-          var liveHost=!!(hs&&hs.getVideoTracks&&hs.getVideoTracks().some(function(t){return t.readyState==='live';}));
-          if(liveHost){
-            lastProgress=now;
-            return;
-          }
-        }
-      }catch(e){}
+      /* 승인된 게스트는 연결 경로가 교체되는 동안 currentTime이 잠깐 멈출 수 있다.
+         이 상태를 방송 종료로 보지 않고 현재 방에 유지한다. 실제 종료는
+         realtime/live_off 및 explicit broadcast-end sync가 처리한다. */
+      if(keepApprovedGuestConnected())return;
       returnToVideo();
     }
   }
