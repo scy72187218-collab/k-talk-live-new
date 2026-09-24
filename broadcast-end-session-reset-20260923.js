@@ -6,6 +6,10 @@
 
   function reset(){
     try{
+      if(typeof window.ktDirectHostRunEnded20260924==='function'){
+        window.ktDirectHostRunEnded20260924();
+        return;
+      }
       if(typeof window.ktDirectEndAllGuestSessions20260923==='function'){
         window.ktDirectEndAllGuestSessions20260923();
       }
