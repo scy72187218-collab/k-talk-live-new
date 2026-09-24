@@ -1,5 +1,5 @@
 {
-  "version": 57,
+  "version": 58,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260923-guest-direction-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "PIN 1111 verified. Temporarily unlocked only LiveKit SFU transport bridge setup. Existing room UI, direction, badges, buttons, layout, chat, gifts and current WebRTC paths remain unchanged.",
+  "note": "PIN 1111 verified. Temporarily unlocked only stale guest approval/session restore guard so an old approved guest cannot reappear without a new request in the current broadcast. LiveKit bridge remains unlocked. UI, direction, badges, buttons and layout remain unchanged.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -90,7 +90,8 @@
     "all_room_host_video_direction",
     "approved_guest_peer_video_sync_only",
     "remote_video_connect_speed",
-    "livekit_sfu_transport_bridge_only"
+    "livekit_sfu_transport_bridge_only",
+    "stale_guest_approval_auto_restore_guard_only"
   ],
   "temporarily_unlocked_components": [
     "host_multi_guest_signal_order_recovery_only",
@@ -100,6 +101,7 @@
     "all_room_host_video_direction",
     "approved_guest_peer_video_sync_only",
     "remote_video_connect_speed",
-    "livekit_sfu_transport_bridge_only"
+    "livekit_sfu_transport_bridge_only",
+    "stale_guest_approval_auto_restore_guard_only"
   ]
 }
