@@ -355,10 +355,12 @@
         var id=String(participant&&participant.identity||'');if(track.kind==='audio')stopAudio(id);
       });
       if(LK.RoomEvent.ParticipantConnected)r.on(LK.RoomEvent.ParticipantConnected,function(){
-        [0,60,180,420].forEach(function(ms){setTimeout(reattachRemoteTracks,ms);});
+        reattachRemoteTracks();
+        [10,35,90,180].forEach(function(ms){setTimeout(reattachRemoteTracks,ms);});
       });
       if(LK.RoomEvent.TrackPublished)r.on(LK.RoomEvent.TrackPublished,function(){
-        [0,50,160].forEach(function(ms){setTimeout(reattachRemoteTracks,ms);});
+        reattachRemoteTracks();
+        [10,30,75].forEach(function(ms){setTimeout(reattachRemoteTracks,ms);});
       });
       if(LK.RoomEvent.Reconnected)r.on(LK.RoomEvent.Reconnected,function(){
         [0,80,220].forEach(function(ms){setTimeout(reattachRemoteTracks,ms);});
@@ -537,7 +539,12 @@
   document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(hostTick,120);});
   window.addEventListener('pagehide',function(){try{if(room)room.disconnect(false);}catch(e){}});
 
+  /* Load the SFU SDK before the user presses approve. This removes the CDN
+     download/parse delay from the approval path. */
+  setTimeout(function(){try{var q=ensureSdk();if(q&&q.catch)q.catch(function(){});}catch(e){}},0);
+
   setInterval(hostTick,650);
-  setTimeout(hostTick,120);
-  setTimeout(hostTick,900);
+  setTimeout(hostTick,30);
+  setTimeout(hostTick,180);
+  setTimeout(hostTick,700);
 })();
