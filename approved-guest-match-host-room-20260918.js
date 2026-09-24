@@ -427,10 +427,32 @@
   }
 
   window.addEventListener('kt-host-session-reset',clearApprovedViewForFreshRoom);
-  /* A freshly selected/re-entered room must start as viewer-only until a NEW
-     approval signal arrives. This removes the old black "나 · 게스트" slot
-     immediately when the host starts a new broadcast or the viewer re-enters. */
-  window.addEventListener('kt-remote-host-selected',clearApprovedViewForFreshRoom);
+
+  /* Do NOT tear down an already-approved 3-person room just because the same
+     host is selected/refreshed again. That old listener was clearing the self
+     stream and sending one guest back to the single-person screen. Only a real
+     host change may reset the approved layout. */
+  var lastSelectedHost20260924='';
+  try{
+    lastSelectedHost20260924=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||sessionStorage.getItem('kt_remote_host_id')||'').trim();
+  }catch(e){}
+  window.addEventListener('kt-remote-host-selected',function(e){
+    var next='';
+    try{next=String(e&&e.detail&&e.detail.host_id||'').trim();}catch(_e){}
+    var current='';
+    try{current=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||sessionStorage.getItem('kt_remote_host_id')||lastSelectedHost20260924||'').trim();}catch(_e){}
+    if(next)lastSelectedHost20260924=next;
+
+    if(approvalActive||approvedByRealtimeRoster20260924()){
+      if(!next||!current||next===current){
+        forceApprovedGridNow20260924();
+        return;
+      }
+    }
+    if(next&&current&&next===current)return;
+    clearApprovedViewForFreshRoom();
+  });
+
   window.addEventListener('kt-broadcast-ended',clearApprovedViewForFreshRoom);
 
   repair();
