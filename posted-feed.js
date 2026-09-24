@@ -20,15 +20,21 @@
         l.id='ktVideoFirstPreload';l.rel='preload';l.as='video';l.href=url;
         document.head.appendChild(l);
       }
-      if(!document.getElementById('ktVideoFirstWarm')){
-        var v=document.createElement('video');
-        v.id='ktVideoFirstWarm';v.muted=true;v.defaultMuted=true;v.playsInline=true;v.preload='auto';v.src=url;
-        v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');
-        v.style.cssText='position:fixed;width:2px;height:2px;left:-20px;top:-20px;opacity:.001;pointer-events:none;z-index:-1';
-        (document.body||document.documentElement).appendChild(v);
-        try{v.load();}catch(e){}
-        try{var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
-        setTimeout(function(){try{if(v&&v.parentNode)v.remove();}catch(e){}},15000);
+
+      /* index.html already starts the real visible first video from the HTML parser.
+         Never create a second hidden video for the same MP4: on phones it competes
+         for bandwidth and can make the visible first frame arrive later. */
+      var visible=document.getElementById('ktPublicFirstPaintVideo')||window.__ktPublicFirstPaintVideo20260924||null;
+      if(visible){
+        visible.muted=true;
+        visible.defaultMuted=true;
+        visible.playsInline=true;
+        visible.preload='auto';
+        visible.setAttribute('playsinline','');
+        visible.setAttribute('webkit-playsinline','');
+        visible.setAttribute('fetchpriority','high');
+        try{var p=visible.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
+        return;
       }
     }catch(e){}
   }
@@ -347,7 +353,8 @@
         first.setAttribute('playsinline','');
         first.setAttribute('webkit-playsinline','');
         first.setAttribute('fetchpriority','high');
-        try{if(first.readyState<1)first.load();}catch(e){}
+        /* Do not call load() here. If this is the parser-started first video,
+           load() can restart the same network request on slower Android phones. */
         var p=first.play();if(p&&p.catch)p.catch(function(){});
         [0,40,120,260].forEach(function(ms){
           setTimeout(function(){try{if(first.paused){var q=first.play();if(q&&q.catch)q.catch(function(){});}}catch(e){}},ms);
@@ -378,7 +385,32 @@
   async function show(fallback){
     var fast=cachedFeed();
     if(fast.length){
-      /* First paint is local and immediate; server refresh must not hold up playback. */
+      /* Keep the parser-started first video physically on screen until its first
+         decoded frame is ready. Rebuilding the feed before that point can interrupt
+         the initial media request on slower phones. */
+      var boot=null;
+      try{boot=document.getElementById('ktPublicFirstPaintVideo')||window.__ktPublicFirstPaintVideo20260924||null;}catch(e){}
+      if(boot&&boot.isConnected&&Number(boot.readyState||0)<2){
+        var handed=false;
+        var handoff=function(){
+          if(handed)return;
+          handed=true;
+          try{boot.removeEventListener('loadeddata',handoff);boot.removeEventListener('canplay',handoff);boot.removeEventListener('playing',handoff);boot.removeEventListener('error',handoff);}catch(e){}
+          renderFeedNow(fast);
+        };
+        try{
+          boot.addEventListener('loadeddata',handoff);
+          boot.addEventListener('canplay',handoff);
+          boot.addEventListener('playing',handoff);
+          boot.addEventListener('error',handoff);
+          boot.muted=true;boot.defaultMuted=true;boot.preload='auto';
+          boot.setAttribute('fetchpriority','high');
+          var bp=boot.play();if(bp&&bp.catch)bp.catch(function(){});
+        }catch(e){}
+        setTimeout(handoff,5000);
+        refreshFeedInBackground(false);
+        return;
+      }
       renderFeedNow(fast);
       refreshFeedInBackground(false);
       return;
