@@ -746,8 +746,8 @@
         window.__ktDirectRtcProgressAt=Date.now();
         window.__ktDirectRtcPhase='disconnected';
 
-        /* 1.8초 이상 끊기면 기존 화면은 그대로 둔 채 새 watch 세션을 병렬 요청한다.
-           새 영상이 도착하면 위 ontrack에서 자연스럽게 교체된다. */
+        /* 짧은 모바일 신호 흔들림에는 기존 화면을 그대로 유지한다.
+           10초 이상 계속 끊긴 경우에만 새 watch 세션을 병렬 요청한다. */
         setTimeout(function(){
           if(viewerPc===pc&&pc.connectionState==='disconnected'){
             viewerWatchToken=sid('watch');
@@ -1135,8 +1135,8 @@
       send('guest_offer',guestOfferPayload);
       scheduleGuestOfferRetries(hid,pc,guestOfferPayload);
 
-      /* connectionState가 new/connecting에 오래 멈춘 경우 기존 코드는 계속 기다릴 수 있었다.
-         4.5초 안에 실제 연결이 안 되면 그 세션만 새로 만들어 빠르게 재시도한다. */
+      /* 연결 협상도 짧은 흔들림 때문에 계속 새로 만들지 않는다.
+         10초 동안 기존 세션을 기다린 뒤 실제 연결이 없을 때만 재시도한다. */
       setTimeout(function(){
         if(guestPc!==pc||!guestApproved||guestApprovedHost!==hid)return;
         var cs=String(pc.connectionState||''),is=String(pc.iceConnectionState||'');
@@ -1145,7 +1145,7 @@
         try{closePc(pc);}catch(e){}
         if(guestPc===pc)guestPc=null;
         setTimeout(function(){makeGuestOffer(hid);},180);
-      },3500);
+      },10000);
     }catch(e){
       try{window.__ktDirectGuestUplinkState20260923='failed';window.__ktDirectGuestUplinkStateAt20260923=Date.now();}catch(_e){}
       clearGuestOfferRetryTimers(pc);closePc(pc);if(guestPc===pc)guestPc=null;
