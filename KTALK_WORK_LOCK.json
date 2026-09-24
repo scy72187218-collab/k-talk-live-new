@@ -1,5 +1,5 @@
 {
-  "version": 73,
+  "version": 74,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260924-video-connection-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "PIN 1111 verified earlier in this chat. Communication-only stability hardening completed and relocked: approved guest cells now stay visible through transient participant/peer misses, mesh fallback no longer overwrites a live LiveKit picture, and direct WebRTC uses longer recovery grace before rebuilding. No room UI, layout, buttons, chat, gifts, camera direction, or sizing changed.",
+  "note": "Communication-only duplicate-small-guest-tile fix completed and relocked. LiveKit now reuses existing guest identity slots (including direct/legacy guest IDs), no longer grabs arbitrary empty video cells, and removes duplicate fallback targets for the same guest. UI/layout/buttons/chat/gifts/camera direction/room sizing unchanged.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -90,5 +90,5 @@
   },
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "last_communication_fix": "2026-09-24-stable-handoff-cell-grace3"
+  "last_communication_fix": "2026-09-24-no-duplicate-small-guest-tile2"
 }
