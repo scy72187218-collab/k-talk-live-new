@@ -314,6 +314,14 @@
     var h=String(e&&e.detail&&e.detail.host_id||'').trim();
     if(h){watchHostId=h;setTimeout(hostTick,0);}
   });
+  window.addEventListener('kt-remote-host-left',function(e){
+    var h=String(e&&e.detail&&e.detail.host_id||'').trim();
+    if(!h)return;
+    if(h===watchHostId||h===approvedHostId||h===currentHostId){
+      approvedHostId='';watchHostId='';
+      disconnectRoom();
+    }
+  });
   window.addEventListener('kt-broadcast-ended',function(){approvedHostId='';watchHostId='';disconnectRoom();});
   window.addEventListener('online',function(){setTimeout(hostTick,150);});
   document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(hostTick,120);});
