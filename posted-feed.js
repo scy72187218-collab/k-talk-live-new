@@ -3,6 +3,36 @@
   var SB='https://zupwbfmacwzexyvznlzq.supabase.co';
   var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1cHdiZm1hY3d6ZXh5dnpubHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjEwNzYsImV4cCI6MjEwNDAzNzA3Nn0.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
   function headers(extra){var h={apikey:KEY,Authorization:'Bearer '+KEY};if(extra)Object.keys(extra).forEach(function(k){h[k]=extra[k];});return h;}
+  var FIRST_FAST_FEED=[{"id":"839c441d-1d3a-4941-872b-f43a77bf8245","author_name":"태권1","title":"14402.mp4","video_url":"https://zupwbfmacwzexyvznlzq.supabase.co/storage/v1/object/public/ktalk-videos/guest/1789858184221-0lyob9.mp4","created_at":"2026-09-19T22:49:45.508379+00:00","likes":0}];
+  function firstFastUrl(){
+    try{
+      var old=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');
+      if(Array.isArray(old)&&old[0]&&old[0].video_url)return String(old[0].video_url);
+    }catch(e){}
+    return FIRST_FAST_FEED[0].video_url;
+  }
+  function warmFirstVideo(){
+    try{
+      var url=firstFastUrl();
+      if(!url)return;
+      if(!document.getElementById('ktVideoFirstPreload')){
+        var l=document.createElement('link');
+        l.id='ktVideoFirstPreload';l.rel='preload';l.as='video';l.href=url;
+        document.head.appendChild(l);
+      }
+      if(!document.getElementById('ktVideoFirstWarm')){
+        var v=document.createElement('video');
+        v.id='ktVideoFirstWarm';v.muted=true;v.defaultMuted=true;v.playsInline=true;v.preload='auto';v.src=url;
+        v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');
+        v.style.cssText='position:fixed;width:2px;height:2px;left:-20px;top:-20px;opacity:.001;pointer-events:none;z-index:-1';
+        (document.body||document.documentElement).appendChild(v);
+        try{v.load();}catch(e){}
+        try{var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
+        setTimeout(function(){try{if(v&&v.parentNode)v.remove();}catch(e){}},15000);
+      }
+    }catch(e){}
+  }
+  warmFirstVideo();
   try{
     if(!document.getElementById('ktVideoStoragePreconnect')){
       var pc=document.createElement('link');pc.id='ktVideoStoragePreconnect';pc.rel='preconnect';pc.href=SB;pc.crossOrigin='anonymous';document.head.appendChild(pc);
@@ -97,12 +127,13 @@
   function cachedFeed(){
     try{
       var old=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');
-      return Array.isArray(old)?old:[];
-    }catch(e){return[];}
+      if(Array.isArray(old)&&old.length)return old;
+    }catch(e){}
+    return FIRST_FAST_FEED.slice();
   }
   async function getFeed(){
     try{
-      var r=await fetch('/api/video-feed?t='+Date.now(),{cache:'no-store'});
+      var r=await fetch('/api/video-feed',{cache:'default'});
       var a=r.ok?await r.json():[];
       a=Array.isArray(a)?a:[];
       try{if(a.length)localStorage.setItem('ktalk_fast_feed',JSON.stringify(a));}catch(e){}
@@ -289,9 +320,12 @@
         first.muted=true;
         first.defaultMuted=true;
         first.setAttribute('playsinline','');
+        first.setAttribute('webkit-playsinline','');
+        first.setAttribute('fetchpriority','high');
+        try{if(first.readyState<1)first.load();}catch(e){}
         var p=first.play();if(p&&p.catch)p.catch(function(){});
-        requestAnimationFrame(function(){
-          try{var q=first.play();if(q&&q.catch)q.catch(function(){});}catch(e){}
+        [0,40,120,260].forEach(function(ms){
+          setTimeout(function(){try{if(first.paused){var q=first.play();if(q&&q.catch)q.catch(function(){});}}catch(e){}},ms);
         });
       }
     }catch(e){}
