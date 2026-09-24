@@ -132,25 +132,63 @@
 
   function build(root){
     if(!root||!approvalActive)return;
+    if(root.querySelector('.kt-guest-hostlike-room'))return;
+
     var main=document.getElementById('ktRemoteLiveVideo');
     var preview=document.getElementById('ktRemoteHostPreview');
-
-    /* 승인 뒤 main=내 카메라, preview=호스트 영상인 기존 연결을 그대로 이용 */
-    if(!main||!preview||!live(main.srcObject)||!live(preview.srcObject))return;
-    if(root.querySelector('.kt-guest-hostlike-room'))return;
+    if(!main&&!preview)return;
 
     ensureStyle();
 
-    selfVideo=main;
-    hostVideo=preview;
-    selfStream=main.srcObject;
-    window.__ktApprovedGuestSelfStream=selfStream;
-    hostStream=(window.__ktRemoteHostStream&&live(window.__ktRemoteHostStream))?window.__ktRemoteHostStream:preview.srcObject;
-    if(hostVideo.srcObject!==hostStream)hostVideo.srcObject=hostStream;
+    var mainStream=main&&main.srcObject||null;
+    var previewStream=preview&&preview.srcObject||null;
+    var approvedSelf=null;
+    try{approvedSelf=window.__ktApprovedGuestSelfStream||null;}catch(e){}
+
+    /* Approval must switch screens immediately. The old code waited until both
+       host + self streams were already live, which left the viewer in the
+       one-person screen for several seconds. Build the room shell as soon as
+       approval arrives and attach each stream when it becomes ready. */
+    var hostCandidate=null;
+    var candidates=[
+      window.__ktRemoteHostStream,
+      window.__ktLastApprovedGuestHostStream,
+      previewStream,
+      hostStream,
+      mainStream
+    ];
+    for(var ci=0;ci<candidates.length;ci++){
+      var s=candidates[ci];
+      if(s&&s!==approvedSelf&&live(s)){hostCandidate=s;break;}
+    }
+    if(!hostCandidate)return;
+
+    var selfCandidate=null;
+    if(approvedSelf&&approvedSelf!==hostCandidate&&live(approvedSelf))selfCandidate=approvedSelf;
+    else if(mainStream&&mainStream!==hostCandidate&&live(mainStream))selfCandidate=mainStream;
+
+    hostStream=hostCandidate;
+    window.__ktLastApprovedGuestHostStream=hostCandidate;
+    selfStream=selfCandidate||selfStream||null;
+
+    /* Reuse the current host video immediately; create the self video if the
+       camera is still opening. This makes approval visually instant. */
+    if(preview&&previewStream===hostCandidate){
+      hostVideo=preview;
+    }else if(main&&mainStream===hostCandidate){
+      hostVideo=main;
+    }else{
+      hostVideo=document.createElement('video');
+    }
+
+    if(main&&main!==hostVideo&&selfCandidate&&mainStream===selfCandidate){
+      selfVideo=main;
+    }else{
+      selfVideo=document.createElement('video');
+    }
 
     var info=roomInfo(root);
 
-    /* 예전 게스트 전용 화면 조각은 화면에서 완전히 제거 */
     root.querySelectorAll('.kt-approved-guest-led,.kt-approved-guest-stats,.kt-approved-guest-grid,.kt-prejoin-room-led,.kt-prejoin-room-stats,.kt-prejoin-room-grid').forEach(function(x){try{x.remove();}catch(e){}});
     root.classList.remove('kt-approved-guest-room','kt-prejoin-room-view');
     root.classList.add('kt-guest-hostlike-active');
@@ -188,7 +226,7 @@
     hostVideo.playsInline=true;
     hostVideo.muted=false;
     hostVideo.style.cssText='';
-    hostVideo.srcObject=hostStream;
+    hostVideo.srcObject=hostCandidate;
 
     selfVideo.id='ktRemoteLiveVideo';
     selfVideo.className='';
@@ -196,7 +234,7 @@
     selfVideo.playsInline=true;
     selfVideo.muted=true;
     selfVideo.style.cssText='';
-    selfVideo.srcObject=selfStream;
+    if(selfCandidate)selfVideo.srcObject=selfCandidate;
 
     hostCell.appendChild(hostVideo);
     selfCell.appendChild(selfVideo);
@@ -243,7 +281,10 @@
     builtRoot=root;
 
     try{var p=hostVideo.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
-    try{var q=selfVideo.play();if(q&&q.catch)q.catch(function(){});}catch(e){}
+    if(selfCandidate){
+      try{var q=selfVideo.play();if(q&&q.catch)q.catch(function(){});}catch(e){}
+      try{window.__ktApprovedGuestSelfStream=selfCandidate;}catch(e){}
+    }
 
     var start=Date.now();
     var clock=room.querySelector('.kgh-clock');
@@ -285,7 +326,13 @@
           if(hv.srcObject!==hostStream)hv.srcObject=hostStream;
           if(hv.paused){try{var hp=hv.play();if(hp&&hp.catch)hp.catch(function(){});}catch(e){}}
         }
-        if(sv&&selfStream&&sv.srcObject!==selfStream)sv.srcObject=selfStream;
+        var latestSelf=null;
+        try{latestSelf=window.__ktApprovedGuestSelfStream||null;}catch(e){}
+        if(latestSelf&&latestSelf!==hostStream&&live(latestSelf))selfStream=latestSelf;
+        if(sv&&selfStream&&live(selfStream)&&sv.srcObject!==selfStream){
+          sv.srcObject=selfStream;
+          try{var sp=sv.play();if(sp&&sp.catch)sp.catch(function(){});}catch(e){}
+        }
         if(sv){
           try{
             sv.style.setProperty('transform','scaleX(-1)','important');
@@ -301,8 +348,18 @@
 
   window.addEventListener('kt-guest-approval-received',function(){
     approvalActive=true;
+    /* Switch to the multi-person room immediately, before camera negotiation ends. */
+    repair();
+    [20,60,120,220,400,700].forEach(function(ms){setTimeout(repair,ms);});
+  });
+  window.addEventListener('kt-approved-guest-stream-ready',function(){
+    if(!approvalActive)return;
+    repair();
+    setTimeout(repair,40);
+  });
+  window.addEventListener('kt-livekit-state',function(){
+    if(!approvalActive)return;
     setTimeout(repair,0);
-    setTimeout(repair,80);
   });
 
   function clearApprovedViewForFreshRoom(){
