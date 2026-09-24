@@ -1,5 +1,5 @@
 {
-  "version": 99,
+  "version": 100,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260924-video-connection-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "PIN 1111 confirmed. Temporarily unlock only live communication path needed for faster guest request/camera prewarm, immediate approval, and immediate explicit leave/slot release. Switches, rose, AI, public video feed, chat, gifts, and room layout remain protected.",
+  "note": "Fast guest join/approval/leave communication work completed under PIN 1111 and relocked. Participation request now starts on first physical touch, prewarms camera immediately, and sends realtime request first. Host approval sends realtime approval first before legacy work. Explicit guest leave is dual-sent immediately so host slots can be freed without heartbeat timeout. Switches, rose, AI, public video feed, chat, gifts, and room layout were not changed.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -88,23 +88,9 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "video_communication",
-    "media_transport",
-    "shared_guest_request_approval_signaling",
-    "guest_approval_to_slot",
-    "room_entry_exit_rejoin_stability_only",
-    "livekit_sfu_transport_bridge_only"
-  ],
-  "temporarily_unlocked_components": [
-    "video_communication",
-    "media_transport",
-    "shared_guest_request_approval_signaling",
-    "guest_approval_to_slot",
-    "room_entry_exit_rejoin_stability_only",
-    "livekit_sfu_transport_bridge_only"
-  ],
-  "last_communication_fix": "2026-09-24-instant-room-shell-video-watch16",
+  "current_editable_components": [],
+  "temporarily_unlocked_components": [],
+  "last_communication_fix": "2026-09-24-fast-request-approve-leave17",
   "last_video_feed_fix": "2026-09-24-full-feed-after-first6",
   "locked_components": [
     "public-video-feed",
