@@ -979,9 +979,14 @@
     setTimeout(function(){send('guest_approved',data);},320);
     setTimeout(function(){send('guest_approved',data);},700);
     setTimeout(function(){send('guest_approved',data);},1200);
-    try{window.dispatchEvent(new CustomEvent('kt-host-guest-approved',{
-      detail:{host_id:DEVICE,viewer_id:vid,at:Date.now()}
-    }));}catch(e){}
+    try{
+      window.dispatchEvent(new CustomEvent('kt-host-guest-approved',{
+        detail:{host_id:DEVICE,viewer_id:vid,at:Date.now()}
+      }));
+      window.dispatchEvent(new CustomEvent('kt-three-person-sync-now',{
+        detail:{host_id:DEVICE,viewer_id:vid,at:Date.now()}
+      }));
+    }catch(e){}
   }
   window.ktDirectApproveGuest20260922=function(vid,name){
     approveDirectGuest(vid,name);
@@ -1479,7 +1484,14 @@
       },ms);
     });
 
-    try{window.dispatchEvent(new CustomEvent('kt-guest-approval-received',{detail:{host_id:hid,viewer_id:viewerId()}}));}catch(e){}
+    try{
+      window.dispatchEvent(new CustomEvent('kt-guest-approval-received',{
+        detail:{host_id:hid,viewer_id:viewerId(),stream:guestStream||window.__ktApprovedGuestSelfStream||null,at:Date.now()}
+      }));
+      window.dispatchEvent(new CustomEvent('kt-three-person-sync-now',{
+        detail:{host_id:hid,viewer_id:viewerId(),at:Date.now()}
+      }));
+    }catch(e){}
   }
   function duplicateSignal(ev,p){
     try{
@@ -1591,7 +1603,20 @@
     if(ev==='guest_left'&&isHostRole()&&String(p.host_id||'')===DEVICE){
       clearApprovedGuestFromHost(String(p.viewer_id||''));return;
     }
-    if(ev==='guest_approved'){onGuestApproved(p);return;}
+    if(ev==='guest_approved'){
+      try{
+        window.dispatchEvent(new CustomEvent('kt-any-guest-approved',{
+          detail:{
+            host_id:String(p.host_id||''),
+            viewer_id:String(p.viewer_id||''),
+            name:String(p.name||'게스트'),
+            at:Number(p.at||Date.now())
+          }
+        }));
+      }catch(e){}
+      onGuestApproved(p);
+      return;
+    }
     if(ev==='guest_offer'){hostGuestOffer(p);return;}
     if(ev==='guest_answer'){guestHandleAnswer(p);return;}
     if(ev==='guest_ice'){handleGuestIce(p);return;}
