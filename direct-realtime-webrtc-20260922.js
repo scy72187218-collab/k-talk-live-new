@@ -754,7 +754,7 @@
             lastWatchAt=0;
             ensureViewerWatch(true);
           }
-        },3500);
+        },10000);
 
         /* 장시간 복구되지 않을 때만 기존 연결을 정리한다. */
         setTimeout(function(){
@@ -932,7 +932,20 @@
   }
   function attachGuestToHost(vid,name,stream){
     var slot=guestSlot(vid,name);if(!slot||!stream)return;
-    var v=slot.querySelector('video');if(v){v.srcObject=stream;v.muted=true;v.playsInline=true;try{var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(e){}}
+    var v=slot.querySelector('video');
+    if(v){
+      var currentLive=false,liveKitOn=false;
+      try{
+        var cur=v.srcObject;
+        currentLive=!!(cur&&cur.getVideoTracks&&cur.getVideoTracks().some(function(t){return t&&t.readyState==='live';}));
+        liveKitOn=!!(window.__ktLiveKitSfuState20260924&&window.__ktLiveKitSfuState20260924.connected);
+      }catch(e){}
+      /* When LiveKit already has a live picture, direct WebRTC stays as a
+         background fallback and must not keep replacing the same video element. */
+      if(!(liveKitOn&&currentLive&&v.srcObject!==stream))v.srcObject=stream;
+      v.muted=true;v.playsInline=true;
+      try{var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
+    }
     var sm=slot.querySelector('small');if(sm)sm.style.display='none';
   }
   function approveDirectGuest(vid,name){
@@ -1113,7 +1126,7 @@
         if(guestPc===pc&&pc.connectionState==='disconnected'){
           clearGuestOfferRetryTimers(pc);closePc(pc);guestPc=null;setTimeout(function(){makeGuestOffer(hid);},300);
         }
-      },2500);
+      },8000);
       }
     };
     try{
