@@ -1,5 +1,5 @@
 {
-  "version": 68,
+  "version": 69,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260924-video-connection-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "PIN 1111 verified. Activated immediate first public-video paint and strengthened fresh-room stale approved-guest cleanup only. Layout, direction, buttons, badges, gifts and other UI remain unchanged.",
+  "note": "PIN 1111 verified. Temporarily unlocked only public first-page video first-load speed. Remove duplicate hidden warm-video fetches and preserve the parser-started visible video request until its first frame is ready. Layout, room UI, direction, guest slots, buttons, badges, gifts and communication behavior remain unchanged.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -89,21 +89,9 @@
     "if_pin_mismatch": "keep_protected_components_locked"
   },
   "current_editable_components": [
-    "public_video_first_load_speed_only",
-    "stale_guest_approval_auto_restore_guard_only",
-    "room_entry_exit_rejoin_stability_only",
-    "approved_guest_peer_video_sync_only",
-    "broadcast_end_sync_only",
-    "livekit_sfu_transport_bridge_only",
-    "duplicate_approved_guest_video_slot_only"
+    "public_video_first_load_speed_only"
   ],
   "temporarily_unlocked_components": [
-    "public_video_first_load_speed_only",
-    "stale_guest_approval_auto_restore_guard_only",
-    "room_entry_exit_rejoin_stability_only",
-    "approved_guest_peer_video_sync_only",
-    "broadcast_end_sync_only",
-    "livekit_sfu_transport_bridge_only",
-    "duplicate_approved_guest_video_slot_only"
+    "public_video_first_load_speed_only"
   ]
-}\n
+}
