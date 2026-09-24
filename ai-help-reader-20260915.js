@@ -58,7 +58,9 @@
       };
       try{speechSynthesis.speak(u);}catch(e){setTimeout(next,180);}
     }
-    setTimeout(next,80);
+    /* Start the first utterance synchronously while we are still inside
+       the user's tap. Android in-app browsers can block delayed speech. */
+    next();
   }
 
   function greetingText(){
