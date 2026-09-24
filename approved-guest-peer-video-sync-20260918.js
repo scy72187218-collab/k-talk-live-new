@@ -549,6 +549,21 @@
     }
   }
 
+  function realtimeParticipantInfo20260924(){
+    var ids=[],names={};
+    try{
+      var map=window.__ktApprovedGuestIds20260924||{};
+      var nm=window.__ktApprovedGuestNames20260924||{};
+      Object.keys(map).forEach(function(id){
+        if(map[id]===true){
+          ids.push(id);
+          names[id]=String(nm[id]||'게스트');
+        }
+      });
+    }catch(e){}
+    return {ids:ids,names:names};
+  }
+
   async function tick(){
     if(ticking)return;ticking=true;
     try{
@@ -567,7 +582,8 @@
       absentSince=0;
       var hostId=await currentHost(selfId);if(!hostId){debug('no_host',selfId);return;}
       lastHost=hostId;lastSelf=selfId;
-      var info=await participantInfo(hostId);
+      var info=realtimeParticipantInfo20260924();
+      if(!info.ids.length)info=await participantInfo(hostId);
       debug('ready',selfId+' peers='+info.ids.join(','));
       var active={},now=Date.now();
       info.ids.forEach(function(id){
