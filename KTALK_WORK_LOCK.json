@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Rose/AI-only work completed and relocked. Public video roses now send on the first physical touch (pointerdown) with stable video ID retention. Site Usage AI speech now starts synchronously inside the user's tap, with duplicate delayed reads suppressed. No other features were changed.",
+  "note": "PIN 1111 confirmed. Only public-video rose controls and AI help/usage reading are temporarily unlocked. All other K-Talk components remain protected.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -88,8 +88,14 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [],
-  "temporarily_unlocked_components": [],
+  "current_editable_components": [
+    "public-video-rose",
+    "ai-help-reader"
+  ],
+  "temporarily_unlocked_components": [
+    "public-video-rose",
+    "ai-help-reader"
+  ],
   "last_communication_fix": "2026-09-24-instant-room-shell-video-watch16",
   "last_video_feed_fix": "2026-09-24-full-feed-after-first6",
   "locked_components": [
@@ -118,5 +124,5 @@
   "last_switch_lock": "2026-09-24-all-switches-explicit-lock",
   "last_switch_ai_fix": "2026-09-24-first-touch-switch-site-guide-ai2",
   "last_rose_ai_fix": "2026-09-24-rose-first-touch-guide-user-tap4",
-  "last_unlock": "2026-09-24-rose-ai-only"
+  "last_unlock": "2026-09-24-rose-ai-only-reopen"
 }
