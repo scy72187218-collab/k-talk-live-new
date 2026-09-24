@@ -133,6 +133,25 @@
   };
 
   function install(){
+    if(typeof window.openSiteGuide==='function'&&!window.openSiteGuide.__ktAiHelpDirectWrapped){
+      var oldGuide=window.openSiteGuide;
+      var guideWrapped=function(){
+        try{
+          if(window.state)state.aiVoiceOn=true;
+          localStorage.setItem('ktalk_ai_voice','on');
+        }catch(e){}
+        var r=oldGuide.apply(this,arguments);
+        setTimeout(function(){
+          try{
+            document.querySelectorAll('.kt-public-video,#homeVideo,#ktLibraryPlayer').forEach(function(v){try{v.pause();v.muted=true;}catch(e){}});
+          }catch(e){}
+          readCurrentSheet();
+        },20);
+        return r;
+      };
+      guideWrapped.__ktAiHelpDirectWrapped=true;
+      window.openSiteGuide=guideWrapped;
+    }
     if(typeof window.showSheet==='function'&&!window.showSheet.__ktAiHelpWrapped){
       var oldShow=window.showSheet;
       var wrapped=function(title,html){
