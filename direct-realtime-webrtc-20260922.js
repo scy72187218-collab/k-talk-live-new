@@ -151,27 +151,29 @@
     if(!activeHostId)return;
     payload=payload||{};
 
-    /* Durable signaling: REST Broadcast is cluster-wide and does not depend
-       on one Vercel function instance. Keep WS send as a low-latency second path. */
-    restBroadcast(eventName,payload);
-
-    if(!joined||!ws||ws.readyState!==1){
-      queue.push({event:eventName,payload:payload});
-      if(queue.length>40)queue=queue.slice(-40);
-      return;
+    /* 2026-09-24 communication stability:
+       Use one signaling path at a time. Supabase WebSocket Broadcast is
+       cluster-wide after the channel is joined. REST is fallback only while
+       the socket is not joined or if a synchronous WS send throws.
+       This prevents duplicate offer/answer/ICE/guest events from racing. */
+    if(joined&&ws&&ws.readyState===1){
+      try{
+        ws.send(JSON.stringify({
+          topic:topic,event:'broadcast',
+          payload:{type:'broadcast',event:eventName,payload:payload},
+          ref:String(seq++),join_ref:joinRef
+        }));
+        window.__ktSignalTransport20260924='websocket';
+        return;
+      }catch(e){}
     }
-    try{
-      ws.send(JSON.stringify({
-        topic:topic,event:'broadcast',
-        payload:{type:'broadcast',event:eventName,payload:payload},
-        ref:String(seq++),join_ref:joinRef
-      }));
-    }catch(e){}
+    window.__ktSignalTransport20260924='rest-fallback';
+    restBroadcast(eventName,payload);
   }
   function flush(){
-    if(!joined)return;
-    var q=queue.splice(0);
-    q.forEach(function(x){send(x.event,x.payload);});
+    /* Messages sent during reconnect already used REST fallback.
+       Do not replay them after WS join, which used to duplicate signaling. */
+    queue.length=0;
   }
 
   function sharedApprovalPost(hostId,type,vid,name){
