@@ -1645,6 +1645,11 @@
             at:Number(p.at||Date.now())
           }
         }));
+        try{
+          if(typeof window.ktForceApprovedGuestGridNow20260924==='function'){
+            window.ktForceApprovedGuestGridNow20260924();
+          }
+        }catch(_e){}
       }catch(e){}
       onGuestApproved(p);
       return;
