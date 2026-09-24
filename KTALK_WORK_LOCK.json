@@ -1,5 +1,5 @@
 {
-  "version": 62,
+  "version": 63,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260923-guest-direction-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "PIN 1111 verified. Changed only first-page public video communication/load speed: cached first-video preconnect, preload and warm media now start immediately after app.js. Room layout, buttons, badges, directions, chat, guest approval and other UI remain unchanged.",
+  "note": "PIN 1111 verified. Changed only first-page public video startup order: posted-feed now loads immediately after app.js and the first-video warm-up script, so the cached first video can render before later room/UI scripts. Other rooms, buttons, badges, directions, chat and guest approval remain unchanged.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
