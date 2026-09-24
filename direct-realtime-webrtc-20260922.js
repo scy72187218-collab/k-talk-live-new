@@ -1889,9 +1889,12 @@
       viewerConnected=false;
       lastWatchAt=0;
       if(activeHostId!==hid)connect(hid);
-      else if(joined)ensureViewerWatch(true);
-      setTimeout(function(){ensureViewerWatch(true);attachRemoteStreamNow();},80);
-      setTimeout(function(){ensureViewerWatch(true);attachRemoteStreamNow();},220);
+      /* Send the first watch immediately. If WebSocket is not joined yet,
+         send() uses REST fallback, so room entry does not wait for WS join. */
+      ensureViewerWatch(true);
+      attachRemoteStreamNow();
+      setTimeout(function(){ensureViewerWatch(true);attachRemoteStreamNow();},35);
+      setTimeout(function(){ensureViewerWatch(true);attachRemoteStreamNow();},100);
     }catch(z){}
   });
 
