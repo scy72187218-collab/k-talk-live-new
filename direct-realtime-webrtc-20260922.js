@@ -1047,7 +1047,14 @@
       try{guestStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'user'}},audio:true});}
       catch(e){try{guestStream=await navigator.mediaDevices.getUserMedia({video:true,audio:false});}catch(z){return;}}
     }
-    try{if(guestStream)window.__ktApprovedGuestSelfStream=guestStream;}catch(e){}
+    try{
+      if(guestStream){
+        window.__ktApprovedGuestSelfStream=guestStream;
+        window.dispatchEvent(new CustomEvent('kt-approved-guest-stream-ready',{
+          detail:{host_id:hid,viewer_id:viewerId(),at:Date.now()}
+        }));
+      }
+    }catch(e){}
     makeGuestOffer(hid);
   }
   function waitIceCompleteDirect(pc,ms){
