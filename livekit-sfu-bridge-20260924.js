@@ -446,15 +446,38 @@
 
   window.addEventListener('kt-guest-approval-received',function(e){
     approvedHostId=String(e&&e.detail&&e.detail.host_id||'').trim();
-    if(approvedHostId){
-      watchHostId=approvedHostId;
-      [0,40,100,220,450,800].forEach(function(ms){setTimeout(hostTick,ms);});
-    }
+    if(!approvedHostId)return;
+    watchHostId=approvedHostId;
+
+    /* If the SFU viewer room is already connected (normal case), do not wait
+       for hostTick scheduling. Publish the prewarmed guest stream NOW. */
+    try{
+      var gs=guestStream();
+      if(room&&room.state==='connected'&&currentHostId===approvedHostId&&gs){
+        var p=publishSharedStream(gs);
+        if(p&&p.then)p.then(function(){
+          reattachRemoteTracks();
+          setTimeout(reattachRemoteTracks,25);
+          setTimeout(reattachRemoteTracks,80);
+        }).catch(function(){});
+      }else{
+        hostTick();
+      }
+    }catch(z){hostTick();}
+
+    [30,90,180].forEach(function(ms){setTimeout(hostTick,ms);});
   });
   window.addEventListener('kt-approved-guest-stream-ready',function(e){
     var h=String(e&&e.detail&&e.detail.host_id||approvedHostId||remoteHostId()||'').trim();
     if(h){approvedHostId=h;watchHostId=h;}
-    [0,30,90,180,350].forEach(function(ms){setTimeout(hostTick,ms);});
+    try{
+      var gs=guestStream();
+      if(room&&room.state==='connected'&&gs){
+        var p=publishSharedStream(gs);
+        if(p&&p.then)p.then(function(){reattachRemoteTracks();}).catch(function(){});
+      }else hostTick();
+    }catch(z){hostTick();}
+    [25,80,160].forEach(function(ms){setTimeout(hostTick,ms);});
   });
   window.addEventListener('kt-guest-camera-prewarmed',function(e){
     var h=String(e&&e.detail&&e.detail.host_id||remoteHostId()||'').trim();
@@ -464,9 +487,22 @@
     [0,40,120].forEach(function(ms){setTimeout(hostTick,ms);});
   });
   window.addEventListener('kt-host-guest-approved',function(){
-    /* Host may already know the participant. Re-scan immediately when approval
-       flips the identity gate so an existing/subscribing track fills its slot. */
-    [0,20,60,140,300].forEach(function(ms){setTimeout(reattachRemoteTracks,ms);});
+    reattachRemoteTracks();
+    [15,45,100,200].forEach(function(ms){setTimeout(reattachRemoteTracks,ms);});
+  });
+  window.addEventListener('kt-any-guest-approved',function(){
+    /* Every already-connected device (host + all guests) immediately rescans
+       the same LiveKit room when another guest is approved. */
+    reattachRemoteTracks();
+    [20,60,120,240,420].forEach(function(ms){setTimeout(reattachRemoteTracks,ms);});
+  });
+  window.addEventListener('kt-three-person-sync-now',function(){
+    reattachRemoteTracks();
+    try{hostTick();}catch(e){}
+    [20,70,150].forEach(function(ms){setTimeout(function(){
+      reattachRemoteTracks();
+      try{hostTick();}catch(e){}
+    },ms);});
   });
   window.addEventListener('kt-remote-host-selected',function(e){
     var h=String(e&&e.detail&&e.detail.host_id||'').trim();
