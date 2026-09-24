@@ -404,21 +404,19 @@
       if(id&&!names[id])names[id]=String(v.viewer_name||'게스트');
     });
 
-    var ids={};
-
-    /* 기존 DB guest 세션은 계속 fallback 명단으로 사용한다. */
-    sessions.forEach(function(row){
-      var tag=String(row.viewer_id||'');
-      if(tag.indexOf('guest:')===0){
-        var id=tag.slice(6);
-        if(id)ids[id]=true;
-      }
-    });
-
-    /* 빠른 Realtime 경로에서는 별도 DB guest 세션이 없을 수 있다.
-       승인/heartbeat 메시지를 합쳐 모든 폰이 같은 승인 게스트 명단을 보게 한다. */
+    /* A peer is allowed only after a fresh approval in the current host run.
+       Old DB sessions or heartbeat-only rows must never create a guest tile
+       in a newly restarted broadcast. */
+    var runCut=0;
+    try{
+      runCut=Math.max(
+        Number(window.__ktRemoteHostSessionStartedAt20260924||0),
+        Number(window.__ktHostRunStartedAt20260924||0)
+      );
+    }catch(e){}
+    var signalCut=runCut>0?Math.max(0,runCut-1200):Date.now()-12000;
+    var approvedAt={},aliveAt={},leftAt={},aliveName={};
     var msgs=mem&&Array.isArray(mem.messages)?mem.messages:[];
-    var state={},aliveName={};
     msgs.forEach(function(m){
       var type=String(m.message_type||''),id='',kind='';
       if(type.indexOf('guest_approved:')===0){id=type.slice(15);kind='approved';}
@@ -428,18 +426,34 @@
       else if(type.indexOf('guest_cancel:')===0){id=type.slice(13);kind='left';}
       if(!id)return;
       var ts=Date.parse(m.created_at||'')||0;
-      if(kind==='alive'&&m.sender_name)aliveName[id]={name:String(m.sender_name),ts:ts};
-      if(!state[id]||ts>=state[id].ts)state[id]={kind:kind,ts:ts};
+      if(ts<signalCut)return;
+      if(kind==='approved')approvedAt[id]=Math.max(Number(approvedAt[id]||0),ts);
+      else if(kind==='alive'){
+        aliveAt[id]=Math.max(Number(aliveAt[id]||0),ts);
+        if(m.sender_name)aliveName[id]={name:String(m.sender_name),ts:ts};
+      }else if(kind==='left')leftAt[id]=Math.max(Number(leftAt[id]||0),ts);
     });
-    var now=Date.now();
-    Object.keys(state).forEach(function(id){
-      var st=state[id];
-      if((st.kind==='approved'||st.kind==='alive')&&now-st.ts<60000){
+
+    var ids={},now=Date.now();
+    Object.keys(approvedAt).forEach(function(id){
+      var ap=Number(approvedAt[id]||0),left=Number(leftAt[id]||0),alive=Number(aliveAt[id]||0);
+      var last=Math.max(ap,alive);
+      if(ap>left&&last&&now-last<90000){
         ids[id]=true;
         if(!names[id]&&aliveName[id])names[id]=aliveName[id].name;
-      }else if(st.kind==='left'){
-        delete ids[id];
       }
+    });
+
+    /* DB guest sessions are fallback transport only, not approval authority.
+       They are admitted only when this page already knows the guest was approved
+       in the current run. */
+    var localApproved={};
+    try{localApproved=window.__ktApprovedGuestIds20260924||{};}catch(e){}
+    sessions.forEach(function(row){
+      var tag=String(row.viewer_id||'');
+      if(tag.indexOf('guest:')!==0)return;
+      var id=tag.slice(6);
+      if(id&&localApproved[id]===true)ids[id]=true;
     });
 
     Object.keys(ids).forEach(function(id){if(!names[id])names[id]='게스트';});
@@ -459,6 +473,15 @@
       if(rows&&rows[0]){rows[0].__source='db';return rows[0];}
     }catch(e){}
     return null;
+  }
+
+  function clearUnapprovedPeerCells(active){
+    try{
+      document.querySelectorAll('[data-kt-peer-viewer]').forEach(function(cell){
+        var id=String(cell.dataset&&cell.dataset.ktPeerViewer||'');
+        if(id&&!active[id])clearPeerCell(id);
+      });
+    }catch(e){}
   }
 
   async function ensurePeer(hostId,selfId,peerId,name,stream){
@@ -502,6 +525,7 @@
       info.ids.forEach(function(id){if(id!==selfId)active[id]=true;});
       var old=Object.keys(peers);
       await Promise.all(old.filter(function(id){return !active[id];}).map(function(id){return dropPeer(id);}));
+      clearUnapprovedPeerCells(active);
       var ids=Object.keys(active);
       await Promise.all(ids.map(function(pid){
         return ensurePeer(hostId,selfId,pid,info.names[pid]||'게스트',stream);
@@ -517,6 +541,33 @@
   [60,180,400,800,1400].forEach(function(ms){setTimeout(tick,ms);});
   window.addEventListener('kt-guest-approval-received',function(){
     [0,80,220,500].forEach(function(ms){setTimeout(tick,ms);});
+  });
+
+  function clearAllPeerState(){
+    var ids=Object.keys(peers);
+    ids.forEach(function(pid){
+      try{
+        var q=dropPeer(pid);
+        if(q&&q.catch)q.catch(function(){});
+      }catch(e){}
+    });
+    try{
+      document.querySelectorAll('[data-kt-peer-viewer]').forEach(function(cell){
+        var id=String(cell.dataset&&cell.dataset.ktPeerViewer||'');
+        if(id)clearPeerCell(id);
+      });
+    }catch(e){}
+    lastHost='';lastSelf='';absentSince=0;
+  }
+  window.addEventListener('kt-host-session-reset',clearAllPeerState);
+  window.addEventListener('kt-host-session-ready',function(e){
+    try{
+      var d=e&&e.detail||{};
+      var key=String(d.host_id||'')+'|'+String(d.run_id||'')+'|'+String(d.started_at||'');
+      if(!key)return;
+      if(window.__ktPeerRunKey20260924&&window.__ktPeerRunKey20260924!==key)clearAllPeerState();
+      window.__ktPeerRunKey20260924=key;
+    }catch(z){}
   });
 
   window.addEventListener('pagehide',function(){
