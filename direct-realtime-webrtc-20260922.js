@@ -213,7 +213,10 @@
     if(!vid)return;
     delete pendingRequests[vid];
     delete approvedGuests[vid];
-    try{delete window.__ktApprovedGuestIds20260924[vid];}catch(e){}
+    try{
+      delete window.__ktApprovedGuestIds20260924[vid];
+      if(window.__ktApprovedGuestNames20260924)delete window.__ktApprovedGuestNames20260924[vid];
+    }catch(e){}
     delete hostGuestAliveAt[vid];
     delete pendingHostGuestOffers[vid];
     Object.keys(pendingHostGuestIce).forEach(function(k){
@@ -434,7 +437,12 @@
             delete pendingRequests[vid];
             if(x.kind==='approved'){
               approvedGuests[vid]=approvedGuests[vid]||{name:x.name||'게스트',at:x.ts||Date.now()};
-              try{window.__ktApprovedGuestIds20260924[vid]=true;}catch(e){}
+              try{
+                window.__ktApprovedGuestIds20260924[vid]=true;
+                window.__ktApprovedGuestNames20260924=window.__ktApprovedGuestNames20260924||{};
+                window.__ktApprovedGuestNames20260924[vid]=String(x.name||'게스트');
+              }catch(e){}
+              try{guestSlot(vid,x.name||'게스트');}catch(e){}
               hostGuestAliveAt[vid]=Math.max(Number(hostGuestAliveAt[vid]||0),Number(x.ts||Date.now()));
               replayPendingHostGuestOffer(vid);
             }else if(x.kind==='alive'){
@@ -988,6 +996,9 @@
     }
     return slot;
   }
+  window.ktEnsureApprovedGuestSlot20260924=function(vid,name){
+    try{return guestSlot(String(vid||'').trim(),String(name||'게스트'));}catch(e){return null;}
+  };
   function attachGuestToHost(vid,name,stream){
     var slot=guestSlot(vid,name);if(!slot||!stream)return;
     var v=slot.querySelector('video');
@@ -1010,7 +1021,11 @@
     vid=String(vid||'').trim();
     if(!vid)return;
     approvedGuests[vid]={name:name||'게스트',at:Date.now()};
-    try{window.__ktApprovedGuestIds20260924[vid]=true;}catch(e){}
+    try{
+      window.__ktApprovedGuestIds20260924[vid]=true;
+      window.__ktApprovedGuestNames20260924=window.__ktApprovedGuestNames20260924||{};
+      window.__ktApprovedGuestNames20260924[vid]=String(name||'게스트');
+    }catch(e){}
     delete pendingRequests[vid];guestSlot(vid,name);renderDirectRequests();
     var warmPeer=hostGuestPeers[vid]||null;
     if(warmPeer&&warmPeer.pendingStream){
