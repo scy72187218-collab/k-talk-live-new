@@ -355,8 +355,18 @@
     if(!hostId||leaveAnnouncedHost===hostId)return;
     leaveAnnouncedHost=hostId;
     var vid=viewerId(),data={host_id:hostId,viewer_id:vid,name:profileName(),at:Date.now()};
-    postGuestLeaveShared(hostId);
+    /* Explicit leave is authoritative: dual-send immediately so the host
+       can free the slot without waiting for heartbeat/poll timeouts. */
     try{send('guest_left',data);}catch(e){}
+    try{restBroadcast('guest_left',data);}catch(e){}
+    postGuestLeaveShared(hostId);
+    try{
+      delete window.__ktApprovedGuestIds20260924[vid];
+      if(window.__ktApprovedGuestNames20260924)delete window.__ktApprovedGuestNames20260924[vid];
+      window.dispatchEvent(new CustomEvent('kt-any-guest-left',{detail:{
+        host_id:hostId,viewer_id:vid,at:Date.now(),explicit:true
+      }}));
+    }catch(e){}
     try{closePc(guestPc);}catch(e){}
     guestPc=null;guestSession='';guestApproved=false;guestApprovedHost='';requestOn=false;
     try{
@@ -936,20 +946,9 @@
     rail.innerHTML='';
     ids.forEach(function(id){
       var x=pendingRequests[id],b=document.createElement('button');b.type='button';b.dataset.viewerId=id;b.dataset.viewerName=String(x.name||'게스트');b.textContent='👤 '+String(x.name||'게스트')+' 올리기';
-      b.onclick=function(e){
-        e.preventDefault();e.stopPropagation();
-        var nm=x.name||'게스트';
-        /* Host approval UI only:
-           run the proven room approval flow first so the guest slot + durable approval
-           are created, then mirror the same approval into the direct realtime path. */
-        try{
-          if(typeof window.ktApproveGuest==='function'){
-            var old=window.ktApproveGuest(id,nm,null);
-            if(old&&old.catch)old.catch(function(){});
-          }
-        }catch(_e){}
-        approveDirectGuest(id,nm);
-      };
+      /* Use one approval handler for pointerdown/touch/click.
+         It sends the realtime approval first and defers the legacy durable path. */
+      b.onclick=forceApprovalTap;
       rail.appendChild(b);
     });
   }
@@ -1020,30 +1019,34 @@
   function approveDirectGuest(vid,name){
     vid=String(vid||'').trim();
     if(!vid)return;
-    approvedGuests[vid]={name:name||'게스트',at:Date.now()};
+    name=String(name||'게스트');
+    var data={host_id:DEVICE,viewer_id:vid,name:name,at:Date.now()};
+
+    approvedGuests[vid]={name:name,at:data.at};
     try{
       window.__ktApprovedGuestIds20260924[vid]=true;
       window.__ktApprovedGuestNames20260924=window.__ktApprovedGuestNames20260924||{};
-      window.__ktApprovedGuestNames20260924[vid]=String(name||'게스트');
+      window.__ktApprovedGuestNames20260924[vid]=name;
     }catch(e){}
-    delete pendingRequests[vid];guestSlot(vid,name);renderDirectRequests();
-    var warmPeer=hostGuestPeers[vid]||null;
-    if(warmPeer&&warmPeer.pendingStream){
-      attachGuestToHost(vid,name||'게스트',warmPeer.pendingStream);
-    }
-    replayPendingHostGuestOffer(vid);
-    var data={host_id:DEVICE,viewer_id:vid,name:name||'게스트',at:Date.now()};
 
-    /* Approval is idempotent and duplicateSignal() already de-dupes it.
-       Send this ONE control event through both transports immediately so a
-       momentarily slow WebSocket cannot delay the visible approval. Keep
-       offer/answer/ICE on the single transport path to avoid RTC races. */
+    /* REALTIME FIRST: the guest receives approval before host-side DOM work,
+       legacy persistence, or any extra rendering can delay the signal. */
     send('guest_approved',data);
     try{restBroadcast('guest_approved',data);}catch(e){}
-    sharedApprovalPost(DEVICE,'guest_approved',vid,profileName());
-    setTimeout(function(){sharedApprovalPost(DEVICE,'guest_approved',vid,profileName());},120);
-    setTimeout(function(){sharedApprovalPost(DEVICE,'guest_approved',vid,profileName());},350);
-    setTimeout(function(){sharedApprovalPost(DEVICE,'guest_approved',vid,profileName());},800);
+
+    delete pendingRequests[vid];
+    guestSlot(vid,name);
+    var warmPeer=hostGuestPeers[vid]||null;
+    if(warmPeer&&warmPeer.pendingStream){
+      attachGuestToHost(vid,name,warmPeer.pendingStream);
+    }
+    replayPendingHostGuestOffer(vid);
+    renderDirectRequests();
+
+    sharedApprovalPost(DEVICE,'guest_approved',vid,name);
+    setTimeout(function(){sharedApprovalPost(DEVICE,'guest_approved',vid,name);},120);
+    setTimeout(function(){sharedApprovalPost(DEVICE,'guest_approved',vid,name);},350);
+    setTimeout(function(){sharedApprovalPost(DEVICE,'guest_approved',vid,name);},800);
     setTimeout(function(){send('guest_approved',data);},50);
     setTimeout(function(){send('guest_approved',data);},150);
     setTimeout(function(){send('guest_approved',data);},700);
@@ -1105,13 +1108,16 @@
     }
     __ktApprovalTapAt=now;
     try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
-    try{
-      if(typeof window.ktApproveGuest==='function'){
-        var old=window.ktApproveGuest(data.vid,data.name,null);
-        if(old&&old.catch)old.catch(function(){});
-      }
-    }catch(_e){}
+    /* Direct realtime approval must be the first action of the tap. */
     approveDirectGuest(data.vid,data.name);
+    setTimeout(function(){
+      try{
+        if(typeof window.ktApproveGuest==='function'){
+          var old=window.ktApproveGuest(data.vid,data.name,null);
+          if(old&&old.catch)old.catch(function(){});
+        }
+      }catch(_e){}
+    },0);
     try{
       document.querySelectorAll('.ktg13-request-chip[data-viewer-id="'+CSS.escape(data.vid)+'"]').forEach(function(x){x.remove();});
       var choice=document.getElementById('ktGuestHostChoice');
@@ -1777,9 +1783,16 @@
     return true;
   }
 
+  var __ktRequestTapAt=0,__ktRequestTapBtn=null;
   function directRequestClick(e){
     var b=e.target&&e.target.closest?e.target.closest('#ktRemoteGuestRequest'):null;if(!b)return;
     var hid=remoteHostId();if(!hid)return;
+    var now=Date.now();
+    if(__ktRequestTapBtn===b&&now-__ktRequestTapAt<650){
+      try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
+      return;
+    }
+    __ktRequestTapBtn=b;__ktRequestTapAt=now;
     e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
     requestOn=!requestOn;
     if(requestOn){
@@ -1803,8 +1816,10 @@
           }).catch(function(){});
         }
       }catch(e){}
-      sharedApprovalPost(hid,'guest_request',viewerId(),profileName());
-      send('guest_request',{host_id:hid,viewer_id:viewerId(),name:profileName(),at:Date.now()});
+      var reqData={host_id:hid,viewer_id:viewerId(),name:profileName(),at:Date.now()};
+      send('guest_request',reqData);
+      try{restBroadcast('guest_request',reqData);}catch(e){}
+      sharedApprovalPost(hid,'guest_request',reqData.viewer_id,reqData.name);
     }else{
       b.classList.remove('kt-requested');b.style.removeProperty('box-shadow');
       if(!guestApproved){
@@ -1818,6 +1833,8 @@
       send('guest_cancel',{host_id:hid,viewer_id:viewerId(),at:Date.now()});
     }
   }
+  document.addEventListener('pointerdown',directRequestClick,true);
+  document.addEventListener('touchstart',directRequestClick,{capture:true,passive:false});
   document.addEventListener('click',directRequestClick,true);
 
   function roleTick(){
