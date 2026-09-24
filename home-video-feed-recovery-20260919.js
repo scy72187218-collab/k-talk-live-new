@@ -67,10 +67,14 @@
       }
 
       /* 저장된 피드 주소가 오래되어 전부 안 열릴 때 한 번만 새 목록을 받음 */
-      if(!cacheRefreshDone&&typeof window.home==='function'){
+      if(!cacheRefreshDone){
         cacheRefreshDone=true;
-        /* 마지막으로 정상 재생된 목록은 지우지 않는다. */
-        setTimeout(function(){try{window.home();}catch(e){}},80);
+        setTimeout(function(){
+          try{
+            if(typeof window.ktRefreshSharedFeedNow==='function')window.ktRefreshSharedFeedNow();
+            else if(typeof window.home==='function')window.home();
+          }catch(e){}
+        },40);
       }
     });
   }
