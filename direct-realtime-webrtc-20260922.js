@@ -308,6 +308,28 @@
     return true;
   };
 
+  /* Viewer leave/re-entry cleanup (2026-09-24):
+     close the old receive/uplink transports immediately instead of waiting for
+     the 12s missing-host grace period. This prevents an old black/stale guest
+     session from being reused when the same phone enters the room again. */
+  window.ktDirectRemoteLeaveNow20260924=function(hostId){
+    var hid=String(hostId||guestApprovedHost||remoteHostId()||lastRemoteHost||activeHostId||'').trim();
+    try{if(hid)announceGuestLeave(hid);}catch(e){}
+    clearViewerConnectTimer();
+    try{closePc(viewerPc);}catch(e){}
+    try{closePc(guestPc);}catch(e){}
+    viewerPc=null;viewerSession='';viewerWatchToken='';viewerConnected=false;viewerIce={};
+    guestPc=null;guestSession='';guestApproved=false;guestApprovedHost='';guestApprovedAt=0;guestIce={};
+    requestOn=false;leaveAnnouncedHost='';guestAliveLastSent=0;
+    remoteRunId='';remoteRunStartedAt=0;remoteHostMissingSince=0;
+    try{window.__ktRemoteHostStream=null;}catch(e){}
+    try{window.__ktUseMemoryGuestVideo20260922=false;}catch(e){}
+    lastRemoteHost='';
+    activeHostId='';
+    try{closeSocket();}catch(e){}
+    return true;
+  };
+
   async function syncSharedApprovalSignals(){
     if(sharedApprovalPollBusy)return;
     var host=isHostRole(),hid=host?DEVICE:remoteHostId();
