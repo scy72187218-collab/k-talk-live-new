@@ -17,6 +17,30 @@
   var requestOn=false,lastRemoteHost='',lastHostRole='',lastWatchAt=0;
   var sharedApprovalPollBusy=false,leaveAnnouncedHost='',guestAliveLastSent=0,hostGuestAliveAt={},remoteHostMissingSince=0;
   var signalSeen={},viewerOfferInFlight='',lastHostReadyAt=0,lastGuestRequestAt=0,guestApprovedAt=0;
+  var sharedRuntimeStartedAt=Date.now()-5000,sharedRoomCutCache={};
+
+  async function sharedCurrentRoomCutoff(hostId){
+    hostId=String(hostId||'').trim();
+    if(!hostId)return sharedRuntimeStartedAt;
+    var cached=sharedRoomCutCache[hostId];
+    if(cached&&Date.now()-Number(cached.at||0)<3000)return Number(cached.cut||sharedRuntimeStartedAt);
+    var cut=0;
+    try{
+      var url='https://'+REF+'.supabase.co/rest/v1/ktalk_live_rooms?select=started_at,active&host_id=eq.'+
+        encodeURIComponent(hostId)+'&active=eq.true&order=started_at.desc&limit=1';
+      var r=await fetch(url,{cache:'no-store',headers:{apikey:KEY,Authorization:'Bearer '+KEY}});
+      if(r&&r.ok){
+        var rows=await r.json();
+        if(rows&&rows[0]&&rows[0].started_at){
+          var t=Date.parse(String(rows[0].started_at||''));
+          if(isFinite(t)&&t>0)cut=t;
+        }
+      }
+    }catch(e){}
+    if(!cut)cut=sharedRuntimeStartedAt;
+    sharedRoomCutCache[hostId]={cut:cut,at:Date.now()};
+    return cut;
+  }
 
   function deviceId(){
     var id='';
@@ -281,6 +305,12 @@
       var r=await fetch('/api/live-interaction-memory?action=messages&host_id='+encodeURIComponent(hid)+'&t='+Date.now(),{cache:'no-store'});
       if(!r.ok)return;
       var j=await r.json(),rows=Array.isArray(j&&j.messages)?j.messages:[];
+      /* 이전 방송의 참여 신청/승인 기록이 30분 캐시에 남아 있으면
+         새 방송에서 사용자가 신청하지 않았는데도 게스트 영상이 자동 복원될 수 있다.
+         현재 활성 방송 시작 이후 신호만 인정한다. DB 조회가 잠시 실패하면
+         이 브라우저가 열린 시점 이후 신호만 인정해서 오래된 승인을 자동 복구하지 않는다. */
+      var roomCut=await sharedCurrentRoomCutoff(hid);
+      rows=rows.filter(function(m){return sharedMsgTime(m)>=roomCut;});
       if(host){
         var latest={};
         rows.forEach(function(m){
