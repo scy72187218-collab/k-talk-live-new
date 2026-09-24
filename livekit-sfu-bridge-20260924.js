@@ -266,6 +266,87 @@
       return v;
     }catch(e){return null;}
   }
+  function approvedRoster20260924(){
+    var ids=[],names={};
+    try{
+      var map=window.__ktApprovedGuestIds20260924||{};
+      var nm=window.__ktApprovedGuestNames20260924||{};
+      Object.keys(map).forEach(function(id){
+        if(map[id]===true){
+          ids.push(id);
+          names[id]=String(nm[id]||'게스트');
+        }
+      });
+    }catch(e){}
+    return {ids:ids,names:names};
+  }
+  function setGuestTargetLabel20260924(v,name){
+    try{
+      var cell=v&&v.parentElement;
+      if(!cell)return;
+      var label=cell.querySelector('.kgh-label,.kt-guest-name,label,span');
+      if(label)label.textContent=String(name||'게스트');
+    }catch(e){}
+  }
+  function ensureApprovedRosterSlots20260924(){
+    var roster=approvedRoster20260924();
+    var self=viewerId();
+
+    if(isHostRole()){
+      roster.ids.forEach(function(id){
+        try{
+          if(typeof window.ktEnsureApprovedGuestSlot20260924==='function'){
+            window.ktEnsureApprovedGuestSlot20260924(id,roster.names[id]||'게스트');
+          }
+        }catch(e){}
+      });
+      return roster;
+    }
+
+    var selfApproved=roster.ids.indexOf(self)>=0;
+    if(selfApproved){
+      try{
+        if(typeof window.ktForceApprovedGuestGridNow20260924==='function'){
+          window.ktForceApprovedGuestGridNow20260924();
+        }
+      }catch(e){}
+    }
+
+    roster.ids.forEach(function(id){
+      if(id===self)return;
+      var v=exactGuestVideo(id)||createGuestVideoTarget(id);
+      if(v)setGuestTargetLabel20260924(v,roster.names[id]||'게스트');
+    });
+    return roster;
+  }
+  function removeApprovedGuestSlot20260924(identity){
+    identity=String(identity||'').trim();
+    if(!identity)return;
+    try{
+      var esc=identity;
+      try{esc=CSS.escape(identity);}catch(e){}
+      document.querySelectorAll(
+        '[data-kt-livekit-guest="'+esc+'"],'+
+        '[data-kt-peer-viewer="'+esc+'"]'
+      ).forEach(function(cell){
+        var direct=String(cell.dataset&&cell.dataset.ktDirectGuest||'');
+        var legacy=String(cell.dataset&&cell.dataset.ktGuestViewerId||'');
+        if(direct===identity||legacy===identity)return;
+        try{
+          var v=cell.querySelector('video');
+          if(v){v.pause();v.srcObject=null;}
+        }catch(e){}
+        try{
+          delete cell.dataset.ktLivekitGuest;
+          delete cell.dataset.ktPeerViewer;
+          cell.classList.remove('kt-livekit-peer-guest','kt-peer-guest');
+          cell.innerHTML='<span>게스트</span>';
+        }catch(e){}
+      });
+    }catch(e){}
+    delete guestVideoById[identity];
+  }
+
   function attachGuestVideo(identity,stream){
     if(isHostRole()){
       try{if(!window.__ktApprovedGuestIds20260924||!window.__ktApprovedGuestIds20260924[identity])return;}catch(e){return;}
@@ -300,6 +381,7 @@
     }
   }
   function reattachRemoteTracks(){
+    ensureApprovedRosterSlots20260924();
     if(!room||room.state!=='connected')return;
     try{
       room.remoteParticipants.forEach(function(p){
@@ -493,18 +575,28 @@
     [15,45,100,200].forEach(function(ms){setTimeout(reattachRemoteTracks,ms);});
   });
   window.addEventListener('kt-any-guest-approved',function(){
-    /* Every already-connected device (host + all guests) immediately rescans
-       the same LiveKit room when another guest is approved. */
+    ensureApprovedRosterSlots20260924();
     reattachRemoteTracks();
-    [20,60,120,240,420].forEach(function(ms){setTimeout(reattachRemoteTracks,ms);});
+    [20,60,120,240,420].forEach(function(ms){setTimeout(function(){
+      ensureApprovedRosterSlots20260924();
+      reattachRemoteTracks();
+    },ms);});
   });
   window.addEventListener('kt-three-person-sync-now',function(){
+    ensureApprovedRosterSlots20260924();
     reattachRemoteTracks();
     try{hostTick();}catch(e){}
     [20,70,150].forEach(function(ms){setTimeout(function(){
+      ensureApprovedRosterSlots20260924();
       reattachRemoteTracks();
       try{hostTick();}catch(e){}
     },ms);});
+  });
+  window.addEventListener('kt-any-guest-left',function(e){
+    var id=String(e&&e.detail&&e.detail.viewer_id||'').trim();
+    removeApprovedGuestSlot20260924(id);
+    ensureApprovedRosterSlots20260924();
+    reattachRemoteTracks();
   });
   window.addEventListener('kt-remote-host-selected',function(e){
     var h=String(e&&e.detail&&e.detail.host_id||'').trim();
@@ -544,6 +636,10 @@
   setTimeout(function(){try{var q=ensureSdk();if(q&&q.catch)q.catch(function(){});}catch(e){}},0);
 
   setInterval(hostTick,650);
+  setInterval(function(){
+    ensureApprovedRosterSlots20260924();
+    reattachRemoteTracks();
+  },300);
   setTimeout(hostTick,30);
   setTimeout(hostTick,180);
   setTimeout(hostTick,700);
