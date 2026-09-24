@@ -804,7 +804,21 @@
 
   function ktGuestStreamLive(st){try{return !!(st&&st.getVideoTracks&&st.getVideoTracks().some(function(t){return t.readyState==='live';}));}catch(e){return false;}}
   function showLocalGuestView(stream){
-    var main=document.getElementById('ktRemoteLiveVideo');if(!main||!stream)return;
+    if(!stream)return;
+    var approvedNow=false;
+    try{
+      var vid=viewerId();
+      approvedNow=!!(viewerGuest.approvedKey||(window.__ktApprovedGuestIds20260924||{})[vid]);
+      if(approvedNow&&typeof window.ktForceApprovedGuestGridNow20260924==='function'){
+        window.ktForceApprovedGuestGridNow20260924();
+      }
+    }catch(e){}
+    var main=null;
+    try{
+      if(approvedNow)main=document.querySelector('.kt-guest-hostlike-room .kgh-cell.self video');
+    }catch(e){}
+    if(!main)main=document.getElementById('ktRemoteLiveVideo');
+    if(!main)return;
     var before=main.srcObject||null;
     /* 승인 직전 main에 있던 호스트 영상을 먼저 보관한다. */
     if(before&&before!==stream&&ktGuestStreamLive(before)){
@@ -844,7 +858,31 @@
     if(selfChanged||main.paused){var p=main.play();if(p&&p.catch)p.catch(function(){});}
   }
   function stopLocalGuestViewGuard(){if(viewerGuest.viewTimer){clearInterval(viewerGuest.viewTimer);viewerGuest.viewTimer=null;}var main=document.getElementById('ktRemoteLiveVideo');if(main)delete main.dataset.ktLocalGuestView;}
-  function startLocalGuestViewGuard(stream){stopLocalGuestViewGuard();showLocalGuestView(stream);viewerGuest.viewTimer=setInterval(function(){if(!viewerGuest.stream||viewerGuest.stream!==stream||!document.querySelector('.kt-remote-live')){stopLocalGuestViewGuard();return;}var main=document.getElementById('ktRemoteLiveVideo');var pv=document.getElementById('ktRemoteHostPreview');if(!pv||(main&&main.srcObject!==stream)||(main&&main.paused)||(pv&&window.__ktRemoteHostStream&&pv.srcObject!==window.__ktRemoteHostStream)||(pv&&pv.paused))showLocalGuestView(stream);},500);}
+  function startLocalGuestViewGuard(stream){
+    stopLocalGuestViewGuard();
+    showLocalGuestView(stream);
+    viewerGuest.viewTimer=setInterval(function(){
+      if(!viewerGuest.stream||viewerGuest.stream!==stream||!document.querySelector('.kt-remote-live')){
+        stopLocalGuestViewGuard();return;
+      }
+      var approvedNow=false;
+      try{
+        approvedNow=!!(viewerGuest.approvedKey||(window.__ktApprovedGuestIds20260924||{})[viewerId()]);
+        if(approvedNow&&typeof window.ktForceApprovedGuestGridNow20260924==='function'){
+          window.ktForceApprovedGuestGridNow20260924();
+        }
+      }catch(e){}
+      var main=null;
+      try{
+        if(approvedNow)main=document.querySelector('.kt-guest-hostlike-room .kgh-cell.self video');
+      }catch(e){}
+      if(!main)main=document.getElementById('ktRemoteLiveVideo');
+      var pv=document.getElementById('ktRemoteHostPreview');
+      if(!pv||(main&&main.srcObject!==stream)||(main&&main.paused)||(pv&&window.__ktRemoteHostStream&&pv.srcObject!==window.__ktRemoteHostStream)||(pv&&pv.paused)){
+        showLocalGuestView(stream);
+      }
+    },500);
+  }
   function endViewerGuestSession(keepalive){var sid=viewerGuest.sessionId;viewerGuest.sessionId='';if(!sid)return;if(keepalive&&BASE&&KEY){try{fetch(BASE+'ktalk_webrtc_sessions?id=eq.'+enc(sid),{method:'PATCH',headers:headers({Prefer:'return=minimal'}),body:JSON.stringify({active:false,updated_at:nowIso()}),keepalive:true});}catch(e){}return;}req('ktalk_webrtc_sessions?id=eq.'+enc(sid),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})}).catch(function(){});}
   function setLegacyGuestUplinkState(state){
     try{
@@ -1084,6 +1122,7 @@
       viewerGuest.prejoinHostStream=null;
       if(viewerGuest.stream){try{viewerGuest.stream.getTracks().forEach(function(t){t.stop();});}catch(e){}viewerGuest.stream=null;}
       viewerGuest.approvedKey='';
+      viewerGuest.__uiApprovalKey='';
       viewerRootMissingSince=0;
       return;
     }
@@ -1093,7 +1132,23 @@
     var vid=viewerId(),ap=await latestApproval(hostId,vid);
     if(ap){
       viewerGuest.approvalMissingSince=0;
-      startViewerGuestUplink(hostId,vid,String(ap.id||ap.created_at||'approved'));
+      var approvalKey=String(ap.id||ap.created_at||'approved');
+      try{
+        window.__ktApprovedGuestIds20260924=window.__ktApprovedGuestIds20260924||{};
+        window.__ktApprovedGuestNames20260924=window.__ktApprovedGuestNames20260924||{};
+        window.__ktApprovedGuestIds20260924[vid]=true;
+        if(!window.__ktApprovedGuestNames20260924[vid])window.__ktApprovedGuestNames20260924[vid]=profile().name||'게스트';
+        if(viewerGuest.__uiApprovalKey!==approvalKey){
+          viewerGuest.__uiApprovalKey=approvalKey;
+          window.dispatchEvent(new CustomEvent('kt-guest-approval-received',{
+            detail:{host_id:hostId,viewer_id:vid,stream:viewerGuest.stream||window.__ktApprovedGuestSelfStream||null,at:Date.now(),legacy_fallback:true}
+          }));
+        }
+        if(typeof window.ktForceApprovedGuestGridNow20260924==='function'){
+          window.ktForceApprovedGuestGridNow20260924();
+        }
+      }catch(e){}
+      startViewerGuestUplink(hostId,vid,approvalKey);
     }else{
       /* 이미 승인되어 올라간 상태라면 DB/수신이 잠깐 흔들렸다고 바로 내리지 않는다.
          30초 동안 같은 자리와 카메라를 유지하며 자동 재연결한다. */
