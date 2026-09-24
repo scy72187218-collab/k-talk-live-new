@@ -1,5 +1,5 @@
 {
-  "version": 87,
+  "version": 88,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260924-video-connection-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Communication/UI-transition stability fix completed and relocked. The legacy approved-guest camera guard no longer restores/maintains the old full-screen one-person view after approval; it now targets the approved grid self cell and forces the approved grid when the server fallback detects approval. No unrelated layout/buttons/chat/gifts changed.",
+  "note": "Communication-only approval latency tuning completed and relocked. The idempotent guest_approved control event is now sent immediately over both WebSocket and REST control paths, while offer/answer/ICE remain single-path to preserve stability. First approval retries are tightened to 50ms/150ms. No unrelated UI/layout/buttons/chat/gifts changed.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -90,5 +90,5 @@
   },
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "last_communication_fix": "2026-09-24-approved-grid-legacy-guard14"
+  "last_communication_fix": "2026-09-24-instant-approval14"
 }
