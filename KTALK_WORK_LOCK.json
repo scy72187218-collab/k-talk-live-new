@@ -1,5 +1,5 @@
 {
-  "version": 65,
+  "version": 66,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260924-video-connection-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "PIN 1111 verified. Temporarily unlocked only rapid-restart stale guest cleanup/current-run approved-peer filtering and the existing public/home first-video speed work. A new broadcast must start with empty guest cells until a fresh approval. Layout, direction, buttons, badges, LiveKit transport and other protected components remain unchanged.",
+  "note": "PIN 1111 verified. Temporarily unlocked only LiveKit multi-device guest fanout/reattach so every approved device can show the same current participants. Layout, buttons, direction, badges, gifts and other protected components remain unchanged.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -93,13 +93,15 @@
     "stale_guest_approval_auto_restore_guard_only",
     "room_entry_exit_rejoin_stability_only",
     "approved_guest_peer_video_sync_only",
-    "broadcast_end_sync_only"
+    "broadcast_end_sync_only",
+    "livekit_sfu_transport_bridge_only"
   ],
   "temporarily_unlocked_components": [
     "public_video_first_load_speed_only",
     "stale_guest_approval_auto_restore_guard_only",
     "room_entry_exit_rejoin_stability_only",
     "approved_guest_peer_video_sync_only",
-    "broadcast_end_sync_only"
+    "broadcast_end_sync_only",
+    "livekit_sfu_transport_bridge_only"
   ]
 }
