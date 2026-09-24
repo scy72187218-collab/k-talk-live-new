@@ -481,15 +481,58 @@
         });
         renderDirectRequests();
       }else{
-        var vid=viewerId(),reqTs=0,cancelTs=0,approvedTs=0,approvedName='게스트';
+        var vid=viewerId(),states={};
         rows.forEach(function(m){
-          var t=String(m.message_type||''),ts=sharedMsgTime(m);
-          if(t==='guest_request:'+vid&&ts>=reqTs)reqTs=ts;
-          else if(t==='guest_cancelled:'+vid&&ts>=cancelTs)cancelTs=ts;
-          else if(t==='guest_approved:'+vid&&ts>=approvedTs){approvedTs=ts;approvedName=String(m.sender_name||'호스트');}
+          var t=String(m.message_type||''),ts=sharedMsgTime(m),id='',kind='';
+          if(t.indexOf('guest_request:')===0){id=t.slice(14);kind='request';}
+          else if(t.indexOf('guest_approved:')===0){id=t.slice(15);kind='approved';}
+          else if(t.indexOf('guest_cancelled:')===0){id=t.slice(16);kind='end';}
+          else if(t.indexOf('guest_left:')===0){id=t.slice(11);kind='end';}
+          if(!id)return;
+          var x=states[id]||(states[id]={request:0,approved:0,end:0,name:'게스트'});
+          if(kind==='request'){
+            if(ts>=x.request){x.request=ts;x.name=String(m.sender_name||x.name||'게스트');}
+          }else if(kind==='approved'){
+            if(ts>=x.approved)x.approved=ts;
+          }else if(kind==='end'){
+            if(ts>=x.end)x.end=ts;
+          }
         });
-        if(reqTs&&approvedTs>=reqTs&&approvedTs>=cancelTs&&!guestApproved){
-          onGuestApproved({host_id:hid,viewer_id:vid,name:approvedName,at:approvedTs});
+
+        var roster=window.__ktApprovedGuestIds20260924||{};
+        var names=window.__ktApprovedGuestNames20260924||{};
+        Object.keys(states).forEach(function(id){
+          var x=states[id];
+          var active=!!(x.request&&x.approved>=x.request&&x.approved>x.end);
+          if(active){
+            var was=roster[id]===true;
+            roster[id]=true;
+            names[id]=String(x.name||names[id]||'게스트');
+            if(!was){
+              try{window.dispatchEvent(new CustomEvent('kt-any-guest-approved',{detail:{
+                host_id:hid,viewer_id:id,name:names[id],at:x.approved||Date.now(),fallback:true
+              }}));}catch(e){}
+            }
+          }else if(roster[id]===true){
+            delete roster[id];delete names[id];
+            try{window.dispatchEvent(new CustomEvent('kt-any-guest-left',{detail:{
+              host_id:hid,viewer_id:id,at:Date.now(),fallback:true
+            }}));}catch(e){}
+          }
+        });
+        window.__ktApprovedGuestIds20260924=roster;
+        window.__ktApprovedGuestNames20260924=names;
+
+        var self=states[vid]||null;
+        if(self&&self.request&&self.approved>=self.request&&self.approved>self.end&&!guestApproved){
+          onGuestApproved({host_id:hid,viewer_id:vid,name:String(self.name||'게스트'),at:self.approved});
+        }
+        if(roster[vid]===true){
+          try{
+            if(typeof window.ktForceApprovedGuestGridNow20260924==='function'){
+              window.ktForceApprovedGuestGridNow20260924();
+            }
+          }catch(e){}
         }
       }
     }catch(e){}finally{sharedApprovalPollBusy=false;}
@@ -1788,8 +1831,8 @@
   }
   setInterval(roleTick,300);
   setTimeout(roleTick,20);
-  setInterval(syncSharedApprovalSignals,700);
-  setTimeout(syncSharedApprovalSignals,120);
+  setInterval(syncSharedApprovalSignals,400);
+  setTimeout(syncSharedApprovalSignals,50);
 
   window.addEventListener('kt-remote-host-selected',function(e){
     try{
