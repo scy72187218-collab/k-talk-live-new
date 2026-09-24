@@ -18,6 +18,7 @@
   var sharedApprovalPollBusy=false,leaveAnnouncedHost='',guestAliveLastSent=0,hostGuestAliveAt={},remoteHostMissingSince=0;
   var signalSeen={},viewerOfferInFlight='',lastHostReadyAt=0,lastGuestRequestAt=0,guestApprovedAt=0;
   var sharedRuntimeStartedAt=Date.now()-5000,sharedRoomCutCache={};
+  var hostRunId='',hostRunStartedAt=0,remoteRunId='',remoteRunStartedAt=0;
 
   async function sharedCurrentRoomCutoff(hostId){
     hostId=String(hostId||'').trim();
@@ -40,6 +41,17 @@
     if(!cut)cut=sharedRuntimeStartedAt;
     sharedRoomCutCache[hostId]={cut:cut,at:Date.now()};
     return cut;
+  }
+
+  function resetGuestForNewRun(hostId,runId,startedAt){
+    try{closePc(guestPc);}catch(e){}
+    guestPc=null;guestSession='';guestApproved=false;guestApprovedHost='';guestApprovedAt=0;requestOn=false;leaveAnnouncedHost='';guestAliveLastSent=0;
+    try{if(guestStream)guestStream.getTracks().forEach(function(t){try{t.stop();}catch(e){}});}catch(e){}
+    guestStream=null;
+    try{window.__ktApprovedGuestSelfStream=null;}catch(e){}
+    try{window.__ktDirectGuestUplinkState20260923='closed';window.__ktDirectGuestUplinkStateAt20260923=Date.now();}catch(e){}
+    try{var b=document.getElementById('ktRemoteGuestRequest');if(b){b.classList.remove('kt-requested');b.style.removeProperty('box-shadow');}}catch(e){}
+    try{window.dispatchEvent(new CustomEvent('kt-host-session-reset',{detail:{host_id:String(hostId||''),run_id:String(runId||''),started_at:Number(startedAt||0)}}));}catch(e){}
   }
 
   function deviceId(){
@@ -310,7 +322,9 @@
          현재 활성 방송 시작 이후 신호만 인정한다. DB 조회가 잠시 실패하면
          이 브라우저가 열린 시점 이후 신호만 인정해서 오래된 승인을 자동 복구하지 않는다. */
       var roomCut=await sharedCurrentRoomCutoff(hid);
-      rows=rows.filter(function(m){return sharedMsgTime(m)>=roomCut;});
+      var runCut=host?Number(hostRunStartedAt||0):Number(remoteRunStartedAt||0);
+      var effectiveCut=Math.max(Number(roomCut||0),Number(runCut||0));
+      rows=rows.filter(function(m){return sharedMsgTime(m)>=effectiveCut;});
       if(host){
         var latest={};
         rows.forEach(function(m){
@@ -340,9 +354,11 @@
               hostGuestAliveAt[vid]=Math.max(Number(hostGuestAliveAt[vid]||0),Number(x.ts||Date.now()));
               replayPendingHostGuestOffer(vid);
             }else if(x.kind==='alive'){
-              approvedGuests[vid]=approvedGuests[vid]||{name:x.name||'게스트',at:x.ts||Date.now()};
-              hostGuestAliveAt[vid]=Math.max(Number(hostGuestAliveAt[vid]||0),Number(x.ts||Date.now()));
-              replayPendingHostGuestOffer(vid);
+              /* 새 방송에서 heartbeat만으로 예전 승인을 되살리지 않는다. */
+              if(approvedGuests[vid]){
+                hostGuestAliveAt[vid]=Math.max(Number(hostGuestAliveAt[vid]||0),Number(x.ts||Date.now()));
+                replayPendingHostGuestOffer(vid);
+              }
             }else if(x.kind==='left'){
               delete hostGuestAliveAt[vid];
               clearApprovedGuestFromHost(vid);
@@ -443,7 +459,8 @@
 
   function afterJoin(){
     if(isHostRole()){
-      send('host_ready',{host_id:DEVICE,at:Date.now()});
+      if(!hostRunId){hostRunId=sid('run');hostRunStartedAt=Date.now();}
+      send('host_ready',{host_id:DEVICE,run_id:hostRunId,run_started_at:hostRunStartedAt,at:Date.now()});
       renderDirectRequests();
     }else{
       var hid=remoteHostId();
@@ -1235,6 +1252,8 @@
       window.__ktRemoteHostId='';
       window.__ktCurrentRemoteHostId='';
       window.__ktUseMemoryGuestVideo20260922=false;
+      remoteRunId='';remoteRunStartedAt=0;
+      try{window.__ktRemoteHostSessionStartedAt20260924=0;}catch(e){}
       lastRemoteHost='';activeHostId='';
       try{sessionStorage.removeItem('kt_remote_host_id');}catch(e){}
       try{
@@ -1261,7 +1280,17 @@
     }
     if(ev==='host_ready'&&!isHostRole()){
       var hid=remoteHostId();
-      if(hid&&String(p.host_id||'')===hid&&!viewerConnected)ensureViewerWatch(false);
+      if(hid&&String(p.host_id||'')===hid){
+        var incomingRun=String(p.run_id||'').trim();
+        var incomingStart=Number(p.run_started_at||p.at||0);
+        var runChanged=!!(incomingRun&&remoteRunId&&incomingRun!==remoteRunId);
+        var staleApproval=!!(incomingStart&&guestApprovedAt&&incomingStart>guestApprovedAt+800);
+        if(runChanged||staleApproval)resetGuestForNewRun(hid,incomingRun,incomingStart);
+        if(incomingRun)remoteRunId=incomingRun;
+        if(incomingStart)remoteRunStartedAt=incomingStart;
+        try{window.__ktRemoteHostSessionStartedAt20260924=remoteRunStartedAt;}catch(e){}
+        if(!viewerConnected)ensureViewerWatch(false);
+      }
       return;
     }
     if(ev==='video_watch'&&isHostRole()&&String(p.host_id||'')===DEVICE){hostOfferToViewer(String(p.viewer_id||''),String(p.watch_token||''));return;}
@@ -1352,13 +1381,19 @@
       return;
     }
     remoteHostMissingSince=0;
+    if(host&&lastHostRole!=='host'){
+      hostRunId=sid('run');hostRunStartedAt=Date.now();sharedRuntimeStartedAt=hostRunStartedAt-1000;sharedRoomCutCache={};
+      Object.keys(approvedGuests).forEach(function(id){try{clearApprovedGuestFromHost(id);}catch(e){}});
+      Object.keys(hostGuestPeers).forEach(function(id){try{closePc(hostGuestPeers[id]&&hostGuestPeers[id].pc);}catch(e){}});
+      pendingRequests={};approvedGuests={};hostGuestPeers={};hostGuestAliveAt={};pendingHostGuestOffers={};pendingHostGuestIce={};
+    }
     if(activeHostId!==hid||lastHostRole!==role){lastHostRole=role;connect(hid);}
     if(host){
       renderDirectRequests();
       var tickNow=Date.now();
       if(tickNow-lastHostReadyAt>2000){
         lastHostReadyAt=tickNow;
-        send('host_ready',{host_id:DEVICE,at:tickNow});
+        send('host_ready',{host_id:DEVICE,run_id:hostRunId,run_started_at:hostRunStartedAt,at:tickNow});
       }
     }else{
       if(lastRemoteHost!==hid){lastRemoteHost=hid;viewerWatchToken=sid('watch');viewerConnected=false;}
