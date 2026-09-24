@@ -11,7 +11,7 @@
   var TOKEN_URL='https://zupwbfmacwzexyvznlzq.supabase.co/functions/v1/ktalk-livekit-token';
   var SDK_URL='https://cdn.jsdelivr.net/npm/livekit-client@2.22.3/dist/livekit-client.umd.min.js';
 
-  var room=null,currentHostId='',currentRole='',connecting=false;
+  var room=null,currentHostId='',currentRole='',currentRunId='',connecting=false;
   var publishedVideoId='',publishedAudioId='',lastConnectAt=0;
   var approvedHostId='',watchHostId='',audioEls={},guestVideoById={};
   var sdkPromise=null;
@@ -68,8 +68,10 @@
     try{if(liveStream(window.__ktApprovedGuestSelfStream))return window.__ktApprovedGuestSelfStream;}catch(e){}
     return null;
   }
-  function cleanRoom(hostId){
-    return 'ktalk_'+String(hostId||'').replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,96);
+  function cleanRoom(hostId,runId){
+    var h=String(hostId||'').replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,72);
+    var r=String(runId||'').replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,44);
+    return 'ktalk_'+h+(r?'_'+r:'');
   }
   function ensureSdk(){
     if(window.LivekitClient&&window.LivekitClient.Room)return Promise.resolve(window.LivekitClient);
@@ -92,8 +94,8 @@
     });
     return sdkPromise;
   }
-  async function tokenFor(hostId,identity){
-    var q='?room='+encodeURIComponent(cleanRoom(hostId))+
+  async function tokenFor(hostId,identity,runId){
+    var q='?room='+encodeURIComponent(cleanRoom(hostId,runId))+
       '&identity='+encodeURIComponent(identity)+
       '&name='+encodeURIComponent(profileName())+
       '&t='+Date.now();
@@ -176,6 +178,9 @@
     return null;
   }
   function attachGuestVideo(identity,stream){
+    if(isHostRole()){
+      try{if(!window.__ktApprovedGuestIds20260924||!window.__ktApprovedGuestIds20260924[identity])return;}catch(e){return;}
+    }
     var known=guestVideoById[identity];
     if(known&&document.contains(known)){setVideo(known,stream);return;}
     var exact=exactGuestVideo(identity);
@@ -213,20 +218,20 @@
     clearRoomRefs();
     if(old){try{await old.disconnect(false);}catch(e){}}
   }
-  async function ensureRoom(hostId,role){
-    hostId=String(hostId||'').trim();
-    if(!hostId)return null;
-    if(room&&currentHostId===hostId&&room.state==='connected')return room;
-    if(connecting&&currentHostId===hostId)return room;
-    if(Date.now()-lastConnectAt<350&&currentHostId===hostId)return room;
-    lastConnectAt=Date.now();connecting=true;currentHostId=hostId;currentRole=role||'viewer';
+  async function ensureRoom(hostId,role,runId){
+    hostId=String(hostId||'').trim();runId=String(runId||'').trim();
+    if(!hostId||!runId)return null;
+    if(room&&currentHostId===hostId&&currentRunId===runId&&room.state==='connected')return room;
+    if(connecting&&currentHostId===hostId&&currentRunId===runId)return room;
+    if(Date.now()-lastConnectAt<350&&currentHostId===hostId&&currentRunId===runId)return room;
+    lastConnectAt=Date.now();connecting=true;currentHostId=hostId;currentRunId=runId;currentRole=role||'viewer';
     setState({connecting:true,connected:false,hostId:hostId,role:currentRole,lastError:''});
     try{
       var LK=await ensureSdk();
       if(room){try{await room.disconnect(false);}catch(e){}}
       clearRoomRefs();
       var identity=(currentRole==='host')?DEVICE:viewerId();
-      var auth=await tokenFor(hostId,identity);
+      var auth=await tokenFor(hostId,identity,runId);
       var r=new LK.Room({
         adaptiveStream:true,
         dynacast:true,
@@ -245,7 +250,7 @@
       await r.connect(auth.url||DEFAULT_URL,auth.token,{autoSubscribe:true});
       if(room!==r){try{await r.disconnect(false);}catch(e){}return room;}
       connecting=false;
-      setState({url:auth.url||DEFAULT_URL,connected:true,connecting:false,hostId:hostId,role:currentRole});
+      setState({url:auth.url||DEFAULT_URL,connected:true,connecting:false,hostId:hostId,role:currentRole,runId:runId});
       try{
         r.remoteParticipants.forEach(function(p){
           p.trackPublications.forEach(function(pub){
@@ -288,21 +293,26 @@
   }
   async function hostTick(){
     if(isHostRole()){
+      var hostRun=String(window.__ktHostRunId20260924||'').trim();
+      if(!hostRun)return;
       var s=hostStream();
       if(s){
-        var r=await ensureRoom(DEVICE,'host');
+        var r=await ensureRoom(DEVICE,'host',hostRun);
         if(r)await publishSharedStream(s);
       }
       return;
     }
+    var remoteRun=String(window.__ktRemoteHostRunId20260924||'').trim();
     if(approvedHostId){
+      if(!remoteRun)return;
       var gs=guestStream();
-      var gr=await ensureRoom(approvedHostId,'guest');
+      var gr=await ensureRoom(approvedHostId,'guest',remoteRun);
       if(gr&&gs)await publishSharedStream(gs);
       return;
     }
     if(watchHostId){
-      await ensureRoom(watchHostId,'viewer');
+      if(!remoteRun)return;
+      await ensureRoom(watchHostId,'viewer',remoteRun);
     }
   }
 
@@ -314,11 +324,27 @@
     var h=String(e&&e.detail&&e.detail.host_id||'').trim();
     if(h){watchHostId=h;setTimeout(hostTick,0);}
   });
+  window.addEventListener('kt-host-session-reset',function(e){
+    var h=String(e&&e.detail&&e.detail.host_id||'').trim();
+    if(!h)return;
+    if(h===watchHostId||h===approvedHostId||h===currentHostId){
+      approvedHostId='';watchHostId=h;
+      disconnectRoom();
+      setTimeout(hostTick,40);
+    }
+  });
+  window.addEventListener('kt-host-session-ready',function(e){
+    var h=String(e&&e.detail&&e.detail.host_id||'').trim();
+    if(!h)return;
+    if(String(e&&e.detail&&e.detail.role||'')!=='host')watchHostId=h;
+    if(room&&currentHostId===h&&currentRunId&&currentRunId!==String(e&&e.detail&&e.detail.run_id||''))disconnectRoom();
+    setTimeout(hostTick,20);
+  });
   window.addEventListener('kt-remote-host-left',function(e){
     var h=String(e&&e.detail&&e.detail.host_id||'').trim();
     if(!h)return;
     if(h===watchHostId||h===approvedHostId||h===currentHostId){
-      approvedHostId='';watchHostId='';
+      approvedHostId='';watchHostId='';currentRunId='';
       disconnectRoom();
     }
   });
