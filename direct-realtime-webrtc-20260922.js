@@ -1465,6 +1465,35 @@
   document.addEventListener('pointerdown',forceApprovalTap,true);
   document.addEventListener('touchstart',forceApprovalTap,{capture:true,passive:false});
 
+  /* 2026-09-26 host first-picture repair:
+     Some Android/mobile browsers can keep a pre-approved sendonly receiver
+     muted after replaceTrack() even though the guest can already see itself.
+     Rebuild ONLY that direct guest uplink once with the same live camera track.
+     LiveKit, room layout, chat, gifts and all other UI stay untouched. */
+  function armFreshApprovedGuestUplink20260926(hid){
+    hid=String(hid||'').trim();
+    var pc=guestPc;
+    if(!hid||!pc||!pc.__ktPreApprovalPayload||pc.__ktFreshApprovedRebuildArmed20260926)return;
+    pc.__ktFreshApprovedRebuildArmed20260926=true;
+    setTimeout(function(){
+      if(!guestApproved||guestApprovedHost!==hid||guestPc!==pc||!guestCameraLive20260925())return;
+      try{clearGuestOfferRetryTimers(pc);}catch(e){}
+      try{closePc(pc);}catch(e){}
+      if(guestPc===pc)guestPc=null;
+      guestSession='';
+      try{
+        window.__ktDirectGuestUplinkState20260923='rebuilding';
+        window.__ktDirectGuestUplinkStateAt20260923=Date.now();
+      }catch(e){}
+      setTimeout(function(){
+        if(guestApproved&&guestApprovedHost===hid&&guestCameraLive20260925()){
+          var q=makeGuestOffer(hid);
+          if(q&&q.catch)q.catch(function(){});
+        }
+      },20);
+    },320);
+  }
+
   async function startGuestCamera(hid){
     if(!guestApproved||guestApprovedHost!==hid)return;
 
@@ -1491,7 +1520,14 @@
         }));
       }
     }catch(e){}
-    if(useDirectMediaFallback20260925())makeGuestOffer(hid);
+    /* Keep a real-track direct uplink beside LiveKit for the host's first picture.
+       makeGuestOffer() is a no-op while the warm pre-approval PC is still active;
+       that one warm PC is refreshed once below if needed. */
+    try{
+      var d=makeGuestOffer(hid);
+      if(d&&d.catch)d.catch(function(){});
+    }catch(e){}
+    armFreshApprovedGuestUplink20260926(hid);
   }
   function waitIceCompleteDirect(pc,ms){
     return new Promise(function(resolve){
