@@ -574,6 +574,31 @@
       }
     }catch(e){}
   }
+  async function promoteApprovedGuest20260925(hostId,runId,stream){
+    hostId=String(hostId||'').trim();
+    runId=String(runId||window.__ktRemoteHostRunId20260924||'').trim();
+    if(!hostId||!runId)return false;
+    approvedHostId=hostId;
+    watchHostId=hostId;
+    try{
+      window.__ktRemoteHostRunId20260924=runId;
+    }catch(e){}
+    try{
+      var r=await ensureRoom(hostId,'guest',runId);
+      if(!r||r.state!=='connected')return false;
+      var gs=stream||guestStream();
+      if(gs)await publishSharedStream(gs);
+      ensureApprovedRosterSlots20260924();
+      reattachRemoteTracks();
+      setTimeout(reattachRemoteTracks,30);
+      setTimeout(reattachRemoteTracks,90);
+      return true;
+    }catch(e){
+      return false;
+    }
+  }
+  window.ktLiveKitPromoteApprovedGuest20260925=promoteApprovedGuest20260925;
+
   async function hostTick(){
     if(!isHostRole()&&!approvedHostId&&approvedGuestTransportReady()){
       approvedHostId=remoteHostId();
@@ -620,23 +645,19 @@
       }
     }catch(z){}
 
-    /* If the SFU viewer room is already connected (normal case), do not wait
-       for hostTick scheduling. Publish the prewarmed guest stream NOW. */
+    /* Approval is the commit point: reuse the viewer SFU room when it already
+       exists, otherwise join the exact host run immediately, then publish the
+       prewarmed guest camera. Do not wait for polling/timers. */
     try{
       var gs=guestStream();
-      if(room&&room.state==='connected'&&currentHostId===approvedHostId&&gs){
-        var p=publishSharedStream(gs);
-        if(p&&p.then)p.then(function(){
-          reattachRemoteTracks();
-          setTimeout(reattachRemoteTracks,25);
-          setTimeout(reattachRemoteTracks,80);
-        }).catch(function(){});
-      }else{
-        hostTick();
-      }
+      var exactRun=String(approvalRun||window.__ktRemoteHostRunId20260924||'').trim();
+      var q=promoteApprovedGuest20260925(approvedHostId,exactRun,gs);
+      if(q&&q.then)q.then(function(ok){
+        if(!ok)hostTick();
+      }).catch(function(){hostTick();});
     }catch(z){hostTick();}
 
-    [30,90,180].forEach(function(ms){setTimeout(hostTick,ms);});
+    [80,220,500].forEach(function(ms){setTimeout(hostTick,ms);});
   });
   window.addEventListener('kt-approved-guest-stream-ready',function(e){
     var h=String(e&&e.detail&&e.detail.host_id||approvedHostId||remoteHostId()||'').trim();
@@ -651,12 +672,13 @@
     }catch(z){}
     try{
       var gs=guestStream();
-      if(room&&room.state==='connected'&&gs){
-        var p=publishSharedStream(gs);
-        if(p&&p.then)p.then(function(){reattachRemoteTracks();}).catch(function(){});
+      var exactReadyRun=String(readyRun||window.__ktRemoteHostRunId20260924||'').trim();
+      if(h&&exactReadyRun){
+        var p=promoteApprovedGuest20260925(h,exactReadyRun,gs);
+        if(p&&p.then)p.then(function(ok){if(!ok)hostTick();}).catch(function(){hostTick();});
       }else hostTick();
     }catch(z){hostTick();}
-    [25,80,160].forEach(function(ms){setTimeout(hostTick,ms);});
+    [100,260].forEach(function(ms){setTimeout(hostTick,ms);});
   });
   window.addEventListener('kt-guest-request-started',function(e){
     var h=String(e&&e.detail&&e.detail.host_id||remoteHostId()||'').trim();
@@ -696,8 +718,14 @@
     }catch(z){}
     ensureApprovedRosterSlots20260924();
     reattachRemoteTracks();
-    try{hostTick();}catch(e){}
-    [20,70,150].forEach(function(ms){setTimeout(function(){
+    try{
+      var sh=String(e&&e.detail&&e.detail.host_id||approvedHostId||remoteHostId()||'').trim();
+      if(sh&&syncRun&&approvedGuestTransportReady()){
+        var sp=promoteApprovedGuest20260925(sh,syncRun,guestStream());
+        if(sp&&sp.catch)sp.catch(function(){});
+      }else hostTick();
+    }catch(e){try{hostTick();}catch(_e){}}
+    [70,180].forEach(function(ms){setTimeout(function(){
       ensureApprovedRosterSlots20260924();
       reattachRemoteTracks();
       try{hostTick();}catch(e){}
