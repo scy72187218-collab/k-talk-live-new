@@ -18,6 +18,7 @@
   var requestOn=false,lastRemoteHost='',lastHostRole='',lastWatchAt=0;
   var sharedApprovalPollBusy=false,leaveAnnouncedHost='',guestAliveLastSent=0,hostGuestAliveAt={},remoteHostMissingSince=0;
   var signalSeen={},viewerOfferInFlight='',lastHostReadyAt=0,lastGuestRequestAt=0,guestApprovedAt=0;
+  var guestMediaAckAt20260926=0,guestMediaWatchdogSeq20260926=0;
   var lastEntryPrewarmHost='',lastEntryPrewarmAt=0;
   var sharedRuntimeStartedAt=Date.now()-5000,sharedRoomCutCache={};
   var hostRunId='',hostRunStartedAt=0,remoteRunId='',remoteRunStartedAt=0,lastRosterBroadcastAt=0;
@@ -638,6 +639,7 @@
     }catch(e){}
     try{closePc(guestPc);}catch(e){}
     guestPc=null;guestSession='';guestApproved=false;guestApprovedHost='';requestOn=false;
+    guestMediaAckAt20260926=0;guestMediaWatchdogSeq20260926+=1;
     try{
       if(guestStream){guestStream.getTracks().forEach(function(t){try{t.stop();}catch(e){}});}
     }catch(e){}
@@ -1255,7 +1257,8 @@
     if(!force&&viewerConnected)return;
     if(!force&&now-lastWatchAt<120)return;
     lastWatchAt=now;
-    send('video_watch',{host_id:hid,viewer_id:viewerId(),watch_token:viewerWatchToken,at:now});
+    var watchPayload={host_id:hid,viewer_id:viewerId(),watch_token:viewerWatchToken,at:now};
+    sendCriticalMedia20260926('video_watch',watchPayload,hid);
   }
 
   function ensureDirectStyle(){
@@ -1361,7 +1364,50 @@
       try{var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
     }
     var sm=slot.querySelector('small');if(sm)sm.style.display='none';
+    try{
+      var ready={
+        host_id:DEVICE,
+        viewer_id:String(vid||''),
+        at:Date.now()
+      };
+      sendCriticalMedia20260926('guest_media_ready',ready,DEVICE);
+    }catch(e){}
   }
+
+  function forceFreshGuestUplink20260926(hid){
+    hid=String(hid||guestApprovedHost||remoteHostId()||'').trim();
+    if(!hid||!guestApproved||guestApprovedHost!==hid||!guestCameraLive20260925())return;
+    var old=guestPc;
+    try{clearGuestOfferRetryTimers(old);}catch(e){}
+    try{closePc(old);}catch(e){}
+    guestPc=null;guestSession='';
+    try{
+      window.__ktDirectGuestUplinkState20260923='retrying';
+      window.__ktDirectGuestUplinkStateAt20260923=Date.now();
+    }catch(e){}
+    setTimeout(function(){
+      if(!guestApproved||guestApprovedHost!==hid||!guestCameraLive20260925())return;
+      var q=makeGuestOffer(hid);
+      if(q&&q.catch)q.catch(function(){});
+    },20);
+  }
+
+  function armGuestMediaAckWatchdog20260926(hid){
+    hid=String(hid||'').trim();
+    if(!hid)return;
+    guestMediaAckAt20260926=0;
+    var seq=++guestMediaWatchdogSeq20260926;
+    [650,1400,2800].forEach(function(ms,idx){
+      setTimeout(function(){
+        if(seq!==guestMediaWatchdogSeq20260926)return;
+        if(!guestApproved||guestApprovedHost!==hid||guestMediaAckAt20260926)return;
+        /* First retry is enough for most phones; later retries cover a
+           connecting-but-never-completing Android PeerConnection. */
+        forceFreshGuestUplink20260926(hid);
+      },ms);
+    });
+  }
+
   function approveDirectGuest(vid,name){
     vid=String(vid||'').trim();
     if(!vid)return;
@@ -1986,6 +2032,7 @@
     guestApprovedHost=hid;
     guestApprovedAt=Date.now();
     leaveAnnouncedHost='';
+    armGuestMediaAckWatchdog20260926(hid);
     guestAliveLastSent=0;
 
     /* UI FIRST: approval must change the guest screen immediately.
@@ -2255,6 +2302,17 @@
     }
     if(ev==='guest_roster'){
       applyApprovedRoster20260925(p);
+      return;
+    }
+    if(ev==='guest_media_ready'){
+      if(String(p.viewer_id||'')===viewerId()&&String(p.host_id||'')===String(guestApprovedHost||remoteHostId()||'')){
+        guestMediaAckAt20260926=Date.now();
+        guestMediaWatchdogSeq20260926+=1;
+        try{
+          window.__ktDirectGuestUplinkState20260923='visible-on-host';
+          window.__ktDirectGuestUplinkStateAt20260923=Date.now();
+        }catch(e){}
+      }
       return;
     }
     if(ev==='guest_approved'){
