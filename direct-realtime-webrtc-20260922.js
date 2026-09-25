@@ -1314,7 +1314,7 @@
         detail:{host_id:DEVICE,viewer_id:vid,at:Date.now(),run_id:data.run_id,run_started_at:data.run_started_at}
       }));
     }catch(e){}
-    broadcastApprovedRoster20260925('approved');
+    broadcastApprovedRoster20260925('approved',true);
   }
   window.ktDirectApproveGuest20260922=function(vid,name){
     approveDirectGuest(vid,name);
@@ -2207,7 +2207,7 @@
         lastHostReadyAt=tickNow;
         send('host_ready',{host_id:DEVICE,run_id:hostRunId,run_started_at:hostRunStartedAt,at:tickNow});
       }
-      if(tickNow-lastRosterBroadcastAt>1500){
+      if(tickNow-lastRosterBroadcastAt>900){
         lastRosterBroadcastAt=tickNow;
         broadcastApprovedRoster20260925('heartbeat');
       }
