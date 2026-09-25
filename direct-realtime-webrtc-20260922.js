@@ -1473,8 +1473,25 @@
   function armFreshApprovedGuestUplink20260926(hid){
     hid=String(hid||'').trim();
     var pc=guestPc;
-    if(!hid||!pc||!pc.__ktPreApprovalPayload||pc.__ktFreshApprovedRebuildArmed20260926)return;
+    if(!hid||!pc||!pc.__ktPreApprovalPayload)return;
+
+    /* Do NOT mark the one-shot rebuild as armed until the camera track is
+       actually live. Approval can arrive before Android finishes getUserMedia();
+       marking it earlier permanently skipped the rebuild and left the host at
+       "게스트 연결 중...". */
+    if(!guestCameraLive20260925()){
+      if(!pc.__ktWaitCameraRetry20260926){
+        pc.__ktWaitCameraRetry20260926=true;
+        setTimeout(function(){
+          try{pc.__ktWaitCameraRetry20260926=false;}catch(e){}
+          if(guestApproved&&guestApprovedHost===hid)armFreshApprovedGuestUplink20260926(hid);
+        },90);
+      }
+      return;
+    }
+    if(pc.__ktFreshApprovedRebuildArmed20260926)return;
     pc.__ktFreshApprovedRebuildArmed20260926=true;
+
     setTimeout(function(){
       if(!guestApproved||guestApprovedHost!==hid||guestPc!==pc||!guestCameraLive20260925())return;
       try{clearGuestOfferRetryTimers(pc);}catch(e){}
@@ -1490,8 +1507,8 @@
           var q=makeGuestOffer(hid);
           if(q&&q.catch)q.catch(function(){});
         }
-      },20);
-    },320);
+      },10);
+    },120);
   }
 
   async function startGuestCamera(hid){
