@@ -1,5 +1,5 @@
 {
-  "version": 118,
+  "version": 119,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260924-video-connection-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Owner authorization verified. Temporarily unlocked ONLY approval-to-LiveKit room context handoff so approved guest joins the same current host run immediately. Do not modify layout, switches, public feed, rose, AI, chat, gifts, labels, buttons, or unrelated UI.",
+  "note": "Approval-to-LiveKit run-context handoff completed and relocked. Host approval now carries the exact current host run_id/run_started_at; approved guest applies that run before SFU publish; roster/sync events also carry it as recovery. No layout, switches, public feed, rose, AI, chat, gifts, labels, buttons, or unrelated UI changed.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -88,19 +88,9 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "video_communication",
-    "media_transport",
-    "guest_approval_to_slot",
-    "livekit_sfu_transport_bridge_only"
-  ],
-  "temporarily_unlocked_components": [
-    "video_communication",
-    "media_transport",
-    "guest_approval_to_slot",
-    "livekit_sfu_transport_bridge_only"
-  ],
-  "last_communication_fix": "2026-09-25-explicit-leave-sync24",
+  "current_editable_components": [],
+  "temporarily_unlocked_components": [],
+  "last_communication_fix": "2026-09-25-approval-livekit-run-context25",
   "last_video_feed_fix": "2026-09-24-full-feed-after-first6",
   "locked_components": [
     "public-video-feed",
