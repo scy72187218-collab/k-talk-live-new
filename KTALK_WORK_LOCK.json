@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Approved-guest communication update completed and relocked. Host keeps one stable run id. Realtime and shared-memory approval both carry run_id/run_started_at. Approved guest is promoted immediately into the exact host LiveKit room and publishes its prewarmed camera without waiting for polling. A late host_ready within 15 seconds of approval updates run context without tearing down/rebuilding the approved guest screen. No layout, switches, public feed, rose, AI, chat, gifts, labels, buttons, or unrelated UI changed.",
+  "note": "Owner authorization verified. Communication-only work remains temporarily unlocked. Added guest peer fallback preservation and approved-guest DOM transition guard because the reported symptom is guest video dropping/reappearing while central LiveKit connects. No unrelated UI changes.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -88,8 +88,14 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [],
-  "temporarily_unlocked_components": [],
+  "current_editable_components": [
+    "approved_guest_peer_video_sync_only",
+    "approved_guest_camera_dom_transition_guard_only"
+  ],
+  "temporarily_unlocked_components": [
+    "approved_guest_peer_video_sync_only",
+    "approved_guest_camera_dom_transition_guard_only"
+  ],
   "last_communication_fix": "2026-09-25-stable-immediate-central-guest-approval26",
   "last_video_feed_fix": "2026-09-24-full-feed-after-first6",
   "locked_components": [
