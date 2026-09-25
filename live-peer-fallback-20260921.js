@@ -205,7 +205,7 @@
         await c.pc.setRemoteDescription({type:'offer',sdp:x.offer_sdp});
         var answer=await c.pc.createAnswer();
         await c.pc.setLocalDescription(answer);
-        await waitIce(c.pc,1200);
+        await waitIce(c.pc,700);
         await jfetch(API+'?t='+Date.now(),{
           method:'POST',headers:{'Content-Type':'application/json'},
           body:JSON.stringify({action:'answer',session_id:c.sessionId,answer_sdp:c.pc.localDescription.sdp})
@@ -300,7 +300,7 @@
       }
     };
 
-    viewer.poll=setInterval(pollViewer,800);
+    viewer.poll=setInterval(pollViewer,300);
     viewer.touch=setInterval(function(){
       if(!viewer)return;
       fetch(API+'?t='+Date.now(),{
@@ -349,7 +349,7 @@
           try{
             var offer=await pc.createOffer({offerToReceiveAudio:false,offerToReceiveVideo:false});
             await pc.setLocalDescription(offer);
-            await waitIce(pc,1200);
+            await waitIce(pc,700);
             await jfetch(API+'?t='+Date.now(),{
               method:'POST',headers:{'Content-Type':'application/json'},
               body:JSON.stringify({action:'offer',session_id:x.id,offer_sdp:pc.localDescription.sdp})
@@ -405,7 +405,7 @@
           var ok=await enterMemory(hostId,cached||room||null);
           if(ok)remoteEndArmed=true;
         }catch(e){}
-      },3500);
+      },900);
 
       if(!room){
         var st=document.getElementById('ktRemoteLiveStatus');
@@ -420,7 +420,7 @@
           var ok2=await enterMemory(hostId,cached);
           if(ok2)remoteEndArmed=true;
         }catch(z){}
-      },5000);
+      },1800);
     }finally{
       setTimeout(function(){enterBusy=false;},120);
     }
@@ -451,6 +451,6 @@
     if(oldLeave)return oldLeave(silent);
   };
 
-  setInterval(hostPoll,1500);
+  setInterval(hostPoll,500);
   setTimeout(hostPoll,120);
 })();
