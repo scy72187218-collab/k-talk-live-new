@@ -353,12 +353,26 @@
         }
         if(!hv&&hostCell&&hostStream&&live(hostStream)){
           hv=document.createElement('video');
-          hv.autoplay=true;hv.playsInline=true;hv.muted=false;
+          hv.autoplay=true;hv.playsInline=true;
+          /* Android/Naver browser can leave this newly-created host slot black
+             when it is unmuted before the first frame. Keep preview muted just
+             like the original host preview, then audio continues on the media layer. */
+          hv.muted=true;hv.defaultMuted=true;
+          hv.setAttribute('autoplay','');
+          hv.setAttribute('playsinline','');
+          hv.setAttribute('muted','');
           hostCell.appendChild(hv);
         }
         if(hv&&hostStream&&live(hostStream)){
+          hv.autoplay=true;hv.playsInline=true;hv.muted=true;hv.defaultMuted=true;
+          hv.setAttribute('autoplay','');
+          hv.setAttribute('playsinline','');
+          hv.setAttribute('muted','');
           if(hv.srcObject!==hostStream)hv.srcObject=hostStream;
-          if(hv.paused){try{var hp=hv.play();if(hp&&hp.catch)hp.catch(function(){});}catch(e){}}
+          try{
+            var hp=hv.play();
+            if(hp&&hp.catch)hp.catch(function(){});
+          }catch(e){}
         }
         var latestSelf=null;
         try{latestSelf=window.__ktApprovedGuestSelfStream||null;}catch(e){}
