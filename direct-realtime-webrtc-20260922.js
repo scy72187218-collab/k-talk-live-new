@@ -1528,14 +1528,14 @@
 
       /* Keep the same host-side PeerConnection while Android settles.
          Never force-close it merely because the video has not painted yet.
-         Resend the existing answer/approval signal without replacing media. */
+         Resend only the existing SDP answer; repeated approval events can
+         rebuild guest video cells and make an already-visible camera flicker. */
       [900,1800,3200].forEach(function(ms){
         setTimeout(function(){
           if(hostGuestPeers[vid]!==entry||entry.gotTrack||!approvedGuests[vid])return;
           var cs=String(pc.connectionState||'');
           if(cs==='failed'||cs==='closed')return;
           try{send('guest_answer',guestAnswerPayload);}catch(e){}
-          try{send('guest_approved',{host_id:DEVICE,viewer_id:vid,name:(approvedGuests[vid]&&approvedGuests[vid].name)||'게스트',at:Date.now(),reconnect:false,nudge:true});}catch(e){}
         },ms);
       });
     }catch(e){
@@ -1596,6 +1596,17 @@
 
     window.__ktRemoteHostId=hid;
     try{sessionStorage.setItem('kt_remote_host_id',hid);}catch(e){}
+
+    if(guestApproved&&guestApprovedHost===hid&&!p.reconnect){
+      /* Duplicate reliability copies of the same approval must not rebuild
+         the guest grid. Just keep the existing camera/uplink moving. */
+      try{startGuestCamera(hid);}catch(e){}
+      try{
+        var dupPre=guestPc&&guestPc.__ktPreApprovalPayload||null;
+        if(dupPre&&String(dupPre.host_id||'')===hid)send('guest_offer',dupPre);
+      }catch(e){}
+      return;
+    }
 
     requestOn=false;
     guestApproved=true;
