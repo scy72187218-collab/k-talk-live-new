@@ -18,6 +18,7 @@
   var requestOn=false,lastRemoteHost='',lastHostRole='',lastWatchAt=0;
   var sharedApprovalPollBusy=false,leaveAnnouncedHost='',guestAliveLastSent=0,hostGuestAliveAt={},remoteHostMissingSince=0;
   var signalSeen={},viewerOfferInFlight='',lastHostReadyAt=0,lastGuestRequestAt=0,guestApprovedAt=0;
+  var lastEntryPrewarmHost='',lastEntryPrewarmAt=0;
   var sharedRuntimeStartedAt=Date.now()-5000,sharedRoomCutCache={};
   var hostRunId='',hostRunStartedAt=0,remoteRunId='',remoteRunStartedAt=0;
   window.__ktApprovedGuestIds20260924=window.__ktApprovedGuestIds20260924||{};
@@ -1244,7 +1245,9 @@
   }
 
   async function prepareGuestOfferBeforeApproval20260924(hid){
-    if(!requestOn||guestApproved||!hid||!guestStream)return;
+    /* Negotiate the send lanes immediately on request. Camera/mic can arrive
+       a moment later via replaceTrack(), so approval does not wait for a new SDP round trip. */
+    if(!requestOn||guestApproved||!hid)return;
     if(guestPc&&['new','connecting','connected'].indexOf(String(guestPc.connectionState||''))>-1)return;
     clearGuestOfferRetryTimers(guestPc);
     closePc(guestPc);guestPc=null;guestSession=sid('guestpre');
@@ -1864,6 +1867,11 @@
           detail:{host_id:hid,viewer_id:viewerId(),at:Date.now(),immediate:true}
         }));
       }catch(e){}
+      /* Start the direct WebRTC offer NOW, in parallel with camera opening. */
+      try{
+        var preOffer=prepareGuestOfferBeforeApproval20260924(hid);
+        if(preOffer&&preOffer.catch)preOffer.catch(function(){});
+      }catch(e){}
       /* 이 capture 핸들러가 기존 onclick보다 먼저 실행되므로 여기서 반드시
          카메라를 미리 준비한다. 승인 뒤 getUserMedia를 시작하면 몇 초 늦어진다.
          이미 열린 스트림은 재사용하므로 두 번째 카메라를 만들지 않는다. */
@@ -1973,6 +1981,25 @@
       viewerConnected=false;
       lastWatchAt=0;
       if(activeHostId!==hid)connect(hid);
+
+      /* User requested camera to be ready as soon as the room is entered.
+         This only prewarms the local camera; it is not published until approval. */
+      try{
+        var now=Date.now();
+        if(!document.hidden&&(lastEntryPrewarmHost!==hid||now-lastEntryPrewarmAt>30000)){
+          lastEntryPrewarmHost=hid;lastEntryPrewarmAt=now;
+          var camPrep=prepareGuestCameraFromJoinTap20260923();
+          if(camPrep&&camPrep.then)camPrep.then(function(ok){
+            if(ok&&requestOn){
+              try{
+                var q=prepareGuestOfferBeforeApproval20260924(hid);
+                if(q&&q.catch)q.catch(function(){});
+              }catch(_e){}
+            }
+          }).catch(function(){});
+        }
+      }catch(_e){}
+
       /* Send the first watch immediately. If WebSocket is not joined yet,
          send() uses REST fallback, so room entry does not wait for WS join. */
       ensureViewerWatch(true);
