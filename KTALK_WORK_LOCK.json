@@ -1,5 +1,5 @@
 {
-  "version": 116,
+  "version": 117,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260924-video-connection-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Owner authorization verified. Temporarily unlocked ONLY explicit guest leave/participant removal synchronization. Do not modify entry/approval media flow, switches, public feed, rose, AI, chat, gifts, buttons, labels, or room layout.",
+  "note": "Explicit guest leave synchronization completed and relocked. Leaving guest now sends guest_left through WebSocket plus exact-host keepalive REST and shared-memory backup. Host clears the departed slot immediately and sends a reliable updated roster. Every host/approved-guest screen clears all identity-bound video slot markers on guest_left/roster/fallback leave. Temporary network drops still do not count as leave. No entry/approval media flow, switches, public feed, rose, AI, chat, gifts, buttons, labels, or layout changed.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -88,19 +88,9 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "video_communication",
-    "guest_approval_to_slot",
-    "room_entry_exit_rejoin_stability_only",
-    "communication_auto_reconnect_only"
-  ],
-  "temporarily_unlocked_components": [
-    "video_communication",
-    "guest_approval_to_slot",
-    "room_entry_exit_rejoin_stability_only",
-    "communication_auto_reconnect_only"
-  ],
-  "last_communication_fix": "2026-09-25-primary-livekit-sfu15-headroom23",
+  "current_editable_components": [],
+  "temporarily_unlocked_components": [],
+  "last_communication_fix": "2026-09-25-explicit-leave-sync24",
   "last_video_feed_fix": "2026-09-24-full-feed-after-first6",
   "locked_components": [
     "public-video-feed",
