@@ -1847,6 +1847,32 @@
     }
   }
 
+  function kickHostPreviewNow20260925(hid){
+    hid=String(hid||remoteHostId()||'').trim();
+    if(!hid||isHostRole())return;
+    if(!viewerWatchToken)viewerWatchToken=sid('watch');
+    var vid=viewerId(),token=viewerWatchToken;
+    function fire(){
+      var payload={host_id:hid,viewer_id:vid,watch_token:token,at:Date.now()};
+      try{
+        if(activeHostId!==hid)connect(hid);
+        send('video_watch',payload);
+      }catch(e){}
+      /* Approval is the critical moment: also use one direct REST copy so a
+         websocket reconnect/join delay cannot hold the host picture for seconds.
+         duplicateSignal() on the host de-dupes same-token copies safely. */
+      try{restBroadcastToHost20260925(hid,'video_watch',payload);}catch(e){}
+      try{attachRemoteStreamNow();}catch(e){}
+    }
+    fire();
+    [45,120,260,520,950].forEach(function(ms){
+      setTimeout(function(){
+        if(!ktRemoteStreamStillLive20260923())fire();
+        else try{attachRemoteStreamNow();}catch(e){}
+      },ms);
+    });
+  }
+
   function onGuestApproved(p){
     if(String(p.viewer_id||'')!==viewerId())return;
 
@@ -1860,7 +1886,12 @@
     if(hid!==signalHost)hid=signalHost;
 
     window.__ktRemoteHostId=hid;
+    window.__ktCurrentRemoteHostId=hid;
     try{sessionStorage.setItem('kt_remote_host_id',hid);}catch(e){}
+
+    /* Do not wait for the approved-room UI, camera publish, or LiveKit join.
+       Ask for the already-live host picture immediately. */
+    kickHostPreviewNow20260925(hid);
 
     var approvedRun=String(p&&p.run_id||'').trim();
     var approvedStarted=Number(p&&p.run_started_at||0);
@@ -1871,8 +1902,9 @@
     }
 
     if(guestApproved&&guestApprovedHost===hid&&!p.reconnect){
-      /* Duplicate reliability copies of the same approval must not rebuild
-         the guest grid. Just keep the existing camera/uplink moving. */
+      /* Duplicate reliability copies must not rebuild the guest grid, but they
+         are useful to kick the receive-only host preview if first paint is late. */
+      try{kickHostPreviewNow20260925(hid);}catch(e){}
       try{startGuestCamera(hid);}catch(e){}
       try{
         var dupPre=guestPc&&guestPc.__ktPreApprovalPayload||null;
