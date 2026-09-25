@@ -1930,6 +1930,7 @@
     if(ev==='host_ready'&&!isHostRole()){
       var hid=remoteHostId();
       if(hid&&String(p.host_id||'')===hid){
+        if(p.reply_to_viewer&&String(p.reply_to_viewer)!==viewerId())return;
         var incomingRun=String(p.run_id||'').trim();
         var incomingStart=Number(p.run_started_at||p.at||0);
         var runChanged=!!(incomingRun&&remoteRunId&&incomingRun!==remoteRunId);
@@ -1964,6 +1965,16 @@
           clearApprovedGuestFromHost(vid);
         }
         pendingRequests[vid]={name:String(p.name||'게스트'),at:Date.now()};
+        try{
+          var requestRun=ensureHostRunContext20260925();
+          send('host_ready',{
+            host_id:DEVICE,
+            run_id:String(requestRun.run_id||''),
+            run_started_at:Number(requestRun.run_started_at||0),
+            at:Date.now(),
+            reply_to_viewer:vid
+          });
+        }catch(e){}
         renderDirectRequests();
         replayPendingHostGuestOffer(vid);
       }
