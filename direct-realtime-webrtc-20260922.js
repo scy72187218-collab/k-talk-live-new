@@ -178,6 +178,12 @@
     window.__ktSignalTransport20260924='rest-fallback';
     restBroadcast(eventName,payload);
   }
+  window.ktDirectPeerSignalSend20260925=function(eventName,payload){
+    eventName=String(eventName||'');
+    if(['peer_mesh_offer','peer_mesh_answer','peer_mesh_ice','peer_mesh_end'].indexOf(eventName)<0)return false;
+    try{send(eventName,payload||{});return true;}catch(e){return false;}
+  };
+
   function flush(){
     /* Messages sent during reconnect already used REST fallback.
        Do not replay them after WS join, which used to duplicate signaling. */
@@ -1670,6 +1676,14 @@
 
   function handleSignal(ev,p){
     if(duplicateSignal(ev,p))return;
+    if(ev==='peer_mesh_offer'||ev==='peer_mesh_answer'||ev==='peer_mesh_ice'||ev==='peer_mesh_end'){
+      try{
+        window.dispatchEvent(new CustomEvent('kt-direct-peer-signal',{
+          detail:{event:ev,payload:p||{},at:Date.now()}
+        }));
+      }catch(e){}
+      return;
+    }
     if(ev==='broadcast_ended'&&!isHostRole()){
       var ended=String(p&&p.host_id||'').trim();
       var current=String(remoteHostId()||lastRemoteHost||activeHostId||'').trim();
