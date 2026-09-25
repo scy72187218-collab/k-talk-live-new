@@ -1079,10 +1079,10 @@
     window.__ktDirectRtcPhase='offer';
     var pc=new RTCPeerConnection(rtcConfig());viewerPc=pc;
     pc.ontrack=function(ev){
-      if(window.__ktUseMemoryGuestVideo20260922){
-        try{pc.close();}catch(e){}
-        return;
-      }
+      /* The direct receive-only host preview is allowed even when the old
+         memory fallback is active. Once a real track arrives, it becomes the
+         visible host source and the slow memory fallback can stand down. */
+      try{window.__ktUseMemoryGuestVideo20260922=false;}catch(e){}
       pc.__ktGotRemoteTrack20260923=true;
       viewerConnected=true;
       window.__ktDirectRtcProgressAt=Date.now();
@@ -1232,7 +1232,6 @@
   }
 
   function ensureViewerWatch(force){
-    if(window.__ktUseMemoryGuestVideo20260922)return;
     var hid=remoteHostId();if(!hid||isHostRole())return;
     if(!viewerWatchToken)viewerWatchToken=sid('watch');
     var now=Date.now();
@@ -2430,12 +2429,29 @@
       var hid=String(e&&e.detail&&e.detail.host_id||'').trim();
       if(!hid)return;
       lastRemoteHost=hid;
-      if(window.__ktUseMemoryGuestVideo20260922)return;
       viewerWatchToken=sid('watch');
       viewerConnected=false;
       lastWatchAt=0;
       if(activeHostId!==hid)connect(hid);
       seedRemoteRunFromLiveSignal20260925(hid);
+
+      /* Keep the already-visible feed host picture on screen while the fresh
+         room WebRTC track is negotiating. This removes the black wait between
+         tapping a live room and seeing the host. */
+      try{
+        var entryStream=(e&&e.detail&&e.detail.entry_stream)||window.__ktEntryHostStream20260925||null;
+        if(entryStream&&entryStream.getVideoTracks&&entryStream.getVideoTracks().some(function(t){return t&&t.readyState==='live';})){
+          window.__ktRemoteHostStream=entryStream;
+          attachRemoteStreamNow(entryStream);
+          [16,40,80,140,240,420,700].forEach(function(ms){
+            setTimeout(function(){
+              try{
+                if(window.__ktRemoteHostStream===entryStream)attachRemoteStreamNow(entryStream);
+              }catch(_e){}
+            },ms);
+          });
+        }
+      }catch(_e){}
 
       /* User requested camera to be ready as soon as the room is entered.
          This only prewarms the local camera; it is not published until approval. */
