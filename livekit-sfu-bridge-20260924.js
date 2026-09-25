@@ -1,13 +1,15 @@
-/* K-Talk LiveKit SFU bridge (2026-09-24)
-   Scope: transport fallback/accelerator only.
+/* K-Talk LiveKit SFU bridge (2026-09-25)
+   Scope: PRIMARY media transport for multi-person rooms.
+   - Supabase Realtime remains control/approval/roster signaling.
+   - LiveKit carries host + approved guest audio/video through one SFU room.
+   - Direct WebRTC/guest mesh are fallback-only and never race the SFU.
    - Does not change room layout, buttons, chat, gifts, badges, directions, countdowns, or earnings.
-   - Reuses the existing camera/mic MediaStream; it never opens a second camera.
-   - Existing direct WebRTC paths stay active as fallback while this bridge is tested. */
+   - Reuses the existing camera/mic MediaStream; it never opens a second camera. */
 (function(){
   if(window.__ktLiveKitSfuBridge20260924)return;
   window.__ktLiveKitSfuBridge20260924=true;
 
-  var DEFAULT_URL='wss://magnetic-being-advised-gadgets.trycloudflare.com';
+  var DEFAULT_URL='';
   var TOKEN_URL='https://zupwbfmacwzexyvznlzq.supabase.co/functions/v1/ktalk-livekit-token';
   var SDK_URL='https://cdn.jsdelivr.net/npm/livekit-client@2.22.3/dist/livekit-client.umd.min.js';
 
@@ -16,9 +18,31 @@
   var tokenCache={};
   var approvedHostId='',watchHostId='',audioEls={},guestVideoById={};
   var sdkPromise=null;
+  var mediaMode='livekit-pending',fallbackTimer=null,disconnectSeq=0;
+  window.__ktPreferLiveKitPrimary20260925=true;
+  window.__ktMediaMode20260925=mediaMode;
+
+  function setMediaMode(mode,reason){
+    mode=String(mode||'');
+    if(!mode)return;
+    mediaMode=mode;
+    window.__ktMediaMode20260925=mode;
+    try{
+      window.dispatchEvent(new CustomEvent('kt-media-mode-20260925',{
+        detail:{mode:mode,reason:String(reason||''),at:Date.now()}
+      }));
+    }catch(e){}
+  }
+  window.ktUseDirectMediaFallback20260925=function(){
+    return window.__ktMediaMode20260925==='fallback';
+  };
+  window.ktLiveKitCentralMediaActive20260925=function(){
+    var m=String(window.__ktMediaMode20260925||'');
+    return m==='livekit'||m==='livekit-pending';
+  };
 
   window.__ktLiveKitSfuState20260924={
-    enabled:true,connected:false,connecting:false,url:DEFAULT_URL,hostId:'',role:'',lastError:''
+    enabled:true,connected:false,connecting:false,url:'',hostId:'',role:'',lastError:'',primary:true
   };
 
   function setState(p){
@@ -76,9 +100,9 @@
     return h;
   }
   function approvedGuestTransportReady(){
-    var st='';
-    try{st=String(window.__ktDirectGuestUplinkState20260923||'');}catch(e){}
-    return !!(remoteHostId()&&guestStream()&&(st==='connecting'||st==='connected'));
+    var h=remoteHostId(),self=viewerId(),approved=false;
+    try{approved=!!((window.__ktApprovedGuestIds20260924||{})[self]);}catch(e){}
+    return !!(h&&approved&&guestStream());
   }
   function cleanRoom(hostId,runId){
     var h=String(hostId||'').replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,72);
@@ -413,6 +437,9 @@
   }
   async function disconnectRoom(){
     var old=room;room=null;connecting=false;
+    disconnectSeq+=1;
+    if(fallbackTimer){clearTimeout(fallbackTimer);fallbackTimer=null;}
+    setMediaMode('livekit-pending','room-reset');
     setState({connected:false,connecting:false});
     clearRoomRefs();
     if(old){try{await old.disconnect(false);}catch(e){}}
@@ -425,6 +452,8 @@
     if(Date.now()<nextConnectAllowedAt&&currentHostId===hostId&&currentRunId===runId)return room;
     if(Date.now()-lastConnectAt<350&&currentHostId===hostId&&currentRunId===runId)return room;
     lastConnectAt=Date.now();connecting=true;currentHostId=hostId;currentRunId=runId;currentRole=role||'viewer';
+    if(fallbackTimer){clearTimeout(fallbackTimer);fallbackTimer=null;}
+    setMediaMode('livekit-pending','connecting');
     setState({connecting:true,connected:false,hostId:hostId,role:currentRole,lastError:''});
     try{
       var LK=await ensureSdk();
@@ -432,6 +461,8 @@
       clearRoomRefs();
       var identity=(currentRole==='host')?DEVICE:viewerId();
       var auth=await tokenFor(hostId,identity,runId);
+      var livekitUrl=String(auth&&auth.url||'').trim();
+      if(!livekitUrl)throw new Error('livekit_url_missing');
       var r=new LK.Room({
         adaptiveStream:true,
         dynacast:true,
@@ -447,23 +478,49 @@
         reattachRemoteTracks();
         [10,35,90,180].forEach(function(ms){setTimeout(reattachRemoteTracks,ms);});
       });
+      if(LK.RoomEvent.ParticipantDisconnected)r.on(LK.RoomEvent.ParticipantDisconnected,function(p){
+        var id=String(p&&p.identity||'');
+        if(!id)return;
+        /* Temporary SFU disconnect must not erase an approved participant slot.
+           Supabase guest_left/roster is the authority for actual removal. */
+        try{
+          var approved=!!((window.__ktApprovedGuestIds20260924||{})[id]);
+          if(!approved)removeApprovedGuestSlot20260924(id);
+        }catch(e){}
+      });
       if(LK.RoomEvent.TrackPublished)r.on(LK.RoomEvent.TrackPublished,function(){
         reattachRemoteTracks();
         [10,30,75].forEach(function(ms){setTimeout(reattachRemoteTracks,ms);});
       });
       if(LK.RoomEvent.Reconnected)r.on(LK.RoomEvent.Reconnected,function(){
+        disconnectSeq+=1;
+        if(fallbackTimer){clearTimeout(fallbackTimer);fallbackTimer=null;}
+        setMediaMode('livekit','reconnected');
+        setState({connected:true,connecting:false});
         [0,80,220].forEach(function(ms){setTimeout(reattachRemoteTracks,ms);});
       });
       r.on(LK.RoomEvent.Disconnected,function(){
-        if(room===r){setState({connected:false,connecting:false});}
+        if(room!==r)return;
+        var seq=++disconnectSeq;
+        setState({connected:false,connecting:false});
+        setMediaMode('livekit-pending','disconnected');
+        if(fallbackTimer)clearTimeout(fallbackTimer);
+        fallbackTimer=setTimeout(function(){
+          if(room===r&&r.state!=='connected'&&seq===disconnectSeq){
+            setMediaMode('fallback','livekit-disconnected');
+          }
+        },2500);
       });
-      try{r.prepareConnection(auth.url||DEFAULT_URL,auth.token);}catch(e){}
-      await r.connect(auth.url||DEFAULT_URL,auth.token,{autoSubscribe:true});
+      try{r.prepareConnection(livekitUrl,auth.token);}catch(e){}
+      await r.connect(livekitUrl,auth.token,{autoSubscribe:true});
       if(room!==r){try{await r.disconnect(false);}catch(e){}return room;}
       connecting=false;
       connectFailCount=0;
       nextConnectAllowedAt=0;
-      setState({url:auth.url||DEFAULT_URL,connected:true,connecting:false,hostId:hostId,role:currentRole,runId:runId});
+      disconnectSeq+=1;
+      if(fallbackTimer){clearTimeout(fallbackTimer);fallbackTimer=null;}
+      setMediaMode('livekit','connected');
+      setState({url:livekitUrl,connected:true,connecting:false,hostId:hostId,role:currentRole,runId:runId});
       try{
         r.remoteParticipants.forEach(function(p){
           p.trackPublications.forEach(function(pub){
@@ -476,9 +533,10 @@
       connecting=false;
       connectFailCount=Math.min(6,connectFailCount+1);
       /* After repeated cloud failures, stop hammering the token/socket path.
-         Direct WebRTC + guest mesh remain active as the immediate fallback. */
+         The media arbiter enables the old direct/mesh path only as fallback. */
       nextConnectAllowedAt=Date.now()+(connectFailCount>=3?30000:Math.min(3000,500*Math.pow(2,connectFailCount-1)));
       setState({connected:false,connecting:false,lastError:String(e&&e.message||e)});
+      setMediaMode('fallback',String(e&&e.message||'connect-failed'));
       return null;
     }
   }
@@ -497,6 +555,7 @@
         var lv=new LK.LocalVideoTrack(vt);
         await vp.publishTrack(lv,{source:LK.Track.Source.Camera,simulcast:true});
         publishedVideoId=vt.id;
+        try{window.dispatchEvent(new CustomEvent('kt-livekit-local-published',{detail:{kind:'video',track_id:vt.id,at:Date.now()}}));}catch(e){}
       }
     }catch(e){}
     try{
@@ -656,7 +715,7 @@
      download/parse delay from the approval path. */
   setTimeout(function(){try{var q=ensureSdk();if(q&&q.catch)q.catch(function(){});}catch(e){}},0);
 
-  setInterval(hostTick,650);
+  setInterval(hostTick,450);
   setInterval(function(){
     ensureApprovedRosterSlots20260924();
     reattachRemoteTracks();
