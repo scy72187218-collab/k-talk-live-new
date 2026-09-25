@@ -1,5 +1,5 @@
 {
-  "version": 114,
+  "version": 115,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260924-video-connection-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Owner authorization verified. Temporarily unlocked ONLY LiveKit/media transport capacity metadata so the visible 13-person room keeps 2 extra transport slots (15 total media publishers including host). Do not modify visible room count/layout, switches, public feed, rose, AI, chat, gifts, buttons, or labels.",
+  "note": "Communication transport capacity update completed and relocked. Visible room capacity remains 13. LiveKit transport headroom is explicitly 15 total media publishers including host, leaving 2 hidden transport slots. Token function now requires LiveKit Cloud config and no longer falls back to the old tunnel. No UI/layout/switch/chat/gift/rose/AI/public-feed changes.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -88,17 +88,9 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "livekit_sfu_transport_bridge_only",
-    "media_transport",
-    "video_communication"
-  ],
-  "temporarily_unlocked_components": [
-    "livekit_sfu_transport_bridge_only",
-    "media_transport",
-    "video_communication"
-  ],
-  "last_communication_fix": "2026-09-25-primary-livekit-sfu13-control-realtime-fallback22",
+  "current_editable_components": [],
+  "temporarily_unlocked_components": [],
+  "last_communication_fix": "2026-09-25-primary-livekit-sfu15-headroom23",
   "last_video_feed_fix": "2026-09-24-full-feed-after-first6",
   "locked_components": [
     "public-video-feed",
