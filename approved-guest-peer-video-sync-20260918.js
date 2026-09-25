@@ -103,10 +103,27 @@
   function waitIce(pc,ms){
     return new Promise(function(resolve){
       if(!pc||pc.iceGatheringState==='complete')return resolve();
-      var done=false,t=setTimeout(finish,ms||5000);
-      function finish(){if(done)return;done=true;clearTimeout(t);try{pc.removeEventListener('icegatheringstatechange',on);}catch(e){}resolve();}
-      function on(){if(pc.iceGatheringState==='complete')finish();}
-      pc.addEventListener('icegatheringstatechange',on);
+      var done=false,t=setTimeout(finish,ms||700);
+      function finish(){
+        if(done)return;done=true;clearTimeout(t);
+        try{pc.removeEventListener('icegatheringstatechange',onState);}catch(e){}
+        try{pc.removeEventListener('icecandidate',onCandidate);}catch(e){}
+        resolve();
+      }
+      function onState(){if(pc.iceGatheringState==='complete')finish();}
+      function onCandidate(ev){
+        try{
+          var cand=ev&&ev.candidate;
+          if(!cand)return;
+          var type=String(cand.type||'');
+          var raw=String(cand.candidate||'');
+          /* A server-reflexive/relay candidate is enough to start signaling;
+             do not wait the full old 850ms on every guest-to-guest handshake. */
+          if(type==='srflx'||type==='relay'||raw.indexOf(' typ srflx ')>-1||raw.indexOf(' typ relay ')>-1)finish();
+        }catch(e){}
+      }
+      try{pc.addEventListener('icegatheringstatechange',onState);}catch(e){}
+      try{pc.addEventListener('icecandidate',onCandidate);}catch(e){}
     });
   }
   function pairKey(a,b){
@@ -303,7 +320,7 @@
         }catch(_e){}
       }
       var offer=await pc.createOffer({offerToReceiveVideo:true,offerToReceiveAudio:false});
-      await pc.setLocalDescription(offer);await waitIce(pc,850);
+      await pc.setLocalDescription(offer);await waitIce(pc,550);
 
       /* 공유 Runtime Cache를 먼저 사용한다. DB는 실패할 때만 보조로 쓴다. */
       try{
@@ -373,7 +390,7 @@
       }
       await pc.setRemoteDescription({type:'offer',sdp:row.offer_sdp});
       var answer=await pc.createAnswer();
-      await pc.setLocalDescription(answer);await waitIce(pc,850);
+      await pc.setLocalDescription(answer);await waitIce(pc,550);
 
       if(entry.signalSource==='memory'){
         await memPeerPost({action:'answer',session_id:entry.sessionId,answer_sdp:pc.localDescription.sdp},850);
@@ -619,14 +636,14 @@
     finally{ticking=false;}
   }
 
-  setInterval(tick,350);
+  setInterval(tick,250);
   window.addEventListener('kt-any-guest-approved',function(){
     try{tick();}catch(e){}
-    [35,100,220].forEach(function(ms){setTimeout(function(){try{tick();}catch(e){}},ms);});
+    [20,60,140].forEach(function(ms){setTimeout(function(){try{tick();}catch(e){}},ms);});
   });
   window.addEventListener('kt-three-person-sync-now',function(){
     try{tick();}catch(e){}
-    [30,90,180].forEach(function(ms){setTimeout(function(){try{tick();}catch(e){}},ms);});
+    [15,50,120].forEach(function(ms){setTimeout(function(){try{tick();}catch(e){}},ms);});
   });
   window.addEventListener('kt-any-guest-left',function(e){
     var id=String(e&&e.detail&&e.detail.viewer_id||'').trim();
