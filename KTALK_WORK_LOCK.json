@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Central communication update completed and relocked. LiveKit now uses one stable central room per host, so viewers preconnect before approval and approval only publishes the already-open guest camera. Broadcast run_id remains control metadata and no longer tears down/reconnects the same host SFU room. Host also replies with current run metadata immediately on guest request. No layout, switches, public feed, rose, AI, chat, gifts, labels, buttons, or unrelated UI changed.",
+  "note": "Owner authorization verified. Communication-only work: seed viewer/guest with current host run from global realtime LIVE signal, keep run context monotonic, preconnect LiveKit before approval, and prevent stale run signals from dropping/rebuilding screens. No UI/layout/switch/chat/gift/rose/AI/public-feed changes.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -88,8 +88,26 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [],
-  "temporarily_unlocked_components": [],
+  "current_editable_components": [
+    "remote_host_id_bridge",
+    "video_communication",
+    "media_transport",
+    "guest_approval_to_slot",
+    "shared_guest_request_approval_signaling",
+    "communication_auto_reconnect_only",
+    "approved_guest_stay_connected",
+    "livekit_sfu_transport_bridge_only"
+  ],
+  "temporarily_unlocked_components": [
+    "remote_host_id_bridge",
+    "video_communication",
+    "media_transport",
+    "guest_approval_to_slot",
+    "shared_guest_request_approval_signaling",
+    "communication_auto_reconnect_only",
+    "approved_guest_stay_connected",
+    "livekit_sfu_transport_bridge_only"
+  ],
   "last_communication_fix": "2026-09-25-stable-central-room-preconnect27",
   "last_video_feed_fix": "2026-09-24-full-feed-after-first6",
   "locked_components": [
