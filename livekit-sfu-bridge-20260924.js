@@ -115,8 +115,7 @@
   }
   function cleanRoom(hostId,runId){
     var h=String(hostId||'').replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,72);
-    var r=String(runId||'').replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,44);
-    return 'ktalk_'+h+(r?'_'+r:'');
+    return 'ktalk_'+h+'_central15';
   }
   function ensureSdk(){
     if(window.LivekitClient&&window.LivekitClient.Room)return Promise.resolve(window.LivekitClient);
@@ -458,12 +457,22 @@
     if(old){try{await old.disconnect(false);}catch(e){}}
   }
   async function ensureRoom(hostId,role,runId){
-    hostId=String(hostId||'').trim();runId=String(runId||'').trim();
-    if(!hostId||!runId)return null;
-    if(room&&currentHostId===hostId&&currentRunId===runId&&room.state==='connected')return room;
-    if(connecting&&currentHostId===hostId&&currentRunId===runId)return room;
-    if(Date.now()<nextConnectAllowedAt&&currentHostId===hostId&&currentRunId===runId)return room;
-    if(Date.now()-lastConnectAt<350&&currentHostId===hostId&&currentRunId===runId)return room;
+    hostId=String(hostId||'').trim();
+    runId=String(runId||'central').trim()||'central';
+    if(!hostId)return null;
+    if(room&&currentHostId===hostId&&room.state==='connected'){
+      currentRunId=runId;
+      currentRole=role||currentRole||'viewer';
+      setState({connected:true,connecting:false,hostId:hostId,role:currentRole,runId:currentRunId});
+      return room;
+    }
+    if(connecting&&currentHostId===hostId){
+      currentRunId=runId;
+      currentRole=role||currentRole||'viewer';
+      return room;
+    }
+    if(Date.now()<nextConnectAllowedAt&&currentHostId===hostId)return room;
+    if(Date.now()-lastConnectAt<350&&currentHostId===hostId)return room;
     lastConnectAt=Date.now();connecting=true;currentHostId=hostId;currentRunId=runId;currentRole=role||'viewer';
     if(fallbackTimer){clearTimeout(fallbackTimer);fallbackTimer=null;}
     setMediaMode('livekit-pending','connecting');
@@ -611,8 +620,7 @@
       watchHostId=approvedHostId;
     }
     if(isHostRole()){
-      var hostRun=String(window.__ktHostRunId20260924||'').trim();
-      if(!hostRun)return;
+      var hostRun=String(window.__ktHostRunId20260924||'central').trim()||'central';
       var s=hostStream();
       if(s){
         var r=await ensureRoom(DEVICE,'host',hostRun);
@@ -620,9 +628,8 @@
       }
       return;
     }
-    var remoteRun=String(window.__ktRemoteHostRunId20260924||'').trim();
+    var remoteRun=String(window.__ktRemoteHostRunId20260924||'central').trim()||'central';
     if(approvedHostId){
-      if(!remoteRun)return;
       var gs=guestStream();
       var gr=await ensureRoom(approvedHostId,'guest',remoteRun);
       if(gr){
@@ -632,7 +639,6 @@
       return;
     }
     if(watchHostId){
-      if(!remoteRun)return;
       var vr=await ensureRoom(watchHostId,'viewer',remoteRun);
       if(vr)reattachRemoteTracks();
     }
@@ -692,7 +698,7 @@
     /* Join the media room while camera permission/prewarm is still running.
        Approval then only has to publish the already-open track. */
     try{hostTick();}catch(z){}
-    [20,60,120].forEach(function(ms){setTimeout(hostTick,ms);});
+    [20,80,180].forEach(function(ms){setTimeout(hostTick,ms);});
   });
   window.addEventListener('kt-guest-camera-prewarmed',function(e){
     var h=String(e&&e.detail&&e.detail.host_id||remoteHostId()||'').trim();
@@ -745,15 +751,23 @@
   });
   window.addEventListener('kt-remote-host-selected',function(e){
     var h=String(e&&e.detail&&e.detail.host_id||'').trim();
-    if(h){watchHostId=h;setTimeout(hostTick,0);}
+    if(h){
+      watchHostId=h;
+      try{window.__ktRemoteHostRunId20260924=String(window.__ktRemoteHostRunId20260924||'central')||'central';}catch(z){}
+      setTimeout(hostTick,0);
+      setTimeout(hostTick,60);
+    }
   });
   window.addEventListener('kt-host-session-reset',function(e){
     var h=String(e&&e.detail&&e.detail.host_id||'').trim();
     if(!h)return;
     if(h===watchHostId||h===approvedHostId||h===currentHostId){
-      approvedHostId='';watchHostId=h;
-      disconnectRoom();
-      setTimeout(hostTick,40);
+      watchHostId=h;
+      try{
+        var rr=String(e&&e.detail&&e.detail.run_id||'').trim();
+        if(rr)currentRunId=rr;
+      }catch(z){}
+      setTimeout(hostTick,20);
     }
   });
   window.addEventListener('kt-host-session-ready',function(e){
