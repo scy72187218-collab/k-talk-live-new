@@ -2018,10 +2018,27 @@
     if(ev==='guest_request'&&isHostRole()&&String(p.host_id||'')===DEVICE){
       var vid=String(p.viewer_id||'');
       if(vid){
-        /* 재입장 신청은 새 세션으로 취급: 기존 게스트 영상/승인/peer를 즉시 비운다. */
-        if(approvedGuests[vid]||hostGuestPeers[vid]){
-          clearApprovedGuestFromHost(vid);
+        /* While a guest is waiting, request packets can repeat. A packet that
+           arrives after approval is a duplicate, not a re-entry. Keeping the
+           approved slot here prevents later phones from knocking earlier ones
+           off the host grid. Explicit guest_left is the removal authority. */
+        if(approvedGuests[vid]){
+          hostGuestAliveAt[vid]=Date.now();
+          var approvedNow=approvedGuests[vid]||{};
+          var approvedRun=ensureHostRunContext20260925();
+          try{send('guest_approved',{
+            host_id:DEVICE,
+            viewer_id:vid,
+            name:String(approvedNow.name||p.name||'게스트'),
+            at:Number(approvedNow.at||Date.now()),
+            reconnect:true,
+            run_id:String(approvedRun.run_id||''),
+            run_started_at:Number(approvedRun.run_started_at||0)
+          });}catch(e){}
+          broadcastApprovedRoster20260925('duplicate-request-after-approved',true);
+          return;
         }
+        if(hostGuestPeers[vid])clearApprovedGuestFromHost(vid);
         pendingRequests[vid]={name:String(p.name||'게스트'),at:Date.now()};
         try{
           var requestRun=ensureHostRunContext20260925();
