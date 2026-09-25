@@ -1,5 +1,5 @@
 {
-  "version": 103,
+  "version": 104,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260924-video-connection-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Communication-only update completed and relocked. Instant viewer entry signaling, immediate approval roster broadcast, same approved roster on host/guests, explicit leave removal, LiveKit preconnect, and failed-connect backoff were changed. Switches, public video feed, rose, AI, chat, gifts, room layout, labels, buttons, and unrelated UI were not changed.",
+  "note": "Owner authorization verified. Temporarily unlocked ONLY communication transport for faster camera prewarm, pre-approval WebRTC negotiation, faster approved guest peer sync, and LiveKit retry/token efficiency. Do not modify switches, public video feed, rose, AI, chat, gifts, labels, buttons, or room layout.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -88,8 +88,26 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [],
-  "temporarily_unlocked_components": [],
+  "current_editable_components": [
+    "video_communication",
+    "media_transport",
+    "webrtc_transport_stability",
+    "remote_video_connect_speed",
+    "guest_approval_to_slot",
+    "approved_guest_peer_video_sync_only",
+    "communication_auto_reconnect_only",
+    "livekit_sfu_transport_bridge_only"
+  ],
+  "temporarily_unlocked_components": [
+    "video_communication",
+    "media_transport",
+    "webrtc_transport_stability",
+    "remote_video_connect_speed",
+    "guest_approval_to_slot",
+    "approved_guest_peer_video_sync_only",
+    "communication_auto_reconnect_only",
+    "livekit_sfu_transport_bridge_only"
+  ],
   "last_communication_fix": "2026-09-25-instant-entry-approval-roster-leave18",
   "last_video_feed_fix": "2026-09-24-full-feed-after-first6",
   "locked_components": [
@@ -119,7 +137,7 @@
   "last_switch_lock": "2026-09-24-all-switches-relock2",
   "last_switch_ai_fix": "2026-09-24-first-touch-switch-site-guide-ai2",
   "last_rose_ai_fix": "2026-09-24-rose-first-touch-guide-user-tap4",
-  "last_unlock": "2026-09-25-owner-authorized-instant-communication",
+  "last_unlock": "2026-09-25-owner-authorized-faster-camera-approval-peer-sync",
   "last_pwa_install_fix": "2026-09-24-first-touch-install9",
   "last_critical_touch_fix": "2026-09-24-critical-touch1",
   "last_livekit_cloud_prepare": "2026-09-25-edge-token-v2-env-first"
