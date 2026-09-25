@@ -11,7 +11,7 @@
   var REST_BROADCAST='https://'+REF+'.supabase.co/realtime/v1/api/broadcast';
   var ws=null,joined=false,joinRef='',seq=1,topic='',activeHostId='',queue=[],reconnectTimer=null,heartbeatTimer=null;
   var hostViewPeers={};
-  var viewerPc=null,viewerSession='',viewerWatchToken='',viewerConnected=false,viewerIce={},viewerConnectTimer=null;
+  var viewerPc=null,viewerSession='',viewerWatchToken='',viewerConnected=false,viewerIce={},viewerConnectTimer=null,viewerAnswerSdp='';
   var pendingRequests={},approvedGuests={},hostGuestPeers={},guestPc=null,guestSession='',guestApprovedHost='',guestApproved=false,guestStream=null,guestIce={};
   var guestPrewarmTimer=null;
   var pendingHostGuestOffers={},pendingHostGuestIce={};
@@ -996,12 +996,12 @@
       viewerConnectTimer=null;
       if(viewerConnected)return;
       if(viewerPc){closePc(viewerPc);viewerPc=null;}
-      viewerSession='';
+      viewerSession='';viewerAnswerSdp='';
       viewerWatchToken=sid('watch');
       lastWatchAt=0;
       showConnecting();
       ensureViewerWatch(true);
-    },Math.max(400,Number(delay||2600)));
+    },Math.max(180,Number(delay||1200)));
   }
 
   async function hostOfferToViewer(vid,watchToken){
@@ -1038,7 +1038,16 @@
       var offer=await pc.createOffer({offerToReceiveAudio:false,offerToReceiveVideo:false});
       await pc.setLocalDescription(offer);
       entry.offer=pc.localDescription.sdp;
-      send('video_offer',{host_id:DEVICE,viewer_id:vid,session_id:session,watch_token:watchToken,offer_sdp:entry.offer});
+      var firstOffer={host_id:DEVICE,viewer_id:vid,session_id:session,watch_token:watchToken,offer_sdp:entry.offer};
+      send('video_offer',firstOffer);
+      /* First-room video fast path: a missed first packet must not cost several seconds.
+         Re-send the SAME offer briefly; the viewer reuses the same session/PC. */
+      [90,250,600].forEach(function(ms){
+        setTimeout(function(){
+          if(hostViewPeers[vid]!==entry||entry.pc.currentRemoteDescription)return;
+          send('video_offer',firstOffer);
+        },ms);
+      });
     }catch(e){closePc(pc);delete hostViewPeers[vid];}
   }
 
@@ -1046,7 +1055,14 @@
     if(String(p.viewer_id||'')!==viewerId())return;
     var hid=remoteHostId();if(!hid||String(p.host_id||'')!==hid)return;
     var session=String(p.session_id||''),sdp=String(p.offer_sdp||'');if(!session||!sdp)return;
-    if(viewerSession===session&&viewerPc&&viewerPc.currentRemoteDescription)return;
+    if(viewerSession===session&&viewerPc&&viewerPc.currentRemoteDescription){
+      /* If the host repeats the same offer because the first answer was lost,
+         immediately re-send the cached answer instead of waiting for a new 4.5s cycle. */
+      if(viewerAnswerSdp){
+        send('video_answer',{host_id:hid,viewer_id:viewerId(),session_id:session,answer_sdp:viewerAnswerSdp});
+      }
+      return;
+    }
     if(viewerOfferInFlight===session)return;
     viewerOfferInFlight=session;
 
@@ -1056,6 +1072,7 @@
     var previousPc=viewerPc;
     var previousSession=viewerSession;
     var previousUsable=!!(previousPc&&String(previousPc.connectionState||'')!=='failed'&&String(previousPc.connectionState||'')!=='closed'&&ktRemoteStreamStillLive20260923());
+    if(viewerSession!==session)viewerAnswerSdp='';
     viewerSession=session;
     if(!previousUsable){viewerConnected=false;showConnecting();}
     window.__ktDirectRtcProgressAt=Date.now();
@@ -1151,11 +1168,21 @@
       var ans=await pc.createAnswer();await pc.setLocalDescription(ans);
       window.__ktDirectRtcProgressAt=Date.now();
       window.__ktDirectRtcPhase='answer-sent';
-      send('video_answer',{host_id:hid,viewer_id:viewerId(),session_id:session,answer_sdp:pc.localDescription.sdp});
+      viewerAnswerSdp=pc.localDescription.sdp;
+      var firstAnswer={host_id:hid,viewer_id:viewerId(),session_id:session,answer_sdp:viewerAnswerSdp};
+      send('video_answer',firstAnswer);
+      /* Mobile packet-loss guard: repeat only the answer for this same first session.
+         This keeps the screen/UI untouched and avoids waiting for a full reconnect. */
+      [80,220,520,950].forEach(function(ms){
+        setTimeout(function(){
+          if(viewerPc!==pc||viewerSession!==session||viewerConnected)return;
+          send('video_answer',firstAnswer);
+        },ms);
+      });
 
       /* 기존 영상이 살아 있으면 새 연결 확인 동안 화면을 유지한다.
          기존 영상이 없는 최초 연결만 기존 4.5초 watchdog을 사용한다. */
-      if(!previousUsable)retryViewerSoon(4500);
+      if(!previousUsable)retryViewerSoon(1800);
       else setTimeout(function(){
         if(viewerPc===pc&&!pc.__ktGotRemoteTrack20260923&&pc.connectionState!=='connected'){
           try{closePc(pc);}catch(e){}
@@ -1210,7 +1237,7 @@
     if(!viewerWatchToken)viewerWatchToken=sid('watch');
     var now=Date.now();
     if(!force&&viewerConnected)return;
-    if(!force&&now-lastWatchAt<900)return;
+    if(!force&&now-lastWatchAt<280)return;
     lastWatchAt=now;
     send('video_watch',{host_id:hid,viewer_id:viewerId(),watch_token:viewerWatchToken,at:now});
   }
