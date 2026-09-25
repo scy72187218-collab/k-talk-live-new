@@ -90,9 +90,30 @@
     try{return String(localStorage.getItem('ktalk_nickname')||localStorage.getItem('ktalk_profile_name')||'게스트').slice(0,60);}catch(e){}
     return '게스트';
   }
-  function roomEl(){return document.querySelector('#screen .ktsolo-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room');}
+  function roomEl(){return document.querySelector('#screen .ktsolo-room,#screen .ktg9-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room');}
   function isHostRole(){
-    try{return !document.documentElement.classList.contains('kt-remote-viewing')&&!!roomEl();}catch(e){return false;}
+    try{
+      var local=roomEl(),visible=false;
+      try{
+        if(local){
+          var st=getComputedStyle(local);
+          visible=st.display!=='none'&&st.visibility!=='hidden'&&(!local.getClientRects||local.getClientRects().length>0);
+        }
+      }catch(_e){visible=!!local;}
+      if(visible){
+        try{
+          window.__ktRemoteHostId='';
+          window.__ktCurrentRemoteHostId='';
+          sessionStorage.removeItem('kt_remote_host_id');
+        }catch(_e){}
+        return true;
+      }
+      if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
+      var rh='';
+      try{rh=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||sessionStorage.getItem('kt_remote_host_id')||'').trim();}catch(_e){}
+      if(rh)return false;
+      return false;
+    }catch(e){return false;}
   }
   function hostStream(){
     try{
@@ -703,7 +724,7 @@
   }
 
   async function hostOfferToViewer(vid,watchToken){
-    if(!isHostRole()||activeHostId!==DEVICE)return;
+    if(!isHostRole())return;
     var stream=hostStream();if(!stream)return;
     var old=hostViewPeers[vid];
     if(old&&old.watchToken===watchToken&&old.pc&&['new','connecting','connected'].indexOf(String(old.pc.connectionState||''))>-1){
@@ -774,10 +795,7 @@
     window.__ktDirectRtcPhase='offer';
     var pc=new RTCPeerConnection(rtcConfig());viewerPc=pc;
     pc.ontrack=function(ev){
-      if(window.__ktUseMemoryGuestVideo20260922){
-        try{pc.close();}catch(e){}
-        return;
-      }
+      try{window.__ktUseMemoryGuestVideo20260922=false;}catch(e){}
       pc.__ktGotRemoteTrack20260923=true;
       viewerConnected=true;
       window.__ktDirectRtcProgressAt=Date.now();
@@ -926,7 +944,6 @@
   }
 
   function ensureViewerWatch(force){
-    if(window.__ktUseMemoryGuestVideo20260922)return;
     var hid=remoteHostId();if(!hid||isHostRole())return;
     if(!viewerWatchToken)viewerWatchToken=sid('watch');
     var now=Date.now();
@@ -1925,17 +1942,27 @@
       var hid=String(e&&e.detail&&e.detail.host_id||'').trim();
       if(!hid)return;
       lastRemoteHost=hid;
-      if(window.__ktUseMemoryGuestVideo20260922)return;
       viewerWatchToken=sid('watch');
       viewerConnected=false;
       lastWatchAt=0;
       if(activeHostId!==hid)connect(hid);
-      /* Send the first watch immediately. If WebSocket is not joined yet,
-         send() uses REST fallback, so room entry does not wait for WS join. */
+
+      /* Communication speed only: keep any already-visible host stream while
+         the fresh direct WebRTC track is negotiating. */
+      try{
+        var entryStream=(e&&e.detail&&e.detail.entry_stream)||window.__ktEntryHostStream20260925||window.__ktRemoteHostStream||null;
+        if(entryStream&&entryStream.getVideoTracks&&entryStream.getVideoTracks().some(function(t){return t&&t.readyState==='live';})){
+          window.__ktRemoteHostStream=entryStream;
+          attachRemoteStreamNow(entryStream);
+        }
+      }catch(_e){}
+
+      /* Fire the first real watch immediately and repeat very briefly. */
       ensureViewerWatch(true);
       attachRemoteStreamNow();
-      setTimeout(function(){ensureViewerWatch(true);attachRemoteStreamNow();},35);
-      setTimeout(function(){ensureViewerWatch(true);attachRemoteStreamNow();},100);
+      [35,100,220,420].forEach(function(ms){
+        setTimeout(function(){ensureViewerWatch(true);attachRemoteStreamNow();},ms);
+      });
     }catch(z){}
   });
 
