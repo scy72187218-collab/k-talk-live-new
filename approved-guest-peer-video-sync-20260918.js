@@ -228,6 +228,15 @@
   function liveKitConnected(){
     try{return !!(window.__ktLiveKitSfuState20260924&&window.__ktLiveKitSfuState20260924.connected);}catch(e){return false;}
   }
+  function useMeshFallback20260925(){
+    try{
+      if(window.__ktPreferLiveKitPrimary20260925===true){
+        if(typeof window.ktUseDirectMediaFallback20260925==='function')return !!window.ktUseDirectMediaFallback20260925();
+        return false;
+      }
+    }catch(e){}
+    return true;
+  }
   function showPeer(peerId,name,stream){
     if(!live(stream))return;
     ensureStyle();
@@ -501,6 +510,7 @@
   }
 
   async function handleDirectPeerSignal20260925(detail){
+    if(!useMeshFallback20260925())return;
     var ev=String(detail&&detail.event||''),p=detail&&detail.payload||{};
     var selfId=selfViewerId();if(!selfId||String(p.to_id||'')!==selfId)return;
     var peerId=String(p.from_id||''),sessionId=String(p.session_id||'');if(!peerId||!sessionId)return;
@@ -689,6 +699,7 @@
   }
 
   async function ensurePeer(hostId,selfId,peerId,name,stream){
+    if(!useMeshFallback20260925())return;
     if(peerId===selfId||peers[peerId])return;
     var key=pairKey(selfId,peerId);
     var offerer=String(selfId)<String(peerId);
@@ -727,6 +738,18 @@
   async function tick(){
     if(ticking)return;ticking=true;
     try{
+      if(!useMeshFallback20260925()){
+        Object.keys(peers).forEach(function(pid){
+          var e=peers[pid];
+          try{if(e&&e.trackTimer)clearTimeout(e.trackTimer);}catch(z){}
+          try{if(e&&e.answerTimer)clearInterval(e.answerTimer);}catch(z){}
+          try{if(e&&e.pc)e.pc.close();}catch(z){}
+        });
+        peers={};
+        directPendingOffers={};
+        directPendingIce={};
+        return;
+      }
       var infoGrid=gridInfo();
       var stream=selfStream();
       var selfId=selfViewerId();
@@ -781,7 +804,23 @@
     }catch(z){}
   });
 
-  setInterval(tick,250);
+  window.addEventListener('kt-media-mode-20260925',function(e){
+    var mode=String(e&&e.detail&&e.detail.mode||'');
+    if(mode==='livekit'||mode==='livekit-pending'){
+      Object.keys(peers).forEach(function(pid){
+        var x=peers[pid];
+        try{if(x&&x.trackTimer)clearTimeout(x.trackTimer);}catch(z){}
+        try{if(x&&x.answerTimer)clearInterval(x.answerTimer);}catch(z){}
+        try{if(x&&x.pc)x.pc.close();}catch(z){}
+      });
+      peers={};directPendingOffers={};directPendingIce={};
+    }else if(mode==='fallback'){
+      try{tick();}catch(z){}
+      [80,220].forEach(function(ms){setTimeout(function(){try{tick();}catch(z){}},ms);});
+    }
+  });
+
+  setInterval(tick,700);
   window.addEventListener('kt-any-guest-approved',function(){
     try{tick();}catch(e){}
     [20,60,140].forEach(function(ms){setTimeout(function(){try{tick();}catch(e){}},ms);});
