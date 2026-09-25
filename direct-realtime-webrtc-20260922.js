@@ -149,10 +149,11 @@
   }
   function sid(prefix){return prefix+'_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,9);}
   function channelFor(hostId){return 'ktalk-direct-rtc-'+String(hostId||'').replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,110);}
-  function restBroadcast(eventName,payload){
-    if(!activeHostId)return Promise.resolve(false);
+  function restBroadcastToHost20260925(hostId,eventName,payload){
+    hostId=String(hostId||'').trim();
+    if(!hostId)return Promise.resolve(false);
     var body={messages:[{
-      topic:channelFor(activeHostId),
+      topic:channelFor(hostId),
       event:eventName,
       payload:payload||{}
     }]};
@@ -165,6 +166,9 @@
         body:JSON.stringify(body)
       }).then(function(r){return !!(r&&r.ok);}).catch(function(){return false;});
     }catch(e){return Promise.resolve(false);}
+  }
+  function restBroadcast(eventName,payload){
+    return restBroadcastToHost20260925(activeHostId,eventName,payload);
   }
 
   function send(eventName,payload){
@@ -238,10 +242,13 @@
     }catch(e){}
     return {host_id:DEVICE,guests:guests,reason:String(reason||''),at:Date.now()};
   }
-  function broadcastApprovedRoster20260925(reason){
+  function broadcastApprovedRoster20260925(reason,reliable){
     if(!isHostRole())return;
     var data=approvedRosterPayload20260925(reason);
     try{send('guest_roster',data);}catch(e){}
+    if(reliable){
+      try{restBroadcastToHost20260925(DEVICE,'guest_roster',data);}catch(e){}
+    }
   }
   function applyApprovedRoster20260925(p){
     if(isHostRole())return;
@@ -259,6 +266,7 @@
     var oldNames=window.__ktApprovedGuestNames20260924||{};
     Object.keys(roster).forEach(function(id){
       if(roster[id]===true&&!next[id]){
+        try{clearParticipantSlotsEverywhere20260925(id);}catch(e){}
         try{window.dispatchEvent(new CustomEvent('kt-any-guest-left',{detail:{host_id:hid,viewer_id:id,at:Date.now(),roster:true}}));}catch(e){}
       }
     });
@@ -275,6 +283,56 @@
       window.dispatchEvent(new CustomEvent('kt-three-person-sync-now',{detail:{host_id:hid,at:Date.now(),roster:true}}));
     }catch(e){}
   }
+
+  function clearParticipantSlotsEverywhere20260925(vid){
+    vid=String(vid||'').trim();
+    if(!vid)return;
+    var escId=vid;try{escId=CSS.escape(vid);}catch(e){}
+    var selectors=[
+      '[data-kt-direct-guest="'+escId+'"]',
+      '[data-kt-guest-viewer-id="'+escId+'"]',
+      '[data-viewer-id="'+escId+'"]',
+      '[data-kt-peer-viewer="'+escId+'"]',
+      '[data-kt-livekit-guest="'+escId+'"]'
+    ];
+    var seen=[];
+    selectors.forEach(function(sel){
+      try{
+        document.querySelectorAll(sel).forEach(function(slot){
+          if(!slot||seen.indexOf(slot)>-1)return;
+          seen.push(slot);
+          if(slot.classList&&slot.classList.contains('host'))return;
+          try{
+            var v=slot.querySelector&&slot.querySelector('video');
+            if(v){try{v.pause();}catch(_e){}try{v.srcObject=null;}catch(_e){}}
+          }catch(_e){}
+          try{
+            delete slot.dataset.ktDirectGuest;
+            delete slot.dataset.ktGuestViewerId;
+            delete slot.dataset.viewerId;
+            delete slot.dataset.ktPeerViewer;
+            delete slot.dataset.ktLivekitGuest;
+          }catch(_e){}
+          try{
+            slot.classList.remove('kt-guest-approved','kt-peer-guest','kt-livekit-peer-guest');
+          }catch(_e){}
+          try{
+            if(slot.classList.contains('ktg13-guest')){
+              slot.innerHTML='<span>게스트</span>';
+            }else if(slot.classList.contains('ktsubscriber-guest')){
+              var n=String(slot.getAttribute('data-guest-slot')||'').trim();
+              slot.innerHTML='<span>👤</span><b>게스트'+(n?' '+n:'')+'</b>';
+            }else if(slot.classList.contains('ktsecret-guest-slot')){
+              slot.innerHTML='<span class="ktsecret-guest-empty">👤</span><span class="ktsecret-guest-name">게스트</span>';
+            }else{
+              slot.innerHTML='<span>게스트</span>';
+            }
+          }catch(_e){}
+        });
+      }catch(e){}
+    });
+  }
+  window.ktClearParticipantSlotEverywhere20260925=clearParticipantSlotsEverywhere20260925;
 
   function clearApprovedGuestFromHost(vid){
     vid=String(vid||'').trim();
@@ -293,6 +351,8 @@
 
     var hp=hostGuestPeers[vid];
     if(hp){try{closePc(hp.pc);}catch(e){}delete hostGuestPeers[vid];}
+
+    clearParticipantSlotsEverywhere20260925(vid);
 
     var slots=[];
     try{
@@ -423,14 +483,16 @@
     if(!hostId||leaveAnnouncedHost===hostId)return;
     leaveAnnouncedHost=hostId;
     var vid=viewerId(),data={host_id:hostId,viewer_id:vid,name:profileName(),at:Date.now()};
-    /* Explicit leave is authoritative: dual-send immediately so the host
-       can free the slot without waiting for heartbeat/poll timeouts. */
+    /* Explicit leave is authoritative. WebSocket is fastest, but the room
+       may close in the same event loop turn, so also send one keepalive REST
+       broadcast directly to the exact host channel. */
     try{send('guest_left',data);}catch(e){}
-    try{restBroadcast('guest_left',data);}catch(e){}
+    try{restBroadcastToHost20260925(hostId,'guest_left',data);}catch(e){}
     postGuestLeaveShared(hostId);
     try{
       delete window.__ktApprovedGuestIds20260924[vid];
       if(window.__ktApprovedGuestNames20260924)delete window.__ktApprovedGuestNames20260924[vid];
+      clearParticipantSlotsEverywhere20260925(vid);
       window.dispatchEvent(new CustomEvent('kt-any-guest-left',{detail:{
         host_id:hostId,viewer_id:vid,at:Date.now(),explicit:true
       }}));
@@ -532,6 +594,7 @@
             }else if(x.kind==='left'){
               delete hostGuestAliveAt[vid];
               clearApprovedGuestFromHost(vid);
+              broadcastApprovedRoster20260925('guest-left-fallback',true);
             }
           }
         });
@@ -601,6 +664,7 @@
             }
           }else if(roster[id]===true){
             delete roster[id];delete names[id];
+            try{clearParticipantSlotsEverywhere20260925(id);}catch(e){}
             try{window.dispatchEvent(new CustomEvent('kt-any-guest-left',{detail:{
               host_id:hid,viewer_id:id,at:Date.now(),fallback:true
             }}));}catch(e){}
@@ -1819,12 +1883,13 @@
         if(lid){
           delete window.__ktApprovedGuestIds20260924[lid];
           delete window.__ktApprovedGuestNames20260924[lid];
-          window.dispatchEvent(new CustomEvent('kt-any-guest-left',{detail:{host_id:String(p.host_id||''),viewer_id:lid,at:Date.now()}}));
+          clearParticipantSlotsEverywhere20260925(lid);
+          window.dispatchEvent(new CustomEvent('kt-any-guest-left',{detail:{host_id:String(p.host_id||''),viewer_id:lid,at:Date.now(),explicit:true}}));
         }
       }catch(e){}
       if(isHostRole()&&String(p.host_id||'')===DEVICE){
         clearApprovedGuestFromHost(String(p.viewer_id||''));
-        broadcastApprovedRoster20260925('guest-left');
+        broadcastApprovedRoster20260925('guest-left',true);
       }
       return;
     }
@@ -2097,6 +2162,13 @@
     guestAliveLastSent=0;
     roleTick();setTimeout(function(){attachRemoteStreamNow();},0);
   });
+  window.addEventListener('kt-any-guest-left',function(e){
+    try{
+      var id=String(e&&e.detail&&e.detail.viewer_id||'').trim();
+      if(id)clearParticipantSlotsEverywhere20260925(id);
+    }catch(z){}
+  });
+
   window.addEventListener('pagehide',function(){
     if(guestApprovedHost||lastRemoteHost)announceGuestLeave(guestApprovedHost||lastRemoteHost);
     clearViewerConnectTimer();
