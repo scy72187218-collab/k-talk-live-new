@@ -18,6 +18,7 @@
   var requestOn=false,lastRemoteHost='',lastHostRole='',lastWatchAt=0;
   var sharedApprovalPollBusy=false,leaveAnnouncedHost='',guestAliveLastSent=0,hostGuestAliveAt={},remoteHostMissingSince=0;
   var signalSeen={},viewerOfferInFlight='',lastHostReadyAt=0,lastGuestRequestAt=0,guestApprovedAt=0;
+  var guestMediaAckTimer=null,guestMediaAckSession='',guestMediaRecoveryCount=0;
   var sharedRuntimeStartedAt=Date.now()-5000,sharedRoomCutCache={};
   var hostRunId='',hostRunStartedAt=0,remoteRunId='',remoteRunStartedAt=0;
   window.__ktApprovedGuestIds20260924=window.__ktApprovedGuestIds20260924||{};
@@ -1218,6 +1219,30 @@
     }catch(e){}
   }
 
+  function clearGuestMediaAckTimer20260926(){
+    try{if(guestMediaAckTimer)clearTimeout(guestMediaAckTimer);}catch(e){}
+    guestMediaAckTimer=null;guestMediaAckSession='';
+  }
+  function scheduleGuestMediaAckFallback20260926(hid,pc,session,delay){
+    clearGuestMediaAckTimer20260926();
+    guestMediaAckSession=String(session||'');
+    if(!guestMediaAckSession||!pc||guestMediaRecoveryCount>=2)return;
+    guestMediaAckTimer=setTimeout(function(){
+      guestMediaAckTimer=null;
+      if(!guestApproved||guestApprovedHost!==hid||guestPc!==pc||guestSession!==guestMediaAckSession)return;
+      guestMediaRecoveryCount++;
+      try{window.__ktDirectGuestUplinkState20260923='media-retry';window.__ktDirectGuestUplinkStateAt20260923=Date.now();}catch(e){}
+      try{clearGuestOfferRetryTimers(pc);}catch(e){}
+      try{closePc(pc);}catch(e){}
+      if(guestPc===pc){guestPc=null;guestSession='';}
+      var retry=function(){setTimeout(function(){if(guestApproved&&guestApprovedHost===hid)makeGuestOffer(hid);},40);};
+      try{
+        var r=window.ktRefreshTurnRelay&&window.ktRefreshTurnRelay();
+        if(r&&typeof r.then==='function')r.then(retry).catch(retry);else retry();
+      }catch(e){retry();}
+    },Math.max(650,Number(delay||900)));
+  }
+
   function scheduleGuestOfferRetries(hid,pc,payload){
     if(!pc||!payload)return;
     clearGuestOfferRetryTimers(pc);
@@ -1313,6 +1338,7 @@
       if(pc.__ktPreAudioSender)await pc.__ktPreAudioSender.replaceTrack(at||null);
       pc.__ktPreApprovalActivated=true;
       try{window.__ktDirectGuestUplinkState20260923='activating';window.__ktDirectGuestUplinkStateAt20260923=Date.now();}catch(e){}
+      scheduleGuestMediaAckFallback20260926(hid,pc,guestSession,850);
       return true;
     }catch(e){return false;}
   }
@@ -1364,6 +1390,7 @@
       var guestOfferPayload={host_id:hid,viewer_id:viewerId(),name:profileName(),session_id:guestSession,offer_sdp:pc.localDescription.sdp};
       send('guest_offer',guestOfferPayload);
       scheduleGuestOfferRetries(hid,pc,guestOfferPayload);
+      scheduleGuestMediaAckFallback20260926(hid,pc,guestSession,1300);
 
       /* 연결 협상도 짧은 흔들림 때문에 계속 새로 만들지 않는다.
          10초 동안 기존 세션을 기다린 뒤 실제 연결이 없을 때만 재시도한다. */
@@ -1434,6 +1461,10 @@
         if(!approvedGuests[vid])return;
         entry.gotTrack=true;
         attachGuestToHost(vid,String(p.name||(approvedGuests[vid]&&approvedGuests[vid].name)||'게스트'),rs);
+        if(!entry.mediaReadySent){
+          entry.mediaReadySent=true;
+          send('guest_media_ready',{host_id:DEVICE,viewer_id:vid,session_id:session,at:Date.now()});
+        }
         if(entry.old&&entry.old.pc){try{closePc(entry.old.pc);}catch(e){}entry.old=null;}
       }
       showIfApproved();
@@ -1562,6 +1593,8 @@
     guestApprovedAt=Date.now();
     leaveAnnouncedHost='';
     guestAliveLastSent=0;
+    guestMediaRecoveryCount=0;
+    clearGuestMediaAckTimer20260926();
 
     /* UI FIRST: approval must change the guest screen immediately.
        Do not wait for camera/WebRTC/LiveKit work before showing the
@@ -1792,6 +1825,17 @@
     if(ev==='guest_offer'){hostGuestOffer(p);return;}
     if(ev==='guest_answer'){guestHandleAnswer(p);return;}
     if(ev==='guest_ice'){handleGuestIce(p);return;}
+    if(ev==='guest_media_ready'){
+      var readyViewer=String(p.viewer_id||'');
+      var readyHost=String(p.host_id||'');
+      var readySession=String(p.session_id||'');
+      if(readyViewer===viewerId()&&readySession&&readySession===guestSession&&readyHost===String(guestApprovedHost||remoteHostId()||'')){
+        clearGuestMediaAckTimer20260926();
+        guestMediaRecoveryCount=0;
+        try{window.__ktDirectGuestUplinkState20260923='connected';window.__ktDirectGuestUplinkStateAt20260923=Date.now();}catch(e){}
+      }
+      return;
+    }
   }
 
   async function prepareGuestCameraFromJoinTap20260923(){
@@ -1841,6 +1885,7 @@
       /* 이 capture 핸들러가 기존 onclick보다 먼저 실행되므로 여기서 반드시
          카메라를 미리 준비한다. 승인 뒤 getUserMedia를 시작하면 몇 초 늦어진다.
          이미 열린 스트림은 재사용하므로 두 번째 카메라를 만들지 않는다. */
+      try{if(window.ktRefreshTurnRelay)window.ktRefreshTurnRelay();}catch(e){}
       try{
         var prep=prepareGuestCameraFromJoinTap20260923();
         if(prep&&prep.then){
