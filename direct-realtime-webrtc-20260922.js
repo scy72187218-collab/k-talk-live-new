@@ -261,6 +261,18 @@
     try{send(eventName,payload||{});return true;}catch(e){return false;}
   };
 
+  /* Critical media signalling gets one REST mirror beside WebSocket.
+     Supabase duplicateSignal() de-dupes copies that both arrive. This closes
+     the Android/Naver-browser gap where approval arrives but one SDP/ICE packet
+     is lost, leaving host at "게스트 연결 중..." or delaying host preview. */
+  function sendCriticalMedia20260926(eventName,payload,hostId){
+    try{send(eventName,payload||{});}catch(e){}
+    try{
+      var h=String(hostId||payload&&payload.host_id||activeHostId||'').trim();
+      if(h)restBroadcastToHost20260925(h,eventName,payload||{});
+    }catch(e){}
+  }
+
   function flush(){
     /* Messages sent during reconnect already used REST fallback.
        Do not replay them after WS join, which used to duplicate signaling. */
@@ -1028,7 +1040,7 @@
       }catch(e){}
     });
     pc.onicecandidate=function(ev){
-      if(ev.candidate)send('video_ice',{host_id:DEVICE,viewer_id:vid,session_id:session,from:'host',candidate:ev.candidate.toJSON?ev.candidate.toJSON():ev.candidate});
+      if(ev.candidate)sendCriticalMedia20260926('video_ice',{host_id:DEVICE,viewer_id:vid,session_id:session,from:'host',candidate:ev.candidate.toJSON?ev.candidate.toJSON():ev.candidate},DEVICE);
     };
     pc.onconnectionstatechange=function(){
       var st=String(pc.connectionState||'');
@@ -1044,7 +1056,7 @@
       await pc.setLocalDescription(offer);
       entry.offer=pc.localDescription.sdp;
       var firstOffer={host_id:DEVICE,viewer_id:vid,session_id:session,watch_token:watchToken,offer_sdp:entry.offer};
-      send('video_offer',firstOffer);
+      sendCriticalMedia20260926('video_offer',firstOffer,DEVICE);
       /* First-room video fast path: a missed first packet must not cost several seconds.
          Re-send the SAME offer briefly; the viewer reuses the same session/PC. */
       [40,120,280,600].forEach(function(ms){
@@ -1064,7 +1076,7 @@
       /* If the host repeats the same offer because the first answer was lost,
          immediately re-send the cached answer instead of waiting for a new 4.5s cycle. */
       if(viewerAnswerSdp){
-        send('video_answer',{host_id:hid,viewer_id:viewerId(),session_id:session,answer_sdp:viewerAnswerSdp});
+        sendCriticalMedia20260926('video_answer',{host_id:hid,viewer_id:viewerId(),session_id:session,answer_sdp:viewerAnswerSdp},hid);
       }
       return;
     }
@@ -1101,7 +1113,7 @@
       }
     };
     pc.onicecandidate=function(ev){
-      if(ev.candidate)send('video_ice',{host_id:hid,viewer_id:viewerId(),session_id:session,from:'viewer',candidate:ev.candidate.toJSON?ev.candidate.toJSON():ev.candidate});
+      if(ev.candidate)sendCriticalMedia20260926('video_ice',{host_id:hid,viewer_id:viewerId(),session_id:session,from:'viewer',candidate:ev.candidate.toJSON?ev.candidate.toJSON():ev.candidate},hid);
     };
     pc.__ktViewerIceRecovery20260923=true;
     pc.oniceconnectionstatechange=function(){
@@ -1175,7 +1187,7 @@
       window.__ktDirectRtcPhase='answer-sent';
       viewerAnswerSdp=pc.localDescription.sdp;
       var firstAnswer={host_id:hid,viewer_id:viewerId(),session_id:session,answer_sdp:viewerAnswerSdp};
-      send('video_answer',firstAnswer);
+      sendCriticalMedia20260926('video_answer',firstAnswer,hid);
       /* Mobile packet-loss guard: repeat only the answer for this same first session.
          This keeps the screen/UI untouched and avoids waiting for a full reconnect. */
       [40,120,280,560].forEach(function(ms){
@@ -1582,7 +1594,7 @@
         if(guestPc!==pc||guestSession!==payload.session_id||!guestApproved||guestApprovedHost!==hid)return;
         var cs=String(pc.connectionState||''),is=String(pc.iceConnectionState||'');
         if(cs==='connected'||is==='connected'||is==='completed')return;
-        send('guest_offer',payload);
+        sendCriticalMedia20260926('guest_offer',payload,hid);
       },ms);
       pc.__ktGuestOfferRetryTimers.push(t);
     });
@@ -1610,11 +1622,11 @@
       pc.__ktPreAudioSender=atx&&atx.sender||null;
     }catch(e){}
     pc.onicecandidate=function(ev){
-      if(ev.candidate)send('guest_ice',{
+      if(ev.candidate)sendCriticalMedia20260926('guest_ice',{
         host_id:hid,viewer_id:viewerId(),session_id:guestSession,from:'guest',
         candidate:ev.candidate.toJSON?ev.candidate.toJSON():ev.candidate,
         preapproval:true
-      });
+      },hid);
     };
     pc.oniceconnectionstatechange=function(){
       var st=String(pc.iceConnectionState||'');
@@ -1687,7 +1699,7 @@
         if(t&&t.kind==='video')ktTuneDirectVideoSender20260923(sender,'guest');
       }catch(e){}
     });
-    pc.onicecandidate=function(ev){if(ev.candidate)send('guest_ice',{host_id:hid,viewer_id:viewerId(),session_id:guestSession,from:'guest',candidate:ev.candidate.toJSON?ev.candidate.toJSON():ev.candidate});};
+    pc.onicecandidate=function(ev){if(ev.candidate)sendCriticalMedia20260926('guest_ice',{host_id:hid,viewer_id:viewerId(),session_id:guestSession,from:'guest',candidate:ev.candidate.toJSON?ev.candidate.toJSON():ev.candidate},hid);};
     pc.__ktGuestIceRecovery20260923=true;
     pc.oniceconnectionstatechange=function(){
       var s=String(pc.iceConnectionState||'');
@@ -1719,7 +1731,7 @@
     try{
       var offer=await pc.createOffer({offerToReceiveAudio:false,offerToReceiveVideo:false});await pc.setLocalDescription(offer);
       var guestOfferPayload={host_id:hid,viewer_id:viewerId(),name:profileName(),session_id:guestSession,offer_sdp:pc.localDescription.sdp};
-      send('guest_offer',guestOfferPayload);
+      sendCriticalMedia20260926('guest_offer',guestOfferPayload,hid);
       scheduleGuestOfferRetries(hid,pc,guestOfferPayload);
 
       /* Do not force-close a healthy/connecting mobile lane on a timer.
@@ -1774,7 +1786,7 @@
        기존 세션을 유지하고, 이미 만든 answer가 있으면 다시 보내기만 한다. */
     if(old&&old.sid===session&&old.pc&&String(old.pc.connectionState||'')!=='closed'){
       if(old.answer){
-        send('guest_answer',{host_id:DEVICE,viewer_id:vid,session_id:session,answer_sdp:old.answer});
+        sendCriticalMedia20260926('guest_answer',{host_id:DEVICE,viewer_id:vid,session_id:session,answer_sdp:old.answer},DEVICE);
       }
       return;
     }
@@ -1800,7 +1812,7 @@
         }
       }catch(e){}
     };
-    pc.onicecandidate=function(ev){if(ev.candidate)send('guest_ice',{host_id:DEVICE,viewer_id:vid,session_id:session,from:'host',candidate:ev.candidate.toJSON?ev.candidate.toJSON():ev.candidate});};
+    pc.onicecandidate=function(ev){if(ev.candidate)sendCriticalMedia20260926('guest_ice',{host_id:DEVICE,viewer_id:vid,session_id:session,from:'host',candidate:ev.candidate.toJSON?ev.candidate.toJSON():ev.candidate},DEVICE);};
     pc.oniceconnectionstatechange=function(){
       var ist=String(pc.iceConnectionState||'');
       if((ist==='connected'||ist==='completed')&&approvedGuests[vid]&&entry.pendingStream){
@@ -1835,7 +1847,7 @@
       var ans=await pc.createAnswer();await pc.setLocalDescription(ans);
       entry.answer=pc.localDescription.sdp;
       var guestAnswerPayload={host_id:DEVICE,viewer_id:vid,session_id:session,answer_sdp:entry.answer};
-      send('guest_answer',guestAnswerPayload);
+      sendCriticalMedia20260926('guest_answer',guestAnswerPayload,DEVICE);
       [40,120,300,700,1500].forEach(function(ms){
         setTimeout(function(){
           if(hostGuestPeers[vid]!==entry||entry.gotTrack)return;
@@ -2430,10 +2442,17 @@
           guestAliveLastSent=tickNow;
           sharedApprovalPost(hid,'guest_alive',viewerId(),profileName());
         }
-        if(useDirectMediaFallback20260925()){
-          if(!guestPc||['failed','closed'].indexOf(String(guestPc.connectionState||''))>-1)startGuestCamera(hid);
-        }else if(!guestCameraLive20260925()){
+        /* Keep the same camera track published on the fast direct lane too.
+           LiveKit remains primary, but a failed/closed/disconnected direct PC
+           is rebuilt immediately so the host never stays on "게스트 연결 중...". */
+        if(!guestCameraLive20260925()){
           startGuestCamera(hid);
+        }else{
+          var gs=String(guestPc&&guestPc.connectionState||'');
+          var gi=String(guestPc&&guestPc.iceConnectionState||'');
+          if(!guestPc||gs==='failed'||gs==='closed'||gs==='disconnected'||gi==='failed'){
+            startGuestCamera(hid);
+          }
         }
       }
     }
