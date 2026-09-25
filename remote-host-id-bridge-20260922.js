@@ -6,12 +6,46 @@
   if(window.__ktRemoteHostIdBridge20260922)return;
   window.__ktRemoteHostIdBridge20260922=true;
 
+  function captureEntryHostStream20260925(){
+    var best=null,bestDist=Infinity,vh=innerHeight||document.documentElement.clientHeight||0;
+    try{
+      document.querySelectorAll('#screen video,.video-home video,.media video').forEach(function(v){
+        try{
+          var r=v.getBoundingClientRect();
+          if(r.width<20||r.height<20||r.bottom<=0||r.top>=vh)return;
+          var d=Math.abs(((r.top+r.bottom)/2)-(vh/2));
+          if(d<bestDist){best=v;bestDist=d;}
+        }catch(e){}
+      });
+    }catch(e){}
+    if(!best)return null;
+    var s=null;
+    try{
+      s=best.srcObject||null;
+      if(s&&s.getVideoTracks&&s.getVideoTracks().some(function(t){return t&&t.readyState==='live';}))return s;
+    }catch(e){}
+    try{
+      var fn=best.captureStream||best.mozCaptureStream;
+      if(typeof fn==='function'){
+        s=fn.call(best);
+        if(s&&s.getVideoTracks&&s.getVideoTracks().some(function(t){return t&&t.readyState==='live';}))return s;
+      }
+    }catch(e){}
+    return null;
+  }
+
   function remember(hostId){
     hostId=String(hostId||'').trim();
     if(!hostId)return;
+    var entryStream=null;
+    try{
+      entryStream=captureEntryHostStream20260925();
+      if(entryStream)window.__ktEntryHostStream20260925=entryStream;
+    }catch(e){}
     window.__ktRemoteHostId=hostId;
+    window.__ktCurrentRemoteHostId=hostId;
     try{sessionStorage.setItem('kt_remote_host_id',hostId);}catch(e){}
-    try{window.dispatchEvent(new CustomEvent('kt-remote-host-selected',{detail:{host_id:hostId}}));}catch(e){}
+    try{window.dispatchEvent(new CustomEvent('kt-remote-host-selected',{detail:{host_id:hostId,entry_stream:entryStream||null}}));}catch(e){}
   }
 
   function clear(){
