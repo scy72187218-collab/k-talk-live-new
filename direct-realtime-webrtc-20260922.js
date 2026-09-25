@@ -142,6 +142,22 @@
     if(!id)try{id=String(sessionStorage.getItem('kt_remote_host_id')||'');}catch(e){}
     return id;
   }
+  function seedRemoteRunFromLiveSignal20260925(hid){
+    hid=String(hid||remoteHostId()||'').trim();
+    if(!hid)return false;
+    try{
+      var entry=window.__ktRealtimeLiveHosts&&window.__ktRealtimeLiveHosts[hid];
+      var data=entry&&entry.data||null;
+      var run=String(data&&data.run_id||'').trim();
+      var started=Number(data&&data.run_started_at||0);
+      if(!run)return false;
+      if(remoteRunStartedAt&&started&&started<remoteRunStartedAt)return false;
+      remoteRunId=run;
+      if(started)remoteRunStartedAt=started;
+      publishRunContext(hid,remoteRunId,remoteRunStartedAt,'viewer');
+      return true;
+    }catch(e){return false;}
+  }
   function rtcConfig(){return window.ktGetRtcConfig?window.ktGetRtcConfig():{iceServers:[{urls:'stun:stun.cloudflare.com:3478'},{urls:'stun:stun.l.google.com:19302'}]};}
   function useDirectMediaFallback20260925(){
     try{
@@ -328,11 +344,30 @@
         try{window.dispatchEvent(new CustomEvent('kt-any-guest-approved',{detail:{host_id:hid,viewer_id:id,name:names[id]||'게스트',at:Date.now(),roster:true}}));}catch(e){}
       }
     });
+    var oldIds=Object.keys(roster).filter(function(id){return roster[id]===true;}).sort();
+    var newIds=Object.keys(next).filter(function(id){return next[id]===true;}).sort();
+    var rosterChanged=oldIds.join('|')!==newIds.join('|');
+    if(!rosterChanged){
+      for(var ni=0;ni<newIds.length;ni++){
+        var nid=newIds[ni];
+        if(String(oldNames[nid]||'')!==String(names[nid]||'')){rosterChanged=true;break;}
+      }
+    }
     window.__ktApprovedGuestIds20260924=next;
     window.__ktApprovedGuestNames20260924=names;
     try{
-      if(typeof window.ktForceApprovedGuestGridNow20260924==='function')window.ktForceApprovedGuestGridNow20260924();
-      window.dispatchEvent(new CustomEvent('kt-three-person-sync-now',{detail:{host_id:hid,at:Date.now(),roster:true}}));
+      var selfId=viewerId();
+      var hasApprovedShell=!!document.querySelector(
+        '.kt-guest-hostlike-room,.kt-approved-guest-grid,.kt-guest-room-grid'
+      );
+      if(next[selfId]===true&&!hasApprovedShell&&typeof window.ktForceApprovedGuestGridNow20260924==='function'){
+        window.ktForceApprovedGuestGridNow20260924();
+      }
+      if(rosterChanged){
+        window.dispatchEvent(new CustomEvent('kt-three-person-sync-now',{
+          detail:{host_id:hid,at:Date.now(),roster:true,run_id:String(remoteRunId||''),run_started_at:Number(remoteRunStartedAt||0)}
+        }));
+      }
     }catch(e){}
   }
 
@@ -757,7 +792,8 @@
         }
         if(roster[vid]===true){
           try{
-            if(typeof window.ktForceApprovedGuestGridNow20260924==='function'){
+            var shell=!!document.querySelector('.kt-guest-hostlike-room,.kt-approved-guest-grid,.kt-guest-room-grid');
+            if(!shell&&typeof window.ktForceApprovedGuestGridNow20260924==='function'){
               window.ktForceApprovedGuestGridNow20260924();
             }
           }catch(e){}
@@ -1933,6 +1969,8 @@
         if(p.reply_to_viewer&&String(p.reply_to_viewer)!==viewerId())return;
         var incomingRun=String(p.run_id||'').trim();
         var incomingStart=Number(p.run_started_at||p.at||0);
+        var olderRun=!!(incomingStart&&remoteRunStartedAt&&incomingStart<remoteRunStartedAt);
+        if(olderRun)return;
         var runChanged=!!(incomingRun&&remoteRunId&&incomingRun!==remoteRunId);
         var staleApproval=!!(incomingStart&&guestApprovedAt&&incomingStart>guestApprovedAt+800);
         var keepApprovedScreen=!!(
@@ -2027,11 +2065,6 @@
             at:Number(p.at||Date.now())
           }
         }));
-        try{
-          if(typeof window.ktForceApprovedGuestGridNow20260924==='function'){
-            window.ktForceApprovedGuestGridNow20260924();
-          }
-        }catch(_e){}
       }catch(e){}
       onGuestApproved(p);
       return;
@@ -2087,7 +2120,7 @@
       b.classList.add('kt-requested');b.style.setProperty('box-shadow','0 0 12px #39e575','important');
       try{
         window.dispatchEvent(new CustomEvent('kt-guest-request-started',{
-          detail:{host_id:hid,viewer_id:viewerId(),at:Date.now(),immediate:true}
+          detail:{host_id:hid,viewer_id:viewerId(),at:Date.now(),immediate:true,run_id:String(remoteRunId||''),run_started_at:Number(remoteRunStartedAt||0)}
         }));
       }catch(e){}
       /* Start the direct WebRTC offer NOW, in parallel with camera opening. */
@@ -2180,6 +2213,7 @@
       }
     }else{
       if(lastRemoteHost!==hid){lastRemoteHost=hid;viewerWatchToken=sid('watch');viewerConnected=false;}
+      if(!remoteRunId)seedRemoteRunFromLiveSignal20260925(hid);
       if(useDirectMediaFallback20260925())ensureViewerWatch(false);
       var tickNow=Date.now();
       if(requestOn&&tickNow-lastGuestRequestAt>1500){
@@ -2234,6 +2268,7 @@
       viewerConnected=false;
       lastWatchAt=0;
       if(activeHostId!==hid)connect(hid);
+      seedRemoteRunFromLiveSignal20260925(hid);
 
       /* User requested camera to be ready as soon as the room is entered.
          This only prewarms the local camera; it is not published until approval. */
