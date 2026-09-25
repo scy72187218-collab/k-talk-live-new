@@ -1,5 +1,5 @@
 {
-  "version": 107,
+  "version": 108,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260924-video-connection-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Communication-only update completed and relocked. Approved guest-to-guest video signaling now uses the existing Supabase Realtime room channel first instead of waiting on memory/API polling, with old memory/DB paths retained as fallback. No switches, public video feed, rose, AI, chat, gifts, labels, buttons, or room layout changed.",
+  "note": "Owner authorization verified. Temporarily unlocked ONLY host receiving approved guest video transport speed. Do not modify guest-room peer sync, switches, public video feed, rose, AI, chat, gifts, labels, buttons, room layout, or unrelated UI.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -88,8 +88,22 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [],
-  "temporarily_unlocked_components": [],
+  "current_editable_components": [
+    "video_communication",
+    "media_transport",
+    "webrtc_transport_stability",
+    "guest_approval_to_slot",
+    "remote_video_connect_speed",
+    "communication_auto_reconnect_only"
+  ],
+  "temporarily_unlocked_components": [
+    "video_communication",
+    "media_transport",
+    "webrtc_transport_stability",
+    "guest_approval_to_slot",
+    "remote_video_connect_speed",
+    "communication_auto_reconnect_only"
+  ],
   "last_communication_fix": "2026-09-25-realtime-approved-guest-peer-signal20",
   "last_video_feed_fix": "2026-09-24-full-feed-after-first6",
   "locked_components": [
@@ -119,7 +133,7 @@
   "last_switch_lock": "2026-09-24-all-switches-relock2",
   "last_switch_ai_fix": "2026-09-24-first-touch-switch-site-guide-ai2",
   "last_rose_ai_fix": "2026-09-24-rose-first-touch-guide-user-tap4",
-  "last_unlock": "2026-09-25-owner-authorized-realtime-peer-signal",
+  "last_unlock": "2026-09-25-owner-authorized-host-guest-receive-speed",
   "last_pwa_install_fix": "2026-09-24-first-touch-install9",
   "last_critical_touch_fix": "2026-09-24-critical-touch1",
   "last_livekit_cloud_prepare": "2026-09-25-edge-token-v2-env-first"
