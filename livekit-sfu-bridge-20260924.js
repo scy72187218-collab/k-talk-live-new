@@ -79,7 +79,13 @@
     return document.querySelector('#screen .ktsolo-room,#screen .ktg9-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room');
   }
   function isHostRole(){
-    try{return !document.documentElement.classList.contains('kt-remote-viewing')&&!!roomEl();}catch(e){return false;}
+    try{
+      if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
+      var rh='';
+      try{rh=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||sessionStorage.getItem('kt_remote_host_id')||'').trim();}catch(_e){}
+      if(rh)return false;
+      return !!roomEl();
+    }catch(e){return false;}
   }
   function liveStream(s){
     try{return !!(s&&s.getTracks&&s.getTracks().some(function(t){return t&&t.readyState==='live';}));}catch(e){return false;}
@@ -753,8 +759,12 @@
   window.addEventListener('kt-host-session-ready',function(e){
     var h=String(e&&e.detail&&e.detail.host_id||'').trim();
     if(!h)return;
+    var nextRun=String(e&&e.detail&&e.detail.run_id||'').trim();
     if(String(e&&e.detail&&e.detail.role||'')!=='host')watchHostId=h;
-    if(room&&currentHostId===h&&currentRunId&&currentRunId!==String(e&&e.detail&&e.detail.run_id||''))disconnectRoom();
+    var approvedSameHost=!!(approvedHostId&&approvedHostId===h);
+    if(room&&currentHostId===h&&currentRunId&&nextRun&&currentRunId!==nextRun&&!approvedSameHost){
+      disconnectRoom();
+    }
     setTimeout(hostTick,20);
   });
   window.addEventListener('kt-remote-host-left',function(e){
