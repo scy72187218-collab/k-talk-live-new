@@ -1,5 +1,5 @@
 {
-  "version": 113,
+  "version": 114,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260924-video-connection-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "13-person communication architecture update completed and relocked. LiveKit is now the primary host+approved-guest media transport; Supabase Realtime carries approval/leave/roster control; direct host/viewer WebRTC and guest mesh are fallback-only and are closed when SFU is active. Aggressive 240/650ms forced reconnect behavior was removed. Public video feed, switches, rose, AI, chat, gifts, labels, buttons, and room layout were not changed.",
+  "note": "Owner authorization verified. Temporarily unlocked ONLY LiveKit/media transport capacity metadata so the visible 13-person room keeps 2 extra transport slots (15 total media publishers including host). Do not modify visible room count/layout, switches, public feed, rose, AI, chat, gifts, buttons, or labels.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -88,8 +88,16 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [],
-  "temporarily_unlocked_components": [],
+  "current_editable_components": [
+    "livekit_sfu_transport_bridge_only",
+    "media_transport",
+    "video_communication"
+  ],
+  "temporarily_unlocked_components": [
+    "livekit_sfu_transport_bridge_only",
+    "media_transport",
+    "video_communication"
+  ],
   "last_communication_fix": "2026-09-25-primary-livekit-sfu13-control-realtime-fallback22",
   "last_video_feed_fix": "2026-09-24-full-feed-after-first6",
   "locked_components": [
@@ -119,7 +127,7 @@
   "last_switch_lock": "2026-09-24-all-switches-relock2",
   "last_switch_ai_fix": "2026-09-24-first-touch-switch-site-guide-ai2",
   "last_rose_ai_fix": "2026-09-24-rose-first-touch-guide-user-tap4",
-  "last_unlock": "2026-09-25-owner-authorized-13-person-sfu-architecture",
+  "last_unlock": "2026-09-25-owner-authorized-15-publisher-headroom",
   "last_pwa_install_fix": "2026-09-24-first-touch-install9",
   "last_critical_touch_fix": "2026-09-24-critical-touch1",
   "last_livekit_cloud_prepare": "2026-09-25-edge-token-v2-env-first"
