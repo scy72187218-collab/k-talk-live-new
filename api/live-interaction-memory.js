@@ -61,7 +61,17 @@ function outViewer(v){
   return {host_id:v.host_id,viewer_id:v.viewer_id,viewer_name:v.viewer_name,active:!!v.active,updated_at:new Date(v.seen).toISOString()};
 }
 function outMsg(m){
-  return {id:m.id,host_id:m.host_id,sender_id:m.sender_id,sender_name:m.sender_name,message:m.message,message_type:m.message_type,created_at:new Date(m.ts).toISOString()};
+  return {
+    id:m.id,
+    host_id:m.host_id,
+    sender_id:m.sender_id,
+    sender_name:m.sender_name,
+    message:m.message,
+    message_type:m.message_type,
+    run_id:safe(m.run_id||'',120),
+    run_started_at:Number(m.run_started_at||0),
+    created_at:new Date(m.ts).toISOString()
+  };
 }
 
 async function rememberViewer(v){
@@ -150,6 +160,8 @@ module.exports=async function handler(req,res){
           sender_name:safe(b.sender_name||'게스트',100),
           message:safe(b.message,300),
           message_type:safe(b.message_type||'chat',180),
+          run_id:safe(b.run_id||'',120),
+          run_started_at:Number(b.run_started_at||0),
           ts:now()
         };
         await appendMessage(m);
