@@ -431,7 +431,19 @@
     }catch(e){}
   }
 
-  window.addEventListener('kt-host-session-reset',clearApprovedViewForFreshRoom);
+  window.addEventListener('kt-host-session-reset',function(e){
+    try{
+      var h=String(e&&e.detail&&e.detail.host_id||'').trim();
+      var current=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||sessionStorage.getItem('kt_remote_host_id')||'').trim();
+      if((approvalActive||approvedByRealtimeRoster20260924())&&h&&current&&h===current){
+        /* Same host, new/late run context: keep the approved guest screen and
+           self camera in place. Media transport will switch underneath it. */
+        forceApprovedGridNow20260924();
+        return;
+      }
+    }catch(_e){}
+    clearApprovedViewForFreshRoom();
+  });
 
   /* Do NOT tear down an already-approved 3-person room just because the same
      host is selected/refreshed again. That old listener was clearing the self
