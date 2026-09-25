@@ -677,12 +677,15 @@
         Object.keys(latest).forEach(function(vid){
           var x=latest[vid];
           if(x.kind==='request'){
-            /* 같은 게스트가 다시 참여 신청하면 예전 승인 슬롯/영상/peer를 먼저 정리한다.
-               이전 영상이 남은 채 새 세션이 겹치지 않게 하고, 새 승인 후 새 연결만 올린다. */
-            if(approvedGuests[vid]||hostGuestPeers[vid]){
-              clearApprovedGuestFromHost(vid);
+            /* Shared fallback timestamps may be reordered across Function calls.
+               Once approved, a later-seen request is treated as a duplicate.
+               Explicit guest_left remains the authority for removing/rejoining. */
+            if(approvedGuests[vid]){
+              hostGuestAliveAt[vid]=Date.now();
+            }else{
+              if(hostGuestPeers[vid])clearApprovedGuestFromHost(vid);
+              pendingRequests[vid]={name:x.name||'게스트',at:x.ts||Date.now()};
             }
-            pendingRequests[vid]={name:x.name||'게스트',at:x.ts||Date.now()};
           }else{
             delete pendingRequests[vid];
             if(x.kind==='approved'){
@@ -1385,7 +1388,7 @@
     approveDirectGuest(data.vid,data.name);
     setTimeout(function(){
       try{
-        if(typeof window.ktApproveGuest==='function'){
+        if(window.__ktPreferLiveKitPrimary20260925!==true&&typeof window.ktApproveGuest==='function'){
           var old=window.ktApproveGuest(data.vid,data.name,null);
           if(old&&old.catch)old.catch(function(){});
         }
