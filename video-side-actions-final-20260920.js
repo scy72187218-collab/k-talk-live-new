@@ -183,8 +183,30 @@
   function apply(box){
     if(!box)return;
 
+    var sec=null;
+    try{sec=box.closest('section');}catch(e){}
+    var stableId='';
+    var stableShare='';
+    try{
+      stableId=String(box.dataset.ktFeedVideoId||'');
+      if(!stableId&&sec)stableId=String(sec.getAttribute('data-kt-feed-video-id')||'');
+      stableShare=String(box.dataset.ktFeedShareUrl||'');
+      if(!stableShare&&sec){
+        var vv=sec.querySelector('video');
+        stableShare=String(vv&&(vv.currentSrc||vv.src)||'');
+      }
+    }catch(e){}
+
+    /* Once this action row is bound to a real video ID, do not rebuild it every
+       400ms. Rebuilding during a tap was discarding the ID and swallowing roses. */
+    if(box.dataset.ktFinalActionsBound==='1'&&stableId){
+      box.dataset.ktFeedVideoId=stableId;
+      if(stableShare)box.dataset.ktFeedShareUrl=stableShare;
+      return;
+    }
+
     var oldButtons=directButtons(box);
-    var count=0,id='',shareUrl='',commentId='';
+    var count=0,id=stableId,shareUrl=stableShare,commentId=stableId;
     var existingProfile=box.querySelector('.kt-feed-profile-circle img');
     var photo=existingProfile&&existingProfile.src?existingProfile.src:currentPhoto();
 
@@ -200,6 +222,11 @@
     });
 
     if(!id)id=commentId||videoId(box);
+    if(!commentId)commentId=id;
+    try{
+      if(id)box.dataset.ktFeedVideoId=id;
+      if(shareUrl)box.dataset.ktFeedShareUrl=shareUrl;
+    }catch(e){}
 
     var profile=document.createElement('button');
     profile.type='button';
@@ -271,6 +298,13 @@
     box.appendChild(rose);
     box.appendChild(message);
     box.appendChild(share);
+    try{
+      if(id){
+        box.dataset.ktFeedVideoId=id;
+        box.dataset.ktFinalActionsBound='1';
+      }
+      if(shareUrl)box.dataset.ktFeedShareUrl=shareUrl;
+    }catch(e){}
   }
 
   function run(){
@@ -298,6 +332,37 @@
       +'@media(max-width:390px){.vh-actions{right:8px!important;bottom:98px!important;gap:10px!important}.vh-actions .kt-feed-profile-circle{width:44px!important;height:44px!important}.vh-actions .kt-feed-final-rose-icon{font-size:28px!important}.vh-actions>button:not(.kt-feed-profile-button){font-size:28px!important}}';
     document.head.appendChild(s);
   }
+
+  var lastRoseTapAt=0,lastRoseTapBtn=null;
+  function directRoseTap20260924(e){
+    var t=e&&e.target;
+    if(!t||!t.closest)return;
+    if(t.closest('.kt-feed-rose-history-count'))return;
+    var rose=t.closest('.kt-feed-final-rose,.kt-feed-one-rose');
+    if(!rose)return;
+    var now=Date.now();
+    if(lastRoseTapBtn===rose&&now-lastRoseTapAt<700)return;
+
+    var box=rose.closest('.vh-actions');
+    var sec=rose.closest('section');
+    var id='';
+    try{
+      id=String(box&&box.dataset&&box.dataset.ktFeedVideoId||'');
+      if(!id&&sec)id=String(sec.getAttribute('data-kt-feed-video-id')||'');
+    }catch(x){}
+    if(!id)return;
+    if(typeof window.ktPublicSendRose!=='function')return;
+
+    lastRoseTapBtn=rose;
+    lastRoseTapAt=now;
+    try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(x){}
+    try{window.ktPublicSendRose(id,authorName(box),rose);}catch(x){}
+  }
+
+  /* Android/Naver WebView can lose the synthetic click after a video gesture.
+     Send on first physical touch instead. */
+  window.addEventListener('pointerdown',directRoseTap20260924,true);
+  if(!window.PointerEvent)window.addEventListener('touchstart',directRoseTap20260924,true);
 
   run();
   [60,180,420,900,1600,2600].forEach(function(ms){setTimeout(run,ms);});

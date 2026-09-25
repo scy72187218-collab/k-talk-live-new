@@ -5,6 +5,7 @@
 
   var speakingToken=0;
   var benefitContext=false;
+  var lastGuideReadAt=0;
 
   function voiceOn(){
     try{return !!(window.state&&state.aiVoiceOn);}catch(e){return true;}
@@ -57,7 +58,9 @@
       };
       try{speechSynthesis.speak(u);}catch(e){setTimeout(next,180);}
     }
-    setTimeout(next,80);
+    /* Start the first utterance synchronously while we are still inside
+       the user's tap. Android in-app browsers can block delayed speech. */
+    next();
   }
 
   function greetingText(){
@@ -66,7 +69,7 @@
 
   function isBenefitRoot(title){
     title=clean(title);
-    return /^(K-Talk 사용방법·혜택|K-Talk 사용방법 · 혜택|K-Talk 이용방법·혜택|K-Talk 이용방법 · 혜택|혜택 · 보상 센터)$/i.test(title);
+    return /^(K-Talk 사용방법·혜택|K-Talk 사용방법 · 혜택|K-Talk 이용방법·혜택|K-Talk 이용방법 · 혜택|사이트 사용방법|혜택 · 보상 센터)$/i.test(title);
   }
   function isBenefitChild(title){
     title=clean(title);
@@ -121,10 +124,15 @@
     if(!isBenefitTitle(t))return '';
     return clean(t+' '+(body&&body.innerText||body&&body.textContent||''));
   }
-  function readCurrentSheet(){
+  function readCurrentSheet(force){
+    var now=Date.now();
+    if(!force&&now-lastGuideReadAt<1000)return;
     appendFullGuide();
     var txt=currentSheetText();
-    if(txt)speakAll(greetingText()+' '+txt);
+    if(txt){
+      lastGuideReadAt=now;
+      speakAll(greetingText()+' '+txt);
+    }
   }
   window.ktReadCurrentHelpSheet=readCurrentSheet;
   window.ktAiGreetingOnce=function(){
@@ -133,6 +141,26 @@
   };
 
   function install(){
+    if(typeof window.openSiteGuide==='function'&&!window.openSiteGuide.__ktAiHelpDirectWrapped){
+      var oldGuide=window.openSiteGuide;
+      var guideWrapped=function(){
+        try{
+          if(window.state)state.aiVoiceOn=true;
+          localStorage.setItem('ktalk_ai_voice','on');
+        }catch(e){}
+        var r=oldGuide.apply(this,arguments);
+        try{
+          document.querySelectorAll('.kt-public-video,#homeVideo,#ktLibraryPlayer').forEach(function(v){try{v.pause();v.muted=true;}catch(e){}});
+        }catch(e){}
+        /* Keep speech start inside the user's actual tap/click activation.
+           Some Android in-app browsers block delayed speech synthesis. */
+        readCurrentSheet(true);
+        setTimeout(function(){readCurrentSheet(false);},180);
+        return r;
+      };
+      guideWrapped.__ktAiHelpDirectWrapped=true;
+      window.openSiteGuide=guideWrapped;
+    }
     if(typeof window.showSheet==='function'&&!window.showSheet.__ktAiHelpWrapped){
       var oldShow=window.showSheet;
       var wrapped=function(title,html){

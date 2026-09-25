@@ -469,8 +469,22 @@
     /* DB guest sessions are fallback transport only, not approval authority.
        They are admitted only when this page already knows the guest was approved
        in the current run. */
-    var localApproved={};
-    try{localApproved=window.__ktApprovedGuestIds20260924||{};}catch(e){}
+    var localApproved={},localNames={};
+    try{
+      localApproved=window.__ktApprovedGuestIds20260924||{};
+      localNames=window.__ktApprovedGuestNames20260924||{};
+    }catch(e){}
+
+    /* Realtime guest_approved is current-run authority on this page.
+       Do not wait for the interaction-memory/API round trip before guest↔guest
+       video starts. The map is cleared on guest_left and host-run reset. */
+    Object.keys(localApproved).forEach(function(id){
+      if(localApproved[id]===true){
+        ids[id]=true;
+        if(!names[id])names[id]=String(localNames[id]||'게스트');
+      }
+    });
+
     sessions.forEach(function(row){
       var tag=String(row.viewer_id||'');
       if(tag.indexOf('guest:')!==0)return;
@@ -510,9 +524,15 @@
         var seen=Number(peerLastSeen[id]||0);
         if(!seen){peerLastSeen[id]=now;return;}
         /* A single missed participant poll must not make a guest disappear. */
-        if(now-seen>30000){
-          delete peerLastSeen[id];
-          clearPeerCell(id);
+        /* Keep approved participant slots through long network gaps.
+           Explicit guest_left/cancel is the authority for removal. */
+        if(now-seen>120000){
+          var approved=false;
+          try{approved=!!((window.__ktApprovedGuestIds20260924||{})[id]);}catch(e){}
+          if(!approved){
+            delete peerLastSeen[id];
+            clearPeerCell(id);
+          }
         }
       });
     }catch(e){}
@@ -535,6 +555,21 @@
     }
   }
 
+  function realtimeParticipantInfo20260924(){
+    var ids=[],names={};
+    try{
+      var map=window.__ktApprovedGuestIds20260924||{};
+      var nm=window.__ktApprovedGuestNames20260924||{};
+      Object.keys(map).forEach(function(id){
+        if(map[id]===true){
+          ids.push(id);
+          names[id]=String(nm[id]||'게스트');
+        }
+      });
+    }catch(e){}
+    return {ids:ids,names:names};
+  }
+
   async function tick(){
     if(ticking)return;ticking=true;
     try{
@@ -553,7 +588,8 @@
       absentSince=0;
       var hostId=await currentHost(selfId);if(!hostId){debug('no_host',selfId);return;}
       lastHost=hostId;lastSelf=selfId;
-      var info=await participantInfo(hostId);
+      var info=realtimeParticipantInfo20260924();
+      if(!info.ids.length)info=await participantInfo(hostId);
       debug('ready',selfId+' peers='+info.ids.join(','));
       var active={},now=Date.now();
       info.ids.forEach(function(id){
@@ -564,7 +600,9 @@
         if(active[id])return false;
         var seen=Number(peerLastSeen[id]||0);
         if(!seen){peerLastSeen[id]=now;return false;}
-        return now-seen>30000;
+        if(now-seen<=120000)return false;
+        try{if((window.__ktApprovedGuestIds20260924||{})[id]===true)return false;}catch(e){}
+        return true;
       }).map(function(id){
         delete peerLastSeen[id];
         return dropPeer(id);
@@ -582,6 +620,26 @@
   }
 
   setInterval(tick,350);
+  window.addEventListener('kt-any-guest-approved',function(){
+    try{tick();}catch(e){}
+    [35,100,220].forEach(function(ms){setTimeout(function(){try{tick();}catch(e){}},ms);});
+  });
+  window.addEventListener('kt-three-person-sync-now',function(){
+    try{tick();}catch(e){}
+    [30,90,180].forEach(function(ms){setTimeout(function(){try{tick();}catch(e){}},ms);});
+  });
+  window.addEventListener('kt-any-guest-left',function(e){
+    var id=String(e&&e.detail&&e.detail.viewer_id||'').trim();
+    if(id){
+      try{
+        var q=dropPeer(id);
+        if(q&&q.catch)q.catch(function(){});
+      }catch(z){}
+      try{clearPeerCell(id);}catch(z){}
+      delete peerLastSeen[id];
+    }
+    try{tick();}catch(e){}
+  });
   [60,180,400,800,1400].forEach(function(ms){setTimeout(tick,ms);});
   window.addEventListener('kt-guest-approval-received',function(){
     [0,80,220,500].forEach(function(ms){setTimeout(tick,ms);});

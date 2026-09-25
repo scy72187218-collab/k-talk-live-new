@@ -266,6 +266,87 @@
       return v;
     }catch(e){return null;}
   }
+  function approvedRoster20260924(){
+    var ids=[],names={};
+    try{
+      var map=window.__ktApprovedGuestIds20260924||{};
+      var nm=window.__ktApprovedGuestNames20260924||{};
+      Object.keys(map).forEach(function(id){
+        if(map[id]===true){
+          ids.push(id);
+          names[id]=String(nm[id]||'게스트');
+        }
+      });
+    }catch(e){}
+    return {ids:ids,names:names};
+  }
+  function setGuestTargetLabel20260924(v,name){
+    try{
+      var cell=v&&v.parentElement;
+      if(!cell)return;
+      var label=cell.querySelector('.kgh-label,.kt-guest-name,label,span');
+      if(label)label.textContent=String(name||'게스트');
+    }catch(e){}
+  }
+  function ensureApprovedRosterSlots20260924(){
+    var roster=approvedRoster20260924();
+    var self=viewerId();
+
+    if(isHostRole()){
+      roster.ids.forEach(function(id){
+        try{
+          if(typeof window.ktEnsureApprovedGuestSlot20260924==='function'){
+            window.ktEnsureApprovedGuestSlot20260924(id,roster.names[id]||'게스트');
+          }
+        }catch(e){}
+      });
+      return roster;
+    }
+
+    var selfApproved=roster.ids.indexOf(self)>=0;
+    if(selfApproved){
+      try{
+        if(typeof window.ktForceApprovedGuestGridNow20260924==='function'){
+          window.ktForceApprovedGuestGridNow20260924();
+        }
+      }catch(e){}
+    }
+
+    roster.ids.forEach(function(id){
+      if(id===self)return;
+      var v=exactGuestVideo(id)||createGuestVideoTarget(id);
+      if(v)setGuestTargetLabel20260924(v,roster.names[id]||'게스트');
+    });
+    return roster;
+  }
+  function removeApprovedGuestSlot20260924(identity){
+    identity=String(identity||'').trim();
+    if(!identity)return;
+    try{
+      var esc=identity;
+      try{esc=CSS.escape(identity);}catch(e){}
+      document.querySelectorAll(
+        '[data-kt-livekit-guest="'+esc+'"],'+
+        '[data-kt-peer-viewer="'+esc+'"]'
+      ).forEach(function(cell){
+        var direct=String(cell.dataset&&cell.dataset.ktDirectGuest||'');
+        var legacy=String(cell.dataset&&cell.dataset.ktGuestViewerId||'');
+        if(direct===identity||legacy===identity)return;
+        try{
+          var v=cell.querySelector('video');
+          if(v){v.pause();v.srcObject=null;}
+        }catch(e){}
+        try{
+          delete cell.dataset.ktLivekitGuest;
+          delete cell.dataset.ktPeerViewer;
+          cell.classList.remove('kt-livekit-peer-guest','kt-peer-guest');
+          cell.innerHTML='<span>게스트</span>';
+        }catch(e){}
+      });
+    }catch(e){}
+    delete guestVideoById[identity];
+  }
+
   function attachGuestVideo(identity,stream){
     if(isHostRole()){
       try{if(!window.__ktApprovedGuestIds20260924||!window.__ktApprovedGuestIds20260924[identity])return;}catch(e){return;}
@@ -300,6 +381,7 @@
     }
   }
   function reattachRemoteTracks(){
+    ensureApprovedRosterSlots20260924();
     if(!room||room.state!=='connected')return;
     try{
       room.remoteParticipants.forEach(function(p){
@@ -355,10 +437,12 @@
         var id=String(participant&&participant.identity||'');if(track.kind==='audio')stopAudio(id);
       });
       if(LK.RoomEvent.ParticipantConnected)r.on(LK.RoomEvent.ParticipantConnected,function(){
-        [0,60,180,420].forEach(function(ms){setTimeout(reattachRemoteTracks,ms);});
+        reattachRemoteTracks();
+        [10,35,90,180].forEach(function(ms){setTimeout(reattachRemoteTracks,ms);});
       });
       if(LK.RoomEvent.TrackPublished)r.on(LK.RoomEvent.TrackPublished,function(){
-        [0,50,160].forEach(function(ms){setTimeout(reattachRemoteTracks,ms);});
+        reattachRemoteTracks();
+        [10,30,75].forEach(function(ms){setTimeout(reattachRemoteTracks,ms);});
       });
       if(LK.RoomEvent.Reconnected)r.on(LK.RoomEvent.Reconnected,function(){
         [0,80,220].forEach(function(ms){setTimeout(reattachRemoteTracks,ms);});
@@ -446,15 +530,38 @@
 
   window.addEventListener('kt-guest-approval-received',function(e){
     approvedHostId=String(e&&e.detail&&e.detail.host_id||'').trim();
-    if(approvedHostId){
-      watchHostId=approvedHostId;
-      [0,40,100,220,450,800].forEach(function(ms){setTimeout(hostTick,ms);});
-    }
+    if(!approvedHostId)return;
+    watchHostId=approvedHostId;
+
+    /* If the SFU viewer room is already connected (normal case), do not wait
+       for hostTick scheduling. Publish the prewarmed guest stream NOW. */
+    try{
+      var gs=guestStream();
+      if(room&&room.state==='connected'&&currentHostId===approvedHostId&&gs){
+        var p=publishSharedStream(gs);
+        if(p&&p.then)p.then(function(){
+          reattachRemoteTracks();
+          setTimeout(reattachRemoteTracks,25);
+          setTimeout(reattachRemoteTracks,80);
+        }).catch(function(){});
+      }else{
+        hostTick();
+      }
+    }catch(z){hostTick();}
+
+    [30,90,180].forEach(function(ms){setTimeout(hostTick,ms);});
   });
   window.addEventListener('kt-approved-guest-stream-ready',function(e){
     var h=String(e&&e.detail&&e.detail.host_id||approvedHostId||remoteHostId()||'').trim();
     if(h){approvedHostId=h;watchHostId=h;}
-    [0,30,90,180,350].forEach(function(ms){setTimeout(hostTick,ms);});
+    try{
+      var gs=guestStream();
+      if(room&&room.state==='connected'&&gs){
+        var p=publishSharedStream(gs);
+        if(p&&p.then)p.then(function(){reattachRemoteTracks();}).catch(function(){});
+      }else hostTick();
+    }catch(z){hostTick();}
+    [25,80,160].forEach(function(ms){setTimeout(hostTick,ms);});
   });
   window.addEventListener('kt-guest-camera-prewarmed',function(e){
     var h=String(e&&e.detail&&e.detail.host_id||remoteHostId()||'').trim();
@@ -464,9 +571,32 @@
     [0,40,120].forEach(function(ms){setTimeout(hostTick,ms);});
   });
   window.addEventListener('kt-host-guest-approved',function(){
-    /* Host may already know the participant. Re-scan immediately when approval
-       flips the identity gate so an existing/subscribing track fills its slot. */
-    [0,20,60,140,300].forEach(function(ms){setTimeout(reattachRemoteTracks,ms);});
+    reattachRemoteTracks();
+    [15,45,100,200].forEach(function(ms){setTimeout(reattachRemoteTracks,ms);});
+  });
+  window.addEventListener('kt-any-guest-approved',function(){
+    ensureApprovedRosterSlots20260924();
+    reattachRemoteTracks();
+    [20,60,120,240,420].forEach(function(ms){setTimeout(function(){
+      ensureApprovedRosterSlots20260924();
+      reattachRemoteTracks();
+    },ms);});
+  });
+  window.addEventListener('kt-three-person-sync-now',function(){
+    ensureApprovedRosterSlots20260924();
+    reattachRemoteTracks();
+    try{hostTick();}catch(e){}
+    [20,70,150].forEach(function(ms){setTimeout(function(){
+      ensureApprovedRosterSlots20260924();
+      reattachRemoteTracks();
+      try{hostTick();}catch(e){}
+    },ms);});
+  });
+  window.addEventListener('kt-any-guest-left',function(e){
+    var id=String(e&&e.detail&&e.detail.viewer_id||'').trim();
+    removeApprovedGuestSlot20260924(id);
+    ensureApprovedRosterSlots20260924();
+    reattachRemoteTracks();
   });
   window.addEventListener('kt-remote-host-selected',function(e){
     var h=String(e&&e.detail&&e.detail.host_id||'').trim();
@@ -501,7 +631,16 @@
   document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(hostTick,120);});
   window.addEventListener('pagehide',function(){try{if(room)room.disconnect(false);}catch(e){}});
 
+  /* Load the SFU SDK before the user presses approve. This removes the CDN
+     download/parse delay from the approval path. */
+  setTimeout(function(){try{var q=ensureSdk();if(q&&q.catch)q.catch(function(){});}catch(e){}},0);
+
   setInterval(hostTick,650);
-  setTimeout(hostTick,120);
-  setTimeout(hostTick,900);
+  setInterval(function(){
+    ensureApprovedRosterSlots20260924();
+    reattachRemoteTracks();
+  },300);
+  setTimeout(hostTick,30);
+  setTimeout(hostTick,180);
+  setTimeout(hostTick,700);
 })();

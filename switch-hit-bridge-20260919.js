@@ -173,7 +173,10 @@
     }catch(x){}
   }
 
-  /* 모바일에서는 가장 먼저 스위치를 잡는다. */
+  /* 모바일에서는 손을 대는 첫 순간부터 스위치를 잡는다.
+     일부 Android WebView에서 pointerup/touchend가 다른 레이어에 먹히는 경우가 있어
+     pointerdown을 1차 실행으로 사용한다. 아래 중복 방지 시간으로 한 번만 실행된다. */
+  window.addEventListener('pointerdown',activate,true);
   window.addEventListener('pointerup',activate,true);
   window.addEventListener('touchend',activate,true);
 

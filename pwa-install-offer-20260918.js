@@ -23,7 +23,8 @@
       +'.kt-pwa-install-offer{position:fixed;left:12px;right:12px;bottom:18px;z-index:1000000;max-width:520px;margin:0 auto;padding:14px;border-radius:18px;background:rgba(8,8,14,.97);border:1px solid rgba(99,174,255,.55);box-shadow:0 10px 35px rgba(0,0,0,.55);color:#fff;font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif}'
       +'.kt-pwa-install-top{display:flex;align-items:center;gap:11px}.kt-pwa-install-icon{width:46px;height:46px;flex:0 0 46px;border-radius:13px;overflow:hidden;background:#000;border:1px solid #ffffff24}.kt-pwa-install-icon img{width:100%;height:100%;object-fit:cover}'
       +'.kt-pwa-install-copy{min-width:0;flex:1}.kt-pwa-install-copy b{display:block;font-size:15px;color:#fff}.kt-pwa-install-copy small{display:block;margin-top:4px;color:#cfd8e3;font-size:11px;line-height:1.4}'
-      +'.kt-pwa-install-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.kt-pwa-install-actions button{height:42px;border-radius:12px;font-size:13px;font-weight:950;touch-action:manipulation}'
+      +'.kt-pwa-install-offer{pointer-events:auto!important;touch-action:manipulation!important}'
+      +'.kt-pwa-install-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;position:relative;z-index:2;pointer-events:auto!important}.kt-pwa-install-actions button{height:42px;border-radius:12px;font-size:13px;font-weight:950;touch-action:manipulation!important;pointer-events:auto!important;position:relative;z-index:3;-webkit-tap-highlight-color:transparent!important}'
       +'.kt-pwa-install-later{border:1px solid #ffffff25;background:#16161d;color:#ddd}.kt-pwa-install-go{border:0;background:linear-gradient(135deg,#2388ff,#754cff);color:#fff}';
     document.head.appendChild(s);
   }
@@ -57,6 +58,26 @@
     return false;
   };
 
+  var lastInstallTapAt=0;
+  function directInstallTap(e){
+    var t=e&&e.target;
+    if(!t||!t.closest)return;
+    var btn=t.closest('.kt-pwa-install-later,.kt-pwa-install-go');
+    if(!btn)return;
+    var now=Date.now();
+    if(now-lastInstallTapAt<500){
+      try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(x){}
+      return;
+    }
+    lastInstallTapAt=now;
+    try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(x){}
+    if(btn.classList.contains('kt-pwa-install-later')){
+      window.ktPwaInstallLater();
+      return;
+    }
+    window.ktPwaInstallNow();
+  }
+
   window.ktPwaInstallNow=async function(){
     if(isStandalone()){removeOffer();return false;}
     if(deferredPrompt){
@@ -78,6 +99,11 @@
     removeOffer();
     return false;
   };
+
+  /* Some Android/Naver in-app browsers swallow the synthetic click behind
+     full-screen video overlays. Handle the first physical touch in capture phase. */
+  window.addEventListener('pointerdown',directInstallTap,true);
+  if(!window.PointerEvent)window.addEventListener('touchstart',directInstallTap,true);
 
   window.addEventListener('beforeinstallprompt',function(e){
     try{e.preventDefault();}catch(err){}

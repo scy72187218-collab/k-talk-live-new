@@ -14,6 +14,28 @@
      before the viewer has even requested or been approved for guest participation. */
   var approvalActive=false;
 
+  function localViewerId20260924(){
+    try{
+      var d=String(localStorage.getItem('kt_live_device_id')||'').trim();
+      return d?'viewer_'+d:'';
+    }catch(e){return '';}
+  }
+  function approvedByRealtimeRoster20260924(){
+    try{
+      var id=localViewerId20260924();
+      var map=window.__ktApprovedGuestIds20260924||{};
+      return !!(id&&map[id]===true);
+    }catch(e){return false;}
+  }
+  function forceApprovedGridNow20260924(){
+    if(!approvedByRealtimeRoster20260924()&&!approvalActive)return false;
+    approvalActive=true;
+    repair();
+    [15,40,90,180].forEach(function(ms){setTimeout(repair,ms);});
+    return true;
+  }
+  window.ktForceApprovedGuestGridNow20260924=forceApprovedGridNow20260924;
+
   function live(st){
     try{
       var ts=st&&st.getVideoTracks?st.getVideoTracks():[];
@@ -161,22 +183,27 @@
       var s=candidates[ci];
       if(s&&s!==approvedSelf&&live(s)){hostCandidate=s;break;}
     }
-    if(!hostCandidate)return;
 
+    /* Approval changes the layout immediately. A missing stream reference is
+       temporary and must not keep the device in the old one-person view. */
     var selfCandidate=null;
     if(approvedSelf&&approvedSelf!==hostCandidate&&live(approvedSelf))selfCandidate=approvedSelf;
     else if(mainStream&&mainStream!==hostCandidate&&live(mainStream))selfCandidate=mainStream;
 
-    hostStream=hostCandidate;
-    window.__ktLastApprovedGuestHostStream=hostCandidate;
+    if(hostCandidate){
+      hostStream=hostCandidate;
+      window.__ktLastApprovedGuestHostStream=hostCandidate;
+    }
     selfStream=selfCandidate||selfStream||null;
 
-    /* Reuse the current host video immediately; create the self video if the
-       camera is still opening. This makes approval visually instant. */
-    if(preview&&previewStream===hostCandidate){
+    /* Reuse the visible remote video even while its MediaStream reference is
+       being refreshed; do not delay the approved grid for that refresh. */
+    if(preview&&hostCandidate&&previewStream===hostCandidate){
       hostVideo=preview;
-    }else if(main&&mainStream===hostCandidate){
+    }else if(main&&(!hostCandidate||mainStream===hostCandidate)){
       hostVideo=main;
+    }else if(preview){
+      hostVideo=preview;
     }else{
       hostVideo=document.createElement('video');
     }
@@ -226,7 +253,7 @@
     hostVideo.playsInline=true;
     hostVideo.muted=false;
     hostVideo.style.cssText='';
-    hostVideo.srcObject=hostCandidate;
+    if(hostCandidate&&hostVideo.srcObject!==hostCandidate)hostVideo.srcObject=hostCandidate;
 
     selfVideo.id='ktRemoteLiveVideo';
     selfVideo.className='';
@@ -358,8 +385,14 @@
     setTimeout(repair,40);
   });
   window.addEventListener('kt-livekit-state',function(){
-    if(!approvalActive)return;
-    setTimeout(repair,0);
+    if(!approvalActive&&!approvedByRealtimeRoster20260924())return;
+    forceApprovedGridNow20260924();
+  });
+  window.addEventListener('kt-any-guest-approved',function(){
+    forceApprovedGridNow20260924();
+  });
+  window.addEventListener('kt-three-person-sync-now',function(){
+    forceApprovedGridNow20260924();
   });
 
   function clearApprovedViewForFreshRoom(){
@@ -399,10 +432,32 @@
   }
 
   window.addEventListener('kt-host-session-reset',clearApprovedViewForFreshRoom);
-  /* A freshly selected/re-entered room must start as viewer-only until a NEW
-     approval signal arrives. This removes the old black "나 · 게스트" slot
-     immediately when the host starts a new broadcast or the viewer re-enters. */
-  window.addEventListener('kt-remote-host-selected',clearApprovedViewForFreshRoom);
+
+  /* Do NOT tear down an already-approved 3-person room just because the same
+     host is selected/refreshed again. That old listener was clearing the self
+     stream and sending one guest back to the single-person screen. Only a real
+     host change may reset the approved layout. */
+  var lastSelectedHost20260924='';
+  try{
+    lastSelectedHost20260924=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||sessionStorage.getItem('kt_remote_host_id')||'').trim();
+  }catch(e){}
+  window.addEventListener('kt-remote-host-selected',function(e){
+    var next='';
+    try{next=String(e&&e.detail&&e.detail.host_id||'').trim();}catch(_e){}
+    var current='';
+    try{current=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||sessionStorage.getItem('kt_remote_host_id')||lastSelectedHost20260924||'').trim();}catch(_e){}
+    if(next)lastSelectedHost20260924=next;
+
+    if(approvalActive||approvedByRealtimeRoster20260924()){
+      if(!next||!current||next===current){
+        forceApprovedGridNow20260924();
+        return;
+      }
+    }
+    if(next&&current&&next===current)return;
+    clearApprovedViewForFreshRoom();
+  });
+
   window.addEventListener('kt-broadcast-ended',clearApprovedViewForFreshRoom);
 
   repair();

@@ -23,7 +23,21 @@
     return !isLiveOrCreatorMedia(media);
   }
 
+  function helpReadingOpen(){
+    try{
+      if(document.body&&document.body.classList.contains('kt-help-screen-open'))return true;
+      var sh=document.getElementById('sheet');
+      var tt=document.getElementById('sheetTitle');
+      if(sh&&sh.classList.contains('show')){
+        var t=String(tt&&tt.textContent||'').replace(/\s+/g,' ').trim();
+        if(/사용방법|이용방법|혜택|보상/.test(t))return true;
+      }
+    }catch(e){}
+    return false;
+  }
+
   function playbackActive(){
+    if(helpReadingOpen())return false;
     try{
       return [].slice.call(document.querySelectorAll('video,audio')).some(function(media){
         return isNormalPlaybackMedia(media)&&!media.paused&&!media.ended&&media.readyState>=2;
@@ -40,6 +54,7 @@
   }
 
   document.addEventListener('play',function(e){
+    if(helpReadingOpen())return;
     if(isNormalPlaybackMedia(e.target))stopForPlayback();
   },true);
 
