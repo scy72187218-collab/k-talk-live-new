@@ -763,7 +763,15 @@
     if(!root||root.querySelector('.kt-approved-guest-grid'))return;
     var main=document.getElementById('ktRemoteLiveVideo');
     if(!main)return;
-    if(main.srcObject)viewerGuest.prejoinHostStream=main.srcObject;
+    if(main.srcObject){
+      viewerGuest.prejoinHostStream=main.srcObject;
+      /* 승인 화면으로 바뀌기 전에 지금 재생 중인 호스트 스트림을 전역에 즉시 보관.
+         게스트 카메라 권한/협상 시간을 기다리지 않고 호스트 영상을 먼저 그린다. */
+      if(ktGuestStreamLive(main.srcObject)){
+        window.__ktRemoteHostStream=main.srcObject;
+        window.__ktLastApprovedGuestHostStream=main.srcObject;
+      }
+    }
     if(root.querySelector('.kt-prejoin-room-grid'))return;
 
     ensurePrejoinRoomStyle();
@@ -926,6 +934,20 @@
       resetViewerGuestPc(viewerGuest.pc);
     }
 
+    /* 승인 직후 호스트 영상부터 즉시 유지한다.
+       기존에는 여기서 prejoin 화면을 먼저 지운 뒤 getUserMedia를 기다려
+       게스트 방의 호스트 칸이 몇 초간 검게 보일 수 있었다. */
+    if(viewerGuest.prejoinHostStream&&ktGuestStreamLive(viewerGuest.prejoinHostStream)){
+      window.__ktRemoteHostStream=viewerGuest.prejoinHostStream;
+      window.__ktLastApprovedGuestHostStream=viewerGuest.prejoinHostStream;
+    }
+    viewerGuest.hostId=hostId;
+    viewerGuest.approvedKey=approvalId;
+    try{
+      if(typeof window.ktForceApprovedGuestGridNow20260924==='function'){
+        window.ktForceApprovedGuestGridNow20260924();
+      }
+    }catch(e){}
     removePrejoinRoomGrid();
 
     if(viewerGuest.pc)resetViewerGuestPc(viewerGuest.pc);
