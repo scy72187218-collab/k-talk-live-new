@@ -1,5 +1,5 @@
 {
-  "version": 108,
+  "version": 109,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260924-video-connection-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Owner authorization verified. Temporarily unlocked ONLY host receiving approved guest video transport speed. Do not modify guest-room peer sync, switches, public video feed, rose, AI, chat, gifts, labels, buttons, room layout, or unrelated UI.",
+  "note": "Communication-only host receive speed update completed and relocked. Guest room peer sync was not changed. Host now resends the warm answer immediately, attaches pending guest video on ICE/connection success, rebuilds a stuck preapproval lane quickly with a fresh camera-track offer, and retries host answers earlier. No switches, public video feed, rose, AI, chat, gifts, labels, buttons, or room layout changed.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -88,23 +88,9 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "video_communication",
-    "media_transport",
-    "webrtc_transport_stability",
-    "guest_approval_to_slot",
-    "remote_video_connect_speed",
-    "communication_auto_reconnect_only"
-  ],
-  "temporarily_unlocked_components": [
-    "video_communication",
-    "media_transport",
-    "webrtc_transport_stability",
-    "guest_approval_to_slot",
-    "remote_video_connect_speed",
-    "communication_auto_reconnect_only"
-  ],
-  "last_communication_fix": "2026-09-25-realtime-approved-guest-peer-signal20",
+  "current_editable_components": [],
+  "temporarily_unlocked_components": [],
+  "last_communication_fix": "2026-09-25-host-guest-receive-fast21",
   "last_video_feed_fix": "2026-09-24-full-feed-after-first6",
   "locked_components": [
     "public-video-feed",
