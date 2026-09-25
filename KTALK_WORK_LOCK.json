@@ -1,5 +1,5 @@
 {
-  "version": 121,
+  "version": 122,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260924-video-connection-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Owner authorization verified. Communication-only work remains temporarily unlocked. Added guest peer fallback preservation and approved-guest DOM transition guard because the reported symptom is guest video dropping/reappearing while central LiveKit connects. No unrelated UI changes.",
+  "note": "Communication-only update completed and relocked. Remote-host context now always keeps approved devices in viewer/guest role, preventing guest devices from being mistaken for hosts. Existing direct/mesh video stays visible while LiveKit is only pending and is released only after LiveKit is actually connected. Same-host run refresh no longer tears down the approved guest screen. No layout, switches, public feed, rose, AI, chat, gifts, labels, buttons, or unrelated UI changed.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -88,15 +88,9 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "approved_guest_peer_video_sync_only",
-    "approved_guest_camera_dom_transition_guard_only"
-  ],
-  "temporarily_unlocked_components": [
-    "approved_guest_peer_video_sync_only",
-    "approved_guest_camera_dom_transition_guard_only"
-  ],
-  "last_communication_fix": "2026-09-25-stable-immediate-central-guest-approval26",
+  "current_editable_components": [],
+  "temporarily_unlocked_components": [],
+  "last_communication_fix": "2026-09-25-stable-central-guest-role-handoff27",
   "last_video_feed_fix": "2026-09-24-full-feed-after-first6",
   "locked_components": [
     "public-video-feed",
