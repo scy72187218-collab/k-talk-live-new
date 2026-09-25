@@ -228,13 +228,26 @@
     hostId=String(hostId||'').trim();
     vid=String(vid||'').trim();
     if(!hostId||!vid)return Promise.resolve(false);
+    var run='',started=0;
+    try{
+      if(isHostRole()){
+        var rc=ensureHostRunContext20260925();
+        run=String(rc.run_id||'');
+        started=Number(rc.run_started_at||0);
+      }else{
+        run=String(remoteRunId||window.__ktRemoteHostRunId20260924||'').trim();
+        started=Number(remoteRunStartedAt||window.__ktRemoteHostSessionStartedAt20260924||0);
+      }
+    }catch(e){}
     var payload={
       action:'message',
       host_id:hostId,
       sender_id:vid,
       sender_name:String(name||'게스트').slice(0,100),
       message:type.indexOf('approved')>-1?'참여 승인':(type.indexOf('cancelled')>-1?'참여 신청 취소':(type.indexOf('left')>-1?'방송 나감':(type.indexOf('alive')>-1?'방송 참여 유지':'방송 참여 신청'))),
-      message_type:type+':'+vid
+      message_type:type+':'+vid,
+      run_id:run,
+      run_started_at:started
     };
     try{
       return fetch('/api/live-interaction-memory?t='+Date.now(),{
@@ -595,7 +608,13 @@
           else if(t.indexOf('guest_left:')===0){vid=t.slice(11);kind='left';}
           if(!vid)return;
           var ts=sharedMsgTime(m);
-          if(!latest[vid]||ts>=latest[vid].ts)latest[vid]={kind:kind,ts:ts,name:String(m.sender_name||'게스트')};
+          if(!latest[vid]||ts>=latest[vid].ts)latest[vid]={
+            kind:kind,
+            ts:ts,
+            name:String(m.sender_name||'게스트'),
+            run_id:String(m.run_id||''),
+            run_started_at:Number(m.run_started_at||0)
+          };
         });
         Object.keys(latest).forEach(function(vid){
           var x=latest[vid];
@@ -674,11 +693,20 @@
           else if(t.indexOf('guest_cancelled:')===0){id=t.slice(16);kind='end';}
           else if(t.indexOf('guest_left:')===0){id=t.slice(11);kind='end';}
           if(!id)return;
-          var x=states[id]||(states[id]={request:0,approved:0,end:0,name:'게스트'});
+          var x=states[id]||(states[id]={request:0,approved:0,end:0,name:'게스트',run_id:'',run_started_at:0});
           if(kind==='request'){
-            if(ts>=x.request){x.request=ts;x.name=String(m.sender_name||x.name||'게스트');}
+            if(ts>=x.request){
+              x.request=ts;
+              x.name=String(m.sender_name||x.name||'게스트');
+              if(m.run_id)x.run_id=String(m.run_id||'');
+              if(m.run_started_at)x.run_started_at=Number(m.run_started_at||0);
+            }
           }else if(kind==='approved'){
-            if(ts>=x.approved)x.approved=ts;
+            if(ts>=x.approved){
+              x.approved=ts;
+              if(m.run_id)x.run_id=String(m.run_id||'');
+              if(m.run_started_at)x.run_started_at=Number(m.run_started_at||0);
+            }
           }else if(kind==='end'){
             if(ts>=x.end)x.end=ts;
           }
@@ -695,7 +723,8 @@
             names[id]=String(x.name||names[id]||'게스트');
             if(!was){
               try{window.dispatchEvent(new CustomEvent('kt-any-guest-approved',{detail:{
-                host_id:hid,viewer_id:id,name:names[id],at:x.approved||Date.now(),fallback:true
+                host_id:hid,viewer_id:id,name:names[id],at:x.approved||Date.now(),fallback:true,
+                run_id:String(x.run_id||''),run_started_at:Number(x.run_started_at||0)
               }}));}catch(e){}
             }
           }else if(roster[id]===true){
@@ -711,7 +740,14 @@
 
         var self=states[vid]||null;
         if(self&&self.request&&self.approved>=self.request&&self.approved>self.end&&!guestApproved){
-          onGuestApproved({host_id:hid,viewer_id:vid,name:String(self.name||'게스트'),at:self.approved});
+          onGuestApproved({
+            host_id:hid,
+            viewer_id:vid,
+            name:String(self.name||'게스트'),
+            at:self.approved,
+            run_id:String(self.run_id||''),
+            run_started_at:Number(self.run_started_at||0)
+          });
         }
         if(roster[vid]===true){
           try{
@@ -772,7 +808,9 @@
 
   function afterJoin(){
     if(isHostRole()){
-      if(!hostRunId){hostRunId=sid('run');hostRunStartedAt=Date.now();}
+      if(!hostRunId)hostRunId=sid('run');
+      if(!hostRunStartedAt)hostRunStartedAt=Date.now();
+      publishRunContext(DEVICE,hostRunId,hostRunStartedAt,'host');
       send('host_ready',{host_id:DEVICE,run_id:hostRunId,run_started_at:hostRunStartedAt,at:Date.now()});
       renderDirectRequests();
     }else{
@@ -1890,7 +1928,13 @@
         var incomingStart=Number(p.run_started_at||p.at||0);
         var runChanged=!!(incomingRun&&remoteRunId&&incomingRun!==remoteRunId);
         var staleApproval=!!(incomingStart&&guestApprovedAt&&incomingStart>guestApprovedAt+800);
-        if(runChanged||staleApproval)resetGuestForNewRun(hid,incomingRun,incomingStart);
+        var keepApprovedScreen=!!(
+          guestApproved&&guestApprovedHost===hid&&guestApprovedAt&&
+          Date.now()-guestApprovedAt<15000
+        );
+        if((runChanged||staleApproval)&&!keepApprovedScreen){
+          resetGuestForNewRun(hid,incomingRun,incomingStart);
+        }
         if(incomingRun)remoteRunId=incomingRun;
         if(incomingStart)remoteRunStartedAt=incomingStart;
         publishRunContext(hid,remoteRunId,remoteRunStartedAt,'viewer');
@@ -2096,7 +2140,9 @@
     }
     remoteHostMissingSince=0;
     if(host&&lastHostRole!=='host'){
-      hostRunId=sid('run');hostRunStartedAt=Date.now();sharedRuntimeStartedAt=hostRunStartedAt-1000;sharedRoomCutCache={};
+      if(!hostRunId)hostRunId=sid('run');
+      if(!hostRunStartedAt)hostRunStartedAt=Date.now();
+      sharedRuntimeStartedAt=hostRunStartedAt-1000;sharedRoomCutCache={};
       try{window.__ktApprovedGuestIds20260924={};}catch(e){}
       publishRunContext(DEVICE,hostRunId,hostRunStartedAt,'host');
       Object.keys(approvedGuests).forEach(function(id){try{clearApprovedGuestFromHost(id);}catch(e){}});
