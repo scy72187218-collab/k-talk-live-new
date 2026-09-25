@@ -80,11 +80,30 @@
   }
   function isHostRole(){
     try{
+      /* Match the direct transport: a visible local room must beat stale
+         viewer flags from a previous session. This keeps the host subscribed
+         to approved guest video and also makes host preview answers immediate. */
+      var local=roomEl(),visible=false;
+      try{
+        if(local){
+          var st=getComputedStyle(local);
+          visible=st.display!=='none'&&st.visibility!=='hidden'&&(!local.getClientRects||local.getClientRects().length>0);
+        }
+      }catch(_e){visible=!!local;}
+      if(visible){
+        try{
+          document.documentElement.classList.remove('kt-remote-viewing');
+          window.__ktRemoteHostId='';
+          window.__ktCurrentRemoteHostId='';
+          sessionStorage.removeItem('kt_remote_host_id');
+        }catch(_e){}
+        return true;
+      }
       if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
       var rh='';
       try{rh=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||sessionStorage.getItem('kt_remote_host_id')||'').trim();}catch(_e){}
       if(rh)return false;
-      return !!roomEl();
+      return false;
     }catch(e){return false;}
   }
   function liveStream(s){
