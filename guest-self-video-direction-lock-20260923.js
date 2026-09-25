@@ -13,7 +13,14 @@
     '#screen .kt-guest-room-grid .kt-guest-room-cell.self video',
     '#ktRemoteGuestSelfVideo',
     '#ktRemoteLiveVideo[data-kt-local-guest-view="1"]',
-    'video[data-kt-local-guest-view="1"]'
+    'video[data-kt-local-guest-view="1"]',
+    '#screen .ktg13-room .ktg13-guest.kt-guest-approved > video',
+    '#screen .ktsubscriber-room .ktsubscriber-guest > video',
+    '#screen .ktsecret-room .ktsecret-slot:not(.host) > video',
+    '#screen .ktsecret-room .ktsecret-guest-slot > video',
+    '#screen .kt-guest-hostlike-room .kgh-cell.kt-peer-guest video',
+    '#screen .kt-approved-guest-grid .kt-approved-guest-cell.kt-peer-guest video',
+    '#screen .kt-guest-room-grid .kt-guest-room-cell.kt-peer-guest video'
   ].join(',');
 
   function style(){

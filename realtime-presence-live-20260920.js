@@ -11,6 +11,7 @@
   var TOPIC='realtime:'+CHANNEL;
   var ws=null,joined=false,joinRef='',seq=1,reconnectTimer=null,heartbeatTimer=null;
   var hostTimer=null,lastHostState=false,hostHealthyAt=0,forcedOff=false;
+  var liveRunId='',liveRunStartedAt=0;
   var liveHosts={};
   window.__ktRealtimeLiveHosts=liveHosts;
   window.__ktRealtimeSignalReady=false;
@@ -117,17 +118,32 @@
     if(forcedOff)return;
     if(!isHostLive()&&!(lastHostState&&hostHealthyAt&&Date.now()-hostHealthyAt<30000))return;
     var r=roomInfo();
+    var run='';
+    var started=0;
+    try{
+      run=String(window.__ktHostRunId20260924||'').trim();
+      started=Number(window.__ktHostRunStartedAt20260924||0);
+    }catch(e){}
+    if(run)liveRunId=run;
+    if(started)liveRunStartedAt=started;
     broadcast('live_on',{
       host_id:DEVICE,
       host_name:profileName(),
       room_type:r.type,
       room_name:r.name,
+      run_id:liveRunId,
+      run_started_at:liveRunStartedAt,
       at:Date.now()
     });
   }
 
   function publishOff(){
-    broadcast('live_off',{host_id:DEVICE,at:Date.now()});
+    broadcast('live_off',{
+      host_id:DEVICE,
+      run_id:liveRunId,
+      run_started_at:liveRunStartedAt,
+      at:Date.now()
+    });
   }
 
   function startHostBeacon(){
@@ -214,11 +230,32 @@
     if(ev==='live_on'){
       liveHosts[id]={last:Date.now(),data:data};
     }else if(ev==='live_off'){
+      var offRun=String(data.run_id||'').trim();
+      var offAt=Number(data.at||0);
+      var currentEntry=liveHosts[id]||null;
+      var currentEntryRun=String(currentEntry&&currentEntry.data&&currentEntry.data.run_id||'').trim();
+      var currentEntryAt=Number(currentEntry&&currentEntry.data&&currentEntry.data.at||0);
+      var viewedHost='';
+      var viewedRun='';
+      var viewedStarted=0;
+      try{
+        viewedHost=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||'').trim();
+        viewedRun=String(window.__ktRemoteHostRunId20260924||'').trim();
+        viewedStarted=Number(window.__ktRemoteHostSessionStartedAt20260924||0);
+      }catch(e){}
+
+      /* A delayed live_off from the previous run must not end a newly started
+         broadcast from the same host. */
+      if(offRun&&currentEntryRun&&offRun!==currentEntryRun)return;
+      if(offAt&&currentEntryAt&&offAt<currentEntryAt)return;
+      if(viewedHost===id&&offRun&&viewedRun&&offRun!==viewedRun)return;
+      if(viewedHost===id&&offAt&&viewedStarted&&offAt<viewedStarted)return;
+
       delete liveHosts[id];
-      window.__ktRealtimeLastEndedHost={host_id:id,at:Date.now()};
+      window.__ktRealtimeLastEndedHost={host_id:id,run_id:offRun,at:offAt||Date.now()};
       try{
         window.dispatchEvent(new CustomEvent('kt-live-off',{
-          detail:{host_id:id,at:Date.now()}
+          detail:{host_id:id,run_id:offRun,at:offAt||Date.now()}
         }));
       }catch(e){}
     }

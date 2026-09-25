@@ -446,8 +446,19 @@
     }catch(e){document.documentElement.classList.remove('kt-remote-viewing');viewerCtx=null;}
   };
 
+  function ktNotifyRemoteExit20260924(c){
+    var hid='';
+    try{hid=String(c&&c.hostId||window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||'').trim();}catch(e){}
+    if(!hid)return;
+    try{
+      if(typeof window.ktDirectRemoteLeaveNow20260924==='function')window.ktDirectRemoteLeaveNow20260924(hid);
+      else if(typeof window.ktDirectGuestLeaveNow20260923==='function')window.ktDirectGuestLeaveNow20260923(hid);
+    }catch(e){}
+    try{window.dispatchEvent(new CustomEvent('kt-remote-host-left',{detail:{host_id:hid,at:Date.now()}}));}catch(e){}
+  }
+
   window.ktCloseRemotePresenceInApp20260923=async function(){
-    var c=viewerCtx;viewerCtx=null;
+    var c=viewerCtx;ktNotifyRemoteExit20260924(c);viewerCtx=null;
     window.__ktRemoteHostStream=null;
     window.__ktRemoteHostId='';
     window.__ktCurrentRemoteHostId='';
@@ -463,7 +474,7 @@
   };
 
   window.ktLeaveRemoteLive=async function(silent){
-    var c=viewerCtx;viewerCtx=null;window.__ktRemoteHostStream=null;window.__ktRemoteHostId='';try{sessionStorage.removeItem('kt_remote_host_id');}catch(e){}document.documentElement.classList.remove('kt-remote-viewing');
+    var c=viewerCtx;ktNotifyRemoteExit20260924(c);viewerCtx=null;window.__ktRemoteHostStream=null;window.__ktRemoteHostId='';window.__ktCurrentRemoteHostId='';try{sessionStorage.removeItem('kt_remote_host_id');}catch(e){}document.documentElement.classList.remove('kt-remote-viewing');
     if(c){
       clearInterval(c.signalTimer);clearInterval(c.heartbeat);clearInterval(c.activityTimer);try{c.pc.close();}catch(e){}
       try{await req('ktalk_live_viewers?host_id=eq.'+enc(c.hostId)+'&viewer_id=eq.'+enc(c.viewerId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})});}catch(e){}

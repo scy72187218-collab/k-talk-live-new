@@ -3259,7 +3259,7 @@ window.render=function(name){if(name==='home')home();else if(name==='shorts'||na
 
 document.addEventListener('click',function(e){var tab=e.target.closest('[data-tab]');if(tab){activate(tab.dataset.tab);render(tab.dataset.tab);return;}var bottom=e.target.closest('[data-bottom]');if(bottom){var k=bottom.dataset.bottom;if(k==='home'){activate('home');home();}else if(k==='friends'){friends();}else if(k==='plus'){openCreator();}else if(k==='help'){openMenu();}else if(k==='profile'){openProfile();}}});
 
-home();
+if(window.__ktPublicFirstPaint20260924){try{activate('home');}catch(e){}}else{home();}
 
 setTimeout(function(){
   var directCreator=window.openCreator;

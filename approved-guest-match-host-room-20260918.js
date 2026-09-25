@@ -9,6 +9,10 @@
   var hostStream=null;
   var selfStream=null;
   var guestEarnRoses=0;
+  /* Do not build the guest self slot until a real approval signal arrives.
+     This prevents an old/prewarmed camera stream from appearing as '나 · 게스트'
+     before the viewer has even requested or been approved for guest participation. */
+  var approvalActive=false;
 
   function live(st){
     try{
@@ -82,7 +86,7 @@
       +'.kgh-main{position:relative;flex:1 1 0;min-height:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:2px;overflow:hidden}.kgh-main.is13{grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr))}.kgh-main.is13 .kgh-cell:nth-child(13){grid-column:1}'
       +'.kgh-cell{position:relative;display:grid;place-items:center;min-width:0;min-height:0;border:1px solid #28282d;border-radius:7px;background:linear-gradient(145deg,#17181b,#111214);color:#bdbdc4;font-size:13px;font-weight:900;overflow:hidden}'
       +'.kgh-cell video{position:absolute;inset:0;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;border:0!important;object-fit:cover!important;object-position:center center!important;background:#111}'
-      +'.kgh-cell.host video{transform:none!important}.kgh-cell.self video{left:0!important;top:0!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center center!important;transform:none!important;-webkit-transform:none!important}.kgh-cell.self{outline:2px solid #61d9ff;outline-offset:-2px}'
+      +'.kgh-cell.host video{transform:scaleX(-1)!important;-webkit-transform:scaleX(-1)!important}.kgh-cell.self video{left:0!important;top:0!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center center!important;transform:scaleX(-1)!important;-webkit-transform:scaleX(-1)!important}.kgh-cell.self{outline:2px solid #61d9ff;outline-offset:-2px}'
       +'.kgh-label{position:absolute;left:7px;bottom:6px;z-index:3;padding:3px 7px;border-radius:10px;background:#111d;color:#fff;font-size:10px;font-weight:950}'
       +'.kt-remote-live.kt-guest-hostlike-active>.kt-remote-bottom{display:flex!important;z-index:80!important}.kt-remote-live.kt-guest-hostlike-active>.kt-remote-chat{display:flex!important;z-index:79!important;bottom:68px!important;max-height:78px!important}'
       +'.kgh-chat{flex:0 0 64px;position:relative;overflow:hidden;background:#000;display:flex;align-items:flex-end;padding:2px 6px 3px}.kgh-chatbox{width:calc(100% - 112px)!important;max-height:60px;overflow:hidden;font-size:10px;font-weight:850;line-height:1.35;color:#fff}'
@@ -127,26 +131,64 @@
   }
 
   function build(root){
-    if(!root)return;
+    if(!root||!approvalActive)return;
+    if(root.querySelector('.kt-guest-hostlike-room'))return;
+
     var main=document.getElementById('ktRemoteLiveVideo');
     var preview=document.getElementById('ktRemoteHostPreview');
-
-    /* 승인 뒤 main=내 카메라, preview=호스트 영상인 기존 연결을 그대로 이용 */
-    if(!main||!preview||!live(main.srcObject)||!live(preview.srcObject))return;
-    if(root.querySelector('.kt-guest-hostlike-room'))return;
+    if(!main&&!preview)return;
 
     ensureStyle();
 
-    selfVideo=main;
-    hostVideo=preview;
-    selfStream=main.srcObject;
-    window.__ktApprovedGuestSelfStream=selfStream;
-    hostStream=(window.__ktRemoteHostStream&&live(window.__ktRemoteHostStream))?window.__ktRemoteHostStream:preview.srcObject;
-    if(hostVideo.srcObject!==hostStream)hostVideo.srcObject=hostStream;
+    var mainStream=main&&main.srcObject||null;
+    var previewStream=preview&&preview.srcObject||null;
+    var approvedSelf=null;
+    try{approvedSelf=window.__ktApprovedGuestSelfStream||null;}catch(e){}
+
+    /* Approval must switch screens immediately. The old code waited until both
+       host + self streams were already live, which left the viewer in the
+       one-person screen for several seconds. Build the room shell as soon as
+       approval arrives and attach each stream when it becomes ready. */
+    var hostCandidate=null;
+    var candidates=[
+      window.__ktRemoteHostStream,
+      window.__ktLastApprovedGuestHostStream,
+      previewStream,
+      hostStream,
+      mainStream
+    ];
+    for(var ci=0;ci<candidates.length;ci++){
+      var s=candidates[ci];
+      if(s&&s!==approvedSelf&&live(s)){hostCandidate=s;break;}
+    }
+    if(!hostCandidate)return;
+
+    var selfCandidate=null;
+    if(approvedSelf&&approvedSelf!==hostCandidate&&live(approvedSelf))selfCandidate=approvedSelf;
+    else if(mainStream&&mainStream!==hostCandidate&&live(mainStream))selfCandidate=mainStream;
+
+    hostStream=hostCandidate;
+    window.__ktLastApprovedGuestHostStream=hostCandidate;
+    selfStream=selfCandidate||selfStream||null;
+
+    /* Reuse the current host video immediately; create the self video if the
+       camera is still opening. This makes approval visually instant. */
+    if(preview&&previewStream===hostCandidate){
+      hostVideo=preview;
+    }else if(main&&mainStream===hostCandidate){
+      hostVideo=main;
+    }else{
+      hostVideo=document.createElement('video');
+    }
+
+    if(main&&main!==hostVideo&&selfCandidate&&mainStream===selfCandidate){
+      selfVideo=main;
+    }else{
+      selfVideo=document.createElement('video');
+    }
 
     var info=roomInfo(root);
 
-    /* 예전 게스트 전용 화면 조각은 화면에서 완전히 제거 */
     root.querySelectorAll('.kt-approved-guest-led,.kt-approved-guest-stats,.kt-approved-guest-grid,.kt-prejoin-room-led,.kt-prejoin-room-stats,.kt-prejoin-room-grid').forEach(function(x){try{x.remove();}catch(e){}});
     root.classList.remove('kt-approved-guest-room','kt-prejoin-room-view');
     root.classList.add('kt-guest-hostlike-active');
@@ -184,7 +226,7 @@
     hostVideo.playsInline=true;
     hostVideo.muted=false;
     hostVideo.style.cssText='';
-    hostVideo.srcObject=hostStream;
+    hostVideo.srcObject=hostCandidate;
 
     selfVideo.id='ktRemoteLiveVideo';
     selfVideo.className='';
@@ -192,7 +234,7 @@
     selfVideo.playsInline=true;
     selfVideo.muted=true;
     selfVideo.style.cssText='';
-    selfVideo.srcObject=selfStream;
+    if(selfCandidate)selfVideo.srcObject=selfCandidate;
 
     hostCell.appendChild(hostVideo);
     selfCell.appendChild(selfVideo);
@@ -239,7 +281,10 @@
     builtRoot=root;
 
     try{var p=hostVideo.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
-    try{var q=selfVideo.play();if(q&&q.catch)q.catch(function(){});}catch(e){}
+    if(selfCandidate){
+      try{var q=selfVideo.play();if(q&&q.catch)q.catch(function(){});}catch(e){}
+      try{window.__ktApprovedGuestSelfStream=selfCandidate;}catch(e){}
+    }
 
     var start=Date.now();
     var clock=room.querySelector('.kgh-clock');
@@ -281,11 +326,17 @@
           if(hv.srcObject!==hostStream)hv.srcObject=hostStream;
           if(hv.paused){try{var hp=hv.play();if(hp&&hp.catch)hp.catch(function(){});}catch(e){}}
         }
-        if(sv&&selfStream&&sv.srcObject!==selfStream)sv.srcObject=selfStream;
+        var latestSelf=null;
+        try{latestSelf=window.__ktApprovedGuestSelfStream||null;}catch(e){}
+        if(latestSelf&&latestSelf!==hostStream&&live(latestSelf))selfStream=latestSelf;
+        if(sv&&selfStream&&live(selfStream)&&sv.srcObject!==selfStream){
+          sv.srcObject=selfStream;
+          try{var sp=sv.play();if(sp&&sp.catch)sp.catch(function(){});}catch(e){}
+        }
         if(sv){
           try{
-            sv.style.setProperty('transform','none','important');
-            sv.style.setProperty('-webkit-transform','none','important');
+            sv.style.setProperty('transform','scaleX(-1)','important');
+            sv.style.setProperty('-webkit-transform','scaleX(-1)','important');
           }catch(e){}
         }
         if(selfStream&&live(selfStream))window.__ktApprovedGuestSelfStream=selfStream;
@@ -294,6 +345,65 @@
       build(root);
     }catch(e){}
   }
+
+  window.addEventListener('kt-guest-approval-received',function(){
+    approvalActive=true;
+    /* Switch to the multi-person room immediately, before camera negotiation ends. */
+    repair();
+    [20,60,120,220,400,700].forEach(function(ms){setTimeout(repair,ms);});
+  });
+  window.addEventListener('kt-approved-guest-stream-ready',function(){
+    if(!approvalActive)return;
+    repair();
+    setTimeout(repair,40);
+  });
+  window.addEventListener('kt-livekit-state',function(){
+    if(!approvalActive)return;
+    setTimeout(repair,0);
+  });
+
+  function clearApprovedViewForFreshRoom(){
+    approvalActive=false;
+    try{
+      var root=document.querySelector('.kt-remote-live');
+      if(!root){
+        selfVideo=null;hostVideo=null;selfStream=null;builtRoot=null;
+        try{window.__ktApprovedGuestSelfStream=null;}catch(e){}
+        return;
+      }
+      var room=root.querySelector('.kt-guest-hostlike-room');
+      if(!room){
+        root.classList.remove('kt-guest-hostlike-active','kt-approved-guest-room');
+        selfVideo=null;hostVideo=null;selfStream=null;builtRoot=null;
+        try{window.__ktApprovedGuestSelfStream=null;}catch(e){}
+        return;
+      }
+      var main=room.querySelector('#ktRemoteLiveVideo')||document.getElementById('ktRemoteLiveVideo');
+      var trueHost=null;
+      var candidates=[window.__ktRemoteHostStream,window.__ktLastApprovedGuestHostStream,hostStream];
+      for(var i=0;i<candidates.length;i++){if(candidates[i]&&live(candidates[i])){trueHost=candidates[i];break;}}
+      if(main){
+        try{main.srcObject=trueHost||null;}catch(e){}
+        main.muted=true;main.autoplay=true;main.playsInline=true;
+        try{delete main.dataset.ktLocalGuestView;delete main.dataset.ktStableGuestStyle;}catch(e){}
+        try{root.insertBefore(main,root.firstChild);}catch(e){try{root.appendChild(main);}catch(_e){}}
+        if(trueHost){try{var p=main.play();if(p&&p.catch)p.catch(function(){});}catch(e){}}
+      }
+      var preview=document.getElementById('ktRemoteHostPreview');
+      if(preview&&preview!==main){try{preview.remove();}catch(e){}}
+      try{room.remove();}catch(e){}
+      root.classList.remove('kt-guest-hostlike-active','kt-approved-guest-room');
+      selfVideo=null;hostVideo=null;selfStream=null;builtRoot=null;
+      try{window.__ktApprovedGuestSelfStream=null;}catch(e){}
+    }catch(e){}
+  }
+
+  window.addEventListener('kt-host-session-reset',clearApprovedViewForFreshRoom);
+  /* A freshly selected/re-entered room must start as viewer-only until a NEW
+     approval signal arrives. This removes the old black "나 · 게스트" slot
+     immediately when the host starts a new broadcast or the viewer re-enters. */
+  window.addEventListener('kt-remote-host-selected',clearApprovedViewForFreshRoom);
+  window.addEventListener('kt-broadcast-ended',clearApprovedViewForFreshRoom);
 
   repair();
   [50,120,250,500,900,1500,2400,4000].forEach(function(ms){setTimeout(repair,ms);});

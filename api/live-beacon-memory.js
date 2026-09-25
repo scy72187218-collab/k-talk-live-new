@@ -29,11 +29,22 @@ module.exports=async function handler(req,res){
       const b=req.body||{};
       const action=String(b.action||'');
       const id=String(b.host_id||'').slice(0,120);
-      if(action==='end'&&id){g.__ktLiveBeaconMemory.delete(id);g.__ktLiveEndedMemory.set(id,{host_id:id,ended:Date.now()});}
+      const runId=String(b.run_id||'').slice(0,120);
+      const runStartedAt=Number(b.run_started_at||0);
+      if(action==='end'&&id){
+        const current=g.__ktLiveBeaconMemory.get(id);
+        /* A delayed end from an older run must not delete a newer active run. */
+        if(!(current&&runId&&current.run_id&&runId!==current.run_id)){
+          g.__ktLiveBeaconMemory.delete(id);
+          g.__ktLiveEndedMemory.set(id,{host_id:id,run_id:runId,run_started_at:runStartedAt,ended:Date.now()});
+        }
+      }
       if((action==='publish'||action==='heartbeat')&&id){
         g.__ktLiveEndedMemory.delete(id);
         g.__ktLiveBeaconMemory.set(id,{
           host_id:id,
+          run_id:runId,
+          run_started_at:runStartedAt,
           host_name:String(b.host_name||'K-Talk 방송자').slice(0,100),
           title:String(b.title||'방송 중').slice(0,160),
           room_type:String(b.room_type||'solo').slice(0,40),
@@ -57,11 +68,13 @@ module.exports=async function handler(req,res){
     res.end(JSON.stringify({
       ok:true,
       rooms:Array.from(g.__ktLiveBeaconMemory.values()).map(x=>({
-        host_id:x.host_id,host_name:x.host_name,title:x.title,room_type:x.room_type,room_name:x.room_name,
+        host_id:x.host_id,run_id:x.run_id||'',run_started_at:Number(x.run_started_at||0),
+        host_name:x.host_name,title:x.title,room_type:x.room_type,room_name:x.room_name,
         updated_at:new Date(x.seen).toISOString()
       })),
       ended:Array.from(g.__ktLiveEndedMemory.values()).map(x=>({
-        host_id:x.host_id,ended_at:new Date(x.ended).toISOString()
+        host_id:x.host_id,run_id:x.run_id||'',run_started_at:Number(x.run_started_at||0),
+        ended_at:new Date(x.ended).toISOString()
       }))
     }));
   }catch(e){

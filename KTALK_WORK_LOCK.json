@@ -1,13 +1,13 @@
 {
-  "version": 49,
+  "version": 79,
   "locked": true,
   "scope": "selective-approved-working-components-only",
-  "snapshot_branch": "saved-working-k-talk-20260922-guest-live-reconnect-stable",
-  "snapshot_commit": "4b150930e932d249af8b2e4f95eea73dd0fcb801",
+  "snapshot_branch": "saved-working-k-talk-20260924-video-connection-stable",
+  "snapshot_commit": "a5734b4231ded37045b12fb875eb82e2848906ce",
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "PIN 1111 verified. Temporarily unlocked only approved guest self-video direction. Other UI, layout, transport, approval, host video, chat, buttons, rose/name/level remain locked.",
+  "note": "Communication-only approval latency fix completed and relocked. When a viewer requests guest participation, the camera and a local WebRTC offer are prepared before approval. The host stores the offer without receiving media; on approval it answers the already-prepared offer immediately. SFU connection is also kept ready before approval and host reattaches tracks immediately after approval. No unrelated UI/layout/buttons/chat/gifts changed.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -73,7 +73,13 @@
     "approved_guest_peer_video_sync_only",
     "all_room_guest_wave_effect",
     "approved_guest_stay_connected",
-    "all_room_guest_video_direction"
+    "all_room_guest_video_direction",
+    "host_multi_guest_signal_order_recovery_only",
+    "approved_guest_camera_dom_transition_guard_only",
+    "livekit_sfu_transport_bridge_only",
+    "stale_guest_approval_auto_restore_guard_only",
+    "public_video_first_load_speed_only",
+    "room_entry_exit_rejoin_stability_only"
   ],
   "check_trigger_phrase": "K-톡 비밀번호 확인",
   "check_behavior": {
@@ -82,10 +88,7 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "all_room_guest_video_direction"
-  ],
-  "temporarily_unlocked_components": [
-    "all_room_guest_video_direction"
-  ]
+  "current_editable_components": [],
+  "temporarily_unlocked_components": [],
+  "last_communication_fix": "2026-09-24-preoffer-before-approval7"
 }
