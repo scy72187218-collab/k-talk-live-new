@@ -1325,7 +1325,7 @@
       if(guestStream){
         window.__ktApprovedGuestSelfStream=guestStream;
         window.dispatchEvent(new CustomEvent('kt-approved-guest-stream-ready',{
-          detail:{host_id:hid,viewer_id:viewerId(),at:Date.now()}
+          detail:{host_id:hid,viewer_id:viewerId(),at:Date.now(),run_id:String(remoteRunId||''),run_started_at:Number(remoteRunStartedAt||0)}
         }));
       }
     }catch(e){}
