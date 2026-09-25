@@ -781,10 +781,6 @@
     };
     pc.onconnectionstatechange=function(){
       var st=String(pc.connectionState||'');
-      if(st==='connected'&&approvedGuests[vid]&&entry.pendingStream){
-        entry.gotTrack=true;
-        attachGuestToHost(vid,String(p.name||(approvedGuests[vid]&&approvedGuests[vid].name)||'게스트'),entry.pendingStream);
-      }
       if(st==='failed'||st==='closed'){if(hostViewPeers[vid]===entry)delete hostViewPeers[vid];}
       if(st==='disconnected')setTimeout(function(){
         if(hostViewPeers[vid]===entry&&pc.connectionState==='disconnected'){
@@ -1500,6 +1496,10 @@
     };
     pc.onconnectionstatechange=function(){
       var st=String(pc.connectionState||'');
+      if(st==='connected'&&approvedGuests[vid]&&entry.pendingStream){
+        entry.gotTrack=true;
+        attachGuestToHost(vid,String(p.name||(approvedGuests[vid]&&approvedGuests[vid].name)||'게스트'),entry.pendingStream);
+      }
       if(st==='failed'||st==='closed'){
         if(hostGuestPeers[vid]===entry){
           delete hostGuestPeers[vid];
