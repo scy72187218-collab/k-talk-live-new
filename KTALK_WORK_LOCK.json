@@ -1,5 +1,5 @@
 {
-  "version": 112,
+  "version": 113,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260924-video-connection-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Owner authorization verified. Temporarily unlocked ONLY communication transport/control components to make LiveKit SFU the primary media path for up to 13 participants, Supabase Realtime the control/roster path, and direct WebRTC/mesh fallback-only. Do not modify switches, public video feed, rose, AI, chat, gifts, labels, buttons, room layout, or unrelated UI.",
+  "note": "13-person communication architecture update completed and relocked. LiveKit is now the primary host+approved-guest media transport; Supabase Realtime carries approval/leave/roster control; direct host/viewer WebRTC and guest mesh are fallback-only and are closed when SFU is active. Aggressive 240/650ms forced reconnect behavior was removed. Public video feed, switches, rose, AI, chat, gifts, labels, buttons, and room layout were not changed.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -88,29 +88,9 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "video_communication",
-    "media_transport",
-    "webrtc_transport_stability",
-    "remote_video_connect_speed",
-    "guest_approval_to_slot",
-    "approved_guest_peer_video_sync_only",
-    "communication_auto_reconnect_only",
-    "livekit_sfu_transport_bridge_only",
-    "room_entry_exit_rejoin_stability_only"
-  ],
-  "temporarily_unlocked_components": [
-    "video_communication",
-    "media_transport",
-    "webrtc_transport_stability",
-    "remote_video_connect_speed",
-    "guest_approval_to_slot",
-    "approved_guest_peer_video_sync_only",
-    "communication_auto_reconnect_only",
-    "livekit_sfu_transport_bridge_only",
-    "room_entry_exit_rejoin_stability_only"
-  ],
-  "last_communication_fix": "2026-09-25-stable-no-force22",
+  "current_editable_components": [],
+  "temporarily_unlocked_components": [],
+  "last_communication_fix": "2026-09-25-primary-livekit-sfu13-control-realtime-fallback22",
   "last_video_feed_fix": "2026-09-24-full-feed-after-first6",
   "locked_components": [
     "public-video-feed",
