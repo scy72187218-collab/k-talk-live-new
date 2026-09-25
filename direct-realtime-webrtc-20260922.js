@@ -158,10 +158,11 @@
   }
   function sid(prefix){return prefix+'_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,9);}
   function channelFor(hostId){return 'ktalk-direct-rtc-'+String(hostId||'').replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,110);}
-  function restBroadcast(eventName,payload){
-    if(!activeHostId)return Promise.resolve(false);
+  function restBroadcastToHost20260926(hostId,eventName,payload){
+    hostId=String(hostId||activeHostId||'').trim();
+    if(!hostId)return Promise.resolve(false);
     var body={messages:[{
-      topic:channelFor(activeHostId),
+      topic:channelFor(hostId),
       event:eventName,
       payload:payload||{}
     }]};
@@ -169,10 +170,14 @@
       return fetch(REST_BROADCAST,{
         method:'POST',
         cache:'no-store',
+        keepalive:true,
         headers:{'Content-Type':'application/json','apikey':KEY},
         body:JSON.stringify(body)
       }).then(function(r){return !!(r&&r.ok);}).catch(function(){return false;});
     }catch(e){return Promise.resolve(false);}
+  }
+  function restBroadcast(eventName,payload){
+    return restBroadcastToHost20260926(activeHostId,eventName,payload);
   }
 
   function send(eventName,payload){
@@ -198,6 +203,11 @@
     window.__ktSignalTransport20260924='rest-fallback';
     restBroadcast(eventName,payload);
   }
+  function sendCriticalMedia20260926(eventName,payload,hostId){
+    try{send(eventName,payload||{});}catch(e){}
+    try{restBroadcastToHost20260926(hostId||payload&&payload.host_id||activeHostId,eventName,payload||{});}catch(e){}
+  }
+
   function flush(){
     /* Messages sent during reconnect already used REST fallback.
        Do not replay them after WS join, which used to duplicate signaling. */
@@ -742,7 +752,7 @@
       }catch(e){}
     });
     pc.onicecandidate=function(ev){
-      if(ev.candidate)send('video_ice',{host_id:DEVICE,viewer_id:vid,session_id:session,from:'host',candidate:ev.candidate.toJSON?ev.candidate.toJSON():ev.candidate});
+      if(ev.candidate)sendCriticalMedia20260926('video_ice',{host_id:DEVICE,viewer_id:vid,session_id:session,from:'host',candidate:ev.candidate.toJSON?ev.candidate.toJSON():ev.candidate},DEVICE);
     };
     pc.onconnectionstatechange=function(){
       var st=String(pc.connectionState||'');
@@ -758,13 +768,13 @@
       await pc.setLocalDescription(offer);
       entry.offer=pc.localDescription.sdp;
       var firstOffer={host_id:DEVICE,viewer_id:vid,session_id:session,watch_token:watchToken,offer_sdp:entry.offer};
-      send('video_offer',firstOffer);
+      sendCriticalMedia20260926('video_offer',firstOffer,DEVICE);
       /* Communication speed only: repeat the SAME first offer briefly so a
          missed mobile packet does not add several seconds. */
       [40,120,280,600].forEach(function(ms){
         setTimeout(function(){
           if(hostViewPeers[vid]!==entry||entry.pc.currentRemoteDescription)return;
-          send('video_offer',firstOffer);
+          sendCriticalMedia20260926('video_offer',firstOffer,DEVICE);
         },ms);
       });
     }catch(e){closePc(pc);delete hostViewPeers[vid];}
@@ -776,7 +786,7 @@
     var session=String(p.session_id||''),sdp=String(p.offer_sdp||'');if(!session||!sdp)return;
     if(viewerSession===session&&viewerPc&&viewerPc.currentRemoteDescription){
       if(viewerAnswerSdp){
-        send('video_answer',{host_id:hid,viewer_id:viewerId(),session_id:session,answer_sdp:viewerAnswerSdp});
+        sendCriticalMedia20260926('video_answer',{host_id:hid,viewer_id:viewerId(),session_id:session,answer_sdp:viewerAnswerSdp},hid);
       }
       return;
     }
@@ -810,7 +820,7 @@
       }
     };
     pc.onicecandidate=function(ev){
-      if(ev.candidate)send('video_ice',{host_id:hid,viewer_id:viewerId(),session_id:session,from:'viewer',candidate:ev.candidate.toJSON?ev.candidate.toJSON():ev.candidate});
+      if(ev.candidate)sendCriticalMedia20260926('video_ice',{host_id:hid,viewer_id:viewerId(),session_id:session,from:'viewer',candidate:ev.candidate.toJSON?ev.candidate.toJSON():ev.candidate},hid);
     };
     pc.__ktViewerIceRecovery20260923=true;
     pc.oniceconnectionstatechange=function(){
@@ -884,12 +894,12 @@
       window.__ktDirectRtcPhase='answer-sent';
       viewerAnswerSdp=pc.localDescription.sdp;
       var firstAnswer={host_id:hid,viewer_id:viewerId(),session_id:session,answer_sdp:viewerAnswerSdp};
-      send('video_answer',firstAnswer);
+      sendCriticalMedia20260926('video_answer',firstAnswer,hid);
       /* Communication speed only: repeat the SAME first answer briefly. */
       [40,120,280,560].forEach(function(ms){
         setTimeout(function(){
           if(viewerPc!==pc||viewerSession!==session||viewerConnected)return;
-          send('video_answer',firstAnswer);
+          sendCriticalMedia20260926('video_answer',firstAnswer,hid);
         },ms);
       });
 
@@ -951,7 +961,7 @@
     if(!force&&viewerConnected)return;
     if(!force&&now-lastWatchAt<120)return;
     lastWatchAt=now;
-    send('video_watch',{host_id:hid,viewer_id:viewerId(),watch_token:viewerWatchToken,at:now});
+    sendCriticalMedia20260926('video_watch',{host_id:hid,viewer_id:viewerId(),watch_token:viewerWatchToken,at:now},hid);
   }
 
   function ensureDirectStyle(){
