@@ -136,7 +136,7 @@
 (function(){
   if(document.querySelector('script[data-kt-guest-request-flow]'))return;
   var s=document.createElement('script');
-  s.src='live-guest-request-flow-20260918.js?v=20260923-host-self-stable1';
+  s.src='live-guest-request-flow-20260918.js?v=20260925-guest-host-firstpaint1';
   s.async=false;
   s.setAttribute('data-kt-guest-request-flow','1');
   document.head.appendChild(s);
