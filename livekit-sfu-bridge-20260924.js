@@ -611,6 +611,14 @@
     approvedHostId=String(e&&e.detail&&e.detail.host_id||'').trim();
     if(!approvedHostId)return;
     watchHostId=approvedHostId;
+    try{
+      var approvalRun=String(e&&e.detail&&e.detail.run_id||'').trim();
+      var approvalStarted=Number(e&&e.detail&&e.detail.run_started_at||0);
+      if(approvalRun){
+        window.__ktRemoteHostRunId20260924=approvalRun;
+        if(approvalStarted)window.__ktRemoteHostSessionStartedAt20260924=approvalStarted;
+      }
+    }catch(z){}
 
     /* If the SFU viewer room is already connected (normal case), do not wait
        for hostTick scheduling. Publish the prewarmed guest stream NOW. */
@@ -633,6 +641,14 @@
   window.addEventListener('kt-approved-guest-stream-ready',function(e){
     var h=String(e&&e.detail&&e.detail.host_id||approvedHostId||remoteHostId()||'').trim();
     if(h){approvedHostId=h;watchHostId=h;}
+    try{
+      var readyRun=String(e&&e.detail&&e.detail.run_id||window.__ktRemoteHostRunId20260924||'').trim();
+      var readyStarted=Number(e&&e.detail&&e.detail.run_started_at||window.__ktRemoteHostSessionStartedAt20260924||0);
+      if(readyRun){
+        window.__ktRemoteHostRunId20260924=readyRun;
+        if(readyStarted)window.__ktRemoteHostSessionStartedAt20260924=readyStarted;
+      }
+    }catch(z){}
     try{
       var gs=guestStream();
       if(room&&room.state==='connected'&&gs){
@@ -669,7 +685,15 @@
       reattachRemoteTracks();
     },ms);});
   });
-  window.addEventListener('kt-three-person-sync-now',function(){
+  window.addEventListener('kt-three-person-sync-now',function(e){
+    try{
+      var syncRun=String(e&&e.detail&&e.detail.run_id||'').trim();
+      var syncStarted=Number(e&&e.detail&&e.detail.run_started_at||0);
+      if(syncRun){
+        window.__ktRemoteHostRunId20260924=syncRun;
+        if(syncStarted)window.__ktRemoteHostSessionStartedAt20260924=syncStarted;
+      }
+    }catch(z){}
     ensureApprovedRosterSlots20260924();
     reattachRemoteTracks();
     try{hostTick();}catch(e){}
