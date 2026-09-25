@@ -110,14 +110,29 @@
     try{return String(localStorage.getItem('ktalk_nickname')||localStorage.getItem('ktalk_profile_name')||'게스트').slice(0,60);}catch(e){}
     return '게스트';
   }
-  function roomEl(){return document.querySelector('#screen .ktsolo-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room');}
+  function roomEl(){return document.querySelector('#screen .ktsolo-room,#screen .ktg9-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room');}
   function isHostRole(){
     try{
       if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
+      var local=roomEl(),visible=false;
+      try{
+        if(local){
+          var st=getComputedStyle(local);
+          visible=st.display!=='none'&&st.visibility!=='hidden'&&(!local.getClientRects||local.getClientRects().length>0);
+        }
+      }catch(_e){visible=!!local;}
+      if(visible){
+        try{
+          window.__ktRemoteHostId='';
+          window.__ktCurrentRemoteHostId='';
+          sessionStorage.removeItem('kt_remote_host_id');
+        }catch(_e){}
+        return true;
+      }
       var rh='';
       try{rh=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||sessionStorage.getItem('kt_remote_host_id')||'').trim();}catch(_e){}
       if(rh)return false;
-      return !!roomEl();
+      return false;
     }catch(e){return false;}
   }
   function hostStream(){
@@ -893,7 +908,7 @@
     }else{
       var hid=remoteHostId();
       if(hid===activeHostId){
-        if(useDirectMediaFallback20260925())ensureViewerWatch(true);
+        ensureViewerWatch(true);
         if(requestOn)send('guest_request',{host_id:hid,viewer_id:viewerId(),name:profileName(),at:Date.now()});
         /* Ask the host for the authoritative approved-guest roster as soon as
            this phone joins. This prevents a late-joining/reconnecting phone
@@ -990,8 +1005,8 @@
   }
 
   async function hostOfferToViewer(vid,watchToken){
-    if(!useDirectMediaFallback20260925())return;
-    if(!isHostRole()||activeHostId!==DEVICE)return;
+    /* Receive-only host preview is always allowed in parallel with LiveKit. */
+    if(!isHostRole())return;
     var stream=hostStream();if(!stream)return;
     var old=hostViewPeers[vid];
     if(old&&old.watchToken===watchToken&&old.pc&&['new','connecting','connected'].indexOf(String(old.pc.connectionState||''))>-1){
@@ -1028,7 +1043,6 @@
   }
 
   async function viewerHandleOffer(p){
-    if(!useDirectMediaFallback20260925())return;
     if(String(p.viewer_id||'')!==viewerId())return;
     var hid=remoteHostId();if(!hid||String(p.host_id||'')!==hid)return;
     var session=String(p.session_id||''),sdp=String(p.offer_sdp||'');if(!session||!sdp)return;
@@ -1179,7 +1193,6 @@
   }
 
   async function handleVideoIce(p){
-    if(!useDirectMediaFallback20260925())return;
     var session=String(p.session_id||''),cand=p.candidate;if(!session||!cand)return;
     if(String(p.from||'')==='host'&&String(p.viewer_id||'')===viewerId()){
       if(viewerPc&&viewerSession===session&&viewerPc.remoteDescription){try{await viewerPc.addIceCandidate(cand);}catch(e){}}
@@ -2293,7 +2306,7 @@
         send('guest_roster_request',{host_id:hid,viewer_id:viewerId(),at:tickNow});
       }
       if(!remoteRunId)seedRemoteRunFromLiveSignal20260925(hid);
-      if(useDirectMediaFallback20260925())ensureViewerWatch(false);
+      if(!ktRemoteStreamStillLive20260923())ensureViewerWatch(false);
       var tickNow=Date.now();
       if(requestOn&&tickNow-lastGuestRequestAt>1500){
         lastGuestRequestAt=tickNow;
@@ -2317,11 +2330,19 @@
     if(mode==='livekit'){
       setTimeout(function(){
         if(useDirectMediaFallback20260925())return;
-        try{closePc(viewerPc);}catch(z){} viewerPc=null;viewerSession='';viewerConnected=false;
+        /* Keep viewerPc/hostViewPeers: they are the fast receive-only host picture.
+           Only duplicate guest uplink peers are closed. */
         try{closePc(guestPc);}catch(z){} guestPc=null;guestSession='';
-        Object.keys(hostViewPeers).forEach(function(id){try{closePc(hostViewPeers[id]&&hostViewPeers[id].pc);}catch(z){}});
         Object.keys(hostGuestPeers).forEach(function(id){try{closePc(hostGuestPeers[id]&&hostGuestPeers[id].pc);}catch(z){}});
-        hostViewPeers={};hostGuestPeers={};pendingHostGuestOffers={};pendingHostGuestIce={};
+        hostGuestPeers={};pendingHostGuestOffers={};pendingHostGuestIce={};
+        var h=remoteHostId();
+        if(h&&!isHostRole()&&!ktRemoteStreamStillLive20260923()){
+          [0,80,180,400,800,1500].forEach(function(ms){
+            setTimeout(function(){
+              if(!ktRemoteStreamStillLive20260923())try{ensureViewerWatch(true);}catch(_e){}
+            },ms);
+          });
+        }
       },180);
     }else if(mode==='fallback'){
       var h=remoteHostId();
