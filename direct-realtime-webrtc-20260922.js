@@ -2276,7 +2276,7 @@
         lastHostReadyAt=tickNow;
         send('host_ready',{host_id:DEVICE,run_id:hostRunId,run_started_at:hostRunStartedAt,at:tickNow});
       }
-      if(tickNow-lastRosterBroadcastAt>900){
+      if(tickNow-lastRosterBroadcastAt>600){
         lastRosterBroadcastAt=tickNow;
         broadcastApprovedRoster20260925('heartbeat');
       }
@@ -2327,6 +2327,14 @@
       var h=remoteHostId();
       if(h&&!isHostRole()){
         try{ensureViewerWatch(true);}catch(z){}
+        /* If LiveKit is slow before approval, pre-negotiate the direct guest
+           lane immediately. It uses the same prewarmed camera and changes no UI. */
+        if(requestOn&&!guestApproved){
+          try{
+            var pre=prepareGuestOfferBeforeApproval20260924(h);
+            if(pre&&pre.catch)pre.catch(function(){});
+          }catch(z){}
+        }
         if(guestApproved&&guestApprovedHost===h)try{startGuestCamera(h);}catch(z){}
       }
     }
@@ -2334,7 +2342,7 @@
 
   setInterval(roleTick,300);
   setTimeout(roleTick,20);
-  setInterval(syncSharedApprovalSignals,1200);
+  setInterval(syncSharedApprovalSignals,600);
   setTimeout(syncSharedApprovalSignals,50);
 
   window.addEventListener('kt-remote-host-selected',function(e){
