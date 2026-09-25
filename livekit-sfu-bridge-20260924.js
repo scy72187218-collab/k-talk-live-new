@@ -185,10 +185,14 @@
       return !!(s&&s.getVideoTracks&&s.getVideoTracks().some(function(t){return t&&t.readyState==='live';}));
     }catch(e){return false;}
   }
-  function setVideo(v,stream){
+  function setVideo(v,stream,livekitTrack){
     if(!v||!stream)return false;
     try{
-      if(v.srcObject!==stream)v.srcObject=stream;
+      var attached=false;
+      if(livekitTrack&&typeof livekitTrack.attach==='function'){
+        try{livekitTrack.attach(v);attached=true;}catch(_e){}
+      }
+      if(!attached&&v.srcObject!==stream)v.srcObject=stream;
       v.autoplay=true;v.playsInline=true;v.muted=true;v.defaultMuted=true;
       v.setAttribute('autoplay','');v.setAttribute('playsinline','');v.setAttribute('muted','');
       var p=v.play();if(p&&p.catch)p.catch(function(){});
@@ -196,7 +200,7 @@
       return true;
     }catch(e){return false;}
   }
-  function attachHostVideo(stream){
+  function attachHostVideo(stream,livekitTrack){
     var targets=[];
     function add(v){if(v&&targets.indexOf(v)<0)targets.push(v);}
     add(document.getElementById('ktRemoteHostPreview'));
@@ -220,7 +224,7 @@
       ));
     }catch(e){}
     if(main&&!mainIsSelf&&(!self||main.srcObject!==self))add(main);
-    targets.forEach(function(v){setVideo(v,stream);});
+    targets.forEach(function(v){setVideo(v,stream,livekitTrack);});
     if(targets.length){
       try{window.__ktRemoteHostStream=stream;}catch(e){}
       var st=document.getElementById('ktRemoteLiveStatus');if(st)st.style.display='none';
@@ -389,17 +393,23 @@
     delete guestVideoById[identity];
   }
 
-  function attachGuestVideo(identity,stream){
+  function attachGuestVideo(identity,stream,livekitTrack){
     if(isHostRole()){
-      try{if(!window.__ktApprovedGuestIds20260924||!window.__ktApprovedGuestIds20260924[identity])return;}catch(e){return;}
+      try{
+        if(!window.__ktApprovedGuestIds20260924||!window.__ktApprovedGuestIds20260924[identity])return;
+        if(typeof window.ktEnsureApprovedGuestSlot20260924==='function'){
+          var nm=(window.__ktApprovedGuestNames20260924||{})[identity]||'게스트';
+          window.ktEnsureApprovedGuestSlot20260924(identity,nm);
+        }
+      }catch(e){return;}
     }
     var known=guestVideoById[identity];
-    if(known&&document.contains(known)){setVideo(known,stream);return;}
+    if(known&&document.contains(known)){setVideo(known,stream,livekitTrack);return;}
     var exact=exactGuestVideo(identity);
     if(exact){
       clearDuplicateGuestTargets(identity,exact);
       guestVideoById[identity]=exact;
-      setVideo(exact,stream);
+      setVideo(exact,stream,livekitTrack);
       return;
     }
     var candidates=[];
@@ -419,7 +429,7 @@
     if(target){
       clearDuplicateGuestTargets(identity,target);
       guestVideoById[identity]=target;
-      setVideo(target,stream);
+      setVideo(target,stream,livekitTrack);
     }
   }
   function reattachRemoteTracks(){
@@ -439,8 +449,8 @@
     if(track.kind==='audio'){attachAudio(track,identity);return;}
     if(track.kind!=='video')return;
     var s=mediaStreamFor(track);if(!s)return;
-    if(identity===currentHostId)attachHostVideo(s);
-    else attachGuestVideo(identity,s);
+    if(identity===currentHostId)attachHostVideo(s,track);
+    else attachGuestVideo(identity,s,track);
   }
   function clearRoomRefs(){
     Object.keys(audioEls).forEach(stopAudio);
@@ -449,6 +459,7 @@
   }
   async function disconnectRoom(){
     var old=room;room=null;connecting=false;
+    if(publishRetryTimer){clearTimeout(publishRetryTimer);publishRetryTimer=null;}
     disconnectSeq+=1;
     if(fallbackTimer){clearTimeout(fallbackTimer);fallbackTimer=null;}
     setMediaMode('livekit-pending','room-reset');
@@ -510,9 +521,12 @@
           if(!approved)removeApprovedGuestSlot20260924(id);
         }catch(e){}
       });
-      if(LK.RoomEvent.TrackPublished)r.on(LK.RoomEvent.TrackPublished,function(){
+      if(LK.RoomEvent.TrackPublished)r.on(LK.RoomEvent.TrackPublished,function(publication){
+        try{
+          if(publication&&typeof publication.setSubscribed==='function')publication.setSubscribed(true);
+        }catch(e){}
         reattachRemoteTracks();
-        [10,30,75].forEach(function(ms){setTimeout(reattachRemoteTracks,ms);});
+        [10,30,75,180].forEach(function(ms){setTimeout(reattachRemoteTracks,ms);});
       });
       if(LK.RoomEvent.Reconnected)r.on(LK.RoomEvent.Reconnected,function(){
         disconnectSeq+=1;
@@ -562,32 +576,104 @@
       return null;
     }
   }
+  var publishRetryTimer=null;
+  function localVideoPublished20260925(vp,trackId){
+    var found=false;
+    try{
+      vp.trackPublications.forEach(function(pub){
+        var mt=pub&&pub.track&&pub.track.mediaStreamTrack;
+        if(mt&&String(mt.id||'')===String(trackId||''))found=true;
+      });
+    }catch(e){}
+    return found;
+  }
+  function retryPublishSoon20260925(stream,delay){
+    if(publishRetryTimer)clearTimeout(publishRetryTimer);
+    publishRetryTimer=setTimeout(function(){
+      publishRetryTimer=null;
+      if(room&&room.state==='connected'&&liveStream(stream)){
+        var q=publishSharedStream(stream);
+        if(q&&q.catch)q.catch(function(){});
+      }
+    },Math.max(120,Number(delay||300)));
+  }
+  async function publishVideoCompatible20260925(vp,vt){
+    var LK=window.LivekitClient;if(!LK||!vp||!vt)return false;
+    var firstError='';
+    try{
+      /* Low-end Android/WebView devices are more reliable publishing one VP8
+         layer. The host may keep simulcast; guests publish a single layer. */
+      await vp.publishTrack(vt,{
+        source:LK.Track.Source.Camera,
+        simulcast:currentRole==='host'
+      });
+      return true;
+    }catch(e){
+      firstError=String(e&&e.message||e||'publishTrack');
+    }
+    if(localVideoPublished20260925(vp,vt.id))return true;
+    try{
+      var lv=new LK.LocalVideoTrack(vt);
+      await vp.publishTrack(lv,{source:LK.Track.Source.Camera,simulcast:false});
+      return true;
+    }catch(e2){
+      if(localVideoPublished20260925(vp,vt.id))return true;
+      setState({lastPublishError:firstError+' | '+String(e2&&e2.message||e2||'localVideoTrack')});
+      return false;
+    }
+  }
   async function publishSharedStream(stream){
-    if(!room||room.state!=='connected'||!liveStream(stream))return;
-    var LK=window.LivekitClient;if(!LK)return;
+    if(!room||room.state!=='connected'||!liveStream(stream))return false;
+    var LK=window.LivekitClient;if(!LK)return false;
     var vp=room.localParticipant;
+    var videoOk=true;
     try{
       var vt=stream.getVideoTracks&&stream.getVideoTracks()[0];
-      if(vt&&vt.readyState==='live'&&publishedVideoId!==vt.id){
-        if(publishedVideoId){
-          try{
-            vp.trackPublications.forEach(function(pub){if(pub.track&&pub.track.mediaStreamTrack&&pub.track.mediaStreamTrack.id===publishedVideoId)vp.unpublishTrack(pub.track,false);});
-          }catch(e){}
+      if(vt&&vt.readyState==='live'){
+        if(publishedVideoId===vt.id&&!localVideoPublished20260925(vp,vt.id)){
+          publishedVideoId='';
         }
-        var lv=new LK.LocalVideoTrack(vt);
-        await vp.publishTrack(lv,{source:LK.Track.Source.Camera,simulcast:true});
-        publishedVideoId=vt.id;
-        try{window.dispatchEvent(new CustomEvent('kt-livekit-local-published',{detail:{kind:'video',track_id:vt.id,at:Date.now()}}));}catch(e){}
+        if(publishedVideoId!==vt.id){
+          if(publishedVideoId){
+            try{
+              vp.trackPublications.forEach(function(pub){
+                if(pub.track&&pub.track.mediaStreamTrack&&pub.track.mediaStreamTrack.id===publishedVideoId){
+                  var z=vp.unpublishTrack(pub.track,false);if(z&&z.catch)z.catch(function(){});
+                }
+              });
+            }catch(e){}
+          }
+          videoOk=await publishVideoCompatible20260925(vp,vt);
+          if(videoOk){
+            publishedVideoId=vt.id;
+            setState({lastPublishError:'',localVideoPublished:true});
+            try{window.dispatchEvent(new CustomEvent('kt-livekit-local-published',{detail:{kind:'video',track_id:vt.id,at:Date.now()}}));}catch(e){}
+          }else{
+            publishedVideoId='';
+            setState({localVideoPublished:false});
+            retryPublishSoon20260925(stream,260);
+          }
+        }
       }
-    }catch(e){}
+    }catch(e){
+      videoOk=false;
+      publishedVideoId='';
+      setState({localVideoPublished:false,lastPublishError:String(e&&e.message||e)});
+      retryPublishSoon20260925(stream,320);
+    }
     try{
       var at=stream.getAudioTracks&&stream.getAudioTracks()[0];
       if(at&&at.readyState==='live'&&publishedAudioId!==at.id){
-        var la=new LK.LocalAudioTrack(at);
-        await vp.publishTrack(la,{source:LK.Track.Source.Microphone});
+        try{
+          await vp.publishTrack(at,{source:LK.Track.Source.Microphone});
+        }catch(e){
+          var la=new LK.LocalAudioTrack(at);
+          await vp.publishTrack(la,{source:LK.Track.Source.Microphone});
+        }
         publishedAudioId=at.id;
       }
     }catch(e){}
+    return videoOk;
   }
   async function promoteApprovedGuest20260925(hostId,runId,stream){
     hostId=String(hostId||'').trim();
