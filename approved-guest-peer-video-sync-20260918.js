@@ -806,7 +806,7 @@
 
   window.addEventListener('kt-media-mode-20260925',function(e){
     var mode=String(e&&e.detail&&e.detail.mode||'');
-    if(mode==='livekit'||mode==='livekit-pending'){
+    if(mode==='livekit'){
       Object.keys(peers).forEach(function(pid){
         var x=peers[pid];
         try{if(x&&x.trackTimer)clearTimeout(x.trackTimer);}catch(z){}
