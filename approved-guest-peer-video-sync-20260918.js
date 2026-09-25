@@ -14,6 +14,8 @@
   var lastHost='';
   var lastSelf='';
   var absentSince=0;
+  var directPendingOffers={};
+  var directPendingIce={};
 
   function enc(v){return encodeURIComponent(String(v==null?'':v));}
   function headers(extra){
@@ -131,6 +133,21 @@
     return 'mesh:'+x[0]+'|'+x[1];
   }
   function safeName(v){return String(v||'게스트').slice(0,24);}
+  function directSignalAvailable(){
+    return typeof window.ktDirectPeerSignalSend20260925==='function';
+  }
+  function directSend(eventName,payload){
+    try{return !!window.ktDirectPeerSignalSend20260925(eventName,payload||{});}catch(e){return false;}
+  }
+  function directIceKey(peerId,sessionId){
+    return String(peerId||'')+'|'+String(sessionId||'');
+  }
+  async function drainDirectIce(entry){
+    if(!entry||!entry.pc||!entry.pc.remoteDescription)return;
+    var k=directIceKey(entry.peerId,entry.sessionId);
+    var q=directPendingIce[k]||[];delete directPendingIce[k];
+    for(var i=0;i<q.length;i++)try{await entry.pc.addIceCandidate(q[i]);}catch(e){}
+  }
   function peerCellById(grid,peerId){
     if(!grid)return null;
     var cells=[].slice.call(grid.querySelectorAll('[data-kt-peer-viewer]'));
@@ -238,11 +255,13 @@
   async function deactivate(entry){
     if(!entry)return;
     try{if(entry.trackTimer)clearTimeout(entry.trackTimer);}catch(e){}
+    try{if(entry.answerTimer)clearInterval(entry.answerTimer);}catch(e){}
+    try{if(entry.offerRetryTimers)(entry.offerRetryTimers||[]).forEach(function(t){clearTimeout(t);});}catch(e){}
     try{if(entry.pc)entry.pc.close();}catch(e){}
     if(entry.sessionId){
       if(entry.signalSource==='memory'){
         try{await memPeerPost({action:'end',session_id:entry.sessionId},700);}catch(e){}
-      }else{
+      }else if(entry.signalSource!=='realtime'){
         try{await req('ktalk_webrtc_sessions?id=eq.'+enc(entry.sessionId),{
           method:'PATCH',headers:{Prefer:'return=minimal'},
           body:JSON.stringify({active:false,updated_at:nowIso()})
@@ -320,7 +339,37 @@
         }catch(_e){}
       }
       var offer=await pc.createOffer({offerToReceiveVideo:true,offerToReceiveAudio:false});
-      await pc.setLocalDescription(offer);await waitIce(pc,550);
+      await pc.setLocalDescription(offer);
+
+      if(directSignalAvailable()){
+        entry.sessionId='rt_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8);
+        entry.signalSource='realtime';
+        entry.directIce=[];
+        pc.onicecandidate=function(ev){
+          if(!ev.candidate)return;
+          directSend('peer_mesh_ice',{
+            host_id:hostId,from_id:selfId,to_id:peerId,session_id:entry.sessionId,
+            candidate:ev.candidate.toJSON?ev.candidate.toJSON():ev.candidate,at:Date.now()
+          });
+        };
+        var offerPayload={
+          host_id:hostId,from_id:selfId,to_id:peerId,session_id:entry.sessionId,
+          name:safeName((window.__ktApprovedGuestNames20260924||{})[selfId]||'게스트'),
+          offer_sdp:pc.localDescription.sdp,at:Date.now()
+        };
+        directSend('peer_mesh_offer',offerPayload);
+        entry.offerRetryTimers=[80,220,500].map(function(ms){
+          return setTimeout(function(){
+            if(peers[peerId]!==entry||pc.currentRemoteDescription)return;
+            directSend('peer_mesh_offer',offerPayload);
+          },ms);
+        });
+        armPeerTrackWatchdog(entry,3000);
+        debug('offer_created',selfId+' -> '+peerId+' via realtime');
+        return;
+      }
+
+      await waitIce(pc,550);
 
       /* 공유 Runtime Cache를 먼저 사용한다. DB는 실패할 때만 보조로 쓴다. */
       try{
@@ -404,6 +453,90 @@
       debug('answer_created',selfId+' <- '+peerId+' via '+entry.signalSource);
     }catch(e){
       await dropPeer(peerId);
+    }
+  }
+
+  async function answerDirectOffer20260925(p){
+    var selfId=selfViewerId(),peerId=String(p&&p.from_id||''),hostId=String(p&&p.host_id||'');
+    var sessionId=String(p&&p.session_id||''),sdp=String(p&&p.offer_sdp||'');
+    if(!selfId||String(p&&p.to_id||'')!==selfId||!peerId||!sessionId||!sdp)return;
+    var approved=false;
+    try{approved=!!((window.__ktApprovedGuestIds20260924||{})[peerId]);}catch(e){}
+    if(!approved){directPendingOffers[peerId]=p;return;}
+    var stream=selfStream();if(!stream){directPendingOffers[peerId]=p;return;}
+    var existing=peers[peerId];
+    if(existing&&existing.signalSource==='realtime'&&existing.sessionId===sessionId)return;
+    if(existing){try{await dropPeer(peerId);}catch(e){}}
+    var entry={peerId:peerId,key:pairKey(selfId,peerId),role:'answer',pc:null,sessionId:sessionId,signalSource:'realtime',remoteStream:null,gotTrack:false,trackTimer:null,directIce:[]};
+    peers[peerId]=entry;
+    try{
+      var pc=new RTCPeerConnection(window.ktGetRtcConfig?window.ktGetRtcConfig():ICE);entry.pc=pc;wirePc(pc,entry,String(p.name||'게스트'));
+      pc.onicecandidate=function(ev){
+        if(!ev.candidate)return;
+        directSend('peer_mesh_ice',{
+          host_id:hostId,from_id:selfId,to_id:peerId,session_id:sessionId,
+          candidate:ev.candidate.toJSON?ev.candidate.toJSON():ev.candidate,at:Date.now()
+        });
+      };
+      var vt=stream.getVideoTracks()[0];
+      if(vt){
+        var sender=pc.addTrack(vt,stream);
+        try{
+          var prm=sender.getParameters()||{};if(!prm.encodings||!prm.encodings.length)prm.encodings=[{}];
+          prm.encodings.forEach(function(enc){enc.maxBitrate=220000;enc.maxFramerate=12;enc.scaleResolutionDownBy=1.25;});
+          prm.degradationPreference='balanced';var qq=sender.setParameters(prm);if(qq&&qq.catch)qq.catch(function(){});
+        }catch(_e){}
+      }
+      await pc.setRemoteDescription({type:'offer',sdp:sdp});
+      await drainDirectIce(entry);
+      var ans=await pc.createAnswer();await pc.setLocalDescription(ans);
+      directSend('peer_mesh_answer',{
+        host_id:hostId,from_id:selfId,to_id:peerId,session_id:sessionId,
+        answer_sdp:pc.localDescription.sdp,at:Date.now()
+      });
+      armPeerTrackWatchdog(entry,3000);
+      delete directPendingOffers[peerId];
+      debug('answer_created',selfId+' <- '+peerId+' via realtime');
+    }catch(e){if(peers[peerId]===entry)await dropPeer(peerId);}
+  }
+
+  async function handleDirectPeerSignal20260925(detail){
+    var ev=String(detail&&detail.event||''),p=detail&&detail.payload||{};
+    var selfId=selfViewerId();if(!selfId||String(p.to_id||'')!==selfId)return;
+    var peerId=String(p.from_id||''),sessionId=String(p.session_id||'');if(!peerId||!sessionId)return;
+    if(ev==='peer_mesh_offer'){
+      await answerDirectOffer20260925(p);return;
+    }
+    var entry=peers[peerId];
+    if(ev==='peer_mesh_answer'){
+      if(!entry||entry.signalSource!=='realtime'||entry.sessionId!==sessionId||!entry.pc)return;
+      try{
+        if(!entry.pc.currentRemoteDescription)await entry.pc.setRemoteDescription({type:'answer',sdp:String(p.answer_sdp||'')});
+        await drainDirectIce(entry);
+      }catch(e){}
+      return;
+    }
+    if(ev==='peer_mesh_ice'){
+      var cand=p.candidate;if(!cand)return;
+      if(entry&&entry.signalSource==='realtime'&&entry.sessionId===sessionId&&entry.pc&&entry.pc.remoteDescription){
+        try{await entry.pc.addIceCandidate(cand);}catch(e){}
+      }else{
+        var k=directIceKey(peerId,sessionId);
+        if(!directPendingIce[k])directPendingIce[k]=[];
+        if(directPendingIce[k].length<40)directPendingIce[k].push(cand);
+      }
+      return;
+    }
+    if(ev==='peer_mesh_end'){
+      if(entry&&entry.sessionId===sessionId)try{await dropPeer(peerId);}catch(e){}
+    }
+  }
+
+  async function processPendingDirectOffers20260925(){
+    var ids=Object.keys(directPendingOffers);
+    for(var i=0;i<ids.length;i++){
+      var p=directPendingOffers[ids[i]];
+      try{await answerDirectOffer20260925(p);}catch(e){}
     }
   }
 
@@ -559,6 +692,10 @@
     if(peerId===selfId||peers[peerId])return;
     var key=pairKey(selfId,peerId);
     var offerer=String(selfId)<String(peerId);
+    if(directSignalAvailable()){
+      if(offerer)await makeOffer(hostId,selfId,peerId,name,stream,key);
+      return;
+    }
     if(offerer){
       var existing=await meshRow(hostId,key);
       if(existing){
@@ -605,6 +742,7 @@
       absentSince=0;
       var hostId=await currentHost(selfId);if(!hostId){debug('no_host',selfId);return;}
       lastHost=hostId;lastSelf=selfId;
+      if(directSignalAvailable())await processPendingDirectOffers20260925();
       var info=realtimeParticipantInfo20260924();
       if(!info.ids.length)info=await participantInfo(hostId);
       debug('ready',selfId+' peers='+info.ids.join(','));
@@ -636,6 +774,13 @@
     finally{ticking=false;}
   }
 
+  window.addEventListener('kt-direct-peer-signal',function(e){
+    try{
+      var q=handleDirectPeerSignal20260925(e&&e.detail||{});
+      if(q&&q.catch)q.catch(function(){});
+    }catch(z){}
+  });
+
   setInterval(tick,250);
   window.addEventListener('kt-any-guest-approved',function(){
     try{tick();}catch(e){}
@@ -664,6 +809,8 @@
 
   function clearAllPeerState(){
     peerLastSeen={};
+    directPendingOffers={};
+    directPendingIce={};
     var ids=Object.keys(peers);
     ids.forEach(function(pid){
       try{
@@ -694,7 +841,7 @@
     Object.keys(peers).forEach(function(pid){
       var e=peers[pid];
       try{if(e.pc)e.pc.close();}catch(z){}
-      if(e.sessionId&&BASE&&KEY){
+      if(e.sessionId&&e.signalSource!=='realtime'&&BASE&&KEY){
         try{fetch(BASE+'ktalk_webrtc_sessions?id=eq.'+enc(e.sessionId),{
           method:'PATCH',headers:headers({Prefer:'return=minimal'}),
           body:JSON.stringify({active:false,updated_at:nowIso()}),keepalive:true
