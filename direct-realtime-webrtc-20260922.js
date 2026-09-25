@@ -1531,8 +1531,8 @@
   }
 
   async function prepareGuestOfferBeforeApproval20260924(hid){
-    if(!useDirectMediaFallback20260925())return;
-    /* Fallback only: negotiate the send lanes before approval. */
+    /* Negotiate a lightweight direct send lane before approval even when
+       LiveKit is primary. It is only a first-picture bridge and changes no UI. */
     if(!requestOn||guestApproved||!hid)return;
     if(guestPc&&['new','connecting','connected'].indexOf(String(guestPc.connectionState||''))>-1)return;
     clearGuestOfferRetryTimers(guestPc);
@@ -1617,7 +1617,6 @@
   }
 
   async function makeGuestOffer(hid){
-    if(!useDirectMediaFallback20260925())return;
     if(!guestApproved||guestApprovedHost!==hid||!guestStream)return;
     if(guestPc&&['new','connecting','connected'].indexOf(String(guestPc.connectionState||''))>-1)return;
     clearGuestOfferRetryTimers(guestPc);
@@ -1683,7 +1682,8 @@
     return String(vid||'')+'|'+String(session||'');
   }
   function replayPendingHostGuestOffer(vid){
-    if(!useDirectMediaFallback20260925())return;
+    /* Keep the direct guest lane warm in parallel with LiveKit so the host
+       sees an approved guest immediately instead of waiting on SFU join. */
     vid=String(vid||'');
     var box=pendingHostGuestOffers[vid];
     if(!box)return;
@@ -1698,7 +1698,6 @@
   }
 
   async function hostGuestOffer(p){
-    if(!useDirectMediaFallback20260925())return;
     if(!isHostRole()||String(p.host_id||'')!==DEVICE)return;
     var vid=String(p.viewer_id||'');
     var session=String(p.session_id||''),sdp=String(p.offer_sdp||'');if(!vid||!session||!sdp)return;
@@ -1809,7 +1808,6 @@
     }
   }
   async function guestHandleAnswer(p){
-    if(!useDirectMediaFallback20260925())return;
     if(String(p.viewer_id||'')!==viewerId())return;
     var ansHost=String(p.host_id||'');
     if(!guestPc||guestSession!==String(p.session_id||''))return;
@@ -1826,7 +1824,6 @@
     }catch(e){}
   }
   async function handleGuestIce(p){
-    if(!useDirectMediaFallback20260925())return;
     var session=String(p.session_id||''),cand=p.candidate;if(!session||!cand)return;
     if(String(p.from||'')==='host'&&String(p.viewer_id||'')===viewerId()){
       if(guestPc&&guestSession===session&&guestPc.remoteDescription){try{await guestPc.addIceCandidate(cand);}catch(e){}}
@@ -2387,12 +2384,9 @@
     var mode=String(e&&e.detail&&e.detail.mode||'');
     if(mode==='livekit'){
       setTimeout(function(){
-        if(useDirectMediaFallback20260925())return;
-        /* Keep viewerPc/hostViewPeers: they are the fast receive-only host picture.
-           Only duplicate guest uplink peers are closed. */
-        try{closePc(guestPc);}catch(z){} guestPc=null;guestSession='';
-        Object.keys(hostGuestPeers).forEach(function(id){try{closePc(hostGuestPeers[id]&&hostGuestPeers[id].pc);}catch(z){}});
-        hostGuestPeers={};pendingHostGuestOffers={};pendingHostGuestIce={};
+        /* Keep both fast receive-only host preview AND the direct guest uplink
+           alive in parallel while LiveKit finishes joining. Once LiveKit has a
+           live guest picture attachGuestToHost() leaves that picture alone. */
         var h=remoteHostId();
         if(h&&!isHostRole()&&!ktRemoteStreamStillLive20260923()){
           [0,80,180,400,800,1500].forEach(function(ms){
@@ -2401,7 +2395,16 @@
             },ms);
           });
         }
-      },180);
+        if(h&&!isHostRole()&&requestOn&&!guestApproved){
+          try{
+            var pre=prepareGuestOfferBeforeApproval20260924(h);
+            if(pre&&pre.catch)pre.catch(function(){});
+          }catch(_e){}
+        }
+        if(h&&!isHostRole()&&guestApproved&&guestApprovedHost===h){
+          try{startGuestCamera(h);}catch(_e){}
+        }
+      },40);
     }else if(mode==='fallback'){
       var h=remoteHostId();
       if(h&&!isHostRole()){
