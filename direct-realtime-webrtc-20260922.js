@@ -1042,7 +1042,7 @@
       send('video_offer',firstOffer);
       /* First-room video fast path: a missed first packet must not cost several seconds.
          Re-send the SAME offer briefly; the viewer reuses the same session/PC. */
-      [90,250,600].forEach(function(ms){
+      [40,120,280,600].forEach(function(ms){
         setTimeout(function(){
           if(hostViewPeers[vid]!==entry||entry.pc.currentRemoteDescription)return;
           send('video_offer',firstOffer);
@@ -1173,7 +1173,7 @@
       send('video_answer',firstAnswer);
       /* Mobile packet-loss guard: repeat only the answer for this same first session.
          This keeps the screen/UI untouched and avoids waiting for a full reconnect. */
-      [80,220,520,950].forEach(function(ms){
+      [40,120,280,560].forEach(function(ms){
         setTimeout(function(){
           if(viewerPc!==pc||viewerSession!==session||viewerConnected)return;
           send('video_answer',firstAnswer);
@@ -1182,7 +1182,7 @@
 
       /* 기존 영상이 살아 있으면 새 연결 확인 동안 화면을 유지한다.
          기존 영상이 없는 최초 연결만 기존 4.5초 watchdog을 사용한다. */
-      if(!previousUsable)retryViewerSoon(1800);
+      if(!previousUsable)retryViewerSoon(900);
       else setTimeout(function(){
         if(viewerPc===pc&&!pc.__ktGotRemoteTrack20260923&&pc.connectionState!=='connected'){
           try{closePc(pc);}catch(e){}
@@ -1237,7 +1237,7 @@
     if(!viewerWatchToken)viewerWatchToken=sid('watch');
     var now=Date.now();
     if(!force&&viewerConnected)return;
-    if(!force&&now-lastWatchAt<280)return;
+    if(!force&&now-lastWatchAt<120)return;
     lastWatchAt=now;
     send('video_watch',{host_id:hid,viewer_id:viewerId(),watch_token:viewerWatchToken,at:now});
   }
