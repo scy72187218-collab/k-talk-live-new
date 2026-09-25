@@ -1,5 +1,5 @@
 {
-  "version": 123,
+  "version": 124,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260924-video-connection-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Owner authorization verified. Temporarily unlocked ONLY central media transport timing/stability: preconnect viewers to one stable LiveKit room per host before approval, reuse the same SFU room across run metadata changes, and keep approved guest screen stable. Do not modify layout, switches, public feed, rose, AI, chat, gifts, labels, buttons, or unrelated UI.",
+  "note": "Central communication update completed and relocked. LiveKit now uses one stable central room per host, so viewers preconnect before approval and approval only publishes the already-open guest camera. Broadcast run_id remains control metadata and no longer tears down/reconnects the same host SFU room. Host also replies with current run metadata immediately on guest request. No layout, switches, public feed, rose, AI, chat, gifts, labels, buttons, or unrelated UI changed.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -88,23 +88,9 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "video_communication",
-    "media_transport",
-    "guest_approval_to_slot",
-    "communication_auto_reconnect_only",
-    "approved_guest_stay_connected",
-    "livekit_sfu_transport_bridge_only"
-  ],
-  "temporarily_unlocked_components": [
-    "video_communication",
-    "media_transport",
-    "guest_approval_to_slot",
-    "communication_auto_reconnect_only",
-    "approved_guest_stay_connected",
-    "livekit_sfu_transport_bridge_only"
-  ],
-  "last_communication_fix": "2026-09-25-stable-central-guest-role-handoff27",
+  "current_editable_components": [],
+  "temporarily_unlocked_components": [],
+  "last_communication_fix": "2026-09-25-stable-central-room-preconnect27",
   "last_video_feed_fix": "2026-09-24-full-feed-after-first6",
   "locked_components": [
     "public-video-feed",
