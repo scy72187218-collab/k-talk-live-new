@@ -251,7 +251,11 @@
     hostVideo.className='';
     hostVideo.autoplay=true;
     hostVideo.playsInline=true;
-    hostVideo.muted=false;
+    hostVideo.muted=true;
+    hostVideo.defaultMuted=true;
+    hostVideo.setAttribute('autoplay','');
+    hostVideo.setAttribute('playsinline','');
+    hostVideo.setAttribute('muted','');
     hostVideo.style.cssText='';
     if(hostCandidate&&hostVideo.srcObject!==hostCandidate)hostVideo.srcObject=hostCandidate;
 
