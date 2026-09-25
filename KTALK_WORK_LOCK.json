@@ -1,5 +1,5 @@
 {
-  "version": 126,
+  "version": 127,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260924-video-connection-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Owner authorization verified. Temporarily unlocked ONLY approved guest roster-to-central-transport recovery so every approved phone promotes itself into the host LiveKit room even if it misses the direct guest_approved packet. Do not modify layout, switches, public feed, rose, AI, chat, gifts, labels, buttons, or unrelated UI.",
+  "note": "4+ device approved-guest recovery completed and relocked. The host sends an immediate reliable approved roster and 900ms roster heartbeat. Any approved phone that misses the one-shot guest_approved packet now recognizes its own viewer id in the authoritative roster and runs the normal approval path with the same run_id, immediately joining/publishing to the host LiveKit room. No layout, switches, public feed, rose, AI, chat, gifts, labels, buttons, or unrelated UI changed.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -88,23 +88,9 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "video_communication",
-    "guest_approval_to_slot",
-    "shared_guest_request_approval_signaling",
-    "communication_auto_reconnect_only",
-    "approved_guest_stay_connected",
-    "livekit_sfu_transport_bridge_only"
-  ],
-  "temporarily_unlocked_components": [
-    "video_communication",
-    "guest_approval_to_slot",
-    "shared_guest_request_approval_signaling",
-    "communication_auto_reconnect_only",
-    "approved_guest_stay_connected",
-    "livekit_sfu_transport_bridge_only"
-  ],
-  "last_communication_fix": "2026-09-25-preconnect-stable-roster27",
+  "current_editable_components": [],
+  "temporarily_unlocked_components": [],
+  "last_communication_fix": "2026-09-25-roster-self-promote27",
   "last_video_feed_fix": "2026-09-24-full-feed-after-first6",
   "locked_components": [
     "public-video-feed",
