@@ -13,6 +13,7 @@
 
   var room=null,currentHostId='',currentRole='',currentRunId='',connecting=false;
   var publishedVideoId='',publishedAudioId='',lastConnectAt=0,nextConnectAllowedAt=0,connectFailCount=0;
+  var tokenCache={};
   var approvedHostId='',watchHostId='',audioEls={},guestVideoById={};
   var sdkPromise=null;
 
@@ -106,7 +107,11 @@
     return sdkPromise;
   }
   async function tokenFor(hostId,identity,runId){
-    var q='?room='+encodeURIComponent(cleanRoom(hostId,runId))+
+    var roomKey=cleanRoom(hostId,runId);
+    var ck=roomKey+'|'+String(identity||'');
+    var cached=tokenCache[ck];
+    if(cached&&Date.now()-Number(cached.at||0)<90000&&cached.auth)return cached.auth;
+    var q='?room='+encodeURIComponent(roomKey)+
       '&identity='+encodeURIComponent(identity)+
       '&name='+encodeURIComponent(profileName())+
       '&t='+Date.now();
@@ -114,6 +119,7 @@
     if(!r.ok)throw new Error('livekit_token_'+r.status);
     var j=await r.json();
     if(!j||!j.ok||!j.token)throw new Error(String(j&&j.error||'livekit_token_invalid'));
+    tokenCache[ck]={at:Date.now(),auth:j};
     return j;
   }
   function stopAudio(identity){
@@ -469,7 +475,9 @@
     }catch(e){
       connecting=false;
       connectFailCount=Math.min(6,connectFailCount+1);
-      nextConnectAllowedAt=Date.now()+Math.min(4000,500*Math.pow(2,connectFailCount-1));
+      /* After repeated cloud failures, stop hammering the token/socket path.
+         Direct WebRTC + guest mesh remain active as the immediate fallback. */
+      nextConnectAllowedAt=Date.now()+(connectFailCount>=3?30000:Math.min(3000,500*Math.pow(2,connectFailCount-1)));
       setState({connected:false,connecting:false,lastError:String(e&&e.message||e)});
       return null;
     }
