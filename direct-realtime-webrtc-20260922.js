@@ -113,7 +113,10 @@
   function roomEl(){return document.querySelector('#screen .ktsolo-room,#screen .ktg9-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room');}
   function isHostRole(){
     try{
-      if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
+      /* A visible local broadcast room is authoritative.
+         Old viewer state can leave kt-remote-viewing / remote-host ids behind
+         on Android. If those stale flags win, the host approves a guest but
+         rejects every incoming guest offer, leaving "게스트 연결 중..." forever. */
       var local=roomEl(),visible=false;
       try{
         if(local){
@@ -123,12 +126,14 @@
       }catch(_e){visible=!!local;}
       if(visible){
         try{
+          document.documentElement.classList.remove('kt-remote-viewing');
           window.__ktRemoteHostId='';
           window.__ktCurrentRemoteHostId='';
           sessionStorage.removeItem('kt_remote_host_id');
         }catch(_e){}
         return true;
       }
+      if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
       var rh='';
       try{rh=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||sessionStorage.getItem('kt_remote_host_id')||'').trim();}catch(_e){}
       if(rh)return false;
