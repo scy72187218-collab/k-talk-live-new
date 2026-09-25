@@ -654,7 +654,15 @@
       var roomCut=await sharedCurrentRoomCutoff(hid);
       var runCut=host?Number(hostRunStartedAt||0):Number(remoteRunStartedAt||0);
       var effectiveCut=Math.max(Number(roomCut||0),Number(runCut||0));
-      rows=rows.filter(function(m){return sharedMsgTime(m)>=effectiveCut;});
+      rows=rows.filter(function(m){
+        /* Same host run is stronger than a phone-local timestamp cutoff.
+           A phone that reconnects late must still recover guests approved
+           earlier in the same broadcast. */
+        var mr=String(m&&m.run_id||'').trim();
+        var expectedRun=host?String(hostRunId||'').trim():String(remoteRunId||'').trim();
+        if(expectedRun&&mr&&mr===expectedRun)return true;
+        return sharedMsgTime(m)>=effectiveCut;
+      });
       if(host){
         var latest={};
         rows.forEach(function(m){
@@ -765,6 +773,7 @@
           }else if(kind==='approved'){
             if(ts>=x.approved){
               x.approved=ts;
+              x.name=String(m.sender_name||x.name||'게스트');
               if(m.run_id)x.run_id=String(m.run_id||'');
               if(m.run_started_at)x.run_started_at=Number(m.run_started_at||0);
             }
@@ -777,7 +786,10 @@
         var names=window.__ktApprovedGuestNames20260924||{};
         Object.keys(states).forEach(function(id){
           var x=states[id];
-          var active=!!(x.request&&x.approved>=x.request&&x.approved>x.end);
+          /* A current-run approval is authoritative even if this phone missed
+             the earlier request message. This lets every device rebuild the
+             same approved guest roster after reconnect/network loss. */
+          var active=!!(x.approved>x.end&&(!x.request||x.approved>=x.request));
           if(active){
             var was=roster[id]===true;
             roster[id]=true;
@@ -800,7 +812,7 @@
         window.__ktApprovedGuestNames20260924=names;
 
         var self=states[vid]||null;
-        if(self&&self.request&&self.approved>=self.request&&self.approved>self.end&&!guestApproved){
+        if(self&&self.approved>self.end&&(!self.request||self.approved>=self.request)&&!guestApproved){
           onGuestApproved({
             host_id:hid,
             viewer_id:vid,
