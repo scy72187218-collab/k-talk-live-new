@@ -892,6 +892,10 @@
       if(hid===activeHostId){
         if(useDirectMediaFallback20260925())ensureViewerWatch(true);
         if(requestOn)send('guest_request',{host_id:hid,viewer_id:viewerId(),name:profileName(),at:Date.now()});
+        /* Ask the host for the authoritative approved-guest roster as soon as
+           this phone joins. This prevents a late-joining/reconnecting phone
+           from waiting for the periodic roster heartbeat. */
+        send('guest_roster_request',{host_id:hid,viewer_id:viewerId(),at:Date.now()});
       }
     }
   }
@@ -2095,6 +2099,15 @@
       }
       return;
     }
+    if(ev==='guest_roster_request'){
+      if(isHostRole()&&String(p.host_id||'')===DEVICE){
+        /* Reply immediately with the full authoritative roster. Reliable mode
+           also sends REST broadcast, so all phones converge even if one WS
+           packet is missed during a reconnect. */
+        broadcastApprovedRoster20260925('viewer-request',true);
+      }
+      return;
+    }
     if(ev==='guest_roster'){
       applyApprovedRoster20260925(p);
       return;
@@ -2341,8 +2354,21 @@
          send() uses REST fallback, so room entry does not wait for WS join. */
       ensureViewerWatch(true);
       attachRemoteStreamNow();
-      setTimeout(function(){ensureViewerWatch(true);attachRemoteStreamNow();},35);
-      setTimeout(function(){ensureViewerWatch(true);attachRemoteStreamNow();},100);
+
+      /* Pull the guest roster immediately on room entry and retry briefly.
+         This is communication-only; it does not change any room UI/layout. */
+      try{send('guest_roster_request',{host_id:hid,viewer_id:viewerId(),at:Date.now()});}catch(_e){}
+      setTimeout(function(){
+        ensureViewerWatch(true);attachRemoteStreamNow();
+        try{send('guest_roster_request',{host_id:hid,viewer_id:viewerId(),at:Date.now()});}catch(_e){}
+      },35);
+      setTimeout(function(){
+        ensureViewerWatch(true);attachRemoteStreamNow();
+        try{send('guest_roster_request',{host_id:hid,viewer_id:viewerId(),at:Date.now()});}catch(_e){}
+      },100);
+      setTimeout(function(){
+        try{send('guest_roster_request',{host_id:hid,viewer_id:viewerId(),at:Date.now()});}catch(_e){}
+      },260);
     }catch(z){}
   });
 
