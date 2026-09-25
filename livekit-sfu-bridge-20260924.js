@@ -13,6 +13,7 @@
   var TOKEN_URL='https://zupwbfmacwzexyvznlzq.supabase.co/functions/v1/ktalk-livekit-token';
   var SDK_URL='https://cdn.jsdelivr.net/npm/livekit-client@2.22.3/dist/livekit-client.umd.min.js';
 
+  var MEDIA_PUBLISHER_HEADROOM=15;
   var room=null,currentHostId='',currentRole='',currentRunId='',connecting=false;
   var publishedVideoId='',publishedAudioId='',lastConnectAt=0,nextConnectAllowedAt=0,connectFailCount=0;
   var tokenCache={};
@@ -41,8 +42,10 @@
     return m==='livekit'||m==='livekit-pending';
   };
 
+  window.__ktLiveKitPublisherHeadroom20260925=MEDIA_PUBLISHER_HEADROOM;
   window.__ktLiveKitSfuState20260924={
-    enabled:true,connected:false,connecting:false,url:'',hostId:'',role:'',lastError:'',primary:true
+    enabled:true,connected:false,connecting:false,url:'',hostId:'',role:'',lastError:'',primary:true,
+    publisherHeadroom:MEDIA_PUBLISHER_HEADROOM,visibleRoomCapacity:13
   };
 
   function setState(p){
@@ -143,6 +146,10 @@
     if(!r.ok)throw new Error('livekit_token_'+r.status);
     var j=await r.json();
     if(!j||!j.ok||!j.token)throw new Error(String(j&&j.error||'livekit_token_invalid'));
+    if(Number(j.publisher_headroom||MEDIA_PUBLISHER_HEADROOM)>=15){
+      window.__ktLiveKitPublisherHeadroom20260925=Number(j.publisher_headroom||MEDIA_PUBLISHER_HEADROOM);
+      try{window.__ktLiveKitSfuState20260924.publisherHeadroom=window.__ktLiveKitPublisherHeadroom20260925;}catch(e){}
+    }
     tokenCache[ck]={at:Date.now(),auth:j};
     return j;
   }
