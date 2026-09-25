@@ -1,5 +1,5 @@
 {
-  "version": 120,
+  "version": 121,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260924-video-connection-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Owner authorization verified. Temporarily unlocked ONLY approved-guest communication path: preserve one host run, carry run context through realtime/shared fallback, promote guest directly into the same LiveKit room, and prevent immediate approval-time screen teardown. Do not modify layout, switches, public feed, rose, AI, chat, gifts, labels, buttons, or unrelated UI.",
+  "note": "Approved-guest communication update completed and relocked. Host keeps one stable run id. Realtime and shared-memory approval both carry run_id/run_started_at. Approved guest is promoted immediately into the exact host LiveKit room and publishes its prewarmed camera without waiting for polling. A late host_ready within 15 seconds of approval updates run context without tearing down/rebuilding the approved guest screen. No layout, switches, public feed, rose, AI, chat, gifts, labels, buttons, or unrelated UI changed.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -88,25 +88,9 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "video_communication",
-    "media_transport",
-    "guest_approval_to_slot",
-    "shared_guest_request_approval_signaling",
-    "communication_auto_reconnect_only",
-    "approved_guest_stay_connected",
-    "livekit_sfu_transport_bridge_only"
-  ],
-  "temporarily_unlocked_components": [
-    "video_communication",
-    "media_transport",
-    "guest_approval_to_slot",
-    "shared_guest_request_approval_signaling",
-    "communication_auto_reconnect_only",
-    "approved_guest_stay_connected",
-    "livekit_sfu_transport_bridge_only"
-  ],
-  "last_communication_fix": "2026-09-25-approval-livekit-run-context25",
+  "current_editable_components": [],
+  "temporarily_unlocked_components": [],
+  "last_communication_fix": "2026-09-25-stable-immediate-central-guest-approval26",
   "last_video_feed_fix": "2026-09-24-full-feed-after-first6",
   "locked_components": [
     "public-video-feed",
