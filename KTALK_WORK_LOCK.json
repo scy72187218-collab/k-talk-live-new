@@ -1,5 +1,5 @@
 {
-  "version": 102,
+  "version": 103,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260924-video-connection-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Owner authorization verified. Temporarily unlocked ONLY communication transport components for instant room entry video, instant guest approval/publish, identical approved roster across host/guests, and immediate explicit leave removal. Do not modify switches, public video feed, rose, AI, chat, gifts, room layout, labels, buttons, or other UI.",
+  "note": "Communication-only update completed and relocked. Instant viewer entry signaling, immediate approval roster broadcast, same approved roster on host/guests, explicit leave removal, LiveKit preconnect, and failed-connect backoff were changed. Switches, public video feed, rose, AI, chat, gifts, room layout, labels, buttons, and unrelated UI were not changed.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -88,27 +88,9 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "video_communication",
-    "media_transport",
-    "remote_video_connect_speed",
-    "guest_approval_to_slot",
-    "approved_guest_peer_video_sync_only",
-    "broadcast_end_sync_only",
-    "room_entry_exit_rejoin_stability_only",
-    "livekit_sfu_transport_bridge_only"
-  ],
-  "temporarily_unlocked_components": [
-    "video_communication",
-    "media_transport",
-    "remote_video_connect_speed",
-    "guest_approval_to_slot",
-    "approved_guest_peer_video_sync_only",
-    "broadcast_end_sync_only",
-    "room_entry_exit_rejoin_stability_only",
-    "livekit_sfu_transport_bridge_only"
-  ],
-  "last_communication_fix": "2026-09-24-fast-request-approve-leave17",
+  "current_editable_components": [],
+  "temporarily_unlocked_components": [],
+  "last_communication_fix": "2026-09-25-instant-entry-approval-roster-leave18",
   "last_video_feed_fix": "2026-09-24-full-feed-after-first6",
   "locked_components": [
     "public-video-feed",
