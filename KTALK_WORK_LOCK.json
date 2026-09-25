@@ -1,5 +1,5 @@
 {
-  "version": 106,
+  "version": 107,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "saved-working-k-talk-20260924-video-connection-stable",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "Owner authorization verified. Temporarily unlocked ONLY communication signaling/approved guest peer video sync so approved guests can appear on all phones without memory/API polling delay. Do not modify switches, public video feed, rose, AI, chat, gifts, labels, buttons, room layout, or unrelated UI.",
+  "note": "Communication-only update completed and relocked. Approved guest-to-guest video signaling now uses the existing Supabase Realtime room channel first instead of waiting on memory/API polling, with old memory/DB paths retained as fallback. No switches, public video feed, rose, AI, chat, gifts, labels, buttons, or room layout changed.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -88,23 +88,9 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "video_communication",
-    "media_transport",
-    "webrtc_transport_stability",
-    "approved_guest_peer_video_sync_only",
-    "communication_auto_reconnect_only",
-    "livekit_sfu_transport_bridge_only"
-  ],
-  "temporarily_unlocked_components": [
-    "video_communication",
-    "media_transport",
-    "webrtc_transport_stability",
-    "approved_guest_peer_video_sync_only",
-    "communication_auto_reconnect_only",
-    "livekit_sfu_transport_bridge_only"
-  ],
-  "last_communication_fix": "2026-09-25-entry-camera-preoffer-fast-peer-livekit11",
+  "current_editable_components": [],
+  "temporarily_unlocked_components": [],
+  "last_communication_fix": "2026-09-25-realtime-approved-guest-peer-signal20",
   "last_video_feed_fix": "2026-09-24-full-feed-after-first6",
   "locked_components": [
     "public-video-feed",
