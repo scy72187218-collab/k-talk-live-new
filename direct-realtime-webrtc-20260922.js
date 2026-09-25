@@ -35,6 +35,24 @@
       window.dispatchEvent(new CustomEvent('kt-host-session-ready',{detail:{host_id:String(hostId||''),run_id:String(runId||''),started_at:Number(startedAt||0),role:String(role||'')}}));
     }catch(e){}
   }
+  function ensureHostRunContext20260925(){
+    if(!isHostRole())return {run_id:'',run_started_at:0};
+    try{
+      var g=String(window.__ktHostRunId20260924||'').trim();
+      var gs=Number(window.__ktHostRunStartedAt20260924||0);
+      if(g&&!hostRunId)hostRunId=g;
+      if(gs&&!hostRunStartedAt)hostRunStartedAt=gs;
+    }catch(e){}
+    if(!hostRunId){
+      hostRunId=sid('run');
+      hostRunStartedAt=Date.now();
+      publishRunContext(DEVICE,hostRunId,hostRunStartedAt,'host');
+    }else if(!hostRunStartedAt){
+      hostRunStartedAt=Date.now();
+      publishRunContext(DEVICE,hostRunId,hostRunStartedAt,'host');
+    }
+    return {run_id:String(hostRunId||''),run_started_at:Number(hostRunStartedAt||0)};
+  }
 
   async function sharedCurrentRoomCutoff(hostId){
     hostId=String(hostId||'').trim();
@@ -240,7 +258,15 @@
         guests.push({viewer_id:String(id),name:String(x.name||window.__ktApprovedGuestNames20260924[id]||'게스트')});
       });
     }catch(e){}
-    return {host_id:DEVICE,guests:guests,reason:String(reason||''),at:Date.now()};
+    var rc=ensureHostRunContext20260925();
+    return {
+      host_id:DEVICE,
+      guests:guests,
+      reason:String(reason||''),
+      at:Date.now(),
+      run_id:String(rc.run_id||''),
+      run_started_at:Number(rc.run_started_at||0)
+    };
   }
   function broadcastApprovedRoster20260925(reason,reliable){
     if(!isHostRole())return;
@@ -255,6 +281,13 @@
     var hid=String(p&&p.host_id||'').trim();
     var current=String(remoteHostId()||activeHostId||lastRemoteHost||'').trim();
     if(!hid||!current||hid!==current)return;
+    var rosterRun=String(p&&p.run_id||'').trim();
+    var rosterStarted=Number(p&&p.run_started_at||0);
+    if(rosterRun){
+      remoteRunId=rosterRun;
+      if(rosterStarted)remoteRunStartedAt=rosterStarted;
+      publishRunContext(hid,remoteRunId,remoteRunStartedAt,'viewer');
+    }
     var list=Array.isArray(p&&p.guests)?p.guests:[],next={},names={};
     list.forEach(function(x){
       var id=String(x&&x.viewer_id||'').trim();
@@ -620,7 +653,10 @@
 
             if(now-seen<90000){
               var ap=approvedGuests[vid];
-              if(ap)send('guest_approved',{host_id:DEVICE,viewer_id:vid,name:ap.name||'게스트',at:now,reconnect:true});
+              if(ap){
+                var rc=ensureHostRunContext20260925();
+                send('guest_approved',{host_id:DEVICE,viewer_id:vid,name:ap.name||'게스트',at:now,reconnect:true,run_id:rc.run_id,run_started_at:rc.run_started_at});
+              }
               return;
             }
 
@@ -1155,7 +1191,15 @@
     vid=String(vid||'').trim();
     if(!vid)return;
     name=String(name||'게스트');
-    var data={host_id:DEVICE,viewer_id:vid,name:name,at:Date.now()};
+    var runCtx=ensureHostRunContext20260925();
+    var data={
+      host_id:DEVICE,
+      viewer_id:vid,
+      name:name,
+      at:Date.now(),
+      run_id:String(runCtx.run_id||''),
+      run_started_at:Number(runCtx.run_started_at||0)
+    };
 
     approvedGuests[vid]={name:name,at:data.at};
     try{
@@ -1184,10 +1228,10 @@
     setTimeout(function(){sharedApprovalPost(DEVICE,'guest_approved',vid,name);},900);
     try{
       window.dispatchEvent(new CustomEvent('kt-host-guest-approved',{
-        detail:{host_id:DEVICE,viewer_id:vid,at:Date.now()}
+        detail:{host_id:DEVICE,viewer_id:vid,at:Date.now(),run_id:data.run_id,run_started_at:data.run_started_at}
       }));
       window.dispatchEvent(new CustomEvent('kt-three-person-sync-now',{
-        detail:{host_id:DEVICE,viewer_id:vid,at:Date.now()}
+        detail:{host_id:DEVICE,viewer_id:vid,at:Date.now(),run_id:data.run_id,run_started_at:data.run_started_at}
       }));
     }catch(e){}
     broadcastApprovedRoster20260925('approved');
@@ -1655,6 +1699,14 @@
     window.__ktRemoteHostId=hid;
     try{sessionStorage.setItem('kt_remote_host_id',hid);}catch(e){}
 
+    var approvedRun=String(p&&p.run_id||'').trim();
+    var approvedStarted=Number(p&&p.run_started_at||0);
+    if(approvedRun){
+      remoteRunId=approvedRun;
+      if(approvedStarted)remoteRunStartedAt=approvedStarted;
+      publishRunContext(hid,remoteRunId,remoteRunStartedAt,'viewer');
+    }
+
     if(guestApproved&&guestApprovedHost===hid&&!p.reconnect){
       /* Duplicate reliability copies of the same approval must not rebuild
          the guest grid. Just keep the existing camera/uplink moving. */
@@ -1690,14 +1742,16 @@
           viewer_id:selfVid,
           stream:guestStream||window.__ktApprovedGuestSelfStream||null,
           at:Date.now(),
-          immediate:true
+          immediate:true,
+          run_id:String(remoteRunId||approvedRun||''),
+          run_started_at:Number(remoteRunStartedAt||approvedStarted||0)
         }
       }));
       if(typeof window.ktForceApprovedGuestGridNow20260924==='function'){
         window.ktForceApprovedGuestGridNow20260924();
       }
       window.dispatchEvent(new CustomEvent('kt-three-person-sync-now',{
-        detail:{host_id:hid,viewer_id:selfVid,at:Date.now(),immediate:true}
+        detail:{host_id:hid,viewer_id:selfVid,at:Date.now(),immediate:true,run_id:String(remoteRunId||approvedRun||''),run_started_at:Number(remoteRunStartedAt||approvedStarted||0)}
       }));
     }catch(e){}
 
@@ -1741,7 +1795,7 @@
 
     try{
       window.dispatchEvent(new CustomEvent('kt-three-person-sync-now',{
-        detail:{host_id:hid,viewer_id:viewerId(),at:Date.now(),post_media:true}
+        detail:{host_id:hid,viewer_id:viewerId(),at:Date.now(),post_media:true,run_id:String(remoteRunId||approvedRun||''),run_started_at:Number(remoteRunStartedAt||approvedStarted||0)}
       }));
     }catch(e){}
   }
