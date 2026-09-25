@@ -357,6 +357,23 @@
     window.__ktApprovedGuestNames20260924=names;
     try{
       var selfId=viewerId();
+
+      /* If this phone missed the one-shot guest_approved packet but the
+         authoritative host roster already contains this exact viewer id,
+         run the normal approval path now. This is what makes every approved
+         phone join/publish into the same LiveKit room in 4+ device tests. */
+      if(next[selfId]===true&&(!guestApproved||guestApprovedHost!==hid)){
+        onGuestApproved({
+          host_id:hid,
+          viewer_id:selfId,
+          name:String(names[selfId]||profileName()||'게스트'),
+          at:Date.now(),
+          roster_recovery:true,
+          run_id:String(rosterRun||remoteRunId||''),
+          run_started_at:Number(rosterStarted||remoteRunStartedAt||0)
+        });
+      }
+
       var hasApprovedShell=!!document.querySelector(
         '.kt-guest-hostlike-room,.kt-approved-guest-grid,.kt-guest-room-grid'
       );
