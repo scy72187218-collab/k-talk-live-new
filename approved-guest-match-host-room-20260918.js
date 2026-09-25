@@ -251,7 +251,14 @@
     hostVideo.className='';
     hostVideo.autoplay=true;
     hostVideo.playsInline=true;
-    hostVideo.muted=false;
+    /* Keep the already-playing host preview muted in the guest room.
+       Mobile browsers can pause/block it when approval flips it to unmuted.
+       Host audio is handled by the live media layer; this keeps first video paint immediate. */
+    hostVideo.muted=true;
+    hostVideo.defaultMuted=true;
+    hostVideo.setAttribute('autoplay','');
+    hostVideo.setAttribute('playsinline','');
+    hostVideo.setAttribute('muted','');
     hostVideo.style.cssText='';
     if(hostCandidate&&hostVideo.srcObject!==hostCandidate)hostVideo.srcObject=hostCandidate;
 
