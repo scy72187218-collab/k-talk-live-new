@@ -488,6 +488,19 @@
     if(fallbackTimer){clearTimeout(fallbackTimer);fallbackTimer=null;}
     setMediaMode('livekit-pending','connecting');
     setState({connecting:true,connected:false,hostId:hostId,role:currentRole,lastError:''});
+
+    /* Communication-only fast-start guard:
+       if the SFU handshake is not connected quickly on a phone, enable the
+       already-existing direct WebRTC fallback while the SFU continues joining.
+       When LiveKit connects, the existing code switches back and closes the
+       fallback peers. No layout/button/chat changes. */
+    fallbackTimer=setTimeout(function(){
+      try{
+        if(connecting&&currentHostId===hostId&&(!room||room.state!=='connected')){
+          setMediaMode('fallback','livekit-slow-start');
+        }
+      }catch(e){}
+    },850);
     try{
       var LK=await ensureSdk();
       if(room){try{await room.disconnect(false);}catch(e){}}
