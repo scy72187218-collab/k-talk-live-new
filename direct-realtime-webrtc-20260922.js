@@ -111,7 +111,13 @@
   }
   function roomEl(){return document.querySelector('#screen .ktsolo-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room');}
   function isHostRole(){
-    try{return !document.documentElement.classList.contains('kt-remote-viewing')&&!!roomEl();}catch(e){return false;}
+    try{
+      if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
+      var rh='';
+      try{rh=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||sessionStorage.getItem('kt_remote_host_id')||'').trim();}catch(_e){}
+      if(rh)return false;
+      return !!roomEl();
+    }catch(e){return false;}
   }
   function hostStream(){
     try{
@@ -2184,7 +2190,7 @@
   }
   window.addEventListener('kt-media-mode-20260925',function(e){
     var mode=String(e&&e.detail&&e.detail.mode||'');
-    if(mode==='livekit'||mode==='livekit-pending'){
+    if(mode==='livekit'){
       setTimeout(function(){
         if(useDirectMediaFallback20260925())return;
         try{closePc(viewerPc);}catch(z){} viewerPc=null;viewerSession='';viewerConnected=false;
@@ -2192,7 +2198,7 @@
         Object.keys(hostViewPeers).forEach(function(id){try{closePc(hostViewPeers[id]&&hostViewPeers[id].pc);}catch(z){}});
         Object.keys(hostGuestPeers).forEach(function(id){try{closePc(hostGuestPeers[id]&&hostGuestPeers[id].pc);}catch(z){}});
         hostViewPeers={};hostGuestPeers={};pendingHostGuestOffers={};pendingHostGuestIce={};
-      },120);
+      },180);
     }else if(mode==='fallback'){
       var h=remoteHostId();
       if(h&&!isHostRole()){
