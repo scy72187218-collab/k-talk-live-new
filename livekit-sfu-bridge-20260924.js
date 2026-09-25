@@ -12,7 +12,7 @@
   var SDK_URL='https://cdn.jsdelivr.net/npm/livekit-client@2.22.3/dist/livekit-client.umd.min.js';
 
   var room=null,currentHostId='',currentRole='',currentRunId='',connecting=false;
-  var publishedVideoId='',publishedAudioId='',lastConnectAt=0;
+  var publishedVideoId='',publishedAudioId='',lastConnectAt=0,nextConnectAllowedAt=0,connectFailCount=0;
   var approvedHostId='',watchHostId='',audioEls={},guestVideoById={};
   var sdkPromise=null;
 
@@ -416,6 +416,7 @@
     if(!hostId||!runId)return null;
     if(room&&currentHostId===hostId&&currentRunId===runId&&room.state==='connected')return room;
     if(connecting&&currentHostId===hostId&&currentRunId===runId)return room;
+    if(Date.now()<nextConnectAllowedAt&&currentHostId===hostId&&currentRunId===runId)return room;
     if(Date.now()-lastConnectAt<350&&currentHostId===hostId&&currentRunId===runId)return room;
     lastConnectAt=Date.now();connecting=true;currentHostId=hostId;currentRunId=runId;currentRole=role||'viewer';
     setState({connecting:true,connected:false,hostId:hostId,role:currentRole,lastError:''});
@@ -454,6 +455,8 @@
       await r.connect(auth.url||DEFAULT_URL,auth.token,{autoSubscribe:true});
       if(room!==r){try{await r.disconnect(false);}catch(e){}return room;}
       connecting=false;
+      connectFailCount=0;
+      nextConnectAllowedAt=0;
       setState({url:auth.url||DEFAULT_URL,connected:true,connecting:false,hostId:hostId,role:currentRole,runId:runId});
       try{
         r.remoteParticipants.forEach(function(p){
@@ -465,6 +468,8 @@
       return r;
     }catch(e){
       connecting=false;
+      connectFailCount=Math.min(6,connectFailCount+1);
+      nextConnectAllowedAt=Date.now()+Math.min(4000,500*Math.pow(2,connectFailCount-1));
       setState({connected:false,connecting:false,lastError:String(e&&e.message||e)});
       return null;
     }
@@ -562,6 +567,14 @@
       }else hostTick();
     }catch(z){hostTick();}
     [25,80,160].forEach(function(ms){setTimeout(hostTick,ms);});
+  });
+  window.addEventListener('kt-guest-request-started',function(e){
+    var h=String(e&&e.detail&&e.detail.host_id||remoteHostId()||'').trim();
+    if(h)watchHostId=h;
+    /* Join the media room while camera permission/prewarm is still running.
+       Approval then only has to publish the already-open track. */
+    try{hostTick();}catch(z){}
+    [20,60,120].forEach(function(ms){setTimeout(hostTick,ms);});
   });
   window.addEventListener('kt-guest-camera-prewarmed',function(e){
     var h=String(e&&e.detail&&e.detail.host_id||remoteHostId()||'').trim();
