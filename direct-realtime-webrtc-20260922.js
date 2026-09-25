@@ -781,6 +781,10 @@
     };
     pc.onconnectionstatechange=function(){
       var st=String(pc.connectionState||'');
+      if(st==='connected'&&approvedGuests[vid]&&entry.pendingStream){
+        entry.gotTrack=true;
+        attachGuestToHost(vid,String(p.name||(approvedGuests[vid]&&approvedGuests[vid].name)||'게스트'),entry.pendingStream);
+      }
       if(st==='failed'||st==='closed'){if(hostViewPeers[vid]===entry)delete hostViewPeers[vid];}
       if(st==='disconnected')setTimeout(function(){
         if(hostViewPeers[vid]===entry&&pc.connectionState==='disconnected'){
@@ -1097,6 +1101,9 @@
     if(warmPeer&&warmPeer.pendingStream){
       attachGuestToHost(vid,name,warmPeer.pendingStream);
     }
+    if(warmPeer&&warmPeer.answer){
+      try{send('guest_answer',{host_id:DEVICE,viewer_id:vid,session_id:warmPeer.sid,answer_sdp:warmPeer.answer});}catch(e){}
+    }
     replayPendingHostGuestOffer(vid);
     renderDirectRequests();
 
@@ -1332,8 +1339,29 @@
       if(pc.__ktPreAudioSender)await pc.__ktPreAudioSender.replaceTrack(at||null);
       pc.__ktPreApprovalActivated=true;
       try{window.__ktDirectGuestUplinkState20260923='activating';window.__ktDirectGuestUplinkStateAt20260923=Date.now();}catch(e){}
+      ensureFastHostGuestMedia20260925(hid,pc);
       return true;
     }catch(e){return false;}
+  }
+
+  function ensureFastHostGuestMedia20260925(hid,preparedPc){
+    setTimeout(function(){
+      if(!guestApproved||guestApprovedHost!==hid)return;
+      var pc=guestPc;
+      if(!pc||pc!==preparedPc||!pc.__ktPreApprovalActivated)return;
+      var cs=String(pc.connectionState||''),is=String(pc.iceConnectionState||'');
+      if(cs==='connected'||is==='connected'||is==='completed')return;
+      /* Android browsers can keep an empty pre-negotiated sender in
+         connecting state longer than a fresh offer that already contains
+         the live camera track. Rebuild only this guest->host media lane. */
+      try{clearGuestOfferRetryTimers(pc);}catch(e){}
+      try{closePc(pc);}catch(e){}
+      if(guestPc===pc)guestPc=null;
+      guestSession='';
+      setTimeout(function(){
+        if(guestApproved&&guestApprovedHost===hid)makeGuestOffer(hid);
+      },0);
+    },240);
   }
 
   async function makeGuestOffer(hid){
@@ -1463,6 +1491,13 @@
       }catch(e){}
     };
     pc.onicecandidate=function(ev){if(ev.candidate)send('guest_ice',{host_id:DEVICE,viewer_id:vid,session_id:session,from:'host',candidate:ev.candidate.toJSON?ev.candidate.toJSON():ev.candidate});};
+    pc.oniceconnectionstatechange=function(){
+      var ist=String(pc.iceConnectionState||'');
+      if((ist==='connected'||ist==='completed')&&approvedGuests[vid]&&entry.pendingStream){
+        entry.gotTrack=true;
+        attachGuestToHost(vid,String(p.name||(approvedGuests[vid]&&approvedGuests[vid].name)||'게스트'),entry.pendingStream);
+      }
+    };
     pc.onconnectionstatechange=function(){
       var st=String(pc.connectionState||'');
       if(st==='failed'||st==='closed'){
@@ -1487,7 +1522,7 @@
       entry.answer=pc.localDescription.sdp;
       var guestAnswerPayload={host_id:DEVICE,viewer_id:vid,session_id:session,answer_sdp:entry.answer};
       send('guest_answer',guestAnswerPayload);
-      [120,350,800,1600].forEach(function(ms){
+      [40,120,300,700].forEach(function(ms){
         setTimeout(function(){
           if(hostGuestPeers[vid]!==entry||entry.gotTrack)return;
           var cs=String(pc.connectionState||'');
@@ -1513,7 +1548,7 @@
           send('guest_approved',reconnect);
           setTimeout(function(){send('guest_approved',reconnect);},120);
         }
-      },1800);
+      },650);
     }catch(e){
       closePc(pc);
       if(hostGuestPeers[vid]===entry){
