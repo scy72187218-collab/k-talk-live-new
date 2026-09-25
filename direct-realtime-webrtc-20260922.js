@@ -1341,23 +1341,20 @@
   }
 
   function ensureFastHostGuestMedia20260925(hid,preparedPc){
-    setTimeout(function(){
-      if(!guestApproved||guestApprovedHost!==hid)return;
-      var pc=guestPc;
-      if(!pc||pc!==preparedPc||!pc.__ktPreApprovalActivated)return;
-      var cs=String(pc.connectionState||''),is=String(pc.iceConnectionState||'');
-      if(cs==='connected'||is==='connected'||is==='completed')return;
-      /* Android browsers can keep an empty pre-negotiated sender in
-         connecting state longer than a fresh offer that already contains
-         the live camera track. Rebuild only this guest->host media lane. */
-      try{clearGuestOfferRetryTimers(pc);}catch(e){}
-      try{closePc(pc);}catch(e){}
-      if(guestPc===pc)guestPc=null;
-      guestSession='';
+    /* Keep the already-negotiated mobile WebRTC lane alive.
+       Only resend its existing offer as a nudge; never tear it down just
+       because Android needs a little longer to settle the ICE/media path. */
+    [260,700,1400].forEach(function(ms){
       setTimeout(function(){
-        if(guestApproved&&guestApprovedHost===hid)makeGuestOffer(hid);
-      },0);
-    },240);
+        if(!guestApproved||guestApprovedHost!==hid)return;
+        var pc=guestPc;
+        if(!pc||pc!==preparedPc||!pc.__ktPreApprovalActivated)return;
+        var cs=String(pc.connectionState||''),is=String(pc.iceConnectionState||'');
+        if(cs==='connected'||is==='connected'||is==='completed')return;
+        var payload=pc.__ktPreApprovalPayload||null;
+        if(payload)try{send('guest_offer',payload);}catch(e){}
+      },ms);
+    });
   }
 
   async function makeGuestOffer(hid){
@@ -1408,17 +1405,15 @@
       send('guest_offer',guestOfferPayload);
       scheduleGuestOfferRetries(hid,pc,guestOfferPayload);
 
-      /* 연결 협상도 짧은 흔들림 때문에 계속 새로 만들지 않는다.
-         10초 동안 기존 세션을 기다린 뒤 실제 연결이 없을 때만 재시도한다. */
+      /* Do not force-close a healthy/connecting mobile lane on a timer.
+         Natural failed/closed events remain the authority for rebuilding.
+         While it is still connecting, just resend the same offer once. */
       setTimeout(function(){
         if(guestPc!==pc||!guestApproved||guestApprovedHost!==hid)return;
         var cs=String(pc.connectionState||''),is=String(pc.iceConnectionState||'');
-        if(cs==='connected'||is==='connected'||is==='completed')return;
-        clearGuestOfferRetryTimers(pc);
-        try{closePc(pc);}catch(e){}
-        if(guestPc===pc)guestPc=null;
-        setTimeout(function(){makeGuestOffer(hid);},180);
-      },5000);
+        if(cs==='connected'||is==='connected'||is==='completed'||cs==='failed'||cs==='closed')return;
+        try{send('guest_offer',guestOfferPayload);}catch(e){}
+      },2500);
     }catch(e){
       try{window.__ktDirectGuestUplinkState20260923='failed';window.__ktDirectGuestUplinkStateAt20260923=Date.now();}catch(_e){}
       clearGuestOfferRetryTimers(pc);closePc(pc);if(guestPc===pc)guestPc=null;
@@ -1522,7 +1517,7 @@
       entry.answer=pc.localDescription.sdp;
       var guestAnswerPayload={host_id:DEVICE,viewer_id:vid,session_id:session,answer_sdp:entry.answer};
       send('guest_answer',guestAnswerPayload);
-      [40,120,300,700].forEach(function(ms){
+      [40,120,300,700,1500].forEach(function(ms){
         setTimeout(function(){
           if(hostGuestPeers[vid]!==entry||entry.gotTrack)return;
           var cs=String(pc.connectionState||'');
@@ -1531,24 +1526,18 @@
         },ms);
       });
 
-      /* 호스트 칸이 계속 '게스트 연결 중'이면 그 게스트 연결만 새로 요청한다.
-         다른 게스트 peer나 방 UI는 건드리지 않는다. */
-      setTimeout(function(){
-        if(hostGuestPeers[vid]!==entry||entry.gotTrack)return;
-        /* Before approval there are intentionally no media frames yet.
-           Keep the already-negotiated connection warm. */
-        if(!approvedGuests[vid])return;
-        var cs=String(pc.connectionState||'');
-        if(cs==='closed')return;
-        try{closePc(pc);}catch(e){}
-        if(hostGuestPeers[vid]===entry)delete hostGuestPeers[vid];
-        var ap=approvedGuests[vid];
-        if(ap){
-          var reconnect={host_id:DEVICE,viewer_id:vid,name:ap.name||'게스트',at:Date.now(),reconnect:true};
-          send('guest_approved',reconnect);
-          setTimeout(function(){send('guest_approved',reconnect);},120);
-        }
-      },650);
+      /* Keep the same host-side PeerConnection while Android settles.
+         Never force-close it merely because the video has not painted yet.
+         Resend the existing answer/approval signal without replacing media. */
+      [900,1800,3200].forEach(function(ms){
+        setTimeout(function(){
+          if(hostGuestPeers[vid]!==entry||entry.gotTrack||!approvedGuests[vid])return;
+          var cs=String(pc.connectionState||'');
+          if(cs==='failed'||cs==='closed')return;
+          try{send('guest_answer',guestAnswerPayload);}catch(e){}
+          try{send('guest_approved',{host_id:DEVICE,viewer_id:vid,name:(approvedGuests[vid]&&approvedGuests[vid].name)||'게스트',at:Date.now(),reconnect:false,nudge:true});}catch(e){}
+        },ms);
+      });
     }catch(e){
       closePc(pc);
       if(hostGuestPeers[vid]===entry){
