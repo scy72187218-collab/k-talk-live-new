@@ -21,6 +21,7 @@
   var lastEntryPrewarmHost='',lastEntryPrewarmAt=0;
   var sharedRuntimeStartedAt=Date.now()-5000,sharedRoomCutCache={};
   var hostRunId='',hostRunStartedAt=0,remoteRunId='',remoteRunStartedAt=0,lastRosterBroadcastAt=0;
+  var lastRosterRequestAt=0,rosterRequestBurstUntil=0,lastRosterReceivedAt=0;
   window.__ktApprovedGuestIds20260924=window.__ktApprovedGuestIds20260924||{};
   window.__ktApprovedGuestNames20260924=window.__ktApprovedGuestNames20260924||{};
   function publishRunContext(hostId,runId,startedAt,role){
@@ -313,6 +314,8 @@
   }
   function applyApprovedRoster20260925(p){
     if(isHostRole())return;
+    lastRosterReceivedAt=Date.now();
+    rosterRequestBurstUntil=0;
     var hid=String(p&&p.host_id||'').trim();
     var current=String(remoteHostId()||activeHostId||lastRemoteHost||'').trim();
     if(!hid||!current||hid!==current)return;
@@ -1328,6 +1331,10 @@
        legacy persistence, or any extra rendering can delay the signal. */
     send('guest_approved',data);
 
+    /* Full roster immediately follows approval. Every phone receives the same
+       authoritative guest list without waiting for a periodic heartbeat. */
+    broadcastApprovedRoster20260925('approved-fast',true);
+
     delete pendingRequests[vid];
     guestSlot(vid,name);
     var warmPeer=hostGuestPeers[vid]||null;
@@ -2274,7 +2281,17 @@
         broadcastApprovedRoster20260925('heartbeat');
       }
     }else{
-      if(lastRemoteHost!==hid){lastRemoteHost=hid;viewerWatchToken=sid('watch');viewerConnected=false;}
+      if(lastRemoteHost!==hid){
+        lastRemoteHost=hid;viewerWatchToken=sid('watch');viewerConnected=false;
+        /* Short request burst only on room entry/reconnect. Stops as soon as
+           a host roster is received. This closes the missed-first-packet gap. */
+        rosterRequestBurstUntil=Date.now()+3000;
+        lastRosterRequestAt=0;
+      }
+      if(rosterRequestBurstUntil&&tickNow<rosterRequestBurstUntil&&tickNow-lastRosterRequestAt>450){
+        lastRosterRequestAt=tickNow;
+        send('guest_roster_request',{host_id:hid,viewer_id:viewerId(),at:tickNow});
+      }
       if(!remoteRunId)seedRemoteRunFromLiveSignal20260925(hid);
       if(useDirectMediaFallback20260925())ensureViewerWatch(false);
       var tickNow=Date.now();
