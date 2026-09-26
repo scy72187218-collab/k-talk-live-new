@@ -97,8 +97,10 @@
   }
   function cleanRoom(hostId,runId){
     var h=String(hostId||'').replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,72);
-    var r=String(runId||'').replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,44);
-    return 'ktalk_'+h+(r?'_'+r:'');
+    /* Use one stable SFU room per host. A guest can miss the host_ready/run-id
+       packet while direct WebRTC still shows the host video; tying the SFU
+       room name to run_id then prevents that guest from ever publishing. */
+    return 'ktalk_'+h;
   }
   function ensureSdk(){
     if(window.LivekitClient&&window.LivekitClient.Room)return Promise.resolve(window.LivekitClient);
@@ -428,8 +430,8 @@
     if(old){try{await old.disconnect(false);}catch(e){}}
   }
   async function ensureRoom(hostId,role,runId){
-    hostId=String(hostId||'').trim();runId=String(runId||'').trim();
-    if(!hostId||!runId)return null;
+    hostId=String(hostId||'').trim();runId=String(runId||'').trim()||'stable';
+    if(!hostId)return null;
     if(room&&currentHostId===hostId&&currentRunId===runId&&room.state==='connected')return room;
     if(connecting&&currentHostId===hostId&&currentRunId===runId)return room;
     if(Date.now()-lastConnectAt<350&&currentHostId===hostId&&currentRunId===runId)return room;
@@ -517,8 +519,7 @@
       watchHostId=approvedHostId;
     }
     if(isHostRole()){
-      var hostRun=String(window.__ktHostRunId20260924||'').trim();
-      if(!hostRun)return;
+      var hostRun=String(window.__ktHostRunId20260924||'').trim()||'stable';
       var s=hostStream();
       if(s){
         var r=await ensureRoom(DEVICE,'host',hostRun);
@@ -526,9 +527,8 @@
       }
       return;
     }
-    var remoteRun=String(window.__ktRemoteHostRunId20260924||'').trim();
+    var remoteRun=String(window.__ktRemoteHostRunId20260924||'').trim()||'stable';
     if(approvedHostId){
-      if(!remoteRun)return;
       var gs=guestStream();
       var gr=await ensureRoom(approvedHostId,'guest',remoteRun);
       if(gr){
@@ -538,7 +538,6 @@
       return;
     }
     if(watchHostId){
-      if(!remoteRun)return;
       var vr=await ensureRoom(watchHostId,'viewer',remoteRun);
       if(vr)reattachRemoteTracks();
     }
@@ -565,7 +564,23 @@
       }
     }catch(z){hostTick();}
 
-    [30,90,180].forEach(function(ms){setTimeout(hostTick,ms);});
+    [30,90,180,350,700,1400].forEach(function(ms){
+      setTimeout(function(){
+        try{
+          var gs=guestStream();
+          if(gs&&approvedHostId){
+            var rr=String(window.__ktRemoteHostRunId20260924||'').trim()||'stable';
+            var q=ensureRoom(approvedHostId,'guest',rr);
+            if(q&&q.then)q.then(function(rm){
+              if(rm){
+                var pp=publishSharedStream(gs);
+                if(pp&&pp.then)pp.then(reattachRemoteTracks).catch(function(){});
+              }
+            }).catch(function(){});
+          }else hostTick();
+        }catch(e){hostTick();}
+      },ms);
+    });
   });
   window.addEventListener('kt-approved-guest-stream-ready',function(e){
     var h=String(e&&e.detail&&e.detail.host_id||approvedHostId||remoteHostId()||'').trim();
@@ -631,7 +646,9 @@
     var h=String(e&&e.detail&&e.detail.host_id||'').trim();
     if(!h)return;
     if(String(e&&e.detail&&e.detail.role||'')!=='host')watchHostId=h;
-    if(room&&currentHostId===h&&currentRunId&&currentRunId!==String(e&&e.detail&&e.detail.run_id||''))disconnectRoom();
+    /* The SFU room is stable per host; a new run id must not tear down an
+       otherwise healthy media connection. Host-session reset still handles
+       explicit broadcast restarts. */
     setTimeout(hostTick,20);
   });
   window.addEventListener('kt-remote-host-left',function(e){
