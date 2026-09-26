@@ -105,6 +105,7 @@
   var ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
   function ktIceConfig20260921(){return window.ktGetRtcConfig?window.ktGetRtcConfig():ICE;}
   var hostActive=false,hostRoomId='',hostHeartbeat=null,hostSignalTimer=null,hostActivityTimer=null;
+  window.__ktHostPresenceActive20260926=false;
   var hostEndLock=false,hostRunToken=0,hostStarting=false;
   var hostRoomMissingSince=0;
   var hostPeers={};
@@ -324,7 +325,7 @@
       var rows=await req('ktalk_live_rooms',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify({host_id:hostId,host_name:p.name,title:r.title,room_type:r.type,room_name:r.name,active:true,started_at:stamp,updated_at:stamp,host_photo:p.photo||null})});
       hostRoomId=rows&&rows[0]?rows[0].id:'';
       if(!hostRoomId)throw new Error('host-room');
-      hostActive=true;lastActivityStamp='';hostRoomMissingSince=0;
+      hostActive=true;window.__ktHostPresenceActive20260926=true;lastActivityStamp='';hostRoomMissingSince=0;
       showActivity('🔴 방송이 시작되었습니다. 방송목록에 표시됩니다.');
       clearInterval(hostHeartbeat);clearInterval(hostSignalTimer);clearInterval(hostActivityTimer);
       var beatToken=hostRunToken;
@@ -338,7 +339,7 @@
       hostActivityTimer=setInterval(hostPollActivity,1800);hostPollActivity();
       renderLiveCards();
     }catch(e){
-      hostActive=false;hostRoomId='';
+      hostActive=false;window.__ktHostPresenceActive20260926=false;hostRoomId='';
     }finally{
       hostStarting=false;
     }
@@ -346,7 +347,7 @@
 
   async function stopHostPresence(){
     /* 방송 종료 때 상태값이 이미 풀렸어도 서버의 빨간 LIVE 표시를 반드시 끈다. */
-    var hostId=deviceId(),roomId=hostRoomId;hostEndLock=true;hostRunToken++;var stopToken=hostRunToken;hostActive=false;hostRoomId='';
+    var hostId=deviceId(),roomId=hostRoomId;hostEndLock=true;hostRunToken++;var stopToken=hostRunToken;hostActive=false;window.__ktHostPresenceActive20260926=false;hostRoomId='';
     window.__ktHostEndLock=true;window.__ktHostEndLockHostId=hostId;
     clearInterval(hostHeartbeat);clearInterval(hostSignalTimer);clearInterval(hostActivityTimer);hostHeartbeat=hostSignalTimer=hostActivityTimer=null;
     Object.keys(hostPeers).forEach(function(k){try{hostPeers[k].pc.close();}catch(e){}});hostPeers={};
@@ -774,6 +775,10 @@
   }
   function isHostRole(){
     try{
+      /* Presence owner is the real broadcaster. This survives a stale
+         kt-remote-viewing class and lets the host answer viewer video_watch. */
+      if(window.__ktHostPresenceActive20260926===true)return true;
+
       /* Guest/viewer always stays viewer even though its room UI mirrors host layout. */
       if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
 
