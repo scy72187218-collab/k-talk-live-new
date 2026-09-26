@@ -88,6 +88,10 @@ body{min-height:100dvh;overflow-x:hidden}
   let speechQueue=[];
   let speaking=false;
   let nickname='';
+  let audioCtx=null;
+  let musicTimer=null;
+  let musicStarted=false;
+  let musicStep=0;
 
   function clean(v){return String(v||'').replace(/[<>]/g,'').trim()}
   function getNickname(){
@@ -108,7 +112,7 @@ body{min-height:100dvh;overflow-x:hidden}
     x.textContent=t;
     x.style.display='block';
     clearTimeout(window.__toastTimer);
-    window.__toastTimer=setTimeout(()=>x.style.display='none',1600);
+    window.__toastTimer=setTimeout(()=>x.style.display='none',1700);
   };
 
   function chooseVoice(){
@@ -132,32 +136,99 @@ body{min-height:100dvh;overflow-x:hidden}
     const text=speechQueue.shift();
     const u=new SpeechSynthesisUtterance(text);
     u.lang='ko-KR';
-    u.rate=1.0;
-    u.pitch=1.05;
+    u.rate=.96;
+    u.pitch=1.08;
+    u.volume=1;
     const v=chooseVoice(); if(v)u.voice=v;
     speaking=true;
     const indicator=document.getElementById('voiceIndicator');
-    if(indicator)indicator.textContent='AI 말하는 중';
+    if(indicator)indicator.textContent='AI DJ 말하는 중';
+    lowerMusic(true);
     u.onend=u.onerror=function(){
       speaking=false;
-      if(indicator)indicator.textContent='AI 음성 켜짐';
-      setTimeout(pumpSpeech,120);
+      if(indicator)indicator.textContent='AI DJ 방송중';
+      lowerMusic(false);
+      setTimeout(pumpSpeech,180);
     };
-    try{speechSynthesis.speak(u)}catch(e){speaking=false}
+    try{speechSynthesis.speak(u)}catch(e){speaking=false;lowerMusic(false)}
+  }
+
+  function initAudio(){
+    if(audioCtx)return audioCtx;
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(!AC)return null;
+    try{
+      audioCtx=new AC();
+      window.__ktDjMaster=audioCtx.createGain();
+      window.__ktDjMaster.gain.value=.035;
+      window.__ktDjMaster.connect(audioCtx.destination);
+      return audioCtx;
+    }catch(e){return null}
+  }
+
+  function playTone(freq,dur,when){
+    const ctx=initAudio(); if(!ctx)return;
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.type='sine';
+    osc.frequency.value=freq;
+    gain.gain.setValueAtTime(0.0001,when);
+    gain.gain.exponentialRampToValueAtTime(.11,when+.025);
+    gain.gain.exponentialRampToValueAtTime(.0001,when+dur);
+    osc.connect(gain); gain.connect(window.__ktDjMaster);
+    osc.start(when); osc.stop(when+dur+.03);
+  }
+
+  function scheduleMusicBar(){
+    const ctx=initAudio(); if(!ctx || ctx.state!=='running')return;
+    const chords=[
+      [261.63,329.63,392.00],
+      [220.00,261.63,329.63],
+      [174.61,220.00,261.63],
+      [196.00,246.94,293.66]
+    ];
+    const chord=chords[musicStep%chords.length];
+    const t=ctx.currentTime+.04;
+    chord.forEach((f,i)=>playTone(f,.72,t+i*.015));
+    playTone(chord[1]*2,.20,t+.82);
+    playTone(chord[2]*2,.20,t+1.18);
+    musicStep++;
+  }
+
+  window.startDjMusic=function(){
+    if(musicStarted)return;
+    const ctx=initAudio(); if(!ctx)return;
+    const go=function(){
+      try{if(ctx.state==='suspended')ctx.resume()}catch(e){}
+      musicStarted=true;
+      scheduleMusicBar();
+      musicTimer=setInterval(scheduleMusicBar,1600);
+      const indicator=document.getElementById('voiceIndicator');
+      if(indicator)indicator.textContent='♪ AI DJ 음악 재생중';
+    };
+    go();
+  };
+
+  function lowerMusic(low){
+    if(!window.__ktDjMaster || !audioCtx)return;
+    try{
+      window.__ktDjMaster.gain.cancelScheduledValues(audioCtx.currentTime);
+      window.__ktDjMaster.gain.linearRampToValueAtTime(low?.012:.035,audioCtx.currentTime+.12);
+    }catch(e){}
   }
 
   window.sayAndToast=function(t){toast(t);speak(t)};
 
   window.attendance=function(){
-    sayAndToast(nickname+'님, 출석체크 완료했습니다.');
+    sayAndToast(nickname+'님, 출석체크 완료했어요. 오늘도 반갑습니다.');
   };
 
   window.guestJoin=function(n){
-    sayAndToast('게스트 '+n+' 참여 신청입니다.');
+    sayAndToast('게스트 '+n+'번 자리 참여 신청이 들어왔어요.');
   };
 
   window.gift=function(name,coin){
-    sayAndToast(nickname+'님이 '+name+' 선물을 보냈습니다.');
+    window.ktAiDjGift(nickname,name);
   };
 
   window.openInput=function(title,mode){
@@ -175,9 +246,9 @@ body{min-height:100dvh;overflow-x:hidden}
     if(!v)return;
     closeInput();
     if(inputMode==='song'){
-      sayAndToast(nickname+'님, '+v+' 신청곡 접수했습니다.');
+      window.ktAiDjSongRequest(nickname,v);
     }else{
-      sayAndToast(nickname+'님, '+v);
+      window.ktAiDjChat(nickname,v);
     }
   };
 
@@ -185,9 +256,38 @@ body{min-height:100dvh;overflow-x:hidden}
     if(navigator.share){
       navigator.share({title:'K-Talk AI DJ',text:'K-Talk AI DJ 방송방',url:location.href}).catch(()=>{});
     }else{
-      sayAndToast('공유 준비 완료했습니다.');
+      sayAndToast('공유 준비 완료했어요.');
     }
   };
+
+  // 실제 입장/채팅/선물/신청곡 연동용 공개 함수
+  window.ktAiDjMemberEnter=function(name){
+    name=clean(name)||'손님';
+    speak(name+'님 어서 오세요. 만나서 반갑습니다. 무슨 노래를 좋아하세요? 신청곡 말씀해 주세요.');
+  };
+  window.ktAiDjChat=function(name,text){
+    name=clean(name)||'손님'; text=clean(text);
+    if(!text)return;
+    toast(name+' · '+text);
+    speak(name+'님, '+text);
+  };
+  window.ktAiDjGift=function(name,giftName){
+    name=clean(name)||'손님'; giftName=clean(giftName)||'선물';
+    toast(name+'님 · '+giftName);
+    speak(name+'님이 '+giftName+' 선물을 보내주셨어요. 감사합니다.');
+  };
+  window.ktAiDjSongRequest=function(name,song){
+    name=clean(name)||'손님'; song=clean(song);
+    if(!song)return;
+    toast(song+' 신청곡 접수');
+    speak(name+'님, '+song+' 신청곡 접수했어요. 잠시만 기다려 주세요.');
+  };
+
+  // 외부 실시간 기능이 CustomEvent로 연결될 경우 자동으로 읽기
+  window.addEventListener('ktalk:member-enter',e=>window.ktAiDjMemberEnter(e.detail&&e.detail.nickname));
+  window.addEventListener('ktalk:chat',e=>window.ktAiDjChat(e.detail&&e.detail.nickname,e.detail&&e.detail.text));
+  window.addEventListener('ktalk:gift',e=>window.ktAiDjGift(e.detail&&e.detail.nickname,e.detail&&e.detail.gift));
+  window.addEventListener('ktalk:song-request',e=>window.ktAiDjSongRequest(e.detail&&e.detail.nickname,e.detail&&e.detail.song));
 
   document.getElementById('sheetInput').addEventListener('keydown',function(e){
     if(e.key==='Enter')submitInput();
@@ -195,7 +295,10 @@ body{min-height:100dvh;overflow-x:hidden}
 
   nickname=getNickname();
 
-  // 방 화면을 먼저 보여준 상태에서 5초 카운트다운.
+  // 입장 즉시 음악부터 시도.
+  startDjMusic();
+
+  // DJ방 화면이 보이는 상태에서 5초 카운트다운 후 인사.
   let n=5;
   const wrap=document.getElementById('countdown');
   const num=document.getElementById('countNum');
@@ -204,7 +307,7 @@ body{min-height:100dvh;overflow-x:hidden}
     if(n===1){
       setTimeout(function(){
         wrap.style.display='none';
-        speak('안녕하세요. AI DJ 수아예요. '+nickname+'님 어서오세요. 좋은 음악과 함께해요.');
+        speak('안녕하세요. AI DJ 수아예요. '+nickname+'님 어서 오세요. 만나서 반갑습니다. 무슨 노래를 좋아하세요? 신청곡 말씀해 주세요.');
       },1000);
       return;
     }
@@ -213,15 +316,17 @@ body{min-height:100dvh;overflow-x:hidden}
   }
   setTimeout(tick,300);
 
-  // 모바일 브라우저가 자동 음성을 막으면 첫 터치에 다시 활성화.
+  // 모바일에서 자동 음악/음성이 막히면 첫 터치에 즉시 활성화.
   function unlock(){
-    if(!('speechSynthesis' in window))return;
-    try{
-      const u=new SpeechSynthesisUtterance('');
-      u.lang='ko-KR';
-      speechSynthesis.speak(u);
-      speechSynthesis.cancel();
-    }catch(e){}
+    const ctx=initAudio();
+    if(ctx && ctx.state==='suspended')ctx.resume().then(()=>{if(!musicStarted)startDjMusic()}).catch(()=>{});
+    if('speechSynthesis' in window){
+      try{
+        const u=new SpeechSynthesisUtterance('');
+        u.lang='ko-KR';
+        speechSynthesis.speak(u);
+      }catch(e){}
+    }
     document.removeEventListener('pointerdown',unlock,true);
     document.removeEventListener('touchstart',unlock,true);
   }
@@ -229,7 +334,10 @@ body{min-height:100dvh;overflow-x:hidden}
   document.addEventListener('touchstart',unlock,{capture:true,passive:true});
 
   if('speechSynthesis' in window){
-    speechSynthesis.onvoiceschanged=function(){const i=document.getElementById('voiceIndicator');if(i)i.textContent='AI 음성 켜짐'};
+    speechSynthesis.onvoiceschanged=function(){
+      const i=document.getElementById('voiceIndicator');
+      if(i)i.textContent=musicStarted?'♪ AI DJ 음악 재생중':'AI DJ 음성 준비';
+    };
   }
 })();
 </script>
