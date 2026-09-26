@@ -1,5 +1,5 @@
 {
-  "version": 119,
+  "version": 120,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "main",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "2026-09-26 with owner PIN 1111: guest uplink now waits briefly for ICE gathering and includes candidates in the first offer SDP; host answer does the same. Guest ICE trickle uses a captured session id so late candidates cannot be mislabeled after retry. No room layout, controls, public video, or unrelated features changed. Relocked.",
+  "note": "2026-09-26 with owner PIN 1111: guest video communication finalized with direct WebRTC plus independent LiveKit/SFU fallback. Visible local host rooms are always treated as host by the SFU even if a stale remote-viewing class exists; approved guests may publish through SFU without waiting for direct uplink success. All communication/media transport components listed in locked_components are now locked and require PIN 1111 before future edits. No room layout, buttons, public video, or unrelated features changed.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -98,7 +98,7 @@
   },
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "last_communication_fix": "2026-09-26-bundle-ice-in-first-guest-handshake",
+  "last_communication_fix": "2026-09-26-independent-sfu-fallback-for-guest-video",
   "last_video_feed_fix": "2026-09-26-smooth-first-video-no-src-rewrite",
   "locked_components": [
     "public-video-feed",
@@ -131,7 +131,24 @@
     "public_video_playback_behavior",
     "public_video_first_paint",
     "public_video_fast_open",
-    "departed_guest_slot_cleanup_only"
+    "departed_guest_slot_cleanup_only",
+    "video_communication",
+    "media_transport",
+    "webrtc_transport_stability",
+    "remote_host_id_bridge",
+    "approved_guest_direct_video_bridge",
+    "remote_video_connect_speed",
+    "group13_guest_uplink",
+    "guest_remote_video_receive_only",
+    "video_communication_stability_only",
+    "shared_live_peer_signaling_cache",
+    "shared_guest_request_approval_signaling",
+    "guest_approval_to_slot",
+    "communication_auto_reconnect_only",
+    "host_multi_guest_signal_order_recovery_only",
+    "approved_guest_peer_video_sync_only",
+    "approved_guest_stay_connected",
+    "livekit_sfu_transport_bridge_only"
   ],
   "last_video_feed_lock": "2026-09-26-lock-fast-first-open-and-public-playback",
   "last_switch_lock": "2026-09-24-all-switches-relock2",
@@ -141,5 +158,6 @@
   "last_pwa_install_fix": "2026-09-24-first-touch-install9",
   "last_critical_touch_fix": "2026-09-24-critical-touch1",
   "last_livekit_cloud_prepare": "2026-09-25-edge-token-v2-env-first",
-  "temporarily_unlocked": []
+  "temporarily_unlocked": [],
+  "last_communication_lock": "2026-09-26-all-video-communication-components-locked"
 }
