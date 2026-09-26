@@ -258,7 +258,7 @@
   function applyOutputStream(stream){
     if(!stream)return;
     try{if(window.state)state.stream=stream;}catch(e){}
-    document.querySelectorAll('#creator #camera,#screen .ktsolo-room video,#screen .ktg9-room video,#screen .ktg13-room .ktg13-host video,#screen .ktsubscriber-room .ktsubscriber-host video,#screen .ktsecret-room .host video,#ktLiveVideo').forEach(function(v){
+    document.querySelectorAll('#screen .ktsolo-room video,#screen .ktg9-room video,#screen .ktg13-room .ktg13-host video,#screen .ktsubscriber-room .ktsubscriber-host video,#screen .ktsecret-room .host video,#ktLiveVideo').forEach(function(v){
       try{if(v.srcObject!==stream)v.srcObject=stream;var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
     });
     try{window.dispatchEvent(new CustomEvent('kt-local-video-stream-changed',{detail:{stream:stream,at:Date.now()}}));}catch(e){}
@@ -267,6 +267,14 @@
   function stopEffect(){
     FX.active=false;FX.key='none';
     if(FX.original){applyOutputStream(FX.original);}
+    try{
+      var cam=document.getElementById('camera');
+      if(cam&&FX.original){
+        cam.srcObject=FX.original;
+        cam.style.filter=beautyFilter();
+        var cp=cam.play();if(cp&&cp.catch)cp.catch(function(){});
+      }
+    }catch(e){}
     try{if(FX.processed)FX.processed.getVideoTracks().forEach(function(t){t.stop();});}catch(e){}
     FX.processed=null;
   }
@@ -366,6 +374,16 @@
 
   window.ktBeautySet20260926=function(key,val,out){
     val=Math.max(0,Math.min(100,Number(val)||0));FX.beauty[key]=val;if(out)out.textContent=String(val);
+    try{
+      var cam=document.getElementById('camera');
+      if(cam){
+        if(FX.original&&cam.srcObject!==FX.original){
+          cam.srcObject=FX.original;
+          var cp=cam.play();if(cp&&cp.catch)cp.catch(function(){});
+        }
+        cam.style.filter=beautyFilter();
+      }
+    }catch(e){}
     try{localStorage.setItem('ktalk_beauty_20260926',JSON.stringify(FX.beauty));}catch(e){}
 
     /* Default beauty is intentionally non-AI for stability. It keeps the real
