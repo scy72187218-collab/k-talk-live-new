@@ -2009,6 +2009,35 @@
     }catch(e){}
   }
 
+  function pinApprovedGuestSelfVideo20260926(){
+    try{
+      var s=window.__ktLocalGuestCameraStream20260926||window.__ktApprovedGuestSelfStream||guestStream||null;
+      if(!s||isRemoteHostMedia20260926(s))return false;
+      var vt=s.getVideoTracks&&s.getVideoTracks()[0]||null;
+      if(!vt||vt.readyState!=='live')return false;
+      var targets=[].slice.call(document.querySelectorAll(
+        '#screen .kt-guest-hostlike-room .kgh-cell.self video,'+
+        '#screen .kt-approved-guest-grid .kt-approved-guest-cell.self video,'+
+        '#screen .kt-prejoin-room-grid .kt-prejoin-room-cell.self video,'+
+        '#screen .kt-guest-room-grid .kt-guest-room-cell.self video,'+
+        '#ktRemoteLiveVideo'
+      ));
+      targets.forEach(function(v){
+        try{
+          if(v&&v.closest&&v.closest(
+            '.kgh-cell.host,.kt-approved-guest-cell.host,.kt-prejoin-room-cell.host,.kt-guest-room-cell.host'
+          ))return;
+          var cur=v.srcObject||null;
+          if(!cur||!sameVideoSource20260926(cur,s))v.srcObject=s;
+          v.autoplay=true;v.playsInline=true;v.muted=true;v.defaultMuted=true;
+          v.setAttribute('autoplay','');v.setAttribute('playsinline','');v.setAttribute('muted','');
+          var q=v.play();if(q&&q.catch)q.catch(function(){});
+        }catch(e){}
+      });
+      return true;
+    }catch(e){return false;}
+  }
+
   function onGuestApproved(p){
     if(String(p.viewer_id||'')!==viewerId())return;
 
@@ -2126,6 +2155,11 @@
       if(typeof window.ktForceApprovedGuestGridNow20260924==='function'){
         window.ktForceApprovedGuestGridNow20260924();
       }
+      [0,20,50,100,180,300,500,800].forEach(function(ms){
+        setTimeout(function(){
+          if(guestApproved&&guestApprovedHost===hid)pinApprovedGuestSelfVideo20260926();
+        },ms);
+      });
       window.dispatchEvent(new CustomEvent('kt-three-person-sync-now',{
         detail:{host_id:hid,viewer_id:selfVid,at:Date.now(),immediate:true}
       }));
