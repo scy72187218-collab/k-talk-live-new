@@ -151,6 +151,44 @@
         sameVideoSource20260926(st,window.__ktApprovedGuestSelfStream);
     }catch(e){return false;}
   }
+  function adoptExistingSelfCamera20260926(){
+    try{
+      var selectors=[
+        '#screen .kt-guest-hostlike-room .kgh-cell.self video',
+        '#screen .kt-approved-guest-grid .kt-approved-guest-cell.self video',
+        '#screen .kt-prejoin-room-grid .kt-prejoin-room-cell.self video',
+        '#screen .kt-guest-room-grid .kt-guest-room-cell.self video'
+      ];
+      var hostStreams=[];
+      try{
+        if(window.__ktRemoteHostStream)hostStreams.push(window.__ktRemoteHostStream);
+        if(window.__ktLastApprovedGuestHostStream)hostStreams.push(window.__ktLastApprovedGuestHostStream);
+      }catch(e){}
+      var hostVideos=[].slice.call(document.querySelectorAll(
+        '#screen .kt-guest-hostlike-room .kgh-cell.host video,'+
+        '#screen .kt-approved-guest-grid .kt-approved-guest-cell.host video,'+
+        '#screen .kt-prejoin-room-grid .kt-prejoin-room-cell.host video,'+
+        '#screen .kt-guest-room-grid .kt-guest-room-cell.host video'
+      ));
+      hostVideos.forEach(function(v){try{if(v&&v.srcObject)hostStreams.push(v.srcObject);}catch(e){}});
+      for(var i=0;i<selectors.length;i++){
+        var v=document.querySelector(selectors[i]);
+        var s=v&&v.srcObject||null;
+        var vt=s&&s.getVideoTracks&&s.getVideoTracks()[0]||null;
+        if(!s||!vt||vt.readyState!=='live')continue;
+        var sameHost=hostStreams.some(function(h){return h&&sameVideoSource20260926(s,h);});
+        if(sameHost)continue;
+        if(rememberTrustedGuestCamera20260926(s)){
+          guestStream=s;
+          window.__ktApprovedGuestSelfStream=s;
+          setTimeout(cacheTrustedGuestPhoto20260926,0);
+          return true;
+        }
+      }
+    }catch(e){}
+    return false;
+  }
+
   function rememberTrustedGuestCamera20260926(st){
     try{
       var vt=st&&st.getVideoTracks&&st.getVideoTracks()[0]||null;
@@ -1273,6 +1311,7 @@
 
   async function startGuestCamera(hid){
     if(!guestApproved||guestApprovedHost!==hid)return;
+    try{adoptExistingSelfCamera20260926();}catch(e){}
 
     /* 빠른 Realtime 경로를 우선 사용하고, 느린 DB 경로는 실패 시 보조로 둔다.
        신청 때 미리 연 카메라 스트림을 그대로 재사용한다. */
@@ -2224,6 +2263,7 @@
   }
 
   async function prepareGuestCameraFromJoinTap20260923(){
+    try{adoptExistingSelfCamera20260926();}catch(e){}
     var live=false;
     try{live=!!(guestStream&&guestStream.getVideoTracks().some(function(t){return t.readyState==='live';}));}catch(e){}
     if(live){
@@ -2283,6 +2323,12 @@
          카메라를 미리 준비한다. 승인 뒤 getUserMedia를 시작하면 몇 초 늦어진다.
          이미 열린 스트림은 재사용하므로 두 번째 카메라를 만들지 않는다. */
       try{if(window.ktRefreshTurnRelay)window.ktRefreshTurnRelay();}catch(e){}
+      try{
+        if(adoptExistingSelfCamera20260926()){
+          cacheTrustedGuestPhoto20260926();
+          sendPreApprovalGuestPhoto20260926(hid);
+        }
+      }catch(e){}
       try{
         var prep=prepareGuestCameraFromJoinTap20260923();
         if(prep&&prep.then){
