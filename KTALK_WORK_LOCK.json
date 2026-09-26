@@ -1,5 +1,5 @@
 {
-  "version": 105,
+  "version": 106,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "main",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "2026-09-26 owner requested PIN 1111 lock for all public-video first-load/fast-open behavior and all visible public-video watching/playback behavior. Do not change these components without PIN 1111. Other K-Talk areas remain unchanged and protected.",
+  "note": "2026-09-26 with owner PIN 1111: communication-only fix applied. Guest local camera is blocked from being painted into the host cell; remote host and guest streams stay separate. Disconnected viewer path starts parallel reconnect after about 2.5s while preserving the current frame, with teardown only after a longer failure. All protected components are relocked.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -97,7 +97,7 @@
   },
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "last_communication_fix": "2026-09-24-fast-request-approve-leave17",
+  "last_communication_fix": "2026-09-26-host-guest-stream-separation-fast-reconnect",
   "last_video_feed_fix": "2026-09-26-smooth-first-video-no-src-rewrite",
   "locked_components": [
     "public-video-feed",
