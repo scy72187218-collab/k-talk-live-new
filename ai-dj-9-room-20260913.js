@@ -58,16 +58,36 @@
     var row=card.querySelector('.room-switch-row');
     if(!row)return;
 
-    var btn=document.getElementById('ktAiDj9Pick20260927');
+    /* 이 화면에서 1인/9명/13명/구독자/비밀방과 같은 칸에 6번째로 표시 */
+    row.style.setProperty('display','grid','important');
+    row.style.setProperty('grid-template-columns','repeat(3,minmax(0,1fr))','important');
+    row.style.setProperty('gap','7px','important');
+
+    var btn=document.getElementById('ktAiDjVisiblePrepButton20260927')||
+            document.getElementById('ktAiDj9Pick20260927');
     if(!btn){
       btn=document.createElement('button');
       btn.type='button';
-      btn.id='ktAiDj9Pick20260927';
-      btn.className='kt-ai-dj-pick';
-      btn.innerHTML='🎧 AI DJ 음악방 <small style="display:block;margin-top:3px;font-size:10px;color:#f7d7ff">9명 · 24시간 자동 음악방</small>';
-      btn.onclick=function(e){try{e.preventDefault();e.stopPropagation();}catch(x){}return setMode(btn);};
-      row.insertAdjacentElement('afterend',btn);
+      btn.id='ktAiDjVisiblePrepButton20260927';
+      btn.className='room-switch';
+      btn.textContent='AI DJ';
     }
+    btn.classList.add('room-switch');
+    btn.classList.remove('kt-ai-dj-pick');
+    btn.style.removeProperty('width');
+    btn.style.removeProperty('margin-top');
+    btn.innerHTML='<span style="font-size:16px">🎧</span> AI DJ';
+    btn.onclick=function(e){
+      try{e.preventDefault();e.stopPropagation();}catch(x){}
+      document.querySelectorAll('#creator .room-switch').forEach(function(b){b.classList.remove('on');});
+      btn.classList.add('on');
+      setMode();
+      return false;
+    };
+
+    if(btn.parentElement!==row)row.appendChild(btn);
+    else if(row.lastElementChild!==btn)row.appendChild(btn);
+
     try{btn.classList.toggle('on',!!(window.state&&state.ktAiDjRoom));}catch(e){}
   }
 
