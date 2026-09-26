@@ -1147,6 +1147,7 @@
     }catch(e){}
   }
   window.ktDirectApproveGuest20260922=function(vid,name){
+    try{window.__ktFastApprovedGuest20260926={vid:String(vid||''),at:Date.now()};}catch(e){}
     approveDirectGuest(vid,name);
     return true;
   };
