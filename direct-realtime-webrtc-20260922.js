@@ -18,7 +18,12 @@
   /* 2026-09-26 communication-only guest order numbers.
      First approved guest = 1, second = 2 ... up to 15.
      This only tags/labels the connected guest slot; room layout is untouched. */
-  var guestJoinNumber20260926={};
+  var guestJoinNumber20260926=window.__ktGuestJoinNumber20260926||{};
+  window.__ktGuestJoinNumber20260926=guestJoinNumber20260926;
+  function resetGuestJoinNumbers20260926(){
+    guestJoinNumber20260926={};
+    window.__ktGuestJoinNumber20260926=guestJoinNumber20260926;
+  }
   var requestOn=false,lastRemoteHost='',lastHostRole='',lastWatchAt=0;
   var sharedApprovalPollBusy=false,leaveAnnouncedHost='',guestAliveLastSent=0,guestAliveSharedLastSent=0,hostGuestAliveAt={},remoteHostMissingSince=0;
   var signalSeen={},viewerOfferInFlight='',lastHostReadyAt=0,lastGuestRequestAt=0,guestApprovedAt=0;
@@ -456,6 +461,7 @@
     hostGuestAliveAt={};
     pendingHostGuestOffers={};
     pendingHostGuestIce={};
+    resetGuestJoinNumbers20260926();
     lastHostRole='';
     hostRunId='';
     hostRunStartedAt=0;
@@ -1243,9 +1249,10 @@
     vid=String(vid||'').trim();
     if(!vid)return;
     name=String(name||'게스트');
-    var data={host_id:DEVICE,viewer_id:vid,name:name,at:Date.now()};
+    var joinNo=guestJoinNo20260926(vid);
+    var data={host_id:DEVICE,viewer_id:vid,name:name,guest_no:joinNo,at:Date.now()};
 
-    approvedGuests[vid]={name:name,at:data.at};
+    approvedGuests[vid]={name:name,guest_no:joinNo,at:data.at};
     try{
       var pre= pendingGuestPhotos20260926[vid]||null;
       if(pre&&Date.now()-Number(pre.at||0)<30000){
@@ -2292,6 +2299,8 @@
         if(lid){
           delete window.__ktApprovedGuestIds20260924[lid];
           delete window.__ktApprovedGuestNames20260924[lid];
+          delete guestJoinNumber20260926[lid];
+          window.__ktGuestJoinNumber20260926=guestJoinNumber20260926;
           window.dispatchEvent(new CustomEvent('kt-any-guest-left',{detail:{host_id:String(p.host_id||''),viewer_id:lid,at:Date.now()}}));
         }
       }catch(e){}
@@ -2304,12 +2313,18 @@
         if(aid){
           window.__ktApprovedGuestIds20260924[aid]=true;
           window.__ktApprovedGuestNames20260924[aid]=String(p.name||'게스트');
+          var incomingNo=Number(p.guest_no||0);
+          if(incomingNo>=1&&incomingNo<=15){
+            guestJoinNumber20260926[aid]=incomingNo;
+            window.__ktGuestJoinNumber20260926=guestJoinNumber20260926;
+          }
         }
         window.dispatchEvent(new CustomEvent('kt-any-guest-approved',{
           detail:{
             host_id:String(p.host_id||''),
             viewer_id:aid,
             name:String(p.name||'게스트'),
+            guest_no:Number(p.guest_no||guestJoinNumber20260926[aid]||0),
             at:Number(p.at||Date.now())
           }
         }));
@@ -2502,6 +2517,7 @@
       Object.keys(approvedGuests).forEach(function(id){try{clearApprovedGuestFromHost(id);}catch(e){}});
       Object.keys(hostGuestPeers).forEach(function(id){try{closePc(hostGuestPeers[id]&&hostGuestPeers[id].pc);}catch(e){}});
       pendingRequests={};approvedGuests={};hostGuestPeers={};hostGuestAliveAt={};pendingHostGuestOffers={};pendingHostGuestIce={};
+      resetGuestJoinNumbers20260926();
     }
     if(activeHostId!==hid||lastHostRole!==role){lastHostRole=role;connect(hid);}
     if(host){
