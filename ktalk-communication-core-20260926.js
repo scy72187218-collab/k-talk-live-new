@@ -1890,18 +1890,20 @@
     if(!vid)return 0;
     var old=Number(guestJoinNumber20260926[vid]||0);
     if(old>=1&&old<=15)return old;
-    var used={};
+
+    /* All multi-person rooms use one join-order rule:
+       1st approved guest=1, 2nd=2 ... 15th=15.
+       If someone leaves, existing numbers never shift and the vacated number
+       is not reused during the same broadcast run. */
+    var maxNo=0;
     Object.keys(guestJoinNumber20260926).forEach(function(id){
       var n=Number(guestJoinNumber20260926[id]||0);
-      if(n>=1&&n<=15)used[n]=true;
+      if(n>=1&&n<=15&&n>maxNo)maxNo=n;
     });
-    for(var i=1;i<=15;i++){
-      if(!used[i]){
-        guestJoinNumber20260926[vid]=i;
-        return i;
-      }
-    }
-    return 0;
+    var next=maxNo+1;
+    if(next<1||next>15)return 0;
+    guestJoinNumber20260926[vid]=next;
+    return next;
   }
   function guestSlot(vid,name){
     var slot=null,matches=[];
