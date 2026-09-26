@@ -22,6 +22,8 @@
       +'.kt-ai-dj-tools{position:absolute!important;left:7px!important;right:7px!important;bottom:8px!important;z-index:950!important;display:grid!important;grid-template-columns:1fr 1fr 1fr!important;gap:5px!important;pointer-events:auto!important}'
       +'.kt-ai-dj-tools button{min-height:34px!important;border:1px solid #ffffff2b!important;border-radius:11px!important;background:rgba(8,8,12,.88)!important;color:#fff!important;font:950 9px/1.15 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;padding:3px!important;touch-action:manipulation!important}'
       +'.kt-ai-dj-company{color:#ffd96a!important}'
+      +'.kt-ai-dj-mic{position:absolute!important;right:8px!important;top:52px!important;z-index:1400!important;width:42px!important;height:42px!important;border-radius:50%!important;border:1px solid #ff7ecf99!important;background:rgba(35,8,27,.92)!important;color:#fff!important;font-size:19px!important;display:grid!important;place-items:center!important;pointer-events:auto!important;touch-action:manipulation!important;box-shadow:0 0 12px #ff4ebd44!important}'
+      +'.kt-ai-dj-mic.listening{background:#b60f52!important;box-shadow:0 0 0 4px #ff4b8d33,0 0 18px #ff4b8d99!important}'
       +'.kt-singer-lyric{position:absolute!important;left:50%!important;top:10px!important;transform:translateX(-50%)!important;z-index:1200!important;max-width:92%!important;padding:6px 11px!important;border-radius:999px!important;background:rgba(0,0,0,.72)!important;border:1px solid rgba(255,255,255,.34)!important;color:#fff!important;font:950 13px/1.2 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;text-align:center!important;text-shadow:0 1px 3px #000!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;pointer-events:none!important}'
       +'.kt-singer-lyric:empty{display:none!important}';
     document.head.appendChild(s);
@@ -120,6 +122,54 @@
     if(window.showSheet)window.showSheet('회사 코인',html);
   };
 
+  function voiceRecognitionCtor(){
+    return window.SpeechRecognition||window.webkitSpeechRecognition||null;
+  }
+
+  window.ktAiDjVoiceSongRequest20260927=function(){
+    var Ctor=voiceRecognitionCtor();
+    if(!Ctor){
+      alert('이 브라우저에서는 음성 입력을 지원하지 않습니다. 신청곡 버튼에서 제목을 직접 입력해 주세요.');
+      return;
+    }
+    var btn=document.getElementById('ktAiDjVoiceMic20260927');
+    var rec=new Ctor();
+    rec.lang='ko-KR';
+    rec.interimResults=false;
+    rec.continuous=false;
+    rec.maxAlternatives=1;
+
+    rec.onstart=function(){
+      if(btn)btn.classList.add('listening');
+      try{if(typeof window.ktSpeak==='function')window.ktSpeak('노래 제목을 말씀해 주세요.');}catch(e){}
+    };
+    rec.onend=function(){if(btn)btn.classList.remove('listening');};
+    rec.onerror=function(){
+      if(btn)btn.classList.remove('listening');
+      alert('음성을 듣지 못했습니다. 마이크 권한을 확인하고 다시 눌러 주세요.');
+    };
+    rec.onresult=function(ev){
+      var text='';
+      try{text=String(ev.results[0][0].transcript||'').trim();}catch(e){}
+      if(!text)return;
+      try{
+        var list=JSON.parse(localStorage.getItem('kt_ai_dj_song_requests_20260927')||'[]');
+        list.push({text:text,at:Date.now(),via:'voice'});
+        if(list.length>100)list=list.slice(-100);
+        localStorage.setItem('kt_ai_dj_song_requests_20260927',JSON.stringify(list));
+      }catch(e){}
+      try{
+        window.__ktAiDjLastVoiceRequest20260927=text;
+        var np=document.getElementById('ktAiDjNowPlayingLabel20260927');
+        if(np)np.textContent='🎤 신청곡: '+text;
+      }catch(e){}
+      try{
+        if(typeof window.ktSpeak==='function')window.ktSpeak(text+' 신청곡으로 접수했습니다.');
+      }catch(e){}
+    };
+    try{rec.start();}catch(e){}
+  };
+
   function decorate(){
     if(!(window.state&&state.ktAiDjRoom))return;
     var room=document.querySelector('#screen .ktg9-room');
@@ -136,6 +186,20 @@
       wave.innerHTML=bars;
       stage.appendChild(wave);
       host.appendChild(stage);
+    }
+    if(!room.querySelector('#ktAiDjVoiceMic20260927')){
+      var mic=document.createElement('button');
+      mic.type='button';
+      mic.id='ktAiDjVoiceMic20260927';
+      mic.className='kt-ai-dj-mic';
+      mic.setAttribute('aria-label','AI DJ 신청곡 음성 입력');
+      mic.title='눌러서 노래 제목 말하기';
+      mic.textContent='🎤';
+      mic.onclick=function(e){
+        try{e.preventDefault();e.stopPropagation();}catch(x){}
+        window.ktAiDjVoiceSongRequest20260927();
+      };
+      room.appendChild(mic);
     }
     if(!room.querySelector('.kt-ai-dj-tools')){
       var tools=document.createElement('div');
