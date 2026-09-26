@@ -127,6 +127,23 @@
     }catch(e){}
     return null;
   }
+  function sameVideoSource20260926(a,b){
+    if(!a||!b)return false;
+    if(a===b)return true;
+    try{
+      var at=a.getVideoTracks&&a.getVideoTracks()[0];
+      var bt=b.getVideoTracks&&b.getVideoTracks()[0];
+      return !!(at&&bt&&at.id&&bt.id&&at.id===bt.id);
+    }catch(e){return false;}
+  }
+  function isRemoteHostMedia20260926(st){
+    if(!st)return false;
+    try{
+      return sameVideoSource20260926(st,window.__ktRemoteHostStream)||
+        sameVideoSource20260926(st,window.__ktLastApprovedGuestHostStream);
+    }catch(e){return false;}
+  }
+
   function useLegacyApprovedGuestUplink(){
     try{
       return window.__ktGuestRequestFlow20260914===true && typeof window.ktRequestGuestJoin==='function';
@@ -1189,7 +1206,14 @@
       try{
         var shared=window.__ktApprovedGuestSelfStream||null;
         var sharedLive=!!(shared&&shared.getVideoTracks&&shared.getVideoTracks().some(function(t){return t.readyState==='live';}));
-        if(sharedLive){guestStream=shared;live=true;}
+        if(sharedLive&&!isRemoteHostMedia20260926(shared)){
+          guestStream=shared;live=true;
+        }else if(sharedLive&&isRemoteHostMedia20260926(shared)){
+          /* A delayed approved-grid rebuild may have copied the remote host
+             stream into the old self slot. Never publish that stream upstream. */
+          try{window.__ktApprovedGuestSelfStream=null;}catch(_e){}
+          shared=null;
+        }
       }catch(e){}
     }
     /* 신청 순간 미리 연 카메라를 그대로 재사용한다. 없을 때만 한 번 연다. */
