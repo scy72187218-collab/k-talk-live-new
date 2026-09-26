@@ -2021,7 +2021,7 @@
         var st='';
         try{st=String(window.__ktDirectGuestUplinkState20260923||'');}catch(e){}
         if(st!=='connected')forceFreshApprovedGuestOffer20260926(hid);
-      },700);
+      },500);
     }
 
     /* Visible fallback requested by owner: place only the approved guest's own
@@ -2369,9 +2369,13 @@
               [0,90,220,450].forEach(function(ms){
                 setTimeout(function(){if(requestOn)try{sendPreApprovalGuestPhoto20260926(hid);}catch(e){}},ms);
               });
-              /* Camera only before approval. Do not create a temporary
-                 sendonly PeerConnection here; approval will start one real
-                 track-carrying connection immediately. */
+              /* Prepare the guest WebRTC connection while waiting for host approval.
+                 No camera/mic is sent before approval; only the transport is warmed.
+                 When approval arrives, replaceTrack() can show the guest immediately. */
+              try{
+                var warm=prepareGuestOfferBeforeApproval20260924(hid);
+                if(warm&&warm.catch)warm.catch(function(){});
+              }catch(e){}
             }
           }).catch(function(){});
         }
