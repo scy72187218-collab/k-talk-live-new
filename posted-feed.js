@@ -305,24 +305,14 @@
       first.setAttribute('webkit-playsinline','');
       first.setAttribute('fetchpriority','high');
 
-      function keepSameSource(){
-        try{
-          if(!first.isConnected)return;
-          var attr=String(first.getAttribute('src')||'');
-          if(attr!==lockUrl){
-            first.setAttribute('src',lockUrl);
-            first.muted=true;
-            first.defaultMuted=true;
-            var p=first.play();if(p&&p.catch)p.catch(function(){});
-          }
-        }catch(e){}
-      }
-
+      /* Do not rewrite the playing video's src. Reassigning src restarts the
+         decoder/network request on Android and causes visible playback cuts.
+         The scroll guard above is enough to prevent automatic card changes. */
       try{
-        new MutationObserver(keepSameSource).observe(first,{attributes:true,attributeFilter:['src']});
+        if(first.paused){
+          var p=first.play();if(p&&p.catch)p.catch(function(){});
+        }
       }catch(e){}
-      keepSameSource();
-      try{var p=first.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
     }catch(e){}
   }
 
