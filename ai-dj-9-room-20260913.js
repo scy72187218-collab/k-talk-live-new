@@ -35,6 +35,7 @@
 
   function setMode(btn){
     try{
+      try{localStorage.setItem('kt_ai_dj_selected_20260927','1');}catch(_e){}
       if(!window.state)window.state={};
       state.ktAiDjRoom=true;
       state.liveRoomType='group9';
@@ -115,7 +116,37 @@
       });
     }catch(e){}
 
-    try{btn.classList.toggle('on',!!(window.state&&state.ktAiDjRoom));}catch(e){}
+    try{
+      var selected=false;
+      try{selected=localStorage.getItem('kt_ai_dj_selected_20260927')==='1';}catch(_e){}
+      if(selected){
+        if(!window.state)window.state={};
+        state.ktAiDjRoom=true;
+        state.liveRoomType='group9';
+        state.liveRoomName='AI 음악 9명방';
+        state.liveRoomMax=9;
+        state.prepRoomType='group9';
+        state.roomType='group9';
+        state.prepRoomName='AI 음악 9명방';
+        state.prepRoomMax=9;
+        var ttl=document.getElementById('liveTitle');
+        if(ttl){ttl.value='AI 음악 9명방';ttl.dataset.autoRoom='1';}
+      }
+      btn.classList.toggle('on',selected||!!(window.state&&state.ktAiDjRoom));
+      btn.setAttribute('aria-pressed',(selected||!!(window.state&&state.ktAiDjRoom))?'true':'false');
+    }catch(e){}
+  }
+
+  if(!window.__ktAiDjRoomChoiceClear20260927){
+    window.__ktAiDjRoomChoiceClear20260927=true;
+    document.addEventListener('click',function(e){
+      var other=e.target&&e.target.closest?e.target.closest('.live-prep .room-switch'):null;
+      if(!other)return;
+      var txt=String(other.textContent||'').replace(/\s+/g,'');
+      if(/AIDJ/i.test(txt))return;
+      try{localStorage.removeItem('kt_ai_dj_selected_20260927');}catch(_e){}
+      try{if(window.state)state.ktAiDjRoom=false;}catch(_e2){}
+    },true);
   }
 
   window.ktAiDjOpenRequest20260927=function(){
