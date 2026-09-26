@@ -1111,6 +1111,7 @@
       /* When LiveKit already has a live picture, direct WebRTC stays as a
          background fallback and must not keep replacing the same video element. */
       if(!(liveKitOn&&currentLive&&v.srcObject!==stream))v.srcObject=stream;
+      try{v.style.removeProperty('background-image');v.removeAttribute('poster');}catch(e){}
       v.muted=true;v.playsInline=true;
       try{var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
     }
@@ -1741,6 +1742,57 @@
     }
   }
 
+  function sendApprovedGuestPhoto20260926(hid){
+    hid=String(hid||'').trim();
+    if(!hid)return;
+    var s=null,remote=null;
+    try{
+      s=window.__ktLocalGuestCameraStream20260926||guestStream||window.__ktApprovedGuestSelfStream||null;
+      remote=window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream||null;
+    }catch(e){}
+    if(!s||isRemoteHostMedia20260926(s)||(remote&&sameVideoSource20260926(s,remote)))return;
+    var vt=null;
+    try{vt=s.getVideoTracks&&s.getVideoTracks()[0]||null;}catch(e){}
+    if(!vt||vt.readyState!=='live')return;
+
+    var sent=false;
+    function fromVideo(v){
+      if(sent||!v||!v.videoWidth||!v.videoHeight)return false;
+      try{
+        var cv=document.createElement('canvas');
+        cv.width=96;cv.height=72;
+        var cx=cv.getContext('2d',{alpha:false});if(!cx)return false;
+        cx.drawImage(v,0,0,96,72);
+        var frame=cv.toDataURL('image/jpeg',0.36);
+        if(!frame||frame.length>32000)return false;
+        sent=true;
+        sendCriticalMedia20260926('guest_photo_frame',{
+          host_id:hid,viewer_id:viewerId(),name:profileName(),
+          frame:frame,at:Date.now()
+        },hid);
+        return true;
+      }catch(e){return false;}
+    }
+
+    try{
+      var vids=[].slice.call(document.querySelectorAll('video'));
+      for(var i=0;i<vids.length;i++){
+        var so=vids[i].srcObject||null;
+        if(so&&sameVideoSource20260926(so,s)&&fromVideo(vids[i]))return;
+      }
+    }catch(e){}
+
+    try{
+      var v=document.createElement('video');
+      v.muted=true;v.defaultMuted=true;v.autoplay=true;v.playsInline=true;v.srcObject=s;
+      var done=function(){fromVideo(v);};
+      v.addEventListener('loadeddata',done,{once:true});
+      v.addEventListener('playing',done,{once:true});
+      var q=v.play();if(q&&q.catch)q.catch(function(){});
+      setTimeout(done,80);setTimeout(done,180);
+    }catch(e){}
+  }
+
   function onGuestApproved(p){
     if(String(p.viewer_id||'')!==viewerId())return;
 
@@ -1785,6 +1837,14 @@
 
     var firstMedia=startGuestCamera(hid);
     if(firstMedia&&firstMedia.catch)firstMedia.catch(function(){});
+
+    /* Visible fallback requested by owner: place only the approved guest's own
+       camera face into the host guest slot while live transport is connecting. */
+    [80,260,700].forEach(function(ms){
+      setTimeout(function(){
+        if(guestApproved&&guestApprovedHost===hid)try{sendApprovedGuestPhoto20260926(hid);}catch(e){}
+      },ms);
+    });
 
     /* UI FIRST: approval must change the guest screen immediately.
        Do not wait for camera/WebRTC/LiveKit work before showing the
@@ -2000,6 +2060,24 @@
         }catch(_e){}
       }catch(e){}
       onGuestApproved(p);
+      return;
+    }
+    if(ev==='guest_photo_frame'&&isHostRole()&&String(p.host_id||'')===DEVICE){
+      try{
+        var pv=String(p.viewer_id||'').trim();
+        var frame=String(p.frame||'');
+        if(pv&&approvedGuests[pv]&&/^data:image\/jpeg;base64,/.test(frame)&&frame.length<32000){
+          var slot=guestSlot(pv,String(p.name||(approvedGuests[pv]&&approvedGuests[pv].name)||'게스트'));
+          var vv=slot&&slot.querySelector('video');
+          if(vv){
+            vv.setAttribute('poster',frame);
+            vv.style.backgroundImage='url("'+frame+'")';
+            vv.style.backgroundSize='cover';
+            vv.style.backgroundPosition='center';
+            var sm=slot.querySelector('small');if(sm)sm.style.display='none';
+          }
+        }
+      }catch(e){}
       return;
     }
     if(ev==='guest_offer'){hostGuestOffer(p);return;}
