@@ -1412,7 +1412,7 @@
       if(pc.__ktPreAudioSender)await pc.__ktPreAudioSender.replaceTrack(at||null);
       pc.__ktPreApprovalActivated=true;
       try{window.__ktDirectGuestUplinkState20260923='activating';window.__ktDirectGuestUplinkStateAt20260923=Date.now();}catch(e){}
-      scheduleGuestMediaAckFallback20260926(hid,pc,guestSession,850);
+      scheduleGuestMediaAckFallback20260926(hid,pc,guestSession,650);
       return true;
     }catch(e){return false;}
   }
@@ -1748,14 +1748,13 @@
       b.setAttribute('aria-label','참여 승인됨');
     }
 
-    /* Communication only: the guest camera was already prewarmed at join.
-       Start the real-track uplink immediately; do not wait several seconds for
-       a pre-approval replaceTrack peer that may never paint on Android. */
+    /* Keep the already-prepared first connection alive after approval.
+       Replacing it again after only 30ms created a second negotiation race and
+       delayed the first guest frame on Android. startGuestCamera reuses the
+       prewarmed stream/peer; the media-ack watchdog below retries only if the
+       prepared path truly fails. */
     var firstMedia=startGuestCamera(hid);
     if(firstMedia&&firstMedia.catch)firstMedia.catch(function(){});
-    setTimeout(function(){
-      if(guestApproved&&guestApprovedHost===hid)forceFreshApprovedGuestOffer20260926(hid);
-    },30);
 
     try{
       window.dispatchEvent(new CustomEvent('kt-three-person-sync-now',{
