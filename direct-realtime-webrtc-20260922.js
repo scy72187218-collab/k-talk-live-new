@@ -989,7 +989,7 @@
             closePc(pc);viewerPc=null;viewerSession='';viewerConnected=false;viewerWatchToken=sid('watch');showConnecting();
             setTimeout(function(){ensureViewerWatch(true);},180);
           }
-        },7500);
+        },12000);
       }
     };
     try{
@@ -1591,7 +1591,7 @@
         if(guestPc===pc&&pc.connectionState==='disconnected'){
           clearGuestOfferRetryTimers(pc);closePc(pc);guestPc=null;setTimeout(function(){makeGuestOffer(hid);},300);
         }
-      },8000);
+      },12000);
       }
     };
     try{
@@ -1759,7 +1759,7 @@
           var ap=approvedGuests[vid];
           if(ap)setTimeout(function(){send('guest_approved',{host_id:DEVICE,viewer_id:vid,name:ap.name||'게스트',at:Date.now(),reconnect:true});},180);
         }
-      },10000);
+      },12000);
     };
     try{
       await pc.setRemoteDescription({type:'offer',sdp:sdp});
