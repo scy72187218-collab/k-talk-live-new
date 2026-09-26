@@ -50,27 +50,17 @@
   }
 
   function removeControls(){
-    /* 촬영 화면 오른쪽 두 버튼 완전 제거 */
-    document.querySelectorAll(
-      '#creator .creator-tools .creator-tool-text[aria-label="AI 보정"],'+
-      '#creator .creator-tools .creator-tool-text[aria-label="편집 효과"]'
-    ).forEach(removeNode);
-
-    /* 라이브 준비 화면의 보정/편집효과 버튼은 현재 다시 사용한다.
-       이 예전 정리 파일은 촬영화면 오른쪽의 옛 버튼만 숨긴다. */
+    /* 현재는 촬영화면과 라이브 준비화면 모두 보정/편집 버튼을 사용한다.
+       예전 제거 동작은 중지한다. */
   }
 
   /* 현재 보정/편집 패널 함수는 stage-background-beauty에서 사용하므로 막지 않는다. */
 
-  /* CSS도 마지막 안전망으로 유지 */
-  if(!document.getElementById('ktRemoveAiEditControlsStyle20260919')){
-    var s=document.createElement('style');
-    s.id='ktRemoveAiEditControlsStyle20260919';
-    s.textContent=
-      '#creator .creator-tools .creator-tool-text[aria-label="AI 보정"],'+
-      '#creator .creator-tools .creator-tool-text[aria-label="편집 효과"]{display:none!important;visibility:hidden!important;pointer-events:none!important}';
-    document.head.appendChild(s);
-  }
+  /* 예전 숨김 CSS도 더 이상 만들지 않는다. */
+  try{
+    var oldStyle=document.getElementById('ktRemoveAiEditControlsStyle20260919');
+    if(oldStyle)oldStyle.remove();
+  }catch(e){}
 
   removeControls();
   [60,180,420,900,1600,2600].forEach(function(ms){setTimeout(removeControls,ms);});
