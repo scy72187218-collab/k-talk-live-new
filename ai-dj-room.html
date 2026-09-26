@@ -1,74 +1,41 @@
 <!doctype html>
-<html lang="ko">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<html lang="ko"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>K-Talk AI DJ</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;background:#030106;color:#fff;font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif}body{min-height:100dvh}
-.wrap{min-height:100dvh;padding:8px 8px calc(12px + env(safe-area-inset-bottom));background:radial-gradient(circle at 22% 8%,#5b004d 0,transparent 26%),radial-gradient(circle at 80% 16%,#1b075e 0,transparent 25%),linear-gradient(#050108,#020104)}
-.top{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px}.back{width:36px;height:36px;border-radius:50%;border:1px solid #ff58d6;background:#130717;color:#fff;font-size:26px}.logo{text-align:center;font-size:24px;font-weight:1000;font-style:italic;text-shadow:0 0 8px #ff3bd5,0 0 20px #8d54ff}.logo .c{color:#ffd45a}.on{padding:7px 10px;border-radius:999px;background:#df1749;border:1px solid #ff7899;font-weight:1000;font-size:11px;box-shadow:0 0 14px #ff1744}
-.bars{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}.bars button{min-height:44px;border-radius:12px;border:2px solid #ff4bd8;background:linear-gradient(180deg,#240729,#120317);color:#ffe66b;font-size:11px;font-weight:1000;box-shadow:0 0 13px #ff36d766}.bars button:last-child{border-color:#8e64ff;color:#fff}
-.main{display:grid;grid-template-columns:58% 42%;gap:7px;margin-top:7px}.dj{position:relative;min-height:400px;overflow:hidden;border:2px solid #ff45cf;border-radius:16px;background:radial-gradient(circle at 60% 42%,#5f1953 0,#21102d 35%,#0b0810 72%);box-shadow:0 0 18px #ff42d377,inset 0 0 28px #8229ff33}.title{position:absolute;left:12px;top:12px;font-size:27px;font-weight:1000;font-style:italic;text-shadow:0 0 11px #be4cff}.live{position:absolute;right:10px;top:10px;background:#f02e50;padding:5px 9px;border-radius:999px;font-size:11px;font-weight:1000}.hello{position:absolute;left:15px;top:78px;font-size:17px;line-height:1.5;font-weight:950;text-shadow:0 0 8px #ff4bdd}.face{position:absolute;left:50%;top:47%;transform:translate(-50%,-50%);font-size:112px;filter:drop-shadow(0 0 20px #ff67d3)}.mic{position:absolute;left:17px;bottom:70px;font-size:52px}.notes{position:absolute;right:13px;top:88px;font-size:36px;line-height:1.9;color:#ff5be1;text-shadow:0 0 10px #ff46da}.wave{position:absolute;left:10px;right:10px;bottom:38px;height:30px;display:flex;align-items:end;gap:3px}.wave i{flex:1;height:10px;border-radius:3px;background:#ff3ac8;animation:w .7s ease-in-out infinite alternate}.wave i:nth-child(3n+2){background:#28d7ff}.wave i:nth-child(3n){background:#ffd42d}@keyframes w{from{transform:scaleY(.3)}to{transform:scaleY(1)}}.caption{position:absolute;left:10px;right:10px;bottom:7px;text-align:center;font-size:9px;font-weight:900}
-.guests{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(3,1fr);gap:6px}.slot{position:relative;min-height:125px;border-radius:12px;border:1px solid #6257ff;background:linear-gradient(160deg,#12142d,#0a0910);color:#fff}.num{position:absolute;left:6px;top:6px;width:23px;height:23px;border-radius:7px;background:#248bff;display:grid;place-items:center;font-weight:1000}.user{display:block;font-size:34px;opacity:.72}.plus{display:inline-grid;place-items:center;width:27px;height:27px;border-radius:50%;border:2px solid #ff46d1;margin-top:-5px;box-shadow:0 0 10px #ff46d1}.slot b,.slot small{display:block;font-size:10px;margin-top:3px}.wait{border-color:#6d6d79;color:#aaa}.wait .num{background:#514f5b}
-.lower{display:grid;grid-template-columns:54% 46%;gap:7px;margin-top:7px}.chat,.gifts{height:260px;border:1px solid #ff44d06b;border-radius:14px;background:#0b0910;padding:8px;box-shadow:0 0 14px #ff36cf22}.tabs{display:flex;gap:13px;font-size:11px;font-weight:900;border-bottom:1px solid #ffffff18;padding-bottom:6px}.tabs b{color:#ff5ad8}.feed{height:176px;overflow:auto}.msg{font-size:10px;line-height:1.45;margin:7px 0}.msg.ai{background:#171322;border-radius:8px;padding:7px}.input{display:flex;gap:5px}.input input{flex:1;min-width:0;border-radius:9px;border:1px solid #ffffff22;background:#14111a;color:#fff;padding:9px;font-size:10px}.input button{border:0;border-radius:9px;background:#9d35ff;color:#fff;font-weight:900;padding:0 12px}
-.gifts{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;overflow:auto}.gifts h3{grid-column:1/-1;margin:0 0 3px;font-size:13px;color:#ff70df}.gift{min-height:68px;border:1px solid #75501f;border-radius:9px;background:linear-gradient(160deg,#160d0a,#0b0808);color:#fff;padding:5px 2px}.gift i{display:block;font-style:normal;font-size:27px}.gift b,.gift small{display:block;font-size:9px}.gift small{color:#ffd35c}
-.nav{position:sticky;bottom:0;display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:8px;padding:7px 2px 3px;background:linear-gradient(180deg,transparent,#050107 28%)}.nav button{border:0;background:none;color:#fff;font-size:9px;font-weight:900}.nav i{display:grid;place-items:center;margin:auto auto 4px;width:39px;height:39px;border-radius:50%;border:1px solid #7a55ff;background:#120c1c;font-style:normal;font-size:20px;box-shadow:0 0 10px #7c4dff55}
-.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#17111ddd;border:1px solid #ff55d1;border-radius:999px;padding:10px 15px;font-size:12px;font-weight:900;display:none}
-@media(max-width:390px){.logo{font-size:20px}.main{grid-template-columns:55% 45%}.dj{min-height:360px}.face{font-size:92px}.hello{font-size:15px}.lower{grid-template-columns:52% 48%}.chat,.gifts{height:245px}.feed{height:161px}.gift i{font-size:23px}.nav i{width:34px;height:34px}}
-
-/* exact supplied DJ photo + fit gifts/chat in one screen */
-.wrap{height:100dvh!important;min-height:100dvh!important;overflow:hidden!important;display:flex!important;flex-direction:column!important}
-.top{flex:0 0 46px!important}
-.bars{flex:0 0 58px!important;margin-top:6px!important}
-.bars button{min-height:48px!important}
-.main{flex:1 1 0!important;min-height:0!important;height:auto!important;margin-top:6px!important}
-.dj{min-height:0!important;height:100%!important;background:#09060b!important}
-.djphoto{display:block!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center!important}
-.guests{min-height:0!important;height:100%!important;grid-template-rows:repeat(3,minmax(0,1fr))!important}
-.slot{min-height:0!important;height:auto!important;padding:4px 2px!important}
-.user{font-size:28px!important}.plus{width:24px!important;height:24px!important}.slot b,.slot small{font-size:9px!important}
-.lower{flex:0 0 218px!important;height:218px!important;margin-top:6px!important;min-height:0!important}
-.chat,.gifts{height:218px!important;min-height:0!important;padding:6px!important}
-.feed{height:140px!important}
-.gifts{grid-template-columns:repeat(3,1fr)!important;gap:4px!important;overflow:auto!important}
-.gift{min-height:54px!important;padding:3px 1px!important}.gift i{font-size:21px!important}.gift b,.gift small{font-size:8px!important}
-.nav{flex:0 0 54px!important;height:54px!important;position:static!important;margin-top:4px!important;padding:3px 1px 1px!important;background:#050107!important}
-.nav i{width:31px!important;height:31px!important;font-size:17px!important;margin-bottom:2px!important}
-.nav button{font-size:8px!important}
-@media(max-width:390px){
-  .top{flex-basis:42px!important}.logo{font-size:19px!important}.on{padding:5px 7px!important}
-  .bars{flex-basis:54px!important}.bars button{min-height:44px!important;font-size:10px!important}
-  .lower{flex-basis:205px!important;height:205px!important}.chat,.gifts{height:205px!important}.feed{height:128px!important}
-  .nav{flex-basis:50px!important;height:50px!important}.nav i{width:29px!important;height:29px!important}
-}
-
-</style>
-</head>
-<body>
-<div class="wrap">
-<div class="top"><button class="back" onclick="history.back()">‹</button><div class="logo"><span class="c">♛</span> K-Talk LIVE ✨</div><span class="on">● ON AIR</span></div>
-<div class="bars"><button onclick="toast('출석체크 완료')">☑ ★ 출석체크 눌러주세요 ★</button><button onclick="song()">🎵 신청곡 : AI DJ에게 말씀해 주세요 🎙️</button></div>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;background:#05020a;color:#fff;font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif}body{min-height:100dvh}
+.app{max-width:480px;margin:0 auto;min-height:100dvh;padding:8px 8px calc(10px + env(safe-area-inset-bottom));background:radial-gradient(circle at 22% 8%,#4a003f 0,transparent 28%),radial-gradient(circle at 86% 16%,#15105f 0,transparent 28%),linear-gradient(#07020d,#020104);display:flex;flex-direction:column;gap:6px}
+.top{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:6px;min-height:48px}.on{padding:8px 10px;border-radius:999px;background:#f31f55;border:2px solid #ff6798;font-size:11px;font-weight:1000;box-shadow:0 0 15px #ff2d6a88}.logo{text-align:center;font-size:24px;font-weight:1000;font-style:italic;text-shadow:0 0 10px #ff38d4,0 0 20px #713eff}.count{padding:8px 10px;border-radius:999px;border:2px solid #8a65ff;background:#0b0816;font-size:10px;font-weight:1000;box-shadow:0 0 12px #7555ff66}
+.banners{display:grid;grid-template-columns:1fr 1fr;gap:6px}.banners button{min-height:47px;border-radius:14px;border:2px solid #ff4bd5;background:#160419;color:#ffe66a;font-size:11px;font-weight:1000;box-shadow:0 0 13px #ff36d766}.banners button:last-child{border-color:#8f69ff;color:#fff}
+.main{display:grid;grid-template-columns:58% 42%;gap:6px;min-height:390px}.dj{position:relative;overflow:hidden;border:2px solid #ff43cf;border-radius:16px;background:#100713;box-shadow:0 0 18px #ff43d166}.dj img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}.shade{position:absolute;inset:0;background:linear-gradient(180deg,#17071b22 0%,#05020810 40%,#03010488 100%)}.djtitle{position:absolute;left:12px;top:10px;font-size:26px;font-weight:1000;font-style:italic;text-shadow:0 0 10px #c84dff}.live{position:absolute;right:9px;top:9px;padding:5px 8px;border-radius:999px;background:#ff2e55;font-size:10px;font-weight:1000}.hello{position:absolute;left:14px;top:72px;font-size:18px;line-height:1.45;font-weight:1000;text-shadow:0 0 10px #ff4fd7}.notes{position:absolute;right:12px;top:74px;color:#ff63e4;font-size:34px;line-height:1.7;text-shadow:0 0 10px #ff45da}.wave{position:absolute;left:10px;right:10px;bottom:38px;height:28px;display:flex;align-items:end;gap:3px}.wave i{flex:1;height:8px;border-radius:3px;background:#ff3bc8;animation:w .75s ease-in-out infinite alternate}.wave i:nth-child(3n+2){background:#32d9ff}.wave i:nth-child(3n){background:#ffd83f}@keyframes w{from{transform:scaleY(.3)}to{transform:scaleY(1)}}.cap{position:absolute;left:8px;right:8px;bottom:8px;text-align:center;font-size:9px;font-weight:900}
+.guests{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(3,1fr);gap:5px}.guest{position:relative;border-radius:12px;border:1.5px solid #625cff;background:linear-gradient(160deg,#14152a,#090910);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;min-height:0}.guest .n{position:absolute;left:5px;top:5px;width:23px;height:23px;border-radius:7px;background:#2289ff;display:grid;place-items:center;font-weight:1000}.guest .av{font-size:31px;opacity:.75}.guest .plus{display:grid;place-items:center;width:27px;height:27px;border-radius:50%;border:2px solid #ff44cf;font-size:18px;box-shadow:0 0 9px #ff44cf88}.guest b,.guest small{font-size:9px;margin-top:3px}.guest.wait{border-color:#5c6070;color:#a9a9b3}.guest.wait .n{background:#5a5a63}
+.lower{display:grid;grid-template-columns:54% 46%;gap:6px;height:230px}.chat,.gifts{border-radius:14px;border:1px solid #ff44cf66;background:#09070e;padding:6px;overflow:hidden}.tabs{display:flex;gap:10px;font-size:10px;font-weight:900;border-bottom:1px solid #ffffff17;padding-bottom:6px}.tabs b{color:#ff65da}.feed{height:151px;overflow:auto;margin:5px 0}.msg{font-size:9px;line-height:1.4;margin:5px 0}.msg.ai{padding:6px;border-radius:8px;background:#171221}.input{display:flex;gap:4px}.input input{flex:1;min-width:0;padding:8px;border-radius:8px;border:1px solid #ffffff20;background:#121019;color:#fff;font-size:9px}.input button{border:0;border-radius:8px;padding:0 9px;background:#9736ff;color:#fff;font-size:9px;font-weight:900}
+.ghead{display:flex;justify-content:space-between;align-items:center;gap:4px;font-size:10px;border-bottom:1px solid #ffffff17;padding-bottom:6px}.ghead b{color:#ff6bdd}.coins{color:#ffd65c;font-size:8px}.gtabs{display:flex;gap:7px;margin:5px 0;font-size:8px;font-weight:900}.gtabs .on{padding:3px 8px;border-radius:999px;background:#c72cff;color:#fff}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;height:175px;overflow:auto}.gift{min-height:63px;border:1px solid #82572a;border-radius:8px;background:linear-gradient(160deg,#160d0a,#0b0808);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3px}.gift i{font-style:normal;font-size:23px}.gift b,.gift small{font-size:8px;text-align:center}.gift small{color:#ffd35c}
+.nav{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;height:54px}.nav button{border:0;background:none;color:#fff;font-size:8px;font-weight:900}.nav i{display:grid;place-items:center;width:34px;height:34px;margin:0 auto 2px;border-radius:50%;border:1px solid #7558ff;background:#120c1c;font-style:normal;font-size:17px;box-shadow:0 0 9px #744cff55}
+.toast{position:fixed;left:50%;bottom:78px;transform:translateX(-50%);display:none;padding:9px 13px;border-radius:999px;background:#17111ddd;border:1px solid #ff55d1;font-size:11px;font-weight:900;z-index:99}
+@media(max-width:390px){.logo{font-size:21px}.main{min-height:365px}.lower{height:214px}.feed{height:136px}.grid{height:160px}.guest .av{font-size:28px}.hello{font-size:16px}}
+</style></head><body>
+<div class="app">
+<div class="top"><div class="on">● ON AIR</div><div class="logo">♛ K-Talk LIVE ✨</div><div class="count">👤 접속 1,286명</div></div>
+<div class="banners"><button onclick="toast('출석체크 완료')">☑ ★ 출석체크 눌러주세요 ★</button><button onclick="song()">🎵 신청곡 : AI DJ에게 말씀해 주세요 🎙️</button></div>
 <div class="main">
-  <div class="dj"><img class="djphoto" src="/dj-exact.jpg?v=20260927-1" alt="K-Talk AI DJ"></div><div class="guests" id="guests"></div>
+<div class="dj"><img src="/dj-exact.jpg?v=20260927-3" alt="K-Talk AI DJ"><div class="shade"></div><div class="djtitle">K-Talk AI DJ ♛</div><div class="live">● LIVE</div><div class="hello">오늘도<br>좋은 음악과<br>함께해요 ♡</div><div class="notes">♫<br>♪</div><div class="wave" id="wave"></div><div class="cap">🎵 AI DJ가 신청곡을 들려드려요 · 좋은 음악과 함께해요 ♡</div></div>
+<div class="guests" id="guests"></div>
 </div>
 <div class="lower">
-  <div class="chat"><div class="tabs"><b>채팅 (128)</b><span>참가자</span><span>팬클럽</span><span>공지</span></div><div class="feed" id="feed"><div class="msg ai"><b>★ K-Talk AI DJ</b><br>안녕하세요! AI DJ입니다 💜<br>좋은 음악과 함께해요. 신청곡 남겨주세요 🎵✨</div><div class="msg">한수향 · 역시 DJ 최고예요! 🥰💜</div><div class="msg">지수 · 오늘도 좋은 음악 부탁해요 💕</div></div><div class="input"><input id="chat" placeholder="메시지를 입력하세요..."><button onclick="send()">전송</button></div></div>
-  <div class="gifts" id="gifts"><h3>🎁 선물 / 후원</h3></div>
+<div class="chat"><div class="tabs"><b>채팅 (128)</b><span>참가자</span><span>팬클럽</span><span>공지</span></div><div class="feed" id="feed"><div class="msg ai"><b>★ K-Talk AI DJ · AI</b><br>안녕하세요! AI DJ 수아예요 💜<br>좋은 음악과 함께하는 즐거운 시간!<br>신청곡 많이 남겨주세요 🎵✨</div><div class="msg"><b>한수향</b> · 역시 수아 DJ 최고예요! 🥰💜</div><div class="msg ai"><b>★ K-Talk AI DJ · AI</b><br>신청곡 남겨주시면 바로 들려드릴게요! 🎧🎵</div><div class="msg"><b>지수</b> · 오늘도 힐링되는 목소리네요 💕</div><div class="msg"><b>도해미</b> · 좋은 음악 감사합니다! 👍</div><div class="msg"><b>블링</b> · 항상 응원합니다! 🌸💜</div></div><div class="input"><input id="chat" placeholder="메시지를 입력하세요..."><button onclick="send()">전송</button><button onclick="toast('선물')">🎁</button></div></div>
+<div class="gifts"><div class="ghead"><b>🎁 선물 / 후원</b><span class="coins">🪙 보유 코인 12,350 ＋</span></div><div class="gtabs"><span class="on">전체</span><span>인기</span><span>스페셜</span><span>컬렉션</span></div><div class="grid" id="giftgrid"></div></div>
 </div>
 <div class="nav"><button onclick="song()"><i>🎵</i>신청곡</button><button onclick="song()"><i>🎙️</i>말하기</button><button onclick="toast('장미 선택')"><i>🌹</i>장미</button><button onclick="toast('선물 선택')"><i>🎁</i>선물</button><button onclick="shareRoom()"><i>↗</i>공유</button><button onclick="toast('효과 메뉴')"><i>🪄</i>효과</button><button onclick="toast('더보기 메뉴')"><i>•••</i>더보기</button></div>
-</div>
-<div class="toast" id="toast"></div>
+</div><div class="toast" id="toast"></div>
 <script>
-for(let i=0;i<30;i++)document.getElementById('wave').insertAdjacentHTML('beforeend','<i></i>');
-for(let n=1;n<=5;n++)document.getElementById('guests').insertAdjacentHTML('beforeend','<button class="slot" onclick="toast(\'게스트 '+n+' 참여 준비\')"><span class="num">'+n+'</span><span class="user">👤</span><span class="plus">＋</span><b>게스트 '+n+'</b><small>참여하기</small></button>');
-document.getElementById('guests').insertAdjacentHTML('beforeend','<button class="slot wait"><span class="num">🔒</span><span class="user">👤</span><b>대기 (6)</b><small>대기중</small></button>');
-const gs=[['🌹','1송이 장미',10],['💐','10송이 장미',100],['🌹','20송이 장미',200],['💐','30송이 장미',300],['🌹','40송이 장미',400],['💐','50송이 장미',500],['💖','하트',100],['⭐','별',200],['🎈','풍선',300],['🎁','선물상자',1000]];
-gs.forEach(g=>document.getElementById('gifts').insertAdjacentHTML('beforeend','<button class="gift" onclick="toast(\''+g[1]+' 선택\')"><i>'+g[0]+'</i><b>'+g[1]+'</b><small>🪙 '+g[2]+'</small></button>'));
-function toast(t){const x=document.getElementById('toast');x.textContent=t;x.style.display='block';clearTimeout(window.__tt);window.__tt=setTimeout(()=>x.style.display='none',1500)}
-function song(){const q=prompt('신청곡 제목을 입력해 주세요.','');if(!q||!q.trim())return;const f=document.getElementById('feed');f.insertAdjacentHTML('beforeend','<div class="msg ai"><b>★ K-Talk AI DJ</b><br>'+q.replace(/[<>]/g,'')+' 신청곡으로 접수했어요 🎵</div>');f.scrollTop=f.scrollHeight;toast('신청곡이 접수되었습니다')}
-function send(){const i=document.getElementById('chat');const v=i.value.trim();if(!v)return;document.getElementById('feed').insertAdjacentHTML('beforeend','<div class="msg"><b>나</b> · '+v.replace(/[<>]/g,'')+'</div>');i.value=''}
+for(let i=0;i<28;i++)document.getElementById('wave').insertAdjacentHTML('beforeend','<i></i>');
+for(let n=1;n<=5;n++)document.getElementById('guests').insertAdjacentHTML('beforeend','<button class="guest" onclick="toast(\'게스트 '+n+' 참여 준비\')"><span class="n">'+n+'</span><span class="av">👤</span><span class="plus">＋</span><b>게스트 '+n+'</b><small>참여하기</small></button>');
+document.getElementById('guests').insertAdjacentHTML('beforeend','<button class="guest wait"><span class="n">🔒</span><span class="av">👤</span><b>대기 (6)</b><small>대기중</small></button>');
+[['🌹','1송이 장미',10],['💐','10송이 장미',100],['🌹','20송이 장미',200],['💐','30송이 장미',300],['🌹','40송이 장미',400],['💐','50송이 장미',500],['💖','하트',100],['⭐','별',200],['🎈','풍선',300],['🎁','선물상자',1000]].forEach(g=>document.getElementById('giftgrid').insertAdjacentHTML('beforeend','<button class="gift" onclick="toast(\''+g[1]+' 선택\')"><i>'+g[0]+'</i><b>'+g[1]+'</b><small>🪙 '+g[2]+'</small></button>'));
+function toast(t){const x=document.getElementById('toast');x.textContent=t;x.style.display='block';clearTimeout(window.__t);window.__t=setTimeout(()=>x.style.display='none',1400)}
+function song(){const q=prompt('신청곡 제목을 입력해 주세요.','');if(!q||!q.trim())return;document.getElementById('feed').insertAdjacentHTML('beforeend','<div class="msg ai"><b>★ K-Talk AI DJ</b><br>'+q.replace(/[<>]/g,'')+' 신청곡으로 접수했어요 🎵</div>');toast('신청곡이 접수되었습니다')}
+function send(){const i=document.getElementById('chat'),v=i.value.trim();if(!v)return;document.getElementById('feed').insertAdjacentHTML('beforeend','<div class="msg"><b>나</b> · '+v.replace(/[<>]/g,'')+'</div>');i.value=''}
 function shareRoom(){if(navigator.share)navigator.share({title:'K-Talk AI DJ',url:location.href}).catch(()=>{});else toast('공유 준비 완료')}
 document.getElementById('chat').addEventListener('keydown',e=>{if(e.key==='Enter')send()});
-</script>
-</body></html>
+</script></body></html>
