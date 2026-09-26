@@ -20,7 +20,9 @@
       +'@keyframes ktAiDjWave{from{height:6px}to{height:29px}}'
       +'.kt-ai-dj-tools{position:absolute!important;left:7px!important;right:7px!important;bottom:8px!important;z-index:950!important;display:grid!important;grid-template-columns:1fr 1fr 1fr!important;gap:5px!important;pointer-events:auto!important}'
       +'.kt-ai-dj-tools button{min-height:34px!important;border:1px solid #ffffff2b!important;border-radius:11px!important;background:rgba(8,8,12,.88)!important;color:#fff!important;font:950 9px/1.15 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;padding:3px!important;touch-action:manipulation!important}'
-      +'.kt-ai-dj-company{color:#ffd96a!important}';
+      +'.kt-ai-dj-company{color:#ffd96a!important}'
+      +'.kt-ai-dj-lyric{position:absolute!important;left:50%!important;top:23%!important;transform:translateX(-50%)!important;z-index:12!important;max-width:88%!important;padding:6px 12px!important;border-radius:999px!important;background:rgba(0,0,0,.68)!important;border:1px solid rgba(255,255,255,.30)!important;color:#fff!important;font:950 14px/1.25 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;text-align:center!important;text-shadow:0 1px 3px #000!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;box-shadow:0 4px 16px #0008!important;pointer-events:none!important}'
+      +'.kt-ai-dj-lyric:empty{display:none!important}';
     document.head.appendChild(s);
   }
 
@@ -104,6 +106,10 @@
       var stage=document.createElement('div');
       stage.className='kt-ai-dj-stage';
       try{if(window.KT_AI_DJ_PHOTO)stage.style.backgroundImage='url("'+window.KT_AI_DJ_PHOTO+'")';}catch(e){}
+      var lyric=document.createElement('div');
+      lyric.id='ktAiDjLyricLine20260927';
+      lyric.className='kt-ai-dj-lyric';
+      stage.appendChild(lyric);
       var wave=document.createElement('div');wave.className='kt-ai-dj-wave';
       var bars='';for(var x=0;x<36;x++)bars+='<i></i>';wave.innerHTML=bars;
       stage.appendChild(wave);
@@ -582,6 +588,7 @@
   var originalStream=null, aiStream=null, canvas=null, ctx=null, raf=0;
   var audio=null, audioCtx=null, audioSrc=null, audioDest=null;
   var wakeLock=null, active=false, trackIndex=0, djImage=null;
+  var lyricTimer=null,lyricIndex=0,currentLyrics=[];
 
   function isHostRoom(){
     if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
@@ -682,6 +689,48 @@
     audio.addEventListener('error',function(){setTimeout(playNext,700);});
     await playNext();
   }
+  function stopLyrics(){
+    if(lyricTimer){clearInterval(lyricTimer);lyricTimer=null;}
+    lyricIndex=0;currentLyrics=[];
+    var el=document.getElementById('ktAiDjLyricLine20260927');
+    if(el)el.textContent='';
+  }
+
+  function startLyrics(track){
+    stopLyrics();
+    var lines=[];
+    try{
+      lines=Array.isArray(track&&track.lyrics)?track.lyrics.slice():[];
+    }catch(e){lines=[];}
+    /* 저작권이 확인된 곡의 가사 데이터만 표시한다. */
+    if(!lines.length)return;
+    currentLyrics=lines.filter(function(x){return String(x||'').trim();});
+    if(!currentLyrics.length)return;
+
+    var el=document.getElementById('ktAiDjLyricLine20260927');
+    if(!el)return;
+    lyricIndex=0;
+    el.textContent=String(currentLyrics[0]||'');
+
+    var ms=5200;
+    try{
+      if(audio&&isFinite(audio.duration)&&audio.duration>5){
+        ms=Math.max(2600,Math.min(9000,Math.floor((audio.duration*1000)/currentLyrics.length)));
+      }
+    }catch(e){}
+
+    lyricTimer=setInterval(function(){
+      if(!active||!currentLyrics.length){stopLyrics();return;}
+      lyricIndex++;
+      if(lyricIndex>=currentLyrics.length){
+        clearInterval(lyricTimer);lyricTimer=null;
+        return;
+      }
+      var line=document.getElementById('ktAiDjLyricLine20260927');
+      if(line)line.textContent=String(currentLyrics[lyricIndex]||'');
+    },ms);
+  }
+
   async function playNext(){
     if(!active)return;
     var list=allowedTracks();
@@ -696,6 +745,7 @@
         window.__ktAiDjNowPlaying20260927=t.name||'';
         window.__ktAiDjNowSource20260927=t.source||'';
       }catch(e){}
+      try{startLyrics(t);}catch(e){}
       try{
         var np=document.getElementById('ktAiDjNowPlayingLabel20260927');
         if(np)np.textContent='🎵 '+String(t.name||'곡명 없음')+' · '+String(t.source||'라이선스 확인');
@@ -785,6 +835,7 @@
     try{localStorage.removeItem('kt_ai_dj_24h_mode_20260927');}catch(e){}
     try{if(window.state)state.ktAiDj24h=false;}catch(e){}
     if(raf){cancelAnimationFrame(raf);raf=0;}
+    stopLyrics();
     try{if(audio){audio.pause();audio.removeAttribute('src');audio.load();}}catch(e){}
     try{if(audioCtx)await audioCtx.close();}catch(e){}
     audio=null;audioCtx=null;audioSrc=null;audioDest=null;
@@ -802,6 +853,18 @@
     originalStream=null;
     installControl();
   }
+
+  window.ktAiDjSetLicensedLyrics20260927=function(trackName,lines){
+    try{
+      var list=window.ktCreatorTracks||[];
+      var t=list.find(function(x){return String(x&&x.name||'')===String(trackName||'');});
+      if(!t)return false;
+      var src=String(t.source||'');
+      if(!/퍼블릭도메인|CC BY(?:-SA)?/i.test(src))return false;
+      t.lyrics=Array.isArray(lines)?lines.slice():[];
+      return true;
+    }catch(e){return false;}
+  };
 
   window.ktAiDjStart24h20260927=start;
   window.ktAiDjStop24h20260927=stop;
