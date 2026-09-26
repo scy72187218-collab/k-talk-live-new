@@ -2758,6 +2758,32 @@
     }catch(_e){}
   });
 
+  window.addEventListener('kt-local-video-stream-changed',function(e){
+    try{
+      var s=e&&e.detail&&e.detail.stream||null;
+      var vt=s&&s.getVideoTracks&&s.getVideoTracks()[0]||null;
+      if(!vt)return;
+
+      /* Host viewers already connected: swap only the outgoing video track.
+         Audio/chat/room state remain untouched. */
+      Object.keys(hostViewPeers||{}).forEach(function(k){
+        try{
+          var pc=hostViewPeers[k]&&hostViewPeers[k].pc||null;
+          if(!pc||!pc.getSenders)return;
+          var sender=pc.getSenders().find(function(x){return x&&x.track&&x.track.kind==='video';});
+          if(sender&&sender.replaceTrack)sender.replaceTrack(vt).catch(function(){});
+        }catch(_e){}
+      });
+
+      /* If this phone is an approved guest, keep its guest uplink on the same
+         processed stream without rebuilding the peer connection. */
+      if(guestApproved&&guestPc&&guestPc.getSenders){
+        var gs=guestPc.getSenders().find(function(x){return x&&x.track&&x.track.kind==='video';});
+        if(gs&&gs.replaceTrack)gs.replaceTrack(vt).catch(function(){});
+      }
+    }catch(_e){}
+  });
+
   window.addEventListener('online',function(){if(activeHostId)connect(activeHostId);});
   document.addEventListener('visibilitychange',function(){
     /* Do not announce leave on a brief mobile visibility change.
