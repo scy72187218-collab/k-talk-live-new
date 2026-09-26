@@ -36,12 +36,10 @@
     try{
       v.setAttribute('playsinline','');
       v.setAttribute('webkit-playsinline','');
-      v.setAttribute('fetchpriority','high');
       v.preload='auto';
       v.muted=true;
       v.defaultMuted=true;
       v.volume=0;
-      /* Never force load() during first paint; it can restart the same MP4 request. */
       var p=v.play();
       if(p&&p.catch)p.catch(function(){});
     }catch(e){}
@@ -69,14 +67,10 @@
       }
 
       /* 저장된 피드 주소가 오래되어 전부 안 열릴 때 한 번만 새 목록을 받음 */
-      if(!cacheRefreshDone){
+      if(!cacheRefreshDone&&typeof window.home==='function'){
         cacheRefreshDone=true;
-        setTimeout(function(){
-          try{
-            if(typeof window.ktRefreshSharedFeedNow==='function')window.ktRefreshSharedFeedNow();
-            else if(typeof window.home==='function')window.home();
-          }catch(e){}
-        },40);
+        /* 마지막으로 정상 재생된 목록은 지우지 않는다. */
+        setTimeout(function(){try{window.home();}catch(e){}},80);
       }
     });
   }
@@ -109,7 +103,7 @@
   }
 
   function sequence(){
-    [0,40,100,220,450,800,1400].forEach(function(ms){setTimeout(recover,ms);});
+    [50,180,450,900,1500,2600].forEach(function(ms){setTimeout(recover,ms);});
   }
 
   sequence();

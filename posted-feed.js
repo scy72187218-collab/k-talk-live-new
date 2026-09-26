@@ -3,32 +3,6 @@
   var SB='https://zupwbfmacwzexyvznlzq.supabase.co';
   var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1cHdiZm1hY3d6ZXh5dnpubHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjEwNzYsImV4cCI6MjEwNDAzNzA3Nn0.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
   function headers(extra){var h={apikey:KEY,Authorization:'Bearer '+KEY};if(extra)Object.keys(extra).forEach(function(k){h[k]=extra[k];});return h;}
-  var FIRST_FAST_FEED=[{"id":"839c441d-1d3a-4941-872b-f43a77bf8245","author_name":"태권1","title":"14402.mp4","video_url":"https://zupwbfmacwzexyvznlzq.supabase.co/storage/v1/object/public/ktalk-videos/guest/1789858184221-0lyob9.mp4","created_at":"2026-09-19T22:49:45.508379+00:00","likes":0}];
-  function firstFastUrl(){
-    try{
-      var old=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');
-      if(Array.isArray(old)&&old[0]&&old[0].video_url)return String(old[0].video_url);
-    }catch(e){}
-    return FIRST_FAST_FEED[0].video_url;
-  }
-  function warmFirstVideo(){
-    try{
-      /* index.html already owns the ONE preload and the real visible video.
-         Do not add another preload or hidden warm-up request here: on Android
-         duplicate media requests can compete with the visible first frame. */
-      var visible=document.getElementById('ktPublicFirstPaintVideo')||window.__ktPublicFirstPaintVideo20260924||null;
-      if(!visible)return;
-      visible.muted=true;
-      visible.defaultMuted=true;
-      visible.playsInline=true;
-      visible.preload='auto';
-      visible.setAttribute('playsinline','');
-      visible.setAttribute('webkit-playsinline','');
-      visible.setAttribute('fetchpriority','high');
-      try{var p=visible.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
-    }catch(e){}
-  }
-  warmFirstVideo();
   function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   function blobNow(){try{if(window.ktCreatorBlob)return window.ktCreatorBlob;}catch(e){}try{return typeof ktCreatorBlob!=='undefined'?ktCreatorBlob:null;}catch(e){return null;}}
   function titleNow(){try{return window.ktImportedVideoName||ktImportedVideoName||('K-Talk 동영상 '+new Date().toLocaleString('ko-KR'));}catch(e){return 'K-Talk 동영상';}}
@@ -115,22 +89,17 @@
 
   window.saveCreatorDraft=async function(){if(!blobNow()){alert('저장할 동영상이 없습니다.');return;}if(window.postCreatorRecording)await window.postCreatorRecording();};
 
-  function cachedFeed(){
-    try{
-      var old=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');
-      if(Array.isArray(old)&&old.length)return old;
-    }catch(e){}
-    return FIRST_FAST_FEED.slice();
-  }
   async function getFeed(){
     try{
-      var r=await fetch('/api/video-feed',{cache:'default'});
+      var r=await fetch('/api/video-feed?t='+Date.now(),{cache:'no-store'});
       var a=r.ok?await r.json():[];
-      a=Array.isArray(a)?a:[];
       try{if(a.length)localStorage.setItem('ktalk_fast_feed',JSON.stringify(a));}catch(e){}
-      return a;
+      return Array.isArray(a)?a:[];
     }catch(e){
-      return cachedFeed();
+      try{
+        var old=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');
+        return Array.isArray(old)?old:[];
+      }catch(_){return[];}
     }
   }
   function card(x,i){
@@ -283,162 +252,27 @@
   window.ktPublicShare=async function(url){try{if(navigator.share){await navigator.share({title:'K-Talk 동영상',url:url});return;}if(navigator.clipboard){await navigator.clipboard.writeText(url);alert('동영상 주소를 복사했습니다.');return;}if(window.shareApp)shareApp();}catch(e){}};
 
   var oldHome=window.home,oldMedia=window.media;
-  var feedRefreshInFlight=null;
-  function sameFeed(a,b){
-    try{
-      if(!Array.isArray(a)||!Array.isArray(b)||a.length!==b.length)return false;
-      for(var i=0;i<a.length;i++){
-        if(String(a[i]&&a[i].id||'')!==String(b[i]&&b[i].id||''))return false;
-        if(String(a[i]&&a[i].video_url||'')!==String(b[i]&&b[i].video_url||''))return false;
-      }
-      return true;
-    }catch(e){return false;}
-  }
-  function renderFeedNow(a){
-    if(!Array.isArray(a)||!a.length)return false;
-
-    /* If the lightweight first-paint video is already buffering/playing,
-       keep that exact element when the full feed UI is built. This avoids
-       throwing away its buffered data and starting the first MP4 again. */
-    var bootVideo=null,bootUrl='';
-    try{
-      bootVideo=document.getElementById('ktPublicFirstPaintVideo')||window.__ktPublicFirstPaintVideo20260924||null;
-      if(bootVideo){
-        bootUrl=String(bootVideo.currentSrc||bootVideo.src||window.__ktPublicFirstPaintUrl20260924||'');
-        if(bootVideo.parentNode)bootVideo.parentNode.removeChild(bootVideo);
-      }
-    }catch(e){bootVideo=null;bootUrl='';}
-
+  async function show(fallback){
+    var a=await getFeed();
+    if(!a.length){
+      document.body.classList.remove('kt-home');
+      document.body.classList.add('kt-video-mode');
+      screen.innerHTML='<div style="height:calc(100dvh - 78px);display:grid;place-items:center;background:#000;color:#ddd;text-align:center;padding:24px"><div><b>공용 동영상 목록 연결 중...</b><br><small style="opacity:.7">잠시 후 자동으로 다시 불러옵니다.</small></div></div>';
+      setTimeout(function(){try{show(fallback);}catch(e){}},1200);
+      return;
+    }
     document.body.classList.remove('kt-home');
     document.body.classList.add('kt-video-mode');
     screen.innerHTML='<div class="kt-public-feed-scroller" data-kt-shared-feed="1" style="height:calc(100dvh - 78px);overflow-y:auto;scroll-snap-type:y mandatory;background:#000">'+a.map(card).join('')+'</div>';
-
-    try{
-      var firstNew=screen.querySelector('.kt-public-video');
-      var wanted=String(a[0]&&a[0].video_url||'');
-      if(bootVideo&&firstNew&&bootUrl&&wanted&&bootUrl===wanted){
-        bootVideo.id='';
-        bootVideo.className='kt-public-video';
-        bootVideo.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000';
-        firstNew.replaceWith(bootVideo);
-      }
-    }catch(e){}
-
     try{
       var sc=screen.querySelector('.kt-public-feed-scroller');
       if(sc)sc.scrollTop=0;
     }catch(e){}
     bind();
-    try{
-      var first=screen.querySelector('.kt-public-video');
-      if(first){
-        first.preload='auto';
-        first.muted=true;
-        first.defaultMuted=true;
-        first.setAttribute('playsinline','');
-        first.setAttribute('webkit-playsinline','');
-        first.setAttribute('fetchpriority','high');
-        /* Do not call load() here. If this is the parser-started first video,
-           load() can restart the same network request on slower Android phones. */
-        var p=first.play();if(p&&p.catch)p.catch(function(){});
-        [0,40,120,260].forEach(function(ms){
-          setTimeout(function(){try{if(first.paused){var q=first.play();if(q&&q.catch)q.catch(function(){});}}catch(e){}},ms);
-        });
-      }
-    }catch(e){}
-    return true;
   }
-  async function refreshFeedInBackground(renderIfDifferent){
-    if(feedRefreshInFlight)return feedRefreshInFlight;
-    feedRefreshInFlight=(async function(){
-      try{
-        var fresh=await getFeed();
-        if(renderIfDifferent&&fresh.length){
-          var current=cachedFeed();
-          /* getFeed has already updated localStorage; only repaint if the page
-             still has no playable feed. Avoid resetting a video that already started. */
-          var hasVideo=!!screen.querySelector('.kt-public-video');
-          if(!hasVideo)renderFeedNow(fresh);
-        }
-        return fresh;
-      }finally{
-        feedRefreshInFlight=null;
-      }
-    })();
-    return feedRefreshInFlight;
-  }
-  async function show(fallback){
-    var fast=cachedFeed();
-    if(fast.length){
-      /* Keep the parser-started first video physically on screen until its first
-         decoded frame is ready. Rebuilding the feed before that point can interrupt
-         the initial media request on slower phones. */
-      var boot=null;
-      try{boot=document.getElementById('ktPublicFirstPaintVideo')||window.__ktPublicFirstPaintVideo20260924||null;}catch(e){}
-      if(boot&&boot.isConnected&&Number(boot.readyState||0)<2){
-        var handed=false;
-        var handoff=function(){
-          if(handed)return;
-          handed=true;
-          try{boot.removeEventListener('loadeddata',handoff);boot.removeEventListener('canplay',handoff);boot.removeEventListener('playing',handoff);boot.removeEventListener('error',handoff);}catch(e){}
-          renderFeedNow(fast);
-        };
-        try{
-          boot.addEventListener('loadeddata',handoff);
-          boot.addEventListener('canplay',handoff);
-          boot.addEventListener('playing',handoff);
-          boot.addEventListener('error',handoff);
-          boot.muted=true;boot.defaultMuted=true;boot.preload='auto';
-          boot.setAttribute('fetchpriority','high');
-          var bp=boot.play();if(bp&&bp.catch)bp.catch(function(){});
-        }catch(e){}
-        setTimeout(handoff,5000);
-        refreshFeedInBackground(false);
-        return;
-      }
-      renderFeedNow(fast);
-      refreshFeedInBackground(false);
-      return;
-    }
-
-    document.body.classList.remove('kt-home');
-    document.body.classList.add('kt-video-mode');
-    screen.innerHTML='<div style="height:calc(100dvh - 78px);display:grid;place-items:center;background:#000;color:#ddd;text-align:center;padding:24px"><div><b>공용 동영상 목록 연결 중...</b><br><small style="opacity:.7">잠시 후 자동으로 다시 불러옵니다.</small></div></div>';
-
-    var a=await getFeed();
-    if(a.length){
-      renderFeedNow(a);
-      return;
-    }
-    setTimeout(function(){try{show(fallback);}catch(e){}},700);
-  }
-  window.ktRefreshSharedFeedNow=async function(){
-    try{localStorage.removeItem('ktalk_fast_feed');}catch(e){}
-    var a=await getFeed();
-    if(a.length)renderFeedNow(a);
-    return a;
-  };
   window.ktShowSharedServerFeed=function(){return show(oldHome);};
   window.home=function(){try{if(window.activate)activate('home');}catch(e){}return show(oldHome);};
   window.media=function(type){try{if(window.activate)activate(type);}catch(e){}return show(function(){if(oldMedia)oldMedia(type);});};
-
-  /* app.js paints its simple home placeholder before this file loads.
-     If that placeholder is still on screen, swap it to the cached feed now
-     instead of waiting for a later recovery timer. */
-  try{
-    var currentScreen=document.getElementById('screen');
-    var creatorNow=document.getElementById('creator');
-    var initialOnly=!!(currentScreen&&currentScreen.querySelector('.media')) &&
-      !currentScreen.querySelector('.kt-public-video,.kt-remote-live,.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room') &&
-      !(creatorNow&&creatorNow.classList.contains('show'));
-    if(initialOnly){
-      var bootFeed=cachedFeed();
-      if(bootFeed&&bootFeed.length){
-        renderFeedNow(bootFeed);
-        refreshFeedInBackground(false);
-      }
-    }
-  }catch(e){}
 
   /* 저장한 동영상은 세로 화면으로 크게 보여 주고, 소리를 켠 상태로 재생한다. */
   window.playStoredVideo=async function(id){
