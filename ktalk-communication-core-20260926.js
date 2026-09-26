@@ -509,43 +509,51 @@
     if(hostId===deviceId()&&hostActive){showActivity('현재 내가 방송 중인 방입니다.');return;}
     if(viewerCtx)await window.ktLeaveRemoteLive(true);
 
+    /* Communication only: start the host-video path first.
+       Room metadata/presence bookkeeping must never delay or cancel media. */
     var cached=cachedRemoteRoom20260924(hostId);
     renderRemote(cached);
     window.__ktRemoteHostId=hostId;
     window.__ktCurrentRemoteHostId=hostId;
     try{sessionStorage.setItem('kt_remote_host_id',hostId);}catch(e){}
-    try{window.dispatchEvent(new CustomEvent('kt-remote-host-selected',{detail:{host_id:hostId,immediate:true}}));}catch(e){}
+
+    var p=profile(),viewerId='viewer_'+deviceId();
+    viewerCtx={
+      hostId:hostId,viewerId:viewerId,viewerName:p.name||'게스트',
+      heartbeat:null,activityTimer:null,lastMsg:'',roomMissingSince:0
+    };
 
     try{
-      var p=profile(),viewerId='viewer_'+deviceId();
-      var roomPromise=req('ktalk_live_rooms?select=id,host_id,host_name,title,room_type,room_name,active,updated_at&host_id=eq.'+enc(hostId)+'&active=eq.true&order=started_at.desc&limit=1');
-      var viewerPromise=req('ktalk_live_viewers?on_conflict=host_id,viewer_id',{
-        method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},
-        body:JSON.stringify({host_id:hostId,viewer_id:viewerId,viewer_name:p.name||'게스트',active:true,updated_at:nowIso()})
-      }).catch(function(){return null;});
+      window.dispatchEvent(new CustomEvent('kt-remote-host-selected',{
+        detail:{host_id:hostId,immediate:true,realtime_first:true}
+      }));
+    }catch(e){}
 
-      var rows=await roomPromise;
-      var room=rows&&rows[0];
-      if(!room||Date.now()-new Date(room.updated_at).getTime()>STALE_MS){
-        try{await window.ktLeaveRemoteLive(true);}catch(e){}
-        renderLiveCards();return;
-      }
-      updateRemoteMeta20260924(room);
-      viewerCtx={hostId:hostId,viewerId:viewerId,viewerName:p.name||'게스트',heartbeat:null,activityTimer:null,lastMsg:'',roomMissingSince:0};
-      viewerCtx.heartbeat=setInterval(remotePollRoom,1500);remotePollRoom();
-      viewerCtx.activityTimer=setInterval(remotePollActivity,1800);remotePollActivity();
-      viewerPromise.catch(function(){});
-      insertSystem(hostId,viewerId,viewerCtx.viewerName,viewerCtx.viewerName+'님이 들어왔습니다.').catch(function(){});
-      showActivity(viewerCtx.viewerName+'님이 들어왔습니다.');
+    viewerCtx.heartbeat=setInterval(remotePollRoom,1500);
+    viewerCtx.activityTimer=setInterval(remotePollActivity,1800);
 
-      window.__ktRemoteHostId=hostId;
-      window.__ktCurrentRemoteHostId=hostId;
-      try{sessionStorage.setItem('kt_remote_host_id',hostId);}catch(e){}
-      try{window.dispatchEvent(new CustomEvent('kt-remote-host-selected',{detail:{host_id:hostId,metadata_ready:true}}));}catch(e){}
-    }catch(e){
-      try{document.documentElement.classList.remove('kt-remote-viewing');}catch(_e){}
-      viewerCtx=null;
-    }
+    req('ktalk_live_viewers?on_conflict=host_id,viewer_id',{
+      method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},
+      body:JSON.stringify({host_id:hostId,viewer_id:viewerId,viewer_name:p.name||'게스트',active:true,updated_at:nowIso()})
+    }).catch(function(){});
+
+    req('ktalk_live_rooms?select=id,host_id,host_name,title,room_type,room_name,active,updated_at&host_id=eq.'+
+      enc(hostId)+'&active=eq.true&order=started_at.desc&limit=1')
+      .then(function(rows){
+        var room=rows&&rows[0];
+        if(room)updateRemoteMeta20260924(room);
+        try{
+          window.dispatchEvent(new CustomEvent('kt-remote-host-selected',{
+            detail:{host_id:hostId,metadata_ready:!!room,realtime_first:true}
+          }));
+        }catch(e){}
+      })
+      .catch(function(){});
+
+    remotePollRoom();
+    remotePollActivity();
+    insertSystem(hostId,viewerId,viewerCtx.viewerName,viewerCtx.viewerName+'님이 들어왔습니다.').catch(function(){});
+    showActivity(viewerCtx.viewerName+'님이 들어왔습니다.');
   }
 
   function ktNotifyRemoteExit20260924(c){
