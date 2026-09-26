@@ -759,7 +759,19 @@
     try{return String(localStorage.getItem('ktalk_nickname')||localStorage.getItem('ktalk_profile_name')||'게스트').slice(0,60);}catch(e){}
     return '게스트';
   }
-  function roomEl(){return document.querySelector('#screen .ktsolo-room,#screen .ktg9-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room');}
+  function roomEl(){
+    var rooms=[].slice.call(document.querySelectorAll(
+      '#screen .ktsolo-room,#screen .ktg9-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room'
+    ));
+    for(var i=0;i<rooms.length;i++){
+      var r=rooms[i];
+      try{
+        var st=getComputedStyle(r);
+        if(st.display!=='none'&&st.visibility!=='hidden'&&(!r.getClientRects||r.getClientRects().length>0))return r;
+      }catch(e){if(r)return r;}
+    }
+    return rooms[0]||null;
+  }
   function isHostRole(){
     try{
       /* Guest/viewer always stays viewer even though its room UI mirrors host layout. */
@@ -802,8 +814,22 @@
       if(s&&s.getTracks&&s.getVideoTracks().some(function(t){return t.readyState==='live';}))return s;
     }catch(e){}
     try{
-      var r=roomEl(),v=r&&r.querySelector('video'),s2=v&&v.srcObject;
-      if(s2&&s2.getTracks&&s2.getVideoTracks().some(function(t){return t.readyState==='live';}))return s2;
+      var rooms=[].slice.call(document.querySelectorAll(
+        '#screen .ktsolo-room,#screen .ktg9-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room'
+      ));
+      for(var i=0;i<rooms.length;i++){
+        var r=rooms[i],visible=false;
+        try{
+          var st=getComputedStyle(r);
+          visible=st.display!=='none'&&st.visibility!=='hidden'&&(!r.getClientRects||r.getClientRects().length>0);
+        }catch(e){visible=!!r;}
+        if(!visible)continue;
+        var vids=[].slice.call(r.querySelectorAll('video'));
+        for(var j=0;j<vids.length;j++){
+          var s2=vids[j]&&vids[j].srcObject;
+          if(s2&&s2.getTracks&&s2.getVideoTracks().some(function(t){return t&&t.readyState==='live';}))return s2;
+        }
+      }
     }catch(e){}
     return null;
   }
