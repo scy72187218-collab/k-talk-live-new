@@ -1099,11 +1099,6 @@
       if(!(liveKitOn&&currentLive&&v.srcObject!==stream))v.srcObject=stream;
       v.muted=true;v.playsInline=true;
       try{var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
-      try{
-        v.addEventListener('playing',function(){
-          try{v.style.removeProperty('background-image');v.removeAttribute('poster');}catch(e){}
-        },{once:true});
-      }catch(e){}
     }
     var sm=slot.querySelector('small');if(sm)sm.style.display='none';
   }
@@ -1712,56 +1707,6 @@
     }
   }
 
-  function sendGuestPreviewFrame20260926(hid){
-    hid=String(hid||'').trim();
-    if(!hid)return;
-    var stream=null;
-    try{stream=guestStream||window.__ktLocalGuestCameraStream20260926||window.__ktApprovedGuestSelfStream||null;}catch(e){}
-    var track=null;
-    try{track=stream&&stream.getVideoTracks&&stream.getVideoTracks()[0]||null;}catch(e){}
-    if(!track||track.readyState!=='live')return;
-
-    var sent=false;
-    function emitFromVideo(v){
-      if(sent||!v||!v.videoWidth||!v.videoHeight)return false;
-      try{
-        var cv=document.createElement('canvas');
-        cv.width=160;cv.height=120;
-        var cx=cv.getContext('2d',{alpha:false});
-        if(!cx)return false;
-        cx.drawImage(v,0,0,160,120);
-        var frame=cv.toDataURL('image/jpeg',0.48);
-        if(!frame||frame.length>90000)return false;
-        sent=true;
-        sendCriticalMedia20260926('guest_preview_frame',{
-          host_id:hid,viewer_id:viewerId(),name:profileName(),
-          session_id:String(guestSession||''),frame:frame,at:Date.now()
-        },hid);
-        return true;
-      }catch(e){return false;}
-    }
-
-    try{
-      var all=[].slice.call(document.querySelectorAll('video'));
-      for(var i=0;i<all.length;i++){
-        var s=all[i].srcObject||null;
-        if(s&&sameVideoSource20260926(s,stream)&&emitFromVideo(all[i]))return;
-      }
-    }catch(e){}
-
-    try{
-      var v=document.createElement('video');
-      v.muted=true;v.defaultMuted=true;v.autoplay=true;v.playsInline=true;
-      v.srcObject=stream;
-      var done=function(){emitFromVideo(v);};
-      v.addEventListener('loadeddata',done,{once:true});
-      v.addEventListener('playing',done,{once:true});
-      var q=v.play();if(q&&q.catch)q.catch(function(){});
-      setTimeout(done,90);
-      setTimeout(done,220);
-    }catch(e){}
-  }
-
   function onGuestApproved(p){
     if(String(p.viewer_id||'')!==viewerId())return;
 
@@ -1806,11 +1751,6 @@
 
     var firstMedia=startGuestCamera(hid);
     if(firstMedia&&firstMedia.catch)firstMedia.catch(function(){});
-
-    /* The local guest camera is already warm. Send one tiny first-frame
-       preview immediately so the host tile is never blank while WebRTC
-       finishes its first real frame. */
-    try{sendGuestPreviewFrame20260926(hid);}catch(e){}
 
     /* UI FIRST: approval must change the guest screen immediately.
        Do not wait for camera/WebRTC/LiveKit work before showing the
@@ -2024,31 +1964,6 @@
         }catch(_e){}
       }catch(e){}
       onGuestApproved(p);
-      return;
-    }
-    if(ev==='guest_preview_frame'&&isHostRole()&&String(p.host_id||'')===DEVICE){
-      try{
-        var pv=String(p.viewer_id||'').trim();
-        var frame=String(p.frame||'');
-        if(pv&&approvedGuests[pv]&&/^data:image\/jpeg;base64,/.test(frame)&&frame.length<90000){
-          var slot=guestSlot(pv,String(p.name||(approvedGuests[pv]&&approvedGuests[pv].name)||'게스트'));
-          var vv=slot&&slot.querySelector('video');
-          if(vv){
-            vv.setAttribute('poster',frame);
-            vv.style.backgroundImage='url("'+frame+'")';
-            vv.style.backgroundSize='cover';
-            vv.style.backgroundPosition='center';
-            var sm=slot.querySelector('small');if(sm)sm.style.display='none';
-            var clearPreview=function(){
-              try{
-                vv.style.removeProperty('background-image');
-                vv.removeAttribute('poster');
-              }catch(e){}
-            };
-            vv.addEventListener('playing',clearPreview,{once:true});
-          }
-        }
-      }catch(e){}
       return;
     }
     if(ev==='guest_offer'){hostGuestOffer(p);return;}
