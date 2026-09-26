@@ -200,7 +200,14 @@
     ];
     for(var ci=0;ci<candidates.length;ci++){
       var s=candidates[ci];
-      if(s&&s!==approvedSelf&&live(s)){hostCandidate=s;break;}
+      if(!s||!live(s))continue;
+      /* Object identity is not enough: two MediaStream objects can wrap the
+         same video track. Never use the local guest camera as the host. */
+      if(approvedSelf&&sameVideoSource20260926(s,approvedSelf))continue;
+      var localGuest=null;
+      try{localGuest=window.__ktLocalGuestCameraStream20260926||window.__ktApprovedGuestSelfStream||null;}catch(e){}
+      if(localGuest&&sameVideoSource20260926(s,localGuest))continue;
+      hostCandidate=s;break;
     }
 
     /* Approval changes the layout immediately. A missing stream reference is
@@ -367,7 +374,13 @@
         var candidates=[window.__ktRemoteHostStream,window.__ktLastApprovedGuestHostStream,hostStream];
         var trueHost=null;
         for(var ci=0;ci<candidates.length;ci++){
-          if(candidates[ci]&&candidates[ci]!==selfStream&&live(candidates[ci])){trueHost=candidates[ci];break;}
+          var hc=candidates[ci];
+          if(!hc||!live(hc))continue;
+          if(selfStream&&sameVideoSource20260926(hc,selfStream))continue;
+          var localSelf=null;
+          try{localSelf=window.__ktLocalGuestCameraStream20260926||window.__ktApprovedGuestSelfStream||null;}catch(e){}
+          if(localSelf&&sameVideoSource20260926(hc,localSelf))continue;
+          trueHost=hc;break;
         }
         if(trueHost){
           hostStream=trueHost;
