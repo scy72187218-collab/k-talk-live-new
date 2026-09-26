@@ -52,6 +52,8 @@
 
   function check(){
     if(repairing)return;
+    /* 5→1 카운트다운 중에는 현재 화면 복구기가 먼저 끼어들지 않는다. */
+    if(window.__ktGroup13CountdownInProgress===true)return;
     if(!is13()&&!opening()){disarmIfDone();return;}
 
     var room=null;
