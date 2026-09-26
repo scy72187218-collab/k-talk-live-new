@@ -237,6 +237,8 @@
   };
 
   function decorate(){
+    /* 새 AI DJ 전용 6명방이 설치된 뒤에는 예전 9명방 DJ 화면을 절대 다시 그리지 않는다. */
+    if(window.__ktAiDjSixRoom20260927)return;
     if(!(window.state&&state.ktAiDjRoom))return;
     var room=document.querySelector('#screen .ktg9-room,#screen .ktg13-room[data-kt-room="9"]');
     if(!room)return;
