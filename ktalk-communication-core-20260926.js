@@ -775,9 +775,24 @@
   }
   function isHostRole(){
     try{
-      /* Communication role only: a visible local broadcast room is the host.
-         Do not wait for camera srcObject before joining the signaling channel;
-         viewer watch retries will pick up the stream as soon as the camera is live. */
+      /* Communication-only role rule:
+         a phone that already has a remote host id is always the viewer/guest.
+         This prevents the mirrored 9/13/subscriber/secret room from being
+         mistaken for the real host room. */
+      if(window.__ktHostPresenceActive20260926===true)return true;
+
+      var rh='';
+      try{
+        rh=String(
+          window.__ktRemoteHostId||
+          window.__ktCurrentRemoteHostId||
+          sessionStorage.getItem('kt_remote_host_id')||
+          ''
+        ).trim();
+      }catch(_e){}
+      if(rh)return false;
+      if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
+
       var local=roomEl(),visible=false;
       try{
         if(local){
@@ -785,19 +800,16 @@
           visible=st.display!=='none'&&st.visibility!=='hidden'&&(!local.getClientRects||local.getClientRects().length>0);
         }
       }catch(_e){visible=!!local;}
-      if(visible){
-        try{
-          window.__ktRemoteHostId='';
-          window.__ktCurrentRemoteHostId='';
-          sessionStorage.removeItem('kt_remote_host_id');
-        }catch(_e){}
-        return true;
-      }
-      if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
-      var rh='';
-      try{rh=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||sessionStorage.getItem('kt_remote_host_id')||'').trim();}catch(_e){}
-      if(rh)return false;
-      return false;
+
+      var liveLocal=false;
+      try{
+        var hs=hostStream();
+        liveLocal=!!(hs&&hs.getVideoTracks&&hs.getVideoTracks().some(function(t){
+          return t&&t.readyState==='live';
+        }));
+      }catch(_e){}
+
+      return !!(visible&&liveLocal);
     }catch(e){return false;}
   }
   function hostStream(){
