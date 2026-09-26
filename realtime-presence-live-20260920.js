@@ -6,10 +6,10 @@
   window.__ktRealtimePresenceLive20260920=true;
 
   var REF='zupwbfmacwzexyvznlzq';
-  var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6Inp1cHdiZm1hY3d6ZXh5dnpubHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjEwNzYsImV4cCI6MjEwNDAzNzA3Nn0.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
+  var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1cHdiZm1hY3d6ZXh5dnpubHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjEwNzYsImV4cCI6MjEwNDAzNzA3Nn0.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
   var CHANNEL='ktalk-live-signal-v3';
   var TOPIC='realtime:'+CHANNEL;
-  var ws=null,joined=false,joinRef='',seq=1,reconnectTimer=null,heartbeatTimer=null;
+  var ws=null,joined=false,joinRef='',seq=1,reconnectTimer=null,heartbeatTimer=null,reconnectFailures=0;
   var hostTimer=null,lastHostState=false,hostHealthyAt=0,forcedOff=false;
   var liveRunId='',liveRunStartedAt=0;
   var liveHosts={};
@@ -272,6 +272,7 @@
       joined=!!(m.payload&&m.payload.status==='ok');
       window.__ktRealtimeSignalReady=joined;
       if(joined){
+        reconnectFailures=0;
         broadcast('live_query',{requester:DEVICE,at:Date.now()});
         setTimeout(function(){broadcast('live_query',{requester:DEVICE,at:Date.now()});},250);
         setTimeout(function(){broadcast('live_query',{requester:DEVICE,at:Date.now()});},700);
@@ -293,7 +294,9 @@
 
   function scheduleReconnect(ms){
     if(reconnectTimer)return;
-    reconnectTimer=setTimeout(function(){reconnectTimer=null;connect();},ms||500);
+    reconnectFailures=Math.min(6,Number(reconnectFailures||0)+1);
+    var delay=Number(ms||0)||Math.min(4000,300*Math.pow(2,Math.max(0,reconnectFailures-1)));
+    reconnectTimer=setTimeout(function(){reconnectTimer=null;connect();},delay);
   }
 
   function connect(){
