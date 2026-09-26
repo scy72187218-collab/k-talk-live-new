@@ -116,7 +116,7 @@
       +'<input id="ktHostMediaUrl20260927" type="url" placeholder="YouTube 또는 영상 주소 붙여넣기">'
       +'<button class="act" onclick="var u=document.getElementById(\'ktHostMediaUrl20260927\').value;closeSheet();ktPlayHostMedia20260927(u)">▶ 바로 재생</button>'
       +'<button class="act" onclick="ktHostMediaTv20260927()" style="background:linear-gradient(135deg,#1f5669,#236f5c)">📺 TV 연결</button>'
-      +'<div class="note">이 버튼은 호스트 화면에만 표시됩니다. 일반 시청자·게스트 화면에는 표시하지 않습니다. TV 직접 연결은 휴대폰/브라우저가 Remote Playback을 지원하는 영상에서 작동합니다.</div>'
+      +'<div class="note">이 버튼은 호스트·운영진용입니다. 일반 시청자·게스트 화면에는 조작 버튼을 표시하지 않습니다. TV 직접 연결은 휴대폰/브라우저가 Remote Playback을 지원하는 영상에서 작동합니다. 영화·방송·유튜브는 영어 영상도 저작권이 있을 수 있으니 본인 제작 영상, 사용 허가 영상, 저작권 만료 영상, 또는 방송·상업 이용이 허용된 라이선스 영상만 사용하세요.</div>'
       +'</div>';
     if(typeof window.showSheet==='function')window.showSheet('운영진 영상',html);
   }
