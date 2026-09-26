@@ -22,6 +22,8 @@
       +'.kt-ai-dj-tools{position:absolute!important;left:7px!important;right:7px!important;bottom:8px!important;z-index:950!important;display:grid!important;grid-template-columns:1fr 1fr 1fr!important;gap:5px!important;pointer-events:auto!important}'
       +'.kt-ai-dj-tools button{min-height:34px!important;border:1px solid #ffffff2b!important;border-radius:11px!important;background:rgba(8,8,12,.88)!important;color:#fff!important;font:950 9px/1.15 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;padding:3px!important;touch-action:manipulation!important}'
       +'.kt-ai-dj-company{color:#ffd96a!important}'
+      +'.kt-room-switch-fixed-20260927 .room-switch{transform:none!important;translate:none!important;transition:border-color .12s,box-shadow .12s,background .12s,color .12s!important;position:relative!important;inset:auto!important;margin:0!important}'
+      +'.kt-room-switch-fixed-20260927 .room-switch.on{transform:none!important;translate:none!important}'
       +'.kt-ai-dj-mic{position:absolute!important;right:8px!important;top:52px!important;z-index:1400!important;width:42px!important;height:42px!important;border-radius:50%!important;border:1px solid #ff7ecf99!important;background:rgba(35,8,27,.92)!important;color:#fff!important;font-size:19px!important;display:grid!important;place-items:center!important;pointer-events:auto!important;touch-action:manipulation!important;box-shadow:0 0 12px #ff4ebd44!important}'
       +'.kt-ai-dj-mic.listening{background:#b60f52!important;box-shadow:0 0 0 4px #ff4b8d33,0 0 18px #ff4b8d99!important}'
       +'.kt-singer-lyric{position:absolute!important;left:50%!important;top:10px!important;transform:translateX(-50%)!important;z-index:1200!important;max-width:92%!important;padding:6px 11px!important;border-radius:999px!important;background:rgba(0,0,0,.72)!important;border:1px solid rgba(255,255,255,.34)!important;color:#fff!important;font:950 13px/1.2 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;text-align:center!important;text-shadow:0 1px 3px #000!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;pointer-events:none!important}'
@@ -88,8 +90,26 @@
       return false;
     };
 
+    row.classList.add('kt-room-switch-fixed-20260927');
+
     if(btn.parentElement!==row)row.appendChild(btn);
-    else if(row.lastElementChild!==btn)row.appendChild(btn);
+
+    /* 1인 → 9명 → 13명 → 구독자 → 비밀방 → AI DJ 순서 고정.
+       선택해도 버튼 자체 위치는 절대 바뀌지 않는다. */
+    try{
+      var buttons=[].slice.call(row.querySelectorAll('.room-switch'));
+      buttons.forEach(function(b){
+        var t=String(b.textContent||'').replace(/\s+/g,'');
+        var order=99;
+        if(/1인/.test(t))order=1;
+        else if(/9명/.test(t))order=2;
+        else if(/13명/.test(t))order=3;
+        else if(/구독/.test(t))order=4;
+        else if(/비밀/.test(t))order=5;
+        else if(/AIDJ/i.test(t))order=6;
+        b.style.setProperty('order',String(order),'important');
+      });
+    }catch(e){}
 
     try{btn.classList.toggle('on',!!(window.state&&state.ktAiDjRoom));}catch(e){}
   }
