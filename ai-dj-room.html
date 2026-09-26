@@ -1,63 +1,237 @@
 <!doctype html>
-<html lang="ko"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <title>K-Talk AI DJ</title>
 <style>
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;background:#05020a;color:#fff;font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif}body{min-height:100dvh}
-.app{max-width:480px;margin:0 auto;min-height:100dvh;padding:8px 8px calc(10px + env(safe-area-inset-bottom));background:radial-gradient(circle at 22% 8%,#4a003f 0,transparent 28%),radial-gradient(circle at 86% 16%,#15105f 0,transparent 28%),linear-gradient(#07020d,#020104);display:flex;flex-direction:column;gap:6px}
-.top{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:6px;min-height:48px}.on{padding:8px 10px;border-radius:999px;background:#f31f55;border:2px solid #ff6798;font-size:11px;font-weight:1000;box-shadow:0 0 15px #ff2d6a88}.logo{text-align:center;font-size:24px;font-weight:1000;font-style:italic;text-shadow:0 0 10px #ff38d4,0 0 20px #713eff}.count{padding:8px 10px;border-radius:999px;border:2px solid #8a65ff;background:#0b0816;font-size:10px;font-weight:1000;box-shadow:0 0 12px #7555ff66}
-.banners{display:grid;grid-template-columns:1fr 1fr;gap:6px}.banners button{min-height:47px;border-radius:14px;border:2px solid #ff4bd5;background:#160419;color:#ffe66a;font-size:11px;font-weight:1000;box-shadow:0 0 13px #ff36d766}.banners button:last-child{border-color:#8f69ff;color:#fff}
-.main{display:grid;grid-template-columns:58% 42%;gap:6px;min-height:390px}.dj{position:relative;overflow:hidden;border:2px solid #ff43cf;border-radius:16px;background:#100713;box-shadow:0 0 18px #ff43d166}.dj img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}.shade{position:absolute;inset:0;background:linear-gradient(180deg,#17071b22 0%,#05020810 40%,#03010488 100%)}.djtitle{position:absolute;left:12px;top:10px;font-size:26px;font-weight:1000;font-style:italic;text-shadow:0 0 10px #c84dff}.live{position:absolute;right:9px;top:9px;padding:5px 8px;border-radius:999px;background:#ff2e55;font-size:10px;font-weight:1000}.hello{position:absolute;left:14px;top:72px;font-size:18px;line-height:1.45;font-weight:1000;text-shadow:0 0 10px #ff4fd7}.notes{position:absolute;right:12px;top:74px;color:#ff63e4;font-size:34px;line-height:1.7;text-shadow:0 0 10px #ff45da}.wave{position:absolute;left:10px;right:10px;bottom:38px;height:28px;display:flex;align-items:end;gap:3px}.wave i{flex:1;height:8px;border-radius:3px;background:#ff3bc8;animation:w .75s ease-in-out infinite alternate}.wave i:nth-child(3n+2){background:#32d9ff}.wave i:nth-child(3n){background:#ffd83f}@keyframes w{from{transform:scaleY(.3)}to{transform:scaleY(1)}}.cap{position:absolute;left:8px;right:8px;bottom:8px;text-align:center;font-size:9px;font-weight:900}
-.guests{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(3,1fr);gap:5px}.guest{position:relative;border-radius:12px;border:1.5px solid #625cff;background:linear-gradient(160deg,#14152a,#090910);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;min-height:0}.guest .n{position:absolute;left:5px;top:5px;width:23px;height:23px;border-radius:7px;background:#2289ff;display:grid;place-items:center;font-weight:1000}.guest .av{font-size:31px;opacity:.75}.guest .plus{display:grid;place-items:center;width:27px;height:27px;border-radius:50%;border:2px solid #ff44cf;font-size:18px;box-shadow:0 0 9px #ff44cf88}.guest b,.guest small{font-size:9px;margin-top:3px}.guest.wait{border-color:#5c6070;color:#a9a9b3}.guest.wait .n{background:#5a5a63}
-.lower{display:grid;grid-template-columns:54% 46%;gap:6px;height:230px}.chat,.gifts{border-radius:14px;border:1px solid #ff44cf66;background:#09070e;padding:6px;overflow:hidden}.tabs{display:flex;gap:10px;font-size:10px;font-weight:900;border-bottom:1px solid #ffffff17;padding-bottom:6px}.tabs b{color:#ff65da}.feed{height:151px;overflow:auto;margin:5px 0}.msg{font-size:9px;line-height:1.4;margin:5px 0}.msg.ai{padding:6px;border-radius:8px;background:#171221}.input{display:flex;gap:4px}.input input{flex:1;min-width:0;padding:8px;border-radius:8px;border:1px solid #ffffff20;background:#121019;color:#fff;font-size:9px}.input button{border:0;border-radius:8px;padding:0 9px;background:#9736ff;color:#fff;font-size:9px;font-weight:900}
-.ghead{display:flex;justify-content:space-between;align-items:center;gap:4px;font-size:10px;border-bottom:1px solid #ffffff17;padding-bottom:6px}.ghead b{color:#ff6bdd}.coins{color:#ffd65c;font-size:8px}.gtabs{display:flex;gap:7px;margin:5px 0;font-size:8px;font-weight:900}.gtabs .on{padding:3px 8px;border-radius:999px;background:#c72cff;color:#fff}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;height:175px;overflow:auto}.gift{min-height:63px;border:1px solid #82572a;border-radius:8px;background:linear-gradient(160deg,#160d0a,#0b0808);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3px}.gift i{font-style:normal;font-size:23px}.gift b,.gift small{font-size:8px;text-align:center}.gift small{color:#ffd35c}
-.nav{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;height:54px}.nav button{border:0;background:none;color:#fff;font-size:8px;font-weight:900}.nav i{display:grid;place-items:center;width:34px;height:34px;margin:0 auto 2px;border-radius:50%;border:1px solid #7558ff;background:#120c1c;font-style:normal;font-size:17px;box-shadow:0 0 9px #744cff55}
-.toast{position:fixed;left:50%;bottom:78px;transform:translateX(-50%);display:none;padding:9px 13px;border-radius:999px;background:#17111ddd;border:1px solid #ff55d1;font-size:11px;font-weight:900;z-index:99}
-@media(max-width:390px){.logo{font-size:21px}.main{min-height:365px}.lower{height:214px}.feed{height:136px}.grid{height:160px}.guest .av{font-size:28px}.hello{font-size:16px}}
-</style></head><body>
-<div class="app">
-<div class="top"><div class="on">● ON AIR</div><div class="logo">♛ K-Talk LIVE ✨</div><div class="count">👤 접속 1,286명</div></div>
-<div class="banners"><button onclick="toast('출석체크 완료')">☑ ★ 출석체크 눌러주세요 ★</button><button onclick="song()">🎵 신청곡 : AI DJ에게 말씀해 주세요 🎙️</button></div>
-<div class="main">
-<div class="dj"><img src="/dj-exact.jpg?v=20260927-3" alt="K-Talk AI DJ"><div class="shade"></div><div class="djtitle">K-Talk AI DJ ♛</div><div class="live">● LIVE</div><div class="hello">오늘도<br>좋은 음악과<br>함께해요 ♡</div><div class="notes">♫<br>♪</div><div class="wave" id="wave"></div><div class="cap">🎵 AI DJ가 신청곡을 들려드려요 · 좋은 음악과 함께해요 ♡</div></div>
-<div class="guests" id="guests"></div>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:#030105;color:#fff;font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif}
+body{min-height:100dvh;overflow-x:hidden}
+.room{position:relative;width:100%;max-width:480px;margin:0 auto;background:#030105}
+.room-bg{display:block;width:100%;height:auto;min-height:100dvh;object-fit:cover;object-position:top center;user-select:none;-webkit-user-drag:none}
+.hot{position:absolute;border:0;background:transparent;padding:0;margin:0;z-index:20;cursor:pointer}
+.hot:active{background:rgba(255,255,255,.06)}
+#countdown{position:fixed;inset:0;z-index:9998;display:grid;place-items:center;background:rgba(0,0,0,.08);pointer-events:none}
+#countNum{width:118px;height:118px;border-radius:50%;display:grid;place-items:center;background:rgba(8,8,12,.74);border:4px solid rgba(255,255,255,.96);color:#fff;font:900 64px/1 system-ui,-apple-system,sans-serif;box-shadow:0 0 32px rgba(255,44,180,.78);text-shadow:0 0 12px rgba(255,255,255,.78)}
+#toast{position:fixed;left:50%;bottom:76px;z-index:10000;transform:translateX(-50%);display:none;max-width:86vw;padding:10px 14px;border-radius:999px;background:#17111eee;border:1px solid #ff55d1;color:#fff;font-size:12px;font-weight:900;text-align:center}
+.sheet{position:fixed;inset:0;z-index:9999;display:none;align-items:flex-end;background:rgba(0,0,0,.5)}
+.sheet .panel{width:100%;max-width:480px;margin:0 auto;border-radius:22px 22px 0 0;border:1px solid #ff4fd266;background:#100815;padding:16px 14px calc(16px + env(safe-area-inset-bottom));box-shadow:0 -10px 35px #000b}
+.sheet h3{margin:0 0 10px;font-size:17px}
+.sheet input{width:100%;min-height:46px;padding:11px 12px;border-radius:12px;border:1px solid #ffffff24;background:#19111f;color:#fff;font-size:16px;outline:0}
+.actions{display:flex;gap:8px;margin-top:10px}.actions button{flex:1;min-height:44px;border:0;border-radius:12px;font-weight:900;font-size:14px}.cancel{background:#2c2731;color:#fff}.ok{background:linear-gradient(135deg,#ff3fb2,#8a4cff);color:#fff}
+.voice-indicator{position:absolute;left:43%;top:1.5%;z-index:25;padding:4px 8px;border-radius:999px;background:rgba(13,8,19,.72);border:1px solid #ff5fd455;color:#fff;font-size:9px;font-weight:900;pointer-events:none}
+</style>
+</head>
+<body>
+<div class="room" id="room">
+  <img class="room-bg" src="/ai-dj-approved.jpg?v=20260927-target2" alt="K-Talk AI DJ 방송방">
+  <div class="voice-indicator" id="voiceIndicator">AI 음성 준비</div>
+
+  <!-- 출석 / 신청곡 -->
+  <button class="hot" style="left:2%;top:6.1%;width:49%;height:5.4%" aria-label="출석체크" onclick="attendance()"></button>
+  <button class="hot" style="left:52%;top:6.1%;width:46%;height:5.4%" aria-label="신청곡" onclick="openInput('신청곡 제목을 입력해 주세요.','song')"></button>
+
+  <!-- 게스트 1~5 / 대기 -->
+  <button class="hot" style="left:58.5%;top:12.2%;width:19.4%;height:12.3%" onclick="guestJoin(1)"></button>
+  <button class="hot" style="left:79.0%;top:12.2%;width:19.4%;height:12.3%" onclick="guestJoin(2)"></button>
+  <button class="hot" style="left:58.5%;top:25.2%;width:19.4%;height:12.3%" onclick="guestJoin(3)"></button>
+  <button class="hot" style="left:79.0%;top:25.2%;width:19.4%;height:12.3%" onclick="guestJoin(4)"></button>
+  <button class="hot" style="left:58.5%;top:38.2%;width:19.4%;height:12.3%" onclick="guestJoin(5)"></button>
+  <button class="hot" style="left:79.0%;top:38.2%;width:19.4%;height:12.3%" onclick="sayAndToast('현재 대기 인원 6명입니다.')"></button>
+
+  <!-- 채팅 입력 / 전송 -->
+  <button class="hot" style="left:3%;top:85.4%;width:34%;height:4.8%" aria-label="채팅 입력" onclick="openInput('메시지를 입력하세요.','chat')"></button>
+  <button class="hot" style="left:38.5%;top:85.4%;width:9%;height:4.8%" onclick="openInput('메시지를 입력하세요.','chat')"></button>
+
+  <!-- 장미 6종 -->
+  <button class="hot" style="left:56.5%;top:58.7%;width:14%;height:9.0%" onclick="gift('장미 1송이',10)"></button>
+  <button class="hot" style="left:71.0%;top:58.7%;width:14%;height:9.0%" onclick="gift('장미 10송이',100)"></button>
+  <button class="hot" style="left:85.5%;top:58.7%;width:14%;height:9.0%" onclick="gift('장미 20송이',200)"></button>
+  <button class="hot" style="left:56.5%;top:68.2%;width:14%;height:9.0%" onclick="gift('장미 30송이',300)"></button>
+  <button class="hot" style="left:71.0%;top:68.2%;width:14%;height:9.0%" onclick="gift('장미 40송이',400)"></button>
+  <button class="hot" style="left:85.5%;top:68.2%;width:14%;height:9.0%" onclick="gift('장미 50송이',500)"></button>
+
+  <!-- 하트 / 별 / 풍선 / 선물상자 -->
+  <button class="hot" style="left:56.5%;top:77.7%;width:10.6%;height:8.5%" onclick="gift('하트',100)"></button>
+  <button class="hot" style="left:67.2%;top:77.7%;width:10.6%;height:8.5%" onclick="gift('별',200)"></button>
+  <button class="hot" style="left:77.9%;top:77.7%;width:10.6%;height:8.5%" onclick="gift('풍선',300)"></button>
+  <button class="hot" style="left:88.6%;top:77.7%;width:10.8%;height:8.5%" onclick="gift('선물상자',1000)"></button>
+
+  <!-- 하단 메뉴 -->
+  <button class="hot" style="left:0%;top:90.0%;width:14.3%;height:9.7%" onclick="openInput('신청곡 제목을 입력해 주세요.','song')"></button>
+  <button class="hot" style="left:14.3%;top:90.0%;width:14.3%;height:9.7%" onclick="speak('무엇을 말씀하시겠어요?')"></button>
+  <button class="hot" style="left:28.6%;top:90.0%;width:14.3%;height:9.7%" onclick="gift('장미 1송이',10)"></button>
+  <button class="hot" style="left:42.9%;top:90.0%;width:14.3%;height:9.7%" onclick="sayAndToast('선물 메뉴입니다.')"></button>
+  <button class="hot" style="left:57.2%;top:90.0%;width:14.3%;height:9.7%" onclick="shareRoom()"></button>
+  <button class="hot" style="left:71.5%;top:90.0%;width:14.3%;height:9.7%" onclick="sayAndToast('효과 메뉴입니다.')"></button>
+  <button class="hot" style="left:85.8%;top:90.0%;width:14.2%;height:9.7%" onclick="sayAndToast('더보기 메뉴입니다.')"></button>
 </div>
-<div class="lower">
-<div class="chat"><div class="tabs"><b>채팅 (128)</b><span>참가자</span><span>팬클럽</span><span>공지</span></div><div class="feed" id="feed"><div class="msg ai"><b>★ K-Talk AI DJ · AI</b><br>안녕하세요! AI DJ 수아예요 💜<br>좋은 음악과 함께하는 즐거운 시간!<br>신청곡 많이 남겨주세요 🎵✨</div><div class="msg"><b>한수향</b> · 역시 수아 DJ 최고예요! 🥰💜</div><div class="msg ai"><b>★ K-Talk AI DJ · AI</b><br>신청곡 남겨주시면 바로 들려드릴게요! 🎧🎵</div><div class="msg"><b>지수</b> · 오늘도 힐링되는 목소리네요 💕</div><div class="msg"><b>도해미</b> · 좋은 음악 감사합니다! 👍</div><div class="msg"><b>블링</b> · 항상 응원합니다! 🌸💜</div></div><div class="input"><input id="chat" placeholder="메시지를 입력하세요..."><button onclick="send()">전송</button><button onclick="toast('선물')">🎁</button></div></div>
-<div class="gifts"><div class="ghead"><b>🎁 선물 / 후원</b><span class="coins">🪙 보유 코인 12,350 ＋</span></div><div class="gtabs"><span class="on">전체</span><span>인기</span><span>스페셜</span><span>컬렉션</span></div><div class="grid" id="giftgrid"></div></div>
+
+<div id="countdown"><div id="countNum">5</div></div>
+<div id="toast"></div>
+
+<div class="sheet" id="sheet">
+  <div class="panel">
+    <h3 id="sheetTitle">입력</h3>
+    <input id="sheetInput" autocomplete="off">
+    <div class="actions">
+      <button class="cancel" type="button" onclick="closeInput()">취소</button>
+      <button class="ok" type="button" onclick="submitInput()">확인</button>
+    </div>
+  </div>
 </div>
-<div class="nav"><button onclick="song()"><i>🎵</i>신청곡</button><button onclick="song()"><i>🎙️</i>말하기</button><button onclick="toast('장미 선택')"><i>🌹</i>장미</button><button onclick="toast('선물 선택')"><i>🎁</i>선물</button><button onclick="shareRoom()"><i>↗</i>공유</button><button onclick="toast('효과 메뉴')"><i>🪄</i>효과</button><button onclick="toast('더보기 메뉴')"><i>•••</i>더보기</button></div>
-</div><div class="toast" id="toast"></div>
+
 <script>
-for(let i=0;i<28;i++)document.getElementById('wave').insertAdjacentHTML('beforeend','<i></i>');
-for(let n=1;n<=5;n++)document.getElementById('guests').insertAdjacentHTML('beforeend','<button class="guest" onclick="toast(\'게스트 '+n+' 참여 준비\')"><span class="n">'+n+'</span><span class="av">👤</span><span class="plus">＋</span><b>게스트 '+n+'</b><small>참여하기</small></button>');
-document.getElementById('guests').insertAdjacentHTML('beforeend','<button class="guest wait"><span class="n">🔒</span><span class="av">👤</span><b>대기 (6)</b><small>대기중</small></button>');
-[['🌹','1송이 장미',10],['💐','10송이 장미',100],['🌹','20송이 장미',200],['💐','30송이 장미',300],['🌹','40송이 장미',400],['💐','50송이 장미',500],['💖','하트',100],['⭐','별',200],['🎈','풍선',300],['🎁','선물상자',1000]].forEach(g=>document.getElementById('giftgrid').insertAdjacentHTML('beforeend','<button class="gift" onclick="toast(\''+g[1]+' 선택\')"><i>'+g[0]+'</i><b>'+g[1]+'</b><small>🪙 '+g[2]+'</small></button>'));
-function toast(t){const x=document.getElementById('toast');x.textContent=t;x.style.display='block';clearTimeout(window.__t);window.__t=setTimeout(()=>x.style.display='none',1400)}
-function song(){const q=prompt('신청곡 제목을 입력해 주세요.','');if(!q||!q.trim())return;document.getElementById('feed').insertAdjacentHTML('beforeend','<div class="msg ai"><b>★ K-Talk AI DJ</b><br>'+q.replace(/[<>]/g,'')+' 신청곡으로 접수했어요 🎵</div>');toast('신청곡이 접수되었습니다')}
-function send(){const i=document.getElementById('chat'),v=i.value.trim();if(!v)return;document.getElementById('feed').insertAdjacentHTML('beforeend','<div class="msg"><b>나</b> · '+v.replace(/[<>]/g,'')+'</div>');i.value=''}
-function shareRoom(){if(navigator.share)navigator.share({title:'K-Talk AI DJ',url:location.href}).catch(()=>{});else toast('공유 준비 완료')}
-document.getElementById('chat').addEventListener('keydown',e=>{if(e.key==='Enter')send()});
-</script>
-<div id="dj-entry-countdown-20260927" style="position:fixed;inset:0;z-index:99999;display:grid;place-items:center;background:rgba(0,0,0,.10);pointer-events:none;">
-  <div id="dj-entry-countdown-num" style="width:116px;height:116px;border-radius:50%;display:grid;place-items:center;background:rgba(8,8,12,.72);border:4px solid rgba(255,255,255,.95);color:#fff;font:900 64px/1 system-ui,-apple-system,sans-serif;box-shadow:0 0 30px rgba(255,44,180,.78);text-shadow:0 0 12px rgba(255,255,255,.75);">5</div>
-</div>
-<script id="dj-entry-countdown-script-20260927">
 (function(){
-  var wrap=document.getElementById('dj-entry-countdown-20260927');
-  var num=document.getElementById('dj-entry-countdown-num');
-  var n=5;
+  let inputMode='';
+  let speechQueue=[];
+  let speaking=false;
+  let nickname='';
+
+  function clean(v){return String(v||'').replace(/[<>]/g,'').trim()}
+  function getNickname(){
+    const keys=['ktalkNickname','nickname','userNickname','displayName','profileName','name'];
+    for(const k of keys){
+      try{const v=clean(localStorage.getItem(k));if(v && v.length<30)return v}catch(e){}
+    }
+    try{
+      const u=new URL(location.href);
+      const q=clean(u.searchParams.get('nickname'));
+      if(q)return q;
+    }catch(e){}
+    return '대표님';
+  }
+
+  window.toast=function(t){
+    const x=document.getElementById('toast');
+    x.textContent=t;
+    x.style.display='block';
+    clearTimeout(window.__toastTimer);
+    window.__toastTimer=setTimeout(()=>x.style.display='none',1600);
+  };
+
+  function chooseVoice(){
+    if(!('speechSynthesis' in window))return null;
+    const voices=speechSynthesis.getVoices();
+    return voices.find(v=>/^ko(-|_)/i.test(v.lang) && /female|여성|yuna|sora|sunhi|heami/i.test(v.name))
+      || voices.find(v=>/^ko(-|_)/i.test(v.lang))
+      || voices[0] || null;
+  }
+
+  window.speak=function(text){
+    text=clean(text);
+    if(!text)return;
+    speechQueue.push(text);
+    pumpSpeech();
+  };
+
+  function pumpSpeech(){
+    if(speaking || !speechQueue.length)return;
+    if(!('speechSynthesis' in window)){toast('AI 음성을 지원하지 않는 브라우저입니다.');speechQueue=[];return}
+    const text=speechQueue.shift();
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang='ko-KR';
+    u.rate=1.0;
+    u.pitch=1.05;
+    const v=chooseVoice(); if(v)u.voice=v;
+    speaking=true;
+    const indicator=document.getElementById('voiceIndicator');
+    if(indicator)indicator.textContent='AI 말하는 중';
+    u.onend=u.onerror=function(){
+      speaking=false;
+      if(indicator)indicator.textContent='AI 음성 켜짐';
+      setTimeout(pumpSpeech,120);
+    };
+    try{speechSynthesis.speak(u)}catch(e){speaking=false}
+  }
+
+  window.sayAndToast=function(t){toast(t);speak(t)};
+
+  window.attendance=function(){
+    sayAndToast(nickname+'님, 출석체크 완료했습니다.');
+  };
+
+  window.guestJoin=function(n){
+    sayAndToast('게스트 '+n+' 참여 신청입니다.');
+  };
+
+  window.gift=function(name,coin){
+    sayAndToast(nickname+'님이 '+name+' 선물을 보냈습니다.');
+  };
+
+  window.openInput=function(title,mode){
+    inputMode=mode;
+    document.getElementById('sheetTitle').textContent=title;
+    const input=document.getElementById('sheetInput');
+    input.value='';
+    document.getElementById('sheet').style.display='flex';
+    setTimeout(()=>input.focus(),80);
+  };
+  window.closeInput=function(){document.getElementById('sheet').style.display='none'};
+  window.submitInput=function(){
+    const input=document.getElementById('sheetInput');
+    const v=clean(input.value);
+    if(!v)return;
+    closeInput();
+    if(inputMode==='song'){
+      sayAndToast(nickname+'님, '+v+' 신청곡 접수했습니다.');
+    }else{
+      sayAndToast(nickname+'님, '+v);
+    }
+  };
+
+  window.shareRoom=function(){
+    if(navigator.share){
+      navigator.share({title:'K-Talk AI DJ',text:'K-Talk AI DJ 방송방',url:location.href}).catch(()=>{});
+    }else{
+      sayAndToast('공유 준비 완료했습니다.');
+    }
+  };
+
+  document.getElementById('sheetInput').addEventListener('keydown',function(e){
+    if(e.key==='Enter')submitInput();
+  });
+
+  nickname=getNickname();
+
+  // 방 화면을 먼저 보여준 상태에서 5초 카운트다운.
+  let n=5;
+  const wrap=document.getElementById('countdown');
+  const num=document.getElementById('countNum');
   function tick(){
-    if(!wrap||!num)return;
     num.textContent=String(n);
-    if(n<=1){
-      setTimeout(function(){try{wrap.remove();}catch(e){}},1000);
+    if(n===1){
+      setTimeout(function(){
+        wrap.style.display='none';
+        speak('안녕하세요. AI DJ 수아예요. '+nickname+'님 어서오세요. 좋은 음악과 함께해요.');
+      },1000);
       return;
     }
     n--;
     setTimeout(tick,1000);
   }
-  setTimeout(tick,250);
+  setTimeout(tick,300);
+
+  // 모바일 브라우저가 자동 음성을 막으면 첫 터치에 다시 활성화.
+  function unlock(){
+    if(!('speechSynthesis' in window))return;
+    try{
+      const u=new SpeechSynthesisUtterance('');
+      u.lang='ko-KR';
+      speechSynthesis.speak(u);
+      speechSynthesis.cancel();
+    }catch(e){}
+    document.removeEventListener('pointerdown',unlock,true);
+    document.removeEventListener('touchstart',unlock,true);
+  }
+  document.addEventListener('pointerdown',unlock,true);
+  document.addEventListener('touchstart',unlock,{capture:true,passive:true});
+
+  if('speechSynthesis' in window){
+    speechSynthesis.onvoiceschanged=function(){const i=document.getElementById('voiceIndicator');if(i)i.textContent='AI 음성 켜짐'};
+  }
 })();
 </script>
-</body></html>
+</body>
+</html>
