@@ -26,13 +26,22 @@
   }
 
   function render(){
-    if(!isAiDj())return false;
+    if(!isAiDj()&&!window.__ktAiDjSixActive20260927)return false;
     var screen=document.getElementById('screen');
     if(!screen)return false;
 
     var dj='';
     try{dj=window.KT_AI_DJ_PHOTO||'';}catch(e){}
     var clock=(document.getElementById('ktLiveClock')||{}).textContent||'00:00:00';
+
+    window.__ktAiDjSixActive20260927=true;
+    try{
+      if(!window.state)window.state={};
+      state.ktAiDjRoom=true;
+      state.liveRoomType='group9';
+      state.liveRoomName='AI DJ 음악방';
+      state.liveRoomMax=6;
+    }catch(e){}
 
     screen.innerHTML=''
       +'<style id="ktAiDjSixStyle20260927">'
@@ -51,7 +60,7 @@
       +'@media(max-width:390px){.kt-ai-dj-six-room{padding-left:3px;padding-right:3px;gap:3px}.ktadj6-head{flex-basis:54px}.ktadj6-title,.ktadj6-brand{font-size:15px}.ktadj6-stage{grid-template-columns:37% 63%;gap:3px}.ktadj6-lower{flex-basis:108px;grid-template-columns:43% 57%}.ktadj6-tools{flex-basis:46px}.ktadj6-tool i{width:30px;height:30px;font-size:14px}}'
       +'</style>'
       +'<section class="kt-ai-dj-six-room" data-kt-ai-dj="1" data-kt-room="ai-dj-6">'
-        +'<div class="ktadj6-head"><div class="ktadj6-left"><button class="ktadj6-back" onclick="if(window.leaveBroadcastToDashboard)leaveBroadcastToDashboard()">‹</button><div class="ktadj6-title"><i>●</i> AI DJ 방</div></div><button class="ktadj6-att" onclick="if(window.openAttendanceBenefits)openAttendanceBenefits()">출석체크</button><div class="ktadj6-brand">K-Talk LIVE</div></div>'
+        +'<div class="ktadj6-head"><div class="ktadj6-left"><button class="ktadj6-back" onclick="window.__ktAiDjSixActive20260927=false;try{localStorage.removeItem('kt_ai_dj_selected_20260927')}catch(e){};try{if(window.state)state.ktAiDjRoom=false}catch(e){};if(window.leaveBroadcastToDashboard)leaveBroadcastToDashboard()">‹</button><div class="ktadj6-title"><i>●</i> AI DJ 방</div></div><button class="ktadj6-att" onclick="if(window.openAttendanceBenefits)openAttendanceBenefits()">출석체크</button><div class="ktadj6-brand">K-Talk LIVE</div></div>'
         +'<div class="ktadj6-air"><span class="on">● ON AIR</span><span id="ktLiveClock">'+esc(clock)+'</span><span class="ktadj6-public">🔓 공개 · 6명</span></div>'
         +'<div class="ktadj6-ticker"><div>⭐ 출석체크 눌러주세요 ⭐</div><div class="song">🎵 <b>신청곡</b> · AI DJ에게 말해 주세요</div></div>'
         +'<div class="ktadj6-stage">'
@@ -157,24 +166,23 @@
   }
 
   function forceAiRoom(){
-    if(!aiSelected()||creatorPrepOpen())return;
+    if(creatorPrepOpen())return;
+    if(!window.__ktAiDjSixActive20260927&&!aiSelected())return;
     var room=document.querySelector('#screen .kt-ai-dj-six-room');
     if(room)return;
     var screen=document.getElementById('screen');
     if(!screen)return;
 
-    /* 기존 9명방/카메라/동영상 화면이 뒤늦게 덮어써도 AI DJ 전용방으로 되돌린다. */
-    var liveLike=screen.querySelector('.ktg13-room,.ktg9-room,.ktsecret-room,.solo-room,video,[data-kt-room]');
-    if(liveLike || (window.state&&state.ktAiDjRoom)){
-      try{
-        if(!window.state)window.state={};
-        state.ktAiDjRoom=true;
-        state.liveRoomType='group9';
-        state.liveRoomName='AI DJ 음악방';
-        state.liveRoomMax=6;
-      }catch(e){}
-      render();
-    }
+    /* 방송 중 예전 9명방·동영상·빈 화면이 잠깐 올라와도 새 DJ 전용방 하나만 유지한다. */
+    try{
+      window.__ktAiDjSixActive20260927=true;
+      if(!window.state)window.state={};
+      state.ktAiDjRoom=true;
+      state.liveRoomType='group9';
+      state.liveRoomName='AI DJ 음악방';
+      state.liveRoomMax=6;
+    }catch(e){}
+    render();
   }
 
   /* startBroadcast가 다른 스크립트에서 다시 감싸져도 끝까지 따라가도록 매번 최신 함수를 감싼다. */
@@ -187,7 +195,8 @@
       var ai=aiSelected();
       var r=await prev.apply(this,arguments);
       if(ai){
-        [20,80,180,420,800,1400].forEach(function(ms){setTimeout(forceAiRoom,ms);});
+        window.__ktAiDjSixActive20260927=true;
+        [0,20,80,180,420,800,1400,2400].forEach(function(ms){setTimeout(forceAiRoom,ms);});
       }
       return r;
     };
