@@ -9,7 +9,7 @@
     var s=document.createElement('style');
     s.id='ktAiDj9RoomStyle20260927';
     s.textContent=''
-      +'.kt-ai-dj-pick{width:100%!important;min-height:44px!important;margin-top:7px!important;border:1px solid #ffb55a88!important;border-radius:14px!important;background:linear-gradient(135deg,#2b1607,#5c3310)!important;color:#fff!important;font-weight:950!important;font-size:13px!important;box-shadow:0 0 12px #ff9d2b22!important}'
+      +'.kt-ai-dj-pick{width:100%!important;min-height:58px!important;margin:10px 0 0!important;border:1px solid #ffb55a99!important;border-radius:18px!important;background:linear-gradient(135deg,#241207,#6a3b12 58%,#9a5a19)!important;color:#fff!important;font-weight:950!important;font-size:16px!important;box-shadow:0 0 16px #ff9d2b35!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:7px!important;touch-action:manipulation!important;pointer-events:auto!important}'
       +'.ktg9-room.kt-ai-dj-room .ktg9-host{position:relative!important;overflow:hidden!important;background:#050505!important}'
       +'.ktg9-room.kt-ai-dj-room .ktg9-host>video{opacity:0!important;pointer-events:none!important}'
       +'.kt-ai-dj-stage{position:absolute!important;inset:0!important;z-index:8!important;background:#050505 center/cover no-repeat!important;display:flex!important;flex-direction:column!important;justify-content:flex-end!important;pointer-events:none!important}'
@@ -40,16 +40,29 @@
     ensureStyle();
     var card=document.querySelector('#creator .live-prep .prep-card');
     if(!card)return;
+    var row=card.querySelector('.room-switch-row');
+    var start=card.querySelector('.prep-start');
     var btn=document.getElementById('ktAiDj9Pick20260927');
     if(!btn){
       btn=document.createElement('button');
       btn.type='button';
       btn.id='ktAiDj9Pick20260927';
       btn.className='kt-ai-dj-pick';
-      btn.textContent='🎧 AI 음악 9명방';
-      btn.onclick=function(e){try{e.preventDefault();e.stopPropagation();}catch(x){}setMode();};
-      var start=card.querySelector('.prep-start');
-      if(start)card.insertBefore(btn,start);else card.appendChild(btn);
+      btn.innerHTML='<span style="font-size:22px">🎧</span><span>AI DJ 음악방</span>';
+      btn.onclick=function(e){
+        try{e.preventDefault();e.stopPropagation();}catch(x){}
+        setMode();
+        try{
+          document.querySelectorAll('#creator .room-switch').forEach(function(b){b.classList.remove('on');});
+          btn.style.setProperty('box-shadow','0 0 0 3px rgba(255,181,90,.28),0 0 20px rgba(255,157,43,.48)','important');
+        }catch(x){}
+      };
+    }
+    /* 방 종류 버튼들 바로 아래, 라이브 시작 버튼 바로 위에 항상 둔다. */
+    if(start&&btn.nextSibling!==start){
+      card.insertBefore(btn,start);
+    }else if(!btn.parentNode){
+      card.appendChild(btn);
     }
   }
 
