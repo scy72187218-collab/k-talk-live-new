@@ -1204,13 +1204,22 @@
     var live=false;try{live=!!(guestStream&&guestStream.getVideoTracks().some(function(t){return t.readyState==='live';}));}catch(e){}
     if(!live){
       try{
+        var localCamera=window.__ktLocalGuestCameraStream20260926||null;
+        var localLive=!!(localCamera&&localCamera.getVideoTracks&&localCamera.getVideoTracks().some(function(t){return t.readyState==='live';}));
+        if(localLive&&!isRemoteHostMedia20260926(localCamera)){
+          guestStream=localCamera;live=true;
+        }
+      }catch(e){}
+    }
+    if(!live){
+      try{
         var shared=window.__ktApprovedGuestSelfStream||null;
         var sharedLive=!!(shared&&shared.getVideoTracks&&shared.getVideoTracks().some(function(t){return t.readyState==='live';}));
         if(sharedLive&&!isRemoteHostMedia20260926(shared)){
           guestStream=shared;live=true;
+          window.__ktLocalGuestCameraStream20260926=shared;
         }else if(sharedLive&&isRemoteHostMedia20260926(shared)){
-          /* A delayed approved-grid rebuild may have copied the remote host
-             stream into the old self slot. Never publish that stream upstream. */
+          /* Never republish the remote host stream as the guest camera. */
           try{window.__ktApprovedGuestSelfStream=null;}catch(_e){}
           shared=null;
         }
@@ -1223,6 +1232,7 @@
     }
     try{
       if(guestStream){
+        window.__ktLocalGuestCameraStream20260926=guestStream;
         window.__ktApprovedGuestSelfStream=guestStream;
         window.dispatchEvent(new CustomEvent('kt-approved-guest-stream-ready',{
           detail:{host_id:hid,viewer_id:viewerId(),at:Date.now()}
@@ -1911,7 +1921,10 @@
     var live=false;
     try{live=!!(guestStream&&guestStream.getVideoTracks().some(function(t){return t.readyState==='live';}));}catch(e){}
     if(live){
-      try{window.__ktApprovedGuestSelfStream=guestStream;}catch(e){}
+      try{
+        window.__ktLocalGuestCameraStream20260926=guestStream;
+        window.__ktApprovedGuestSelfStream=guestStream;
+      }catch(e){}
       return true;
     }
     try{
@@ -1923,14 +1936,20 @@
       try{guestStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});}
       catch(z){return false;}
     }
-    try{window.__ktApprovedGuestSelfStream=guestStream;}catch(e){}
+    try{
+      window.__ktLocalGuestCameraStream20260926=guestStream;
+      window.__ktApprovedGuestSelfStream=guestStream;
+    }catch(e){}
     try{
       if(guestPrewarmTimer)clearTimeout(guestPrewarmTimer);
       guestPrewarmTimer=setTimeout(function(){
         if(guestApproved||requestOn)return;
         try{if(guestStream)guestStream.getTracks().forEach(function(t){try{t.stop();}catch(e){}});}catch(e){}
         guestStream=null;
-        try{window.__ktApprovedGuestSelfStream=null;}catch(e){}
+        try{
+          window.__ktLocalGuestCameraStream20260926=null;
+          window.__ktApprovedGuestSelfStream=null;
+        }catch(e){}
         guestPrewarmTimer=null;
       },45000);
     }catch(e){}
@@ -1982,7 +2001,10 @@
         guestPrewarmTimer=null;
         try{if(guestStream)guestStream.getTracks().forEach(function(t){try{t.stop();}catch(e){}});}catch(e){}
         guestStream=null;
-        try{window.__ktApprovedGuestSelfStream=null;}catch(e){}
+        try{
+          window.__ktLocalGuestCameraStream20260926=null;
+          window.__ktApprovedGuestSelfStream=null;
+        }catch(e){}
       }
       sharedApprovalPost(hid,'guest_cancelled',viewerId(),profileName());
       send('guest_cancel',{host_id:hid,viewer_id:viewerId(),at:Date.now()});
