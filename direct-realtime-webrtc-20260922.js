@@ -299,8 +299,24 @@
     restBroadcast(eventName,payload);
   }
   function sendCriticalMedia20260926(eventName,payload,hostId){
-    try{send(eventName,payload||{});}catch(e){}
-    try{restBroadcastToHost20260926(hostId||payload&&payload.host_id||activeHostId,eventName,payload||{});}catch(e){}
+    /* 2026-09-26 communication speed/stability:
+       Never send the same SDP/ICE/media signal over WebSocket and REST at the
+       same time. Mobile WebRTC creates many ICE candidates; duplicating every
+       candidate on both transports can build a queue and make guest pictures
+       rise/fall late. send() already uses WebSocket first and REST only when
+       the socket is unavailable. Existing short retries remain the fallback. */
+    try{
+      var target=String(hostId||payload&&payload.host_id||activeHostId||'').trim();
+      if(target&&target!==activeHostId){
+        var prev=activeHostId;
+        activeHostId=target;
+        try{send(eventName,payload||{});}finally{activeHostId=prev;}
+      }else{
+        send(eventName,payload||{});
+      }
+    }catch(e){
+      try{restBroadcastToHost20260926(hostId||payload&&payload.host_id||activeHostId,eventName,payload||{});}catch(_e){}
+    }
   }
 
   function flush(){
@@ -2404,8 +2420,9 @@
         }
       }catch(e){}
       var reqData={host_id:hid,viewer_id:viewerId(),name:profileName(),at:Date.now()};
+      /* send() already uses WebSocket first and REST fallback when needed.
+         Do not duplicate the same request on both transports. */
       send('guest_request',reqData);
-      try{restBroadcast('guest_request',reqData);}catch(e){}
       sharedApprovalPost(hid,'guest_request',reqData.viewer_id,reqData.name);
     }else{
       b.classList.remove('kt-requested');b.style.removeProperty('box-shadow');
