@@ -16,7 +16,7 @@
   var guestPrewarmTimer=null;
   var pendingHostGuestOffers={},pendingHostGuestIce={},pendingGuestPhotos20260926={};
   var requestOn=false,lastRemoteHost='',lastHostRole='',lastWatchAt=0;
-  var sharedApprovalPollBusy=false,leaveAnnouncedHost='',guestAliveLastSent=0,hostGuestAliveAt={},remoteHostMissingSince=0;
+  var sharedApprovalPollBusy=false,leaveAnnouncedHost='',guestAliveLastSent=0,guestAliveSharedLastSent=0,hostGuestAliveAt={},remoteHostMissingSince=0;
   var signalSeen={},viewerOfferInFlight='',lastHostReadyAt=0,lastGuestRequestAt=0,guestApprovedAt=0;
   var guestMediaAckTimer=null,guestMediaAckSession='',guestMediaRecoveryCount=0,guestMediaReadyAt=0;
   var guestPhotoCache20260926='',guestPhotoCacheTrack20260926='',guestPhotoCacheAt20260926=0;
@@ -62,7 +62,7 @@
 
   function resetGuestForNewRun(hostId,runId,startedAt){
     try{closePc(guestPc);}catch(e){}
-    guestPc=null;guestSession='';guestApproved=false;guestApprovedHost='';guestApprovedAt=0;requestOn=false;leaveAnnouncedHost='';guestAliveLastSent=0;
+    guestPc=null;guestSession='';guestApproved=false;guestApprovedHost='';guestApprovedAt=0;requestOn=false;leaveAnnouncedHost='';guestAliveLastSent=0;guestAliveSharedLastSent=0;
     try{
       window.__ktApprovedGuestIds20260924={};
       window.__ktApprovedGuestNames20260924={};
@@ -482,10 +482,12 @@
     if(!hostId||leaveAnnouncedHost===hostId)return;
     leaveAnnouncedHost=hostId;
     var vid=viewerId(),data={host_id:hostId,viewer_id:vid,name:profileName(),at:Date.now()};
-    /* Explicit leave is authoritative: dual-send immediately so the host
-       can free the slot without waiting for heartbeat/poll timeouts. */
-    try{send('guest_left',data);}catch(e){}
-    try{restBroadcast('guest_left',data);}catch(e){}
+    /* Explicit leave is authoritative: send over realtime + REST immediately,
+       then repeat briefly so every phone removes the guest slot without waiting. */
+    try{sendCriticalMedia20260926('guest_left',data,hostId);}catch(e){}
+    [70,180].forEach(function(ms){
+      setTimeout(function(){try{sendCriticalMedia20260926('guest_left',data,hostId);}catch(_e){}},ms);
+    });
     postGuestLeaveShared(hostId);
     try{
       delete window.__ktApprovedGuestIds20260924[vid];
@@ -521,7 +523,7 @@
     try{closePc(guestPc);}catch(e){}
     viewerPc=null;viewerSession='';viewerWatchToken='';viewerConnected=false;viewerIce={};
     guestPc=null;guestSession='';guestApproved=false;guestApprovedHost='';guestApprovedAt=0;guestIce={};
-    requestOn=false;leaveAnnouncedHost='';guestAliveLastSent=0;
+    requestOn=false;leaveAnnouncedHost='';guestAliveLastSent=0;guestAliveSharedLastSent=0;
     remoteRunId='';remoteRunStartedAt=0;remoteHostMissingSince=0;
     try{window.__ktRemoteHostStream=null;}catch(e){}
     try{window.__ktUseMemoryGuestVideo20260922=false;}catch(e){}
@@ -1210,10 +1212,9 @@
       window.__ktApprovedGuestNames20260924[vid]=name;
     }catch(e){}
 
-    /* REALTIME FIRST: the guest receives approval before host-side DOM work,
-       legacy persistence, or any extra rendering can delay the signal. */
-    send('guest_approved',data);
-    try{restBroadcast('guest_approved',data);}catch(e){}
+    /* REALTIME FIRST: approval goes through realtime + REST immediately so
+       the guest rises into the room without waiting for a later retry. */
+    sendCriticalMedia20260926('guest_approved',data,DEVICE);
 
     delete pendingRequests[vid];
     guestSlot(vid,name);
@@ -1228,10 +1229,10 @@
     setTimeout(function(){sharedApprovalPost(DEVICE,'guest_approved',vid,name);},120);
     setTimeout(function(){sharedApprovalPost(DEVICE,'guest_approved',vid,name);},350);
     setTimeout(function(){sharedApprovalPost(DEVICE,'guest_approved',vid,name);},800);
-    setTimeout(function(){send('guest_approved',data);},50);
-    setTimeout(function(){send('guest_approved',data);},150);
-    setTimeout(function(){send('guest_approved',data);},700);
-    setTimeout(function(){send('guest_approved',data);},1200);
+    setTimeout(function(){sendCriticalMedia20260926('guest_approved',data,DEVICE);},50);
+    setTimeout(function(){sendCriticalMedia20260926('guest_approved',data,DEVICE);},150);
+    setTimeout(function(){sendCriticalMedia20260926('guest_approved',data,DEVICE);},500);
+    setTimeout(function(){sendCriticalMedia20260926('guest_approved',data,DEVICE);},1000);
     try{
       window.dispatchEvent(new CustomEvent('kt-host-guest-approved',{
         detail:{host_id:DEVICE,viewer_id:vid,at:Date.now()}
@@ -1989,7 +1990,7 @@
     guestApprovedHost=hid;
     guestApprovedAt=Date.now();
     leaveAnnouncedHost='';
-    guestAliveLastSent=0;
+    guestAliveLastSent=0;guestAliveSharedLastSent=0;
     guestMediaRecoveryCount=0;
     clearGuestMediaAckTimer20260926();
 
@@ -2231,6 +2232,14 @@
       if(isHostRole())renderDirectRequests();
       return;
     }
+    if(ev==='guest_alive'&&isHostRole()&&String(p.host_id||'')===DEVICE){
+      var aliveVid=String(p.viewer_id||'').trim();
+      if(aliveVid&&approvedGuests[aliveVid]){
+        hostGuestAliveAt[aliveVid]=Date.now();
+        try{replayPendingHostGuestOffer(aliveVid);}catch(_e){}
+      }
+      return;
+    }
     if(ev==='guest_left'){
       try{
         var lid=String(p.viewer_id||'').trim();
@@ -2464,8 +2473,14 @@
         send('guest_request',{host_id:hid,viewer_id:viewerId(),name:profileName(),at:tickNow});
       }
       if(guestApproved&&guestApprovedHost===hid){
-        if(!document.hidden&&tickNow-guestAliveLastSent>4000){
+        if(!document.hidden&&tickNow-guestAliveLastSent>1000){
           guestAliveLastSent=tickNow;
+          try{sendCriticalMedia20260926('guest_alive',{
+            host_id:hid,viewer_id:viewerId(),name:profileName(),at:tickNow
+          },hid);}catch(_e){}
+        }
+        if(!document.hidden&&tickNow-guestAliveSharedLastSent>4000){
+          guestAliveSharedLastSent=tickNow;
           sharedApprovalPost(hid,'guest_alive',viewerId(),profileName());
         }
         if(!guestPc||['failed','closed'].indexOf(String(guestPc.connectionState||''))>-1)startGuestCamera(hid);
@@ -2474,7 +2489,7 @@
   }
   setInterval(roleTick,300);
   setTimeout(roleTick,20);
-  setInterval(syncSharedApprovalSignals,400);
+  setInterval(syncSharedApprovalSignals,250);
   setTimeout(syncSharedApprovalSignals,50);
 
   window.addEventListener('kt-remote-host-selected',function(e){
@@ -2539,7 +2554,7 @@
     /* Do not announce leave on a brief mobile visibility change.
        Heartbeat stops while hidden; the host clears only after a sustained absence. */
     if(document.hidden)return;
-    guestAliveLastSent=0;
+    guestAliveLastSent=0;guestAliveSharedLastSent=0;
     roleTick();setTimeout(function(){attachRemoteStreamNow();},0);
   });
   window.addEventListener('pagehide',function(){
