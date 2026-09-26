@@ -293,7 +293,15 @@
   function chooseBg(key,btn){
     if(key==='none'){stopEffect();markSelected('none');return;}
     FX.key=key;FX.active=true;
-    ensurePipeline().then(function(){markSelected(key);}).catch(function(){
+    markSelected(key);
+    ensurePipeline().then(function(){
+      /* 첫 결과가 빨리 나오도록 선택 직후 한 번 바로 처리 요청 */
+      try{
+        if(FX.segmenter&&FX.video&&FX.video.readyState>=2){
+          Promise.resolve(FX.segmenter.send({image:FX.video})).catch(function(){});
+        }
+      }catch(e){}
+    }).catch(function(){
       FX.active=false;
       sheet('배경 효과','<div class="rowbox">이 휴대폰에서는 AI 배경 분리 모듈을 불러오지 못했습니다. 인터넷 연결을 확인해 주세요.</div>');
     });
@@ -305,7 +313,43 @@
 
   window.ktChooseStageBackground20260926=function(key,el){chooseBg(String(key||'none'),el);};
 
+  window.ktPreloadStageBackgroundAI20260927=function(){
+    try{
+      /* 효과창을 열 때 미리 AI 분리 모듈과 카메라 입력을 준비한다.
+         배경 선택 전에는 화면/송출을 바꾸지 않는다. */
+      if(FX.segmenter&&FX.video)return;
+      var src=sourceStream();
+      if(!src)return;
+      if(!FX.original||FX.original===FX.processed)FX.original=src;
+
+      if(!FX.video){
+        FX.video=document.createElement('video');
+        FX.video.autoplay=true;FX.video.muted=true;FX.video.playsInline=true;
+        FX.video.style.display='none';
+        document.body.appendChild(FX.video);
+      }
+      if(FX.video.srcObject!==FX.original)FX.video.srcObject=FX.original;
+      try{var p=FX.video.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
+
+      if(!FX.canvas){
+        FX.canvas=document.createElement('canvas');
+        FX.canvas.width=720;FX.canvas.height=1280;
+        FX.canvas.style.display='none';
+        document.body.appendChild(FX.canvas);
+        FX.ctx=FX.canvas.getContext('2d',{alpha:false});
+      }
+      try{
+        var tr=FX.original.getVideoTracks&&FX.original.getVideoTracks()[0];
+        var st=tr&&tr.getSettings?tr.getSettings():{};
+        if(st.width&&st.height){FX.canvas.width=st.width;FX.canvas.height=st.height;}
+      }catch(e){}
+
+      loadSegmenter().catch(function(){});
+    }catch(e){}
+  };
+
   window.openEditEffectPanel=function(){
+    try{window.ktPreloadStageBackgroundAI20260927();}catch(e){}
     var html='<div class="kt-fx-sheet"><div class="kt-fx-head"><button type="button" class="kt-fx-back" onclick="ktCloseFxPanel20260926()" aria-label="뒤로가기">‹</button><div class="kt-fx-title">🎬 움직이는 배경 효과</div></div><div class="kt-fx-grid">';
     BGS.forEach(function(b){
       var bg=b[2]?(' style="background:'+b[2]+'"'):'';
