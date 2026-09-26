@@ -59,24 +59,24 @@
     });
     v.addEventListener('error',function(){
       if(inLiveOrCreator())return;
-      var list=[].slice.call(document.querySelectorAll('#screen .kt-public-video,#screen #homeVideo'));
-      var next=list.find(function(x){return x!==v&&!x.dataset.ktVideoFailed;});
-      v.dataset.ktVideoFailed='1';
-      if(next){
-        try{next.scrollIntoView({block:'start'});}catch(e){}
-        setTimeout(function(){play(next);},50);
-        return;
-      }
 
-      /* 저장된 피드 주소가 오래되어 전부 안 열릴 때 한 번만 새 목록을 받음 */
-      if(!cacheRefreshDone){
+      /* Never auto-scroll to another public video on a transient media error.
+         Keep the current song/video in place and retry it. */
+      setTimeout(function(){
+        try{if(visible(v))play(v);}catch(e){}
+      },250);
+
+      /* Only refresh the list once when the browser reports a hard media error,
+         but do not move the user to a different card automatically. */
+      var hard=false;
+      try{hard=!!(v.error&&(Number(v.error.code)===3||Number(v.error.code)===4));}catch(e){}
+      if(hard&&!cacheRefreshDone){
         cacheRefreshDone=true;
         setTimeout(function(){
           try{
             if(typeof window.ktRefreshSharedFeedNow==='function')window.ktRefreshSharedFeedNow();
-            else if(typeof window.home==='function')window.home();
           }catch(e){}
-        },40);
+        },1200);
       }
     });
   }
