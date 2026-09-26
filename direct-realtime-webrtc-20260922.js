@@ -164,6 +164,18 @@
     return id;
   }
   function rtcConfig(){return window.ktGetRtcConfig?window.ktGetRtcConfig():{iceServers:[{urls:'stun:stun.cloudflare.com:3478'},{urls:'stun:stun.l.google.com:19302'}]};}
+  async function ensureTurnBeforeGuestRtc20260926(){
+    try{
+      if(typeof window.ktRefreshTurnRelay!=='function')return;
+      var q=window.ktRefreshTurnRelay();
+      if(q&&typeof q.then==='function'){
+        await Promise.race([
+          q,
+          new Promise(function(resolve){setTimeout(resolve,900);})
+        ]);
+      }
+    }catch(e){}
+  }
   function ktTuneDirectVideoSender20260923(sender,kind){
     try{
       if(!sender||!sender.track||sender.track.kind!=='video'||typeof sender.getParameters!=='function'||typeof sender.setParameters!=='function')return;
@@ -1451,6 +1463,8 @@
   async function makeGuestOffer(hid){
     if(!guestApproved||guestApprovedHost!==hid||!guestStream)return;
     if(guestPc&&['new','connecting','connected'].indexOf(String(guestPc.connectionState||''))>-1)return;
+    await ensureTurnBeforeGuestRtc20260926();
+    if(!guestApproved||guestApprovedHost!==hid||!guestStream)return;
     clearGuestOfferRetryTimers(guestPc);
     closePc(guestPc);guestPc=null;guestSession=sid('guest');
     var pc=new RTCPeerConnection(rtcConfig());guestPc=pc;
@@ -1545,6 +1559,8 @@
   }
 
   async function hostGuestOffer(p){
+    if(!isHostRole()||String(p.host_id||'')!==DEVICE)return;
+    await ensureTurnBeforeGuestRtc20260926();
     if(!isHostRole()||String(p.host_id||'')!==DEVICE)return;
     var vid=String(p.viewer_id||'');
     var session=String(p.session_id||''),sdp=String(p.offer_sdp||'');if(!vid||!session||!sdp)return;
