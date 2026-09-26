@@ -150,6 +150,26 @@
         sameVideoSource20260926(st,window.__ktApprovedGuestSelfStream);
     }catch(e){return false;}
   }
+  function rememberTrustedGuestCamera20260926(st){
+    try{
+      var vt=st&&st.getVideoTracks&&st.getVideoTracks()[0]||null;
+      if(vt&&vt.readyState==='live'&&vt.id){
+        window.__ktLocalGuestCameraStream20260926=st;
+        window.__ktLocalGuestCameraTrackId20260926=String(vt.id);
+        return true;
+      }
+    }catch(e){}
+    return false;
+  }
+  function isTrustedGuestCamera20260926(st){
+    try{
+      var id=String(window.__ktLocalGuestCameraTrackId20260926||'');
+      var vt=st&&st.getVideoTracks&&st.getVideoTracks()[0]||null;
+      if(!id||!vt||vt.readyState!=='live'||String(vt.id)!==id)return false;
+      if(isRemoteHostMedia20260926(st))return false;
+      return true;
+    }catch(e){return false;}
+  }
 
   function useLegacyApprovedGuestUplink(){
     try{
@@ -1248,12 +1268,11 @@
       try{
         var shared=window.__ktApprovedGuestSelfStream||null;
         var sharedLive=!!(shared&&shared.getVideoTracks&&shared.getVideoTracks().some(function(t){return t.readyState==='live';}));
-        if(sharedLive&&!isRemoteHostMedia20260926(shared)){
+        if(sharedLive&&isTrustedGuestCamera20260926(shared)){
           guestStream=shared;live=true;
-          window.__ktLocalGuestCameraStream20260926=shared;
-        }else if(sharedLive&&isRemoteHostMedia20260926(shared)){
-          /* Never republish the remote host stream as the guest camera. */
-          try{window.__ktApprovedGuestSelfStream=null;}catch(_e){}
+        }else if(sharedLive){
+          /* Never promote an untrusted/shared DOM stream into the canonical
+             guest camera. It may briefly be the remote host stream. */
           shared=null;
         }
       }catch(e){}
@@ -1262,11 +1281,14 @@
     if(!live){
       try{guestStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'user'}},audio:true});}
       catch(e){try{guestStream=await navigator.mediaDevices.getUserMedia({video:true,audio:false});}catch(z){return;}}
+      try{rememberTrustedGuestCamera20260926(guestStream);}catch(e){}
     }
     try{
       if(guestStream){
-        window.__ktLocalGuestCameraStream20260926=guestStream;
-        window.__ktApprovedGuestSelfStream=guestStream;
+        if(isTrustedGuestCamera20260926(guestStream)){
+          window.__ktLocalGuestCameraStream20260926=guestStream;
+          window.__ktApprovedGuestSelfStream=guestStream;
+        }
         window.dispatchEvent(new CustomEvent('kt-approved-guest-stream-ready',{
           detail:{host_id:hid,viewer_id:viewerId(),at:Date.now()}
         }));
@@ -1747,10 +1769,13 @@
     if(!hid)return;
     var s=null,remote=null;
     try{
-      s=window.__ktLocalGuestCameraStream20260926||guestStream||window.__ktApprovedGuestSelfStream||null;
+      s=window.__ktLocalGuestCameraStream20260926||null;
       remote=window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream||null;
     }catch(e){}
-    if(!s||isRemoteHostMedia20260926(s)||(remote&&sameVideoSource20260926(s,remote)))return;
+    /* Photo fallback may use ONLY the exact camera track opened locally by
+       getUserMedia. Never fall back to guestStream/shared/DOM media. */
+    if(!s||!isTrustedGuestCamera20260926(s)||isRemoteHostMedia20260926(s)||
+       (remote&&sameVideoSource20260926(s,remote)))return;
     var vt=null;
     try{vt=s.getVideoTracks&&s.getVideoTracks()[0]||null;}catch(e){}
     if(!vt||vt.readyState!=='live')return;
@@ -2122,7 +2147,7 @@
       catch(z){return false;}
     }
     try{
-      window.__ktLocalGuestCameraStream20260926=guestStream;
+      rememberTrustedGuestCamera20260926(guestStream);
       window.__ktApprovedGuestSelfStream=guestStream;
     }catch(e){}
     try{
