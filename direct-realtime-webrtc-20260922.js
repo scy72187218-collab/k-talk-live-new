@@ -1461,7 +1461,13 @@
         if(t&&t.kind==='video')ktTuneDirectVideoSender20260923(sender,'guest');
       }catch(e){}
     });
-    pc.onicecandidate=function(ev){if(ev.candidate)sendCriticalMedia20260926('guest_ice',{host_id:hid,viewer_id:viewerId(),session_id:guestSession,from:'guest',candidate:ev.candidate.toJSON?ev.candidate.toJSON():ev.candidate},hid);};
+    var guestPcSession20260926=String(guestSession||'');
+    pc.onicecandidate=function(ev){
+      if(ev.candidate)sendCriticalMedia20260926('guest_ice',{
+        host_id:hid,viewer_id:viewerId(),session_id:guestPcSession20260926,from:'guest',
+        candidate:ev.candidate.toJSON?ev.candidate.toJSON():ev.candidate
+      },hid);
+    };
     pc.__ktGuestIceRecovery20260923=true;
     pc.oniceconnectionstatechange=function(){
       var s=String(pc.iceConnectionState||'');
@@ -1491,12 +1497,19 @@
       }
     };
     try{
-      var offer=await pc.createOffer({offerToReceiveAudio:false,offerToReceiveVideo:false});await pc.setLocalDescription(offer);
-      var guestOfferPayload={host_id:hid,viewer_id:viewerId(),name:profileName(),session_id:guestSession,offer_sdp:pc.localDescription.sdp};
+      var offerSession=String(guestSession||'');
+      var offer=await pc.createOffer({offerToReceiveAudio:false,offerToReceiveVideo:false});
+      await pc.setLocalDescription(offer);
+      /* Include gathered ICE candidates in the FIRST SDP as well as trickle
+         messages. This avoids a guest uplink getting stuck when a mobile
+         candidate packet is delayed or missed. Keep the wait short. */
+      try{await waitIceCompleteDirect(pc,550);}catch(e){}
+      if(guestPc!==pc||guestSession!==offerSession)return;
+      var guestOfferPayload={host_id:hid,viewer_id:viewerId(),name:profileName(),session_id:offerSession,offer_sdp:pc.localDescription.sdp};
       pc.__ktGuestOfferPayload20260926=guestOfferPayload;
       sendCriticalMedia20260926('guest_offer',guestOfferPayload,hid);
       scheduleGuestOfferRetries(hid,pc,guestOfferPayload);
-      scheduleGuestMediaAckFallback20260926(hid,pc,guestSession,500);
+      scheduleGuestMediaAckFallback20260926(hid,pc,offerSession,500);
 
       /* 연결 협상도 짧은 흔들림 때문에 계속 새로 만들지 않는다.
          10초 동안 기존 세션을 기다린 뒤 실제 연결이 없을 때만 재시도한다. */
@@ -1642,7 +1655,10 @@
     try{
       await pc.setRemoteDescription({type:'offer',sdp:sdp});
       var q=entry.ice.splice(0);for(var i=0;i<q.length;i++)try{await pc.addIceCandidate(q[i]);}catch(e){}
-      var ans=await pc.createAnswer();await pc.setLocalDescription(ans);
+      var ans=await pc.createAnswer();
+      await pc.setLocalDescription(ans);
+      try{await waitIceCompleteDirect(pc,550);}catch(e){}
+      if(hostGuestPeers[vid]!==entry)return;
       entry.answer=pc.localDescription.sdp;
       var guestAnswerPayload={host_id:DEVICE,viewer_id:vid,session_id:session,answer_sdp:entry.answer};
       sendCriticalMedia20260926('guest_answer',guestAnswerPayload,DEVICE);
