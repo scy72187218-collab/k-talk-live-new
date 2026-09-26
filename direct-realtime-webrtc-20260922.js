@@ -18,7 +18,7 @@
   var requestOn=false,lastRemoteHost='',lastHostRole='',lastWatchAt=0;
   var sharedApprovalPollBusy=false,leaveAnnouncedHost='',guestAliveLastSent=0,hostGuestAliveAt={},remoteHostMissingSince=0;
   var signalSeen={},viewerOfferInFlight='',lastHostReadyAt=0,lastGuestRequestAt=0,guestApprovedAt=0;
-  var guestMediaAckTimer=null,guestMediaAckSession='',guestMediaRecoveryCount=0;
+  var guestMediaAckTimer=null,guestMediaAckSession='',guestMediaRecoveryCount=0,guestMediaReadyAt=0;
   var guestPhotoCache20260926='',guestPhotoCacheTrack20260926='',guestPhotoCacheAt20260926=0;
   var sharedRuntimeStartedAt=Date.now()-5000,sharedRoomCutCache={};
   var hostRunId='',hostRunStartedAt=0,remoteRunId='',remoteRunStartedAt=0;
@@ -1636,6 +1636,10 @@
     if(!box)return;
     delete pendingHostGuestOffers[vid];
     if(Date.now()-Number(box.at||0)>20000)return;
+    /* The pre-approval offer has no real camera track yet. On Android it can
+       stay "connected" while delivering no first frame. After approval wait
+       for the fresh real-track offer instead. */
+    if(box.payload&&box.payload.preapproval===true)return;
     setTimeout(function(){
       try{
         var q=hostGuestOffer(box.payload);
@@ -1652,6 +1656,9 @@
     var session=String(p.session_id||''),sdp=String(p.offer_sdp||'');if(!vid||!session||!sdp)return;
     var isApproved=!!approvedGuests[vid];
     var isRequested=!!pendingRequests[vid];
+    /* Once approved, only accept the fresh offer that contains the real
+       guest camera track. Ignore delayed pre-approval sendonly offers. */
+    if(isApproved&&p.preapproval===true)return;
     if(!isApproved&&!isRequested){
       pendingHostGuestOffers[vid]={payload:p,at:Date.now()};
       return;
@@ -1986,43 +1993,33 @@
     guestMediaRecoveryCount=0;
     clearGuestMediaAckTimer20260926();
 
-    /* FAST APPROVAL PATH:
-       if the guest already pre-negotiated a sendonly peer while waiting for
-       approval, keep that connection and replaceTrack() the warm camera NOW.
-       This avoids rebuilding the whole peer connection after approval.
-       If real media is not acknowledged quickly, fall back to the fresh
-       connection path automatically. */
-    var usedPrepared20260926=false;
+    /* APPROVAL MEDIA PATH:
+       Camera is already prewarmed while the guest waits. At approval, discard
+       only the sendonly pre-approval PeerConnection and immediately create one
+       fresh PeerConnection with the REAL camera track attached. This avoids
+       Android reporting "connected" while the host receives no first frame. */
+    guestMediaReadyAt=0;
     try{
-      if(guestPc&&guestPc.__ktPreApprovalPayload&&guestStream){
-        usedPrepared20260926=true;
-        var ap=activatePreparedGuestMedia20260924(hid);
-        if(ap&&ap.then){
-          ap.then(function(ok){
-            if(!ok)forceFreshApprovedGuestOffer20260926(hid);
-          }).catch(function(){forceFreshApprovedGuestOffer20260926(hid);});
-        }
+      if(guestPc){
+        clearGuestMediaAckTimer20260926();
+        clearGuestOfferRetryTimers(guestPc);
+        closePc(guestPc);
       }
-    }catch(e){usedPrepared20260926=false;}
-
-    if(!usedPrepared20260926){
-      try{
-        if(guestPc){
-          clearGuestOfferRetryTimers(guestPc);
-          closePc(guestPc);
-        }
-      }catch(e){}
-      guestPc=null;guestSession='';
+    }catch(e){}
+    guestPc=null;guestSession='';
+    try{
       var firstMedia=startGuestCamera(hid);
       if(firstMedia&&firstMedia.catch)firstMedia.catch(function(){});
-    }else{
-      setTimeout(function(){
-        if(!guestApproved||guestApprovedHost!==hid)return;
-        var st='';
-        try{st=String(window.__ktDirectGuestUplinkState20260923||'');}catch(e){}
-        if(st!=='connected')forceFreshApprovedGuestOffer20260926(hid);
-      },500);
-    }
+    }catch(e){}
+
+    /* If the first real-track session still has not produced a frame quickly,
+       retry that media path only. Do not rebuild the room or approval UI. */
+    setTimeout(function(){
+      if(!guestApproved||guestApprovedHost!==hid||guestMediaReadyAt)return;
+      var st='';
+      try{st=String(window.__ktDirectGuestUplinkState20260923||'');}catch(e){}
+      if(st!=='connected')forceFreshApprovedGuestOffer20260926(hid);
+    },900);
 
     /* Visible fallback requested by owner: place only the approved guest's own
        camera face into the host guest slot while live transport is connecting. */
@@ -2283,6 +2280,7 @@
       var readyHost=String(p.host_id||'');
       var readySession=String(p.session_id||'');
       if(readyViewer===viewerId()&&readySession&&readySession===guestSession&&readyHost===String(guestApprovedHost||remoteHostId()||'')){
+        guestMediaReadyAt=Date.now();
         clearGuestMediaAckTimer20260926();
         guestMediaRecoveryCount=0;
         try{window.__ktDirectGuestUplinkState20260923='connected';window.__ktDirectGuestUplinkStateAt20260923=Date.now();}catch(e){}
