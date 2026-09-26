@@ -258,7 +258,7 @@
   function applyOutputStream(stream){
     if(!stream)return;
     try{if(window.state)state.stream=stream;}catch(e){}
-    document.querySelectorAll('#screen .ktsolo-room video,#screen .ktg9-room video,#screen .ktg13-room .ktg13-host video,#screen .ktsubscriber-room .ktsubscriber-host video,#screen .ktsecret-room .host video,#ktLiveVideo').forEach(function(v){
+    document.querySelectorAll('#creator #camera,#screen .ktsolo-room video,#screen .ktg9-room video,#screen .ktg13-room .ktg13-host video,#screen .ktsubscriber-room .ktsubscriber-host video,#screen .ktsecret-room .host video,#ktLiveVideo').forEach(function(v){
       try{if(v.srcObject!==stream)v.srcObject=stream;var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
     });
     try{window.dispatchEvent(new CustomEvent('kt-local-video-stream-changed',{detail:{stream:stream,at:Date.now()}}));}catch(e){}
