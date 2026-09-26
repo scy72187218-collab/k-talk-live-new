@@ -1918,7 +1918,7 @@
         };
         sendCriticalMedia20260926('guest_request_photo',data,hid);
       }catch(e){}
-    },35);
+    },0);
   }
 
   function sendApprovedGuestPhoto20260926(hid){
@@ -2095,11 +2095,11 @@
     setTimeout(function(){
       if(!guestApproved||guestApprovedHost!==hid||guestMediaReadyAt)return;
       forceFreshApprovedGuestOffer20260926(hid);
-    },250);
+    },100);
 
     /* Visible fallback requested by owner: place only the approved guest's own
        camera face into the host guest slot while live transport is connecting. */
-    [0,20,60,120].forEach(function(ms){
+    [0,10,25,50,90].forEach(function(ms){
       setTimeout(function(){
         if(guestApproved&&guestApprovedHost===hid)try{sendApprovedGuestPhoto20260926(hid);}catch(e){}
       },ms);
@@ -2440,7 +2440,7 @@
               try{window.dispatchEvent(new CustomEvent('kt-guest-camera-prewarmed',{
                 detail:{host_id:hid,viewer_id:viewerId(),at:Date.now()}
               }));}catch(e){}
-              [0,90,220,450].forEach(function(ms){
+              [0,20,45,80,140].forEach(function(ms){
                 setTimeout(function(){if(requestOn)try{sendPreApprovalGuestPhoto20260926(hid);}catch(e){}},ms);
               });
               /* Prepare the guest WebRTC connection while waiting for host approval.
@@ -2532,9 +2532,9 @@
       }
     }
   }
-  setInterval(roleTick,300);
+  setInterval(roleTick,120);
   setTimeout(roleTick,20);
-  setInterval(syncSharedApprovalSignals,400);
+  setInterval(syncSharedApprovalSignals,150);
   setTimeout(syncSharedApprovalSignals,50);
 
   window.addEventListener('kt-remote-host-selected',function(e){
