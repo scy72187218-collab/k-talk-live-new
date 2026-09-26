@@ -1058,7 +1058,14 @@
 
   function installControl(){
     var old=document.getElementById('ktAiDjAway24hBtn20260927');
-    if(!isHostRoom()&&!isOwner()){if(old)old.remove();return;}
+    var inAiDjRoom=false;
+    try{
+      inAiDjRoom=!!(window.state&&state.ktAiDjRoom)&&
+        !document.documentElement.classList.contains('kt-remote-viewing')&&
+        !!document.querySelector('#screen .ktg9-room');
+    }catch(e){inAiDjRoom=false;}
+    /* 자리 비움 → AI 버튼은 AI DJ 9명방 안에서만 표시 */
+    if(!inAiDjRoom){if(old)old.remove();return;}
     if(!old){
       old=document.createElement('button');
       old.id='ktAiDjAway24hBtn20260927';
