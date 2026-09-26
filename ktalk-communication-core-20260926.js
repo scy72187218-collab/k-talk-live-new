@@ -292,7 +292,7 @@
 
   async function hostProcessSignals(){ return; }
 
-  async function hostPollActivity(){  async function hostPollActivity(){
+  async function hostPollActivity(){
     if(!hostActive)return;
     var hostId=deviceId();
     try{
@@ -532,7 +532,7 @@
     }
   };
 
-  function ktNotifyRemoteExit20260924(c){  function ktNotifyRemoteExit20260924(c){
+  function ktNotifyRemoteExit20260924(c){
     var hid='';
     try{hid=String(c&&c.hostId||window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||'').trim();}catch(e){}
     if(!hid)return;
@@ -578,7 +578,7 @@
     }
   };
 
-  function wrap(name,before,after){  function wrap(name,before,after){
+  function wrap(name,before,after){
     var old=window[name];if(typeof old!=='function'||old.__ktLiveWrapped)return;
     var fn=function(){var args=arguments,self=this;if(before)try{before.apply(self,args);}catch(e){}var r=old.apply(self,args);if(r&&typeof r.then==='function')return r.then(function(v){if(after)try{after.apply(self,args);}catch(e){}return v;});if(after)try{after.apply(self,args);}catch(e){}return r;};fn.__ktLiveWrapped=true;window[name]=fn;
   }
