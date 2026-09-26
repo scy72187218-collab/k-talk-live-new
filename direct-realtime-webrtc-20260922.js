@@ -1918,13 +1918,35 @@
     hid=String(hid||'').trim();
     if(!hid)return;
     var s=null,remote=null;
+
+    /* Guest phone already shows its own camera in the self cell.
+       Adopt that exact local self stream first so the host can paint the
+       approved guest immediately even when the uplink handshake is late. */
+    try{adoptExistingSelfCamera20260926();}catch(e){}
+
     try{
       s=window.__ktLocalGuestCameraStream20260926||null;
       remote=window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream||null;
     }catch(e){}
-    /* Photo fallback may use ONLY the exact camera track opened locally by
-       getUserMedia. Never fall back to guestStream/shared/DOM media. */
-    if(!s||!isTrustedGuestCamera20260926(s)||isRemoteHostMedia20260926(s)||
+
+    if(!s){
+      try{
+        var selfV=document.querySelector(
+          '#screen .kt-guest-hostlike-room .kgh-cell.self video,'+
+          '#screen .kt-approved-guest-grid .kt-approved-guest-cell.self video,'+
+          '#screen .kt-prejoin-room-grid .kt-prejoin-room-cell.self video,'+
+          '#screen .kt-guest-room-grid .kt-guest-room-cell.self video'
+        );
+        var ds=selfV&&selfV.srcObject||null;
+        var vt0=ds&&ds.getVideoTracks&&ds.getVideoTracks()[0]||null;
+        if(ds&&vt0&&vt0.readyState==='live'&&(!remote||!sameVideoSource20260926(ds,remote))){
+          s=ds;
+          rememberTrustedGuestCamera20260926(ds);
+        }
+      }catch(e){}
+    }
+
+    if(!s||isRemoteHostMedia20260926(s)||
        (remote&&sameVideoSource20260926(s,remote)))return;
     var vt=null;
     try{vt=s.getVideoTracks&&s.getVideoTracks()[0]||null;}catch(e){}
