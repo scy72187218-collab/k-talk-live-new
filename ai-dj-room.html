@@ -14,10 +14,42 @@
 .nav{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;height:54px}.nav button{border:0;background:none;color:#fff;font-size:8px;font-weight:900}.nav i{display:grid;place-items:center;width:34px;height:34px;margin:0 auto 2px;border-radius:50%;border:1px solid #7558ff;background:#120c1c;font-style:normal;font-size:17px;box-shadow:0 0 9px #744cff55}
 .toast{position:fixed;left:50%;bottom:78px;transform:translateX(-50%);display:none;padding:9px 13px;border-radius:999px;background:#17111ddd;border:1px solid #ff55d1;font-size:11px;font-weight:900;z-index:99}
 @media(max-width:390px){.logo{font-size:21px}.main{min-height:365px}.lower{height:214px}.feed{height:136px}.grid{height:160px}.guest .av{font-size:28px}.hello{font-size:16px}}
-</style></head><body>
+</style>
+<style id="approved-ref-tune">
+.top{grid-template-columns:auto 1fr auto!important;min-height:52px!important}
+.top-left{display:flex!important;align-items:center!important;gap:6px!important}
+.timer{padding:8px 9px;border-radius:12px;background:#0b0813;border:1px solid #ffffff18;font-size:11px;font-weight:1000;letter-spacing:.3px}
+.logo{font-size:25px!important;white-space:nowrap!important}
+.banners button{font-size:12px!important;letter-spacing:-.2px}
+.main{min-height:405px!important}
+.dj{border-width:2px!important;box-shadow:0 0 18px #ff42d377,inset 0 0 22px #4e1a5a33!important}
+.dj img{filter:saturate(1.06) contrast(1.03) brightness(.96)}
+.djtitle{font-size:27px!important;top:12px!important}
+.hello{top:76px!important;font-size:18px!important}
+.guest{border-width:2px!important;border-color:#615cff!important;box-shadow:0 0 8px #4a42ff3b inset}
+.guest .n{font-size:12px!important}
+.lower{height:236px!important}
+.chat,.gifts{border-width:2px!important;border-color:#ff44cf78!important;box-shadow:0 0 13px #ff3cc526 inset}
+.feed{height:156px!important}
+.grid{height:180px!important}
+.gift{border-color:#a26a27!important;box-shadow:0 0 8px #ff9d2a1c inset}
+.gift i{font-size:25px!important}
+.nav{height:58px!important;margin-top:1px!important}
+.nav i{width:38px!important;height:38px!important;font-size:18px!important}
+@media(max-width:390px){
+ .logo{font-size:20px!important}.count{font-size:8px!important;padding:7px!important}
+ .top-left{gap:3px!important}.on,.timer{font-size:9px!important;padding:7px 7px!important}
+ .main{min-height:375px!important}.lower{height:218px!important}.feed{height:140px!important}.grid{height:163px!important}
+}
+</style>
+</head><body>
 <div class="app">
-<div class="top"><div class="on">● ON AIR</div><div class="logo">♛ K-Talk LIVE ✨</div><div class="count">👤 접속 1,286명</div></div>
-<div class="banners"><button onclick="toast('출석체크 완료')">☑ ★ 출석체크 눌러주세요 ★</button><button onclick="song()">🎵 신청곡 : AI DJ에게 말씀해 주세요 🎙️</button></div>
+<div class="top">
+    <div class="top-left"><div class="on">● ON AIR</div><div class="timer" id="djTimer">00:25:32</div></div>
+    <div class="logo">♛ K-Talk LIVE ✨</div>
+    <div class="count">👤 접속 1,286명</div>
+  </div>
+  <div class="banners"><button onclick="toast('출석체크 완료')">☑ ★ 출석체크 눌러주세요 ★</button><button onclick="song()">🎵 신청곡 : AI DJ에게 말씀해 주세요 🎙️</button></div>
 <div class="main">
 <div class="dj"><img src="/dj-exact.jpg?v=20260927-3" alt="K-Talk AI DJ"><div class="shade"></div><div class="djtitle">K-Talk AI DJ ♛</div><div class="live">● LIVE</div><div class="hello">오늘도<br>좋은 음악과<br>함께해요 ♡</div><div class="notes">♫<br>♪</div><div class="wave" id="wave"></div><div class="cap">🎵 AI DJ가 신청곡을 들려드려요 · 좋은 음악과 함께해요 ♡</div></div>
 <div class="guests" id="guests"></div>
@@ -38,4 +70,16 @@ function song(){const q=prompt('신청곡 제목을 입력해 주세요.','');if
 function send(){const i=document.getElementById('chat'),v=i.value.trim();if(!v)return;document.getElementById('feed').insertAdjacentHTML('beforeend','<div class="msg"><b>나</b> · '+v.replace(/[<>]/g,'')+'</div>');i.value=''}
 function shareRoom(){if(navigator.share)navigator.share({title:'K-Talk AI DJ',url:location.href}).catch(()=>{});else toast('공유 준비 완료')}
 document.getElementById('chat').addEventListener('keydown',e=>{if(e.key==='Enter')send()});
-</script></body></html>
+</script>
+<script id="approved-ref-timer">
+(function(){
+  var total=25*60+32;
+  setInterval(function(){
+    total++;
+    var h=Math.floor(total/3600),m=Math.floor((total%3600)/60),s=total%60;
+    var el=document.getElementById('djTimer');
+    if(el) el.textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  },1000);
+})();
+</script>
+</body></html>
