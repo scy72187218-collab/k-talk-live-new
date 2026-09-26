@@ -21,11 +21,13 @@
       +'@keyframes ktAiDjWave{from{height:6px}to{height:29px}}'
       +'.kt-ai-dj-tools{position:absolute!important;left:7px!important;right:7px!important;bottom:8px!important;z-index:950!important;display:grid!important;grid-template-columns:1fr 1fr 1fr!important;gap:5px!important;pointer-events:auto!important}'
       +'.kt-ai-dj-tools button{min-height:34px!important;border:1px solid #ffffff2b!important;border-radius:11px!important;background:rgba(8,8,12,.88)!important;color:#fff!important;font:950 9px/1.15 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;padding:3px!important;touch-action:manipulation!important}'
-      +'.kt-ai-dj-company{color:#ffd96a!important}';
+      +'.kt-ai-dj-company{color:#ffd96a!important}'
+      +'.kt-singer-lyric{position:absolute!important;left:50%!important;top:10px!important;transform:translateX(-50%)!important;z-index:1200!important;max-width:92%!important;padding:6px 11px!important;border-radius:999px!important;background:rgba(0,0,0,.72)!important;border:1px solid rgba(255,255,255,.34)!important;color:#fff!important;font:950 13px/1.2 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;text-align:center!important;text-shadow:0 1px 3px #000!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;pointer-events:none!important}'
+      +'.kt-singer-lyric:empty{display:none!important}';
     document.head.appendChild(s);
   }
 
-  function setMode(){
+  function setMode(btn){
     try{
       if(!window.state)window.state={};
       state.ktAiDjRoom=true;
@@ -36,12 +38,9 @@
       if(t)t.value='AI 음악 9명방';
 
       document.querySelectorAll('#creator .room-switch').forEach(function(b){b.classList.remove('on');});
-      var pick=document.getElementById('ktAiDj9Pick20260927');
-      if(pick)pick.classList.add('on');
+      if(btn&&btn.classList)btn.classList.add('on');
 
-      var nine=[].slice.call(document.querySelectorAll('#creator .prep-bottom button')).find(function(b){
-        return /9명/.test(String(b.textContent||''));
-      });
+      var nine=[].slice.call(document.querySelectorAll('.prep-bottom button')).find(function(b){return /9명/.test(b.textContent||'');});
       if(nine){
         try{
           if(window.ktPickBottomRoom)window.ktPickBottomRoom(nine,'9명','group9','AI 음악 9명방',9);
@@ -49,7 +48,6 @@
         }catch(e){}
       }
     }catch(e){}
-    return false;
   }
   window.ktSelectAiDj9Room20260927=setMode;
 
@@ -67,7 +65,7 @@
       btn.id='ktAiDj9Pick20260927';
       btn.className='kt-ai-dj-pick';
       btn.innerHTML='🎧 AI DJ 음악방 <small style="display:block;margin-top:3px;font-size:10px;color:#f7d7ff">9명 · 24시간 자동 음악방</small>';
-      btn.onclick=function(e){try{e.preventDefault();e.stopPropagation();}catch(x){}return setMode();};
+      btn.onclick=function(e){try{e.preventDefault();e.stopPropagation();}catch(x){}return setMode(btn);};
       row.insertAdjacentElement('afterend',btn);
     }
     try{btn.classList.toggle('on',!!(window.state&&state.ktAiDjRoom));}catch(e){}
