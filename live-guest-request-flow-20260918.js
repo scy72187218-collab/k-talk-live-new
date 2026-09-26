@@ -302,6 +302,7 @@
         video:{facingMode:{ideal:'user'},width:{ideal:640,max:640},height:{ideal:480,max:480},aspectRatio:{ideal:1.333333},frameRate:{ideal:15,max:18}},
         audio:true
       });
+      window.__ktLocalGuestCameraStream20260926=viewerGuest.stream;
       window.__ktApprovedGuestSelfStream=viewerGuest.stream;
       if(viewerGuest.prewarmTimer)clearTimeout(viewerGuest.prewarmTimer);
       viewerGuest.prewarmTimer=setTimeout(function(){
@@ -315,6 +316,7 @@
       if(denied==='notallowederror'||denied==='permissiondeniederror'||denied==='securityerror')viewerGuest.mediaDenied=true;
       try{
         viewerGuest.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});
+        window.__ktLocalGuestCameraStream20260926=viewerGuest.stream;
         window.__ktApprovedGuestSelfStream=viewerGuest.stream;
         return viewerGuest.stream;
       }catch(z){return null;}
@@ -351,6 +353,9 @@
         try{var leaving=leaveApprovedGuestNow();if(leaving&&leaving.catch)leaving.catch(function(){});}catch(e){}
       }else if(ok&&cancel&&!viewerGuest.approvedKey&&viewerGuest.stream){
         try{viewerGuest.stream.getTracks().forEach(function(t){t.stop();});}catch(e){}
+        try{
+          if(window.__ktLocalGuestCameraStream20260926===viewerGuest.stream)window.__ktLocalGuestCameraStream20260926=null;
+        }catch(e){}
         viewerGuest.stream=null;
         if(viewerGuest.prewarmTimer){clearTimeout(viewerGuest.prewarmTimer);viewerGuest.prewarmTimer=null;}
       }
@@ -803,8 +808,21 @@
   }
 
   function ktGuestStreamLive(st){try{return !!(st&&st.getVideoTracks&&st.getVideoTracks().some(function(t){return t.readyState==='live';}));}catch(e){return false;}}
+  function sameGuestVideoSource20260926(a,b){
+    if(!a||!b)return false;
+    if(a===b)return true;
+    try{
+      var at=a.getVideoTracks&&a.getVideoTracks()[0];
+      var bt=b.getVideoTracks&&b.getVideoTracks()[0];
+      return !!(at&&bt&&at.id&&bt.id&&at.id===bt.id);
+    }catch(e){return false;}
+  }
   function showLocalGuestView(stream){
     if(!stream)return;
+    try{
+      var remoteHost=window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream||viewerGuest.prejoinHostStream||null;
+      if(remoteHost&&sameGuestVideoSource20260926(stream,remoteHost))return;
+    }catch(e){}
     var approvedNow=false;
     try{
       var vid=viewerId();
@@ -904,7 +922,9 @@
     try{
       var ds=String(window.__ktDirectGuestUplinkState20260923||'');
       var da=Number(window.__ktDirectGuestUplinkStateAt20260923||0);
-      var shared=viewerGuest.stream||window.__ktApprovedGuestSelfStream||null;
+      var shared=window.__ktLocalGuestCameraStream20260926||viewerGuest.stream||window.__ktApprovedGuestSelfStream||null;
+      var remoteHost=window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream||viewerGuest.prejoinHostStream||null;
+      if(shared&&remoteHost&&sameGuestVideoSource20260926(shared,remoteHost))shared=null;
       if((ds==='connected'||(ds==='connecting'&&Date.now()-da<2500))&&ktGuestStreamLive(shared)){
         viewerGuest.stream=shared;
         viewerGuest.hostId=hostId;
@@ -931,7 +951,11 @@
     if(viewerGuest.pc)resetViewerGuestPc(viewerGuest.pc);
     stopLocalGuestViewGuard();
 
-    var stream=viewerGuest.stream||null;
+    var stream=window.__ktLocalGuestCameraStream20260926||viewerGuest.stream||null;
+    try{
+      var remoteHost=window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream||viewerGuest.prejoinHostStream||null;
+      if(stream&&remoteHost&&sameGuestVideoSource20260926(stream,remoteHost))stream=null;
+    }catch(e){}
     var liveVideo=false;
     try{liveVideo=!!(stream&&stream.getVideoTracks&&stream.getVideoTracks().some(function(t){return t.readyState==='live';}));}catch(e){liveVideo=false;}
 
@@ -973,6 +997,7 @@
     }catch(e){}
 
     viewerGuest.stream=stream;
+    window.__ktLocalGuestCameraStream20260926=stream;
     window.__ktApprovedGuestSelfStream=stream;
     viewerGuest.hostId=hostId;
     viewerGuest.approvedKey=approvalId;
