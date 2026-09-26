@@ -166,7 +166,9 @@
   }
 
   function forceAiRoom(){
-    if(creatorPrepOpen())return;
+    /* 방송 시작을 누른 뒤에는 creator에 준비 클래스가 잠깐 남아 있어도
+       검은 화면으로 두지 말고 DJ 전용방을 바로 그린다. */
+    if(creatorPrepOpen()&&!window.__ktAiDjSixActive20260927)return;
     if(!window.__ktAiDjSixActive20260927&&!aiSelected())return;
     var room=document.querySelector('#screen .kt-ai-dj-six-room');
     if(room)return;
