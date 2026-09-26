@@ -1,5 +1,5 @@
 {
-  "version": 106,
+  "version": 107,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "main",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "2026-09-26 with owner PIN 1111: communication-only fix applied. Guest local camera is blocked from being painted into the host cell; remote host and guest streams stay separate. Disconnected viewer path starts parallel reconnect after about 2.5s while preserving the current frame, with teardown only after a longer failure. All protected components are relocked.",
+  "note": "2026-09-26 with owner PIN 1111: added a separate guest-departure cleanup guard. Explicit guest leave clears the matching host slot immediately; missed leave packets cannot leave a permanent connecting card. No room layout, public video, button, or camera-direction code changed. Relocked.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -86,7 +86,8 @@
     "public_video_playback_display",
     "public_video_playback_behavior",
     "public_video_first_paint",
-    "public_video_fast_open"
+    "public_video_fast_open",
+    "departed_guest_slot_cleanup_only"
   ],
   "check_trigger_phrase": "K-톡 비밀번호 확인",
   "check_behavior": {
@@ -97,7 +98,7 @@
   },
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "last_communication_fix": "2026-09-26-host-guest-stream-separation-fast-reconnect",
+  "last_communication_fix": "2026-09-26-clear-departed-guests-from-host-room",
   "last_video_feed_fix": "2026-09-26-smooth-first-video-no-src-rewrite",
   "locked_components": [
     "public-video-feed",
@@ -129,7 +130,8 @@
     "public_video_first_source",
     "public_video_playback_behavior",
     "public_video_first_paint",
-    "public_video_fast_open"
+    "public_video_fast_open",
+    "departed_guest_slot_cleanup_only"
   ],
   "last_video_feed_lock": "2026-09-26-lock-fast-first-open-and-public-playback",
   "last_switch_lock": "2026-09-24-all-switches-relock2",
