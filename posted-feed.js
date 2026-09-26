@@ -3,11 +3,14 @@
   var SB='https://zupwbfmacwzexyvznlzq.supabase.co';
   var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1cHdiZm1hY3d6ZXh5dnpubHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjEwNzYsImV4cCI6MjEwNDAzNzA3Nn0.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
   function headers(extra){var h={apikey:KEY,Authorization:'Bearer '+KEY};if(extra)Object.keys(extra).forEach(function(k){h[k]=extra[k];});return h;}
-  var FIRST_FAST_FEED=[{"id":"839c441d-1d3a-4941-872b-f43a77bf8245","author_name":"태권1","title":"14402.mp4","video_url":"https://zupwbfmacwzexyvznlzq.supabase.co/storage/v1/object/public/ktalk-videos/guest/1789858184221-0lyob9.mp4","created_at":"2026-09-19T22:49:45.508379+00:00","likes":0}];
+  var FIRST_FAST_FEED=[{"id":"8e1eac73-f54f-4023-93cc-daca7294bd6f","author_name":"K-Talk","title":"4a71d443-4b27-409a-bcce-da3723c44a12-1_all_16890.mp4","video_url":"https://zupwbfmacwzexyvznlzq.supabase.co/storage/v1/object/public/ktalk-videos/guest/1789742631992-yen8is.mp4","created_at":"2026-09-18T14:44:17.716584+00:00","likes":0}];
   function firstFastUrl(){
     try{
       var old=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');
-      if(Array.isArray(old)&&old[0]&&old[0].video_url)return String(old[0].video_url);
+      if(Array.isArray(old)&&old[0]&&old[0].video_url){
+        var cached=String(old[0].video_url||'');
+        if(cached.indexOf('1789858184221-0lyob9.mp4')===-1)return cached;
+      }
     }catch(e){}
     return FIRST_FAST_FEED[0].video_url;
   }
@@ -118,7 +121,10 @@
   function cachedFeed(){
     try{
       var old=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');
-      if(Array.isArray(old)&&old.length)return old;
+      if(Array.isArray(old)&&old.length){
+        old=old.filter(function(x){return String(x&&x.video_url||'').indexOf('1789858184221-0lyob9.mp4')===-1;});
+        if(old.length)return old;
+      }
     }catch(e){}
     return FIRST_FAST_FEED.slice();
   }
