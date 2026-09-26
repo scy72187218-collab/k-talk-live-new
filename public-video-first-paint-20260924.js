@@ -8,7 +8,7 @@
 
   function firstUrl(){
     /* Never let an older phone cache replace the first painted video. */
-    return 'https://zupwbfmacwzexyvznlzq.supabase.co/storage/v1/object/public/ktalk-videos/guest/1788516701116-emysxm.mp4';
+    return 'https://zupwbfmacwzexyvznlzq.supabase.co/storage/v1/object/public/ktalk-videos/guest/1788516618159-4ep5ki.mp4';
   }
 
   function run(){
