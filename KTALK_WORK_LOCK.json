@@ -1,5 +1,5 @@
 {
-  "version": 118,
+  "version": 119,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "main",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "2026-09-26 with owner PIN 1111: repeated or late guest_request signals no longer clear an already-approved guest slot or peer. Approved guests remain connected until explicit guest_left/cancel. No room layout, controls, public video, or unrelated features changed. Relocked.",
+  "note": "2026-09-26 with owner PIN 1111: guest uplink now waits briefly for ICE gathering and includes candidates in the first offer SDP; host answer does the same. Guest ICE trickle uses a captured session id so late candidates cannot be mislabeled after retry. No room layout, controls, public video, or unrelated features changed. Relocked.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -98,7 +98,7 @@
   },
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "last_communication_fix": "2026-09-26-ignore-late-guest-requests-after-approval",
+  "last_communication_fix": "2026-09-26-bundle-ice-in-first-guest-handshake",
   "last_video_feed_fix": "2026-09-26-smooth-first-video-no-src-rewrite",
   "locked_components": [
     "public-video-feed",
