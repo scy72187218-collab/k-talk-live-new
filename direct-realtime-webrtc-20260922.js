@@ -1986,18 +1986,43 @@
     guestMediaRecoveryCount=0;
     clearGuestMediaAckTimer20260926();
 
-    /* Approval gets one fresh REAL media connection. Never reuse any old
-       pre-approval/stale peer. The camera stream itself stays warm. */
+    /* FAST APPROVAL PATH:
+       if the guest already pre-negotiated a sendonly peer while waiting for
+       approval, keep that connection and replaceTrack() the warm camera NOW.
+       This avoids rebuilding the whole peer connection after approval.
+       If real media is not acknowledged quickly, fall back to the fresh
+       connection path automatically. */
+    var usedPrepared20260926=false;
     try{
-      if(guestPc){
-        clearGuestOfferRetryTimers(guestPc);
-        closePc(guestPc);
+      if(guestPc&&guestPc.__ktPreApprovalPayload&&guestStream){
+        usedPrepared20260926=true;
+        var ap=activatePreparedGuestMedia20260924(hid);
+        if(ap&&ap.then){
+          ap.then(function(ok){
+            if(!ok)forceFreshApprovedGuestOffer20260926(hid);
+          }).catch(function(){forceFreshApprovedGuestOffer20260926(hid);});
+        }
       }
-    }catch(e){}
-    guestPc=null;guestSession='';
+    }catch(e){usedPrepared20260926=false;}
 
-    var firstMedia=startGuestCamera(hid);
-    if(firstMedia&&firstMedia.catch)firstMedia.catch(function(){});
+    if(!usedPrepared20260926){
+      try{
+        if(guestPc){
+          clearGuestOfferRetryTimers(guestPc);
+          closePc(guestPc);
+        }
+      }catch(e){}
+      guestPc=null;guestSession='';
+      var firstMedia=startGuestCamera(hid);
+      if(firstMedia&&firstMedia.catch)firstMedia.catch(function(){});
+    }else{
+      setTimeout(function(){
+        if(!guestApproved||guestApprovedHost!==hid)return;
+        var st='';
+        try{st=String(window.__ktDirectGuestUplinkState20260923||'');}catch(e){}
+        if(st!=='connected')forceFreshApprovedGuestOffer20260926(hid);
+      },700);
+    }
 
     /* Visible fallback requested by owner: place only the approved guest's own
        camera face into the host guest slot while live transport is connecting. */
