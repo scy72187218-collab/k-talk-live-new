@@ -83,20 +83,31 @@
     try{return !!(st&&st.getVideoTracks&&st.getVideoTracks().some(function(t){return t.readyState==='live';}));}
     catch(e){return false;}
   }
+  function sameVideoSource20260926(a,b){
+    if(!a||!b)return false;
+    if(a===b)return true;
+    try{
+      var at=a.getVideoTracks&&a.getVideoTracks()[0];
+      var bt=b.getVideoTracks&&b.getVideoTracks()[0];
+      return !!(at&&bt&&at.id&&bt.id&&at.id===bt.id);
+    }catch(e){return false;}
+  }
   function selfStream(){
-    var host=window.__ktRemoteHostStream||null;
-    var direct=window.__ktApprovedGuestSelfStream||null;
-    if(live(direct)&&direct!==host)return direct;
-    var list=[
-      document.querySelector('.kt-guest-hostlike-room .kgh-cell.self video'),
-      document.querySelector('.kt-approved-guest-grid .kt-approved-guest-cell.self video'),
-      document.querySelector('.kt-guest-room-grid .kt-guest-room-cell.self video'),
-      document.getElementById('ktRemoteGuestSelfVideo'),
-      document.getElementById('ktRemoteLiveVideo')
-    ].filter(Boolean);
-    for(var i=0;i<list.length;i++){
-      var st=list[i].srcObject||null;
-      if(live(st)&&st!==host)return st;
+    var host=null;
+    try{host=window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream||null;}catch(e){}
+
+    /* Canonical local camera only. Do not read ktRemoteLiveVideo or any other
+       DOM video as a sender source: those elements can briefly hold host video
+       and were causing the guest tile to turn into a duplicate host picture. */
+    var local=null;
+    try{local=window.__ktLocalGuestCameraStream20260926||null;}catch(e){}
+    if(live(local)&&!sameVideoSource20260926(local,host))return local;
+
+    var direct=null;
+    try{direct=window.__ktApprovedGuestSelfStream||null;}catch(e){}
+    if(live(direct)&&!sameVideoSource20260926(direct,host)){
+      try{window.__ktLocalGuestCameraStream20260926=direct;}catch(_e){}
+      return direct;
     }
     return null;
   }
@@ -196,6 +207,10 @@
   }
   function showPeer(peerId,name,stream){
     if(!live(stream))return;
+    try{
+      var host=window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream||null;
+      if(host&&sameVideoSource20260926(stream,host))return;
+    }catch(e){}
     ensureStyle();
     var c=peerCell(peerId,name);if(!c)return;
     var v=c.querySelector('video');if(!v)return;
