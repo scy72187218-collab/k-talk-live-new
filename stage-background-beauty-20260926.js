@@ -47,7 +47,7 @@
     if(document.getElementById('ktStageBeautyStyle20260926'))return;
     var s=document.createElement('style');s.id='ktStageBeautyStyle20260926';
     s.textContent=''
-      +'.kt-fx-sheet{padding:4px 0 14px;color:#fff}.kt-fx-title{font-weight:950;font-size:14px;margin:4px 0 9px}.kt-fx-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.kt-fx-bg{height:58px;border:1px solid #ffffff33;border-radius:12px;color:#fff;font-weight:900;text-shadow:0 1px 4px #000;background:#17171b;background-size:cover!important}.kt-fx-bg.on{outline:2px solid #50d8ff;outline-offset:1px}.kt-fx-note{font-size:10px;color:#bbb;margin:8px 2px 2px;line-height:1.4}.kt-beauty-row{display:grid;grid-template-columns:76px 1fr 34px;gap:7px;align-items:center;margin:8px 0}.kt-beauty-row label{font-size:11px;font-weight:900}.kt-beauty-row input{width:100%}.kt-beauty-row output{text-align:right;font-size:10px;color:#9fe7ff}.kt-beauty-reset{width:100%;height:38px;margin-top:8px;border:0;border-radius:10px;background:#22242a;color:#fff;font-weight:900}';
+      +'.kt-fx-sheet{padding:4px 0 14px;color:#fff}.kt-fx-head{display:flex;align-items:center;gap:8px;margin:0 0 9px}.kt-fx-back{width:36px;height:36px;border:0;border-radius:50%;background:#262834;color:#fff;font-size:25px;font-weight:900;line-height:1}.kt-fx-title{flex:1;font-weight:950;font-size:14px;margin:0}.kt-fx-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.kt-fx-bg{height:58px;border:1px solid #ffffff33;border-radius:12px;color:#fff;font-weight:900;text-shadow:0 1px 4px #000;background:#17171b;background-size:cover!important}.kt-fx-bg.on{outline:2px solid #50d8ff;outline-offset:1px}.kt-fx-note{font-size:10px;color:#bbb;margin:8px 2px 2px;line-height:1.4}.kt-fx-apply{width:100%;height:46px;margin-top:12px;border:0;border-radius:12px;background:linear-gradient(135deg,#ff315f,#8b55ff);color:#fff;font-size:14px;font-weight:950}.kt-beauty-row{display:grid;grid-template-columns:76px 1fr 34px;gap:7px;align-items:center;margin:8px 0}.kt-beauty-row label{font-size:11px;font-weight:900}.kt-beauty-row input{width:100%}.kt-beauty-row output{text-align:right;font-size:10px;color:#9fe7ff}.kt-beauty-reset{width:100%;height:38px;margin-top:8px;border:0;border-radius:10px;background:#22242a;color:#fff;font-weight:900}';
     document.head.appendChild(s);
   }
 
@@ -56,6 +56,16 @@
     if(typeof window.showSheet==='function'){window.showSheet(title,html);return;}
     alert(title);
   }
+
+  window.ktCloseFxPanel20260926=function(){
+    try{
+      if(typeof window.closeSheet==='function')window.closeSheet();
+      else{
+        var sh=document.getElementById('sheet');
+        if(sh)sh.classList.remove('show');
+      }
+    }catch(e){}
+  };
 
   function bgDef(key){
     for(var i=0;i<BGS.length;i++)if(BGS[i][0]===key)return BGS[i];
@@ -296,12 +306,12 @@
   window.ktChooseStageBackground20260926=function(key,el){chooseBg(String(key||'none'),el);};
 
   window.openEditEffectPanel=function(){
-    var html='<div class="kt-fx-sheet"><div class="kt-fx-title">🎬 움직이는 배경 효과</div><div class="kt-fx-grid">';
+    var html='<div class="kt-fx-sheet"><div class="kt-fx-head"><button type="button" class="kt-fx-back" onclick="ktCloseFxPanel20260926()" aria-label="뒤로가기">‹</button><div class="kt-fx-title">🎬 움직이는 배경 효과</div></div><div class="kt-fx-grid">';
     BGS.forEach(function(b){
       var bg=b[2]?(' style="background:'+b[2]+'"'):'';
       html+='<button class="kt-fx-bg'+(FX.key===b[0]?' on':'')+'" data-fx="'+b[0]+'" onclick="ktChooseStageBackground20260926(\''+b[0]+'\',this)"'+bg+'>'+b[1]+'</button>';
     });
-    html+='</div><div class="kt-fx-note">기본 방송은 AI를 사용하지 않습니다. <b>여기서 배경을 선택할 때만 AI 배경 분리</b>가 켜집니다. 사람이 움직여도 배경을 유지하며, 기기 성능에 따라 가장자리 품질은 달라질 수 있습니다.</div></div>';
+    html+='</div><div class="kt-fx-note">기본 방송은 AI를 사용하지 않습니다. <b>여기서 배경을 선택할 때만 AI 배경 분리</b>가 켜집니다. 사람이 움직여도 배경을 유지하며, 기기 성능에 따라 가장자리 품질은 달라질 수 있습니다.</div><button type="button" class="kt-fx-apply" onclick="ktCloseFxPanel20260926()">적용</button></div>';
     sheet('편집 · 효과',html);
   };
 
@@ -335,12 +345,13 @@
   };
 
   window.openBeautyPanel=function(){
-    var html='<div class="kt-fx-sheet"><div class="kt-fx-title">✨ 얼굴 보정 1~100</div>'
+    var html='<div class="kt-fx-sheet"><div class="kt-fx-head"><button type="button" class="kt-fx-back" onclick="ktCloseFxPanel20260926()" aria-label="뒤로가기">‹</button><div class="kt-fx-title">✨ 얼굴 보정 1~100</div></div>'
       +beautySlider('face','전체 보정')+beautySlider('skin','피부')+beautySlider('bright','밝기')
       +beautySlider('eyes','눈')+beautySlider('lips','입술')+beautySlider('nose','코')
       +beautySlider('ears','귀')+beautySlider('chin','턱')+beautySlider('slim','얼굴 작게')+beautySlider('jaw','턱선')
       +'<button class="kt-beauty-reset" onclick="ktBeautyReset20260926()">전체 초기화</button>'
-      +'<div class="kt-fx-note"><b>기본 보정은 AI 없이 안정적으로 작동</b>합니다. 피부·밝기·전체 얼굴/얼굴 작게는 실시간 영상에 적용됩니다. 입술·코·귀·턱의 정밀 형태 변경은 휴대폰 AI 얼굴 추적이 필요한 기능이라 기기별로 제한될 수 있습니다.</div></div>';
+      +'<div class="kt-fx-note"><b>기본 보정은 AI 없이 안정적으로 작동</b>합니다. 피부·밝기·전체 얼굴/얼굴 작게는 실시간 영상에 적용됩니다. 입술·코·귀·턱의 정밀 형태 변경은 휴대폰 AI 얼굴 추적이 필요한 기능이라 기기별로 제한될 수 있습니다.</div>'
+      +'<button type="button" class="kt-fx-apply" onclick="ktCloseFxPanel20260926()">적용</button></div>';
     sheet('편집 · 보정',html);
   };
 
