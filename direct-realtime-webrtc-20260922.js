@@ -1390,12 +1390,13 @@
       try{
         var shared=window.__ktApprovedGuestSelfStream||null;
         var sharedLive=!!(shared&&shared.getVideoTracks&&shared.getVideoTracks().some(function(t){return t.readyState==='live';}));
-        if(sharedLive&&isTrustedGuestCamera20260926(shared)){
-          guestStream=shared;live=true;
-        }else if(sharedLive){
-          /* Never promote an untrusted/shared DOM stream into the canonical
-             guest camera. It may briefly be the remote host stream. */
-          shared=null;
+        if(sharedLive&&!isRemoteHostMedia20260926(shared)){
+          var remoteNow=window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream||null;
+          if(!remoteNow||!sameVideoSource20260926(shared,remoteNow)){
+            rememberTrustedGuestCamera20260926(shared);
+            window.__ktLocalGuestCameraStream20260926=shared;
+            guestStream=shared;live=true;
+          }
         }
       }catch(e){}
     }
@@ -2076,6 +2077,23 @@
          sameVideoSource20260926(selfCandidate20260926,keepApprovedHostStream20260926)){
         window.__ktApprovedGuestSelfStream=null;
         if(guestStream&&sameVideoSource20260926(guestStream,keepApprovedHostStream20260926))guestStream=null;
+      }
+    }catch(e){}
+
+    /* The older guest-request flow may already have opened this phone's
+       own camera before approval. Reuse that exact live stream immediately
+       instead of waiting for a second getUserMedia/WebRTC cycle. */
+    try{
+      var preopened20260926=window.__ktApprovedGuestSelfStream||null;
+      var preopenedLive20260926=!!(
+        preopened20260926&&preopened20260926.getVideoTracks&&
+        preopened20260926.getVideoTracks().some(function(t){return t&&t.readyState==='live';})
+      );
+      if(preopenedLive20260926&&!isRemoteHostMedia20260926(preopened20260926)&&
+         (!keepApprovedHostStream20260926||!sameVideoSource20260926(preopened20260926,keepApprovedHostStream20260926))){
+        guestStream=preopened20260926;
+        rememberTrustedGuestCamera20260926(preopened20260926);
+        window.__ktLocalGuestCameraStream20260926=preopened20260926;
       }
     }catch(e){}
 
