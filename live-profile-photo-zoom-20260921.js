@@ -79,6 +79,20 @@
     ):null;
   }
 
+  function isHostPerson(el){
+    try{
+      var t=personTile(el);
+      return !!(t&&t.matches(
+        '.ktsolo-main,'+
+        '.ktg13-host,'+
+        '.ktg9-host,'+
+        '.ktsubscriber-host,'+
+        '.ktsecret-slot.host,'+
+        '.ktsecret-host'
+      ));
+    }catch(e){return false;}
+  }
+
   function isUiIcon(el){
     if(!el)return true;
     return !!el.closest(
@@ -293,6 +307,8 @@
 
   function clickTarget(target){
     if(!target||!roomRoot(target))return null;
+    /* 호스트 얼굴은 확대 금지: 시청자 좋아요 탭 전용 */
+    if(isHostPerson(target))return null;
 
     var video=target.closest&&target.closest('video');
     if(video&&personTile(video)&&!isUiIcon(video))return {kind:'video',el:video};
@@ -333,7 +349,8 @@
       '#screen .ktg9-room video,#screen .ktg9-room img,'+
       '.kt-guest-hostlike-room video,.kt-guest-hostlike-room img'
     ).forEach(function(el){
-      if(personTile(el)&&!isUiIcon(el))el.classList.add('kt-photo-zoomable');
+      if(personTile(el)&&!isUiIcon(el)&&!isHostPerson(el))el.classList.add('kt-photo-zoomable');
+      else if(isHostPerson(el))el.classList.remove('kt-photo-zoomable');
     });
   }
 
