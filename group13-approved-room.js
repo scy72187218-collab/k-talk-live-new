@@ -261,49 +261,90 @@
     if(!isGroup13())return oldStartBroadcast.apply(this,arguments);
 
     /* 13명방 전용:
-       5→4→3→2→1을 끊김 없이 모두 보여준 뒤,
-       1이 끝난 다음 현재 13명방으로 바로 전환한다.
-       아래 기존 시작 로직의 중복 카운트다운은 잠깐 막는다. */
+       5→4→3→2→1은 실제 경과시간 5초로 정확히 끝내고,
+       카메라는 그 5초 동안 뒤에서 미리 준비한다.
+       1이 끝나는 순간 현재 13명방과 카메라를 바로 보여준다. */
+    window.__ktGroup13CountdownInProgress=true;
     markGroup13Opening();
+
+    var self=this,args=arguments;
+    var startPromise;
+    try{
+      startPromise=Promise.resolve(oldStartBroadcast.apply(self,args));
+    }catch(e){
+      startPromise=Promise.reject(e);
+    }
+    /* 카메라 준비 실패가 카운트다운 자체를 깨지 않게 한다. */
+    startPromise.catch(function(){});
 
     var old=document.getElementById('ktLiveCountdown');
     if(old)old.remove();
 
     var wrap=document.createElement('div');
     wrap.id='ktLiveCountdown';
-    wrap.style.cssText='position:fixed;inset:0;z-index:99999;display:grid;place-items:center;background:rgba(0,0,0,.10);pointer-events:none;';
+    wrap.style.cssText='position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;background:transparent;pointer-events:none;';
     var num=document.createElement('div');
-    num.style.cssText='width:116px;height:116px;border-radius:50%;display:grid;place-items:center;background:rgba(10,10,14,.72);border:4px solid rgba(255,255,255,.92);color:#fff;font:900 64px/1 system-ui,-apple-system,sans-serif;box-shadow:0 0 28px rgba(255,44,130,.7);text-shadow:0 0 12px rgba(255,255,255,.7);';
+    num.style.cssText='width:116px;height:116px;border-radius:50%;display:grid;place-items:center;background:rgba(10,10,14,.72);border:4px solid rgba(255,255,255,.92);color:#fff;font:900 64px/1 system-ui,-apple-system,sans-serif;box-shadow:0 0 28px rgba(255,44,130,.7);text-shadow:0 0 12px rgba(255,255,255,.7);transition:transform .18s ease;';
     wrap.appendChild(num);
     document.body.appendChild(wrap);
 
-    for(var n=5;n>=1;n--){
-      num.textContent=String(n);
-      num.style.transform='scale(1)';
-      await new Promise(function(resolve){
-        setTimeout(function(){num.style.transform='scale(.92)';},650);
-        setTimeout(resolve,1000);
-      });
-    }
-    wrap.remove();
+    await new Promise(function(resolve){
+      var started=performance.now();
+      var last=0;
+      num.textContent='5';
 
-    /* 1초가 완전히 끝난 다음에만 현재 13명방을 보여준다. */
-    renderApprovedGroup13(true);
+      function frame(now){
+        var elapsed=Math.max(0,now-started);
+        if(elapsed>=5000){
+          resolve();
+          return;
+        }
+        var next=Math.max(1,5-Math.floor(elapsed/1000));
+        if(next!==last){
+          last=next;
+          num.textContent=String(next);
+          num.style.transform='scale(1)';
+          setTimeout(function(){
+            try{if(num&&num.isConnected)num.style.transform='scale(.92)';}catch(e){}
+          },620);
+        }
+        requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    });
 
-    var originalCountdown=window.ktLiveStartCountdown;
-    if(typeof originalCountdown==='function'){
-      window.ktLiveStartCountdown=async function(){};
+    try{if(wrap&&wrap.parentNode)wrap.parentNode.removeChild(wrap);}catch(e){}
+
+    /* 1초가 끝난 바로 그 순간 현재 13명방을 그린다. */
+    try{
+      if(window.creator)creator.classList.remove('show','live-prep-open');
+    }catch(e){}
+    renderApprovedGroup13(false);
+    window.__ktGroup13CountdownInProgress=false;
+
+    function attachReadyCamera(){
+      try{
+        var v=document.getElementById('ktLiveVideo');
+        var s=(window.state&&state.stream)||((document.getElementById('camera')||{}).srcObject)||null;
+        if(v&&s){
+          v.autoplay=true;v.muted=true;v.defaultMuted=true;v.playsInline=true;
+          v.setAttribute('autoplay','');v.setAttribute('muted','');v.setAttribute('playsinline','');
+          if(v.srcObject!==s)v.srcObject=s;
+          var p=v.play();if(p&&p.catch)p.catch(function(){});
+        }
+      }catch(e){}
     }
+    attachReadyCamera();
 
     try{
-      var result=await oldStartBroadcast.apply(this,arguments);
-      renderApprovedGroup13(false);
+      var result=await startPromise;
+      attachReadyCamera();
       return result;
     }catch(e){
-      renderApprovedGroup13(false);
+      attachReadyCamera();
       throw e;
     }finally{
-      if(originalCountdown)window.ktLiveStartCountdown=originalCountdown;
+      window.__ktGroup13CountdownInProgress=false;
     }
   };
 
