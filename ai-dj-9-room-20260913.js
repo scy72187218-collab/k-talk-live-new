@@ -25,7 +25,8 @@
       +'.kt-ai-dj-mic{position:absolute!important;right:8px!important;top:52px!important;z-index:1400!important;width:42px!important;height:42px!important;border-radius:50%!important;border:1px solid #ff7ecf99!important;background:rgba(35,8,27,.92)!important;color:#fff!important;font-size:19px!important;display:grid!important;place-items:center!important;pointer-events:auto!important;touch-action:manipulation!important;box-shadow:0 0 12px #ff4ebd44!important}'
       +'.kt-ai-dj-mic.listening{background:#b60f52!important;box-shadow:0 0 0 4px #ff4b8d33,0 0 18px #ff4b8d99!important}'
       +'.kt-singer-lyric{position:absolute!important;left:50%!important;top:10px!important;transform:translateX(-50%)!important;z-index:1200!important;max-width:92%!important;padding:6px 11px!important;border-radius:999px!important;background:rgba(0,0,0,.72)!important;border:1px solid rgba(255,255,255,.34)!important;color:#fff!important;font:950 13px/1.2 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;text-align:center!important;text-shadow:0 1px 3px #000!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;pointer-events:none!important}'
-      +'.kt-singer-lyric:empty{display:none!important}';
+      +'.kt-singer-lyric:empty{display:none!important}'
+      +'.kt-singer-copyright{position:absolute!important;left:50%!important;top:48px!important;transform:translateX(-50%)!important;z-index:1201!important;max-width:92%!important;padding:5px 9px!important;border-radius:10px!important;background:rgba(85,8,8,.82)!important;border:1px solid rgba(255,110,110,.65)!important;color:#ffe8e8!important;font:900 9px/1.25 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;text-align:center!important;pointer-events:none!important}';
     document.head.appendChild(s);
   }
 
@@ -207,7 +208,8 @@
       tools.innerHTML='<button type="button" onclick="ktAiDjOpenRequest20260927()">🎵 신청곡</button>'
         +'<button type="button" onclick="if(window.ktSpeak)ktSpeak(\'안녕하세요. K-Talk AI 음악방입니다. 신청곡과 대화를 함께 즐겨 주세요.\')">🤖 AI 안내</button>'
         +'<button type="button" class="kt-ai-dj-company" onclick="ktAiDjShowCompany20260927()">🏢 회사 코인</button>'
-        +'<div id="ktAiDjNowPlayingLabel20260927" style="grid-column:1/-1;min-height:24px;padding:5px 7px;border-radius:9px;background:rgba(0,0,0,.72);border:1px solid #ffffff1f;color:#ffe5a9;font:800 8px/1.35 system-ui,-apple-system,\"Noto Sans KR\",sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">🎵 저작권 허용 음원 자동재생</div>';
+        +'<div id="ktAiDjNowPlayingLabel20260927" style="grid-column:1/-1;min-height:24px;padding:5px 7px;border-radius:9px;background:rgba(0,0,0,.72);border:1px solid #ffffff1f;color:#ffe5a9;font:800 8px/1.35 system-ui,-apple-system,\"Noto Sans KR\",sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">🎵 저작권 허용 음원 자동재생</div>'
+        +'<div style="grid-column:1/-1;padding:5px 7px;border-radius:9px;background:rgba(84,8,8,.75);border:1px solid #ff737355;color:#ffdede;font:900 8px/1.35 system-ui,-apple-system,\"Noto Sans KR\",sans-serif">⚠ 노래 부를 때 저작권 있는 곡은 사용하지 마세요. 허용된 곡만 이용해 주세요.</div>';
       room.appendChild(tools);
     }
   }
@@ -926,6 +928,18 @@
     return null;
   }
 
+  function ensureSingerCopyright(tile){
+    if(!tile)return null;
+    var el=tile.querySelector('.kt-singer-copyright');
+    if(!el){
+      el=document.createElement('div');
+      el.className='kt-singer-copyright';
+      el.textContent='⚠ 저작권 있는 곡은 방송에서 사용할 수 없습니다. 허용된 곡만 불러 주세요.';
+      tile.appendChild(el);
+    }
+    return el;
+  }
+
   function ensureSingerLyricLabel(tile,role,viewerId){
     if(!tile)return null;
     try{tile.style.setProperty('position','relative','important');}catch(e){}
@@ -975,6 +989,12 @@
     var tile=singerTile(role,viewerId);
     var el=ensureSingerLyricLabel(tile,role,viewerId);
     if(!el)return false;
+    try{ensureSingerCopyright(tile);}catch(e){}
+    try{
+      if(typeof window.ktSpeak==='function'){
+        window.ktSpeak('저작권 있는 노래는 방송에서 사용할 수 없습니다. 사용이 허용된 곡만 불러 주세요.');
+      }
+    }catch(e){}
 
     var idx=0;
     el.textContent=arr[0];
