@@ -114,7 +114,8 @@
       tools.className='kt-ai-dj-tools';
       tools.innerHTML='<button type="button" onclick="ktAiDjOpenRequest20260927()">🎵 신청곡</button>'
         +'<button type="button" onclick="if(window.ktSpeak)ktSpeak(\'안녕하세요. K-Talk AI 음악방입니다. 신청곡과 대화를 함께 즐겨 주세요.\')">🤖 AI 안내</button>'
-        +'<button type="button" class="kt-ai-dj-company" onclick="ktAiDjShowCompany20260927()">🏢 회사 코인</button>';
+        +'<button type="button" class="kt-ai-dj-company" onclick="ktAiDjShowCompany20260927()">🏢 회사 코인</button>'
+        +'<div id="ktAiDjNowPlayingLabel20260927" style="grid-column:1/-1;min-height:24px;padding:5px 7px;border-radius:9px;background:rgba(0,0,0,.72);border:1px solid #ffffff1f;color:#ffe5a9;font:800 8px/1.35 system-ui,-apple-system,\"Noto Sans KR\",sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">🎵 저작권 허용 음원 자동재생</div>';
       room.appendChild(tools);
     }
   }
@@ -595,7 +596,11 @@
   function allowedTracks(){
     try{
       return (window.ktCreatorTracks||[]).filter(function(t){
-        return t&&t.url&&/퍼블릭도메인/.test(String(t.source||''));
+        if(!t||!t.url)return false;
+        var src=String(t.source||'');
+        /* AI 음악방은 앱에 라이선스가 명시된 곡만 자동재생:
+           Public Domain 또는 CC BY / CC BY-SA. */
+        return /퍼블릭도메인|CC BY(?:-SA)?/i.test(src);
       });
     }catch(e){return [];}
   }
@@ -687,7 +692,19 @@
       audio.src=t.url;
       audio.load();
       await audio.play();
-      try{window.__ktAiDjNowPlaying20260927=t.name||'';}catch(e){}
+      try{
+        window.__ktAiDjNowPlaying20260927=t.name||'';
+        window.__ktAiDjNowSource20260927=t.source||'';
+      }catch(e){}
+      try{
+        var np=document.getElementById('ktAiDjNowPlayingLabel20260927');
+        if(np)np.textContent='🎵 '+String(t.name||'곡명 없음')+' · '+String(t.source||'라이선스 확인');
+      }catch(e){}
+      try{
+        if(typeof window.ktSpeak==='function'){
+          window.ktSpeak('지금 들려드리는 곡은 '+String(t.name||'음악')+' 입니다.');
+        }
+      }catch(e){}
     }catch(e){
       setTimeout(playNext,1000);
     }
