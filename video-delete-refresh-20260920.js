@@ -1,35 +1,74 @@
-/* K-Talk 동영상 삭제 후 남은 공개 영상 자동 복구 */
+/* K-Talk 동영상 삭제 전용
+   - 내 동영상 삭제를 확실히 처리
+   - 공개로 올린 영상이면 공개 목록에서도 삭제 시도
+   - 첫 동영상 빠른 표시/통신/방송 화면은 변경하지 않음 */
 (function(){
   if(window.__ktVideoDeleteRefresh20260920)return;
   window.__ktVideoDeleteRefresh20260920=true;
 
   function refresh(){
-    try{localStorage.removeItem('ktalk_fast_feed');}catch(e){}
     setTimeout(function(){
       try{
-        if(typeof window.ktShowSharedServerFeed==='function'){
-          window.ktShowSharedServerFeed();
-        }else if(typeof window.ktShowSharedServerFeed==='function'){
-          window.ktShowSharedServerFeed();
-        }else if(typeof window.ktForceHomeVideoRecovery==='function'){
-          window.ktForceHomeVideoRecovery(true);
-        }else if(typeof window.home==='function'){
-          window.home();
-        }
+        if(typeof window.ktShowSharedServerFeed==='function')window.ktShowSharedServerFeed();
+        else if(typeof window.home==='function')window.home();
       }catch(e){}
-    },120);
+    },180);
   }
 
-  document.addEventListener('click',function(e){
-    var b=e.target&&e.target.closest?e.target.closest('button,[role="button"]'):null;
-    if(!b)return;
-    var t=String(b.textContent||'').replace(/\s+/g,'');
-    if(/동영상삭제|영상삭제|삭제하기|삭제/.test(t)){
-      /* 실제 삭제 처리 코드가 먼저 실행된 뒤 남은 목록을 다시 받는다. */
-      setTimeout(refresh,350);
-      setTimeout(refresh,900);
-    }
-  },false);
+  async function localItem(id){
+    try{
+      var db=await ktOpenVideoDB();
+      return await new Promise(function(resolve){
+        var tx=db.transaction('videos','readonly');
+        var req=tx.objectStore('videos').get(id);
+        req.onsuccess=function(){var x=req.result||null;try{db.close();}catch(e){}resolve(x);};
+        req.onerror=function(){try{db.close();}catch(e){}resolve(null);};
+      });
+    }catch(e){return null;}
+  }
 
+  function install(){
+    var old=window.deleteStoredVideo;
+    if(typeof old!=='function'||old.__ktDeletePublicWrapped)return;
+
+    var wrapped=async function(id,btn,fromPlayer){
+      var item=await localItem(id);
+      var publicId=String(item&&item.publicVideoId||'').trim();
+      var publicUrl=String(item&&item.publicVideoUrl||'').trim();
+
+      if(publicId||publicUrl){
+        try{
+          if(typeof window.ktDeletePublicVideo==='function'){
+            await window.ktDeletePublicVideo({
+              id:publicId,
+              publicVideoId:publicId,
+              video_url:publicUrl,
+              publicVideoUrl:publicUrl
+            });
+          }else if(typeof window.ktRememberDeletedPublicVideo==='function'){
+            window.ktRememberDeletedPublicVideo(publicId,publicUrl);
+          }
+        }catch(e){
+          try{
+            if(typeof window.ktRememberDeletedPublicVideo==='function'){
+              window.ktRememberDeletedPublicVideo(publicId,publicUrl);
+            }
+          }catch(x){}
+        }
+      }
+
+      var result=await old.call(this,id,btn,fromPlayer);
+      refresh();
+      return result;
+    };
+    wrapped.__ktDeletePublicWrapped=true;
+    wrapped.__ktDeletePublicOriginal=old;
+    window.deleteStoredVideo=wrapped;
+  }
+
+  install();
+  setTimeout(install,60);
+  setTimeout(install,300);
+  window.addEventListener('pageshow',function(){setTimeout(install,40);});
   window.ktRefreshVideosAfterDelete=refresh;
 })();
