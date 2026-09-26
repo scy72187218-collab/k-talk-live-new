@@ -152,12 +152,63 @@
     }
   }
 
+  function hasBeauty(){
+    try{return Object.keys(FX.beauty).some(function(k){return Number(FX.beauty[k]||0)>0;});}catch(e){return false;}
+  }
+
   function beautyFilter(){
     var b=FX.beauty;
     var bright=100+Math.round((b.bright+b.face)*.12);
     var sat=100+Math.round((b.lips+b.skin)*.08);
     var contrast=100-Math.round(b.skin*.05);
     return 'brightness('+bright+'%) saturate('+sat+'%) contrast('+contrast+'%)';
+  }
+
+  function ensureSafeBeautyPipeline(){
+    var src=sourceStream(); if(!src)return Promise.reject(new Error('camera stream missing'));
+    if(!FX.original||FX.original===FX.processed)FX.original=src;
+
+    if(!FX.video){
+      FX.video=document.createElement('video');
+      FX.video.autoplay=true;FX.video.muted=true;FX.video.playsInline=true;
+      FX.video.style.display='none';document.body.appendChild(FX.video);
+    }
+    FX.video.srcObject=FX.original;
+    try{var p=FX.video.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
+
+    if(!FX.canvas){
+      FX.canvas=document.createElement('canvas');FX.canvas.width=720;FX.canvas.height=1280;
+      FX.canvas.style.display='none';document.body.appendChild(FX.canvas);
+      FX.ctx=FX.canvas.getContext('2d',{alpha:false});
+    }
+    try{
+      var tr=FX.original.getVideoTracks&&FX.original.getVideoTracks()[0];
+      var st=tr&&tr.getSettings?tr.getSettings():{};
+      if(st.width&&st.height){FX.canvas.width=st.width;FX.canvas.height=st.height;}
+    }catch(e){}
+    if(!FX.running){FX.running=true;requestAnimationFrame(loop);}
+    return Promise.resolve(true);
+  }
+
+  function drawSafeBeautyFrame(){
+    if(FX.active||!hasBeauty()||!FX.ctx||!FX.canvas||!FX.video||FX.video.readyState<2)return;
+    try{
+      var x=FX.ctx,c=FX.canvas,w=c.width,h=c.height;
+      x.save();x.setTransform(1,0,0,1,0,0);x.globalCompositeOperation='source-over';
+      x.clearRect(0,0,w,h);x.filter=beautyFilter();
+
+      /* Stable TikTok-style basic beauty: keep the full real background and
+         apply light skin/brightness/color smoothing to the outgoing frame.
+         No person-segmentation AI is used in this mode. */
+      var slim=1-Math.min(.055,Number(FX.beauty.slim||0)/1800);
+      var face=1-Math.min(.035,Number(FX.beauty.face||0)/2800);
+      var sx=slim*face;
+      var pad=w*(1-sx)/2;
+      x.translate(w/2,0);x.scale(sx,1);x.translate(-w/2,0);
+      x.drawImage(FX.video,-pad,0,w+pad*2,h);
+      x.restore();
+      ensureProcessedStream();
+    }catch(e){try{FX.ctx.restore();}catch(_e){}}
   }
 
   function onResults(res){
@@ -212,14 +263,20 @@
 
   function loop(ts){
     if(!FX.running)return;
-    if(!FX.active){requestAnimationFrame(loop);return;}
-    if(ts-FX.lastRun<55){requestAnimationFrame(loop);return;} // ~18fps mobile-friendly segmentation
+    if(ts-FX.lastRun<40){requestAnimationFrame(loop);return;}
     FX.lastRun=ts;
-    try{
-      if(FX.segmenter&&FX.video&&FX.video.readyState>=2){
-        Promise.resolve(FX.segmenter.send({image:FX.video})).catch(function(){});
-      }
-    }catch(e){}
+
+    if(FX.active){
+      /* AI is used only when the user explicitly picks a background. */
+      try{
+        if(FX.segmenter&&FX.video&&FX.video.readyState>=2){
+          Promise.resolve(FX.segmenter.send({image:FX.video})).catch(function(){});
+        }
+      }catch(e){}
+    }else if(hasBeauty()){
+      drawSafeBeautyFrame();
+    }
+
     requestAnimationFrame(loop);
   }
 
@@ -244,7 +301,7 @@
       var bg=b[2]?(' style="background:'+b[2]+'"'):'';
       html+='<button class="kt-fx-bg'+(FX.key===b[0]?' on':'')+'" data-fx="'+b[0]+'" onclick="ktChooseStageBackground20260926(\''+b[0]+'\',this)"'+bg+'>'+b[1]+'</button>';
     });
-    html+='</div><div class="kt-fx-note">사람을 자동으로 분리해 사람이 움직여도 선택한 무대·바다 배경을 뒤에 유지합니다. 휴대폰 성능에 따라 가장자리 품질은 달라질 수 있습니다.</div></div>';
+    html+='</div><div class="kt-fx-note">기본 방송은 AI를 사용하지 않습니다. <b>여기서 배경을 선택할 때만 AI 배경 분리</b>가 켜집니다. 사람이 움직여도 배경을 유지하며, 기기 성능에 따라 가장자리 품질은 달라질 수 있습니다.</div></div>';
     sheet('편집 · 효과',html);
   };
 
@@ -256,9 +313,19 @@
   window.ktBeautySet20260926=function(key,val,out){
     val=Math.max(0,Math.min(100,Number(val)||0));FX.beauty[key]=val;if(out)out.textContent=String(val);
     try{localStorage.setItem('ktalk_beauty_20260926',JSON.stringify(FX.beauty));}catch(e){}
-    /* Beauty is drawn through the processing canvas. If no stage background is
-       selected, use a very dark neutral background so the person filter remains live. */
-    if(!FX.active){FX.key='stage';FX.active=true;ensurePipeline().catch(function(){});}
+
+    /* Default beauty is intentionally non-AI for stability. It keeps the real
+       camera background and sends the filtered frame to viewers. */
+    if(!FX.active){
+      if(hasBeauty())ensureSafeBeautyPipeline().catch(function(){});
+      else{
+        try{
+          if(FX.original)applyOutputStream(FX.original);
+          if(FX.processed)FX.processed.getVideoTracks().forEach(function(t){t.stop();});
+        }catch(e){}
+        FX.processed=null;
+      }
+    }
   };
 
   window.ktBeautyReset20260926=function(){
@@ -273,7 +340,7 @@
       +beautySlider('eyes','눈')+beautySlider('lips','입술')+beautySlider('nose','코')
       +beautySlider('ears','귀')+beautySlider('chin','턱')+beautySlider('slim','얼굴 작게')+beautySlider('jaw','턱선')
       +'<button class="kt-beauty-reset" onclick="ktBeautyReset20260926()">전체 초기화</button>'
-      +'<div class="kt-fx-note">현재 버전은 피부·밝기·전체 얼굴 크기 보정이 실시간 적용됩니다. 입술·코·귀·턱 세부 슬라이더도 1~100으로 저장되며, 고급 부위별 형태 변경은 휴대폰 AI 얼굴 추적 지원 범위에 따라 단계적으로 적용됩니다.</div></div>';
+      +'<div class="kt-fx-note"><b>기본 보정은 AI 없이 안정적으로 작동</b>합니다. 피부·밝기·전체 얼굴/얼굴 작게는 실시간 영상에 적용됩니다. 입술·코·귀·턱의 정밀 형태 변경은 휴대폰 AI 얼굴 추적이 필요한 기능이라 기기별로 제한될 수 있습니다.</div></div>';
     sheet('편집 · 보정',html);
   };
 
