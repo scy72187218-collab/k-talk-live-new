@@ -762,6 +762,14 @@
   function roomEl(){return document.querySelector('#screen .ktsolo-room,#screen .ktg9-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room');}
   function isHostRole(){
     try{
+      /* Remote viewer/guest must be classified BEFORE inspecting room-shaped DOM.
+         Guest UI intentionally mirrors the host room, so a visible .ktg13-room
+         does not mean this phone is the broadcaster. */
+      var rh='';
+      try{rh=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||sessionStorage.getItem('kt_remote_host_id')||'').trim();}catch(_e){}
+      if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
+      if(rh&&rh!==DEVICE)return false;
+
       var local=roomEl(),visible=false;
       try{
         if(local){
@@ -769,18 +777,7 @@
           visible=st.display!=='none'&&st.visibility!=='hidden'&&(!local.getClientRects||local.getClientRects().length>0);
         }
       }catch(_e){visible=!!local;}
-      if(visible){
-        try{
-          window.__ktRemoteHostId='';
-          window.__ktCurrentRemoteHostId='';
-          sessionStorage.removeItem('kt_remote_host_id');
-        }catch(_e){}
-        return true;
-      }
-      if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
-      var rh='';
-      try{rh=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||sessionStorage.getItem('kt_remote_host_id')||'').trim();}catch(_e){}
-      if(rh)return false;
+      if(visible)return true;
       return false;
     }catch(e){return false;}
   }
