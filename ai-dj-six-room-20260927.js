@@ -101,6 +101,94 @@
   }
 
   window.ktRenderAiDjSixRoom20260927=render;
+  window.ktSelectAiDjClean20260927=function(btn){
+    try{
+      window.__ktAiDjSixActive20260927=false;
+      localStorage.setItem('kt_ai_dj_selected_20260927','1');
+      if(!window.state)window.state={};
+      state.ktAiDjRoom=true;
+      state.liveRoomType='aidj6';
+      state.liveRoomName='AI DJ 음악방';
+      state.liveRoomMax=6;
+      state.prepRoomType='aidj6';
+      state.prepRoomName='AI DJ 음악방';
+      state.prepRoomMax=6;
+      var t=document.getElementById('liveTitle');
+      if(t){t.value='AI DJ 음악방';t.dataset.autoRoom='1';}
+      document.querySelectorAll('.live-prep .room-switch,.live-prep .kt-ai-dj-room-button').forEach(function(b){
+        var on=b===btn;
+        b.classList.toggle('on',on);
+        b.setAttribute('aria-pressed',on?'true':'false');
+      });
+      if(btn){
+        btn.classList.add('on');
+        btn.setAttribute('aria-pressed','true');
+      }
+      var box=document.getElementById('ktSecretPasswordBox');
+      if(box)box.style.setProperty('display','none','important');
+    }catch(e){}
+    return false;
+  };
+
+  async function cleanAiDjCountdown(){
+    var old=document.getElementById('ktAiDjCleanCountdown20260927');
+    if(old)old.remove();
+    var overlay=document.createElement('div');
+    overlay.id='ktAiDjCleanCountdown20260927';
+    overlay.style.cssText='position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;background:rgba(0,0,0,.12);pointer-events:none;color:#fff;text-align:center;text-shadow:0 3px 16px rgba(0,0,0,.72)';
+    var num=document.createElement('div');
+    num.style.cssText='width:116px;height:116px;border-radius:50%;display:grid;place-items:center;background:rgba(10,10,14,.78);border:4px solid rgba(255,255,255,.94);color:#fff;font:900 64px/1 system-ui,-apple-system,sans-serif;box-shadow:0 0 28px rgba(255,44,130,.7)';
+    overlay.appendChild(num);
+    document.body.appendChild(overlay);
+    for(var n=5;n>=1;n--){
+      num.textContent=String(n);
+      await new Promise(function(resolve){setTimeout(resolve,1000);});
+    }
+    overlay.remove();
+  }
+
+  window.ktStartAiDjClean20260927=async function(){
+    if(window.__ktAiDjCleanStarting20260927)return;
+    window.__ktAiDjCleanStarting20260927=true;
+    try{
+      if(!window.state)window.state={};
+      state.ktAiDjRoom=true;
+      state.liveRoomType='aidj6';
+      state.liveRoomName='AI DJ 음악방';
+      state.liveRoomMax=6;
+      window.__ktAiDjSixActive20260927=true;
+
+      var creator=window.creator||document.getElementById('creator');
+      if(creator)creator.classList.remove('show','live-prep-open','camera-on');
+
+      /* 카운트다운 뒤 새 DJ방을 바로 그린다. 일반 1인/9인 startBroadcast는 호출하지 않는다. */
+      await cleanAiDjCountdown();
+      render();
+
+      [40,120,300,700,1400].forEach(function(ms){setTimeout(render,ms);});
+    }finally{
+      window.__ktAiDjCleanStarting20260927=false;
+    }
+  };
+
+  /* 가장 마지막에서 startBroadcast를 감싸 AI DJ만 독립 진입시킨다. */
+  (function installCleanStart(){
+    var prev=window.startBroadcast;
+    if(typeof prev!=='function'||prev.__ktAiDjCleanStartWrapper)return;
+    var next=async function(){
+      try{
+        var selected=!!(window.state&&state.ktAiDjRoom);
+        if(!selected){
+          try{selected=localStorage.getItem('kt_ai_dj_selected_20260927')==='1';}catch(_e){}
+        }
+        if(selected)return window.ktStartAiDjClean20260927();
+      }catch(e){}
+      return prev.apply(this,arguments);
+    };
+    next.__ktAiDjCleanStartWrapper=true;
+    window.startBroadcast=next;
+  })();
+
 
   var greetedGuests=window.__ktAiDjGreetedGuests20260927||{};
   window.__ktAiDjGreetedGuests20260927=greetedGuests;
