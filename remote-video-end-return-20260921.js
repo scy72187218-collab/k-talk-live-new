@@ -1,7 +1,8 @@
-/* K-Talk remote viewer end cleanup.
-   Scope: if a remote LIVE video freezes after having played, leave the live room
-   and return to the normal video feed. Does not touch LIVE signal publishing,
-   guest requests, layouts, chat, switches, or host room controls. */
+/* K-Talk remote viewer freeze guard.
+   2026-09-26: a transient ended/emptied/frozen media element is NOT proof that
+   the host broadcast ended. Stay in the live room and let realtime recovery
+   reconnect. Explicit broadcast-end synchronization handles real host stops.
+   Does not touch layouts, chat, switches, or host room controls. */
 (function(){
   if(window.__ktRemoteVideoEndReturn20260921)return;
   window.__ktRemoteVideoEndReturn20260921=true;
@@ -19,33 +20,15 @@
     watched=null;lastTime=-1;lastProgress=0;armedAt=0;busy=false;
   }
 
-  function returnToVideo(){
-    if(busy)return;
-    busy=true;
+  function keepRoomAndRecover(){
+    if(!inRemote())return;
     try{
-      if(typeof window.ktCloseRemoteFallbackInApp20260923==='function'){
-        window.ktCloseRemoteFallbackInApp20260923();
-      }
+      var st=document.getElementById('ktRemoteLiveStatus');
+      if(st){st.style.display='block';st.textContent='신호 다시 연결 중...';}
     }catch(e){}
-    try{
-      if(typeof window.ktCloseRemotePresenceInApp20260923==='function'){
-        var q=window.ktCloseRemotePresenceInApp20260923();
-        if(q&&typeof q.catch==='function')q.catch(function(){});
-      }
-    }catch(e){}
-    try{document.documentElement.classList.remove('kt-remote-viewing');}catch(e){}
-    setTimeout(function(){
-      try{
-        if(typeof window.ktShowSharedServerFeed==='function'){
-          window.ktShowSharedServerFeed();
-        }else if(typeof window.ktForceHomeVideoRecovery==='function'){
-          window.ktForceHomeVideoRecovery(true);
-        }else if(typeof window.home==='function'){
-          window.home();
-        }
-      }catch(e){}
-      reset();
-    },60);
+    /* Do not clear host id, remote-viewing class, or navigate to the public
+       video feed. Existing direct/fallback transports own reconnection. */
+    lastProgress=Date.now();
   }
 
   function watchedVideo(){
@@ -70,8 +53,8 @@
     if(watched!==v){
       watched=v;lastTime=Number(v.currentTime||0);lastProgress=Date.now();armedAt=0;busy=false;
       try{
-        v.addEventListener('ended',returnToVideo,{once:true});
-        v.addEventListener('emptied',function(){if(armedAt)returnToVideo();},{once:true});
+        v.addEventListener('ended',keepRoomAndRecover,{once:true});
+        v.addEventListener('emptied',function(){if(armedAt)keepRoomAndRecover();},{once:true});
       }catch(e){}
       return;
     }
@@ -85,22 +68,10 @@
 
     if(!armedAt)return;
 
-    /* Host broadcast ended: browsers can keep the last video frame frozen.
-       If no new frame/time progress arrives for 8.5s after video had played,
-       close the room and go back to the normal video feed. */
+    /* A five-second frame stall is a reconnect condition, not a host-end
+       condition. Never auto-eject to the public video feed here. */
     if(now-lastProgress>5000){
-      try{
-        var approvedRoom=!!document.querySelector('.kt-guest-hostlike-room,.kt-approved-guest-grid');
-        if(approvedRoom){
-          var hs=window.__ktRemoteHostStream||null;
-          var liveHost=!!(hs&&hs.getVideoTracks&&hs.getVideoTracks().some(function(t){return t.readyState==='live';}));
-          if(liveHost){
-            lastProgress=now;
-            return;
-          }
-        }
-      }catch(e){}
-      returnToVideo();
+      keepRoomAndRecover();
     }
   }
 
