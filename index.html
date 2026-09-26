@@ -1188,10 +1188,9 @@
     try{
       var old=document.getElementById('ktLiveCountdown')||document.getElementById('ktLiveStartCountdown');
       if(old)try{old.remove();}catch(e){}
-      if(window.ktLiveStartCountdown)await window.ktLiveStartCountdown();
-      window.location.href='/ai-dj-room.html?v=20260927-choice5';
+      window.location.href='/ai-dj-room.html?v=20260927-roomcount1';
     }finally{
-      window.__ktRoomChoiceStarting=false;
+      setTimeout(function(){window.__ktRoomChoiceStarting=false;},500);
     }
   };
 })();
