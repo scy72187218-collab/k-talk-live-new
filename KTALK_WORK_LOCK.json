@@ -1,13 +1,13 @@
 {
-  "version": 135,
+  "version": 136,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "main",
-  "snapshot_commit": "f61a6964f635a8fee3f1e914ff43ebcd05ad4102",
+  "snapshot_commit": "1bad68535a731dbb11eb96e4ab149379c5cae692",
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "2026-09-26 owner PIN 1111: fixed the rebuilt single communication core syntax and restored immediate host-video connection when a guest enters a host room. The guest device now opens the remote room shell, stores the host id, dispatches kt-remote-host-selected immediately, and the single direct media transport starts host video signaling. No UI/layout/chat/gifts/switches/public feed changes. Relocked after deployment.",
+  "note": "2026-09-26 owner PIN 1111: fixed host video missing on guest phone after room entry. Root cause: viewer UI mirrors host-room DOM, so media role detection misclassified a guest phone as the broadcaster and cleared the remote host id. isHostRole now checks remote-viewing/remote host id first, keeping guest phone in viewer role even inside a host-shaped room. Only communication core changed; UI/layout/chat/gifts/switches/public feed unchanged. Relocked after deployment.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -98,7 +98,7 @@
   },
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "last_communication_fix": "2026-09-26-host-video-entry-core-syntax-fix",
+  "last_communication_fix": "2026-09-26-viewer-role-host-video-missing-fix",
   "last_video_feed_fix": "2026-09-26-clean-single-first-video-path",
   "locked_components": [
     "public-video-feed",
@@ -159,5 +159,5 @@
   "last_critical_touch_fix": "2026-09-24-critical-touch1",
   "last_livekit_cloud_prepare": "2026-09-25-edge-token-v2-env-first",
   "temporarily_unlocked": [],
-  "last_communication_lock": "2026-09-26-relock-host-video-entry-fix"
+  "last_communication_lock": "2026-09-26-relock-viewer-role-fix"
 }
