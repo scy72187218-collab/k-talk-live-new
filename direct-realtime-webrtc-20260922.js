@@ -1993,33 +1993,49 @@
     guestMediaRecoveryCount=0;
     clearGuestMediaAckTimer20260926();
 
-    /* APPROVAL MEDIA PATH:
-       Camera is already prewarmed while the guest waits. At approval, discard
-       only the sendonly pre-approval PeerConnection and immediately create one
-       fresh PeerConnection with the REAL camera track attached. This avoids
-       Android reporting "connected" while the host receives no first frame. */
+    /* APPROVAL MEDIA PATH — FAST FIRST:
+       신청할 때 이미 협상해 둔 sendonly PeerConnection에 카메라 track만 즉시 꽂는다.
+       성공하면 새 offer/answer 왕복이 없어 호스트 칸에 훨씬 빨리 뜬다.
+       Android에서 첫 프레임이 안 오는 경우만 짧게 기다렸다가 새 연결로 보조한다. */
     guestMediaReadyAt=0;
+    var usedPrepared=false;
     try{
-      if(guestPc){
-        clearGuestMediaAckTimer20260926();
-        clearGuestOfferRetryTimers(guestPc);
-        closePc(guestPc);
+      usedPrepared=!!(guestPc&&guestPc.__ktPreApprovalPayload&&guestStream);
+      if(usedPrepared){
+        var activated=activatePreparedGuestMedia20260924(hid);
+        if(activated&&activated.then){
+          activated.then(function(ok){
+            if(!ok&&guestApproved&&guestApprovedHost===hid){
+              forceFreshApprovedGuestOffer20260926(hid);
+            }
+          }).catch(function(){
+            if(guestApproved&&guestApprovedHost===hid)forceFreshApprovedGuestOffer20260926(hid);
+          });
+        }
       }
-    }catch(e){}
-    guestPc=null;guestSession='';
-    try{
-      var firstMedia=startGuestCamera(hid);
-      if(firstMedia&&firstMedia.catch)firstMedia.catch(function(){});
-    }catch(e){}
+    }catch(e){usedPrepared=false;}
 
-    /* If the first real-track session still has not produced a frame quickly,
-       retry that media path only. Do not rebuild the room or approval UI. */
+    if(!usedPrepared){
+      try{
+        if(guestPc){
+          clearGuestMediaAckTimer20260926();
+          clearGuestOfferRetryTimers(guestPc);
+          closePc(guestPc);
+        }
+      }catch(e){}
+      guestPc=null;guestSession='';
+      try{
+        var firstMedia=startGuestCamera(hid);
+        if(firstMedia&&firstMedia.catch)firstMedia.catch(function(){});
+      }catch(e){}
+    }
+
+    /* 준비 연결이 0.65초 안에 실제 첫 프레임을 못 보내면 그때만 fresh 연결.
+       방/승인 UI는 그대로 유지하고 통신 경로만 교체한다. */
     setTimeout(function(){
       if(!guestApproved||guestApprovedHost!==hid||guestMediaReadyAt)return;
-      var st='';
-      try{st=String(window.__ktDirectGuestUplinkState20260923||'');}catch(e){}
-      if(st!=='connected')forceFreshApprovedGuestOffer20260926(hid);
-    },900);
+      forceFreshApprovedGuestOffer20260926(hid);
+    },650);
 
     /* Visible fallback requested by owner: place only the approved guest's own
        camera face into the host guest slot while live transport is connecting. */
@@ -2063,7 +2079,7 @@
         window.__ktLastApprovedGuestHostStream=keepApprovedHostStream20260926;
         if(keepViewerConnected20260926)viewerConnected=true;
         attachRemoteStreamNow(keepApprovedHostStream20260926);
-        [20,60,140].forEach(function(ms){
+        [0,15,40,90].forEach(function(ms){
           setTimeout(function(){
             if(guestApproved&&guestApprovedHost===hid){
               attachRemoteStreamNow(keepApprovedHostStream20260926);
