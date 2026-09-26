@@ -182,7 +182,9 @@
     var mainStream=main&&main.srcObject||null;
     var previewStream=preview&&preview.srcObject||null;
     var approvedSelf=null;
-    try{approvedSelf=window.__ktApprovedGuestSelfStream||null;}catch(e){}
+    try{
+      approvedSelf=window.__ktLocalGuestCameraStream20260926||window.__ktApprovedGuestSelfStream||null;
+    }catch(e){}
 
     /* Approval must switch screens immediately. The old code waited until both
        host + self streams were already live, which left the viewer in the
@@ -217,6 +219,7 @@
       window.__ktLastApprovedGuestHostStream=hostCandidate;
     }
     selfStream=selfCandidate||selfStream||null;
+    if(selfStream&&hostStream&&sameVideoSource20260926(selfStream,hostStream))selfStream=null;
 
     /* Reuse the visible remote video even while its MediaStream reference is
        being refreshed; do not delay the approved grid for that refresh. */
@@ -380,16 +383,21 @@
           if(hv.paused){try{var hp=hv.play();if(hp&&hp.catch)hp.catch(function(){});}catch(e){}}
         }
         var latestSelf=null;
-        try{latestSelf=window.__ktApprovedGuestSelfStream||null;}catch(e){}
+        try{latestSelf=window.__ktLocalGuestCameraStream20260926||window.__ktApprovedGuestSelfStream||null;}catch(e){}
         if(latestSelf&&live(latestSelf)&&!isRemoteHostStream20260926(latestSelf)&&!sameVideoSource20260926(latestSelf,hostStream)){
           selfStream=latestSelf;
         }else if(latestSelf&&isRemoteHostStream20260926(latestSelf)){
           try{window.__ktApprovedGuestSelfStream=null;}catch(e){}
           if(sameVideoSource20260926(selfStream,latestSelf))selfStream=null;
         }
+        if(selfStream&&hostStream&&sameVideoSource20260926(selfStream,hostStream))selfStream=null;
         if(sv&&selfStream&&live(selfStream)&&sv.srcObject!==selfStream){
           sv.srcObject=selfStream;
           try{var sp=sv.play();if(sp&&sp.catch)sp.catch(function(){});}catch(e){}
+        }
+        if(sv&&hostStream&&sameVideoSource20260926(sv.srcObject,hostStream)){
+          try{sv.pause();}catch(e){}
+          try{sv.srcObject=null;}catch(e){}
         }
         if(sv){
           try{
