@@ -1,13 +1,13 @@
 {
-  "version": 131,
+  "version": 132,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "main",
-  "snapshot_commit": "b27ad3a16bd5738d121540b02e7b181b6d271482",
+  "snapshot_commit": "16437464bfb5a18e3174705417dc308a99a7590c",
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "2026-09-26 owner PIN 1111: rebuilt first public video opening to one clean path. index.html now starts one parser-owned video only; redundant first-paint, video-open-recovery, home-video-feed-recovery, and preload path were detached. posted-feed takes over the same video element once and appends the feed without repeated recovery play loops. Live-room communication, guest numbering, buttons, layouts, chat, switches, and unrelated video features unchanged. Relocked after work.",
+  "note": "2026-09-26 owner PIN 1111: reinstalled video connection transport from a clean loader. Old active media transport loaders were removed from index.html: legacy guest request WebRTC, peer fallback, departed guest cleanup, approved guest bridge, LiveKit parallel bridge, approved guest peer sync, remote-video end recovery, and room enter-exit rejoin cleanup. One new clean-video-transport-20260926.js now owns host video, guest request/approval, approved guest camera, enter/leave/reconnect and 1-15 guest numbering. Old source files remain in repository only for rollback and are not loaded. UI/layout/buttons/chat/gifts/switches/public feed unchanged. Relocked after work.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -98,7 +98,7 @@
   },
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "last_communication_fix": "2026-09-26-host-guest-join-leave-reconnect-hold",
+  "last_communication_fix": "2026-09-26-single-clean-video-transport-reinstall",
   "last_video_feed_fix": "2026-09-26-clean-single-first-video-path",
   "locked_components": [
     "public-video-feed",
@@ -159,5 +159,5 @@
   "last_critical_touch_fix": "2026-09-24-critical-touch1",
   "last_livekit_cloud_prepare": "2026-09-25-edge-token-v2-env-first",
   "temporarily_unlocked": [],
-  "last_communication_lock": "2026-09-26-relock-after-host-guest-join-leave"
+  "last_communication_lock": "2026-09-26-relock-single-clean-video-transport"
 }
