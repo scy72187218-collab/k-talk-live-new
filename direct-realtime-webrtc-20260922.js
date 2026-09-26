@@ -2027,6 +2027,18 @@
       keepApprovedHostStream20260926=window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream||null;
     }catch(e){}
 
+    /* Keep host and guest cameras strictly separate.
+       If a stale path copied the remote host stream into the guest-self slot,
+       discard it before building the approved guest room. */
+    try{
+      var selfCandidate20260926=window.__ktApprovedGuestSelfStream||guestStream||null;
+      if(selfCandidate20260926&&keepApprovedHostStream20260926&&
+         sameVideoSource20260926(selfCandidate20260926,keepApprovedHostStream20260926)){
+        window.__ktApprovedGuestSelfStream=null;
+        if(guestStream&&sameVideoSource20260926(guestStream,keepApprovedHostStream20260926))guestStream=null;
+      }
+    }catch(e){}
+
     requestOn=false;
     guestApproved=true;
     try{if(guestPrewarmTimer)clearTimeout(guestPrewarmTimer);}catch(e){}
