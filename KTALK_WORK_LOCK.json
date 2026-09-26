@@ -1,5 +1,5 @@
 {
-  "version": 128,
+  "version": 129,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "main",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "2026-09-26 owner PIN verified: temporarily unlock communication transport only. All room UI, switches, chat, public video feed, layouts and LIVE indicator remain locked.",
+  "note": "2026-09-26 owner PIN 1111: communication-only fix applied. During short LiveKit network drops, keep the existing room/visible video and allow up to 12 seconds for native reconnect instead of tearing the room down every hostTick. All communication components relocked. No room layout, buttons, chat, switches, public video feed, countdown, or unrelated features changed.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -96,21 +96,9 @@
     "after_owner_confirms_working": "add_only_that_component_to_protected_components",
     "if_pin_mismatch": "keep_protected_components_locked"
   },
-  "current_editable_components": [
-    "video_communication",
-    "media_transport",
-    "webrtc_transport_stability",
-    "communication_auto_reconnect_only",
-    "livekit_sfu_transport_bridge_only"
-  ],
-  "temporarily_unlocked_components": [
-    "video_communication",
-    "media_transport",
-    "webrtc_transport_stability",
-    "communication_auto_reconnect_only",
-    "livekit_sfu_transport_bridge_only"
-  ],
-  "last_communication_fix": "2026-09-26-reuse-existing-self-camera-for-fast-host-display",
+  "current_editable_components": [],
+  "temporarily_unlocked_components": [],
+  "last_communication_fix": "2026-09-26-livekit-reconnect-hold-12s",
   "last_video_feed_fix": "2026-09-26-smooth-first-video-no-src-rewrite",
   "locked_components": [
     "public-video-feed",
@@ -155,7 +143,12 @@
     "guest_approval_to_slot",
     "host_multi_guest_signal_order_recovery_only",
     "approved_guest_peer_video_sync_only",
-    "approved_guest_stay_connected"
+    "approved_guest_stay_connected",
+    "video_communication",
+    "media_transport",
+    "webrtc_transport_stability",
+    "communication_auto_reconnect_only",
+    "livekit_sfu_transport_bridge_only"
   ],
   "last_video_feed_lock": "2026-09-26-lock-fast-first-open-and-public-playback",
   "last_switch_lock": "2026-09-24-all-switches-relock2",
@@ -165,12 +158,6 @@
   "last_pwa_install_fix": "2026-09-24-first-touch-install9",
   "last_critical_touch_fix": "2026-09-24-critical-touch1",
   "last_livekit_cloud_prepare": "2026-09-25-edge-token-v2-env-first",
-  "temporarily_unlocked": [
-    "video_communication",
-    "media_transport",
-    "webrtc_transport_stability",
-    "communication_auto_reconnect_only",
-    "livekit_sfu_transport_bridge_only"
-  ],
-  "last_communication_lock": "2026-09-26-all-video-communication-components-locked"
+  "temporarily_unlocked": [],
+  "last_communication_lock": "2026-09-26-relock-after-livekit-reconnect-hold"
 }
