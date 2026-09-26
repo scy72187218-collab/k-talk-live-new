@@ -438,9 +438,22 @@
   async function ensureRoom(hostId,role,runId){
     hostId=String(hostId||'').trim();runId=String(runId||'').trim()||'stable';
     if(!hostId)return null;
-    if(room&&currentHostId===hostId&&currentRunId===runId&&room.state==='connected')return room;
-    if(connecting&&currentHostId===hostId&&currentRunId===runId)return room;
-    if(Date.now()-lastConnectAt<350&&currentHostId===hostId&&currentRunId===runId)return room;
+
+    /* Communication speed lock:
+       the actual SFU room name is already stable per host. A late run-id update
+       must never disconnect a healthy room and make host/guest video re-open. */
+    if(room&&currentHostId===hostId&&room.state==='connected'){
+      currentRunId=runId;
+      currentRole=role||currentRole||'viewer';
+      setState({connected:true,connecting:false,hostId:hostId,role:currentRole,runId:currentRunId});
+      return room;
+    }
+    if(connecting&&currentHostId===hostId){
+      currentRunId=runId;
+      currentRole=role||currentRole||'viewer';
+      return room;
+    }
+    if(Date.now()-lastConnectAt<350&&currentHostId===hostId)return room;
     lastConnectAt=Date.now();connecting=true;currentHostId=hostId;currentRunId=runId;currentRole=role||'viewer';
     setState({connecting:true,connected:false,hostId:hostId,role:currentRole,lastError:''});
     try{
@@ -637,14 +650,23 @@
   });
   window.addEventListener('kt-remote-host-selected',function(e){
     var h=String(e&&e.detail&&e.detail.host_id||'').trim();
-    if(h){watchHostId=h;setTimeout(hostTick,0);}
+    if(h){
+      watchHostId=h;
+      setTimeout(hostTick,0);
+      setTimeout(hostTick,60);
+    }
   });
   window.addEventListener('kt-host-session-reset',function(e){
     var h=String(e&&e.detail&&e.detail.host_id||'').trim();
     if(!h)return;
     if(h===watchHostId||h===approvedHostId||h===currentHostId){
-      approvedHostId='';watchHostId=h;
-      disconnectRoom();
+      watchHostId=h;
+      try{
+        var rr=String(e&&e.detail&&e.detail.run_id||'').trim();
+        if(rr)currentRunId=rr;
+      }catch(z){}
+      /* Same host = same central room. Keep the live connection. */
+      setTimeout(hostTick,0);
       setTimeout(hostTick,40);
     }
   });
@@ -674,7 +696,7 @@
      download/parse delay from the approval path. */
   setTimeout(function(){try{var q=ensureSdk();if(q&&q.catch)q.catch(function(){});}catch(e){}},0);
 
-  setInterval(hostTick,650);
+  setInterval(hostTick,350);
   setInterval(function(){
     ensureApprovedRosterSlots20260924();
     reattachRemoteTracks();
