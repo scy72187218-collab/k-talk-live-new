@@ -2696,6 +2696,43 @@
     }
   }catch(e){}
 
+  /* If another guest-flow module already opened this phone's real camera,
+     adopt it immediately. This keeps the self tile from staying black and
+     gives the host an instant guest frame before the full WebRTC uplink finishes. */
+  window.addEventListener('kt-approved-guest-stream-ready',function(e){
+    try{
+      var hid=String((e&&e.detail&&e.detail.host_id)||guestApprovedHost||remoteHostId()||'').trim();
+      var s=(e&&e.detail&&e.detail.stream)||window.__ktLocalGuestCameraStream20260926||window.__ktApprovedGuestSelfStream||null;
+      if(!hid||!s)return;
+      var vt=s.getVideoTracks&&s.getVideoTracks()[0]||null;
+      if(!vt||vt.readyState!=='live')return;
+      var remote=window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream||null;
+      if(isRemoteHostMedia20260926(s)||(remote&&sameVideoSource20260926(s,remote)))return;
+
+      rememberTrustedGuestCamera20260926(s);
+      guestStream=s;
+      window.__ktLocalGuestCameraStream20260926=s;
+      window.__ktApprovedGuestSelfStream=s;
+
+      if(guestApproved&&guestApprovedHost===hid){
+        pinApprovedGuestSelfVideo20260926();
+        try{cacheTrustedGuestPhoto20260926();}catch(_e){}
+        [0,15,40,80].forEach(function(ms){
+          setTimeout(function(){
+            if(!guestApproved||guestApprovedHost!==hid)return;
+            try{pinApprovedGuestSelfVideo20260926();}catch(_e){}
+            try{sendApprovedGuestPhoto20260926(hid);}catch(_e){}
+          },ms);
+        });
+        try{
+          if(!guestPc||['failed','closed'].indexOf(String(guestPc.connectionState||''))>-1){
+            var p=startGuestCamera(hid);if(p&&p.catch)p.catch(function(){});
+          }
+        }catch(_e){}
+      }
+    }catch(_e){}
+  });
+
   window.addEventListener('online',function(){if(activeHostId)connect(activeHostId);});
   document.addEventListener('visibilitychange',function(){
     /* Do not announce leave on a brief mobile visibility change.
