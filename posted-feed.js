@@ -303,66 +303,40 @@
   function renderFeedNow(a){
     if(!Array.isArray(a)||!a.length)return false;
 
-    /* Never cut off the video that is already on screen.
-       Several recovery/feed refresh paths can call renderFeedNow again a few
-       seconds after startup. Preserve the exact visible media element and its
-       playback position instead of swapping to another feed item mid-song. */
-    var keepVideo=null,keepUrl='',keepSection=null;
+    /* If the lightweight first-paint video is already buffering/playing,
+       keep that exact element when the full feed UI is built. This avoids
+       throwing away its buffered data and starting the first MP4 again. */
+    var bootVideo=null,bootUrl='';
     try{
-      keepVideo=document.getElementById('ktPublicFirstPaintVideo')||null;
-      if(!keepVideo){
-        var shown=[].slice.call(screen.querySelectorAll('.kt-public-video')).filter(function(v){
-          try{
-            var r=v.getBoundingClientRect();
-            var vh=innerHeight||document.documentElement.clientHeight||0;
-            return r.height>2&&r.bottom>0&&r.top<vh;
-          }catch(e){return false;}
-        });
-        keepVideo=shown.find(function(v){
-          try{return Number(v.currentTime||0)>.03||!v.paused;}catch(e){return false;}
-        })||shown[0]||null;
+      bootVideo=document.getElementById('ktPublicFirstPaintVideo')||window.__ktPublicFirstPaintVideo20260924||null;
+      if(bootVideo){
+        bootUrl=String(bootVideo.currentSrc||bootVideo.src||window.__ktPublicFirstPaintUrl20260924||'');
+        if(bootVideo.parentNode)bootVideo.parentNode.removeChild(bootVideo);
       }
-      if(keepVideo){
-        keepUrl=String(keepVideo.currentSrc||keepVideo.src||keepVideo.getAttribute('src')||window.__ktPublicFirstPaintUrl20260924||'');
-        keepSection=keepVideo.closest&&keepVideo.closest('[data-kt-feed-video-id],section')||null;
-        if(keepVideo.parentNode)keepVideo.parentNode.removeChild(keepVideo);
-      }
-    }catch(e){keepVideo=null;keepUrl='';keepSection=null;}
+    }catch(e){bootVideo=null;bootUrl='';}
 
     document.body.classList.remove('kt-home');
     document.body.classList.add('kt-video-mode');
     screen.innerHTML='<div class="kt-public-feed-scroller" data-kt-shared-feed="1" style="height:calc(100dvh - 78px);overflow-y:auto;scroll-snap-type:y mandatory;background:#000">'+a.map(card).join('')+'</div>';
 
-    var keptTarget=null;
     try{
-      if(keepVideo&&keepUrl){
-        var candidates=[].slice.call(screen.querySelectorAll('.kt-public-video'));
-        var same=candidates.find(function(v){
-          try{
-            return String(v.currentSrc||v.src||v.getAttribute('src')||'')===keepUrl;
-          }catch(e){return false;}
-        })||candidates[0]||null;
-        if(same){
-          keptTarget=same.closest&&same.closest('[data-kt-feed-video-id],section')||same.parentElement||null;
-          keepVideo.id='';
-          keepVideo.className='kt-public-video';
-          keepVideo.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000';
-          same.replaceWith(keepVideo);
-        }
+      var firstNew=screen.querySelector('.kt-public-video');
+      var wanted=String(a[0]&&a[0].video_url||'');
+      if(bootVideo&&firstNew&&bootUrl&&wanted&&bootUrl===wanted){
+        bootVideo.id='';
+        bootVideo.className='kt-public-video';
+        bootVideo.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000';
+        firstNew.replaceWith(bootVideo);
       }
     }catch(e){}
 
     try{
       var sc=screen.querySelector('.kt-public-feed-scroller');
-      if(sc){
-        if(keptTarget)sc.scrollTop=Math.max(0,Number(keptTarget.offsetTop||0));
-        else sc.scrollTop=0;
-      }
+      if(sc)sc.scrollTop=0;
     }catch(e){}
-
     bind();
     try{
-      var first=keepVideo&&keepVideo.isConnected?keepVideo:screen.querySelector('.kt-public-video');
+      var first=screen.querySelector('.kt-public-video');
       if(first){
         first.preload='auto';
         first.muted=true;
@@ -370,6 +344,8 @@
         first.setAttribute('playsinline','');
         first.setAttribute('webkit-playsinline','');
         first.setAttribute('fetchpriority','high');
+        /* Do not call load() here. If this is the parser-started first video,
+           load() can restart the same network request on slower Android phones. */
         var p=first.play();if(p&&p.catch)p.catch(function(){});
         [0,40,120,260].forEach(function(ms){
           setTimeout(function(){try{if(first.paused){var q=first.play();if(q&&q.catch)q.catch(function(){});}}catch(e){}},ms);
