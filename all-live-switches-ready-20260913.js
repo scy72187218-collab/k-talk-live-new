@@ -328,6 +328,9 @@
 
     var room=target.closest('.live-prep .room-switch');
     if(room){
+      var roomText=String(room.textContent||room.getAttribute('aria-label')||'').replace(/\s+/g,'');
+      /* AI DJ 버튼은 전용 코드가 직접 9명 AI 음악방을 시작하도록 넘긴다. */
+      if(/AIDJ/i.test(roomText))return;
       e.preventDefault();
       e.stopPropagation();
       clickRoom(room);
