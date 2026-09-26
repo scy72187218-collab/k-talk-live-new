@@ -230,7 +230,7 @@
       if(q&&typeof q.then==='function'){
         await Promise.race([
           q,
-          new Promise(function(resolve){setTimeout(resolve,900);})
+          new Promise(function(resolve){setTimeout(resolve,120);})
         ]);
       }
     }catch(e){}
@@ -1601,7 +1601,9 @@
       /* Include gathered ICE candidates in the FIRST SDP as well as trickle
          messages. This avoids a guest uplink getting stuck when a mobile
          candidate packet is delayed or missed. Keep the wait short. */
-      try{await waitIceCompleteDirect(pc,550);}catch(e){}
+      /* Trickle ICE is already dual-sent over WebSocket + REST. Do not hold
+         the first guest offer for half a second waiting for full ICE gather. */
+      try{await waitIceCompleteDirect(pc,80);}catch(e){}
       if(guestPc!==pc||guestSession!==offerSession)return;
       var guestOfferPayload={host_id:hid,viewer_id:viewerId(),name:profileName(),session_id:offerSession,offer_sdp:pc.localDescription.sdp};
       pc.__ktGuestOfferPayload20260926=guestOfferPayload;
@@ -1757,7 +1759,9 @@
       var q=entry.ice.splice(0);for(var i=0;i<q.length;i++)try{await pc.addIceCandidate(q[i]);}catch(e){}
       var ans=await pc.createAnswer();
       await pc.setLocalDescription(ans);
-      try{await waitIceCompleteDirect(pc,550);}catch(e){}
+      /* Send the host answer quickly; remaining candidates continue by
+         trickle ICE instead of delaying the first guest frame. */
+      try{await waitIceCompleteDirect(pc,80);}catch(e){}
       if(hostGuestPeers[vid]!==entry)return;
       entry.answer=pc.localDescription.sdp;
       var guestAnswerPayload={host_id:DEVICE,viewer_id:vid,session_id:session,answer_sdp:entry.answer};
