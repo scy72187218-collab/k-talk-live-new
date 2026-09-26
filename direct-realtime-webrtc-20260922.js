@@ -575,6 +575,10 @@
           }else{
             delete pendingRequests[vid];
             if(x.kind==='approved'){
+              /* Never resurrect an old approval by memory polling.
+                 A guest may rise only after this host runtime has an active
+                 request or has already approved that viewer locally. */
+              if(!approvedGuests[vid]&&!pendingRequests[vid])return;
               approvedGuests[vid]=approvedGuests[vid]||{name:x.name||'게스트',at:x.ts||Date.now()};
               try{
                 window.__ktApprovedGuestIds20260924[vid]=true;
