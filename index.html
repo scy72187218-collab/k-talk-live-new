@@ -269,20 +269,25 @@
    }
  };
  window.quickStartBroadcast=async function(ev){
-   try{
-     if(ev){
-       if(ev.preventDefault)ev.preventDefault();
-       if(ev.stopPropagation)ev.stopPropagation();
-     }
-   }catch(e){}
-   try{
-     if(window.ktStopBackgroundMedia)window.ktStopBackgroundMedia();
-   }catch(e){}
-   try{
-   if(window.openCreator)await window.openCreator();
- }catch(e){}
-   return false;
- };
+  try{
+    if(ev){
+      if(ev.preventDefault)ev.preventDefault();
+      if(ev.stopPropagation)ev.stopPropagation();
+      if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();
+    }
+  }catch(e){}
+  try{ if(window.ktStopBackgroundMedia)window.ktStopBackgroundMedia(); }catch(e){}
+  try{
+    if(window.state&&state.stream){
+      state.stream.getTracks().forEach(function(t){try{t.stop();}catch(e){}});
+      state.stream=null;
+    }
+    if(window.camera){ try{ camera.srcObject=null; }catch(e){} }
+  }catch(e){}
+  creator.classList.remove('camera-on','creator-review','creator-recording');
+  creator.classList.add('show','live-prep-open');
+  return false;
+};
  window.openTikLivePrep=function(){creator.classList.add('live-prep-open');};
  window.closeTikLivePrep=function(){creator.classList.remove('live-prep-open');};
  window.closeCreator=function(){if(originalCloseCreator)return originalCloseCreator();creator.classList.remove('show');if(state.stream){state.stream.getTracks().forEach(t=>t.stop());state.stream=null;camera.srcObject=null;}};
