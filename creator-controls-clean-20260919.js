@@ -32,8 +32,8 @@
     if(!c)return;
 
     var rotate=c.querySelector('.creator-top .creator-rotate');
-    var beauty=c.querySelector('.creator-tools .creator-tool-text[aria-label="AI 보정"]');
-    var effects=c.querySelector('.creator-tools .creator-tool-text[aria-label="편집 효과"]');
+    var beauty=c.querySelector('.creator-tools .creator-tool-text[aria-label="AI 보정"],.creator-tools .creator-tool-text[aria-label="보정"]');
+    var effects=c.querySelector('.creator-tools .creator-tool-text[aria-label="편집 효과"],.creator-tools .creator-tool-text[aria-label="편집 보정"]');
 
     [rotate,beauty,effects].forEach(function(el){
       if(!el)return;
@@ -58,6 +58,8 @@
     }
 
     if(beauty){
+      beauty.setAttribute('aria-label','보정');
+      beauty.innerHTML='<b aria-hidden="true">✦</b><small>보정</small>';
       beauty.onclick=function(e){
         try{if(e){e.preventDefault();e.stopPropagation();}}catch(x){}
         try{if(typeof window.openBeautyPanel==='function')window.openBeautyPanel();}catch(err){}
@@ -65,6 +67,8 @@
     }
 
     if(effects){
+      effects.setAttribute('aria-label','편집 보정');
+      effects.innerHTML='<b aria-hidden="true">✺</b><small>편집 보정</small>';
       effects.onclick=function(e){
         try{if(e){e.preventDefault();e.stopPropagation();}}catch(x){}
         try{if(typeof window.openEditEffectPanel==='function')window.openEditEffectPanel();}catch(err){}
@@ -77,7 +81,7 @@
       s.textContent=`
 #creator:not(.live-prep-open) .creator-tools > button:not(.creator-tool-text){display:none!important}
 #creator:not(.live-prep-open) .creator-tools{
-  right:15px!important;top:230px!important;gap:18px!important;
+  right:15px!important;top:205px!important;gap:8px!important;
   display:flex!important;flex-direction:column!important;align-items:center!important;
   z-index:10000!important;pointer-events:auto!important
 }
