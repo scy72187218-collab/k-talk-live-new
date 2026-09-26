@@ -35,7 +35,13 @@
     publicVideoProfileButton:true,
     publicVideoShareButton:true,
     aiVoice:true,
-    helpReader:true
+    helpReader:true,
+    beautyEffects:true,
+    creatorControls:true,
+    signupConsentShare:true,
+    followedFriends:true,
+    followerLiveAlerts:true,
+    pwaInstall:true
   };
 
   function save(){
@@ -80,7 +86,10 @@
       });
 
       document.querySelectorAll(
-        '.kt-setting-row,.kt-switch,[role="switch"],[data-bottom="help"]'
+        '.kt-setting-row,.kt-switch,[role="switch"],[data-bottom="help"],'+
+        '.creator-tools button,.creator-top button,.live-prep .prep-item,'+
+        '.kt-fx-sheet,.kt-join-consent,.kt-follow-strip,.kt-live-follow-alert,'+
+        '.kt-pwa-install-offer'
       ).forEach(function(el){
         el.setAttribute('data-kt-work-protected','1');
       });
@@ -105,6 +114,12 @@
     locked.secret=true;
     locked.aiVoice=true;
     locked.helpReader=true;
+    locked.beautyEffects=true;
+    locked.creatorControls=true;
+    locked.signupConsentShare=true;
+    locked.followedFriends=true;
+    locked.followerLiveAlerts=true;
+    locked.pwaInstall=true;
     locked.videos=true;
     locked.videoFeed=true;
     locked.videoCommunication=true;
