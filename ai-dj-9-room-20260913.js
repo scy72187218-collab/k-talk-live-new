@@ -21,8 +21,8 @@
       +'.kt-ai-dj-tools{position:absolute!important;left:7px!important;right:7px!important;bottom:8px!important;z-index:950!important;display:grid!important;grid-template-columns:1fr 1fr 1fr!important;gap:5px!important;pointer-events:auto!important}'
       +'.kt-ai-dj-tools button{min-height:34px!important;border:1px solid #ffffff2b!important;border-radius:11px!important;background:rgba(8,8,12,.88)!important;color:#fff!important;font:950 9px/1.15 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;padding:3px!important;touch-action:manipulation!important}'
       +'.kt-ai-dj-company{color:#ffd96a!important}'
-      +'.kt-guest-sing-lyric{position:absolute!important;left:50%!important;top:10px!important;transform:translateX(-50%)!important;z-index:1200!important;max-width:92%!important;padding:6px 11px!important;border-radius:999px!important;background:rgba(0,0,0,.72)!important;border:1px solid rgba(255,255,255,.34)!important;color:#fff!important;font:950 13px/1.2 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;text-align:center!important;text-shadow:0 1px 3px #000!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;pointer-events:none!important}'
-      +'.kt-guest-sing-lyric:empty{display:none!important}'
+      +'.kt-singer-lyric{position:absolute!important;left:50%!important;top:10px!important;transform:translateX(-50%)!important;z-index:1200!important;max-width:92%!important;padding:6px 11px!important;border-radius:999px!important;background:rgba(0,0,0,.72)!important;border:1px solid rgba(255,255,255,.34)!important;color:#fff!important;font:950 13px/1.2 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;text-align:center!important;text-shadow:0 1px 3px #000!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;pointer-events:none!important}'
+      +'.kt-singer-lyric:empty{display:none!important}'
             group9';
       state.liveRoomName='AI 음악 9명방';
       state.liveRoomMax=9;
@@ -799,47 +799,73 @@
     installControl();
   }
 
-  function guestTileByViewerId(viewerId){
+  function singerTile(role,viewerId){
+    role=String(role||'guest').toLowerCase();
     viewerId=String(viewerId||'').trim();
-    if(!viewerId)return null;
-    var selectors=[
-      '[data-viewer-id="'+viewerId.replace(/"/g,'\\\"')+'"]',
-      '[data-guest-viewer-id="'+viewerId.replace(/"/g,'\\\"')+'"]'
-    ];
-    for(var i=0;i<selectors.length;i++){
-      try{
-        var el=document.querySelector('#screen .ktg9-room '+selectors[i]);
-        if(el)return el.closest('.ktg9-guest,.kgh-cell,.kt-approved-guest-cell')||el;
-      }catch(e){}
+
+    if(role==='host'||role==='operator'||role==='운영진'){
+      return document.querySelector(
+        '#screen .ktg9-room .ktg9-host,'+
+        '#screen .ktsolo-room .ktsolo-main,'+
+        '#screen .ktg13-room .ktg13-host,'+
+        '#screen .ktsubscriber-room .ktsubscriber-host,'+
+        '#screen .ktsecret-room .host,#screen .ktsecret-room .ktsecret-host'
+      );
     }
+
+    if(viewerId){
+      var safe=viewerId.replace(/"/g,'\\\"');
+      var q=[
+        '[data-viewer-id="'+safe+'"]',
+        '[data-guest-viewer-id="'+safe+'"]'
+      ];
+      for(var i=0;i<q.length;i++){
+        try{
+          var el=document.querySelector('#screen '+q[i]);
+          if(el)return el.closest('.ktg9-guest,.kgh-cell,.kt-approved-guest-cell,.ktg13-guest,.ktsubscriber-guest,.ktsecret-guest-slot,.ktsecret-slot')||el;
+        }catch(e){}
+      }
+    }
+
+    /* viewer id가 없을 때 현재 선택된 게스트를 우선 사용 */
+    try{
+      var tgt=window.ktGuestGiftTarget||null;
+      if(tgt&&tgt.viewerId)return singerTile('guest',tgt.viewerId);
+    }catch(e){}
     return null;
   }
 
-  function ensureGuestLyricLabel(tile,viewerId){
+  function ensureSingerLyricLabel(tile,role,viewerId){
     if(!tile)return null;
     try{tile.style.setProperty('position','relative','important');}catch(e){}
-    var el=tile.querySelector('.kt-guest-sing-lyric');
+    var el=tile.querySelector('.kt-singer-lyric');
     if(!el){
       el=document.createElement('div');
-      el.className='kt-guest-sing-lyric';
+      el.className='kt-singer-lyric';
+      el.dataset.role=String(role||'guest');
       el.dataset.viewerId=String(viewerId||'');
       tile.appendChild(el);
     }
     return el;
   }
 
-  function clearGuestLyric(viewerId){
-    var st=guestLyricState[String(viewerId||'')];
+  function singerKey(role,viewerId){
+    return String(role||'guest')+':'+String(viewerId||'');
+  }
+
+  function clearSingerLyric(role,viewerId){
+    var key=singerKey(role,viewerId),st=guestLyricState[key];
     if(st&&st.timer)clearInterval(st.timer);
-    delete guestLyricState[String(viewerId||'')];
-    var tile=guestTileByViewerId(viewerId);
-    var el=tile&&tile.querySelector('.kt-guest-sing-lyric');
+    delete guestLyricState[key];
+    var tile=singerTile(role,viewerId);
+    var el=tile&&tile.querySelector('.kt-singer-lyric');
     if(el)el.textContent='';
   }
 
-  window.ktAiDjGuestLyrics20260927=function(viewerId,trackName,lines,durationSeconds){
+  window.ktAiDjSingerLyrics20260927=function(role,viewerId,trackName,lines,durationSeconds){
+    role=String(role||'guest').toLowerCase();
     viewerId=String(viewerId||'').trim();
-    if(!viewerId)return false;
+
     var track=null;
     try{
       track=(window.ktCreatorTracks||[]).find(function(x){
@@ -847,33 +873,47 @@
       })||null;
     }catch(e){}
     if(!track)return false;
+
     var src=String(track.source||'');
     if(!/퍼블릭도메인|CC BY(?:-SA)?/i.test(src))return false;
+
     var arr=Array.isArray(lines)?lines.map(function(x){return String(x||'').trim();}).filter(Boolean):[];
     if(!arr.length)return false;
 
-    clearGuestLyric(viewerId);
-    var tile=guestTileByViewerId(viewerId);
-    var el=ensureGuestLyricLabel(tile,viewerId);
+    clearSingerLyric(role,viewerId);
+    var tile=singerTile(role,viewerId);
+    var el=ensureSingerLyricLabel(tile,role,viewerId);
     if(!el)return false;
 
     var idx=0;
     el.textContent=arr[0];
-    var total=Math.max(1,Number(durationSeconds)||0);
+
+    var total=Math.max(0,Number(durationSeconds)||0);
     var ms=total>0?Math.max(2400,Math.min(9000,Math.floor(total*1000/arr.length))):5200;
+    var key=singerKey(role,viewerId);
+
     var timer=setInterval(function(){
-      var tileNow=guestTileByViewerId(viewerId);
-      var label=tileNow&&ensureGuestLyricLabel(tileNow,viewerId);
-      if(!label){clearGuestLyric(viewerId);return;}
+      var tileNow=singerTile(role,viewerId);
+      var label=tileNow&&ensureSingerLyricLabel(tileNow,role,viewerId);
+      if(!label){clearSingerLyric(role,viewerId);return;}
       idx++;
-      if(idx>=arr.length){clearGuestLyric(viewerId);return;}
+      if(idx>=arr.length){clearSingerLyric(role,viewerId);return;}
       label.textContent=arr[idx];
     },ms);
-    guestLyricState[viewerId]={timer:timer,trackName:String(trackName||''),lines:arr};
+
+    guestLyricState[key]={timer:timer,trackName:String(trackName||''),lines:arr};
     return true;
   };
 
-  window.ktAiDjClearGuestLyrics20260927=clearGuestLyric;
+  window.ktAiDjClearSingerLyrics20260927=clearSingerLyric;
+
+  /* 이전 게스트 전용 호출도 그대로 호환 */
+  window.ktAiDjGuestLyrics20260927=function(viewerId,trackName,lines,durationSeconds){
+    return window.ktAiDjSingerLyrics20260927('guest',viewerId,trackName,lines,durationSeconds);
+  };
+  window.ktAiDjClearGuestLyrics20260927=function(viewerId){
+    return clearSingerLyric('guest',viewerId);
+  };
 
   window.ktAiDjStart24h20260927=start;
   window.ktAiDjStop24h20260927=stop;
