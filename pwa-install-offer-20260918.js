@@ -138,7 +138,7 @@
   window.addEventListener('beforeinstallprompt',function(e){
     try{e.preventDefault();}catch(err){}
     deferredPrompt=e;
-    setTimeout(showOffer,350);
+    /* 자동 설치 안내는 현재 사용하지 않음. 사용자가 직접 설치 기능을 눌렀을 때만 사용한다. */
   });
 
   window.addEventListener('appinstalled',function(){
@@ -154,20 +154,6 @@
     }
   }catch(e){}
 
-  /* 설치된 앱으로 실행한 경우가 아니면 브라우저 종류와 상관없이
-     K-Talk 자체 설치 안내 카드를 항상 한 번 표시한다. */
-  setTimeout(function(){
-    if(isStandalone()||offerShown)return;
-    showOffer();
-  },800);
-
-  /* 동영상 홈으로 들어왔는데 아직 안내가 안 보인 경우 한 번 더 확인 */
-  document.addEventListener('click',function(){
-    if(isStandalone()||offerShown)return;
-    if(document.querySelector('.video-home,#homeVideo,.vh-video,.vh-actions')){
-      setTimeout(function(){
-        if(!isStandalone()&&!offerShown)showOffer();
-      },450);
-    }
-  },true);
+  /* 자동 설치 안내는 꺼 둔다. */
+  removeOffer();
 })();
