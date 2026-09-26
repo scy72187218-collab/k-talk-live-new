@@ -1556,13 +1556,26 @@
     var iceKey=hostGuestSignalKey(vid,session);
     var cachedGuestIce=pendingHostGuestIce[iceKey]||[];
     delete pendingHostGuestIce[iceKey];
-    var pc=new RTCPeerConnection(rtcConfig()),entry={pc:pc,sid:session,ice:cachedGuestIce.slice(0,32),old:old,answer:'',gotTrack:false};hostGuestPeers[vid]=entry;
+    var pc=new RTCPeerConnection(rtcConfig()),entry={pc:pc,sid:session,ice:cachedGuestIce.slice(0,32),old:old,answer:'',gotTrack:false,mediaStream:new MediaStream()};hostGuestPeers[vid]=entry;
     pc.ontrack=function(ev){
-      var rs=(ev.streams&&ev.streams[0])||new MediaStream([ev.track]);
+      try{
+        var incoming=(ev.streams&&ev.streams[0])||null;
+        if(incoming&&incoming.getTracks){
+          incoming.getTracks().forEach(function(t){
+            if(!entry.mediaStream.getTracks().some(function(x){return x.id===t.id;}))entry.mediaStream.addTrack(t);
+          });
+        }else if(ev.track&&!entry.mediaStream.getTracks().some(function(x){return x.id===ev.track.id;})){
+          entry.mediaStream.addTrack(ev.track);
+        }
+      }catch(e){}
+      var rs=entry.mediaStream;
       entry.pendingStream=rs;
       entry.pendingTrack=ev.track||null;
       function showIfApproved(){
         if(!approvedGuests[vid])return;
+        var hasVideo=false;
+        try{hasVideo=rs.getVideoTracks().some(function(t){return t&&t.readyState==='live';});}catch(e){}
+        if(!hasVideo)return;
         entry.gotTrack=true;
         attachGuestToHost(vid,String(p.name||(approvedGuests[vid]&&approvedGuests[vid].name)||'게스트'),rs);
         if(!entry.mediaReadySent){
