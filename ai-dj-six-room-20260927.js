@@ -91,34 +91,76 @@
         +'</div>'
       +'</section>';
 
-    try{
-      if(typeof window.ktAiDjStart24h20260927==='function'){
-        setTimeout(function(){
-          try{window.ktAiDjStart24h20260927();}catch(e){}
-        },80);
-      }
-    }catch(e){}
     return true;
   }
 
   window.ktRenderAiDjSixRoom20260927=render;
 
-  var wrapped=null;
-  function hook(){
-    if(window.__ktAiDjSixStartHooked20260927)return;
+  function aiSelected(){
+    try{
+      return isAiDj() || localStorage.getItem('kt_ai_dj_selected_20260927')==='1';
+    }catch(e){return isAiDj();}
+  }
+
+  function creatorPrepOpen(){
+    try{
+      var creator=document.getElementById('creator');
+      return !!(creator&&creator.classList.contains('live-prep-open'));
+    }catch(e){return false;}
+  }
+
+  function forceAiRoom(){
+    if(!aiSelected()||creatorPrepOpen())return;
+    var room=document.querySelector('#screen .kt-ai-dj-six-room');
+    if(room)return;
+    var screen=document.getElementById('screen');
+    if(!screen)return;
+
+    /* 기존 9명방/카메라/동영상 화면이 뒤늦게 덮어써도 AI DJ 전용방으로 되돌린다. */
+    var liveLike=screen.querySelector('.ktg13-room,.ktg9-room,.ktsecret-room,.solo-room,video,[data-kt-room]');
+    if(liveLike || (window.state&&state.ktAiDjRoom)){
+      try{
+        if(!window.state)window.state={};
+        state.ktAiDjRoom=true;
+        state.liveRoomType='group9';
+        state.liveRoomName='AI DJ 음악방';
+        state.liveRoomMax=6;
+      }catch(e){}
+      render();
+    }
+  }
+
+  /* startBroadcast가 다른 스크립트에서 다시 감싸져도 끝까지 따라가도록 매번 최신 함수를 감싼다. */
+  var lastWrapped=null;
+  function hookLatest(){
     if(typeof window.startBroadcast!=='function')return;
-    wrapped=window.startBroadcast;
-    window.startBroadcast=async function(){
-      var ai=isAiDj();
-      var r=await wrapped.apply(this,arguments);
+    if(window.startBroadcast===lastWrapped||window.startBroadcast.__ktAiDjSixWrapped)return;
+    var prev=window.startBroadcast;
+    var next=async function(){
+      var ai=aiSelected();
+      var r=await prev.apply(this,arguments);
       if(ai){
-        [20,80,180,420].forEach(function(ms){setTimeout(render,ms);});
+        [20,80,180,420,800,1400].forEach(function(ms){setTimeout(forceAiRoom,ms);});
       }
       return r;
     };
-    window.__ktAiDjSixStartHooked20260927=true;
+    next.__ktAiDjSixWrapped=true;
+    lastWrapped=next;
+    window.startBroadcast=next;
   }
 
-  hook();
-  [80,220,500,1000,1800].forEach(function(ms){setTimeout(hook,ms);});
+  hookLatest();
+  [80,220,500,1000,1800,2800].forEach(function(ms){setTimeout(function(){hookLatest();forceAiRoom();},ms);});
+
+  setInterval(function(){
+    hookLatest();
+    forceAiRoom();
+  },350);
+
+  try{
+    new MutationObserver(function(){
+      clearTimeout(window.__ktAiDjSixGuardTimer20260927);
+      window.__ktAiDjSixGuardTimer20260927=setTimeout(forceAiRoom,35);
+    }).observe(document.getElementById('screen')||document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
 })();
