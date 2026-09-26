@@ -2015,15 +2015,21 @@
       return;
     }
     if(ev==='guest_cancel'){
+      var cid=String(p.viewer_id||'').trim();
+      /* guest_cancel means "cancel the pending request", not "leave after
+         approval". Late/duplicate cancel packets must never remove a guest
+         that is already approved and visible in the host room. */
+      if(isHostRole()&&String(p.host_id||'')===DEVICE&&cid&&approvedGuests[cid]){
+        delete pendingRequests[cid];
+        renderDirectRequests();
+        return;
+      }
       try{
-        var cid=String(p.viewer_id||'').trim();
         if(cid){
-          delete window.__ktApprovedGuestIds20260924[cid];
-          delete window.__ktApprovedGuestNames20260924[cid];
-          window.dispatchEvent(new CustomEvent('kt-any-guest-left',{detail:{host_id:String(p.host_id||''),viewer_id:cid,at:Date.now()}}));
+          delete pendingRequests[cid];
         }
       }catch(e){}
-      if(isHostRole()){delete pendingRequests[String(p.viewer_id||'')];renderDirectRequests();}
+      if(isHostRole())renderDirectRequests();
       return;
     }
     if(ev==='guest_left'){
