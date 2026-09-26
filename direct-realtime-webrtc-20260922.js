@@ -239,7 +239,7 @@
       if(q&&typeof q.then==='function'){
         await Promise.race([
           q,
-          new Promise(function(resolve){setTimeout(resolve,120);})
+          new Promise(function(resolve){setTimeout(resolve,45);})
         ]);
       }
     }catch(e){}
@@ -308,21 +308,28 @@
     restBroadcast(eventName,payload);
   }
   function sendCriticalMedia20260926(eventName,payload,hostId){
-    /* 2026-09-26 communication speed/stability:
-       Never send the same SDP/ICE/media signal over WebSocket and REST at the
-       same time. Mobile WebRTC creates many ICE candidates; duplicating every
-       candidate on both transports can build a queue and make guest pictures
-       rise/fall late. send() already uses WebSocket first and REST only when
-       the socket is unavailable. Existing short retries remain the fallback. */
+    /* Communication-only fast path:
+       guest approval + guest SDP are tiny and infrequent, so deliver them over
+       both joined WebSocket and REST at the same moment. duplicateSignal()
+       de-dupes the receiver. ICE candidates remain single-path to avoid floods. */
     try{
       var target=String(hostId||payload&&payload.host_id||activeHostId||'').trim();
-      if(target&&target!==activeHostId){
-        var prev=activeHostId;
-        activeHostId=target;
-        try{send(eventName,payload||{});}finally{activeHostId=prev;}
-      }else{
-        send(eventName,payload||{});
+      var body=payload||{};
+      var dual=(eventName==='guest_approved'||eventName==='guest_offer'||eventName==='guest_answer');
+      if(!target)return;
+
+      if(target===activeHostId){
+        var socketReady=!!(joined&&ws&&ws.readyState===1);
+        send(eventName,body);
+        if(dual&&socketReady){
+          try{restBroadcastToHost20260926(target,eventName,body);}catch(_e){}
+        }
+        return;
       }
+
+      /* Never temporarily retarget the live WebSocket topic. For another host
+         id, use the exact REST topic directly. */
+      restBroadcastToHost20260926(target,eventName,body);
     }catch(e){
       try{restBroadcastToHost20260926(hostId||payload&&payload.host_id||activeHostId,eventName,payload||{});}catch(_e){}
     }
@@ -1490,7 +1497,7 @@
     if(!pc||!payload)return;
     clearGuestOfferRetryTimers(pc);
     pc.__ktGuestOfferRetryTimers=[];
-    [40,120,280,600].forEach(function(ms){
+    [20,60,140,300].forEach(function(ms){
       var t=setTimeout(function(){
         if(guestPc!==pc||guestSession!==payload.session_id||!guestApproved||guestApprovedHost!==hid)return;
         var cs=String(pc.connectionState||''),is=String(pc.iceConnectionState||'');
@@ -1845,7 +1852,7 @@
       entry.answer=pc.localDescription.sdp;
       var guestAnswerPayload={host_id:DEVICE,viewer_id:vid,session_id:session,answer_sdp:entry.answer};
       sendCriticalMedia20260926('guest_answer',guestAnswerPayload,DEVICE);
-      [40,120,280,600].forEach(function(ms){
+      [20,60,140,300].forEach(function(ms){
         setTimeout(function(){
           if(hostGuestPeers[vid]!==entry||entry.gotTrack)return;
           var cs=String(pc.connectionState||'');
@@ -2102,12 +2109,12 @@
       }catch(e){}
     }
 
-    /* 준비 연결이 0.65초 안에 실제 첫 프레임을 못 보내면 그때만 fresh 연결.
-       방/승인 UI는 그대로 유지하고 통신 경로만 교체한다. */
+    /* Warm pre-approval transport gets a brief head start only. If no real
+       frame is confirmed almost immediately, build the real-track connection. */
     setTimeout(function(){
       if(!guestApproved||guestApprovedHost!==hid||guestMediaReadyAt)return;
       forceFreshApprovedGuestOffer20260926(hid);
-    },650);
+    },140);
 
     /* Visible fallback requested by owner: place only the approved guest's own
        camera face into the host guest slot while live transport is connecting. */
