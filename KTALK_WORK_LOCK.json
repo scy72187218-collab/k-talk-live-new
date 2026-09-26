@@ -1,5 +1,5 @@
 {
-  "version": 117,
+  "version": 118,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "main",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "2026-09-26 with owner PIN 1111: removed the temporary guest still-frame preview path. Transient remote video ended/emptied/freeze events no longer eject the viewer to the public video feed; the live room stays open for transport recovery. Real host broadcast-end signals still use the explicit broadcast-end sync path. No room layout, controls, public video, or unrelated features changed. Relocked.",
+  "note": "2026-09-26 with owner PIN 1111: repeated or late guest_request signals no longer clear an already-approved guest slot or peer. Approved guests remain connected until explicit guest_left/cancel. No room layout, controls, public video, or unrelated features changed. Relocked.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -98,7 +98,7 @@
   },
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "last_communication_fix": "2026-09-26-remove-still-preview-and-stay-in-room-on-freeze",
+  "last_communication_fix": "2026-09-26-ignore-late-guest-requests-after-approval",
   "last_video_feed_fix": "2026-09-26-smooth-first-video-no-src-rewrite",
   "locked_components": [
     "public-video-feed",
