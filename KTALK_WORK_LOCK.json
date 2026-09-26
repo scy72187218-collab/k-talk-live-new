@@ -1,13 +1,13 @@
 {
-  "version": 139,
+  "version": 140,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "main",
-  "snapshot_commit": "bae467eebf0390820a72d345f029f5256f7dcc24",
+  "snapshot_commit": "b5039c17549b810d1c31b6d75902e130f880ec28",
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "2026-09-26 owner PIN 1111: fixed only host-role detection for host->guest video. The broadcaster is now recognized from the actual live room video MediaStream (same detector used by hostOfferToViewer), not only state.stream. Remote viewer remains forced to viewer by kt-remote-viewing, so guest layout/UI is untouched. No other UI/buttons/layout/chat/gifts/switch/public-feed changes. Relocked after production deployment.",
+  "note": "2026-09-26 owner PIN 1111: added host-to-viewer VIDEO BACKUP ONLY inside the existing communication core. Primary Realtime path remains first. If no remote host stream appears after about 900ms, the backup uses /api/live-peer-memory to exchange WebRTC offer/answer and attaches only the host stream to the existing guest host-video targets. No UI/layout/button/chat/gift/switch/public-feed changes. Backup server health returned HTTP 200 before deployment. Relocked after production deployment.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -98,7 +98,7 @@
   },
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "last_communication_fix": "2026-09-26-host-role-use-actual-room-video-stream",
+  "last_communication_fix": "2026-09-26-host-viewer-video-backup-only",
   "last_video_feed_fix": "2026-09-26-clean-single-first-video-path",
   "locked_components": [
     "public-video-feed",
@@ -159,5 +159,5 @@
   "last_critical_touch_fix": "2026-09-24-critical-touch1",
   "last_livekit_cloud_prepare": "2026-09-25-edge-token-v2-env-first",
   "temporarily_unlocked": [],
-  "last_communication_lock": "2026-09-26-relock-host-room-stream-role-fix"
+  "last_communication_lock": "2026-09-26-relock-host-viewer-video-backup-only"
 }
