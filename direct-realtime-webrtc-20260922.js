@@ -792,7 +792,10 @@
 
     targets.forEach(function(v){
       try{
-        if(v.srcObject!==stream)v.srcObject=stream;
+        var cur=v.srcObject||null;
+        if(!cur||!sameVideoSource20260926(cur,stream)){
+          v.srcObject=stream;
+        }
         v.autoplay=true;
         v.playsInline=true;
         /* Keep remote host muted so mobile autoplay cannot be blocked. */
@@ -926,7 +929,7 @@
 
       /* 새 영상이 화면에 붙은 뒤에만 이전 PeerConnection을 닫는다. */
       if(previousPc&&previousPc!==pc){
-        setTimeout(function(){try{closePc(previousPc);}catch(e){}},120);
+        setTimeout(function(){try{closePc(previousPc);}catch(e){}},350);
       }
     };
     pc.onicecandidate=function(ev){
@@ -2092,11 +2095,11 @@
     setTimeout(function(){
       if(!guestApproved||guestApprovedHost!==hid||guestMediaReadyAt)return;
       forceFreshApprovedGuestOffer20260926(hid);
-    },650);
+    },250);
 
     /* Visible fallback requested by owner: place only the approved guest's own
        camera face into the host guest slot while live transport is connecting. */
-    [0,45,140].forEach(function(ms){
+    [0,20,60,120].forEach(function(ms){
       setTimeout(function(){
         if(guestApproved&&guestApprovedHost===hid)try{sendApprovedGuestPhoto20260926(hid);}catch(e){}
       },ms);
