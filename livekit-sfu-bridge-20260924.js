@@ -466,9 +466,17 @@
        the actual SFU room name is already stable per host. A late run-id update
        must never disconnect a healthy room and make host/guest video re-open. */
     if(room&&currentHostId===hostId&&room.state==='connected'){
+      reconnectHoldUntil=0;
       currentRunId=runId;
       currentRole=role||currentRole||'viewer';
       setState({connected:true,connecting:false,hostId:hostId,role:currentRole,runId:currentRunId});
+      return room;
+    }
+    /* 통신이 잠깐 흔들릴 때 LiveKit 자체 재연결을 기다린다.
+       hostTick이 350ms마다 새 방을 만들며 기존 연결을 끊지 않게 한다. */
+    if(room&&currentHostId===hostId&&Date.now()<reconnectHoldUntil){
+      currentRunId=runId;
+      currentRole=role||currentRole||'viewer';
       return room;
     }
     if(connecting&&currentHostId===hostId){
@@ -504,11 +512,28 @@
         reattachRemoteTracks();
         [10,30,75].forEach(function(ms){setTimeout(reattachRemoteTracks,ms);});
       });
+      if(LK.RoomEvent.Reconnecting)r.on(LK.RoomEvent.Reconnecting,function(){
+        if(room===r){
+          reconnectHoldUntil=Date.now()+12000;
+          /* 화면은 그대로 두고 통신만 뒤에서 복구한다. */
+          setState({connecting:true});
+        }
+      });
       if(LK.RoomEvent.Reconnected)r.on(LK.RoomEvent.Reconnected,function(){
+        if(room===r){
+          reconnectHoldUntil=0;
+          setState({connected:true,connecting:false});
+        }
         [0,80,220].forEach(function(ms){setTimeout(reattachRemoteTracks,ms);});
       });
       r.on(LK.RoomEvent.Disconnected,function(){
-        if(room===r){setState({connected:false,connecting:false});}
+        if(room===r){
+          reconnectHoldUntil=0;
+          connecting=false;
+          setState({connected:false,connecting:false});
+          /* 실제 완전 단절일 때만 새 연결을 만든다. */
+          setTimeout(hostTick,180);
+        }
       });
       try{r.prepareConnection(auth.url||DEFAULT_URL,auth.token);}catch(e){}
       await r.connect(auth.url||DEFAULT_URL,auth.token,{autoSubscribe:true});
