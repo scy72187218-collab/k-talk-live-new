@@ -675,7 +675,7 @@
         window.__ktApprovedGuestNames20260924=names;
 
         var self=states[vid]||null;
-        if(self&&self.request&&self.approved>=self.request&&self.approved>self.end&&!guestApproved){
+        if(requestOn&&self&&self.request&&self.approved>=self.request&&self.approved>self.end&&!guestApproved){
           onGuestApproved({host_id:hid,viewer_id:vid,name:String(self.name||'게스트'),at:self.approved});
         }
         if(roster[vid]===true){
@@ -1958,79 +1958,56 @@
 
   function sendApprovedGuestPhoto20260926(hid){
     hid=String(hid||'').trim();
-    if(!hid)return;
+    if(!hid||!guestApproved||guestApprovedHost!==hid)return;
     var s=null,remote=null;
-
-    /* Guest phone already shows its own camera in the self cell.
-       Adopt that exact local self stream first so the host can paint the
-       approved guest immediately even when the uplink handshake is late. */
-    try{adoptExistingSelfCamera20260926();}catch(e){}
-
     try{
       s=window.__ktLocalGuestCameraStream20260926||null;
       remote=window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream||null;
     }catch(e){}
 
-    if(!s){
-      try{
-        var selfV=document.querySelector(
-          '#screen .kt-guest-hostlike-room .kgh-cell.self video,'+
-          '#screen .kt-approved-guest-grid .kt-approved-guest-cell.self video,'+
-          '#screen .kt-prejoin-room-grid .kt-prejoin-room-cell.self video,'+
-          '#screen .kt-guest-room-grid .kt-guest-room-cell.self video'
-        );
-        var ds=selfV&&selfV.srcObject||null;
-        var vt0=ds&&ds.getVideoTracks&&ds.getVideoTracks()[0]||null;
-        if(ds&&vt0&&vt0.readyState==='live'&&(!remote||!sameVideoSource20260926(ds,remote))){
-          s=ds;
-          rememberTrustedGuestCamera20260926(ds);
-        }
-      }catch(e){}
-    }
-
-    if(!s||isRemoteHostMedia20260926(s)||
+    /* Safety: host and guest pictures must never be the same source.
+       Use only the exact camera opened locally after THIS guest pressed 참여 신청. */
+    if(!s||!isTrustedGuestCamera20260926(s)||isRemoteHostMedia20260926(s)||
        (remote&&sameVideoSource20260926(s,remote)))return;
+
     var vt=null;
     try{vt=s.getVideoTracks&&s.getVideoTracks()[0]||null;}catch(e){}
     if(!vt||vt.readyState!=='live')return;
 
     var sent=false;
+    function sendFrame(frame){
+      if(sent||!frame||!/^data:image\/jpeg;base64,/.test(frame)||frame.length>=32000)return false;
+      sent=true;
+      sendCriticalMedia20260926('guest_photo_frame',{
+        host_id:hid,viewer_id:viewerId(),name:profileName(),frame:frame,at:Date.now()
+      },hid);
+      return true;
+    }
+
     try{
       var trustedId=String(window.__ktLocalGuestCameraTrackId20260926||'');
       if(guestPhotoCache20260926&&guestPhotoCacheTrack20260926===trustedId&&Date.now()-guestPhotoCacheAt20260926<10000){
-        sent=true;
-        sendCriticalMedia20260926('guest_photo_frame',{
-          host_id:hid,viewer_id:viewerId(),name:profileName(),
-          frame:guestPhotoCache20260926,at:Date.now()
-        },hid);
+        sendFrame(guestPhotoCache20260926);
         setTimeout(cacheTrustedGuestPhoto20260926,0);
         return;
       }
     }catch(e){}
+
     function fromVideo(v){
       if(sent||!v||!v.videoWidth||!v.videoHeight)return false;
       try{
-        var cv=document.createElement('canvas');
-        cv.width=96;cv.height=72;
+        var so=v.srcObject||null;
+        if(!so||!sameVideoSource20260926(so,s))return false;
+        var cv=document.createElement('canvas');cv.width=96;cv.height=72;
         var cx=cv.getContext('2d',{alpha:false});if(!cx)return false;
         cx.drawImage(v,0,0,96,72);
-        var frame=cv.toDataURL('image/jpeg',0.36);
-        if(!frame||frame.length>32000)return false;
-        sent=true;
-        sendCriticalMedia20260926('guest_photo_frame',{
-          host_id:hid,viewer_id:viewerId(),name:profileName(),
-          frame:frame,at:Date.now()
-        },hid);
-        return true;
+        return sendFrame(cv.toDataURL('image/jpeg',0.36));
       }catch(e){return false;}
     }
 
     try{
       var vids=[].slice.call(document.querySelectorAll('video'));
-      for(var i=0;i<vids.length;i++){
-        var so=vids[i].srcObject||null;
-        if(so&&sameVideoSource20260926(so,s)&&fromVideo(vids[i]))return;
-      }
+      for(var i=0;i<vids.length;i++)if(fromVideo(vids[i]))return;
     }catch(e){}
 
     try{
@@ -2040,28 +2017,24 @@
       v.addEventListener('loadeddata',done,{once:true});
       v.addEventListener('playing',done,{once:true});
       var q=v.play();if(q&&q.catch)q.catch(function(){});
-      setTimeout(done,80);setTimeout(done,180);
+      setTimeout(done,20);setTimeout(done,60);
     }catch(e){}
   }
 
   function pinApprovedGuestSelfVideo20260926(){
     try{
-      var s=window.__ktLocalGuestCameraStream20260926||window.__ktApprovedGuestSelfStream||guestStream||null;
-      if(!s||isRemoteHostMedia20260926(s))return false;
+      var s=window.__ktLocalGuestCameraStream20260926||null;
+      if(!s||!isTrustedGuestCamera20260926(s)||isRemoteHostMedia20260926(s))return false;
       var vt=s.getVideoTracks&&s.getVideoTracks()[0]||null;
       if(!vt||vt.readyState!=='live')return false;
       var targets=[].slice.call(document.querySelectorAll(
         '#screen .kt-guest-hostlike-room .kgh-cell.self video,'+
         '#screen .kt-approved-guest-grid .kt-approved-guest-cell.self video,'+
         '#screen .kt-prejoin-room-grid .kt-prejoin-room-cell.self video,'+
-        '#screen .kt-guest-room-grid .kt-guest-room-cell.self video,'+
-        '#ktRemoteLiveVideo'
+        '#screen .kt-guest-room-grid .kt-guest-room-cell.self video'
       ));
       targets.forEach(function(v){
         try{
-          if(v&&v.closest&&v.closest(
-            '.kgh-cell.host,.kt-approved-guest-cell.host,.kt-prejoin-room-cell.host,.kt-guest-room-cell.host'
-          ))return;
           var cur=v.srcObject||null;
           if(!cur||!sameVideoSource20260926(cur,s))v.srcObject=s;
           v.autoplay=true;v.playsInline=true;v.muted=true;v.defaultMuted=true;
