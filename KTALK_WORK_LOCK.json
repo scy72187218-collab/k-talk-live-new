@@ -1,5 +1,5 @@
 {
-  "version": 113,
+  "version": 114,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "main",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "2026-09-26 with owner PIN 1111: removed the time-based departed-guest sweep that could clear still-connected guests during brief WebRTC signal loss. Guest slots now clear only on explicit guest-left/cancel signals. No room layout, buttons, public video, or unrelated features changed. Relocked.",
+  "note": "2026-09-26 with owner PIN 1111: host no longer treats RTCPeerConnection/ontrack or ICE connected state alone as guest video ready. Media-ready is sent only after the remote guest video track is actually unmuted, so the guest recovery watchdog remains active until real frames arrive. No room layout, buttons, public video, or unrelated features changed. Relocked.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -98,7 +98,7 @@
   },
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "last_communication_fix": "2026-09-26-explicit-leave-only-no-8s-false-cleanup",
+  "last_communication_fix": "2026-09-26-real-guest-media-ready-only-after-unmute",
   "last_video_feed_fix": "2026-09-26-smooth-first-video-no-src-rewrite",
   "locked_components": [
     "public-video-feed",
