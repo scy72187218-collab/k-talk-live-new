@@ -15,6 +15,10 @@
   var pendingRequests={},approvedGuests={},hostGuestPeers={},guestPc=null,guestSession='',guestApprovedHost='',guestApproved=false,guestStream=null,guestIce={};
   var guestPrewarmTimer=null;
   var pendingHostGuestOffers={},pendingHostGuestIce={},pendingGuestPhotos20260926={};
+  /* 2026-09-26 communication-only guest order numbers.
+     First approved guest = 1, second = 2 ... up to 15.
+     This only tags/labels the connected guest slot; room layout is untouched. */
+  var guestJoinNumber20260926={};
   var requestOn=false,lastRemoteHost='',lastHostRole='',lastWatchAt=0;
   var sharedApprovalPollBusy=false,leaveAnnouncedHost='',guestAliveLastSent=0,guestAliveSharedLastSent=0,hostGuestAliveAt={},remoteHostMissingSince=0;
   var signalSeen={},viewerOfferInFlight='',lastHostReadyAt=0,lastGuestRequestAt=0,guestApprovedAt=0;
@@ -356,6 +360,7 @@
     if(!vid)return;
     delete pendingRequests[vid];
     delete approvedGuests[vid];
+    delete guestJoinNumber20260926[vid];
     try{
       delete window.__ktApprovedGuestIds20260924[vid];
       if(window.__ktApprovedGuestNames20260924)delete window.__ktApprovedGuestNames20260924[vid];
@@ -1136,9 +1141,29 @@
       if(v){try{v.pause();}catch(e){}v.srcObject=null;}
       if(String(slot.dataset.ktDirectGuest||'')===String(vid||''))delete slot.dataset.ktDirectGuest;
       if(String(slot.dataset.ktGuestViewerId||'')===String(vid||''))delete slot.dataset.ktGuestViewerId;
+      delete slot.dataset.ktGuestJoinNumber;
       slot.classList.remove('kt-guest-approved');
       slot.innerHTML='<span>게스트</span>';
     }catch(e){}
+  }
+
+  function guestJoinNo20260926(vid){
+    vid=String(vid||'').trim();
+    if(!vid)return 0;
+    var old=Number(guestJoinNumber20260926[vid]||0);
+    if(old>=1&&old<=15)return old;
+    var used={};
+    Object.keys(guestJoinNumber20260926).forEach(function(id){
+      var n=Number(guestJoinNumber20260926[id]||0);
+      if(n>=1&&n<=15)used[n]=true;
+    });
+    for(var i=1;i<=15;i++){
+      if(!used[i]){
+        guestJoinNumber20260926[vid]=i;
+        return i;
+      }
+    }
+    return 0;
   }
   function guestSlot(vid,name){
     var slot=null,matches=[];
@@ -1164,11 +1189,16 @@
     /* 두 연결 경로가 반드시 같은 슬롯을 찾도록 두 식별자를 동시에 기록 */
     slot.dataset.ktDirectGuest=vid;
     slot.dataset.ktGuestViewerId=vid;
+    var joinNo=guestJoinNo20260926(vid);
+    if(joinNo)slot.dataset.ktGuestJoinNumber=String(joinNo);
     slot.classList.add('kt-guest-approved');
 
     var existingVideo=slot.querySelector('video');
     if(!existingVideo){
-      slot.innerHTML='<video autoplay playsinline muted style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#08090c"></video><small style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:8px">게스트 연결 중...</small><span class="kt-guest-name" style="position:absolute;left:4px;bottom:4px;z-index:3;font-size:8px;background:#000b;padding:2px 5px;border-radius:8px">👤 '+esc(name)+'</span>';
+      slot.innerHTML='<video autoplay playsinline muted style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#08090c"></video><small style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:8px">게스트 연결 중...</small><span class="kt-guest-name" style="position:absolute;left:4px;bottom:4px;z-index:3;font-size:8px;background:#000b;padding:2px 5px;border-radius:8px">👤 '+(joinNo?joinNo+'번 ':'')+esc(name)+'</span>';
+    }else{
+      var nm=slot.querySelector('.kt-guest-name');
+      if(nm)nm.textContent='👤 '+(joinNo?joinNo+'번 ':'')+String(name||'게스트');
     }
     return slot;
   }
