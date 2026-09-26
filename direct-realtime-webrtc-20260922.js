@@ -1794,6 +1794,19 @@
     guestMediaRecoveryCount=0;
     clearGuestMediaAckTimer20260926();
 
+    /* Approval gets one fresh REAL media connection. Never reuse any old
+       pre-approval/stale peer. The camera stream itself stays warm. */
+    try{
+      if(guestPc){
+        clearGuestOfferRetryTimers(guestPc);
+        closePc(guestPc);
+      }
+    }catch(e){}
+    guestPc=null;guestSession='';
+
+    var firstMedia=startGuestCamera(hid);
+    if(firstMedia&&firstMedia.catch)firstMedia.catch(function(){});
+
     /* The local guest camera is already warm. Send one tiny first-frame
        preview immediately so the host tile is never blank while WebRTC
        finishes its first real frame. */
@@ -1843,17 +1856,6 @@
       }
     }catch(e){}
 
-    try{
-      var pre=guestPc&&guestPc.__ktPreApprovalPayload||null;
-      if(pre&&String(pre.host_id||'')===hid){
-        var act=activatePreparedGuestMedia20260924(hid);
-        if(act&&act.then)act.then(function(ok){
-          if(!ok&&guestApproved&&guestApprovedHost===hid)startGuestCamera(hid);
-        }).catch(function(){});
-        sendCriticalMedia20260926('guest_offer',pre,hid);
-      }
-    }catch(e){}
-
     var b=document.getElementById('ktRemoteGuestRequest');
     if(b){
       b.classList.remove('kt-requested');
@@ -1861,14 +1863,6 @@
       b.setAttribute('title','참여 승인됨');
       b.setAttribute('aria-label','참여 승인됨');
     }
-
-    /* Keep the already-prepared first connection alive after approval.
-       Replacing it again after only 30ms created a second negotiation race and
-       delayed the first guest frame on Android. startGuestCamera reuses the
-       prewarmed stream/peer; the media-ack watchdog below retries only if the
-       prepared path truly fails. */
-    var firstMedia=startGuestCamera(hid);
-    if(firstMedia&&firstMedia.catch)firstMedia.catch(function(){});
 
     try{
       window.dispatchEvent(new CustomEvent('kt-three-person-sync-now',{
@@ -2138,10 +2132,9 @@
               try{window.dispatchEvent(new CustomEvent('kt-guest-camera-prewarmed',{
                 detail:{host_id:hid,viewer_id:viewerId(),at:Date.now()}
               }));}catch(e){}
-              try{
-                var q=prepareGuestOfferBeforeApproval20260924(hid);
-                if(q&&q.catch)q.catch(function(){});
-              }catch(e){}
+              /* Camera only before approval. Do not create a temporary
+                 sendonly PeerConnection here; approval will start one real
+                 track-carrying connection immediately. */
             }
           }).catch(function(){});
         }
