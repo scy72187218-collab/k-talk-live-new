@@ -765,7 +765,7 @@
   function roomEl(){return document.querySelector('#screen .ktsolo-room,#screen .ktg9-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room');}
   function isHostRole(){
     try{
-      /* A remote viewer is always a viewer, even when its UI mirrors a host room. */
+      /* Guest/viewer always stays viewer even though its room UI mirrors host layout. */
       if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
 
       var local=roomEl(),visible=false;
@@ -776,13 +776,14 @@
         }
       }catch(_e){visible=!!local;}
 
-      /* Broadcaster identity must come from the actual local live camera,
-         not from stale remote-host ids left in sessionStorage. */
+      /* Host camera can live either in state.stream OR directly on the room video.
+         Use the same real stream detector used by hostOfferToViewer. */
       var liveLocal=false;
       try{
-        var ls=window.state&&state.stream;
-        liveLocal=!!(ls&&ls.getVideoTracks&&ls.getVideoTracks().some(function(t){return t&&t.readyState==='live';}));
+        var hs=hostStream();
+        liveLocal=!!(hs&&hs.getVideoTracks&&hs.getVideoTracks().some(function(t){return t&&t.readyState==='live';}));
       }catch(_e){}
+
       if(visible&&liveLocal){
         try{
           window.__ktRemoteHostId='';
