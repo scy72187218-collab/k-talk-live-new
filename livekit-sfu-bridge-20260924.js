@@ -51,7 +51,21 @@
     return document.querySelector('#screen .ktsolo-room,#screen .ktg9-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room');
   }
   function isHostRole(){
-    try{return !document.documentElement.classList.contains('kt-remote-viewing')&&!!roomEl();}catch(e){return false;}
+    try{
+      var local=roomEl();
+      if(local){
+        var visible=true;
+        try{
+          var st=getComputedStyle(local);
+          visible=st.display!=='none'&&st.visibility!=='hidden'&&
+            (!local.getClientRects||local.getClientRects().length>0);
+        }catch(_e){visible=true;}
+        /* A stale kt-remote-viewing class must never make a visible local
+           host room join the SFU as a viewer. */
+        if(visible)return true;
+      }
+      return false;
+    }catch(e){return false;}
   }
   function liveStream(s){
     try{return !!(s&&s.getTracks&&s.getTracks().some(function(t){return t&&t.readyState==='live';}));}catch(e){return false;}
@@ -97,9 +111,18 @@
     return h;
   }
   function approvedGuestTransportReady(){
+    var h=remoteHostId(),s=guestStream();
+    if(!h||!s)return false;
+    /* SFU is an independent fallback. Do not wait for the direct uplink to
+       become connecting/connected before joining and publishing. */
+    try{
+      var me=viewerId();
+      var approved=window.__ktApprovedGuestIds20260924||{};
+      if(approved[me]===true)return true;
+    }catch(e){}
     var st='';
     try{st=String(window.__ktDirectGuestUplinkState20260923||'');}catch(e){}
-    return !!(remoteHostId()&&guestStream()&&(st==='connecting'||st==='connected'));
+    return st==='connecting'||st==='connected'||st==='media-retry';
   }
   function cleanRoom(hostId,runId){
     var h=String(hostId||'').replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,72);
@@ -583,7 +606,8 @@
       }
     }catch(z){hostTick();}
 
-    [30,90,180,350,700,1400].forEach(function(ms){
+    try{setTimeout(hostTick,0);}catch(e){}
+    [20,60,140,300,650,1200].forEach(function(ms){
       setTimeout(function(){
         try{
           var gs=guestStream();
