@@ -303,6 +303,13 @@
         audio:true
       });
       window.__ktApprovedGuestSelfStream=viewerGuest.stream;
+      /* Share this exact local guest camera with the fast direct transport.
+         This avoids opening a second camera after approval. */
+      try{
+        window.__ktLocalGuestCameraStream20260926=viewerGuest.stream;
+        var vtFast=viewerGuest.stream&&viewerGuest.stream.getVideoTracks?viewerGuest.stream.getVideoTracks()[0]:null;
+        if(vtFast&&vtFast.id)window.__ktLocalGuestCameraTrackId20260926=String(vtFast.id);
+      }catch(_e){}
       if(viewerGuest.prewarmTimer)clearTimeout(viewerGuest.prewarmTimer);
       viewerGuest.prewarmTimer=setTimeout(function(){
         if(viewerGuest.approvedKey||viewerGuest.pc)return;
@@ -316,6 +323,11 @@
       try{
         viewerGuest.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});
         window.__ktApprovedGuestSelfStream=viewerGuest.stream;
+        try{
+          window.__ktLocalGuestCameraStream20260926=viewerGuest.stream;
+          var vtFast2=viewerGuest.stream&&viewerGuest.stream.getVideoTracks?viewerGuest.stream.getVideoTracks()[0]:null;
+          if(vtFast2&&vtFast2.id)window.__ktLocalGuestCameraTrackId20260926=String(vtFast2.id);
+        }catch(_e){}
         return viewerGuest.stream;
       }catch(z){return null;}
     }finally{
@@ -992,6 +1004,14 @@
 
     viewerGuest.stream=stream;
     window.__ktApprovedGuestSelfStream=stream;
+    try{
+      window.__ktLocalGuestCameraStream20260926=stream;
+      var vtFast3=stream&&stream.getVideoTracks?stream.getVideoTracks()[0]:null;
+      if(vtFast3&&vtFast3.id)window.__ktLocalGuestCameraTrackId20260926=String(vtFast3.id);
+      window.dispatchEvent(new CustomEvent('kt-approved-guest-stream-ready',{
+        detail:{host_id:hostId,viewer_id:vid,stream:stream,at:Date.now(),legacy_fast:true}
+      }));
+    }catch(_e){}
     viewerGuest.hostId=hostId;
     viewerGuest.approvedKey=approvalId;
     if(viewerGuest.prewarmTimer){clearTimeout(viewerGuest.prewarmTimer);viewerGuest.prewarmTimer=null;}
