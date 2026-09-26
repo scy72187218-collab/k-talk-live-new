@@ -2714,6 +2714,31 @@
       window.__ktLocalGuestCameraStream20260926=s;
       window.__ktApprovedGuestSelfStream=s;
 
+      if(!guestApproved&&requestOn){
+        /* Cache/send the real guest camera before approval so the host can
+           paint the guest slot the instant Approve is tapped. */
+        try{cacheTrustedGuestPhoto20260926();}catch(_e){}
+        [0,15,35,70].forEach(function(ms){
+          setTimeout(function(){
+            if(!requestOn||guestApproved)return;
+            try{
+              cacheTrustedGuestPhoto20260926();
+              sendPreApprovalGuestPhoto20260926(hid);
+              var frame=String(guestPhotoCache20260926||'');
+              if(/^data:image\/jpeg;base64,/.test(frame)&&frame.length<32000){
+                sendCriticalMedia20260926('guest_request',{
+                  host_id:hid,viewer_id:viewerId(),name:profileName(),frame:frame,at:Date.now()
+                },hid);
+              }
+            }catch(_e){}
+          },ms);
+        });
+        try{
+          var warm=prepareGuestOfferBeforeApproval20260924(hid);
+          if(warm&&warm.catch)warm.catch(function(){});
+        }catch(_e){}
+      }
+
       if(guestApproved&&guestApprovedHost===hid){
         pinApprovedGuestSelfVideo20260926();
         try{cacheTrustedGuestPhoto20260926();}catch(_e){}
