@@ -269,6 +269,63 @@
     }
   }
 
+  /* 2026-09-26: keep the currently painted FIRST public video stable.
+     This only blocks automatic/programmatic first-card changes. A real user
+     swipe still works normally, and no live-room/button/layout code is touched. */
+  function installFirstPublicStayLock20260926(){
+    try{
+      var sc=document.querySelector('#screen .kt-public-feed-scroller');
+      if(!sc||sc.dataset.ktFirstPublicStayLock20260926==='1')return;
+      sc.dataset.ktFirstPublicStayLock20260926='1';
+
+      var lockUrl=String(FIRST_FAST_FEED[0]&&FIRST_FAST_FEED[0].video_url||'');
+      var lastUserGesture=0;
+      function markUserGesture(){lastUserGesture=Date.now();}
+      ['touchstart','touchmove','pointerdown','wheel'].forEach(function(type){
+        try{sc.addEventListener(type,markUserGesture,{passive:true});}catch(e){}
+      });
+
+      /* If a recovery/cache script tries to move the feed by itself, return to
+         the first card. Do not fight an actual finger/wheel swipe. */
+      sc.addEventListener('scroll',function(){
+        try{
+          if(Date.now()-lastUserGesture<2500)return;
+          if(Number(sc.scrollTop||0)>8)sc.scrollTop=0;
+        }catch(e){}
+      },{passive:true});
+
+      var first=sc.querySelector('.kt-public-video');
+      if(!first||!lockUrl)return;
+      first.dataset.ktFirstPublicStayLock20260926='1';
+      first.loop=true;
+      first.muted=true;
+      first.defaultMuted=true;
+      first.preload='auto';
+      first.setAttribute('playsinline','');
+      first.setAttribute('webkit-playsinline','');
+      first.setAttribute('fetchpriority','high');
+
+      function keepSameSource(){
+        try{
+          if(!first.isConnected)return;
+          var attr=String(first.getAttribute('src')||'');
+          if(attr!==lockUrl){
+            first.setAttribute('src',lockUrl);
+            first.muted=true;
+            first.defaultMuted=true;
+            var p=first.play();if(p&&p.catch)p.catch(function(){});
+          }
+        }catch(e){}
+      }
+
+      try{
+        new MutationObserver(keepSameSource).observe(first,{attributes:true,attributeFilter:['src']});
+      }catch(e){}
+      keepSameSource();
+      try{var p=first.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
+    }catch(e){}
+  }
+
   window.ktPublicSendRose=async function(id,recipientName,btn){
     if(btn&&btn.disabled)return;
     if(btn)btn.disabled=true;
@@ -428,6 +485,7 @@
       if(sc)sc.scrollTop=0;
     }catch(e){}
     bind();
+    installFirstPublicStayLock20260926();
     try{
       var first=screen.querySelector('.kt-public-video');
       if(first){
