@@ -493,10 +493,12 @@
         Object.keys(latest).forEach(function(vid){
           var x=latest[vid];
           if(x.kind==='request'){
-            /* 같은 게스트가 다시 참여 신청하면 예전 승인 슬롯/영상/peer를 먼저 정리한다.
-               이전 영상이 남은 채 새 세션이 겹치지 않게 하고, 새 승인 후 새 연결만 올린다. */
-            if(approvedGuests[vid]||hostGuestPeers[vid]){
-              clearApprovedGuestFromHost(vid);
+            /* Request packets can arrive late/out of order after approval.
+               Never tear down an already-approved guest because of another
+               request. Explicit guest_left/cancel is the only teardown path. */
+            if(approvedGuests[vid]){
+              delete pendingRequests[vid];
+              return;
             }
             pendingRequests[vid]={name:x.name||'게스트',at:x.ts||Date.now()};
           }else{
@@ -1908,11 +1910,13 @@
     if(ev==='guest_request'&&isHostRole()&&String(p.host_id||'')===DEVICE){
       var vid=String(p.viewer_id||'');
       if(vid){
-        /* 재입장 신청은 새 세션으로 취급: 기존 게스트 영상/승인/peer를 즉시 비운다. */
-        if(approvedGuests[vid]||hostGuestPeers[vid]){
-          clearApprovedGuestFromHost(vid);
+        /* A repeated/late request is not a leave/rejoin signal. If this guest
+           is already approved, keep the live host slot and peer untouched. */
+        if(approvedGuests[vid]){
+          delete pendingRequests[vid];
+          return;
         }
-        pendingRequests[vid]={name:String(p.name||'게스트'),at:Date.now()};
+        pendingRequests[vid]={name:String(p.name||'게스트'),at:Number(p.at||Date.now())};
         renderDirectRequests();
         replayPendingHostGuestOffer(vid);
       }
