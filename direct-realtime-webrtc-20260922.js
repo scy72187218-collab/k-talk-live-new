@@ -14,7 +14,7 @@
   var viewerPc=null,viewerSession='',viewerWatchToken='',viewerConnected=false,viewerIce={},viewerConnectTimer=null,viewerAnswerSdp='';
   var pendingRequests={},approvedGuests={},hostGuestPeers={},guestPc=null,guestSession='',guestApprovedHost='',guestApproved=false,guestStream=null,guestIce={};
   var guestPrewarmTimer=null;
-  var pendingHostGuestOffers={},pendingHostGuestIce={};
+  var pendingHostGuestOffers={},pendingHostGuestIce={},pendingGuestPhotos20260926={};
   var requestOn=false,lastRemoteHost='',lastHostRole='',lastWatchAt=0;
   var sharedApprovalPollBusy=false,leaveAnnouncedHost='',guestAliveLastSent=0,hostGuestAliveAt={},remoteHostMissingSince=0;
   var signalSeen={},viewerOfferInFlight='',lastHostReadyAt=0,lastGuestRequestAt=0,guestApprovedAt=0;
@@ -1138,6 +1138,21 @@
     }
     var sm=slot.querySelector('small');if(sm)sm.style.display='none';
   }
+  function paintHostGuestPhoto20260926(vid,name,frame){
+    try{
+      vid=String(vid||'').trim();frame=String(frame||'');
+      if(!vid||!/^data:image\/jpeg;base64,/.test(frame)||frame.length>=32000)return false;
+      var slot=guestSlot(vid,String(name||'게스트'));if(!slot)return false;
+      var vv=slot.querySelector('video');if(!vv)return false;
+      vv.setAttribute('poster',frame);
+      vv.style.backgroundImage='url("'+frame+'")';
+      vv.style.backgroundSize='cover';
+      vv.style.backgroundPosition='center';
+      var sm=slot.querySelector('small');if(sm)sm.style.display='none';
+      return true;
+    }catch(e){return false;}
+  }
+
   function approveDirectGuest(vid,name){
     vid=String(vid||'').trim();
     if(!vid)return;
@@ -1145,6 +1160,12 @@
     var data={host_id:DEVICE,viewer_id:vid,name:name,at:Date.now()};
 
     approvedGuests[vid]={name:name,at:data.at};
+    try{
+      var pre= pendingGuestPhotos20260926[vid]||null;
+      if(pre&&Date.now()-Number(pre.at||0)<30000){
+        paintHostGuestPhoto20260926(vid,name,pre.frame||'');
+      }
+    }catch(e){}
     try{
       window.__ktApprovedGuestIds20260924[vid]=true;
       window.__ktApprovedGuestNames20260924=window.__ktApprovedGuestNames20260924||{};
@@ -1805,6 +1826,25 @@
     }catch(e){}
   }
 
+  function sendPreApprovalGuestPhoto20260926(hid){
+    hid=String(hid||'').trim();
+    if(!hid||!requestOn)return;
+    try{cacheTrustedGuestPhoto20260926();}catch(e){}
+    setTimeout(function(){
+      try{
+        var trustedId=String(window.__ktLocalGuestCameraTrackId20260926||'');
+        if(!requestOn||!trustedId)return;
+        if(!guestPhotoCache20260926||guestPhotoCacheTrack20260926!==trustedId)return;
+        if(Date.now()-guestPhotoCacheAt20260926>10000)return;
+        var data={
+          host_id:hid,viewer_id:viewerId(),name:profileName(),
+          frame:guestPhotoCache20260926,at:Date.now()
+        };
+        sendCriticalMedia20260926('guest_request_photo',data,hid);
+      }catch(e){}
+    },35);
+  }
+
   function sendApprovedGuestPhoto20260926(hid){
     hid=String(hid||'').trim();
     if(!hid)return;
@@ -2146,20 +2186,23 @@
       onGuestApproved(p);
       return;
     }
+    if(ev==='guest_request_photo'&&isHostRole()&&String(p.host_id||'')===DEVICE){
+      try{
+        var rv=String(p.viewer_id||'').trim();
+        var rf=String(p.frame||'');
+        if(rv&&/^data:image\/jpeg;base64,/.test(rf)&&rf.length<32000){
+          pendingGuestPhotos20260926[rv]={frame:rf,name:String(p.name||'게스트'),at:Number(p.at||Date.now())};
+          if(approvedGuests[rv])paintHostGuestPhoto20260926(rv,String(p.name||(approvedGuests[rv]&&approvedGuests[rv].name)||'게스트'),rf);
+        }
+      }catch(e){}
+      return;
+    }
     if(ev==='guest_photo_frame'&&isHostRole()&&String(p.host_id||'')===DEVICE){
       try{
         var pv=String(p.viewer_id||'').trim();
         var frame=String(p.frame||'');
-        if(pv&&approvedGuests[pv]&&/^data:image\/jpeg;base64,/.test(frame)&&frame.length<32000){
-          var slot=guestSlot(pv,String(p.name||(approvedGuests[pv]&&approvedGuests[pv].name)||'게스트'));
-          var vv=slot&&slot.querySelector('video');
-          if(vv){
-            vv.setAttribute('poster',frame);
-            vv.style.backgroundImage='url("'+frame+'")';
-            vv.style.backgroundSize='cover';
-            vv.style.backgroundPosition='center';
-            var sm=slot.querySelector('small');if(sm)sm.style.display='none';
-          }
+        if(pv&&approvedGuests[pv]){
+          paintHostGuestPhoto20260926(pv,String(p.name||(approvedGuests[pv]&&approvedGuests[pv].name)||'게스트'),frame);
         }
       }catch(e){}
       return;
@@ -2248,6 +2291,9 @@
               try{window.dispatchEvent(new CustomEvent('kt-guest-camera-prewarmed',{
                 detail:{host_id:hid,viewer_id:viewerId(),at:Date.now()}
               }));}catch(e){}
+              [0,90,220,450].forEach(function(ms){
+                setTimeout(function(){if(requestOn)try{sendPreApprovalGuestPhoto20260926(hid);}catch(e){}},ms);
+              });
               /* Camera only before approval. Do not create a temporary
                  sendonly PeerConnection here; approval will start one real
                  track-carrying connection immediately. */
