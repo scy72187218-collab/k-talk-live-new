@@ -542,7 +542,7 @@
           }catch(e){}
         }
         var lv=new LK.LocalVideoTrack(vt);
-        await vp.publishTrack(lv,{source:LK.Track.Source.Camera,simulcast:true});
+        await vp.publishTrack(lv,{source:LK.Track.Source.Camera,simulcast:(currentRole==='host')});
         publishedVideoId=vt.id;
       }
     }catch(e){}
