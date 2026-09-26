@@ -1227,7 +1227,7 @@
   function paintHostGuestPhoto20260926(vid,name,frame){
     try{
       vid=String(vid||'').trim();frame=String(frame||'');
-      if(!vid||!/^data:image\/jpeg;base64,/.test(frame)||frame.length>=32000)return false;
+      if(!vid||!/^data:image\/jpeg;base64,/.test(frame)||frame.length>=16000)return false;
       var slot=guestSlot(vid,String(name||'게스트'));if(!slot)return false;
       var vv=slot.querySelector('video');if(!vv)return false;
       vv.setAttribute('poster',frame);
@@ -1894,11 +1894,11 @@
     function grab(v){
       if(!v||!v.videoWidth||!v.videoHeight)return false;
       try{
-        var cv=document.createElement('canvas');cv.width=96;cv.height=72;
+        var cv=document.createElement('canvas');cv.width=72;cv.height=54;
         var cx=cv.getContext('2d',{alpha:false});if(!cx)return false;
-        cx.drawImage(v,0,0,96,72);
-        var frame=cv.toDataURL('image/jpeg',0.36);
-        if(!frame||frame.length>32000)return false;
+        cx.drawImage(v,0,0,72,54);
+        var frame=cv.toDataURL('image/jpeg',0.28);
+        if(!frame||frame.length>16000)return false;
         guestPhotoCache20260926=frame;
         guestPhotoCacheTrack20260926=trackId;
         guestPhotoCacheAt20260926=Date.now();
@@ -1939,7 +1939,7 @@
         };
         sendCriticalMedia20260926('guest_request_photo',data,hid);
       }catch(e){}
-    },35);
+    },0);
   }
 
   function sendApprovedGuestPhoto20260926(hid){
@@ -1975,11 +1975,11 @@
       if(sent||!v||!v.videoWidth||!v.videoHeight)return false;
       try{
         var cv=document.createElement('canvas');
-        cv.width=96;cv.height=72;
+        cv.width=72;cv.height=54;
         var cx=cv.getContext('2d',{alpha:false});if(!cx)return false;
-        cx.drawImage(v,0,0,96,72);
-        var frame=cv.toDataURL('image/jpeg',0.36);
-        if(!frame||frame.length>32000)return false;
+        cx.drawImage(v,0,0,72,54);
+        var frame=cv.toDataURL('image/jpeg',0.28);
+        if(!frame||frame.length>16000)return false;
         sent=true;
         sendCriticalMedia20260926('guest_photo_frame',{
           host_id:hid,viewer_id:viewerId(),name:profileName(),
@@ -2326,7 +2326,7 @@
       try{
         var rv=String(p.viewer_id||'').trim();
         var rf=String(p.frame||'');
-        if(rv&&/^data:image\/jpeg;base64,/.test(rf)&&rf.length<32000){
+        if(rv&&/^data:image\/jpeg;base64,/.test(rf)&&rf.length<16000){
           pendingGuestPhotos20260926[rv]={frame:rf,name:String(p.name||'게스트'),at:Number(p.at||Date.now())};
           if(approvedGuests[rv])paintHostGuestPhoto20260926(rv,String(p.name||(approvedGuests[rv]&&approvedGuests[rv].name)||'게스트'),rf);
         }
