@@ -36,10 +36,12 @@
     try{
       v.setAttribute('playsinline','');
       v.setAttribute('webkit-playsinline','');
+      v.setAttribute('fetchpriority','high');
       v.preload='auto';
       v.muted=true;
       v.defaultMuted=true;
       v.volume=0;
+      /* Never force load() during first paint; it can restart the same MP4 request. */
       var p=v.play();
       if(p&&p.catch)p.catch(function(){});
     }catch(e){}
@@ -57,20 +59,27 @@
     });
     v.addEventListener('error',function(){
       if(inLiveOrCreator())return;
-      var list=[].slice.call(document.querySelectorAll('#screen .kt-public-video,#screen #homeVideo'));
-      var next=list.find(function(x){return x!==v&&!x.dataset.ktVideoFailed;});
-      v.dataset.ktVideoFailed='1';
-      if(next){
-        try{next.scrollIntoView({block:'start'});}catch(e){}
-        setTimeout(function(){play(next);},50);
-        return;
-      }
 
-      /* 저장된 피드 주소가 오래되어 전부 안 열릴 때 한 번만 새 목록을 받음 */
-      if(!cacheRefreshDone&&typeof window.home==='function'){
+      /* Never move to another video automatically while a song/video is on
+         screen. Retry the SAME element only. */
+      setTimeout(function(){
+        try{if(visible(v))play(v);}catch(e){}
+      },300);
+
+      /* If this video never started at all and has a hard media error, a feed
+         refresh is allowed once. Once playback has started, do not replace it. */
+      var hard=false,started=false;
+      try{
+        hard=!!(v.error&&(Number(v.error.code)===3||Number(v.error.code)===4));
+        started=Number(v.currentTime||0)>.03||!v.paused;
+      }catch(e){}
+      if(hard&&!started&&!cacheRefreshDone){
         cacheRefreshDone=true;
-        /* 마지막으로 정상 재생된 목록은 지우지 않는다. */
-        setTimeout(function(){try{window.home();}catch(e){}},80);
+        setTimeout(function(){
+          try{
+            if(typeof window.ktRefreshSharedFeedNow==='function')window.ktRefreshSharedFeedNow();
+          }catch(e){}
+        },1500);
       }
     });
   }
@@ -103,7 +112,7 @@
   }
 
   function sequence(){
-    [50,180,450,900,1500,2600].forEach(function(ms){setTimeout(recover,ms);});
+    [0,40,100,220,450,800,1400].forEach(function(ms){setTimeout(recover,ms);});
   }
 
   sequence();
