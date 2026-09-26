@@ -356,6 +356,22 @@
     }catch(e){}
   };
 
+  window.ktApplyStageBackgroundNow20260927=function(){
+    try{
+      if(FX.key&&FX.key!=='none'){
+        FX.active=true;
+        ensurePipeline().then(function(){
+          try{
+            if(FX.segmenter&&FX.video&&FX.video.readyState>=2){
+              Promise.resolve(FX.segmenter.send({image:FX.video})).catch(function(){});
+            }
+          }catch(e){}
+        }).catch(function(){});
+      }
+    }catch(e){}
+    try{window.ktCloseFxPanel20260926();}catch(e){}
+  };
+
   window.openEditEffectPanel=function(){
     try{window.ktPreloadStageBackgroundAI20260927();}catch(e){}
     var html='<div class="kt-fx-sheet"><div class="kt-fx-head"><button type="button" class="kt-fx-back" onclick="ktCloseFxPanel20260926()" aria-label="뒤로가기">‹</button><div class="kt-fx-title">🎬 움직이는 배경 효과</div></div><div class="kt-fx-grid">';
@@ -363,7 +379,7 @@
       var bg=b[2]?(' style="background:'+b[2]+'"'):'';
       html+='<button class="kt-fx-bg'+(FX.key===b[0]?' on':'')+'" data-fx="'+b[0]+'" onclick="ktChooseStageBackground20260926(\''+b[0]+'\',this)"'+bg+'>'+b[1]+'</button>';
     });
-    html+='</div><div class="kt-fx-note">기본 방송은 AI를 사용하지 않습니다. <b>여기서 배경을 선택할 때만 AI 배경 분리</b>가 켜집니다. 사람이 움직여도 배경을 유지하며, 기기 성능에 따라 가장자리 품질은 달라질 수 있습니다.</div><button type="button" class="kt-fx-apply" onclick="ktCloseFxPanel20260926()">적용</button></div>';
+    html+='</div><div class="kt-fx-note">기본 방송은 AI를 사용하지 않습니다. <b>여기서 배경을 선택할 때만 AI 배경 분리</b>가 켜집니다. 사람이 움직여도 배경을 유지하며, 기기 성능에 따라 가장자리 품질은 달라질 수 있습니다.</div><button type="button" class="kt-fx-apply" onclick="ktApplyBeautyNow20260927()">적용</button></div>';
     sheet('편집 · 효과',html);
   };
 
@@ -404,6 +420,23 @@
     Object.keys(FX.beauty).forEach(function(k){FX.beauty[k]=0;});
     try{localStorage.removeItem('ktalk_beauty_20260926');}catch(e){}
     window.openBeautyPanel();
+  };
+
+  window.ktApplyBeautyNow20260927=function(){
+    try{
+      var cam=document.getElementById('camera');
+      if(cam){
+        if(FX.original&&cam.srcObject!==FX.original){
+          cam.srcObject=FX.original;
+          var p=cam.play();if(p&&p.catch)p.catch(function(){});
+        }
+        cam.style.filter=beautyFilter();
+      }
+    }catch(e){}
+    try{
+      if(!FX.active&&hasBeauty())ensureSafeBeautyPipeline().catch(function(){});
+    }catch(e){}
+    try{window.ktCloseFxPanel20260926();}catch(e){}
   };
 
   window.openBeautyPanel=function(){
