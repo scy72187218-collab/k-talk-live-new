@@ -23,6 +23,8 @@
       +'.kt-ai-dj-tools button{min-height:34px!important;border:1px solid #ffffff2b!important;border-radius:11px!important;background:rgba(8,8,12,.88)!important;color:#fff!important;font:950 9px/1.15 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;padding:3px!important;touch-action:manipulation!important}'
       +'.kt-ai-dj-company{color:#ffd96a!important}'
       +'.kt-room-switch-fixed-20260927 .room-switch{transform:none!important;translate:none!important;transition:border-color .12s,box-shadow .12s,background .12s,color .12s!important;position:relative!important;inset:auto!important;margin:0!important}'
+      +'.kt-ai-dj-room-button{min-height:48px!important;border:1px solid #3a3a42!important;border-radius:16px!important;background:#1b1b20!important;color:#fff!important;font-weight:900!important;white-space:nowrap!important;position:relative!important;inset:auto!important;margin:0!important;pointer-events:auto!important;touch-action:manipulation!important;-webkit-tap-highlight-color:transparent!important}'
+      +'.kt-ai-dj-room-button.on{outline:2px solid #ff5ccf!important;box-shadow:0 0 14px rgba(255,76,196,.55)!important;background:linear-gradient(135deg,#ff2f8c,#8a4cff)!important}'
       +'.kt-room-switch-fixed-20260927 .room-switch.on{transform:none!important;translate:none!important}'
       +'.kt-room-switch-fixed-20260927 #ktAiDjVisiblePrepButton20260927.on:after{content:""!important;position:absolute!important;right:8px!important;top:7px!important;width:8px!important;height:8px!important;border-radius:50%!important;background:#ff2d2d!important;box-shadow:0 0 9px #ff2d2d!important}'
       +'.kt-ai-dj-mic{position:absolute!important;right:8px!important;top:52px!important;z-index:1400!important;width:42px!important;height:42px!important;border-radius:50%!important;border:1px solid #ff7ecf99!important;background:rgba(35,8,27,.92)!important;color:#fff!important;font-size:19px!important;display:grid!important;place-items:center!important;pointer-events:auto!important;touch-action:manipulation!important;box-shadow:0 0 12px #ff4ebd44!important}'
@@ -77,23 +79,31 @@
       btn=document.createElement('button');
       btn.type='button';
       btn.id='ktAiDjVisiblePrepButton20260927';
-      btn.className='room-switch';
+      btn.className='kt-ai-dj-room-button';
       btn.textContent='AI DJ';
     }
-    btn.classList.add('room-switch');
-    btn.classList.remove('kt-ai-dj-pick');
+    btn.classList.remove('room-switch','kt-ai-dj-pick');
+    btn.classList.add('kt-ai-dj-room-button');
     btn.style.removeProperty('width');
     btn.style.removeProperty('margin-top');
     btn.innerHTML='<span style="font-size:16px">🎧</span> AI DJ';
-    btn.onclick=function(e){
-      try{e.preventDefault();e.stopPropagation();}catch(x){}
-      document.querySelectorAll('#creator .room-switch').forEach(function(b){b.classList.remove('on');});
+    function pickAiDj(e){
+      try{if(e){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}}catch(x){}
+      document.querySelectorAll('#creator .room-switch,#creator .kt-ai-dj-room-button').forEach(function(b){b.classList.remove('on');b.setAttribute('aria-pressed','false');});
       btn.classList.add('on');
       btn.setAttribute('aria-pressed','true');
       setMode(btn);
-      /* AI DJ는 여기서 선택만 한다. 실제 입장은 아래 '라이브 시작' 버튼으로 한다. */
       return false;
-    };
+    }
+    btn.onclick=pickAiDj;
+    btn.onpointerup=pickAiDj;
+    btn.ontouchend=pickAiDj;
+
+    btn.disabled=false;
+    btn.removeAttribute('disabled');
+    btn.setAttribute('aria-disabled','false');
+    btn.style.setProperty('pointer-events','auto','important');
+    btn.style.setProperty('touch-action','manipulation','important');
 
     row.classList.add('kt-room-switch-fixed-20260927');
 
@@ -102,7 +112,7 @@
     /* 1인 → 9명 → 13명 → 구독자 → 비밀방 → AI DJ 순서 고정.
        선택해도 버튼 자체 위치는 절대 바뀌지 않는다. */
     try{
-      var buttons=[].slice.call(row.querySelectorAll('.room-switch'));
+      var buttons=[].slice.call(row.querySelectorAll('.room-switch,.kt-ai-dj-room-button'));
       buttons.forEach(function(b){
         var t=String(b.textContent||'').replace(/\s+/g,'');
         var order=99;
@@ -140,7 +150,7 @@
   if(!window.__ktAiDjRoomChoiceClear20260927){
     window.__ktAiDjRoomChoiceClear20260927=true;
     document.addEventListener('click',function(e){
-      var other=e.target&&e.target.closest?e.target.closest('.live-prep .room-switch'):null;
+      var other=e.target&&e.target.closest?e.target.closest('.live-prep .room-switch,.live-prep .kt-ai-dj-room-button'):null;
       if(!other)return;
       var txt=String(other.textContent||'').replace(/\s+/g,'');
       if(/AIDJ/i.test(txt))return;
