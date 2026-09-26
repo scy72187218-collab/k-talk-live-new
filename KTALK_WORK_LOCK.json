@@ -1,13 +1,13 @@
 {
-  "version": 141,
+  "version": 142,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "main",
-  "snapshot_commit": "df50d988955db7e0191ac394f32b46bb72d780dd",
+  "snapshot_commit": "35d7f1141067b5373862ffcc4187371ebbed8d1d",
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "2026-09-26 owner PIN 1111: host/viewer video communication only restored to the 15:26 KST state (last saved code before 15:26, unchanged until 15:31). No UI/layout/button/guest-number/public-video changes. Relocked after restore.",
+  "note": "2026-09-26 owner PIN 1111: fixed only host-view video role detection so a guest phone inside the host-shaped room stays viewer and can receive the host camera. Kept the 15:26 host-view communication state otherwise unchanged. No UI/layout/button/guest-number/public-video changes. Relocked after deployment.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -98,7 +98,7 @@
   },
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "last_communication_fix": "2026-09-26-host-view-1526-kst-restore-only",
+  "last_communication_fix": "2026-09-26-viewer-role-host-video-black-screen-fix",
   "last_video_feed_fix": "2026-09-26-clean-single-first-video-path",
   "locked_components": [
     "public-video-feed",
@@ -159,5 +159,5 @@
   "last_critical_touch_fix": "2026-09-24-critical-touch1",
   "last_livekit_cloud_prepare": "2026-09-25-edge-token-v2-env-first",
   "temporarily_unlocked": [],
-  "last_communication_lock": "2026-09-26-relock-host-view-1526-kst-under-pin-1111"
+  "last_communication_lock": "2026-09-26-relock-viewer-role-host-video-fix-under-pin-1111"
 }
