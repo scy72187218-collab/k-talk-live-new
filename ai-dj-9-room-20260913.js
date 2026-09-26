@@ -86,7 +86,13 @@
       try{e.preventDefault();e.stopPropagation();}catch(x){}
       document.querySelectorAll('#creator .room-switch').forEach(function(b){b.classList.remove('on');});
       btn.classList.add('on');
-      setMode();
+      setMode(btn);
+      /* AI DJ는 이 버튼 하나로 바로 9명 AI 음악방 시작 */
+      setTimeout(function(){
+        try{
+          if(typeof window.startBroadcast==='function')window.startBroadcast();
+        }catch(err){}
+      },80);
       return false;
     };
 
