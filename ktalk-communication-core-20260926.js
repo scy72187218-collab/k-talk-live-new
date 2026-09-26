@@ -1547,16 +1547,31 @@
   function closePc(pc){try{if(pc)pc.close();}catch(e){}}
   function retryViewerSoon(delay){
     clearViewerConnectTimer();
-    viewerConnectTimer=setTimeout(function(){
+    function retryCheck(){
       viewerConnectTimer=null;
       if(viewerConnected)return;
+
+      /* Keep the first host-camera handshake alive while Android ICE is
+         still connecting/checking. Closing it too early leaves the host tile black. */
+      var pc=viewerPc,cs='',ice='',age=99999;
+      try{
+        cs=String(pc&&pc.connectionState||'');
+        ice=String(pc&&pc.iceConnectionState||'');
+        age=Date.now()-Number(window.__ktDirectRtcProgressAt||0);
+      }catch(e){}
+      if(pc&&(cs==='connecting'||ice==='checking'||((cs==='new'||!cs)&&age<2600))){
+        viewerConnectTimer=setTimeout(retryCheck,650);
+        return;
+      }
+
       if(viewerPc){closePc(viewerPc);viewerPc=null;}
       viewerSession='';viewerAnswerSdp='';
       viewerWatchToken=sid('watch');
       lastWatchAt=0;
       showConnecting();
       ensureViewerWatch(true);
-    },Math.max(180,Number(delay||1200)));
+    }
+    viewerConnectTimer=setTimeout(retryCheck,Math.max(700,Number(delay||1200)));
   }
 
   async function hostOfferToViewer(vid,watchToken){
@@ -3287,8 +3302,11 @@
 
       ensureViewerWatch(true);
       attachRemoteStreamNow();
-      [35,100,220,420].forEach(function(ms){
-        setTimeout(function(){ensureViewerWatch(true);attachRemoteStreamNow();},ms);
+      [35,100,220,420,750,1200,1800].forEach(function(ms){
+        setTimeout(function(){
+          if(!viewerConnected)ensureViewerWatch(true);
+          attachRemoteStreamNow();
+        },ms);
       });
     }catch(z){}
   });
