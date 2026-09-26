@@ -1692,6 +1692,12 @@
     window.__ktRemoteHostId=hid;
     try{sessionStorage.setItem('kt_remote_host_id',hid);}catch(e){}
 
+    var keepApprovedHostStream20260926=null;
+    var keepViewerConnected20260926=viewerConnected;
+    try{
+      keepApprovedHostStream20260926=window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream||null;
+    }catch(e){}
+
     requestOn=false;
     guestApproved=true;
     try{if(guestPrewarmTimer)clearTimeout(guestPrewarmTimer);}catch(e){}
@@ -1727,6 +1733,24 @@
       window.dispatchEvent(new CustomEvent('kt-three-person-sync-now',{
         detail:{host_id:hid,viewer_id:selfVid,at:Date.now(),immediate:true}
       }));
+
+      /* Approval changes only the guest-room DOM. Keep the already-live host
+         receive stream attached instead of starting a second viewer session. */
+      if(keepApprovedHostStream20260926&&
+         keepApprovedHostStream20260926.getVideoTracks&&
+         keepApprovedHostStream20260926.getVideoTracks().some(function(t){return t&&t.readyState==='live';})){
+        window.__ktRemoteHostStream=keepApprovedHostStream20260926;
+        window.__ktLastApprovedGuestHostStream=keepApprovedHostStream20260926;
+        if(keepViewerConnected20260926)viewerConnected=true;
+        attachRemoteStreamNow(keepApprovedHostStream20260926);
+        [20,60,140].forEach(function(ms){
+          setTimeout(function(){
+            if(guestApproved&&guestApprovedHost===hid){
+              attachRemoteStreamNow(keepApprovedHostStream20260926);
+            }
+          },ms);
+        });
+      }
     }catch(e){}
 
     try{
@@ -2094,23 +2118,42 @@
     try{
       var hid=String(e&&e.detail&&e.detail.host_id||'').trim();
       if(!hid)return;
+
+      var current=String(activeHostId||remoteHostId()||lastRemoteHost||'').trim();
+      var existing=null,existingLive=false;
+      try{
+        existing=(e&&e.detail&&e.detail.entry_stream)||window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream||window.__ktEntryHostStream20260925||null;
+        existingLive=!!(existing&&existing.getVideoTracks&&existing.getVideoTracks().some(function(t){return t&&t.readyState==='live';}));
+      }catch(_e){}
+
+      /* Re-selecting the SAME host during approval/DOM transition must never
+         reset the viewer watch token or close the already-working host video. */
+      if(current&&hid===current&&existingLive){
+        lastRemoteHost=hid;
+        window.__ktRemoteHostStream=existing;
+        window.__ktLastApprovedGuestHostStream=existing;
+        viewerConnected=true;
+        clearViewerConnectTimer();
+        attachRemoteStreamNow(existing);
+        [20,70,160].forEach(function(ms){
+          setTimeout(function(){attachRemoteStreamNow(existing);},ms);
+        });
+        return;
+      }
+
       lastRemoteHost=hid;
       viewerWatchToken=sid('watch');
       viewerConnected=false;
       lastWatchAt=0;
       if(activeHostId!==hid)connect(hid);
 
-      /* Communication speed only: keep any already-visible host stream while
-         the fresh direct WebRTC track is negotiating. */
       try{
-        var entryStream=(e&&e.detail&&e.detail.entry_stream)||window.__ktEntryHostStream20260925||window.__ktRemoteHostStream||null;
-        if(entryStream&&entryStream.getVideoTracks&&entryStream.getVideoTracks().some(function(t){return t&&t.readyState==='live';})){
-          window.__ktRemoteHostStream=entryStream;
-          attachRemoteStreamNow(entryStream);
+        if(existingLive){
+          window.__ktRemoteHostStream=existing;
+          attachRemoteStreamNow(existing);
         }
       }catch(_e){}
 
-      /* Fire the first real watch immediately and repeat very briefly. */
       ensureViewerWatch(true);
       attachRemoteStreamNow();
       [35,100,220,420].forEach(function(ms){
