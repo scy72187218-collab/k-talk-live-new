@@ -78,25 +78,55 @@
     window.ktPwaInstallNow();
   }
 
+  function showInstallFallback(){
+    try{
+      var old=document.getElementById('ktPwaInstallFallback');
+      if(old)old.remove();
+
+      var ua=navigator.userAgent||'';
+      var isAndroid=/android/i.test(ua);
+      var isNaver=/naver|whale/i.test(ua);
+
+      var box=document.createElement('div');
+      box.id='ktPwaInstallFallback';
+      box.style.cssText='position:fixed;left:12px;right:12px;bottom:20px;z-index:2147483647;max-width:520px;margin:auto;padding:14px;border-radius:18px;background:#0b0c12;color:#fff;border:1px solid #5b8cff;box-shadow:0 10px 35px #000b;font-family:system-ui';
+      box.innerHTML=''
+        +'<b style="display:block;font-size:16px">K-Talk 설치</b>'
+        +'<span style="display:block;margin-top:6px;font-size:11px;line-height:1.5;color:#d7d9e0">'+
+          (isNaver?'현재 브라우저에서는 설치 버튼을 직접 띄우지 못할 수 있습니다. 아래에서 Chrome으로 열면 설치할 수 있습니다.':'이 브라우저에서 직접 설치 창을 지원하지 않습니다. 브라우저 메뉴의 “홈 화면에 추가”를 이용해 주세요.')+
+        '</span>'
+        +(isAndroid?'<button id="ktPwaOpenChrome" type="button" style="width:100%;height:44px;margin-top:11px;border:0;border-radius:12px;background:linear-gradient(135deg,#2388ff,#754cff);color:#fff;font-weight:950">Chrome에서 열기</button>':'')
+        +'<button id="ktPwaFallbackClose" type="button" style="width:100%;height:40px;margin-top:7px;border:1px solid #ffffff25;border-radius:12px;background:#171820;color:#fff;font-weight:900">닫기</button>';
+      document.body.appendChild(box);
+
+      var close=box.querySelector('#ktPwaFallbackClose');
+      if(close)close.onclick=function(){box.remove();};
+
+      var chrome=box.querySelector('#ktPwaOpenChrome');
+      if(chrome)chrome.onclick=function(){
+        try{
+          var u=location.href.replace(/^https?:\/\//,'');
+          location.href='intent://'+u+'#Intent;scheme=https;package=com.android.chrome;end';
+        }catch(e){}
+      };
+    }catch(e){}
+  }
+
   window.ktPwaInstallNow=async function(){
     if(isStandalone()){removeOffer();return false;}
     if(deferredPrompt){
       try{
         deferredPrompt.prompt();
         await deferredPrompt.userChoice;
+        deferredPrompt=null;
+        removeOffer();
+        return false;
       }catch(e){}
-      deferredPrompt=null;
-      removeOffer();
-      return false;
     }
 
-    var ua=navigator.userAgent||'';
-    if(/iphone|ipad|ipod/i.test(ua)){
-      try{alert('Safari 아래의 공유 버튼을 누른 뒤 “홈 화면에 추가”를 선택해 주세요.');}catch(e){}
-    }else{
-      try{alert('브라우저 메뉴에서 “앱 설치” 또는 “홈 화면에 추가”를 선택해 주세요.');}catch(e){}
-    }
+    /* Unsupported in-app browsers must never look like a dead button. */
     removeOffer();
+    showInstallFallback();
     return false;
   };
 
