@@ -1195,12 +1195,47 @@
       }catch(e){}
       /* When LiveKit already has a live picture, direct WebRTC stays as a
          background fallback and must not keep replacing the same video element. */
-      if(!(liveKitOn&&currentLive&&v.srcObject!==stream))v.srcObject=stream;
-      try{v.style.removeProperty('background-image');v.removeAttribute('poster');}catch(e){}
+      if(!(liveKitOn&&currentLive&&v.srcObject!==stream)){
+        try{
+          var cur2=v.srcObject||null;
+          if(!cur2||!sameVideoSource20260926(cur2,stream))v.srcObject=stream;
+        }catch(e){v.srcObject=stream;}
+      }
       v.muted=true;v.playsInline=true;
-      try{var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
+
+      /* Keep the cached guest photo visible until the REAL remote guest video
+         has produced a frame. Removing it as soon as srcObject is assigned
+         causes the host slot to go black for seconds/minutes on some Android
+         phones. Switch from photo to live video only after track unmute /
+         loadeddata/playing. */
+      var clearFallback=function(){
+        try{
+          var s=v.srcObject||stream;
+          var vt=s&&s.getVideoTracks&&s.getVideoTracks()[0]||null;
+          if(!vt||vt.readyState!=='live'||vt.muted===true)return;
+          if(v.readyState<2&&!(v.videoWidth>0&&v.videoHeight>0))return;
+          v.style.removeProperty('background-image');
+          v.removeAttribute('poster');
+          var sm=slot.querySelector('small');if(sm)sm.style.display='none';
+        }catch(e){}
+      };
+      try{
+        var p=v.play();if(p&&p.catch)p.catch(function(){});
+        v.addEventListener('loadeddata',clearFallback,{once:true});
+        v.addEventListener('playing',clearFallback,{once:true});
+        var vt2=stream.getVideoTracks&&stream.getVideoTracks()[0]||null;
+        if(vt2){
+          var oldUnmute=vt2.onunmute;
+          vt2.onunmute=function(ev){
+            try{if(typeof oldUnmute==='function')oldUnmute.call(this,ev);}catch(e){}
+            setTimeout(clearFallback,0);
+            setTimeout(clearFallback,40);
+          };
+        }
+        setTimeout(clearFallback,40);
+        setTimeout(clearFallback,120);
+      }catch(e){}
     }
-    var sm=slot.querySelector('small');if(sm)sm.style.display='none';
   }
   function paintHostGuestPhoto20260926(vid,name,frame){
     try{
