@@ -1259,6 +1259,13 @@
     var data={host_id:DEVICE,viewer_id:vid,name:name,at:Date.now()};
 
     approvedGuests[vid]={name:name,at:data.at};
+
+    /* HOST UI FIRST:
+       the moment the host taps approve, reserve/show the guest slot immediately.
+       Do not wait for signaling, DB, polling, or the first remote video frame. */
+    var immediateSlot20260926=null;
+    try{immediateSlot20260926=guestSlot(vid,name);}catch(e){}
+
     try{
       var pre= pendingGuestPhotos20260926[vid]||null;
       if(pre&&Date.now()-Number(pre.at||0)<30000){
@@ -1271,13 +1278,10 @@
       window.__ktApprovedGuestNames20260924[vid]=name;
     }catch(e){}
 
-    /* REALTIME FIRST: the guest receives approval before host-side DOM work,
-       legacy persistence, or any extra rendering can delay the signal. */
-    send('guest_approved',data);
-    try{restBroadcast('guest_approved',data);}catch(e){}
+    /* Deliver approval over both fast paths immediately. */
+    try{sendCriticalMedia20260926('guest_approved',data,DEVICE);}catch(e){}
 
     delete pendingRequests[vid];
-    guestSlot(vid,name);
     var warmPeer=hostGuestPeers[vid]||null;
     if(warmPeer&&warmPeer.pendingStream){
       attachGuestToHost(vid,name,warmPeer.pendingStream);
@@ -1289,10 +1293,10 @@
     setTimeout(function(){sharedApprovalPost(DEVICE,'guest_approved',vid,name);},120);
     setTimeout(function(){sharedApprovalPost(DEVICE,'guest_approved',vid,name);},350);
     setTimeout(function(){sharedApprovalPost(DEVICE,'guest_approved',vid,name);},800);
-    setTimeout(function(){send('guest_approved',data);},50);
-    setTimeout(function(){send('guest_approved',data);},150);
-    setTimeout(function(){send('guest_approved',data);},700);
-    setTimeout(function(){send('guest_approved',data);},1200);
+    setTimeout(function(){send('guest_approved',data);},20);
+    setTimeout(function(){send('guest_approved',data);},60);
+    setTimeout(function(){send('guest_approved',data);},140);
+    setTimeout(function(){send('guest_approved',data);},500);
     try{
       window.dispatchEvent(new CustomEvent('kt-host-guest-approved',{
         detail:{host_id:DEVICE,viewer_id:vid,at:Date.now()}
