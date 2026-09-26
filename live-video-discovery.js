@@ -50,7 +50,7 @@
     }catch(e){return [];}
   }
 
-  async function activeRooms(){
+  async function activeRoomsCore(){
     /* Supabase Realtime broadcast is the primary LIVE source.
        It is shared by all devices, unlike warm serverless memory. */
     try{
@@ -111,6 +111,17 @@
     /* DB와 보조 신호가 모두 비었을 때만 LIVE 표시를 내린다. */
     stableActiveRooms=[];stableActiveAt=0;
     return [];
+  }
+
+  var activeRoomsBusy=null,activeRoomsCheckedAt=0;
+  async function activeRooms(){
+    var now=Date.now();
+    if(activeRoomsBusy)return activeRoomsBusy;
+    if(now-activeRoomsCheckedAt<1800)return stableActiveRooms.slice();
+    activeRoomsCheckedAt=now;
+    activeRoomsBusy=activeRoomsCore();
+    try{return await activeRoomsBusy;}
+    finally{activeRoomsBusy=null;}
   }
 
   async function followedUsers(){
@@ -375,7 +386,7 @@
     return homes.find(visibleVideoNode)||homes[0]||null;
   }
 
-  async function render(){
+  async function renderCore(){
     ensureStyle();
     var old=document.getElementById('ktVideoLivePeek');
     if(document.documentElement.classList.contains('kt-remote-viewing')){
@@ -432,12 +443,30 @@
     paintSocialState(hostId);
   }
 
+  var renderRunning=false,renderAgain=false,renderTimer=null;
+  function scheduleRender(delay){
+    clearTimeout(renderTimer);
+    renderTimer=setTimeout(function(){
+      renderTimer=null;
+      render();
+    },Math.max(0,Number(delay||0)));
+  }
+  async function render(){
+    if(renderRunning){renderAgain=true;return;}
+    renderRunning=true;
+    try{await renderCore();}
+    finally{
+      renderRunning=false;
+      if(renderAgain){renderAgain=false;scheduleRender(250);}
+    }
+  }
+
   window.ktRefreshVideoLivePeek=render;
-  var mo=new MutationObserver(function(){setTimeout(render,80);});
+  var mo=new MutationObserver(function(){scheduleRender(400);});
   var screen=document.getElementById('screen');if(screen)mo.observe(screen,{childList:true,subtree:true});
-  if(screen)screen.addEventListener('scroll',function(){clearTimeout(window.__ktLiveSwipeRender);window.__ktLiveSwipeRender=setTimeout(render,40);},true);
-  document.addEventListener('touchend',function(){setTimeout(render,40);},true);
-  document.addEventListener('pointerup',function(){setTimeout(render,40);},true);
-  setInterval(render,500);
-  setTimeout(render,600);
+  if(screen)screen.addEventListener('scroll',function(){scheduleRender(350);},true);
+  document.addEventListener('touchend',function(){scheduleRender(250);},true);
+  document.addEventListener('pointerup',function(){scheduleRender(250);},true);
+  setInterval(function(){scheduleRender(0);},2000);
+  scheduleRender(600);
 })();
