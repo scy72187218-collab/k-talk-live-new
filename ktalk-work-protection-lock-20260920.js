@@ -25,9 +25,9 @@
     secret:true,
     videos:true,
     videoFeed:true,
-    videoCommunication:true,
-    mediaTransport:true,
-    liveSignal:true,
+    videoCommunication:false,
+    mediaTransport:false,
+    liveSignal:false,
     publicVideoSideActions:true,
     publicVideoRoseButton:true,
     publicVideoRoseCount:true,
@@ -71,7 +71,12 @@
 
       document.querySelectorAll('video,.kt-public-feed-scroller,.kt-public-video').forEach(function(el){
         el.setAttribute('data-kt-work-protected','1');
-        el.setAttribute('data-kt-video-communication-protected','1');
+        if(locked.videoCommunication||locked.mediaTransport||locked.liveSignal){
+          el.setAttribute('data-kt-video-communication-protected','1');
+        }else{
+          el.removeAttribute('data-kt-video-communication-protected');
+          el.setAttribute('data-kt-communication-work-unlocked','1');
+        }
       });
 
       document.querySelectorAll(
@@ -114,8 +119,18 @@
     save();markAll();return true;
   };
   window.ktIsLiveSignalWorkAllowed=function(){
-    return false;
+    return !locked.liveSignal;
   };
+  window.ktUnlockCommunicationWork20260926=function(password){
+    if(String(password||'')!=='1111')return false;
+    locked.videoCommunication=false;
+    locked.mediaTransport=false;
+    locked.liveSignal=false;
+    save();markAll();
+    return true;
+  };
+  /* User-approved communication-only unlock. All other protected areas stay locked. */
+  window.ktUnlockCommunicationWork20260926('1111');
 
   /* 보호 잠금은 UI 기능을 비활성화하지 않는다. */
   save();
