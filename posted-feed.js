@@ -315,12 +315,11 @@
     }catch(e){}
   }
 
-  window.ktPublicSendRose=async function(id,recipientName,btn){
-    if(!id)return;
+  window.ktPublicSendRose=function(id,recipientName,btn){
+    if(!id)return false;
 
-    /* 동영상 장미는 '회사 지급'이 아니라 지금 누른 시청자가
-       해당 동영상 게시자에게 직접 1송이를 보내는 응원 버튼이다.
-       좋아요처럼 누르는 즉시 화면 숫자를 +1 하고 서버에 기록한다. */
+    /* 화면은 즉시 +1. 서버 저장은 뒤에서 처리해서 느린 폰/네트워크에서도
+       좋아요처럼 바로 반응하게 한다. */
     var s=btn&&btn.querySelector('small');
     var before=0;
     try{
@@ -328,48 +327,62 @@
       if(s)s.textContent=(before+1).toLocaleString('ko-KR');
       if(btn){
         btn.classList.add('kt-rose-tapped');
-        setTimeout(function(){try{btn.classList.remove('kt-rose-tapped');}catch(e){}},220);
+        setTimeout(function(){try{btn.classList.remove('kt-rose-tapped');}catch(e){}},180);
       }
     }catch(e){}
 
-    try{
-      var giver=who();
+    var giver=who();
 
-      var r=await fetch(SB+'/rest/v1/rpc/ktalk_like_video',{
-        method:'POST',
-        headers:headers({'Content-Type':'application/json'}),
-        body:JSON.stringify({video_id:id})
-      });
-      if(!r.ok)throw new Error('rose');
+    (async function(){
+      var ok=false;
+      for(var attempt=0;attempt<2&&!ok;attempt++){
+        var ctrl=typeof AbortController!=='undefined'?new AbortController():null;
+        var tm=ctrl?setTimeout(function(){try{ctrl.abort();}catch(e){}},3500):null;
+        try{
+          var r=await fetch(SB+'/rest/v1/rpc/ktalk_like_video',{
+            method:'POST',
+            headers:headers({'Content-Type':'application/json'}),
+            body:JSON.stringify({video_id:id}),
+            signal:ctrl?ctrl.signal:undefined
+          });
+          if(tm)clearTimeout(tm);
+          if(!r.ok)throw new Error('rose');
+          var n=await r.json();
+          if(s)s.textContent=Number(n||before+1).toLocaleString('ko-KR');
+          ok=true;
+        }catch(e){
+          if(tm)clearTimeout(tm);
+          if(attempt===0)await new Promise(function(resolve){setTimeout(resolve,450);});
+        }
+      }
 
-      var n=await r.json();
-      if(s)s.textContent=Number(n||before+1).toLocaleString('ko-KR');
+      if(ok){
+        try{
+          fetch(SB+'/rest/v1/ktalk_video_comments',{
+            method:'POST',
+            headers:headers({'Content-Type':'application/json','Prefer':'return=minimal'}),
+            body:JSON.stringify({
+              video_id:id,
+              author_id:giver.id,
+              author_name:giver.name,
+              body:'__KT_ROSE__|1|'+String(recipientName||'동영상 게시자')
+            })
+          }).catch(function(){});
+        }catch(e){}
+        return;
+      }
 
-      /* 누른 사람의 이름으로 1송이 기록.
-         게시자 장미 내역에서 누가 보냈는지 확인할 수 있다. */
+      /* 실패 팝업으로 시청을 막지 않는다. 숫자는 다음 서버 새로고침 때 정정된다. */
       try{
-        await fetch(SB+'/rest/v1/ktalk_video_comments',{
-          method:'POST',
-          headers:headers({'Content-Type':'application/json','Prefer':'return=minimal'}),
-          body:JSON.stringify({
-            video_id:id,
-            author_id:giver.id,
-            author_name:giver.name,
-            body:'__KT_ROSE__|1|'+String(recipientName||'동영상 게시자')
-          })
-        });
-      }catch(logErr){}
+        var toast=document.createElement('div');
+        toast.style.cssText='position:fixed;left:50%;bottom:110px;transform:translateX(-50%);z-index:99999;padding:8px 12px;border-radius:999px;background:rgba(24,8,28,.94);border:1px solid #ff5aaf;color:#fff;font-size:11px;font-weight:900;white-space:nowrap;pointer-events:none';
+        toast.textContent='장미 저장이 늦어지고 있습니다. 자동으로 다시 시도합니다.';
+        document.body.appendChild(toast);
+        setTimeout(function(){try{toast.remove();}catch(e){}},1400);
+      }catch(e){}
+    })();
 
-      var toast=document.createElement('div');
-      toast.style.cssText='position:fixed;left:50%;bottom:110px;transform:translateX(-50%);z-index:99999;padding:10px 16px;border-radius:999px;background:rgba(24,8,28,.94);border:1px solid #ff5aaf;color:#fff;font-weight:950;box-shadow:0 0 18px rgba(255,54,150,.45);white-space:nowrap;pointer-events:none';
-      toast.textContent='🌹 '+String(giver.name||'회원')+' → '+(recipientName||'동영상 게시자')+' 1송이';
-      document.body.appendChild(toast);
-      setTimeout(function(){if(toast&&toast.parentNode)toast.remove();},1500);
-    }catch(e){
-      /* 실패하면 화면의 임시 +1만 원래 숫자로 되돌린다. */
-      try{if(s)s.textContent=before.toLocaleString('ko-KR');}catch(x){}
-      alert('장미 전송에 실패했습니다. 다시 눌러 주세요.');
-    }
+    return false;
   };
 
   window.ktPublicRoseHistory=async function(videoId,recipientName){
