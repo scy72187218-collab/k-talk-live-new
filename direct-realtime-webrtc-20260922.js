@@ -365,6 +365,7 @@
     if(!vid)return;
     delete pendingRequests[vid];
     delete approvedGuests[vid];
+    delete pendingGuestPhotos20260926[vid];
     delete guestJoinNumber20260926[vid];
     try{
       delete window.__ktApprovedGuestIds20260924[vid];
@@ -578,63 +579,75 @@
       var effectiveCut=Math.max(Number(roomCut||0),Number(runCut||0));
       rows=rows.filter(function(m){return sharedMsgTime(m)>=effectiveCut;});
       if(host){
-        var latest={};
+        /* Host may restore a guest only when THIS run contains both:
+           request -> approval. A stale approval/alive by itself must never
+           create a guest slot before the user requests to join. */
+        var states={};
         rows.forEach(function(m){
           var t=String(m.message_type||''),vid='',kind='';
           if(t.indexOf('guest_request:')===0){vid=t.slice(14);kind='request';}
-          else if(t.indexOf('guest_cancelled:')===0){vid=t.slice(16);kind='cancel';}
+          else if(t.indexOf('guest_cancelled:')===0){vid=t.slice(16);kind='end';}
           else if(t.indexOf('guest_approved:')===0){vid=t.slice(15);kind='approved';}
           else if(t.indexOf('guest_alive:')===0){vid=t.slice(12);kind='alive';}
-          else if(t.indexOf('guest_left:')===0){vid=t.slice(11);kind='left';}
+          else if(t.indexOf('guest_left:')===0){vid=t.slice(11);kind='end';}
           if(!vid)return;
           var ts=sharedMsgTime(m);
-          if(!latest[vid]||ts>=latest[vid].ts)latest[vid]={kind:kind,ts:ts,name:String(m.sender_name||'게스트')};
-        });
-        Object.keys(latest).forEach(function(vid){
-          var x=latest[vid];
-          if(x.kind==='request'){
-            /* Request packets can arrive late/out of order after approval.
-               Never tear down an already-approved guest because of another
-               request. Explicit guest_left/cancel is the only teardown path. */
-            if(approvedGuests[vid]){
-              delete pendingRequests[vid];
-              return;
-            }
-            pendingRequests[vid]={name:x.name||'게스트',at:x.ts||Date.now()};
-          }else{
-            delete pendingRequests[vid];
-            if(x.kind==='approved'){
-              approvedGuests[vid]=approvedGuests[vid]||{name:x.name||'게스트',at:x.ts||Date.now()};
-              try{
-                window.__ktApprovedGuestIds20260924[vid]=true;
-                window.__ktApprovedGuestNames20260924=window.__ktApprovedGuestNames20260924||{};
-                window.__ktApprovedGuestNames20260924[vid]=String(x.name||'게스트');
-              }catch(e){}
-              try{guestSlot(vid,x.name||'게스트');}catch(e){}
-              hostGuestAliveAt[vid]=Math.max(Number(hostGuestAliveAt[vid]||0),Number(x.ts||Date.now()));
-              replayPendingHostGuestOffer(vid);
-            }else if(x.kind==='alive'){
-              /* 새 방송에서 heartbeat만으로 예전 승인을 되살리지 않는다. */
-              if(approvedGuests[vid]){
-                hostGuestAliveAt[vid]=Math.max(Number(hostGuestAliveAt[vid]||0),Number(x.ts||Date.now()));
-                replayPendingHostGuestOffer(vid);
-              }
-            }else if(x.kind==='left'){
-              delete hostGuestAliveAt[vid];
-              clearApprovedGuestFromHost(vid);
-            }
+          var x=states[vid]||(states[vid]={request:0,approved:0,end:0,alive:0,name:'게스트'});
+          if(kind==='request'){
+            if(ts>=x.request){x.request=ts;x.name=String(m.sender_name||x.name||'게스트');}
+          }else if(kind==='approved'){
+            if(ts>=x.approved){x.approved=ts;x.name=String(m.sender_name||x.name||'게스트');}
+          }else if(kind==='alive'){
+            if(ts>=x.alive)x.alive=ts;
+          }else if(kind==='end'){
+            if(ts>=x.end)x.end=ts;
           }
         });
+
+        Object.keys(states).forEach(function(vid){
+          var x=states[vid];
+          var requested=!!(x.request&&x.request>x.end);
+          var active=!!(requested&&x.approved>=x.request&&x.approved>x.end);
+
+          if(active){
+            delete pendingRequests[vid];
+            if(!approvedGuests[vid])approvedGuests[vid]={name:x.name||'게스트',at:x.approved||Date.now()};
+            try{
+              window.__ktApprovedGuestIds20260924[vid]=true;
+              window.__ktApprovedGuestNames20260924=window.__ktApprovedGuestNames20260924||{};
+              window.__ktApprovedGuestNames20260924[vid]=String(x.name||'게스트');
+            }catch(e){}
+            try{guestSlot(vid,x.name||'게스트');}catch(e){}
+            hostGuestAliveAt[vid]=Math.max(
+              Number(hostGuestAliveAt[vid]||0),
+              Number(x.alive||0),
+              Number(x.approved||0)
+            );
+            replayPendingHostGuestOffer(vid);
+            return;
+          }
+
+          /* A current request without approval is only pending; do not raise a slot. */
+          if(requested){
+            if(!approvedGuests[vid])pendingRequests[vid]={name:x.name||'게스트',at:x.request||Date.now()};
+            return;
+          }
+
+          delete pendingRequests[vid];
+
+          /* Never recreate a guest from stale approval/alive. Only an explicit
+             current leave/cancel tears down a guest that is already live. */
+          if(approvedGuests[vid]&&x.end&&x.end>=Number(approvedGuests[vid].at||0)){
+            delete hostGuestAliveAt[vid];
+            clearApprovedGuestFromHost(vid);
+          }
+        });
+
         var now=Date.now();
         Object.keys(approvedGuests).forEach(function(vid){
           var seen=Number(hostGuestAliveAt[vid]||0);
           if(!seen)return;
-
-          /* 기존 승인 게스트 WebRTC 경로가 같이 동작하는 경우에는
-             direct heartbeat 하나가 늦었다는 이유만으로 호스트 슬롯을 지우지 않는다.
-             실제 guest_left/cancel 신호는 위에서 그대로 즉시 정리한다. */
           if(useLegacyApprovedGuestUplink())return;
-
           if(now-seen>45000){
             var entry=hostGuestPeers[vid]||null;
             var pc=entry&&entry.pc||null;
@@ -644,13 +657,11 @@
               hostGuestAliveAt[vid]=now;
               return;
             }
-
             if(now-seen<90000){
               var ap=approvedGuests[vid];
-              if(ap)send('guest_approved',{host_id:DEVICE,viewer_id:vid,name:ap.name||'게스트',at:now,reconnect:true});
+              if(ap)send('guest_approved',{host_id:DEVICE,viewer_id:vid,name:ap.name||'게스트',guest_no:Number(guestJoinNumber20260926[vid]||0),at:now,reconnect:true});
               return;
             }
-
             delete hostGuestAliveAt[vid];
             clearApprovedGuestFromHost(vid);
           }
@@ -1212,7 +1223,14 @@
     try{return guestSlot(String(vid||'').trim(),String(name||'게스트'));}catch(e){return null;}
   };
   function attachGuestToHost(vid,name,stream){
-    var slot=guestSlot(vid,name);if(!slot||!stream)return;
+    if(!stream)return;
+    try{
+      var hs=hostStream();
+      if(hs&&sameVideoSource20260926(stream,hs))return;
+      var hv=document.querySelector('#screen .ktg13-host>video,#screen .ktg9-host>video,#screen .ktsolo-host>video');
+      if(hv&&hv.srcObject&&sameVideoSource20260926(stream,hv.srcObject))return;
+    }catch(e){}
+    var slot=guestSlot(vid,name);if(!slot)return;
     var v=slot.querySelector('video');
     if(v){
       var currentLive=false,liveKitOn=false;
@@ -2516,7 +2534,7 @@
       publishRunContext(DEVICE,hostRunId,hostRunStartedAt,'host');
       Object.keys(approvedGuests).forEach(function(id){try{clearApprovedGuestFromHost(id);}catch(e){}});
       Object.keys(hostGuestPeers).forEach(function(id){try{closePc(hostGuestPeers[id]&&hostGuestPeers[id].pc);}catch(e){}});
-      pendingRequests={};approvedGuests={};hostGuestPeers={};hostGuestAliveAt={};pendingHostGuestOffers={};pendingHostGuestIce={};
+      pendingRequests={};approvedGuests={};hostGuestPeers={};hostGuestAliveAt={};pendingHostGuestOffers={};pendingHostGuestIce={};pendingGuestPhotos20260926={};
       resetGuestJoinNumbers20260926();
     }
     if(activeHostId!==hid||lastHostRole!==role){lastHostRole=role;connect(hid);}
