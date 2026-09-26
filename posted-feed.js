@@ -322,7 +322,24 @@
     try{
       var firstNew=screen.querySelector('.kt-public-video');
       var wanted=String(a[0]&&a[0].video_url||'');
-      if(bootVideo&&firstNew&&bootUrl&&wanted&&bootUrl===wanted){
+
+      /* Do not cut off a song/video that is already playing on first paint.
+         The server feed can arrive with a different first item a moment later.
+         Keep the exact playing element instead of swapping sources mid-song. */
+      var keepBoot=false;
+      try{
+        keepBoot=!!(bootVideo&&firstNew&&bootUrl&&(
+          Number(bootVideo.currentTime||0)>.03 ||
+          Number(bootVideo.readyState||0)>=2 ||
+          !bootVideo.paused
+        ));
+      }catch(e){}
+      if(keepBoot){
+        bootVideo.id='';
+        bootVideo.className='kt-public-video';
+        bootVideo.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000';
+        firstNew.replaceWith(bootVideo);
+      }else if(bootVideo&&firstNew&&bootUrl&&wanted&&bootUrl===wanted){
         bootVideo.id='';
         bootVideo.className='kt-public-video';
         bootVideo.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000';
