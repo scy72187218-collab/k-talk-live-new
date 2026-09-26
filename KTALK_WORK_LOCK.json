@@ -1,5 +1,5 @@
 {
-  "version": 107,
+  "version": 108,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "main",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "2026-09-26 with owner PIN 1111: added a separate guest-departure cleanup guard. Explicit guest leave clears the matching host slot immediately; missed leave packets cannot leave a permanent connecting card. No room layout, public video, button, or camera-direction code changed. Relocked.",
+  "note": "2026-09-26 with owner PIN 1111: every host guest approval path now triggers realtime approval immediately before durable/legacy persistence, reducing delayed guest-room transition and delayed guest face appearance. No room layout, public video, controls, or unrelated features changed. Relocked.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -98,7 +98,7 @@
   },
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "last_communication_fix": "2026-09-26-clear-departed-guests-from-host-room",
+  "last_communication_fix": "2026-09-26-instant-guest-approval-and-room-entry",
   "last_video_feed_fix": "2026-09-26-smooth-first-video-no-src-rewrite",
   "locked_components": [
     "public-video-feed",
