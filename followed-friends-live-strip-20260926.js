@@ -100,6 +100,7 @@
       var p=byName[name]||{id:'',name:name,photo:'',level:1,live:false,hostId:''};
       p.live=true;
       p.hostId=String(r.host_id||'');
+      p.lastLiveAt=String(r.started_at||r.updated_at||'');
       if(r.host_photo)p.photo=String(r.host_photo);
       if(r.host_level)p.level=Number(r.host_level)||p.level||1;
       byName[name]=p;
@@ -130,6 +131,10 @@
       +'.kt-follow-person.live .kt-follow-live{display:block}'
       +'.kt-follow-name{display:block;margin-top:8px;font-size:9px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'
       +'.kt-follow-state{display:block;margin-top:2px;font-size:7px;color:#62a9ff}.kt-follow-person.live .kt-follow-state{color:#ff6684}'
+      +'.kt-live-follow-alert{position:fixed;left:12px;right:12px;top:18px;z-index:2147483001;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:rgba(15,16,22,.96);border:1px solid #ff315f88;box-shadow:0 10px 34px #0009;color:#fff}'
+      +'.kt-live-follow-alert img,.kt-live-follow-alert .ph{width:44px;height:44px;border-radius:50%;object-fit:cover;display:grid;place-items:center;background:#1a2030;border:3px solid #ff315f;font-size:20px;flex:none}'
+      +'.kt-live-follow-alert .tx{min-width:0;flex:1}.kt-live-follow-alert .tx b{display:block;font-size:12px;font-weight:950}.kt-live-follow-alert .tx span{display:block;margin-top:3px;font-size:9px;color:#ddd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'
+      +'.kt-live-follow-alert button{border:0;border-radius:9px;background:#ff315f;color:#fff;font-size:9px;font-weight:950;padding:8px 10px}'
       +'@media(max-width:390px){.kt-follow-person{flex-basis:64px}.kt-follow-avatar{width:56px;height:56px}.kt-follow-scroll{gap:9px}}';
     document.head.appendChild(s);
   }
@@ -158,6 +163,59 @@
       +'</button>';
   }
 
+  var notifiedLiveKeys={};
+
+  function followedMatch(room){
+    var cached=loadCache();
+    var rid=String(room&&room.host_id||'');
+    var rname=cleanName(room&&room.host_name||'');
+    for(var i=0;i<cached.length;i++){
+      var x=cached[i]||{};
+      if(x.id&&rid&&String(x.id)===rid)return x;
+      if(x.hostId&&rid&&String(x.hostId)===rid)return x;
+      if(x.name&&rname&&cleanName(x.name)===rname)return x;
+    }
+    return null;
+  }
+
+  function showLiveAlert(room,friend){
+    try{
+      var key=String(room.host_id||'')+'|'+String(room.started_at||room.updated_at||'');
+      if(notifiedLiveKeys[key])return;
+      notifiedLiveKeys[key]=1;
+
+      var box=document.createElement('div');
+      box.className='kt-live-follow-alert';
+      var photo=String(room.host_photo||friend&&friend.photo||'');
+      box.innerHTML=(photo&&/^(https?:|data:image)/.test(photo)
+        ?'<img src="'+esc(photo)+'" alt="">'
+        :'<span class="ph">👤</span>')
+        +'<div class="tx"><b>'+esc(room.host_name||friend&&friend.name||'K-Talk 친구')+'님이 방송을 시작했습니다</b>'
+        +'<span>'+esc(room.title||room.room_name||'LIVE 방송')+' · 눌러서 바로 입장</span></div>'
+        +'<button type="button">입장</button>';
+      box.querySelector('button').onclick=function(){
+        try{box.remove();}catch(e){}
+        if(room.host_id&&typeof window.ktEnterRemoteLive==='function')window.ktEnterRemoteLive(room.host_id);
+      };
+      document.body.appendChild(box);
+      setTimeout(function(){try{if(box.isConnected)box.remove();}catch(e){}},8000);
+    }catch(e){}
+  }
+
+  function notifyFollowedLives(){
+    try{
+      var rooms=liveRooms().slice(0,50),sent=0;
+      for(var i=0;i<rooms.length&&sent<20;i++){
+        var fr=followedMatch(rooms[i]);
+        if(!fr)continue;
+        var key=String(rooms[i].host_id||'')+'|'+String(rooms[i].started_at||rooms[i].updated_at||'');
+        if(notifiedLiveKeys[key])continue;
+        showLiveAlert(rooms[i],fr);
+        sent++;
+      }
+    }catch(e){}
+  }
+
   function render(){
     ensureStyle();
     var list=document.querySelector('.friends-list');
@@ -178,6 +236,7 @@
       +'<div class="kt-follow-scroll">'+people.map(card).join('')+'</div>';
 
     page.insertBefore(box,list);
+    notifyFollowedLives();
   }
 
   var oldFriends=window.friends;
@@ -204,5 +263,6 @@
   window.ktRenderFollowedFriendsStrip20260926=render;
   setInterval(function(){
     if(document.querySelector('.friends-list'))render();
+    notifyFollowedLives();
   },5000);
 })();
