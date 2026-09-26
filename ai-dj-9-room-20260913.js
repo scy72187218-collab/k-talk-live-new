@@ -569,3 +569,248 @@
   document.addEventListener('touchend',suppressGuideGreeting,true);
   document.addEventListener('click',suppressGuideGreeting,true);
 })();
+
+
+/* AI DJ 자리비움 24시간 모드.
+   호스트/운영진이 자리를 비울 때 공개도메인 음원 + AI DJ 화면으로 송출을 전환한다.
+   브라우저/휴대폰이 실제로 켜져 있는 동안 연속 운영한다. */
+(function(){
+  if(window.__ktAiDj24hTakeover20260927)return;
+  window.__ktAiDj24hTakeover20260927=true;
+
+  var originalStream=null, aiStream=null, canvas=null, ctx=null, raf=0;
+  var audio=null, audioCtx=null, audioSrc=null, audioDest=null;
+  var wakeLock=null, active=false, trackIndex=0, djImage=null;
+
+  function isHostRoom(){
+    if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
+    return !!document.querySelector(
+      '#screen .ktsolo-room,#screen .ktg9-room,#screen .ktg13-room,'+
+      '#screen .ktsubscriber-room,#screen .ktsecret-room'
+    );
+  }
+  function isOwner(){
+    try{return typeof window.ktIsOwnerAdmin==='function'&&window.ktIsOwnerAdmin();}catch(e){return false;}
+  }
+  function allowedTracks(){
+    try{
+      return (window.ktCreatorTracks||[]).filter(function(t){
+        return t&&t.url&&/퍼블릭도메인/.test(String(t.source||''));
+      });
+    }catch(e){return [];}
+  }
+  function ensureImage(){
+    if(djImage)return;
+    djImage=new Image();
+    try{djImage.src=window.KT_AI_DJ_PHOTO||'';}catch(e){djImage.src='';}
+  }
+  function ensureCanvas(){
+    if(canvas)return;
+    canvas=document.createElement('canvas');
+    canvas.width=720;canvas.height=1280;
+    canvas.style.display='none';
+    document.body.appendChild(canvas);
+    ctx=canvas.getContext('2d',{alpha:false});
+    ensureImage();
+  }
+  function draw(){
+    if(!active||!ctx)return;
+    var w=canvas.width,h=canvas.height;
+    ctx.fillStyle='#050505';ctx.fillRect(0,0,w,h);
+    try{
+      if(djImage&&djImage.complete&&djImage.naturalWidth){
+        var s=Math.max(w/djImage.naturalWidth,h/djImage.naturalHeight);
+        var dw=djImage.naturalWidth*s,dh=djImage.naturalHeight*s;
+        ctx.drawImage(djImage,(w-dw)/2,(h-dh)/2,dw,dh);
+      }
+    }catch(e){}
+    var g=ctx.createLinearGradient(0,0,0,h);
+    g.addColorStop(0,'rgba(0,0,0,.22)');
+    g.addColorStop(.68,'rgba(0,0,0,.05)');
+    g.addColorStop(1,'rgba(0,0,0,.72)');
+    ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+
+    ctx.fillStyle='rgba(0,0,0,.62)';
+    ctx.fillRect(22,26,w-44,66);
+    ctx.strokeStyle='rgba(255,181,90,.62)';ctx.lineWidth=2;ctx.strokeRect(22,26,w-44,66);
+    ctx.fillStyle='#ffd79f';ctx.font='900 30px system-ui,sans-serif';ctx.textAlign='center';
+    ctx.fillText('K-Talk  |  AI 음악방  |  ● LIVE',w/2,69);
+
+    var base=h-92,t=Date.now()/180;
+    for(var i=0;i<52;i++){
+      var bh=18+Math.abs(Math.sin(t+i*.63))*70;
+      var x=18+i*((w-36)/52);
+      var hue=(i*7+Date.now()/40)%360;
+      ctx.fillStyle='hsl('+hue+' 88% 58%)';
+      ctx.fillRect(x,base-bh,8,bh);
+    }
+    ctx.fillStyle='rgba(0,0,0,.58)';ctx.fillRect(0,h-72,w,72);
+    ctx.fillStyle='#fff';ctx.font='800 22px system-ui,sans-serif';ctx.textAlign='left';
+    ctx.fillText('🎧 AI DJ 자동 방송 · 신청곡 접수',24,h-32);
+    raf=requestAnimationFrame(draw);
+  }
+
+  async function acquireWake(){
+    try{
+      if('wakeLock' in navigator){
+        wakeLock=await navigator.wakeLock.request('screen');
+      }
+    }catch(e){}
+  }
+  async function setupAudio(){
+    var list=allowedTracks();
+    if(!list.length)throw new Error('no public domain track');
+    audio=new Audio();
+    audio.crossOrigin='anonymous';
+    audio.preload='auto';
+    audio.volume=.92;
+    audio.playsInline=true;
+
+    audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    if(audioCtx.state==='suspended')await audioCtx.resume();
+    audioSrc=audioCtx.createMediaElementSource(audio);
+    audioDest=audioCtx.createMediaStreamDestination();
+    audioSrc.connect(audioDest);
+    audioSrc.connect(audioCtx.destination);
+
+    audio.addEventListener('ended',playNext);
+    audio.addEventListener('error',function(){setTimeout(playNext,700);});
+    await playNext();
+  }
+  async function playNext(){
+    if(!active)return;
+    var list=allowedTracks();
+    if(!list.length)return;
+    if(trackIndex>=list.length)trackIndex=0;
+    var t=list[trackIndex++];
+    try{
+      audio.src=t.url;
+      audio.load();
+      await audio.play();
+      try{window.__ktAiDjNowPlaying20260927=t.name||'';}catch(e){}
+    }catch(e){
+      setTimeout(playNext,1000);
+    }
+  }
+
+  function outputStream(){
+    ensureCanvas();
+    var cv=canvas.captureStream?canvas.captureStream(24):null;
+    if(!cv)return null;
+    var tracks=[];
+    var vt=cv.getVideoTracks&&cv.getVideoTracks()[0];if(vt)tracks.push(vt);
+    var at=audioDest&&audioDest.stream&&audioDest.stream.getAudioTracks&&audioDest.stream.getAudioTracks()[0];
+    if(at)tracks.push(at);
+    return new MediaStream(tracks);
+  }
+  function attachLocalPreview(stream){
+    document.querySelectorAll(
+      '#screen .ktsolo-room video,'+
+      '#screen .ktg9-room .ktg9-host video,'+
+      '#screen .ktg13-room .ktg13-host video,'+
+      '#screen .ktsubscriber-room .ktsubscriber-host video,'+
+      '#screen .ktsecret-room .host video,#screen .ktsecret-room .ktsecret-host video,#ktLiveVideo'
+    ).forEach(function(v){
+      try{v.style.opacity='1';v.srcObject=stream;var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
+    });
+  }
+  function dispatchStream(stream,replaceAudio){
+    try{
+      window.dispatchEvent(new CustomEvent('kt-local-video-stream-changed',{
+        detail:{stream:stream,replaceAudio:!!replaceAudio,at:Date.now()}
+      }));
+    }catch(e){}
+  }
+
+  async function start(){
+    if(active)return;
+    if(!isHostRoom()){
+      alert('AI 음악 9명방을 먼저 열고 이 버튼을 눌러 주세요.');
+      return;
+    }
+    active=true;
+    try{localStorage.setItem('kt_ai_dj_24h_mode_20260927','1');}catch(e){}
+    try{
+      if(window.state){
+        state.ktAiDjRoom=true;
+        state.ktAiDj24h=true;
+        state.liveRoomName='AI 음악 9명방';
+      }
+    }catch(e){}
+    originalStream=(window.state&&state.stream)||null;
+    try{
+      if(originalStream&&originalStream.getTracks){
+        originalStream.getTracks().forEach(function(t){try{t.enabled=false;}catch(e){}});
+      }
+    }catch(e){}
+    ensureCanvas();
+    draw();
+    try{await setupAudio();}catch(e){
+      active=false;
+      alert('AI 음악을 준비하지 못했습니다. 인터넷 연결을 확인해 주세요.');
+      return;
+    }
+    aiStream=outputStream();
+    if(!aiStream){
+      active=false;alert('이 휴대폰에서는 AI 음악 송출을 만들 수 없습니다.');return;
+    }
+    try{if(window.state)state.stream=aiStream;}catch(e){}
+    attachLocalPreview(aiStream);
+    dispatchStream(aiStream,true);
+    acquireWake();
+    installControl();
+    try{if(typeof window.ktSpeak==='function')window.ktSpeak('AI 음악 자동 방송으로 전환했습니다.');}catch(e){}
+  }
+
+  async function stop(){
+    if(!active)return;
+    active=false;
+    try{localStorage.removeItem('kt_ai_dj_24h_mode_20260927');}catch(e){}
+    try{if(window.state)state.ktAiDj24h=false;}catch(e){}
+    if(raf){cancelAnimationFrame(raf);raf=0;}
+    try{if(audio){audio.pause();audio.removeAttribute('src');audio.load();}}catch(e){}
+    try{if(audioCtx)await audioCtx.close();}catch(e){}
+    audio=null;audioCtx=null;audioSrc=null;audioDest=null;
+    try{if(aiStream)aiStream.getTracks().forEach(function(t){try{t.stop();}catch(e){}});}catch(e){}
+    aiStream=null;
+    try{if(wakeLock)await wakeLock.release();}catch(e){}
+    wakeLock=null;
+
+    if(originalStream){
+      try{originalStream.getTracks().forEach(function(t){if(t.readyState==='live')t.enabled=true;});}catch(e){}
+      try{if(window.state)state.stream=originalStream;}catch(e){}
+      attachLocalPreview(originalStream);
+      dispatchStream(originalStream,true);
+    }
+    originalStream=null;
+    installControl();
+  }
+
+  window.ktAiDjStart24h20260927=start;
+  window.ktAiDjStop24h20260927=stop;
+  window.ktAiDjToggle24h20260927=function(){return active?stop():start();};
+
+  function installControl(){
+    var old=document.getElementById('ktAiDjAway24hBtn20260927');
+    if(!isHostRoom()&&!isOwner()){if(old)old.remove();return;}
+    if(!old){
+      old=document.createElement('button');
+      old.id='ktAiDjAway24hBtn20260927';
+      old.type='button';
+      old.style.cssText='position:fixed;left:10px;top:104px;z-index:1800;min-width:96px;height:42px;padding:0 9px;border:1px solid #ffb45a99;border-radius:13px;background:rgba(31,17,6,.92);color:#fff;font:950 10px/1.15 system-ui,-apple-system,"Noto Sans KR",sans-serif;box-shadow:0 0 12px #ff9d2b33;touch-action:manipulation';
+      old.onclick=function(e){try{e.preventDefault();e.stopPropagation();}catch(x){}window.ktAiDjToggle24h20260927();};
+      document.body.appendChild(old);
+    }
+    old.textContent=active?'⏹ AI 자동방송 종료':'🚶 자리 비움 → AI';
+  }
+
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden&&active)acquireWake();
+  });
+  installControl();
+  setInterval(installControl,900);
+  try{
+    new MutationObserver(function(){setTimeout(installControl,20);})
+      .observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+})();
