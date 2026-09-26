@@ -7,13 +7,7 @@
   window.__ktPublicFirstPaint20260924=true;
 
   function firstUrl(){
-    try{
-      var a=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');
-      if(Array.isArray(a)&&a[0]&&a[0].video_url){
-        var cached=String(a[0].video_url||'').trim();
-        if(cached&&cached.indexOf('1789858184221-0lyob9.mp4')===-1)return cached;
-      }
-    }catch(e){}
+    /* Never let an older phone cache replace the first painted video. */
     return 'https://zupwbfmacwzexyvznlzq.supabase.co/storage/v1/object/public/ktalk-videos/guest/1789742631992-yen8is.mp4';
   }
 
@@ -57,7 +51,7 @@
       window.__ktPublicFirstPaintUrl20260924=u;
       window.__ktPublicFirstPaintVideo20260924=v;
 
-      try{v.load();}catch(e){}
+      /* Do not call load(): it can restart the same first-video request. */
       try{var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
       [40,120,260,520].forEach(function(ms){
         setTimeout(function(){
