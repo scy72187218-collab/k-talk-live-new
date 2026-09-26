@@ -6,8 +6,8 @@ module.exports = async function handler(req,res){
   }
 
   const rows=[
-    {"id":"839c441d-1d3a-4941-872b-f43a77bf8245","author_name":"태권1","title":"14402.mp4","video_url":"https://zupwbfmacwzexyvznlzq.supabase.co/storage/v1/object/public/ktalk-videos/guest/1789858184221-0lyob9.mp4","created_at":"2026-09-19T22:49:45.508379+00:00","likes":0},
     {"id":"8e1eac73-f54f-4023-93cc-daca7294bd6f","author_name":"K-Talk","title":"4a71d443-4b27-409a-bcce-da3723c44a12-1_all_16890.mp4","video_url":"https://zupwbfmacwzexyvznlzq.supabase.co/storage/v1/object/public/ktalk-videos/guest/1789742631992-yen8is.mp4","created_at":"2026-09-18T14:44:17.716584+00:00","likes":0},
+    {"id":"839c441d-1d3a-4941-872b-f43a77bf8245","author_name":"태권1","title":"14402.mp4","video_url":"https://zupwbfmacwzexyvznlzq.supabase.co/storage/v1/object/public/ktalk-videos/guest/1789858184221-0lyob9.mp4","created_at":"2026-09-19T22:49:45.508379+00:00","likes":0},
     {"id":"69dfec54-90b0-4920-8612-b25f13f023d9","author_name":"K-Talk","title":"14254.mp4","video_url":"https://zupwbfmacwzexyvznlzq.supabase.co/storage/v1/object/public/ktalk-videos/guest/1788516701116-emysxm.mp4","created_at":"2026-09-04T10:11:42.32304+00:00","likes":0},
     {"id":"208b4b2b-6103-47ee-8b28-e68205b5a309","author_name":"K-Talk","title":"14402.mp4","video_url":"https://zupwbfmacwzexyvznlzq.supabase.co/storage/v1/object/public/ktalk-videos/guest/1788516656323-4elqcf.mp4","created_at":"2026-09-04T10:10:58.842722+00:00","likes":0},
     {"id":"bfa6e6a9-c430-463c-8ed7-7a8014b5d922","author_name":"K-Talk","title":"14407.mp4","video_url":"https://zupwbfmacwzexyvznlzq.supabase.co/storage/v1/object/public/ktalk-videos/guest/1788516618159-4ep5ki.mp4","created_at":"2026-09-04T10:10:21.376032+00:00","likes":0},
@@ -16,7 +16,7 @@ module.exports = async function handler(req,res){
   ];
 
   res.setHeader('Content-Type','application/json; charset=utf-8');
-  res.setHeader('Cache-Control','no-store, no-cache, must-revalidate');
+  res.setHeader('Cache-Control','public, max-age=30, s-maxage=300, stale-while-revalidate=86400');
   res.statusCode=200;
   return res.end(JSON.stringify(rows));
 };

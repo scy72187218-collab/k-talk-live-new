@@ -19,33 +19,54 @@
     watched=null;lastTime=-1;lastProgress=0;armedAt=0;busy=false;
   }
 
+  function inApprovedGuestRoom(){
+    try{
+      return !!document.querySelector(
+        '.kt-guest-hostlike-room,.kt-approved-guest-grid,.kt-prejoin-room-grid'
+      );
+    }catch(e){return false;}
+  }
+
+  function keepApprovedGuestConnected(){
+    if(!inApprovedGuestRoom())return false;
+    /* Approved guest rooms must never interpret a temporary WebRTC/LiveKit
+       track replacement, mute, ended, or stalled currentTime as a real host end.
+       Explicit host-end synchronization already handles genuine broadcast ends. */
+    lastProgress=Date.now();
+    armedAt=0;
+    busy=false;
+    try{
+      if(typeof window.ktAttachDirectRemoteStream20260922==='function'){
+        window.ktAttachDirectRemoteStream20260922();
+      }
+    }catch(e){}
+    return true;
+  }
+
+  function requestRecovery(){
+    lastProgress=Date.now();
+    armedAt=0;
+    busy=false;
+    try{
+      if(typeof window.ktAttachDirectRemoteStream20260922==='function'){
+        window.ktAttachDirectRemoteStream20260922();
+      }
+    }catch(e){}
+    try{
+      if(typeof window.ktForceDirectViewerReconnect20260924==='function'){
+        window.ktForceDirectViewerReconnect20260924();
+      }
+    }catch(e){}
+    try{
+      window.dispatchEvent(new CustomEvent('kt-remote-video-stalled',{detail:{at:Date.now()}}));
+    }catch(e){}
+  }
+
   function returnToVideo(){
-    if(busy)return;
-    busy=true;
-    try{
-      if(typeof window.ktCloseRemoteFallbackInApp20260923==='function'){
-        window.ktCloseRemoteFallbackInApp20260923();
-      }
-    }catch(e){}
-    try{
-      if(typeof window.ktCloseRemotePresenceInApp20260923==='function'){
-        var q=window.ktCloseRemotePresenceInApp20260923();
-        if(q&&typeof q.catch==='function')q.catch(function(){});
-      }
-    }catch(e){}
-    try{document.documentElement.classList.remove('kt-remote-viewing');}catch(e){}
-    setTimeout(function(){
-      try{
-        if(typeof window.ktShowSharedServerFeed==='function'){
-          window.ktShowSharedServerFeed();
-        }else if(typeof window.ktForceHomeVideoRecovery==='function'){
-          window.ktForceHomeVideoRecovery(true);
-        }else if(typeof window.home==='function'){
-          window.home();
-        }
-      }catch(e){}
-      reset();
-    },60);
+    /* Video ended/emptied/stalled is not proof that the host ended.
+       Keep the room open and let transport recovery work in place.
+       Genuine exits are handled only by explicit broadcast-end synchronization. */
+    requestRecovery();
   }
 
   function watchedVideo(){
@@ -70,8 +91,8 @@
     if(watched!==v){
       watched=v;lastTime=Number(v.currentTime||0);lastProgress=Date.now();armedAt=0;busy=false;
       try{
-        v.addEventListener('ended',returnToVideo,{once:true});
-        v.addEventListener('emptied',function(){if(armedAt)returnToVideo();},{once:true});
+        v.addEventListener('ended',function(){requestRecovery();},{once:true});
+        v.addEventListener('emptied',function(){if(armedAt)requestRecovery();},{once:true});
       }catch(e){}
       return;
     }
@@ -85,22 +106,9 @@
 
     if(!armedAt)return;
 
-    /* Host broadcast ended: browsers can keep the last video frame frozen.
-       If no new frame/time progress arrives for 8.5s after video had played,
-       close the room and go back to the normal video feed. */
+    /* A stalled remote video means reconnect, not exit. */
     if(now-lastProgress>5000){
-      try{
-        var approvedRoom=!!document.querySelector('.kt-guest-hostlike-room,.kt-approved-guest-grid');
-        if(approvedRoom){
-          var hs=window.__ktRemoteHostStream||null;
-          var liveHost=!!(hs&&hs.getVideoTracks&&hs.getVideoTracks().some(function(t){return t.readyState==='live';}));
-          if(liveHost){
-            lastProgress=now;
-            return;
-          }
-        }
-      }catch(e){}
-      returnToVideo();
+      requestRecovery();
     }
   }
 
