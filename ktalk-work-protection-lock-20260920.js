@@ -25,9 +25,9 @@
     secret:true,
     videos:true,
     videoFeed:true,
-    videoCommunication:false,
-    mediaTransport:false,
-    liveSignal:false,
+    videoCommunication:true,
+    mediaTransport:true,
+    liveSignal:true,
     publicVideoSideActions:true,
     publicVideoRoseButton:true,
     publicVideoRoseCount:true,
@@ -129,8 +129,8 @@
     save();markAll();
     return true;
   };
-  /* User-approved communication-only unlock. All other protected areas stay locked. */
-  window.ktUnlockCommunicationWork20260926('1111');
+  /* Communication maintenance finished: runtime is relocked.
+     Future communication work can be reopened only with the approved password. */
 
   /* 보호 잠금은 UI 기능을 비활성화하지 않는다. */
   save();
