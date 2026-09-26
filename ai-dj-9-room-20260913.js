@@ -24,6 +24,7 @@
       +'.kt-ai-dj-company{color:#ffd96a!important}'
       +'.kt-room-switch-fixed-20260927 .room-switch{transform:none!important;translate:none!important;transition:border-color .12s,box-shadow .12s,background .12s,color .12s!important;position:relative!important;inset:auto!important;margin:0!important}'
       +'.kt-room-switch-fixed-20260927 .room-switch.on{transform:none!important;translate:none!important}'
+      +'.kt-room-switch-fixed-20260927 #ktAiDjVisiblePrepButton20260927.on:after{content:""!important;position:absolute!important;right:8px!important;top:7px!important;width:8px!important;height:8px!important;border-radius:50%!important;background:#ff2d2d!important;box-shadow:0 0 9px #ff2d2d!important}'
       +'.kt-ai-dj-mic{position:absolute!important;right:8px!important;top:52px!important;z-index:1400!important;width:42px!important;height:42px!important;border-radius:50%!important;border:1px solid #ff7ecf99!important;background:rgba(35,8,27,.92)!important;color:#fff!important;font-size:19px!important;display:grid!important;place-items:center!important;pointer-events:auto!important;touch-action:manipulation!important;box-shadow:0 0 12px #ff4ebd44!important}'
       +'.kt-ai-dj-mic.listening{background:#b60f52!important;box-shadow:0 0 0 4px #ff4b8d33,0 0 18px #ff4b8d99!important}'
       +'.kt-singer-lyric{position:absolute!important;left:50%!important;top:10px!important;transform:translateX(-50%)!important;z-index:1200!important;max-width:92%!important;padding:6px 11px!important;border-radius:999px!important;background:rgba(0,0,0,.72)!important;border:1px solid rgba(255,255,255,.34)!important;color:#fff!important;font:950 13px/1.2 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;text-align:center!important;text-shadow:0 1px 3px #000!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;pointer-events:none!important}'
@@ -86,13 +87,9 @@
       try{e.preventDefault();e.stopPropagation();}catch(x){}
       document.querySelectorAll('#creator .room-switch').forEach(function(b){b.classList.remove('on');});
       btn.classList.add('on');
+      btn.setAttribute('aria-pressed','true');
       setMode(btn);
-      /* AI DJ는 이 버튼 하나로 바로 9명 AI 음악방 시작 */
-      setTimeout(function(){
-        try{
-          if(typeof window.startBroadcast==='function')window.startBroadcast();
-        }catch(err){}
-      },80);
+      /* AI DJ는 여기서 선택만 한다. 실제 입장은 아래 '라이브 시작' 버튼으로 한다. */
       return false;
     };
 
