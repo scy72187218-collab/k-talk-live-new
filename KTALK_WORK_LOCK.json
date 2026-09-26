@@ -1,5 +1,5 @@
 {
-  "version": 123,
+  "version": 124,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "main",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "2026-09-26 with owner PIN 1111: guest_cancel now cancels only pending requests. If the guest is already approved in the host room, late/duplicate guest_cancel signals are ignored so the guest photo/video remains visible. Only explicit guest_left removes an approved guest. Communication components relocked; no room layout, buttons, public video, or unrelated features changed.",
+  "note": "2026-09-26 with owner PIN 1111: host guest photo fallback now accepts only the exact video track ID created locally by getUserMedia on the guest device. It no longer falls back to shared/DOM/remote streams, preventing the host picture from being reused as the guest photo. Communication components relocked; no room layout, buttons, public video, or unrelated features changed.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -98,7 +98,7 @@
   },
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "last_communication_fix": "2026-09-26-ignore-late-cancel-after-approval",
+  "last_communication_fix": "2026-09-26-trust-only-local-guest-camera-for-photo",
   "last_video_feed_fix": "2026-09-26-smooth-first-video-no-src-rewrite",
   "locked_components": [
     "public-video-feed",
