@@ -43,22 +43,11 @@
           setTimeout(function(){
             try{
               if(v.readyState>=2 && (!v.videoWidth || !v.videoHeight)){
-                var card=v.closest('section');
-                var next=card&&card.nextElementSibling;
-                if(next){
-                  var nv=next.querySelector('video');
-                  if(nv){
-                    try{v.pause();}catch(e){}
-                    try{next.scrollIntoView({block:'start'});}catch(e){}
-                    setTimeout(function(){
-                      try{
-                        nv.muted=true;
-                        var p=nv.play();
-                        if(p&&p.catch)p.catch(function(){});
-                      }catch(e){}
-                    },160);
-                  }
-                }
+                /* Do not jump to the next public video automatically.
+                   Some Android phones briefly report 0x0 while decoding;
+                   that old fallback was changing songs/videos by itself. */
+                var p=v.play();
+                if(p&&p.catch)p.catch(function(){});
               }
             }catch(e){}
           },900);
