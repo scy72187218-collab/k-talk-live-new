@@ -762,13 +762,8 @@
   function roomEl(){return document.querySelector('#screen .ktsolo-room,#screen .ktg9-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room');}
   function isHostRole(){
     try{
-      /* Remote viewer/guest must be classified BEFORE inspecting room-shaped DOM.
-         Guest UI intentionally mirrors the host room, so a visible .ktg13-room
-         does not mean this phone is the broadcaster. */
-      var rh='';
-      try{rh=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||sessionStorage.getItem('kt_remote_host_id')||'').trim();}catch(_e){}
+      /* A remote viewer is always a viewer, even when its UI mirrors a host room. */
       if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
-      if(rh&&rh!==DEVICE)return false;
 
       var local=roomEl(),visible=false;
       try{
@@ -777,7 +772,26 @@
           visible=st.display!=='none'&&st.visibility!=='hidden'&&(!local.getClientRects||local.getClientRects().length>0);
         }
       }catch(_e){visible=!!local;}
-      if(visible)return true;
+
+      /* Broadcaster identity must come from the actual local live camera,
+         not from stale remote-host ids left in sessionStorage. */
+      var liveLocal=false;
+      try{
+        var ls=window.state&&state.stream;
+        liveLocal=!!(ls&&ls.getVideoTracks&&ls.getVideoTracks().some(function(t){return t&&t.readyState==='live';}));
+      }catch(_e){}
+      if(visible&&liveLocal){
+        try{
+          window.__ktRemoteHostId='';
+          window.__ktCurrentRemoteHostId='';
+          sessionStorage.removeItem('kt_remote_host_id');
+        }catch(_e){}
+        return true;
+      }
+
+      var rh='';
+      try{rh=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||sessionStorage.getItem('kt_remote_host_id')||'').trim();}catch(_e){}
+      if(rh)return false;
       return false;
     }catch(e){return false;}
   }
