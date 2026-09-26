@@ -22,6 +22,14 @@
           window.ktDirectGuestLeaveNow20260923(hid);
         }
       }catch(e){}
+      /* 2026-09-26: also close the viewer receive transport.
+         Without this, re-entering the same host could reuse a stale viewer
+         PC/socket and remain on "방송 영상 연결 중...". */
+      try{
+        if(typeof window.ktDirectRemoteLeaveNow20260924==='function'){
+          window.ktDirectRemoteLeaveNow20260924(hid);
+        }
+      }catch(e){}
       try{
         window.dispatchEvent(new CustomEvent('kt-remote-host-left',{
           detail:{host_id:hid,at:Date.now()}
