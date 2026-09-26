@@ -93,6 +93,56 @@
 
   window.ktRenderAiDjSixRoom20260927=render;
 
+  var greetedGuests=window.__ktAiDjGreetedGuests20260927||{};
+  window.__ktAiDjGreetedGuests20260927=greetedGuests;
+
+  function guestNameFromEvent(e){
+    var d=e&&e.detail||{};
+    var vid=String(d.viewer_id||d.viewerId||d.id||'').trim();
+    var name=String(d.name||d.nickname||d.display_name||'').trim();
+    if(!name&&vid){
+      try{
+        var map=window.__ktApprovedGuestNames20260924||{};
+        name=String(map[vid]||'').trim();
+      }catch(_e){}
+    }
+    if(!name)name='게스트';
+    return {id:vid||name,name:name};
+  }
+
+  function greetGuest(e){
+    if(!aiSelected())return;
+    var g=guestNameFromEvent(e);
+    if(!g.id||greetedGuests[g.id])return;
+    greetedGuests[g.id]=Date.now();
+
+    var msg=g.name+'님, 안녕하세요. K-Talk AI DJ 방에 오신 걸 환영합니다. 만나서 반갑습니다요. 편하게 즐기시고, 듣고 싶은 노래가 있으면 말씀해 주세요.';
+    try{
+      if(typeof window.ktSpeak==='function')window.ktSpeak(msg);
+      else if('speechSynthesis' in window){
+        var u=new SpeechSynthesisUtterance(msg);
+        u.lang='ko-KR';
+        window.speechSynthesis.speak(u);
+      }
+    }catch(_e){}
+
+    try{
+      var chat=document.querySelector('.kt-ai-dj-six-room .ktadj6-chat');
+      if(chat){
+        var line=document.createElement('div');
+        line.textContent='🤖 '+g.name+'님, 안녕하세요! 만나서 반갑습니다요 😊';
+        chat.insertBefore(line,chat.querySelector('.ktadj6-chat-input')||null);
+      }
+    }catch(_e){}
+  }
+
+  ['kt-any-guest-approved','kt-guest-approval-received','kt-approved-guest-stream-ready']
+    .forEach(function(ev){
+      window.addEventListener(ev,function(e){
+        setTimeout(function(){greetGuest(e);},120);
+      });
+    });
+
   function aiSelected(){
     try{
       return isAiDj() || localStorage.getItem('kt_ai_dj_selected_20260927')==='1';
