@@ -25,7 +25,6 @@
       try{var p=visible.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
     }catch(e){}
   }
-  warmFirstVideo();
   function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   function blobNow(){try{if(window.ktCreatorBlob)return window.ktCreatorBlob;}catch(e){}try{return typeof ktCreatorBlob!=='undefined'?ktCreatorBlob:null;}catch(e){return null;}}
   function titleNow(){try{return window.ktImportedVideoName||ktImportedVideoName||('K-Talk 동영상 '+new Date().toLocaleString('ko-KR'));}catch(e){return 'K-Talk 동영상';}}
@@ -475,7 +474,6 @@
       if(sc)sc.scrollTop=0;
     }catch(e){}
     bind();
-    installFirstPublicStayLock20260926();
     try{
       var first=screen.querySelector('.kt-public-video');
       if(first){
@@ -488,9 +486,6 @@
         /* Do not call load() here. If this is the parser-started first video,
            load() can restart the same network request on slower Android phones. */
         var p=first.play();if(p&&p.catch)p.catch(function(){});
-        [0,40,120,260].forEach(function(ms){
-          setTimeout(function(){try{if(first.paused){var q=first.play();if(q&&q.catch)q.catch(function(){});}}catch(e){}},ms);
-        });
       }
     }catch(e){}
     return true;
@@ -607,6 +602,16 @@
   window.ktShowSharedServerFeed=function(){return show(oldHome);};
   window.home=function(){try{if(window.activate)activate('home');}catch(e){}return show(oldHome);};
   window.media=function(type){try{if(window.activate)activate(type);}catch(e){}return show(function(){if(oldMedia)oldMedia(type);});};
+
+  /* 2026-09-26 clean first-video path:
+     index.html starts exactly one video element. This file takes over that SAME
+     element once, then only appends the rest of the feed. No recovery loop. */
+  try{
+    var cleanBoot=document.getElementById('ktPublicFirstPaintVideo');
+    if(cleanBoot&&cleanBoot.isConnected){
+      setTimeout(function(){try{show(oldHome);}catch(e){}},0);
+    }
+  }catch(e){}
 
   /* app.js paints its simple home placeholder before this file loads.
      If that placeholder is still on screen, swap it to the cached feed now
