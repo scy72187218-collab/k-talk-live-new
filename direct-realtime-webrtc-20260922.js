@@ -143,6 +143,13 @@
         sameVideoSource20260926(st,window.__ktLastApprovedGuestHostStream);
     }catch(e){return false;}
   }
+  function isLocalGuestMedia20260926(st){
+    if(!st)return false;
+    try{
+      return sameVideoSource20260926(st,window.__ktLocalGuestCameraStream20260926)||
+        sameVideoSource20260926(st,window.__ktApprovedGuestSelfStream);
+    }catch(e){return false;}
+  }
 
   function useLegacyApprovedGuestUplink(){
     try{
@@ -668,6 +675,14 @@
   function attachRemoteStreamNow(stream){
     stream=stream||window.__ktRemoteHostStream||null;
     if(!stream)return false;
+    /* Never paint this phone's own guest camera into the host cell. */
+    if(isLocalGuestMedia20260926(stream)){
+      try{
+        if(sameVideoSource20260926(window.__ktRemoteHostStream,stream))window.__ktRemoteHostStream=null;
+        if(sameVideoSource20260926(window.__ktLastApprovedGuestHostStream,stream))window.__ktLastApprovedGuestHostStream=null;
+      }catch(e){}
+      return false;
+    }
 
     var targets=[];
     function add(v){if(v&&targets.indexOf(v)<0)targets.push(v);}
@@ -718,8 +733,9 @@
     return true;
   }
   function showRemoteStream(stream){
-    if(!stream)return;
+    if(!stream||isLocalGuestMedia20260926(stream))return;
     window.__ktRemoteHostStream=stream;
+    window.__ktLastApprovedGuestHostStream=stream;
     attachRemoteStreamNow(stream);
   }
   function ktRemoteStreamStillLive20260923(){
@@ -883,23 +899,24 @@
         window.__ktDirectRtcProgressAt=Date.now();
         window.__ktDirectRtcPhase='disconnected';
 
-        /* 짧은 모바일 신호 흔들림에는 기존 화면을 그대로 유지한다.
-           10초 이상 계속 끊긴 경우에만 새 watch 세션을 병렬 요청한다. */
+        /* Keep the current frame, but start a parallel reconnect quickly on
+           mobile Wi-Fi/5G handoff instead of waiting ten seconds. */
         setTimeout(function(){
           if(viewerPc===pc&&pc.connectionState==='disconnected'){
             viewerWatchToken=sid('watch');
             lastWatchAt=0;
             ensureViewerWatch(true);
           }
-        },10000);
+        },2500);
 
-        /* 장시간 복구되지 않을 때만 기존 연결을 정리한다. */
+        /* Only tear down the old path if the faster parallel reconnect still
+           has not recovered the transport. */
         setTimeout(function(){
           if(viewerPc===pc&&pc.connectionState==='disconnected'){
             closePc(pc);viewerPc=null;viewerSession='';viewerConnected=false;viewerWatchToken=sid('watch');showConnecting();
-            setTimeout(function(){ensureViewerWatch(true);},240);
+            setTimeout(function(){ensureViewerWatch(true);},180);
           }
-        },11000);
+        },7500);
       }
     };
     try{
