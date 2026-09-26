@@ -46,13 +46,14 @@
       document.querySelectorAll('#creator .room-switch').forEach(function(b){b.classList.remove('on');});
       if(btn&&btn.classList)btn.classList.add('on');
 
-      var nine=[].slice.call(document.querySelectorAll('.prep-bottom button')).find(function(b){return /9명/.test(b.textContent||'');});
-      if(nine){
-        try{
-          if(window.ktPickBottomRoom)window.ktPickBottomRoom(nine,'9명','group9','AI 음악 9명방',9);
-          else if(window.selectPrepRoom)window.selectPrepRoom(nine,'group9','AI 음악 9명방',9);
-        }catch(e){}
-      }
+      /* AI DJ 선택은 9명방 구조만 사용하되, 9명 일반방 스위치로 다시 넘기지 않는다.
+         그래야 AI DJ의 선택 표시(빨간 불)가 그대로 유지된다. */
+      try{
+        state.prepRoomType='group9';
+        state.roomType='group9';
+        state.prepRoomName='AI 음악 9명방';
+        state.prepRoomMax=9;
+      }catch(e){}
     }catch(e){}
   }
   window.ktSelectAiDj9Room20260927=setMode;
