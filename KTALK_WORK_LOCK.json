@@ -1,5 +1,5 @@
 {
-  "version": 125,
+  "version": 126,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "main",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "2026-09-26 with owner PIN 1111: approved guest display speed improved by precaching a tiny frame from the already-trusted local guest camera during request prewarm and sending it immediately at approval (0/45/140ms). Source remains restricted to the trusted local guest camera track. Communication components relocked; no room layout, buttons, public video, or unrelated features changed.",
+  "note": "2026-09-26 with owner PIN 1111: guest camera photo is now sent to and cached on the host while the request is pending, so approval paints the guest slot immediately without waiting for a post-approval round trip. Source remains restricted to the trusted local guest camera track. Communication components relocked; no room layout, buttons, public video, or unrelated features changed.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -98,7 +98,7 @@
   },
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "last_communication_fix": "2026-09-26-precache-guest-photo-for-fast-host-display",
+  "last_communication_fix": "2026-09-26-preload-guest-photo-on-host-before-approval",
   "last_video_feed_fix": "2026-09-26-smooth-first-video-no-src-rewrite",
   "locked_components": [
     "public-video-feed",
