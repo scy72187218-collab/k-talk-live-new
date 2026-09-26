@@ -9,9 +9,12 @@
   function firstUrl(){
     try{
       var a=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');
-      if(Array.isArray(a)&&a[0]&&a[0].video_url)return String(a[0].video_url||'').trim();
+      if(Array.isArray(a)&&a[0]&&a[0].video_url){
+        var cached=String(a[0].video_url||'').trim();
+        if(cached&&cached.indexOf('1789858184221-0lyob9.mp4')===-1)return cached;
+      }
     }catch(e){}
-    return 'https://zupwbfmacwzexyvznlzq.supabase.co/storage/v1/object/public/ktalk-videos/guest/1789858184221-0lyob9.mp4';
+    return 'https://zupwbfmacwzexyvznlzq.supabase.co/storage/v1/object/public/ktalk-videos/guest/1789742631992-yen8is.mp4';
   }
 
   function run(){
