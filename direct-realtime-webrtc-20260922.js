@@ -7,9 +7,9 @@
   window.__ktDirectRealtimeRtc20260922=true;
 
   var REF='zupwbfmacwzexyvznlzq';
-  var KEY='sb_publishable_AnyCMi4rAgSR2uWg_u1pvw_hHyqWlm3';
+  var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1cHdiZm1hY3d6ZXh5dnpubHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjEwNzYsImV4cCI6MjEwNDAzNzA3Nn0.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
   var REST_BROADCAST='https://'+REF+'.supabase.co/realtime/v1/api/broadcast';
-  var ws=null,joined=false,joinRef='',seq=1,topic='',activeHostId='',queue=[],reconnectTimer=null,heartbeatTimer=null;
+  var ws=null,joined=false,joinRef='',seq=1,topic='',activeHostId='',queue=[],reconnectTimer=null,heartbeatTimer=null,reconnectFailures=0;
   var hostViewPeers={};
   var viewerPc=null,viewerSession='',viewerWatchToken='',viewerConnected=false,viewerIce={},viewerConnectTimer=null,viewerAnswerSdp='';
   var pendingRequests={},approvedGuests={},hostGuestPeers={},guestPc=null,guestSession='',guestApprovedHost='',guestApproved=false,guestStream=null,guestIce={};
@@ -315,7 +315,8 @@
     try{
       var target=String(hostId||payload&&payload.host_id||activeHostId||'').trim();
       var body=payload||{};
-      var dual=(eventName==='guest_approved'||eventName==='guest_offer'||eventName==='guest_answer');
+      var dual=(eventName==='guest_approved'||eventName==='guest_offer'||eventName==='guest_answer'||
+        eventName==='video_watch'||eventName==='video_offer'||eventName==='video_answer');
       if(!target)return;
 
       if(target===activeHostId){
@@ -739,7 +740,9 @@
   }
   function scheduleReconnect(){
     if(reconnectTimer)return;
-    reconnectTimer=setTimeout(function(){reconnectTimer=null;if(activeHostId)connect(activeHostId);},250);
+    reconnectFailures=Math.min(6,Number(reconnectFailures||0)+1);
+    var delay=Math.min(3000,250*Math.pow(2,Math.max(0,reconnectFailures-1)));
+    reconnectTimer=setTimeout(function(){reconnectTimer=null;if(activeHostId)connect(activeHostId);},delay);
   }
   function connect(hostId){
     hostId=String(hostId||'');if(!hostId)return;
@@ -766,7 +769,7 @@
         if(!m||m.topic!==topic)return;
         if(m.event==='phx_reply'&&String(m.ref||'')===String(joinRef)){
           joined=!!(m.payload&&m.payload.status==='ok');
-          if(joined){flush();afterJoin();}
+          if(joined){reconnectFailures=0;flush();afterJoin();}
           return;
         }
         if(m.event==='broadcast'){
@@ -924,7 +927,7 @@
       sendCriticalMedia20260926('video_offer',firstOffer,DEVICE);
       /* Communication speed only: repeat the SAME first offer briefly so a
          missed mobile packet does not add several seconds. */
-      [40,120,280,600].forEach(function(ms){
+      [20,60,140,300].forEach(function(ms){
         setTimeout(function(){
           if(hostViewPeers[vid]!==entry||entry.pc.currentRemoteDescription)return;
           sendCriticalMedia20260926('video_offer',firstOffer,DEVICE);
@@ -1050,7 +1053,7 @@
       var firstAnswer={host_id:hid,viewer_id:viewerId(),session_id:session,answer_sdp:viewerAnswerSdp};
       sendCriticalMedia20260926('video_answer',firstAnswer,hid);
       /* Communication speed only: repeat the SAME first answer briefly. */
-      [40,120,280,560].forEach(function(ms){
+      [20,60,140,300].forEach(function(ms){
         setTimeout(function(){
           if(viewerPc!==pc||viewerSession!==session||viewerConnected)return;
           sendCriticalMedia20260926('video_answer',firstAnswer,hid);
@@ -1059,7 +1062,7 @@
 
       /* 기존 영상이 살아 있으면 새 연결 확인 동안 화면을 유지한다.
          기존 영상이 없는 최초 연결은 빠르게 재시도한다. */
-      if(!previousUsable)retryViewerSoon(900);
+      if(!previousUsable)retryViewerSoon(420);
       else setTimeout(function(){
         if(viewerPc===pc&&!pc.__ktGotRemoteTrack20260923&&pc.connectionState!=='connected'){
           try{closePc(pc);}catch(e){}
@@ -1079,7 +1082,7 @@
           attachRemoteStreamNow();
         }else{
           viewerPc=null;viewerSession='';viewerConnected=false;
-          retryViewerSoon(900);
+          retryViewerSoon(420);
         }
       }
     }finally{
