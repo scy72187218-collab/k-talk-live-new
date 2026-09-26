@@ -1,5 +1,5 @@
 {
-  "version": 102,
+  "version": 103,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "main",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "2026-09-26 first public video fast-load state locked after replacing the failing first video source with a healthy source and skipping stale failed cache. PIN 1111 required for future changes to the first-video/public-video loading path. Other protected K-Talk components remain locked and unchanged.",
+  "note": "2026-09-26 public video open behavior and on-screen playback/display state locked by owner request. PIN 1111 required before any future change to video opening or visible public-video playback/display. Other protected K-Talk components remain locked and unchanged.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -81,7 +81,9 @@
     "public_video_first_load_speed_only",
     "room_entry_exit_rejoin_stability_only",
     "public_video_first_source",
-    "public_video_failed_cache_guard"
+    "public_video_failed_cache_guard",
+    "public_video_open_behavior",
+    "public_video_playback_display"
   ],
   "check_trigger_phrase": "K-톡 비밀번호 확인",
   "check_behavior": {
@@ -117,9 +119,11 @@
     "switch-touch-bridge",
     "critical-touch-switch-rescue",
     "public-video-first-source",
-    "public-video-failed-cache-guard"
+    "public-video-failed-cache-guard",
+    "public_video_open_behavior",
+    "public_video_playback_display"
   ],
-  "last_video_feed_lock": "2026-09-26-first-video-fast-state-lock",
+  "last_video_feed_lock": "2026-09-26-video-open-and-display-lock",
   "last_switch_lock": "2026-09-24-all-switches-relock2",
   "last_switch_ai_fix": "2026-09-24-first-touch-switch-site-guide-ai2",
   "last_rose_ai_fix": "2026-09-24-rose-first-touch-guide-user-tap4",
