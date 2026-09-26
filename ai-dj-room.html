@@ -15,19 +15,7 @@
 .toast{position:fixed;left:50%;bottom:78px;transform:translateX(-50%);display:none;padding:9px 13px;border-radius:999px;background:#17111ddd;border:1px solid #ff55d1;font-size:11px;font-weight:900;z-index:99}
 @media(max-width:390px){.logo{font-size:21px}.main{min-height:365px}.lower{height:214px}.feed{height:136px}.grid{height:160px}.guest .av{font-size:28px}.hello{font-size:16px}}
 
-.gift-target2{position:absolute;left:54.4%;top:55.5%;width:45%;height:32.2%;z-index:18;border:2px solid #ff4fd6;border-radius:14px;background:linear-gradient(180deg,rgba(10,5,15,.985),rgba(4,2,8,.99));box-shadow:0 0 18px rgba(255,47,205,.45),inset 0 0 14px rgba(132,55,255,.16);padding:5px;overflow:hidden}
-.gift-target2 .gt-head{height:10%;display:flex;align-items:center;justify-content:space-between;gap:3px;padding:0 3px;color:#fff;font-size:7px;font-weight:900;border-bottom:1px solid #ff4fd644}
-.gift-target2 .gt-title{color:#ff69db;font-size:9px;text-shadow:0 0 6px #ff4fd6}.gift-target2 .gt-coins{color:#ffd94f;font-size:6.4px;white-space:nowrap}.gift-target2 .gt-coins b{display:inline-grid;place-items:center;width:11px;height:11px;border-radius:50%;background:#a44cff;color:#fff;font-size:8px}
-.gift-target2 .gt-tabs{height:10%;display:grid;grid-template-columns:repeat(4,1fr);align-items:center;text-align:center;font-size:6.3px;font-weight:900;color:#fff;gap:2px;padding:2px 0}
-.gift-target2 .gt-tabs b{display:grid;place-items:center;height:100%;border-radius:999px;background:linear-gradient(135deg,#ff43bd,#9d3cff);box-shadow:0 0 9px #ff4fd688}
-.gift-target2 .gt-grid{height:80%;display:grid;grid-template-columns:repeat(12,1fr);grid-template-rows:repeat(3,1fr);gap:3px}
-.gift-target2 button{border:1px solid #ff9b2a;border-radius:8px;background:radial-gradient(circle at 50% 12%,rgba(255,108,24,.20),transparent 34%),linear-gradient(160deg,#190a10,#070508);color:#fff;min-width:0;padding:2px 1px;box-shadow:0 0 8px rgba(255,132,31,.20) inset,0 0 5px rgba(255,116,29,.13);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-family:inherit}
-.gift-target2 button:active{transform:scale(.97);filter:brightness(1.2)}
-.gift-target2 .rose{grid-column:span 4}.gift-target2 .small{grid-column:span 3}
-.gift-target2 .pic{font-size:21px;line-height:1;filter:drop-shadow(0 0 5px #ff4968)}.gift-target2 .small .pic{font-size:20px}
-.gift-target2 .nm{font-size:6.1px;font-weight:1000;line-height:1.05;text-align:center;white-space:nowrap}
-.gift-target2 .price{font-size:6.0px;font-weight:1000;color:#ffd94f;white-space:nowrap}
-@media(max-width:390px){.gift-target2 .pic{font-size:18px}.gift-target2 .small .pic{font-size:17px}.gift-target2 .nm,.gift-target2 .price{font-size:5.4px}.gift-target2 .gt-title{font-size:8px}}
+.gift-target2 .small .pic{font-size:17px}.gift-target2 .nm,.gift-target2 .price{font-size:5.4px}.gift-target2 .gt-title{font-size:8px}}
 .gift-target2 .nm,.gift-target2 .price{font-size:5.2px}.gift-target2 .gt-title{font-size:8px}}
 </style></head><body>
 <div class="app">
@@ -67,7 +55,7 @@ document.getElementById('chat').addEventListener('keydown',e=>{if(e.key==='Enter
     try{var u=new URL(location.href),q=clean(u.searchParams.get('nickname'));if(q)return q}catch(e){}
     return '대표님';
   }
-  nickname=getNickname();
+  nickname=getNickname(); window.__ktDjNickname=nickname;
 
   function chooseVoice(){
     if(!('speechSynthesis' in window))return null;
@@ -162,13 +150,4 @@ document.getElementById('chat').addEventListener('keydown',e=>{if(e.key==='Enter
 })();
 </script>
 
-<script id="gift-panel-target2-runtime">
-(function(){
-  var panel=document.getElementById('giftPanelTarget2');
-  if(!panel)return;
-  panel.querySelectorAll('button').forEach(function(b){
-    b.addEventListener('click',function(e){e.stopPropagation();});
-  });
-})();
-</script>
 </body></html>
