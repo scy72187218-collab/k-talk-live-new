@@ -39,10 +39,10 @@
       if(!window.state)window.state={};
       state.ktAiDjRoom=true;
       state.liveRoomType='group9';
-      state.liveRoomName='AI 음악 9명방';
-      state.liveRoomMax=9;
+      state.liveRoomName='AI DJ 음악방';
+      state.liveRoomMax=6;
       var t=document.getElementById('liveTitle');
-      if(t)t.value='AI 음악 9명방';
+      if(t)t.value='AI DJ 음악방';
 
       document.querySelectorAll('#creator .room-switch').forEach(function(b){b.classList.remove('on');});
       if(btn&&btn.classList)btn.classList.add('on');
@@ -52,8 +52,8 @@
       try{
         state.prepRoomType='group9';
         state.roomType='group9';
-        state.prepRoomName='AI 음악 9명방';
-        state.prepRoomMax=9;
+        state.prepRoomName='AI DJ 음악방';
+        state.prepRoomMax=6;
       }catch(e){}
     }catch(e){}
   }
@@ -123,14 +123,14 @@
         if(!window.state)window.state={};
         state.ktAiDjRoom=true;
         state.liveRoomType='group9';
-        state.liveRoomName='AI 음악 9명방';
-        state.liveRoomMax=9;
+        state.liveRoomName='AI DJ 음악방';
+        state.liveRoomMax=6;
         state.prepRoomType='group9';
         state.roomType='group9';
-        state.prepRoomName='AI 음악 9명방';
-        state.prepRoomMax=9;
+        state.prepRoomName='AI DJ 음악방';
+        state.prepRoomMax=6;
         var ttl=document.getElementById('liveTitle');
-        if(ttl){ttl.value='AI 음악 9명방';ttl.dataset.autoRoom='1';}
+        if(ttl){ttl.value='AI DJ 음악방';ttl.dataset.autoRoom='1';}
       }
       btn.classList.toggle('on',selected||!!(window.state&&state.ktAiDjRoom));
       btn.setAttribute('aria-pressed',(selected||!!(window.state&&state.ktAiDjRoom))?'true':'false');
@@ -228,10 +228,19 @@
 
   function decorate(){
     if(!(window.state&&state.ktAiDjRoom))return;
-    var room=document.querySelector('#screen .ktg9-room');
+    var room=document.querySelector('#screen .ktg9-room,#screen .ktg13-room[data-kt-room="9"]');
     if(!room)return;
     room.classList.add('kt-ai-dj-room');
-    var host=room.querySelector('.ktg9-host');
+    room.setAttribute('data-kt-ai-dj','1');
+
+    /* AI DJ 전용방: 비밀방처럼 총 6자리 = AI DJ 1 + 게스트 5.
+       비밀번호는 사용하지 않고 일반 공개 입장으로 유지한다. */
+    try{
+      var guestCells=[].slice.call(room.querySelectorAll('.ktg9-guest,.ktg13-guest'));
+      guestCells.slice(5).forEach(function(g){g.style.setProperty('display','none','important');});
+    }catch(e){}
+
+    var host=room.querySelector('.ktg9-host,.ktg13-host');
     if(host&&!host.querySelector('.kt-ai-dj-stage')){
       var stage=document.createElement('div');
       stage.className='kt-ai-dj-stage';
@@ -242,6 +251,14 @@
       wave.innerHTML=bars;
       stage.appendChild(wave);
       host.appendChild(stage);
+      try{
+        stage.style.setProperty('display','block','important');
+        stage.style.setProperty('position','absolute','important');
+        stage.style.setProperty('inset','0','important');
+        stage.style.setProperty('z-index','8','important');
+        stage.style.setProperty('background-size','cover','important');
+        stage.style.setProperty('background-position','center','important');
+      }catch(e){}
     }
     if(!room.querySelector('#ktAiDjVoiceMic20260927')){
       var mic=document.createElement('button');
@@ -886,7 +903,7 @@
   async function start(){
     if(active)return;
     if(!isHostRoom()){
-      alert('AI 음악 9명방을 먼저 열고 이 버튼을 눌러 주세요.');
+      alert('AI DJ 음악방을 먼저 열고 이 버튼을 눌러 주세요.');
       return;
     }
     active=true;
@@ -895,7 +912,7 @@
       if(window.state){
         state.ktAiDjRoom=true;
         state.ktAiDj24h=true;
-        state.liveRoomName='AI 음악 9명방';
+        state.liveRoomName='AI DJ 음악방';
       }
     }catch(e){}
     originalStream=(window.state&&state.stream)||null;
@@ -1091,7 +1108,7 @@
     try{
       inAiDjRoom=!!(window.state&&state.ktAiDjRoom)&&
         !document.documentElement.classList.contains('kt-remote-viewing')&&
-        !!document.querySelector('#screen .ktg9-room');
+        !!document.querySelector('#screen .ktg9-room,#screen .ktg13-room[data-kt-room="9"]');
     }catch(e){inAiDjRoom=false;}
     /* 자리 비움 → AI 버튼은 AI DJ 9명방 안에서만 표시 */
     if(!inAiDjRoom){if(old)old.remove();return;}
