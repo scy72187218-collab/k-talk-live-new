@@ -75,9 +75,15 @@
   }
   function guestStream(){
     try{
-      var s=window.__ktApprovedGuestSelfStream||null;
       var remote=window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream||null;
-      if(liveStream(s)&&!sameVideoSource20260926(s,remote))return s;
+      var local=window.__ktLocalGuestCameraStream20260926||null;
+      if(liveStream(local)&&!sameVideoSource20260926(local,remote))return local;
+
+      var s=window.__ktApprovedGuestSelfStream||null;
+      if(liveStream(s)&&!sameVideoSource20260926(s,remote)){
+        try{window.__ktLocalGuestCameraStream20260926=s;}catch(_e){}
+        return s;
+      }
       if(liveStream(s)&&sameVideoSource20260926(s,remote)){
         try{window.__ktApprovedGuestSelfStream=null;}catch(_e){}
       }
