@@ -64,8 +64,24 @@
     }catch(e){}
     return null;
   }
+  function sameVideoSource20260926(a,b){
+    if(!a||!b)return false;
+    if(a===b)return true;
+    try{
+      var at=a.getVideoTracks&&a.getVideoTracks()[0];
+      var bt=b.getVideoTracks&&b.getVideoTracks()[0];
+      return !!(at&&bt&&at.id&&bt.id&&at.id===bt.id);
+    }catch(e){return false;}
+  }
   function guestStream(){
-    try{if(liveStream(window.__ktApprovedGuestSelfStream))return window.__ktApprovedGuestSelfStream;}catch(e){}
+    try{
+      var s=window.__ktApprovedGuestSelfStream||null;
+      var remote=window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream||null;
+      if(liveStream(s)&&!sameVideoSource20260926(s,remote))return s;
+      if(liveStream(s)&&sameVideoSource20260926(s,remote)){
+        try{window.__ktApprovedGuestSelfStream=null;}catch(_e){}
+      }
+    }catch(e){}
     return null;
   }
   function remoteHostId(){
