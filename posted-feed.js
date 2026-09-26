@@ -3,14 +3,11 @@
   var SB='https://zupwbfmacwzexyvznlzq.supabase.co';
   var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1cHdiZm1hY3d6ZXh5dnpubHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjEwNzYsImV4cCI6MjEwNDAzNzA3Nn0.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
   function headers(extra){var h={apikey:KEY,Authorization:'Bearer '+KEY};if(extra)Object.keys(extra).forEach(function(k){h[k]=extra[k];});return h;}
-  var FIRST_FAST_FEED=[{"id":"8e1eac73-f54f-4023-93cc-daca7294bd6f","author_name":"K-Talk","title":"4a71d443-4b27-409a-bcce-da3723c44a12-1_all_16890.mp4","video_url":"https://zupwbfmacwzexyvznlzq.supabase.co/storage/v1/object/public/ktalk-videos/guest/1789742631992-yen8is.mp4","created_at":"2026-09-18T14:44:17.716584+00:00","likes":0}];
+  var FIRST_FAST_FEED=[{"id":"839c441d-1d3a-4941-872b-f43a77bf8245","author_name":"태권1","title":"14402.mp4","video_url":"https://zupwbfmacwzexyvznlzq.supabase.co/storage/v1/object/public/ktalk-videos/guest/1789858184221-0lyob9.mp4","created_at":"2026-09-19T22:49:45.508379+00:00","likes":0}];
   function firstFastUrl(){
     try{
       var old=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');
-      if(Array.isArray(old)&&old[0]&&old[0].video_url){
-        var cached=String(old[0].video_url||'');
-        if(cached.indexOf('1789858184221-0lyob9.mp4')===-1)return cached;
-      }
+      if(Array.isArray(old)&&old[0]&&old[0].video_url)return String(old[0].video_url);
     }catch(e){}
     return FIRST_FAST_FEED[0].video_url;
   }
@@ -121,10 +118,7 @@
   function cachedFeed(){
     try{
       var old=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');
-      if(Array.isArray(old)&&old.length){
-        old=old.filter(function(x){return String(x&&x.video_url||'').indexOf('1789858184221-0lyob9.mp4')===-1;});
-        if(old.length)return old;
-      }
+      if(Array.isArray(old)&&old.length)return old;
     }catch(e){}
     return FIRST_FAST_FEED.slice();
   }
@@ -141,7 +135,7 @@
   }
   function card(x,i){
     var id=esc(x.id),u=esc(x.video_url),name=esc(x.author_name||'K-Talk'),title=esc(x.title||'K-Talk 동영상');
-    return '<section data-kt-feed-video-id="'+id+'" style="height:calc(100dvh - 78px);min-height:560px;position:relative;scroll-snap-align:start;background:#000;overflow:hidden">'
+    return '<section style="height:calc(100dvh - 78px);min-height:560px;position:relative;scroll-snap-align:start;background:#000;overflow:hidden">'
       +'<video class="kt-public-video" '+(i===0?'autoplay ':'')+'muted loop playsinline preload="'+(i===0?'auto':'metadata')+'" src="'+u+'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></video>'
       +'<div class="vh-shade"></div>'
       +'<div class="vh-tabs"><span>LIVE</span><span>커뮤니티</span><span>팔로잉</span><span class="on">추천</span><button>⌕</button></div>'
@@ -354,56 +348,17 @@
     }catch(e){}
     return true;
   }
-  function appendMissingFeedItems20260924(fresh){
-    if(!Array.isArray(fresh)||!fresh.length)return false;
-    var sc=screen.querySelector('.kt-public-feed-scroller');
-    if(!sc)return false;
-    var existing={};
-    try{
-      sc.querySelectorAll('[data-kt-feed-video-id]').forEach(function(sec){
-        var id=String(sec.getAttribute('data-kt-feed-video-id')||'');
-        if(id)existing[id]=true;
-      });
-    }catch(e){}
-    var added=0;
-    fresh.forEach(function(x,i){
-      var id=String(x&&x.id||'');
-      if(!id||existing[id])return;
-      try{
-        sc.insertAdjacentHTML('beforeend',card(x,sc.querySelectorAll('[data-kt-feed-video-id]').length+added));
-        existing[id]=true;
-        added++;
-      }catch(e){}
-    });
-    if(added){
-      bind();
-      try{
-        var vids=[].slice.call(sc.querySelectorAll('.kt-public-video'));
-        vids.slice(Math.max(1,vids.length-added)).forEach(function(v){
-          v.preload='metadata';
-          v.muted=true;
-          v.defaultMuted=true;
-          v.setAttribute('playsinline','');
-        });
-      }catch(e){}
-    }
-    return added>0;
-  }
-
   async function refreshFeedInBackground(renderIfDifferent){
     if(feedRefreshInFlight)return feedRefreshInFlight;
     feedRefreshInFlight=(async function(){
       try{
         var fresh=await getFeed();
-        if(fresh.length){
+        if(renderIfDifferent&&fresh.length){
+          var current=cachedFeed();
+          /* getFeed has already updated localStorage; only repaint if the page
+             still has no playable feed. Avoid resetting a video that already started. */
           var hasVideo=!!screen.querySelector('.kt-public-video');
-          if(!hasVideo&&renderIfDifferent){
-            renderFeedNow(fresh);
-          }else if(hasVideo){
-            /* Preserve the already-playing first video and append only the
-               server videos that are missing from the fast one-item cache. */
-            appendMissingFeedItems20260924(fresh);
-          }
+          if(!hasVideo)renderFeedNow(fresh);
         }
         return fresh;
       }finally{
@@ -438,11 +393,11 @@
           var bp=boot.play();if(bp&&bp.catch)bp.catch(function(){});
         }catch(e){}
         setTimeout(handoff,5000);
-        refreshFeedInBackground(true);
+        refreshFeedInBackground(false);
         return;
       }
       renderFeedNow(fast);
-      refreshFeedInBackground(true);
+      refreshFeedInBackground(false);
       return;
     }
 
