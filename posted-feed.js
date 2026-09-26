@@ -316,18 +316,38 @@
   }
 
   window.ktPublicSendRose=async function(id,recipientName,btn){
-    if(btn&&btn.disabled)return;
-    if(btn)btn.disabled=true;
-    try{
-      var r=await fetch(SB+'/rest/v1/rpc/ktalk_like_video',{method:'POST',headers:headers({'Content-Type':'application/json'}),body:JSON.stringify({video_id:id})});
-      if(!r.ok)throw new Error('rose');
-      var n=await r.json(),s=btn&&btn.querySelector('small');
-      if(s)s.textContent=Number(n||0).toLocaleString('ko-KR');
+    if(!id)return;
 
-      /* 누가 장미를 보냈는지 기존 댓글 테이블에 숨은 기록으로 남긴다.
-         일반 메시지/댓글 화면에는 이 기록을 표시하지 않는다. */
+    /* 동영상 장미는 '회사 지급'이 아니라 지금 누른 시청자가
+       해당 동영상 게시자에게 직접 1송이를 보내는 응원 버튼이다.
+       좋아요처럼 누르는 즉시 화면 숫자를 +1 하고 서버에 기록한다. */
+    var s=btn&&btn.querySelector('small');
+    var before=0;
+    try{
+      before=parseInt(String(s&&s.textContent||'0').replace(/[^0-9]/g,''),10)||0;
+      if(s)s.textContent=(before+1).toLocaleString('ko-KR');
+      if(btn){
+        btn.classList.add('kt-rose-tapped');
+        setTimeout(function(){try{btn.classList.remove('kt-rose-tapped');}catch(e){}},220);
+      }
+    }catch(e){}
+
+    try{
+      var giver=who();
+
+      var r=await fetch(SB+'/rest/v1/rpc/ktalk_like_video',{
+        method:'POST',
+        headers:headers({'Content-Type':'application/json'}),
+        body:JSON.stringify({video_id:id})
+      });
+      if(!r.ok)throw new Error('rose');
+
+      var n=await r.json();
+      if(s)s.textContent=Number(n||before+1).toLocaleString('ko-KR');
+
+      /* 누른 사람의 이름으로 1송이 기록.
+         게시자 장미 내역에서 누가 보냈는지 확인할 수 있다. */
       try{
-        var giver=who();
         await fetch(SB+'/rest/v1/ktalk_video_comments',{
           method:'POST',
           headers:headers({'Content-Type':'application/json','Prefer':'return=minimal'}),
@@ -335,18 +355,21 @@
             video_id:id,
             author_id:giver.id,
             author_name:giver.name,
-            body:'__KT_ROSE__|1'
+            body:'__KT_ROSE__|1|'+String(recipientName||'동영상 게시자')
           })
         });
       }catch(logErr){}
 
       var toast=document.createElement('div');
-      toast.style.cssText='position:fixed;left:50%;bottom:110px;transform:translateX(-50%);z-index:99999;padding:12px 18px;border-radius:999px;background:rgba(24,8,28,.94);border:1px solid #ff5aaf;color:#fff;font-weight:950;box-shadow:0 0 18px rgba(255,54,150,.45);white-space:nowrap';
-      toast.textContent='🌹 '+(recipientName||'동영상 게시자')+'님에게 장미 1송이를 보냈습니다';
+      toast.style.cssText='position:fixed;left:50%;bottom:110px;transform:translateX(-50%);z-index:99999;padding:10px 16px;border-radius:999px;background:rgba(24,8,28,.94);border:1px solid #ff5aaf;color:#fff;font-weight:950;box-shadow:0 0 18px rgba(255,54,150,.45);white-space:nowrap;pointer-events:none';
+      toast.textContent='🌹 '+String(giver.name||'회원')+' → '+(recipientName||'동영상 게시자')+' 1송이';
       document.body.appendChild(toast);
-      setTimeout(function(){if(toast&&toast.parentNode)toast.remove();},2200);
-    }catch(e){alert('장미 전송에 실패했습니다. 다시 눌러 주세요.');}
-    finally{if(btn)btn.disabled=false;}
+      setTimeout(function(){if(toast&&toast.parentNode)toast.remove();},1500);
+    }catch(e){
+      /* 실패하면 화면의 임시 +1만 원래 숫자로 되돌린다. */
+      try{if(s)s.textContent=before.toLocaleString('ko-KR');}catch(x){}
+      alert('장미 전송에 실패했습니다. 다시 눌러 주세요.');
+    }
   };
 
   window.ktPublicRoseHistory=async function(videoId,recipientName){
