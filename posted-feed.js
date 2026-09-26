@@ -5,13 +5,7 @@
   function headers(extra){var h={apikey:KEY,Authorization:'Bearer '+KEY};if(extra)Object.keys(extra).forEach(function(k){h[k]=extra[k];});return h;}
   var FIRST_FAST_FEED=[{"id":"8e1eac73-f54f-4023-93cc-daca7294bd6f","author_name":"K-Talk","title":"4a71d443-4b27-409a-bcce-da3723c44a12-1_all_16890.mp4","video_url":"https://zupwbfmacwzexyvznlzq.supabase.co/storage/v1/object/public/ktalk-videos/guest/1789742631992-yen8is.mp4","created_at":"2026-09-18T14:44:17.716584+00:00","likes":0}];
   function firstFastUrl(){
-    try{
-      var old=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');
-      if(Array.isArray(old)&&old[0]&&old[0].video_url){
-        var cached=String(old[0].video_url||'');
-        if(cached.indexOf('1789858184221-0lyob9.mp4')===-1)return cached;
-      }
-    }catch(e){}
+    /* First paint must never be replaced by an older phone cache. */
     return FIRST_FAST_FEED[0].video_url;
   }
   function warmFirstVideo(){
@@ -197,22 +191,41 @@
   window.saveCreatorDraft=async function(){if(!blobNow()){alert('저장할 동영상이 없습니다.');return;}if(window.postCreatorRecording)await window.postCreatorRecording();};
 
   function cachedFeed(){
+    var first=FIRST_FAST_FEED[0];
+    var out=[];
+    if(first&&!isDeletedPublic(first))out.push(first);
     try{
       var old=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');
       if(Array.isArray(old)&&old.length){
-        old=old.filter(function(x){
-          return String(x&&x.video_url||'').indexOf('1789858184221-0lyob9.mp4')===-1&&!isDeletedPublic(x);
+        old.forEach(function(x){
+          if(!x||isDeletedPublic(x))return;
+          var u=String(x.video_url||'');
+          if(u.indexOf('1789858184221-0lyob9.mp4')!==-1)return;
+          if(String(x.id||'')===String(first&&first.id||''))return;
+          if(u===String(first&&first.video_url||''))return;
+          out.push(x);
         });
-        if(old.length)return old;
       }
     }catch(e){}
-    return FIRST_FAST_FEED.filter(function(x){return !isDeletedPublic(x);});
+    return out;
   }
   async function getFeed(){
     try{
       var r=await fetch('/api/video-feed',{cache:'default'});
       var a=r.ok?await r.json():[];
       a=Array.isArray(a)?a.filter(function(x){return !isDeletedPublic(x);}):[];
+      /* Keep the same first item that was already painted. Server/cache updates
+         may append items, but they must not swap the visible first video. */
+      var first=FIRST_FAST_FEED[0];
+      var normalized=[];
+      if(first&&!isDeletedPublic(first))normalized.push(first);
+      a.forEach(function(x){
+        if(!x)return;
+        if(String(x.id||'')===String(first&&first.id||''))return;
+        if(String(x.video_url||'')===String(first&&first.video_url||''))return;
+        normalized.push(x);
+      });
+      a=normalized;
       try{localStorage.setItem('ktalk_fast_feed',JSON.stringify(a));}catch(e){}
       return a;
     }catch(e){
