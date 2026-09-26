@@ -233,7 +233,7 @@
     room.classList.add('kt-ai-dj-room');
     room.setAttribute('data-kt-ai-dj','1');
 
-    /* AI DJ 전용방: 비밀방처럼 총 6자리 = AI DJ 1 + 게스트 5.
+    /* AI DJ 전용방: 총 6자리 = AI DJ 1 + 게스트 5. 비밀번호 없음.
        비밀번호는 사용하지 않고 일반 공개 입장으로 유지한다. */
     try{
       var guestCells=[].slice.call(room.querySelectorAll('.ktg9-guest,.ktg13-guest'));
@@ -241,23 +241,35 @@
     }catch(e){}
 
     var host=room.querySelector('.ktg9-host,.ktg13-host');
-    if(host&&!host.querySelector('.kt-ai-dj-stage')){
-      var stage=document.createElement('div');
-      stage.className='kt-ai-dj-stage';
-      try{if(window.KT_AI_DJ_PHOTO)stage.style.backgroundImage='url("'+window.KT_AI_DJ_PHOTO+'")';}catch(e){}
-      var wave=document.createElement('div');
-      wave.className='kt-ai-dj-wave';
-      var bars='';for(var x=0;x<36;x++)bars+='<i></i>';
-      wave.innerHTML=bars;
-      stage.appendChild(wave);
-      host.appendChild(stage);
+    if(host){
       try{
+        host.style.setProperty('position','relative','important');
+        host.querySelectorAll('video').forEach(function(v){
+          v.style.setProperty('visibility','hidden','important');
+          v.style.setProperty('opacity','0','important');
+          v.style.setProperty('pointer-events','none','important');
+        });
+      }catch(e){}
+      var stage=host.querySelector('.kt-ai-dj-stage');
+      if(!stage){
+        stage=document.createElement('div');
+        stage.className='kt-ai-dj-stage';
+        var wave=document.createElement('div');
+        wave.className='kt-ai-dj-wave';
+        var bars='';for(var x=0;x<36;x++)bars+='<i></i>';
+        wave.innerHTML=bars;
+        stage.appendChild(wave);
+        host.appendChild(stage);
+      }
+      try{
+        if(window.KT_AI_DJ_PHOTO)stage.style.setProperty('background-image','url("'+window.KT_AI_DJ_PHOTO+'")','important');
         stage.style.setProperty('display','block','important');
         stage.style.setProperty('position','absolute','important');
         stage.style.setProperty('inset','0','important');
-        stage.style.setProperty('z-index','8','important');
+        stage.style.setProperty('z-index','50','important');
         stage.style.setProperty('background-size','cover','important');
-        stage.style.setProperty('background-position','center','important');
+        stage.style.setProperty('background-position','center center','important');
+        stage.style.setProperty('background-repeat','no-repeat','important');
       }catch(e){}
     }
     if(!room.querySelector('#ktAiDjVoiceMic20260927')){
