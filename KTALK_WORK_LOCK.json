@@ -1,13 +1,13 @@
 {
-  "version": 137,
+  "version": 138,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "main",
-  "snapshot_commit": "993c2bab31fc3aba47e25078445218fd906b3677",
+  "snapshot_commit": "d206406268ca00c3cdf3488caebfc88468272adf",
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "2026-09-26 owner PIN 1111: host video entry follow-up. Production logs showed WebSocket upgrades succeeding, but LIVE discovery REST lookups were storming and returning many 401/522 responses. live-video-discovery now single-flights/caches active-room lookup and throttles self-triggered renders. Communication role detection now identifies a broadcaster by a visible local room plus a live local camera stream, while remote-viewing remains viewer. This prevents stale remote-host ids from making the broadcaster behave like a viewer. No layout/chat/gifts/switch/public-feed changes. Relocked after deployment.",
+  "note": "2026-09-26 owner PIN 1111: host video entry changed to realtime-first. Current diagnostics showed Supabase REST room-info path intermittently returning 401/522 while Realtime websocket/broadcast remained available. Guest room entry now starts kt-remote-host-selected and host-video signaling immediately, creates viewer context immediately, and treats room/viewer REST registration and metadata as best-effort background work. REST failure no longer tears down the host-video path. No layout/chat/gifts/switches/public feed changes. Relocked after production deployment.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -98,7 +98,7 @@
   },
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "last_communication_fix": "2026-09-26-host-role-plus-request-storm-fix",
+  "last_communication_fix": "2026-09-26-realtime-first-host-video-entry",
   "last_video_feed_fix": "2026-09-26-clean-single-first-video-path",
   "locked_components": [
     "public-video-feed",
@@ -159,5 +159,5 @@
   "last_critical_touch_fix": "2026-09-24-critical-touch1",
   "last_livekit_cloud_prepare": "2026-09-25-edge-token-v2-env-first",
   "temporarily_unlocked": [],
-  "last_communication_lock": "2026-09-26-relock-host-role-storm-fix"
+  "last_communication_lock": "2026-09-26-relock-realtime-first-host-video-entry"
 }
