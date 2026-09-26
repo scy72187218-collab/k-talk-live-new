@@ -394,7 +394,7 @@
     try{
       if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
       var s=document.getElementById('screen');
-      return !!(s&&s.querySelector('#ktLiveVideo,.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room'));
+      return !!(s&&s.querySelector('#ktLiveVideo,.ktsolo-room,.ktg9-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room'));
     }catch(e){return false;}
   }
 
@@ -602,7 +602,7 @@
   async function syncHostPresenceAfterStart(attempt){
     attempt=Number(attempt||0);
     var s=document.getElementById('screen');
-    var opened=!!(s&&s.querySelector('#ktLiveVideo,.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room'));
+    var opened=!!(s&&s.querySelector('#ktLiveVideo,.ktsolo-room,.ktg9-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room'));
     if(opened&&hasLiveLocalVideo()){
       startHostPresence();
       return;
