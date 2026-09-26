@@ -1412,7 +1412,7 @@
       if(pc.__ktPreAudioSender)await pc.__ktPreAudioSender.replaceTrack(at||null);
       pc.__ktPreApprovalActivated=true;
       try{window.__ktDirectGuestUplinkState20260923='activating';window.__ktDirectGuestUplinkStateAt20260923=Date.now();}catch(e){}
-      scheduleGuestMediaAckFallback20260926(hid,pc,guestSession,650);
+      scheduleGuestMediaAckFallback20260926(hid,pc,guestSession,450);
       return true;
     }catch(e){return false;}
   }
@@ -1571,23 +1571,38 @@
       var rs=entry.mediaStream;
       entry.pendingStream=rs;
       entry.pendingTrack=ev.track||null;
-      function showIfApproved(){
+      function attachIfApproved(){
         if(!approvedGuests[vid])return;
         var hasVideo=false;
         try{hasVideo=rs.getVideoTracks().some(function(t){return t&&t.readyState==='live';});}catch(e){}
         if(!hasVideo)return;
-        entry.gotTrack=true;
         attachGuestToHost(vid,String(p.name||(approvedGuests[vid]&&approvedGuests[vid].name)||'게스트'),rs);
+      }
+      function confirmRealMedia(){
+        if(!approvedGuests[vid])return;
+        var vt=null;
+        try{vt=rs.getVideoTracks().find(function(t){return t&&t.readyState==='live';})||null;}catch(e){}
+        if(!vt)return;
+        /* ontrack can fire before Android has delivered the first frame.
+           Do not acknowledge media until the remote video track is actually
+           unmuted, otherwise the guest stops its recovery while host stays blank. */
+        if(vt.muted===true)return;
+        attachIfApproved();
+        entry.gotTrack=true;
         if(!entry.mediaReadySent){
           entry.mediaReadySent=true;
           sendCriticalMedia20260926('guest_media_ready',{host_id:DEVICE,viewer_id:vid,session_id:session,at:Date.now()},DEVICE);
         }
         if(entry.old&&entry.old.pc){try{closePc(entry.old.pc);}catch(e){}entry.old=null;}
       }
-      showIfApproved();
+
+      /* Reserve/paint the slot immediately, but keep recovery active until
+         a real unmuted guest video track arrives. */
+      attachIfApproved();
       try{
         if(ev.track){
-          ev.track.onunmute=function(){showIfApproved();};
+          if(ev.track.kind==='video'&&ev.track.muted!==true)confirmRealMedia();
+          ev.track.onunmute=function(){confirmRealMedia();};
         }
       }catch(e){}
     };
@@ -1595,14 +1610,16 @@
     pc.oniceconnectionstatechange=function(){
       var ist=String(pc.iceConnectionState||'');
       if((ist==='connected'||ist==='completed')&&approvedGuests[vid]&&entry.pendingStream){
-        entry.gotTrack=true;
+        /* Transport connected is not the same as receiving video frames.
+           Keep the slot attached, but do not stop guest recovery yet. */
         attachGuestToHost(vid,String(p.name||(approvedGuests[vid]&&approvedGuests[vid].name)||'게스트'),entry.pendingStream);
       }
     };
     pc.onconnectionstatechange=function(){
       var st=String(pc.connectionState||'');
       if(st==='connected'&&approvedGuests[vid]&&entry.pendingStream){
-        entry.gotTrack=true;
+        /* Keep displaying the receiver stream, but wait for track.onunmute
+           before declaring guest media ready. */
         attachGuestToHost(vid,String(p.name||(approvedGuests[vid]&&approvedGuests[vid].name)||'게스트'),entry.pendingStream);
       }
       if(st==='failed'||st==='closed'){
