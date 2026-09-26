@@ -2762,16 +2762,22 @@
     try{
       var s=e&&e.detail&&e.detail.stream||null;
       var vt=s&&s.getVideoTracks&&s.getVideoTracks()[0]||null;
+      var replaceAudio=!!(e&&e.detail&&e.detail.replaceAudio);
+      var at=replaceAudio&&s&&s.getAudioTracks&&s.getAudioTracks()[0]||null;
       if(!vt)return;
 
-      /* Host viewers already connected: swap only the outgoing video track.
-         Audio/chat/room state remain untouched. */
+      /* Normal beauty/background changes swap only video.
+         AI DJ away mode may explicitly request audio replacement too. */
       Object.keys(hostViewPeers||{}).forEach(function(k){
         try{
           var pc=hostViewPeers[k]&&hostViewPeers[k].pc||null;
           if(!pc||!pc.getSenders)return;
           var sender=pc.getSenders().find(function(x){return x&&x.track&&x.track.kind==='video';});
           if(sender&&sender.replaceTrack)sender.replaceTrack(vt).catch(function(){});
+          if(at){
+            var audioSender=pc.getSenders().find(function(x){return x&&x.track&&x.track.kind==='audio';});
+            if(audioSender&&audioSender.replaceTrack)audioSender.replaceTrack(at).catch(function(){});
+          }
         }catch(_e){}
       });
 
