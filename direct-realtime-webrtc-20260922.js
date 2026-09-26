@@ -19,6 +19,7 @@
   var sharedApprovalPollBusy=false,leaveAnnouncedHost='',guestAliveLastSent=0,hostGuestAliveAt={},remoteHostMissingSince=0;
   var signalSeen={},viewerOfferInFlight='',lastHostReadyAt=0,lastGuestRequestAt=0,guestApprovedAt=0;
   var guestMediaAckTimer=null,guestMediaAckSession='',guestMediaRecoveryCount=0;
+  var guestPhotoCache20260926='',guestPhotoCacheTrack20260926='',guestPhotoCacheAt20260926=0;
   var sharedRuntimeStartedAt=Date.now()-5000,sharedRoomCutCache={};
   var hostRunId='',hostRunStartedAt=0,remoteRunId='',remoteRunStartedAt=0;
   window.__ktApprovedGuestIds20260924=window.__ktApprovedGuestIds20260924||{};
@@ -1764,6 +1765,46 @@
     }
   }
 
+  function cacheTrustedGuestPhoto20260926(){
+    var s=null;
+    try{s=window.__ktLocalGuestCameraStream20260926||null;}catch(e){}
+    if(!s||!isTrustedGuestCamera20260926(s))return;
+    var vt=null;
+    try{vt=s.getVideoTracks&&s.getVideoTracks()[0]||null;}catch(e){}
+    if(!vt||vt.readyState!=='live'||!vt.id)return;
+    var trackId=String(vt.id);
+    function grab(v){
+      if(!v||!v.videoWidth||!v.videoHeight)return false;
+      try{
+        var cv=document.createElement('canvas');cv.width=96;cv.height=72;
+        var cx=cv.getContext('2d',{alpha:false});if(!cx)return false;
+        cx.drawImage(v,0,0,96,72);
+        var frame=cv.toDataURL('image/jpeg',0.36);
+        if(!frame||frame.length>32000)return false;
+        guestPhotoCache20260926=frame;
+        guestPhotoCacheTrack20260926=trackId;
+        guestPhotoCacheAt20260926=Date.now();
+        return true;
+      }catch(e){return false;}
+    }
+    try{
+      var vids=[].slice.call(document.querySelectorAll('video'));
+      for(var i=0;i<vids.length;i++){
+        var so=vids[i].srcObject||null;
+        if(so&&sameVideoSource20260926(so,s)&&grab(vids[i]))return;
+      }
+    }catch(e){}
+    try{
+      var v=document.createElement('video');
+      v.muted=true;v.defaultMuted=true;v.autoplay=true;v.playsInline=true;v.srcObject=s;
+      var done=function(){grab(v);};
+      v.addEventListener('loadeddata',done,{once:true});
+      v.addEventListener('playing',done,{once:true});
+      var q=v.play();if(q&&q.catch)q.catch(function(){});
+      setTimeout(done,30);setTimeout(done,90);
+    }catch(e){}
+  }
+
   function sendApprovedGuestPhoto20260926(hid){
     hid=String(hid||'').trim();
     if(!hid)return;
@@ -1781,6 +1822,18 @@
     if(!vt||vt.readyState!=='live')return;
 
     var sent=false;
+    try{
+      var trustedId=String(window.__ktLocalGuestCameraTrackId20260926||'');
+      if(guestPhotoCache20260926&&guestPhotoCacheTrack20260926===trustedId&&Date.now()-guestPhotoCacheAt20260926<10000){
+        sent=true;
+        sendCriticalMedia20260926('guest_photo_frame',{
+          host_id:hid,viewer_id:viewerId(),name:profileName(),
+          frame:guestPhotoCache20260926,at:Date.now()
+        },hid);
+        setTimeout(cacheTrustedGuestPhoto20260926,0);
+        return;
+      }
+    }catch(e){}
     function fromVideo(v){
       if(sent||!v||!v.videoWidth||!v.videoHeight)return false;
       try{
@@ -1865,7 +1918,7 @@
 
     /* Visible fallback requested by owner: place only the approved guest's own
        camera face into the host guest slot while live transport is connecting. */
-    [80,260,700].forEach(function(ms){
+    [0,45,140].forEach(function(ms){
       setTimeout(function(){
         if(guestApproved&&guestApprovedHost===hid)try{sendApprovedGuestPhoto20260926(hid);}catch(e){}
       },ms);
@@ -2134,6 +2187,7 @@
       try{
         window.__ktLocalGuestCameraStream20260926=guestStream;
         window.__ktApprovedGuestSelfStream=guestStream;
+        setTimeout(cacheTrustedGuestPhoto20260926,0);
       }catch(e){}
       return true;
     }
@@ -2149,6 +2203,8 @@
     try{
       rememberTrustedGuestCamera20260926(guestStream);
       window.__ktApprovedGuestSelfStream=guestStream;
+      setTimeout(cacheTrustedGuestPhoto20260926,0);
+      setTimeout(cacheTrustedGuestPhoto20260926,80);
     }catch(e){}
     try{
       if(guestPrewarmTimer)clearTimeout(guestPrewarmTimer);
