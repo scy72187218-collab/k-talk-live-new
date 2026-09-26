@@ -1,6 +1,7 @@
 /* K-Talk AI DJ 음악 9명방.
    기존 9명방 통신/게스트 구조는 그대로 사용하고, 라이브 준비 화면에 AI DJ 방을 별도 선택으로 표시한다. */
 (function(){
+  if(window.__ktAiDjCleanRebuild20260927)return;
   if(window.__ktAiDj9Room20260927)return;
   window.__ktAiDj9Room20260927=true;
 
@@ -760,6 +761,7 @@
    호스트/운영진이 자리를 비울 때 공개도메인 음원 + AI DJ 화면으로 송출을 전환한다.
    브라우저/휴대폰이 실제로 켜져 있는 동안 연속 운영한다. */
 (function(){
+  if(window.__ktAiDjCleanRebuild20260927)return;
   if(window.__ktAiDj24hTakeover20260927)return;
   window.__ktAiDj24hTakeover20260927=true;
 
