@@ -2295,6 +2295,27 @@
     if(ev==='guest_request'&&isHostRole()&&String(p.host_id||'')===DEVICE){
       var vid=String(p.viewer_id||'');
       if(vid){
+        /* Carry a tiny current guest-camera frame inside the request itself.
+           That lets the host paint the approved guest immediately without
+           waiting for a second signaling event. */
+        try{
+          var reqFrame=String(p.frame||'');
+          if(/^data:image\/jpeg;base64,/.test(reqFrame)&&reqFrame.length<32000){
+            pendingGuestPhotos20260926[vid]={
+              frame:reqFrame,
+              name:String(p.name||'게스트'),
+              at:Number(p.at||Date.now())
+            };
+            if(approvedGuests[vid]){
+              paintHostGuestPhoto20260926(
+                vid,
+                String(p.name||(approvedGuests[vid]&&approvedGuests[vid].name)||'게스트'),
+                reqFrame
+              );
+            }
+          }
+        }catch(e){}
+
         /* A repeated/late request is not a leave/rejoin signal. If this guest
            is already approved, keep the live host slot and peer untouched. */
         if(approvedGuests[vid]){
@@ -2475,7 +2496,24 @@
                 detail:{host_id:hid,viewer_id:viewerId(),at:Date.now()}
               }));}catch(e){}
               [0,20,45,80,140].forEach(function(ms){
-                setTimeout(function(){if(requestOn)try{sendPreApprovalGuestPhoto20260926(hid);}catch(e){}},ms);
+                setTimeout(function(){
+                  if(!requestOn)return;
+                  try{
+                    cacheTrustedGuestPhoto20260926();
+                    sendPreApprovalGuestPhoto20260926(hid);
+                    var frame=String(guestPhotoCache20260926||'');
+                    if(/^data:image\/jpeg;base64,/.test(frame)&&frame.length<32000){
+                      var fastReq={
+                        host_id:hid,
+                        viewer_id:viewerId(),
+                        name:profileName(),
+                        frame:frame,
+                        at:Date.now()
+                      };
+                      sendCriticalMedia20260926('guest_request',fastReq,hid);
+                    }
+                  }catch(e){}
+                },ms);
               });
               /* Prepare the guest WebRTC connection while waiting for host approval.
                  No camera/mic is sent before approval; only the transport is warmed.
