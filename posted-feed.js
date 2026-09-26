@@ -3,14 +3,11 @@
   var SB='https://zupwbfmacwzexyvznlzq.supabase.co';
   var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1cHdiZm1hY3d6ZXh5dnpubHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjEwNzYsImV4cCI6MjEwNDAzNzA3Nn0.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
   function headers(extra){var h={apikey:KEY,Authorization:'Bearer '+KEY};if(extra)Object.keys(extra).forEach(function(k){h[k]=extra[k];});return h;}
-  var FIRST_FAST_FEED=[{"id":"69dfec54-90b0-4920-8612-b25f13f023d9","author_name":"K-Talk","title":"14254.mp4","video_url":"https://zupwbfmacwzexyvznlzq.supabase.co/storage/v1/object/public/ktalk-videos/guest/1788516701116-emysxm.mp4","created_at":"2026-09-04T10:11:42.32304+00:00","likes":0}];
+  var FIRST_FAST_FEED=[{"id":"839c441d-1d3a-4941-872b-f43a77bf8245","author_name":"태권1","title":"14402.mp4","video_url":"https://zupwbfmacwzexyvznlzq.supabase.co/storage/v1/object/public/ktalk-videos/guest/1789858184221-0lyob9.mp4","created_at":"2026-09-19T22:49:45.508379+00:00","likes":0}];
   function firstFastUrl(){
     try{
       var old=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');
-      if(Array.isArray(old)&&old[0]&&old[0].video_url){
-        var cached=String(old[0].video_url||'');
-        if(cached.indexOf('1789858184221-0lyob9.mp4')===-1&&cached.indexOf('1789742631992-yen8is.mp4')===-1)return cached;
-      }
+      if(Array.isArray(old)&&old[0]&&old[0].video_url)return String(old[0].video_url);
     }catch(e){}
     return FIRST_FAST_FEED[0].video_url;
   }
@@ -37,39 +34,6 @@
   function titleNow(){try{return window.ktImportedVideoName||ktImportedVideoName||('K-Talk 동영상 '+new Date().toLocaleString('ko-KR'));}catch(e){return 'K-Talk 동영상';}}
   function who(){var name='K-Talk',id='guest';try{name=state.profileName||state.currentProfileName||state.accountName||name;id=state.profileId||state.currentAccountId||state.accountId||id;}catch(e){}try{name=localStorage.getItem('ktalk_profile_name')||localStorage.getItem('ktalk_active_account_name')||name;id=localStorage.getItem('ktalk_active_account')||localStorage.getItem('ktalk_profile_id')||id;}catch(e){}return {name:String(name).slice(0,80),id:String(id).slice(0,80)};}
 
-  function deletedPublic(){
-    try{
-      var a=JSON.parse(localStorage.getItem('ktalk_deleted_public_videos')||'[]');
-      return Array.isArray(a)?a:[];
-    }catch(e){return [];}
-  }
-  function isDeletedPublic(x){
-    if(!x)return false;
-    var id=String(x.id||x.publicVideoId||'');
-    var url=String(x.video_url||x.publicVideoUrl||'');
-    return deletedPublic().some(function(d){
-      return (id&&String(d.id||'')===id)||(url&&String(d.url||'')===url);
-    });
-  }
-  function rememberDeletedPublic(id,url){
-    id=String(id||'').trim();url=String(url||'').trim();
-    if(!id&&!url)return;
-    try{
-      var a=deletedPublic().filter(function(d){
-        return !((id&&String(d.id||'')===id)||(url&&String(d.url||'')===url));
-      });
-      a.unshift({id:id,url:url,at:Date.now()});
-      if(a.length>200)a=a.slice(0,200);
-      localStorage.setItem('ktalk_deleted_public_videos',JSON.stringify(a));
-      var fast=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');
-      if(Array.isArray(fast)){
-        fast=fast.filter(function(x){return !isDeletedPublic(x);});
-        localStorage.setItem('ktalk_fast_feed',JSON.stringify(fast));
-      }
-    }catch(e){}
-  }
-  window.ktRememberDeletedPublicVideo=rememberDeletedPublic;
-
   async function markLocalPosted(){try{var db=await ktOpenVideoDB(),tx=db.transaction('videos','readwrite'),st=tx.objectStore('videos'),rq=st.getAll();await new Promise(function(ok){rq.onsuccess=function(){var a=(rq.result||[]).filter(function(v){return v&&!v.draft;}).sort(function(a,b){return (b.createdAt||0)-(a.createdAt||0);}),x=a[0];if(x){x.posted=true;x.postedAt=x.postedAt||Date.now();st.put(x);}ok();};rq.onerror=ok;});await new Promise(function(ok){tx.oncomplete=ok;tx.onerror=ok;tx.onabort=ok;});try{db.close();}catch(e){}try{if(window.ktRenderProfilePostedVideos)window.ktRenderProfilePostedVideos();}catch(e){}}catch(e){}}
   function ext(t){t=String(t||'').toLowerCase();if(t.indexOf('mp4')>=0)return'mp4';if(t.indexOf('quicktime')>=0)return'mov';if(t.indexOf('m4v')>=0)return'm4v';return'webm';}
   async function publicUpload(blob,title){
@@ -83,51 +47,6 @@
     var rows=await ins.json();
     return rows&&rows[0]?rows[0]:{id:'',video_url:url};
   }
-
-  window.ktDeletePublicVideo=async function(meta){
-    meta=meta||{};
-    var id=String(meta.id||meta.publicVideoId||'').trim();
-    var url=String(meta.video_url||meta.publicVideoUrl||'').trim();
-    rememberDeletedPublic(id,url);
-
-    var rowOk=true;
-    if(id){
-      try{
-        var dr=await fetch(SB+'/rest/v1/ktalk_videos?id=eq.'+encodeURIComponent(id),{
-          method:'DELETE',
-          headers:headers({'Prefer':'return=minimal'})
-        });
-        rowOk=dr.ok;
-      }catch(e){rowOk=false;}
-    }else if(url){
-      try{
-        var du=await fetch(SB+'/rest/v1/ktalk_videos?video_url=eq.'+encodeURIComponent(url),{
-          method:'DELETE',
-          headers:headers({'Prefer':'return=minimal'})
-        });
-        rowOk=du.ok;
-      }catch(e){rowOk=false;}
-    }
-
-    var path=String(meta.video_path||'').trim();
-    if(!path&&url){
-      try{
-        var marker='/storage/v1/object/public/ktalk-videos/';
-        var p=url.indexOf(marker);
-        if(p>=0)path=decodeURIComponent(url.slice(p+marker.length));
-      }catch(e){}
-    }
-    if(path){
-      try{
-        var encoded=path.split('/').map(encodeURIComponent).join('/');
-        await fetch(SB+'/storage/v1/object/ktalk-videos/'+encoded,{
-          method:'DELETE',
-          headers:headers()
-        });
-      }catch(e){}
-    }
-    return {ok:rowOk,id:id,url:url};
-  };
 
   async function getStoredItem(id){
     try{
@@ -199,22 +118,16 @@
   function cachedFeed(){
     try{
       var old=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');
-      if(Array.isArray(old)&&old.length){
-        old=old.filter(function(x){
-          var u=String(x&&x.video_url||'');
-          return u.indexOf('1789858184221-0lyob9.mp4')===-1&&u.indexOf('1789742631992-yen8is.mp4')===-1&&!isDeletedPublic(x);
-        });
-        if(old.length)return old;
-      }
+      if(Array.isArray(old)&&old.length)return old;
     }catch(e){}
-    return FIRST_FAST_FEED.filter(function(x){return !isDeletedPublic(x);});
+    return FIRST_FAST_FEED.slice();
   }
   async function getFeed(){
     try{
       var r=await fetch('/api/video-feed',{cache:'default'});
       var a=r.ok?await r.json():[];
-      a=Array.isArray(a)?a.filter(function(x){return !isDeletedPublic(x);}):[];
-      try{localStorage.setItem('ktalk_fast_feed',JSON.stringify(a));}catch(e){}
+      a=Array.isArray(a)?a:[];
+      try{if(a.length)localStorage.setItem('ktalk_fast_feed',JSON.stringify(a));}catch(e){}
       return a;
     }catch(e){
       return cachedFeed();
@@ -222,7 +135,7 @@
   }
   function card(x,i){
     var id=esc(x.id),u=esc(x.video_url),name=esc(x.author_name||'K-Talk'),title=esc(x.title||'K-Talk 동영상');
-    return '<section data-kt-feed-video-id="'+id+'" style="height:calc(100dvh - 78px);min-height:560px;position:relative;scroll-snap-align:start;background:#000;overflow:hidden">'
+    return '<section style="height:calc(100dvh - 78px);min-height:560px;position:relative;scroll-snap-align:start;background:#000;overflow:hidden">'
       +'<video class="kt-public-video" '+(i===0?'autoplay ':'')+'muted loop playsinline preload="'+(i===0?'auto':'metadata')+'" src="'+u+'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></video>'
       +'<div class="vh-shade"></div>'
       +'<div class="vh-tabs"><span>LIVE</span><span>커뮤니티</span><span>팔로잉</span><span class="on">추천</span><button>⌕</button></div>'
@@ -435,56 +348,17 @@
     }catch(e){}
     return true;
   }
-  function appendMissingFeedItems20260924(fresh){
-    if(!Array.isArray(fresh)||!fresh.length)return false;
-    var sc=screen.querySelector('.kt-public-feed-scroller');
-    if(!sc)return false;
-    var existing={};
-    try{
-      sc.querySelectorAll('[data-kt-feed-video-id]').forEach(function(sec){
-        var id=String(sec.getAttribute('data-kt-feed-video-id')||'');
-        if(id)existing[id]=true;
-      });
-    }catch(e){}
-    var added=0;
-    fresh.forEach(function(x,i){
-      var id=String(x&&x.id||'');
-      if(!id||existing[id]||isDeletedPublic(x))return;
-      try{
-        sc.insertAdjacentHTML('beforeend',card(x,sc.querySelectorAll('[data-kt-feed-video-id]').length+added));
-        existing[id]=true;
-        added++;
-      }catch(e){}
-    });
-    if(added){
-      bind();
-      try{
-        var vids=[].slice.call(sc.querySelectorAll('.kt-public-video'));
-        vids.slice(Math.max(1,vids.length-added)).forEach(function(v){
-          v.preload='metadata';
-          v.muted=true;
-          v.defaultMuted=true;
-          v.setAttribute('playsinline','');
-        });
-      }catch(e){}
-    }
-    return added>0;
-  }
-
   async function refreshFeedInBackground(renderIfDifferent){
     if(feedRefreshInFlight)return feedRefreshInFlight;
     feedRefreshInFlight=(async function(){
       try{
         var fresh=await getFeed();
-        if(fresh.length){
+        if(renderIfDifferent&&fresh.length){
+          var current=cachedFeed();
+          /* getFeed has already updated localStorage; only repaint if the page
+             still has no playable feed. Avoid resetting a video that already started. */
           var hasVideo=!!screen.querySelector('.kt-public-video');
-          if(!hasVideo&&renderIfDifferent){
-            renderFeedNow(fresh);
-          }else if(hasVideo){
-            /* Preserve the already-playing first video and append only the
-               server videos that are missing from the fast one-item cache. */
-            appendMissingFeedItems20260924(fresh);
-          }
+          if(!hasVideo)renderFeedNow(fresh);
         }
         return fresh;
       }finally{
@@ -519,11 +393,11 @@
           var bp=boot.play();if(bp&&bp.catch)bp.catch(function(){});
         }catch(e){}
         setTimeout(handoff,5000);
-        refreshFeedInBackground(true);
+        refreshFeedInBackground(false);
         return;
       }
       renderFeedNow(fast);
-      refreshFeedInBackground(true);
+      refreshFeedInBackground(false);
       return;
     }
 

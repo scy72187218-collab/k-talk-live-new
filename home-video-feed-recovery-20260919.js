@@ -59,27 +59,24 @@
     });
     v.addEventListener('error',function(){
       if(inLiveOrCreator())return;
+      var list=[].slice.call(document.querySelectorAll('#screen .kt-public-video,#screen #homeVideo'));
+      var next=list.find(function(x){return x!==v&&!x.dataset.ktVideoFailed;});
+      v.dataset.ktVideoFailed='1';
+      if(next){
+        try{next.scrollIntoView({block:'start'});}catch(e){}
+        setTimeout(function(){play(next);},50);
+        return;
+      }
 
-      /* Never move to another video automatically while a song/video is on
-         screen. Retry the SAME element only. */
-      setTimeout(function(){
-        try{if(visible(v))play(v);}catch(e){}
-      },300);
-
-      /* If this video never started at all and has a hard media error, a feed
-         refresh is allowed once. Once playback has started, do not replace it. */
-      var hard=false,started=false;
-      try{
-        hard=!!(v.error&&(Number(v.error.code)===3||Number(v.error.code)===4));
-        started=Number(v.currentTime||0)>.03||!v.paused;
-      }catch(e){}
-      if(hard&&!started&&!cacheRefreshDone){
+      /* 저장된 피드 주소가 오래되어 전부 안 열릴 때 한 번만 새 목록을 받음 */
+      if(!cacheRefreshDone){
         cacheRefreshDone=true;
         setTimeout(function(){
           try{
             if(typeof window.ktRefreshSharedFeedNow==='function')window.ktRefreshSharedFeedNow();
+            else if(typeof window.home==='function')window.home();
           }catch(e){}
-        },1500);
+        },40);
       }
     });
   }
