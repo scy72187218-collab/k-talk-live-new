@@ -1,6 +1,138 @@
-/* K-Talk AI DJ 음악방 비활성화. 다른 방/기능은 변경하지 않음. */
+/* K-Talk AI DJ 음악 9명방.
+   기존 9명방 통신/게스트 구조는 그대로 사용하고, 호스트 칸만 AI DJ 화면으로 꾸민다. */
 (function(){
-  window.__ktAiDj9Room20260913=true;
+  if(window.__ktAiDj9Room20260927)return;
+  window.__ktAiDj9Room20260927=true;
+
+  function ensureStyle(){
+    if(document.getElementById('ktAiDj9RoomStyle20260927'))return;
+    var s=document.createElement('style');
+    s.id='ktAiDj9RoomStyle20260927';
+    s.textContent=''
+      +'.kt-ai-dj-pick{width:100%!important;min-height:44px!important;margin-top:7px!important;border:1px solid #ffb55a88!important;border-radius:14px!important;background:linear-gradient(135deg,#2b1607,#5c3310)!important;color:#fff!important;font-weight:950!important;font-size:13px!important;box-shadow:0 0 12px #ff9d2b22!important}'
+      +'.ktg9-room.kt-ai-dj-room .ktg9-host{position:relative!important;overflow:hidden!important;background:#050505!important}'
+      +'.ktg9-room.kt-ai-dj-room .ktg9-host>video{opacity:0!important;pointer-events:none!important}'
+      +'.kt-ai-dj-stage{position:absolute!important;inset:0!important;z-index:8!important;background:#050505 center/cover no-repeat!important;display:flex!important;flex-direction:column!important;justify-content:flex-end!important;pointer-events:none!important}'
+      +'.kt-ai-dj-stage:before{content:"K-Talk  |  AI 음악방  |  ● LIVE";position:absolute!important;left:8px!important;right:8px!important;top:7px!important;z-index:2!important;color:#ffd497!important;background:rgba(0,0,0,.58)!important;border:1px solid #d58c3c66!important;border-radius:9px!important;padding:5px 7px!important;font:950 9px/1.1 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;text-align:center!important}'
+      +'.kt-ai-dj-wave{height:34px!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:2px!important;padding:0 7px 5px!important;background:linear-gradient(180deg,transparent,rgba(0,0,0,.75))!important}'
+      +'.kt-ai-dj-wave i{display:block!important;width:3px!important;height:8px!important;border-radius:9px!important;background:linear-gradient(#ff3ba7,#ffb42d,#56e8ff)!important;animation:ktAiDjWave .68s ease-in-out infinite alternate!important}'
+      +'.kt-ai-dj-wave i:nth-child(3n){animation-duration:.91s!important}.kt-ai-dj-wave i:nth-child(4n){animation-duration:.54s!important}'
+      +'@keyframes ktAiDjWave{from{height:6px}to{height:29px}}'
+      +'.kt-ai-dj-tools{position:absolute!important;left:7px!important;right:7px!important;bottom:8px!important;z-index:950!important;display:grid!important;grid-template-columns:1fr 1fr 1fr!important;gap:5px!important;pointer-events:auto!important}'
+      +'.kt-ai-dj-tools button{min-height:34px!important;border:1px solid #ffffff2b!important;border-radius:11px!important;background:rgba(8,8,12,.88)!important;color:#fff!important;font:950 9px/1.15 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;padding:3px!important;touch-action:manipulation!important}'
+      +'.kt-ai-dj-company{color:#ffd96a!important}';
+    document.head.appendChild(s);
+  }
+
+  function setMode(){
+    try{
+      if(!window.state)window.state={};
+      state.ktAiDjRoom=true;
+      state.liveRoomType='group9';
+      state.liveRoomName='AI 음악 9명방';
+      state.liveRoomMax=9;
+      var t=document.getElementById('liveTitle');
+      if(t)t.value='AI 음악 9명방';
+      if(typeof window.selectPrepRoom==='function'){
+        var nine=[].slice.call(document.querySelectorAll('.prep-bottom button')).find(function(b){return /9명/.test(b.textContent||'');});
+        if(nine)try{window.ktPickBottomRoom?window.ktPickBottomRoom(nine,'9명','group9','AI 음악 9명방',9):window.selectPrepRoom(nine,'group9','AI 음악 9명방',9);}catch(e){}
+      }
+    }catch(e){}
+  }
+  window.ktSelectAiDj9Room20260927=setMode;
+
+  function installPick(){
+    ensureStyle();
+    var card=document.querySelector('#creator .live-prep .prep-card');
+    if(!card)return;
+    var btn=document.getElementById('ktAiDj9Pick20260927');
+    if(!btn){
+      btn=document.createElement('button');
+      btn.type='button';
+      btn.id='ktAiDj9Pick20260927';
+      btn.className='kt-ai-dj-pick';
+      btn.textContent='🎧 AI 음악 9명방';
+      btn.onclick=function(e){try{e.preventDefault();e.stopPropagation();}catch(x){}setMode();};
+      var start=card.querySelector('.prep-start');
+      if(start)card.insertBefore(btn,start);else card.appendChild(btn);
+    }
+  }
+
+  function openRequest(){
+    var html='<div class="rowbox"><b>🎵 신청곡 접수</b><br>노래 제목과 가수를 적어 주세요. 실제 재생은 사용 권한이 확인된 음원만 가능합니다.</div>'
+      +'<input id="ktAiDjSongReq20260927" class="form" maxlength="80" placeholder="예: 노래 제목 / 가수">'
+      +'<button class="act" onclick="ktAiDjSubmitSong20260927()">신청하기</button>';
+    if(typeof window.showSheet==='function')window.showSheet('AI DJ 신청곡',html);
+    setTimeout(function(){var i=document.getElementById('ktAiDjSongReq20260927');if(i)i.focus();},80);
+  }
+  window.ktAiDjOpenRequest20260927=openRequest;
+
+  window.ktAiDjSubmitSong20260927=function(){
+    var i=document.getElementById('ktAiDjSongReq20260927');
+    var q=String(i&&i.value||'').trim();
+    if(!q)return;
+    try{
+      var list=JSON.parse(localStorage.getItem('kt_ai_dj_song_requests_20260927')||'[]');
+      list.push({text:q,at:Date.now()});
+      if(list.length>100)list=list.slice(-100);
+      localStorage.setItem('kt_ai_dj_song_requests_20260927',JSON.stringify(list));
+    }catch(e){}
+    try{if(typeof window.closeSheet==='function')window.closeSheet();}catch(e){}
+    try{if(typeof window.ktSpeak==='function')window.ktSpeak('신청곡 접수되었습니다. 사용 가능한 음원인지 확인한 뒤 안내하겠습니다.');}catch(e){}
+  };
+
+  function companyTotal(){
+    var n=0;
+    try{n=parseInt(localStorage.getItem('kt_ai_dj_company_coins_20260927')||'0',10)||0;}catch(e){}
+    return n;
+  }
+  function showCompany(){
+    var html='<div class="rowbox"><b>🏢 AI 음악방 회사 코인</b><br>현재 이 기기에 기록된 회사 집계: <b>'+companyTotal().toLocaleString('ko-KR')+' 코인</b></div>'
+      +'<div class="note">실제 회사 계좌 입금은 결제·정산 서버 연결이 별도로 필요합니다. 이 화면은 방송 코인 집계용입니다.</div>';
+    if(typeof window.showSheet==='function')window.showSheet('회사 코인',html);
+  }
+  window.ktAiDjShowCompany20260927=showCompany;
+
+  function decorate(){
+    if(!(window.state&&state.ktAiDjRoom))return;
+    var room=document.querySelector('#screen .ktg9-room');
+    if(!room)return;
+    room.classList.add('kt-ai-dj-room');
+    var host=room.querySelector('.ktg9-host');
+    if(!host)return;
+    if(!host.querySelector('.kt-ai-dj-stage')){
+      var stage=document.createElement('div');
+      stage.className='kt-ai-dj-stage';
+      try{if(window.KT_AI_DJ_PHOTO)stage.style.backgroundImage='url("'+window.KT_AI_DJ_PHOTO+'")';}catch(e){}
+      var wave=document.createElement('div');wave.className='kt-ai-dj-wave';
+      var bars='';for(var x=0;x<36;x++)bars+='<i></i>';wave.innerHTML=bars;
+      stage.appendChild(wave);
+      host.appendChild(stage);
+    }
+    if(!room.querySelector('.kt-ai-dj-tools')){
+      var tools=document.createElement('div');
+      tools.className='kt-ai-dj-tools';
+      tools.innerHTML='<button type="button" onclick="ktAiDjOpenRequest20260927()">🎵 신청곡</button>'
+        +'<button type="button" onclick="if(window.ktSpeak)ktSpeak(\'안녕하세요. K-Talk AI 음악방입니다. 신청곡과 대화를 함께 즐겨 주세요.\')">🤖 AI 안내</button>'
+        +'<button type="button" class="kt-ai-dj-company" onclick="ktAiDjShowCompany20260927()">🏢 회사 코인</button>';
+      room.appendChild(tools);
+    }
+  }
+
+  /* 방송이 종료되면 다음 일반 9명방까지 AI 화면이 남지 않도록 해제 */
+  function cleanupFlag(){
+    if(!document.querySelector('#screen .ktg9-room')&&document.body.classList.contains('kt-home')){
+      try{if(window.state)state.ktAiDjRoom=false;}catch(e){}
+    }
+  }
+
+  installPick();decorate();
+  [100,300,700,1400,2500].forEach(function(ms){setTimeout(function(){installPick();decorate();},ms);});
+  setInterval(function(){installPick();decorate();cleanupFlag();},900);
+  try{
+    new MutationObserver(function(){setTimeout(function(){installPick();decorate();},30);})
+      .observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
 })();
 
 /* K-Talk 홈화면 아이콘 설치 전용. 다른 화면/방송 기능은 변경하지 않음. */
