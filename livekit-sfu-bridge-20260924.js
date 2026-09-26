@@ -11,7 +11,7 @@
   var TOKEN_URL='https://zupwbfmacwzexyvznlzq.supabase.co/functions/v1/ktalk-livekit-token';
   var SDK_URL='https://cdn.jsdelivr.net/npm/livekit-client@2.22.3/dist/livekit-client.umd.min.js';
 
-  var room=null,currentHostId='',currentRole='',currentRunId='',connecting=false;
+  var room=null,currentHostId='',currentRole='',currentRunId='',connecting=false,reconnectRetryTimer=null;
   var publishedVideoId='',publishedAudioId='',lastConnectAt=0;
   var approvedHostId='',watchHostId='',audioEls={},guestVideoById={};
   var sdkPromise=null;
@@ -453,7 +453,8 @@
     publishedVideoId='';publishedAudioId='';
   }
   async function disconnectRoom(){
-    var old=room;room=null;connecting=false;
+    var old=room;room=null;connecting=false;reconnectHoldUntil=0;
+    if(reconnectRetryTimer){clearTimeout(reconnectRetryTimer);reconnectRetryTimer=null;}
     setState({connected:false,connecting:false});
     clearRoomRefs();
     if(old){try{await old.disconnect(false);}catch(e){}}
@@ -514,7 +515,7 @@
       });
       if(LK.RoomEvent.Reconnecting)r.on(LK.RoomEvent.Reconnecting,function(){
         if(room===r){
-          reconnectHoldUntil=Date.now()+12000;
+          reconnectHoldUntil=Date.now()+18000;
           /* 화면은 그대로 두고 통신만 뒤에서 복구한다. */
           setState({connecting:true});
         }
@@ -522,17 +523,27 @@
       if(LK.RoomEvent.Reconnected)r.on(LK.RoomEvent.Reconnected,function(){
         if(room===r){
           reconnectHoldUntil=0;
+          if(reconnectRetryTimer){clearTimeout(reconnectRetryTimer);reconnectRetryTimer=null;}
           setState({connected:true,connecting:false});
         }
         [0,80,220].forEach(function(ms){setTimeout(reattachRemoteTracks,ms);});
       });
       r.on(LK.RoomEvent.Disconnected,function(){
         if(room===r){
-          reconnectHoldUntil=0;
+          /* 통신이 잠깐 떨어졌다고 화면/방을 바로 갈아엎지 않는다.
+             호스트/게스트 칸은 그대로 두고 18초 동안 같은 연결의 복귀를 기다린다.
+             실제 나가기/방송종료 신호는 disconnectRoom()으로 즉시 정리된다. */
+          reconnectHoldUntil=Date.now()+18000;
           connecting=false;
-          setState({connected:false,connecting:false});
-          /* 실제 완전 단절일 때만 새 연결을 만든다. */
-          setTimeout(hostTick,180);
+          setState({connected:false,connecting:true});
+          if(reconnectRetryTimer)clearTimeout(reconnectRetryTimer);
+          reconnectRetryTimer=setTimeout(function(){
+            reconnectRetryTimer=null;
+            if(room===r&&r.state!=='connected'){
+              reconnectHoldUntil=0;
+              setTimeout(hostTick,20);
+            }
+          },18200);
         }
       });
       try{r.prepareConnection(auth.url||DEFAULT_URL,auth.token);}catch(e){}
