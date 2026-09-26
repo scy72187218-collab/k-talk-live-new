@@ -1271,7 +1271,7 @@
         pc.__ktMediaAckGrace20260926++;
         var payload=pc.__ktGuestOfferPayload20260926||pc.__ktPreApprovalPayload||null;
         if(payload)try{sendCriticalMedia20260926('guest_offer',payload,hid);}catch(e){}
-        scheduleGuestMediaAckFallback20260926(hid,pc,session,950);
+        scheduleGuestMediaAckFallback20260926(hid,pc,session,450);
         return;
       }
 
@@ -1285,14 +1285,14 @@
         var r=window.ktRefreshTurnRelay&&window.ktRefreshTurnRelay();
         if(r&&typeof r.then==='function')r.then(retry).catch(retry);else retry();
       }catch(e){retry();}
-    },Math.max(800,Number(delay||1100)));
+    },Math.max(400,Number(delay||650)));
   }
 
   function scheduleGuestOfferRetries(hid,pc,payload){
     if(!pc||!payload)return;
     clearGuestOfferRetryTimers(pc);
     pc.__ktGuestOfferRetryTimers=[];
-    [180,450,900,1600].forEach(function(ms){
+    [40,120,280,600].forEach(function(ms){
       var t=setTimeout(function(){
         if(guestPc!==pc||guestSession!==payload.session_id||!guestApproved||guestApprovedHost!==hid)return;
         var cs=String(pc.connectionState||''),is=String(pc.iceConnectionState||'');
@@ -1389,6 +1389,35 @@
     }catch(e){return false;}
   }
 
+  function forceFreshApprovedGuestOffer20260926(hid){
+    hid=String(hid||'').trim();
+    if(!hid||!guestApproved||guestApprovedHost!==hid)return;
+    var live=false;
+    try{live=!!(guestStream&&guestStream.getVideoTracks&&guestStream.getVideoTracks().some(function(t){return t&&t.readyState==='live';}));}catch(e){}
+    if(!live){
+      var q=startGuestCamera(hid);
+      if(q&&q.then){
+        q.then(function(){setTimeout(function(){forceFreshApprovedGuestOffer20260926(hid);},20);}).catch(function(){});
+      }
+      return;
+    }
+
+    var pc=guestPc;
+    /* The pre-approval sendonly PC is useful for signalling warmup, but on
+       some Android phones replaceTrack() stays "connected" without producing
+       the first upstream frame. Replace only that PC with one real-track PC. */
+    if(pc&&pc.__ktPreApprovalPayload){
+      try{clearGuestMediaAckTimer20260926();}catch(e){}
+      try{clearGuestOfferRetryTimers(pc);}catch(e){}
+      try{closePc(pc);}catch(e){}
+      if(guestPc===pc){guestPc=null;guestSession='';}
+    }
+    if(!guestPc){
+      var r=makeGuestOffer(hid);
+      if(r&&r.catch)r.catch(function(){});
+    }
+  }
+
   async function makeGuestOffer(hid){
     if(!guestApproved||guestApprovedHost!==hid||!guestStream)return;
     if(guestPc&&['new','connecting','connected'].indexOf(String(guestPc.connectionState||''))>-1)return;
@@ -1437,7 +1466,7 @@
       pc.__ktGuestOfferPayload20260926=guestOfferPayload;
       sendCriticalMedia20260926('guest_offer',guestOfferPayload,hid);
       scheduleGuestOfferRetries(hid,pc,guestOfferPayload);
-      scheduleGuestMediaAckFallback20260926(hid,pc,guestSession,1300);
+      scheduleGuestMediaAckFallback20260926(hid,pc,guestSession,500);
 
       /* 연결 협상도 짧은 흔들림 때문에 계속 새로 만들지 않는다.
          10초 동안 기존 세션을 기다린 뒤 실제 연결이 없을 때만 재시도한다. */
@@ -1557,7 +1586,7 @@
       entry.answer=pc.localDescription.sdp;
       var guestAnswerPayload={host_id:DEVICE,viewer_id:vid,session_id:session,answer_sdp:entry.answer};
       sendCriticalMedia20260926('guest_answer',guestAnswerPayload,DEVICE);
-      [120,350,800,1600].forEach(function(ms){
+      [40,120,280,600].forEach(function(ms){
         setTimeout(function(){
           if(hostGuestPeers[vid]!==entry||entry.gotTrack)return;
           var cs=String(pc.connectionState||'');
@@ -1691,24 +1720,14 @@
       b.setAttribute('aria-label','참여 승인됨');
     }
 
-    /* 기존 승인 게스트 카메라가 준비되면 그 같은 스트림을 실시간 경로에도 붙인다.
-       카메라를 두 번 열지 않고, 호스트 수신 경로만 이중화한다. */
-    startGuestCamera(hid);
-    try{
-      var pa=guestPc&&guestPc.__ktPendingApprovalAnswer||null;
-      if(pa){
-        delete guestPc.__ktPendingApprovalAnswer;
-        var aq=guestHandleAnswer(pa);if(aq&&aq.catch)aq.catch(function(){});
-      }
-    }catch(e){}
-    [60,180].forEach(function(ms){
-      setTimeout(function(){
-        if(!guestApproved||guestApprovedHost!==hid)return;
-        var pc=guestPc;
-        var prepared=!!(pc&&pc.__ktPreApprovalActivated);
-        if(!prepared)startGuestCamera(hid);
-      },ms);
-    });
+    /* Communication only: the guest camera was already prewarmed at join.
+       Start the real-track uplink immediately; do not wait several seconds for
+       a pre-approval replaceTrack peer that may never paint on Android. */
+    var firstMedia=startGuestCamera(hid);
+    if(firstMedia&&firstMedia.catch)firstMedia.catch(function(){});
+    setTimeout(function(){
+      if(guestApproved&&guestApprovedHost===hid)forceFreshApprovedGuestOffer20260926(hid);
+    },30);
 
     try{
       window.dispatchEvent(new CustomEvent('kt-three-person-sync-now',{
