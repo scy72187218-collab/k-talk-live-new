@@ -1,13 +1,13 @@
 {
-  "version": 143,
+  "version": 144,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "main",
-  "snapshot_commit": "4414115355017aa653a76b8e60d9c622e3f5c43d",
+  "snapshot_commit": "fa36f2c835707fccb7fd339a33f944877d991bbc",
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "2026-09-26 owner PIN 1111: fixed only host/video communication role detection for visible active room. Host stream lookup now ignores hidden room DOM and reads the actual visible host room camera so viewer can receive host video. No UI/layout/buttons/guest-number/public-video changes. Relocked.",
+  "note": "2026-09-26 owner PIN 1111: fixed only host/video signaling role bridge. The active broadcast presence now marks the real host for the clean video transport, even if a stale remote-viewing class remains. This lets the host answer viewer video_watch and send the host camera. No UI/layout/buttons/guest-number/public-video changes. Relocked.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -98,7 +98,7 @@
   },
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "last_communication_fix": "2026-09-26-visible-host-room-camera-detect",
+  "last_communication_fix": "2026-09-26-host-presence-video-role-bridge",
   "last_video_feed_fix": "2026-09-26-clean-single-first-video-path",
   "locked_components": [
     "public-video-feed",
@@ -159,5 +159,5 @@
   "last_critical_touch_fix": "2026-09-24-critical-touch1",
   "last_livekit_cloud_prepare": "2026-09-25-edge-token-v2-env-first",
   "temporarily_unlocked": [],
-  "last_communication_lock": "2026-09-26-relock-visible-host-room-camera-fix-under-pin-1111"
+  "last_communication_lock": "2026-09-26-relock-host-presence-role-bridge-under-pin-1111"
 }
