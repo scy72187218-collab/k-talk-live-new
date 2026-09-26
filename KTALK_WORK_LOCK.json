@@ -1,13 +1,13 @@
 {
-  "version": 101,
+  "version": 102,
   "locked": true,
   "scope": "selective-approved-working-components-only",
-  "snapshot_branch": "saved-working-k-talk-20260924-video-connection-stable",
-  "snapshot_commit": "a5734b4231ded37045b12fb875eb82e2848906ce",
+  "snapshot_branch": "main",
+  "snapshot_commit": "448d50cf87406feef797dc6d356cd9fd161bad75",
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "LiveKit Cloud transition preparation completed under PIN 1111 and relocked. Supabase Edge Function ktalk-livekit-token v2 now prefers LIVEKIT_URL, LIVEKIT_API_KEY, and LIVEKIT_API_SECRET from server-side environment secrets. Until those Cloud credentials are configured, the existing development tunnel remains only as a fallback so current broadcasts do not break. No switches, rose, AI, public video feed, chat, gifts, or room layout were changed.",
+  "note": "2026-09-26 first public video fast-load state locked after replacing the failing first video source with a healthy source and skipping stale failed cache. PIN 1111 required for future changes to the first-video/public-video loading path. Other protected K-Talk components remain locked and unchanged.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -79,7 +79,9 @@
     "livekit_sfu_transport_bridge_only",
     "stale_guest_approval_auto_restore_guard_only",
     "public_video_first_load_speed_only",
-    "room_entry_exit_rejoin_stability_only"
+    "room_entry_exit_rejoin_stability_only",
+    "public_video_first_source",
+    "public_video_failed_cache_guard"
   ],
   "check_trigger_phrase": "K-톡 비밀번호 확인",
   "check_behavior": {
@@ -91,7 +93,7 @@
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
   "last_communication_fix": "2026-09-24-fast-request-approve-leave17",
-  "last_video_feed_fix": "2026-09-24-full-feed-after-first6",
+  "last_video_feed_fix": "2026-09-26-healthy-first-video-fast-source",
   "locked_components": [
     "public-video-feed",
     "first-video-fast-paint",
@@ -113,9 +115,11 @@
     "working-controls-unlock-guard",
     "switch-hit-bridge",
     "switch-touch-bridge",
-    "critical-touch-switch-rescue"
+    "critical-touch-switch-rescue",
+    "public-video-first-source",
+    "public-video-failed-cache-guard"
   ],
-  "last_video_feed_lock": "2026-09-24-video-feed-explicit-lock1",
+  "last_video_feed_lock": "2026-09-26-first-video-fast-state-lock",
   "last_switch_lock": "2026-09-24-all-switches-relock2",
   "last_switch_ai_fix": "2026-09-24-first-touch-switch-site-guide-ai2",
   "last_rose_ai_fix": "2026-09-24-rose-first-touch-guide-user-tap4",
