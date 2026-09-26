@@ -1,5 +1,5 @@
 {
-  "version": 115,
+  "version": 116,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "main",
@@ -7,7 +7,7 @@
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "2026-09-26 with owner PIN 1111: after guest approval, one tiny current camera-frame preview is sent immediately to the host tile while WebRTC finishes the live stream. The preview clears automatically when real guest video starts. No room layout, controls, public video, or unrelated features changed. Relocked.",
+  "note": "2026-09-26 with owner PIN 1111: guest join now prewarms only the camera before approval. No temporary sendonly WebRTC offer is created before approval. On approval any stale/preapproval guest peer is closed and one fresh real-track guest media connection starts immediately before approved-room DOM work. Existing first-frame preview remains. No room layout, controls, public video, or unrelated features changed. Relocked.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -98,7 +98,7 @@
   },
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "last_communication_fix": "2026-09-26-immediate-host-guest-first-frame-preview",
+  "last_communication_fix": "2026-09-26-fresh-real-guest-connection-on-approval",
   "last_video_feed_fix": "2026-09-26-smooth-first-video-no-src-rewrite",
   "locked_components": [
     "public-video-feed",
