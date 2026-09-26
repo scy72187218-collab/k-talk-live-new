@@ -42,6 +42,23 @@
       return !!(ts&&ts.some(function(t){return t.readyState==='live';}));
     }catch(e){return false;}
   }
+  function sameVideoSource20260926(a,b){
+    if(!a||!b)return false;
+    if(a===b)return true;
+    try{
+      var at=a.getVideoTracks&&a.getVideoTracks()[0];
+      var bt=b.getVideoTracks&&b.getVideoTracks()[0];
+      return !!(at&&bt&&at.id&&bt.id&&at.id===bt.id);
+    }catch(e){return false;}
+  }
+  function isRemoteHostStream20260926(st){
+    if(!st)return false;
+    try{
+      var list=[window.__ktRemoteHostStream,window.__ktLastApprovedGuestHostStream,hostStream];
+      for(var i=0;i<list.length;i++)if(sameVideoSource20260926(st,list[i]))return true;
+    }catch(e){}
+    return false;
+  }
 
   function guestEarnRate(){
     try{
@@ -187,8 +204,13 @@
     /* Approval changes the layout immediately. A missing stream reference is
        temporary and must not keep the device in the old one-person view. */
     var selfCandidate=null;
-    if(approvedSelf&&approvedSelf!==hostCandidate&&live(approvedSelf))selfCandidate=approvedSelf;
-    else if(mainStream&&mainStream!==hostCandidate&&live(mainStream))selfCandidate=mainStream;
+    if(approvedSelf&&live(approvedSelf)&&!isRemoteHostStream20260926(approvedSelf)&&!sameVideoSource20260926(approvedSelf,hostCandidate)){
+      selfCandidate=approvedSelf;
+    }else if(approvedSelf&&isRemoteHostStream20260926(approvedSelf)){
+      /* Never recycle the host receive stream as the guest's local camera. */
+      try{window.__ktApprovedGuestSelfStream=null;}catch(e){}
+      approvedSelf=null;
+    }
 
     if(hostCandidate){
       hostStream=hostCandidate;
@@ -359,7 +381,12 @@
         }
         var latestSelf=null;
         try{latestSelf=window.__ktApprovedGuestSelfStream||null;}catch(e){}
-        if(latestSelf&&latestSelf!==hostStream&&live(latestSelf))selfStream=latestSelf;
+        if(latestSelf&&live(latestSelf)&&!isRemoteHostStream20260926(latestSelf)&&!sameVideoSource20260926(latestSelf,hostStream)){
+          selfStream=latestSelf;
+        }else if(latestSelf&&isRemoteHostStream20260926(latestSelf)){
+          try{window.__ktApprovedGuestSelfStream=null;}catch(e){}
+          if(sameVideoSource20260926(selfStream,latestSelf))selfStream=null;
+        }
         if(sv&&selfStream&&live(selfStream)&&sv.srcObject!==selfStream){
           sv.srcObject=selfStream;
           try{var sp=sv.play();if(sp&&sp.catch)sp.catch(function(){});}catch(e){}
