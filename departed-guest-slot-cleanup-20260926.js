@@ -90,36 +90,7 @@
     }catch(_e){}
   },true);
 
-  /* Backup cleanup: a missed leave packet must not leave a permanent
-     "게스트 연결 중..." card. Live guest video is never removed. */
-  function sweep(){
-    try{
-      var now=Date.now();
-      document.querySelectorAll(
-        '#screen [data-kt-direct-guest],#screen [data-kt-guest-viewer-id]'
-      ).forEach(function(slot){
-        var vid=String(slot.dataset.ktDirectGuest||slot.dataset.ktGuestViewerId||'').trim();
-        if(!vid)return;
-
-        if(liveVideo(slot)){
-          slot.dataset.ktGuestLastLive20260926=String(now);
-          delete slot.dataset.ktGuestGoneSince20260926;
-          return;
-        }
-
-        var gone=Number(slot.dataset.ktGuestGoneSince20260926||0);
-        if(!gone){
-          slot.dataset.ktGuestGoneSince20260926=String(now);
-          return;
-        }
-
-        var hadLive=Number(slot.dataset.ktGuestLastLive20260926||0)>0;
-        var wait=hadLive?8000:20000;
-        if(now-gone>=wait)clearViewer(vid);
-      });
-    }catch(e){}
-  }
-
-  setInterval(sweep,1000);
-  setTimeout(sweep,300);
+  /* Do not clear a guest just because video frames pause for a few seconds.
+     Mobile WebRTC can temporarily report no live video while reconnecting.
+     A slot is cleared only by an explicit guest-left/cancel signal above. */
 })();
