@@ -775,13 +775,9 @@
   }
   function isHostRole(){
     try{
-      /* Presence owner is the real broadcaster. This survives a stale
-         kt-remote-viewing class and lets the host answer viewer video_watch. */
-      if(window.__ktHostPresenceActive20260926===true)return true;
-
-      /* Guest/viewer always stays viewer even though its room UI mirrors host layout. */
-      if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
-
+      /* Communication role only: a visible local broadcast room is the host.
+         Do not wait for camera srcObject before joining the signaling channel;
+         viewer watch retries will pick up the stream as soon as the camera is live. */
       var local=roomEl(),visible=false;
       try{
         if(local){
@@ -789,16 +785,7 @@
           visible=st.display!=='none'&&st.visibility!=='hidden'&&(!local.getClientRects||local.getClientRects().length>0);
         }
       }catch(_e){visible=!!local;}
-
-      /* Host camera can live either in state.stream OR directly on the room video.
-         Use the same real stream detector used by hostOfferToViewer. */
-      var liveLocal=false;
-      try{
-        var hs=hostStream();
-        liveLocal=!!(hs&&hs.getVideoTracks&&hs.getVideoTracks().some(function(t){return t&&t.readyState==='live';}));
-      }catch(_e){}
-
-      if(visible&&liveLocal){
+      if(visible){
         try{
           window.__ktRemoteHostId='';
           window.__ktCurrentRemoteHostId='';
@@ -806,7 +793,7 @@
         }catch(_e){}
         return true;
       }
-
+      if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
       var rh='';
       try{rh=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||sessionStorage.getItem('kt_remote_host_id')||'').trim();}catch(_e){}
       if(rh)return false;
