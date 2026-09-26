@@ -177,6 +177,7 @@
   async function renderLiveCards(){
     ensureStyle();
     var rooms=await activeRooms();
+    try{window.__ktLiveRoomsSnapshot20260926=(rooms||[]).slice();}catch(e){}
     cacheLiveRooms20260924(rooms);
     var counts=await viewerCounts();
     var dash=document.querySelector('.kt-dashboard');
