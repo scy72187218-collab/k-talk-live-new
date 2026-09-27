@@ -80,7 +80,7 @@
         p_room_title:String(t.roomTitle||((window.state&&(state.currentLiveRoomTitle||state.liveRoomName))||'K-Talk LIVE')),
         p_room_type:roomType(),
         p_amount:Math.max(1,parseInt(t.amount||50,10)||50),
-        p_unlock_at:new Date(Number(t.unlockAt||Date.now()+150000)).toISOString()
+        p_unlock_at:new Date(Date.now()+180000).toISOString()
       });
       var id=Array.isArray(out)?out[0]:out;
       if(id&&typeof id==='object')id=id.ktalk_publish_treasure||id.id||'';
@@ -153,14 +153,14 @@
     if(!b){b=document.createElement('button');b.type='button';b.id='ktGlobalTreasureHostBadge';b.className='kt-global-treasure-hostbadge';box.appendChild(b);}
     if(b.parentElement!==box)box.appendChild(b);
     b.dataset.eventId=ev.id;
-    var left=Math.max(0,ms(ev.claim_close_at)-now()),ready=left>0;
+    var left=Math.max(0,ms(ev.unlock_at)-now()),ready=left>0;
     b.classList.toggle('ready',ready);
     b.innerHTML='<span class="ico">🎁</span><strong>'+ev.amount+'개</strong><small>'+fmt(left)+'</small>';
     var led=roomLed(root);
     if(led){
       if(led.dataset.ktTreasureLedOriginal==null)led.dataset.ktTreasureLedOriginal=led.innerHTML;
       led.dataset.ktTreasureEventId=ev.id;
-      led.innerHTML='🎁 보물상자 '+ev.amount+'개 · 남은 시간 '+fmt(left)+' · 눌러서 받기';
+      led.innerHTML='🎁 보물상자 '+ev.amount+'개 · '+fmt(left)+' 후 참여자 중 당첨';
       if(led.parentElement)led.parentElement.classList.add('kt-global-treasure-led');
     }
   }
@@ -174,10 +174,10 @@
     if(!b){b=document.createElement('button');b.type='button';b.id='ktGlobalTreasureViewBadge';b.className='kt-global-treasure-viewbadge';root.appendChild(b);}
     if(b.parentElement!==root)root.appendChild(b);
     b.dataset.eventId=ev.id;
-    var left=Math.max(0,ms(ev.claim_close_at)-now()),ready=left>0;
+    var left=Math.max(0,ms(ev.unlock_at)-now()),ready=left<=0;
     b.classList.toggle('ready',ready);
     var joined=false;try{joined=localStorage.getItem('ktalk_treasure_joined:'+ev.id)==='1';}catch(e){}
-    b.innerHTML='<span class="ico">🎁</span><strong>'+ev.amount+'개</strong><small>'+(joined?'참여완료':('받기 · '+fmt(left)))+'</small>';
+    b.innerHTML='<span class="ico">🎁</span><strong>'+ev.amount+'개</strong><small>'+(left>0?('기다리기 · '+fmt(left)):(joined?'당첨 확인':'참여하기'))+'</small>';
   }
 
   function paintGlobalAlert(){
@@ -207,8 +207,8 @@
       }
       a.style.setProperty('top',(baseTop+(i*58))+'px','important');
       a.dataset.eventId=ev.id;
-      var left=Math.max(0,ms(ev.claim_close_at)-now());
-      a.innerHTML='<span class="chest">🎁</span><span><b>'+String(ev.host_name||'호스트')+' 방</b> 보물상자 '+ev.amount+'개 떴습니다<br><span class="time">남은 시간 '+fmt(left)+'</span> · 눌러서 방송방 입장</span>';
+      var left=Math.max(0,ms(ev.unlock_at)-now());
+      a.innerHTML='<span class="chest">🎁</span><span><b>'+String(ev.host_name||'호스트')+' 방</b> 보물상자 '+ev.amount+'개<br><span class="time">'+fmt(left)+' 후 당첨</span> · 눌러서 방에 들어가 기다리기</span>';
     });
     document.querySelectorAll('.kt-global-treasure-alert').forEach(function(a){
       if(!keep[a.id])a.remove();
@@ -261,6 +261,11 @@
   async function claimEvent(id){
     var ev=eventById(id);if(!ev){await fetchEvents();ev=eventById(id);}if(!ev)return;
     if(now()>=ms(ev.claim_close_at)){alert('이 보물상자는 마감되었습니다.');return;}
+    if(now()<ms(ev.unlock_at)){
+      try{localStorage.setItem('ktalk_treasure_waiting:'+ev.id,'1');}catch(e){}
+      alert('🎁 참여 대기 완료! 3분이 끝나면 당첨 확인이 열립니다.');
+      return;
+    }
     var p=profile(),viewer='viewer_'+deviceId();
     try{
       var out=await rpc('ktalk_claim_treasure',{p_event_id:ev.id,p_viewer_id:viewer,p_viewer_name:p.name||'K-Talk 회원'});
@@ -268,7 +273,7 @@
       if(row&&row.ok){
         try{localStorage.setItem('ktalk_treasure_joined:'+ev.id,'1');}catch(e){}
         paintViewerBadge();
-        alert('🎁 보물상자 참여 완료! 시간이 끝나면 장미가 나눠집니다.');
+        alert('🎁 보물상자 참여 완료! 참여자 중 당첨 결과를 확인해 주세요.');
         var delay=Math.max(600,ms(ev.claim_close_at)-now()+700);
         setTimeout(function(){settleAndReward(ev);},delay);
       }else if(row&&row.state==='waiting')alert('아직 보물상자가 열리지 않았습니다.');
@@ -300,6 +305,16 @@
     installPublishWraps();
     try{var local=window.ktGetTreasure?ktGetTreasure():null;if(local)publishLocalTreasure(local);}catch(e){}
     await fetchEvents();
+    latestEvents.forEach(function(ev){
+      try{
+        if(now()>=ms(ev.unlock_at)&&now()<ms(ev.claim_close_at)&&
+           localStorage.getItem('ktalk_treasure_waiting:'+ev.id)==='1'&&
+           localStorage.getItem('ktalk_treasure_joined:'+ev.id)!=='1'){
+          localStorage.removeItem('ktalk_treasure_waiting:'+ev.id);
+          claimEvent(ev.id);
+        }
+      }catch(e){}
+    });
     var expired=latestEvents.filter(function(ev){return ev&&now()>=ms(ev.claim_close_at);});
     expired.forEach(function(ev){settleAndReward(ev);});
     latestEvents=latestEvents.filter(function(ev){return ev&&now()<ms(ev.claim_close_at);});
