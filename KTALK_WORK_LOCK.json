@@ -1,9 +1,9 @@
 {
-  "version": 158,
+  "version": 159,
   "locked": true,
   "scope": "full_snapshot_guard",
-  "lock_slot": 8,
-  "unlock_requires_pin": false,
+  "lock_slot": 9,
+  "unlock_requires_pin": true,
   "runtime_controls_remain_usable": true,
   "default_policy": "locked_except_runtime_controls",
   "protected_components": [
@@ -24,7 +24,14 @@
     "person_photo_inline_gifts",
     "rose_sender_history",
     "song_guest_mic_auto_lock",
-    "bottom_camera_mic_movie"
+    "bottom_camera_mic_movie",
+    "current_full_state_20260928_rewards_and_payouts",
+    "signup_adult_verified_300_coin_reward",
+    "friend_2hour_5day_300_coin_mission",
+    "rose_30won_payout_rules",
+    "raffle_and_charge_benefits",
+    "host_premium_gift_clip_recorder",
+    "host_only_instant_video_return"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -44,11 +51,18 @@
     "person_photo_inline_gifts",
     "rose_sender_history",
     "song_guest_mic_auto_lock",
-    "bottom_camera_mic_movie"
+    "bottom_camera_mic_movie",
+    "current_full_state_20260928_rewards_and_payouts",
+    "signup_adult_verified_300_coin_reward",
+    "friend_2hour_5day_300_coin_mission",
+    "rose_30won_payout_rules",
+    "raffle_and_charge_benefits",
+    "host_premium_gift_clip_recorder",
+    "host_only_instant_video_return"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "2026-09-28 final snapshot: all current K-Talk features are protected. Runtime switches/buttons must remain usable; work lock protects code/state only and must not disable user controls.",
+  "note": "2026-09-28 snapshot protected with PIN verification. Runtime buttons/switches remain usable; protection applies to approved code/state only.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -78,8 +92,18 @@
       "rose_sender_history",
       "song_guest_mic_auto_lock",
       "bottom_camera_mic_movie"
+    ],
+    "9": [
+      "current_full_state_20260928_rewards_and_payouts",
+      "signup_adult_verified_300_coin_reward",
+      "friend_2hour_5day_300_coin_mission",
+      "rose_30won_payout_rules",
+      "raffle_and_charge_benefits",
+      "host_premium_gift_clip_recorder",
+      "host_only_instant_video_return"
     ]
   },
   "last_unlock": "2026-09-27-solo-countdown-only-code-5555",
-  "last_lock": "2026-09-28-all-current-features-final"
+  "last_lock": "2026-09-28-rewards-payouts-and-current-state-pin",
+  "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
