@@ -367,7 +367,7 @@ document.getElementById('chat').addEventListener('keydown',e=>{if(e.key==='Enter
     if(master&&audioCtx){
       try{
         master.gain.cancelScheduledValues(audioCtx.currentTime);
-        master.gain.linearRampToValueAtTime(low?.011:.032,audioCtx.currentTime+.12);
+        master.gain.linearRampToValueAtTime(low ? .011 : .032,audioCtx.currentTime+.12);
       }catch(e){}
     }
     if(!low){
