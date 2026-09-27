@@ -62,9 +62,13 @@
       +'.kt-global-treasure-viewbadge{position:absolute!important;right:10px!important;top:76px!important;z-index:20!important;width:66px!important;min-height:72px!important;border:2px solid #ffd45b!important;border-radius:18px!important;background:rgba(26,16,5,.92)!important;color:#fff!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:2px!important;padding:5px!important;box-shadow:0 0 13px #ffb00099!important;font:950 10px/1.05 system-ui,-apple-system,"Noto Sans KR",sans-serif!important}'
       +'.kt-global-treasure-viewbadge .ico{font-size:31px!important}.kt-global-treasure-viewbadge strong{color:#ffe052!important}.kt-global-treasure-viewbadge.ready{animation:ktTreasurePulse .8s ease-in-out infinite alternate!important}'
       +'.kt-global-treasure-led{cursor:pointer!important}'
-      +'@media(max-width:390px){.kt-global-treasure-alert{top:68px;font-size:12px;padding:6px 9px}.kt-global-treasure-hostbadge{width:51px!important;min-height:54px!important;left:6px!important;right:auto!important;top:68px!important}.kt-global-treasure-viewbadge{width:60px!important;min-height:66px!important;right:7px!important}}';
+      +'@media(max-width:390px){.kt-global-treasure-alert{top:68px;font-size:12px;padding:6px 9px}.kt-global-treasure-hostbadge{width:51px!important;min-height:54px!important;right:6px!important;left:auto!important;top:64px!important}.kt-global-treasure-viewbadge{width:60px!important;min-height:66px!important;right:7px!important}}';
     document.head.appendChild(s);
   }
+
+
+  /* 2026-09-27: 3분 보물상자 방 홍보 표시 */
+  window.ktTreasurePromotion20260927=true;
 
   function localMarker(localId){try{return localStorage.getItem('ktalk_treasure_global_id:'+String(localId||''))||'';}catch(e){return '';}}
   function saveLocalMarker(localId,id){try{localStorage.setItem('ktalk_treasure_global_id:'+String(localId||''),String(id||''));}catch(e){}}
@@ -155,12 +159,12 @@
     b.dataset.eventId=ev.id;
     var left=Math.max(0,ms(ev.unlock_at)-now()),ready=left>0;
     b.classList.toggle('ready',ready);
-    b.innerHTML='<span class="ico">🎁</span><strong>'+ev.amount+'개</strong><small>'+fmt(left)+'</small>';
+    b.innerHTML='<span class="ico">🎁</span><strong>보물상자</strong><small>'+fmt(left)+'</small>';
     var led=roomLed(root);
     if(led){
       if(led.dataset.ktTreasureLedOriginal==null)led.dataset.ktTreasureLedOriginal=led.innerHTML;
       led.dataset.ktTreasureEventId=ev.id;
-      led.innerHTML='🎁 보물상자 '+ev.amount+'개 · '+fmt(left)+' 후 참여자 중 당첨';
+      led.innerHTML='🎁 보물상자 떴습니다 · '+fmt(left)+' 남음 · 눌러서 이 방으로 입장';
       if(led.parentElement)led.parentElement.classList.add('kt-global-treasure-led');
     }
   }
@@ -208,7 +212,7 @@
       a.style.setProperty('top',(baseTop+(i*58))+'px','important');
       a.dataset.eventId=ev.id;
       var left=Math.max(0,ms(ev.unlock_at)-now());
-      a.innerHTML='<span class="chest">🎁</span><span><b>'+String(ev.host_name||'호스트')+' 방</b> 보물상자 '+ev.amount+'개<br><span class="time">'+fmt(left)+' 후 당첨</span> · 눌러서 방에 들어가 기다리기</span>';
+      a.innerHTML='<span class="chest">🎁</span><span><b>'+String(ev.host_name||'호스트')+' 방</b>에 보물상자 떴습니다<br><span class="time">'+fmt(left)+' 남음</span> · 누르면 바로 그 방으로 이동</span>';
     });
     document.querySelectorAll('.kt-global-treasure-alert').forEach(function(a){
       if(!keep[a.id])a.remove();
