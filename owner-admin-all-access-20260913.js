@@ -48,19 +48,25 @@
     if(!detected())return false;
     try{
       if(window.state){
-        state.level=1000;
-        state.userLevel=1000;
-        state.memberLevel=1000;
-        state.hostLevel=1000;
+        state.level=10000;
+        state.userLevel=10000;
+        state.memberLevel=10000;
+        state.hostLevel=10000;
         state.ktOwnerLevelBypass=true;
         state.ktOwnerAdmin=true;
         state.ktOwnerGiftPermission=true;
+        state.roses=500000;
+        state.roseBalance=500000;
+        state.receivedRoses=500000;
+        state.ktOwnerFixedRoses=500000;
       }
     }catch(e){}
     try{
-      ['ktalk_level','ktalk_user_level','ktalk_member_level','ktalk_host_level','level','userLevel','memberLevel','hostLevel'].forEach(function(k){localStorage.setItem(k,'1000');});
+      ['ktalk_level','ktalk_user_level','ktalk_member_level','ktalk_host_level','level','userLevel','memberLevel','hostLevel'].forEach(function(k){localStorage.setItem(k,'10000');});
       localStorage.setItem('ktalk_owner_admin','1');
       localStorage.setItem('ktalk_owner_gift_permission','1');
+      ['ktalk_rose_balance','ktalk_roses','ktalk_received_roses','roseBalance','roses'].forEach(function(k){localStorage.setItem(k,'500000');});
+      localStorage.setItem('ktalk_owner_fixed_roses','500000');
     }catch(e){}
     return true;
   }
@@ -77,7 +83,7 @@
 
   var oldEffective=window.ktEffectiveLevel;
   window.ktEffectiveLevel=function(level){
-    if(apply())return 1000;
+    if(apply())return 10000;
     if(typeof oldEffective==='function')return oldEffective.apply(this,arguments);
     var lv=parseInt(level,10);return isFinite(lv)&&lv>0?lv:1;
   };
