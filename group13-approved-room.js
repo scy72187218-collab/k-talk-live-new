@@ -277,6 +277,19 @@
     /* 카메라 준비 실패가 카운트다운 자체를 깨지 않게 한다. */
     startPromise.catch(function(){});
 
+    /* 원래 방식 복구:
+       13명방 화면을 먼저 실제로 그려 놓고, 그 열린 방 위에서 5→4→3→2→1을 보여준다.
+       검은 준비 화면을 먼저 보여주지 않는다. */
+    try{
+      if(window.creator)creator.classList.remove('show','live-prep-open');
+    }catch(e){}
+    renderApprovedGroup13(true);
+    await new Promise(function(resolve){
+      requestAnimationFrame(function(){
+        requestAnimationFrame(resolve);
+      });
+    });
+
     var old=document.getElementById('ktLiveCountdown');
     if(old)old.remove();
 
@@ -315,11 +328,13 @@
 
     try{if(wrap&&wrap.parentNode)wrap.parentNode.removeChild(wrap);}catch(e){}
 
-    /* 1초가 끝난 바로 그 순간 현재 13명방을 그린다. */
+    /* 방은 이미 카운트 전에 열려 있으므로 다시 그리지 않는다.
+       숫자 1이 끝나면 가드만 풀어 같은 방 화면을 그대로 유지한다. */
     try{
-      if(window.creator)creator.classList.remove('show','live-prep-open');
+      document.documentElement.classList.remove('kt-g13-opening');
+      clearTimeout(window.__ktG13OpeningFailsafe);
+      clearTimeout(window.__ktG13OpeningRelease);
     }catch(e){}
-    renderApprovedGroup13(false);
     window.__ktGroup13CountdownInProgress=false;
 
     function attachReadyCamera(){
