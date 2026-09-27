@@ -1017,10 +1017,28 @@
         },ms);
       });
 
-      /* 기존 영상이 살아 있으면 새 연결 확인 동안 화면을 유지한다.
-         기존 영상이 없는 최초 연결은 빠르게 재시도한다. */
-      if(!previousUsable)retryViewerSoon(900);
-      else setTimeout(function(){
+      /* 느린 휴대폰은 첫 ICE 연결에 1초 이상 걸릴 수 있다.
+         연결 중인 PeerConnection을 900ms에 끊으면 오히려 계속 처음부터
+         다시 시작하므로, 같은 answer를 재전송하면서 현재 연결을 유지한다.
+         별도 memory fallback도 병렬로 준비되므로 검은 화면만 줄인다. */
+      if(!previousUsable){
+        setTimeout(function(){
+          if(viewerPc!==pc||viewerConnected||pc.__ktGotRemoteTrack20260923)return;
+          var cs=String(pc.connectionState||'');
+          var ice=String(pc.iceConnectionState||'');
+          if(cs==='new'||cs==='connecting'||ice==='new'||ice==='checking'){
+            try{sendCriticalMedia20260926('video_answer',firstAnswer,hid);}catch(_e){}
+            return;
+          }
+          retryViewerSoon(180);
+        },2400);
+        setTimeout(function(){
+          if(viewerPc!==pc||viewerConnected||pc.__ktGotRemoteTrack20260923)return;
+          try{closePc(pc);}catch(_e){}
+          if(viewerPc===pc){viewerPc=null;viewerSession='';viewerConnected=false;}
+          retryViewerSoon(180);
+        },5200);
+      }else setTimeout(function(){
         if(viewerPc===pc&&!pc.__ktGotRemoteTrack20260923&&pc.connectionState!=='connected'){
           try{closePc(pc);}catch(e){}
           viewerPc=previousPc;
