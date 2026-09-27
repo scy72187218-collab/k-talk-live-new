@@ -1,5 +1,5 @@
 {
-  "version": 160,
+  "version": 161,
   "locked": true,
   "scope": "full_snapshot_guard",
   "lock_slot": 9,
@@ -32,7 +32,8 @@
     "raffle_and_charge_benefits",
     "host_premium_gift_clip_recorder",
     "host_only_instant_video_return",
-    "all_rooms_stats_second_row_flip_treasure_match_20260928"
+    "all_rooms_stats_second_row_flip_treasure_match_20260928",
+    "owner_taekwon1_haine2_level10000_roses500000_multidevice"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -60,11 +61,12 @@
     "raffle_and_charge_benefits",
     "host_premium_gift_clip_recorder",
     "host_only_instant_video_return",
-    "all_rooms_stats_second_row_flip_treasure_match_20260928"
+    "all_rooms_stats_second_row_flip_treasure_match_20260928",
+    "owner_taekwon1_haine2_level10000_roses500000_multidevice"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "2026-09-28: 1인/9명/13명/구독자/비밀방의 일일 랭킹·미션·시청자 수 바로 아래 되돌리기/보물상자/매치 가로줄까지 PIN 2222 잠금에 포함. 런타임 버튼 작동은 유지.",
+  "note": "현재 저장본 기준 유지. 태권1/하이네2는 여러 기기에서 동일 관리자 프로필로 취급하고 레벨 10000, 장미 500000송이, 비연령 관리자 제한 예외를 고정. 성인/연령 인증 우회는 포함하지 않음.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -103,10 +105,11 @@
       "raffle_and_charge_benefits",
       "host_premium_gift_clip_recorder",
       "host_only_instant_video_return",
-      "all_rooms_stats_second_row_flip_treasure_match_20260928"
+      "all_rooms_stats_second_row_flip_treasure_match_20260928",
+      "owner_taekwon1_haine2_level10000_roses500000_multidevice"
     ]
   },
   "last_unlock": "2026-09-27-solo-countdown-only-code-5555",
-  "last_lock": "2026-09-28-all-room-stats-second-row-pin-2222",
+  "last_lock": "2026-09-28-owner-multidevice-level10000-roses500000",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
