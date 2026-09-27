@@ -143,12 +143,17 @@
       var out=await rpc('ktalk_host_face_like_status',{p_host_id:hostId});
       var row=Array.isArray(out)?out[0]:out;
       if(!row)return;
-      var rewarded=parseInt(row.roses_rewarded||0,10)||0;
+      /* 회사 좋아요 보상 최종 규칙:
+         5,000 / 10,000 / 15,000 / 20,000 / 25,000 좋아요마다 장미 1송이.
+         25,000 이후 좋아요는 계속 누적되지만 회사 추가 보상은 없음. */
+      var likes=parseInt(row.likes||0,10)||0;
+      var rewarded=Math.min(5,Math.floor(Math.max(0,likes)/5000));
       var key='ktalk_host_like_reward_seen:'+hostId;
       var seen=0;
       try{seen=parseInt(localStorage.getItem(key)||'0',10)||0;}catch(e){}
+      seen=Math.max(0,Math.min(5,seen));
       if(rewarded>seen){
-        var delta=rewarded-seen;
+        var delta=Math.min(5-seen,rewarded-seen);
         try{localStorage.setItem(key,String(rewarded));}catch(e){}
         addRoseToVisibleHost(delta);
         try{if(window.ktAnnounceEvent)window.ktAnnounceEvent('reward',{text:'K-Talk 좋아요 보상으로 장미 '+delta+'송이를 받았습니다.'});}catch(e){}
