@@ -282,7 +282,7 @@
 
     var wrap=document.createElement('div');
     wrap.id='ktLiveCountdown';
-    wrap.style.cssText='position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;background:transparent;pointer-events:none;';
+    wrap.style.cssText='position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;background:transparent;pointer-events:none;';
     var num=document.createElement('div');
     num.style.cssText='width:116px;height:116px;border-radius:50%;display:grid;place-items:center;background:rgba(10,10,14,.72);border:4px solid rgba(255,255,255,.92);color:#fff;font:900 64px/1 system-ui,-apple-system,sans-serif;box-shadow:0 0 28px rgba(255,44,130,.7);text-shadow:0 0 12px rgba(255,255,255,.7);transition:transform .18s ease;';
     wrap.appendChild(num);
