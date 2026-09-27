@@ -1,5 +1,5 @@
 {
-  "version": 167,
+  "version": 168,
   "locked": true,
   "scope": "full_snapshot_guard",
   "lock_slot": 9,
@@ -39,7 +39,8 @@
     "host_like_reward_5000_steps_max5_roses_25000",
     "followed_guest_large_photo_30likes_10min_max5roses",
     "complete_usage_benefits_guide_current_rules_20260928",
-    "daily_fortune_ladder_6_free_once_per_day"
+    "daily_fortune_ladder_6_free_once_per_day",
+    "daily_fortune_ladder_selected_number_animated_positive_fortunes"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -74,11 +75,12 @@
     "host_like_reward_5000_steps_max5_roses_25000",
     "followed_guest_large_photo_30likes_10min_max5roses",
     "complete_usage_benefits_guide_current_rules_20260928",
-    "daily_fortune_ladder_6_free_once_per_day"
+    "daily_fortune_ladder_6_free_once_per_day",
+    "daily_fortune_ladder_selected_number_animated_positive_fortunes"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "현재 저장본 기준: 방 만들기 화면 비밀방 옆에 오늘의 운세·장미따먹기 버튼. 6줄 사다리, 무료, 하루 1회, 결과 장미 1~5송이 또는 꽝, 짧은 운세 표시.",
+  "note": "현재 저장본 기준: 하루 1회 무료 오늘의 운세 사다리. 사용자가 1~6 중 번호 선택, 선택한 줄에서 실제 사다리를 좌우로 따라 내려가 결과 칸 도착. 결과 장미 1~5송이 또는 꽝. 운세는 긍정적인 문구 위주.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -124,10 +126,11 @@
       "host_like_reward_5000_steps_max5_roses_25000",
       "followed_guest_large_photo_30likes_10min_max5roses",
       "complete_usage_benefits_guide_current_rules_20260928",
-      "daily_fortune_ladder_6_free_once_per_day"
+      "daily_fortune_ladder_6_free_once_per_day",
+      "daily_fortune_ladder_selected_number_animated_positive_fortunes"
     ]
   },
   "last_unlock": "2026-09-27-solo-countdown-only-code-5555",
-  "last_lock": "2026-09-28-daily-fortune-ladder",
+  "last_lock": "2026-09-28-daily-fortune-animated-selected-number",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
