@@ -149,6 +149,16 @@
     return s;
   }
 
+  function luckyNumbers20260928(){
+    var nums=[];
+    while(nums.length<6){
+      var n=1+Math.floor(Math.random()*99);
+      if(nums.indexOf(n)<0)nums.push(n);
+    }
+    nums.sort(function(a,b){return a-b;});
+    return nums;
+  }
+
   function outcomeLabels(){
     return ['🌹 1개','🌹 2개','🌹 3개','🌹 4개','🌹 5개','꽝'];
   }
@@ -205,12 +215,14 @@
         var slot=trace.endIndex;
         var reward=slot===5?0:slot+1;
         var fortune=fortunes[Math.floor(Math.random()*fortunes.length)]||fortunes[0];
+        var lucky=luckyNumbers20260928();
         var result=reward?('🌹 장미 '+reward+'송이 당첨!'):'꽝! 오늘은 좋은 운세를 받아가세요.';
         if(reward)addRoses(reward);
         setTimeout(function(){
           var html=''
             +'<div class="rowbox" style="text-align:center;border-color:#ffe071;background:rgba(255,224,113,.08)"><b>🎉 '+startNumber+'번에서 출발해 '+(slot+1)+'번에 도착</b><br><span style="font-size:18px;font-weight:950">'+result+'</span></div>'
             +'<div class="rowbox"><b>🔮 오늘의 운세</b><br>'+fortune+'</div>'
+            +'<div class="rowbox"><b>✨ 오늘의 행운 숫자</b><br><span style="font-size:17px;font-weight:950;letter-spacing:3px">'+lucky.join(' · ')+'</span><br><small>재미로 보는 운세용 숫자입니다.</small></div>'
             +'<div class="rowbox"><b>참여 완료</b><br>오늘은 1회 참여가 끝났습니다. 내일 다시 이용할 수 있습니다.</div>';
           try{
             if(typeof window.showSheet==='function')window.showSheet('🎯 오늘의 운세 결과',html);
