@@ -260,95 +260,32 @@
   window.startBroadcast=async function(){
     if(!isGroup13())return oldStartBroadcast.apply(this,arguments);
 
-    /* 13명방 전용:
-       5→4→3→2→1은 실제 경과시간 5초로 정확히 끝내고,
-       카메라는 그 5초 동안 뒤에서 미리 준비한다.
-       1이 끝나는 순간 현재 13명방과 카메라를 바로 보여준다. */
-    window.__ktGroup13CountdownInProgress=true;
     markGroup13Opening();
 
     var self=this,args=arguments;
-    var startPromise;
-    try{
-      startPromise=Promise.resolve(oldStartBroadcast.apply(self,args));
-    }catch(e){
-      startPromise=Promise.reject(e);
-    }
-    /* 카메라 준비 실패가 카운트다운 자체를 깨지 않게 한다. */
-    startPromise.catch(function(){});
+    var result=await Promise.resolve(oldStartBroadcast.apply(self,args));
 
-    var old=document.getElementById('ktLiveCountdown');
-    if(old)old.remove();
-
-    var wrap=document.createElement('div');
-    wrap.id='ktLiveCountdown';
-    wrap.style.cssText='position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;background:transparent;pointer-events:none;';
-    var num=document.createElement('div');
-    num.style.cssText='width:116px;height:116px;border-radius:50%;display:grid;place-items:center;background:rgba(10,10,14,.72);border:4px solid rgba(255,255,255,.92);color:#fff;font:900 64px/1 system-ui,-apple-system,sans-serif;box-shadow:0 0 28px rgba(255,44,130,.7);text-shadow:0 0 12px rgba(255,255,255,.7);transition:transform .18s ease;';
-    wrap.appendChild(num);
-    document.body.appendChild(wrap);
-
-    await new Promise(function(resolve){
-      var started=performance.now();
-      var last=0;
-      num.textContent='5';
-
-      function frame(now){
-        var elapsed=Math.max(0,now-started);
-        if(elapsed>=5000){
-          resolve();
-          return;
-        }
-        var next=Math.max(1,5-Math.floor(elapsed/1000));
-        if(next!==last){
-          last=next;
-          num.textContent=String(next);
-          num.style.transform='scale(1)';
-          setTimeout(function(){
-            try{if(num&&num.isConnected)num.style.transform='scale(.92)';}catch(e){}
-          },620);
-        }
-        requestAnimationFrame(frame);
-      }
-      requestAnimationFrame(frame);
-    });
-
-    try{if(wrap&&wrap.parentNode)wrap.parentNode.removeChild(wrap);}catch(e){}
-
-    /* 1초가 끝난 바로 그 순간 현재 13명방을 그린다. */
     try{
       if(window.creator)creator.classList.remove('show','live-prep-open');
     }catch(e){}
-    renderApprovedGroup13(false);
-    window.__ktGroup13CountdownInProgress=false;
 
-    function attachReadyCamera(){
-      try{
-        var v=document.getElementById('ktLiveVideo');
-        var s=(window.state&&state.stream)||((document.getElementById('camera')||{}).srcObject)||null;
-        if(v&&s){
-          v.autoplay=true;v.muted=true;v.defaultMuted=true;v.playsInline=true;
-          v.setAttribute('autoplay','');v.setAttribute('muted','');v.setAttribute('playsinline','');
-          if(v.srcObject!==s)v.srcObject=s;
-          var p=v.play();if(p&&p.catch)p.catch(function(){});
-        }
-      }catch(e){}
-    }
-    attachReadyCamera();
+    renderApprovedGroup13(false);
 
     try{
-      var result=await startPromise;
-      attachReadyCamera();
-      return result;
-    }catch(e){
-      attachReadyCamera();
-      throw e;
-    }finally{
-      window.__ktGroup13CountdownInProgress=false;
-    }
+      var v=document.getElementById('ktLiveVideo');
+      var s=(window.state&&state.stream)||((document.getElementById('camera')||{}).srcObject)||null;
+      if(v&&s){
+        v.autoplay=true;v.muted=true;v.defaultMuted=true;v.playsInline=true;
+        v.setAttribute('autoplay','');v.setAttribute('muted','');v.setAttribute('playsinline','');
+        if(v.srcObject!==s)v.srcObject=s;
+        var p=v.play();if(p&&p.catch)p.catch(function(){});
+      }
+    }catch(e){}
+
+    return result;
   };
 
-  /* 시작 버튼을 누르는 순간부터 옛 13명방 화면을 가려 카운트 후 번쩍임 방지 */
+  /* 시작 버튼을 누르는 순간부터 옛 13명방 화면을 가려 번쩍임 방지 */
   document.addEventListener('pointerdown',function(e){
     try{
       var btn=e.target&&e.target.closest?e.target.closest('.live-prep .prep-start'):null;
