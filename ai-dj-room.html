@@ -38,6 +38,9 @@ box-shadow:inset 0 0 12px rgba(255,89,196,.12),0 0 8px rgba(255,165,42,.15);over
 
 /* 2026-09-27: move lower chat/gift block down slightly only */
 .lower{margin-top:8px!important;}
+
+/* 2026-09-27: gift rose-count labels only */
+.gift.extra b{font-size:6.4px!important;line-height:1.05!important;white-space:normal!important;text-align:center!important}
 </style><style id="kt-dj-fullscreen-fit-20260927">
 html,body{width:100%;height:100%;min-height:0!important;overflow:hidden!important;overscroll-behavior:none}
 body{position:fixed;inset:0}
@@ -235,7 +238,7 @@ body{
 </div>
 <div class="lower">
 <div class="chat"><div class="tabs"><b>채팅 (128)</b><span>참가자</span><span>팬클럽</span><span>공지</span></div><div class="feed" id="feed"><div class="msg ai"><b>★ K-Talk AI DJ · AI</b><br>안녕하세요! AI DJ 수아예요 💜<br>좋은 음악과 함께하는 즐거운 시간!<br>신청곡 많이 남겨주세요 🎵✨</div><div class="msg"><b>한수향</b> · 역시 수아 DJ 최고예요! 🥰💜</div><div class="msg ai"><b>★ K-Talk AI DJ · AI</b><br>신청곡 남겨주시면 바로 들려드릴게요! 🎧🎵</div><div class="msg"><b>지수</b> · 오늘도 힐링되는 목소리네요 💕</div><div class="msg"><b>도해미</b> · 좋은 음악 감사합니다! 👍</div><div class="msg"><b>블링</b> · 항상 응원합니다! 🌸💜</div></div><div class="input"><input id="chat" placeholder="메시지를 입력하세요..."><button onclick="send()">전송</button><button onclick="toast('선물')">🎁</button></div></div>
-<div class="gifts"><div class="ghead"><b>🎁 선물 / 후원</b><span class="coins">🪙 보유 코인 12,350 ＋</span></div><div class="gtabs"><span class="on">전체</span><span>인기</span><span>스페셜</span><span>컬렉션</span></div><div class="grid" id="giftgrid"></div></div>
+<div class="gifts"><div class="ghead"><b>🎁 선물 / 후원</b><span class="coins">🌹 보유 장미 12,350개 ＋</span></div><div class="gtabs"><span class="on">전체</span><span>인기</span><span>스페셜</span><span>컬렉션</span></div><div class="grid" id="giftgrid"></div></div>
 </div>
 <div class="nav"><button onclick="song()"><i>🎵</i>신청곡</button><button onclick="song()"><i>🎙️</i>말하기</button><button onclick="toast('장미 선택')"><i>🌹</i>장미</button><button onclick="toast('선물 선택')"><i>🎁</i>선물</button><button onclick="shareRoom()"><i>↗</i>공유</button><button onclick="toast('효과 메뉴')"><i>🪄</i>효과</button><button onclick="toast('더보기 메뉴')"><i>•••</i>더보기</button></div>
 </div><div class="toast" id="toast"></div>
