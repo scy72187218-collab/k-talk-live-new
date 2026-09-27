@@ -310,3 +310,69 @@
     mo.observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 })();
+
+
+/* 2026-09-27: 다섯 방송방 미션 버튼 최종 터치 보강.
+   1인/9명/13명/구독자/비밀방 모두 같은 미션창을 연다.
+   화면 배치와 기존 잠금은 변경하지 않음. */
+(function(){
+  if(window.__ktFiveRoomMissionTouchFinal20260927)return;
+  window.__ktFiveRoomMissionTouchFinal20260927=true;
+
+  function showMissionFinal(){
+    try{
+      if(typeof window.showSheet!=='function')return;
+      window.showSheet('🎯 미션',''
+        +'<div class="rowbox"><b>🌹 장미 미션</b><br>장미 1개짜리 30개 깨기</div>'
+        +'<div class="rowbox"><b>🏎️ 스포츠카 미션</b><br>스포츠카 50개짜리 10개 깨기</div>'
+        +'<div class="rowbox"><b>💎💗 다이아몬드 하트 미션</b><br>다이아몬드 하트 400개짜리 10개 깨기</div>');
+    }catch(e){}
+  }
+
+  function missionButtons(){
+    return document.querySelectorAll(
+      '.ktsolo-room [data-kt-room-mission],'+
+      '.ktsubscriber-room [data-kt-room-mission],'+
+      '.ktsecret-room [data-kt-room-mission],'+
+      '.ktg13-room:not([data-kt-room="15"]) .ktg13-stats > button:nth-child(2)'
+    );
+  }
+
+  function strengthen(){
+    missionButtons().forEach(function(btn){
+      try{
+        btn.disabled=false;
+        btn.setAttribute('aria-disabled','false');
+        btn.style.setProperty('display','flex','important');
+        btn.style.setProperty('visibility','visible','important');
+        btn.style.setProperty('opacity','1','important');
+        btn.style.setProperty('pointer-events','auto','important');
+        btn.style.setProperty('touch-action','manipulation','important');
+        if(String(btn.textContent||'').indexOf('미션')===-1)btn.textContent='🎯 미션';
+      }catch(e){}
+    });
+  }
+
+  function hit(e){
+    var btn=e.target&&e.target.closest?e.target.closest(
+      '.ktsolo-room [data-kt-room-mission],'+
+      '.ktsubscriber-room [data-kt-room-mission],'+
+      '.ktsecret-room [data-kt-room-mission],'+
+      '.ktg13-room:not([data-kt-room="15"]) .ktg13-stats > button:nth-child(2)'
+    ):null;
+    if(!btn)return;
+    try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(err){}
+    showMissionFinal();
+  }
+
+  window.addEventListener('pointerup',hit,true);
+  window.addEventListener('click',hit,true);
+  strengthen();
+  [80,220,500,1000,1800].forEach(function(ms){setTimeout(strengthen,ms);});
+  try{
+    new MutationObserver(function(){
+      clearTimeout(window.__ktFiveMissionStrengthTimer);
+      window.__ktFiveMissionStrengthTimer=setTimeout(strengthen,30);
+    }).observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+})();
