@@ -25,7 +25,7 @@
     s.id='ktLiveRoomControlsGiftsFixStyle';
     s.textContent=''
       +'.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room{pointer-events:auto!important}'
-      +'.ktsolo-room button,.ktg13-room button,.ktsubscriber-room button,.ktsecret-room button{touch-action:manipulation!important;-webkit-tap-highlight-color:transparent!important}'
+      +'.ktsolo-room button,.ktg13-room button,.ktsubscriber-room button,.ktsecret-room button,.ktsolo-room [role="switch"],.ktg13-room [role="switch"],.ktsubscriber-room [role="switch"],.ktsecret-room [role="switch"],.kt-switch{pointer-events:auto!important;touch-action:manipulation!important;-webkit-tap-highlight-color:transparent!important}'
       +'.ktsolo-att,.ktg13-attend,.ktsubscriber-att,.ktsecret-att,.ktsolo-right,.ktg13-right-quick,.ktsubscriber-right,.ktsecret-right{pointer-events:auto!important;z-index:80!important}'
       +'.ktsolo-att,.ktg13-attend,.ktsubscriber-att,.ktsecret-att,.ktsolo-right>*,.ktg13-right-quick>*,.ktsubscriber-right>*,.ktsecret-right>*,.ktsolo-gift,.ktg13-gift,.ktsubscriber-gift,.ktsecret-gift{pointer-events:auto!important;touch-action:manipulation!important;position:relative!important;z-index:81!important;cursor:pointer!important}'
       +'.ktsolo-gifts,.ktg13-gifts,.ktsubscriber-gifts,.ktsecret-gifts,.ktsolo-gifts>*,.ktg13-gifts>*,.ktsubscriber-gifts>*,.ktsecret-gifts>*{pointer-events:auto!important;touch-action:manipulation!important;position:relative!important;z-index:75!important}'
@@ -146,6 +146,57 @@
     }catch(e){}
   }
 
+  function ranking(){
+    try{
+      if(typeof window.ktGroup13Ranking==='function'){window.ktGroup13Ranking();return;}
+      if(typeof window.openDailyRanking==='function'){window.openDailyRanking();return;}
+      if(typeof window.showSheet==='function'){
+        window.showSheet('🔥 일일 랭킹','<div class="rowbox"><b>일일 랭킹</b><br>오늘의 방송 랭킹을 확인합니다.</div>');
+      }
+    }catch(e){}
+  }
+
+  function mission(){
+    try{
+      if(typeof window.ktGroup9Mission==='function'){window.ktGroup9Mission();return;}
+      if(typeof window.openMission==='function'){window.openMission();return;}
+      if(typeof window.showSheet==='function'){
+        window.showSheet('🎯 미션',''
+          +'<div class="rowbox"><b>🌹 장미 미션</b><br>장미 1개짜리 30개 깨기</div>'
+          +'<div class="rowbox"><b>🏎️ 스포츠카 미션</b><br>스포츠카 50개짜리 10개 깨기</div>'
+          +'<div class="rowbox"><b>💎💗 다이아몬드 하트 미션</b><br>다이아몬드 하트 400개짜리 10개 깨기</div>');
+      }
+    }catch(e){}
+  }
+
+  function viewers(btn){
+    try{
+      var n=0;
+      var m=String(btn&&btn.textContent||'').replace(/,/g,'').match(/(\d+)\s*명/);
+      if(m)n=parseInt(m[1],10)||0;
+      if(typeof window.openViewerList==='function'){window.openViewerList();return;}
+      if(typeof window.showSheet==='function'){
+        window.showSheet('👥 시청자','<div class="rowbox"><b>현재 시청자</b><br>현재 '+n+'명이 시청 중입니다.</div>');
+      }
+    }catch(e){}
+  }
+
+  function enableRoomControls(){
+    try{
+      document.querySelectorAll(
+        '.ktsolo-room button,.ktg13-room button,.ktsubscriber-room button,.ktsecret-room button,'+
+        '.ktsolo-room [role="switch"],.ktg13-room [role="switch"],.ktsubscriber-room [role="switch"],.ktsecret-room [role="switch"]'
+      ).forEach(function(el){
+        try{
+          if(el.tagName==='BUTTON')el.disabled=false;
+          el.setAttribute('aria-disabled','false');
+          el.style.setProperty('pointer-events','auto','important');
+          el.style.setProperty('touch-action','manipulation','important');
+        }catch(e){}
+      });
+    }catch(e){}
+  }
+
   function sendQuickGift(btn){
     var t=String(btn.textContent||'').replace(/\s+/g,'');
     try{
@@ -227,6 +278,15 @@
     var key=text+' '+aria;
     var kind=roomKind(btn);
 
+    if(key.indexOf('일일랭킹')>-1||key.indexOf('랭킹')>-1){
+      stopEvent(e);press(btn);ranking();return;
+    }
+    if(key.indexOf('미션')>-1){
+      stopEvent(e);press(btn);mission();return;
+    }
+    if(key.indexOf('시청자')>-1||key.indexOf('시청중')>-1){
+      stopEvent(e);press(btn);viewers(btn);return;
+    }
     if(btn.matches&&btn.matches('.ktsolo-att,.ktg13-attend,.ktsubscriber-att,.ktsecret-att')||key.indexOf('출석체크')>-1){
       stopEvent(e);press(btn);attendance();return;
     }
@@ -248,9 +308,32 @@
   }
 
   ensureStyle();
+  enableRoomControls();
   window.addEventListener('pointerup',handle,true);
   window.addEventListener('click',handle,true);
-  setInterval(ensureStyle,1500);
+
+  /* 방 안 스위치가 별도 함수 없이 aria 상태만 가진 경우에도 첫 터치로 켜고 끈다. */
+  window.addEventListener('click',function(e){
+    try{
+      var sw=e.target&&e.target.closest?e.target.closest('.ktsolo-room [role="switch"],.ktg13-room [role="switch"],.ktsubscriber-room [role="switch"],.ktsecret-room [role="switch"]'):null;
+      if(!sw)return;
+      if(sw.getAttribute('onclick'))return;
+      var attr=sw.hasAttribute('aria-checked')?'aria-checked':'aria-pressed';
+      var on=sw.getAttribute(attr)==='true';
+      sw.setAttribute(attr,on?'false':'true');
+      sw.classList.toggle('on',!on);
+    }catch(err){}
+  },false);
+
+  [80,220,500,1000,1800].forEach(function(ms){setTimeout(enableRoomControls,ms);});
+  try{
+    new MutationObserver(function(){
+      clearTimeout(window.__ktAllRoomControlEnableTimer);
+      window.__ktAllRoomControlEnableTimer=setTimeout(enableRoomControls,30);
+    }).observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+
+  setInterval(function(){ensureStyle();enableRoomControls();},1500);
 })();
 
 /* 보물상자 팝업의 닫기 버튼만 터치 안정화. 다른 팝업/화면은 변경하지 않음. */
