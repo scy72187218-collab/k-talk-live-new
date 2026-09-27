@@ -2,7 +2,7 @@
 (function(){
   function loadTreasureCore(){
     var s=document.createElement('script');
-    s.src='treasure-global-room-core.js?v=20260927-host-right-promo2';
+    s.src='treasure-global-room-core.js?v=20260927-half-badge3';
     s.async=false;
     document.head.appendChild(s);
   }
