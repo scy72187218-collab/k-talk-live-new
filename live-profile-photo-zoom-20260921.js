@@ -17,8 +17,10 @@
       +'.kt-photo-guest-controls button{height:66px!important;min-width:0!important;border:0!important;border-radius:16px!important;background:#26262b!important;color:#fff!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:5px!important;font:900 12px/1 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;touch-action:manipulation!important}'
       +'.kt-photo-guest-controls button b{font-size:26px!important;line-height:1!important}.kt-photo-guest-controls button span{font-size:11px!important;white-space:nowrap!important}'
       +'.kt-photo-guest-controls button.off{opacity:.58!important;background:#17171b!important}'
-      +'.kt-photo-zoom-box.kt-has-guest-controls img,.kt-photo-zoom-box.kt-has-guest-controls video{padding-bottom:92px!important;box-sizing:border-box!important}'
-      +'@media(max-width:390px){.kt-photo-guest-controls{left:8px!important;right:8px!important;bottom:8px!important;gap:5px!important;padding:7px!important}.kt-photo-guest-controls button{height:58px!important;border-radius:13px!important}.kt-photo-guest-controls button b{font-size:22px!important}.kt-photo-guest-controls button span{font-size:9px!important}.kt-photo-zoom-box.kt-has-guest-controls img,.kt-photo-zoom-box.kt-has-guest-controls video{padding-bottom:80px!important}}'
+      +'.kt-photo-guest-controls .kt-photo-gift-pick{grid-column:1/-1!important;height:46px!important;flex-direction:row!important;gap:8px!important;background:linear-gradient(135deg,#7a3b00,#b96900)!important;border:1px solid #ffd56a55!important}'
+      +'.kt-photo-guest-controls .kt-photo-gift-pick b{font-size:22px!important}.kt-photo-guest-controls .kt-photo-gift-pick span{font-size:12px!important}'
+      +'.kt-photo-zoom-box.kt-has-guest-controls img,.kt-photo-zoom-box.kt-has-guest-controls video{padding-bottom:146px!important;box-sizing:border-box!important}'
+      +'@media(max-width:390px){.kt-photo-guest-controls{left:8px!important;right:8px!important;bottom:8px!important;gap:5px!important;padding:7px!important}.kt-photo-guest-controls button{height:58px!important;border-radius:13px!important}.kt-photo-guest-controls button b{font-size:22px!important}.kt-photo-guest-controls button span{font-size:9px!important}.kt-photo-guest-controls .kt-photo-gift-pick{height:40px!important}.kt-photo-zoom-box.kt-has-guest-controls img,.kt-photo-zoom-box.kt-has-guest-controls video{padding-bottom:126px!important}}'
       +'.kt-photo-zoomable{cursor:zoom-in!important;pointer-events:auto!important;touch-action:manipulation!important}';
     (document.head||document.documentElement).appendChild(s);
   }
@@ -163,6 +165,16 @@
         if(navigator.share)navigator.share({title:'K-Talk LIVE',text:'K-Talk LIVE에 초대합니다.'}).catch(function(){});
       }catch(e){}
     });
+
+    var giftBtn=btn('🎁','선물 고르기 · 작은 선물 → 큰 선물',function(){
+      try{
+        closeZoom();
+        setTimeout(function(){
+          if(typeof window.openGifts==='function')window.openGifts();
+        },40);
+      }catch(e){}
+    });
+    giftBtn.classList.add('kt-photo-gift-pick');
 
     box.appendChild(bar);
   }
