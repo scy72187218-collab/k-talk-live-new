@@ -45,7 +45,8 @@
     signupConsentShare:true,
     followedFriends:true,
     followerLiveAlerts:true,
-    pwaInstall:true
+    pwaInstall:true,
+    aiDjRoom:true
   };
 
   function save(){
@@ -92,6 +93,7 @@
       });
 
       document.querySelectorAll(
+        '.ai-dj-room,.kt-ai-dj-room,.kt-dj-room,.kt-dj-treasure-zone,'+
         '.kt-setting-row,.kt-switch,[role="switch"],[data-bottom="help"],'+
         '.creator-tools button,.creator-top button,.live-prep .prep-item,'+
         '.kt-fx-sheet,.kt-join-consent,.kt-follow-strip,.kt-live-follow-alert,'+
@@ -126,6 +128,7 @@
     locked.followedFriends=true;
     locked.followerLiveAlerts=true;
     locked.pwaInstall=true;
+    locked.aiDjRoom=true;
     locked.videos=true;
     locked.videoFastOpen=true;
     locked.videoContinuousPlayback=true;
