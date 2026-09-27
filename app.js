@@ -2446,10 +2446,10 @@ window.ktStartNextTreasure=function(){
   var next=q.shift();
   ktSaveTreasureQueue(q);
   next.placedAt=Date.now();
-  next.unlockAt=Date.now()+150000;
+  next.unlockAt=Date.now()+180000;
   next.claimed=false;
   ktSaveTreasure(next);
-  ktSpeak('새 보물상자가 올라왔습니다. 2분 30초 후 받을 수 있습니다.');
+  ktSpeak('새 보물상자가 올라왔습니다. 3분 후 받을 수 있습니다.');
 };
 
 window.placeTreasureChest=function(n,sender,roomTitle){
@@ -2461,7 +2461,7 @@ window.placeTreasureChest=function(n,sender,roomTitle){
     sender:sender||'게스트',
     roomTitle:title,
     placedAt:Date.now(),
-    unlockAt:Date.now()+150000,
+    unlockAt:Date.now()+180000,
     claimed:false
   };
   var current=ktGetTreasure();
@@ -2476,8 +2476,8 @@ window.placeTreasureChest=function(n,sender,roomTitle){
     return;
   }
   ktSaveTreasure(item);
-  ktSpeak('보물상자가 올라왔습니다. 2분 30초 후 누구든지 받을 수 있습니다.');
-  alert('보물상자가 호스트 방에 올라갔습니다. 2분 30초 후 받을 수 있습니다.');
+  ktSpeak('보물상자가 올라왔습니다. 3분 후 누구든지 받을 수 있습니다.');
+  alert('보물상자가 호스트 방에 올라갔습니다. 3분 후 받을 수 있습니다.');
 };
 
 window.selectTreasure=function(n){
@@ -2494,7 +2494,7 @@ window.openTreasure=function(){
       +'</button>';
   };
   var html='<div class="kt-treasure-shop">'
-    +'<div class="kt-treasure-help"><b>🗝️ 보물상자</b><span>호스트 화면 왼쪽에 2분 30초 동안 표시됩니다.<br>그동안 눌러 참여하고, 시간이 끝나면 남은 수량은 호스트에게 돌아갑니다.</span></div>'
+    +'<div class="kt-treasure-help"><b>🗝️ 보물상자</b><span>호스트 화면 오른쪽 머리 위에 3분 동안 표시됩니다.<br>그동안 눌러 참여하고, 시간이 끝나면 남은 수량은 호스트에게 돌아갑니다.</span></div>'
     +'<div class="kt-treasure-picks">'+chest(10)+chest(50)+chest(100)+'</div>'
     +'</div>';
   showSheet('보물상자 올리기',html);
@@ -2546,7 +2546,7 @@ window.goToTreasureRoom=function(){
     +'<div class="kt-view-room-head"><b>🔴 '+t.roomTitle+'</b><button onclick="home()">나가기</button></div>'
     +'<div class="kt-view-host"><div class="kt-view-host-avatar">♛</div><b>HOST LIVE</b><span>보물상자 이벤트 진행 중</span></div>'
     +'<div id="ktViewerTreasureZone" class="kt-live-treasure-zone viewer-zone"></div>'
-    +'<div class="kt-view-room-note">보물상자가 보이는 2분 30초 안에 눌러 참여하세요.</div>'
+    +'<div class="kt-view-room-note">보물상자가 보이는 3분 동안 기다렸다가 참여하세요.</div>'
     +'</section>';
   ktRenderTreasure();
 };
@@ -2569,8 +2569,34 @@ window.claimTreasureChest=function(){
   setTimeout(function(){ktStartNextTreasure();},900);
 };
 
+
+window.ktEnsureHostTreasureBadge20260927=function(){
+  var t=ktGetTreasure();
+  var room=document.querySelector('#screen .ktsolo-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room');
+  var old=document.getElementById('ktHostTreasureRightBadge20260927');
+  if(!room||!t){if(old)old.remove();return;}
+
+  var host=room.querySelector('.ktsolo-main,.ktg13-host,.ktsubscriber-host,.ktsecret-host,.ktg13-main')||room;
+  var b=old;
+  if(!b){
+    b=document.createElement('button');
+    b.type='button';
+    b.id='ktHostTreasureRightBadge20260927';
+    b.style.cssText='position:absolute!important;right:8px!important;top:68px!important;left:auto!important;z-index:120!important;width:66px!important;min-height:72px!important;border:2px solid #ffd45b!important;border-radius:18px!important;background:rgba(26,16,5,.94)!important;color:#fff!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:2px!important;padding:5px!important;box-shadow:0 0 14px #ffb000aa!important;font:950 9px/1.05 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;pointer-events:auto!important;touch-action:manipulation!important';
+    b.onclick=function(e){
+      try{e.preventDefault();e.stopPropagation();}catch(x){}
+      if(window.goToTreasureRoom)window.goToTreasureRoom();
+    };
+    host.appendChild(b);
+  }
+  if(b.parentElement!==host)host.appendChild(b);
+  var left=Math.max(0,Number(t.unlockAt||0)-Date.now());
+  b.innerHTML='<span style="font-size:30px;line-height:1">🎁</span><strong style="color:#ffe052">'+Number(t.amount||0)+'개</strong><small>'+ktTreasureFormat(left)+'</small>';
+};
+
 window.ktRenderTreasure=function(){
   clearInterval(window.ktTreasureTimer);
+  try{ktEnsureHostTreasureBadge20260927();}catch(e){}
   var t=ktGetTreasure();
   var zones=[
     document.getElementById('ktLiveTreasureZone'),
@@ -2581,6 +2607,7 @@ window.ktRenderTreasure=function(){
     if(t){
       window.ktTreasureTimer=setInterval(function(){
         ktUpdateTreasureLed();
+        try{ktEnsureHostTreasureBadge20260927();}catch(e){}
         var active=ktGetTreasure();
         if(!active)clearInterval(window.ktTreasureTimer);
         else if(ktTreasureStatus(active).ready&&!active.readyAnnounced){
@@ -2612,6 +2639,7 @@ window.ktRenderTreasure=function(){
         +'</button>';
     });
     ktUpdateTreasureLed();
+    try{ktEnsureHostTreasureBadge20260927();}catch(e){}
     if(st.ready&&!active.readyAnnounced){
       active.readyAnnounced=true;
       try{localStorage.setItem('ktalk_active_treasure',JSON.stringify(active));}catch(e){}
