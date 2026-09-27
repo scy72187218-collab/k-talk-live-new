@@ -55,6 +55,21 @@ box-shadow:inset 0 0 12px rgba(255,89,196,.12),0 0 8px rgba(255,165,42,.15);over
 .kt-dj-treasure-picker .choices{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .kt-dj-treasure-picker button{min-height:64px;border:1px solid #ffd65d;border-radius:14px;background:linear-gradient(160deg,#35150d,#160912);color:#fff;font-weight:950}
 .kt-dj-treasure-picker .close{width:100%;min-height:38px;margin-top:10px;border-color:#777;background:#19191f}
+
+/* 2026-09-27 approved DJ room visual match: presentation only */
+<style id="kt-dj-approved-visual-match-20260927">
+.top{background:linear-gradient(90deg,rgba(255,28,117,.10),rgba(128,48,255,.08));border-radius:16px;padding:2px 3px}
+.logo{letter-spacing:-.4px;text-shadow:0 0 8px #ff37d7,0 0 18px #7a42ff,0 0 26px #ff3fc9}
+.banners button{background:linear-gradient(180deg,rgba(32,5,38,.98),rgba(14,5,22,.98));box-shadow:inset 0 0 12px rgba(255,72,211,.10),0 0 10px rgba(255,54,215,.40)}
+.dj{border-width:2px!important;box-shadow:0 0 10px #ff3edc,0 0 22px rgba(161,54,255,.34),inset 0 0 14px rgba(255,255,255,.06)!important}
+.dj img{filter:saturate(1.08) contrast(1.04) brightness(1.02)}
+.djtitle{color:#fff;text-shadow:0 0 5px #fff,0 0 12px #ff37d4,0 0 22px #6f4aff!important}
+.guests{gap:6px!important}.guest{border-color:#514dff!important;box-shadow:inset 0 0 12px rgba(85,80,255,.08),0 0 8px rgba(74,69,255,.22)!important}.guest .plus{box-shadow:0 0 10px rgba(255,58,207,.70)!important}
+.chat,.gifts{border-color:rgba(255,70,210,.68)!important;box-shadow:0 0 10px rgba(255,54,211,.20),inset 0 0 12px rgba(104,38,136,.08)!important}
+.gifts{background:linear-gradient(180deg,#0b0710,#06040a)!important}.ghead b{font-size:11px!important}.coins{font-size:8.5px!important;color:#ffe36d!important;font-weight:900!important}
+.gift{background:radial-gradient(circle at 50% 20%,rgba(255,52,177,.24),transparent 42%),linear-gradient(160deg,#180916,#08050a 72%,#030204)!important;border-color:rgba(255,142,45,.84)!important;box-shadow:inset 0 0 10px rgba(255,80,194,.12),0 0 8px rgba(255,132,35,.22)!important}
+.gift b{font-size:7.4px!important}.nav i{box-shadow:0 0 10px rgba(112,69,255,.52),inset 0 0 8px rgba(255,255,255,.05)!important}
+</style>
 </style><style id="kt-dj-fullscreen-fit-20260927">
 html,body{width:100%;height:100%;min-height:0!important;overflow:hidden!important;overscroll-behavior:none}
 body{position:fixed;inset:0}
@@ -252,7 +267,7 @@ body{
 </div>
 <div class="lower">
 <div class="chat"><div class="tabs"><b>채팅 (128)</b><span>참가자</span><span>팬클럽</span><span>공지</span></div><div class="feed" id="feed"><div class="msg ai"><b>★ K-Talk AI DJ · AI</b><br>안녕하세요! AI DJ 수아예요 💜<br>좋은 음악과 함께하는 즐거운 시간!<br>신청곡 많이 남겨주세요 🎵✨</div><div class="msg"><b>한수향</b> · 역시 수아 DJ 최고예요! 🥰💜</div><div class="msg ai"><b>★ K-Talk AI DJ · AI</b><br>신청곡 남겨주시면 바로 들려드릴게요! 🎧🎵</div><div class="msg"><b>지수</b> · 오늘도 힐링되는 목소리네요 💕</div><div class="msg"><b>도해미</b> · 좋은 음악 감사합니다! 👍</div><div class="msg"><b>블링</b> · 항상 응원합니다! 🌸💜</div></div><div class="input"><input id="chat" placeholder="메시지를 입력하세요..."><button onclick="send()">전송</button><button onclick="toast('선물')">🎁</button></div></div>
-<div class="gifts"><div class="ghead"><b>🎁 선물 / 후원</b><span class="coins">🌹 보유 장미 12,350개 ＋</span></div><div class="gtabs"><span class="on">전체</span><span>인기</span><span>스페셜</span><span>컬렉션</span></div><div class="grid" id="giftgrid"></div></div>
+<div class="gifts"><div class="ghead"><b>🎁 선물 / 후원</b><span class="coins">🌹 보유 장미 ＋</span></div><div class="gtabs"><span class="on">전체</span><span>인기</span><span>스페셜</span><span>컬렉션</span></div><div class="grid" id="giftgrid"></div></div>
 </div>
 <div class="nav"><button onclick="song()"><i>🎵</i>신청곡</button><button onclick="(function(){var n=0,k=0;try{var vs=speechSynthesis.getVoices()||[];n=vs.length;k=vs.filter(function(v){return /^ko(-|_)/i.test(v.lang||'')||/korean|한국/i.test((v.name||'')+' '+(v.lang||''));}).length;}catch(e){};toast('음성엔진 '+n+'개 · 한국어 '+k+'개');if(window.ktDjSpeak)window.ktDjSpeak('네, 듣고 있습니다. 말씀해 주세요.');})()"><i>🎙️</i>말하기</button><button onclick="toast('장미 선택');if(window.ktDjSpeak)ktDjSpeak('장미 선물을 선택하셨습니다.')"><i>🌹</i>장미</button><button onclick="toast('선물 선택');if(window.ktDjSpeak)ktDjSpeak('선물을 선택해 주세요.')"><i>🎁</i>선물</button><button onclick="shareRoom()"><i>↗</i>공유</button><button onclick="toast('효과 메뉴');if(window.ktDjSpeak)ktDjSpeak('효과 메뉴입니다.')"><i>🪄</i>효과</button><button onclick="openDjTreasure()"><i>🧰</i>보물상자</button></div>
 </div><div class="toast" id="toast"></div>
@@ -284,9 +299,9 @@ function ktGiftArt(kind,count){
   ['bouquet','30송이 장미',30],
   ['bouquet','40송이 장미',40],
   ['bouquet','50송이 장미',50],
-  ['heart','하트 10개'],
-  ['star','별 20개'],
-  ['balloon','풍선 30개'],
+  ['heart','하트'],
+  ['star','별'],
+  ['balloon','풍선'],
   ['box','선물상자']
 ].forEach((g,idx)=>document.getElementById('giftgrid').insertAdjacentHTML(
   'beforeend',
