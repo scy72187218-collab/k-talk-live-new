@@ -171,6 +171,104 @@
     }catch(e){return false;}
   }
 
+
+  function hostLiveId(){
+    try{return String(localStorage.getItem('kt_live_device_id')||'').slice(0,120);}catch(e){return '';}
+  }
+
+  async function secretInviteAllowed(hostId){
+    if(owner())return true;
+    var me=myIdentity();
+    if(!hostId||!me.id)return false;
+    try{
+      var q='ktalk_live_messages?select=id,host_id,sender_id,message,message_type,created_at'
+        +'&host_id=eq.'+enc(hostId)
+        +'&message_type=eq.secret_invite'
+        +'&message=eq.'+enc(me.id)
+        +'&order=created_at.desc&limit=1';
+      var r=await fetch(BASE+q,{headers:headers(),cache:'no-store'});
+      if(!r.ok)return false;
+      var rows=await r.json();
+      return !!(rows&&rows[0]);
+    }catch(e){return false;}
+  }
+
+  async function mutualFollowPeople(){
+    var me=myIdentity();
+    if(!me.id)return [];
+    try{
+      var outQ='ktalk_user_follows?select=following_id,following_name&follower_id=eq.'+enc(me.id)+'&limit=100';
+      var a=await fetch(BASE+outQ,{headers:headers(),cache:'no-store'});
+      if(!a.ok)return [];
+      var outgoing=await a.json(); outgoing=Array.isArray(outgoing)?outgoing:[];
+
+      var inQ='ktalk_user_follows?select=follower_id,follower_name&following_id=eq.'+enc(me.id)+'&limit=100';
+      var b=await fetch(BASE+inQ,{headers:headers(),cache:'no-store'});
+      if(!b.ok)return [];
+      var incoming=await b.json(); incoming=Array.isArray(incoming)?incoming:[];
+
+      var inIds={};
+      incoming.forEach(function(x){inIds[String(x.follower_id||'')]=String(x.follower_name||'');});
+      return outgoing.filter(function(x){return !!inIds[String(x.following_id||'')];}).map(function(x){
+        return {id:String(x.following_id||''),name:String(x.following_name||inIds[String(x.following_id||'')]||'회원')};
+      });
+    }catch(e){return [];}
+  }
+
+  window.ktOpenSecretInvite20260928=async function(){
+    var people=await mutualFollowPeople();
+    if(!people.length){
+      try{alert('서로 팔로우된 사람이 없습니다. 비밀방은 서로 팔로우된 사람만 초청할 수 있습니다.');}catch(e){}
+      return false;
+    }
+    var html='<div class="rowbox"><b>🔒 비밀방 초청</b><br>서로 팔로우된 사람만 초청할 수 있습니다.</div>';
+    people.forEach(function(p){
+      var id=String(p.id||'').replace(/'/g,"\\'");
+      var nm=String(p.name||'회원').replace(/[&<>"]/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch];});
+      html+='<button class="act" type="button" onclick="ktSendSecretInvite20260928(\''+id+'\',\''+String(p.name||'회원').replace(/'/g,"\\'")+'\')">👤 '+nm+' 초청</button>';
+    });
+    try{
+      if(typeof window.showSheet==='function')window.showSheet('🔒 비밀방 초청',html);
+      else alert('초청할 사람을 선택할 수 없습니다.');
+    }catch(e){}
+    return false;
+  };
+
+  window.ktSendSecretInvite20260928=async function(targetId,targetName){
+    var hostId=hostLiveId();
+    var me=myIdentity();
+    if(!hostId||!targetId){
+      try{alert('초청 정보를 확인할 수 없습니다.');}catch(e){}
+      return false;
+    }
+    var people=await mutualFollowPeople();
+    var ok=people.some(function(p){return String(p.id)===String(targetId);});
+    if(!ok){
+      try{alert('서로 팔로우된 사람만 비밀방에 초청할 수 있습니다.');}catch(e){}
+      return false;
+    }
+    try{
+      var res=await fetch(BASE+'ktalk_live_messages',{
+        method:'POST',
+        headers:Object.assign({},headers(),{'Content-Type':'application/json','Prefer':'return=minimal'}),
+        body:JSON.stringify({
+          host_id:hostId,
+          sender_id:me.id,
+          sender_name:me.name,
+          message:String(targetId).slice(0,140),
+          message_type:'secret_invite'
+        })
+      });
+      if(!res.ok)throw new Error('invite '+res.status);
+      try{alert((targetName||'회원')+'님을 비밀방에 초청했습니다.');}catch(e){}
+      try{if(typeof window.closeSheet==='function')window.closeSheet();}catch(e){}
+      return true;
+    }catch(e){
+      try{alert('초청을 보내지 못했습니다. 다시 눌러 주세요.');}catch(x){}
+      return false;
+    }
+  };
+
   function installLocalGates(){
     if(typeof window.selectPrepRoom==='function'&&!window.selectPrepRoom.__ktFinalAccessRules){
       var oldSelect=window.selectPrepRoom;
@@ -208,6 +306,18 @@
           var ok=await mutualFollow(hostId,meta&&meta.host_name);
           if(!ok){
             try{alert('구독자방은 서로 팔로우된 사람만 참여할 수 있습니다.');}catch(e){}
+            return false;
+          }
+        }
+        if(k==='secret'){
+          var followed=await mutualFollow(hostId,meta&&meta.host_name);
+          if(!followed){
+            try{alert('비밀방은 서로 팔로우된 사람만 초청받을 수 있습니다.');}catch(e){}
+            return false;
+          }
+          var invited=await secretInviteAllowed(hostId);
+          if(!invited){
+            try{alert('비밀방은 호스트에게 초청받은 사람만 들어갈 수 있습니다.');}catch(e){}
             return false;
           }
         }
