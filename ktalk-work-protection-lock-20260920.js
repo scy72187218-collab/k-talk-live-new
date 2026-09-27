@@ -107,3 +107,70 @@
     }).observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 })();
+
+
+/* Lock 4: secret-room ranking / mission / viewers / flip / treasure / match.
+   Protection only: controls remain enabled and usable. */
+(function(){
+  if(window.__ktSecretRoomLock4Installed20260927)return;
+  window.__ktSecretRoomLock4Installed20260927=true;
+
+  function markSecretLock4(){
+    try{
+      var room=document.querySelector('#screen .ktsecret-room');
+      if(!room)return;
+
+      var list=[];
+      room.querySelectorAll('[data-kt-room-rank],[data-kt-room-mission],.kt-room-viewers-copy,.ktsecret-right button,.kt-three-quick-flip,.kt-three-quick-treasure,.kt-three-quick-match').forEach(function(el){
+        var text=String(el.textContent||'').replace(/\s+/g,'');
+        var aria=String(el.getAttribute&&el.getAttribute('aria-label')||'').replace(/\s+/g,'');
+        var key=text+' '+aria;
+        if(
+          el.matches('[data-kt-room-rank],[data-kt-room-mission],.kt-room-viewers-copy') ||
+          key.indexOf('일일랭킹')>-1 ||
+          key.indexOf('미션')>-1 ||
+          key.indexOf('시청자')>-1 ||
+          key.indexOf('되돌리기')>-1 ||
+          key.indexOf('뒤집기')>-1 ||
+          key.indexOf('보물상자')>-1 ||
+          key.indexOf('매치')>-1
+        ) list.push(el);
+      });
+
+      list.forEach(function(el){
+        el.setAttribute('data-kt-work-protected','1');
+        el.setAttribute('data-kt-protection-slot','4');
+        el.setAttribute('data-kt-protected-area','secret_room_rank_mission_viewers_flip_treasure_match');
+        if(el.tagName==='BUTTON')el.disabled=false;
+        el.setAttribute('aria-disabled','false');
+        el.style.setProperty('pointer-events','auto','important');
+        el.style.setProperty('touch-action','manipulation','important');
+      });
+    }catch(e){}
+  }
+
+  var oldState=window.ktCurrentProtectionState;
+  window.ktCurrentProtectionState=function(){
+    var s={};
+    try{s=typeof oldState==='function'?(oldState()||{}):{};}catch(e){s={};}
+    s.secret_room_rank_mission_viewers_flip_treasure_match=true;
+    s.lock_slots=s.lock_slots||{};
+    s.lock_slots[4]=['secret_room_rank_mission_viewers_flip_treasure_match'];
+    return s;
+  };
+
+  var oldProtected=window.ktIsWorkProtected;
+  window.ktIsWorkProtected=function(name){
+    if(name==='secret_room_rank_mission_viewers_flip_treasure_match')return true;
+    try{return typeof oldProtected==='function'?!!oldProtected(name):false;}catch(e){return false;}
+  };
+
+  markSecretLock4();
+  [80,220,500,1000,1800].forEach(function(ms){setTimeout(markSecretLock4,ms);});
+  try{
+    new MutationObserver(function(){
+      clearTimeout(window.__ktSecretLock4Timer);
+      window.__ktSecretLock4Timer=setTimeout(markSecretLock4,30);
+    }).observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+})();
