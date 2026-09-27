@@ -1,5 +1,5 @@
 /* K-Talk: 승인된 13명방의 09:00 카운트다운 방식 그대로
-   1인방 / 구독자방 / 비밀방에 적용.
+   1인방 / 9명방 / 구독자방 / 비밀방에 적용.
    5→4→3→2→1을 한 번만 보여주고, 방송 준비는 그 뒤에서 동시에 진행한 뒤
    1이 끝나면 이미 준비된 방을 바로 보여준다. 다른 UI/통신은 변경하지 않음. */
 (function(){
@@ -17,7 +17,7 @@
       var m=Number(s.liveRoomMax||s.prepRoomMax||0);
       var title=String(((document.getElementById('liveTitle')||{}).value)||'');
       if(t==='group13'||m===13||n.indexOf('13명')>-1)return '';
-      if(t==='solo'||m===1||n.indexOf('1인')>-1||title.indexOf('1인 방송')>-1)return ''; /* 1인방은 카운트다운 없이 즉시 시작 */
+      if(t==='solo'||m===1||n.indexOf('1인')>-1||title.indexOf('1인 방송')>-1)return 'solo';
       if(t==='group9'||m===9||n.indexOf('9명')>-1||title.indexOf('9명 방송')>-1)return ''; /* 9명방은 09:00 원래 시작 흐름 사용 */
       if(t==='subscriber'||n.indexOf('구독자')>-1||title.indexOf('구독자 방송')>-1)return 'subscriber';
       if(t==='password'||t==='secret'||n.indexOf('비밀')>-1||title.indexOf('비밀방')>-1)return 'secret';
@@ -34,42 +34,24 @@
 
   async function showCountdown(){
     removeOverlay();
-
     var overlay=document.createElement('div');
     overlay.id='ktFourRoom13StyleCountdown';
     overlay.style.cssText='position:fixed;inset:0;z-index:2147483646;display:grid;place-items:center;background:rgba(0,0,0,.16);pointer-events:none;color:#fff;text-align:center;text-shadow:0 3px 16px rgba(0,0,0,.72)';
+    document.body.appendChild(overlay);
+
     var num=document.createElement('div');
     num.style.cssText='width:116px;height:116px;border-radius:50%;display:grid;place-items:center;background:rgba(10,10,14,.72);border:4px solid rgba(255,255,255,.92);color:#fff;font:900 64px/1 system-ui,-apple-system,sans-serif;box-shadow:0 0 28px rgba(255,44,130,.7);text-shadow:0 0 12px rgba(255,255,255,.7)';
     overlay.appendChild(num);
-    (document.body||document.documentElement).appendChild(overlay);
 
-    return await new Promise(function(resolve){
-      var n=5,done=false;
-      function finish(){
-        if(done)return;
-        done=true;
-        clearInterval(timer);
-        clearTimeout(failsafe);
-        try{overlay.remove();}catch(e){}
-        resolve(null);
-      }
-      function paint(){
-        try{
-          if(!overlay.isConnected)(document.body||document.documentElement).appendChild(overlay);
-          num.textContent=String(n);
-          num.style.transform='scale(1)';
-          setTimeout(function(){try{num.style.transform='scale(.92)';}catch(e){}},620);
-        }catch(e){}
-        if(n<=1){setTimeout(finish,1000);return;}
-        n--;
-      }
-      paint();
-      var timer=setInterval(function(){
-        if(done)return;
-        paint();
-      },1000);
-      var failsafe=setTimeout(finish,6200);
-    });
+    for(var n=5;n>=1;n--){
+      num.textContent=String(n);
+      num.style.transform='scale(1)';
+      await new Promise(function(resolve){
+        setTimeout(function(){num.style.transform='scale(.92)';},650);
+        setTimeout(resolve,1000);
+      });
+    }
+    return overlay;
   }
 
   window.startBroadcast=async function(){
