@@ -395,8 +395,9 @@
         try{window.dispatchEvent(new CustomEvent('kt-remote-host-selected',{detail:{host_id:hostId}}));}catch(e){}
       }
 
-      /* If the cluster-wide path still has no host stream after a short grace period,
-         use the old memory signaling only as a last-resort fallback. Never run both. */
+      /* Slow Android phones can need longer for direct ICE, so start the
+         proven memory path early in parallel instead of showing black for seconds.
+         Whichever real video arrives first wins; the other path stands down. */
       setTimeout(async function(){
         try{
           if(String(window.__ktRemoteHostId||'')!==hostId)return;
@@ -405,7 +406,7 @@
           var ok=await enterMemory(hostId,cached||room||null);
           if(ok)remoteEndArmed=true;
         }catch(e){}
-      },900);
+      },420);
 
       if(!room){
         var st=document.getElementById('ktRemoteLiveStatus');
