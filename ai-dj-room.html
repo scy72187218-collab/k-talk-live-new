@@ -80,17 +80,109 @@ body{position:fixed;inset:0}
   .guest .av{font-size:19px!important}.gift i{font-size:17px!important}
 }
 </style>
-<style id="kt-dj-bottom-lift-20260927">
-/* bottom menu position only */
+<style id="kt-dj-responsive-phone-fit-20260927">
+/* responsive fit for different phone aspect ratios */
+html,body{
+  width:100%;
+  height:100%;
+  min-height:0!important;
+  overflow:hidden!important;
+}
+body{
+  position:fixed;
+  inset:0;
+}
+.app{
+  width:min(100%,480px)!important;
+  max-width:480px!important;
+  height:100dvh!important;
+  min-height:0!important;
+  margin:0 auto!important;
+  padding:
+    max(4px,env(safe-area-inset-top))
+    5px
+    max(6px,env(safe-area-inset-bottom))!important;
+  display:grid!important;
+  grid-template-rows:auto auto minmax(0,1.45fr) minmax(0,1fr) auto!important;
+  gap:3px!important;
+  overflow:hidden!important;
+}
+.top,.banners,.main,.lower,.nav{
+  min-height:0!important;
+  height:auto!important;
+}
+.main{
+  overflow:hidden!important;
+}
+.lower{
+  overflow:hidden!important;
+  min-height:0!important;
+}
+.chat,.gifts{
+  min-height:0!important;
+  height:100%!important;
+  overflow:hidden!important;
+}
+.feed{
+  min-height:0!important;
+  height:calc(100% - 46px)!important;
+  overflow:hidden!important;
+}
+.grid{
+  min-height:0!important;
+  height:calc(100% - 42px)!important;
+  overflow:hidden!important;
+}
 .nav{
-  transform:translateY(2px)!important;
-  padding-bottom:calc(3px + env(safe-area-inset-bottom))!important;
+  transform:none!important;
+  margin:0!important;
+  padding:2px 0 max(2px,env(safe-area-inset-bottom))!important;
+  display:grid!important;
+  grid-template-columns:repeat(7,minmax(0,1fr))!important;
+  align-items:start!important;
   overflow:visible!important;
 }
 .nav button{
-  gap:2px!important;
-  font-size:8px!important;
+  min-width:0!important;
+  min-height:0!important;
+  padding:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:1px!important;
+  font-size:clamp(7px,1.8vw,9px)!important;
   line-height:1.05!important;
+  white-space:nowrap!important;
+}
+.nav i{
+  width:clamp(24px,7vw,30px)!important;
+  height:clamp(24px,7vw,30px)!important;
+  margin:0 auto 1px!important;
+  font-size:clamp(12px,3.8vw,15px)!important;
+}
+.gift b{
+  font-size:clamp(5.8px,1.65vw,7px)!important;
+  line-height:1.05!important;
+  white-space:nowrap!important;
+}
+@media (max-height:700px){
+  .app{
+    grid-template-rows:auto auto minmax(0,1.32fr) minmax(0,.98fr) auto!important;
+  }
+  .nav i{
+    width:24px!important;
+    height:24px!important;
+    font-size:12px!important;
+  }
+  .nav button{
+    font-size:7px!important;
+  }
+}
+@media (min-height:850px){
+  .app{
+    grid-template-rows:auto auto minmax(0,1.55fr) minmax(0,1fr) auto!important;
+  }
 }
 </style>
 </head><body>
