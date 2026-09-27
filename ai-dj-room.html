@@ -304,7 +304,7 @@ document.getElementById('chat').addEventListener('keydown',e=>{if(e.key==='Enter
 <div id="ktDjCountdownOverlay" style="position:fixed;inset:0;z-index:99999;display:grid;place-items:center;background:rgba(0,0,0,.10);pointer-events:none;">
   <div id="ktDjCountdownNumber" style="width:118px;height:118px;border-radius:50%;display:grid;place-items:center;background:rgba(8,8,12,.74);border:4px solid rgba(255,255,255,.96);color:#fff;font:900 64px/1 system-ui,-apple-system,sans-serif;box-shadow:0 0 32px rgba(255,44,180,.78);text-shadow:0 0 12px rgba(255,255,255,.78);">5</div>
 </div>
-<script id="kt-dj-ai-runtime-20260927b">
+<script id="kt-dj-ai-runtime-20260927-0800restore1">
 (function(){
   var nickname='대표님', speechQueue=[], speaking=false, audioCtx=null, master=null, musicTimer=null, musicStarted=false, musicStep=0;
   function clean(v){return String(v||'').replace(/[<>]/g,'').trim()}
@@ -322,50 +322,24 @@ document.getElementById('chat').addEventListener('keydown',e=>{if(e.key==='Enter
     }
   }catch(e){}
 
-  function chooseVoice(){
-    if(!('speechSynthesis' in window))return null;
-    var vs=speechSynthesis.getVoices();
-    return vs.find(function(v){return /^ko(-|_)/i.test(v.lang)&&/female|여성|yuna|sora|sunhi|heami/i.test(v.name)})
-      ||vs.find(function(v){return /^ko(-|_)/i.test(v.lang)})||vs[0]||null;
-  }
+  /* AI voice restored to the 2026-09-27 ~08:00 behavior only */
   window.ktDjSpeak=function(text){
-    text=clean(text); if(!text)return;
+    text=clean(text);
+    if(!text||!('speechSynthesis' in window)||typeof window.SpeechSynthesisUtterance!=='function')return false;
     try{
-      if('speechSynthesis' in window){
-        speechSynthesis.resume();
-        if(speechSynthesis.paused)speechSynthesis.resume();
-      }
-    }catch(e){}
-    speechQueue.push(text);
-    pump();
-  };
-  function pump(){
-    if(speaking||!speechQueue.length||!('speechSynthesis' in window))return;
-    var t=speechQueue.shift(),u=new SpeechSynthesisUtterance(t),v=chooseVoice();
-    u.lang='ko-KR';u.rate=.92;u.pitch=1.03;u.volume=1;if(v)u.voice=v;
-    speaking=true;duck(true);
-    u.onend=u.onerror=function(){
-    speaking=false;
-    duck(false);
-    try{
-      if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume().catch(function(){});
-      if(!musicStarted)startMusic();
-    }catch(e){}
-    setTimeout(pump,160);
-  };
-    try{
-      speechSynthesis.resume();
+      speechSynthesis.cancel();
+      var u=new SpeechSynthesisUtterance(text);
+      u.lang='ko-KR';
+      u.rate=1;
+      u.pitch=1;
+      u.volume=1;
       speechSynthesis.speak(u);
-      setTimeout(function(){
-        try{
-          if(speechSynthesis.paused)speechSynthesis.resume();
-          if(speaking && !speechSynthesis.speaking && speechQueue.length===0){
-            speechSynthesis.speak(u);
-          }
-        }catch(e){}
-      },350);
-    }catch(e){speaking=false;duck(false)}
-  }
+      return true;
+    }catch(e){
+      return false;
+    }
+  };
+
   function initAudio(){
     if(audioCtx)return audioCtx;
     var AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;
@@ -467,12 +441,6 @@ document.getElementById('chat').addEventListener('keydown',e=>{if(e.key==='Enter
 
   // First touch unlock for mobile autoplay restrictions.
   function unlock(){
-    try{
-      if('speechSynthesis' in window){
-        speechSynthesis.resume();
-        if(speechSynthesis.paused)speechSynthesis.resume();
-      }
-    }catch(e){}
     var ctx=initAudio();
     if(ctx&&ctx.state==='suspended')ctx.resume().then(startMusic).catch(function(){});
   }
@@ -482,7 +450,6 @@ document.getElementById('chat').addEventListener('keydown',e=>{if(e.key==='Enter
   document.addEventListener('visibilitychange',function(){
     if(document.visibilityState==='visible'){
       try{
-        if('speechSynthesis' in window)speechSynthesis.resume();
         var ctx=initAudio();
         if(ctx&&ctx.state==='suspended')ctx.resume().then(function(){if(!musicStarted)startMusic();}).catch(function(){});
         else if(!musicStarted)startMusic();
@@ -491,7 +458,6 @@ document.getElementById('chat').addEventListener('keydown',e=>{if(e.key==='Enter
   });
   window.addEventListener('pageshow',function(){
     try{
-      if('speechSynthesis' in window)speechSynthesis.resume();
       var ctx=initAudio();
       if(ctx&&ctx.state==='suspended')ctx.resume().then(function(){if(!musicStarted)startMusic();}).catch(function(){});
       else if(!musicStarted)startMusic();
