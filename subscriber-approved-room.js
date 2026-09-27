@@ -134,7 +134,7 @@
         +'<div class="ktsubscriber-main">'
           +'<div class="ktsubscriber-stage">'
             +'<div class="ktsubscriber-people"><div class="ktsubscriber-host"><video id="ktLiveVideo" autoplay playsinline muted></video><span class="ktsubscriber-host-label">호스트</span></div>'+guestSlots()+'</div>'
-            +'<div class="ktsubscriber-right"><button class="like" onclick="if(window.addHostLike)addHostLike(1)">💗<small>좋아요</small><b id="hostLikeCount">0</b></button><button onclick="ktSubscriberEffect()">✨<small>효과</small></button><button onclick="ktSubscriberTreasure()">🎁<small>보물상자</small></button><button onclick="if(window.openHostMatchArena)openHostMatchArena(\'1대1\')">⚔<small>매치</small></button></div>'
+
           +'</div>'
           +'<div class="ktsubscriber-info"><div class="ktsubscriber-leftinfo"><div id="ktsubscriberChatList" class="ktsubscriber-chat" onclick="ktSubscriberOpenMessage()"></div><div class="ktsubscriber-wave">'+equalizerBars()+'</div></div><div class="ktsubscriber-earn"><button id="ktSubscriberEarnHud" class="ktsubscriber-earnhud" onclick="ktSubscriberToggleEarnings()"><div style="display:flex;align-items:center;justify-content:center;gap:5px"><span style="font-size:8px;color:#8fe8ff;font-weight:950;white-space:nowrap">🔒 내 수익 · 본인만 표시</span><b id="ktSubscriberEarnNet" style="font-size:12px;color:#ffe071;white-space:nowrap">'+esc(net)+'</b></div><div id="ktSubscriberEarnDetail" style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:2px;font-size:7px;color:#ddd"><span id="ktSubscriberEarnRoses">'+esc(roses)+'</span><span style="text-align:right">일반회원 35%</span><span>구독자회원 40%</span><span style="text-align:right">소속사 65%</span></div></button></div></div>'
           +'<div class="ktsubscriber-gifts">'
@@ -171,4 +171,29 @@
     if(subscriber)setTimeout(renderApprovedSubscriber,0);
     return result;
   };
+})();
+
+/* 2026-09-27: 구독자방 오른쪽 세로 버튼 제거. 하단 도구줄은 유지. */
+(function(){
+  if(window.__ktSubscriberRightFiveHidden20260927)return;
+  window.__ktSubscriberRightFiveHidden20260927=true;
+  function hide(){
+    try{
+      document.querySelectorAll('#screen .ktsubscriber-room .ktsubscriber-right').forEach(function(el){el.remove();});
+      document.querySelectorAll(
+        '#screen .ktsubscriber-room .kt-three-quick-flip,'+
+        '#screen .ktsubscriber-room .kt-three-quick-treasure,'+
+        '#screen .ktsubscriber-room .kt-three-quick-match,'+
+        '#ktSubscriberMatchFloating'
+      ).forEach(function(el){el.remove();});
+    }catch(e){}
+  }
+  hide();
+  [80,220,500,1000,1800].forEach(function(ms){setTimeout(hide,ms);});
+  try{
+    new MutationObserver(function(){
+      clearTimeout(window.__ktSubscriberRightHideTimer);
+      window.__ktSubscriberRightHideTimer=setTimeout(hide,30);
+    }).observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
 })();
