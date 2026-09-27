@@ -46,6 +46,7 @@
       +'<button type="button" onclick="ktTotalAdminAction(\'suspend\')">⛔ 회원 정지 <span>›</span></button>'
       +'<button type="button" onclick="ktTotalAdminAction(\'release\')">✅ 정지 해제 <span>›</span></button>'
       +'<button type="button" onclick="ktTotalAdminAction(\'monitor\')">👁 방송 모니터링 <span>›</span></button>'
+      +'<button type="button" onclick="ktTotalAdminAction(\'profilelink\')">🔗 프로필 링크 <span>›</span></button>'
       +'<button type="button" onclick="ktTotalAdminAction(\'content\')">📣 광고·동영상 승인 <span>›</span></button>'
       +'<button type="button" onclick="ktTotalAdminAction(\'lock\')">🔒 전체 잠금 <span>›</span></button>'
       +'<div class="kt-admin-locked-note">관리 기능은 총관리 스위치 안에서만 사용합니다.</div>'
@@ -61,6 +62,36 @@
 
   window.ktTotalAdminAction=function(kind){
     if(!isOwner())return false;
+    if(kind==='profilelink'){
+      try{
+        var id='';
+        try{
+          if(window.__ktCurrentRemoteHostId)id=String(window.__ktCurrentRemoteHostId||'').trim();
+        }catch(e){}
+        if(!id){
+          try{
+            var card=document.querySelector('[data-host][data-live="1"],[data-host].live,[data-host].on');
+            if(card)id=String(card.getAttribute('data-host')||'').trim();
+          }catch(e){}
+        }
+        if(id){
+          try{localStorage.setItem('kt_admin_profile_link_target',id);}catch(e){}
+          if(typeof window.closeSheet==='function')window.closeSheet();
+          if(typeof window.openProfileDirect==='function'){
+            try{window.openProfileDirect(id);return false;}catch(e){}
+          }
+          if(typeof window.openProfile==='function'){
+            try{window.openProfile(id);return false;}catch(e){}
+          }
+        }
+        if(typeof window.showSheet==='function'){
+          window.showSheet('🔗 프로필 링크',
+            '<div class="rowbox"><b>방송자 프로필 바로가기</b><br>방송 목록에서 방송자 프로필 사진을 눌러 프로필을 열 수 있습니다.</div>'
+            +'<button class="act" type="button" onclick="closeSheet();if(window.friends)friends();">방송 목록 보기</button>');
+        }
+      }catch(e){}
+      return false;
+    }
     if(kind==='content'){
       try{if(typeof window.ktOpenContentApprovalAdmin==='function')window.ktOpenContentApprovalAdmin();}catch(e){}
       return false;
