@@ -1,5 +1,5 @@
 {
-  "version": 152,
+  "version": 153,
   "locked": true,
   "scope": "selective_with_full_snapshot_guard",
   "lock_slot": 1,
@@ -26,13 +26,9 @@
     "current_full_approved_state_20260927_1740",
     "current_full_state_20260927_5555"
   ],
-  "current_editable_components": [
-    "solo_countdown_transition"
-  ],
-  "temporarily_unlocked_components": [
-    "solo_countdown_transition"
-  ],
-  "note": "2026-09-27 owner code 5555: temporarily unlocked ONLY the 1-person broadcast countdown transition for inspection/fix. All other protected K-Talk components and full-state locks remain locked and must not be changed.",
+  "current_editable_components": [],
+  "temporarily_unlocked_components": [],
+  "note": "2026-09-27 owner code 5555: SOLO countdown clean reinstall completed and re-locked. Only the 1-person countdown path changed; all other protected components remain locked.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
