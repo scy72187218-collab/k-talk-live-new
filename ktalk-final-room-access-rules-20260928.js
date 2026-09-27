@@ -138,7 +138,7 @@
 
   async function roomMeta(hostId){
     try{
-      var q='ktalk_live_rooms?select=host_id,host_name,room_type,room_name&host_id=eq.'+enc(hostId)+'&active=eq.true&order=started_at.desc&limit=1';
+      var q='ktalk_live_rooms?select=host_id,host_name,room_type,room_name,started_at&host_id=eq.'+enc(hostId)+'&active=eq.true&order=started_at.desc&limit=1';
       var r=await fetch(BASE+q,{headers:headers(),cache:'no-store'});
       if(!r.ok)return null;
       var rows=await r.json();
@@ -176,7 +176,7 @@
     try{return String(localStorage.getItem('kt_live_device_id')||'').slice(0,120);}catch(e){return '';}
   }
 
-  async function secretInviteAllowed(hostId){
+  async function secretInviteAllowed(hostId,startedAt){
     if(owner())return true;
     var me=myIdentity();
     if(!hostId||!me.id)return false;
@@ -184,8 +184,9 @@
       var q='ktalk_live_messages?select=id,host_id,sender_id,message,message_type,created_at'
         +'&host_id=eq.'+enc(hostId)
         +'&message_type=eq.secret_invite'
-        +'&message=eq.'+enc(me.id)
-        +'&order=created_at.desc&limit=1';
+        +'&message=eq.'+enc(me.id);
+      if(startedAt)q+='&created_at=gte.'+enc(startedAt);
+      q+='&order=created_at.desc&limit=1';
       var r=await fetch(BASE+q,{headers:headers(),cache:'no-store'});
       if(!r.ok)return false;
       var rows=await r.json();
@@ -315,7 +316,7 @@
             try{alert('비밀방은 서로 팔로우된 사람만 초청받을 수 있습니다.');}catch(e){}
             return false;
           }
-          var invited=await secretInviteAllowed(hostId);
+          var invited=await secretInviteAllowed(hostId,meta&&meta.started_at);
           if(!invited){
             try{alert('비밀방은 호스트에게 초청받은 사람만 들어갈 수 있습니다.');}catch(e){}
             return false;
