@@ -11,11 +11,18 @@
 .guests{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(3,1fr);gap:5px}.guest{position:relative;border-radius:12px;border:1.5px solid #625cff;background:linear-gradient(160deg,#14152a,#090910);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;min-height:0}.guest .n{position:absolute;left:5px;top:5px;width:23px;height:23px;border-radius:7px;background:#2289ff;display:grid;place-items:center;font-weight:1000}.guest .av{font-size:31px;opacity:.75}.guest .plus{display:grid;place-items:center;width:27px;height:27px;border-radius:50%;border:2px solid #ff44cf;font-size:18px;box-shadow:0 0 9px #ff44cf88}.guest b,.guest small{font-size:9px;margin-top:3px}.guest.wait{border-color:#5c6070;color:#a9a9b3}.guest.wait .n{background:#5a5a63}
 .lower{display:grid;grid-template-columns:54% 46%;gap:6px;height:230px}.chat,.gifts{border-radius:14px;border:1px solid #ff44cf66;background:#09070e;padding:6px;overflow:hidden}.tabs{display:flex;gap:10px;font-size:12px;font-weight:900;border-bottom:1px solid #ffffff17;padding-bottom:6px}.tabs b{color:#ff65da}.feed{height:151px;overflow:auto;margin:5px 0}.msg{font-size:12px;line-height:1.45;margin:5px 0}.msg.ai{padding:6px;border-radius:8px;background:#171221}.input{display:flex;gap:4px}.input input{flex:1;min-width:0;padding:8px;border-radius:8px;border:1px solid #ffffff20;background:#121019;color:#fff;font-size:12px}.input button{border:0;border-radius:8px;padding:0 9px;background:#9736ff;color:#fff;font-size:11px;font-weight:900}
 .ghead{display:flex;justify-content:space-between;align-items:center;gap:4px;font-size:10px;border-bottom:1px solid #ffffff17;padding-bottom:6px}.ghead b{color:#ff6bdd}.coins{color:#ffd65c;font-size:8px}.gtabs{display:flex;gap:7px;margin:5px 0;font-size:8px;font-weight:900}.gtabs .on{padding:3px 8px;border-radius:999px;background:#c72cff;color:#fff}.grid{display:grid;grid-template-columns:repeat(12,1fr);grid-template-rows:repeat(3,1fr);gap:4px;height:175px;overflow:hidden}
-.gift{min-height:0;border:1px solid #b86b22;border-radius:9px;background:radial-gradient(circle at 50% 18%,rgba(255,78,110,.10),transparent 42%),linear-gradient(160deg,#14080f,#070508);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px 2px;box-shadow:inset 0 0 8px rgba(255,125,38,.12)}
+.gift{min-height:0;border:1px solid rgba(255,190,63,.72);border-radius:10px;background:
+radial-gradient(circle at 50% 15%,rgba(255,58,179,.22),transparent 42%),
+linear-gradient(160deg,#160916,#07050a 68%,#030204);
+display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px 2px;
+box-shadow:inset 0 0 12px rgba(255,89,196,.12),0 0 8px rgba(255,165,42,.15);overflow:hidden;position:relative}
+.gift:before{content:"";position:absolute;inset:0;background:linear-gradient(130deg,transparent 10%,rgba(255,255,255,.08) 38%,transparent 62%);pointer-events:none}
 .gift.rose{grid-column:span 4}.gift.extra{grid-column:span 3}
-.gift i{font-style:normal;font-size:30px;line-height:1;filter:drop-shadow(0 0 5px rgba(255,55,111,.45))}
-.gift b{font-size:8px;text-align:center;margin-top:4px;white-space:nowrap}.gift small{display:none!important}
-.gift:active{transform:scale(.97);filter:brightness(1.15)}
+.gift i{font-style:normal;display:grid;place-items:center;width:78%;height:64%;line-height:1;filter:drop-shadow(0 0 7px rgba(255,58,179,.50))}
+.gift i svg{width:100%;height:100%;display:block;overflow:visible}
+.gift b{position:relative;z-index:2;font-size:8px;text-align:center;margin-top:2px;white-space:nowrap;color:#fff;font-weight:950;text-shadow:0 1px 4px #000}
+.gift small{display:none!important}
+.gift:active{transform:scale(.97);filter:brightness(1.14)}
 .nav{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;height:54px}.nav button{border:0;background:none;color:#fff;font-size:8px;font-weight:900}.nav i{display:grid;place-items:center;width:34px;height:34px;margin:0 auto 2px;border-radius:50%;border:1px solid #7558ff;background:#120c1c;font-style:normal;font-size:17px;box-shadow:0 0 9px #744cff55}
 .toast{position:fixed;left:50%;bottom:78px;transform:translateX(-50%);display:none;padding:9px 13px;border-radius:999px;background:#17111ddd;border:1px solid #ff55d1;font-size:11px;font-weight:900;z-index:99}
 @media(max-width:390px){.logo{font-size:21px}.main{min-height:365px}.lower{height:214px}.feed{height:136px}.grid{height:160px}.guest .av{font-size:28px}.hello{font-size:16px}}
@@ -69,7 +76,7 @@ body{position:fixed;inset:0}
 .gtabs .on{padding:2px 5px!important}
 .grid{height:78%!important;min-height:0!important;gap:2px!important;overflow:hidden!important}
 .gift{border-radius:6px!important;padding:2px 1px!important}
-.gift i{font-size:clamp(18px,5vw,26px)!important}
+.gift i{font-size:clamp(18px,5vw,26px)!important;width:82%!important;height:66%!important}
 .gift b{display:block!important;font-size:6.4px!important;line-height:1.05!important;margin-top:2px!important;color:#fff!important;white-space:nowrap!important}
 .nav{grid-template-columns:repeat(7,1fr)!important;gap:1px!important}
 .nav button{font-size:6.5px!important;padding:0!important;min-width:0!important}
@@ -225,7 +232,37 @@ body{
 for(let i=0;i<28;i++)document.getElementById('wave').insertAdjacentHTML('beforeend','<i></i>');
 for(let n=1;n<=5;n++)document.getElementById('guests').insertAdjacentHTML('beforeend','<button class="guest" onclick="toast(\'게스트 '+n+' 참여 준비\')"><span class="n">'+n+'</span><span class="av">👤</span><span class="plus">＋</span><b>게스트 '+n+'</b><small>참여하기</small></button>');
 document.getElementById('guests').insertAdjacentHTML('beforeend','<button class="guest" onclick="toast(\'게스트 6 참여 준비\')"><span class="n">6</span><span class="av">👤</span><span class="plus">＋</span><b>게스트 6</b><small>참여하기</small></button>');
-[['🌹','1송이 장미'],['💐','10송이 장미'],['🌹','20송이 장미'],['💐','30송이 장미'],['🌹','40송이 장미'],['💐','50송이 장미'],['💖','하트'],['⭐','별'],['🎈','풍선'],['🎁','선물상자']].forEach((g,idx)=>document.getElementById('giftgrid').insertAdjacentHTML('beforeend','<button class="gift '+(idx<6?'rose':'extra')+'" onclick="window.ktAiDjGift?window.ktAiDjGift(window.__ktDjNickname||\'대표님\',\''+g[1]+'\'):toast(\''+g[1]+' 선택\')"><i>'+g[0]+'</i><b>'+g[1]+'</b></button>'));
+
+function ktGiftSvg(kind,count){
+  var defs='<defs><radialGradient id="rg" cx="50%" cy="35%"><stop offset="0" stop-color="#ff9bd4"/><stop offset=".42" stop-color="#ff236f"/><stop offset="1" stop-color="#8b0935"/></radialGradient><linearGradient id="gg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffe46d"/><stop offset=".55" stop-color="#ff9f1a"/><stop offset="1" stop-color="#ff4f00"/></linearGradient><filter id="gl"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
+  function rose(x,y,s,r){
+    return '<g transform="translate('+x+' '+y+') scale('+s+') rotate('+r+')" filter="url(#gl)"><path d="M0 12 C-8 2 -7 -8 1 -13 C9 -18 17 -10 14 -2 C22 -6 28 2 23 10 C18 19 7 22 0 12Z" fill="url(#rg)"/><path d="M1 13 C-2 25 -5 31 -9 40" stroke="#39b54a" stroke-width="4" fill="none"/><path d="M-6 28 C-15 22 -18 17 -19 11 C-11 13 -5 18 -2 24Z" fill="#38c65c"/><path d="M-4 7 C1 1 7 -2 13 0 C8 5 4 8 -1 11Z" fill="#ffb0ca" opacity=".72"/></g>';
+  }
+  var s='<svg viewBox="0 0 100 80" aria-hidden="true">'+defs;
+  if(kind==='rose'){
+    var pts=[[50,24,1.2,0],[33,29,.92,-16],[66,30,.92,16],[22,38,.78,-22],[78,39,.78,22],[42,40,.86,-8],[59,41,.86,8],[31,49,.72,-12],[69,49,.72,12],[50,51,.82,0]];
+    var n=Math.max(1,Math.min(10,Math.ceil(Number(count||1)/5)));
+    if(Number(count||1)===1)n=1;
+    for(var i=0;i<n;i++){var p=pts[i];s+=rose(p[0],p[1],p[2],p[3]);}
+    if(Number(count||1)>=30)s+='<path d="M32 62 Q50 70 68 62" stroke="#ffd34d" stroke-width="5" fill="none" stroke-linecap="round"/>';
+    if(Number(count||1)>=50)s+='<path d="M42 9 L50 1 L58 9 L66 4 L64 16 L36 16 L34 4Z" fill="url(#gg)" filter="url(#gl)"/>';
+  }else if(kind==='heart'){
+    s+='<path d="M50 68 C35 57 15 44 15 27 C15 13 31 7 42 18 L50 27 L58 18 C69 7 85 13 85 27 C85 44 65 57 50 68Z" fill="url(#rg)" filter="url(#gl)"/><path d="M29 21 C35 16 41 18 44 22" stroke="#ffd3e8" stroke-width="4" stroke-linecap="round"/>';
+  }else if(kind==='star'){
+    s+='<path d="M50 7 L61 31 L87 34 L68 52 L73 78 L50 65 L27 78 L32 52 L13 34 L39 31Z" fill="url(#gg)" filter="url(#gl)"/><path d="M50 15 L56 33" stroke="#fff4aa" stroke-width="3" stroke-linecap="round"/>';
+  }else if(kind==='balloon'){
+    s+='<ellipse cx="31" cy="29" rx="14" ry="18" fill="#ff4fc3" filter="url(#gl)"/><ellipse cx="52" cy="23" rx="14" ry="18" fill="#4db8ff" filter="url(#gl)"/><ellipse cx="70" cy="34" rx="14" ry="18" fill="#9a5cff" filter="url(#gl)"/><path d="M31 47 L49 73 M52 41 L49 73 M70 52 L49 73" stroke="#ffdff7" stroke-width="2"/>';
+  }else{
+    s+='<rect x="17" y="30" width="66" height="43" rx="7" fill="url(#gg)" filter="url(#gl)"/><rect x="46" y="30" width="10" height="43" fill="#ff2d8f"/><rect x="17" y="42" width="66" height="8" fill="#ff2d8f"/><path d="M50 30 C42 21 31 21 29 28 C27 34 37 36 50 30Z M50 30 C58 21 69 21 71 28 C73 34 63 36 50 30Z" fill="#ff4aa2" stroke="#ffd1eb" stroke-width="2"/>';
+  }
+  s+='<g fill="#fff7c9"><circle cx="12" cy="16" r="2"/><circle cx="88" cy="18" r="1.7"/><circle cx="82" cy="67" r="1.5"/></g></svg>';
+  return s;
+}
+[
+  ['rose','1송이 장미',1],['rose','10송이 장미',10],['rose','20송이 장미',20],
+  ['rose','30송이 장미',30],['rose','40송이 장미',40],['rose','50송이 장미',50],
+  ['heart','하트'],['star','별'],['balloon','풍선'],['gift','선물상자']
+].forEach((g,idx)=>document.getElementById('giftgrid').insertAdjacentHTML('beforeend','<button class="gift '+(idx<6?'rose':'extra')+'" onclick="window.ktAiDjGift?window.ktAiDjGift(window.__ktDjNickname||\'대표님\',\''+g[1]+'\'):toast(\''+g[1]+' 선택\')"><i>'+ktGiftSvg(g[0],g[2])+'</i><b>'+g[1]+'</b></button>'));
 function toast(t){const x=document.getElementById('toast');x.textContent=t;x.style.display='block';clearTimeout(window.__t);window.__t=setTimeout(()=>x.style.display='none',1400)}
 function song(){const q=prompt('신청곡 제목을 입력해 주세요.','');if(!q||!q.trim())return;document.getElementById('feed').insertAdjacentHTML('beforeend','<div class="msg ai"><b>★ K-Talk AI DJ</b><br>'+q.replace(/[<>]/g,'')+' 신청곡으로 접수했어요 🎵</div>');toast('신청곡이 접수되었습니다')}
 function send(){const i=document.getElementById('chat'),v=i.value.trim();if(!v)return;document.getElementById('feed').insertAdjacentHTML('beforeend','<div class="msg"><b>나</b> · '+v.replace(/[<>]/g,'')+'</div>');i.value=''}
