@@ -2732,14 +2732,35 @@
     }catch(z){}
   });
 
+  function pinRemoteHostDuringGuestTransition20260927(){
+    try{
+      var s=window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream||null;
+      if(!s)return;
+      [0,20,50,90,150,240,360,520,760,1050,1450].forEach(function(ms){
+        setTimeout(function(){
+          try{attachRemoteStreamNow(s);}catch(_e){}
+        },ms);
+      });
+    }catch(e){}
+  }
+
+  /* When approval changes the viewer DOM into the guest-room DOM, the real
+     host <video> can already exist and only its class/display attributes
+     change. Observe attributes too, then pin the already-live remote stream
+     immediately instead of waiting for another RTC reconnect. */
   try{
     var screen=document.getElementById('screen');
     if(screen&&window.MutationObserver){
       new MutationObserver(function(){
-        if(window.__ktRemoteHostStream)setTimeout(function(){attachRemoteStreamNow();},0);
-      }).observe(screen,{childList:true,subtree:true});
+        if(window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream){
+          setTimeout(function(){attachRemoteStreamNow();},0);
+        }
+      }).observe(screen,{childList:true,subtree:true,attributes:true,attributeFilter:['class','style']});
     }
   }catch(e){}
+
+  ['kt-guest-approval-received','kt-any-guest-approved','kt-approved-guest-stream-ready']
+    .forEach(function(n){window.addEventListener(n,pinRemoteHostDuringGuestTransition20260927);});
 
   /* If another guest-flow module already opened this phone's real camera,
      adopt it immediately. This keeps the self tile from staying black and
