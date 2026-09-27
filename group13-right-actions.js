@@ -110,6 +110,19 @@
   }
 
   function applySolo(){
+    /* Owner request: 1인방 오른쪽 되돌리기/좋아요/효과/보물상자 제거 */
+    try{
+      var box=document.querySelector('#screen .ktsolo-room .ktsolo-right');
+      if(box){
+        box.querySelectorAll(
+          '.kt-solo-camera-flip,.like,[aria-label="효과"],.kt-solo-treasure,[aria-label="보물상자"]'
+        ).forEach(function(el){el.remove();});
+        /* 오른쪽 박스에 남는 버튼이 없으면 박스도 제거 */
+        if(!box.querySelector('button'))box.remove();
+      }
+    }catch(e){}
+    return;
+
     var box=document.querySelector('.ktsolo-right');
     if(!box)return;
     ensureStyle();
@@ -202,4 +215,37 @@
     +'.ktsolo-room .ktsolo-earn #hudEarnNet{font-size:10px!important}'
     +'@media(max-width:390px){.ktsolo-right{bottom:104px!important;gap:4px!important}.ktsolo-right.kt-synced-actions>button{width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important}.ktsolo-right.kt-synced-actions>.like{height:48px!important;min-height:48px!important}.ktsolo-room .ktsolo-earn{right:5px!important;bottom:52px!important;width:104px!important;max-width:31%!important}}';
   document.head.appendChild(s);
+})();
+
+
+/* 2026-09-27: 1인방 오른쪽 되돌리기/좋아요/효과/보물상자 제거.
+   하단 도구줄은 유지. */
+(function(){
+  if(window.__ktSoloRightFourHidden20260927)return;
+  window.__ktSoloRightFourHidden20260927=true;
+  function hide(){
+    try{
+      var room=document.querySelector('#screen .ktsolo-room');
+      if(!room)return;
+      room.querySelectorAll(
+        '.ktsolo-right .kt-solo-camera-flip,'+
+        '.ktsolo-right .like,'+
+        '.ktsolo-right [aria-label="효과"],'+
+        '.ktsolo-right .kt-solo-treasure,'+
+        '.ktsolo-right [aria-label="보물상자"],'+
+        '.kt-three-quick-flip,'+
+        '.kt-three-quick-treasure'
+      ).forEach(function(el){el.remove();});
+      var box=room.querySelector('.ktsolo-right');
+      if(box&&!box.querySelector('button'))box.remove();
+    }catch(e){}
+  }
+  hide();
+  [80,220,500,1000,1800].forEach(function(ms){setTimeout(hide,ms);});
+  try{
+    new MutationObserver(function(){
+      clearTimeout(window.__ktSoloRightFourHideTimer);
+      window.__ktSoloRightFourHideTimer=setTimeout(hide,30);
+    }).observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
 })();
