@@ -224,7 +224,7 @@ body{
 <script>
 for(let i=0;i<28;i++)document.getElementById('wave').insertAdjacentHTML('beforeend','<i></i>');
 for(let n=1;n<=5;n++)document.getElementById('guests').insertAdjacentHTML('beforeend','<button class="guest" onclick="toast(\'게스트 '+n+' 참여 준비\')"><span class="n">'+n+'</span><span class="av">👤</span><span class="plus">＋</span><b>게스트 '+n+'</b><small>참여하기</small></button>');
-document.getElementById('guests').insertAdjacentHTML('beforeend','<button class="guest wait"><span class="n">🔒</span><span class="av">👤</span><b>대기 (6)</b><small>대기중</small></button>');
+document.getElementById('guests').insertAdjacentHTML('beforeend','<button class="guest" onclick="toast(\'게스트 6 참여 준비\')"><span class="n">6</span><span class="av">👤</span><span class="plus">＋</span><b>게스트 6</b><small>참여하기</small></button>');
 [['🌹','1송이 장미'],['💐','10송이 장미'],['🌹','20송이 장미'],['💐','30송이 장미'],['🌹','40송이 장미'],['💐','50송이 장미'],['💖','하트'],['⭐','별'],['🎈','풍선'],['🎁','선물상자']].forEach((g,idx)=>document.getElementById('giftgrid').insertAdjacentHTML('beforeend','<button class="gift '+(idx<6?'rose':'extra')+'" onclick="window.ktAiDjGift?window.ktAiDjGift(window.__ktDjNickname||\'대표님\',\''+g[1]+'\'):toast(\''+g[1]+' 선택\')"><i>'+g[0]+'</i><b>'+g[1]+'</b></button>'));
 function toast(t){const x=document.getElementById('toast');x.textContent=t;x.style.display='block';clearTimeout(window.__t);window.__t=setTimeout(()=>x.style.display='none',1400)}
 function song(){const q=prompt('신청곡 제목을 입력해 주세요.','');if(!q||!q.trim())return;document.getElementById('feed').insertAdjacentHTML('beforeend','<div class="msg ai"><b>★ K-Talk AI DJ</b><br>'+q.replace(/[<>]/g,'')+' 신청곡으로 접수했어요 🎵</div>');toast('신청곡이 접수되었습니다')}
