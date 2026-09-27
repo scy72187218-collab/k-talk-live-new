@@ -17,10 +17,11 @@
       +'.kt-photo-guest-controls button{height:66px!important;min-width:0!important;border:0!important;border-radius:16px!important;background:#26262b!important;color:#fff!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:5px!important;font:900 12px/1 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;touch-action:manipulation!important}'
       +'.kt-photo-guest-controls button b{font-size:26px!important;line-height:1!important}.kt-photo-guest-controls button span{font-size:11px!important;white-space:nowrap!important}'
       +'.kt-photo-guest-controls button.off{opacity:.58!important;background:#17171b!important}'
-      +'.kt-photo-guest-controls .kt-photo-gift-pick{grid-column:1/-1!important;height:46px!important;flex-direction:row!important;gap:8px!important;background:linear-gradient(135deg,#7a3b00,#b96900)!important;border:1px solid #ffd56a55!important}'
-      +'.kt-photo-guest-controls .kt-photo-gift-pick b{font-size:22px!important}.kt-photo-guest-controls .kt-photo-gift-pick span{font-size:12px!important}'
-      +'.kt-photo-zoom-box.kt-has-guest-controls img,.kt-photo-zoom-box.kt-has-guest-controls video{padding-bottom:146px!important;box-sizing:border-box!important}'
-      +'@media(max-width:390px){.kt-photo-guest-controls{left:8px!important;right:8px!important;bottom:8px!important;gap:5px!important;padding:7px!important}.kt-photo-guest-controls button{height:58px!important;border-radius:13px!important}.kt-photo-guest-controls button b{font-size:22px!important}.kt-photo-guest-controls button span{font-size:9px!important}.kt-photo-guest-controls .kt-photo-gift-pick{height:40px!important}.kt-photo-zoom-box.kt-has-guest-controls img,.kt-photo-zoom-box.kt-has-guest-controls video{padding-bottom:126px!important}}'
+      +'.kt-photo-inline-gifts{grid-column:1/-1!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:5px!important;max-height:154px!important;overflow-y:auto!important;padding:5px!important;border-radius:14px!important;background:rgba(7,7,10,.96)!important;border:1px solid rgba(255,213,106,.28)!important;overscroll-behavior:contain!important}'
+      +'.kt-photo-inline-gifts button{height:58px!important;min-width:0!important;padding:4px 2px!important;border-radius:10px!important;background:#1b1b20!important;border:1px solid rgba(255,255,255,.10)!important;color:#fff!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:2px!important}'
+      +'.kt-photo-inline-gifts button em{font-style:normal!important;font-size:21px!important;line-height:1!important}.kt-photo-inline-gifts button b{font-size:7.5px!important;line-height:1.1!important;max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}.kt-photo-inline-gifts button small{font-size:7px!important;color:#ffd86b!important;font-weight:950!important}'
+      +'.kt-photo-zoom-box.kt-has-guest-controls img,.kt-photo-zoom-box.kt-has-guest-controls video{padding-bottom:252px!important;box-sizing:border-box!important}'
+      +'@media(max-width:390px){.kt-photo-guest-controls{left:8px!important;right:8px!important;bottom:8px!important;gap:5px!important;padding:7px!important}.kt-photo-guest-controls button{height:58px!important;border-radius:13px!important}.kt-photo-guest-controls button b{font-size:22px!important}.kt-photo-guest-controls button span{font-size:9px!important}.kt-photo-inline-gifts{grid-template-columns:repeat(4,minmax(0,1fr))!important;max-height:136px!important;gap:4px!important;padding:4px!important}.kt-photo-inline-gifts button{height:52px!important}.kt-photo-inline-gifts button em{font-size:19px!important}.kt-photo-zoom-box.kt-has-guest-controls img,.kt-photo-zoom-box.kt-has-guest-controls video{padding-bottom:224px!important}}'
       +'.kt-photo-zoomable{cursor:zoom-in!important;pointer-events:auto!important;touch-action:manipulation!important}';
     (document.head||document.documentElement).appendChild(s);
   }
@@ -166,15 +167,25 @@
       }catch(e){}
     });
 
-    var giftBtn=btn('🎁','선물 고르기 · 작은 선물 → 큰 선물',function(){
-      try{
-        closeZoom();
-        setTimeout(function(){
-          if(typeof window.openGifts==='function')window.openGifts();
-        },40);
-      }catch(e){}
-    });
-    giftBtn.classList.add('kt-photo-gift-pick');
+    var gifts=document.createElement('div');
+    gifts.className='kt-photo-inline-gifts';
+    try{
+      var list=window.ktalkGifts||[];
+      list.forEach(function(g,i){
+        var gb=document.createElement('button');
+        gb.type='button';
+        gb.innerHTML='<em>'+String(g[2]||'🎁')+'</em><b>'+String(g[0]||'선물')+'</b><small>'+String(g[1]||'')+'개</small>';
+        gb.addEventListener('click',function(e){
+          try{e.preventDefault();e.stopPropagation();}catch(_e){}
+          try{
+            if(typeof window.giftSendByIndex==='function')window.giftSendByIndex(i);
+            else if(typeof window.giftSend==='function')window.giftSend(g[0],g[1]);
+          }catch(_e){}
+        });
+        gifts.appendChild(gb);
+      });
+    }catch(e){}
+    if(gifts.children.length)bar.appendChild(gifts);
 
     box.appendChild(bar);
   }
