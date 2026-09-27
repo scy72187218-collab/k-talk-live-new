@@ -60,6 +60,39 @@
     v.addEventListener('playing',function(){setTimeout(verify,350);});
     v.addEventListener('error',function(){retryVideo();});
 
+    function shouldResume(){
+      try{
+        if(v.ended)return false;
+        if(v.readyState<2)return false;
+        var r=v.getBoundingClientRect();
+        if(r.bottom<0||r.top>window.innerHeight)return false;
+        return true;
+      }catch(e){return false}
+    }
+
+    function resumeVideo(){
+      if(!shouldResume())return;
+      try{
+        var p=v.play();
+        if(p&&p.catch)p.catch(function(){});
+      }catch(e){}
+    }
+
+    v.addEventListener('stalled',function(){setTimeout(resumeVideo,180);});
+    v.addEventListener('waiting',function(){setTimeout(resumeVideo,220);});
+    v.addEventListener('suspend',function(){setTimeout(resumeVideo,220);});
+    v.addEventListener('pause',function(){
+      setTimeout(function(){
+        if(document.visibilityState==='visible')resumeVideo();
+      },260);
+    });
+
+    document.addEventListener('visibilitychange',function(){
+      if(document.visibilityState==='visible')setTimeout(resumeVideo,180);
+    });
+
+    window.addEventListener('pageshow',function(){setTimeout(resumeVideo,180);});
+
     setTimeout(verify,900);
     setTimeout(verify,1800);
   }
