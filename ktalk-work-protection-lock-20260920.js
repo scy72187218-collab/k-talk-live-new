@@ -1,6 +1,7 @@
 /* Selective K-Talk work-protection locks.
    Lock 1: 9-person room bottom eight controls.
    Lock 2: current first public-video page opening + current 13-person room open-first countdown.
+   Lock 3: current subscriber-room state + public-video rose/message/share controls.
    These locks do not disable runtime controls; they mark approved working areas as protected from unrelated edits. */
 (function(){
   if(window.__ktSelectiveProtectionLocks20260927)return;
@@ -27,7 +28,6 @@
 
   function markLock2(){
     try{
-      /* First public-video page/current first-video opening path */
       document.querySelectorAll(
         '.kt-public-feed-scroller,.kt-public-video,.video-home,.video-feed,#videoHome,#videoFeed'
       ).forEach(function(el){
@@ -36,7 +36,6 @@
         el.setAttribute('data-kt-protected-area','public_video_first_page_opening');
       });
 
-      /* Current approved 13-person room and its open-first countdown state */
       document.querySelectorAll('#screen .ktg13-room[data-kt-approved13="1"],#ktLiveCountdown').forEach(function(el){
         el.setAttribute('data-kt-work-protected','1');
         el.setAttribute('data-kt-protection-slot','2');
@@ -45,21 +44,57 @@
     }catch(e){}
   }
 
-  function markAll(){markLock1();markLock2();}
+  function markLock3(){
+    try{
+      /* Subscriber room current approved state */
+      document.querySelectorAll(
+        '#screen .ktsubscriber-room,.ktsubscriber-room,[data-kt-room="subscriber"]'
+      ).forEach(function(el){
+        el.setAttribute('data-kt-work-protected','1');
+        el.setAttribute('data-kt-protection-slot','3');
+        el.setAttribute('data-kt-protected-area','subscriber_room_current_state');
+      });
+
+      /* Public-video rose, message and share controls only */
+      document.querySelectorAll(
+        '.vh-actions .kt-feed-final-rose,.vh-actions .kt-feed-final-message,.vh-actions .kt-feed-final-share'
+      ).forEach(function(el){
+        el.setAttribute('data-kt-work-protected','1');
+        el.setAttribute('data-kt-protection-slot','3');
+        el.setAttribute('data-kt-protected-area','public_video_rose_message_share');
+        el.disabled=false;
+        el.setAttribute('aria-disabled','false');
+        el.style.setProperty('pointer-events','auto','important');
+        el.style.setProperty('touch-action','manipulation','important');
+      });
+    }catch(e){}
+  }
+
+  function markAll(){markLock1();markLock2();markLock3();}
 
   window.ktCurrentProtectionState=function(){
     return {
       group9_bottom_controls_8:true,
       public_video_first_page_opening:true,
       group13_open_room_then_countdown:true,
-      lock_slots:{1:['group9_bottom_controls_8'],2:['public_video_first_page_opening','group13_open_room_then_countdown']}
+      subscriber_room_current_state:true,
+      public_video_rose_message_share:true,
+      lock_slots:{
+        1:['group9_bottom_controls_8'],
+        2:['public_video_first_page_opening','group13_open_room_then_countdown'],
+        3:['subscriber_room_current_state','public_video_rose_message_share']
+      }
     };
   };
+
   window.ktIsWorkProtected=function(name){
     return name==='group9_bottom_controls_8'||
            name==='public_video_first_page_opening'||
-           name==='group13_open_room_then_countdown';
+           name==='group13_open_room_then_countdown'||
+           name==='subscriber_room_current_state'||
+           name==='public_video_rose_message_share';
   };
+
   window.ktLockCurrentApprovedState=function(){markAll();return true;};
   window.ktIsLiveSignalWorkAllowed=function(){return true;};
 
