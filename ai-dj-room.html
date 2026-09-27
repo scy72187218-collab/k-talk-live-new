@@ -41,6 +41,20 @@ box-shadow:inset 0 0 12px rgba(255,89,196,.12),0 0 8px rgba(255,165,42,.15);over
 
 /* 2026-09-27: gift rose-count labels only */
 .gift.extra b{font-size:6.4px!important;line-height:1.05!important;white-space:normal!important;text-align:center!important}
+
+/* 2026-09-27 AI DJ shared treasure box */
+.kt-dj-treasure-zone{position:absolute;left:7px;top:42px;z-index:80;pointer-events:auto}
+.kt-dj-treasure{min-width:74px;max-width:94px;padding:5px 6px;border:1px solid #ffd65d;border-radius:14px;background:rgba(32,15,5,.92);color:#fff;box-shadow:0 0 13px rgba(255,185,47,.72);font-weight:950;text-align:center}
+.kt-dj-treasure .chest{display:block;font-size:25px;line-height:1.05;filter:drop-shadow(0 0 5px #ffb62f)}
+.kt-dj-treasure .amt,.kt-dj-treasure .time,.kt-dj-treasure .capx{display:block;font-size:7px;line-height:1.2;margin-top:1px}
+.kt-dj-treasure.ready{animation:ktDjTreasurePulse .8s ease-in-out infinite alternate}
+@keyframes ktDjTreasurePulse{from{transform:scale(1)}to{transform:scale(1.05)}}
+.kt-dj-treasure-picker{position:fixed;inset:0;z-index:100000;display:grid;place-items:center;background:rgba(0,0,0,.72)}
+.kt-dj-treasure-picker .box{width:min(88vw,330px);padding:16px;border:1px solid #ff65d5;border-radius:18px;background:#100914;color:#fff;box-shadow:0 0 24px #a53bff88}
+.kt-dj-treasure-picker h3{margin:0 0 12px;text-align:center;font-size:17px}
+.kt-dj-treasure-picker .choices{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kt-dj-treasure-picker button{min-height:64px;border:1px solid #ffd65d;border-radius:14px;background:linear-gradient(160deg,#35150d,#160912);color:#fff;font-weight:950}
+.kt-dj-treasure-picker .close{width:100%;min-height:38px;margin-top:10px;border-color:#777;background:#19191f}
 </style><style id="kt-dj-fullscreen-fit-20260927">
 html,body{width:100%;height:100%;min-height:0!important;overflow:hidden!important;overscroll-behavior:none}
 body{position:fixed;inset:0}
@@ -233,14 +247,14 @@ body{
 <div class="top"><div class="on">● ON AIR</div><div class="logo">♛ K-Talk LIVE ✨</div><div class="count">👤 접속 1,286명</div></div>
 <div class="banners"><button onclick="toast('출석체크 완료')">☑ ★ 출석체크 눌러주세요 ★</button><button onclick="song()">🎵 신청곡 : AI DJ에게 말씀해 주세요 🎙️</button></div>
 <div class="main">
-<div class="dj"><img src="/dj-exact.jpg?v=20260927-3" alt="K-Talk AI DJ"><div class="shade"></div><div class="djtitle">K-Talk AI DJ ♛</div><div class="live">● LIVE</div><div class="hello">오늘도<br>좋은 음악과<br>함께해요 ♡</div><div class="notes">♫<br>♪</div><div class="wave" id="wave"></div><div class="cap">🎵 AI DJ가 신청곡을 들려드려요 · 좋은 음악과 함께해요 ♡</div></div>
+<div class="dj"><img src="/dj-exact.jpg?v=20260927-3" alt="K-Talk AI DJ"><div id="ktDjTreasureZone" class="kt-dj-treasure-zone"></div><div class="shade"></div><div class="djtitle">K-Talk AI DJ ♛</div><div class="live">● LIVE</div><div class="hello">오늘도<br>좋은 음악과<br>함께해요 ♡</div><div class="notes">♫<br>♪</div><div class="wave" id="wave"></div><div class="cap">🎵 AI DJ가 신청곡을 들려드려요 · 좋은 음악과 함께해요 ♡</div></div>
 <div class="guests" id="guests"></div>
 </div>
 <div class="lower">
 <div class="chat"><div class="tabs"><b>채팅 (128)</b><span>참가자</span><span>팬클럽</span><span>공지</span></div><div class="feed" id="feed"><div class="msg ai"><b>★ K-Talk AI DJ · AI</b><br>안녕하세요! AI DJ 수아예요 💜<br>좋은 음악과 함께하는 즐거운 시간!<br>신청곡 많이 남겨주세요 🎵✨</div><div class="msg"><b>한수향</b> · 역시 수아 DJ 최고예요! 🥰💜</div><div class="msg ai"><b>★ K-Talk AI DJ · AI</b><br>신청곡 남겨주시면 바로 들려드릴게요! 🎧🎵</div><div class="msg"><b>지수</b> · 오늘도 힐링되는 목소리네요 💕</div><div class="msg"><b>도해미</b> · 좋은 음악 감사합니다! 👍</div><div class="msg"><b>블링</b> · 항상 응원합니다! 🌸💜</div></div><div class="input"><input id="chat" placeholder="메시지를 입력하세요..."><button onclick="send()">전송</button><button onclick="toast('선물')">🎁</button></div></div>
 <div class="gifts"><div class="ghead"><b>🎁 선물 / 후원</b><span class="coins">🌹 보유 장미 12,350개 ＋</span></div><div class="gtabs"><span class="on">전체</span><span>인기</span><span>스페셜</span><span>컬렉션</span></div><div class="grid" id="giftgrid"></div></div>
 </div>
-<div class="nav"><button onclick="song()"><i>🎵</i>신청곡</button><button onclick="song()"><i>🎙️</i>말하기</button><button onclick="toast('장미 선택')"><i>🌹</i>장미</button><button onclick="toast('선물 선택')"><i>🎁</i>선물</button><button onclick="shareRoom()"><i>↗</i>공유</button><button onclick="toast('효과 메뉴')"><i>🪄</i>효과</button><button onclick="toast('더보기 메뉴')"><i>•••</i>더보기</button></div>
+<div class="nav"><button onclick="song()"><i>🎵</i>신청곡</button><button onclick="song()"><i>🎙️</i>말하기</button><button onclick="toast('장미 선택')"><i>🌹</i>장미</button><button onclick="toast('선물 선택')"><i>🎁</i>선물</button><button onclick="shareRoom()"><i>↗</i>공유</button><button onclick="toast('효과 메뉴')"><i>🪄</i>효과</button><button onclick="openDjTreasure()"><i>🧰</i>보물상자</button></div>
 </div><div class="toast" id="toast"></div>
 <script>
 for(let i=0;i<28;i++)document.getElementById('wave').insertAdjacentHTML('beforeend','<i></i>');
@@ -452,6 +466,162 @@ document.getElementById('chat').addEventListener('keydown',e=>{if(e.key==='Enter
     n--;setTimeout(tick,1000);
   }
   setTimeout(tick,250);
+})();
+</script>
+
+
+<script id="kt-dj-treasure-runtime-20260927">
+(function(){
+  if(window.__ktDjTreasureRuntime20260927)return;
+  window.__ktDjTreasureRuntime20260927=true;
+
+  var BASE='https://zupwbfmacwzexyvznlzq.supabase.co';
+  var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXAiLCJyZWYiOiJ6dXB3YmZtYWN3emV4eXZ6bmx6cSIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzg4NDYxMDc2LCJleHAiOjIxMDQwMzcwNzZ9.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
+  var WAIT_MS=3*60*1000, CLAIM_MS=3*60*1000, active=null, timer=null, syncing=false;
+
+  function enc(v){return encodeURIComponent(String(v==null?'':v))}
+  function headers(extra){var h={apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json'};Object.keys(extra||{}).forEach(function(k){h[k]=extra[k]});return h}
+  async function req(path,opt){opt=opt||{};opt.headers=headers(opt.headers);var r=await fetch(BASE+'/rest/v1/'+path,opt);if(!r.ok)throw new Error('treasure '+r.status);if(r.status===204)return null;var t=await r.text();return t?JSON.parse(t):null}
+  function deviceId(){var id='';try{id=localStorage.getItem('kt_live_device_id')||''}catch(e){}if(!id){id='kt_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,10);try{localStorage.setItem('kt_live_device_id',id)}catch(e){}}return id}
+  function name(){try{return localStorage.getItem('ktalk_profile_name')||localStorage.getItem('ktalk_nickname')||window.__ktDjNickname||'K-Talk 회원'}catch(e){return window.__ktDjNickname||'K-Talk 회원'}}
+  function fmt(ms){ms=Math.max(0,ms);var s=Math.ceil(ms/1000),m=Math.floor(s/60);return m+':'+String(s%60).padStart(2,'0')}
+  function save(t){active=t||null;try{if(t)localStorage.setItem('kt_dj_active_treasure',JSON.stringify(t));else localStorage.removeItem('kt_dj_active_treasure')}catch(e){}render()}
+
+  async function postEvent(type,obj){
+    try{
+      await req('ktalk_live_messages',{
+        method:'POST',
+        headers:{Prefer:'return=minimal'},
+        body:JSON.stringify({
+          host_id:'ai-dj-room',
+          sender_id:type+':'+deviceId(),
+          sender_name:name(),
+          message:JSON.stringify(obj),
+          message_type:type
+        })
+      });
+    }catch(e){}
+  }
+
+  async function loadClaims(id){
+    var out={ids:[],count:0};
+    try{
+      var since=new Date(Date.now()-2*60*60*1000).toISOString();
+      var rows=await req('ktalk_live_messages?select=sender_id&host_id=eq.ai-dj-room&message_type=eq.'+enc('dj_treasure_claim:'+id)+'&created_at=gte.'+enc(since)+'&order=created_at.asc&limit=500');
+      var seen={};
+      (rows||[]).forEach(function(r){var x=String(r.sender_id||'');if(x&&!seen[x]){seen[x]=1;out.ids.push(x)}});
+      out.count=out.ids.length;
+    }catch(e){}
+    return out;
+  }
+
+  async function sync(){
+    if(syncing)return;syncing=true;
+    try{
+      var since=new Date(Date.now()-2*60*60*1000).toISOString();
+      var rows=await req('ktalk_live_messages?select=id,message,created_at&host_id=eq.ai-dj-room&message_type=eq.dj_treasure&created_at=gte.'+enc(since)+'&order=created_at.desc&limit=10');
+      var best=null;
+      (rows||[]).some(function(r){
+        try{
+          var t=JSON.parse(String(r.message||'{}'));
+          if(!t||!t.id||!t.unlockAt||!t.expireAt)return false;
+          if(Date.now()>Number(t.expireAt)+10*60*1000)return false;
+          best=t;return true;
+        }catch(e){return false}
+      });
+      if(best){
+        var cl=await loadClaims(best.id);
+        best.claimedBy=cl.ids;
+        best.claimedCount=cl.count;
+        best.remaining=Math.max(0,(parseInt(best.amount,10)||0)-cl.count);
+        if(!active||String(active.id)!==String(best.id)||Number(active.remaining)!==Number(best.remaining))save(best);
+        else {active=best;render()}
+      }
+    }catch(e){}
+    syncing=false;
+  }
+
+  window.openDjTreasure=function(){
+    var old=document.getElementById('ktDjTreasurePicker');if(old)old.remove();
+    var d=document.createElement('div');d.id='ktDjTreasurePicker';d.className='kt-dj-treasure-picker';
+    d.innerHTML='<div class="box"><h3>🧰 보물상자 올리기</h3><div class="choices">'+
+      '<button onclick="placeDjTreasure(10)">🧰<br>장미 10개</button>'+
+      '<button onclick="placeDjTreasure(50)">🧰<br>장미 50개</button>'+
+      '<button onclick="placeDjTreasure(100)">🧰<br>장미 100개</button>'+
+      '</div><button class="close" onclick="this.closest(\'.kt-dj-treasure-picker\').remove()">닫기</button></div>';
+    document.body.appendChild(d);
+  };
+
+  window.placeDjTreasure=async function(n){
+    n=parseInt(n,10)||10;
+    var now=Date.now();
+    var t={id:'djtreasure-'+now+'-'+Math.random().toString(36).slice(2,7),amount:n,remaining:n,sender:name(),placedAt:now,unlockAt:now+WAIT_MS,expireAt:now+WAIT_MS+CLAIM_MS,settled:false};
+    save(t);
+    var p=document.getElementById('ktDjTreasurePicker');if(p)p.remove();
+    await postEvent('dj_treasure',t);
+    try{if(window.ktDjSpeak)ktDjSpeak('보물상자가 올라왔습니다. 3분 후 누구나 한 개씩 받을 수 있습니다.')}catch(e){}
+    toast('보물상자 '+n+'개가 올라왔습니다');
+  };
+
+  async function settleRemainder(){
+    if(!active||active.settled||Date.now()<Number(active.expireAt||0))return;
+    var cl=await loadClaims(active.id);
+    var remain=Math.max(0,(parseInt(active.amount,10)||0)-cl.count);
+    active.remaining=0;active.settled=true;active.djRemainder=remain;
+    save(active);
+    await postEvent('dj_treasure_settle:'+active.id,{chestId:active.id,remaining:remain,dj:'AI DJ'});
+    try{if(window.ktDjSpeak)ktDjSpeak('보물상자가 종료되었습니다. 남은 '+remain+'개는 DJ에게 들어갑니다.')}catch(e){}
+    if(remain>0)toast('남은 장미 '+remain+'개가 DJ에게 들어갔습니다');
+  }
+
+  window.claimDjTreasure=async function(){
+    if(!active)return;
+    if(Date.now()<Number(active.unlockAt||0)){toast('아직 '+fmt(active.unlockAt-Date.now())+' 남았습니다');return}
+    if(Date.now()>=Number(active.expireAt||0)){await settleRemainder();return}
+    var me='claim:'+deviceId();
+    var cl=await loadClaims(active.id);
+    if(cl.ids.indexOf(me)>-1){toast('이미 받았습니다');return}
+    var remain=Math.max(0,(parseInt(active.amount,10)||0)-cl.count);
+    if(remain<=0){toast('보물상자가 모두 소진되었습니다');return}
+    try{
+      await req('ktalk_live_messages',{
+        method:'POST',headers:{Prefer:'return=minimal'},
+        body:JSON.stringify({
+          host_id:'ai-dj-room',
+          sender_id:me,
+          sender_name:name(),
+          message:JSON.stringify({chestId:active.id,amount:1}),
+          message_type:'dj_treasure_claim:'+active.id
+        })
+      });
+      active.remaining=Math.max(0,remain-1);save(active);
+      try{if(window.ktDjSpeak)ktDjSpeak(name()+'님이 보물상자에서 장미 한 개를 받았습니다.')}catch(e){}
+      toast('🎉 장미 1개 받았습니다 · 남은 '+active.remaining+'개');
+    }catch(e){toast('다시 눌러 주세요')}
+  };
+
+  function render(){
+    var z=document.getElementById('ktDjTreasureZone');if(!z)return;
+    if(!active){z.innerHTML='';return}
+    var now=Date.now();
+    if(active.settled){z.innerHTML='';return}
+    var ready=now>=Number(active.unlockAt||0), expired=now>=Number(active.expireAt||0);
+    if(expired){settleRemainder();return}
+    z.innerHTML='<button class="kt-dj-treasure '+(ready?'ready':'')+'" onclick="claimDjTreasure()">'+
+      '<span class="capx">'+(ready?'눌러서 받기':'3분 대기')+'</span>'+
+      '<span class="chest">🧰</span>'+
+      '<span class="amt">남은 '+Math.max(0,Number(active.remaining||active.amount||0))+'개</span>'+
+      '<span class="time">'+(ready?'받기 '+fmt(active.expireAt-now):fmt(active.unlockAt-now))+'</span>'+
+    '</button>';
+  }
+
+  try{
+    var s=localStorage.getItem('kt_dj_active_treasure');if(s)active=JSON.parse(s);
+  }catch(e){}
+  render();sync();
+  timer=setInterval(function(){render();sync();if(active)settleRemainder()},1500);
+  window.addEventListener('pageshow',function(){render();sync()});
+  window.addEventListener('focus',function(){render();sync()});
 })();
 </script>
 
