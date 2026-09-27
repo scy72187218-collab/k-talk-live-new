@@ -4,6 +4,8 @@
    - 모든 스위치
    - 1인방 / 9명방 / 13명방 / 구독자방 / 비밀방
    - 동영상 표시/재생
+   - 첫 동영상 빠른 열림 상태
+   - 동영상 중간 끊김 없이 연속 재생 상태
    - 현재 정상 동영상 통신/공용 동영상 목록 연결
    - 현재 정상 영상 송수신 경로
    빨간 LIVE 신호는 현재 정상 동작하므로 보호 잠금한다.
@@ -24,6 +26,8 @@
     subscriber:true,
     secret:true,
     videos:true,
+    videoFastOpen:true,
+    videoContinuousPlayback:true,
     videoFeed:true,
     videoCommunication:true,
     mediaTransport:true,
@@ -77,6 +81,8 @@
 
       document.querySelectorAll('video,.kt-public-feed-scroller,.kt-public-video').forEach(function(el){
         el.setAttribute('data-kt-work-protected','1');
+        if(locked.videoFastOpen)el.setAttribute('data-kt-video-fast-open-protected','1');
+        if(locked.videoContinuousPlayback)el.setAttribute('data-kt-video-continuous-protected','1');
         if(locked.videoCommunication||locked.mediaTransport||locked.liveSignal){
           el.setAttribute('data-kt-video-communication-protected','1');
         }else{
@@ -121,6 +127,8 @@
     locked.followerLiveAlerts=true;
     locked.pwaInstall=true;
     locked.videos=true;
+    locked.videoFastOpen=true;
+    locked.videoContinuousPlayback=true;
     locked.videoFeed=true;
     locked.videoCommunication=true;
     locked.mediaTransport=true;
