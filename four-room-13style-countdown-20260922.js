@@ -34,24 +34,42 @@
 
   async function showCountdown(){
     removeOverlay();
+
     var overlay=document.createElement('div');
     overlay.id='ktFourRoom13StyleCountdown';
     overlay.style.cssText='position:fixed;inset:0;z-index:2147483646;display:grid;place-items:center;background:rgba(0,0,0,.16);pointer-events:none;color:#fff;text-align:center;text-shadow:0 3px 16px rgba(0,0,0,.72)';
-    document.body.appendChild(overlay);
-
     var num=document.createElement('div');
     num.style.cssText='width:116px;height:116px;border-radius:50%;display:grid;place-items:center;background:rgba(10,10,14,.72);border:4px solid rgba(255,255,255,.92);color:#fff;font:900 64px/1 system-ui,-apple-system,sans-serif;box-shadow:0 0 28px rgba(255,44,130,.7);text-shadow:0 0 12px rgba(255,255,255,.7)';
     overlay.appendChild(num);
+    (document.body||document.documentElement).appendChild(overlay);
 
-    for(var n=5;n>=1;n--){
-      num.textContent=String(n);
-      num.style.transform='scale(1)';
-      await new Promise(function(resolve){
-        setTimeout(function(){num.style.transform='scale(.92)';},650);
-        setTimeout(resolve,1000);
-      });
-    }
-    return overlay;
+    return await new Promise(function(resolve){
+      var n=5,done=false;
+      function finish(){
+        if(done)return;
+        done=true;
+        clearInterval(timer);
+        clearTimeout(failsafe);
+        try{overlay.remove();}catch(e){}
+        resolve(null);
+      }
+      function paint(){
+        try{
+          if(!overlay.isConnected)(document.body||document.documentElement).appendChild(overlay);
+          num.textContent=String(n);
+          num.style.transform='scale(1)';
+          setTimeout(function(){try{num.style.transform='scale(.92)';}catch(e){}},620);
+        }catch(e){}
+        if(n<=1){setTimeout(finish,1000);return;}
+        n--;
+      }
+      paint();
+      var timer=setInterval(function(){
+        if(done)return;
+        paint();
+      },1000);
+      var failsafe=setTimeout(finish,6200);
+    });
   }
 
   window.startBroadcast=async function(){
