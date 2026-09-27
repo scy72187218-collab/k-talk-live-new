@@ -12,6 +12,7 @@
   var ws=null,joined=false,joinRef='',seq=1,topic='',activeHostId='',queue=[],reconnectTimer=null,heartbeatTimer=null;
   var hostViewPeers={};
   var viewerPc=null,viewerSession='',viewerWatchToken='',viewerConnected=false,viewerIce={},viewerConnectTimer=null,viewerAnswerSdp='';
+  var viewerForceRelayOnce=false;
   var pendingRequests={},approvedGuests={},hostGuestPeers={},guestPc=null,guestSession='',guestApprovedHost='',guestApproved=false,guestStream=null,guestIce={};
   var guestPrewarmTimer=null;
   var pendingHostGuestOffers={},pendingHostGuestIce={},pendingGuestPhotos20260926={};
@@ -222,7 +223,7 @@
     if(!id)try{id=String(sessionStorage.getItem('kt_remote_host_id')||'');}catch(e){}
     return id;
   }
-  function rtcConfig(){return window.ktGetRtcConfig?window.ktGetRtcConfig():{iceServers:[{urls:'stun:stun.cloudflare.com:3478'},{urls:'stun:stun.l.google.com:19302'}]};}
+  function rtcConfig(mode){return window.ktGetRtcConfig?window.ktGetRtcConfig(mode):{iceServers:[{urls:'stun:stun.cloudflare.com:3478'},{urls:'stun:stun.l.google.com:19302'}]};}
   async function ensureTurnBeforeGuestRtc20260926(){
     try{
       if(typeof window.ktRefreshTurnRelay!=='function')return;
@@ -917,7 +918,13 @@
     if(!previousUsable){viewerConnected=false;showConnecting();}
     window.__ktDirectRtcProgressAt=Date.now();
     window.__ktDirectRtcPhase='offer';
-    var pc=new RTCPeerConnection(rtcConfig());viewerPc=pc;
+    var relayAttempt=!!viewerForceRelayOnce;
+    if(relayAttempt){
+      viewerForceRelayOnce=false;
+      try{await ensureTurnBeforeGuestRtc20260926();}catch(_e){}
+    }
+    var pc=new RTCPeerConnection(rtcConfig(relayAttempt?'relay':null));viewerPc=pc;
+    pc.__ktRelayAttempt20260927=relayAttempt;
     pc.ontrack=function(ev){
       try{window.__ktUseMemoryGuestVideo20260922=false;}catch(e){}
       pc.__ktGotRemoteTrack20260923=true;
@@ -1016,6 +1023,23 @@
           sendCriticalMedia20260926('video_answer',firstAnswer,hid);
         },ms);
       });
+
+      /* If this phone still has no first frame after 1.4s, retry only
+         this viewer through TURN relay. Other viewers and the 13-room UI stay untouched. */
+      if(!previousUsable&&!pc.__ktRelayAttempt20260927){
+        setTimeout(function(){
+          if(viewerPc!==pc||viewerConnected||pc.__ktGotRemoteTrack20260923)return;
+          var cs=String(pc.connectionState||'');
+          if(cs==='connected')return;
+          try{closePc(pc);}catch(_e){}
+          if(viewerPc===pc){viewerPc=null;viewerSession='';viewerAnswerSdp='';viewerConnected=false;}
+          viewerForceRelayOnce=true;
+          viewerWatchToken=sid('watch');
+          lastWatchAt=0;
+          window.__ktDirectRtcPhase='relay-retry';
+          ensureViewerWatch(true);
+        },1400);
+      }
 
       /* 느린 휴대폰은 첫 ICE 연결에 1초 이상 걸릴 수 있다.
          연결 중인 PeerConnection을 900ms에 끊으면 오히려 계속 처음부터
