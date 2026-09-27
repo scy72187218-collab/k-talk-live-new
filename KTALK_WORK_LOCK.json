@@ -1,5 +1,5 @@
 {
-  "version": 146,
+  "version": 147,
   "locked": true,
   "scope": "selective",
   "lock_slot": 1,
@@ -7,14 +7,27 @@
   "runtime_controls_remain_usable": true,
   "default_policy": "unlocked_except_listed",
   "protected_components": [
-    "group9_bottom_controls_8"
+    "group9_bottom_controls_8",
+    "public_video_first_page_opening",
+    "group13_open_room_then_countdown"
   ],
   "locked_components": [
-    "group9_bottom_controls_8"
+    "group9_bottom_controls_8",
+    "public_video_first_page_opening",
+    "group13_open_room_then_countdown"
   ],
   "current_editable_components": [
-    "all_except_group9_bottom_controls_8"
+    "all_except_locked_components"
   ],
   "temporarily_unlocked_components": [],
-  "note": "Owner requested lock slot 1 for the 9-person room bottom eight controls only: match, friends, message, rose, gift, share, effects, more. Buttons remain usable; this lock is only to protect them from unrelated edits."
+  "note": "Lock 1 protects the 9-person room bottom eight controls. Lock 2 protects the current first video page opening behavior and the current 13-person room open-first then 5-to-1 countdown behavior. Runtime controls remain usable.",
+  "lock_slots": {
+    "1": [
+      "group9_bottom_controls_8"
+    ],
+    "2": [
+      "public_video_first_page_opening",
+      "group13_open_room_then_countdown"
+    ]
+  }
 }
