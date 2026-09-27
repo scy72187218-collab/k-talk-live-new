@@ -174,3 +174,56 @@
     }).observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 })();
+
+
+/* Lock 7: protect the complete current approved K-Talk state (5555).
+   Maintenance/edit guard only; runtime controls remain usable. */
+(function(){
+  if(window.__ktFullStateLock7Installed20260927)return;
+  window.__ktFullStateLock7Installed20260927=true;
+
+  function markLock7(){
+    try{
+      var root=document.documentElement;
+      root.setAttribute('data-kt-work-protected','1');
+      root.setAttribute('data-kt-protection-slot','7');
+      root.setAttribute('data-kt-protected-area','current_full_state_20260927_5555');
+
+      document.querySelectorAll(
+        '#screen,.ktsolo-room,.ktg9-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room'
+      ).forEach(function(el){
+        el.setAttribute('data-kt-work-protected','1');
+        el.setAttribute('data-kt-protection-slot','7');
+        el.setAttribute('data-kt-protected-area','current_full_state_20260927_5555');
+      });
+
+      document.querySelectorAll('button,[role="switch"],input,select,textarea').forEach(function(el){
+        try{
+          if(el.tagName==='BUTTON')el.disabled=false;
+          el.setAttribute('aria-disabled','false');
+          el.style.setProperty('pointer-events','auto','important');
+          el.style.setProperty('touch-action','manipulation','important');
+        }catch(e){}
+      });
+    }catch(e){}
+  }
+
+  var oldState=window.ktCurrentProtectionState;
+  window.ktCurrentProtectionState=function(){
+    var s={};
+    try{s=typeof oldState==='function'?(oldState()||{}):{};}catch(e){s={};}
+    s.current_full_state_20260927_5555=true;
+    s.lock_slots=s.lock_slots||{};
+    s.lock_slots[7]=['current_full_state_20260927_5555'];
+    return s;
+  };
+
+  var oldProtected=window.ktIsWorkProtected;
+  window.ktIsWorkProtected=function(name){
+    if(name==='current_full_state_20260927_5555')return true;
+    try{return typeof oldProtected==='function'?!!oldProtected(name):false;}catch(e){return false;}
+  };
+
+  markLock7();
+  [80,220,500,1000,1800].forEach(function(ms){setTimeout(markLock7,ms);});
+})();
