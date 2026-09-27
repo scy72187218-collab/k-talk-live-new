@@ -1972,8 +1972,9 @@ window.openChargeBenefits=function(){
 
 window.openRoomBenefits=function(){
   showSheet('🚪 방송방 이용 혜택',
-    '<div class="rowbox"><b>방 입장</b><br>1인 방송 · 일반 13명방 · 구독자방 · 비밀방 등 이용 가능한 방을 선택해서 들어갑니다.</div>'
-    +'<div class="rowbox"><b>구독자 혜택</b><br>구독자는 이용 가능한 방송방에 자유롭게 들어가고 원하는 방송 종류를 직접 만들 수 있습니다.</div>'
+    '<div class="rowbox"><b>레벨별 방 이용</b><br>레벨 1~20은 1인방·9명방, 레벨 21~40은 13명방·비밀방까지, 레벨 41 이상은 구독자방까지 이용할 수 있습니다.</div>'
+    +'<div class="rowbox"><b>비밀방</b><br>레벨 21 이상이어도 서로 팔로우된 사람 중 호스트가 현재 방송에서 초청한 사람만 들어갈 수 있습니다.</div>'
+    +'<div class="rowbox"><b>구독자방</b><br>레벨 41 이상이며 방송자와 서로 팔로우된 사람만 참여할 수 있습니다.</div>'
     +'<div class="rowbox"><b>방 만들기</b><br>라이브 준비 화면에서 방송 종류를 선택하고 라이브 시작을 누르면 됩니다.</div>');
 };
 
@@ -1988,8 +1989,8 @@ window.openSubscriberBenefits=function(){
     +'<div class="kt-sub-hero"><span>💎</span><div><b>K-Talk 구독자 혜택</b><small>충전부터 방송방 이용까지 한 번에</small></div></div>'
     +'<div class="kt-sub-benefit-list">'
       +'<div><span>🪙</span><b>장미·코인 충전 혜택</b><small>구독자는 충전할 때 일반회원보다 추가 혜택을 받을 수 있습니다.</small></div>'
-      +'<div><span>🚪</span><b>모든 방송방 입장</b><small>1인 방송 · 13명 방송 · 구독자방 · 비밀방 등 이용 가능한 방에 자유롭게 들어갈 수 있습니다.</small></div>'
-      +'<div><span>🎥</span><b>모든 방송방 만들기</b><small>구독자는 방송 종류를 골라 직접 방을 만들 수 있습니다.</small></div>'
+      +'<div><span>🚪</span><b>레벨별 방송방 이용</b><small>1~20은 1인·9명, 21~40은 13명·비밀방, 41 이상은 구독자방까지 이용합니다.</small></div>'
+      +'<div><span>🎥</span><b>방 이용 조건</b><small>비밀방은 팔로우+초청, 구독자방은 레벨 41 이상+상호 팔로우 조건을 적용합니다.</small></div>'
       +'<div><span>👑</span><b>구독자 전용 혜택</b><small>구독자 전용방과 팬클럽 · 이벤트 · 보상 기능을 이용할 수 있습니다.</small></div>'
     +'</div>'
     +'<button class="act" onclick="openCharge()">🪙 충전 혜택 보러가기</button>'
@@ -2106,11 +2107,20 @@ window.openSiteGuide=function(){
     +'<div class="kt-guide-title">💎 구독자 혜택</div>'
     +'<div class="kt-guide-list">'
       +'<div><span>🪙</span><section><b>장미·코인 충전 혜택</b><small>구독자는 충전할 때 일반회원보다 추가 혜택을 받을 수 있습니다.</small></section><em>혜택</em></div>'
-      +'<div><span>🚪</span><section><b>모든 방송방 입장</b><small>1인 · 13명 · 구독자방 · 비밀방 등 이용 가능한 방에 들어갈 수 있습니다.</small></section><em>입장</em></div>'
-      +'<div><span>📹</span><section><b>모든 방송방 만들기</b><small>구독자는 원하는 방송 종류를 골라 직접 방을 만들 수 있습니다.</small></section><em>생성</em></div>'
+      +'<div><span>🚪</span><section><b>레벨별 방송방 입장</b><small>1~20은 1인·9명 / 21~40은 13명·비밀방 / 41 이상은 구독자방까지 이용합니다.</small></section><em>입장</em></div>'
+      +'<div><span>🔒</span><section><b>비밀방·구독자방 조건</b><small>비밀방은 상호 팔로우+호스트 초청, 구독자방은 레벨 41 이상+상호 팔로우가 필요합니다.</small></section><em>조건</em></div>'
       +'<div><span>👑</span><section><b>팬클럽 · 전용 혜택</b><small>구독자 전용방과 팬클럽, 이벤트 혜택을 이용합니다.</small></section><em>VIP</em></div>'
     +'</div>'
 
+    +'<div class="kt-guide-title">📈 레벨 · 방 입장 · 좋아요 보상</div>'
+    +'<div class="kt-guide-list">'
+      +'<div><span>📈</span><section><b>레벨 기준</b><small>누적 장미 5,000개마다 레벨 1씩 상승합니다. Lv1=5,000 · Lv2=10,000 · Lv20=100,000 · Lv21=105,000 · Lv40=200,000 · Lv41=205,000.</small></section><em>5,000</em></div>'
+      +'<div><span>🚪</span><section><b>방 입장 기준</b><small>Lv1~20: 1인·9명 / Lv21~40: 13명·비밀방 / Lv41+: 구독자방까지.</small></section><em>LEVEL</em></div>'
+      +'<div><span>🔒</span><section><b>비밀방</b><small>Lv21 이상 + 서로 팔로우 + 현재 방송에서 호스트 초청까지 있어야 입장합니다.</small></section><em>초청</em></div>'
+      +'<div><span>👑</span><section><b>구독자방</b><small>Lv41 이상 + 방송자와 서로 팔로우된 사람만 참여합니다.</small></section><em>FOLLOW</em></div>'
+      +'<div><span>💗</span><section><b>호스트 좋아요 5단계</b><small>5,000·10,000·15,000·20,000·25,000 좋아요마다 회사 장미 1송이. 최대 총 5송이, 이후 추가 보상 없음.</small></section><em>최대 5</em></div>'
+      +'<div><span>💗</span><section><b>게스트 좋아요</b><small>팔로우된 게스트 큰 사진을 두드려 30개 달성 시 장미 1송이. 10분마다 1회, 최대 5회/총 5송이.</small></section><em>30</em></div>'
+    +'</div>'
     +'<div class="kt-guide-title">🌹 장미 · 혜택 주고받기</div>'
     +'<div class="kt-guide-cards">'
       +'<button onclick="openGifts()"><span>🌹</span><b>장미 주기</b><small>장미와 선물을 보냅니다.</small></button>'
