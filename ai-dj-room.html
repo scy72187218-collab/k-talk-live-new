@@ -29,7 +29,7 @@ body{position:fixed;inset:0}
   margin:0 auto!important;
   padding:4px 5px calc(4px + env(safe-area-inset-bottom))!important;
   display:grid!important;
-  grid-template-rows:7% 7% 48% 31% 7%!important;
+  grid-template-rows:6% 6% 43% 33% 7%!important;
   gap:3px!important;
   overflow:hidden!important
 }
@@ -67,15 +67,15 @@ body{position:fixed;inset:0}
 .coins{font-size:6px!important}
 .gtabs{height:10%!important;margin:2px 0!important;gap:4px!important;font-size:6px!important}
 .gtabs .on{padding:2px 5px!important}
-.grid{height:78%!important;gap:2px!important;overflow:hidden!important}
+.grid{height:78%!important;min-height:0!important;gap:2px!important;overflow:hidden!important}
 .gift{border-radius:6px!important;padding:2px 1px!important}
 .gift i{font-size:clamp(18px,5vw,26px)!important}
-.gift b{font-size:5.7px!important;margin-top:2px!important}
+.gift b{display:block!important;font-size:6.4px!important;line-height:1.05!important;margin-top:2px!important;color:#fff!important;white-space:nowrap!important}
 .nav{grid-template-columns:repeat(7,1fr)!important;gap:1px!important}
 .nav button{font-size:6.5px!important;padding:0!important;min-width:0!important}
 .nav i{width:28px!important;height:28px!important;margin:0 auto 1px!important;font-size:14px!important}
 @media(max-height:620px){
-  .app{grid-template-rows:6.5% 6.5% 49% 31% 7%!important}
+  .app{grid-template-rows:5.5% 5.5% 42% 35% 7%!important}
   .logo{font-size:17px!important}.nav i{width:24px!important;height:24px!important;font-size:12px!important}
   .guest .av{font-size:19px!important}.gift i{font-size:17px!important}
 }
