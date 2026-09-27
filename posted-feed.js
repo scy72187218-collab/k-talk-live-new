@@ -271,8 +271,16 @@
         first.dataset.ktFirstFallbackBound='1';
         var failed=false;
         function firstAlreadyStarted(){
-          try{return Number(first.currentTime||0)>.03||(!first.paused&&!first.ended);}catch(e){return false;}
+          try{
+            return first.dataset.ktPlaybackStarted20260927==='1' || Number(first.currentTime||0)>.03;
+          }catch(e){return false;}
         }
+        try{
+          first.addEventListener('playing',function(){first.dataset.ktPlaybackStarted20260927='1';});
+          first.addEventListener('timeupdate',function(){
+            if(Number(first.currentTime||0)>.03)first.dataset.ktPlaybackStarted20260927='1';
+          });
+        }catch(e){}
         function fallback(){
           if(failed||firstAlreadyStarted())return;
           failed=true;
