@@ -84,6 +84,12 @@
   window.ktSoloFlipCamera=flipSoloCamera;
 
   function applyGroup13(){
+    /* Owner request: 13명방 오른쪽 세로 버튼(되돌리기/좋아요/효과/보물상자/매치) 제거 */
+    try{
+      document.querySelectorAll('#screen .ktg13-room .ktg13-right-quick').forEach(function(el){el.remove();});
+    }catch(e){}
+    return;
+
     var main=document.querySelector('.ktg13-main');
     if(!main)return;
     ensureStyle();
