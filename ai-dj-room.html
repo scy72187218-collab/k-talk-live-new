@@ -262,7 +262,15 @@ document.getElementById('chat').addEventListener('keydown',e=>{if(e.key==='Enter
     var t=speechQueue.shift(),u=new SpeechSynthesisUtterance(t),v=chooseVoice();
     u.lang='ko-KR';u.rate=.96;u.pitch=1.08;if(v)u.voice=v;
     speaking=true;duck(true);
-    u.onend=u.onerror=function(){speaking=false;duck(false);setTimeout(pump,160)};
+    u.onend=u.onerror=function(){
+    speaking=false;
+    duck(false);
+    try{
+      if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume().catch(function(){});
+      if(!musicStarted)startMusic();
+    }catch(e){}
+    setTimeout(pump,160);
+  };
     try{speechSynthesis.speak(u)}catch(e){speaking=false;duck(false)}
   }
   function initAudio(){
@@ -286,7 +294,20 @@ document.getElementById('chat').addEventListener('keydown',e=>{if(e.key==='Enter
     function go(){musicStarted=true;bar();musicTimer=setInterval(bar,1600)}
     if(ctx.state==='suspended')ctx.resume().then(go).catch(function(){});else go();
   }
-  function duck(low){if(master&&audioCtx){try{master.gain.cancelScheduledValues(audioCtx.currentTime);master.gain.linearRampToValueAtTime(low?.011:.032,audioCtx.currentTime+.12)}catch(e){}}}
+  function duck(low){
+    if(master&&audioCtx){
+      try{
+        master.gain.cancelScheduledValues(audioCtx.currentTime);
+        master.gain.linearRampToValueAtTime(low?.011:.032,audioCtx.currentTime+.12);
+      }catch(e){}
+    }
+    if(!low){
+      try{
+        if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume().catch(function(){});
+        if(!musicStarted)startMusic();
+      }catch(e){}
+    }
+  }
 
   window.ktAiDjMemberEnter=function(name){name=clean(name)||'손님';ktDjSpeak(name+'님 어서 오세요. 만나서 반갑습니다. 무슨 노래를 좋아하세요? 신청곡 말씀해 주세요.')};
   window.ktAiDjChat=function(name,text){name=clean(name)||'손님';text=clean(text);if(text)ktDjSpeak(name+'님, '+text)};
@@ -349,6 +370,24 @@ document.getElementById('chat').addEventListener('keydown',e=>{if(e.key==='Enter
   }
   document.addEventListener('pointerdown',unlock,true);
   document.addEventListener('touchstart',unlock,{capture:true,passive:true});
+
+  document.addEventListener('visibilitychange',function(){
+    if(document.visibilityState==='visible'){
+      try{
+        var ctx=initAudio();
+        if(ctx&&ctx.state==='suspended')ctx.resume().then(function(){if(!musicStarted)startMusic();}).catch(function(){});
+        else if(!musicStarted)startMusic();
+      }catch(e){}
+    }
+  });
+  window.addEventListener('pageshow',function(){
+    try{
+      var ctx=initAudio();
+      if(ctx&&ctx.state==='suspended')ctx.resume().then(function(){if(!musicStarted)startMusic();}).catch(function(){});
+      else if(!musicStarted)startMusic();
+    }catch(e){}
+  });
+  // kt-dj-audio-resume-20260927
 
   // 5-second countdown over the visible DJ room.
   var n=5,wrap=document.getElementById('ktDjCountdownOverlay'),num=document.getElementById('ktDjCountdownNumber');
