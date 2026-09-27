@@ -317,12 +317,26 @@
 
   window.ktPublicSendRose=async function(id,recipientName,btn){
     if(btn&&btn.disabled)return;
+
+    /* 장미는 누르는 즉시 화면에서 정확히 +1 한다.
+       서버 응답이 늦거나 빈 값이어도 사용자가 누른 횟수는 바로 보이게 유지한다. */
+    var s=btn&&btn.querySelector('small');
+    var before=0;
+    if(s){
+      before=parseInt(String(s.textContent||'0').replace(/,/g,''),10)||0;
+      s.textContent=(before+1).toLocaleString('ko-KR');
+    }
+
     if(btn)btn.disabled=true;
     try{
       var r=await fetch(SB+'/rest/v1/rpc/ktalk_like_video',{method:'POST',headers:headers({'Content-Type':'application/json'}),body:JSON.stringify({video_id:id})});
       if(!r.ok)throw new Error('rose');
-      var n=await r.json(),s=btn&&btn.querySelector('small');
-      if(s)s.textContent=Number(n||0).toLocaleString('ko-KR');
+      var n=await r.json();
+      var serverCount=Number(n);
+      if(s&&Number.isFinite(serverCount)&&serverCount>0){
+        /* 서버 값이 더 크면 서버 값을 쓰고, 그렇지 않으면 방금 +1 한 값을 유지한다. */
+        s.textContent=Math.max(before+1,serverCount).toLocaleString('ko-KR');
+      }
 
       /* 누가 장미를 보냈는지 기존 댓글 테이블에 숨은 기록으로 남긴다.
          일반 메시지/댓글 화면에는 이 기록을 표시하지 않는다. */
@@ -345,7 +359,11 @@
       toast.textContent='🌹 '+(recipientName||'동영상 게시자')+'님에게 장미 1송이를 보냈습니다';
       document.body.appendChild(toast);
       setTimeout(function(){if(toast&&toast.parentNode)toast.remove();},2200);
-    }catch(e){alert('장미 전송에 실패했습니다. 다시 눌러 주세요.');}
+    }catch(e){
+      /* 실제 전송 실패 때만 방금 올린 1개를 되돌린다. */
+      try{if(s)s.textContent=before.toLocaleString('ko-KR');}catch(_e){}
+      alert('장미 전송에 실패했습니다. 다시 눌러 주세요.');
+    }
     finally{if(btn)btn.disabled=false;}
   };
 
