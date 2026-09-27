@@ -89,6 +89,9 @@
     ts.forEach(function(t){
       try{t.enabled=!on;}catch(e){}
     });
+    if(kind==='video'){
+      try{if(typeof window.ktCameraOffAvatarState20260928==='function')window.ktCameraOffAvatarState20260928(on);}catch(e){}
+    }
     refresh();
   }
 
