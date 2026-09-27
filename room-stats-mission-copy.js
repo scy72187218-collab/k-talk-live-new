@@ -35,10 +35,10 @@
     try{
       if(typeof window.showSheet!=='function')return;
       window.showSheet('🎯 미션',''
-        +'<div class="rowbox"><b>1단계 🌹 장미</b><br>장미 30개 깨기</div>'
-        +'<div class="rowbox"><b>2단계 💗 하트</b><br>하트 50개 깨기</div>'
-        +'<div class="rowbox"><b>3단계 🎁 보물상자</b><br>보물상자 10개 깨기</div>'
-        +'<div class="rowbox" style="border-color:#ffd84f;background:rgba(255,216,79,.08)"><b>🎉 3단계 전체 완료 보너스</b><br>🌹 장미 50개 지급</div>');
+        +'<div class="rowbox"><b>1단계 🌹 장미</b><br>장미 50개 깨기</div>'
+        +'<div class="rowbox"><b>2단계 💗 하트</b><br>하트 30개짜리 20개 깨기</div>'
+        +'<div class="rowbox"><b>3단계 🎈 풍선</b><br>풍선 80개짜리 10개 깨기</div>'
+        +'<div class="rowbox" style="border-color:#ffd84f;background:rgba(255,216,79,.08)"><b>🎉 3단계 전체 완료 보너스</b><br>🌹 장미 50개 회사 지급</div>');
     }catch(e){}
   }
 
@@ -126,10 +126,10 @@
     try{
       if(typeof window.showSheet!=='function')return;
       window.showSheet('🎯 미션',''
-        +'<div class="rowbox"><b>1단계 🌹 장미</b><br>장미 30개 깨기</div>'
-        +'<div class="rowbox"><b>2단계 💗 하트</b><br>하트 50개 깨기</div>'
-        +'<div class="rowbox"><b>3단계 🎁 보물상자</b><br>보물상자 10개 깨기</div>'
-        +'<div class="rowbox" style="border-color:#ffd84f;background:rgba(255,216,79,.08)"><b>🎉 3단계 전체 완료 보너스</b><br>🌹 장미 50개 지급</div>');
+        +'<div class="rowbox"><b>1단계 🌹 장미</b><br>장미 50개 깨기</div>'
+        +'<div class="rowbox"><b>2단계 💗 하트</b><br>하트 30개짜리 20개 깨기</div>'
+        +'<div class="rowbox"><b>3단계 🎈 풍선</b><br>풍선 80개짜리 10개 깨기</div>'
+        +'<div class="rowbox" style="border-color:#ffd84f;background:rgba(255,216,79,.08)"><b>🎉 3단계 전체 완료 보너스</b><br>🌹 장미 50개 회사 지급</div>');
     }catch(e){}
   }
 
@@ -205,7 +205,7 @@
   function stageBadgeText(stage){
     if(stage===1)return '1단계 🌹 장미';
     if(stage===2)return '2단계 💗 하트';
-    if(stage===3)return '3단계 🎁 보물상자';
+    if(stage===3)return '3단계 🎈 풍선';
     return '';
   }
 
@@ -231,9 +231,9 @@
 
   function stageFromText(text){
     text=String(text||'');
-    if(text.indexOf('장미 30개 깨기')>-1)return 1;
-    if(text.indexOf('하트 50개 깨기')>-1)return 2;
-    if(text.indexOf('보물상자 10개 깨기')>-1)return 3;
+    if(text.indexOf('장미 50개 깨기')>-1)return 1;
+    if(text.indexOf('하트 30개짜리 20개 깨기')>-1)return 2;
+    if(text.indexOf('풍선 80개짜리 10개 깨기')>-1)return 3;
     return 0;
   }
 
@@ -325,10 +325,10 @@
     try{
       if(typeof window.showSheet!=='function')return;
       window.showSheet('🎯 미션',''
-        +'<div class="rowbox"><b>1단계 🌹 장미</b><br>장미 30개 깨기</div>'
-        +'<div class="rowbox"><b>2단계 💗 하트</b><br>하트 50개 깨기</div>'
-        +'<div class="rowbox"><b>3단계 🎁 보물상자</b><br>보물상자 10개 깨기</div>'
-        +'<div class="rowbox" style="border-color:#ffd84f;background:rgba(255,216,79,.08)"><b>🎉 3단계 전체 완료 보너스</b><br>🌹 장미 50개 지급</div>');
+        +'<div class="rowbox"><b>1단계 🌹 장미</b><br>장미 50개 깨기</div>'
+        +'<div class="rowbox"><b>2단계 💗 하트</b><br>하트 30개짜리 20개 깨기</div>'
+        +'<div class="rowbox"><b>3단계 🎈 풍선</b><br>풍선 80개짜리 10개 깨기</div>'
+        +'<div class="rowbox" style="border-color:#ffd84f;background:rgba(255,216,79,.08)"><b>🎉 3단계 전체 완료 보너스</b><br>🌹 장미 50개 회사 지급</div>');
     }catch(e){}
   }
 
