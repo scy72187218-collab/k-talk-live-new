@@ -1,5 +1,5 @@
 {
-  "version": 166,
+  "version": 167,
   "locked": true,
   "scope": "full_snapshot_guard",
   "lock_slot": 9,
@@ -38,7 +38,8 @@
     "secret_room_mutual_follow_current_session_invite_only",
     "host_like_reward_5000_steps_max5_roses_25000",
     "followed_guest_large_photo_30likes_10min_max5roses",
-    "complete_usage_benefits_guide_current_rules_20260928"
+    "complete_usage_benefits_guide_current_rules_20260928",
+    "daily_fortune_ladder_6_free_once_per_day"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -72,11 +73,12 @@
     "secret_room_mutual_follow_current_session_invite_only",
     "host_like_reward_5000_steps_max5_roses_25000",
     "followed_guest_large_photo_30likes_10min_max5roses",
-    "complete_usage_benefits_guide_current_rules_20260928"
+    "complete_usage_benefits_guide_current_rules_20260928",
+    "daily_fortune_ladder_6_free_once_per_day"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "현재 저장본 기준: 사용방법·혜택 안내에 레벨/장미 기준, 레벨별 방 이용, 비밀방 상호팔로우+현재방송 초청, 구독자방 Lv41+상호팔로우, 호스트 좋아요 5000단계 최대5송이, 팔로우 게스트 30좋아요/10분/최대5송이를 모두 반영.",
+  "note": "현재 저장본 기준: 방 만들기 화면 비밀방 옆에 오늘의 운세·장미따먹기 버튼. 6줄 사다리, 무료, 하루 1회, 결과 장미 1~5송이 또는 꽝, 짧은 운세 표시.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -121,10 +123,11 @@
       "secret_room_mutual_follow_current_session_invite_only",
       "host_like_reward_5000_steps_max5_roses_25000",
       "followed_guest_large_photo_30likes_10min_max5roses",
-      "complete_usage_benefits_guide_current_rules_20260928"
+      "complete_usage_benefits_guide_current_rules_20260928",
+      "daily_fortune_ladder_6_free_once_per_day"
     ]
   },
   "last_unlock": "2026-09-27-solo-countdown-only-code-5555",
-  "last_lock": "2026-09-28-complete-usage-benefits-guide",
+  "last_lock": "2026-09-28-daily-fortune-ladder",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
