@@ -38,9 +38,7 @@
     btn.setAttribute('aria-label','보물상자');
     var icon='🎁';
     btn.innerHTML='<b class="kt-room-treasure-icon">'+icon+'</b>'
-      +'<span class="kt-room-treasure-label">보물상자</span>'
-      +'<em class="kt-room-treasure-count">100개</em>'
-      +'<small class="kt-room-treasure-time">'+textTime(remainingSec())+'</small>';
+      +'<span class="kt-room-treasure-label">보물상자</span>';
   }
 
   function roomRoots(){
@@ -58,9 +56,8 @@
         if(isTreasureButton(btn))normalizeButton(btn);
       });
     });
-    var t=textTime(remainingSec());
-    document.querySelectorAll('#screen .kt-room-treasure-time').forEach(function(el){
-      el.textContent=t;
+    document.querySelectorAll('#screen .kt-room-treasure-count,#screen .kt-room-treasure-time').forEach(function(el){
+      el.remove();
     });
   }
 
@@ -79,12 +76,7 @@
       +'#screen .kt-room-treasure-meta-btn .kt-room-treasure-label{'
         +'font-size:10px!important;font-weight:950!important;line-height:1!important;white-space:nowrap!important;'
       +'}'
-      +'#screen .kt-room-treasure-meta-btn .kt-room-treasure-count{'
-        +'font-style:normal!important;font-size:9px!important;font-weight:950!important;color:#ffe071!important;line-height:1!important;'
-      +'}'
-      +'#screen .kt-room-treasure-meta-btn .kt-room-treasure-time{'
-        +'font-size:8px!important;color:#ddd!important;line-height:1!important;'
-      +'}';
+      +'#screen .kt-room-treasure-meta-btn .kt-room-treasure-count,#screen .kt-room-treasure-meta-btn .kt-room-treasure-time{display:none!important}';
     document.head.appendChild(s);
   }
 
