@@ -371,9 +371,14 @@ document.getElementById('chat').addEventListener('keydown',e=>{if(e.key==='Enter
           finished=true;
           speechUnlocked=true;
           if(pendingSpeech===text)pendingSpeech='';
+          try{duck(true);}catch(e){}
         };
-        u.onend=function(){finished=true;};
+        u.onend=function(){
+          finished=true;
+          try{duck(false);}catch(e){}
+        };
         u.onerror=function(){
+          try{duck(false);}catch(e){}
           if(tryNo<1)setTimeout(function(){run(tryNo+1)},250);
         };
 
@@ -420,7 +425,7 @@ document.getElementById('chat').addEventListener('keydown',e=>{if(e.key==='Enter
   function initAudio(){
     if(audioCtx)return audioCtx;
     var AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;
-    try{audioCtx=new AC();master=audioCtx.createGain();master.gain.value=.032;master.connect(audioCtx.destination);return audioCtx}catch(e){return null}
+    try{audioCtx=new AC();master=audioCtx.createGain();master.gain.value=.008;master.connect(audioCtx.destination);return audioCtx}catch(e){return null}
   }
   function tone(f,d,t){
     var ctx=initAudio();if(!ctx||!master)return;
@@ -442,7 +447,7 @@ document.getElementById('chat').addEventListener('keydown',e=>{if(e.key==='Enter
     if(master&&audioCtx){
       try{
         master.gain.cancelScheduledValues(audioCtx.currentTime);
-        master.gain.linearRampToValueAtTime(low ? .011 : .032,audioCtx.currentTime+.12);
+        master.gain.linearRampToValueAtTime(low ? .0015 : .008,audioCtx.currentTime+.08);
       }catch(e){}
     }
     if(!low){
