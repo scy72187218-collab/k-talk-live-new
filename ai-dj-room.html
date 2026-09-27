@@ -81,53 +81,16 @@ body{position:fixed;inset:0}
 }
 </style>
 <style id="kt-dj-bottom-lift-20260927">
-/* FINAL: bottom labels must be fully visible on one phone screen */
-.app{
-  grid-template-rows:6% 6% 41% 31% 11%!important;
-}
-.lower{
-  min-height:0!important;
-  padding-bottom:2px!important;
-}
+/* bottom menu position only */
 .nav{
-  height:100%!important;
-  transform:translateY(-14px)!important;
-  padding:0 0 calc(10px + env(safe-area-inset-bottom))!important;
+  transform:translateY(-5px)!important;
+  padding-bottom:calc(4px + env(safe-area-inset-bottom))!important;
   overflow:visible!important;
-  align-items:start!important;
 }
 .nav button{
-  display:flex!important;
-  flex-direction:column!important;
-  align-items:center!important;
-  justify-content:flex-start!important;
   gap:2px!important;
-  min-width:0!important;
-  height:100%!important;
-  padding:0!important;
-  font-size:8.5px!important;
+  font-size:8px!important;
   line-height:1.05!important;
-  white-space:nowrap!important;
-  overflow:visible!important;
-}
-.nav i{
-  width:27px!important;
-  height:27px!important;
-  margin:0 auto 1px!important;
-  font-size:14px!important;
-  flex:0 0 auto!important;
-}
-.gift b{
-  display:block!important;
-  font-size:7px!important;
-  line-height:1.05!important;
-  color:#fff!important;
-  white-space:nowrap!important;
-}
-@media(max-height:700px){
-  .app{grid-template-rows:5.5% 5.5% 40% 31% 12%!important}
-  .nav{transform:translateY(-16px)!important}
-  .nav button{font-size:8px!important}
 }
 </style>
 </head><body>
