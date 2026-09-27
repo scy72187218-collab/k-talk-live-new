@@ -319,10 +319,9 @@ document.getElementById('chat').addEventListener('keydown',e=>{if(e.key==='Enter
 <div id="ktDjCountdownOverlay" style="position:fixed;inset:0;z-index:99999;display:grid;place-items:center;background:rgba(0,0,0,.10);pointer-events:none;">
   <div id="ktDjCountdownNumber" style="width:118px;height:118px;border-radius:50%;display:grid;place-items:center;background:rgba(8,8,12,.74);border:4px solid rgba(255,255,255,.96);color:#fff;font:900 64px/1 system-ui,-apple-system,sans-serif;box-shadow:0 0 32px rgba(255,44,180,.78);text-shadow:0 0 12px rgba(255,255,255,.78);">5</div>
 </div>
-<script id="kt-dj-ai-runtime-20260927-mobilevoice3">
+<script id="kt-dj-ai-runtime-20260927">
 (function(){
   var nickname='대표님', speechQueue=[], speaking=false, audioCtx=null, master=null, musicTimer=null, musicStarted=false, musicStep=0;
-  var pendingSpeech='', speechUnlocked=false, firstGreetingDone=false;
   function clean(v){return String(v||'').replace(/[<>]/g,'').trim()}
   function getNickname(){
     var keys=['ktalkNickname','nickname','userNickname','displayName','profileName','name'];
@@ -331,103 +330,29 @@ document.getElementById('chat').addEventListener('keydown',e=>{if(e.key==='Enter
     return '대표님';
   }
   nickname=getNickname(); window.__ktDjNickname=nickname;
-  try{
-    if('speechSynthesis' in window){
-      speechSynthesis.onvoiceschanged=function(){ try{speechSynthesis.getVoices()}catch(e){} };
-      speechSynthesis.getVoices();
-    }
-  }catch(e){}
 
-  /* AI voice mobile reliability only */
-  function ktDjPickKoVoice(){
-    try{
-      var vs=speechSynthesis.getVoices()||[];
-      return vs.find(function(v){return /^ko(-|_)/i.test(v.lang||'');})
-        ||vs.find(function(v){return /korean|한국/i.test((v.name||'')+' '+(v.lang||''));})
-        ||null;
-    }catch(e){return null;}
+  function chooseVoice(){
+    if(!('speechSynthesis' in window))return null;
+    var vs=speechSynthesis.getVoices();
+    return vs.find(function(v){return /^ko(-|_)/i.test(v.lang)&&/female|여성|yuna|sora|sunhi|heami/i.test(v.name)})
+      ||vs.find(function(v){return /^ko(-|_)/i.test(v.lang)})||vs[0]||null;
   }
-
   window.ktDjSpeak=function(text){
-    text=clean(text);
-    if(!text||!('speechSynthesis' in window)||typeof window.SpeechSynthesisUtterance!=='function')return false;
-    pendingSpeech=text;
-
-    function run(tryNo){
-      try{
-        speechSynthesis.resume();
-        if(tryNo===0)speechSynthesis.cancel();
-
-        var u=new SpeechSynthesisUtterance(text);
-        u.lang='ko-KR';
-        u.rate=.96;
-        u.pitch=1.02;
-        u.volume=1;
-        /* Use the phone's own default Korean TTS voice.
-           Some Android/Samsung browsers expose a Korean voice that sounds
-           muffled or fails when forced explicitly. */
-        try{u.voice=null;}catch(e){}
-
-        var finished=false;
-        u.onstart=function(){
-          finished=true;
-          speechUnlocked=true;
-          if(pendingSpeech===text)pendingSpeech='';
-          try{duck(true);}catch(e){}
-        };
-        u.onend=function(){
-          finished=true;
-          try{duck(false);}catch(e){}
-        };
-        u.onerror=function(){
-          try{duck(false);}catch(e){}
-          if(tryNo<1)setTimeout(function(){run(tryNo+1)},250);
-        };
-
-        speechSynthesis.speak(u);
-
-        setTimeout(function(){
-          try{
-            if(!finished && !speechSynthesis.speaking && tryNo<1){
-              run(tryNo+1);
-            }
-          }catch(e){}
-        },700);
-
-        return true;
-      }catch(e){
-        if(tryNo<1)setTimeout(function(){run(tryNo+1)},250);
-        return false;
-      }
-    }
-
-    var voices=[];
-    try{voices=speechSynthesis.getVoices()||[];}catch(e){}
-    if(!voices.length){
-      var once=function(){
-        try{speechSynthesis.removeEventListener('voiceschanged',once)}catch(e){}
-        run(0);
-      };
-      try{speechSynthesis.addEventListener('voiceschanged',once,{once:true})}catch(e){}
-      setTimeout(function(){run(0)},500);
-      return true;
-    }
-    return run(0);
+    text=clean(text); if(!text)return;
+    speechQueue.push(text); pump();
   };
-
-  try{
-    if('speechSynthesis' in window){
-      speechSynthesis.getVoices();
-      speechSynthesis.addEventListener('voiceschanged',function(){
-        try{speechSynthesis.getVoices()}catch(e){}
-      });
-    }
-  }catch(e){}
-
+  function pump(){
+    if(speaking||!speechQueue.length||!('speechSynthesis' in window))return;
+    var t=speechQueue.shift(),u=new SpeechSynthesisUtterance(t),v=chooseVoice();
+    u.lang='ko-KR';u.rate=.96;u.pitch=1.08;if(v)u.voice=v;
+    speaking=true;duck(true);
+    u.onend=u.onerror=function(){speaking=false;duck(false);setTimeout(pump,160)};
+    try{speechSynthesis.speak(u)}catch(e){speaking=false;duck(false)}
+  }
   function initAudio(){
     if(audioCtx)return audioCtx;
     var AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;
-    try{audioCtx=new AC();master=audioCtx.createGain();master.gain.value=.008;master.connect(audioCtx.destination);return audioCtx}catch(e){return null}
+    try{audioCtx=new AC();master=audioCtx.createGain();master.gain.value=.032;master.connect(audioCtx.destination);return audioCtx}catch(e){return null}
   }
   function tone(f,d,t){
     var ctx=initAudio();if(!ctx||!master)return;
@@ -441,62 +366,16 @@ document.getElementById('chat').addEventListener('keydown',e=>{if(e.key==='Enter
     c.forEach(function(f,i){tone(f,.7,t+i*.02)});tone(c[1]*2,.18,t+.82);tone(c[2]*2,.18,t+1.18);musicStep++;
   }
   function startMusic(){
-    /* AI voice-only mode for mobile compatibility.
-       Background oscillator music is intentionally disabled. */
-    musicStarted=true;
-    try{if(musicTimer){clearInterval(musicTimer);musicTimer=null;}}catch(e){}
-    try{if(master)master.gain.value=0;}catch(e){}
+    if(musicStarted)return;var ctx=initAudio();if(!ctx)return;
+    function go(){musicStarted=true;bar();musicTimer=setInterval(bar,1600)}
+    if(ctx.state==='suspended')ctx.resume().then(go).catch(function(){});else go();
   }
-  function duck(low){
-    try{
-      if(master&&audioCtx){
-        master.gain.cancelScheduledValues(audioCtx.currentTime);
-        master.gain.setValueAtTime(0,audioCtx.currentTime);
-      }
-    }catch(e){}
-  }
+  function duck(low){if(master&&audioCtx){try{master.gain.cancelScheduledValues(audioCtx.currentTime);master.gain.linearRampToValueAtTime(low?.011:.032,audioCtx.currentTime+.12)}catch(e){}}}
 
   window.ktAiDjMemberEnter=function(name){name=clean(name)||'손님';ktDjSpeak(name+'님 어서 오세요. 만나서 반갑습니다. 무슨 노래를 좋아하세요? 신청곡 말씀해 주세요.')};
-  window.ktAiDjChat=function(name,text){
-    name=clean(name)||'손님';text=clean(text);
-    if(text){
-      var reply=name+'님, 말씀 잘 들었습니다. 네, 제가 함께할게요.';
-      try{
-        var feed=document.getElementById('feed');
-        if(feed)feed.insertAdjacentHTML('beforeend','<div class="msg ai"><b>★ K-Talk AI DJ · AI</b><br>'+reply.replace(/[<>]/g,'')+'</div>');
-      }catch(e){}
-      ktDjSpeak(reply);
-    }
-  };
-  window.ktAiDjGift=function(name,gift){
-    name=clean(name)||'손님';gift=clean(gift)||'선물';
-    try{toast(gift+' 선물 보냈습니다')}catch(e){}
-    ktDjSpeak(name+'님이 '+gift+' 선물을 보내주셨어요. 감사합니다.');
-  };
-  window.ktAiDjSongRequest=function(name,song){
-    name=clean(name)||'손님';
-    song=clean(song);
-    if(!song)return;
-
-    var feed=document.getElementById('feed');
-    if(feed){
-      feed.insertAdjacentHTML('beforeend',
-        '<div class="msg"><b>'+name+'</b> · 신청곡 '+song.replace(/[<>]/g,'')+'</div>'+
-        '<div class="msg ai"><b>★ K-Talk AI DJ · AI</b><br>네, 알겠습니다. '+song.replace(/[<>]/g,'')+' 들려드리겠습니다. 🎵</div>'
-      );
-    }
-
-    toast(song+' 음악 연결 중');
-    ktDjSpeak(name+'님, '+song+' 신청곡 확인했습니다. 네, 알겠습니다. 들려드리겠습니다.');
-
-    // 합법적인 음악 서비스 검색으로 바로 연결
-    setTimeout(function(){
-      try{
-        var q=encodeURIComponent(song);
-        window.open('https://music.youtube.com/search?q='+q,'_blank');
-      }catch(e){}
-    },1800);
-  };
+  window.ktAiDjChat=function(name,text){name=clean(name)||'손님';text=clean(text);if(text)ktDjSpeak(name+'님, '+text)};
+  window.ktAiDjGift=function(name,gift){name=clean(name)||'손님';gift=clean(gift)||'선물';ktDjSpeak(name+'님이 '+gift+' 선물을 보내주셨어요. 감사합니다.')};
+  window.ktAiDjSongRequest=function(name,song){name=clean(name)||'손님';song=clean(song);if(song)ktDjSpeak(name+'님, '+song+' 신청곡 접수했어요. 잠시만 기다려 주세요.')};
 
   window.addEventListener('ktalk:member-enter',function(e){window.ktAiDjMemberEnter(e.detail&&e.detail.nickname)});
   window.addEventListener('ktalk:chat',function(e){window.ktAiDjChat(e.detail&&e.detail.nickname,e.detail&&e.detail.text)});
@@ -508,9 +387,11 @@ document.getElementById('chat').addEventListener('keydown',e=>{if(e.key==='Enter
   window.toast=function(t){if(oldToast)oldToast(t);};
   var oldSong=window.song;
   window.song=function(){
-    var q=prompt('신청곡 말하세요.','');
+    var q=prompt('신청곡 제목을 입력해 주세요.','');
     if(!q||!q.trim())return;
     window.ktAiDjSongRequest(nickname,q);
+    var feed=document.getElementById('feed');
+    if(feed)feed.insertAdjacentHTML('beforeend','<div class="msg ai"><b>★ K-Talk AI DJ</b><br>'+q.replace(/[<>]/g,'')+' 신청곡으로 접수했어요 🎵</div>');
   };
   var oldSend=window.send;
   window.send=function(){
@@ -524,66 +405,19 @@ document.getElementById('chat').addEventListener('keydown',e=>{if(e.key==='Enter
 
   startMusic();
 
-  // First real touch unlocks mobile speech and immediately replays any greeting/reply
-  // that the browser blocked during page entry.
-  function flushPendingSpeech(){
-    try{
-      if(!pendingSpeech)return;
-      var t=pendingSpeech;
-      pendingSpeech='';
-      setTimeout(function(){window.ktDjSpeak(t)},40);
-    }catch(e){}
-  }
+  // First touch unlock for mobile autoplay restrictions.
   function unlock(){
-    var ctx=initAudio();
-    if(ctx&&ctx.state==='suspended')ctx.resume().then(startMusic).catch(function(){});
-    try{
-      if('speechSynthesis' in window){
-        speechSynthesis.resume();
-        speechUnlocked=true;
-        flushPendingSpeech();
-      }
-    }catch(e){}
+    var ctx=initAudio();if(ctx&&ctx.state==='suspended')ctx.resume().then(startMusic).catch(function(){});
+    document.removeEventListener('pointerdown',unlock,true);document.removeEventListener('touchstart',unlock,true);
   }
-  document.addEventListener('pointerdown',function(){unlock();},true);
-  document.addEventListener('touchstart',function(){unlock();},{capture:true,passive:true});
-  document.addEventListener('click',function(){unlock();},true);
-
-  document.addEventListener('visibilitychange',function(){
-    if(document.visibilityState==='visible'){
-      try{
-        var ctx=initAudio();
-        if(ctx&&ctx.state==='suspended')ctx.resume().then(function(){if(!musicStarted)startMusic();}).catch(function(){});
-        else if(!musicStarted)startMusic();
-      }catch(e){}
-    }
-  });
-  window.addEventListener('pageshow',function(){
-    try{
-      var ctx=initAudio();
-      if(ctx&&ctx.state==='suspended')ctx.resume().then(function(){if(!musicStarted)startMusic();}).catch(function(){});
-      else if(!musicStarted)startMusic();
-    }catch(e){}
-  });
-  // kt-dj-audio-resume-20260927
+  document.addEventListener('pointerdown',unlock,true);
+  document.addEventListener('touchstart',unlock,{capture:true,passive:true});
 
   // 5-second countdown over the visible DJ room.
   var n=5,wrap=document.getElementById('ktDjCountdownOverlay'),num=document.getElementById('ktDjCountdownNumber');
   function tick(){
     if(!wrap||!num)return;num.textContent=String(n);
-    if(n===1){setTimeout(function(){
-      wrap.remove();
-      var hello='안녕하세요. AI DJ 수아예요. '+nickname+'님 어서 오세요. 만나서 반갑습니다. 무슨 노래를 좋아하세요? 신청곡 말씀해 주세요.';
-      pendingSpeech=hello;
-      firstGreetingDone=true;
-      ktDjSpeak(hello);
-      /* If mobile blocks automatic speech, keep it queued until the first tap. */
-      setTimeout(function(){
-        try{
-          if(!speechSynthesis.speaking&&pendingSpeech)pendingSpeech=hello;
-        }catch(e){}
-      },900);
-    },1000);return}
+    if(n===1){setTimeout(function(){wrap.remove();ktDjSpeak('안녕하세요. AI DJ 수아예요. '+nickname+'님 어서 오세요. 만나서 반갑습니다. 무슨 노래를 좋아하세요? 신청곡 말씀해 주세요.')},1000);return}
     n--;setTimeout(tick,1000);
   }
   setTimeout(tick,250);
