@@ -473,17 +473,6 @@
     el.textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
   }
 
-  /* 1인방 카운트다운 동안 ON AIR 시계를 00:00:00에 유지한 뒤
-     숫자 1이 끝나는 순간부터 실제 방송 시간을 시작시키는 전용 훅.
-     호출하지 않는 다른 방의 동작은 바꾸지 않는다. */
-  window.ktSetLiveClockStart=function(ts){
-    if(!session.active)return;
-    var v=Number(ts);
-    if(!isFinite(v))return;
-    session.start=v;
-    updateLiveClock();
-  };
-
   function money(n){return Math.round(n||0).toLocaleString('ko-KR')+'원';}
   function total(){return session.roses*ROSE_WON;}
   function currentMemberType(){
@@ -1138,7 +1127,7 @@
 <script src="live-profile-photo-zoom-20260921.js?v=20260921-zoom3"></script>
 <script src="group13-gift-button-lower-20260921.js?v=20260922-aligngift2"></script>\n<script src="guest13-bottom-compact-20260921.js?v=20260921-guest13compact7"></script>
 <script src="group13-network-stability-20260922.js?v=20260922-rxstable1"></script>\n<script src="room-attendance-host-rose-final-20260913.js?v=20260921-g9-1700restore1"></script>
-<script src="four-room-13style-countdown-20260922.js?v=20260927-solo-countdown-realtime1"></script>\n<script src="room-attendance-host-rose-final-20260913.js?v=20260921-g9-1700restore1"></script>
+<script src="four-room-13style-countdown-20260922.js?v=20260922-g9excluded1"></script>\n<script src="room-attendance-host-rose-final-20260913.js?v=20260921-g9-1700restore1"></script>
 <script src="room-attendance-host-rose-final-20260913.js?v=20260921-g9-1700restore1"></script>
 <script src="live-room-controls-gifts-fix-20260913.js?v=20260927-allroom-controls1"></script>\n<script src="live-room-controls-gifts-fix-20260913.js?v=20260927-allroom-controls1"></script>
 <script src="room-attendance-host-rose-final-20260913.js?v=20260921-g9-1700restore1"></script>
