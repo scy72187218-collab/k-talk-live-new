@@ -1192,23 +1192,19 @@
   };
 
   window.ktChooseRoomAndStart=async function(btn,type,name,max){
-    if(window.__ktRoomChoiceStarting)return;
-    window.__ktRoomChoiceStarting=true;
-    try{
-      if(window.state){
-        state.liveRoomType=type;
-        state.liveRoomName=name;
-        state.liveRoomMax=max;
-      }
-      var title=document.getElementById('liveTitle');
-      if(title)title.value=name;
-      document.querySelectorAll('.room-switch,.kt-room-bottom5 button').forEach(function(b){b.classList.remove('on');});
-      if(btn)btn.classList.add('on');
-      window.__ktUserPressedLiveStart=true;
-      await window.startBroadcast();
-    }finally{
-      setTimeout(function(){window.__ktRoomChoiceStarting=false;},500);
+    /* First prep page: room buttons SELECT only.
+       Countdown/broadcast starts only from the separate "방송 시작" button. */
+    if(window.state){
+      state.liveRoomType=type;
+      state.liveRoomName=name;
+      state.liveRoomMax=max;
     }
+    var title=document.getElementById('liveTitle');
+    if(title)title.value=name;
+    document.querySelectorAll('.room-switch,.kt-room-bottom5 button').forEach(function(b){b.classList.remove('on');});
+    if(btn)btn.classList.add('on');
+    window.__ktUserPressedLiveStart=false;
+    return false;
   };
   
 })();
@@ -1232,11 +1228,7 @@
   }
   function isRealStartTarget(t){
     if(!t||!t.closest)return false;
-    return !!t.closest(
-      '.live-prep .prep-start,'+
-      '.live-prep .room-switch,'+
-      '.live-prep .kt-room-bottom5 button'
-    );
+    return !!t.closest('.live-prep .prep-start');
   }
 
   /* Only a real tap on a room/start control may authorize broadcast start. */
