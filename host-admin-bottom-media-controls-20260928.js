@@ -51,6 +51,9 @@
       +'#screen .kt-host-admin-media-20260928 button{min-width:0!important;height:34px!important;border:1px solid rgba(255,255,255,.16)!important;border-radius:10px!important;background:#141419!important;color:#fff!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:5px!important;font:950 11px/1 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;white-space:nowrap!important;touch-action:manipulation!important}'
       +'#screen .kt-host-admin-media-20260928 button b{font-size:17px!important;line-height:1!important}'
       +'#screen .kt-host-admin-media-20260928 button.off{opacity:.55!important;background:#0b0b0f!important}'
+      +'#screen .kt-host-admin-media-20260928 .kt-host-admin-movie-btn{flex-direction:column!important;gap:1px!important;line-height:1!important}'
+      +'#screen .kt-host-admin-media-20260928 .kt-host-admin-movie-btn span{font-size:9px!important;line-height:1!important}'
+      +'#screen .kt-host-admin-media-20260928 .kt-host-admin-movie-btn small{font-size:7px!important;line-height:1!important;color:#ffd86b!important;font-weight:900!important}'
       +'#screen .ktsolo-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room,#screen .ktg9-room{position:relative!important}'
       +'@media(max-width:390px){#screen .kt-host-admin-media-20260928{left:5px!important;right:5px!important;bottom:53px!important;height:38px!important;gap:3px!important;padding:2px!important}#screen .kt-host-admin-media-20260928 button{height:32px!important;font-size:9px!important;gap:3px!important}#screen .kt-host-admin-media-20260928 button b{font-size:15px!important}}';
     document.head.appendChild(s);
@@ -119,7 +122,10 @@
     bar.className='kt-host-admin-media-20260928';
     bar.appendChild(mk('📷','카메라',camera));
     bar.appendChild(mk('🎤','마이크',mic));
-    bar.appendChild(mk('🎬','영화',movie));
+    var movieBtn=mk('🎬','영화 · TV · 유튜브',movie);
+    movieBtn.classList.add('kt-host-admin-movie-btn');
+    movieBtn.innerHTML='<b>🎬</b><span>영화 · TV · 유튜브</span><small>저작권 없는 영상만</small>';
+    bar.appendChild(movieBtn);
     r.appendChild(bar);
   }
 
