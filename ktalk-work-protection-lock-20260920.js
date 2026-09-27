@@ -46,7 +46,7 @@
     followedFriends:true,
     followerLiveAlerts:true,
     pwaInstall:true,
-    aiDjRoom:true
+    aiDjRoom:false
   };
 
   function save(){
@@ -128,7 +128,7 @@
     locked.followedFriends=true;
     locked.followerLiveAlerts=true;
     locked.pwaInstall=true;
-    locked.aiDjRoom=true;
+    locked.aiDjRoom=false;
     locked.videos=true;
     locked.videoFastOpen=true;
     locked.videoContinuousPlayback=true;
@@ -147,6 +147,20 @@
   window.ktIsLiveSignalWorkAllowed=function(){
     return !locked.liveSignal;
   };
+  window.ktUnlockAiDjRoom20260927=function(password){
+    if(String(password||'')!=='1111')return false;
+    locked.aiDjRoom=false;
+    save();markAll();
+    try{
+      document.documentElement.setAttribute('data-kt-ai-dj-room-protected','0');
+      document.querySelectorAll('.kt-ai-dj-room,.kt-dj-room,.kt-dj-treasure-zone').forEach(function(el){
+        el.removeAttribute('data-kt-work-protected');
+        el.setAttribute('data-kt-ai-dj-work-unlocked','1');
+      });
+    }catch(e){}
+    return true;
+  };
+
   window.ktUnlockCommunicationWork20260926=function(password){
     if(String(password||'')!=='1111')return false;
     locked.videoCommunication=false;
