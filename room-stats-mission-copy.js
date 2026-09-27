@@ -35,9 +35,10 @@
     try{
       if(typeof window.showSheet!=='function')return;
       window.showSheet('🎯 미션',''
-        +'<div class="rowbox"><b>🌹 장미 미션</b><br>장미 30개 깨기</div>'
-        +'<div class="rowbox"><b>💗 하트 미션</b><br>하트 50개 깨기</div>'
-        +'<div class="rowbox"><b>🎁 보물상자 미션</b><br>보물상자 10개 깨기</div>');
+        +'<div class="rowbox"><b>1단계 🌹 장미</b><br>장미 30개 깨기</div>'
+        +'<div class="rowbox"><b>2단계 💗 하트</b><br>하트 50개 깨기</div>'
+        +'<div class="rowbox"><b>3단계 🎁 보물상자</b><br>보물상자 10개 깨기</div>'
+        +'<div class="rowbox" style="border-color:#ffd84f;background:rgba(255,216,79,.08)"><b>🎉 3단계 전체 완료 보너스</b><br>🌹 장미 50개 지급</div>');
     }catch(e){}
   }
 
@@ -125,9 +126,10 @@
     try{
       if(typeof window.showSheet!=='function')return;
       window.showSheet('🎯 미션',''
-        +'<div class="rowbox"><b>🌹 장미 미션</b><br>장미 30개 깨기</div>'
-        +'<div class="rowbox"><b>💗 하트 미션</b><br>하트 50개 깨기</div>'
-        +'<div class="rowbox"><b>🎁 보물상자 미션</b><br>보물상자 10개 깨기</div>');
+        +'<div class="rowbox"><b>1단계 🌹 장미</b><br>장미 30개 깨기</div>'
+        +'<div class="rowbox"><b>2단계 💗 하트</b><br>하트 50개 깨기</div>'
+        +'<div class="rowbox"><b>3단계 🎁 보물상자</b><br>보물상자 10개 깨기</div>'
+        +'<div class="rowbox" style="border-color:#ffd84f;background:rgba(255,216,79,.08)"><b>🎉 3단계 전체 완료 보너스</b><br>🌹 장미 50개 지급</div>');
     }catch(e){}
   }
 
@@ -323,9 +325,10 @@
     try{
       if(typeof window.showSheet!=='function')return;
       window.showSheet('🎯 미션',''
-        +'<div class="rowbox"><b>🌹 장미 미션</b><br>장미 30개 깨기</div>'
-        +'<div class="rowbox"><b>💗 하트 미션</b><br>하트 50개 깨기</div>'
-        +'<div class="rowbox"><b>🎁 보물상자 미션</b><br>보물상자 10개 깨기</div>');
+        +'<div class="rowbox"><b>1단계 🌹 장미</b><br>장미 30개 깨기</div>'
+        +'<div class="rowbox"><b>2단계 💗 하트</b><br>하트 50개 깨기</div>'
+        +'<div class="rowbox"><b>3단계 🎁 보물상자</b><br>보물상자 10개 깨기</div>'
+        +'<div class="rowbox" style="border-color:#ffd84f;background:rgba(255,216,79,.08)"><b>🎉 3단계 전체 완료 보너스</b><br>🌹 장미 50개 지급</div>');
     }catch(e){}
   }
 
