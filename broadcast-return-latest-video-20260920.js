@@ -22,11 +22,40 @@
     try{if(window.closeSheet)window.closeSheet();}catch(e){}
     stopCamera();
 
-    /* 예전 홈/꽃 화면이 한 프레임도 보이지 않게 먼저 검은 로딩 화면으로 교체 */
+    /* 방송 종료 직후 검은 로딩 화면을 만들지 않는다.
+       캐시된 첫 공개 동영상을 즉시 화면에 붙이고, 전체 목록은 뒤에서 이어 붙인다. */
     try{
       var s=document.getElementById('screen');
       if(s){
-        s.innerHTML='<div style="height:calc(100dvh - 78px);display:grid;place-items:center;background:#000;color:#bbb;font-size:14px">최신 동영상 불러오는 중...</div>';
+        var u='';
+        try{
+          var fast=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');
+          if(Array.isArray(fast)&&fast[0]&&fast[0].video_url)u=String(fast[0].video_url||'');
+        }catch(_e){}
+        if(!u)u='https://zupwbfmacwzexyvznlzq.supabase.co/storage/v1/object/public/ktalk-videos/guest/1788516618159-4ep5ki.mp4';
+
+        s.innerHTML='<section id="ktBroadcastReturnFirstFrame" style="height:calc(100dvh - 78px);min-height:560px;position:relative;background:#000;overflow:hidden">'
+          +'<video id="ktPublicFirstPaintVideo" class="kt-public-video" autoplay muted loop playsinline preload="auto" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000"></video>'
+          +'</section>';
+
+        var v=document.getElementById('ktPublicFirstPaintVideo');
+        if(v){
+          v.src=u;
+          v.muted=true;
+          v.defaultMuted=true;
+          v.playsInline=true;
+          v.setAttribute('autoplay','');
+          v.setAttribute('muted','');
+          v.setAttribute('loop','');
+          v.setAttribute('playsinline','');
+          v.setAttribute('webkit-playsinline','');
+          window.__ktPublicFirstPaintVideo20260924=v;
+          window.__ktPublicFirstPaintUrl20260924=u;
+          try{
+            var pp=v.play();
+            if(pp&&pp.catch)pp.catch(function(){});
+          }catch(_e){}
+        }
       }
       document.body.classList.remove('kt-home');
       document.body.classList.add('kt-video-mode');
@@ -36,10 +65,12 @@
       if(typeof window.ktStopHostPresence==='function')window.ktStopHostPresence();
     }catch(e){}
 
-    /* 서버 최신 목록 강제 새로고침 */
+    /* 이미 띄운 첫 동영상은 그대로 유지하고, 전체 목록만 즉시 뒤에서 연결 */
     try{
       if(typeof window.ktShowSharedServerFeed==='function'){
-        window.ktShowSharedServerFeed();
+        setTimeout(function(){
+          try{window.ktShowSharedServerFeed();}catch(e){}
+        },0);
         return;
       }
       if(typeof window.ktForceHomeVideoRecovery==='function'){
@@ -87,7 +118,7 @@
     var wrapped=function(){
       var r=oldEnd.apply(this,arguments);
       /* 방송 종료를 누르면 수익창에 머물지 않고 바로 동영상으로 복귀 */
-      setTimeout(latestVideoNow,40);
+      setTimeout(latestVideoNow,0);
       return r;
     };
     wrapped.__ktLatestVideoReturn=true;
@@ -99,7 +130,7 @@
     if(typeof oldLeave!=='function'||oldLeave.__ktLatestVideoReturn)return;
     var wrapped=function(){
       var r=oldLeave.apply(this,arguments);
-      setTimeout(latestVideoNow,40);
+      setTimeout(latestVideoNow,0);
       return r;
     };
     wrapped.__ktLatestVideoReturn=true;
@@ -116,6 +147,6 @@
     var isBack=!!(b.matches&&b.matches('.ktg13-back,.ktsolo-back,.ktsubscriber-back,.ktsecret-back'));
     var txt=String(b.textContent||'').replace(/\s+/g,'');
     if(!isBack&&txt.indexOf('방송종료')<0)return;
-    setTimeout(latestVideoNow,50);
+    setTimeout(latestVideoNow,0);
   },true);
 })();
