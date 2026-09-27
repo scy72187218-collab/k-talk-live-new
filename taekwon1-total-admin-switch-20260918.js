@@ -47,6 +47,7 @@
       +'<button type="button" onclick="ktTotalAdminAction(\'release\')">✅ 정지 해제 <span>›</span></button>'
       +'<button type="button" onclick="ktTotalAdminAction(\'monitor\')">👁 방송 모니터링 <span>›</span></button>'
       +'<button type="button" onclick="ktTotalAdminAction(\'content\')">📣 광고·동영상 승인 <span>›</span></button>'
+      +'<button type="button" onclick="ktTotalAdminAction(\'lock\')">🔒 전체 잠금 <span>›</span></button>'
       +'<div class="kt-admin-locked-note">관리 기능은 총관리 스위치 안에서만 사용합니다.</div>'
       +'</div></div>';
   }
@@ -64,6 +65,17 @@
       try{if(typeof window.ktOpenContentApprovalAdmin==='function')window.ktOpenContentApprovalAdmin();}catch(e){}
       return false;
     }
+    if(kind==='lock'){
+      try{
+        if(typeof window.showSheet==='function'){
+          window.showSheet('🔒 전체 잠금',
+            '<div class="rowbox"><b>🔒 현재 K-Talk 전체 잠금</b><br>현재 설정과 기능을 보호하는 관리자 잠금입니다.</div>'
+            +'<input id="ktAdminLockPin20260928" class="form" type="password" inputmode="numeric" maxlength="4" placeholder="관리 비밀번호 입력">'
+            +'<button class="act" type="button" onclick="ktConfirmAdminLock20260928()">잠그기</button>');
+        }
+      }catch(e){}
+      return false;
+    }
     if(kind==='monitor'){
       try{
         /* 관리자 입장/투명 모드는 쓰지 않고 현재 방송 목록만 확인 */
@@ -79,6 +91,22 @@
     }
     var name=kind==='coin'?'회원 코인 지급':(kind==='suspend'?'회원 정지':'정지 해제');
     try{alert('🔐 '+name+' 관리 화면입니다.\n보안 관리코드 설정 후 실제 처리 기능을 연결합니다.');}catch(e){}
+    return false;
+  };
+
+  window.ktConfirmAdminLock20260928=function(){
+    var el=document.getElementById('ktAdminLockPin20260928');
+    var pin=String(el&&el.value||'').trim();
+    if(pin!=='2222'){
+      try{alert('비밀번호가 맞지 않습니다.');}catch(e){}
+      return false;
+    }
+    try{
+      localStorage.setItem('ktalk_total_admin_locked','1');
+      localStorage.setItem('ktalk_total_admin_lock_pin','2222');
+    }catch(e){}
+    try{alert('🔒 전체 잠금이 설정되었습니다.');}catch(e){}
+    try{if(typeof window.closeSheet==='function')window.closeSheet();}catch(e){}
     return false;
   };
 
