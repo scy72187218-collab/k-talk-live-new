@@ -29,7 +29,30 @@
   }
   function enc(v){return encodeURIComponent(String(v==null?'':v));}
   function stream(){
-    try{return window.state&&state.stream?state.stream:null;}catch(e){return null;}
+    /* Some phones render the host camera before state.stream is populated.
+       Use the already-playing local room video as a valid host source so
+       viewer fallback does not sit on "방송 영상 연결 중…" for minutes. */
+    try{
+      var s=window.state&&state.stream?state.stream:null;
+      if(s&&s.getVideoTracks&&s.getVideoTracks().some(function(t){return t&&t.readyState==='live';}))return s;
+    }catch(e){}
+    try{
+      var v=document.querySelector(
+        '#screen #ktLiveVideo,'+
+        '#screen .ktsolo-room video,'+
+        '#screen .ktg13-room video,'+
+        '#screen .ktsubscriber-room video,'+
+        '#screen .ktsecret-room video'
+      );
+      var s2=v&&v.srcObject||null;
+      if(s2&&s2.getVideoTracks&&s2.getVideoTracks().some(function(t){return t&&t.readyState==='live';}))return s2;
+    }catch(e){}
+    try{
+      var cam=document.getElementById('camera')||document.getElementById('cameraBg');
+      var s3=cam&&cam.srcObject||null;
+      if(s3&&s3.getVideoTracks&&s3.getVideoTracks().some(function(t){return t&&t.readyState==='live';}))return s3;
+    }catch(e){}
+    return null;
   }
   function actualHostRoomVisible(){
     try{
