@@ -114,9 +114,7 @@
   }
 
   function ensure(){
-    document.querySelectorAll(
-      '#screen .ktsolo-room'
-    ).forEach(ensureRoom);
+    document.querySelectorAll('').forEach(ensureRoom);
   }
 
   if(!document.getElementById('ktThreeQuickRestoreStyle20260927')){
