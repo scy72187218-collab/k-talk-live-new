@@ -107,47 +107,63 @@ window.ktGetGuestReward=function(id){
   var now=Date.now();
   var data=window.ktGuestRewards[key];
   if(!data){
-    data={startedAt:now,likes:0,roses:0,lastRewardAt:0,hourIndex:0};
+    data={startedAt:now,likes:0,roses:0,lastRewardAt:0};
     window.ktGuestRewards[key]=data;
   }
   return data;
 };
 
-window.ktGuestHourInfo=function(data){
+window.ktGuestRewardInfo=function(data){
   var now=Date.now();
-  var elapsed=Math.max(0,now-data.startedAt);
-  var hourIndex=Math.min(4,Math.floor(elapsed/3600000));
-  var finished=elapsed>=5*3600000 || data.roses>=5;
-  var nextAt=data.startedAt+(hourIndex+1)*3600000;
-  return {hourIndex:hourIndex,finished:finished,nextAt:nextAt,elapsed:elapsed};
+  var cooldown=10*60*1000;
+  var finished=(data.roses||0)>=5;
+  var nextAt=data.lastRewardAt?data.lastRewardAt+cooldown:0;
+  var ready=!data.lastRewardAt||now>=nextAt;
+  return {finished:finished,ready:ready,nextAt:nextAt,cooldown:cooldown};
 };
 
-window.addGuestLike=function(id,name,emoji){
-  var data=ktGetGuestReward(id);
-  var info=ktGuestHourInfo(data);
-  if(info.finished){
-    ktSpeak('게스트 좋아요 보상 5시간이 끝났습니다.');
-    alert('게스트 좋아요 보상은 5시간 종료되었습니다.');
+window.addGuestLike=async function(id,name,emoji){
+  name=name||'게스트';
+  var followed=false;
+  try{
+    if(typeof window.ktIsGuestFollowedForReward20260928==='function'){
+      followed=await window.ktIsGuestFollowedForReward20260928(id);
+    }
+  }catch(e){}
+  if(!followed){
+    try{alert('팔로우된 게스트만 좋아요 장미 보상을 받을 수 있습니다.');}catch(e){}
     openGuestProfile(id,name,emoji);
     return;
   }
-  if(data.hourIndex!==info.hourIndex){
-    data.hourIndex=info.hourIndex;
-    data.likes=0;
+
+  var data=ktGetGuestReward(id);
+  var info=ktGuestRewardInfo(data);
+  if(info.finished){
+    try{ktSpeak('게스트 좋아요 장미 보상 5회가 모두 끝났습니다.');}catch(e){}
+    try{alert('게스트 좋아요 장미 보상은 최대 5송이로 종료되었습니다.');}catch(e){}
+    openGuestProfile(id,name,emoji);
+    return;
   }
-  data.likes++;
+
+  data.likes=Math.min(30,(data.likes||0)+1);
+
   if(data.likes>=30){
-    if(data.lastRewardAt < data.startedAt+(info.hourIndex*3600000)){
-      data.roses++;
+    info=ktGuestRewardInfo(data);
+    if(info.ready){
+      data.roses=Math.min(5,(data.roses||0)+1);
       data.lastRewardAt=Date.now();
       data.likes=0;
-      ktAnnounceEvent('reward',{text:(name||'게스트')+'님이 좋아요 30개를 받아 장미 1송이를 받았습니다.'});
-      alert('🌹 '+(name||'게스트')+' 좋아요 30개 달성! 장미 1송이 지급');
+      try{ktAnnounceEvent('reward',{text:(name||'게스트')+'님이 좋아요 30개를 받아 장미 1송이를 받았습니다.'});}catch(e){}
+      try{alert('🌹 '+(name||'게스트')+' 좋아요 30개 달성! 장미 1송이 지급');}catch(e){}
     }else{
       data.likes=30;
-      alert('이번 1시간 보상은 이미 받았습니다. 다음 시간에 다시 받을 수 있습니다.');
+      var remain=Math.max(0,info.nextAt-Date.now());
+      var mins=Math.floor(remain/60000);
+      var secs=Math.floor((remain%60000)/1000);
+      try{alert('다음 장미 보상까지 '+String(mins).padStart(2,'0')+':'+String(secs).padStart(2,'0')+' 남았습니다.');}catch(e){}
     }
   }
+
   openGuestProfile(id,name,emoji);
 };
 
@@ -155,35 +171,34 @@ window.openGuestProfile=function(id,name,emoji){
   name=name||'게스트';
   emoji=emoji||'🙂';
   var data=ktGetGuestReward(id);
-  var info=ktGuestHourInfo(data);
-  var remain=info.finished?0:Math.max(0,info.nextAt-Date.now());
+  var info=ktGuestRewardInfo(data);
+  var remain=info.ready||info.finished?0:Math.max(0,info.nextAt-Date.now());
   var mins=Math.floor(remain/60000);
   var secs=Math.floor((remain%60000)/1000);
   var time=String(mins).padStart(2,'0')+':'+String(secs).padStart(2,'0');
   var safeId=String(id).replace(/'/g,"\\'");
   var safeName=String(name).replace(/'/g,"\\'");
   var safeEmoji=String(emoji).replace(/'/g,"\\'");
+  var tap="addGuestLike('"+safeId+"','"+safeName+"','"+safeEmoji+"')";
   var html='<div class="kt-guest-profile">'
-    +'<div class="kt-guest-profile-top">'
-      +'<div class="kt-guest-avatar">'+emoji+'</div>'
-      +'<div class="kt-guest-name"><b>'+name+'</b><small>게스트 프로필</small></div>'
+    +'<div class="kt-guest-profile-top" style="flex-direction:column;align-items:center">'
+      +'<button type="button" onclick="'+tap+'" aria-label="게스트 사진 좋아요" style="width:112px;height:112px;border:0;border-radius:50%;padding:0;overflow:hidden;background:#181820;color:#fff;font-size:56px;display:grid;place-items:center;cursor:pointer;touch-action:manipulation">'+emoji+'</button>'
+      +'<div class="kt-guest-name" style="text-align:center"><b>'+name+'</b><small>팔로우된 게스트 사진을 두드려 좋아요</small></div>'
       +(info.finished
-        ?'<button class="kt-guest-heart done" disabled aria-label="좋아요 보상 종료">💗</button>'
-        :'<button class="kt-guest-heart" onclick="addGuestLike(\''+safeId+'\',\''+safeName+'\',\''+safeEmoji+'\')" aria-label="좋아요">💗</button>')
+        ?'<button class="kt-guest-heart done" disabled aria-label="좋아요 보상 종료">💗 보상 종료</button>'
+        :'<button class="kt-guest-heart" onclick="'+tap+'" aria-label="좋아요">💗 좋아요</button>')
     +'</div>'
     +'<div class="kt-guest-like-box">'
-      +'<strong>💗 '+Math.min(data.likes,30)+' / 30</strong>'
+      +'<strong>💗 '+Math.min(data.likes||0,30)+' / 30</strong>'
       +'<span>좋아요 30개 달성하면 🌹 장미 1송이</span>'
-      +'<small>1시간에 1번 · 최대 5시간 · 최대 장미 5송이</small>'
+      +'<small>팔로우된 게스트만 · 10분마다 1번 · 최대 5번 · 총 장미 5송이</small>'
     +'</div>'
-    +'<div class="kt-guest-progress"><div style="width:'+(Math.min(data.likes,30)/30*100)+'%"></div></div>'
-    +'<div class="kt-guest-stats"><span>받은 장미 <b>'+data.roses+'송이</b></span><span>'+(info.finished?'5시간 종료':'이번 시간 '+time+' 남음')+'</span></div>'
-    +'<div class="kt-guest-like-note">'+(info.finished?'좋아요 보상 5시간 종료':'사진 옆 하트를 눌러주세요')+'</div>'
+    +'<div class="kt-guest-progress"><div style="width:'+(Math.min(data.likes||0,30)/30*100)+'%"></div></div>'
+    +'<div class="kt-guest-stats"><span>받은 장미 <b>'+(data.roses||0)+'송이</b></span><span>'+(info.finished?'보상 5회 종료':(info.ready?'지금 보상 가능':'다음 보상 '+time))+'</span></div>'
+    +'<div class="kt-guest-like-note">'+(info.finished?'좋아요는 계속 눌러도 추가 장미 보상은 없습니다.':'큰 사진을 두드려 좋아요를 눌러주세요.')+'</div>'
     +'</div>';
   showSheet('게스트 프로필',html);
 };
-
-
 
 
 window.activate=function(name){document.querySelectorAll('[data-tab]').forEach(function(b){b.classList.toggle('active',b.dataset.tab===name);});};
