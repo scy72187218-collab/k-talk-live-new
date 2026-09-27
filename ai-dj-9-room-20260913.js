@@ -3,10 +3,10 @@
   window.__ktAiDj9Room20260913=true;
 })();
 
-/* K-Talk 홈화면 아이콘 설치: 설치 가능할 때만 작은 선택창 표시. 방송 화면을 막지 않음. */
+/* K-Talk 아이콘 설치: 네이버/인앱 브라우저에서는 크롬으로 열고, 지원 브라우저에서는 실제 설치창을 연다. */
 (function(){
-  if(window.__ktPwaInstallOnly20260928)return;
-  window.__ktPwaInstallOnly20260928=true;
+  if(window.__ktPwaInstallOnly20260928v2)return;
+  window.__ktPwaInstallOnly20260928v2=true;
 
   var deferredPrompt=null;
 
@@ -21,22 +21,33 @@
     if(box&&box.parentNode)box.parentNode.removeChild(box);
   }
 
-  function ensureManifest(){
-    if(document.querySelector('link[rel="manifest"]'))return;
-    var link=document.createElement('link');
-    link.rel='manifest';
-    link.href='/manifest.webmanifest?v=20260928-install-safe1';
-    document.head.appendChild(link);
+  function isAndroid(){
+    return /Android/i.test(navigator.userAgent||'');
+  }
+
+  function isChrome(){
+    var ua=navigator.userAgent||'';
+    return /Chrome\//i.test(ua)&&!/NAVER|Whale|SamsungBrowser|EdgA|OPR\//i.test(ua);
+  }
+
+  function openInChrome(){
+    try{
+      var host=location.host;
+      var path=location.pathname+location.search+location.hash;
+      location.href='intent://'+host+path+'#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url='+encodeURIComponent(location.href)+';end';
+      return true;
+    }catch(e){return false;}
   }
 
   function showInstallBox(){
     removeInstallBox();
-    if(isInstalled()||!deferredPrompt)return;
+    if(isInstalled())return;
 
     var box=document.createElement('div');
     box.id='ktPwaInstallBox';
-    box.style.cssText='position:fixed;right:10px;bottom:86px;z-index:9999;max-width:250px;display:flex;align-items:center;gap:7px;padding:8px 9px;border:1px solid rgba(255,92,207,.62);border-radius:14px;background:rgba(8,8,14,.94);box-shadow:0 6px 18px rgba(0,0,0,.45);color:#fff;font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif;pointer-events:auto';
-    box.innerHTML='<div style="min-width:0;flex:1"><b style="display:block;font-size:12px">K-Talk 아이콘 설치</b><span style="display:block;margin-top:2px;color:#ddd;font-size:9px">원하실 때 설치를 누르세요.</span></div><button id="ktPwaInstallBtn" type="button" style="height:32px;padding:0 10px;border:0;border-radius:10px;background:linear-gradient(135deg,#ff3ca6,#7b55ff);color:#fff;font-size:11px;font-weight:950">설치</button><button id="ktPwaInstallClose" type="button" aria-label="닫기" style="width:28px;height:28px;border:0;border-radius:50%;background:#ffffff18;color:#fff;font-size:17px">×</button>';
+    box.style.cssText='position:fixed;right:8px;bottom:88px;z-index:9999;display:flex;align-items:center;gap:6px;padding:7px 8px;border:1px solid rgba(255,92,207,.62);border-radius:13px;background:rgba(8,8,14,.94);box-shadow:0 6px 18px rgba(0,0,0,.45);color:#fff;font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif;pointer-events:auto';
+    var label=deferredPrompt?'아이콘 설치':'크롬에서 설치';
+    box.innerHTML='<button id="ktPwaInstallBtn" type="button" style="height:32px;padding:0 11px;border:0;border-radius:10px;background:linear-gradient(135deg,#ff3ca6,#7b55ff);color:#fff;font-size:11px;font-weight:950">'+label+'</button><button id="ktPwaInstallClose" type="button" aria-label="닫기" style="width:28px;height:28px;border:0;border-radius:50%;background:#ffffff18;color:#fff;font-size:17px">×</button>';
     document.body.appendChild(box);
 
     var close=document.getElementById('ktPwaInstallClose');
@@ -44,24 +55,36 @@
 
     var btn=document.getElementById('ktPwaInstallBtn');
     if(btn)btn.addEventListener('click',async function(){
-      if(!deferredPrompt){removeInstallBox();return;}
+      if(deferredPrompt){
+        try{
+          deferredPrompt.prompt();
+          await deferredPrompt.userChoice;
+        }catch(e){}
+        deferredPrompt=null;
+        removeInstallBox();
+        return;
+      }
+
+      if(isAndroid()&&!isChrome()){
+        openInChrome();
+        return;
+      }
+
       try{
-        deferredPrompt.prompt();
-        await deferredPrompt.userChoice;
+        alert('브라우저 메뉴에서 앱 설치 또는 홈 화면에 추가를 눌러 주세요.');
       }catch(e){}
-      deferredPrompt=null;
-      removeInstallBox();
     });
   }
 
-  /* 예전 버전에서 남은 큰 설치창은 페이지가 열리자마자 제거한다. */
   removeInstallBox();
-  ensureManifest();
 
   if('serviceWorker' in navigator){
     window.addEventListener('load',function(){
-      navigator.serviceWorker.register('/sw.js?v=20260928-install-safe1').catch(function(){});
+      navigator.serviceWorker.register('/sw.js?v=20260928-install3').catch(function(){});
+      setTimeout(function(){if(!isInstalled())showInstallBox();},900);
     },{once:true});
+  }else{
+    setTimeout(function(){if(!isInstalled())showInstallBox();},900);
   }
 
   window.addEventListener('beforeinstallprompt',function(e){
@@ -76,7 +99,7 @@
   });
 
   window.addEventListener('pageshow',function(){
-    if(isInstalled()||!deferredPrompt)removeInstallBox();
+    if(isInstalled())removeInstallBox();
   });
 })();
 
