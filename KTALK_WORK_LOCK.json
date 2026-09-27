@@ -1,11 +1,11 @@
 {
-  "version": 157,
+  "version": 158,
   "locked": true,
-  "scope": "selective_with_full_snapshot_guard",
-  "lock_slot": 1,
+  "scope": "full_snapshot_guard",
+  "lock_slot": 8,
   "unlock_requires_pin": false,
   "runtime_controls_remain_usable": true,
-  "default_policy": "unlocked_except_listed",
+  "default_policy": "locked_except_runtime_controls",
   "protected_components": [
     "group9_bottom_controls_8",
     "public_video_first_page_opening",
@@ -17,7 +17,14 @@
     "current_full_state_20260927_5555",
     "solo_broadcast_current_state",
     "group9_room_current_state",
-    "secret_room_current_state"
+    "secret_room_current_state",
+    "current_full_state_20260928_all_features_and_switches",
+    "all_runtime_switches_operational",
+    "camera_off_five_choices",
+    "person_photo_inline_gifts",
+    "rose_sender_history",
+    "song_guest_mic_auto_lock",
+    "bottom_camera_mic_movie"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -30,11 +37,18 @@
     "current_full_state_20260927_5555",
     "solo_broadcast_current_state",
     "group9_room_current_state",
-    "secret_room_current_state"
+    "secret_room_current_state",
+    "current_full_state_20260928_all_features_and_switches",
+    "all_runtime_switches_operational",
+    "camera_off_five_choices",
+    "person_photo_inline_gifts",
+    "rose_sender_history",
+    "song_guest_mic_auto_lock",
+    "bottom_camera_mic_movie"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "Current room-opening behavior is protected for SOLO, 9-person, 13-person, subscriber, and secret rooms. Do not change room opening/countdown behavior unless explicitly unlocked by owner.",
+  "note": "2026-09-28 final snapshot: all current K-Talk features are protected. Runtime switches/buttons must remain usable; work lock protects code/state only and must not disable user controls.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -55,8 +69,17 @@
     ],
     "7": [
       "current_full_state_20260927_5555"
+    ],
+    "8": [
+      "current_full_state_20260928_all_features_and_switches",
+      "all_runtime_switches_operational",
+      "camera_off_five_choices",
+      "person_photo_inline_gifts",
+      "rose_sender_history",
+      "song_guest_mic_auto_lock",
+      "bottom_camera_mic_movie"
     ]
   },
   "last_unlock": "2026-09-27-solo-countdown-only-code-5555",
-  "last_lock": "2026-09-27-current-room-opening-state"
+  "last_lock": "2026-09-28-all-current-features-final"
 }
