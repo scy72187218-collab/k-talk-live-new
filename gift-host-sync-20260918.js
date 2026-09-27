@@ -63,27 +63,38 @@
     var c=parseInt(cost||0,10)||0;
     if(c<=0)return;
 
-    /* 호스트가 게스트를 선물 대상으로 선택한 경우 그 게스트에게 보낸다. */
+    /* 사진으로 선택한 사람에게 직접 선물: 호스트↔게스트, 게스트↔게스트. */
     try{
-      var target=window.ktGuestGiftTarget||null;
-      if(isHostRoom()&&target&&target.viewerId){
-        var hp={
-          name:String(name||'선물'),
-          cost:c,
-          targetViewerId:String(target.viewerId||''),
-          targetName:String(target.name||'게스트')
-        };
-        await req('ktalk_live_messages',{
-          method:'POST',headers:{Prefer:'return=minimal'},
-          body:JSON.stringify({
-            host_id:deviceId(),
-            sender_id:'hostgift:'+deviceId(),
-            sender_name:String(sender||senderName()),
-            message:JSON.stringify(hp),
-            message_type:'host_gift:'+String(target.viewerId)
-          })
-        });
-        return;
+      var selected=window.ktGiftTarget20260928||null;
+      var legacy=window.ktGuestGiftTarget||null;
+      var target=selected||(legacy&&legacy.viewerId?{kind:'guest',viewerId:legacy.viewerId,name:legacy.name}:null);
+
+      if(target&&target.kind==='guest'&&target.viewerId){
+        var hostId=await targetHost();
+        if(hostId){
+          var payloadToGuest={
+            name:String(name||'선물'),
+            cost:c,
+            targetViewerId:String(target.viewerId||''),
+            targetName:String(target.name||'게스트')
+          };
+          await req('ktalk_live_messages',{
+            method:'POST',headers:{Prefer:'return=minimal'},
+            body:JSON.stringify({
+              host_id:hostId,
+              sender_id:(isHostRoom()?'hostgift:':'guestgift:')+deviceId(),
+              sender_name:String(sender||senderName()),
+              message:JSON.stringify(payloadToGuest),
+              message_type:(isHostRoom()?'host_gift:':'guest_gift:')+String(target.viewerId)
+            })
+          });
+          return;
+        }
+      }
+
+      /* 게스트가 호스트 사진을 선택하면 기존 호스트 선물 경로 사용. */
+      if(target&&target.kind==='host'){
+        // fall through to normal host gift below
       }
     }catch(e){}
 
@@ -128,7 +139,8 @@
       if(!host)return;
       var vid='viewer_'+deviceId();
       var since=new Date(Date.now()-15000).toISOString();
-      var rows=await req('ktalk_live_messages?select=id,sender_id,sender_name,message,message_type,created_at&host_id=eq.'+enc(host)+'&message_type=eq.'+enc('host_gift:'+vid)+'&created_at=gte.'+enc(since)+'&order=created_at.asc&limit=20');
+      var mt='(host_gift:'+vid+',guest_gift:'+vid+')';
+      var rows=await req('ktalk_live_messages?select=id,sender_id,sender_name,message,message_type,created_at&host_id=eq.'+enc(host)+'&message_type=in.'+enc(mt)+'&created_at=gte.'+enc(since)+'&order=created_at.asc&limit=20');
       (rows||[]).forEach(function(row){
         var id=String(row.id||'');
         if(!id||lastSeen[id])return;
