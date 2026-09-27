@@ -390,6 +390,12 @@
     });
 
     renderDirectRequests();
+    try{
+      if(isHostRole()){
+        broadcastGuestRosterSnapshot20260927();
+        setTimeout(broadcastGuestRosterSnapshot20260927,80);
+      }
+    }catch(e){}
   }
 
   window.ktDirectEndAllGuestSessions20260923=function(){
@@ -738,15 +744,75 @@
     }catch(e){scheduleReconnect();}
   }
 
+  function broadcastGuestRosterSnapshot20260927(){
+    if(!isHostRole())return;
+    try{
+      var ids=[],names={};
+      Object.keys(approvedGuests||{}).forEach(function(id){
+        if(!approvedGuests[id])return;
+        ids.push(String(id));
+        names[String(id)]=String((approvedGuests[id]&&approvedGuests[id].name)||'게스트');
+      });
+      send('guest_roster_snapshot',{
+        host_id:DEVICE,
+        ids:ids,
+        names:names,
+        run_id:hostRunId||'',
+        at:Date.now()
+      });
+    }catch(e){}
+  }
+
+  function applyGuestRosterSnapshot20260927(p){
+    try{
+      if(isHostRole())return;
+      var hid=remoteHostId();
+      if(!hid||String(p&&p.host_id||'')!==hid)return;
+      var ids=Array.isArray(p&&p.ids)?p.ids.map(function(x){return String(x||'').trim();}).filter(Boolean):[];
+      var names=(p&&p.names&&typeof p.names==='object')?p.names:{};
+      var next={};
+      ids.forEach(function(id){next[id]=true;});
+
+      var roster=window.__ktApprovedGuestIds20260924||{};
+      var rosterNames=window.__ktApprovedGuestNames20260924||{};
+
+      Object.keys(roster).forEach(function(id){
+        if(roster[id]===true&&!next[id]){
+          delete roster[id];
+          delete rosterNames[id];
+          try{window.dispatchEvent(new CustomEvent('kt-any-guest-left',{detail:{host_id:hid,viewer_id:id,at:Date.now(),snapshot:true}}));}catch(_e){}
+        }
+      });
+
+      ids.forEach(function(id){
+        var was=roster[id]===true;
+        roster[id]=true;
+        rosterNames[id]=String(names[id]||rosterNames[id]||'게스트');
+        if(!was){
+          try{window.dispatchEvent(new CustomEvent('kt-any-guest-approved',{detail:{host_id:hid,viewer_id:id,name:rosterNames[id],at:Number(p.at||Date.now()),snapshot:true}}));}catch(_e){}
+        }
+      });
+
+      window.__ktApprovedGuestIds20260924=roster;
+      window.__ktApprovedGuestNames20260924=rosterNames;
+      try{
+        if(typeof window.ktForceApprovedGuestGridNow20260924==='function')window.ktForceApprovedGuestGridNow20260924();
+      }catch(_e){}
+      try{window.dispatchEvent(new CustomEvent('kt-three-person-sync-now',{detail:{host_id:hid,at:Date.now(),snapshot:true}}));}catch(_e){}
+    }catch(e){}
+  }
+
   function afterJoin(){
     if(isHostRole()){
       if(!hostRunId){hostRunId=sid('run');hostRunStartedAt=Date.now();}
       send('host_ready',{host_id:DEVICE,run_id:hostRunId,run_started_at:hostRunStartedAt,at:Date.now()});
+      broadcastGuestRosterSnapshot20260927();
       renderDirectRequests();
     }else{
       var hid=remoteHostId();
       if(hid===activeHostId){
         ensureViewerWatch(true);
+        send('guest_roster_request',{host_id:hid,viewer_id:viewerId(),at:Date.now()});
         if(requestOn)send('guest_request',{host_id:hid,viewer_id:viewerId(),name:profileName(),at:Date.now()});
       }
     }
@@ -1324,6 +1390,9 @@
 
     /* Deliver approval over both fast paths immediately. */
     try{sendCriticalMedia20260926('guest_approved',data,DEVICE);}catch(e){}
+    broadcastGuestRosterSnapshot20260927();
+    setTimeout(broadcastGuestRosterSnapshot20260927,80);
+    setTimeout(broadcastGuestRosterSnapshot20260927,220);
 
     delete pendingRequests[vid];
     var warmPeer=hostGuestPeers[vid]||null;
@@ -2418,6 +2487,15 @@
         }
       }catch(e){}
       if(isHostRole())renderDirectRequests();
+      return;
+    }
+    if(ev==='guest_roster_request'&&isHostRole()&&String(p.host_id||'')===DEVICE){
+      broadcastGuestRosterSnapshot20260927();
+      setTimeout(broadcastGuestRosterSnapshot20260927,60);
+      return;
+    }
+    if(ev==='guest_roster_snapshot'){
+      applyGuestRosterSnapshot20260927(p);
       return;
     }
     if(ev==='guest_left'){
