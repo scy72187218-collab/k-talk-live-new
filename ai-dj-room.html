@@ -493,6 +493,54 @@ document.getElementById('chat').addEventListener('keydown',e=>{if(e.key==='Enter
 })();
 </script>
 
+<script id="kt-dj-auto-announce-bridge-20260927">
+(function(){
+  if(window.__ktDjAutoAnnounceBridge20260927)return;
+  window.__ktDjAutoAnnounceBridge20260927=true;
+
+  function clean(v){return String(v||'').replace(/[<>]/g,'').trim()}
+  function speak(t){try{if(window.ktDjSpeak)window.ktDjSpeak(t)}catch(e){}}
+  function nick(d){return clean(d&&(d.nickname||d.name||d.displayName||d.senderName))||'손님'}
+
+  function greet(d){
+    var n=nick(d);
+    speak(n+'님 어서 오세요. 만나서 반갑습니다. 신청곡 있으면 말씀해 주세요.');
+  }
+  function chat(d){
+    var n=nick(d), t=clean(d&&(d.text||d.message||d.content));
+    if(t)speak(n+'님, '+t);
+  }
+  function gift(d){
+    var n=nick(d), g=clean(d&&(d.gift||d.giftName||d.item||d.nameGift))||'선물';
+    speak(n+'님이 '+g+' 선물을 보내주셨어요. 감사합니다.');
+  }
+  function song(d){
+    var n=nick(d), s=clean(d&&(d.song||d.title||d.songTitle));
+    if(s)speak(n+'님 신청곡 '+s+' 확인했습니다. 네, 알겠습니다. 들려드리겠습니다.');
+  }
+
+  ['ktalk:member-enter','ktalk:member-join','ktalk:guest-enter','ktalk:user-enter'].forEach(function(ev){
+    window.addEventListener(ev,function(e){greet(e&&e.detail||{})});
+  });
+  ['ktalk:chat','ktalk:message'].forEach(function(ev){
+    window.addEventListener(ev,function(e){chat(e&&e.detail||{})});
+  });
+  ['ktalk:gift','ktalk:gift-sent','ktalk:rose'].forEach(function(ev){
+    window.addEventListener(ev,function(e){gift(e&&e.detail||{})});
+  });
+  ['ktalk:song-request','ktalk:request-song'].forEach(function(ev){
+    window.addEventListener(ev,function(e){song(e&&e.detail||{})});
+  });
+
+  // Guest buttons in this room: treat successful tap as an arrival announcement.
+  document.querySelectorAll('#guests .guest').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var label=clean((btn.querySelector('b')||{}).textContent)||'게스트';
+      speak(label+'님 어서 오세요. 만나서 반갑습니다.');
+    });
+  });
+})();
+</script>
 
 <script id="kt-dj-treasure-runtime-20260927">
 (function(){
