@@ -1,5 +1,5 @@
 {
-  "version": 162,
+  "version": 163,
   "locked": true,
   "scope": "full_snapshot_guard",
   "lock_slot": 9,
@@ -34,7 +34,8 @@
     "host_only_instant_video_return",
     "all_rooms_stats_second_row_flip_treasure_match_20260928",
     "owner_taekwon1_haine2_level10000_roses500000_multidevice",
-    "room_access_levels_1_20_solo9_21_40_13secret_41_subscriber_mutual_follow"
+    "room_access_levels_1_20_solo9_21_40_13secret_41_subscriber_mutual_follow",
+    "secret_room_mutual_follow_current_session_invite_only"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -64,11 +65,12 @@
     "host_only_instant_video_return",
     "all_rooms_stats_second_row_flip_treasure_match_20260928",
     "owner_taekwon1_haine2_level10000_roses500000_multidevice",
-    "room_access_levels_1_20_solo9_21_40_13secret_41_subscriber_mutual_follow"
+    "room_access_levels_1_20_solo9_21_40_13secret_41_subscriber_mutual_follow",
+    "secret_room_mutual_follow_current_session_invite_only"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "현재 저장본 기준: Lv1~20 1인/9명, Lv21~40 13명/비밀방 추가, Lv41+ 구독자방 추가. 구독자방은 서로 팔로우된 사용자만 참여. 태권1/하이네2 관리자 예외 유지.",
+  "note": "현재 저장본 기준: 비밀방은 Lv21 이상 + 서로 팔로우 + 현재 방송 세션에서 호스트가 초청한 사용자만 입장. 아무나 입장 불가. 태권1/하이네2 관리자 예외 유지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -109,10 +111,11 @@
       "host_only_instant_video_return",
       "all_rooms_stats_second_row_flip_treasure_match_20260928",
       "owner_taekwon1_haine2_level10000_roses500000_multidevice",
-      "room_access_levels_1_20_solo9_21_40_13secret_41_subscriber_mutual_follow"
+      "room_access_levels_1_20_solo9_21_40_13secret_41_subscriber_mutual_follow",
+      "secret_room_mutual_follow_current_session_invite_only"
     ]
   },
   "last_unlock": "2026-09-27-solo-countdown-only-code-5555",
-  "last_lock": "2026-09-28-final-room-access-level-follow-rules",
+  "last_lock": "2026-09-28-secret-room-follow-invite-only",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
