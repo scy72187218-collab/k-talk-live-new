@@ -5,6 +5,24 @@
   if(window.__ktBroadcastReturnLatestVideo20260920)return;
   window.__ktBroadcastReturnLatestVideo20260920=true;
 
+  var hostExitArmed20260928=false;
+
+  function isRemoteViewer20260928(){
+    try{
+      return document.documentElement.classList.contains('kt-remote-viewing')||
+        !!document.querySelector('#screen .kt-remote-live');
+    }catch(e){return false;}
+  }
+
+  function isLocalHostRoom20260928(){
+    if(isRemoteViewer20260928())return false;
+    try{
+      return !!document.querySelector(
+        '#screen .ktsolo-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room'
+      );
+    }catch(e){return false;}
+  }
+
   function stopCamera(){
     try{
       if(window.state&&state.stream){
@@ -19,6 +37,10 @@
   }
 
   function latestVideoNow(){
+    /* 호스트 방송 종료/뒤로가기에서만 실행. 원격 게스트·시청자는 절대 건드리지 않는다. */
+    if(isRemoteViewer20260928())return;
+    if(!hostExitArmed20260928&&!isLocalHostRoom20260928())return;
+    hostExitArmed20260928=false;
     try{if(window.closeSheet)window.closeSheet();}catch(e){}
     stopCamera();
 
@@ -116,8 +138,9 @@
     var oldEnd=window.endBroadcastEarnings;
     if(typeof oldEnd!=='function'||oldEnd.__ktLatestVideoReturn)return;
     var wrapped=function(){
+      if(isLocalHostRoom20260928())hostExitArmed20260928=true;
       var r=oldEnd.apply(this,arguments);
-      /* 방송 종료를 누르면 수익창에 머물지 않고 바로 동영상으로 복귀 */
+      /* 호스트 방송 종료에서만 바로 동영상으로 복귀 */
       setTimeout(latestVideoNow,0);
       return r;
     };
@@ -129,6 +152,7 @@
     var oldLeave=window.leaveBroadcastToDashboard;
     if(typeof oldLeave!=='function'||oldLeave.__ktLatestVideoReturn)return;
     var wrapped=function(){
+      if(isLocalHostRoom20260928())hostExitArmed20260928=true;
       var r=oldLeave.apply(this,arguments);
       setTimeout(latestVideoNow,0);
       return r;
@@ -147,6 +171,8 @@
     var isBack=!!(b.matches&&b.matches('.ktg13-back,.ktsolo-back,.ktsubscriber-back,.ktsecret-back'));
     var txt=String(b.textContent||'').replace(/\s+/g,'');
     if(!isBack&&txt.indexOf('방송종료')<0)return;
+    if(!isLocalHostRoom20260928())return;
+    hostExitArmed20260928=true;
     setTimeout(latestVideoNow,0);
   },true);
 })();
