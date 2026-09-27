@@ -71,6 +71,21 @@
     return s;
   }
 
+  function ktSoloRemoveSlashNText20260927(){
+    try{
+      var root=document.getElementById('screen');
+      if(!root)return;
+      var walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+      var bad=[];
+      while(walker.nextNode()){
+        var n=walker.currentNode;
+        var t=String(n.nodeValue||'');
+        if(t && /^(?:\\n|\\r|\\t|\s)+$/.test(t)) bad.push(n);
+      }
+      bad.forEach(function(n){try{n.remove();}catch(e){try{n.nodeValue='';}catch(_e){}}});
+    }catch(e){}
+  }
+
   function renderApprovedSolo(){
     var screen=document.getElementById('screen');
     if(!screen)return;
@@ -130,6 +145,9 @@
       }
     }catch(e){}
     renderChat();
+    ktSoloRemoveSlashNText20260927();
+    setTimeout(ktSoloRemoveSlashNText20260927,80);
+    setTimeout(ktSoloRemoveSlashNText20260927,300);
     try{if(window.ktRenderTreasure)ktRenderTreasure();}catch(e){}
   }
 
