@@ -284,6 +284,16 @@
       if(window.creator)creator.classList.remove('show','live-prep-open');
     }catch(e){}
     renderApprovedGroup13(true);
+
+    /* 13명방은 이미 실제 방을 먼저 그렸으므로 예전 '검은 화면 전환'
+       보호막이 남아 있으면 즉시 제거한다. 다른 방 보호막에는 손대지 않는다. */
+    try{
+      var blackCover=document.getElementById('ktRoomOpeningFlashCover');
+      if(blackCover&&blackCover.parentNode)blackCover.parentNode.removeChild(blackCover);
+      var instant=document.getElementById('ktLiveInstantHandoff');
+      if(instant&&instant.parentNode)instant.parentNode.removeChild(instant);
+    }catch(e){}
+
     await new Promise(function(resolve){
       requestAnimationFrame(function(){
         requestAnimationFrame(resolve);
