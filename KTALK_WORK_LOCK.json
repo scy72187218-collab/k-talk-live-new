@@ -1,13 +1,13 @@
 {
-  "version": 144,
+  "version": 145,
   "locked": true,
   "scope": "selective-approved-working-components-only",
   "snapshot_branch": "main",
-  "snapshot_commit": "fa36f2c835707fccb7fd339a33f944877d991bbc",
+  "snapshot_commit": "f121380a6630465cf1a0098af5ff1c2bc72f001a",
   "unlock_requires_pin": true,
   "pin_sha256": "0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",
   "runtime_controls_remain_usable": true,
-  "note": "2026-09-26 owner PIN 1111: fixed only host/video signaling role bridge. The active broadcast presence now marks the real host for the clean video transport, even if a stale remote-viewing class remains. This lets the host answer viewer video_watch and send the host camera. No UI/layout/buttons/guest-number/public-video changes. Relocked.",
+  "note": "2026-09-27 owner PIN 1111: public-video playback only. Removed forced pause/load restart after playback has begun, and blocked first-video source replacement after playback has begun. No live communication, room UI, buttons, guest numbering, or layout changes. Relocked.",
   "default_policy": "locked_unless_explicitly_listed_as_temporarily_unlocked",
   "protected_components": [
     "gift_button",
@@ -99,7 +99,7 @@
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
   "last_communication_fix": "2026-09-26-host-presence-video-role-bridge",
-  "last_video_feed_fix": "2026-09-26-clean-single-first-video-path",
+  "last_video_feed_fix": "2026-09-27-public-video-no-midplay-restart",
   "locked_components": [
     "public-video-feed",
     "first-video-fast-paint",
@@ -150,7 +150,7 @@
     "communication_auto_reconnect_only",
     "livekit_sfu_transport_bridge_only"
   ],
-  "last_video_feed_lock": "2026-09-26-lock-clean-single-first-video-path",
+  "last_video_feed_lock": "2026-09-27-relock-public-video-no-midplay-restart-under-pin-1111",
   "last_switch_lock": "2026-09-24-all-switches-relock2",
   "last_switch_ai_fix": "2026-09-24-first-touch-switch-site-guide-ai2",
   "last_rose_ai_fix": "2026-09-24-rose-first-touch-guide-user-tap4",
