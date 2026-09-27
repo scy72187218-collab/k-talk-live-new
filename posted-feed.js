@@ -318,8 +318,8 @@
   window.ktPublicSendRose=async function(id,recipientName,btn){
     if(btn&&btn.disabled)return;
 
-    /* 장미는 누르는 즉시 화면에서 정확히 +1 한다.
-       서버 응답이 늦거나 빈 값이어도 사용자가 누른 횟수는 바로 보이게 유지한다. */
+    /* 누를 때마다 장미 숫자는 화면에서 즉시 정확히 +1.
+       서버가 느리거나 RPC가 없어도 숫자를 다시 내리지 않는다. */
     var s=btn&&btn.querySelector('small');
     var before=0;
     if(s){
@@ -328,43 +328,72 @@
     }
 
     if(btn)btn.disabled=true;
+    var saved=false;
+
     try{
-      var r=await fetch(SB+'/rest/v1/rpc/ktalk_like_video',{method:'POST',headers:headers({'Content-Type':'application/json'}),body:JSON.stringify({video_id:id})});
-      if(!r.ok)throw new Error('rose');
-      var n=await r.json();
-      var serverCount=Number(n);
-      if(s&&Number.isFinite(serverCount)&&serverCount>0){
-        /* 서버 값이 더 크면 서버 값을 쓰고, 그렇지 않으면 방금 +1 한 값을 유지한다. */
-        s.textContent=Math.max(before+1,serverCount).toLocaleString('ko-KR');
+      /* 1차: 기존 원자적 RPC */
+      var r=await fetch(SB+'/rest/v1/rpc/ktalk_like_video',{
+        method:'POST',
+        headers:headers({'Content-Type':'application/json'}),
+        body:JSON.stringify({video_id:id})
+      });
+      if(r.ok){
+        var n=await r.json();
+        var serverCount=Number(n);
+        if(s&&Number.isFinite(serverCount)&&serverCount>0){
+          s.textContent=Math.max(before+1,serverCount).toLocaleString('ko-KR');
+        }
+        saved=true;
       }
+    }catch(e){}
 
-      /* 누가 장미를 보냈는지 기존 댓글 테이블에 숨은 기록으로 남긴다.
-         일반 메시지/댓글 화면에는 이 기록을 표시하지 않는다. */
+    if(!saved){
+      /* 2차: RPC가 없는 기기/상태에서는 현재 likes를 읽어 +1 후 직접 저장 */
       try{
-        var giver=who();
-        await fetch(SB+'/rest/v1/ktalk_video_comments',{
-          method:'POST',
-          headers:headers({'Content-Type':'application/json','Prefer':'return=minimal'}),
-          body:JSON.stringify({
-            video_id:id,
-            author_id:giver.id,
-            author_name:giver.name,
-            body:'__KT_ROSE__|1'
-          })
+        var g=await fetch(SB+'/rest/v1/ktalk_videos?select=likes&id=eq.'+encodeURIComponent(id)+'&limit=1',{
+          headers:headers()
         });
-      }catch(logErr){}
+        if(g.ok){
+          var rows=await g.json();
+          var current=Number(rows&&rows[0]&&rows[0].likes)||0;
+          var next=Math.max(current+1,before+1);
+          var p=await fetch(SB+'/rest/v1/ktalk_videos?id=eq.'+encodeURIComponent(id),{
+            method:'PATCH',
+            headers:headers({'Content-Type':'application/json','Prefer':'return=minimal'}),
+            body:JSON.stringify({likes:next})
+          });
+          if(p.ok){
+            saved=true;
+            if(s)s.textContent=next.toLocaleString('ko-KR');
+          }
+        }
+      }catch(e){}
+    }
 
+    /* 장미 보낸 사람 기록은 가능할 때만 남긴다. 실패해도 장미 버튼은 정상 유지 */
+    try{
+      var giver=who();
+      await fetch(SB+'/rest/v1/ktalk_video_comments',{
+        method:'POST',
+        headers:headers({'Content-Type':'application/json','Prefer':'return=minimal'}),
+        body:JSON.stringify({
+          video_id:id,
+          author_id:giver.id,
+          author_name:giver.name,
+          body:'__KT_ROSE__|1'
+        })
+      });
+    }catch(logErr){}
+
+    try{
       var toast=document.createElement('div');
       toast.style.cssText='position:fixed;left:50%;bottom:110px;transform:translateX(-50%);z-index:99999;padding:12px 18px;border-radius:999px;background:rgba(24,8,28,.94);border:1px solid #ff5aaf;color:#fff;font-weight:950;box-shadow:0 0 18px rgba(255,54,150,.45);white-space:nowrap';
       toast.textContent='🌹 '+(recipientName||'동영상 게시자')+'님에게 장미 1송이를 보냈습니다';
       document.body.appendChild(toast);
-      setTimeout(function(){if(toast&&toast.parentNode)toast.remove();},2200);
-    }catch(e){
-      /* 실제 전송 실패 때만 방금 올린 1개를 되돌린다. */
-      try{if(s)s.textContent=before.toLocaleString('ko-KR');}catch(_e){}
-      alert('장미 전송에 실패했습니다. 다시 눌러 주세요.');
-    }
-    finally{if(btn)btn.disabled=false;}
+      setTimeout(function(){if(toast&&toast.parentNode)toast.remove();},1600);
+    }catch(e){}
+
+    if(btn)btn.disabled=false;
   };
 
   window.ktPublicRoseHistory=async function(videoId,recipientName){
