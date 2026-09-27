@@ -64,6 +64,13 @@
   function nickname(){
     try{return String(localStorage.getItem('ktalk_nickname')||localStorage.getItem('ktalk_profile_name')||'').trim();}catch(e){return '';}
   }
+  function phoneDigits(v){return String(v||'').replace(/[^0-9]/g,'').slice(0,11);}
+  function savedPhone(){try{return phoneDigits(localStorage.getItem('ktalk_phone')||'');}catch(e){return '';}}
+  function maskPhone(v){
+    v=phoneDigits(v);
+    if(v.length<7)return v;
+    return v.slice(0,3)+'-'+v.slice(3,-4).replace(/./g,'*')+'-'+v.slice(-4);
+  }
 
   window.ktOpenEntryJoin=function(){
     ensureStyle();
@@ -83,10 +90,23 @@
     return false;
   };
 
+  window.ktSaveEntryPhone=function(){
+    var el=document.getElementById('ktEntryJoinPhone');
+    var phone=phoneDigits(el?el.value:'');
+    if(phone.length<10||phone.length>11){try{alert('전화번호를 숫자 10~11자리로 입력해 주세요.');}catch(e){}return false;}
+    try{localStorage.setItem('ktalk_phone',phone);}catch(e){}
+    try{if(typeof window.closeSheet==='function')window.closeSheet();}catch(e){}
+    setTimeout(function(){try{window.ktOpenEntryJoin();}catch(e){}},50);
+    return false;
+  };
+
   window.ktCompleteEntryJoin=function(){
     var el=document.getElementById('ktEntryJoinName');
+    var ph=document.getElementById('ktEntryJoinPhone');
     var name=String(el?el.value:'').trim();
+    var phone=phoneDigits(ph?ph.value:'');
     if(name.length<2){try{alert('닉네임을 2글자 이상 입력해 주세요.');}catch(e){}return false;}
+    if(phone.length<10||phone.length>11){try{alert('전화번호를 숫자 10~11자리로 입력해 주세요.');}catch(e){}return false;}
     var id='';
     try{id=localStorage.getItem('ktalk_member_id')||'';}catch(e){}
     if(!id)id='member_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,9);
@@ -95,6 +115,7 @@
       localStorage.setItem('ktalk_joined','1');
       localStorage.setItem('ktalk_nickname',name);
       localStorage.setItem('ktalk_profile_name',name);
+      localStorage.setItem('ktalk_phone',phone);
       if(!localStorage.getItem('ktalk_profile_v1:local')){
         localStorage.setItem('ktalk_profile_v1:local',JSON.stringify({name:name,bio:'',photo:'',followers:0,likes:0,link:''}));
       }
