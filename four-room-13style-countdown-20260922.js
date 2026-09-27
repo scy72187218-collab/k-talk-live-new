@@ -44,28 +44,16 @@
     overlay.appendChild(num);
 
     if(roomKind==='solo'){
-      await new Promise(function(resolve){
-        var started=Date.now(),finished=false,timer=null;
-        function done(){
-          if(finished)return;
-          finished=true;
-          if(timer)clearInterval(timer);
-          resolve();
-        }
-        function tick(){
-          var elapsed=Math.max(0,Date.now()-started);
-          if(elapsed>=5000){done();return;}
-          var n=Math.max(1,5-Math.floor(elapsed/1000));
-          if(num.textContent!==String(n)){
-            num.textContent=String(n);
-            num.style.transform='scale(1)';
-            setTimeout(function(){try{num.style.transform='scale(.92)';}catch(e){}},650);
-          }
-        }
-        tick();
-        timer=setInterval(tick,100);
-        setTimeout(done,5300);
-      });
+      /* 휴대폰이 순간적으로 버벅여도 숫자를 건너뛰지 않도록
+         시간 계산식 대신 5,4,3,2,1을 순서대로 각각 1초씩 확실히 표시한다. */
+      for(var sn=5;sn>=1;sn--){
+        num.textContent=String(sn);
+        num.style.transform='scale(1)';
+        await new Promise(function(resolve){
+          setTimeout(function(){try{num.style.transform='scale(.92)';}catch(e){}},650);
+          setTimeout(resolve,1000);
+        });
+      }
       return overlay;
     }
 
