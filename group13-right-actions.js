@@ -195,11 +195,11 @@
     +'.ktsolo-right.kt-synced-actions>.kt-solo-treasure{border-color:rgba(255,203,72,.60)!important;background:rgba(65,49,16,.82)!important}'
     +'.ktsolo-right.kt-synced-actions>button b{font-size:17px!important;line-height:1!important}'
     +'.ktsolo-right.kt-synced-actions>button small{font-size:8px!important;line-height:1!important;margin-top:2px!important;white-space:nowrap!important}'
-    +'.ktsolo-room .ktsolo-earn{right:6px!important;bottom:66px!important;width:112px!important;max-width:32%!important}'
+    +'.ktsolo-room .ktsolo-earn{right:6px!important;bottom:56px!important;width:112px!important;max-width:32%!important}'
     +'.ktsolo-room .ktsolo-earn #myEarnHud{padding:3px 5px!important;border-radius:10px!important;min-height:0!important}'
     +'.ktsolo-room .ktsolo-earn #myEarnHud>div:first-child{gap:3px!important}'
     +'.ktsolo-room .ktsolo-earn #myEarnHud>div:first-child span{font-size:7px!important}'
     +'.ktsolo-room .ktsolo-earn #hudEarnNet{font-size:10px!important}'
-    +'@media(max-width:390px){.ktsolo-right{bottom:104px!important;gap:4px!important}.ktsolo-right.kt-synced-actions>button{width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important}.ktsolo-right.kt-synced-actions>.like{height:48px!important;min-height:48px!important}.ktsolo-room .ktsolo-earn{right:5px!important;bottom:61px!important;width:104px!important;max-width:31%!important}}';
+    +'@media(max-width:390px){.ktsolo-right{bottom:104px!important;gap:4px!important}.ktsolo-right.kt-synced-actions>button{width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important}.ktsolo-right.kt-synced-actions>.like{height:48px!important;min-height:48px!important}.ktsolo-room .ktsolo-earn{right:5px!important;bottom:52px!important;width:104px!important;max-width:31%!important}}';
   document.head.appendChild(s);
 })();
