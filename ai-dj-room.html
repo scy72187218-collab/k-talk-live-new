@@ -243,7 +243,7 @@ body{
 }
 </style>
 </head><body>
-<div class="app">
+<div class="app kt-ai-dj-room" data-kt-ai-dj-approved-state="locked">
 <div class="top"><div class="on">● ON AIR</div><div class="logo">♛ K-Talk LIVE ✨</div><div class="count">👤 접속 1,286명</div></div>
 <div class="banners"><button onclick="toast('출석체크 완료')">☑ ★ 출석체크 눌러주세요 ★</button><button onclick="song()">🎵 신청곡 : AI DJ에게 말씀해 주세요 🎙️</button></div>
 <div class="main">
@@ -625,4 +625,16 @@ document.getElementById('chat').addEventListener('keydown',e=>{if(e.key==='Enter
 })();
 </script>
 
+<script id="kt-ai-dj-approved-state-lock-20260927">
+(function(){
+  window.__ktAiDjApprovedStateLocked20260927=true;
+  try{
+    localStorage.setItem('ktalk_ai_dj_approved_state_lock_20260927','1');
+    document.documentElement.setAttribute('data-kt-ai-dj-room-protected','1');
+    document.querySelectorAll('.kt-ai-dj-room,.dj,.guests,.lower,.chat,.gifts,.nav,.gift,.kt-dj-treasure-zone').forEach(function(el){
+      el.setAttribute('data-kt-work-protected','1');
+    });
+  }catch(e){}
+})();
+</script>
 </body></html>
