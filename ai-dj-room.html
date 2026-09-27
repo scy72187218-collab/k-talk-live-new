@@ -315,6 +315,12 @@ document.getElementById('chat').addEventListener('keydown',e=>{if(e.key==='Enter
     return '대표님';
   }
   nickname=getNickname(); window.__ktDjNickname=nickname;
+  try{
+    if('speechSynthesis' in window){
+      speechSynthesis.onvoiceschanged=function(){ try{speechSynthesis.getVoices()}catch(e){} };
+      speechSynthesis.getVoices();
+    }
+  }catch(e){}
 
   function chooseVoice(){
     if(!('speechSynthesis' in window))return null;
@@ -331,7 +337,6 @@ document.getElementById('chat').addEventListener('keydown',e=>{if(e.key==='Enter
       }
     }catch(e){}
     speechQueue.push(text);
-    speaking=false;
     pump();
   };
   function pump(){
@@ -349,11 +354,16 @@ document.getElementById('chat').addEventListener('keydown',e=>{if(e.key==='Enter
     setTimeout(pump,160);
   };
     try{
-      speechSynthesis.cancel();
+      speechSynthesis.resume();
       speechSynthesis.speak(u);
       setTimeout(function(){
-        try{if(speaking&&speechSynthesis.paused)speechSynthesis.resume()}catch(e){}
-      },250);
+        try{
+          if(speechSynthesis.paused)speechSynthesis.resume();
+          if(speaking && !speechSynthesis.speaking && speechQueue.length===0){
+            speechSynthesis.speak(u);
+          }
+        }catch(e){}
+      },350);
     }catch(e){speaking=false;duck(false)}
   }
   function initAudio(){
@@ -465,8 +475,6 @@ document.getElementById('chat').addEventListener('keydown',e=>{if(e.key==='Enter
     }catch(e){}
     var ctx=initAudio();
     if(ctx&&ctx.state==='suspended')ctx.resume().then(startMusic).catch(function(){});
-    document.removeEventListener('pointerdown',unlock,true);
-    document.removeEventListener('touchstart',unlock,true);
   }
   document.addEventListener('pointerdown',unlock,true);
   document.addEventListener('touchstart',unlock,{capture:true,passive:true});
@@ -474,6 +482,7 @@ document.getElementById('chat').addEventListener('keydown',e=>{if(e.key==='Enter
   document.addEventListener('visibilitychange',function(){
     if(document.visibilityState==='visible'){
       try{
+        if('speechSynthesis' in window)speechSynthesis.resume();
         var ctx=initAudio();
         if(ctx&&ctx.state==='suspended')ctx.resume().then(function(){if(!musicStarted)startMusic();}).catch(function(){});
         else if(!musicStarted)startMusic();
@@ -482,6 +491,7 @@ document.getElementById('chat').addEventListener('keydown',e=>{if(e.key==='Enter
   });
   window.addEventListener('pageshow',function(){
     try{
+      if('speechSynthesis' in window)speechSynthesis.resume();
       var ctx=initAudio();
       if(ctx&&ctx.state==='suspended')ctx.resume().then(function(){if(!musicStarted)startMusic();}).catch(function(){});
       else if(!musicStarted)startMusic();
