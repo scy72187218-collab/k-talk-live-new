@@ -35,9 +35,9 @@
     try{
       if(typeof window.showSheet!=='function')return;
       window.showSheet('🎯 미션',''
-        +'<div class="rowbox"><b>🌹 장미 미션</b><br>장미 1개짜리 30개 깨기</div>'
-        +'<div class="rowbox"><b>🏎️ 스포츠카 미션</b><br>스포츠카 50개짜리 10개 깨기</div>'
-        +'<div class="rowbox"><b>💎💗 다이아몬드 하트 미션</b><br>다이아몬드 하트 400개짜리 10개 깨기</div>');
+        +'<div class="rowbox"><b>🌹 장미 미션</b><br>장미 30개 깨기</div>'
+        +'<div class="rowbox"><b>💗 하트 미션</b><br>하트 50개 깨기</div>'
+        +'<div class="rowbox"><b>🎁 보물상자 미션</b><br>보물상자 10개 깨기</div>');
     }catch(e){}
   }
 
@@ -125,9 +125,9 @@
     try{
       if(typeof window.showSheet!=='function')return;
       window.showSheet('🎯 미션',''
-        +'<div class="rowbox"><b>🌹 장미 미션</b><br>장미 1개짜리 30개 깨기</div>'
-        +'<div class="rowbox"><b>🏎️ 스포츠카 미션</b><br>스포츠카 50개짜리 10개 깨기</div>'
-        +'<div class="rowbox"><b>💎💗 다이아몬드 하트 미션</b><br>다이아몬드 하트 400개짜리 10개 깨기</div>');
+        +'<div class="rowbox"><b>🌹 장미 미션</b><br>장미 30개 깨기</div>'
+        +'<div class="rowbox"><b>💗 하트 미션</b><br>하트 50개 깨기</div>'
+        +'<div class="rowbox"><b>🎁 보물상자 미션</b><br>보물상자 10개 깨기</div>');
     }catch(e){}
   }
 
@@ -202,8 +202,8 @@
 
   function stageBadgeText(stage){
     if(stage===1)return '1단계 🌹 장미';
-    if(stage===2)return '2단계 🏎️ 스포츠카';
-    if(stage===3)return '3단계 💎💗 다이아몬드 하트';
+    if(stage===2)return '2단계 💗 하트';
+    if(stage===3)return '3단계 🎁 보물상자';
     return '';
   }
 
@@ -229,9 +229,9 @@
 
   function stageFromText(text){
     text=String(text||'');
-    if(text.indexOf('장미 1개짜리 30개 깨기')>-1)return 1;
-    if(text.indexOf('스포츠카 50개짜리 10개 깨기')>-1)return 2;
-    if(text.indexOf('다이아몬드 하트 400개짜리 10개 깨기')>-1)return 3;
+    if(text.indexOf('장미 30개 깨기')>-1)return 1;
+    if(text.indexOf('하트 50개 깨기')>-1)return 2;
+    if(text.indexOf('보물상자 10개 깨기')>-1)return 3;
     return 0;
   }
 
@@ -323,9 +323,9 @@
     try{
       if(typeof window.showSheet!=='function')return;
       window.showSheet('🎯 미션',''
-        +'<div class="rowbox"><b>🌹 장미 미션</b><br>장미 1개짜리 30개 깨기</div>'
-        +'<div class="rowbox"><b>🏎️ 스포츠카 미션</b><br>스포츠카 50개짜리 10개 깨기</div>'
-        +'<div class="rowbox"><b>💎💗 다이아몬드 하트 미션</b><br>다이아몬드 하트 400개짜리 10개 깨기</div>');
+        +'<div class="rowbox"><b>🌹 장미 미션</b><br>장미 30개 깨기</div>'
+        +'<div class="rowbox"><b>💗 하트 미션</b><br>하트 50개 깨기</div>'
+        +'<div class="rowbox"><b>🎁 보물상자 미션</b><br>보물상자 10개 깨기</div>');
     }catch(e){}
   }
 
