@@ -2506,9 +2506,44 @@ window.ktTreasureStatus=function(t){
   return {left:left,ready:left<=0};
 };
 
+/* 3분이 끝난 보물상자는 모든 방 화면에서 즉시 제거한다.
+   오래 남아 있던 00:00 배지도 앱을 다시 열면 바로 정리한다. */
+window.ktClearExpiredTreasure=function(){
+  var t=ktGetTreasure();
+  if(!t)return false;
+  var endAt=Number(t.unlockAt||0);
+  if(!endAt||endAt>Date.now())return false;
+
+  try{state.activeTreasure=null;}catch(e){}
+  try{localStorage.removeItem('ktalk_active_treasure');}catch(e){}
+  try{clearInterval(window.ktTreasureTimer);}catch(e){}
+
+  [
+    'ktHostTreasureRightBadge20260927',
+    'ktGlobalTreasureHostBadge',
+    'ktGlobalTreasureViewBadge'
+  ].forEach(function(id){
+    try{var el=document.getElementById(id);if(el)el.remove();}catch(e){}
+  });
+
+  try{
+    document.querySelectorAll('#ktLiveTreasureZone,#ktViewerTreasureZone').forEach(function(z){z.innerHTML='';});
+  }catch(e){}
+
+  try{
+    var led=document.getElementById('globalLed');
+    if(led){
+      led.classList.remove('treasure-on','treasure-ready');
+      led.innerHTML='♛ K-Talk · 신곡 광고 신청하세요! 🎵 🎤';
+    }
+  }catch(e){}
+  return true;
+};
+
 window.ktUpdateTreasureLed=function(){
   var led=document.getElementById('globalLed');
   if(!led)return;
+  if(window.ktClearExpiredTreasure&&window.ktClearExpiredTreasure())return;
   var t=ktGetTreasure();
   if(!t){
     led.classList.remove('treasure-on','treasure-ready');
@@ -2571,12 +2606,13 @@ window.claimTreasureChest=function(){
 
 
 window.ktEnsureHostTreasureBadge20260927=function(){
+  if(window.ktClearExpiredTreasure&&window.ktClearExpiredTreasure())return;
   var t=ktGetTreasure();
-  var room=document.querySelector('#screen .ktsolo-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room');
+  var room=document.querySelector('#screen .ktsolo-room,#screen .ktg9-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room');
   var old=document.getElementById('ktHostTreasureRightBadge20260927');
   if(!room||!t){if(old)old.remove();return;}
 
-  var host=room.querySelector('.ktsolo-main,.ktg13-host,.ktsubscriber-host,.ktsecret-host,.ktg13-main')||room;
+  var host=room.querySelector('.ktsolo-main,.ktg9-host,.ktg13-host,.ktsubscriber-host,.ktsecret-host,.ktg13-main')||room;
   try{
     /* 13명방은 보물상자를 반드시 호스트 카메라 칸 안쪽에 고정 */
     if(room.classList.contains('ktg13-room')){
@@ -2591,7 +2627,7 @@ window.ktEnsureHostTreasureBadge20260927=function(){
     b=document.createElement('button');
     b.type='button';
     b.id='ktHostTreasureRightBadge20260927';
-    b.style.cssText='position:absolute!important;right:5px!important;top:5px!important;left:auto!important;z-index:120!important;width:58px!important;min-height:64px!important;border:2px solid #ffd45b!important;border-radius:18px!important;background:rgba(26,16,5,.94)!important;color:#fff!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:2px!important;padding:5px!important;box-shadow:0 0 14px #ffb000aa!important;font:950 9px/1.05 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;pointer-events:auto!important;touch-action:manipulation!important';
+    b.style.cssText='position:absolute!important;right:5px!important;top:5px!important;left:auto!important;z-index:120!important;width:58px!important;min-height:64px!important;border:2px solid #ffd45b!important;border-radius:18px!important;background:rgba(26,16,5,.94)!important;color:#fff!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:2px!important;padding:5px!important;box-shadow:0 0 14px #ffb000aa!important;font:950 9px/1.05 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;pointer-events:auto!important;touch-action:manipulation!important;transform:scale(.5)!important;transform-origin:top right!important';
     b.onclick=function(e){
       try{e.preventDefault();e.stopPropagation();}catch(x){}
       if(window.goToTreasureRoom)window.goToTreasureRoom();
@@ -2605,6 +2641,7 @@ window.ktEnsureHostTreasureBadge20260927=function(){
 
 window.ktRenderTreasure=function(){
   clearInterval(window.ktTreasureTimer);
+  if(window.ktClearExpiredTreasure&&window.ktClearExpiredTreasure())return;
   try{ktEnsureHostTreasureBadge20260927();}catch(e){}
   var t=ktGetTreasure();
   var zones=[
@@ -2615,15 +2652,11 @@ window.ktRenderTreasure=function(){
     ktUpdateTreasureLed();
     if(t){
       window.ktTreasureTimer=setInterval(function(){
+        if(window.ktClearExpiredTreasure&&window.ktClearExpiredTreasure())return;
         ktUpdateTreasureLed();
         try{ktEnsureHostTreasureBadge20260927();}catch(e){}
         var active=ktGetTreasure();
         if(!active)clearInterval(window.ktTreasureTimer);
-        else if(ktTreasureStatus(active).ready&&!active.readyAnnounced){
-          active.readyAnnounced=true;
-          try{localStorage.setItem('ktalk_active_treasure',JSON.stringify(active));}catch(e){}
-          ktSpeak('보물상자가 열렸습니다. 지금 눌러서 받을 수 있습니다.');
-        }
       },1000);
     }
     return;
@@ -2634,6 +2667,10 @@ window.ktRenderTreasure=function(){
     return;
   }
   var render=function(){
+    if(window.ktClearExpiredTreasure&&window.ktClearExpiredTreasure()){
+      zones.forEach(function(z){z.innerHTML='';});
+      return;
+    }
     var active=ktGetTreasure();
     if(!active){zones.forEach(function(z){z.innerHTML='';});clearInterval(window.ktTreasureTimer);ktUpdateTreasureLed();return;}
     var st=ktTreasureStatus(active);
@@ -2666,7 +2703,11 @@ window.addEventListener('storage',function(e){
   }
 });
 
-setTimeout(function(){ktUpdateTreasureLed();ktRenderTreasure();},300);
+setTimeout(function(){
+  try{if(window.ktClearExpiredTreasure)window.ktClearExpiredTreasure();}catch(e){}
+  ktUpdateTreasureLed();
+  ktRenderTreasure();
+},300);
 window.selectCoinCharge=function(amount,base,bonus){
   var total=base+bonus;
   ktSpeak('장미 '+base.toLocaleString('ko-KR')+'개, 보너스 '+bonus.toLocaleString('ko-KR')+'개, 총 '+total.toLocaleString('ko-KR')+'개입니다.');
