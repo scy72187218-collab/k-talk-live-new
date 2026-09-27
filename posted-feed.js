@@ -270,8 +270,11 @@
       if(first&&!first.dataset.ktFirstFallbackBound){
         first.dataset.ktFirstFallbackBound='1';
         var failed=false;
+        function firstAlreadyStarted(){
+          try{return Number(first.currentTime||0)>.03||(!first.paused&&!first.ended);}catch(e){return false;}
+        }
         function fallback(){
-          if(failed)return;
+          if(failed||firstAlreadyStarted())return;
           failed=true;
           fetch('/api/video-feed?t='+Date.now(),{cache:'no-store'})
             .then(function(r){return r.ok?r.json():[];})
@@ -291,7 +294,9 @@
         first.addEventListener('error',fallback,{once:true});
         setTimeout(function(){
           try{
-            if(first.readyState<2||!first.videoWidth||!first.videoHeight)fallback();
+            /* A transient 0x0/low readyState after playback has begun is not
+               a reason to swap/reload the source. Keep the same video running. */
+            if(!firstAlreadyStarted()&&(first.readyState<2||!first.videoWidth||!first.videoHeight))fallback();
           }catch(e){}
         },1600);
       }
