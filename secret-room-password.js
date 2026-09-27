@@ -270,7 +270,7 @@
         +'<div class="ktsecret-airrow"><span class="on">● ON AIR</span><span id="ktLiveClock">'+esc(clock)+'</span><button class="ktsecret-lock" onclick="ktSecretChangePassword()">🔒 비밀번호</button></div>'
         +'<div class="ktsecret-led"><div class="ktsecret-led-track"><span>💗 ✨ <b>K-Talk LIVE</b> 환영합니다 ✨ 💗</span><span>💗 ✨ <b>K-Talk LIVE</b> 환영합니다 ✨ 💗</span></div></div>'
         +'<div class="ktsecret-main"><div class="ktsecret-six-grid"><div class="ktsecret-slot host"><video id="ktLiveVideo" autoplay playsinline muted></video><span class="ktsecret-slot-label">호스트</span></div><div class="ktsecret-slot"><div class="ktsecret-guest-wait"><b>+</b><span>게스트</span></div></div><div class="ktsecret-slot"><div class="ktsecret-guest-wait"><b>+</b><span>게스트</span></div></div><div class="ktsecret-slot"><div class="ktsecret-guest-wait"><b>+</b><span>게스트</span></div></div><div class="ktsecret-slot"><div class="ktsecret-guest-wait"><b>+</b><span>게스트</span></div></div></div><div class="ktsecret-shade"></div>'
-          +'<div class="ktsecret-right"><button class="kt-room-camera-flip ktsecret-return" onclick="if(window.ktAllRoomsFlipCamera)ktAllRoomsFlipCamera()"><b>↻</b><small>되돌리기</small></button><button class="like" onclick="if(window.addHostLike)addHostLike(1)">💗<small>좋아요</small><b id="hostLikeCount" style="display:block;font-size:8px">0</b></button><button onclick="openGifts()">🎁</button><button onclick="if(window.openHostMatchArena)openHostMatchArena(\'1대1\')">⚔<small>매치</small></button><button onclick="ktSecretEffect()">✨<small>효과</small></button></div>'
+          
           +'<div class="ktsecret-wave">'+equalizerBars()+'</div>'
           +'<div id="ktsecretChatList" class="ktsecret-chat" style="left:8px!important;right:8px!important;bottom:70px!important"></div>'        +'<div class="ktsecret-earn-row"><button id="myEarnHud" onclick="toggleMyEarnings()"><div style="display:flex;align-items:center;justify-content:center;gap:5px"><span style="font-size:8px;color:#8fe8ff;font-weight:950;white-space:nowrap">🔒 내 수익</span><b id="hudEarnNet" style="font-size:12px;color:#ffe071;white-space:nowrap">'+esc(net)+'</b></div><div id="myEarnDetail" style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:2px;font-size:7px;color:#ddd"><span id="hudEarnRoses">'+esc(roses)+'</span><span id="hudEarnRate" style="text-align:right">'+esc(rate)+'</span></div></button></div>'
 
@@ -317,4 +317,30 @@
   window.addEventListener('resize',function(){setTimeout(placeSecretChatBottomExact,30);});
   window.addEventListener('orientationchange',function(){setTimeout(placeSecretChatBottomExact,120);});
   setTimeout(updatePrep,100);
+})();
+
+
+/* 2026-09-27: 비밀방 오른쪽 5개(되돌리기/좋아요/효과/보물상자/매치) 숨김.
+   하단 도구줄은 그대로 유지. */
+(function(){
+  if(window.__ktSecretRightFiveHidden20260927)return;
+  window.__ktSecretRightFiveHidden20260927=true;
+  function hide(){
+    try{
+      document.querySelectorAll('#screen .ktsecret-room .ktsecret-right').forEach(function(el){
+        el.remove();
+      });
+      document.querySelectorAll('#screen .ktsecret-room .kt-three-quick-flip,#screen .ktsecret-room .kt-three-quick-treasure,#screen .ktsecret-room .kt-three-quick-match').forEach(function(el){
+        el.remove();
+      });
+    }catch(e){}
+  }
+  hide();
+  [80,220,500,1000,1800].forEach(function(ms){setTimeout(hide,ms);});
+  try{
+    new MutationObserver(function(){
+      clearTimeout(window.__ktSecretRightFiveHideTimer);
+      window.__ktSecretRightFiveHideTimer=setTimeout(hide,30);
+    }).observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
 })();
