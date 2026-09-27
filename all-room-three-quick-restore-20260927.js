@@ -115,7 +115,7 @@
 
   function ensure(){
     document.querySelectorAll(
-      '#screen .ktsolo-room,#screen .ktg13-room:not([data-kt-room="15"]),#screen .ktsubscriber-room'
+      '#screen .ktsolo-room'
     ).forEach(ensureRoom);
   }
 
