@@ -1192,19 +1192,23 @@
   };
 
   window.ktChooseRoomAndStart=async function(btn,type,name,max){
-    /* First prep page: room buttons SELECT only.
-       Countdown/broadcast starts only from the separate "방송 시작" button. */
-    if(window.state){
-      state.liveRoomType=type;
-      state.liveRoomName=name;
-      state.liveRoomMax=max;
+    if(window.__ktRoomChoiceStarting)return;
+    window.__ktRoomChoiceStarting=true;
+    try{
+      if(window.state){
+        state.liveRoomType=type;
+        state.liveRoomName=name;
+        state.liveRoomMax=max;
+      }
+      var title=document.getElementById('liveTitle');
+      if(title)title.value=name;
+      document.querySelectorAll('.room-switch,.kt-room-bottom5 button').forEach(function(b){b.classList.remove('on');});
+      if(btn)btn.classList.add('on');
+      window.__ktUserPressedLiveStart=true;
+      await window.startBroadcast();
+    }finally{
+      setTimeout(function(){window.__ktRoomChoiceStarting=false;},500);
     }
-    var title=document.getElementById('liveTitle');
-    if(title)title.value=name;
-    document.querySelectorAll('.room-switch,.kt-room-bottom5 button').forEach(function(b){b.classList.remove('on');});
-    if(btn)btn.classList.add('on');
-    window.__ktUserPressedLiveStart=false;
-    return false;
   };
   
 })();
@@ -1228,7 +1232,11 @@
   }
   function isRealStartTarget(t){
     if(!t||!t.closest)return false;
-    return !!t.closest('.live-prep .prep-start');
+    return !!t.closest(
+      '.live-prep .prep-start,'+
+      '.live-prep .room-switch,'+
+      '.live-prep .kt-room-bottom5 button'
+    );
   }
 
   /* Only a real tap on a room/start control may authorize broadcast start. */
@@ -1276,6 +1284,32 @@
           setTimeout(clearAutoOverlays,500);
         }
       }).observe(creator,{attributes:true,attributeFilter:['class']});
+    }
+
+    /* Some countdown modules create their overlay after prep opens.
+       While no user room/start tap is authorized, remove any countdown-like
+       fixed overlay immediately. This does not run after a real user tap. */
+    if(window.MutationObserver){
+      new MutationObserver(function(muts){
+        if(Date.now()<allowUntil)return;
+        if(!creator||!creator.classList.contains('live-prep-open'))return;
+        muts.forEach(function(m){
+          Array.from(m.addedNodes||[]).forEach(function(n){
+            if(!n||n.nodeType!==1)return;
+            try{
+              var id=String(n.id||'');
+              var txt=String(n.textContent||'').trim();
+              var st=getComputedStyle(n);
+              var looksLikeCountdown=
+                /countdown/i.test(id) ||
+                ((txt==='5'||txt==='4'||txt==='3'||txt==='2'||txt==='1') &&
+                 st.position==='fixed' &&
+                 Number(st.zIndex||0)>1000);
+              if(looksLikeCountdown)n.remove();
+            }catch(e){}
+          });
+        });
+      }).observe(document.body,{childList:true,subtree:true});
     }
   }catch(e){}
 })();
