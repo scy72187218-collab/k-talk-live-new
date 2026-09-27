@@ -57,6 +57,18 @@
     }catch(e){}
   }
 
+  window.ktBottomCameraToggle=function(btn){
+    var room=btn&&btn.closest?btn.closest('.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room,.ktg9-room'):null;
+    toggleCamera(btn,room);
+    return false;
+  };
+
+  window.ktBottomMicToggle=function(btn){
+    var room=btn&&btn.closest?btn.closest('.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room,.ktg9-room'):null;
+    toggleMic(btn,room);
+    return false;
+  };
+
   function openMovie(){
     try{
       if(typeof window.ktOpenHostTvMovie==='function'){window.ktOpenHostTvMovie();return;}
