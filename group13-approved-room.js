@@ -277,58 +277,12 @@
     /* 카메라 준비 실패가 카운트다운 자체를 깨지 않게 한다. */
     startPromise.catch(function(){});
 
-    /* 원래 방식 복구:
-       13명방 화면을 먼저 실제로 그려 놓고, 그 열린 방 위에서 5→4→3→2→1을 보여준다.
-       검은 준비 화면을 먼저 보여주지 않는다. */
-    try{
-      if(window.creator)creator.classList.remove('show','live-prep-open');
-    }catch(e){}
-    renderApprovedGroup13(true);
-
-    /* 13명방은 이미 실제 방을 먼저 그렸으므로 예전 '검은 화면 전환'
-       보호막이 남아 있으면 즉시 제거한다. 다른 방 보호막에는 손대지 않는다. */
-    try{
-      var blackCover=document.getElementById('ktRoomOpeningFlashCover');
-      if(blackCover&&blackCover.parentNode)blackCover.parentNode.removeChild(blackCover);
-      var instant=document.getElementById('ktLiveInstantHandoff');
-      if(instant&&instant.parentNode)instant.parentNode.removeChild(instant);
-    }catch(e){}
-
-    await new Promise(function(resolve){
-      requestAnimationFrame(function(){
-        requestAnimationFrame(resolve);
-      });
-    });
-
-    /* oldStartBroadcast can redraw #screen about 1~2 seconds later.
-       During the 5-second countdown, keep the approved 13-room shell pinned
-       so the background never falls back to a black/old room screen. */
-    var keep13Observer=null;
-    var keep13Busy=false;
-    function keepApproved13Visible(){
-      if(!window.__ktGroup13CountdownInProgress||keep13Busy)return;
-      try{
-        if(document.querySelector('#screen .ktg13-room[data-kt-approved13="1"]'))return;
-        keep13Busy=true;
-        renderApprovedGroup13(true);
-      }catch(e){}
-      finally{keep13Busy=false;}
-    }
-    try{
-      keep13Observer=new MutationObserver(function(){setTimeout(keepApproved13Visible,0);});
-      var keepRoot=document.getElementById('screen');
-      if(keepRoot)keep13Observer.observe(keepRoot,{childList:true,subtree:false});
-    }catch(e){}
-    [80,180,350,700,1200,1800,2600,3500,4400].forEach(function(ms){
-      setTimeout(keepApproved13Visible,ms);
-    });
-
     var old=document.getElementById('ktLiveCountdown');
     if(old)old.remove();
 
     var wrap=document.createElement('div');
     wrap.id='ktLiveCountdown';
-    wrap.style.cssText='position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;background:transparent;pointer-events:none;';
+    wrap.style.cssText='position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;background:transparent;pointer-events:none;';
     var num=document.createElement('div');
     num.style.cssText='width:116px;height:116px;border-radius:50%;display:grid;place-items:center;background:rgba(10,10,14,.72);border:4px solid rgba(255,255,255,.92);color:#fff;font:900 64px/1 system-ui,-apple-system,sans-serif;box-shadow:0 0 28px rgba(255,44,130,.7);text-shadow:0 0 12px rgba(255,255,255,.7);transition:transform .18s ease;';
     wrap.appendChild(num);
@@ -360,16 +314,12 @@
     });
 
     try{if(wrap&&wrap.parentNode)wrap.parentNode.removeChild(wrap);}catch(e){}
-    try{if(keep13Observer)keep13Observer.disconnect();}catch(e){}
-    keepApproved13Visible();
 
-    /* 방은 이미 카운트 전에 열려 있으므로 다시 그리지 않는다.
-       숫자 1이 끝나면 가드만 풀어 같은 방 화면을 그대로 유지한다. */
+    /* 1초가 끝난 바로 그 순간 현재 13명방을 그린다. */
     try{
-      document.documentElement.classList.remove('kt-g13-opening');
-      clearTimeout(window.__ktG13OpeningFailsafe);
-      clearTimeout(window.__ktG13OpeningRelease);
+      if(window.creator)creator.classList.remove('show','live-prep-open');
     }catch(e){}
+    renderApprovedGroup13(false);
     window.__ktGroup13CountdownInProgress=false;
 
     function attachReadyCamera(){

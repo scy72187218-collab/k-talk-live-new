@@ -78,55 +78,25 @@
     window.ktPwaInstallNow();
   }
 
-  function showInstallFallback(){
-    try{
-      var old=document.getElementById('ktPwaInstallFallback');
-      if(old)old.remove();
-
-      var ua=navigator.userAgent||'';
-      var isAndroid=/android/i.test(ua);
-      var isNaver=/naver|whale/i.test(ua);
-
-      var box=document.createElement('div');
-      box.id='ktPwaInstallFallback';
-      box.style.cssText='position:fixed;left:12px;right:12px;bottom:20px;z-index:2147483647;max-width:520px;margin:auto;padding:14px;border-radius:18px;background:#0b0c12;color:#fff;border:1px solid #5b8cff;box-shadow:0 10px 35px #000b;font-family:system-ui';
-      box.innerHTML=''
-        +'<b style="display:block;font-size:16px">K-Talk 설치</b>'
-        +'<span style="display:block;margin-top:6px;font-size:11px;line-height:1.5;color:#d7d9e0">'+
-          (isNaver?'현재 브라우저에서는 설치 버튼을 직접 띄우지 못할 수 있습니다. 아래에서 Chrome으로 열면 설치할 수 있습니다.':'이 브라우저에서 직접 설치 창을 지원하지 않습니다. 브라우저 메뉴의 “홈 화면에 추가”를 이용해 주세요.')+
-        '</span>'
-        +(isAndroid?'<button id="ktPwaOpenChrome" type="button" style="width:100%;height:44px;margin-top:11px;border:0;border-radius:12px;background:linear-gradient(135deg,#2388ff,#754cff);color:#fff;font-weight:950">Chrome에서 열기</button>':'')
-        +'<button id="ktPwaFallbackClose" type="button" style="width:100%;height:40px;margin-top:7px;border:1px solid #ffffff25;border-radius:12px;background:#171820;color:#fff;font-weight:900">닫기</button>';
-      document.body.appendChild(box);
-
-      var close=box.querySelector('#ktPwaFallbackClose');
-      if(close)close.onclick=function(){box.remove();};
-
-      var chrome=box.querySelector('#ktPwaOpenChrome');
-      if(chrome)chrome.onclick=function(){
-        try{
-          var u=location.href.replace(/^https?:\/\//,'');
-          location.href='intent://'+u+'#Intent;scheme=https;package=com.android.chrome;end';
-        }catch(e){}
-      };
-    }catch(e){}
-  }
-
   window.ktPwaInstallNow=async function(){
     if(isStandalone()){removeOffer();return false;}
     if(deferredPrompt){
       try{
         deferredPrompt.prompt();
         await deferredPrompt.userChoice;
-        deferredPrompt=null;
-        removeOffer();
-        return false;
       }catch(e){}
+      deferredPrompt=null;
+      removeOffer();
+      return false;
     }
 
-    /* Unsupported in-app browsers must never look like a dead button. */
+    var ua=navigator.userAgent||'';
+    if(/iphone|ipad|ipod/i.test(ua)){
+      try{alert('Safari 아래의 공유 버튼을 누른 뒤 “홈 화면에 추가”를 선택해 주세요.');}catch(e){}
+    }else{
+      try{alert('브라우저 메뉴에서 “앱 설치” 또는 “홈 화면에 추가”를 선택해 주세요.');}catch(e){}
+    }
     removeOffer();
-    showInstallFallback();
     return false;
   };
 
@@ -138,7 +108,7 @@
   window.addEventListener('beforeinstallprompt',function(e){
     try{e.preventDefault();}catch(err){}
     deferredPrompt=e;
-    /* 자동 설치 안내는 현재 사용하지 않음. 사용자가 직접 설치 기능을 눌렀을 때만 사용한다. */
+    setTimeout(showOffer,350);
   });
 
   window.addEventListener('appinstalled',function(){
@@ -154,6 +124,20 @@
     }
   }catch(e){}
 
-  /* 자동 설치 안내는 꺼 둔다. */
-  removeOffer();
+  /* 설치된 앱으로 실행한 경우가 아니면 브라우저 종류와 상관없이
+     K-Talk 자체 설치 안내 카드를 항상 한 번 표시한다. */
+  setTimeout(function(){
+    if(isStandalone()||offerShown)return;
+    showOffer();
+  },800);
+
+  /* 동영상 홈으로 들어왔는데 아직 안내가 안 보인 경우 한 번 더 확인 */
+  document.addEventListener('click',function(){
+    if(isStandalone()||offerShown)return;
+    if(document.querySelector('.video-home,#homeVideo,.vh-video,.vh-actions')){
+      setTimeout(function(){
+        if(!isStandalone()&&!offerShown)showOffer();
+      },450);
+    }
+  },true);
 })();

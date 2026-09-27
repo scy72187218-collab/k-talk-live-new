@@ -12,12 +12,10 @@
   var ws=null,joined=false,joinRef='',seq=1,topic='',activeHostId='',queue=[],reconnectTimer=null,heartbeatTimer=null;
   var hostViewPeers={};
   var viewerPc=null,viewerSession='',viewerWatchToken='',viewerConnected=false,viewerIce={},viewerConnectTimer=null,viewerAnswerSdp='';
-  var viewerForceRelayOnce=false;
   var pendingRequests={},approvedGuests={},hostGuestPeers={},guestPc=null,guestSession='',guestApprovedHost='',guestApproved=false,guestStream=null,guestIce={};
   var guestPrewarmTimer=null;
   var pendingHostGuestOffers={},pendingHostGuestIce={},pendingGuestPhotos20260926={};
   var requestOn=false,lastRemoteHost='',lastHostRole='',lastWatchAt=0;
-  var lastRosterSnapshotAt20260927=0,lastRosterRequestAt20260927=0;
   var sharedApprovalPollBusy=false,leaveAnnouncedHost='',guestAliveLastSent=0,hostGuestAliveAt={},remoteHostMissingSince=0;
   var signalSeen={},viewerOfferInFlight='',lastHostReadyAt=0,lastGuestRequestAt=0,guestApprovedAt=0;
   var guestMediaAckTimer=null,guestMediaAckSession='',guestMediaRecoveryCount=0,guestMediaReadyAt=0;
@@ -224,7 +222,7 @@
     if(!id)try{id=String(sessionStorage.getItem('kt_remote_host_id')||'');}catch(e){}
     return id;
   }
-  function rtcConfig(mode){return window.ktGetRtcConfig?window.ktGetRtcConfig(mode):{iceServers:[{urls:'stun:stun.cloudflare.com:3478'},{urls:'stun:stun.l.google.com:19302'}]};}
+  function rtcConfig(){return window.ktGetRtcConfig?window.ktGetRtcConfig():{iceServers:[{urls:'stun:stun.cloudflare.com:3478'},{urls:'stun:stun.l.google.com:19302'}]};}
   async function ensureTurnBeforeGuestRtc20260926(){
     try{
       if(typeof window.ktRefreshTurnRelay!=='function')return;
@@ -301,10 +299,8 @@
     restBroadcast(eventName,payload);
   }
   function sendCriticalMedia20260926(eventName,payload,hostId){
-    /* One signaling path only. send() already falls back to REST when
-       WebSocket is unavailable, so a second REST broadcast here creates
-       duplicate offer/answer/ICE events and can race on mobile networks. */
     try{send(eventName,payload||{});}catch(e){}
+    try{restBroadcastToHost20260926(hostId||payload&&payload.host_id||activeHostId,eventName,payload||{});}catch(e){}
   }
 
   function flush(){
@@ -391,12 +387,6 @@
     });
 
     renderDirectRequests();
-    try{
-      if(isHostRole()){
-        broadcastGuestRosterSnapshot20260927();
-        setTimeout(broadcastGuestRosterSnapshot20260927,80);
-      }
-    }catch(e){}
   }
 
   window.ktDirectEndAllGuestSessions20260923=function(){
@@ -745,83 +735,15 @@
     }catch(e){scheduleReconnect();}
   }
 
-  function broadcastGuestRosterSnapshot20260927(){
-    if(!isHostRole())return;
-    try{
-      var ids=[],names={};
-      Object.keys(approvedGuests||{}).forEach(function(id){
-        if(!approvedGuests[id])return;
-        ids.push(String(id));
-        names[String(id)]=String((approvedGuests[id]&&approvedGuests[id].name)||'게스트');
-      });
-      send('guest_roster_snapshot',{
-        host_id:DEVICE,
-        ids:ids,
-        names:names,
-        run_id:hostRunId||'',
-        at:Date.now()
-      });
-    }catch(e){}
-  }
-
-  function applyGuestRosterSnapshot20260927(p){
-    try{
-      if(isHostRole())return;
-      var hid=remoteHostId();
-      if(!hid||String(p&&p.host_id||'')!==hid)return;
-      var ids=Array.isArray(p&&p.ids)?p.ids.map(function(x){return String(x||'').trim();}).filter(Boolean):[];
-      var names=(p&&p.names&&typeof p.names==='object')?p.names:{};
-      var next={};
-      ids.forEach(function(id){next[id]=true;});
-
-      var roster=window.__ktApprovedGuestIds20260924||{};
-      var rosterNames=window.__ktApprovedGuestNames20260924||{};
-
-      Object.keys(roster).forEach(function(id){
-        if(roster[id]===true&&!next[id]){
-          delete roster[id];
-          delete rosterNames[id];
-          try{window.dispatchEvent(new CustomEvent('kt-any-guest-left',{detail:{host_id:hid,viewer_id:id,at:Date.now(),snapshot:true}}));}catch(_e){}
-        }
-      });
-
-      ids.forEach(function(id){
-        var was=roster[id]===true;
-        roster[id]=true;
-        rosterNames[id]=String(names[id]||rosterNames[id]||'게스트');
-        if(!was){
-          try{window.dispatchEvent(new CustomEvent('kt-any-guest-approved',{detail:{host_id:hid,viewer_id:id,name:rosterNames[id],at:Number(p.at||Date.now()),snapshot:true}}));}catch(_e){}
-        }
-      });
-
-      window.__ktApprovedGuestIds20260924=roster;
-      window.__ktApprovedGuestNames20260924=rosterNames;
-      try{
-        if(typeof window.ktForceApprovedGuestGridNow20260924==='function')window.ktForceApprovedGuestGridNow20260924();
-      }catch(_e){}
-      try{window.dispatchEvent(new CustomEvent('kt-three-person-sync-now',{detail:{host_id:hid,at:Date.now(),snapshot:true}}));}catch(_e){}
-      try{
-        if(!ktRemoteStreamStillLive20260923()){
-          lastWatchAt=0;
-          ensureViewerWatch(true);
-        }else{
-          attachRemoteStreamNow();
-        }
-      }catch(_e){}
-    }catch(e){}
-  }
-
   function afterJoin(){
     if(isHostRole()){
       if(!hostRunId){hostRunId=sid('run');hostRunStartedAt=Date.now();}
       send('host_ready',{host_id:DEVICE,run_id:hostRunId,run_started_at:hostRunStartedAt,at:Date.now()});
-      broadcastGuestRosterSnapshot20260927();
       renderDirectRequests();
     }else{
       var hid=remoteHostId();
       if(hid===activeHostId){
         ensureViewerWatch(true);
-        send('guest_roster_request',{host_id:hid,viewer_id:viewerId(),at:Date.now()});
         if(requestOn)send('guest_request',{host_id:hid,viewer_id:viewerId(),name:profileName(),at:Date.now()});
       }
     }
@@ -995,13 +917,7 @@
     if(!previousUsable){viewerConnected=false;showConnecting();}
     window.__ktDirectRtcProgressAt=Date.now();
     window.__ktDirectRtcPhase='offer';
-    var relayAttempt=!!viewerForceRelayOnce;
-    if(relayAttempt){
-      viewerForceRelayOnce=false;
-      try{await ensureTurnBeforeGuestRtc20260926();}catch(_e){}
-    }
-    var pc=new RTCPeerConnection(rtcConfig(relayAttempt?'relay':null));viewerPc=pc;
-    pc.__ktRelayAttempt20260927=relayAttempt;
+    var pc=new RTCPeerConnection(rtcConfig());viewerPc=pc;
     pc.ontrack=function(ev){
       try{window.__ktUseMemoryGuestVideo20260922=false;}catch(e){}
       pc.__ktGotRemoteTrack20260923=true;
@@ -1101,45 +1017,10 @@
         },ms);
       });
 
-      /* If this phone still has no first frame after 1.4s, retry only
-         this viewer through TURN relay. Other viewers and the 13-room UI stay untouched. */
-      if(!previousUsable&&!pc.__ktRelayAttempt20260927){
-        setTimeout(function(){
-          if(viewerPc!==pc||viewerConnected||pc.__ktGotRemoteTrack20260923)return;
-          var cs=String(pc.connectionState||'');
-          if(cs==='connected')return;
-          try{closePc(pc);}catch(_e){}
-          if(viewerPc===pc){viewerPc=null;viewerSession='';viewerAnswerSdp='';viewerConnected=false;}
-          viewerForceRelayOnce=true;
-          viewerWatchToken=sid('watch');
-          lastWatchAt=0;
-          window.__ktDirectRtcPhase='relay-retry';
-          ensureViewerWatch(true);
-        },1400);
-      }
-
-      /* 느린 휴대폰은 첫 ICE 연결에 1초 이상 걸릴 수 있다.
-         연결 중인 PeerConnection을 900ms에 끊으면 오히려 계속 처음부터
-         다시 시작하므로, 같은 answer를 재전송하면서 현재 연결을 유지한다.
-         별도 memory fallback도 병렬로 준비되므로 검은 화면만 줄인다. */
-      if(!previousUsable){
-        setTimeout(function(){
-          if(viewerPc!==pc||viewerConnected||pc.__ktGotRemoteTrack20260923)return;
-          var cs=String(pc.connectionState||'');
-          var ice=String(pc.iceConnectionState||'');
-          if(cs==='new'||cs==='connecting'||ice==='new'||ice==='checking'){
-            try{sendCriticalMedia20260926('video_answer',firstAnswer,hid);}catch(_e){}
-            return;
-          }
-          retryViewerSoon(180);
-        },2400);
-        setTimeout(function(){
-          if(viewerPc!==pc||viewerConnected||pc.__ktGotRemoteTrack20260923)return;
-          try{closePc(pc);}catch(_e){}
-          if(viewerPc===pc){viewerPc=null;viewerSession='';viewerConnected=false;}
-          retryViewerSoon(180);
-        },5200);
-      }else setTimeout(function(){
+      /* 기존 영상이 살아 있으면 새 연결 확인 동안 화면을 유지한다.
+         기존 영상이 없는 최초 연결은 빠르게 재시도한다. */
+      if(!previousUsable)retryViewerSoon(900);
+      else setTimeout(function(){
         if(viewerPc===pc&&!pc.__ktGotRemoteTrack20260923&&pc.connectionState!=='connected'){
           try{closePc(pc);}catch(e){}
           viewerPc=previousPc;
@@ -1378,13 +1259,6 @@
     var data={host_id:DEVICE,viewer_id:vid,name:name,at:Date.now()};
 
     approvedGuests[vid]={name:name,at:data.at};
-
-    /* HOST UI FIRST:
-       the moment the host taps approve, reserve/show the guest slot immediately.
-       Do not wait for signaling, DB, polling, or the first remote video frame. */
-    var immediateSlot20260926=null;
-    try{immediateSlot20260926=guestSlot(vid,name);}catch(e){}
-
     try{
       var pre= pendingGuestPhotos20260926[vid]||null;
       if(pre&&Date.now()-Number(pre.at||0)<30000){
@@ -1397,13 +1271,13 @@
       window.__ktApprovedGuestNames20260924[vid]=name;
     }catch(e){}
 
-    /* Deliver approval over both fast paths immediately. */
-    try{sendCriticalMedia20260926('guest_approved',data,DEVICE);}catch(e){}
-    broadcastGuestRosterSnapshot20260927();
-    setTimeout(broadcastGuestRosterSnapshot20260927,80);
-    setTimeout(broadcastGuestRosterSnapshot20260927,220);
+    /* REALTIME FIRST: the guest receives approval before host-side DOM work,
+       legacy persistence, or any extra rendering can delay the signal. */
+    send('guest_approved',data);
+    try{restBroadcast('guest_approved',data);}catch(e){}
 
     delete pendingRequests[vid];
+    guestSlot(vid,name);
     var warmPeer=hostGuestPeers[vid]||null;
     if(warmPeer&&warmPeer.pendingStream){
       attachGuestToHost(vid,name,warmPeer.pendingStream);
@@ -1415,10 +1289,10 @@
     setTimeout(function(){sharedApprovalPost(DEVICE,'guest_approved',vid,name);},120);
     setTimeout(function(){sharedApprovalPost(DEVICE,'guest_approved',vid,name);},350);
     setTimeout(function(){sharedApprovalPost(DEVICE,'guest_approved',vid,name);},800);
-    setTimeout(function(){send('guest_approved',data);},20);
-    setTimeout(function(){send('guest_approved',data);},60);
-    setTimeout(function(){send('guest_approved',data);},140);
-    setTimeout(function(){send('guest_approved',data);},500);
+    setTimeout(function(){send('guest_approved',data);},50);
+    setTimeout(function(){send('guest_approved',data);},150);
+    setTimeout(function(){send('guest_approved',data);},700);
+    setTimeout(function(){send('guest_approved',data);},1200);
     try{
       window.dispatchEvent(new CustomEvent('kt-host-guest-approved',{
         detail:{host_id:DEVICE,viewer_id:vid,at:Date.now()}
@@ -2498,15 +2372,6 @@
       if(isHostRole())renderDirectRequests();
       return;
     }
-    if(ev==='guest_roster_request'&&isHostRole()&&String(p.host_id||'')===DEVICE){
-      broadcastGuestRosterSnapshot20260927();
-      setTimeout(broadcastGuestRosterSnapshot20260927,60);
-      return;
-    }
-    if(ev==='guest_roster_snapshot'){
-      applyGuestRosterSnapshot20260927(p);
-      return;
-    }
     if(ev==='guest_left'){
       try{
         var lid=String(p.viewer_id||'').trim();
@@ -2688,9 +2553,8 @@
         }
       }catch(e){}
       var reqData={host_id:hid,viewer_id:viewerId(),name:profileName(),at:Date.now()};
-      /* send() already uses REST fallback when the WebSocket is not joined.
-         Do not send the same guest_request twice. */
       send('guest_request',reqData);
+      try{restBroadcast('guest_request',reqData);}catch(e){}
       sharedApprovalPost(hid,'guest_request',reqData.viewer_id,reqData.name);
     }else{
       b.classList.remove('kt-requested');b.style.removeProperty('box-shadow');
@@ -2749,20 +2613,10 @@
         lastHostReadyAt=tickNow;
         send('host_ready',{host_id:DEVICE,run_id:hostRunId,run_started_at:hostRunStartedAt,at:tickNow});
       }
-      /* Keep every phone on the exact same approved-guest roster even if a
-         realtime packet was missed during room/guest DOM transitions. */
-      if(tickNow-lastRosterSnapshotAt20260927>700){
-        lastRosterSnapshotAt20260927=tickNow;
-        broadcastGuestRosterSnapshot20260927();
-      }
     }else{
       if(lastRemoteHost!==hid){lastRemoteHost=hid;viewerWatchToken=sid('watch');viewerConnected=false;}
       ensureViewerWatch(false);
       var tickNow=Date.now();
-      if(tickNow-lastRosterRequestAt20260927>900){
-        lastRosterRequestAt20260927=tickNow;
-        send('guest_roster_request',{host_id:hid,viewer_id:viewerId(),at:tickNow});
-      }
       if(requestOn&&tickNow-lastGuestRequestAt>1500){
         lastGuestRequestAt=tickNow;
         send('guest_request',{host_id:hid,viewer_id:viewerId(),name:profileName(),at:tickNow});
@@ -2829,129 +2683,14 @@
     }catch(z){}
   });
 
-  function pinRemoteHostDuringGuestTransition20260927(){
-    try{
-      var s=window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream||null;
-      if(!s)return;
-      [0,20,50,90,150,240,360,520,760,1050,1450].forEach(function(ms){
-        setTimeout(function(){
-          try{attachRemoteStreamNow(s);}catch(_e){}
-        },ms);
-      });
-    }catch(e){}
-  }
-
-  /* When approval changes the viewer DOM into the guest-room DOM, the real
-     host <video> can already exist and only its class/display attributes
-     change. Observe attributes too, then pin the already-live remote stream
-     immediately instead of waiting for another RTC reconnect. */
   try{
     var screen=document.getElementById('screen');
     if(screen&&window.MutationObserver){
       new MutationObserver(function(){
-        if(window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream){
-          setTimeout(function(){attachRemoteStreamNow();},0);
-        }
-      }).observe(screen,{childList:true,subtree:true,attributes:true,attributeFilter:['class','style']});
+        if(window.__ktRemoteHostStream)setTimeout(function(){attachRemoteStreamNow();},0);
+      }).observe(screen,{childList:true,subtree:true});
     }
   }catch(e){}
-
-  ['kt-guest-approval-received','kt-any-guest-approved','kt-approved-guest-stream-ready']
-    .forEach(function(n){window.addEventListener(n,pinRemoteHostDuringGuestTransition20260927);});
-
-  /* If another guest-flow module already opened this phone's real camera,
-     adopt it immediately. This keeps the self tile from staying black and
-     gives the host an instant guest frame before the full WebRTC uplink finishes. */
-  window.addEventListener('kt-approved-guest-stream-ready',function(e){
-    try{
-      var hid=String((e&&e.detail&&e.detail.host_id)||guestApprovedHost||remoteHostId()||'').trim();
-      var s=(e&&e.detail&&e.detail.stream)||window.__ktLocalGuestCameraStream20260926||window.__ktApprovedGuestSelfStream||null;
-      if(!hid||!s)return;
-      var vt=s.getVideoTracks&&s.getVideoTracks()[0]||null;
-      if(!vt||vt.readyState!=='live')return;
-      var remote=window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream||null;
-      if(isRemoteHostMedia20260926(s)||(remote&&sameVideoSource20260926(s,remote)))return;
-
-      rememberTrustedGuestCamera20260926(s);
-      guestStream=s;
-      window.__ktLocalGuestCameraStream20260926=s;
-      window.__ktApprovedGuestSelfStream=s;
-
-      if(!guestApproved&&requestOn){
-        /* Cache/send the real guest camera before approval so the host can
-           paint the guest slot the instant Approve is tapped. */
-        try{cacheTrustedGuestPhoto20260926();}catch(_e){}
-        [0,15,35,70].forEach(function(ms){
-          setTimeout(function(){
-            if(!requestOn||guestApproved)return;
-            try{
-              cacheTrustedGuestPhoto20260926();
-              sendPreApprovalGuestPhoto20260926(hid);
-              var frame=String(guestPhotoCache20260926||'');
-              if(/^data:image\/jpeg;base64,/.test(frame)&&frame.length<32000){
-                sendCriticalMedia20260926('guest_request',{
-                  host_id:hid,viewer_id:viewerId(),name:profileName(),frame:frame,at:Date.now()
-                },hid);
-              }
-            }catch(_e){}
-          },ms);
-        });
-        try{
-          var warm=prepareGuestOfferBeforeApproval20260924(hid);
-          if(warm&&warm.catch)warm.catch(function(){});
-        }catch(_e){}
-      }
-
-      if(guestApproved&&guestApprovedHost===hid){
-        pinApprovedGuestSelfVideo20260926();
-        try{cacheTrustedGuestPhoto20260926();}catch(_e){}
-        [0,15,40,80].forEach(function(ms){
-          setTimeout(function(){
-            if(!guestApproved||guestApprovedHost!==hid)return;
-            try{pinApprovedGuestSelfVideo20260926();}catch(_e){}
-            try{sendApprovedGuestPhoto20260926(hid);}catch(_e){}
-          },ms);
-        });
-        try{
-          if(!guestPc||['failed','closed'].indexOf(String(guestPc.connectionState||''))>-1){
-            var p=startGuestCamera(hid);if(p&&p.catch)p.catch(function(){});
-          }
-        }catch(_e){}
-      }
-    }catch(_e){}
-  });
-
-  window.addEventListener('kt-local-video-stream-changed',function(e){
-    try{
-      var s=e&&e.detail&&e.detail.stream||null;
-      var vt=s&&s.getVideoTracks&&s.getVideoTracks()[0]||null;
-      var replaceAudio=!!(e&&e.detail&&e.detail.replaceAudio);
-      var at=replaceAudio&&s&&s.getAudioTracks&&s.getAudioTracks()[0]||null;
-      if(!vt)return;
-
-      /* Normal beauty/background changes swap only video.
-         AI DJ away mode may explicitly request audio replacement too. */
-      Object.keys(hostViewPeers||{}).forEach(function(k){
-        try{
-          var pc=hostViewPeers[k]&&hostViewPeers[k].pc||null;
-          if(!pc||!pc.getSenders)return;
-          var sender=pc.getSenders().find(function(x){return x&&x.track&&x.track.kind==='video';});
-          if(sender&&sender.replaceTrack)sender.replaceTrack(vt).catch(function(){});
-          if(at){
-            var audioSender=pc.getSenders().find(function(x){return x&&x.track&&x.track.kind==='audio';});
-            if(audioSender&&audioSender.replaceTrack)audioSender.replaceTrack(at).catch(function(){});
-          }
-        }catch(_e){}
-      });
-
-      /* If this phone is an approved guest, keep its guest uplink on the same
-         processed stream without rebuilding the peer connection. */
-      if(guestApproved&&guestPc&&guestPc.getSenders){
-        var gs=guestPc.getSenders().find(function(x){return x&&x.track&&x.track.kind==='video';});
-        if(gs&&gs.replaceTrack)gs.replaceTrack(vt).catch(function(){});
-      }
-    }catch(_e){}
-  });
 
   window.addEventListener('online',function(){if(activeHostId)connect(activeHostId);});
   document.addEventListener('visibilitychange',function(){

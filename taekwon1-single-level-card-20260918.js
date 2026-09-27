@@ -7,21 +7,10 @@
 
   function isOwnerProfile(){
     try{
-      if(typeof window.ktGetSelectedSubAccount==='function'){
-        var key=window.ktGetSelectedSubAccount();
-        if(key==='taekwon1'||key==='haine2')return true;
-      }
-    }catch(e){}
-    try{
-      var sheet=document.getElementById('sheet');
-      var body=document.getElementById('sheetBody');
-      var txt=((sheet&&sheet.textContent)||'')+' '+((body&&body.textContent)||'');
-      txt=String(txt).replace(/\s+/g,'');
-      if(txt.indexOf('태권1프로필')>-1||txt.indexOf('하이네2프로필')>-1)return true;
-      if(txt.indexOf('태권1')>-1&&txt.indexOf('레벨')>-1)return true;
-      if(txt.indexOf('하이네2')>-1&&txt.indexOf('레벨')>-1)return true;
-    }catch(e){}
-    return false;
+      if(typeof window.ktGetSelectedSubAccount!=='function')return false;
+      var key=window.ktGetSelectedSubAccount();
+      return key==='taekwon1'||key==='haine2';
+    }catch(e){return false;}
   }
 
   function cardHtml(){
@@ -52,8 +41,6 @@
     });
 
     /* 태권1/하이네2에는 최종 카드 딱 1개만 표시 */
-    var old=body.querySelector('.kt-owner-single-level-card');
-    if(old&&old.parentNode)old.parentNode.removeChild(old);
     root.insertAdjacentHTML('beforebegin',cardHtml());
   }
   function install(){

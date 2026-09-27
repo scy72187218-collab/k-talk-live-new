@@ -303,13 +303,6 @@
         audio:true
       });
       window.__ktApprovedGuestSelfStream=viewerGuest.stream;
-      /* Share this exact local guest camera with the fast direct transport.
-         This avoids opening a second camera after approval. */
-      try{
-        window.__ktLocalGuestCameraStream20260926=viewerGuest.stream;
-        var vtFast=viewerGuest.stream&&viewerGuest.stream.getVideoTracks?viewerGuest.stream.getVideoTracks()[0]:null;
-        if(vtFast&&vtFast.id)window.__ktLocalGuestCameraTrackId20260926=String(vtFast.id);
-      }catch(_e){}
       if(viewerGuest.prewarmTimer)clearTimeout(viewerGuest.prewarmTimer);
       viewerGuest.prewarmTimer=setTimeout(function(){
         if(viewerGuest.approvedKey||viewerGuest.pc)return;
@@ -323,11 +316,6 @@
       try{
         viewerGuest.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});
         window.__ktApprovedGuestSelfStream=viewerGuest.stream;
-        try{
-          window.__ktLocalGuestCameraStream20260926=viewerGuest.stream;
-          var vtFast2=viewerGuest.stream&&viewerGuest.stream.getVideoTracks?viewerGuest.stream.getVideoTracks()[0]:null;
-          if(vtFast2&&vtFast2.id)window.__ktLocalGuestCameraTrackId20260926=String(vtFast2.id);
-        }catch(_e){}
         return viewerGuest.stream;
       }catch(z){return null;}
     }finally{
@@ -349,22 +337,6 @@
         try{hostId=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||sessionStorage.getItem('kt_remote_host_id')||'');}catch(e){hostId='';}
       }
       if(!hostId)return;
-
-      /* As soon as the request button has opened this phone's camera and the
-         host id is known, hand that exact stream to the fast direct transport.
-         This lets the host cache the guest picture BEFORE approval. */
-      try{
-        var preStream=viewerGuest.stream||window.__ktApprovedGuestSelfStream||null;
-        var preTrack=preStream&&preStream.getVideoTracks?preStream.getVideoTracks()[0]:null;
-        if(preTrack&&preTrack.readyState==='live'){
-          window.__ktLocalGuestCameraStream20260926=preStream;
-          window.__ktLocalGuestCameraTrackId20260926=String(preTrack.id||'');
-          window.dispatchEvent(new CustomEvent('kt-approved-guest-stream-ready',{
-            detail:{host_id:hostId,viewer_id:viewerId(),stream:preStream,at:Date.now(),preapproval:true}
-          }));
-        }
-      }catch(_e){}
-
       var p=profile(),vid=viewerId(),cancel=!!(b&&b.classList.contains('kt-requested'));
       var ok=cancel
         ?await postGuestMessage(hostId,'guest_cancelled:'+vid,'↩ '+(p.name||'게스트')+'님이 방송 참여 신청을 취소했습니다.',vid,p.name||'게스트')
@@ -1020,14 +992,6 @@
 
     viewerGuest.stream=stream;
     window.__ktApprovedGuestSelfStream=stream;
-    try{
-      window.__ktLocalGuestCameraStream20260926=stream;
-      var vtFast3=stream&&stream.getVideoTracks?stream.getVideoTracks()[0]:null;
-      if(vtFast3&&vtFast3.id)window.__ktLocalGuestCameraTrackId20260926=String(vtFast3.id);
-      window.dispatchEvent(new CustomEvent('kt-approved-guest-stream-ready',{
-        detail:{host_id:hostId,viewer_id:vid,stream:stream,at:Date.now(),legacy_fast:true}
-      }));
-    }catch(_e){}
     viewerGuest.hostId=hostId;
     viewerGuest.approvedKey=approvalId;
     if(viewerGuest.prewarmTimer){clearTimeout(viewerGuest.prewarmTimer);viewerGuest.prewarmTimer=null;}

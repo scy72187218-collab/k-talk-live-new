@@ -50,17 +50,42 @@
   }
 
   function removeControls(){
-    /* 현재는 촬영화면과 라이브 준비화면 모두 보정/편집 버튼을 사용한다.
-       예전 제거 동작은 중지한다. */
+    /* 촬영 화면 오른쪽 두 버튼 완전 제거 */
+    document.querySelectorAll(
+      '#creator .creator-tools .creator-tool-text[aria-label="AI 보정"],'+
+      '#creator .creator-tools .creator-tool-text[aria-label="편집 효과"]'
+    ).forEach(removeNode);
+
+    /* 라이브 준비 화면의 같은 두 버튼 완전 제거 */
+    document.querySelectorAll('#creator .live-prep .prep-item').forEach(function(btn){
+      var t=String(btn.textContent||'').replace(/\s+/g,'');
+      if(t.indexOf('AI보정')>-1||t.indexOf('편집효과')>-1)removeNode(btn);
+    });
+
+    closeRemovedPanel();
+    clearOldEffectLayers();
   }
 
-  /* 현재 보정/편집 패널 함수는 stage-background-beauty에서 사용하므로 막지 않는다. */
+  /* 혹시 다른 코드가 호출해도 해당 패널이 다시 열리지 않게 차단 */
+  window.openBeautyPanel=function(){
+    closeRemovedPanel();
+    return false;
+  };
+  window.openEditEffectPanel=function(){
+    closeRemovedPanel();
+    clearOldEffectLayers();
+    return false;
+  };
 
-  /* 예전 숨김 CSS도 더 이상 만들지 않는다. */
-  try{
-    var oldStyle=document.getElementById('ktRemoveAiEditControlsStyle20260919');
-    if(oldStyle)oldStyle.remove();
-  }catch(e){}
+  /* CSS도 마지막 안전망으로 유지 */
+  if(!document.getElementById('ktRemoveAiEditControlsStyle20260919')){
+    var s=document.createElement('style');
+    s.id='ktRemoveAiEditControlsStyle20260919';
+    s.textContent=
+      '#creator .creator-tools .creator-tool-text[aria-label="AI 보정"],'+
+      '#creator .creator-tools .creator-tool-text[aria-label="편집 효과"]{display:none!important;visibility:hidden!important;pointer-events:none!important}';
+    document.head.appendChild(s);
+  }
 
   removeControls();
   [60,180,420,900,1600,2600].forEach(function(ms){setTimeout(removeControls,ms);});

@@ -29,30 +29,7 @@
   }
   function enc(v){return encodeURIComponent(String(v==null?'':v));}
   function stream(){
-    /* Some phones render the host camera before state.stream is populated.
-       Use the already-playing local room video as a valid host source so
-       viewer fallback does not sit on "방송 영상 연결 중…" for minutes. */
-    try{
-      var s=window.state&&state.stream?state.stream:null;
-      if(s&&s.getVideoTracks&&s.getVideoTracks().some(function(t){return t&&t.readyState==='live';}))return s;
-    }catch(e){}
-    try{
-      var v=document.querySelector(
-        '#screen #ktLiveVideo,'+
-        '#screen .ktsolo-room video,'+
-        '#screen .ktg13-room video,'+
-        '#screen .ktsubscriber-room video,'+
-        '#screen .ktsecret-room video'
-      );
-      var s2=v&&v.srcObject||null;
-      if(s2&&s2.getVideoTracks&&s2.getVideoTracks().some(function(t){return t&&t.readyState==='live';}))return s2;
-    }catch(e){}
-    try{
-      var cam=document.getElementById('camera')||document.getElementById('cameraBg');
-      var s3=cam&&cam.srcObject||null;
-      if(s3&&s3.getVideoTracks&&s3.getVideoTracks().some(function(t){return t&&t.readyState==='live';}))return s3;
-    }catch(e){}
-    return null;
+    try{return window.state&&state.stream?state.stream:null;}catch(e){return null;}
   }
   function actualHostRoomVisible(){
     try{
@@ -418,9 +395,8 @@
         try{window.dispatchEvent(new CustomEvent('kt-remote-host-selected',{detail:{host_id:hostId}}));}catch(e){}
       }
 
-      /* Slow Android phones can need longer for direct ICE, so start the
-         proven memory path early in parallel instead of showing black for seconds.
-         Whichever real video arrives first wins; the other path stands down. */
+      /* If the cluster-wide path still has no host stream after a short grace period,
+         use the old memory signaling only as a last-resort fallback. Never run both. */
       setTimeout(async function(){
         try{
           if(String(window.__ktRemoteHostId||'')!==hostId)return;
@@ -429,7 +405,7 @@
           var ok=await enterMemory(hostId,cached||room||null);
           if(ok)remoteEndArmed=true;
         }catch(e){}
-      },420);
+      },900);
 
       if(!room){
         var st=document.getElementById('ktRemoteLiveStatus');

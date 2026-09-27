@@ -262,71 +262,8 @@
     }catch(e){}
     var vs=[].slice.call(document.querySelectorAll('.kt-public-video'));
     vs.forEach(function(v){v.onclick=function(){v.muted=false;v.volume=1;if(v.paused){var p=v.play();if(p&&p.catch)p.catch(function(){});}else{v.pause();}};});
-
-    /* ktFirstVideoFallback20260927: if the first locked source cannot render,
-       replace only that video's src with the current server first item. */
-    try{
-      var first=document.querySelector('#screen .kt-public-video');
-      if(first&&!first.dataset.ktFirstFallbackBound){
-        first.dataset.ktFirstFallbackBound='1';
-        var failed=false;
-        function firstAlreadyStarted(){
-          try{
-            return first.dataset.ktPlaybackStarted20260927==='1' || Number(first.currentTime||0)>.03;
-          }catch(e){return false;}
-        }
-        try{
-          first.addEventListener('playing',function(){first.dataset.ktPlaybackStarted20260927='1';});
-          first.addEventListener('timeupdate',function(){
-            if(Number(first.currentTime||0)>.03)first.dataset.ktPlaybackStarted20260927='1';
-          });
-        }catch(e){}
-        function fallback(){
-          if(failed||firstAlreadyStarted())return;
-          failed=true;
-          fetch('/api/video-feed?t='+Date.now(),{cache:'no-store'})
-            .then(function(r){return r.ok?r.json():[];})
-            .then(function(a){
-              if(!Array.isArray(a)||!a.length||!a[0].video_url)return;
-              var u=String(a[0].video_url||'');
-              if(!u||u===String(first.currentSrc||first.src||''))return;
-              first.src=u;
-              first.preload='auto';
-              first.muted=true;
-              first.defaultMuted=true;
-              first.setAttribute('playsinline','');
-              try{first.load();}catch(e){}
-              setTimeout(function(){try{var q=first.play();if(q&&q.catch)q.catch(function(){});}catch(e){}},120);
-            }).catch(function(){});
-        }
-        first.addEventListener('error',fallback,{once:true});
-        setTimeout(function(){
-          try{
-            /* A transient 0x0/low readyState after playback has begun is not
-               a reason to swap/reload the source. Keep the same video running. */
-            if(!firstAlreadyStarted()&&(first.readyState<2||!first.videoWidth||!first.videoHeight))fallback();
-          }catch(e){}
-        },1600);
-      }
-    }catch(e){}
-
     if('IntersectionObserver'in window){
-      var firstFeedVideo=vs[0]||null;
-      var ob=new IntersectionObserver(function(es){es.forEach(function(e){
-        /* The first visible K-Talk video must never be auto-paused by small
-           viewport/overlay ratio changes. Only later feed cards may auto-pause. */
-        if(e.target===firstFeedVideo){
-          if(e.isIntersecting){
-            try{var p=e.target.play();if(p&&p.catch)p.catch(function(){});}catch(_e){}
-          }
-          return;
-        }
-        if(e.isIntersecting&&e.intersectionRatio>.6){
-          try{var p2=e.target.play();if(p2&&p2.catch)p2.catch(function(){});}catch(_e){}
-        }else{
-          try{e.target.pause();}catch(_e){}
-        }
-      });},{threshold:[.15,.6]});
+      var ob=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting&&e.intersectionRatio>.6){e.target.play().catch(function(){});}else{e.target.pause();}});},{threshold:[.6]});
       vs.forEach(function(v){ob.observe(v);});
     }
   }
@@ -378,74 +315,38 @@
     }catch(e){}
   }
 
-  window.ktPublicSendRose=function(id,recipientName,btn){
-    if(!id)return false;
-
-    /* 화면은 즉시 +1. 서버 저장은 뒤에서 처리해서 느린 폰/네트워크에서도
-       좋아요처럼 바로 반응하게 한다. */
-    var s=btn&&btn.querySelector('small');
-    var before=0;
+  window.ktPublicSendRose=async function(id,recipientName,btn){
+    if(btn&&btn.disabled)return;
+    if(btn)btn.disabled=true;
     try{
-      before=parseInt(String(s&&s.textContent||'0').replace(/[^0-9]/g,''),10)||0;
-      if(s)s.textContent=(before+1).toLocaleString('ko-KR');
-      if(btn){
-        btn.classList.add('kt-rose-tapped');
-        setTimeout(function(){try{btn.classList.remove('kt-rose-tapped');}catch(e){}},180);
-      }
-    }catch(e){}
+      var r=await fetch(SB+'/rest/v1/rpc/ktalk_like_video',{method:'POST',headers:headers({'Content-Type':'application/json'}),body:JSON.stringify({video_id:id})});
+      if(!r.ok)throw new Error('rose');
+      var n=await r.json(),s=btn&&btn.querySelector('small');
+      if(s)s.textContent=Number(n||0).toLocaleString('ko-KR');
 
-    var giver=who();
-
-    (async function(){
-      var ok=false;
-      for(var attempt=0;attempt<2&&!ok;attempt++){
-        var ctrl=typeof AbortController!=='undefined'?new AbortController():null;
-        var tm=ctrl?setTimeout(function(){try{ctrl.abort();}catch(e){}},3500):null;
-        try{
-          var r=await fetch(SB+'/rest/v1/rpc/ktalk_like_video',{
-            method:'POST',
-            headers:headers({'Content-Type':'application/json'}),
-            body:JSON.stringify({video_id:id}),
-            signal:ctrl?ctrl.signal:undefined
-          });
-          if(tm)clearTimeout(tm);
-          if(!r.ok)throw new Error('rose');
-          var n=await r.json();
-          if(s)s.textContent=Number(n||before+1).toLocaleString('ko-KR');
-          ok=true;
-        }catch(e){
-          if(tm)clearTimeout(tm);
-          if(attempt===0)await new Promise(function(resolve){setTimeout(resolve,450);});
-        }
-      }
-
-      if(ok){
-        try{
-          fetch(SB+'/rest/v1/ktalk_video_comments',{
-            method:'POST',
-            headers:headers({'Content-Type':'application/json','Prefer':'return=minimal'}),
-            body:JSON.stringify({
-              video_id:id,
-              author_id:giver.id,
-              author_name:giver.name,
-              body:'__KT_ROSE__|1|'+String(recipientName||'동영상 게시자')
-            })
-          }).catch(function(){});
-        }catch(e){}
-        return;
-      }
-
-      /* 실패 팝업으로 시청을 막지 않는다. 숫자는 다음 서버 새로고침 때 정정된다. */
+      /* 누가 장미를 보냈는지 기존 댓글 테이블에 숨은 기록으로 남긴다.
+         일반 메시지/댓글 화면에는 이 기록을 표시하지 않는다. */
       try{
-        var toast=document.createElement('div');
-        toast.style.cssText='position:fixed;left:50%;bottom:110px;transform:translateX(-50%);z-index:99999;padding:8px 12px;border-radius:999px;background:rgba(24,8,28,.94);border:1px solid #ff5aaf;color:#fff;font-size:11px;font-weight:900;white-space:nowrap;pointer-events:none';
-        toast.textContent='장미 저장이 늦어지고 있습니다. 자동으로 다시 시도합니다.';
-        document.body.appendChild(toast);
-        setTimeout(function(){try{toast.remove();}catch(e){}},1400);
-      }catch(e){}
-    })();
+        var giver=who();
+        await fetch(SB+'/rest/v1/ktalk_video_comments',{
+          method:'POST',
+          headers:headers({'Content-Type':'application/json','Prefer':'return=minimal'}),
+          body:JSON.stringify({
+            video_id:id,
+            author_id:giver.id,
+            author_name:giver.name,
+            body:'__KT_ROSE__|1'
+          })
+        });
+      }catch(logErr){}
 
-    return false;
+      var toast=document.createElement('div');
+      toast.style.cssText='position:fixed;left:50%;bottom:110px;transform:translateX(-50%);z-index:99999;padding:12px 18px;border-radius:999px;background:rgba(24,8,28,.94);border:1px solid #ff5aaf;color:#fff;font-weight:950;box-shadow:0 0 18px rgba(255,54,150,.45);white-space:nowrap';
+      toast.textContent='🌹 '+(recipientName||'동영상 게시자')+'님에게 장미 1송이를 보냈습니다';
+      document.body.appendChild(toast);
+      setTimeout(function(){if(toast&&toast.parentNode)toast.remove();},2200);
+    }catch(e){alert('장미 전송에 실패했습니다. 다시 눌러 주세요.');}
+    finally{if(btn)btn.disabled=false;}
   };
 
   window.ktPublicRoseHistory=async function(videoId,recipientName){
