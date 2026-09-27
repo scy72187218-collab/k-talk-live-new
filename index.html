@@ -1213,6 +1213,81 @@
   
 })();
 </script>
+<script id="kt-prep-no-auto-countdown-20260927">
+(function(){
+  if(window.__ktPrepNoAutoCountdown20260927)return;
+  window.__ktPrepNoAutoCountdown20260927=true;
+
+  var allowUntil=0;
+  function authorize(){
+    allowUntil=Date.now()+10000;
+    window.__ktUserPressedLiveStart=true;
+  }
+  function clearAutoOverlays(){
+    if(Date.now()<allowUntil)return;
+    ['ktFourRoomSingleCountdown','ktFourRoom13StyleCountdown','ktGroup13CountdownOverlay','ktRoomCountdownOverlay']
+      .forEach(function(id){
+        try{var x=document.getElementById(id);if(x)x.remove();}catch(e){}
+      });
+  }
+  function isRealStartTarget(t){
+    if(!t||!t.closest)return false;
+    return !!t.closest(
+      '.live-prep .prep-start,'+
+      '.live-prep .room-switch,'+
+      '.live-prep .kt-room-bottom5 button'
+    );
+  }
+
+  /* Only a real tap on a room/start control may authorize broadcast start. */
+  document.addEventListener('pointerdown',function(e){
+    if(isRealStartTarget(e.target))authorize();
+  },true);
+  document.addEventListener('touchstart',function(e){
+    if(isRealStartTarget(e.target))authorize();
+  },{capture:true,passive:true});
+  document.addEventListener('click',function(e){
+    if(isRealStartTarget(e.target))authorize();
+  },true);
+
+  var oldStart=window.startBroadcast;
+  if(typeof oldStart==='function'&&!oldStart.__ktPrepManualOnly20260927){
+    var guarded=async function(){
+      var prep=false;
+      try{
+        prep=!!(document.getElementById('creator')&&document.getElementById('creator').classList.contains('live-prep-open'));
+      }catch(e){}
+      if(prep&&Date.now()>=allowUntil){
+        window.__ktUserPressedLiveStart=false;
+        clearAutoOverlays();
+        return false;
+      }
+      return oldStart.apply(this,arguments);
+    };
+    guarded.__ktPrepManualOnly20260927=true;
+    guarded.__ktPrepManualOnlyBase=oldStart;
+    window.startBroadcast=guarded;
+  }
+
+  /* Entering the preparation screen always starts in a non-authorized state.
+     This prevents stale state from a previous broadcast from launching a countdown. */
+  try{
+    var creator=document.getElementById('creator');
+    if(creator&&window.MutationObserver){
+      new MutationObserver(function(){
+        if(creator.classList.contains('live-prep-open')){
+          allowUntil=0;
+          window.__ktUserPressedLiveStart=false;
+          clearAutoOverlays();
+          setTimeout(clearAutoOverlays,30);
+          setTimeout(clearAutoOverlays,150);
+          setTimeout(clearAutoOverlays,500);
+        }
+      }).observe(creator,{attributes:true,attributeFilter:['class']});
+    }
+  }catch(e){}
+})();
+</script>
 <script src="instant-remote-host-entry-20260927.js?v=20260927-instant-entry1"></script>
 <script src="approved-guest-self-camera-instant-20260927.js?v=20260927-selfcam1"></script>
 <script src="group13-protection-lock-20260927.js?v=20260927-lock1"></script>
