@@ -1,5 +1,5 @@
 {
-  "version": 150,
+  "version": 151,
   "locked": true,
   "scope": "selective_with_full_snapshot_guard",
   "lock_slot": 1,
@@ -13,7 +13,8 @@
     "subscriber_room_current_state",
     "public_video_rose_message_share",
     "secret_room_rank_mission_viewers_flip_treasure_match",
-    "current_full_approved_state_20260927_1740"
+    "current_full_approved_state_20260927_1740",
+    "current_full_state_20260927_5555"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -22,13 +23,14 @@
     "subscriber_room_current_state",
     "public_video_rose_message_share",
     "secret_room_rank_mission_viewers_flip_treasure_match",
-    "current_full_approved_state_20260927_1740"
+    "current_full_approved_state_20260927_1740",
+    "current_full_state_20260927_5555"
   ],
   "current_editable_components": [
     "only_explicitly_requested_changes"
   ],
   "temporarily_unlocked_components": [],
-  "note": "Lock 6 protects the complete K-Talk state restored to 2026-09-27 17:40 KST. Existing locks 1-4 remain intact. Runtime controls remain usable.",
+  "note": "Lock 7 protects the complete current K-Talk state approved with code 5555. Existing locks remain intact. Runtime controls remain usable; protection is only against unrelated edits.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -46,6 +48,9 @@
     ],
     "6": [
       "current_full_approved_state_20260927_1740"
+    ],
+    "7": [
+      "current_full_state_20260927_5555"
     ]
   }
 }
