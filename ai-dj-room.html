@@ -280,9 +280,25 @@ document.getElementById('chat').addEventListener('keydown',e=>{if(e.key==='Enter
     name=clean(name)||'손님';
     song=clean(song);
     if(!song)return;
+
     var feed=document.getElementById('feed');
-    if(feed)feed.insertAdjacentHTML('beforeend','<div class="msg ai"><b>★ K-Talk AI DJ · AI</b><br>'+song.replace(/[<>]/g,'')+' 신청곡 확인했어요. 지금 틀어드릴게요 🎵</div>');
-    ktDjSpeak(name+'님, '+song+' 신청곡 확인했어요. 지금 틀어드릴게요.');
+    if(feed){
+      feed.insertAdjacentHTML('beforeend',
+        '<div class="msg"><b>'+name+'</b> · 신청곡 '+song.replace(/[<>]/g,'')+'</div>'+
+        '<div class="msg ai"><b>★ K-Talk AI DJ · AI</b><br>네, 알겠습니다. '+song.replace(/[<>]/g,'')+' 들려드리겠습니다. 🎵</div>'
+      );
+    }
+
+    toast(song+' 음악 연결 중');
+    ktDjSpeak(name+'님, '+song+' 신청곡 확인했습니다. 네, 알겠습니다. 들려드리겠습니다.');
+
+    // 합법적인 음악 서비스 검색으로 바로 연결
+    setTimeout(function(){
+      try{
+        var q=encodeURIComponent(song);
+        window.open('https://music.youtube.com/search?q='+q,'_blank');
+      }catch(e){}
+    },1800);
   };
 
   window.addEventListener('ktalk:member-enter',function(e){window.ktAiDjMemberEnter(e.detail&&e.detail.nickname)});
@@ -295,7 +311,7 @@ document.getElementById('chat').addEventListener('keydown',e=>{if(e.key==='Enter
   window.toast=function(t){if(oldToast)oldToast(t);};
   var oldSong=window.song;
   window.song=function(){
-    var q=prompt('신청곡 제목을 입력해 주세요.','');
+    var q=prompt('신청곡 말하세요.','');
     if(!q||!q.trim())return;
     window.ktAiDjSongRequest(nickname,q);
   };
