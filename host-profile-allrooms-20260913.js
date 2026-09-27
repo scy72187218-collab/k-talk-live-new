@@ -322,6 +322,20 @@
     }
   }
 
+  function saveFollowedMember20260928(person,on){
+    try{
+      var key='ktalk_followed_members_v1';
+      var list=JSON.parse(localStorage.getItem(key)||'[]');
+      if(!Array.isArray(list))list=[];
+      list=list.filter(function(x){return String(x&&x.id||'')!==String(person&&person.id||'');});
+      if(on&&person&&person.id){
+        list.unshift({id:String(person.id),name:String(person.name||'K-Talk 회원'),photo:String(person.photo||'')});
+      }
+      localStorage.setItem(key,JSON.stringify(list.slice(0,100)));
+      window.ktFollowedMembers20260928=list.slice(0,100);
+    }catch(e){}
+  }
+
   async function toggleFollow(person,btn){
     if(!person||!btn||btn.disabled)return;
     btn.disabled=true;
@@ -333,6 +347,7 @@
       if(row){
         row.is_following=!!row.now_following;
         updateStats(row);
+        saveFollowedMember20260928(person,!!row.now_following);
         if(row.reward_granted)showRoseToast(person.name);
       }
     }catch(e){
