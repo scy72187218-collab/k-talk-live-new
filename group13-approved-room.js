@@ -261,11 +261,24 @@
     if(!isGroup13())return oldStartBroadcast.apply(this,arguments);
 
     /* 13명방 전용:
-       5→4→3→2→1은 실제 경과시간 5초로 정확히 끝내고,
-       카메라는 그 5초 동안 뒤에서 미리 준비한다.
-       1이 끝나는 순간 현재 13명방과 카메라를 바로 보여준다. */
+       방 화면을 먼저 완전히 연 뒤, 열린 13명방 위에서
+       5→4→3→2→1 카운트다운을 보여준다. */
     window.__ktGroup13CountdownInProgress=true;
     markGroup13Opening();
+
+    /* 준비화면을 먼저 닫고 승인된 13명방을 즉시 보여준다. */
+    try{
+      if(window.creator)creator.classList.remove('show','live-prep-open');
+    }catch(e){}
+    renderApprovedGroup13(true);
+
+    function ensureApprovedRoomVisible(){
+      try{
+        var room=document.querySelector('#screen .ktg13-room[data-kt-approved13="1"]');
+        if(!room)renderApprovedGroup13(true);
+      }catch(e){}
+    }
+    ensureApprovedRoomVisible();
 
     var self=this,args=arguments;
     var startPromise;
@@ -294,6 +307,9 @@
       num.textContent='5';
 
       function frame(now){
+        /* 느린 휴대폰에서도 카운트다운 뒤에 검은 화면이 보이지 않게
+           승인된 13명방이 열린 상태인지 계속 확인한다. */
+        ensureApprovedRoomVisible();
         var elapsed=Math.max(0,now-started);
         if(elapsed>=5000){
           resolve();
@@ -315,10 +331,7 @@
 
     try{if(wrap&&wrap.parentNode)wrap.parentNode.removeChild(wrap);}catch(e){}
 
-    /* 1초가 끝난 바로 그 순간 현재 13명방을 그린다. */
-    try{
-      if(window.creator)creator.classList.remove('show','live-prep-open');
-    }catch(e){}
+    /* 카운트다운이 끝나면 이미 열려 있던 13명방을 그대로 유지한다. */
     renderApprovedGroup13(false);
     window.__ktGroup13CountdownInProgress=false;
 
