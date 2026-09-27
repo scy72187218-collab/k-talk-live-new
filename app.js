@@ -2577,12 +2577,21 @@ window.ktEnsureHostTreasureBadge20260927=function(){
   if(!room||!t){if(old)old.remove();return;}
 
   var host=room.querySelector('.ktsolo-main,.ktg13-host,.ktsubscriber-host,.ktsecret-host,.ktg13-main')||room;
+  try{
+    /* 13명방은 보물상자를 반드시 호스트 카메라 칸 안쪽에 고정 */
+    if(room.classList.contains('ktg13-room')){
+      var g13host=room.querySelector('.ktg13-host');
+      if(g13host)host=g13host;
+    }
+    host.style.setProperty('position','relative','important');
+    host.style.setProperty('overflow','hidden','important');
+  }catch(e){}
   var b=old;
   if(!b){
     b=document.createElement('button');
     b.type='button';
     b.id='ktHostTreasureRightBadge20260927';
-    b.style.cssText='position:absolute!important;right:8px!important;top:68px!important;left:auto!important;z-index:120!important;width:66px!important;min-height:72px!important;border:2px solid #ffd45b!important;border-radius:18px!important;background:rgba(26,16,5,.94)!important;color:#fff!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:2px!important;padding:5px!important;box-shadow:0 0 14px #ffb000aa!important;font:950 9px/1.05 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;pointer-events:auto!important;touch-action:manipulation!important';
+    b.style.cssText='position:absolute!important;right:5px!important;top:5px!important;left:auto!important;z-index:120!important;width:58px!important;min-height:64px!important;border:2px solid #ffd45b!important;border-radius:18px!important;background:rgba(26,16,5,.94)!important;color:#fff!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:2px!important;padding:5px!important;box-shadow:0 0 14px #ffb000aa!important;font:950 9px/1.05 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;pointer-events:auto!important;touch-action:manipulation!important';
     b.onclick=function(e){
       try{e.preventDefault();e.stopPropagation();}catch(x){}
       if(window.goToTreasureRoom)window.goToTreasureRoom();
