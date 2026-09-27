@@ -17,7 +17,9 @@
 
     var retried=false;
     function alreadyStarted(){
-      try{return Number(v.currentTime||0)>.03||(!v.paused&&!v.ended);}catch(e){return false;}
+      try{
+        return v.dataset.ktPlaybackStarted20260927==='1' || Number(v.currentTime||0)>.03;
+      }catch(e){return false;}
     }
     function retryVideo(){
       if(retried)return;
@@ -43,22 +45,11 @@
 
     function verify(){
       try{
-        if(v.readyState>=2 && (!v.videoWidth || !v.videoHeight)){
-          if(alreadyStarted()){
-            try{var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
-            return;
-          }
+        if(alreadyStarted())return;
+        /* Initial black screen: allow ONE same-source load before playback
+           actually begins. Once playing has started, retryVideo() is blocked. */
+        if(v.readyState<2 || !v.videoWidth || !v.videoHeight){
           retryVideo();
-          setTimeout(function(){
-            try{
-              if(v.readyState>=2 && (!v.videoWidth || !v.videoHeight)){
-                /* Android can report 0x0 for a moment while the SAME video is
-                   still decoding. Never jump to another card automatically. */
-                var p=v.play();
-                if(p&&p.catch)p.catch(function(){});
-              }
-            }catch(e){}
-          },900);
         }
       }catch(e){}
     }
@@ -66,7 +57,12 @@
     v.addEventListener('loadedmetadata',function(){setTimeout(verify,160);});
     v.addEventListener('loadeddata',function(){setTimeout(verify,120);});
     v.addEventListener('canplay',function(){setTimeout(verify,120);});
-    v.addEventListener('playing',function(){setTimeout(verify,350);});
+    v.addEventListener('playing',function(){
+      try{v.dataset.ktPlaybackStarted20260927='1';}catch(e){}
+    });
+    v.addEventListener('timeupdate',function(){
+      try{if(Number(v.currentTime||0)>.03)v.dataset.ktPlaybackStarted20260927='1';}catch(e){}
+    });
     v.addEventListener('error',function(){retryVideo();});
 
     setTimeout(verify,900);
