@@ -1,7 +1,7 @@
 {
-  "version": 149,
+  "version": 150,
   "locked": true,
-  "scope": "selective",
+  "scope": "selective_with_full_snapshot_guard",
   "lock_slot": 1,
   "unlock_requires_pin": false,
   "runtime_controls_remain_usable": true,
@@ -12,7 +12,8 @@
     "group13_open_room_then_countdown",
     "subscriber_room_current_state",
     "public_video_rose_message_share",
-    "secret_room_rank_mission_viewers_flip_treasure_match"
+    "secret_room_rank_mission_viewers_flip_treasure_match",
+    "current_full_approved_state_20260927_1740"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -20,13 +21,14 @@
     "group13_open_room_then_countdown",
     "subscriber_room_current_state",
     "public_video_rose_message_share",
-    "secret_room_rank_mission_viewers_flip_treasure_match"
+    "secret_room_rank_mission_viewers_flip_treasure_match",
+    "current_full_approved_state_20260927_1740"
   ],
   "current_editable_components": [
-    "all_except_locked_components"
+    "only_explicitly_requested_changes"
   ],
   "temporarily_unlocked_components": [],
-  "note": "Lock 4 protects only the secret-room daily ranking, mission, viewer count, flip/return, treasure box, and match controls. Runtime controls remain usable.",
+  "note": "Lock 6 protects the complete K-Talk state restored to 2026-09-27 17:40 KST. Existing locks 1-4 remain intact. Runtime controls remain usable.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -41,6 +43,9 @@
     ],
     "4": [
       "secret_room_rank_mission_viewers_flip_treasure_match"
+    ],
+    "6": [
+      "current_full_approved_state_20260927_1740"
     ]
   }
 }
