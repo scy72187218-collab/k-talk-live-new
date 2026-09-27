@@ -363,8 +363,10 @@ document.getElementById('chat').addEventListener('keydown',e=>{if(e.key==='Enter
         u.rate=.96;
         u.pitch=1.02;
         u.volume=1;
-        var v=ktDjPickKoVoice();
-        if(v)u.voice=v;
+        /* Use the phone's own default Korean TTS voice.
+           Some Android/Samsung browsers expose a Korean voice that sounds
+           muffled or fails when forced explicitly. */
+        try{u.voice=null;}catch(e){}
 
         var finished=false;
         u.onstart=function(){
@@ -439,23 +441,19 @@ document.getElementById('chat').addEventListener('keydown',e=>{if(e.key==='Enter
     c.forEach(function(f,i){tone(f,.7,t+i*.02)});tone(c[1]*2,.18,t+.82);tone(c[2]*2,.18,t+1.18);musicStep++;
   }
   function startMusic(){
-    if(musicStarted)return;var ctx=initAudio();if(!ctx)return;
-    function go(){musicStarted=true;bar();musicTimer=setInterval(bar,1600)}
-    if(ctx.state==='suspended')ctx.resume().then(go).catch(function(){});else go();
+    /* AI voice-only mode for mobile compatibility.
+       Background oscillator music is intentionally disabled. */
+    musicStarted=true;
+    try{if(musicTimer){clearInterval(musicTimer);musicTimer=null;}}catch(e){}
+    try{if(master)master.gain.value=0;}catch(e){}
   }
   function duck(low){
-    if(master&&audioCtx){
-      try{
+    try{
+      if(master&&audioCtx){
         master.gain.cancelScheduledValues(audioCtx.currentTime);
-        master.gain.linearRampToValueAtTime(low ? .0015 : .008,audioCtx.currentTime+.08);
-      }catch(e){}
-    }
-    if(!low){
-      try{
-        if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume().catch(function(){});
-        if(!musicStarted)startMusic();
-      }catch(e){}
-    }
+        master.gain.setValueAtTime(0,audioCtx.currentTime);
+      }
+    }catch(e){}
   }
 
   window.ktAiDjMemberEnter=function(name){name=clean(name)||'손님';ktDjSpeak(name+'님 어서 오세요. 만나서 반갑습니다. 무슨 노래를 좋아하세요? 신청곡 말씀해 주세요.')};
