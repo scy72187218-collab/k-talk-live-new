@@ -221,6 +221,11 @@
   function clickTarget(target){
     if(!target||!roomRoot(target))return null;
 
+    /* 호스트 화면/사진은 좋아요를 눌러야 하므로 확대하지 않는다.
+       확대는 게스트 타일만 허용한다. */
+    var touchedTile=personTile(target);
+    if(touchedTile&&!isGuestTile(touchedTile))return null;
+
     var video=target.closest&&target.closest('video');
     if(video&&personTile(video)&&!isUiIcon(video))return {kind:'video',el:video,tile:personTile(video)};
 
