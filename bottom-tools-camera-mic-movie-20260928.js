@@ -37,6 +37,7 @@
       }
       var on=tracks.some(function(t){return t.enabled!==false;});
       tracks.forEach(function(t){t.enabled=!on;});
+      try{if(typeof window.ktCameraOffAvatarState20260928==='function')window.ktCameraOffAvatarState20260928(on);}catch(e){}
       btn.classList.toggle('kt-media-off',on);
       var span=btn.querySelector('span');
       if(span)span.textContent=on?'카메라 꺼짐':'카메라';
