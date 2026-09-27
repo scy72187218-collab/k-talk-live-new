@@ -16,18 +16,23 @@
     }catch(e){}
 
     var retried=false;
+    function alreadyStarted(){
+      try{return Number(v.currentTime||0)>.03||(!v.paused&&!v.ended);}catch(e){return false;}
+    }
     function retryVideo(){
       if(retried)return;
+      /* Never pause/load a public video after playback has started.
+         Android reloads the decoder/network request and creates the visible cut. */
+      if(alreadyStarted()){
+        try{var keep=v.play();if(keep&&keep.catch)keep.catch(function(){});}catch(e){}
+        return;
+      }
       retried=true;
       try{
         var wasMuted=v.muted;
-        v.pause();
         v.load();
         setTimeout(function(){
           try{
-            if(v.readyState>=1 && isFinite(v.duration) && v.duration>0){
-              try{v.currentTime=Math.min(.08,Math.max(0,v.duration-.1));}catch(e){}
-            }
             v.muted=wasMuted;
             var p=v.play();
             if(p&&p.catch)p.catch(function(){});
@@ -39,6 +44,10 @@
     function verify(){
       try{
         if(v.readyState>=2 && (!v.videoWidth || !v.videoHeight)){
+          if(alreadyStarted()){
+            try{var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
+            return;
+          }
           retryVideo();
           setTimeout(function(){
             try{
