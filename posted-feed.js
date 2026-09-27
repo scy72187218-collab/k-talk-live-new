@@ -262,6 +262,41 @@
     }catch(e){}
     var vs=[].slice.call(document.querySelectorAll('.kt-public-video'));
     vs.forEach(function(v){v.onclick=function(){v.muted=false;v.volume=1;if(v.paused){var p=v.play();if(p&&p.catch)p.catch(function(){});}else{v.pause();}};});
+
+    /* ktFirstVideoFallback20260927: if the first locked source cannot render,
+       replace only that video's src with the current server first item. */
+    try{
+      var first=document.querySelector('#screen .kt-public-video');
+      if(first&&!first.dataset.ktFirstFallbackBound){
+        first.dataset.ktFirstFallbackBound='1';
+        var failed=false;
+        function fallback(){
+          if(failed)return;
+          failed=true;
+          fetch('/api/video-feed?t='+Date.now(),{cache:'no-store'})
+            .then(function(r){return r.ok?r.json():[];})
+            .then(function(a){
+              if(!Array.isArray(a)||!a.length||!a[0].video_url)return;
+              var u=String(a[0].video_url||'');
+              if(!u||u===String(first.currentSrc||first.src||''))return;
+              first.src=u;
+              first.preload='auto';
+              first.muted=true;
+              first.defaultMuted=true;
+              first.setAttribute('playsinline','');
+              try{first.load();}catch(e){}
+              setTimeout(function(){try{var q=first.play();if(q&&q.catch)q.catch(function(){});}catch(e){}},120);
+            }).catch(function(){});
+        }
+        first.addEventListener('error',fallback,{once:true});
+        setTimeout(function(){
+          try{
+            if(first.readyState<2||!first.videoWidth||!first.videoHeight)fallback();
+          }catch(e){}
+        },1600);
+      }
+    }catch(e){}
+
     if('IntersectionObserver'in window){
       var ob=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting&&e.intersectionRatio>.6){e.target.play().catch(function(){});}else{e.target.pause();}});},{threshold:[.6]});
       vs.forEach(function(v){ob.observe(v);});
