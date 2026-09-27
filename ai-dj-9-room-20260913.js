@@ -3,10 +3,10 @@
   window.__ktAiDj9Room20260913=true;
 })();
 
-/* K-Talk 홈화면 아이콘 설치 전용. 다른 화면/방송 기능은 변경하지 않음. */
+/* K-Talk 홈화면 아이콘 설치: 설치 가능할 때만 작은 선택창 표시. 방송 화면을 막지 않음. */
 (function(){
-  if(window.__ktPwaInstallOnly20260915)return;
-  window.__ktPwaInstallOnly20260915=true;
+  if(window.__ktPwaInstallOnly20260928)return;
+  window.__ktPwaInstallOnly20260928=true;
 
   var deferredPrompt=null;
 
@@ -16,81 +16,52 @@
     }catch(e){return false;}
   }
 
-  function ensureManifest(){
-    if(document.querySelector('link[rel="manifest"]'))return;
-    var link=document.createElement('link');
-    link.rel='manifest';
-    link.href='/manifest.webmanifest?v=20260915-install2';
-    document.head.appendChild(link);
-  }
-
   function removeInstallBox(){
     var box=document.getElementById('ktPwaInstallBox');
     if(box&&box.parentNode)box.parentNode.removeChild(box);
   }
 
-  function updateInstallBox(){
-    var box=document.getElementById('ktPwaInstallBox');
-    if(!box)return;
-    var note=box.querySelector('[data-kt-install-note]');
-    var btn=document.getElementById('ktPwaInstallBtn');
-    if(deferredPrompt){
-      if(note)note.textContent='설치를 누르면 홈 화면에 K-Talk 아이콘이 만들어집니다.';
-      if(btn)btn.textContent='설치';
-    }else{
-      if(note)note.textContent='설치 버튼이 준비되면 한 번만 누르시면 됩니다.';
-      if(btn)btn.textContent='설치 준비';
-    }
+  function ensureManifest(){
+    if(document.querySelector('link[rel="manifest"]'))return;
+    var link=document.createElement('link');
+    link.rel='manifest';
+    link.href='/manifest.webmanifest?v=20260928-install-safe1';
+    document.head.appendChild(link);
   }
 
   function showInstallBox(){
-    if(isInstalled()){removeInstallBox();return;}
-    var existing=document.getElementById('ktPwaInstallBox');
-    if(existing){updateInstallBox();return;}
+    removeInstallBox();
+    if(isInstalled()||!deferredPrompt)return;
 
     var box=document.createElement('div');
     box.id='ktPwaInstallBox';
-    box.style.cssText='position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:100000;width:min(92vw,380px);display:flex;align-items:center;gap:10px;padding:10px 11px;border:1px solid rgba(255,92,207,.72);border-radius:17px;background:rgba(8,8,14,.96);box-shadow:0 8px 28px rgba(0,0,0,.55),0 0 16px rgba(255,76,196,.28);color:#fff;font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif';
-    box.innerHTML='<img src="/ktalk-icon.svg" alt="K-Talk" style="width:42px;height:42px;border-radius:11px;flex:0 0 42px"><div style="min-width:0;flex:1"><b style="display:block;font-size:13px">K-Talk 아이콘 설치</b><span data-kt-install-note style="display:block;margin-top:2px;color:#ddd;font-size:10px">설치 버튼을 준비하고 있습니다.</span></div><button id="ktPwaInstallBtn" type="button" style="height:38px;padding:0 14px;border:0;border-radius:12px;background:linear-gradient(135deg,#ff3ca6,#7b55ff);color:#fff;font-weight:950">설치 준비</button>';
+    box.style.cssText='position:fixed;right:10px;bottom:86px;z-index:9999;max-width:250px;display:flex;align-items:center;gap:7px;padding:8px 9px;border:1px solid rgba(255,92,207,.62);border-radius:14px;background:rgba(8,8,14,.94);box-shadow:0 6px 18px rgba(0,0,0,.45);color:#fff;font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif;pointer-events:auto';
+    box.innerHTML='<div style="min-width:0;flex:1"><b style="display:block;font-size:12px">K-Talk 아이콘 설치</b><span style="display:block;margin-top:2px;color:#ddd;font-size:9px">원하실 때 설치를 누르세요.</span></div><button id="ktPwaInstallBtn" type="button" style="height:32px;padding:0 10px;border:0;border-radius:10px;background:linear-gradient(135deg,#ff3ca6,#7b55ff);color:#fff;font-size:11px;font-weight:950">설치</button><button id="ktPwaInstallClose" type="button" aria-label="닫기" style="width:28px;height:28px;border:0;border-radius:50%;background:#ffffff18;color:#fff;font-size:17px">×</button>';
     document.body.appendChild(box);
+
+    var close=document.getElementById('ktPwaInstallClose');
+    if(close)close.onclick=removeInstallBox;
 
     var btn=document.getElementById('ktPwaInstallBtn');
     if(btn)btn.addEventListener('click',async function(){
-      if(isInstalled()){removeInstallBox();return;}
-      if(!deferredPrompt){
-        var note=box.querySelector('[data-kt-install-note]');
-        if(note)note.textContent='브라우저 설치 기능을 준비 중입니다. 잠시 후 다시 눌러 주세요.';
-        try{
-          if('serviceWorker' in navigator){
-            var reg=await navigator.serviceWorker.ready;
-            if(reg&&reg.update)reg.update().catch(function(){});
-          }
-        }catch(e){}
-        return;
-      }
+      if(!deferredPrompt){removeInstallBox();return;}
       try{
         deferredPrompt.prompt();
-        var choice=await deferredPrompt.userChoice;
-        if(choice&&choice.outcome==='accepted')removeInstallBox();
+        await deferredPrompt.userChoice;
       }catch(e){}
       deferredPrompt=null;
-      updateInstallBox();
+      removeInstallBox();
     });
-    updateInstallBox();
   }
 
+  /* 예전 버전에서 남은 큰 설치창은 페이지가 열리자마자 제거한다. */
+  removeInstallBox();
   ensureManifest();
 
   if('serviceWorker' in navigator){
     window.addEventListener('load',function(){
-      navigator.serviceWorker.register('/sw.js?v=20260915-install2').then(function(){
-        setTimeout(showInstallBox,250);
-      }).catch(function(){
-        setTimeout(showInstallBox,250);
-      });
+      navigator.serviceWorker.register('/sw.js?v=20260928-install-safe1').catch(function(){});
     },{once:true});
-  }else{
-    setTimeout(showInstallBox,500);
   }
 
   window.addEventListener('beforeinstallprompt',function(e){
@@ -105,11 +76,8 @@
   });
 
   window.addEventListener('pageshow',function(){
-    if(isInstalled())removeInstallBox();
-    else setTimeout(showInstallBox,350);
+    if(isInstalled()||!deferredPrompt)removeInstallBox();
   });
-
-  setTimeout(showInstallBox,900);
 })();
 
 /* 2026-09-15 참고 영상과 비교해 촬영/방송 준비 카메라 구도만 조금 더 넓게. 다른 UI는 변경하지 않음. */
