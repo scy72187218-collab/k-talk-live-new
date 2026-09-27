@@ -300,8 +300,10 @@
     restBroadcast(eventName,payload);
   }
   function sendCriticalMedia20260926(eventName,payload,hostId){
+    /* One signaling path only. send() already falls back to REST when
+       WebSocket is unavailable, so a second REST broadcast here creates
+       duplicate offer/answer/ICE events and can race on mobile networks. */
     try{send(eventName,payload||{});}catch(e){}
-    try{restBroadcastToHost20260926(hostId||payload&&payload.host_id||activeHostId,eventName,payload||{});}catch(e){}
   }
 
   function flush(){
@@ -2599,8 +2601,9 @@
         }
       }catch(e){}
       var reqData={host_id:hid,viewer_id:viewerId(),name:profileName(),at:Date.now()};
+      /* send() already uses REST fallback when the WebSocket is not joined.
+         Do not send the same guest_request twice. */
       send('guest_request',reqData);
-      try{restBroadcast('guest_request',reqData);}catch(e){}
       sharedApprovalPost(hid,'guest_request',reqData.viewer_id,reqData.name);
     }else{
       b.classList.remove('kt-requested');b.style.removeProperty('box-shadow');
