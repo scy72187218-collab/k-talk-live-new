@@ -32,7 +32,7 @@
     }catch(e){}
   }
 
-  async function showCountdown(){
+  async function showCountdown(roomKind){
     removeOverlay();
     var overlay=document.createElement('div');
     overlay.id='ktFourRoom13StyleCountdown';
@@ -42,6 +42,32 @@
     var num=document.createElement('div');
     num.style.cssText='width:116px;height:116px;border-radius:50%;display:grid;place-items:center;background:rgba(10,10,14,.72);border:4px solid rgba(255,255,255,.92);color:#fff;font:900 64px/1 system-ui,-apple-system,sans-serif;box-shadow:0 0 28px rgba(255,44,130,.7);text-shadow:0 0 12px rgba(255,255,255,.7)';
     overlay.appendChild(num);
+
+    if(roomKind==='solo'){
+      await new Promise(function(resolve){
+        var started=Date.now(),finished=false,timer=null;
+        function done(){
+          if(finished)return;
+          finished=true;
+          if(timer)clearInterval(timer);
+          resolve();
+        }
+        function tick(){
+          var elapsed=Math.max(0,Date.now()-started);
+          if(elapsed>=5000){done();return;}
+          var n=Math.max(1,5-Math.floor(elapsed/1000));
+          if(num.textContent!==String(n)){
+            num.textContent=String(n);
+            num.style.transform='scale(1)';
+            setTimeout(function(){try{num.style.transform='scale(.92)';}catch(e){}},650);
+          }
+        }
+        tick();
+        timer=setInterval(tick,100);
+        setTimeout(done,5300);
+      });
+      return overlay;
+    }
 
     for(var n=5;n>=1;n--){
       num.textContent=String(n);
@@ -82,7 +108,7 @@
         });
       });
 
-      overlay=await showCountdown();
+      overlay=await showCountdown(roomKind);
       if(overlay){overlay.remove();overlay=null;}
       return result;
     }catch(e){
