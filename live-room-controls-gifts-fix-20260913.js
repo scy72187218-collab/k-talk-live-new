@@ -162,9 +162,10 @@
       if(typeof window.openMission==='function'){window.openMission();return;}
       if(typeof window.showSheet==='function'){
         window.showSheet('🎯 미션',''
-          +'<div class="rowbox"><b>🌹 장미 미션</b><br>장미 1개짜리 30개 깨기</div>'
-          +'<div class="rowbox"><b>🏎️ 스포츠카 미션</b><br>스포츠카 50개짜리 10개 깨기</div>'
-          +'<div class="rowbox"><b>💎💗 다이아몬드 하트 미션</b><br>다이아몬드 하트 400개짜리 10개 깨기</div>');
+          +'<div class="rowbox"><b>1단계 🌹 장미</b><br>장미 50개 깨기</div>'
+          +'<div class="rowbox"><b>2단계 💗 하트</b><br>하트 30개짜리 20개 깨기</div>'
+          +'<div class="rowbox"><b>3단계 🎈 풍선</b><br>풍선 80개짜리 10개 깨기</div>'
+          +'<div class="rowbox" style="border-color:#ffd84f;background:rgba(255,216,79,.08)"><b>🎉 3단계 전체 완료 보너스</b><br>🌹 장미 50개 회사 지급</div>');
       }
     }catch(e){}
   }
