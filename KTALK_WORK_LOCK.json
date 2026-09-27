@@ -1,5 +1,5 @@
 {
-  "version": 153,
+  "version": 154,
   "locked": true,
   "scope": "selective_with_full_snapshot_guard",
   "lock_slot": 1,
@@ -28,7 +28,7 @@
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "2026-09-27 owner code 5555: SOLO countdown clean reinstall completed and re-locked. Only the 1-person countdown path changed; all other protected components remain locked.",
+  "note": "2026-09-27 owner code 5555: SOLO countdown disabled completely. 1-person broadcast opens immediately. Other protected components remain unchanged and locked.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
