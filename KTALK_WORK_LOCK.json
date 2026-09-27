@@ -1,5 +1,5 @@
 {
-  "version": 165,
+  "version": 166,
   "locked": true,
   "scope": "full_snapshot_guard",
   "lock_slot": 9,
@@ -37,7 +37,8 @@
     "room_access_levels_1_20_solo9_21_40_13secret_41_subscriber_mutual_follow",
     "secret_room_mutual_follow_current_session_invite_only",
     "host_like_reward_5000_steps_max5_roses_25000",
-    "followed_guest_large_photo_30likes_10min_max5roses"
+    "followed_guest_large_photo_30likes_10min_max5roses",
+    "complete_usage_benefits_guide_current_rules_20260928"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -70,11 +71,12 @@
     "room_access_levels_1_20_solo9_21_40_13secret_41_subscriber_mutual_follow",
     "secret_room_mutual_follow_current_session_invite_only",
     "host_like_reward_5000_steps_max5_roses_25000",
-    "followed_guest_large_photo_30likes_10min_max5roses"
+    "followed_guest_large_photo_30likes_10min_max5roses",
+    "complete_usage_benefits_guide_current_rules_20260928"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "현재 저장본 기준: 팔로우된 게스트의 큰 프로필 사진을 두드려 좋아요 30개 달성 시 장미 1송이. 첫 보상 후 10분마다 재보상 가능, 최대 5회/총 5송이. 5회 이후 좋아요는 가능하나 추가 장미 보상 없음.",
+  "note": "현재 저장본 기준: 사용방법·혜택 안내에 레벨/장미 기준, 레벨별 방 이용, 비밀방 상호팔로우+현재방송 초청, 구독자방 Lv41+상호팔로우, 호스트 좋아요 5000단계 최대5송이, 팔로우 게스트 30좋아요/10분/최대5송이를 모두 반영.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -118,10 +120,11 @@
       "room_access_levels_1_20_solo9_21_40_13secret_41_subscriber_mutual_follow",
       "secret_room_mutual_follow_current_session_invite_only",
       "host_like_reward_5000_steps_max5_roses_25000",
-      "followed_guest_large_photo_30likes_10min_max5roses"
+      "followed_guest_large_photo_30likes_10min_max5roses",
+      "complete_usage_benefits_guide_current_rules_20260928"
     ]
   },
   "last_unlock": "2026-09-27-solo-countdown-only-code-5555",
-  "last_lock": "2026-09-28-followed-guest-like-30-10min-max5",
+  "last_lock": "2026-09-28-complete-usage-benefits-guide",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
