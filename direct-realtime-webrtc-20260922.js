@@ -17,6 +17,7 @@
   var guestPrewarmTimer=null;
   var pendingHostGuestOffers={},pendingHostGuestIce={},pendingGuestPhotos20260926={};
   var requestOn=false,lastRemoteHost='',lastHostRole='',lastWatchAt=0;
+  var lastRosterSnapshotAt20260927=0,lastRosterRequestAt20260927=0;
   var sharedApprovalPollBusy=false,leaveAnnouncedHost='',guestAliveLastSent=0,hostGuestAliveAt={},remoteHostMissingSince=0;
   var signalSeen={},viewerOfferInFlight='',lastHostReadyAt=0,lastGuestRequestAt=0,guestApprovedAt=0;
   var guestMediaAckTimer=null,guestMediaAckSession='',guestMediaRecoveryCount=0,guestMediaReadyAt=0;
@@ -799,6 +800,14 @@
         if(typeof window.ktForceApprovedGuestGridNow20260924==='function')window.ktForceApprovedGuestGridNow20260924();
       }catch(_e){}
       try{window.dispatchEvent(new CustomEvent('kt-three-person-sync-now',{detail:{host_id:hid,at:Date.now(),snapshot:true}}));}catch(_e){}
+      try{
+        if(!ktRemoteStreamStillLive20260923()){
+          lastWatchAt=0;
+          ensureViewerWatch(true);
+        }else{
+          attachRemoteStreamNow();
+        }
+      }catch(_e){}
     }catch(e){}
   }
 
@@ -2740,10 +2749,20 @@
         lastHostReadyAt=tickNow;
         send('host_ready',{host_id:DEVICE,run_id:hostRunId,run_started_at:hostRunStartedAt,at:tickNow});
       }
+      /* Keep every phone on the exact same approved-guest roster even if a
+         realtime packet was missed during room/guest DOM transitions. */
+      if(tickNow-lastRosterSnapshotAt20260927>700){
+        lastRosterSnapshotAt20260927=tickNow;
+        broadcastGuestRosterSnapshot20260927();
+      }
     }else{
       if(lastRemoteHost!==hid){lastRemoteHost=hid;viewerWatchToken=sid('watch');viewerConnected=false;}
       ensureViewerWatch(false);
       var tickNow=Date.now();
+      if(tickNow-lastRosterRequestAt20260927>900){
+        lastRosterRequestAt20260927=tickNow;
+        send('guest_roster_request',{host_id:hid,viewer_id:viewerId(),at:tickNow});
+      }
       if(requestOn&&tickNow-lastGuestRequestAt>1500){
         lastGuestRequestAt=tickNow;
         send('guest_request',{host_id:hid,viewer_id:viewerId(),name:profileName(),at:tickNow});
