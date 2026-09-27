@@ -20,7 +20,67 @@
 .toast{position:fixed;left:50%;bottom:78px;transform:translateX(-50%);display:none;padding:9px 13px;border-radius:999px;background:#17111ddd;border:1px solid #ff55d1;font-size:11px;font-weight:900;z-index:99}
 @media(max-width:390px){.logo{font-size:21px}.main{min-height:365px}.lower{height:214px}.feed{height:136px}.grid{height:160px}.guest .av{font-size:28px}.hello{font-size:16px}}
 
-</style></head><body>
+</style><style id="kt-dj-fullscreen-fit-20260927">
+html,body{width:100%;height:100%;min-height:0!important;overflow:hidden!important;overscroll-behavior:none}
+body{position:fixed;inset:0}
+.app{
+  width:100%!important;max-width:480px!important;
+  height:100dvh!important;min-height:0!important;
+  margin:0 auto!important;
+  padding:4px 5px calc(4px + env(safe-area-inset-bottom))!important;
+  display:grid!important;
+  grid-template-rows:7% 7% 48% 31% 7%!important;
+  gap:3px!important;
+  overflow:hidden!important
+}
+.top,.banners,.main,.lower,.nav{min-height:0!important;height:auto!important;overflow:hidden!important}
+.top{gap:4px!important}
+.on{padding:5px 7px!important;font-size:9px!important}
+.logo{font-size:clamp(17px,5.5vw,23px)!important;line-height:1!important}
+.count{padding:5px 7px!important;font-size:8px!important}
+.banners{gap:4px!important}
+.banners button{min-height:0!important;height:100%!important;padding:3px!important;border-radius:11px!important;font-size:8.5px!important}
+.main{grid-template-columns:58% 42%!important;gap:4px!important}
+.dj{border-radius:12px!important}
+.djtitle{left:8px!important;top:7px!important;font-size:clamp(17px,5vw,23px)!important}
+.live{right:6px!important;top:6px!important;padding:3px 5px!important;font-size:8px!important}
+.hello{left:9px!important;top:17%!important;font-size:clamp(12px,3.8vw,17px)!important;line-height:1.35!important}
+.notes{right:7px!important;top:18%!important;font-size:25px!important}
+.wave{left:7px!important;right:7px!important;bottom:23px!important;height:20px!important;gap:2px!important}
+.cap{left:5px!important;right:5px!important;bottom:5px!important;font-size:7px!important}
+.guests{gap:3px!important}
+.guest{border-radius:9px!important}
+.guest .n{left:3px!important;top:3px!important;width:19px!important;height:19px!important;font-size:11px!important}
+.guest .av{font-size:23px!important}
+.guest .plus{width:22px!important;height:22px!important;font-size:15px!important}
+.guest b,.guest small{font-size:7px!important;margin-top:2px!important}
+.lower{grid-template-columns:54% 46%!important;gap:4px!important}
+.chat,.gifts{height:100%!important;padding:4px!important;border-radius:10px!important;overflow:hidden!important}
+.tabs{gap:6px!important;font-size:7px!important;padding-bottom:3px!important}
+.feed{height:calc(100% - 49px)!important;margin:3px 0!important;overflow:hidden!important}
+.msg{font-size:6.7px!important;line-height:1.25!important;margin:3px 0!important}
+.msg.ai{padding:4px!important}
+.input{height:28px!important;gap:2px!important}
+.input input{padding:4px!important;font-size:7px!important}
+.input button{padding:0 5px!important;font-size:7px!important}
+.ghead{height:12%!important;font-size:7px!important;padding-bottom:2px!important}
+.coins{font-size:6px!important}
+.gtabs{height:10%!important;margin:2px 0!important;gap:4px!important;font-size:6px!important}
+.gtabs .on{padding:2px 5px!important}
+.grid{height:78%!important;gap:2px!important;overflow:hidden!important}
+.gift{border-radius:6px!important;padding:2px 1px!important}
+.gift i{font-size:clamp(18px,5vw,26px)!important}
+.gift b{font-size:5.7px!important;margin-top:2px!important}
+.nav{grid-template-columns:repeat(7,1fr)!important;gap:1px!important}
+.nav button{font-size:6.5px!important;padding:0!important;min-width:0!important}
+.nav i{width:28px!important;height:28px!important;margin:0 auto 1px!important;font-size:14px!important}
+@media(max-height:620px){
+  .app{grid-template-rows:6.5% 6.5% 49% 31% 7%!important}
+  .logo{font-size:17px!important}.nav i{width:24px!important;height:24px!important;font-size:12px!important}
+  .guest .av{font-size:19px!important}.gift i{font-size:17px!important}
+}
+</style>
+</head><body>
 <div class="app">
 <div class="top"><div class="on">● ON AIR</div><div class="logo">♛ K-Talk LIVE ✨</div><div class="count">👤 접속 1,286명</div></div>
 <div class="banners"><button onclick="toast('출석체크 완료')">☑ ★ 출석체크 눌러주세요 ★</button><button onclick="song()">🎵 신청곡 : AI DJ에게 말씀해 주세요 🎙️</button></div>
