@@ -67,7 +67,21 @@
     return n;
   }
 
+  function ownerFixedProfile20260928(){
+    try{
+      if(typeof window.ktGetSelectedSubAccount==='function'){
+        var k=String(window.ktGetSelectedSubAccount()||'');
+        if(k==='taekwon1'||k==='haine2')return true;
+      }
+    }catch(e){}
+    try{
+      if(typeof window.ktIsOwnerAdmin==='function'&&window.ktIsOwnerAdmin())return true;
+    }catch(e){}
+    return false;
+  }
+
   function roseCount(){
+    if(ownerFixedProfile20260928())return 500000;
     var el=document.getElementById('hudEarnRoses')||
            document.getElementById('ktSubscriberEarnRoses')||
            document.getElementById('ktGuestEarnRoses');
