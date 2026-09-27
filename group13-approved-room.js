@@ -300,6 +300,29 @@
       });
     });
 
+    /* oldStartBroadcast can redraw #screen about 1~2 seconds later.
+       During the 5-second countdown, keep the approved 13-room shell pinned
+       so the background never falls back to a black/old room screen. */
+    var keep13Observer=null;
+    var keep13Busy=false;
+    function keepApproved13Visible(){
+      if(!window.__ktGroup13CountdownInProgress||keep13Busy)return;
+      try{
+        if(document.querySelector('#screen .ktg13-room[data-kt-approved13="1"]'))return;
+        keep13Busy=true;
+        renderApprovedGroup13(true);
+      }catch(e){}
+      finally{keep13Busy=false;}
+    }
+    try{
+      keep13Observer=new MutationObserver(function(){setTimeout(keepApproved13Visible,0);});
+      var keepRoot=document.getElementById('screen');
+      if(keepRoot)keep13Observer.observe(keepRoot,{childList:true,subtree:false});
+    }catch(e){}
+    [80,180,350,700,1200,1800,2600,3500,4400].forEach(function(ms){
+      setTimeout(keepApproved13Visible,ms);
+    });
+
     var old=document.getElementById('ktLiveCountdown');
     if(old)old.remove();
 
@@ -337,6 +360,8 @@
     });
 
     try{if(wrap&&wrap.parentNode)wrap.parentNode.removeChild(wrap);}catch(e){}
+    try{if(keep13Observer)keep13Observer.disconnect();}catch(e){}
+    keepApproved13Visible();
 
     /* 방은 이미 카운트 전에 열려 있으므로 다시 그리지 않는다.
        숫자 1이 끝나면 가드만 풀어 같은 방 화면을 그대로 유지한다. */
