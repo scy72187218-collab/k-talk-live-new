@@ -32,7 +32,7 @@
     }catch(e){}
   }
 
-  async function showCountdown(roomKind){
+  async function showCountdown(){
     removeOverlay();
     var overlay=document.createElement('div');
     overlay.id='ktFourRoom13StyleCountdown';
@@ -42,20 +42,6 @@
     var num=document.createElement('div');
     num.style.cssText='width:116px;height:116px;border-radius:50%;display:grid;place-items:center;background:rgba(10,10,14,.72);border:4px solid rgba(255,255,255,.92);color:#fff;font:900 64px/1 system-ui,-apple-system,sans-serif;box-shadow:0 0 28px rgba(255,44,130,.7);text-shadow:0 0 12px rgba(255,255,255,.7)';
     overlay.appendChild(num);
-
-    if(roomKind==='solo'){
-      /* 휴대폰이 순간적으로 버벅여도 숫자를 건너뛰지 않도록
-         시간 계산식 대신 5,4,3,2,1을 순서대로 각각 1초씩 확실히 표시한다. */
-      for(var sn=5;sn>=1;sn--){
-        num.textContent=String(sn);
-        num.style.transform='scale(1)';
-        await new Promise(function(resolve){
-          setTimeout(function(){try{num.style.transform='scale(.92)';}catch(e){}},650);
-          setTimeout(resolve,1000);
-        });
-      }
-      return overlay;
-    }
 
     for(var n=5;n>=1;n--){
       num.textContent=String(n);
@@ -96,18 +82,7 @@
         });
       });
 
-      /* 1인방만: 방은 이미 열린 상태로 두되, 카운트다운 5초 동안
-         ON AIR 시간은 00:00:00에 고정한다. 1이 끝난 순간부터 00:00:00 시작. */
-      if(roomKind==='solo'&&typeof window.ktSetLiveClockStart==='function'){
-        window.ktSetLiveClockStart(Date.now()+5000);
-      }
-
-      overlay=await showCountdown(roomKind);
-
-      if(roomKind==='solo'&&typeof window.ktSetLiveClockStart==='function'){
-        window.ktSetLiveClockStart(Date.now());
-      }
-
+      overlay=await showCountdown();
       if(overlay){overlay.remove();overlay=null;}
       return result;
     }catch(e){
