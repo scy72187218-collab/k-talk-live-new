@@ -311,7 +311,22 @@
     }catch(e){}
 
     if('IntersectionObserver'in window){
-      var ob=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting&&e.intersectionRatio>.6){e.target.play().catch(function(){});}else{e.target.pause();}});},{threshold:[.6]});
+      var firstFeedVideo=vs[0]||null;
+      var ob=new IntersectionObserver(function(es){es.forEach(function(e){
+        /* The first visible K-Talk video must never be auto-paused by small
+           viewport/overlay ratio changes. Only later feed cards may auto-pause. */
+        if(e.target===firstFeedVideo){
+          if(e.isIntersecting){
+            try{var p=e.target.play();if(p&&p.catch)p.catch(function(){});}catch(_e){}
+          }
+          return;
+        }
+        if(e.isIntersecting&&e.intersectionRatio>.6){
+          try{var p2=e.target.play();if(p2&&p2.catch)p2.catch(function(){});}catch(_e){}
+        }else{
+          try{e.target.pause();}catch(_e){}
+        }
+      });},{threshold:[.15,.6]});
       vs.forEach(function(v){ob.observe(v);});
     }
   }
