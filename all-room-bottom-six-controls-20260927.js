@@ -1,11 +1,12 @@
-/* K-Talk: all five live rooms - compact six controls near bottom.
-   Adds only: 일일 랭킹 / 미션 / 시청자 / 되돌리기 / 보물상자 / 매치.
-   Existing room buttons, camera, gifts, chat and transport are untouched. */
+/* K-Talk: remove the old bottom floating controls.
+   Keep the existing first row: 일일 랭킹 / 미션 / 시청자.
+   Add ONLY a second row directly underneath: 되돌리기 / 보물상자 / 매치.
+   Applies to 1-person, 9-person, 13-person, subscriber and secret rooms. */
 (function(){
-  if(window.__ktAllRoomBottomSix20260927)return;
-  window.__ktAllRoomBottomSix20260927=true;
+  if(window.__ktAllRoomSecondStatsRow20260927)return;
+  window.__ktAllRoomSecondStatsRow20260927=true;
 
-  function currentRoom(){
+  function room(){
     return document.querySelector(
       '#screen .ktsolo-room,'+
       '#screen .ktg13-room,'+
@@ -14,41 +15,9 @@
     );
   }
 
-  function ranking(){
-    try{
-      if(typeof window.ktGroup13Ranking==='function'){window.ktGroup13Ranking();return;}
-      if(typeof window.openDailyRanking==='function'){window.openDailyRanking();return;}
-      if(typeof window.showSheet==='function'){
-        window.showSheet('🔥 일일 랭킹','<div class="rowbox"><b>일일 랭킹</b><br>오늘의 방송 랭킹을 확인합니다.</div>');
-      }
-    }catch(e){}
-  }
-
-  function mission(){
-    try{
-      if(typeof window.ktGroup9Mission==='function'){window.ktGroup9Mission();return;}
-      if(typeof window.openMission==='function'){window.openMission();return;}
-      if(typeof window.showSheet==='function'){
-        window.showSheet('🎯 미션',''
-          +'<div class="rowbox"><b>1단계 🌹 장미 미션</b><br>장미 1개짜리 30개 깨기</div>'
-          +'<div class="rowbox"><b>2단계 🏎️ 스포츠카 미션</b><br>스포츠카 50개짜리 10개 깨기</div>'
-          +'<div class="rowbox"><b>3단계 🎁 보물상자</b><br>보물상자 10개 깨기</div>');
-      }
-    }catch(e){}
-  }
-
-  function viewers(){
-    try{
-      if(typeof window.openViewerList==='function'){window.openViewerList();return;}
-      var room=currentRoom(),txt='';
-      if(room){
-        var el=room.querySelector('.ktg13-viewers,.kt-room-viewers-copy,[class*="viewers"]');
-        if(el)txt=String(el.textContent||'').trim();
-      }
-      if(typeof window.showSheet==='function'){
-        window.showSheet('👥 시청자','<div class="rowbox"><b>현재 시청자</b><br>'+(txt||'현재 시청자 목록을 확인합니다.')+'</div>');
-      }
-    }catch(e){}
+  function firstRow(r){
+    if(!r)return null;
+    return r.querySelector('.kt-room-stats-copy,.ktg13-stats');
   }
 
   function flip(){
@@ -74,7 +43,7 @@
     }catch(e){}
   }
 
-  function makeButton(icon,label,fn){
+  function mk(icon,label,fn){
     var b=document.createElement('button');
     b.type='button';
     b.innerHTML='<b>'+icon+'</b><span>'+label+'</span>';
@@ -85,46 +54,70 @@
     return b;
   }
 
-  function ensureStyle(){
-    if(document.getElementById('ktAllRoomBottomSixStyle20260927'))return;
+  function style(){
+    var old=document.getElementById('ktAllRoomBottomSixStyle20260927');
+    if(old)old.remove();
+    if(document.getElementById('ktAllRoomSecondStatsRowStyle20260927'))return;
+
     var s=document.createElement('style');
-    s.id='ktAllRoomBottomSixStyle20260927';
+    s.id='ktAllRoomSecondStatsRowStyle20260927';
     s.textContent=''
-      +'#ktAllRoomBottomSix20260927{position:fixed!important;left:4px!important;right:4px!important;bottom:calc(128px + env(safe-area-inset-bottom))!important;z-index:180!important;height:30px!important;display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:2px!important;padding:2px!important;border:1px solid rgba(255,255,255,.12)!important;border-radius:9px!important;background:rgba(5,5,8,.74)!important;backdrop-filter:blur(4px)!important;box-sizing:border-box!important;pointer-events:auto!important}'
-      +'#ktAllRoomBottomSix20260927 button{min-width:0!important;height:24px!important;margin:0!important;padding:0 1px!important;border:1px solid rgba(255,255,255,.16)!important;border-radius:7px!important;background:#111116e8!important;color:#fff!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:2px!important;font:900 8px/1 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;white-space:nowrap!important;overflow:hidden!important;touch-action:manipulation!important}'
-      +'#ktAllRoomBottomSix20260927 button b{font-size:9px!important;line-height:1!important}'
-      +'#ktAllRoomBottomSix20260927 button span{font-size:8px!important;line-height:1!important;overflow:hidden!important;text-overflow:clip!important}'
-      +'@media(max-width:390px){#ktAllRoomBottomSix20260927{left:3px!important;right:3px!important;bottom:calc(126px + env(safe-area-inset-bottom))!important;gap:1px!important}#ktAllRoomBottomSix20260927 button{font-size:7px!important}#ktAllRoomBottomSix20260927 button span{font-size:7px!important}}';
+      +'#ktAllRoomBottomSix20260927{display:none!important}'
+      +'#screen .kt-room-second-stats-row-20260927{box-sizing:border-box!important;flex:0 0 40px!important;min-height:40px!important;width:100%!important;max-width:100%!important;margin:0!important;padding:0!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:3px!important;background:#000!important;position:relative!important;z-index:26!important;visibility:visible!important;opacity:1!important;overflow:visible!important;pointer-events:auto!important}'
+      +'#screen .kt-room-second-stats-row-20260927 button{box-sizing:border-box!important;min-width:0!important;height:40px!important;border:0!important;border-radius:10px!important;background:#111114!important;color:#fff!important;font:950 12px/1 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:4px!important;white-space:nowrap!important;overflow:hidden!important;padding:0 2px!important;touch-action:manipulation!important}'
+      +'#screen .kt-room-second-stats-row-20260927 button b{font-size:15px!important;line-height:1!important}'
+      +'#screen .kt-room-second-stats-row-20260927 button span{font-size:11px!important;line-height:1!important}'
+      +'@media(max-width:390px){#screen .kt-room-second-stats-row-20260927{flex-basis:36px!important;min-height:36px!important;gap:2px!important}#screen .kt-room-second-stats-row-20260927 button{height:36px!important;font-size:10px!important;padding:0 1px!important}#screen .kt-room-second-stats-row-20260927 button b{font-size:13px!important}#screen .kt-room-second-stats-row-20260927 button span{font-size:9px!important}}';
     document.head.appendChild(s);
   }
 
-  function ensure(){
-    ensureStyle();
-    var room=currentRoom();
-    var row=document.getElementById('ktAllRoomBottomSix20260927');
-    if(!room){
-      if(row)row.remove();
-      return;
-    }
-    if(row)return;
-
-    row=document.createElement('div');
-    row.id='ktAllRoomBottomSix20260927';
-    row.appendChild(makeButton('🔥','일일 랭킹',ranking));
-    row.appendChild(makeButton('🎯','미션',mission));
-    row.appendChild(makeButton('👥','시청자',viewers));
-    row.appendChild(makeButton('↻','되돌리기',flip));
-    row.appendChild(makeButton('🎁','보물상자',treasure));
-    row.appendChild(makeButton('⚔','매치',match));
-    document.body.appendChild(row);
+  function removeOldBottom(){
+    try{
+      var old=document.getElementById('ktAllRoomBottomSix20260927');
+      if(old)old.remove();
+    }catch(e){}
   }
 
-  [0,80,220,500,900,1500].forEach(function(ms){setTimeout(ensure,ms);});
+  function ensure(){
+    style();
+    removeOldBottom();
+
+    var r=room();
+    var existing=document.querySelector('#screen .kt-room-second-stats-row-20260927');
+
+    if(!r){
+      if(existing)existing.remove();
+      return;
+    }
+
+    var top=firstRow(r);
+    if(!top)return;
+
+    if(existing&&existing.parentElement!==r){
+      existing.remove();
+      existing=null;
+    }
+
+    if(!existing){
+      existing=document.createElement('div');
+      existing.className='kt-room-second-stats-row-20260927';
+      existing.appendChild(mk('↻','되돌리기',flip));
+      existing.appendChild(mk('🎁','보물상자',treasure));
+      existing.appendChild(mk('⚔','매치',match));
+      top.insertAdjacentElement('afterend',existing);
+    }else if(existing.previousElementSibling!==top){
+      top.insertAdjacentElement('afterend',existing);
+    }
+  }
+
+  ensure();
+  [80,220,500,900,1500,2400].forEach(function(ms){setTimeout(ensure,ms);});
   setInterval(ensure,800);
+
   try{
     new MutationObserver(function(){
-      clearTimeout(window.__ktAllRoomBottomSixTimer20260927);
-      window.__ktAllRoomBottomSixTimer20260927=setTimeout(ensure,25);
+      clearTimeout(window.__ktAllRoomSecondStatsRowTimer20260927);
+      window.__ktAllRoomSecondStatsRowTimer20260927=setTimeout(ensure,30);
     }).observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 })();
