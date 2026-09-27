@@ -17,7 +17,7 @@
       var m=Number(s.liveRoomMax||s.prepRoomMax||0);
       var title=String(((document.getElementById('liveTitle')||{}).value)||'');
       if(t==='group13'||m===13||n.indexOf('13명')>-1)return '';
-      if(t==='solo'||m===1||n.indexOf('1인')>-1||title.indexOf('1인 방송')>-1)return 'solo'; /* 1인방도 잘 되는 13명방 방식 사용 */
+      if(t==='solo'||m===1||n.indexOf('1인')>-1||title.indexOf('1인 방송')>-1)return ''; /* 1인방은 카운트다운 없이 즉시 시작 */
       if(t==='group9'||m===9||n.indexOf('9명')>-1||title.indexOf('9명 방송')>-1)return ''; /* 9명방은 09:00 원래 시작 흐름 사용 */
       if(t==='subscriber'||n.indexOf('구독자')>-1||title.indexOf('구독자 방송')>-1)return 'subscriber';
       if(t==='password'||t==='secret'||n.indexOf('비밀')>-1||title.indexOf('비밀방')>-1)return 'secret';
