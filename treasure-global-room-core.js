@@ -148,7 +148,7 @@
   }
   function paintOwnRoom(ev){
     var root=roomRoot();
-    if(!root||!ev){
+    if(!root||!ev||ms(ev.unlock_at)<=now()){
       var old=document.getElementById('ktGlobalTreasureHostBadge');if(old)old.remove();
       restoreLed();return;
     }
@@ -181,7 +181,7 @@
   function paintViewerBadge(){
     var ev=eventById(viewerEventId),root=document.querySelector('.kt-remote-live');
     var old=document.getElementById('ktGlobalTreasureViewBadge');
-    if(!ev||!root){if(old)old.remove();return;}
+    if(!ev||!root||ms(ev.unlock_at)<=now()){if(old)old.remove();return;}
     var b=old;
     if(!b){b=document.createElement('button');b.type='button';b.id='ktGlobalTreasureViewBadge';b.className='kt-global-treasure-viewbadge';root.appendChild(b);}
     if(b.parentElement!==root)root.appendChild(b);
@@ -198,6 +198,7 @@
     var inOwnRoom=!!roomRoot();
     var available=latestEvents.filter(function(ev){
       if(!ev)return false;
+      if(ms(ev.unlock_at)<=now())return false;
       if(inOwnRoom&&String(ev.host_id)===hid)return false;
       if(isViewing(ev))return false;
       return true;
