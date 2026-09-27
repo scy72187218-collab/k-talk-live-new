@@ -1,5 +1,5 @@
 {
-  "version": 159,
+  "version": 160,
   "locked": true,
   "scope": "full_snapshot_guard",
   "lock_slot": 9,
@@ -31,7 +31,8 @@
     "rose_30won_payout_rules",
     "raffle_and_charge_benefits",
     "host_premium_gift_clip_recorder",
-    "host_only_instant_video_return"
+    "host_only_instant_video_return",
+    "all_rooms_stats_second_row_flip_treasure_match_20260928"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -58,11 +59,12 @@
     "rose_30won_payout_rules",
     "raffle_and_charge_benefits",
     "host_premium_gift_clip_recorder",
-    "host_only_instant_video_return"
+    "host_only_instant_video_return",
+    "all_rooms_stats_second_row_flip_treasure_match_20260928"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "2026-09-28 snapshot protected with PIN verification. Runtime buttons/switches remain usable; protection applies to approved code/state only.",
+  "note": "2026-09-28: 1인/9명/13명/구독자/비밀방의 일일 랭킹·미션·시청자 수 바로 아래 되돌리기/보물상자/매치 가로줄까지 PIN 2222 잠금에 포함. 런타임 버튼 작동은 유지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -100,10 +102,11 @@
       "rose_30won_payout_rules",
       "raffle_and_charge_benefits",
       "host_premium_gift_clip_recorder",
-      "host_only_instant_video_return"
+      "host_only_instant_video_return",
+      "all_rooms_stats_second_row_flip_treasure_match_20260928"
     ]
   },
   "last_unlock": "2026-09-27-solo-countdown-only-code-5555",
-  "last_lock": "2026-09-28-rewards-payouts-and-current-state-pin",
+  "last_lock": "2026-09-28-all-room-stats-second-row-pin-2222",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
