@@ -108,7 +108,18 @@
         });
       });
 
+      /* 1인방만: 방은 이미 열린 상태로 두되, 카운트다운 5초 동안
+         ON AIR 시간은 00:00:00에 고정한다. 1이 끝난 순간부터 00:00:00 시작. */
+      if(roomKind==='solo'&&typeof window.ktSetLiveClockStart==='function'){
+        window.ktSetLiveClockStart(Date.now()+5000);
+      }
+
       overlay=await showCountdown(roomKind);
+
+      if(roomKind==='solo'&&typeof window.ktSetLiveClockStart==='function'){
+        window.ktSetLiveClockStart(Date.now());
+      }
+
       if(overlay){overlay.remove();overlay=null;}
       return result;
     }catch(e){
