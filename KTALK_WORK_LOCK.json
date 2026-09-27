@@ -1,5 +1,5 @@
 {
-  "version": 148,
+  "version": 149,
   "locked": true,
   "scope": "selective",
   "lock_slot": 1,
@@ -11,20 +11,22 @@
     "public_video_first_page_opening",
     "group13_open_room_then_countdown",
     "subscriber_room_current_state",
-    "public_video_rose_message_share"
+    "public_video_rose_message_share",
+    "secret_room_rank_mission_viewers_flip_treasure_match"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
     "public_video_first_page_opening",
     "group13_open_room_then_countdown",
     "subscriber_room_current_state",
-    "public_video_rose_message_share"
+    "public_video_rose_message_share",
+    "secret_room_rank_mission_viewers_flip_treasure_match"
   ],
   "current_editable_components": [
     "all_except_locked_components"
   ],
   "temporarily_unlocked_components": [],
-  "note": "Lock 1: 9-person room bottom eight controls. Lock 2: current first public-video page opening and current 13-person room open-first countdown. Lock 3: current subscriber-room state and current public-video rose/message/share controls. Runtime controls remain usable.",
+  "note": "Lock 4 protects only the secret-room daily ranking, mission, viewer count, flip/return, treasure box, and match controls. Runtime controls remain usable.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -36,6 +38,9 @@
     "3": [
       "subscriber_room_current_state",
       "public_video_rose_message_share"
+    ],
+    "4": [
+      "secret_room_rank_mission_viewers_flip_treasure_match"
     ]
   }
 }
