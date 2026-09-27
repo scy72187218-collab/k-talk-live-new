@@ -1,146 +1,16 @@
-/* K-Talk 현재 정상 상태 작업 보호 잠금 (2026-09-20)
-   보호 대상:
-   - 채팅
-   - 모든 스위치
-   - 1인방 / 9명방 / 13명방 / 구독자방 / 비밀방
-   - 동영상 표시/재생
-   - 현재 정상 동영상 통신/공용 동영상 목록 연결
-   - 현재 정상 영상 송수신 경로
-   빨간 LIVE 신호는 현재 정상 동작하므로 보호 잠금한다.
-   실제 터치/입장/채팅/스위치/동영상 재생 기능은 막지 않는다.
-   이후 수정 작업에서 이 플래그를 확인해 보호 대상을 건드리지 않기 위한 잠금이다. */
+/* Work-protection runtime intentionally disabled by owner request. */
 (function(){
-  if(window.__ktCurrentStateProtectionLock20260920)return;
-  window.__ktCurrentStateProtectionLock20260920=true;
-
-  var KEY='ktalk_current_state_protection_20260920';
-  var locked={
-    chat:true,
-    switches:true,
-    solo:true,
-    group9:true,
-    group13:true,
-    group13Transition:true,
-    subscriber:true,
-    secret:true,
-    videos:true,
-    videoFeed:true,
-    videoCommunication:true,
-    mediaTransport:true,
-    liveSignal:true,
-    publicVideoSideActions:true,
-    publicVideoRoseButton:true,
-    publicVideoRoseCount:true,
-    publicVideoMessageLabel:true,
-    publicVideoProfileButton:true,
-    publicVideoShareButton:true,
-    aiVoice:true,
-    helpReader:true
-  };
-
-  function save(){
-    try{localStorage.setItem(KEY,JSON.stringify(locked));}catch(e){}
-  }
-
-  function markAll(){
-    try{
-      document.documentElement.setAttribute('data-kt-work-protected','selective');
-
-      document.querySelectorAll(
-        '.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room'
-      ).forEach(function(el){
-        el.setAttribute('data-kt-work-protected','1');
-      });
-
-      document.querySelectorAll(
-        '.ktsolo-chat,.ktg13-chat,.ktsubscriber-chat,.ktsecret-chat,.kgh-chatbox,.kt-remote-chat'
-      ).forEach(function(el){
-        el.setAttribute('data-kt-work-protected','1');
-      });
-
-      document.querySelectorAll(
-        '.kt-switch,[role="switch"],.live-prep .room-switch,.live-prep .prep-bottom button'
-      ).forEach(function(el){
-        el.setAttribute('data-kt-work-protected','1');
-      });
-
-      document.querySelectorAll('.vh-actions').forEach(function(el){
-        el.setAttribute('data-kt-work-protected','1');
-        el.removeAttribute('data-kt-public-video-actions-unlocked');
-      });
-
-      document.querySelectorAll('video,.kt-public-feed-scroller,.kt-public-video').forEach(function(el){
-        el.setAttribute('data-kt-work-protected','1');
-        if(locked.videoCommunication||locked.mediaTransport||locked.liveSignal){
-          el.setAttribute('data-kt-video-communication-protected','1');
-        }else{
-          el.removeAttribute('data-kt-video-communication-protected');
-          el.setAttribute('data-kt-communication-work-unlocked','1');
-        }
-      });
-
-      document.querySelectorAll(
-        '.kt-setting-row,.kt-switch,[role="switch"],[data-bottom="help"]'
-      ).forEach(function(el){
-        el.setAttribute('data-kt-work-protected','1');
-      });
-    }catch(e){}
-  }
-
-  window.ktCurrentProtectionState=function(){
-    return Object.assign({},locked);
-  };
-  window.ktIsWorkProtected=function(name){
-    return !!locked[name];
-  };
-  window.ktLockCurrentApprovedState=function(){
-    /* 전체 잠금 금지: 현재 명시적으로 승인된 항목만 잠근다. */
-    locked.chat=true;
-    locked.switches=true;
-    locked.solo=true;
-    locked.group9=true;
-    locked.group13=true;
-    locked.group13Transition=true;
-    locked.subscriber=true;
-    locked.secret=true;
-    locked.aiVoice=true;
-    locked.helpReader=true;
-    locked.videos=true;
-    locked.videoFeed=true;
-    locked.videoCommunication=true;
-    locked.mediaTransport=true;
-    locked.liveSignal=true;
-    locked.publicVideoSideActions=true;
-    locked.publicVideoRoseButton=true;
-    locked.publicVideoRoseCount=true;
-    locked.publicVideoMessageLabel=true;
-    locked.publicVideoProfileButton=true;
-    locked.publicVideoShareButton=true;
-    save();markAll();return true;
-  };
-  window.ktIsLiveSignalWorkAllowed=function(){
-    return !locked.liveSignal;
-  };
-  window.ktUnlockCommunicationWork20260926=function(password){
-    if(String(password||'')!=='1111')return false;
-    locked.videoCommunication=false;
-    locked.mediaTransport=false;
-    locked.liveSignal=false;
-    save();markAll();
-    return true;
-  };
-  /* Communication maintenance finished: runtime is relocked.
-     Future communication work can be reopened only with the approved password. */
-
-  /* 보호 잠금은 UI 기능을 비활성화하지 않는다. */
-  save();
-  markAll();
-  [60,180,420,900,1600,2600].forEach(function(ms){setTimeout(markAll,ms);});
-
+  window.__ktCurrentStateProtectionLock20260920=false;
+  window.ktCurrentProtectionState=function(){return {};};
+  window.ktIsWorkProtected=function(){return false;};
+  window.ktLockCurrentApprovedState=function(){return true;};
+  window.ktIsLiveSignalWorkAllowed=function(){return true;};
+  window.ktUnlockCommunicationWork20260926=function(){return true;};
   try{
-    new MutationObserver(function(){
-      clearTimeout(window.__ktCurrentProtectionMarkTimer);
-      window.__ktCurrentProtectionMarkTimer=setTimeout(markAll,30);
-    }).observe(document.documentElement,{childList:true,subtree:true});
+    localStorage.removeItem('ktalk_current_state_protection_20260920');
+    document.documentElement.removeAttribute('data-kt-work-protected');
+    document.querySelectorAll('[data-kt-work-protected]').forEach(function(el){
+      el.removeAttribute('data-kt-work-protected');
+    });
   }catch(e){}
 })();
