@@ -229,6 +229,16 @@
     return t?JSON.parse(t):null;
   }
 
+  window.ktIsGuestFollowedForReward20260928=async function(targetId){
+    targetId=val(targetId);
+    if(!targetId)return false;
+    try{
+      var out=await rpc('ktalk_profile_follow_stats',{p_target_id:targetId});
+      var row=Array.isArray(out)?out[0]:out;
+      return !!(row&&row.is_following);
+    }catch(e){return false;}
+  };
+
   async function remoteProfile(id){
     if(!id)return null;
     try{
