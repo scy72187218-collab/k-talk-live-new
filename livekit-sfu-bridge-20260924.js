@@ -586,7 +586,7 @@
       var at=stream.getAudioTracks&&stream.getAudioTracks()[0];
       if(at&&at.readyState==='live'&&publishedAudioId!==at.id){
         var la=new LK.LocalAudioTrack(at);
-        await vp.publishTrack(la,{source:LK.Track.Source.Microphone});
+        await vp.publishTrack(la,{source:LK.Track.Source.Microphone,audioPreset:(LK.AudioPresets&&LK.AudioPresets.musicHighQualityStereo)?LK.AudioPresets.musicHighQualityStereo:undefined});
         publishedAudioId=at.id;
       }
     }catch(e){}
