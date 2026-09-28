@@ -763,11 +763,11 @@
      download/parse delay from the approval path. */
   setTimeout(function(){try{var q=ensureSdk();if(q&&q.catch)q.catch(function(){});}catch(e){}},0);
 
-  setInterval(hostTick,350);
+  setInterval(hostTick,180);
   setInterval(function(){
     ensureApprovedRosterSlots20260924();
     reattachRemoteTracks();
-  },300);
+  },150);
   setTimeout(hostTick,30);
   setTimeout(hostTick,180);
   setTimeout(hostTick,700);
