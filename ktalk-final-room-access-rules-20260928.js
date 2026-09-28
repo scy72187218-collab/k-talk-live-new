@@ -26,7 +26,7 @@
     var names=[];
     try{
       var s=window.state||{};
-      [s.nickname,s.nickName,s.userName,s.username,s.profileName,s.displayName,s.name,s.accountName].forEach(function(x){if(x)names.push(x);});
+      [s.nickname,s.nickName,s.userName,s.username,s.profileName,s.displayName,s.name,s.accountName,s.ktSubAccount].forEach(function(x){if(x)names.push(x);});
     }catch(e){}
     try{
       if(typeof window.ktProfileLoad==='function'){
@@ -37,6 +37,10 @@
     try{
       if(typeof window.ktGetSelectedSubAccount==='function')names.push(window.ktGetSelectedSubAccount());
     }catch(e){}
+    try{
+      var sub=localStorage.getItem('ktalk_sub_account');
+      if(sub)names.push(sub);
+    }catch(e){}
     return names.some(function(v){
       var x=clean(v);
       return x==='태권1'||x==='하이네2'||x==='taekwon1'||x==='haine2';
@@ -44,7 +48,7 @@
   }
 
   function level(){
-    if(owner())return 10000;
+    if(owner())return 1000;
     var best=0;
     try{
       if(typeof window.ktLevelGetLevel==='function')best=Math.max(best,n(window.ktLevelGetLevel()));
