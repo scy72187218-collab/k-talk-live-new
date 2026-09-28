@@ -1,5 +1,5 @@
 {
-  "version": 168,
+  "version": 169,
   "locked": true,
   "scope": "full_snapshot_guard",
   "lock_slot": 9,
@@ -40,7 +40,8 @@
     "followed_guest_large_photo_30likes_10min_max5roses",
     "complete_usage_benefits_guide_current_rules_20260928",
     "daily_fortune_ladder_6_free_once_per_day",
-    "daily_fortune_ladder_selected_number_animated_positive_fortunes"
+    "daily_fortune_ladder_selected_number_animated_positive_fortunes",
+    "daily_fortune_weekly_draw_final_rules_20260928"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -76,11 +77,12 @@
     "followed_guest_large_photo_30likes_10min_max5roses",
     "complete_usage_benefits_guide_current_rules_20260928",
     "daily_fortune_ladder_6_free_once_per_day",
-    "daily_fortune_ladder_selected_number_animated_positive_fortunes"
+    "daily_fortune_ladder_selected_number_animated_positive_fortunes",
+    "daily_fortune_weekly_draw_final_rules_20260928"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "현재 저장본 기준: 하루 1회 무료 오늘의 운세 사다리. 사용자가 1~6 중 번호 선택, 선택한 줄에서 실제 사다리를 좌우로 따라 내려가 결과 칸 도착. 결과 장미 1~5송이 또는 꽝. 운세는 긍정적인 문구 위주.",
+  "note": "최종 기준: 오늘의 운세 사다리 하루 1회 무료. 1~6 번호 선택 후 실제 사다리 경로 애니메이션. 당일 결과는 장미 1~5송이 또는 꽝. 행운 숫자 6개는 재미용이며 번호를 맞힐 필요 없음. 참여자는 주간 추첨 자동 응모. 주 1회 참여자 중 1등 이벤트장미100, 2등50, 3등30. 이벤트 장미는 현금 환전 불가.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -127,10 +129,11 @@
       "followed_guest_large_photo_30likes_10min_max5roses",
       "complete_usage_benefits_guide_current_rules_20260928",
       "daily_fortune_ladder_6_free_once_per_day",
-      "daily_fortune_ladder_selected_number_animated_positive_fortunes"
+      "daily_fortune_ladder_selected_number_animated_positive_fortunes",
+      "daily_fortune_weekly_draw_final_rules_20260928"
     ]
   },
   "last_unlock": "2026-09-27-solo-countdown-only-code-5555",
-  "last_lock": "2026-09-28-daily-fortune-animated-selected-number",
+  "last_lock": "2026-09-28-daily-fortune-weekly-draw-final",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
