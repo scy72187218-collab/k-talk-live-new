@@ -434,7 +434,7 @@
     var b=document.createElement('div');
     b.id='ktVideoLivePeek';b.className='kt-video-live-peek';b.setAttribute('data-kt-signature',signature);
     b.innerHTML='<button type="button" class="ktvl-person" aria-label="방송자 프로필"><span class="ktvl-avatar">'+photo+'</span><span class="ktvl-copy"><b>'+esc(hostName)+'</b><small>'+esc(r.title||r.room_name||'방송 중')+'</small></span></button>'
-      +'<button type="button" class="ktvl-live">● LIVE</button>';
+      +'<button type="button" class="ktvl-live" data-host="'+esc(hostId)+'">● LIVE</button>';
     var person=b.querySelector('.ktvl-person');
     var live=b.querySelector('.ktvl-live');
     if(person)person.onclick=function(e){e.stopPropagation();window.ktOpenLiveHostActions(hostId,hostName,hostPhoto);};
@@ -460,6 +460,28 @@
       if(renderAgain){renderAgain=false;scheduleRender(250);}
     }
   }
+
+  /* 2026-09-28: 빨간 LIVE는 모바일에서 click 소실을 기다리지 않고 pointerdown 즉시 입장. */
+  var __ktLivePeekTapAt=0;
+  function enterRedLiveNow(e){
+    var btn=e.target&&e.target.closest?e.target.closest('.ktvl-live'):null;
+    if(!btn)return;
+    var now=Date.now();
+    if(now-__ktLivePeekTapAt<500){
+      try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
+      return;
+    }
+    var hid=String(btn.getAttribute('data-host')||'').trim();
+    if(!hid){
+      try{hid=String(window.__ktLastLiveRoom&&window.__ktLastLiveRoom.host_id||'').trim();}catch(_e){}
+    }
+    if(!hid||typeof window.ktEnterRemoteLive!=='function')return;
+    __ktLivePeekTapAt=now;
+    try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
+    try{window.ktEnterRemoteLive(hid);}catch(_e){}
+  }
+  document.addEventListener('pointerdown',enterRedLiveNow,true);
+  if(!window.PointerEvent)document.addEventListener('touchstart',enterRedLiveNow,true);
 
   window.ktRefreshVideoLivePeek=render;
   var mo=new MutationObserver(function(){scheduleRender(400);});
