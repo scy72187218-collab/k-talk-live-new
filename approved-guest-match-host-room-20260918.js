@@ -103,7 +103,16 @@
       var meta=root&&root.querySelector('.kt-remote-meta');
       txt=String(meta&&meta.textContent||root&&root.textContent||'');
     }catch(e){}
-    var is13=txt.indexOf('13명')>-1;
+    /* 13명방은 게스트 기기에서 메타 문구가 늦게 붙어도 9칸으로 떨어지지 않게
+       현재 선택된 방송 메타까지 같이 확인한다. */
+    try{
+      var r=window.__ktLastLiveRoom||{};
+      txt+=' '+String(r.room_name||'')+' '+String(r.title||'')+' '+String(r.room_type||'');
+    }catch(e){}
+    try{
+      txt+=' '+String(window.__ktRemoteRoomName||'')+' '+String(window.__ktRemoteRoomType||'');
+    }catch(e){}
+    var is13=/13\s*명|group13/i.test(txt);
     return {is13:is13,total:is13?13:9,label:is13?'13명 방송':'9명 방송'};
   }
 
