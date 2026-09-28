@@ -1216,6 +1216,7 @@ window.ktRenderMatchArena=function(mode){
       +'<div class="kt-match-reward"><b>100 달성 시</b><strong>+1P</strong><span>매치 포인트 +1</span></div>'
     +'</div>'
     +'<div class="kt-match-rewards"><div>🏆 라운드 승리 <b>+10P</b></div><div>👑 매치 승리 <b>+30P</b></div><div>🌟 전승 <b>+20P</b></div><div>✕ 패배 <b>차감 없음</b></div></div>'
+    +'<div class="rowbox" style="margin-top:8px"><b>🏆 주간 매치 보상 · 1위 100개</b><br>2위 70 · 3위 50 · 4위 30 · 5위 20 · 6위 10 · 7위 5 · 8위 3개<br><small>매주 일요일 마감 · 이벤트 보상은 현금 환전 불가</small></div>'
     +'<div class="kt-match-bottom">'
       +'<div><b>내 매치 포인트</b><strong>7P</strong><span>브론즈 II · 72/100</span></div>'
       +'<button id="ktMatchRequestBtn" onclick="ktRequestMatch()">⚔ 매치 신청</button>'
@@ -2018,7 +2019,7 @@ window.openSellerCenter=function(){
 window.openRewardCenter=function(){
   showSheet('🏆 미션 · 랭킹 · 이벤트',
     '<div class="rowbox"><b>미션 보상</b><br>방송 참여와 시청자 미션을 달성하면 받을 수 있는 보상이 표시됩니다.</div>'
-    +'<div class="rowbox"><b>랭킹 보상</b><br>매치전과 랭킹 결과에 따라 정해진 보상을 받을 수 있습니다.</div>'
+    +'<div class="rowbox"><b>주간 매치 랭킹 보상</b><br>매주 일요일 주간 매치 순위를 마감합니다.<br>1위 100개 · 2위 70개 · 3위 50개 · 4위 30개 · 5위 20개 · 6위 10개 · 7위 5개 · 8위 3개<br><strong>이 보상은 이벤트 보상으로 현금 환전 불가입니다.</strong></div>'
     +'<div class="rowbox"><b>이벤트 보상</b><br>진행 중인 이벤트가 있으면 조건과 지급 보상을 이곳에서 확인합니다.</div>'
     +'<div class="rowbox"><b>지급 내역</b><br>받은 장미 · 코인 · 이벤트 보상 내역을 확인합니다.</div>');
 };
