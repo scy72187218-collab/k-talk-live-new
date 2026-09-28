@@ -74,8 +74,13 @@
     try{window.ktEnterRemoteLive(id);}catch(_e){}
   }
 
+  /* 기기/브라우저마다 pointer 이벤트가 다르게 빠지는 경우가 있어
+     pointerdown + touchstart + touchend + click을 모두 캡처한다.
+     go() 내부 650ms 중복방지로 한 번만 입장한다. */
   document.addEventListener('pointerdown',go,true);
-  if(!window.PointerEvent)document.addEventListener('touchstart',go,true);
+  document.addEventListener('touchstart',go,true);
+  document.addEventListener('touchend',go,true);
+  document.addEventListener('click',go,true);
 
   var st=document.createElement('style');
   st.id='ktLiveEntryTouchRescueStyle20260928';
