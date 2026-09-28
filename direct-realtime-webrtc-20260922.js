@@ -2725,9 +2725,9 @@
       }
     }
   }
-  setInterval(roleTick,120);
+  setInterval(roleTick,80);
   setTimeout(roleTick,20);
-  setInterval(syncSharedApprovalSignals,150);
+  setInterval(syncSharedApprovalSignals,100);
   setTimeout(syncSharedApprovalSignals,50);
 
   window.addEventListener('kt-remote-host-selected',function(e){
@@ -2797,7 +2797,7 @@
   });
   setInterval(function(){
     if(isHostRole()&&joined)broadcastApprovedRoster20260928();
-  },500);
+  },250);
 
   window.addEventListener('pagehide',function(){
     if(guestApprovedHost||lastRemoteHost)announceGuestLeave(guestApprovedHost||lastRemoteHost);
