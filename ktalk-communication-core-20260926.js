@@ -1381,20 +1381,27 @@
           var seen=Number(hostGuestAliveAt[vid]||0);
           if(!seen)return;
           if(useLegacyApprovedGuestUplink())return;
-          if(now-seen>45000){
+          if(now-seen>7000){
             var entry=hostGuestPeers[vid]||null;
             var pc=entry&&entry.pc||null;
             var cs='',is='';
             try{cs=String(pc&&pc.connectionState||'');is=String(pc&&pc.iceConnectionState||'');}catch(e){}
-            if(cs==='connected'||is==='connected'||is==='completed'){
-              hostGuestAliveAt[vid]=now;
-              return;
-            }
-            if(now-seen<90000){
+
+            /* 휴대폰을 닫거나 앱을 종료하면 WebRTC가 잠깐 connected로 남는 경우가 있어
+               connectionState만 믿고 슬롯을 계속 살려두지 않는다.
+               heartbeat가 7초 끊기면 한 번 재확인, 12초면 모든 화면에서 제거한다. */
+            if(now-seen<12000){
               var ap=approvedGuests[vid];
-              if(ap)send('guest_approved',{host_id:DEVICE,viewer_id:vid,name:ap.name||'게스트',guest_no:Number(guestJoinNumber20260926[vid]||0),at:now,reconnect:true});
+              if(ap)send('guest_approved',{
+                host_id:DEVICE,viewer_id:vid,name:ap.name||'게스트',
+                guest_no:Number(guestJoinNumber20260926[vid]||0),at:now,reconnect:true
+              });
               return;
             }
+
+            var nm=(approvedGuests[vid]&&approvedGuests[vid].name)||'게스트';
+            try{sharedApprovalPost(DEVICE,'guest_left',vid,nm);}catch(e){}
+            try{send('guest_left',{host_id:DEVICE,viewer_id:vid,name:nm,at:now,heartbeat_timeout:true});}catch(e){}
             delete hostGuestAliveAt[vid];
             clearApprovedGuestFromHost(vid);
           }
