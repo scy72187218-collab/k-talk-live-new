@@ -327,6 +327,20 @@
         }
       });
     }catch(e){}
+    try{
+      ids.sort(function(a,b){
+        var na=0,nb=0;
+        try{
+          var ma=window.__ktApprovedGuestMeta20260928||{};
+          na=Number(ma[a]&&ma[a].guest_no||0);
+          nb=Number(ma[b]&&ma[b].guest_no||0);
+        }catch(e){}
+        if(na&&nb&&na!==nb)return na-nb;
+        if(na&&!nb)return -1;
+        if(!na&&nb)return 1;
+        return String(a).localeCompare(String(b));
+      });
+    }catch(e){}
     return {ids:ids,names:names};
   }
   function setGuestTargetLabel20260924(v,name){
@@ -361,9 +375,55 @@
       }catch(e){}
     }
 
-    roster.ids.forEach(function(id){
-      if(id===self)return;
-      var v=exactGuestVideo(id)||createGuestVideoTarget(id);
+    var others=roster.ids.filter(function(id){return id!==self;});
+    others.forEach(function(id,idx){
+      var v=exactGuestVideo(id);
+      if(!v){
+        var cells=[];
+        try{
+          document.querySelectorAll(
+            '.kt-guest-hostlike-room .kgh-cell:not(.host):not(.self),'+
+            '.kt-approved-guest-grid .kt-approved-guest-cell:not(.host):not(.self),'+
+            '.kt-guest-room-grid .kt-guest-room-cell:not(.host):not(.self),'+
+            '.ktg13-guests .ktg13-guest,'+
+            '.ktg9-guests .ktg9-guest'
+          ).forEach(function(cell){cells.push(cell);});
+        }catch(e){}
+        var cell=cells[idx]||null;
+        if(cell){
+          try{
+            var oldId=String(cell.dataset&&(
+              cell.dataset.ktPeerViewer||cell.dataset.ktLivekitGuest||
+              cell.dataset.ktDirectGuest||cell.dataset.ktGuestViewerId||cell.dataset.viewerId
+            )||'');
+            if(oldId&&oldId!==id){
+              var ov=cell.querySelector&&cell.querySelector('video');
+              if(ov){try{ov.pause();ov.srcObject=null;}catch(e){}}
+              delete cell.dataset.ktPeerViewer;
+              delete cell.dataset.ktLivekitGuest;
+              delete cell.dataset.ktDirectGuest;
+              delete cell.dataset.ktGuestViewerId;
+              delete cell.dataset.viewerId;
+              try{cell.innerHTML='<span>게스트</span>';}catch(e){}
+            }
+            cell.dataset.ktLivekitGuest=id;
+            cell.dataset.ktPeerViewer=id;
+            var cv=cell.querySelector&&cell.querySelector('video');
+            if(!cv){
+              cell.textContent='';
+              cv=document.createElement('video');
+              cv.autoplay=true;cv.playsInline=true;cv.muted=true;cv.defaultMuted=true;
+              cv.setAttribute('autoplay','');cv.setAttribute('playsinline','');cv.setAttribute('muted','');
+              cell.appendChild(cv);
+              var label=document.createElement(cell.classList.contains('kgh-cell')?'span':'label');
+              if(cell.classList.contains('kgh-cell'))label.className='kgh-label';
+              label.textContent=roster.names[id]||'게스트';
+              cell.appendChild(label);
+            }
+            v=cv;
+          }catch(e){}
+        }
+      }
       if(v)setGuestTargetLabel20260924(v,roster.names[id]||'게스트');
     });
     return roster;
@@ -694,6 +754,14 @@
     [15,45,100,200].forEach(function(ms){setTimeout(reattachRemoteTracks,ms);});
   });
   window.addEventListener('kt-any-guest-approved',function(){
+    try{
+      [0,20,60,120,240,480].forEach(function(ms){
+        setTimeout(function(){
+          try{ensureApprovedRosterSlots20260924();reattachRemoteTracks();}catch(e){}
+        },ms);
+      });
+    }catch(e){}
+
     ensureApprovedRosterSlots20260924();
     reattachRemoteTracks();
     [20,60,120,240,420].forEach(function(ms){setTimeout(function(){
