@@ -743,11 +743,13 @@
         var x=approvedGuests[id]||{};
         items.push({viewer_id:String(id),name:String(x.name||'게스트')});
       });
-      send('guest_roster',{
+      var payload={
         host_id:DEVICE,
         items:items,
         at:Date.now()
-      });
+      };
+      send('guest_roster',payload);
+      try{restBroadcastToHost20260926(DEVICE,'guest_roster',payload);}catch(e){}
     }catch(e){}
   }
 
@@ -2693,6 +2695,10 @@
         lastHostReadyAt=tickNow;
         send('host_ready',{host_id:DEVICE,run_id:hostRunId,run_started_at:hostRunStartedAt,at:tickNow});
       }
+      if(!window.__ktLastRosterBroadcast20260928||tickNow-window.__ktLastRosterBroadcast20260928>500){
+        window.__ktLastRosterBroadcast20260928=tickNow;
+        broadcastApprovedRoster20260928();
+      }
     }else{
       if(lastRemoteHost!==hid){lastRemoteHost=hid;viewerWatchToken=sid('watch');viewerConnected=false;}
       ensureViewerWatch(false);
@@ -2782,7 +2788,7 @@
   });
   setInterval(function(){
     if(isHostRole()&&joined)broadcastApprovedRoster20260928();
-  },800);
+  },500);
 
   window.addEventListener('pagehide',function(){
     if(guestApprovedHost||lastRemoteHost)announceGuestLeave(guestApprovedHost||lastRemoteHost);
