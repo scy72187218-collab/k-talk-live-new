@@ -8,16 +8,16 @@ save('taekwon1');save('haine2');
 
 var oldCard=window.ktSubProfileCard;
 if(typeof oldCard==='function'&&!oldCard.__crownAll){
- var card=function(k){var r=oldCard.apply(this,arguments)||{};if(IMG[k]){r.name=NM[k];r.avatar='<span class="kt-account-avatar '+k+' has-photo kt-owner-crown-avatar"><img src="'+IMG[k]+'" alt="'+NM[k]+' 왕관 프로필"><span class="kt-owner-card-lv">Lv.50,000</span></span>';}return r};card.__crownAll=true;window.ktSubProfileCard=card;
+ var card=function(k){var r=oldCard.apply(this,arguments)||{};if(IMG[k]){r.name=NM[k];r.avatar='<span class="kt-account-avatar '+k+' has-photo kt-owner-crown-avatar" style="background-image:url(&quot;'+IMG[k]+'&quot;)"></span>';}return r};card.__crownAll=true;window.ktSubProfileCard=card;
 }
 var oldLoad=window.ktProfileLoad;
 if(typeof oldLoad==='function'&&!oldLoad.__crownAll){
  var load=function(){var p=oldLoad.apply(this,arguments)||{},k=key();if(IMG[k]){p.name=NM[k];p.photo=IMG[k];p.level=50000;}return p};load.__crownAll=true;window.ktProfileLoad=load;
 }
-function style(){if(document.getElementById('ktOwnerCrownAllStyle'))return;var s=document.createElement('style');s.id='ktOwnerCrownAllStyle';s.textContent='.kt-owner-crown-avatar{position:relative!important;overflow:visible!important;background:#050507!important}.kt-owner-crown-avatar img,.kt-my-profile-photo img{width:100%!important;height:100%!important;object-fit:cover!important;object-position:center!important;border-radius:50%!important}.kt-owner-card-lv{position:absolute!important;left:50%!important;top:calc(100% + 4px)!important;transform:translateX(-50%)!important;color:#ffe071!important;font-size:10px!important;font-weight:900!important;white-space:nowrap!important}.kt-owner-room-level{display:block!important;color:#ffe071!important;font-size:10px!important;font-weight:900!important;line-height:1.1!important;margin-top:2px!important}';document.head.appendChild(s)}
+function style(){if(document.getElementById('ktOwnerCrownAllStyle'))return;var s=document.createElement('style');s.id='ktOwnerCrownAllStyle';s.textContent='.kt-owner-crown-avatar{position:relative!important;overflow:hidden!important;background-color:#050507!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;border-radius:50%!important}.kt-owner-crown-avatar>img{display:none!important}.kt-my-profile-photo img{width:100%!important;height:100%!important;object-fit:cover!important;object-position:center!important;border-radius:50%!important}.kt-owner-card-lv{display:none!important}.kt-owner-room-level{display:block!important;color:#ffe071!important;font-size:10px!important;font-weight:900!important;line-height:1.1!important;margin-top:2px!important}';document.head.appendChild(s)}
 function decorate(){
  style();var k=key();if(!IMG[k])return;var n=NM[k];
- document.querySelectorAll('.kt-account-avatar.'+k+' img').forEach(function(i){i.src=IMG[k]});
+ document.querySelectorAll('.kt-account-avatar.'+k).forEach(function(i){i.style.backgroundImage='url("'+IMG[k]+'")';var bad=i.querySelector('img');if(bad)bad.style.display='none'});
  var pi=document.querySelector('.kt-my-profile-photo img');if(pi)pi.src=IMG[k];
  var mi=document.querySelector('.kt-profile-maininfo');if(mi&&!mi.querySelector('.kt-owner-room-level')){var q=document.createElement('small');q.className='kt-owner-room-level';q.textContent='Lv.50,000';mi.appendChild(q)}
  var sels=['.host-meta b','.kt-host-name','.kt-guest-name','.ktsecret-guest-name','.kgh-name','.ktg13-name','.ktg9-name','.ktsubscriber-name','[data-kt-nickname]','[data-nickname]'];
