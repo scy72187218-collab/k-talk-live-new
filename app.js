@@ -323,6 +323,20 @@ window.openCreator=async function(){
   }else if(window.ensureCreatorPreviewCamera){
     try{await ensureCreatorPreviewCamera(state.cameraFacing||'user');}catch(e){}
   }
+  /* 촬영화면 기본 자연 보정 테스트: 기존 세부 보정값은 유지하고, 값이 없을 때만 기본값 적용 */
+  try{
+    if(!state.beautyMode)state.beautyMode='natural';
+    if(state.beautySkin==null)state.beautySkin=82;
+    if(state.beautyBright==null)state.beautyBright=70;
+    if(state.beautySharp==null)state.beautySharp=48;
+    if(state.beautyTone==null)state.beautyTone=56;
+    if(state.beautyFace==null)state.beautyFace=50;
+    if(state.beautyEyes==null)state.beautyEyes=50;
+    if(state.beautyNose==null)state.beautyNose=50;
+    if(state.beautyMouth==null)state.beautyMouth=50;
+    creator.classList.add('beauty-on','beauty-natural');
+    if(window.applyBeautyPreview)window.applyBeautyPreview();
+  }catch(e){}
 };
 window.closeCreator=function(){
   if(ktCreatorRecording)stopCreatorRecording();
