@@ -2202,7 +2202,14 @@
   window.ktEnsureApprovedGuestCamera20260928=function(){
     var hid=String(guestApprovedHost||remoteHostId()||activeHostId||'').trim();
     if(!hid||!guestApproved)return Promise.resolve(false);
-    return Promise.resolve(startGuestCamera(hid)).then(function(){return true;}).catch(function(){return false;});
+    return Promise.resolve(startGuestCamera(hid)).then(function(){
+      try{
+        /* 사진을 눌러 카메라가 열린 직후 기존 pre-approval 연결이 남아 있으면
+           실제 video track이 실린 fresh offer로 즉시 교체해 호스트/다른 게스트에도 전송한다. */
+        forceFreshApprovedGuestOffer20260926(hid);
+      }catch(e){}
+      return true;
+    }).catch(function(){return false;});
   };
 
   function waitIceCompleteDirect(pc,ms){
