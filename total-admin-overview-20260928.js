@@ -113,7 +113,7 @@
     if(typeof window.showSheet!=='function')return false;
     window.showSheet('📊 총관리 · 전체 관리 현황','<div class="rowbox">데이터 불러오는 중...</div>');
     try{await load();}catch(e){}
-    var html='<div class="kt-admin-overview">'+summary()
+    var html='<div class="kt-admin-overview"><div style="margin-bottom:8px"><button type="button" onclick="try{closeSheet()}catch(e){};setTimeout(function(){try{if(window.openProfile)openProfile();}catch(e){}},30)" style="border:0;border-radius:10px;padding:7px 12px;background:#17171d;color:#fff;font-weight:900;font-size:13px">← 프로필로 뒤로</button></div>'+summary()
       +'<div class="kt-admin-tabs">'
       +'<button class="on" onclick="ktAdminOverviewTab20260928(\'members\',this)">회원</button>'
       +'<button onclick="ktAdminOverviewTab20260928(\'ranking\',this)">랭킹</button>'
