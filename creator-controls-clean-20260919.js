@@ -5,18 +5,52 @@
   if(window.__ktCreatorControlsCleanSingle20260919)return;
   window.__ktCreatorControlsCleanSingle20260919=true;
 
-  function flip(){
+  async function flip(){
     try{
-      if(typeof window.ktAllRoomsFlipCamera==='function'){window.ktAllRoomsFlipCamera();return;}
-      if(typeof window.toggleCreatorCamera==='function'){window.toggleCreatorCamera();return;}
-      if(typeof window.ensureLiveCamera==='function'){
-        var cur=(window.state&&state.cameraFacing)||'user';
-        var next=cur==='environment'?'user':'environment';
-        Promise.resolve(window.ensureLiveCamera(next)).then(function(ok){
-          if(ok!==false&&window.state)state.cameraFacing=next;
-        }).catch(function(){});
+      if(!window.state||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return;
+      var cur=state.cameraFacing||'user';
+      var next=cur==='environment'?'user':'environment';
+
+      var old=state.stream||null;
+      var audioTracks=[];
+      if(old&&old.getAudioTracks){
+        audioTracks=old.getAudioTracks().filter(function(t){return t.readyState==='live';});
       }
-    }catch(e){}
+      if(old&&old.getVideoTracks){
+        old.getVideoTracks().forEach(function(t){try{t.stop();}catch(e){}});
+      }
+
+      var vs=null;
+      try{
+        vs=await navigator.mediaDevices.getUserMedia({
+          video:{facingMode:{exact:next},width:{ideal:1920},height:{ideal:1080},frameRate:{ideal:30,max:30}},
+          audio:false
+        });
+      }catch(e){
+        vs=await navigator.mediaDevices.getUserMedia({
+          video:{facingMode:{ideal:next},width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30,max:30}},
+          audio:false
+        });
+      }
+
+      var tracks=[];
+      if(vs&&vs.getVideoTracks)tracks=tracks.concat(vs.getVideoTracks());
+      tracks=tracks.concat(audioTracks);
+      var merged=new MediaStream(tracks);
+
+      state.stream=merged;
+      state.cameraFacing=next;
+
+      var cam=document.getElementById('camera');
+      if(cam){
+        cam.srcObject=merged;
+        cam.style.setProperty('transform',next==='user'?'scaleX(-1)':'none','important');
+        try{var p=cam.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
+      }
+      return true;
+    }catch(e){
+      return false;
+    }
   }
 
   function install(){
