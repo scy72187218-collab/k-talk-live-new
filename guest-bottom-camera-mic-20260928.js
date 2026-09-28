@@ -84,7 +84,15 @@
 
   function toggle(kind){
     var ts=tracks(kind);
-    if(!ts.length)return;
+    if(!ts.length){
+      if(kind==='video'&&typeof window.ktEnsureApprovedGuestCamera20260928==='function'){
+        try{
+          var p=window.ktEnsureApprovedGuestCamera20260928();
+          if(p&&p.then)p.then(function(){setTimeout(refresh,30);setTimeout(refresh,180);});
+        }catch(e){}
+      }
+      return;
+    }
     var on=ts.some(function(t){return t.enabled!==false;});
     ts.forEach(function(t){
       try{t.enabled=!on;}catch(e){}
