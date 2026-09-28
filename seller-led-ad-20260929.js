@@ -156,7 +156,10 @@
       return false;
     }
     var a=readAd(),p=sellerProfile();
-    var html='<div class="rowbox"><b>📺 LED 판매광고</b><br>어디서 무엇을 판매 중인지 LED 간판에 알립니다. 켜진 시간에는 <strong>10분에 3번</strong> 자동으로 광고합니다.</div>'
+    var html='<div class="rowbox"><b>🛍️ 월 300,000원 판매방송 이용 안내</b><br>월 이용료 <strong>300,000원</strong>을 회사 사업자 계좌로 입금하고 판매자 등록·승인 후 사용하는 판매방송 혜택입니다.</div>'
+      +'<div class="rowbox"><b>📺 LED 판매광고</b><br>어디서 무엇을 판매 중인지 LED 간판에 알립니다. 판매자가 직접 광고 시간을 정하고 스위치를 켜면 설정한 시간 동안 <strong>10분에 3번</strong> 자동으로 광고합니다.</div>'
+      +'<div class="rowbox"><b>판매방송 혜택</b><br>상호명 · 사업자등록번호 · 전화번호 · 계좌번호 · 예금주 · 안내문구 표시<br>시청자 주문 자동 접수 · 주문목록 자동 정리 · 입금했다고 알림 · 판매자 실제 입금 확인 · 처리 완료 표시 · 주문 상세 크게 보기/캡처</div>'
+      +'<div class="rowbox"><b>사용 순서</b><br>① 회사 사업자 계좌로 월 300,000원 입금<br>② 판매자 정보 등록 및 승인<br>③ 방송 시작 후 상품 판매<br>④ 주문은 화면 오른쪽에 자동 정리<br>⑤ 구매자가 입금했다고 알리면 판매자가 실제 통장을 확인<br>⑥ LED 광고 시간·문구 설정 후 스위치 ON</div>'
       +'<div class="rowbox"><b>광고 스위치</b><label style="display:flex;align-items:center;gap:8px;margin-top:8px"><input id="ktSellerLedOn20260929" type="checkbox" '+(a.enabled?'checked':'')+' style="width:22px;height:22px"><strong>LED 광고 사용</strong></label></div>'
       +'<div class="rowbox"><b>판매 위치 · 방송 이름</b><input id="ktSellerLedWhere20260929" value="'+esc(a.where||p.shopName||'')+'" placeholder="예: K-Talk 태권1 방송에서 판매 중" style="width:100%;box-sizing:border-box;margin-top:6px;padding:9px"></div>'
       +'<div class="rowbox"><b>광고 문구</b><textarea id="ktSellerLedMessage20260929" placeholder="예: 오늘 의류 특가 판매 중 · 방송을 눌러 주문하세요" style="width:100%;min-height:70px;box-sizing:border-box;margin-top:6px;padding:9px">'+esc(a.message||'')+'</textarea></div>'
@@ -178,7 +181,7 @@
           var box=document.createElement('div');
           box.className='rowbox kt-seller-led-entry-20260929';
           box.style.marginTop='8px';
-          box.innerHTML='<b>📺 LED 판매광고 스위치</b><br>광고할 사람이 시작·종료 시간을 직접 정하고, LED 간판에 판매 방송을 10분마다 3번 자동으로 알릴 수 있습니다.<br><button class="act" style="margin-top:7px" onclick="ktOpenSellerLedAd20260929()">LED 광고 설정</button>';
+          box.innerHTML='<b>🛍️ 월 300,000원 판매방송 혜택</b><br>회사 사업자 계좌로 월 300,000원을 입금하고 승인된 판매자는 상호명·전화번호·계좌번호·안내문구를 방송에 표시하고 주문을 자동으로 받을 수 있습니다. 주문은 오른쪽에 정리되고 입금알림·실제 입금확인·처리완료까지 관리합니다.<br><br><b>📺 LED 광고 스위치</b><br>판매자가 시작·종료 시간을 직접 정하고 LED 간판에 판매방송을 <strong>10분에 3번</strong> 자동으로 알릴 수 있습니다.<br><button class="act" style="margin-top:7px" onclick="ktOpenSellerLedAd20260929()">LED 광고 설정</button>';
           body.appendChild(box);
         }catch(e){}
       },30);
