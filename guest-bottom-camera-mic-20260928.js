@@ -39,7 +39,7 @@
     if(document.getElementById('ktGuestBottomCameraMicStyle20260928'))return;
     var s=document.createElement('style');
     s.id='ktGuestBottomCameraMicStyle20260928';
-    s.textContent=''
+    s.textContent='#ktGuestBottomCamera20260928,#ktGuestBottomMic20260928{display:none!important}'
       +'.kt-remote-live.kt-guest-controls-on #ktRemoteBottom{gap:5px!important}'
       +'.kt-remote-live.kt-guest-controls-on #ktRemoteBottom input{min-width:72px!important}'
       +'.kt-guest-self-media-btn{width:44px!important;height:44px!important;flex:0 0 44px!important;border:1px solid rgba(255,255,255,.18)!important;border-radius:14px!important;background:rgba(28,28,34,.94)!important;color:#fff!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:1px!important;padding:0!important;touch-action:manipulation!important}'
@@ -110,40 +110,16 @@
 
   function ensure(){
     ensureStyle();
-    var root=approvedRoot();
+    /* 2026-09-28: 승인 게스트 화면에서는 카메라/마이크 하단 버튼을 계속 띄우지 않는다.
+       카메라는 본인 사진을 눌러 같은 자기 칸에서 켜고/끄는 방식만 사용한다.
+       토글 함수 자체는 self-photo 버튼이 계속 사용할 수 있게 유지한다. */
     var oldC=document.getElementById('ktGuestBottomCamera20260928');
     var oldM=document.getElementById('ktGuestBottomMic20260928');
-
-    if(!root){
-      if(oldC)oldC.remove();
-      if(oldM)oldM.remove();
-      document.querySelectorAll('.kt-remote-live.kt-guest-controls-on').forEach(function(x){x.classList.remove('kt-guest-controls-on');});
-      return;
-    }
-
-    var bar=root.querySelector('#ktRemoteBottom,.kt-remote-bottom');
-    if(!bar)return;
-    root.classList.add('kt-guest-controls-on');
-
-    if(!oldC){
-      oldC=make('ktGuestBottomCamera20260928','📷','카메라','video');
-      var input=bar.querySelector('input');
-      if(input)bar.insertBefore(oldC,input);
-      else bar.insertBefore(oldC,bar.firstChild);
-    }else if(oldC.parentElement!==bar){
-      bar.insertBefore(oldC,bar.firstChild);
-    }
-
-    if(!oldM){
-      oldM=make('ktGuestBottomMic20260928','🎤','마이크','audio');
-      if(oldC.nextSibling)bar.insertBefore(oldM,oldC.nextSibling);
-      else bar.appendChild(oldM);
-    }else if(oldM.parentElement!==bar){
-      if(oldC.nextSibling)bar.insertBefore(oldM,oldC.nextSibling);
-      else bar.appendChild(oldM);
-    }
-
-    refresh();
+    if(oldC)oldC.remove();
+    if(oldM)oldM.remove();
+    document.querySelectorAll('.kt-remote-live.kt-guest-controls-on').forEach(function(x){
+      x.classList.remove('kt-guest-controls-on');
+    });
   }
 
   window.ktGuestToggleSelfCamera20260928=function(){toggle('video');};
