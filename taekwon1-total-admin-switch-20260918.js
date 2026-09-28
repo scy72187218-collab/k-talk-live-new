@@ -42,6 +42,7 @@
       +'<span class="kt-admin-toggle" aria-hidden="true"><i></i></span>'
       +'</button>'
       +'<div class="kt-total-admin-panel">'
+      +'<button type="button" onclick="ktTotalAdminAction(\'overview\')">📊 전체 관리 현황 <span>›</span></button>'
       +'<button type="button" onclick="ktTotalAdminAction(\'coin\')">🪙 회원 코인 지급 <span>›</span></button>'
       +'<button type="button" onclick="ktTotalAdminAction(\'suspend\')">⛔ 회원 정지 <span>›</span></button>'
       +'<button type="button" onclick="ktTotalAdminAction(\'release\')">✅ 정지 해제 <span>›</span></button>'
@@ -62,6 +63,10 @@
 
   window.ktTotalAdminAction=function(kind){
     if(!isOwner())return false;
+    if(kind==='overview'){
+      try{if(typeof window.ktOpenTotalAdminOverview20260928==='function')window.ktOpenTotalAdminOverview20260928();}catch(e){}
+      return false;
+    }
     if(kind==='profilelink'){
       try{
         var id='';
