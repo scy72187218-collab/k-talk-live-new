@@ -2758,6 +2758,7 @@ window.selectCashoutAmount=function(amount){
   amount=parseInt(amount,10)||0;
   if([10000,50000,100000,200000,300000].indexOf(amount)<0)return;
   try{localStorage.setItem('ktalk_cashout_request_amount',String(amount));localStorage.setItem('ktalk_cashout_request_at',new Date().toISOString());}catch(e){}
+  try{if(typeof window.ktRecordCashoutRequest20260928==='function')window.ktRecordCashoutRequest20260928(amount);}catch(e){}
   showSheet('💰 환전 신청 확인',
     '<div class="rowbox"><b>신청 금액</b><br><strong style="font-size:22px">'+amount.toLocaleString('ko-KR')+'원</strong></div>'
     +'<div class="rowbox"><b>환전 기준</b><br>본인이 방송해서 실제로 번 방송 수익 잔액에서만 처리됩니다.</div>'
