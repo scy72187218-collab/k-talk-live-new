@@ -169,7 +169,7 @@
     var d=window.__ktFortuneLadderData20260928;
     return ''
       +'<div class="rowbox" style="text-align:center"><b>🎯 오늘의 운세 · 장미따먹기</b><br>무료 이벤트 · 하루에 한 번 참여할 수 있습니다.</div>'
-      +'<div class="rowbox"><b>번호 하나를 골라주세요</b><br>고른 번호에서 사다리가 실제로 내려가서 마지막 결과에 도착합니다.</div>'
+      +'<div class="rowbox"><b>번호 하나를 골라주세요</b><br>고른 번호에서 사다리가 실제로 내려가서 마지막 결과에 도착합니다.</div>'+'<div class="rowbox" style="border-color:#ffd84f;background:rgba(255,216,79,.08)"><b>🎁 주간 행운 추첨</b><br>사다리타기에 참여하면 자동으로 주간 추첨 대상이 됩니다.<br><strong>일주일에 한 번 1등·2등·3등을 추첨합니다.</strong><br>1등 이벤트 장미 100개 · 2등 50개 · 3등 30개<br><small>번호를 맞히는 방식이 아니라, 그 주에 사다리타기 한 참여자 중에서 뽑습니다. 이벤트 장미는 현금 환전 불가입니다.</small></div>'
       +'<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin:8px 0">'
       +[1,2,3,4,5,6].map(function(n){return '<button type="button" '+(used?'disabled':'')+' onclick="ktPlayDailyFortuneLadder20260928('+n+',this)" style="height:42px;border:1px solid #ffffff33;border-radius:10px;background:#1a1a22;color:#fff;font-weight:950">'+n+'번</button>';}).join('')
       +'</div>'
