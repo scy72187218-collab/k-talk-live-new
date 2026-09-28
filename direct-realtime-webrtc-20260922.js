@@ -1353,8 +1353,9 @@
 
     /* REALTIME FIRST: the guest receives approval before host-side DOM work,
        legacy persistence, or any extra rendering can delay the signal. */
-    send('guest_approved',data);
-    try{restBroadcast('guest_approved',data);}catch(e){}
+    /* 승인 버튼을 누르는 순간 WebSocket + REST 두 경로로 동시에 보낸다.
+       어느 한 경로가 늦어도 게스트 화면은 바로 승인 상태로 전환된다. */
+    try{sendCriticalMedia20260926('guest_approved',data,DEVICE);}catch(e){}
 
     delete pendingRequests[vid];
     guestSlot(vid,name);
