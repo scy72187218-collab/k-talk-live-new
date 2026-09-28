@@ -282,7 +282,9 @@
       document.querySelectorAll(
         '.kt-guest-hostlike-room .kgh-cell:not(.host):not(.self),'+
         '.kt-approved-guest-grid .kt-approved-guest-cell:not(.host):not(.self),'+
-        '.kt-guest-room-grid .kt-guest-room-cell:not(.host):not(.self)'
+        '.kt-guest-room-grid .kt-guest-room-cell:not(.host):not(.self),'+
+        '.ktg13-guests .ktg13-guest,'+
+        '.ktg9-guests .ktg9-guest'
       ).forEach(function(cell){cells.push(cell);});
     }catch(e){}
     var free=cells.find(function(cell){
@@ -755,6 +757,33 @@
     }
   });
   window.addEventListener('kt-broadcast-ended',function(){approvedHostId='';watchHostId='';disconnectRoom();});
+  window.addEventListener('kt-host-room-type-changed',function(){
+    /* 13명/9명 방 전환으로 DOM이 다시 그려지면 기존 SFU 영상 target이 사라질 수 있다.
+       연결은 끊지 않고 새 칸에 즉시 다시 붙인다. */
+    [0,30,80,160,320,650].forEach(function(ms){
+      setTimeout(function(){
+        try{ensureApprovedRosterSlots20260924();reattachRemoteTracks();hostTick();}catch(e){}
+      },ms);
+    });
+  });
+  window.addEventListener('kt-three-person-sync-now',function(){
+    [0,25,70,150,300].forEach(function(ms){
+      setTimeout(function(){try{ensureApprovedRosterSlots20260924();reattachRemoteTracks();}catch(e){}},ms);
+    });
+  });
+  try{
+    var screen20260928=document.getElementById('screen');
+    if(screen20260928&&window.MutationObserver){
+      new MutationObserver(function(){
+        if(!room||room.state!=='connected')return;
+        clearTimeout(window.__ktLiveKitDomReattach20260928);
+        window.__ktLiveKitDomReattach20260928=setTimeout(function(){
+          try{ensureApprovedRosterSlots20260924();reattachRemoteTracks();}catch(e){}
+        },20);
+      }).observe(screen20260928,{childList:true,subtree:true});
+    }
+  }catch(e){}
+
   window.addEventListener('online',function(){setTimeout(hostTick,150);});
   document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(hostTick,120);});
   window.addEventListener('pagehide',function(){try{if(room)room.disconnect(false);}catch(e){}});
