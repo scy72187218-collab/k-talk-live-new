@@ -1,5 +1,5 @@
 {
-  "version": 177,
+  "version": 178,
   "locked": true,
   "scope": "full_snapshot_guard",
   "lock_slot": 9,
@@ -49,7 +49,8 @@
     "signup_immediate_broadcast_solo9_no_wait_20260928",
     "host_admin_seat_move_sound_wave_multiroom_20260928",
     "cashout_amounts_1_5_10_20_30man_broadcast_earnings_only_20260928",
-    "weekly_match_rewards_100_70_50_30_20_10_5_3_20260928"
+    "weekly_match_rewards_100_70_50_30_20_10_5_3_20260928",
+    "latest_usage_guide_ranking_match_cashout_seat_wave_20260928"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -94,11 +95,12 @@
     "signup_immediate_broadcast_solo9_no_wait_20260928",
     "host_admin_seat_move_sound_wave_multiroom_20260928",
     "cashout_amounts_1_5_10_20_30man_broadcast_earnings_only_20260928",
-    "weekly_match_rewards_100_70_50_30_20_10_5_3_20260928"
+    "weekly_match_rewards_100_70_50_30_20_10_5_3_20260928",
+    "latest_usage_guide_ranking_match_cashout_seat_wave_20260928"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "최종 주간 매치 보상: 매주 일요일 마감. 1위100, 2위70, 3위50, 4위30, 5위20, 6위10, 7위5, 8위3. 이벤트 보상이며 현금 환전 불가.",
+  "note": "사용방법·혜택 최신 정리: 일일 랭킹은 현재 순위를 숫자로 표시, 매치 옆 승/패 숫자 표시, 주간 매치는 일요일 마감 및 1위100/2위70/3위50/4위30/5위20/6위10/7위5/8위3 보상(환전불가), 가입 후 즉시 방송(1인/9명), 호스트·운영자 자리 이동, 소리 있을 때만 파장, 환전 금액 1/5/10/20/30만원 및 방송 실제 수익만 환전.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -154,10 +156,11 @@
       "signup_immediate_broadcast_solo9_no_wait_20260928",
       "host_admin_seat_move_sound_wave_multiroom_20260928",
       "cashout_amounts_1_5_10_20_30man_broadcast_earnings_only_20260928",
-      "weekly_match_rewards_100_70_50_30_20_10_5_3_20260928"
+      "weekly_match_rewards_100_70_50_30_20_10_5_3_20260928",
+      "latest_usage_guide_ranking_match_cashout_seat_wave_20260928"
     ]
   },
   "last_unlock": "2026-09-27-solo-countdown-only-code-5555",
-  "last_lock": "2026-09-28-weekly-match-rewards-100-top",
+  "last_lock": "2026-09-28-latest-usage-guide-all",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
