@@ -5,7 +5,7 @@
 
   var BASE='https://zupwbfmacwzexyvznlzq.supabase.co/rest/v1/';
   var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1cHdiZm1hY3d6ZXh5dnpubHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjEwNzYsImV4cCI6MjEwNDAzNzA3Nn0.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
-  var STALE_MS=15000;
+  var STALE_MS=60000;
   var roomMetaCache=[];
   var roomMetaAt=0;
   var stableActiveRooms=[];
@@ -51,12 +51,13 @@
   }
 
   async function activeRoomsCore(){
-    /* Supabase Realtime broadcast is the primary LIVE source.
-       It is shared by all devices, unlike warm serverless memory. */
+    /* 모든 기기에서 LIVE 표시가 같도록 Realtime 하나만 믿지 않는다.
+       Realtime + DB + beacon을 합쳐서 한 기기가 신호를 놓쳐도 같은 빨간 LIVE를 보게 한다. */
+    var realtimeRows=[];
     try{
       var rh=window.__ktRealtimeLiveHosts||null;
       if(rh){
-        var realtimeRows=Object.keys(rh).map(function(id){
+        realtimeRows=Object.keys(rh).map(function(id){
           var x=rh[id]||{},d=x.data||{};
           return {
             host_id:String(d.host_id||id||''),
@@ -67,16 +68,6 @@
             updated_at:new Date(Number(d.at||x.last||Date.now())).toISOString()
           };
         }).filter(function(x){return !!x.host_id;});
-        if(realtimeRows.length){
-          stableActiveRooms=realtimeRows;stableActiveAt=Date.now();
-          return realtimeRows;
-        }
-        /* 어떤 기기는 방송 시작 broadcast를 놓친 채 realtime 연결만 READY가 될 수 있다.
-           이 경우 빈 realtime 목록을 확정값으로 쓰지 말고 DB/beacon까지 확인해서
-           모든 기기에서 빨간 LIVE 표시가 동일하게 뜨게 한다. */
-        if(window.__ktRealtimeSignalReady){
-          // continue to DB/beacon fallback below
-        }
       }
     }catch(e){}
 
@@ -96,9 +87,23 @@
       }
     }catch(e){}
 
-    var fallback=[];
-    if(!rows.length)fallback=await beaconPromise;
-    if(!rows.length&&fallback.length)rows=fallback;
+    var fallback=await beaconPromise;
+
+    /* host_id 기준으로 3개 소스를 합친다. DB 값을 우선하고,
+       DB가 늦으면 Realtime/Beacon 값으로 즉시 보완한다. */
+    var merged={},order=[];
+    function put(list){
+      (list||[]).forEach(function(x){
+        var id=String(x&&x.host_id||'').trim();
+        if(!id)return;
+        if(!merged[id])order.push(id);
+        merged[id]=Object.assign({},merged[id]||{},x);
+      });
+    }
+    put(realtimeRows);
+    put(fallback);
+    put(rows);
+    rows=order.map(function(id){return merged[id];}).filter(Boolean);
 
     if(window.__ktHostEndLock&&window.__ktHostEndLockHostId){
       var ended=String(window.__ktHostEndLockHostId);
@@ -119,7 +124,7 @@
   async function activeRooms(){
     var now=Date.now();
     if(activeRoomsBusy)return activeRoomsBusy;
-    if(now-activeRoomsCheckedAt<1800)return stableActiveRooms.slice();
+    if(now-activeRoomsCheckedAt<500)return stableActiveRooms.slice();
     activeRoomsCheckedAt=now;
     activeRoomsBusy=activeRoomsCore();
     try{return await activeRoomsBusy;}
@@ -491,6 +496,6 @@
   if(screen)screen.addEventListener('scroll',function(){scheduleRender(350);},true);
   document.addEventListener('touchend',function(){scheduleRender(250);},true);
   document.addEventListener('pointerup',function(){scheduleRender(250);},true);
-  setInterval(function(){scheduleRender(0);},2000);
+  setInterval(function(){scheduleRender(0);},700);
   scheduleRender(600);
 })();
