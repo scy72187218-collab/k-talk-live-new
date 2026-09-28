@@ -66,19 +66,27 @@
   function headers(extra){var h={apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json'};Object.keys(extra||{}).forEach(function(k){h[k]=extra[k];});return h;}
 
   async function memJson(url,opt,timeout){
-    var ctrl=typeof AbortController!=='undefined'?new AbortController():null;
-    var timer=ctrl?setTimeout(function(){ctrl.abort();},timeout||1200):null;
-    try{
-      var o=Object.assign({cache:'no-store'},opt||{});
-      if(ctrl)o.signal=ctrl.signal;
-      var r=await fetch(url,o);
-      if(timer)clearTimeout(timer);
-      if(!r.ok)throw new Error('memory '+r.status);
-      return await r.json();
-    }catch(e){
-      if(timer)clearTimeout(timer);
-      throw e;
+    /* 짧은 서버리스 기동/네트워크 흔들림 한 번 때문에 기기 상태가 갈라지지 않게
+       같은 요청을 한 번 즉시 재시도한다. */
+    var limit=Math.max(900,Number(timeout||1200));
+    var lastErr=null;
+    for(var attempt=0;attempt<2;attempt++){
+      var ctrl=typeof AbortController!=='undefined'?new AbortController():null;
+      var timer=ctrl?setTimeout(function(){try{ctrl.abort();}catch(e){}},limit):null;
+      try{
+        var o=Object.assign({cache:'no-store'},opt||{});
+        if(ctrl)o.signal=ctrl.signal;
+        var r=await fetch(url,o);
+        if(timer)clearTimeout(timer);
+        if(!r.ok)throw new Error('memory '+r.status);
+        return await r.json();
+      }catch(e){
+        if(timer)clearTimeout(timer);
+        lastErr=e;
+        if(attempt===0)await new Promise(function(resolve){setTimeout(resolve,90);});
+      }
     }
+    throw lastErr||new Error('memory retry failed');
   }
   function qeq(sp,name){
     var v=String(sp.get(name)||'');
@@ -205,7 +213,7 @@
     if(!(await ensureConfig()))return memoryReq(path,opt);
     opt=opt||{};
     var ctrl=typeof AbortController!=='undefined'?new AbortController():null;
-    var timer=ctrl?setTimeout(function(){ctrl.abort();},650):null;
+    var timer=ctrl?setTimeout(function(){ctrl.abort();},1400):null;
     try{
       var next=Object.assign({},opt);
       next.headers=headers(next.headers);
@@ -218,7 +226,7 @@
       var t=await r.text();return t?JSON.parse(t):null;
     }catch(e){
       if(timer)clearTimeout(timer);
-      window.__ktPrimaryLiveDbDownUntil=Date.now()+120000;
+      window.__ktPrimaryLiveDbDownUntil=Date.now()+5000;
       return memoryReq(path,opt);
     }
   }
