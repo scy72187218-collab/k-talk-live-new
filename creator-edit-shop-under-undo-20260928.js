@@ -30,12 +30,27 @@
   };
 
   function openEffects(e){
-    if(e){try{e.preventDefault();e.stopPropagation();}catch(_){}}
+    if(e){try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_){}}
     try{
       var creator=document.getElementById('creator');
       if(creator)creator.classList.add('show');
       if(typeof window.openEditEffectPanel==='function'){
         window.openEditEffectPanel('face');
+        return false;
+      }
+    }catch(err){}
+    return false;
+  }
+
+  function flipCreator(e){
+    if(e){try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_){}}
+    try{
+      if(typeof window.ktAllRoomsFlipCamera==='function'){
+        window.ktAllRoomsFlipCamera();
+        return false;
+      }
+      if(typeof window.toggleCreatorCamera==='function'){
+        window.toggleCreatorCamera();
         return false;
       }
     }catch(err){}
@@ -118,6 +133,13 @@
         if(typeof window.openEditEffectPanel==='function')window.openEditEffectPanel('face');
       }catch(err){}
     }
+  },true);
+
+  document.addEventListener('pointerdown',function(e){
+    var rotate=e.target&&e.target.closest?e.target.closest('#creator .creator-rotate'):null;
+    if(rotate){flipCreator(e);return;}
+    var edit=e.target&&e.target.closest?e.target.closest('#creator .kt-edit-under-rotate'):null;
+    if(edit){openEffects(e);}
   },true);
 
   ensure();
