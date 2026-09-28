@@ -1926,6 +1926,7 @@ window.openBenefitHub=function(){
       +'<button class="gold" onclick="openAttendanceBenefits()"><span>✅</span><b>출석 · 참여</b><small>출석과 참여 보상 안내</small><em>›</em></button>'
       +'<button class="violet" onclick="openSubscriberBenefits()"><span>💎</span><b>구독자 혜택</b><small>충전 · 모든 방 입장 · 방 만들기</small><em>›</em></button>'
       +'<button class="blue" onclick="openChargeBenefits()"><span>🪙</span><b>장미 · 코인 충전</b><small>충전 방법과 추가 혜택</small><em>›</em></button>'
+      +'<button class="gold" onclick="openCashout()"><span>💰</span><b>현금 환전</b><small>1만 · 5만 · 10만 · 20만 · 30만원</small><em>›</em></button>'
       +'<button class="cyan" onclick="openRoomBenefits()"><span>🚪</span><b>방 이용 혜택</b><small>방 입장 · 방송방 만들기</small><em>›</em></button>'
       +'<button class="pink" onclick="openGifts()"><span>🌹</span><b>장미 · 선물</b><small>장미와 선물 보내기</small><em>›</em></button>'
       +'<button class="purple" onclick="openGiveBenefits()"><span>💝</span><b>혜택 주기</b><small>팬에게 보상 보내기</small><em>›</em></button>'
@@ -2129,6 +2130,7 @@ window.openSiteGuide=function(){
       +'<button onclick="openReceiveBenefits()"><span>🎉</span><b>혜택 받기</b><small>받을 수 있는 보상을 확인합니다.</small></button>'
       +'<button onclick="openGiveBenefits()"><span>💝</span><b>혜택 주기</b><small>팬에게 보상과 선물을 보냅니다.</small></button>'
       +'<button onclick="openCharge()"><span>🪙</span><b>충전</b><small>장미·코인을 충전합니다.</small></button>'
+      +'<button onclick="openCashout()"><span>💰</span><b>환전</b><small>방송 수익만 환전합니다.</small></button>'
     +'</div>'
 
     +'<div class="kt-guide-title">🏷️ 판매 · 팬클럽 · 정산</div>'
@@ -2740,6 +2742,27 @@ window.selectCoinCharge=function(amount,base,bonus){
   ktSpeak('장미 '+base.toLocaleString('ko-KR')+'개, 보너스 '+bonus.toLocaleString('ko-KR')+'개, 총 '+total.toLocaleString('ko-KR')+'개입니다.');
   alert(Number(amount).toLocaleString('ko-KR')+'원 · 기본 장미 '+base.toLocaleString('ko-KR')+'개 · 보너스 '+bonus.toLocaleString('ko-KR')+'개 · 총 '+total.toLocaleString('ko-KR')+'개');
 };
+window.openCashout=function(){
+  var amounts=[10000,50000,100000,200000,300000];
+  var html='<div class="rowbox"><b>💰 현금 환전</b><br>본인이 방송해서 실제로 번 방송 수익만 환전할 수 있습니다.</div>'
+    +'<div class="rowbox" style="border-color:#ffcc66;background:rgba(255,204,102,.08)"><b>환전 불가</b><br>가입·이벤트·미션·출석·추첨·보너스·할인 구매 등 회사에서 받은 코인은 환전할 수 없습니다.</div>'
+    +'<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px">'
+    +amounts.map(function(a){return '<button class="act" style="margin:0;min-height:52px" onclick="selectCashoutAmount('+a+')">'+a.toLocaleString('ko-KR')+'원</button>';}).join('')
+    +'</div>'
+    +'<div class="rowbox" style="margin-top:10px"><b>처리 방법</b><br>환전 금액을 선택하면 신청 내용이 표시되고, 관리자 확인 후 정산 처리합니다.</div>';
+  showSheet('💰 현금 환전',html);
+};
+
+window.selectCashoutAmount=function(amount){
+  amount=parseInt(amount,10)||0;
+  if([10000,50000,100000,200000,300000].indexOf(amount)<0)return;
+  try{localStorage.setItem('ktalk_cashout_request_amount',String(amount));localStorage.setItem('ktalk_cashout_request_at',new Date().toISOString());}catch(e){}
+  showSheet('💰 환전 신청 확인',
+    '<div class="rowbox"><b>신청 금액</b><br><strong style="font-size:22px">'+amount.toLocaleString('ko-KR')+'원</strong></div>'
+    +'<div class="rowbox"><b>환전 기준</b><br>본인이 방송해서 실제로 번 방송 수익 잔액에서만 처리됩니다.</div>'
+    +'<div class="rowbox"><b>상태</b><br>관리자 확인 대기</div>');
+};
+
 window.openCharge=function(){
   var packs=[
     {base:300,art:0},
