@@ -1,5 +1,5 @@
 {
-  "version": 176,
+  "version": 177,
   "locked": true,
   "scope": "full_snapshot_guard",
   "lock_slot": 9,
@@ -48,7 +48,8 @@
     "weekly_7day_broadcast_reward_50coins_noncashable_20260928",
     "signup_immediate_broadcast_solo9_no_wait_20260928",
     "host_admin_seat_move_sound_wave_multiroom_20260928",
-    "cashout_amounts_1_5_10_20_30man_broadcast_earnings_only_20260928"
+    "cashout_amounts_1_5_10_20_30man_broadcast_earnings_only_20260928",
+    "weekly_match_rewards_100_70_50_30_20_10_5_3_20260928"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -92,11 +93,12 @@
     "weekly_7day_broadcast_reward_50coins_noncashable_20260928",
     "signup_immediate_broadcast_solo9_no_wait_20260928",
     "host_admin_seat_move_sound_wave_multiroom_20260928",
-    "cashout_amounts_1_5_10_20_30man_broadcast_earnings_only_20260928"
+    "cashout_amounts_1_5_10_20_30man_broadcast_earnings_only_20260928",
+    "weekly_match_rewards_100_70_50_30_20_10_5_3_20260928"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "최종 기준: 코인 충전 옆에 현금 환전 버튼 표시. 환전 금액 10,000/50,000/100,000/200,000/300,000원 선택. 본인이 방송해서 실제로 번 방송 수익만 환전 가능. 가입/이벤트/미션/출석/추첨/보너스/할인 구매 등 회사 지급 코인은 환전 불가. 환전 신청은 관리자 확인 후 정산.",
+  "note": "최종 주간 매치 보상: 매주 일요일 마감. 1위100, 2위70, 3위50, 4위30, 5위20, 6위10, 7위5, 8위3. 이벤트 보상이며 현금 환전 불가.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -151,10 +153,11 @@
       "weekly_7day_broadcast_reward_50coins_noncashable_20260928",
       "signup_immediate_broadcast_solo9_no_wait_20260928",
       "host_admin_seat_move_sound_wave_multiroom_20260928",
-      "cashout_amounts_1_5_10_20_30man_broadcast_earnings_only_20260928"
+      "cashout_amounts_1_5_10_20_30man_broadcast_earnings_only_20260928",
+      "weekly_match_rewards_100_70_50_30_20_10_5_3_20260928"
     ]
   },
   "last_unlock": "2026-09-27-solo-countdown-only-code-5555",
-  "last_lock": "2026-09-28-cashout-amounts-broadcast-earnings-only",
+  "last_lock": "2026-09-28-weekly-match-rewards-100-top",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
