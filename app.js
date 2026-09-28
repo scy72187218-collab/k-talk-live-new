@@ -1967,6 +1967,7 @@ window.openChargeBenefits=function(){
     '<div class="rowbox"><b>기본 충전</b><br>장미와 코인을 필요한 수량만큼 충전해서 선물과 방송 기능에 사용할 수 있습니다.</div>'
     +'<div class="rowbox"><b>구독자 추가 혜택</b><br>구독자는 충전할 때 일반회원보다 추가 혜택을 받을 수 있습니다.</div>'
     +'<div class="rowbox"><b>사용 방법</b><br>충전 수량을 고르고 결제 전 최종 지급 수량과 혜택을 확인합니다.</div>'
+    +'<div class="rowbox" style="border-color:#ffcc66;background:rgba(255,204,102,.08)"><b>⚠️ 환전 불가 코인</b><br>이벤트로 받은 코인, 출석·미션·추첨 등 무료 보상 코인, 할인받아 구입한 코인, 충전 보너스로 추가 지급된 코인은 <strong>현금 환전이 되지 않습니다.</strong> 사이트 안에서 사용하는 코인입니다.</div>'
     +'<button class="act" onclick="openCharge()">🪙 충전 화면 열기</button>');
 };
 
@@ -2106,7 +2107,7 @@ window.openSiteGuide=function(){
 
     +'<div class="kt-guide-title">💎 구독자 혜택</div>'
     +'<div class="kt-guide-list">'
-      +'<div><span>🪙</span><section><b>장미·코인 충전 혜택</b><small>구독자는 충전할 때 일반회원보다 추가 혜택을 받을 수 있습니다.</small></section><em>혜택</em></div>'
+      +'<div><span>🪙</span><section><b>장미·코인 충전 혜택</b><small>구독자는 충전할 때 일반회원보다 추가 혜택을 받을 수 있습니다. 이벤트·할인·보너스 코인은 현금 환전 불가입니다.</small></section><em>혜택</em></div>'
       +'<div><span>🚪</span><section><b>레벨별 방송방 입장</b><small>1~20은 1인·9명 / 21~40은 13명·비밀방 / 41 이상은 구독자방까지 이용합니다.</small></section><em>입장</em></div>'
       +'<div><span>🔒</span><section><b>비밀방·구독자방 조건</b><small>비밀방은 상호 팔로우+호스트 초청, 구독자방은 레벨 41 이상+상호 팔로우가 필요합니다.</small></section><em>조건</em></div>'
       +'<div><span>👑</span><section><b>팬클럽 · 전용 혜택</b><small>구독자 전용방과 팬클럽, 이벤트 혜택을 이용합니다.</small></section><em>VIP</em></div>'
@@ -2754,6 +2755,7 @@ window.openCharge=function(){
     +'<div style="margin-top:8px;color:#ffe17b;font-weight:950">장미 1개 = 30원</div>'
     +'<div style="margin-top:5px;color:#ffd86b">500개부터 500개마다 <b style="color:#fff">보너스 +10개</b></div>'
     +'<div style="margin-top:5px;color:#bbb">최대 충전 100,000원</div>'
+    +'<div style="margin-top:7px;padding:8px;border:1px solid #ffcc6677;border-radius:10px;color:#ffd86b;font-size:11px;line-height:1.45">※ 이벤트 지급 · 무료 보상 · 할인 구매 · 충전 보너스 코인은 현금 환전이 되지 않습니다.</div>'
     +'</div>'
     +'<div class="coin-charge-grid">'+packs.map(function(p){
       var amount=p.base*30;
