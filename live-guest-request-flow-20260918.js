@@ -595,9 +595,12 @@
         pc.__ktGotGuestTrack=false;
         hostGuestPeers[x.id]=pc;
 
-        pc.ontrack=(function(target,viewer){
+        pc.ontrack=(function(target,viewer,peer){
           return function(ev){
-            pc.__ktGotGuestTrack=true;
+            /* 각 게스트의 ontrack이 자기 PeerConnection을 정확히 보도록 고정.
+               var pc를 공유하면 여러 게스트 동시 연결 시 마지막 peer를 가리켜
+               호스트 화면에 일부 게스트가 늦거나 안 뜰 수 있다. */
+            peer.__ktGotGuestTrack=true;
             delete hostGuestMissingSince[viewer];
             var v=target.querySelector('video'),sm=target.querySelector('small');
             if(v){
@@ -607,17 +610,17 @@
               v.muted=true;
               v.style.setProperty('object-fit','cover','important');
               v.style.setProperty('object-position','center center','important');
-              ktApplyVideoRotation(v,pc.__ktRemoteVideoRotation||0,true);
+              ktApplyVideoRotation(v,peer.__ktRemoteVideoRotation||0,true);
               v.style.setProperty('width','100%','important');
               v.style.setProperty('height','100%','important');
               try{
-                var p=v.play();
-                if(p&&p.catch)p.catch(function(){});
+                var playPromise=v.play();
+                if(playPromise&&playPromise.catch)playPromise.catch(function(){});
               }catch(e){}
             }
             if(sm)sm.style.display='none';
           };
-        })(slot,vid);
+        })(slot,vid,pc);
 
         pc.onconnectionstatechange=(function(id,p,viewer){
           return function(){
