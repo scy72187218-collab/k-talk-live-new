@@ -8,7 +8,7 @@
       var creator=document.getElementById('creator');
       if(creator)creator.classList.add('show');
       if(typeof window.openEditEffectPanel==='function'){
-        window.openEditEffectPanel('background');
+        window.openEditEffectPanel('face');
         return false;
       }
     }catch(e){}
@@ -24,8 +24,8 @@
     var b=document.createElement('button');
     b.type='button';
     b.className='kt-creator-edit-shop-20260928';
-    b.setAttribute('aria-label','편집숍');
-    b.innerHTML='<span class="kt-editshop-icon">✨</span><span class="kt-editshop-label">편집숍</span>';
+    b.setAttribute('aria-label','편집효과');
+    b.innerHTML='<span class="kt-editshop-icon">✨</span><span class="kt-editshop-label">편집효과</span>';
     b.onclick=function(e){
       if(e){e.preventDefault();e.stopPropagation();}
       return openBackgrounds();
@@ -38,10 +38,10 @@
     var st=document.createElement('style');
     st.id='ktCreatorEditShopStyle20260928';
     st.textContent=
-      '#creator .kt-creator-edit-shop-20260928{position:absolute!important;right:16px!important;top:480px!important;z-index:30!important;width:112px!important;height:112px!important;border-radius:50%!important;border:1px solid rgba(255,255,255,.32)!important;background:rgba(70,70,76,.55)!important;color:#fff!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:2px!important;box-shadow:0 8px 22px rgba(0,0,0,.22)!important;backdrop-filter:blur(8px)!important;pointer-events:auto!important;touch-action:manipulation!important}'+
+      '#creator .kt-creator-edit-shop-20260928{position:fixed!important;right:auto!important;top:auto!important;left:0!important;z-index:30!important;width:112px!important;height:112px!important;border-radius:50%!important;border:1px solid rgba(255,255,255,.32)!important;background:rgba(70,70,76,.55)!important;color:#fff!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:2px!important;box-shadow:0 8px 22px rgba(0,0,0,.22)!important;backdrop-filter:blur(8px)!important;pointer-events:auto!important;touch-action:manipulation!important}'+
       '#creator .kt-creator-edit-shop-20260928 .kt-editshop-icon{font-size:28px!important;line-height:1!important}'+
       '#creator .kt-creator-edit-shop-20260928 .kt-editshop-label{font-size:17px!important;font-weight:950!important;letter-spacing:-.8px!important;text-shadow:0 1px 4px rgba(0,0,0,.6)!important}'+
-      '@media(max-height:760px){#creator .kt-creator-edit-shop-20260928{top:430px!important;width:96px!important;height:96px!important}}';
+      '@media(max-height:760px){#creator .kt-creator-edit-shop-20260928{width:96px!important;height:96px!important}}';
     document.head.appendChild(st);
   }
 
@@ -61,10 +61,15 @@
         return (b.textContent||'').replace(/\\s+/g,'').indexOf('되돌리기')>-1;
       });
       if(undo&&existing){
-        var cr=creator.getBoundingClientRect();
         var ur=undo.getBoundingClientRect();
-        existing.style.setProperty('top',Math.max(100,ur.bottom-cr.top+12)+'px','important');
-        existing.style.setProperty('right',Math.max(10,cr.right-ur.right)+'px','important');
+        var size=(window.innerHeight<=760?96:112);
+        var left=ur.left+(ur.width-size)/2;
+        var top=ur.bottom+14;
+        left=Math.max(8,Math.min(window.innerWidth-size-8,left));
+        top=Math.max(8,Math.min(window.innerHeight-size-170,top));
+        existing.style.setProperty('left',left+'px','important');
+        existing.style.setProperty('top',top+'px','important');
+        existing.style.setProperty('right','auto','important');
       }
     }catch(e){}
 
