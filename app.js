@@ -430,15 +430,15 @@ window.ensureLiveCamera=async function(facing){
           var audioStream=await navigator.mediaDevices.getUserMedia({
             audio:{
               echoCancellation:true,
-              noiseSuppression:true,
-              autoGainControl:true,
+              noiseSuppression:false,
+              autoGainControl:false,
               sampleRate:{ideal:48000},
-              channelCount:{ideal:1}
+              channelCount:{ideal:2}
             },
             video:false
           });
           var at=audioStream.getAudioTracks&&audioStream.getAudioTracks()[0];
-          if(at)state.stream.addTrack(at);
+          if(at){try{at.contentHint='music';}catch(_e){}state.stream.addTrack(at);}
         }catch(e){}
       }
       await ktAttachCreatorCamera(state.stream);
@@ -463,10 +463,10 @@ window.ensureLiveCamera=async function(facing){
         },
         audio:{
           echoCancellation:true,
-          noiseSuppression:true,
-          autoGainControl:true,
-          sampleRate:{ideal:48000},
-          channelCount:{ideal:1}
+              noiseSuppression:false,
+              autoGainControl:false,
+              sampleRate:{ideal:48000},
+              channelCount:{ideal:2}
         }
       });
     }catch(firstErr){
@@ -474,13 +474,16 @@ window.ensureLiveCamera=async function(facing){
         video:{width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30,max:30}},
         audio:{
           echoCancellation:true,
-          noiseSuppression:true,
-          autoGainControl:true,
-          sampleRate:{ideal:48000},
-          channelCount:{ideal:1}
+              noiseSuppression:false,
+              autoGainControl:false,
+              sampleRate:{ideal:48000},
+              channelCount:{ideal:2}
         }
       });
     }
+
+    var audioTrack=state.stream.getAudioTracks&&state.stream.getAudioTracks()[0];
+    if(audioTrack){try{audioTrack.contentHint='music';}catch(e){}}
 
     var track=state.stream.getVideoTracks&&state.stream.getVideoTracks()[0];
     if(track){
@@ -660,14 +663,14 @@ window.startCreatorRecording=async function(){
   try{
     /* 휴대폰에서 VP9 같은 무거운 코덱으로 떨어지지 않게 VP8을 우선하고,
        720p~1080p 세로영상에 충분한 비트레이트를 확보한다. */
-    var recOpt={videoBitsPerSecond:5000000,audioBitsPerSecond:128000};
+    var recOpt={videoBitsPerSecond:5000000,audioBitsPerSecond:192000};
     if(MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')){
       recOpt.mimeType='video/webm;codecs=vp8,opus';
     }
     ktCreatorRecorder=new MediaRecorder(ktRecordStream,recOpt);
   }catch(e){
     try{
-      ktCreatorRecorder=new MediaRecorder(ktRecordStream,{videoBitsPerSecond:4000000,audioBitsPerSecond:128000});
+      ktCreatorRecorder=new MediaRecorder(ktRecordStream,{videoBitsPerSecond:4000000,audioBitsPerSecond:192000});
     }catch(err){
       try{
         ktCreatorRecorder=new MediaRecorder(ktRecordStream);
