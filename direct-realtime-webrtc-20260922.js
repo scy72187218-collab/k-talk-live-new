@@ -735,11 +735,82 @@
     }catch(e){scheduleReconnect();}
   }
 
+  function broadcastApprovedRoster20260928(){
+    if(!isHostRole())return;
+    try{
+      var items=[];
+      Object.keys(approvedGuests||{}).forEach(function(id){
+        var x=approvedGuests[id]||{};
+        items.push({viewer_id:String(id),name:String(x.name||'게스트')});
+      });
+      send('guest_roster',{
+        host_id:DEVICE,
+        items:items,
+        at:Date.now()
+      });
+    }catch(e){}
+  }
+
+  function applyApprovedRoster20260928(p){
+    if(isHostRole())return;
+    try{
+      var hid=String(p&&p.host_id||'').trim();
+      var current=String(remoteHostId()||lastRemoteHost||activeHostId||'').trim();
+      if(!hid||!current||hid!==current)return;
+
+      var list=Array.isArray(p&&p.items)?p.items:[];
+      var next={},names={};
+      list.forEach(function(x){
+        var id=String(x&&x.viewer_id||'').trim();
+        if(!id)return;
+        next[id]=true;
+        names[id]=String(x&&x.name||'게스트');
+      });
+
+      var old=window.__ktApprovedGuestIds20260924||{};
+      var oldNames=window.__ktApprovedGuestNames20260924||{};
+
+      Object.keys(next).forEach(function(id){
+        var was=old[id]===true;
+        old[id]=true;
+        oldNames[id]=names[id]||oldNames[id]||'게스트';
+        if(!was){
+          try{window.dispatchEvent(new CustomEvent('kt-any-guest-approved',{detail:{
+            host_id:hid,viewer_id:id,name:oldNames[id],at:Date.now(),roster:true
+          }}));}catch(e){}
+        }
+      });
+
+      Object.keys(old).forEach(function(id){
+        if(old[id]===true&&!next[id]){
+          delete old[id];
+          delete oldNames[id];
+          try{window.dispatchEvent(new CustomEvent('kt-any-guest-left',{detail:{
+            host_id:hid,viewer_id:id,at:Date.now(),roster:true
+          }}));}catch(e){}
+        }
+      });
+
+      window.__ktApprovedGuestIds20260924=old;
+      window.__ktApprovedGuestNames20260924=oldNames;
+
+      try{window.dispatchEvent(new CustomEvent('kt-three-person-sync-now',{detail:{host_id:hid,at:Date.now()}}));}catch(e){}
+      try{
+        if(typeof window.ktForceApprovedGuestGridNow20260924==='function'){
+          window.ktForceApprovedGuestGridNow20260924();
+        }
+      }catch(e){}
+    }catch(e){}
+  }
+
   function afterJoin(){
     if(isHostRole()){
       if(!hostRunId){hostRunId=sid('run');hostRunStartedAt=Date.now();}
       send('host_ready',{host_id:DEVICE,run_id:hostRunId,run_started_at:hostRunStartedAt,at:Date.now()});
       renderDirectRequests();
+      broadcastApprovedRoster20260928();
+      setTimeout(broadcastApprovedRoster20260928,120);
+      setTimeout(broadcastApprovedRoster20260928,450);
     }else{
       var hid=remoteHostId();
       if(hid===activeHostId){
@@ -1293,6 +1364,9 @@
     setTimeout(function(){send('guest_approved',data);},150);
     setTimeout(function(){send('guest_approved',data);},700);
     setTimeout(function(){send('guest_approved',data);},1200);
+    setTimeout(broadcastApprovedRoster20260928,20);
+    setTimeout(broadcastApprovedRoster20260928,180);
+    setTimeout(broadcastApprovedRoster20260928,600);
     try{
       window.dispatchEvent(new CustomEvent('kt-host-guest-approved',{
         detail:{host_id:DEVICE,viewer_id:vid,at:Date.now()}
@@ -2247,6 +2321,7 @@
 
   function handleSignal(ev,p){
     if(duplicateSignal(ev,p))return;
+    if(ev==='guest_roster'){applyApprovedRoster20260928(p);return;}
     if(ev==='broadcast_ended'&&!isHostRole()){
       var ended=String(p&&p.host_id||'').trim();
       var current=String(remoteHostId()||lastRemoteHost||activeHostId||'').trim();
@@ -2406,6 +2481,11 @@
         }catch(_e){}
       }catch(e){}
       onGuestApproved(p);
+      if(isHostRole()){
+        setTimeout(broadcastApprovedRoster20260928,0);
+        setTimeout(broadcastApprovedRoster20260928,120);
+        setTimeout(broadcastApprovedRoster20260928,400);
+      }
       return;
     }
     if(ev==='guest_request_photo'&&isHostRole()&&String(p.host_id||'')===DEVICE){
@@ -2700,6 +2780,10 @@
     guestAliveLastSent=0;
     roleTick();setTimeout(function(){attachRemoteStreamNow();},0);
   });
+  setInterval(function(){
+    if(isHostRole()&&joined)broadcastApprovedRoster20260928();
+  },800);
+
   window.addEventListener('pagehide',function(){
     if(guestApprovedHost||lastRemoteHost)announceGuestLeave(guestApprovedHost||lastRemoteHost);
     clearViewerConnectTimer();
