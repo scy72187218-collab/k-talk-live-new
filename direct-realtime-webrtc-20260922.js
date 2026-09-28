@@ -211,9 +211,10 @@
   }
 
   function useLegacyApprovedGuestUplink(){
-    try{
-      return window.__ktGuestRequestFlow20260914===true && typeof window.ktRequestGuestJoin==='function';
-    }catch(e){return false;}
+    /* 2026-09-28: 승인 직후 게스트는 direct realtime 경로를 우선 사용한다.
+       legacy polling uplink가 함께 잡히면 승인/카메라 연결이 수초씩 늦어질 수 있으므로
+       승인된 게스트 영상 전송에는 사용하지 않는다. */
+    return false;
   }
 
   function remoteHostId(){
