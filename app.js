@@ -1921,7 +1921,7 @@ window.openBenefitHub=function(){
     +'</div>'
     +'<div class="kt-benefit-net-note">🔒 회사 수수료 차감 후 본인 정산 금액만 표시합니다</div>'
     +'<div class="kt-benefit-room-grid">'
-      +'<button class="pink" onclick="openWeeklyBroadcastReward()"><span>📅</span><b>7일 방송 보상</b><small>7일 방송하면 코인 10개</small><em>›</em></button>'
+      +'<button class="pink" onclick="openWeeklyBroadcastReward()"><span>📅</span><b>7일 방송 보상</b><small>7일 방송하면 코인 50개</small><em>›</em></button>'
       +'<button class="purple" onclick="openRaffleGuide()"><span>🎯</span><b>제비뽑기</b><small>아침 · 점심 · 저녁 하루 3번</small><em>›</em></button>'
       +'<button class="gold" onclick="openAttendanceBenefits()"><span>✅</span><b>출석 · 참여</b><small>출석과 참여 보상 안내</small><em>›</em></button>'
       +'<button class="violet" onclick="openSubscriberBenefits()"><span>💎</span><b>구독자 혜택</b><small>충전 · 모든 방 입장 · 방 만들기</small><em>›</em></button>'
@@ -1942,7 +1942,7 @@ window.openBenefitHub=function(){
 
 window.openWeeklyBroadcastReward=function(){
   showSheet('📅 7일 방송 보상',
-    '<div class="rowbox"><b>보상</b><br>일주일 동안 방송하면 코인 10개를 보상으로 받습니다.</div>'
+    '<div class="rowbox"><b>보상</b><br>일주일 동안 방송하면 코인 50개를 보상으로 받습니다.</div>'
     +'<div class="rowbox"><b>사용 방법</b><br>라이브 방송을 진행하고 7일 방송 조건을 채우면 보상 대상에 표시됩니다.</div>'
     +'<div class="rowbox"><b>확인 위치</b><br>혜택 · 보상 센터 → 7일 방송 보상에서 진행 상태와 지급 여부를 확인합니다.</div>');
 };
@@ -2100,7 +2100,7 @@ window.openSiteGuide=function(){
 
     +'<div class="kt-guide-title">🎉 보상 · 무료 혜택</div>'
     +'<div class="kt-guide-list">'
-      +'<div><span>🗓️</span><section><b>7일 방송 보상</b><small>일주일 동안 방송하면 보상으로 코인 10개를 받습니다.</small></section><em>+10</em></div>'
+      +'<div><span>🗓️</span><section><b>7일 방송 보상</b><small>일주일 동안 방송하면 보상으로 코인 50개를 받습니다.</small></section><em>+50</em></div>'
       +'<div><span>🎯</span><section><b>제비뽑기 하루 3번</b><small>아침 1회 · 점심 1회 · 저녁 1회 참여할 수 있습니다.</small></section><em>3회</em></div>'
       +'<div><span>✅</span><section><b>출석 · 참여 보상</b><small>출석과 방송 참여로 받을 수 있는 보상을 확인합니다.</small></section><em>보상</em></div>'
       +'<div><span>🏆</span><section><b>미션 · 랭킹 · 이벤트</b><small>방송 미션과 이벤트 보상, 랭킹 혜택을 한곳에서 확인합니다.</small></section><em>EVENT</em></div>'
