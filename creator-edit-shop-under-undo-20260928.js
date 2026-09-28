@@ -3,6 +3,32 @@
   if(window.__ktCreatorEditShopUnderUndo20260928)return;
   window.__ktCreatorEditShopUnderUndo20260928=true;
 
+
+  /* 촬영 화면 카메라 되돌리기 실제 동작 */
+  window.toggleCreatorCamera=async function(){
+    try{
+      if(!window.state)return false;
+      var next=(state.cameraFacing==='environment')?'user':'environment';
+      state.cameraFacing=next;
+      if(state.stream&&state.stream.getVideoTracks){
+        try{state.stream.getVideoTracks().forEach(function(t){t.stop();});}catch(e){}
+      }
+      if(state.stream&&state.stream.getAudioTracks){
+        var audioTracks=state.stream.getAudioTracks().filter(function(t){return t.readyState==='live';});
+        state.stream=null;
+        if(window.camera)camera.srcObject=null;
+        try{
+          var ok=await ensureLiveCamera(next);
+          return !!ok;
+        }catch(e){return false;}
+      }
+      if(typeof window.ensureLiveCamera==='function'){
+        return !!(await window.ensureLiveCamera(next));
+      }
+    }catch(e){}
+    return false;
+  };
+
   function openEffects(e){
     if(e){try{e.preventDefault();e.stopPropagation();}catch(_){}}
     try{
@@ -71,6 +97,28 @@
       btn.style.setProperty('bottom','auto','important');
     }catch(e){}
   }
+
+
+  /* 화면 위 레이어가 있어도 두 버튼은 항상 직접 작동 */
+  document.addEventListener('click',function(e){
+    var rotate=e.target&&e.target.closest?e.target.closest('#creator .creator-rotate'):null;
+    if(rotate){
+      e.preventDefault();
+      e.stopPropagation();
+      if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      try{window.toggleCreatorCamera();}catch(err){}
+      return;
+    }
+    var fx=e.target&&e.target.closest?e.target.closest('#creator .kt-edit-under-rotate'):null;
+    if(fx){
+      e.preventDefault();
+      e.stopPropagation();
+      if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      try{
+        if(typeof window.openEditEffectPanel==='function')window.openEditEffectPanel('face');
+      }catch(err){}
+    }
+  },true);
 
   ensure();
   [50,120,250,450,700,1000,1500].forEach(function(ms){setTimeout(ensure,ms);});
