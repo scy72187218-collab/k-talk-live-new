@@ -2199,6 +2199,12 @@
     }catch(e){}
     makeGuestOffer(hid);
   }
+  window.ktEnsureApprovedGuestCamera20260928=function(){
+    var hid=String(guestApprovedHost||remoteHostId()||activeHostId||'').trim();
+    if(!hid||!guestApproved)return Promise.resolve(false);
+    return Promise.resolve(startGuestCamera(hid)).then(function(){return true;}).catch(function(){return false;});
+  };
+
   function waitIceCompleteDirect(pc,ms){
     return new Promise(function(resolve){
       if(!pc||pc.iceGatheringState==='complete')return resolve();
