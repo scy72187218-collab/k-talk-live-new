@@ -1967,7 +1967,7 @@ window.openChargeBenefits=function(){
     '<div class="rowbox"><b>기본 충전</b><br>장미와 코인을 필요한 수량만큼 충전해서 선물과 방송 기능에 사용할 수 있습니다.</div>'
     +'<div class="rowbox"><b>구독자 추가 혜택</b><br>구독자는 충전할 때 일반회원보다 추가 혜택을 받을 수 있습니다.</div>'
     +'<div class="rowbox"><b>사용 방법</b><br>충전 수량을 고르고 결제 전 최종 지급 수량과 혜택을 확인합니다.</div>'
-    +'<div class="rowbox" style="border-color:#ffcc66;background:rgba(255,204,102,.08)"><b>⚠️ 환전 불가 코인</b><br>이벤트로 받은 코인, 출석·미션·추첨 등 무료 보상 코인, 할인받아 구입한 코인, 충전 보너스로 추가 지급된 코인은 <strong>현금 환전이 되지 않습니다.</strong> 사이트 안에서 사용하는 코인입니다.</div>'
+    +'<div class="rowbox" style="border-color:#ffcc66;background:rgba(255,204,102,.08)"><b>⚠️ 환전 불가 코인</b><br>첫 가입 300코인, 친구 미션 300코인, 이벤트·출석·미션·추첨 등 회사에서 무료로 받은 코인, 할인받아 구입한 코인, 충전 보너스로 추가 지급된 코인 등 <strong>방송 수익이 아닌 코인은 전부 현금 환전이 되지 않습니다.</strong> 사이트 안에서만 사용합니다.<br><strong>현금 환전 가능: 본인이 방송해서 실제로 번 방송 수익만</strong></div>'
     +'<button class="act" onclick="openCharge()">🪙 충전 화면 열기</button>');
 };
 
@@ -2010,7 +2010,8 @@ window.openSellerCenter=function(){
   showSheet('🏷️ 판매 · 정산',
     '<div class="rowbox"><b>판매 등록</b><br>상품이나 광고를 등록하고 판매 내역을 관리합니다.</div>'
     +'<div class="rowbox"><b>정산 확인</b><br>판매가 발생하면 판매 금액과 정산 내역을 확인할 수 있습니다.</div>'
-    +'<div class="rowbox"><b>사용 방법</b><br>판매 항목 등록 → 판매 내역 확인 → 정산 확인 순서로 이용합니다.</div>');
+    +'<div class="rowbox"><b>사용 방법</b><br>판매 항목 등록 → 판매 내역 확인 → 정산 확인 순서로 이용합니다.</div>'
+    +'<div class="rowbox"><b>💰 코인 환전 기준</b><br>본인이 방송해서 실제로 번 방송 수익만 환전 대상입니다. 가입·미션·이벤트·보너스·할인 등으로 받은 코인은 환전 대상이 아닙니다.</div>');
 };
 
 window.openRewardCenter=function(){
@@ -2755,7 +2756,7 @@ window.openCharge=function(){
     +'<div style="margin-top:8px;color:#ffe17b;font-weight:950">장미 1개 = 30원</div>'
     +'<div style="margin-top:5px;color:#ffd86b">500개부터 500개마다 <b style="color:#fff">보너스 +10개</b></div>'
     +'<div style="margin-top:5px;color:#bbb">최대 충전 100,000원</div>'
-    +'<div style="margin-top:7px;padding:8px;border:1px solid #ffcc6677;border-radius:10px;color:#ffd86b;font-size:11px;line-height:1.45">※ 이벤트 지급 · 무료 보상 · 할인 구매 · 충전 보너스 코인은 현금 환전이 되지 않습니다.</div>'
+    +'<div style="margin-top:7px;padding:8px;border:1px solid #ffcc6677;border-radius:10px;color:#ffd86b;font-size:11px;line-height:1.45">※ 첫 가입·친구 미션·이벤트·무료 보상·할인 구매·충전 보너스 등 회사 지급 코인은 전부 현금 환전 불가입니다. 본인이 방송해서 실제로 번 방송 수익만 환전 대상입니다.</div>'
     +'</div>'
     +'<div class="coin-charge-grid">'+packs.map(function(p){
       var amount=p.base*30;
