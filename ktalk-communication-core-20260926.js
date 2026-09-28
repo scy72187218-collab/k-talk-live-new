@@ -422,6 +422,9 @@
       if(!hostStarting)startHostPresence();
     }catch(e){}
   }
+  window.ktRepairVisibleHostPresence20260928=function(){
+    try{repairVisibleHostPresence();return true;}catch(e){return false;}
+  };
   setInterval(repairVisibleHostPresence,1800);
   window.addEventListener('pageshow',function(){setTimeout(repairVisibleHostPresence,120);});
   document.addEventListener('visibilitychange',function(){
