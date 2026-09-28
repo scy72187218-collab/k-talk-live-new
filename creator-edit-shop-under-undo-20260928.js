@@ -7,8 +7,24 @@
     try{
       if(typeof window.openEditEffectPanel==='function'){
         window.openEditEffectPanel('face');
+      }else{
         return false;
       }
+      var sh=document.getElementById('sheet');
+      if(sh){
+        sh.style.removeProperty('pointer-events');
+        sh.classList.add('show');
+      }
+      setTimeout(function(){
+        try{
+          var s=document.getElementById('sheet');
+          if(s){
+            s.style.removeProperty('pointer-events');
+            s.classList.add('show');
+          }
+        }catch(e){}
+      },30);
+      return false;
     }catch(e){}
     return false;
   }
