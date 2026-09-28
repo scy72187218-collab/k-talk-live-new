@@ -177,7 +177,8 @@
       +'<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin:6px 0 12px">'
       +outcomeLabels().map(function(x,i){return '<div style="padding:7px 1px;border-radius:9px;background:#181820;text-align:center;font-size:9px;font-weight:900">'+(i+1)+'번<br>'+x+'</div>';}).join('')
       +'</div>'
-      +(used?'<div class="rowbox"><b>오늘 참여 완료</b><br>내일 다시 참여할 수 있습니다.</div>':'');
+      +(used?'<div class="rowbox"><b>오늘 참여 완료</b><br>내일 다시 참여할 수 있습니다.</div>':'')
+      +'<div class="rowbox" style="margin-top:10px;border-color:#65d6ff;background:rgba(40,160,255,.08)"><b>📡 하이네통신</b><br>인터넷 · CCTV · LAN · 키폰 · 네트워크 설치<br><strong>🤖 AI 24시간 상담 · 예상견적 안내</strong><br><button type="button" onclick="window.open(\'https://nextnet-it-solutions-24-7-ai-consultant.ai.studio\',\'_blank\',\'noopener\')" style="margin-top:8px;width:100%;height:42px;border:0;border-radius:10px;background:#1e8fff;color:#fff;font-weight:950">하이네통신 바로가기</button></div>';
   }
 
   window.ktOpenDailyFortuneLadder20260928=function(){
