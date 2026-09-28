@@ -675,6 +675,8 @@
     if(document.querySelector('.kt-dashboard')||document.querySelector('.friends-list'))renderLiveCards();
   },5000);
   setTimeout(renderLiveCards,900);
+  setTimeout(function(){try{clearUnapprovedGuestSlots20260928();}catch(e){}},120);
+  setInterval(function(){try{clearUnapprovedGuestSlots20260928();}catch(e){}},1200);
 })();
 
 
@@ -1869,6 +1871,7 @@
     );
   }
   function renderDirectRequests(){
+    try{clearUnapprovedGuestSlots20260928();}catch(e){}
     ensureDirectStyle();
     var main=requestMount();
     if(!main){var o=document.getElementById('ktDirectGuestRequestRail');if(o)o.remove();return;}
@@ -1928,6 +1931,16 @@
     return next;
   }
   function guestSlot(vid,name){
+    vid=String(vid||'').trim();
+    if(!vid)return null;
+
+    /* 2026-09-28 FIX:
+       A guest slot may be created ONLY after this host has explicitly approved
+       that viewer in the current broadcast run. Camera/photo/offer packets that
+       arrive early must stay buffered and must never raise "게스트 연결 중..."
+       before request -> host approval. */
+    if(isHostRole()&&!approvedGuests[vid])return null;
+
     var slot=null,matches=[];
     try{
       matches=[].slice.call(document.querySelectorAll(
@@ -1967,6 +1980,25 @@
   window.ktEnsureApprovedGuestSlot20260924=function(vid,name){
     try{return guestSlot(String(vid||'').trim(),String(name||'게스트'));}catch(e){return null;}
   };
+
+  function clearUnapprovedGuestSlots20260928(){
+    if(!isHostRole())return;
+    var slots=[];
+    try{
+      slots=[].slice.call(document.querySelectorAll(
+        '#screen .ktg13-guest[data-kt-direct-guest],'+
+        '#screen .ktg13-guest[data-kt-guest-viewer-id]'
+      ));
+    }catch(e){}
+    slots.forEach(function(slot){
+      try{
+        var vid=String(slot.dataset.ktDirectGuest||slot.dataset.ktGuestViewerId||'').trim();
+        if(!vid||approvedGuests[vid])return;
+        resetDuplicateGuestSlot(slot,vid);
+      }catch(e){}
+    });
+  }
+  window.ktClearUnapprovedGuestSlots20260928=clearUnapprovedGuestSlots20260928;
   function attachGuestToHost(vid,name,stream){
     if(!stream)return;
     try{
