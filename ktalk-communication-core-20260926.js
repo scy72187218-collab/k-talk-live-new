@@ -167,6 +167,7 @@
       }catch(e){}
     }
     if(!p.name)p.name='K-Talk 방송자';
+    try{p.name=ktMonthlyMedalName20260929(p.name);}catch(e){}
     if(p.photo&&p.photo.length>240000)p.photo='';
     return p;
   }
@@ -783,9 +784,24 @@
   var DEVICE=deviceId();
   function viewerId(){return 'viewer_'+DEVICE;}
   function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function ktMonthlyMedalName20260929(name){
+    name=String(name==null?'':name).replace(/\s*[🥈🥇]\s*$/u,'').trim();
+    var vals=[];
+    try{
+      var s=window.state||{};
+      vals=[s.memberType,s.membership,s.plan,s.subscription,s.subscriptionPlan,s.subscriber,s.vip,s.memberGrade,s.grade,s.memberClass];
+      ['ktalk_member_type','ktalk_membership','ktalk_plan','ktalk_subscription','ktalk_subscription_plan','ktalk_subscriber','ktalk_member_grade','ktalk_grade','ktalk_member_class']
+        .forEach(function(k){vals.push(localStorage.getItem(k));});
+    }catch(e){}
+    var norm=vals.map(function(v){return String(v==null?'':v).replace(/\s+/g,'').toLowerCase();});
+    var medal='';
+    if(norm.some(function(x){return x==='14900'||x==='14,900'||x==='중회원'||x==='middle'||x==='mid'||x==='subscriber14900'||x==='구독자14900';}))medal='🥈';
+    if(norm.some(function(x){return x==='19900'||x==='19,900'||x==='vip'||x==='subscriber19900'||x==='구독자19900'||x==='subscriber'||x==='구독자';}))medal='🥇';
+    return medal?(name+' '+medal):name;
+  }
   function profileName(){
-    try{if(window.ktProfileLoad){var p=window.ktProfileLoad()||{};return String(p.nickname||p.name||p.displayName||'게스트').slice(0,60);}}catch(e){}
-    try{return String(localStorage.getItem('ktalk_nickname')||localStorage.getItem('ktalk_profile_name')||'게스트').slice(0,60);}catch(e){}
+    try{if(window.ktProfileLoad){var p=window.ktProfileLoad()||{};return ktMonthlyMedalName20260929(String(p.nickname||p.name||p.displayName||'게스트')).slice(0,60);}}catch(e){}
+    try{return ktMonthlyMedalName20260929(String(localStorage.getItem('ktalk_nickname')||localStorage.getItem('ktalk_profile_name')||'게스트')).slice(0,60);}catch(e){}
     return '게스트';
   }
   function roomEl(){
