@@ -71,9 +71,11 @@
           stableActiveRooms=realtimeRows;stableActiveAt=Date.now();
           return realtimeRows;
         }
+        /* 어떤 기기는 방송 시작 broadcast를 놓친 채 realtime 연결만 READY가 될 수 있다.
+           이 경우 빈 realtime 목록을 확정값으로 쓰지 말고 DB/beacon까지 확인해서
+           모든 기기에서 빨간 LIVE 표시가 동일하게 뜨게 한다. */
         if(window.__ktRealtimeSignalReady){
-          stableActiveRooms=[];stableActiveAt=0;
-          return [];
+          // continue to DB/beacon fallback below
         }
       }
     }catch(e){}
