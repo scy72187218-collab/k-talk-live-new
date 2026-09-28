@@ -42,10 +42,7 @@
     }
 
     /* 중복 원인 제거: 예전 AI/편집효과 버튼은 완전히 숨김 */
-    c.querySelectorAll(
-      '.creator-tools .creator-tool-text[aria-label="AI 보정"],'+
-      '.creator-tools .creator-tool-text[aria-label="편집 효과"]'
-    ).forEach(function(el){
+    c.querySelectorAll('.creator-tools > button').forEach(function(el){
       try{
         el.style.setProperty('display','none','important');
         el.style.setProperty('pointer-events','none','important');
@@ -56,8 +53,7 @@
       var s=document.createElement('style');
       s.id='ktCreatorControlsCleanSingleStyle';
       s.textContent=
-        '#creator:not(.live-prep-open) .creator-tools .creator-tool-text[aria-label="AI 보정"],'+
-        '#creator:not(.live-prep-open) .creator-tools .creator-tool-text[aria-label="편집 효과"]{display:none!important;pointer-events:none!important}'+
+        '#creator:not(.live-prep-open) .creator-tools > button{display:none!important;pointer-events:none!important}'+
         '#creator:not(.live-prep-open) .creator-top{z-index:10000!important;pointer-events:auto!important}'+
         '#creator:not(.live-prep-open) .creator-top .creator-rotate{position:absolute!important;right:0!important;top:125px!important;width:62px!important;height:72px!important;min-width:62px!important;min-height:72px!important;padding:7px 3px!important;border-radius:31px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:2px!important;background:rgba(0,0,0,.24)!important;color:#fff!important;z-index:10001!important;pointer-events:auto!important;touch-action:manipulation!important}'+
         '#creator:not(.live-prep-open) .creator-top .creator-rotate b{display:block!important;font-size:29px!important;line-height:1!important;font-weight:800!important}'+
