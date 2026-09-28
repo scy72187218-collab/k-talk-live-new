@@ -24,9 +24,30 @@
     return p;
   }
 
+  function selfVideo(){
+    try{
+      return document.querySelector(
+        '.kt-guest-hostlike-room .kgh-cell.self video,'+
+        '.kt-approved-guest-cell.self video,'+
+        '.kt-guest-room-cell.self video,'+
+        '.kt-prejoin-room-cell.self video,'+
+        '#ktRemoteLiveVideo[data-kt-local-guest-view="1"]'
+      );
+    }catch(e){return null;}
+  }
+  function selfCell(){
+    try{
+      return document.querySelector(
+        '.kt-guest-hostlike-room .kgh-cell.self,'+
+        '.kt-approved-guest-cell.self,'+
+        '.kt-guest-room-cell.self,'+
+        '.kt-prejoin-room-cell.self'
+      );
+    }catch(e){return null;}
+  }
   function selfStream(){
     try{
-      var v=document.querySelector('.kt-guest-hostlike-room .kgh-cell.self video');
+      var v=selfVideo();
       if(v&&v.srcObject)return v.srcObject;
     }catch(e){}
     try{
@@ -34,6 +55,21 @@
              window.__ktApprovedGuestSelfStream||
              (window.state&&state.stream)||null;
     }catch(e){return null;}
+  }
+
+  function attachSelfCameraNow(){
+    var s=selfStream(),v=selfVideo();
+    if(!s||!v)return false;
+    try{
+      var live=s.getVideoTracks&&s.getVideoTracks().some(function(t){
+        return t&&t.readyState==='live'&&t.enabled!==false;
+      });
+      if(!live)return false;
+      if(v.srcObject!==s)v.srcObject=s;
+      v.autoplay=true;v.playsInline=true;v.muted=true;
+      var p=v.play();if(p&&p.catch)p.catch(function(){});
+      return true;
+    }catch(e){return false;}
   }
 
   function cameraOn(){
@@ -45,18 +81,50 @@
   }
 
   function toggleCamera(){
+    var before=cameraOn();
     if(typeof window.ktGuestToggleSelfCamera20260928==='function'){
-      try{window.ktGuestToggleSelfCamera20260928();return;}catch(e){}
+      try{
+        window.ktGuestToggleSelfCamera20260928();
+        if(!before&&typeof window.ktEnsureApprovedGuestCamera20260928==='function'){
+          var q=window.ktEnsureApprovedGuestCamera20260928();
+          if(q&&q.then)q.then(function(){
+            [0,40,120,260,500].forEach(function(ms){
+              setTimeout(function(){attachSelfCameraNow();refreshSelfPhoto();},ms);
+            });
+          });
+        }else{
+          [20,100,220].forEach(function(ms){setTimeout(function(){attachSelfCameraNow();refreshSelfPhoto();},ms);});
+        }
+        return;
+      }catch(e){}
+    }
+    if(!before&&typeof window.ktEnsureApprovedGuestCamera20260928==='function'){
+      try{
+        var p=window.ktEnsureApprovedGuestCamera20260928();
+        if(p&&p.then)p.then(function(){
+          [0,40,120,260,500].forEach(function(ms){setTimeout(function(){attachSelfCameraNow();refreshSelfPhoto();},ms);});
+        });
+        return;
+      }catch(e){}
     }
     var s=selfStream();
     if(!s||!s.getVideoTracks)return;
     var ts=s.getVideoTracks(),on=ts.some(function(t){return t.enabled!==false;});
     ts.forEach(function(t){try{t.enabled=!on;}catch(e){}});
+    attachSelfCameraNow();
   }
 
   function ensureSelfPhoto(){
-    var cell=document.querySelector('.kt-guest-hostlike-room .kgh-cell.self');
+    var cell=selfCell();
     if(!cell)return;
+    if(!cell.dataset.ktSelfCellTap20260928){
+      cell.dataset.ktSelfCellTap20260928='1';
+      cell.addEventListener('click',function(e){
+        if(e.target&&e.target.closest&&e.target.closest('.kt-self-photo-camera-toggle'))return;
+        try{e.preventDefault();e.stopPropagation();}catch(_e){}
+        toggleCamera();
+      });
+    }
     var btn=cell.querySelector('.kt-self-photo-camera-toggle');
     if(!btn){
       btn=document.createElement('button');
@@ -86,7 +154,7 @@
   }
 
   function refreshSelfPhoto(){
-    var cell=document.querySelector('.kt-guest-hostlike-room .kgh-cell.self');
+    var cell=selfCell();
     if(!cell)return;
     var btn=cell.querySelector('.kt-self-photo-camera-toggle');
     if(!btn)return;
