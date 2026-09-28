@@ -34,10 +34,29 @@
       '.kt-friend-contact-actions .livebtn,'+
       '.kt-live-card,'+
       '.kt-live-list-enter,'+
+      '.kt-follow-person.live,'+
       '[onclick*="ktFriendEnterLive"],'+
       '[onclick*="ktEnterRemoteLive"]'
     ):null;
-    return t;
+    if(t)return t;
+
+    /* 위에 다른 요소가 잠깐 겹쳐 있어도 실제 빨간 LIVE 자리의 버튼을 찾아낸다. */
+    try{
+      var p=(e.touches&&e.touches[0])||(e.changedTouches&&e.changedTouches[0])||e;
+      var x=Number(p.clientX),y=Number(p.clientY);
+      if(isFinite(x)&&isFinite(y)){
+        var list=[].slice.call(document.querySelectorAll(
+          '.ktvl-live,.kt-follow-person.live,.kt-friend-bubble.live,.kt-friend-contact-actions .livebtn,.kt-live-card,.kt-live-list-enter,[onclick*="ktFriendEnterLive"],[onclick*="ktEnterRemoteLive"]'
+        ));
+        for(var i=list.length-1;i>=0;i--){
+          var el=list[i],cs=getComputedStyle(el),r=el.getBoundingClientRect();
+          if(cs.display==='none'||cs.visibility==='hidden'||Number(cs.opacity)===0)continue;
+          if(r.width<3||r.height<3)continue;
+          if(x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom)return el;
+        }
+      }
+    }catch(_e){}
+    return null;
   }
 
   function go(e){
@@ -60,6 +79,6 @@
 
   var st=document.createElement('style');
   st.id='ktLiveEntryTouchRescueStyle20260928';
-  st.textContent='.ktvl-live,.kt-friend-bubble.live,.kt-friend-contact-actions .livebtn,.kt-live-card,.kt-live-list-enter,[onclick*="ktFriendEnterLive"],[onclick*="ktEnterRemoteLive"]{pointer-events:auto!important;touch-action:manipulation!important}';
+  st.textContent='.ktvl-live,.kt-follow-person.live,.kt-friend-bubble.live,.kt-friend-contact-actions .livebtn,.kt-live-card,.kt-live-list-enter,[onclick*="ktFriendEnterLive"],[onclick*="ktEnterRemoteLive"]{pointer-events:auto!important;touch-action:manipulation!important;position:relative!important;z-index:2147483000!important}';
   (document.head||document.documentElement).appendChild(st);
 })();
