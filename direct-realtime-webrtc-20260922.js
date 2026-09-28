@@ -1257,7 +1257,14 @@
     try{return guestSlot(String(vid||'').trim(),String(name||'게스트'));}catch(e){return null;}
   };
   function attachGuestToHost(vid,name,stream){
-    var slot=guestSlot(vid,name);if(!slot||!stream)return;
+    if(!stream)return;
+    /* Host video must never be painted into a guest slot. */
+    try{
+      var hs=hostStream();
+      if(hs&&sameVideoSource20260926(stream,hs))return;
+      if(isRemoteHostMedia20260926(stream))return;
+    }catch(e){}
+    var slot=guestSlot(vid,name);if(!slot)return;
     var v=slot.querySelector('video');
     if(v){
       var currentLive=false,liveKitOn=false;
