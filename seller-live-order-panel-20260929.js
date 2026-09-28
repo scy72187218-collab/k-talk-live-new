@@ -13,7 +13,8 @@
   var BASE='https://'+REF+'.supabase.co/rest/v1/';
   var PROFILE_KEY='ktalk_seller300_profile_v1';
   var ORDER_KEY='ktalk_seller300_orders_v1';
-  var pollBusy=false,lastOrderId='';
+  var BUYER_LAST_KEY='ktalk_seller300_buyer_last_order_v1';
+  var pollBusy=false,lastOrderId='',lastPaymentId='';
 
   function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   function enc(v){return encodeURIComponent(String(v==null?'':v));}
@@ -93,9 +94,11 @@
       +'수량: '+esc(o.qty||'1')+'<br>'
       +'주문자: '+esc(o.name||'-')+'<br>'
       +'연락처: '+esc(o.phone||'-')+'<br>'
+      +'입금상태: <strong>'+esc(o.paymentStatus||'미확인')+'</strong><br>'
       +'배송/전달 메모: '+esc(o.memo||'-')+'<br>'
       +'<small>'+esc(o.createdText||'')+'</small></div>'
       +'<div class="rowbox"><b>📸 캡처용</b><br>이 화면을 크게 띄운 상태에서 휴대폰 캡처 기능을 사용하면 주문 내용을 한 장으로 보관할 수 있습니다.</div>'
+      +((o.paymentStatus==='입금확인')?'':'<button class="act" onclick="ktConfirmSellerPayment20260929(\''+esc(String(o.id))+'\')">✅ 실제 입금 확인</button>')
       +'<button class="act" onclick="ktMarkSellerOrderDone20260929(\''+esc(String(o.id))+'\')">처리 완료 표시</button>';
     window.showSheet('🧾 주문 상세',html);
     return false;
@@ -106,6 +109,64 @@
     a.forEach(function(o){if(String(o.id)===String(id))o.status='처리완료';});
     saveOrders(a);renderSellerPanel();
     try{if(window.closeSheet)window.closeSheet();}catch(e){}
+    return false;
+  };
+
+  window.ktConfirmSellerPayment20260929=function(id){
+    var a=readOrders(),found=null;
+    a.forEach(function(o){
+      if(String(o.id)===String(id)){
+        o.paymentStatus='입금확인';
+        o.paymentConfirmedAt=Date.now();
+        found=o;
+      }
+    });
+    saveOrders(a);
+    renderSellerPanel();
+    try{if(window.closeSheet)window.closeSheet();}catch(e){}
+    if(found)postPaymentStatus(found);
+    return false;
+  };
+
+  async function postPaymentStatus(o){
+    if(!o||!isHost())return;
+    try{
+      await fetch(BASE+'ktalk_live_messages',{
+        method:'POST',
+        headers:{apikey:APIKEY,Authorization:'Bearer '+APIKEY,'Content-Type':'application/json',Prefer:'return=minimal'},
+        body:JSON.stringify({
+          host_id:deviceId(),
+          sender_id:'sellerpay:'+deviceId(),
+          sender_name:'판매자',
+          message:JSON.stringify({orderId:o.id,paymentStatus:o.paymentStatus||'',updatedAt:Date.now()}),
+          message_type:'seller_payment_status'
+        })
+      });
+    }catch(e){}
+  }
+
+  window.ktBuyerPaid20260929=async function(){
+    var last={};
+    try{last=JSON.parse(localStorage.getItem(BUYER_LAST_KEY)||'{}')||{};}catch(e){}
+    var host=remoteHostId();
+    if(!host||!last.id){alert('먼저 주문을 접수해 주세요.');return false;}
+    try{
+      var r=await fetch(BASE+'ktalk_live_messages',{
+        method:'POST',
+        headers:{apikey:APIKEY,Authorization:'Bearer '+APIKEY,'Content-Type':'application/json',Prefer:'return=minimal'},
+        body:JSON.stringify({
+          host_id:host,
+          sender_id:'payclaim:'+deviceId(),
+          sender_name:last.name||'주문자',
+          message:JSON.stringify({orderId:last.id,name:last.name||'',phone:last.phone||'',claimedAt:Date.now()}),
+          message_type:'seller_payment_claim'
+        })
+      });
+      if(!r.ok)throw new Error('pay');
+      last.paymentStatus='입금했다고 알림';
+      try{localStorage.setItem(BUYER_LAST_KEY,JSON.stringify(last));}catch(e){}
+      alert('판매자에게 입금했다고 알렸습니다. 판매자가 실제 입금을 확인하면 입금확인으로 표시됩니다.');
+    }catch(e){alert('입금 알림 전송 중 오류가 났습니다.');}
     return false;
   };
 
@@ -147,12 +208,17 @@
         return '<button class="kt-seller-order-card-20260929" onclick="ktOpenSellerOrderDetail20260929(\''+esc(String(o.id))+'\')">'
           +'<strong>주문 '+esc(o.no||'')+' · '+esc(o.status||'접수')+'</strong>'
           +'<span>'+esc(orderSummary(o)||'-')+'</span>'
-          +'<em>'+esc(o.name||'')+' · '+esc(o.phone||'')+'</em>'
+          +'<em>'+esc(o.name||'')+' · '+esc(o.phone||'')+' · '+esc(o.paymentStatus||'미입금')+'</em>'
           +'</button>';
       }).join(''):'<div class="kt-seller-order-card-20260929">아직 들어온 주문이 없습니다.</div>';
       old.innerHTML=info+'<div class="kt-seller-orders-20260929">'+list+'</div>';
     }else{
-      old.innerHTML=info+'<button class="kt-seller-order-btn-20260929" onclick="ktOpenLiveOrderForm20260929()">🛒 주문하기</button>';
+      var last={};try{last=JSON.parse(localStorage.getItem(BUYER_LAST_KEY)||'{}')||{};}catch(e){}
+      var payBtn=last&&last.id
+        ?'<button class="kt-seller-order-btn-20260929" style="margin-top:4px;background:#78e6a0!important" onclick="ktBuyerPaid20260929()">💸 입금했어요</button>'
+        :'';
+      var status=last&&last.id?'<div class="kt-seller-info-20260929" style="margin-top:4px"><b>내 최근 주문</b><span>'+esc(last.product||'')+' · '+esc(last.qty||'1')+'개</span><small>입금상태: '+esc(last.paymentStatus||'미입금')+'</small></div>':'';
+      old.innerHTML=info+'<button class="kt-seller-order-btn-20260929" onclick="ktOpenLiveOrderForm20260929()">🛒 주문하기</button>'+payBtn+status;
     }
   }
 
@@ -256,7 +322,8 @@
         })
       });
       if(!r.ok)throw new Error('order');
-      alert('주문이 접수되었습니다.');
+      try{localStorage.setItem(BUYER_LAST_KEY,JSON.stringify(o));}catch(e){}
+      alert('주문이 접수되었습니다. 입금하셨으면 방송 화면의 "입금했어요" 버튼을 눌러 주세요.');
       try{if(window.closeSheet)window.closeSheet();}catch(e){}
     }catch(e){alert('주문 접수 중 오류가 났습니다. 다시 눌러 주세요.');}
     return false;
@@ -313,6 +380,64 @@
     pollBusy=false;
   }
 
+  async function pollPaymentClaims(){
+    if(!isHost()||!sellerActive())return;
+    try{
+      var since=new Date(Date.now()-90000).toISOString();
+      var url=BASE+'ktalk_live_messages?select=id,message,created_at'
+        +'&host_id=eq.'+enc(deviceId())
+        +'&message_type=eq.seller_payment_claim'
+        +'&created_at=gte.'+enc(since)
+        +'&order=created_at.asc&limit=100';
+      var r=await fetch(url,{cache:'no-store',headers:{apikey:APIKEY,Authorization:'Bearer '+APIKEY}});
+      if(r&&r.ok){
+        var rows=await r.json(),a=readOrders(),changed=false;
+        (rows||[]).forEach(function(row){
+          if(String(row.id)===lastPaymentId)return;
+          lastPaymentId=String(row.id||lastPaymentId);
+          var p={};try{p=JSON.parse(row.message||'{}')||{};}catch(e){}
+          a.forEach(function(o){
+            if(String(o.id)===String(p.orderId)&&o.paymentStatus!=='입금확인'){
+              o.paymentStatus='입금확인 요청';
+              o.paymentClaimedAt=p.claimedAt||Date.now();
+              changed=true;
+            }
+          });
+        });
+        if(changed){saveOrders(a);renderSellerPanel();}
+      }
+    }catch(e){}
+  }
+
+  async function pollBuyerPaymentStatus(){
+    if(isHost())return;
+    var host=remoteHostId();if(!host)return;
+    var last={};try{last=JSON.parse(localStorage.getItem(BUYER_LAST_KEY)||'{}')||{};}catch(e){}
+    if(!last.id)return;
+    try{
+      var since=new Date(Date.now()-120000).toISOString();
+      var url=BASE+'ktalk_live_messages?select=id,message,created_at'
+        +'&host_id=eq.'+enc(host)
+        +'&message_type=eq.seller_payment_status'
+        +'&created_at=gte.'+enc(since)
+        +'&order=created_at.desc&limit=30';
+      var r=await fetch(url,{cache:'no-store',headers:{apikey:APIKEY,Authorization:'Bearer '+APIKEY}});
+      if(r&&r.ok){
+        var rows=await r.json();
+        (rows||[]).some(function(row){
+          var p={};try{p=JSON.parse(row.message||'{}')||{};}catch(e){}
+          if(String(p.orderId)===String(last.id)){
+            last.paymentStatus=p.paymentStatus||last.paymentStatus;
+            try{localStorage.setItem(BUYER_LAST_KEY,JSON.stringify(last));}catch(e){}
+            renderSellerPanel();
+            return true;
+          }
+          return false;
+        });
+      }
+    }catch(e){}
+  }
+
   function patchSellerCenter(){
     var old=window.openSellerCenter;
     if(typeof old!=='function'||old.__ktSeller300Patched)return;
@@ -325,7 +450,7 @@
           var box=document.createElement('div');
           box.className='rowbox kt-seller300-entry-20260929';
           box.style.marginTop='8px';
-          box.innerHTML='<b>🛍️ 월 300,000원 판매방송</b><br>사업자 판매자는 전화번호·계좌번호·안내문구를 방송에 표시하고, 시청자 주문을 오른쪽 주문목록으로 자동 정리해 받을 수 있습니다. 주문을 누르면 크게 열어 캡처할 수 있습니다.<br><button class="act" style="margin-top:7px" onclick="ktOpenSeller300Setup20260929()">판매방송 설정</button>';
+          box.innerHTML='<b>🛍️ 월 300,000원 판매방송</b><br>홈쇼핑처럼 방송 밖에서 보는 시청자에게도 판매자 전화번호·계좌번호·안내문구와 주문 버튼이 보입니다. 시청자가 주문 후 "입금했어요"를 누르면 판매자 오른쪽 주문목록에 입금확인 요청이 뜹니다. 판매자는 실제 통장을 확인한 뒤 "실제 입금 확인"을 누르면 됩니다. 주문을 눌러 크게 열어 캡처할 수도 있습니다.<br><button class="act" style="margin-top:7px" onclick="ktOpenSeller300Setup20260929()">판매방송 설정</button>';
           body.appendChild(box);
         }catch(e){}
       },30);
@@ -338,8 +463,8 @@
   function tick(){
     patchSellerCenter();
     renderSellerPanel();
-    if(isHost()){pollOrders();broadcastProfile();}
-    else pollSellerProfile();
+    if(isHost()){pollOrders();pollPaymentClaims();broadcastProfile();}
+    else {pollSellerProfile();pollBuyerPaymentStatus();}
   }
   patchSellerCenter();
   [150,500,1100,2200].forEach(function(ms){setTimeout(tick,ms);});
