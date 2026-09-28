@@ -48,12 +48,6 @@
       }catch(e){}
 
       try{
-        window.dispatchEvent(new CustomEvent('kt-any-guest-approved',{
-          detail:{host_id:host,viewer_ids:ids.slice(),sync_all_devices:true,at:now}
-        }));
-      }catch(e){}
-
-      try{
         window.dispatchEvent(new CustomEvent('kt-three-person-sync-now',{
           detail:{host_id:host,viewer_ids:ids.slice(),sync_all_devices:true,at:now}
         }));
@@ -61,13 +55,16 @@
     }catch(e){}
   }
 
-  window.addEventListener('kt-any-guest-approved',function(){setTimeout(function(){syncNow(true);},0);});
+  window.addEventListener('kt-any-guest-approved',function(e){
+    try{if(e&&e.detail&&e.detail.sync_all_devices)return;}catch(_e){}
+    setTimeout(function(){syncNow(true);},0);
+  });
   window.addEventListener('kt-guest-approval-received',function(){setTimeout(function(){syncNow(true);},0);});
   window.addEventListener('kt-approved-guest-stream-ready',function(){setTimeout(function(){syncNow(true);},0);});
   window.addEventListener('kt-livekit-state',function(){setTimeout(function(){syncNow(false);},0);});
   window.addEventListener('online',function(){setTimeout(function(){syncNow(true);},60);});
   document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(function(){syncNow(true);},60);});
 
-  setInterval(function(){syncNow(false);},220);
+  setInterval(function(){syncNow(false);},500);
   [40,100,220,450,900,1500,2500].forEach(function(ms){setTimeout(function(){syncNow(true);},ms);});
 })();
