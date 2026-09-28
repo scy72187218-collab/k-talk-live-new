@@ -1,5 +1,5 @@
 {
-  "version": 173,
+  "version": 174,
   "locked": true,
   "scope": "full_snapshot_guard",
   "lock_slot": 9,
@@ -45,7 +45,8 @@
     "hine_telecom_ai24_ad_fortune_event_20260928",
     "noncashable_event_discount_bonus_coins_20260928",
     "cashout_only_actual_broadcast_earnings_20260928",
-    "weekly_7day_broadcast_reward_50coins_noncashable_20260928"
+    "weekly_7day_broadcast_reward_50coins_noncashable_20260928",
+    "signup_immediate_broadcast_solo9_no_wait_20260928"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -86,11 +87,12 @@
     "hine_telecom_ai24_ad_fortune_event_20260928",
     "noncashable_event_discount_bonus_coins_20260928",
     "cashout_only_actual_broadcast_earnings_20260928",
-    "weekly_7day_broadcast_reward_50coins_noncashable_20260928"
+    "weekly_7day_broadcast_reward_50coins_noncashable_20260928",
+    "signup_immediate_broadcast_solo9_no_wait_20260928"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "최종 기준: 7일 방송 보상 코인 50개. 회사 지급 보상이므로 현금 환전 불가, 사이트 내 사용 전용.",
+  "note": "최종 기준: 가입 완료 후 5일/5시간 같은 대기 조건 없이 바로 방송 가능. 처음에는 1인방/9명방 즉시 이용. 13명방/비밀방/구독자방은 기존 레벨 및 팔로우/초청 조건 유지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -142,10 +144,11 @@
       "hine_telecom_ai24_ad_fortune_event_20260928",
       "noncashable_event_discount_bonus_coins_20260928",
       "cashout_only_actual_broadcast_earnings_20260928",
-      "weekly_7day_broadcast_reward_50coins_noncashable_20260928"
+      "weekly_7day_broadcast_reward_50coins_noncashable_20260928",
+      "signup_immediate_broadcast_solo9_no_wait_20260928"
     ]
   },
   "last_unlock": "2026-09-27-solo-countdown-only-code-5555",
-  "last_lock": "2026-09-28-weekly-broadcast-50coins",
+  "last_lock": "2026-09-28-signup-immediate-broadcast-solo9",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
