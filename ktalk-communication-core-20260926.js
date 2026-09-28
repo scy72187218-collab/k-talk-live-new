@@ -507,7 +507,22 @@
   window.ktEnterRemoteLive=async function(hostId){
     hostId=String(hostId||'').trim();if(!hostId)return;
     if(hostId===deviceId()&&hostActive){showActivity('현재 내가 방송 중인 방입니다.');return;}
-    if(viewerCtx)await window.ktLeaveRemoteLive(true);
+    if(viewerCtx){
+      /* 빨간 LIVE 재입장 시 이전 방 서버 정리를 기다리지 않는다.
+         화면과 새 영상 연결을 먼저 열고, 이전 viewer 정리는 뒤에서 처리한다. */
+      var prev=viewerCtx;
+      viewerCtx=null;
+      try{clearInterval(prev.heartbeat);clearInterval(prev.activityTimer);}catch(e){}
+      try{
+        if(typeof window.ktDirectRemoteLeaveNow20260924==='function')window.ktDirectRemoteLeaveNow20260924(prev.hostId);
+      }catch(e){}
+      try{
+        req('ktalk_live_viewers?host_id=eq.'+enc(prev.hostId)+'&viewer_id=eq.'+enc(prev.viewerId),{
+          method:'PATCH',headers:{Prefer:'return=minimal'},
+          body:JSON.stringify({active:false,updated_at:nowIso()})
+        }).catch(function(){});
+      }catch(e){}
+    }
 
     /* Communication only: start the host-video path first.
        Room metadata/presence bookkeeping must never delay or cancel media. */
