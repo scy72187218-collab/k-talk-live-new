@@ -7,7 +7,7 @@
   if(window.__ktLiveKitSfuBridge20260924)return;
   window.__ktLiveKitSfuBridge20260924=true;
 
-  var DEFAULT_URL='wss://magnetic-being-advised-gadgets.trycloudflare.com';
+  var DEFAULT_URL='wss://lucia-freeware-tower-overview.trycloudflare.com';
   var TOKEN_URL='https://zupwbfmacwzexyvznlzq.supabase.co/functions/v1/ktalk-livekit-token';
   var SDK_URL='https://cdn.jsdelivr.net/npm/livekit-client@2.22.3/dist/livekit-client.umd.min.js';
 
