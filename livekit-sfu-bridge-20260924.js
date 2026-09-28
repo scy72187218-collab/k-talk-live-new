@@ -395,6 +395,13 @@
   }
 
   function attachGuestVideo(identity,stream){
+    if(!stream)return;
+    /* Never reuse the host stream as an approved guest picture. */
+    try{
+      var hostRef=window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream||null;
+      if(hostRef&&sameVideoSource20260926(stream,hostRef))return;
+      if(currentHostId&&String(identity||'')===String(currentHostId))return;
+    }catch(e){}
     if(isHostRole()){
       try{if(!window.__ktApprovedGuestIds20260924||!window.__ktApprovedGuestIds20260924[identity])return;}catch(e){return;}
     }
