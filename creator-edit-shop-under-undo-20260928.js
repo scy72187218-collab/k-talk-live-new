@@ -50,7 +50,23 @@
     if(!creator)return;
     ensureStyle();
     var existing=creator.querySelector('.kt-creator-edit-shop-20260928');
-    if(!existing)creator.appendChild(makeButton());
+    if(!existing){
+      existing=makeButton();
+      creator.appendChild(existing);
+    }
+
+    /* 화면 크기가 달라도 '되돌리기' 바로 아래에 따라붙게 배치 */
+    try{
+      var undo=[].slice.call(creator.querySelectorAll('button')).find(function(b){
+        return (b.textContent||'').replace(/\\s+/g,'').indexOf('되돌리기')>-1;
+      });
+      if(undo&&existing){
+        var cr=creator.getBoundingClientRect();
+        var ur=undo.getBoundingClientRect();
+        existing.style.setProperty('top',Math.max(100,ur.bottom-cr.top+12)+'px','important');
+        existing.style.setProperty('right',Math.max(10,cr.right-ur.right)+'px','important');
+      }
+    }catch(e){}
 
     /* 기존 위쪽 편집효과 버튼도 눌리게 유지하되, 배경 전체 목록으로 바로 연결 */
     var editBtns=[].slice.call(creator.querySelectorAll('button')).filter(function(b){
