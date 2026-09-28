@@ -66,11 +66,37 @@
   }
   function write(x){try{localStorage.setItem(KEY,JSON.stringify(x||{}));}catch(e){}}
 
-  function giftDefs(t){
-    return t===19900
-      ?[{i:0,e:'🌹',n:'장미'},{i:1,e:'💖',n:'하트'},{i:2,e:'💐',n:'꽃다발'},{i:3,e:'💗',n:'풍선'}]
-      :[{i:0,e:'🌹',n:'장미'},{i:1,e:'💖',n:'하트'},{i:2,e:'💐',n:'꽃다발'}];
+  function giftCatalog(){
+    var a=Array.isArray(window.ktalkGifts)?window.ktalkGifts:[];
+    return a.map(function(g,i){
+      return {i:i,n:String(g&&g[0]||('선물 '+(i+1))),cost:String(g&&g[1]||''),e:String(g&&g[2]||'🎁')};
+    });
   }
+  function normalizeGiftIds(ids){
+    ids=Array.isArray(ids)?ids:[];
+    var out=[];
+    ids.forEach(function(v){
+      v=parseInt(v,10);
+      if(isFinite(v)&&v>=0&&out.indexOf(v)<0)out.push(v);
+    });
+    if(out.length<3)[0,1,2].forEach(function(v){if(out.indexOf(v)<0)out.push(v);});
+    return out.slice(0,5);
+  }
+  function selectedGiftIdsFromForm(){
+    var out=[];
+    document.querySelectorAll('#ktSubGiftPicker20260929 input[type="checkbox"]:checked').forEach(function(el){
+      var i=parseInt(el.value,10);
+      if(isFinite(i)&&out.indexOf(i)<0)out.push(i);
+    });
+    return out;
+  }
+  window.ktLimitSubscriberGiftPick20260929=function(el){
+    var picked=selectedGiftIdsFromForm();
+    if(picked.length>5){
+      if(el)el.checked=false;
+      alert('선물은 최대 5개까지 고를 수 있습니다.');
+    }
+  };
 
   function ensureStyle(){
     if(document.getElementById('ktSubscriberFloatingBannerStyle20260929'))return;
@@ -119,8 +145,12 @@
       if(x.account)accountLine.push(esc(x.account));
       if(x.holder)accountLine.push(esc(x.holder));
     }
-    var gifts=giftDefs(t).map(function(g){
-      return '<button type="button" title="'+esc(g.n)+' 바로 선물" aria-label="'+esc(g.n)+' 바로 선물" onclick="return ktSendFloatingGift20260929('+g.i+')">'+g.e+'</button>';
+    var catalog=giftCatalog();
+    var ids=normalizeGiftIds(x.giftIds);
+    var gifts=ids.map(function(i){
+      var g=catalog[i];
+      if(!g)return '';
+      return '<button type="button" title="'+esc(g.n)+' '+esc(g.cost)+'개 바로 선물" aria-label="'+esc(g.n)+' 바로 선물" onclick="return ktSendFloatingGift20260929('+g.i+')">'+g.e+'</button>';
     }).join('');
 
     old.innerHTML='<div class="kt-sub-float-banner-20260929">'
@@ -154,6 +184,8 @@
     var account=document.getElementById('ktSubFloatAccount20260929');
     var holder=document.getElementById('ktSubFloatHolder20260929');
     var message=document.getElementById('ktSubFloatMessage20260929');
+    var chosen=selectedGiftIdsFromForm();
+    if(chosen.length<3||chosen.length>5){alert('선물은 3개에서 5개까지 직접 골라 주세요.');return false;}
     var x={
       enabled:true,
       tier:t,
@@ -161,6 +193,7 @@
       account:t===19900&&account?String(account.value||'').trim():'',
       holder:t===19900&&holder?String(holder.value||'').trim():'',
       message:message?String(message.value||'').trim():'',
+      giftIds:chosen,
       updatedAt:Date.now()
     };
     if(t===19900&&!x.account&&!x.holder&&!x.message){alert('계좌번호, 이름 또는 문구를 하나 이상 입력해 주세요.');return false;}
@@ -186,12 +219,18 @@
        +'<div class="rowbox"><b>이름 · 예금주</b><input id="ktSubFloatHolder20260929" value="'+esc(x.holder||'')+'" placeholder="이름 또는 예금주" style="width:100%;box-sizing:border-box;margin-top:6px;padding:9px;border-radius:8px;border:1px solid #ffffff22;background:#101016;color:#fff"></div>'
       :'<div class="rowbox"><b>🔒 계좌번호 기능</b><br>14,900원 구독자는 계좌번호를 띄울 수 없습니다. 문구와 선물 3개만 사용할 수 있습니다.</div>';
 
+    var selected=normalizeGiftIds(x.giftIds);
+    var giftPicker=giftCatalog().map(function(g){
+      var checked=selected.indexOf(g.i)>-1?' checked':'';
+      return '<label style="display:flex;align-items:center;gap:6px;padding:7px;border:1px solid #ffffff18;border-radius:9px;background:#101016"><input type="checkbox" value="'+g.i+'"'+checked+' onchange="ktLimitSubscriberGiftPick20260929(this)"><span style="font-size:20px">'+g.e+'</span><span style="min-width:0"><b style="display:block">'+esc(g.n)+'</b><small style="color:#aaa">'+esc(g.cost)+'개</small></span></label>';
+    }).join('');
+
     var html='<div class="rowbox"><b>💎 '+(t===19900?'19,900원':'14,900원')+' 방송 상단 안내</b><br>'
-      +(t===19900?'계좌·이름·문구와 선물 4개를':'문구와 선물 3개를')
-      +' 방송 위쪽에 공중에 뜬 것처럼 보여줍니다. 별도 리모컨은 없습니다.</div>'
+      +(t===19900?'계좌·이름·문구와':'문구와')
+      +' 본인이 고른 선물 3~5개를 방송 위쪽에 공중에 뜬 것처럼 보여줍니다. 별도 리모컨은 없습니다.</div>'
       +accountFields
       +'<div class="rowbox"><b>문구</b><textarea id="ktSubFloatMessage20260929" placeholder="방송 위에 띄울 문구" style="width:100%;min-height:68px;box-sizing:border-box;margin-top:6px;padding:9px;border-radius:8px;border:1px solid #ffffff22;background:#101016;color:#fff">'+esc(x.message||'')+'</textarea></div>'
-      +'<div class="rowbox"><b>🎁 바로 선물</b><br>'+(t===19900?'🌹 장미 · 💖 하트 · 💐 꽃다발 · 💗 풍선':'🌹 장미 · 💖 하트 · 💐 꽃다발')+'이 안내판 옆에 항상 뜹니다. 시청자가 누르면 바로 해당 선물이 보내집니다.</div>'
+      +'<div class="rowbox"><b>🎁 바로 선물 직접 고르기</b><br>작은 선물·큰 선물 상관없이 전체 선물 중에서 <strong>3개~5개</strong>를 직접 골라 주세요.<div id="ktSubGiftPicker20260929" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:8px;max-height:260px;overflow:auto">'+giftPicker+'</div></div>'
       +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px"><button class="act" onclick="ktSaveSubscriberFloatingBanner20260929()">저장 · 위에 띄우기</button><button class="act" onclick="ktClearSubscriberFloatingBanner20260929()">표시 끄기</button></div>';
     if(window.showSheet)window.showSheet('📌 구독자 상단 안내',html);
     return false;
@@ -209,7 +248,7 @@
           var box=document.createElement('div');
           box.className='rowbox kt-sub-float-benefit-20260929';
           box.style.marginTop='8px';
-          box.innerHTML='<b>📌 방송 위 안내 · 바로 선물</b><br><strong>19,900원:</strong> 계좌번호·이름·문구 + 선물 4개<br><strong>14,900원:</strong> 문구 + 선물 3개, 계좌번호는 사용 불가<br>방송 위쪽에 공중에 뜬 것처럼 표시하고 별도 리모컨은 없습니다.<br><button class="act" style="margin-top:7px" onclick="ktOpenSubscriberFloatingBanner20260929()">상단 안내 설정</button>';
+          box.innerHTML='<b>📌 방송 위 안내 · 바로 선물</b><br><strong>19,900원:</strong> 계좌번호·이름·문구 + 본인이 고른 선물 3~5개<br><strong>14,900원:</strong> 문구 + 본인이 고른 선물 3~5개, 계좌번호는 사용 불가<br>작은 선물·큰 선물 상관없이 전체 선물에서 직접 고릅니다. 방송 위쪽에 공중에 뜬 것처럼 표시하고 별도 리모컨은 없습니다.<br><button class="act" style="margin-top:7px" onclick="ktOpenSubscriberFloatingBanner20260929()">상단 안내 설정</button>';
           body.appendChild(box);
         }catch(e){}
       },30);
