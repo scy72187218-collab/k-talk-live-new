@@ -14,6 +14,66 @@
     try{return !!(window.ktIsOwnerAdmin&&window.ktIsOwnerAdmin());}catch(e){}
     return false;
   }
+  var ADMIN_DEFAULT_HASH='856aca9a7224755f3bcb8c7185eb3260b12d76c5333a72f89e9c52980c327256';
+  var ADMIN_HASH_KEY='ktalk_admin_pin_hash_v1';
+  var ADMIN_UNLOCK_KEY='ktalk_admin_unlocked_session_v1';
+
+  function adminHash(){
+    try{return localStorage.getItem(ADMIN_HASH_KEY)||ADMIN_DEFAULT_HASH;}catch(e){return ADMIN_DEFAULT_HASH;}
+  }
+  function adminUnlocked(){
+    try{return sessionStorage.getItem(ADMIN_UNLOCK_KEY)==='1';}catch(e){return !!window.__ktAdminUnlocked20260929;}
+  }
+  function setAdminUnlocked(on){
+    try{
+      if(on)sessionStorage.setItem(ADMIN_UNLOCK_KEY,'1');
+      else sessionStorage.removeItem(ADMIN_UNLOCK_KEY);
+    }catch(e){window.__ktAdminUnlocked20260929=!!on;}
+  }
+  async function sha256Hex(s){
+    var d=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(String(s||'')));
+    return Array.from(new Uint8Array(d)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+  }
+  async function requireAdminUnlock(){
+    if(adminUnlocked())return true;
+    var p=prompt('총 관리자 비밀번호를 입력해 주세요.','');
+    if(p===null)return false;
+    try{
+      if((await sha256Hex(String(p).trim()))!==adminHash()){
+        alert('비밀번호가 맞지 않습니다.');
+        return false;
+      }
+    }catch(e){alert('비밀번호 확인 중 오류가 났습니다.');return false;}
+    setAdminUnlocked(true);
+    return true;
+  }
+  window.ktLockTotalAdmin20260929=function(){
+    setAdminUnlocked(false);
+    try{if(typeof window.closeSheet==='function')window.closeSheet();}catch(e){}
+    setTimeout(function(){try{if(window.openProfile)window.openProfile();}catch(e){}},30);
+    return false;
+  };
+  window.ktChangeTotalAdminPin20260929=async function(){
+    if(!isOwner())return false;
+    var cur=prompt('현재 관리자 비밀번호를 입력해 주세요.','');
+    if(cur===null)return false;
+    try{
+      if((await sha256Hex(String(cur).trim()))!==adminHash()){
+        alert('현재 비밀번호가 맞지 않습니다.');
+        return false;
+      }
+    }catch(e){alert('비밀번호 확인 중 오류가 났습니다.');return false;}
+    var next=prompt('새 비밀번호를 입력해 주세요.','');
+    if(next===null)return false;
+    next=String(next).trim();
+    if(next.length<4){alert('새 비밀번호는 4자리 이상으로 해 주세요.');return false;}
+    var again=prompt('새 비밀번호를 한 번 더 입력해 주세요.','');
+    if(again===null)return false;
+    if(next!==String(again).trim()){alert('새 비밀번호가 서로 다릅니다.');return false;}
+    try{localStorage.setItem(ADMIN_HASH_KEY,await sha256Hex(next));}catch(e){alert('비밀번호 저장에 실패했습니다.');return false;}
+    alert('비밀번호가 변경되었습니다. 다시 잠급니다.');
+    return window.ktLockTotalAdmin20260929();
+  };
   function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   function money(v){return (parseInt(v,10)||0).toLocaleString('ko-KR')+'원';}
   function now(){return new Date().toISOString();}
@@ -157,13 +217,14 @@
 
   window.ktOpenTotalAdminOverview20260928=async function(){
     if(!isOwner())return false;
+    if(!(await requireAdminUnlock()))return false;
     var a=ledger(),t=totals(a);
     var company=0;
     try{company=parseInt(localStorage.getItem('ktalk_company_revenue_total')||'0',10)||0;}catch(e){}
     var rank=0,wins=0,losses=0;
     try{rank=parseInt(localStorage.getItem('ktalk_daily_rank')||'0',10)||0;}catch(e){}
     try{wins=parseInt(localStorage.getItem('ktalk_match_wins')||'0',10)||0;losses=parseInt(localStorage.getItem('ktalk_match_losses')||'0',10)||0;}catch(e){}
-    var html='<div style="margin-bottom:8px"><button type="button" onclick="try{closeSheet()}catch(e){};setTimeout(function(){try{if(window.openProfile)openProfile();}catch(e){}},30)" style="border:0;border-radius:10px;padding:7px 12px;background:#17171d;color:#fff;font-weight:900;font-size:13px">← 프로필로 뒤로</button></div>'
+    var html='<div style="margin-bottom:8px;display:flex;gap:7px;align-items:center;flex-wrap:wrap"><button type="button" onclick="try{closeSheet()}catch(e){};setTimeout(function(){try{if(window.openProfile)openProfile();}catch(e){}},30)" style="border:0;border-radius:10px;padding:7px 12px;background:#17171d;color:#fff;font-weight:900;font-size:13px">← 프로필로 뒤로</button><button type="button" onclick="ktChangeTotalAdminPin20260929()" style="border:1px solid #ffffff2a;border-radius:10px;padding:7px 10px;background:#17171d;color:#fff;font-weight:900;font-size:12px">비밀번호 변경</button><button type="button" onclick="ktLockTotalAdmin20260929()" style="border:1px solid #ffffff2a;border-radius:10px;padding:7px 10px;background:#17171d;color:#ffd86b;font-weight:900;font-size:15px">🔒 잠금</button></div>'
       +'<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:7px">'
       +'<div class="rowbox"><b>👥 총 가입자</b><br><strong id="ktAdminMemberCount20260928">확인 중</strong></div>'
       +'<div class="rowbox"><b>🔴 현재 방송</b><br><strong id="ktAdminLiveCount20260928">확인 중</strong></div>'
