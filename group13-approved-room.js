@@ -253,6 +253,20 @@
       }
       markGroup13Opening();
       renderApprovedGroup13();
+      try{
+        window.dispatchEvent(new CustomEvent('kt-host-room-type-changed',{
+          detail:{room_type:'group13',room_name:'13명 방송',at:Date.now()}
+        }));
+      }catch(e){}
+      [0,80,220,500].forEach(function(ms){
+        setTimeout(function(){
+          try{
+            if(typeof window.ktRepairVisibleHostPresence20260928==='function'){
+              window.ktRepairVisibleHostPresence20260928();
+            }
+          }catch(e){}
+        },ms);
+      });
       return !!document.querySelector('#screen .ktg13-room');
     }catch(e){return false;}
   };
@@ -270,6 +284,21 @@
     }catch(e){}
 
     renderApprovedGroup13(false);
+
+    try{
+      window.dispatchEvent(new CustomEvent('kt-host-room-type-changed',{
+        detail:{room_type:'group13',room_name:'13명 방송',at:Date.now()}
+      }));
+    }catch(e){}
+    [0,80,220,500].forEach(function(ms){
+      setTimeout(function(){
+        try{
+          if(typeof window.ktRepairVisibleHostPresence20260928==='function'){
+            window.ktRepairVisibleHostPresence20260928();
+          }
+        }catch(e){}
+      },ms);
+    });
 
     try{
       var v=document.getElementById('ktLiveVideo');
