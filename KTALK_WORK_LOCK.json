@@ -1,5 +1,5 @@
 {
-  "version": 170,
+  "version": 171,
   "locked": true,
   "scope": "full_snapshot_guard",
   "lock_slot": 9,
@@ -42,7 +42,8 @@
     "daily_fortune_ladder_6_free_once_per_day",
     "daily_fortune_ladder_selected_number_animated_positive_fortunes",
     "daily_fortune_weekly_draw_final_rules_20260928",
-    "hine_telecom_ai24_ad_fortune_event_20260928"
+    "hine_telecom_ai24_ad_fortune_event_20260928",
+    "noncashable_event_discount_bonus_coins_20260928"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -80,11 +81,12 @@
     "daily_fortune_ladder_6_free_once_per_day",
     "daily_fortune_ladder_selected_number_animated_positive_fortunes",
     "daily_fortune_weekly_draw_final_rules_20260928",
-    "hine_telecom_ai24_ad_fortune_event_20260928"
+    "hine_telecom_ai24_ad_fortune_event_20260928",
+    "noncashable_event_discount_bonus_coins_20260928"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "최종 저장: 하루 1회 무료 오늘의 운세 사다리, 주간 추첨 자동응모, 1/2/3등 이벤트장미 100/50/30, 이벤트장미 현금환전 불가, 행운숫자 6개 재미용, 하이네통신 인터넷/CCTV/LAN/키폰/네트워크 AI 24시간 상담·예상견적 광고 및 바로가기.",
+  "note": "최종 기준: 이벤트 지급 코인, 출석·미션·추첨 등 무료 보상 코인, 할인받아 구매한 코인, 충전 보너스로 추가 지급된 코인은 현금 환전 불가. 사이트 내 사용 전용.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -133,10 +135,11 @@
       "daily_fortune_ladder_6_free_once_per_day",
       "daily_fortune_ladder_selected_number_animated_positive_fortunes",
       "daily_fortune_weekly_draw_final_rules_20260928",
-      "hine_telecom_ai24_ad_fortune_event_20260928"
+      "hine_telecom_ai24_ad_fortune_event_20260928",
+      "noncashable_event_discount_bonus_coins_20260928"
     ]
   },
   "last_unlock": "2026-09-27-solo-countdown-only-code-5555",
-  "last_lock": "2026-09-28-save-all-fortune-weeklydraw-hine-ad",
+  "last_lock": "2026-09-28-noncashable-event-discount-bonus-coins",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
