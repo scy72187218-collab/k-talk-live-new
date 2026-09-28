@@ -163,7 +163,8 @@
     var rank=0,wins=0,losses=0;
     try{rank=parseInt(localStorage.getItem('ktalk_daily_rank')||'0',10)||0;}catch(e){}
     try{wins=parseInt(localStorage.getItem('ktalk_match_wins')||'0',10)||0;losses=parseInt(localStorage.getItem('ktalk_match_losses')||'0',10)||0;}catch(e){}
-    var html='<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:7px">'
+    var html='<div style="margin-bottom:8px"><button type="button" onclick="try{closeSheet()}catch(e){};setTimeout(function(){try{if(window.openProfile)openProfile();}catch(e){}},30)" style="border:0;border-radius:10px;padding:7px 12px;background:#17171d;color:#fff;font-weight:900;font-size:13px">← 프로필로 뒤로</button></div>'
+      +'<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:7px">'
       +'<div class="rowbox"><b>👥 총 가입자</b><br><strong id="ktAdminMemberCount20260928">확인 중</strong></div>'
       +'<div class="rowbox"><b>🔴 현재 방송</b><br><strong id="ktAdminLiveCount20260928">확인 중</strong></div>'
       +'<div class="rowbox"><b>💵 실제 들어온 돈</b><br><strong>'+money(t.moneyIn)+'</strong></div>'
