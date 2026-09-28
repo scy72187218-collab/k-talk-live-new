@@ -1,5 +1,5 @@
 {
-  "version": 172,
+  "version": 173,
   "locked": true,
   "scope": "full_snapshot_guard",
   "lock_slot": 9,
@@ -44,7 +44,8 @@
     "daily_fortune_weekly_draw_final_rules_20260928",
     "hine_telecom_ai24_ad_fortune_event_20260928",
     "noncashable_event_discount_bonus_coins_20260928",
-    "cashout_only_actual_broadcast_earnings_20260928"
+    "cashout_only_actual_broadcast_earnings_20260928",
+    "weekly_7day_broadcast_reward_50coins_noncashable_20260928"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -84,11 +85,12 @@
     "daily_fortune_weekly_draw_final_rules_20260928",
     "hine_telecom_ai24_ad_fortune_event_20260928",
     "noncashable_event_discount_bonus_coins_20260928",
-    "cashout_only_actual_broadcast_earnings_20260928"
+    "cashout_only_actual_broadcast_earnings_20260928",
+    "weekly_7day_broadcast_reward_50coins_noncashable_20260928"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "최종 기준: 현금 환전 가능은 본인이 방송해서 실제로 번 방송 수익만. 첫 가입 300코인, 친구 미션 300코인, 출석, 이벤트, 미션, 추첨, 주간 행운 추첨, 할인 구매분, 충전 보너스, 회사 지급 보상 등 방송 수익이 아닌 코인은 전부 환전 불가 및 사이트 내 사용 전용.",
+  "note": "최종 기준: 7일 방송 보상 코인 50개. 회사 지급 보상이므로 현금 환전 불가, 사이트 내 사용 전용.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -139,10 +141,11 @@
       "daily_fortune_weekly_draw_final_rules_20260928",
       "hine_telecom_ai24_ad_fortune_event_20260928",
       "noncashable_event_discount_bonus_coins_20260928",
-      "cashout_only_actual_broadcast_earnings_20260928"
+      "cashout_only_actual_broadcast_earnings_20260928",
+      "weekly_7day_broadcast_reward_50coins_noncashable_20260928"
     ]
   },
   "last_unlock": "2026-09-27-solo-countdown-only-code-5555",
-  "last_lock": "2026-09-28-cashout-only-actual-broadcast-earnings",
+  "last_lock": "2026-09-28-weekly-broadcast-50coins",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
