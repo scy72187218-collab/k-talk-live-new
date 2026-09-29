@@ -10,6 +10,7 @@
   var roomMetaAt=0;
   var stableActiveRooms=[];
   var stableActiveAt=0;
+  var hostPhotoCache={};
 
   function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   function enc(v){return encodeURIComponent(String(v==null?'':v));}
@@ -416,6 +417,24 @@
 
     var r=rooms[0];
     var hostId=String(r.host_id||''),hostName=String(r.host_name||'K-Talk 방송자'),hostPhoto=String(r.host_photo||'');
+    /* Realtime/보조 신호에 사진이 비어 와도 기존 프로필 사진을 지우지 않는다.
+       마지막 정상 사진 또는 방 기록의 사진을 유지해 깜빡임과 기본 아이콘 전환을 막는다. */
+    if(hostPhoto){
+      hostPhotoCache[hostId]=hostPhoto;
+    }else{
+      hostPhoto=String(hostPhotoCache[hostId]||'');
+      if(!hostPhoto){
+        try{
+          var hist=await roomHistory();
+          var hr=(hist||[]).find(function(x){return String(x.host_id||'')===hostId&&String(x.host_photo||'');});
+          if(hr&&hr.host_photo){
+            hostPhoto=String(hr.host_photo);
+            hostPhotoCache[hostId]=hostPhoto;
+          }
+        }catch(_e){}
+      }
+      if(hostPhoto)r.host_photo=hostPhoto;
+    }
     window.__ktLastLiveRoom={
       host_id:hostId,
       host_name:hostName,
