@@ -291,6 +291,9 @@
     var net=(document.getElementById('hudEarnNet')||{}).textContent||'0원';
     var roses=(document.getElementById('hudEarnRoses')||{}).textContent||'🌹 0송이';
     var rate=(document.getElementById('hudEarnRate')||{}).textContent||'일반회원 · 35%';
+    try{
+      if(typeof window.ktIsOwnerAdmin==='function'&&window.ktIsOwnerAdmin())rate='대표 · 100%';
+    }catch(e){}
     var clock=(document.getElementById('ktLiveClock')||{}).textContent||'00:00:00';
 
     screen.innerHTML='<style id="ktSecretApprovedStyle">'
