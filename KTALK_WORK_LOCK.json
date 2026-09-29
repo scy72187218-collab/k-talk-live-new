@@ -68,7 +68,8 @@
     "today_fortune_six_numbers_20260929",
     "daily_fortune_ladder_roses_1_to_5_and_blank_20260929",
     "public_video_continuous_playback_20260929",
-    "fortune_ladder_switch_working_5555_20260929"
+    "fortune_ladder_switch_working_5555_20260929",
+    "public_video_restore_9am_single_playback_5555_20260929"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -132,11 +133,12 @@
     "today_fortune_six_numbers_20260929",
     "daily_fortune_ladder_roses_1_to_5_and_blank_20260929",
     "public_video_continuous_playback_20260929",
-    "fortune_ladder_switch_working_5555_20260929"
+    "fortune_ladder_switch_working_5555_20260929",
+    "public_video_restore_9am_single_playback_5555_20260929"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "5555 승인으로 오늘의 운세/사다리 타기 room-switch 터치 가로채기 오류 수정. Android pointerdown과 일반 click 모두 사다리 화면을 직접 열도록 고정. 다른 스위치/방 기능은 변경 금지.",
+  "note": "5555 승인. 공개 동영상만 아침 9시 상태 기준으로 복귀: 추가 public-video-fast-open-lock 스크립트 로드를 제거해 이중 재생/겹침 방지. 다른 기능/방/스위치/운세/채팅/수익률/녹화는 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -146,7 +148,8 @@
       "group13_open_room_then_countdown",
       "public_video_fast_open_relock_20260929",
       "public_video_app_startup_fixed_20260929",
-      "public_video_continuous_playback_20260929"
+      "public_video_continuous_playback_20260929",
+      "public_video_restore_9am_single_playback_5555_20260929"
     ],
     "3": [
       "subscriber_room_current_state",
@@ -218,6 +221,6 @@
     ]
   },
   "last_unlock": "2026-09-29-fortune-ladder-switch-5555",
-  "last_lock": "2026-09-29-fortune-ladder-switch-working-lock",
+  "last_lock": "2026-09-29-public-video-9am-single-playback-lock",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
