@@ -1222,7 +1222,7 @@ window.ktRenderMatchArena=function(mode){
     +'</div>'
     +'<div class="kt-match-stage">'
       +'<div class="kt-match-team blue">'+ktMatchSlots(mode,true)+'</div>'
-      +'<div class="kt-match-center"><small>ROUND 1 / 3</small><strong>01:00</strong><div><b>0</b><i>:</i><b>0</b></div><span>VS</span></div>'
+      +'<div class="kt-match-center"><small>ROUND 1 / 3</small><strong>03:00</strong><div><b>0</b><i>:</i><b>0</b></div><span>VS</span></div>'
       +'<div class="kt-match-team pink">'+ktMatchSlots(mode,false)+'</div>'
     +'</div>'
     +'<div class="kt-match-roses"><div><b>0 🌹</b><span>내 팀</span></div><em>VS</em><div><b>0 🌹</b><span>상대 팀</span></div></div>'
