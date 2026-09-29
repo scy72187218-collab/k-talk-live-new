@@ -114,7 +114,7 @@
       var r=oldSelect.apply(this,arguments);
       secretSetupRequested=(type==='password');
       if(window.state&&type==='password'){
-        state.liveRoomType='password';state.liveRoomName='비밀방';state.liveRoomMax=5;
+        state.liveRoomType='password';state.liveRoomName='비밀방';state.liveRoomMax=6;
         state.liveRoomPassword=getSaved();
         state.roomPassword=getSaved();
       }
@@ -129,7 +129,7 @@
       var r=oldOpenRoomPrep.apply(this,arguments);
       secretSetupRequested=String(name||'').indexOf('비밀')>-1;
       if(String(name||'').indexOf('비밀')>-1&&window.state){
-        state.liveRoomType='password';state.liveRoomName='비밀방';state.liveRoomMax=5;
+        state.liveRoomType='password';state.liveRoomName='비밀방';state.liveRoomMax=6;
         state.liveRoomPassword=getSaved();
         state.roomPassword=getSaved();
       }
