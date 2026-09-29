@@ -6,6 +6,7 @@
   window.__ktRedLiveSignalDisplayLock20260930=true;
 
   var savedRefresh=null;
+  window.__ktRedLiveSignalHardLocked20260930=true;
 
   function capture(){
     try{
@@ -43,6 +44,12 @@
   }
 
   capture();
+  /* 빨간 LIVE 표시 기능만 고정: 다른 방송/입퇴장 함수는 건드리지 않음. */
+  try{
+    if(savedRefresh){
+      Object.defineProperty(window,'ktRefreshVideoLivePeek',{value:savedRefresh,writable:false,configurable:false});
+    }
+  }catch(e){}
   tick();
   setInterval(tick,1000);
 
