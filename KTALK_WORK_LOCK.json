@@ -86,7 +86,8 @@
     "simple_staff_badge_host_name_level_20260929",
     "simple_staff_badge_all_rooms_20260929",
     "red_live_immediate_touch_restore_5555_20260929",
-    "red_live_room_first_immediate_5555_20260929"
+    "red_live_room_first_immediate_5555_20260929",
+    "red_live_single_entry_handler_5555_20260929"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -168,11 +169,12 @@
     "simple_staff_badge_host_name_level_20260929",
     "simple_staff_badge_all_rooms_20260929",
     "red_live_immediate_touch_restore_5555_20260929",
-    "red_live_room_first_immediate_5555_20260929"
+    "red_live_room_first_immediate_5555_20260929",
+    "red_live_single_entry_handler_5555_20260929"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "5555 승인. 빨간 LIVE 터치 후 방 화면을 먼저 즉시 표시. 다른 기능 변경 금지.",
+  "note": "5555 승인. 빨간 LIVE 입장 지연 원인인 중복 입장 보조 스크립트 2개 로드 제거. 현재 live-video-discovery의 단일 즉시 입장 처리만 사용. 다른 기능 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -264,6 +266,6 @@
     ]
   },
   "last_unlock": "2026-09-29-fortune-ladder-switch-5555",
-  "last_lock": "2026-09-29-red-live-room-first-immediate-5555-lock",
+  "last_lock": "2026-09-29-red-live-single-handler-5555-lock",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
