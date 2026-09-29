@@ -443,11 +443,27 @@
   window.ktEnterRemoteLive=async function(hostId){
     hostId=String(hostId||'');if(!hostId)return;
     if(hostId===deviceId()&&hostActive){showActivity('현재 내가 방송 중인 방입니다.');return;}
-    if(viewerCtx)await window.ktLeaveRemoteLive(true);
+
+    /* 14:47 통신 흐름은 그대로 두고, 화면/연결 시작만 기다리지 않게 한다. */
+    if(viewerCtx){
+      var prev=viewerCtx;viewerCtx=null;
+      try{clearInterval(prev.signalTimer);clearInterval(prev.heartbeat);clearInterval(prev.activityTimer);}catch(e){}
+      try{if(prev.pc)prev.pc.close();}catch(e){}
+      try{window.ktLeaveRemoteLive(true).catch(function(){});}catch(e){}
+    }
+
+    var cached=cachedRemoteRoom20260924(hostId);
+    renderRemote(cached);
+    window.__ktRemoteHostId=hostId;
+    window.__ktCurrentRemoteHostId=hostId;
+    try{sessionStorage.setItem('kt_remote_host_id',hostId);}catch(e){}
+    try{window.dispatchEvent(new CustomEvent('kt-remote-host-selected',{detail:{host_id:hostId,immediate:true}}));}catch(e){}
+
     try{
       var rows=await req('ktalk_live_rooms?select=id,host_id,host_name,title,room_type,room_name,active,updated_at&host_id=eq.'+enc(hostId)+'&active=eq.true&order=started_at.desc&limit=1');
       var room=rows&&rows[0];if(!room||Date.now()-new Date(room.updated_at).getTime()>STALE_MS){alert('방송이 종료되었거나 연결할 수 없습니다.');renderLiveCards();return;}
-      renderRemote(room);
+      updateRemoteMeta20260924(room);
+      try{window.dispatchEvent(new CustomEvent('kt-remote-host-selected',{detail:{host_id:hostId,metadata_ready:true}}));}catch(e){}
       var p=profile(),viewerId='viewer_'+deviceId();
       await req('ktalk_live_viewers?on_conflict=host_id,viewer_id',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({host_id:hostId,viewer_id:viewerId,viewer_name:p.name||'게스트',active:true,updated_at:nowIso()})});
       await req('ktalk_webrtc_sessions?host_id=eq.'+enc(hostId)+'&viewer_id=eq.'+enc(viewerId)+'&active=eq.true',{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})});
