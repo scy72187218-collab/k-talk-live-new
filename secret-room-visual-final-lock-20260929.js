@@ -33,24 +33,11 @@
       var hud=room.querySelector('#myEarnHud');
       if(tools&&hud){
         var rr=room.getBoundingClientRect();
-        var btns=tools.querySelectorAll('.ktsecret-tool');
-        var anchor=null;
-        if(btns.length>=8){
-          var a=btns[5].getBoundingClientRect();
-          var b=btns[7].getBoundingClientRect();
-          anchor={left:a.left,right:b.right,top:Math.min(a.top,b.top)};
-        }
         var tr=tools.getBoundingClientRect();
-        var w=78,h=40,gap=4;
+        var w=72,h=34,gap=2;
         if(rr.width&&tr.width){
-          var left;
-          if(anchor){
-            left=Math.round(anchor.left+((anchor.right-anchor.left)-w)/2);
-          }else{
-            left=Math.round(rr.right-w-7);
-          }
-          left=Math.max(Math.round(rr.left+4),Math.min(left,Math.round(rr.right-w-4)));
-          var top=Math.round((anchor?anchor.top:tr.top)-h-gap);
+          var left=Math.round(rr.right-w-6);
+          var top=Math.round(tr.top-h+6);
 
           hud.style.setProperty('position','fixed','important');
           hud.style.setProperty('left',left+'px','important');
@@ -68,6 +55,7 @@
           hud.style.setProperty('z-index','2147483646','important');
           hud.style.setProperty('transition','none','important');
           hud.style.setProperty('animation','none','important');
+          hud.querySelectorAll('span,b').forEach(function(el){el.style.setProperty('font-size','6px','important');el.style.setProperty('line-height','1','important');});
 
           var row=hud.closest('.ktsecret-earn-row');
           if(row){
