@@ -1,5 +1,5 @@
-/* 모든 방송방 보물상자 버튼 표시 통일
-   보물상자 / 100개 / 03:00 카운트다운
+/* 모든 방송방 보물 패키지 버튼 표시 통일
+   보물 패키지 / 100개 / 03:00 카운트다운
    아이콘 50% 축소
    다른 기능/배치 변경 없음 */
 (function(){
@@ -27,7 +27,7 @@
     if(!btn)return false;
     var t=String(btn.textContent||'').replace(/\s+/g,'');
     var a=String(btn.getAttribute('aria-label')||'').replace(/\s+/g,'');
-    return t.indexOf('보물상자')>-1||a.indexOf('보물상자')>-1||
+    return t.indexOf('보물 패키지')>-1||a.indexOf('보물 패키지')>-1||
       btn.classList.contains('kt-three-quick-treasure')||
       btn.classList.contains('kt-solo-treasure-btn');
   }
@@ -35,10 +35,10 @@
   function normalizeButton(btn){
     if(!btn||!isTreasureButton(btn))return;
     btn.classList.add('kt-room-treasure-meta-btn');
-    btn.setAttribute('aria-label','보물상자');
+    btn.setAttribute('aria-label','보물 패키지');
     var icon='🎁';
     btn.innerHTML='<b class="kt-room-treasure-icon">'+icon+'</b>'
-      +'<span class="kt-room-treasure-label">보물상자</span>';
+      +'<span class="kt-room-treasure-label">보물 패키지</span>';
   }
 
   function roomRoots(){
