@@ -84,7 +84,8 @@
     "red_live_all_devices_5555_20260929",
     "public_video_restore_sep28_known_good_5555_20260929",
     "simple_staff_badge_host_name_level_20260929",
-    "simple_staff_badge_all_rooms_20260929"
+    "simple_staff_badge_all_rooms_20260929",
+    "red_live_immediate_touch_restore_5555_20260929"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -164,11 +165,12 @@
     "red_live_all_devices_5555_20260929",
     "public_video_restore_sep28_known_good_5555_20260929",
     "simple_staff_badge_host_name_level_20260929",
-    "simple_staff_badge_all_rooms_20260929"
+    "simple_staff_badge_all_rooms_20260929",
+    "red_live_immediate_touch_restore_5555_20260929"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "모든 방송방에 적용: 호스트는 '호스트' 글자 없이 닉네임+레벨만 표시. 운영진 지정자는 닉네임/레벨 옆에 '운영진' 표시. 다른 기능 변경 금지.",
+  "note": "5555 승인. 빨간 LIVE 터치 입장 처리만 2026-09-28 즉시 입장 방식으로 복구. pointerdown 즉시 ktEnterRemoteLive 호출, 중복 click/touch 보강 제거. 다른 방/스위치/동영상/채팅/수익률 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -260,6 +262,6 @@
     ]
   },
   "last_unlock": "2026-09-29-fortune-ladder-switch-5555",
-  "last_lock": "2026-09-29-simple-staff-badge-all-rooms-lock",
+  "last_lock": "2026-09-29-red-live-immediate-touch-restore-5555-lock",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
