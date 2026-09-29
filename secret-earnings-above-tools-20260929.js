@@ -1,7 +1,7 @@
-/* K-Talk 비밀방 수익률 최종 위치: 방 전체 기준 오른쪽 아래, 공유/효과/더보기 바로 위 */
+/* K-Talk 비밀방 수익률: 화면 오른쪽 아래, 공유/효과/더보기 바로 위 */
 (function(){
-  if(window.__ktSecretEarnAboveTools20260929)return;
-  window.__ktSecretEarnAboveTools20260929=true;
+  if(window.__ktSecretEarnAboveTools20260929V2)return;
+  window.__ktSecretEarnAboveTools20260929V2=true;
 
   function place(){
     try{
@@ -11,36 +11,37 @@
       var tools=room.querySelector('.ktsecret-tools');
       if(!earn||!tools)return;
 
-      room.style.setProperty('position','relative','important');
+      var rr=room.getBoundingClientRect();
+      var tr=tools.getBoundingClientRect();
+      if(!rr.width||!tr.width)return;
 
-      /* main 안에 있으면 방 전체의 직접 자식으로 옮겨서
-         호스트/게스트 칸 위치 영향 없이 하단 도구줄 바로 위에 고정 */
-      if(earn.parentElement!==room){
-        room.insertBefore(earn,tools);
-      }
+      /* 공유/효과/더보기 바로 위의 오른쪽 끝에 화면 기준으로 고정 */
+      var w=92,h=50,gap=4;
+      var left=Math.round(Math.max(rr.left+4,rr.right-w-6));
+      var top=Math.round(Math.max(rr.top+4,tr.top-h-gap));
 
-      earn.style.setProperty('position','absolute','important');
-      earn.style.setProperty('right','6px','important');
-      earn.style.setProperty('left','auto','important');
-      earn.style.setProperty('top','auto','important');
-      earn.style.setProperty('bottom','58px','important');
-      earn.style.setProperty('width','92px','important');
-      earn.style.setProperty('height','50px','important');
+      earn.style.setProperty('position','fixed','important');
+      earn.style.setProperty('left',left+'px','important');
+      earn.style.setProperty('right','auto','important');
+      earn.style.setProperty('top',top+'px','important');
+      earn.style.setProperty('bottom','auto','important');
+      earn.style.setProperty('width',w+'px','important');
+      earn.style.setProperty('height',h+'px','important');
       earn.style.setProperty('margin','0','important');
       earn.style.setProperty('padding','0','important');
       earn.style.setProperty('transform','none','important');
-      earn.style.setProperty('z-index','999','important');
+      earn.style.setProperty('z-index','2147483000','important');
       earn.style.setProperty('display','flex','important');
       earn.style.setProperty('align-items','flex-end','important');
       earn.style.setProperty('justify-content','flex-end','important');
 
       var hud=earn.querySelector('#myEarnHud');
       if(hud){
-        hud.style.setProperty('width','92px','important');
-        hud.style.setProperty('min-width','92px','important');
-        hud.style.setProperty('max-width','92px','important');
-        hud.style.setProperty('height','50px','important');
-        hud.style.setProperty('max-height','50px','important');
+        hud.style.setProperty('width',w+'px','important');
+        hud.style.setProperty('min-width',w+'px','important');
+        hud.style.setProperty('max-width',w+'px','important');
+        hud.style.setProperty('height',h+'px','important');
+        hud.style.setProperty('max-height',h+'px','important');
         hud.style.setProperty('margin','0','important');
         hud.style.setProperty('transform','none','important');
       }
@@ -48,12 +49,16 @@
   }
 
   place();
-  [40,100,220,500,900,1600,2600].forEach(function(ms){setTimeout(place,ms);});
+  [30,80,160,320,650,1200,2200].forEach(function(ms){setTimeout(place,ms);});
+  setInterval(place,700);
+
   try{
     new MutationObserver(function(){
-      clearTimeout(window.__ktSecretEarnAboveToolsTimer20260929);
-      window.__ktSecretEarnAboveToolsTimer20260929=setTimeout(place,25);
-    }).observe(document.documentElement,{childList:true,subtree:true});
+      clearTimeout(window.__ktSecretEarnAboveToolsTimer20260929V2);
+      window.__ktSecretEarnAboveToolsTimer20260929V2=setTimeout(place,20);
+    }).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['class','style']});
   }catch(e){}
-  setInterval(place,1200);
+
+  window.addEventListener('resize',function(){setTimeout(place,30);});
+  window.addEventListener('orientationchange',function(){setTimeout(place,120);});
 })();
