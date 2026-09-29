@@ -4,7 +4,7 @@
   if(window.__ktLiveSignalPublisher20260929)return;
   window.__ktLiveSignalPublisher20260929=true;
 
-  var timer=null,runId='',runStartedAt=0,lastActive=false,forceOffUntil=0;
+  var timer=null,runId='',runStartedAt=0,lastActive=false,forceOffUntil=0,startGraceUntil=0;
 
   function deviceId(){
     var id='';
@@ -71,6 +71,7 @@
 
   function forceStart(){
     forceOffUntil=0;
+    startGraceUntil=Date.now()+8000;
     if(!runId){runStartedAt=Date.now();runId='sig-'+runStartedAt.toString(36)+'-'+Math.random().toString(36).slice(2,7);}
     try{send('publish');}catch(e){}
     lastActive=true;
@@ -98,8 +99,12 @@
     if(Date.now()<forceOffUntil)return;
     var on=hostRoomVisible();
     if(on){
+      startGraceUntil=0;
       send(lastActive?'heartbeat':'publish');
       lastActive=true;
+    }else if(Date.now()<startGraceUntil&&lastActive){
+      /* 방송 시작 직후 방 화면이 늦게 그려져도 빨간 LIVE 신호를 먼저 유지 */
+      send('heartbeat');
     }else if(lastActive){
       forceEnd();
     }
