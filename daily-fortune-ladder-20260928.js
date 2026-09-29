@@ -184,6 +184,8 @@
   window.ktOpenDailyFortuneLadder20260928=function(){
     try{
       if(typeof window.showSheet==='function')window.showSheet('🎯 오늘의 운세',eventHtml());
+      var guide='오늘의 운세 장미 사다리 이벤트입니다. 하루에 한 번 무료로 참여할 수 있습니다. 1번부터 6번 중 하나를 선택하세요. 사다리 결과는 장미 1송이부터 5송이 또는 꽝 한 칸입니다. 참여하면 2주 행운 추첨에 자동 응모됩니다.';
+      if(typeof window.ktSpeak==='function')window.ktSpeak(guide);
     }catch(e){}
     return false;
   };
@@ -227,6 +229,10 @@
             +'<div class="rowbox"><b>참여 완료</b><br>오늘은 1회 참여가 끝났습니다. 내일 다시 이용할 수 있습니다.</div>';
           try{
             if(typeof window.showSheet==='function')window.showSheet('🎯 오늘의 운세 결과',html);
+            var spokenResult=reward
+              ? ('축하합니다. '+startNumber+'번에서 출발해 '+(slot+1)+'번에 도착했습니다. 장미 '+reward+'송이 당첨입니다. 오늘의 행운 숫자는 '+lucky.join(', ')+' 입니다.')
+              : ('아쉽게도 꽝입니다. '+startNumber+'번에서 출발해 '+(slot+1)+'번에 도착했습니다. 오늘의 행운 숫자는 '+lucky.join(', ')+' 입니다.');
+            if(typeof window.ktSpeak==='function')window.ktSpeak(spokenResult);
             if(typeof window.ktAnnounceEvent==='function')window.ktAnnounceEvent('reward',{text:reward?'오늘의 운세 장미 '+reward+'송이 당첨':'오늘의 운세 이벤트 완료'});
           }catch(e){}
         },350);
