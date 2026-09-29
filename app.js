@@ -2329,12 +2329,16 @@ window.showPremiumGiftFx=function(name,cost,sender){
     var st=document.createElement('style');
     st.id='ktExactGiftFxStyle';
     st.textContent=''
-      +'.kt-exact-gift-fx{position:fixed;inset:0;z-index:10030;pointer-events:none;overflow:hidden}'
-      +'.kt-exact-gift-fx .kt-premium-gift-banner{position:absolute;left:50%;top:max(72px,calc(env(safe-area-inset-top) + 56px));transform:translateX(-50%);max-width:88vw;padding:9px 15px;border-radius:999px;background:rgba(12,8,18,.93);border:1px solid #ffd75a;color:#fff;font-size:13px;font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 0 18px #ffcf4966;animation:ktExactGiftBanner 9.6s ease both}'
-      +'.kt-exact-gift-emoji{position:absolute;left:50%;top:43%;transform:translate(-50%,-50%);font-size:min(31vw,148px);line-height:1;filter:drop-shadow(0 0 18px rgba(255,215,90,.7));animation:ktExactGiftFloat 9.6s ease both}'
-      +'.kt-exact-gift-name{position:absolute;left:50%;top:61%;transform:translateX(-50%);max-width:88vw;color:#fff6a8;font-size:18px;font-weight:1000;text-shadow:0 0 12px #ffba39;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;animation:ktExactGiftBanner 9.6s ease both}'
+      +'.kt-exact-gift-fx{position:fixed;inset:0;z-index:10030;pointer-events:none;overflow:hidden;background:radial-gradient(circle at 50% 64%,rgba(255,169,45,.18),rgba(0,0,0,0) 44%)}'
+      +'.kt-exact-gift-fx .kt-premium-gift-banner{position:absolute;left:50%;top:max(72px,calc(env(safe-area-inset-top) + 56px));transform:translateX(-50%);max-width:92vw;padding:10px 16px;border-radius:999px;background:rgba(12,8,18,.90);border:1px solid #ffd75a;color:#fff;font-size:13px;font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 0 22px #ffcf4966;animation:ktExactGiftBanner 9.6s ease both}'
+      +'.kt-exact-gift-stage{position:absolute;left:0;right:0;top:28%;bottom:8%;display:grid;place-items:center;animation:ktExactGiftStage 9.6s ease both}'
+      +'.kt-exact-gift-art{width:min(92vw,560px);height:min(58vh,520px);display:grid;place-items:center;filter:drop-shadow(0 20px 28px rgba(0,0,0,.45)) drop-shadow(0 0 30px rgba(255,181,51,.35));animation:ktExactGiftArt 9.6s cubic-bezier(.18,.72,.2,1) both}'
+      +'.kt-exact-gift-art svg{display:block;width:100%;height:100%}'
+      +'.kt-exact-gift-emoji{font-size:min(56vw,260px);line-height:1;filter:drop-shadow(0 0 24px rgba(255,215,90,.75))}'
+      +'.kt-exact-gift-name{position:absolute;left:50%;bottom:max(74px,calc(env(safe-area-inset-bottom) + 58px));transform:translateX(-50%);max-width:92vw;padding:8px 16px;border-radius:18px;background:rgba(0,0,0,.45);color:#fff6a8;font-size:20px;font-weight:1000;text-shadow:0 0 12px #ffba39;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;animation:ktExactGiftBanner 9.6s ease both}'
       +'@keyframes ktExactGiftBanner{0%{opacity:0;transform:translate(-50%,-12px) scale(.96)}10%,82%{opacity:1;transform:translate(-50%,0) scale(1)}100%{opacity:0;transform:translate(-50%,-8px) scale(.98)}}'
-      +'@keyframes ktExactGiftFloat{0%{opacity:0;transform:translate(-50%,-42%) scale(.35) rotate(-8deg)}12%{opacity:1;transform:translate(-50%,-50%) scale(1.08) rotate(3deg)}55%{opacity:1;transform:translate(-50%,-54%) scale(.98) rotate(-2deg)}86%{opacity:1;transform:translate(-50%,-50%) scale(1.03) rotate(2deg)}100%{opacity:0;transform:translate(-50%,-62%) scale(1.18) rotate(6deg)}}';
+      +'@keyframes ktExactGiftStage{0%{opacity:0}8%,86%{opacity:1}100%{opacity:0}}'
+      +'@keyframes ktExactGiftArt{0%{opacity:0;transform:translateY(22%) scale(.28) rotate(-7deg)}14%{opacity:1;transform:translateY(0) scale(1.08) rotate(2deg)}55%{transform:translateY(-2%) scale(.98) rotate(-1deg)}84%{opacity:1;transform:translateY(0) scale(1.03) rotate(1deg)}100%{opacity:0;transform:translateY(-12%) scale(1.18) rotate(4deg)}}';
     document.head.appendChild(st);
   }
 
@@ -2342,8 +2346,13 @@ window.showPremiumGiftFx=function(name,cost,sender){
   wrap.id='ktPremiumGiftFx';
   wrap.className='kt-exact-gift-fx';
   var who=sender?sender:'누군가';
+  var giftType='';
+  try{giftType=window.getPremiumGiftFxType?window.getPremiumGiftFxType(name,cost):'';}catch(e){}
+  var art='';
+  try{if(giftType&&window.getPremiumGiftSvg)art=window.getPremiumGiftSvg(giftType)||'';}catch(e){}
+  if(!art)art='<div class="kt-exact-gift-emoji">'+icon+'</div>';
   wrap.innerHTML='<div class="kt-premium-gift-banner"><b>'+who+'</b> · '+String(name||'선물')+' 선물!</div>'
-    +'<div class="kt-exact-gift-emoji">'+icon+'</div>'
+    +'<div class="kt-exact-gift-stage"><div class="kt-exact-gift-art">'+art+'</div></div>'
     +'<div class="kt-exact-gift-name">'+String(name||'선물')+' · '+String(cost||'')+'개</div>';
   document.body.appendChild(wrap);
   setTimeout(function(){if(wrap&&wrap.parentNode)wrap.remove();},10000);
