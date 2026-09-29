@@ -5,7 +5,7 @@
 
   var BASE='https://zupwbfmacwzexyvznlzq.supabase.co/rest/v1/';
   var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1cHdiZm1hY3d6ZXh5dnpubHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjEwNzYsImV4cCI6MjEwNDAzNzA3Nn0.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
-  var STALE_MS=60000;
+  var STALE_MS=15000;
   var roomMetaCache=[];
   var roomMetaAt=0;
   var stableActiveRooms=[];
@@ -51,13 +51,12 @@
   }
 
   async function activeRoomsCore(){
-    /* 모든 기기에서 LIVE 표시가 같도록 Realtime 하나만 믿지 않는다.
-       Realtime + DB + beacon을 합쳐서 한 기기가 신호를 놓쳐도 같은 빨간 LIVE를 보게 한다. */
-    var realtimeRows=[];
+    /* Supabase Realtime broadcast is the primary LIVE source.
+       It is shared by all devices, unlike warm serverless memory. */
     try{
       var rh=window.__ktRealtimeLiveHosts||null;
       if(rh){
-        realtimeRows=Object.keys(rh).map(function(id){
+        var realtimeRows=Object.keys(rh).map(function(id){
           var x=rh[id]||{},d=x.data||{};
           return {
             host_id:String(d.host_id||id||''),
@@ -68,6 +67,14 @@
             updated_at:new Date(Number(d.at||x.last||Date.now())).toISOString()
           };
         }).filter(function(x){return !!x.host_id;});
+        if(realtimeRows.length){
+          stableActiveRooms=realtimeRows;stableActiveAt=Date.now();
+          return realtimeRows;
+        }
+        if(window.__ktRealtimeSignalReady){
+          stableActiveRooms=[];stableActiveAt=0;
+          return [];
+        }
       }
     }catch(e){}
 
@@ -87,23 +94,9 @@
       }
     }catch(e){}
 
-    var fallback=await beaconPromise;
-
-    /* host_id 기준으로 3개 소스를 합친다. DB 값을 우선하고,
-       DB가 늦으면 Realtime/Beacon 값으로 즉시 보완한다. */
-    var merged={},order=[];
-    function put(list){
-      (list||[]).forEach(function(x){
-        var id=String(x&&x.host_id||'').trim();
-        if(!id)return;
-        if(!merged[id])order.push(id);
-        merged[id]=Object.assign({},merged[id]||{},x);
-      });
-    }
-    put(realtimeRows);
-    put(fallback);
-    put(rows);
-    rows=order.map(function(id){return merged[id];}).filter(Boolean);
+    var fallback=[];
+    if(!rows.length)fallback=await beaconPromise;
+    if(!rows.length&&fallback.length)rows=fallback;
 
     if(window.__ktHostEndLock&&window.__ktHostEndLockHostId){
       var ended=String(window.__ktHostEndLockHostId);
@@ -115,11 +108,7 @@
       return rows;
     }
 
-    /* 느린 기기에서 한 번의 조회 지연으로 빨간 LIVE가 빠지지 않도록
-       직전에 확인된 방송은 5초 동안 유지한다. 실제 종료 신호는 hostEndLock에서 즉시 제외된다. */
-    if(stableActiveRooms.length && Date.now()-stableActiveAt<5000){
-      return stableActiveRooms.slice();
-    }
+    /* DB와 보조 신호가 모두 비었을 때만 LIVE 표시를 내린다. */
     stableActiveRooms=[];stableActiveAt=0;
     return [];
   }
@@ -128,7 +117,7 @@
   async function activeRooms(){
     var now=Date.now();
     if(activeRoomsBusy)return activeRoomsBusy;
-    if(now-activeRoomsCheckedAt<500)return stableActiveRooms.slice();
+    if(now-activeRoomsCheckedAt<1800)return stableActiveRooms.slice();
     activeRoomsCheckedAt=now;
     activeRoomsBusy=activeRoomsCore();
     try{return await activeRoomsBusy;}
@@ -445,11 +434,11 @@
     var b=document.createElement('div');
     b.id='ktVideoLivePeek';b.className='kt-video-live-peek';b.setAttribute('data-kt-signature',signature);
     b.innerHTML='<button type="button" class="ktvl-person" aria-label="방송자 프로필"><span class="ktvl-avatar">'+photo+'</span><span class="ktvl-copy"><b>'+esc(hostName)+'</b><small>'+esc(r.title||r.room_name||'방송 중')+'</small></span></button>'
-      +'<button type="button" class="ktvl-live" data-host="'+esc(hostId)+'">● LIVE</button>';
+      +'<button type="button" class="ktvl-live">● LIVE</button>';
     var person=b.querySelector('.ktvl-person');
     var live=b.querySelector('.ktvl-live');
     if(person)person.onclick=function(e){e.stopPropagation();window.ktOpenLiveHostActions(hostId,hostName,hostPhoto);};
-    if(live)live.onclick=function(e){e.stopPropagation();if(window.ktEnterRemoteLive)window.ktEnterRemoteLive(hostId);};
+    if(live)live.onclick=function(e){e.preventDefault();e.stopPropagation();if(window.ktEnterRemoteLive)window.ktEnterRemoteLive(hostId);};
     host.appendChild(b);
     paintSocialState(hostId);
   }
@@ -478,8 +467,6 @@
   if(screen)screen.addEventListener('scroll',function(){scheduleRender(350);},true);
   document.addEventListener('touchend',function(){scheduleRender(250);},true);
   document.addEventListener('pointerup',function(){scheduleRender(250);},true);
-  setInterval(function(){scheduleRender(0);},700);
-  window.addEventListener('pageshow',function(){scheduleRender(40);});
-  document.addEventListener('visibilitychange',function(){if(!document.hidden)scheduleRender(40);});
+  setInterval(function(){scheduleRender(0);},2000);
   scheduleRender(600);
 })();
