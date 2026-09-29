@@ -4,7 +4,7 @@
   if(window.__ktLiveSignalPublisher20260929)return;
   window.__ktLiveSignalPublisher20260929=true;
 
-  var timer=null,runId='',runStartedAt=0,lastActive=false;
+  var timer=null,runId='',runStartedAt=0,lastActive=false,forceOffUntil=0;
 
   function deviceId(){
     var id='';
@@ -62,19 +62,54 @@
       }).catch(function(){});
     }catch(e){}
   }
+  function forceEnd(){
+    try{send('end');}catch(e){}
+    lastActive=false;
+    forceOffUntil=Date.now()+6000;
+    runId='';runStartedAt=0;
+  }
+
+  function forceStart(){
+    forceOffUntil=0;
+    if(!runId){runStartedAt=Date.now();runId='sig-'+runStartedAt.toString(36)+'-'+Math.random().toString(36).slice(2,7);}
+    try{send('publish');}catch(e){}
+    lastActive=true;
+  }
+
+  function wrap(name,before){
+    var old=window[name];
+    if(typeof old!=='function'||old.__ktSignalWrapped20260929)return;
+    var fn=function(){
+      try{before&&before();}catch(e){}
+      return old.apply(this,arguments);
+    };
+    fn.__ktSignalWrapped20260929=true;
+    window[name]=fn;
+  }
+
+  function installWraps(){
+    wrap('startBroadcast',forceStart);
+    wrap('endBroadcastEarnings',forceEnd);
+    wrap('leaveBroadcastToDashboard',forceEnd);
+  }
+
   function tick(){
+    installWraps();
+    if(Date.now()<forceOffUntil)return;
     var on=hostRoomVisible();
     if(on){
       send(lastActive?'heartbeat':'publish');
       lastActive=true;
     }else if(lastActive){
-      send('end');
-      lastActive=false;runId='';runStartedAt=0;
+      forceEnd();
     }
   }
-  timer=setInterval(tick,1200);
-  setTimeout(tick,120);
-  window.addEventListener('pageshow',function(){setTimeout(tick,80);});
-  document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(tick,80);});
-  window.addEventListener('pagehide',function(){if(lastActive)send('end');});
+
+  installWraps();
+  timer=setInterval(tick,700);
+  setTimeout(tick,80);
+  [100,300,700,1400].forEach(function(ms){setTimeout(installWraps,ms);});
+  window.addEventListener('pageshow',function(){setTimeout(tick,60);});
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(tick,60);});
+  window.addEventListener('pagehide',function(){if(lastActive)forceEnd();});
 })();
