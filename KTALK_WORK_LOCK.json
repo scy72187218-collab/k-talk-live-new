@@ -1,5 +1,5 @@
 {
-  "version": 182,
+  "version": 183,
   "locked": true,
   "scope": "full_snapshot_guard",
   "lock_slot": 9,
@@ -54,7 +54,10 @@
     "total_admin_spreadsheet_overview_members_ranking_match_events_cashout_live_20260928",
     "total_admin_tax_accounting_overview_csv_20260928",
     "live_audio_music_voice_quality_48khz_stereo_no_agc_20260928",
-    "creator_edit_shop_under_undo_existing_beauty_background_20260928"
+    "creator_edit_shop_under_undo_existing_beauty_background_20260928",
+    "earnings_cleanup_single_controller_20260929",
+    "unified_host_earnings_center_20260929",
+    "unified_host_guest_chat_center_above_earnings_20260929"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -104,11 +107,14 @@
     "total_admin_spreadsheet_overview_members_ranking_match_events_cashout_live_20260928",
     "total_admin_tax_accounting_overview_csv_20260928",
     "live_audio_music_voice_quality_48khz_stereo_no_agc_20260928",
-    "creator_edit_shop_under_undo_existing_beauty_background_20260928"
+    "creator_edit_shop_under_undo_existing_beauty_background_20260928",
+    "earnings_cleanup_single_controller_20260929",
+    "unified_host_earnings_center_20260929",
+    "unified_host_guest_chat_center_above_earnings_20260929"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "동영상 촬영 화면에서 되돌리기 아래 편집숍 버튼. 새 기능 생성 없이 기존 얼굴 보정(입술/코/얼굴선/피부)과 기존 배경(무대/바다 등) 재사용. 되돌리기 버튼이 있으면 바로 아래, 없으면 기존 편집효과 아래에 배치.",
+  "note": "수익률 코드는 단일 통합본으로 정리. 1인/9명/13명/구독자/비밀방 호스트 수익률은 하단 가운데 동일 크기. 모든 방 호스트·게스트 표시 채팅은 수익률 위 중앙에 공중 표시. 채팅 입력/버튼/카메라/기타 화면은 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -169,10 +175,13 @@
       "total_admin_spreadsheet_overview_members_ranking_match_events_cashout_live_20260928",
       "total_admin_tax_accounting_overview_csv_20260928",
       "live_audio_music_voice_quality_48khz_stereo_no_agc_20260928",
-      "creator_edit_shop_under_undo_existing_beauty_background_20260928"
+      "creator_edit_shop_under_undo_existing_beauty_background_20260928",
+      "earnings_cleanup_single_controller_20260929",
+      "unified_host_earnings_center_20260929",
+      "unified_host_guest_chat_center_above_earnings_20260929"
     ]
   },
   "last_unlock": "2026-09-27-solo-countdown-only-code-5555",
-  "last_lock": "2026-09-28-creator-edit-shop-under-undo",
+  "last_lock": "2026-09-29-earnings-chat-unified-center",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
