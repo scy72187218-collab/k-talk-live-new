@@ -79,7 +79,8 @@
     "fortune_button_below_share_5555_20260929",
     "fortune_button_actual_video_home_below_share_5555_20260929",
     "video_fortune_below_share_duplicate_keep_broadcast_5555_20260929",
-    "all_switches_final_audit_locked_20260929"
+    "all_switches_final_audit_locked_20260929",
+    "public_video_continuous_no_duplicate_5555_20260929"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -154,11 +155,12 @@
     "fortune_button_below_share_5555_20260929",
     "fortune_button_actual_video_home_below_share_5555_20260929",
     "video_fortune_below_share_duplicate_keep_broadcast_5555_20260929",
-    "all_switches_final_audit_locked_20260929"
+    "all_switches_final_audit_locked_20260929",
+    "public_video_continuous_no_duplicate_5555_20260929"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "최종 오류 점검 완료. app.js 및 스위치 핵심 스크립트 문법 정상. 런타임에는 url.parse deprecation warning만 있고 사용자 기능 오류 그룹은 확인되지 않음. 모든 스위치 처리 스크립트 캐시 갱신 후 현재 상태 최종 잠금. 명시적 요청 없이는 변경 금지.",
+  "note": "5555 승인. 공개 동영상이 멈추면 같은 video 요소를 재생만 재개하며 src/load 재설정 및 중복 video 생성 금지. 동영상 화면 터치로 일시정지하지 않음. 다른 기능 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -250,6 +252,6 @@
     ]
   },
   "last_unlock": "2026-09-29-fortune-ladder-switch-5555",
-  "last_lock": "2026-09-29-all-switches-final-audit-lock",
+  "last_lock": "2026-09-29-public-video-continuous-no-duplicate-5555-lock",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
