@@ -36,8 +36,8 @@ function style(){if(document.getElementById('ktOwnerCrownAllStyle'))return;var s
 function decorate(){
  style();var k=key();if(!IMG[k])return;var n=NM[k];
  document.querySelectorAll('.kt-account-avatar.'+k).forEach(function(i){if(!i.querySelector('.kt-owner-crown-svg'))i.innerHTML=crownSvg(k)});
- var pi=document.querySelector('.kt-my-profile-photo img');if(pi)pi.src=IMG[k];
- var mi=document.querySelector('.kt-profile-maininfo');if(mi&&!mi.querySelector('.kt-owner-room-level')){var q=document.createElement('small');q.className='kt-owner-room-level';q.textContent='Lv.50,000';mi.appendChild(q)}
+ var pi=document.querySelector('.kt-my-profile-photo img');if(pi){var chosen=storedPhoto(k);if(chosen&&pi.getAttribute('src')!==chosen)pi.setAttribute('src',chosen);}
+ var mi=document.querySelector('.kt-profile-maininfo');if(mi){mi.querySelectorAll('.kt-owner-room-level').forEach(function(x){x.remove();});}
  var sels=['.host-meta b','.kt-host-name','.kt-guest-name','.ktsecret-guest-name','.kgh-name','.ktg13-name','.ktg9-name','.ktsubscriber-name','[data-kt-nickname]','[data-nickname]'];
  document.querySelectorAll(sels.join(',')).forEach(function(el){try{var t=(el.textContent||'').trim();if(t.indexOf(n)<0)return;if(!el.parentNode.querySelector('.kt-owner-room-level')){var lv=document.createElement('small');lv.className='kt-owner-room-level';lv.textContent='Lv.50,000';el.parentNode.appendChild(lv)}}catch(e){}});
 }
