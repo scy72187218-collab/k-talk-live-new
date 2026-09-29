@@ -49,8 +49,7 @@
   function saveProfile(x){try{localStorage.setItem(PROFILE_KEY,JSON.stringify(x||{}));}catch(e){}}
   function sellerActive(){
     var x=readProfile();
-    if(isOwner())return true;
-    return !!(x&&x.active);
+    return !!(x&&x.active&&Number(x.plan||0)===300000&&String(x.bizNo||'').trim());
   }
   function readOrders(){
     try{
@@ -69,6 +68,9 @@
       +'#screen .kt-seller-info-20260929{padding:8px 9px!important;border-radius:13px!important;background:rgba(8,8,12,.80)!important;border:1px solid rgba(255,215,100,.52)!important;color:#fff!important;box-shadow:0 6px 20px rgba(0,0,0,.32)!important;pointer-events:auto!important}'
       +'#screen .kt-seller-info-20260929 b{display:block!important;color:#ffe071!important;font-size:11px!important}#screen .kt-seller-info-20260929 span,#screen .kt-seller-info-20260929 small{display:block!important;font-size:9px!important;line-height:1.35!important;color:#eee!important;word-break:break-all!important}'
       +'#screen .kt-seller-order-btn-20260929{width:100%!important;border:0!important;border-radius:10px!important;padding:7px!important;background:#ffcc43!important;color:#17130a!important;font-weight:950!important;font-size:11px!important;pointer-events:auto!important}'
+      +'#screen .kt-seller-order-summary-20260929{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:4px!important;padding:6px!important;border-radius:12px!important;background:rgba(6,6,10,.88)!important;border:1px solid rgba(255,215,100,.52)!important;color:#fff!important;box-shadow:0 6px 20px rgba(0,0,0,.28)!important;pointer-events:none!important}'
+      +'#screen .kt-seller-order-summary-20260929 span{display:grid!important;place-items:center!important;min-height:34px!important;border-radius:8px!important;background:rgba(255,255,255,.06)!important;font-size:8px!important;font-weight:900!important;line-height:1.15!important;text-align:center!important}'
+      +'#screen .kt-seller-order-summary-20260929 b{display:block!important;color:#ffe071!important;font-size:13px!important}'
       +'#screen .kt-seller-orders-20260929{display:flex!important;flex-direction:column!important;gap:4px!important;overflow:auto!important;pointer-events:auto!important}'
       +'#screen .kt-seller-order-card-20260929{border:1px solid rgba(255,255,255,.18)!important;border-radius:10px!important;background:rgba(10,10,14,.84)!important;color:#fff!important;padding:7px!important;text-align:left!important;font-size:9px!important;line-height:1.35!important;width:100%!important;cursor:pointer!important}'
       +'#screen .kt-seller-order-card-20260929 strong{display:block!important;color:#ffe071!important;font-size:10px!important}'
@@ -203,15 +205,24 @@
     }
 
     if(host){
-      var orders=readOrders().slice().reverse().slice(0,30);
-      var list=orders.length?orders.map(function(o){
+      var allOrders=readOrders();
+      var total=allOrders.length;
+      var done=allOrders.filter(function(o){return String(o.status||'')==='처리완료';}).length;
+      var remain=Math.max(0,total-done);
+      var summary='<div class="kt-seller-order-summary-20260929">'
+        +'<span>주문<b>'+total+'</b></span>'
+        +'<span>남음<b>'+remain+'</b></span>'
+        +'<span>완료<b>'+done+'</b></span>'
+        +'</div>';
+      var orders=allOrders.slice().reverse().slice(0,30);
+      var list=orders.map(function(o){
         return '<button class="kt-seller-order-card-20260929" onclick="ktOpenSellerOrderDetail20260929(\''+esc(String(o.id))+'\')">'
           +'<strong>주문 '+esc(o.no||'')+' · '+esc(o.status||'접수')+'</strong>'
           +'<span>'+esc(orderSummary(o)||'-')+'</span>'
           +'<em>'+esc(o.name||'')+' · '+esc(o.phone||'')+' · '+esc(o.paymentStatus||'미입금')+'</em>'
           +'</button>';
-      }).join(''):'<div class="kt-seller-order-card-20260929">아직 들어온 주문이 없습니다.</div>';
-      old.innerHTML=info+'<div class="kt-seller-orders-20260929">'+list+'</div>';
+      }).join('');
+      old.innerHTML=info+summary+(list?'<div class="kt-seller-orders-20260929">'+list+'</div>':'');
     }else{
       var last={};try{last=JSON.parse(localStorage.getItem(BUYER_LAST_KEY)||'{}')||{};}catch(e){}
       var payBtn=last&&last.id
