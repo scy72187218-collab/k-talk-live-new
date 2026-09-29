@@ -142,7 +142,7 @@
 </div>
 <div id="sheet" class="sheet"><div class="sheet-inner"><div class="sheet-head"><h3 id="sheetTitle">메뉴</h3><button onclick="closeSheet()">닫기</button></div><div id="sheetBody"></div></div></div>
 <script src="app.js?v=20260929-premium-gift-fullscreen5555"></script>
-<script src="treasure-global-room.js?v=20260927-expire4"></script>
+<script src="treasure-global-room.js?v=20260929-package-label1"></script>
 
 <style id="ktGiftFinalInlineStyle">
 #sheet.kt-gift-force{background:rgba(0,0,0,.92)!important;backdrop-filter:blur(8px)!important}
@@ -186,7 +186,7 @@
 <script>
 (function(){
   var gifts=[
-    ['장미',1,'🌹'],['하트',30,'💖'],['꽃다발',50,'💐'],['풍선',80,'💗'],['보물상자',100,'🎁'],
+    ['장미',1,'🌹'],['하트',30,'💖'],['꽃다발',50,'💐'],['풍선',80,'💗'],['보물 패키지',100,'🎁'],
     ['왕관',200,'👑'],['다이아 왕관',300,'♛'],['럭셔리 자동차',500,'🏎️'],['요트',700,'🛥️'],['성',1000,'🏰'],
     ['초콜릿',10,'🍫'],['향수',20,'🧴'],['케이크',40,'🎂'],['불꽃놀이',60,'🎆'],['백조',120,'🦢'],
     ['트로피',150,'🏆'],['별빛',180,'⭐'],['하트 폭죽',250,'💥'],['다이아 하트',400,'💎'],['럭셔리 무대',600,'🎇'],
@@ -450,7 +450,7 @@
  function showVideoHome(label){leaveDash();document.body.classList.add('kt-video-mode');screen.innerHTML=`<section class="video-home"><video id="homeVideo" autoplay muted loop playsinline preload="auto" fetchpriority="high" src="https://zupwbfmacwzexyvznlzq.supabase.co/storage/v1/object/public/ktalk-videos/guest/1788516618159-4ep5ki.mp4"></video><div class="vh-shade"></div><div class="vh-tabs"><span>LIVE</span><span>커뮤니티</span><span>팔로잉</span><span class="on">추천</span><button aria-label="검색">⌕</button></div><div class="vh-title"><b>♛ K-Talk</b><span>${label||'추천 동영상'} · 화면을 눌러 재생하거나 멈출 수 있습니다.</span></div><div class="vh-actions"><button onclick="needJoin('좋아요를 누르려면 가입해 주세요.')">♡<small>좋아요</small></button><button onclick="openComments()">💬<small>댓글</small></button><button onclick="openGifts()">🎁<small>선물</small></button><button onclick="shareApp()">↗<small>공유</small></button></div></section>`;const v=document.getElementById('homeVideo');if(v){v.addEventListener('click',function(){if(v.paused)v.play().catch(()=>{});else v.pause();});v.muted=true;v.defaultMuted=true;v.volume=0;v.preload='auto';v.setAttribute('fetchpriority','high');[0,50,140,280,500].forEach(function(ms){setTimeout(function(){try{if(v.paused){var p=v.play();if(p&&p.catch)p.catch(function(){});}}catch(e){}},ms);});}}
  window.home=function(){activate('home');showVideoHome('추천 동영상')};
  window.media=function(type){activate(type);showVideoHome(type==='shorts'?'쇼츠':'동영상')};
- function applyApprovedGifts(){const gifts=document.querySelectorAll('.refGift');if(gifts.length>=4){const labels=['장미 1송이','장미 50송이','장미 100송이','보물상자'];gifts.forEach((g,i)=>{if(i<4){const strong=g.querySelector('strong');if(strong)strong.innerHTML='<span class="giftPhoto giftPhoto'+i+'"></span>';const b=g.querySelector('b');if(b)b.textContent=labels[i];}});}const rewards=document.querySelectorAll('.refReward i');const likes=['♥ 5,000','♥ 10,000','♥ 15,000','♥ 20,000','♥ 25,000'];rewards.forEach((el,i)=>{if(i<5)el.innerHTML='<b>'+likes[i]+'</b><span class="giftPhoto giftPhoto0"></span><span class="rewardText">장미 1송이</span>';});}
+ function applyApprovedGifts(){const gifts=document.querySelectorAll('.refGift');if(gifts.length>=4){const labels=['장미 1송이','장미 50송이','장미 100송이','보물 패키지'];gifts.forEach((g,i)=>{if(i<4){const strong=g.querySelector('strong');if(strong)strong.innerHTML='<span class="giftPhoto giftPhoto'+i+'"></span>';const b=g.querySelector('b');if(b)b.textContent=labels[i];}});}const rewards=document.querySelectorAll('.refReward i');const likes=['♥ 5,000','♥ 10,000','♥ 15,000','♥ 20,000','♥ 25,000'];rewards.forEach((el,i)=>{if(i<5)el.innerHTML='<b>'+likes[i]+'</b><span class="giftPhoto giftPhoto0"></span><span class="rewardText">장미 1송이</span>';});}
  new MutationObserver(applyApprovedGifts).observe(screen,{childList:true,subtree:true});
  home();
 })();
@@ -769,7 +769,7 @@
 
       +'<div style="position:absolute;left:10px;right:10px;bottom:14px;z-index:5;display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px">'
         +'<button onclick="openGifts()" style="padding:12px 5px;border:1px solid #ffd86b66;border-radius:15px;background:linear-gradient(135deg,#332707,#7a5310);color:#ffe075;font-weight:950;font-size:12px">🎁 선물</button>'
-        +'<button onclick="openTreasure()" style="padding:12px 5px;border:1px solid #f2b94f88;border-radius:15px;background:linear-gradient(135deg,#48260d,#8c5512);color:#fff3a7;font-weight:950;font-size:12px">🗝️ 보물상자</button>'
+        +'<button onclick="openTreasure()" style="padding:12px 5px;border:1px solid #f2b94f88;border-radius:15px;background:linear-gradient(135deg,#48260d,#8c5512);color:#fff3a7;font-weight:950;font-size:12px">🎁 보물 패키지</button>'
         +'<button onclick="endBroadcastEarnings()" style="padding:12px 5px;border:0;border-radius:15px;background:linear-gradient(135deg,#ff315f,#ff4e91);color:#fff;font-weight:950;font-size:12px">■ 방송 종료</button>'
       +'</div>'
       +'</section>';
@@ -1154,7 +1154,7 @@
 <script src="critical-touch-rescue-20260924.js?v=20260924-critical-touch1"></script>
 
 
-<script src="all-room-treasure-button-meta-20260927.js?v=20260927-icon-side-large3"></script>
+<script src="all-room-treasure-button-meta-20260927.js?v=20260929-package-label1"></script>
 
 
 \n
