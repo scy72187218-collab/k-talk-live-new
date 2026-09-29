@@ -14,7 +14,9 @@
       +'#screen .kt-secret-wave,#screen .secret-wave,#screen .kt-room-live-wave,'
       +'#screen .kt-active-sound-wave-20260928{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;animation:none!important}'
       +'#screen .ktg13-main::after{content:none!important;display:none!important;visibility:hidden!important;opacity:0!important}'
-      +'html.kt-inside-broadcast-room .kt-video-live-peek .ktvl-live{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}';
+      +'html.kt-inside-broadcast-room .kt-video-live-peek .ktvl-live,'+
+      +'html.kt-inside-broadcast-room .kt-friend-bubble.live .livebtn,'+
+      +'html.kt-inside-broadcast-room .kt-friend-contact-actions .livebtn{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}';
     document.head.appendChild(s);
   }
 
@@ -34,10 +36,11 @@
 
   function hideInnerLiveBadges(){
     if(!isInsideRoom())return;
-    var root=document.getElementById('screen');
+    var root=document.body||document.documentElement;
     if(!root)return;
     root.querySelectorAll('span,b,em,i,strong,small,button,div').forEach(function(el){
       if(!el||isOnAirArea(el))return;
+      try{if(el.closest('.ktsolo-brand,.ktg13-brand,.ktsubscriber-brand,.ktsecret-brand,.kt-video-live-peek .ktvl-copy'))return;}catch(e){}
       var txt=String(el.textContent||'').replace(/\s+/g,'').toUpperCase();
       if(txt!=='LIVE'&&txt!=='●LIVE'&&txt!=='🔴LIVE')return;
       /* 브랜드 K-Talk LIVE 같은 큰 문구는 정확히 LIVE 단독이 아니므로 대상 아님 */
