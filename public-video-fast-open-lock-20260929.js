@@ -39,6 +39,8 @@
       v.setAttribute('playsinline','');
       v.setAttribute('webkit-playsinline','');
       v.autoplay=true;
+      v.loop=true;
+      v.setAttribute('loop','');
       v.muted=true;
       v.defaultMuted=true;
       v.volume=0;
@@ -73,13 +75,29 @@
     v.addEventListener('loadedmetadata',function(){start(v,false);},{passive:true});
     v.addEventListener('canplay',function(){start(v,false);},{passive:true});
     v.addEventListener('error',function(){start(v,true);},{passive:true});
-    v.addEventListener('stalled',function(){start(v,true);},{passive:true});
+    v.addEventListener('stalled',function(){start(v,false);},{passive:true});
+    v.addEventListener('waiting',function(){start(v,false);},{passive:true});
+    v.addEventListener('ended',function(){
+      try{v.currentTime=0;}catch(e){}
+      start(v,false);
+    },{passive:true});
+    v.addEventListener('pause',function(){
+      if(document.hidden||inLiveRoom())return;
+      setTimeout(function(){
+        try{
+          var r=v.getBoundingClientRect();
+          var visible=r.bottom>0&&r.top<(window.innerHeight||document.documentElement.clientHeight);
+          if(visible)start(v,false);
+        }catch(e){}
+      },120);
+    },{passive:true});
 
     start(v,false);
     [40,120,280,650,1200].forEach(function(ms){
       setTimeout(function(){
         try{
-          if(v.paused||v.readyState<2)start(v,ms>=650);
+          if(v.paused)start(v,false);
+          else if(v.readyState===0)start(v,ms>=650);
         }catch(e){}
       },ms);
     });
@@ -100,6 +118,23 @@
   }catch(e){}
 
   document.addEventListener('visibilitychange',function(){
-    if(!document.hidden)setTimeout(scan,20);
+    if(!document.hidden){
+      setTimeout(function(){
+        scan();
+        publicVideos().forEach(function(v){start(v,false);});
+      },20);
+    }
   });
+
+  /* 재생 중간에 멈추는 경우 현재 화면의 동영상만 다시 이어서 재생 */
+  setInterval(function(){
+    if(document.hidden||inLiveRoom())return;
+    publicVideos().forEach(function(v){
+      try{
+        var r=v.getBoundingClientRect();
+        var visible=r.bottom>0&&r.top<(window.innerHeight||document.documentElement.clientHeight);
+        if(visible&&v.paused)start(v,false);
+      }catch(e){}
+    });
+  },700);
 })();
