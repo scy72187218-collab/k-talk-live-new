@@ -12,6 +12,9 @@
     return [
       '.kt-switch',
       '[role="switch"]',
+      'input[type="checkbox"]',
+      '[data-kt-switch]',
+      '[data-switch]',
       '.live-prep .room-switch',
       '.live-prep .prep-bottom button',
       '.kt-total-admin-row',
@@ -113,6 +116,21 @@
           window.toggleLiveSetting(el);
           return true;
         }
+      }
+
+      if(el.matches('input[type="checkbox"]')){
+        el.checked=!el.checked;
+        try{el.dispatchEvent(new Event('change',{bubbles:true}));}catch(_e){}
+        return true;
+      }
+
+      if(el.hasAttribute('data-kt-switch')||el.hasAttribute('data-switch')){
+        var da=el.hasAttribute('aria-checked')?'aria-checked':'aria-pressed';
+        var don=el.getAttribute(da)==='true'||el.classList.contains('on');
+        el.classList.toggle('on',!don);
+        el.setAttribute(da,!don?'true':'false');
+        try{el.dispatchEvent(new CustomEvent('kt-switch-change',{bubbles:true,detail:{on:!don}}));}catch(_e){}
+        return true;
       }
 
       if(el.getAttribute('role')==='switch'){
