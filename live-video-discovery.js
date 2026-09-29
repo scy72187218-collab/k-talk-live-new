@@ -52,12 +52,13 @@
   }
 
   async function activeRoomsCore(){
-    /* Supabase Realtime broadcast is the primary LIVE source.
-       It is shared by all devices, unlike warm serverless memory. */
+    /* 모든 기기에서 LIVE 표시가 같도록 Realtime 하나만 믿지 않는다.
+       Realtime + DB + beacon을 합쳐서 한 기기가 신호를 놓쳐도 같은 빨간 LIVE를 보게 한다. */
+    var realtimeRows=[];
     try{
       var rh=window.__ktRealtimeLiveHosts||null;
       if(rh){
-        var realtimeRows=Object.keys(rh).map(function(id){
+        realtimeRows=Object.keys(rh).map(function(id){
           var x=rh[id]||{},d=x.data||{};
           return {
             host_id:String(d.host_id||id||''),
@@ -68,14 +69,6 @@
             updated_at:new Date(Number(d.at||x.last||Date.now())).toISOString()
           };
         }).filter(function(x){return !!x.host_id;});
-        if(realtimeRows.length){
-          stableActiveRooms=realtimeRows;stableActiveAt=Date.now();
-          return realtimeRows;
-        }
-        if(window.__ktRealtimeSignalReady){
-          stableActiveRooms=[];stableActiveAt=0;
-          return [];
-        }
       }
     }catch(e){}
 
@@ -95,9 +88,23 @@
       }
     }catch(e){}
 
-    var fallback=[];
-    if(!rows.length)fallback=await beaconPromise;
-    if(!rows.length&&fallback.length)rows=fallback;
+    var fallback=await beaconPromise;
+
+    /* host_id 기준으로 3개 소스를 합친다. DB 값을 우선하고,
+       DB가 늦으면 Realtime/Beacon 값으로 즉시 보완한다. */
+    var merged={},order=[];
+    function put(list){
+      (list||[]).forEach(function(x){
+        var id=String(x&&x.host_id||'').trim();
+        if(!id)return;
+        if(!merged[id])order.push(id);
+        merged[id]=Object.assign({},merged[id]||{},x);
+      });
+    }
+    put(realtimeRows);
+    put(fallback);
+    put(rows);
+    rows=order.map(function(id){return merged[id];}).filter(Boolean);
 
     if(window.__ktHostEndLock&&window.__ktHostEndLockHostId){
       var ended=String(window.__ktHostEndLockHostId);
@@ -109,7 +116,11 @@
       return rows;
     }
 
-    /* DB와 보조 신호가 모두 비었을 때만 LIVE 표시를 내린다. */
+    /* 느린 기기에서 한 번의 조회 지연으로 빨간 LIVE가 빠지지 않도록
+       직전에 확인된 방송은 5초 동안 유지한다. 실제 종료 신호는 hostEndLock에서 즉시 제외된다. */
+    if(stableActiveRooms.length && Date.now()-stableActiveAt<5000){
+      return stableActiveRooms.slice();
+    }
     stableActiveRooms=[];stableActiveAt=0;
     return [];
   }
@@ -118,7 +129,7 @@
   async function activeRooms(){
     var now=Date.now();
     if(activeRoomsBusy)return activeRoomsBusy;
-    if(now-activeRoomsCheckedAt<1800)return stableActiveRooms.slice();
+    if(now-activeRoomsCheckedAt<500)return stableActiveRooms.slice();
     activeRoomsCheckedAt=now;
     activeRoomsBusy=activeRoomsCore();
     try{return await activeRoomsBusy;}
