@@ -33,10 +33,17 @@
       '기분 좋은 연락이나 만남이 생길 수 있습니다.',
       '평소 생각해 둔 일을 하나 실행해 보기 좋은 날입니다.'
     ];
-    var numbers=[3,5,7,9,11,17,21,27,33,41,50];
     var colors=['파랑','금색','초록','보라','하늘색','주황'];
     var scores=[72,76,79,82,85,88,91,94];
-    return {msg:pick(messages,seed),number:pick(numbers,seed>>>3),color:pick(colors,seed>>>6),score:pick(scores,seed>>>9)};
+    var nums=[];
+    var x=seed||1;
+    while(nums.length<6){
+      x=(Math.imul(x,1664525)+1013904223)>>>0;
+      var n=1+(x%45);
+      if(nums.indexOf(n)<0)nums.push(n);
+    }
+    nums.sort(function(a,b){return a-b;});
+    return {msg:pick(messages,seed),numbers:nums,color:pick(colors,seed>>>6),score:pick(scores,seed>>>9)};
   }
 
   window.openTodayFortune=function(){
@@ -50,10 +57,12 @@
       +'<p style="margin:12px 8px 4px;color:#fff;font-size:15px;line-height:1.55">'+f.msg+'</p>'
       +'</div>'
       +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">'
-      +'<div class="rowbox" style="text-align:center"><b>🔢 행운 숫자</b><br><strong style="font-size:22px">'+f.number+'</strong></div>'
+      +'<div class="rowbox" style="text-align:center"><b>🔢 행운 숫자 6개</b><br><strong style="font-size:15px;letter-spacing:2px">'+f.numbers.join(' · ')+'</strong></div>'
       +'<div class="rowbox" style="text-align:center"><b>🎨 행운 색</b><br><strong style="font-size:22px">'+f.color+'</strong></div>'
       +'</div>'
-      +'<small style="display:block;text-align:center;margin-top:10px;color:#aaa">오늘 하루 같은 계정에서는 같은 결과가 표시됩니다.</small>'
+      +'<button type="button" class="act" onclick="if(window.ktOpenDailyFortuneLadder20260928)ktOpenDailyFortuneLadder20260928()" style="margin-top:10px;width:100%;background:linear-gradient(135deg,#ff4f88,#ff9c2a)!important;color:#fff!important;font-weight:950!important">🎯 사다리 타고 장미 받기</button>'
+      +'<small style="display:block;text-align:center;margin-top:8px;color:#aaa">사다리 결과는 🌹1·2·3·4·5송이 또는 꽝 1칸입니다. 하루 1회 참여합니다.</small>'
+      +'<small style="display:block;text-align:center;margin-top:6px;color:#aaa">오늘 하루 같은 계정에서는 같은 운세 결과가 표시됩니다.</small>'
       +'</div>';
 
     if(typeof window.showSheet==='function'){
