@@ -57,7 +57,8 @@
     "creator_edit_shop_under_undo_existing_beauty_background_20260928",
     "earnings_cleanup_single_controller_20260929",
     "unified_host_earnings_center_20260929",
-    "unified_host_guest_chat_center_above_earnings_20260929"
+    "unified_host_guest_chat_center_above_earnings_20260929",
+    "public_video_fast_open_relock_20260929"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -110,18 +111,20 @@
     "creator_edit_shop_under_undo_existing_beauty_background_20260928",
     "earnings_cleanup_single_controller_20260929",
     "unified_host_earnings_center_20260929",
-    "unified_host_guest_chat_center_above_earnings_20260929"
+    "unified_host_guest_chat_center_above_earnings_20260929",
+    "public_video_fast_open_relock_20260929"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "수익률 코드는 단일 통합본으로 정리. 1인/9명/13명/구독자/비밀방 호스트 수익률은 하단 가운데 동일 크기. 모든 방 호스트·게스트 표시 채팅은 수익률 위 중앙에 공중 표시. 채팅 입력/버튼/카메라/기타 화면은 변경 금지.",
+  "note": "공개 동영상 첫 화면/빠른 열기 보호를 다시 잠금. public_video_first_page_opening 유지. 다른 방송방 UI는 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
     ],
     "2": [
       "public_video_first_page_opening",
-      "group13_open_room_then_countdown"
+      "group13_open_room_then_countdown",
+      "public_video_fast_open_relock_20260929"
     ],
     "3": [
       "subscriber_room_current_state",
@@ -182,6 +185,6 @@
     ]
   },
   "last_unlock": "2026-09-27-solo-countdown-only-code-5555",
-  "last_lock": "2026-09-29-earnings-chat-unified-center",
+  "last_lock": "2026-09-29-public-video-fast-open-relock",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
