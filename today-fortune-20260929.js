@@ -46,6 +46,7 @@
     return {msg:pick(messages,seed),numbers:nums,color:pick(colors,seed>>>6),score:pick(scores,seed>>>9)};
   }
 
+  var __ktFortuneLastSpeakAt=0;
   function readTodayFortune20260930(f){
     try{
       var synth=window.speechSynthesis;
@@ -54,6 +55,9 @@
       var text='오늘의 행운. '+f.score+'점. '+f.msg+' 행운 숫자는 '+f.numbers.join(', ')+' 입니다. 행운 색은 '+f.color+' 입니다.';
       var speakNow=function(){
         try{
+          var now=Date.now();
+          if(now-__ktFortuneLastSpeakAt<900)return;
+          __ktFortuneLastSpeakAt=now;
           var u=new U(text);
           u.lang='ko-KR';
           u.rate=0.95;
@@ -63,7 +67,6 @@
             var ko=voices.find(function(v){return /^ko(-|_)/i.test(String(v.lang||''));});
             if(ko)u.voice=ko;
           }catch(e){}
-          try{synth.cancel();}catch(e){}
           try{synth.resume();}catch(e){}
           synth.speak(u);
         }catch(e){}
@@ -131,7 +134,6 @@
       b.id='ktTodayFortuneBtn20260929';
       b.type='button';
       b.className='act';
-      b.setAttribute('onclick','openTodayFortune()');
       b.style.cssText='margin-top:10px!important;background:linear-gradient(135deg,#1fa66a,#75d65b)!important;color:#fff!important;font-weight:950!important;pointer-events:auto!important;touch-action:manipulation!important';
       b.innerHTML='🍀 오늘의 행운';
       body.appendChild(b);
