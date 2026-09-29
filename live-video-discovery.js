@@ -115,7 +115,11 @@
       return rows;
     }
 
-    /* DB와 보조 신호가 모두 비었을 때만 LIVE 표시를 내린다. */
+    /* 느린 기기에서 한 번의 조회 지연으로 빨간 LIVE가 빠지지 않도록
+       직전에 확인된 방송은 5초 동안 유지한다. 실제 종료 신호는 hostEndLock에서 즉시 제외된다. */
+    if(stableActiveRooms.length && Date.now()-stableActiveAt<5000){
+      return stableActiveRooms.slice();
+    }
     stableActiveRooms=[];stableActiveAt=0;
     return [];
   }
@@ -497,5 +501,7 @@
   document.addEventListener('touchend',function(){scheduleRender(250);},true);
   document.addEventListener('pointerup',function(){scheduleRender(250);},true);
   setInterval(function(){scheduleRender(0);},700);
+  window.addEventListener('pageshow',function(){scheduleRender(40);});
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)scheduleRender(40);});
   scheduleRender(600);
 })();
