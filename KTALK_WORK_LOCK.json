@@ -97,7 +97,8 @@
     "treasure_package_label_position_time_20260929",
     "treasure_package_immediate_display_5555_20260929",
     "standalone_red_live_signal_publisher_5555_20260929",
-    "chat_tap_reply_all_rooms_5555_20260929"
+    "chat_tap_reply_all_rooms_5555_20260929",
+    "live_entry_exit_do_not_change_20260929"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -190,11 +191,12 @@
     "treasure_package_label_position_time_20260929",
     "treasure_package_immediate_display_5555_20260929",
     "standalone_red_live_signal_publisher_5555_20260929",
-    "chat_tap_reply_all_rooms_5555_20260929"
+    "chat_tap_reply_all_rooms_5555_20260929",
+    "live_entry_exit_do_not_change_20260929"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "5555 승인. 모든 방 채팅 글/닉네임을 누르면 해당 사람 @닉네임이 채팅 입력칸에 자동 입력되어 인사/답장 가능. 기존 통신, LIVE, 방 배치, 기존 채팅 전송 로직은 변경하지 않음.",
+  "note": "사용자 요청: 방송 들어가기/나가기 동작은 현재 상태 그대로 잠금. LIVE 입장·퇴장 관련 코드/불러오는 주소/통신 연결은 이후 다른 작업에서 변경 금지. 다른 기능 수정 시에도 이 부분 제외.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -286,6 +288,6 @@
     ]
   },
   "last_unlock": "2026-09-29-fortune-ladder-switch-5555",
-  "last_lock": "2026-09-29-chat-tap-reply-all-rooms-5555",
+  "last_lock": "2026-09-29-live-entry-exit-locked-again",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
