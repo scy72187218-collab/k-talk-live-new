@@ -46,6 +46,25 @@
     return {msg:pick(messages,seed),numbers:nums,color:pick(colors,seed>>>6),score:pick(scores,seed>>>9)};
   }
 
+  function readTodayFortune20260930(f){
+    try{
+      if(!window.speechSynthesis||typeof window.SpeechSynthesisUtterance!=='function')return;
+      var text='오늘의 행운. '+f.score+'점. '+f.msg+' 행운 숫자는 '+f.numbers.join(', ')+' 입니다. 행운 색은 '+f.color+' 입니다.';
+      var u=new SpeechSynthesisUtterance(text);
+      u.lang='ko-KR';
+      u.rate=0.95;
+      u.pitch=1;
+      try{
+        var voices=window.speechSynthesis.getVoices()||[];
+        var ko=voices.find(function(v){return /^ko(-|_)/i.test(String(v.lang||''));});
+        if(ko)u.voice=ko;
+      }catch(e){}
+      setTimeout(function(){
+        try{window.speechSynthesis.speak(u);}catch(e){}
+      },120);
+    }catch(e){}
+  }
+
   window.openTodayFortune=function(){
     var f=fortune();
     var body=''
@@ -67,6 +86,7 @@
 
     if(typeof window.showSheet==='function'){
       window.showSheet('🍀 오늘의 행운',body);
+      readTodayFortune20260930(f);
       return;
     }
     var title=document.getElementById('sheetTitle');
@@ -75,6 +95,7 @@
     if(title)title.textContent='🍀 오늘의 행운';
     if(sb)sb.innerHTML=body;
     if(sheet)sheet.classList.add('show');
+    readTodayFortune20260930(f);
   };
 
   function addButton(){
