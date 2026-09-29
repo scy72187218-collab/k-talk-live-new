@@ -12,6 +12,7 @@
     try{
       var room=document.querySelector('#screen .ktsecret-room');
       if(!room)return;
+      room.dataset.ktSecretLayoutLocked='lower-right-final';
 
       /* 시계 옆 하트 1개만 남긴다. */
       var air=room.querySelector('.ktsecret-airrow');
