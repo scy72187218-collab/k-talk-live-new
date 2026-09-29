@@ -6,7 +6,7 @@
   s.id='ktSubscriberEarnSmallStyle20260928';
   s.textContent=''
     +'html body .ktsubscriber-room .ktsubscriber-info{grid-template-columns:minmax(0,1fr) 76px!important;gap:4px!important}'
-    +'html body .ktsubscriber-room .ktsubscriber-earn{width:76px!important;max-width:76px!important;justify-self:end!important;align-items:flex-end!important}'
+    +'html body .ktsubscriber-room .ktsubscriber-earn{width:76px!important;max-width:76px!important;justify-self:end!important;align-items:flex-end!important;transform:translateY(-12px)!important}'
     +'html body .ktsubscriber-room #ktSubscriberEarnHud,'
     +'html body .ktsubscriber-room .ktsubscriber-earnhud{width:76px!important;max-width:76px!important;min-width:76px!important;height:45px!important;max-height:45px!important;padding:1px 2px!important;border-radius:8px!important}'
     +'html body .ktsubscriber-room #ktSubscriberEarnHud span,'
