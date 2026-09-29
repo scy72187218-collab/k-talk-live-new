@@ -1,4 +1,4 @@
-/* K-Talk: 기존 보물상자 기능은 그대로 두고, 카메라 뒤집기만 실제 전면/후면 전환으로 보정. */
+/* K-Talk: 기존 보물 패키지 기능은 그대로 두고, 카메라 뒤집기만 실제 전면/후면 전환으로 보정. */
 (function(){
   function loadTreasureCore(){
     var s=document.createElement('script');
@@ -93,7 +93,7 @@
     };
   }
 
-  /* 선물창 안의 보물상자만 분리: 10개/50개/100개를 각각 자기 수량으로 작동시킨다. */
+  /* 선물창 안의 보물 패키지만 분리: 10개/50개/100개를 각각 자기 수량으로 작동시킨다. */
   function installGiftTreasurePicks(){
     if(window.__ktGiftTreasureSeparateInstalled)return;
     if(typeof window.openGifts!=='function'||typeof window.selectTreasure!=='function')return;
@@ -119,10 +119,10 @@
         var root=document.querySelector('.kt-gift-final');
         if(!root)return;
 
-        /* 일반 선물처럼 처리되던 기존 보물상자 100개 카드는 숨기고 아래 전용 3버튼만 사용 */
+        /* 일반 선물처럼 처리되던 기존 보물 패키지 100개 카드는 숨기고 아래 전용 3버튼만 사용 */
         root.querySelectorAll('.kt-gift-final-card').forEach(function(card){
           var name=card.querySelector('b');
-          if(name&&String(name.textContent||'').trim()==='보물상자'){
+          if(name&&String(name.textContent||'').trim()==='보물 패키지'){
             card.style.setProperty('display','none','important');
             card.setAttribute('aria-hidden','true');
           }
@@ -132,7 +132,7 @@
         var box=document.createElement('div');
         box.className='kt-treasure-inside-gifts';
         box.innerHTML=''
-          +'<div><b>🎁 보물상자</b><span>수량별로 각각 따로 작동</span></div>'
+          +'<div><b>🎁 보물 패키지</b><span>수량별로 각각 따로 작동</span></div>'
           +'<div class="kt-treasure-amount-row">'
             +'<button type="button" data-kt-treasure-amount="10">10개</button>'
             +'<button type="button" data-kt-treasure-amount="50">50개</button>'
