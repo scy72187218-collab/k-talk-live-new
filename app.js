@@ -2167,7 +2167,7 @@ window.openMenu=function(){
     +helpCard('#75e4ff','#1bbfff','📣','광고 문의','광고·판매자','openAd()')
     +helpCard('#ffe071','#ffb500','💼','투자자 안내','방송수익 정산','openInvestorInfo()')
     +helpCard('#c3b7ff','#6558ff','👑','구독·VIP 혜택','할인·입장방','openSubs()')
-    +helpCard('#ffb09a','#ff633f','🎁','선물·보물상자','선물 종류','openGifts()')
+    +helpCard('#ffb09a','#ff633f','🎁','선물·보물 패키지','선물 종류','openGifts()')
     +helpCard('#ff9baa','#ff405d','🌹','장미 충전','충전 수량','openCharge()')
     +helpCard('#91f3ee','#31cfc7','🎯','제비뽑기','이벤트','openRaffle()')
     +helpCard('#a8d0ff','#4a9aff','✉','쪽지','메시지','openMessages()')
@@ -2399,7 +2399,7 @@ window.ktalkGifts=[
   ['하트','30','💖','꽃/하트'],
   ['꽃다발','50','💐','꽃/하트'],
   ['풍선','80','💗','꽃/하트'],
-  ['보물상자','100','🎁','보물/패키지'],
+  ['보물 패키지','100','🎁','보물/패키지'],
   ['왕관','200','👑','프리미엄'],
   ['다이아 왕관','300','♛','프리미엄'],
   ['럭셔리 자동차','500','🏎️','럭셔리'],
@@ -2578,7 +2578,7 @@ window.ktStartNextTreasure=function(){
   next.unlockAt=Date.now()+180000;
   next.claimed=false;
   ktSaveTreasure(next);
-  ktSpeak('새 보물상자가 올라왔습니다. 3분 후 받을 수 있습니다.');
+  ktSpeak('새 보물 패키지가 올라왔습니다. 3분 후 받을 수 있습니다.');
 };
 
 window.placeTreasureChest=function(n,sender,roomTitle){
@@ -2600,13 +2600,13 @@ window.placeTreasureChest=function(n,sender,roomTitle){
     ktSaveTreasureQueue(q);
     ktUpdateTreasureLed();
     ktRenderTreasure();
-    ktSpeak('보물상자가 대기열에 추가되었습니다.');
-    alert('보물상자가 호스트 방에 추가되었습니다. 앞 상자가 끝나면 이어서 열립니다.');
+    ktSpeak('보물 패키지가 대기열에 추가되었습니다.');
+    alert('보물 패키지가 호스트 방에 추가되었습니다. 앞 상자가 끝나면 이어서 열립니다.');
     return;
   }
   ktSaveTreasure(item);
-  ktSpeak('보물상자가 올라왔습니다. 3분 후 누구든지 받을 수 있습니다.');
-  alert('보물상자가 호스트 방에 올라갔습니다. 3분 후 받을 수 있습니다.');
+  ktSpeak('보물 패키지가 올라왔습니다. 3분 후 누구든지 받을 수 있습니다.');
+  alert('보물 패키지가 호스트 방에 올라갔습니다. 3분 후 받을 수 있습니다.');
 };
 
 window.selectTreasure=function(n){
@@ -2618,15 +2618,15 @@ window.openTreasure=function(){
   var chest=function(n){
     return '<button class="kt-treasure-pick" onclick="selectTreasure('+n+')">'
       +ktTreasureArt()
-      +'<b>보물상자 '+n+'</b>'
+      +'<b>보물 패키지 '+n+'</b>'
       +'<small>호스트 방에 올리기</small>'
       +'</button>';
   };
   var html='<div class="kt-treasure-shop">'
-    +'<div class="kt-treasure-help"><b>🗝️ 보물상자</b><span>호스트 화면 오른쪽 머리 위에 3분 동안 표시됩니다.<br>그동안 눌러 참여하고, 시간이 끝나면 남은 수량은 호스트에게 돌아갑니다.</span></div>'
+    +'<div class="kt-treasure-help"><b>🗝️ 보물 패키지</b><span>호스트 화면 오른쪽 머리 위에 3분 동안 표시됩니다.<br>그동안 눌러 참여하고, 시간이 끝나면 남은 수량은 호스트에게 돌아갑니다.</span></div>'
     +'<div class="kt-treasure-picks">'+chest(10)+chest(50)+chest(100)+'</div>'
     +'</div>';
-  showSheet('보물상자 올리기',html);
+  showSheet('보물 패키지 올리기',html);
 };
 
 window.ktTreasureStatus=function(t){
@@ -2635,7 +2635,7 @@ window.ktTreasureStatus=function(t){
   return {left:left,ready:left<=0};
 };
 
-/* 3분이 끝난 보물상자는 모든 방 화면에서 즉시 제거한다.
+/* 3분이 끝난 보물 패키지는 모든 방 화면에서 즉시 제거한다.
    오래 남아 있던 00:00 배지도 앱을 다시 열면 바로 정리한다. */
 window.ktClearExpiredTreasure=function(){
   var t=ktGetTreasure();
@@ -2684,8 +2684,8 @@ window.ktUpdateTreasureLed=function(){
   led.classList.add('treasure-on');
   led.classList.toggle('treasure-ready',st.ready);
   led.innerHTML=st.ready
-    ?'🗝️ 보물상자 열렸습니다! 지금 누르면 방으로 이동'+(q.length?' · 대기 '+q.length+'개':'')
-    :'🗝️ 보물상자 떴습니다 · '+ktTreasureFormat(st.left)+' · 누르면 방으로 이동'+(q.length?' · 대기 '+q.length+'개':'');
+    ?'🗝️ 보물 패키지 열렸습니다! 지금 누르면 방으로 이동'+(q.length?' · 대기 '+q.length+'개':'')
+    :'🗝️ 보물 패키지 떴습니다 · '+ktTreasureFormat(st.left)+' · 누르면 방으로 이동'+(q.length?' · 대기 '+q.length+'개':'');
 };
 
 window.handleLedClick=function(){
@@ -2708,9 +2708,9 @@ window.goToTreasureRoom=function(){
   document.body.classList.remove('kt-home');
   screen.innerHTML='<section class="kt-treasure-view-room">'
     +'<div class="kt-view-room-head"><b>🔴 '+t.roomTitle+'</b><button onclick="home()">나가기</button></div>'
-    +'<div class="kt-view-host"><div class="kt-view-host-avatar">♛</div><b>HOST LIVE</b><span>보물상자 이벤트 진행 중</span></div>'
+    +'<div class="kt-view-host"><div class="kt-view-host-avatar">♛</div><b>HOST LIVE</b><span>보물 패키지 이벤트 진행 중</span></div>'
     +'<div id="ktViewerTreasureZone" class="kt-live-treasure-zone viewer-zone"></div>'
-    +'<div class="kt-view-room-note">보물상자가 보이는 3분 동안 기다렸다가 참여하세요.</div>'
+    +'<div class="kt-view-room-note">보물 패키지가 보이는 3분 동안 기다렸다가 참여하세요.</div>'
     +'</section>';
   ktRenderTreasure();
 };
@@ -2727,8 +2727,8 @@ window.claimTreasureChest=function(){
   }
   t.claimed=true;
   t.claimedAt=Date.now();
-  ktSpeak('보물상자 '+t.amount+'개를 받았습니다.');
-  alert('🎉 보물상자 '+t.amount+'개를 받았습니다!');
+  ktSpeak('보물 패키지 '+t.amount+'개를 받았습니다.');
+  alert('🎉 보물 패키지 '+t.amount+'개를 받았습니다!');
   ktSaveTreasure(null);
   setTimeout(function(){ktStartNextTreasure();},900);
 };
@@ -2743,7 +2743,7 @@ window.ktEnsureHostTreasureBadge20260927=function(){
 
   var host=room.querySelector('.ktsolo-main,.ktg9-host,.ktg13-host,.ktsubscriber-host,.ktsecret-host,.ktg13-main')||room;
   try{
-    /* 13명방은 보물상자를 반드시 호스트 카메라 칸 안쪽에 고정 */
+    /* 13명방은 보물 패키지를 반드시 호스트 카메라 칸 안쪽에 고정 */
     if(room.classList.contains('ktg13-room')){
       var g13host=room.querySelector('.ktg13-host');
       if(g13host)host=g13host;
@@ -2818,7 +2818,7 @@ window.ktRenderTreasure=function(){
     if(st.ready&&!active.readyAnnounced){
       active.readyAnnounced=true;
       try{localStorage.setItem('ktalk_active_treasure',JSON.stringify(active));}catch(e){}
-      ktSpeak('보물상자가 열렸습니다. 지금 눌러서 받을 수 있습니다.');
+      ktSpeak('보물 패키지가 열렸습니다. 지금 눌러서 받을 수 있습니다.');
     }
   };
   render();
@@ -3227,7 +3227,7 @@ window.ktAddProfileLike=function(n){
   try{localStorage.setItem(ktProfileStorageKey(),JSON.stringify(p));}catch(e){}
 };
 window.openAI=function(){
-  var html='<div class="rowbox"><b>🗣️ AI 음성 안내</b><br>선물 · 보물상자 · 당첨 보상 · 주요 알림을 한국어 음성으로 읽어줍니다.</div>'
+  var html='<div class="rowbox"><b>🗣️ AI 음성 안내</b><br>선물 · 보물 패키지 · 당첨 보상 · 주요 알림을 한국어 음성으로 읽어줍니다.</div>'
     +'<div class="rowbox"><b>현재 상태</b><br>'+(state.aiVoiceOn?'켜짐':'꺼짐')+'</div>'
     +'<button class="act" onclick="toggleAIVoice();closeSheet();openAI()">'+(state.aiVoiceOn?'AI 음성 끄기':'AI 음성 켜기')+'</button>'
     +'<button class="act" onclick="ktSpeak(\'K-Talk AI 음성 안내 테스트입니다.\')">🔊 음성 테스트</button>';
