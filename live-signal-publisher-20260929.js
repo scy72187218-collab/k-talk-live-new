@@ -28,6 +28,13 @@
       return !!(s&&s.querySelector('#ktLiveVideo,.ktsolo-room,.ktg13-room,.ktg9-room,.ktsubscriber-room,.ktsecret-room'));
     }catch(e){return false;}
   }
+  function hostStreamLive(){
+    try{
+      var st=window.state||{};
+      var stream=st.stream;
+      return !!(stream&&stream.getVideoTracks&&stream.getVideoTracks().some(function(t){return t&&t.readyState==='live';}));
+    }catch(e){return false;}
+  }
   function roomInfo(){
     var st=window.state||{};
     return {
@@ -97,7 +104,7 @@
   function tick(){
     installWraps();
     if(Date.now()<forceOffUntil)return;
-    var on=hostRoomVisible();
+    var on=hostRoomVisible()||hostStreamLive();
     if(on){
       startGraceUntil=0;
       send(lastActive?'heartbeat':'publish');
