@@ -19,7 +19,9 @@ function crownSvg(k){
 }
 
 function key(){try{return window.ktGetSelectedSubAccount?window.ktGetSelectedSubAccount():''}catch(e){return''}}
-function save(k){try{var sk='ktalk_profile_v1:sub:'+k,x={};try{x=JSON.parse(localStorage.getItem(sk)||'{}')||{}}catch(e){}x.name=NM[k];x.photo=IMG[k];x.level=50000;localStorage.setItem(sk,JSON.stringify(x))}catch(e){}}
+function storedPhoto(k){try{var x=JSON.parse(localStorage.getItem('ktalk_profile_v1:sub:'+k)||'{}')||{};return String(x.photo||'')}catch(e){return''}}
+function photoFor(k){return storedPhoto(k)||IMG[k]||''}
+function save(k){try{var sk='ktalk_profile_v1:sub:'+k,x={};try{x=JSON.parse(localStorage.getItem(sk)||'{}')||{}}catch(e){}x.name=NM[k];if(!x.photo)x.photo=IMG[k];x.level=50000;localStorage.setItem(sk,JSON.stringify(x))}catch(e){}}
 save('taekwon1');save('haine2');
 
 var oldCard=window.ktSubProfileCard;
@@ -28,9 +30,9 @@ if(typeof oldCard==='function'&&!oldCard.__crownAll){
 }
 var oldLoad=window.ktProfileLoad;
 if(typeof oldLoad==='function'&&!oldLoad.__crownAll){
- var load=function(){var p=oldLoad.apply(this,arguments)||{},k=key();if(IMG[k]){p.name=NM[k];p.photo=IMG[k];p.level=50000;}return p};load.__crownAll=true;window.ktProfileLoad=load;
+ var load=function(){var p=oldLoad.apply(this,arguments)||{},k=key();if(IMG[k]){p.name=NM[k];p.photo=photoFor(k);p.level=50000;}return p};load.__crownAll=true;window.ktProfileLoad=load;
 }
-function style(){if(document.getElementById('ktOwnerCrownAllStyle'))return;var s=document.createElement('style');s.id='ktOwnerCrownAllStyle';s.textContent='.kt-owner-crown-avatar{position:relative!important;overflow:hidden!important;background:#050507!important;border-radius:50%!important}.kt-owner-crown-svg{display:block!important;width:100%!important;height:100%!important}.kt-owner-crown-avatar>img{display:none!important}.kt-my-profile-photo img{width:100%!important;height:100%!important;object-fit:cover!important;object-position:center!important;border-radius:50%!important}.kt-owner-card-lv{display:none!important}.kt-owner-room-level{display:block!important;color:#ffe071!important;font-size:10px!important;font-weight:900!important;line-height:1.1!important;margin-top:2px!important}';document.head.appendChild(s)}
+function style(){if(document.getElementById('ktOwnerCrownAllStyle'))return;var s=document.createElement('style');s.id='ktOwnerCrownAllStyle';s.textContent='.kt-owner-crown-avatar{position:relative!important;overflow:hidden!important;background:#050507!important;border-radius:50%!important}.kt-owner-crown-svg{display:block!important;width:100%!important;height:100%!important}.kt-owner-crown-avatar>img{display:none!important}.kt-my-profile-photo img{width:100%!important;height:100%!important;object-fit:cover!important;object-position:center!important;border-radius:50%!important}.kt-owner-card-lv{display:none!important}.kt-owner-photo-change-btn{display:block!important;margin-top:7px!important;font-size:11px!important;color:#8fd8ff!important;font-weight:900!important;pointer-events:auto!important}.kt-owner-room-level{display:block!important;color:#ffe071!important;font-size:10px!important;font-weight:900!important;line-height:1.1!important;margin-top:2px!important}';document.head.appendChild(s)}
 function decorate(){
  style();var k=key();if(!IMG[k])return;var n=NM[k];
  document.querySelectorAll('.kt-account-avatar.'+k).forEach(function(i){if(!i.querySelector('.kt-owner-crown-svg'))i.innerHTML=crownSvg(k)});
@@ -39,6 +41,23 @@ function decorate(){
  var sels=['.host-meta b','.kt-host-name','.kt-guest-name','.ktsecret-guest-name','.kgh-name','.ktg13-name','.ktg9-name','.ktsubscriber-name','[data-kt-nickname]','[data-nickname]'];
  document.querySelectorAll(sels.join(',')).forEach(function(el){try{var t=(el.textContent||'').trim();if(t.indexOf(n)<0)return;if(!el.parentNode.querySelector('.kt-owner-room-level')){var lv=document.createElement('small');lv.className='kt-owner-room-level';lv.textContent='Lv.50,000';el.parentNode.appendChild(lv)}}catch(e){}});
 }
-var oldChooser=window.openAccountChooser;if(typeof oldChooser==='function'&&!oldChooser.__crownAll){var oc=function(){var r=oldChooser.apply(this,arguments);setTimeout(decorate,20);return r};oc.__crownAll=true;window.openAccountChooser=oc}
+window.ktOwnerQuickPhotoChange20260929=function(k,e){
+ try{if(e){e.preventDefault();e.stopPropagation();}}catch(z){}
+ try{localStorage.setItem('ktalk_sub_account',k);}catch(z){}
+ state.ktSubAccount=k;
+ if(typeof window.openProfileDirect==='function'){try{closeSheet();}catch(z){}setTimeout(function(){window.openProfileDirect();},40);}
+};
+var oldChooser=window.openAccountChooser;if(typeof oldChooser==='function'&&!oldChooser.__crownAll){var oc=function(){var r=oldChooser.apply(this,arguments);setTimeout(function(){
+ decorate();
+ try{
+  document.querySelectorAll('.kt-account-half').forEach(function(btn){
+   if(btn.querySelector('.kt-owner-photo-change-btn'))return;
+   var k=btn.getAttribute('onclick')&&btn.getAttribute('onclick').indexOf('haine2')>=0?'haine2':'taekwon1';
+   var b=document.createElement('span');b.className='kt-owner-photo-change-btn';b.textContent='📷 사진 변경';
+   b.onclick=function(e){window.ktOwnerQuickPhotoChange20260929(k,e);};
+   btn.appendChild(b);
+  });
+ }catch(e){}
+},20);return r};oc.__crownAll=true;window.openAccountChooser=oc}
 [50,200,500,1000].forEach(function(ms){setTimeout(decorate,ms)});setInterval(decorate,1200);
 })();
