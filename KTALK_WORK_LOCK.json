@@ -78,7 +78,8 @@
     "fortune_ladder_weighted_rewards_5555_20260929",
     "fortune_button_below_share_5555_20260929",
     "fortune_button_actual_video_home_below_share_5555_20260929",
-    "video_fortune_below_share_duplicate_keep_broadcast_5555_20260929"
+    "video_fortune_below_share_duplicate_keep_broadcast_5555_20260929",
+    "all_switches_final_audit_locked_20260929"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -152,11 +153,12 @@
     "fortune_ladder_weighted_rewards_5555_20260929",
     "fortune_button_below_share_5555_20260929",
     "fortune_button_actual_video_home_below_share_5555_20260929",
-    "video_fortune_below_share_duplicate_keep_broadcast_5555_20260929"
+    "video_fortune_below_share_duplicate_keep_broadcast_5555_20260929",
+    "all_switches_final_audit_locked_20260929"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "사용자 요청으로 현재 K-Talk 상태 최종 잠금. 방송 쪽 오늘의 운세 유지 + 동영상 화면 공유 아래 동일 운세 버튼 추가 상태, 사다리 보상 가중치, 2주 추첨, AI 읽기, 현재 공개 동영상 재생 상태 모두 보호. 명시적 요청 없이는 변경 금지.",
+  "note": "최종 오류 점검 완료. app.js 및 스위치 핵심 스크립트 문법 정상. 런타임에는 url.parse deprecation warning만 있고 사용자 기능 오류 그룹은 확인되지 않음. 모든 스위치 처리 스크립트 캐시 갱신 후 현재 상태 최종 잠금. 명시적 요청 없이는 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -248,6 +250,6 @@
     ]
   },
   "last_unlock": "2026-09-29-fortune-ladder-switch-5555",
-  "last_lock": "2026-09-29-user-final-lock-confirmation",
+  "last_lock": "2026-09-29-all-switches-final-audit-lock",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
