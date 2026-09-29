@@ -48,20 +48,39 @@
 
   function readTodayFortune20260930(f){
     try{
-      if(!window.speechSynthesis||typeof window.SpeechSynthesisUtterance!=='function')return;
+      var synth=window.speechSynthesis;
+      var U=window.SpeechSynthesisUtterance;
+      if(!synth||typeof U!=='function')return;
       var text='오늘의 행운. '+f.score+'점. '+f.msg+' 행운 숫자는 '+f.numbers.join(', ')+' 입니다. 행운 색은 '+f.color+' 입니다.';
-      var u=new SpeechSynthesisUtterance(text);
-      u.lang='ko-KR';
-      u.rate=0.95;
-      u.pitch=1;
+      var speakNow=function(){
+        try{
+          var u=new U(text);
+          u.lang='ko-KR';
+          u.rate=0.95;
+          u.pitch=1;
+          try{
+            var voices=synth.getVoices()||[];
+            var ko=voices.find(function(v){return /^ko(-|_)/i.test(String(v.lang||''));});
+            if(ko)u.voice=ko;
+          }catch(e){}
+          try{synth.cancel();}catch(e){}
+          try{synth.resume();}catch(e){}
+          synth.speak(u);
+        }catch(e){}
+      };
+      /* 안드로이드에서는 클릭 동작 안에서 바로 speak 해야 소리가 나는 경우가 많다. */
+      speakNow();
+      /* 음성 목록이 늦게 준비되는 기기만 한 번 더 보완한다. */
       try{
-        var voices=window.speechSynthesis.getVoices()||[];
-        var ko=voices.find(function(v){return /^ko(-|_)/i.test(String(v.lang||''));});
-        if(ko)u.voice=ko;
+        if(!(synth.getVoices()||[]).length){
+          var once=function(){
+            try{synth.removeEventListener('voiceschanged',once);}catch(e){}
+            try{speakNow();}catch(e){}
+          };
+          synth.addEventListener('voiceschanged',once);
+          setTimeout(function(){try{synth.removeEventListener('voiceschanged',once);}catch(e){}},1800);
+        }
       }catch(e){}
-      setTimeout(function(){
-        try{window.speechSynthesis.speak(u);}catch(e){}
-      },120);
     }catch(e){}
   }
 
