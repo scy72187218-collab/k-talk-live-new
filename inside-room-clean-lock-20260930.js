@@ -69,7 +69,18 @@
   function apply(){
     ensureStyle();
     var inside=isInsideRoom();
-    try{document.documentElement.classList.toggle('kt-inside-broadcast-room',inside);}catch(e){}
+    try{
+      document.documentElement.classList.toggle('kt-inside-broadcast-room',inside);
+      /* 방 밖으로 나오면 LIVE 숨김 흔적을 즉시 제거해서 빨간 신호가 다시 보이게 한다. */
+      if(!inside){
+        document.querySelectorAll('.kt-video-live-peek .ktvl-live,.kt-friend-bubble.live .livebtn,.kt-friend-contact-actions .livebtn').forEach(function(el){
+          el.style.removeProperty('display');
+          el.style.removeProperty('visibility');
+          el.style.removeProperty('opacity');
+          el.style.removeProperty('pointer-events');
+        });
+      }
+    }catch(e){}
     removeWaves();
     hideInnerLiveBadges();
   }
