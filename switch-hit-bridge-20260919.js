@@ -84,6 +84,14 @@
       }
 
       if(el.matches('.live-prep .room-switch')){
+        var roomText=String(el.textContent||'').replace(/\s+/g,'');
+        if(roomText.indexOf('오늘의운세')>-1||el.classList.contains('kt-daily-fortune-room-switch')){
+          if(typeof window.ktOpenDailyFortuneLadder20260928==='function'){
+            window.ktOpenDailyFortuneLadder20260928();
+            return true;
+          }
+          return false;
+        }
         var d=roomDef(el.textContent);
         if(!d)return false;
         if(typeof window.selectPrepRoom==='function'){
