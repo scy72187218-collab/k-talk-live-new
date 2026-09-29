@@ -384,6 +384,16 @@
   }catch(e){}
   setInterval(dedupeRemoteGroupRooms,250);
 
+  async function returnGuestToVideoAfterHostExit(c){
+    if(!c||viewerCtx!==c)return;
+    try{await window.ktLeaveRemoteLive(true);}catch(e){}
+    /* 호스트가 방송을 끝낸 경우 게스트는 방송목록이 아니라 원래 동영상 화면으로 복귀 */
+    try{
+      if(typeof window.home==='function')window.home();
+      else if(typeof window.showVideoHome==='function')window.showVideoHome('추천 동영상');
+    }catch(e){}
+  }
+
   async function remotePollRoom(){
     if(!viewerCtx)return;
     var c=viewerCtx;
@@ -391,11 +401,10 @@
       var rows=await req('ktalk_live_rooms?select=id,host_id,active,updated_at&host_id=eq.'+enc(c.hostId)+'&active=eq.true&order=started_at.desc&limit=1');
       var room=rows&&rows[0];
       if(!room||Date.now()-new Date(room.updated_at).getTime()>STALE_MS){
-        /* 휴대폰 신호가 잠깐 흔들릴 때 방에서 바로 내보내지 않는다. */
+        /* 호스트 종료 신호는 두 게스트 모두 짧게 확인 후 동영상 화면으로 자동 복귀 */
         if(!c.roomMissingSince)c.roomMissingSince=Date.now();
-        if(Date.now()-c.roomMissingSince>12000){
-          showActivity('방송 신호를 다시 확인해 주세요.');
-          if(viewerCtx===c)window.ktLeaveRemoteLive();
+        if(Date.now()-c.roomMissingSince>2500){
+          if(viewerCtx===c)returnGuestToVideoAfterHostExit(c);
         }
         return;
       }
