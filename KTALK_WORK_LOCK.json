@@ -69,7 +69,9 @@
     "daily_fortune_ladder_roses_1_to_5_and_blank_20260929",
     "public_video_continuous_playback_20260929",
     "fortune_ladder_switch_working_5555_20260929",
-    "public_video_restore_9am_single_playback_5555_20260929"
+    "public_video_restore_9am_single_playback_5555_20260929",
+    "fortune_ladder_two_week_draw_20260929",
+    "fortune_ladder_ai_voice_read_20260929"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -134,11 +136,13 @@
     "daily_fortune_ladder_roses_1_to_5_and_blank_20260929",
     "public_video_continuous_playback_20260929",
     "fortune_ladder_switch_working_5555_20260929",
-    "public_video_restore_9am_single_playback_5555_20260929"
+    "public_video_restore_9am_single_playback_5555_20260929",
+    "fortune_ladder_two_week_draw_20260929",
+    "fortune_ladder_ai_voice_read_20260929"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "5555 승인. 공개 동영상만 아침 9시 상태 기준으로 복귀: 추가 public-video-fast-open-lock 스크립트 로드를 제거해 이중 재생/겹침 방지. 다른 기능/방/스위치/운세/채팅/수익률/녹화는 변경 금지.",
+  "note": "오늘의 운세 사다리: 주간 추첨을 2주 추첨으로 변경. 화면 열 때 AI가 참여방법을 읽고, 사다리 종료 후 당첨/꽝 결과와 행운 숫자 6개를 AI 음성으로 읽음. 다른 기능 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -217,10 +221,12 @@
       "all_switches_working_final_20260929",
       "today_fortune_six_numbers_20260929",
       "daily_fortune_ladder_roses_1_to_5_and_blank_20260929",
-      "fortune_ladder_switch_working_5555_20260929"
+      "fortune_ladder_switch_working_5555_20260929",
+      "fortune_ladder_two_week_draw_20260929",
+      "fortune_ladder_ai_voice_read_20260929"
     ]
   },
   "last_unlock": "2026-09-29-fortune-ladder-switch-5555",
-  "last_lock": "2026-09-29-public-video-9am-single-playback-lock",
+  "last_lock": "2026-09-29-fortune-ladder-two-week-ai-voice-lock",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
