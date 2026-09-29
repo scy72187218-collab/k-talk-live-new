@@ -27,7 +27,7 @@
     if(!btn)return false;
     var t=String(btn.textContent||'').replace(/\s+/g,'');
     var a=String(btn.getAttribute('aria-label')||'').replace(/\s+/g,'');
-    return t.indexOf('보물 패키지')>-1||a.indexOf('보물 패키지')>-1||
+    return t.indexOf('보물 패키지')>-1||a.indexOf('보물 패키지')>-1||t.indexOf('보물상자')>-1||a.indexOf('보물상자')>-1||
       btn.classList.contains('kt-three-quick-treasure')||
       btn.classList.contains('kt-solo-treasure-btn');
   }
