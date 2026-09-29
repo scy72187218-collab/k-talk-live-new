@@ -690,8 +690,15 @@
 
   setInterval(function(){
     if(document.querySelector('.kt-dashboard')||document.querySelector('.friends-list'))renderLiveCards();
-  },5000);
-  setTimeout(renderLiveCards,900);
+  },1800);
+  setTimeout(renderLiveCards,350);
+  window.addEventListener('pageshow',function(){setTimeout(renderLiveCards,80);});
+  window.addEventListener('online',function(){setTimeout(renderLiveCards,80);});
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden&&(document.querySelector('.kt-dashboard')||document.querySelector('.friends-list'))){
+      setTimeout(renderLiveCards,80);
+    }
+  });
   setTimeout(function(){try{clearUnapprovedGuestSlots20260928();}catch(e){}},120);
   setInterval(function(){try{clearUnapprovedGuestSlots20260928();}catch(e){}},1200);
 })();
