@@ -96,7 +96,8 @@
     "premium_gift_fullscreen_effect_5555_20260929",
     "treasure_package_label_position_time_20260929",
     "treasure_package_immediate_display_5555_20260929",
-    "standalone_red_live_signal_publisher_5555_20260929"
+    "standalone_red_live_signal_publisher_5555_20260929",
+    "chat_tap_reply_all_rooms_5555_20260929"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -188,11 +189,12 @@
     "premium_gift_fullscreen_effect_5555_20260929",
     "treasure_package_label_position_time_20260929",
     "treasure_package_immediate_display_5555_20260929",
-    "standalone_red_live_signal_publisher_5555_20260929"
+    "standalone_red_live_signal_publisher_5555_20260929",
+    "chat_tap_reply_all_rooms_5555_20260929"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "5555 승인. 기존 잠금 LIVE 통신/입장/퇴장/WebRTC 파일은 수정하지 않고 별도 live-signal-publisher-20260929.js만 추가해 /api/live-beacon-memory에 publish/heartbeat/end 신호 전송. 다른 기능 변경 금지.",
+  "note": "5555 승인. 모든 방 채팅 글/닉네임을 누르면 해당 사람 @닉네임이 채팅 입력칸에 자동 입력되어 인사/답장 가능. 기존 통신, LIVE, 방 배치, 기존 채팅 전송 로직은 변경하지 않음.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -284,6 +286,6 @@
     ]
   },
   "last_unlock": "2026-09-29-fortune-ladder-switch-5555",
-  "last_lock": "2026-09-29-standalone-red-live-signal-publisher-5555",
+  "last_lock": "2026-09-29-chat-tap-reply-all-rooms-5555",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
