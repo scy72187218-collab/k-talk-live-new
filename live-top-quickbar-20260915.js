@@ -29,8 +29,11 @@
     var bar=document.createElement('div');
     bar.className='kt-live-top-quickbar';
     bar.setAttribute('data-kt-top-quickbar','1');
+    var first=room&&room.classList&&room.classList.contains('ktsolo-room')
+      ?'<button type="button" aria-hidden="true" tabindex="-1" style="visibility:hidden!important;pointer-events:none!important"></button>'
+      :'<button type="button" aria-label="되돌리기"><b>↻</b><span>되돌리기</span></button>';
     bar.innerHTML=''
-      +'<button type="button" aria-label="되돌리기"><b>↻</b><span>되돌리기</span></button>'
+      +first
       +'<button type="button" aria-label="보물상자"><b>🎁</b><span>보물상자</span></button>'
       +'<button type="button" aria-label="매치"><b>⚔</b><span>매치</span></button>';
     return bar;
