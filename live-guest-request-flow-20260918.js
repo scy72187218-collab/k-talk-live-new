@@ -1218,11 +1218,27 @@
 
   async function leaveApprovedGuestNow(){
     var hostId=viewerGuest.hostId||'';
+    try{
+      if(!hostId)hostId=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||sessionStorage.getItem('kt_remote_host_id')||'').trim();
+    }catch(e){}
     var vid=viewerId();
     var sid=viewerGuest.sessionId||'';
 
-    /* 실제 퇴장 버튼은 호스트에게 즉시 guest_left를 먼저 보낸다.
-       그래야 호스트 칸에 마지막 프레임이 남지 않고 바로 빈 칸으로 돌아간다. */
+    /* 퇴장 시 입장/퇴장 함수 자체는 건드리지 않고,
+       이 게스트의 승인/자리 기록만 즉시 종료 신호로 남긴다. */
+    try{
+      if(hostId){
+        await postGuestMessage(
+          hostId,
+          'guest_left:'+vid,
+          '↩ '+(profile().name||'게스트')+'님이 방송에서 나갔습니다.',
+          vid,
+          profile().name||'게스트'
+        );
+      }
+    }catch(e){}
+
+    /* 기존 직접 나가기 신호도 그대로 유지한다. */
     try{
       if(hostId&&typeof window.ktDirectGuestLeaveNow20260923==='function'){
         window.ktDirectGuestLeaveNow20260923(hostId);
