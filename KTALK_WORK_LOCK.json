@@ -71,7 +71,9 @@
     "fortune_ladder_switch_working_5555_20260929",
     "public_video_restore_9am_single_playback_5555_20260929",
     "fortune_ladder_two_week_draw_20260929",
-    "fortune_ladder_ai_voice_read_20260929"
+    "fortune_ladder_ai_voice_read_20260929",
+    "current_public_video_output_locked_20260929",
+    "public_video_9am_single_playback_20260929"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -138,11 +140,13 @@
     "fortune_ladder_switch_working_5555_20260929",
     "public_video_restore_9am_single_playback_5555_20260929",
     "fortune_ladder_two_week_draw_20260929",
-    "fortune_ladder_ai_voice_read_20260929"
+    "fortune_ladder_ai_voice_read_20260929",
+    "current_public_video_output_locked_20260929",
+    "public_video_9am_single_playback_20260929"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "오늘의 운세 사다리: 주간 추첨을 2주 추첨으로 변경. 화면 열 때 AI가 참여방법을 읽고, 사다리 종료 후 당첨/꽝 결과와 행운 숫자 6개를 AI 음성으로 읽음. 다른 기능 변경 금지.",
+  "note": "현재 화면에 나오는 공개 동영상 재생 상태 전체 잠금. 아침 9시 기준 단일 재생 유지. 다른 방/스위치/운세/채팅/수익률/녹화는 변경 금지. 수영장 영상 흔들림 문제는 별도 확인 대상이며 현 잠금 상태를 해제하지 말 것.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -153,7 +157,9 @@
       "public_video_fast_open_relock_20260929",
       "public_video_app_startup_fixed_20260929",
       "public_video_continuous_playback_20260929",
-      "public_video_restore_9am_single_playback_5555_20260929"
+      "public_video_restore_9am_single_playback_5555_20260929",
+      "current_public_video_output_locked_20260929",
+      "public_video_9am_single_playback_20260929"
     ],
     "3": [
       "subscriber_room_current_state",
@@ -227,6 +233,6 @@
     ]
   },
   "last_unlock": "2026-09-29-fortune-ladder-switch-5555",
-  "last_lock": "2026-09-29-fortune-ladder-two-week-ai-voice-lock",
+  "last_lock": "2026-09-29-current-video-output-lock",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
