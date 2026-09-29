@@ -178,6 +178,10 @@
 
   function ensureTopHeart(room,key){
     if(!room)return null;
+    if(room.classList.contains('ktsecret-room')){
+      try{room.querySelectorAll('.kt-live-clock-heart').forEach(function(x){x.remove();});}catch(e){}
+      return null;
+    }
     if(!document.getElementById('ktTopHeartStyle')){
       var s=document.createElement('style');
       s.id='ktTopHeartStyle';
@@ -222,6 +226,10 @@
   function installTopHearts(){
     try{
       document.querySelectorAll(roomSelector).forEach(function(room){
+        if(room.classList.contains('ktsecret-room')){
+          try{room.querySelectorAll('.kt-live-clock-heart').forEach(function(x){x.remove();});}catch(e){}
+          return;
+        }
         var key=likeKey(room);
         window.__ktLiveClockLikes=window.__ktLiveClockLikes||{solo:0,group9:0,group13:0,subscriber:0,secret:0};
         var count=ensureTopHeart(room,key);
