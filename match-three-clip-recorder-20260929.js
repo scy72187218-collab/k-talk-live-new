@@ -2,7 +2,7 @@
    - 매치 화면에서만 동작
    - 3분 동안 1분씩 총 3개 영상으로 자동 녹화
    - 각 1분 영상은 완료 즉시 '내 동영상' DB에 저장
-   - 녹화 버튼은 나가기 버튼 바로 왼쪽
+   - 녹화 버튼은 화면에 표시하지 않음
    - 다른 방/카메라/채팅/수익률/버튼은 변경하지 않음 */
 (function(){
   if(window.__ktMatchThreeClipRecorder20260929)return;
@@ -15,6 +15,8 @@
   var clipStartedAt=0;
   var chunks=[];
   var timer=null;
+  var completedThisMatch=false;
+  var reviewPending=false;
 
   function inMatch(){
     return !!document.querySelector('.match-arena-sheet .kt-match-arena');
@@ -96,13 +98,7 @@
 
   function updateButton(){
     var b=document.getElementById('ktMatchThreeClipRecordBtn20260929');
-    if(!b)return;
-    if(!active){
-      b.innerHTML='🎥 녹화 <b>0/3</b>';
-      return;
-    }
-    var sec=Math.max(0,60-Math.floor((Date.now()-clipStartedAt)/1000));
-    b.innerHTML='🎥 녹화 <b>'+Math.min(clipIndex+1,3)+'/3 · '+String(sec).padStart(2,'0')+'초</b>';
+    if(b){try{b.remove();}catch(e){}}
   }
 
   function finishCurrentAndContinue(){
@@ -142,9 +138,10 @@
           setTimeout(startClip,120);
         }else{
           active=false;
+          completedThisMatch=true;
+          reviewPending=true;
           clearInterval(timer);timer=null;
           updateButton();
-          try{alert('✅ 매치 3분 녹화 완료! 1분 영상 3개가 내 동영상에 저장되었습니다.');}catch(e){}
         }
       };
       recorder.start(1000);
@@ -169,33 +166,40 @@
   }
 
   function ensureButton(){
-    var top=document.querySelector('.match-arena-sheet .kt-match-top');
-    if(!top)return;
-
-    /* 기존 큰선물 녹화 버튼은 매치 화면에서는 숨김 */
-    var old=document.querySelector('.match-arena-sheet .kt-premium-clip-switch-20260928');
-    if(old)old.style.setProperty('display','none','important');
-
-    var exit=top.querySelector('button[onclick*="closeSheet"]');
-    if(!exit)return;
     var b=document.getElementById('ktMatchThreeClipRecordBtn20260929');
-    if(!b){
-      b=document.createElement('button');
-      b.id='ktMatchThreeClipRecordBtn20260929';
-      b.type='button';
-      b.style.cssText='height:38px;padding:0 10px;border-radius:12px;border:1px solid #ff587c99;background:rgba(25,9,15,.92);color:#fff;font-size:11px;font-weight:950;box-shadow:0 0 9px #ff3e6844;touch-action:manipulation;flex:0 0 auto;';
-      b.onclick=function(e){
-        try{e.preventDefault();e.stopPropagation();}catch(_e){}
-        if(!active)startThree();
-      };
-      top.insertBefore(b,exit);
-    }
-    updateButton();
+    if(b){try{b.remove();}catch(e){}}
+    var old=document.querySelector('.match-arena-sheet .kt-premium-clip-switch-20260928');
+    if(old){try{old.remove();}catch(e){}}
   }
 
   function tick(){
-    if(inMatch())ensureButton();
-    else if(active)reset();
+    if(inMatch()){
+      ensureButton();
+      if(!active && !completedThisMatch){
+        startThree();
+      }
+      return;
+    }
+
+    if(active){
+      reset();
+    }
+
+    if(reviewPending){
+      reviewPending=false;
+      completedThisMatch=false;
+      setTimeout(function(){
+        try{
+          if(typeof window.openMyVideoLibrary==='function'){
+            window.openMyVideoLibrary();
+          }else if(typeof window.alert==='function'){
+            alert('✅ 매치 녹화본 3개가 내 동영상에 저장되었습니다.');
+          }
+        }catch(e){}
+      },450);
+    }else{
+      completedThisMatch=false;
+    }
   }
 
   setInterval(tick,300);
