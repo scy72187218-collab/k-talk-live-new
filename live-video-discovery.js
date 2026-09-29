@@ -76,7 +76,7 @@
     var rows=[];
     try{
       var ctrl=typeof AbortController!=='undefined'?new AbortController():null;
-      var timer=ctrl?setTimeout(function(){ctrl.abort();},450):null;
+      var timer=ctrl?setTimeout(function(){ctrl.abort();},2500):null;
       var opt={headers:{apikey:KEY,Authorization:'Bearer '+KEY}};
       if(ctrl)opt.signal=ctrl.signal;
       var r=await fetch(BASE+'ktalk_live_rooms?select=host_id,host_name,title,room_name,host_photo,updated_at&active=eq.true&updated_at=gte.'+enc(cut)+'&order=started_at.desc&limit=50',opt);
