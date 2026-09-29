@@ -67,7 +67,8 @@
     "all_switches_working_final_20260929",
     "today_fortune_six_numbers_20260929",
     "daily_fortune_ladder_roses_1_to_5_and_blank_20260929",
-    "public_video_continuous_playback_20260929"
+    "public_video_continuous_playback_20260929",
+    "fortune_ladder_switch_working_5555_20260929"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -130,11 +131,12 @@
     "all_switches_working_final_20260929",
     "today_fortune_six_numbers_20260929",
     "daily_fortune_ladder_roses_1_to_5_and_blank_20260929",
-    "public_video_continuous_playback_20260929"
+    "public_video_continuous_playback_20260929",
+    "fortune_ladder_switch_working_5555_20260929"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "공개 동영상: 나오다가 멈추지 않고 계속 재생. stalled/waiting에서는 강제 재로드 금지, 보이는 동영상만 자동 재개, loop 유지. 이 상태 잠금.",
+  "note": "5555 승인으로 오늘의 운세/사다리 타기 room-switch 터치 가로채기 오류 수정. Android pointerdown과 일반 click 모두 사다리 화면을 직접 열도록 고정. 다른 스위치/방 기능은 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -211,10 +213,11 @@
       "remove_clock_heart_counter_all_rooms_20260929",
       "all_switches_working_final_20260929",
       "today_fortune_six_numbers_20260929",
-      "daily_fortune_ladder_roses_1_to_5_and_blank_20260929"
+      "daily_fortune_ladder_roses_1_to_5_and_blank_20260929",
+      "fortune_ladder_switch_working_5555_20260929"
     ]
   },
-  "last_unlock": "2026-09-27-solo-countdown-only-code-5555",
-  "last_lock": "2026-09-29-public-video-continuous-playback-lock",
+  "last_unlock": "2026-09-29-fortune-ladder-switch-5555",
+  "last_lock": "2026-09-29-fortune-ladder-switch-working-lock",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
