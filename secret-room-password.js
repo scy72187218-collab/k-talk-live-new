@@ -254,7 +254,7 @@
       if(earn&&tools){
         var rr=room.getBoundingClientRect();
         var tr=tools.getBoundingClientRect();
-        var w=92,h=50,gap=4;
+        var w=78,h=40,gap=4;
         if(rr.width&&tr.width){
           var left=Math.round(rr.right-w-6);
           var top=Math.round(tr.top-h-gap);
@@ -316,7 +316,7 @@
         +'<div class="ktsecret-main"><div class="ktsecret-six-grid"><div class="ktsecret-slot host"><video id="ktLiveVideo" autoplay playsinline muted></video><span class="ktsecret-slot-label">호스트</span></div><div class="ktsecret-slot"><div class="ktsecret-guest-wait"><b>+</b><span>게스트</span></div></div><div class="ktsecret-slot"><div class="ktsecret-guest-wait"><b>+</b><span>게스트</span></div></div><div class="ktsecret-slot"><div class="ktsecret-guest-wait"><b>+</b><span>게스트</span></div></div><div class="ktsecret-slot"><div class="ktsecret-guest-wait"><b>+</b><span>게스트</span></div></div></div><div class="ktsecret-shade"></div>'
           
           +'<div class="ktsecret-wave">'+equalizerBars()+'</div>'
-          +'<div id="ktsecretChatList" class="ktsecret-chat" style="left:8px!important;right:8px!important;bottom:70px!important"></div>'        +'<div class="ktsecret-earn-row"><button id="myEarnHud" onclick="toggleMyEarnings()"><div style="display:flex;align-items:center;justify-content:center;gap:5px"><span style="font-size:8px;color:#8fe8ff;font-weight:950;white-space:nowrap">🔒 내 수익</span><b id="hudEarnNet" style="font-size:12px;color:#ffe071;white-space:nowrap">'+esc(net)+'</b></div><div id="myEarnDetail" style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:2px;font-size:7px;color:#ddd"><span id="hudEarnRoses">'+esc(roses)+'</span><span id="hudEarnRate" style="text-align:right">'+esc(rate)+'</span></div></button></div>'
+          +'<div id="ktsecretChatList" class="ktsecret-chat" style="left:8px!important;right:8px!important;bottom:70px!important"></div>'        +'<div class="ktsecret-earn-row"><button id="myEarnHud" style="transition:none!important;animation:none!important" onclick="toggleMyEarnings()"><div style="display:flex;align-items:center;justify-content:center;gap:5px"><span style="font-size:8px;color:#8fe8ff;font-weight:950;white-space:nowrap">🔒 내 수익</span><b id="hudEarnNet" style="font-size:12px;color:#ffe071;white-space:nowrap">'+esc(net)+'</b></div><div id="myEarnDetail" style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:2px;font-size:7px;color:#ddd"><span id="hudEarnRoses">'+esc(roses)+'</span><span id="hudEarnRate" style="text-align:right">'+esc(rate)+'</span></div></button></div>'
 
           +'<div class="ktsecret-gifts">'+gift('','1개','장미','rose-single.svg')+gift('','50개','장미다발','rose-bouquet-50.svg')+gift('','100개','특대장미','rose-bouquet-100.svg')+gift('💗','10개','하트','')+gift('👑','100개','왕관','')+gift('🏎️','50개','스포츠카','')+gift('','선물상자','큰 선물 보기','gift-box.svg')+'</div>'
         +'</div>'
@@ -416,8 +416,4 @@
     }).observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 
-  if(!window.__ktSecretFinalOverlayGuard20260929){
-    window.__ktSecretFinalOverlayGuard20260929=true;
-    setInterval(enforceSecretFinalOverlay20260929,500);
-  }
 })();
