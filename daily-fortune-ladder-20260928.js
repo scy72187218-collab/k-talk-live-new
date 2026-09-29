@@ -163,6 +163,28 @@
     return ['🌹 1개','🌹 2개','🌹 3개','🌹 4개','🌹 5개','꽝'];
   }
 
+  function weightedOutcomeSlot20260929(){
+    var r=Math.random()*100;
+    if(r<30)return 0;   // 1송이 30%
+    if(r<56)return 1;   // 2송이 26%
+    if(r<78)return 2;   // 3송이 22%
+    if(r<84)return 3;   // 4송이 6%
+    if(r<87)return 4;   // 5송이 3%
+    return 5;           // 꽝 13%
+  }
+
+  function buildWeightedLadderForStart20260929(startIndex){
+    var target=weightedOutcomeSlot20260929();
+    var best=null;
+    for(var n=0;n<120;n++){
+      var data=buildLadderData();
+      var trace=tracePath(data,startIndex);
+      if(!best)best={data:data,trace:trace};
+      if(trace.endIndex===target)return {data:data,trace:trace};
+    }
+    return best;
+  }
+
   function eventHtml(){
     var used=alreadyUsed();
     window.__ktFortuneLadderData20260928=buildLadderData();
@@ -196,8 +218,14 @@
       return false;
     }
     var startIndex=Math.max(0,Math.min(5,(parseInt(startNumber,10)||1)-1));
-    var d=window.__ktFortuneLadderData20260928||buildLadderData();
-    var trace=tracePath(d,startIndex);
+    var weighted=buildWeightedLadderForStart20260929(startIndex);
+    var d=weighted&&weighted.data?weighted.data:(window.__ktFortuneLadderData20260928||buildLadderData());
+    var trace=weighted&&weighted.trace?weighted.trace:tracePath(d,startIndex);
+    window.__ktFortuneLadderData20260928=d;
+    try{
+      var wrap=document.getElementById('ktFortuneLadder20260928');
+      if(wrap)wrap.innerHTML=ladderSvg(d);
+    }catch(e){}
     markUsed();
 
     try{
