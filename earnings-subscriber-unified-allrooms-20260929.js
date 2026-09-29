@@ -5,7 +5,7 @@
   if(window.__ktUnifiedEarningsSubscriberStyle20260929)return;
   window.__ktUnifiedEarningsSubscriberStyle20260929=true;
 
-  var W=165,H=64,GAP=4;
+  var W=76,H=45,GAP=4;
 
   function rateInfo(){
     try{
@@ -50,8 +50,8 @@
       ['display','block'],['visibility','visible'],['opacity','1'],
       ['width',W+'px'],['min-width',W+'px'],['max-width',W+'px'],
       ['height',H+'px'],['min-height',H+'px'],['max-height',H+'px'],
-      ['margin','0'],['padding','5px 8px'],['box-sizing','border-box'],
-      ['border','1px solid rgba(210,169,54,.72)'],['border-radius','13px'],
+      ['margin','0'],['padding','1px 2px'],['box-sizing','border-box'],
+      ['border','1px solid rgba(210,169,54,.72)'],['border-radius','8px'],
       ['background','linear-gradient(135deg,#17140b,#0d0d12)'],
       ['color','#fff'],['overflow','hidden'],['text-align','center'],
       ['transform','none'],['animation','none'],['transition','none']
@@ -136,9 +136,9 @@
     s.id='ktUnifiedEarningsSubscriberStyle20260929';
     s.textContent=''
       +'.kt-ue-top{display:flex!important;align-items:center!important;justify-content:center!important;gap:5px!important;white-space:nowrap!important}'
-      +'.kt-ue-top span{font-size:8px!important;color:#8fe8ff!important;font-weight:950!important;line-height:1.05!important}'
-      +'.kt-ue-top b{font-size:12px!important;color:#ffe071!important;font-weight:950!important;line-height:1.05!important}'
-      +'.kt-ue-detail{display:grid!important;grid-template-columns:1fr 1fr!important;gap:2px 5px!important;margin-top:3px!important;font-size:7px!important;line-height:1.05!important;color:#ddd!important;white-space:nowrap!important;text-align:left!important}'
+      +'.kt-ue-top span{font-size:4.8px!important;color:#8fe8ff!important;font-weight:950!important;line-height:1!important}'
+      +'.kt-ue-top b{font-size:7px!important;color:#ffe071!important;font-weight:950!important;line-height:1!important}'
+      +'.kt-ue-detail{display:grid!important;grid-template-columns:1fr 1fr!important;gap:0 1px!important;margin-top:1px!important;font-size:4.5px!important;line-height:1!important;color:#ddd!important;white-space:nowrap!important;text-align:left!important}'
       +'.kt-ue-detail span:nth-child(even){text-align:right!important}'
       +'.kt-ue-detail .kt-ue-full{grid-column:1/-1!important;text-align:right!important}'
       +'@media(max-width:390px){.kt-ue-top span{font-size:7px!important}.kt-ue-top b{font-size:11px!important}.kt-ue-detail{font-size:6.4px!important}}';
