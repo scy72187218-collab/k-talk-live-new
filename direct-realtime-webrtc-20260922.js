@@ -211,10 +211,9 @@
   }
 
   function useLegacyApprovedGuestUplink(){
-    /* 2026-09-28: 승인 직후 게스트는 direct realtime 경로를 우선 사용한다.
-       legacy polling uplink가 함께 잡히면 승인/카메라 연결이 수초씩 늦어질 수 있으므로
-       승인된 게스트 영상 전송에는 사용하지 않는다. */
-    return false;
+    try{
+      return window.__ktGuestRequestFlow20260914===true && typeof window.ktRequestGuestJoin==='function';
+    }catch(e){return false;}
   }
 
   function remoteHostId(){
@@ -1354,9 +1353,8 @@
 
     /* REALTIME FIRST: the guest receives approval before host-side DOM work,
        legacy persistence, or any extra rendering can delay the signal. */
-    /* 승인 버튼을 누르는 순간 WebSocket + REST 두 경로로 동시에 보낸다.
-       어느 한 경로가 늦어도 게스트 화면은 바로 승인 상태로 전환된다. */
-    try{sendCriticalMedia20260926('guest_approved',data,DEVICE);}catch(e){}
+    send('guest_approved',data);
+    try{restBroadcast('guest_approved',data);}catch(e){}
 
     delete pendingRequests[vid];
     guestSlot(vid,name);
@@ -2725,9 +2723,9 @@
       }
     }
   }
-  setInterval(roleTick,80);
+  setInterval(roleTick,120);
   setTimeout(roleTick,20);
-  setInterval(syncSharedApprovalSignals,100);
+  setInterval(syncSharedApprovalSignals,150);
   setTimeout(syncSharedApprovalSignals,50);
 
   window.addEventListener('kt-remote-host-selected',function(e){
@@ -2797,7 +2795,7 @@
   });
   setInterval(function(){
     if(isHostRole()&&joined)broadcastApprovedRoster20260928();
-  },250);
+  },500);
 
   window.addEventListener('pagehide',function(){
     if(guestApprovedHost||lastRemoteHost)announceGuestLeave(guestApprovedHost||lastRemoteHost);
