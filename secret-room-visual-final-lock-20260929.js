@@ -28,16 +28,29 @@
       }
       room.querySelectorAll('.kt-live-clock-heart').forEach(function(el){try{el.remove();}catch(e){}});
 
-      /* 수익률 박스 자체를 하단 도구줄 바로 위 오른쪽으로 고정 */
+      /* 수익률 박스: 하단 공유·효과·더보기 3개 바로 위에 고정 */
       var tools=room.querySelector('.ktsecret-tools');
       var hud=room.querySelector('#myEarnHud');
       if(tools&&hud){
         var rr=room.getBoundingClientRect();
+        var btns=tools.querySelectorAll('.ktsecret-tool');
+        var anchor=null;
+        if(btns.length>=8){
+          var a=btns[5].getBoundingClientRect();
+          var b=btns[7].getBoundingClientRect();
+          anchor={left:a.left,right:b.right,top:Math.min(a.top,b.top)};
+        }
         var tr=tools.getBoundingClientRect();
-        var w=78,h=40,gap=5;
+        var w=78,h=40,gap=4;
         if(rr.width&&tr.width){
-          var left=Math.round(rr.right-w-7);
-          var top=Math.round(tr.top-h-gap);
+          var left;
+          if(anchor){
+            left=Math.round(anchor.left+((anchor.right-anchor.left)-w)/2);
+          }else{
+            left=Math.round(rr.right-w-7);
+          }
+          left=Math.max(Math.round(rr.left+4),Math.min(left,Math.round(rr.right-w-4)));
+          var top=Math.round((anchor?anchor.top:tr.top)-h-gap);
 
           hud.style.setProperty('position','fixed','important');
           hud.style.setProperty('left',left+'px','important');
