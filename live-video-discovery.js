@@ -491,8 +491,11 @@
     try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
     try{window.ktEnterRemoteLive(hid);}catch(_e){}
   }
-  document.addEventListener('pointerdown',enterRedLiveNow,true);
-  if(!window.PointerEvent)document.addEventListener('touchstart',enterRedLiveNow,true);
+  /* 한 군데에서만 처리하되 기기별 입력 차이를 모두 받는다.
+     pointerdown/touchstart/click 중 가장 먼저 들어온 1회만 입장한다. */
+  window.addEventListener('pointerdown',enterRedLiveNow,true);
+  window.addEventListener('touchstart',enterRedLiveNow,{capture:true,passive:false});
+  window.addEventListener('click',enterRedLiveNow,true);
 
   window.ktRefreshVideoLivePeek=render;
   var mo=new MutationObserver(function(){scheduleRender(400);});
