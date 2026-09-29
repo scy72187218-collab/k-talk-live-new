@@ -489,10 +489,12 @@
     if(!hid||typeof window.ktEnterRemoteLive!=='function')return;
     __ktLivePeekTapAt=now;
     try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
+    try{if(typeof window.ktRefreshTurnRelay==='function'){var rq=window.ktRefreshTurnRelay();if(rq&&rq.catch)rq.catch(function(){});}}catch(_e){}
     try{window.ktEnterRemoteLive(hid);}catch(_e){}
   }
   document.addEventListener('pointerdown',enterRedLiveNow,true);
-  if(!window.PointerEvent)document.addEventListener('touchstart',enterRedLiveNow,true);
+  document.addEventListener('touchstart',enterRedLiveNow,true);
+  document.addEventListener('click',enterRedLiveNow,true);
 
   window.ktRefreshVideoLivePeek=render;
   var mo=new MutationObserver(function(){scheduleRender(400);});
