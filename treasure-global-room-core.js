@@ -137,7 +137,30 @@
     if(!root)return null;
     return root.querySelector('.ktsolo-led-track span,.ktg13-led-track span,.ktsubscriber-led-track span,.ktsecret-led-track span,.ktg9-led-track span');
   }
-  function ownEvent(){var hid=deviceId();return latestEvents.find(function(e){return String(e.host_id)===hid;})||null;}
+  function ownEvent(){
+    var hid=deviceId();
+    var remote=latestEvents.find(function(e){return String(e.host_id)===hid;})||null;
+    if(remote)return remote;
+    try{
+      var t=window.ktGetTreasure?ktGetTreasure():null;
+      if(t&&!t.claimed){
+        var unlock=Number(t.unlockAt||t.unlock_at||0);
+        if(unlock>now()){
+          return {
+            id:String(t.id||('local-'+hid)),
+            host_id:hid,
+            host_name:(profile().name||'K-Talk 방송자'),
+            room_title:String(t.roomTitle||'K-Talk LIVE'),
+            amount:Number(t.amount||0),
+            unlock_at:new Date(unlock).toISOString(),
+            claim_close_at:new Date(unlock+60000).toISOString(),
+            __local:true
+          };
+        }
+      }
+    }catch(e){}
+    return null;
+  }
 
   function restoreLed(){
     document.querySelectorAll('[data-kt-treasure-led-original]').forEach(function(el){
@@ -154,12 +177,8 @@
     }
     var box=root;
     try{
-      if(root.classList.contains('ktg13-room')){
-        var h13=root.querySelector('.ktg13-host');
-        if(h13)box=h13;
-      }
       box.style.setProperty('position','relative','important');
-      box.style.setProperty('overflow','hidden','important');
+      box.style.setProperty('overflow','visible','important');
     }catch(e){}
     var b=document.getElementById('ktGlobalTreasureHostBadge');
     if(!b){b=document.createElement('button');b.type='button';b.id='ktGlobalTreasureHostBadge';b.className='kt-global-treasure-hostbadge';box.appendChild(b);}
@@ -169,7 +188,7 @@
     b.classList.toggle('ready',ready);
     b.innerHTML='<span class="ico">🎁</span><strong>보물 패키지</strong><small>'+fmt(left)+'</small>';
     var led=roomLed(root);
-    if(led){
+    if(led&&!ev.__local){
       if(led.dataset.ktTreasureLedOriginal==null)led.dataset.ktTreasureLedOriginal=led.innerHTML;
       led.dataset.ktTreasureEventId=ev.id;
       led.innerHTML='🎁 보물 패키지 떴습니다 · '+fmt(left)+' 남음 · 눌러서 이 방으로 입장';
