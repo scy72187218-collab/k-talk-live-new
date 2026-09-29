@@ -62,15 +62,13 @@
     if(!room||!wrapper||!hud||!tools)return;
     var rr=room.getBoundingClientRect(),tr=tools.getBoundingClientRect();
     if(!rr.width||!tr.width)return;
-    /* 구독자방 기준: 방 폭이 아니라 실제 화면 오른쪽에 고정 */
-    var vw=Math.min(window.innerWidth||9999,document.documentElement.clientWidth||9999);
-    var left=Math.max(8,Math.round(vw-W-7));
+    /* 모든 호스트방 수익률: 하단 버튼 바로 위 중앙 고정 */
     var top=Math.round(tr.top-H-GAP);
     [
-      ['position','fixed'],['left',left+'px'],['right','auto'],['top',top+'px'],['bottom','auto'],
+      ['position','fixed'],['left','50%'],['right','auto'],['top',top+'px'],['bottom','auto'],
       ['width',W+'px'],['min-width',W+'px'],['max-width',W+'px'],
       ['height',H+'px'],['min-height',H+'px'],['max-height',H+'px'],
-      ['margin','0'],['padding','0'],['transform','none'],['z-index','2147483000'],
+      ['margin','0'],['padding','0'],['transform','translateX(-50%)'],['z-index','2147483000'],
       ['display','block'],['overflow','visible']
     ].forEach(function(p){wrapper.style.setProperty(p[0],p[1],'important');});
     styleHud(hud);
@@ -90,17 +88,6 @@
     if(room){
       wrap=room.querySelector('.ktg13-earn');hud=wrap&&wrap.querySelector('#myEarnHud');tools=room.querySelector('.ktg13-tools');
       pinHost(room,wrap,hud,tools);
-      /* 9명방 수익률: 다른 코드가 left 값을 다시 써도 안 밀리도록 오른쪽 기준으로 강제 고정 */
-      if(wrap&&room.getAttribute('data-kt-room')==='9'){
-        wrap.style.setProperty('position','fixed','important');
-        wrap.style.setProperty('left','auto','important');
-        wrap.style.setProperty('right','34px','important');
-        wrap.style.setProperty('width',W+'px','important');
-        wrap.style.setProperty('min-width',W+'px','important');
-        wrap.style.setProperty('max-width',W+'px','important');
-        wrap.style.setProperty('transform','none','important');
-        wrap.style.setProperty('z-index','2147483640','important');
-      }
     }
 
     room=document.querySelector('#screen .ktsecret-room');
