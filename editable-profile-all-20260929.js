@@ -52,9 +52,9 @@
     return '<div class="kt-my-profile">'
       +'<div class="kt-profile-hero">'
         +'<div class="kt-profile-photo-wrap">'
-          +'<button type="button" class="kt-my-profile-photo" onclick="document.getElementById(\'ktProfilePhotoInput\').click()" aria-label="프로필 사진 바꾸기">'+photo+'<em>사진 변경</em></button>'
-          +'<input id="ktProfilePhotoInput" type="file" accept="image/*" hidden onchange="ktProfilePickPhoto(this)">'
-          +'<button type="button" class="kt-profile-photo-change-visible" onclick="document.getElementById(\'ktProfilePhotoInput\').click()">📷 프로필 사진 바꾸기</button>'
+          +'<div class="kt-my-profile-photo" aria-label="현재 프로필 사진">'+photo+'<em>사진 변경</em></div>'
+          +'<input id="ktProfilePhotoInput" class="kt-profile-photo-native-input" type="file" accept="image/*" onchange="ktProfilePickPhoto(this)">'
+          +'<label for="ktProfilePhotoInput" class="kt-profile-photo-change-visible">📷 프로필 사진 바꾸기</label>'
         +'</div>'
         +'<div class="kt-profile-maininfo"><b>'+esc(p.name)+'</b>'+levelLine+'<small>'+esc(p.bio||'소개를 입력해 주세요')+'</small></div>'
       +'</div>'
@@ -115,7 +115,7 @@
   if(!document.getElementById('ktEditableProfileAllStyle20260929')){
     var s=document.createElement('style');
     s.id='ktEditableProfileAllStyle20260929';
-    s.textContent='.kt-editable-profile-level{display:block!important;color:#ffe071!important;font-size:11px!important;font-weight:900!important;margin-top:2px!important}.kt-profile-photo-change-visible{display:block!important;margin:8px auto 0!important;padding:7px 10px!important;border:1px solid #5aa8ff!important;border-radius:10px!important;background:#121a2b!important;color:#dff1ff!important;font-size:12px!important;font-weight:900!important;pointer-events:auto!important;touch-action:manipulation!important}';
+    s.textContent='.kt-editable-profile-level{display:block!important;color:#ffe071!important;font-size:11px!important;font-weight:900!important;margin-top:2px!important}.kt-profile-photo-native-input{position:absolute!important;width:1px!important;height:1px!important;opacity:.01!important;left:-9999px!important}.kt-profile-photo-change-visible{display:block!important;margin:8px auto 0!important;padding:10px 12px!important;border:1px solid #5aa8ff!important;border-radius:10px!important;background:#121a2b!important;color:#dff1ff!important;font-size:13px!important;font-weight:900!important;pointer-events:auto!important;touch-action:manipulation!important;cursor:pointer!important;user-select:none!important}';
     document.head.appendChild(s);
   }
 })();
