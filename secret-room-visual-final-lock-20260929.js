@@ -34,7 +34,7 @@
       if(tools&&hud){
         var rr=room.getBoundingClientRect();
         var tr=tools.getBoundingClientRect();
-        var w=96,h=52,gap=5;
+        var w=78,h=40,gap=5;
         if(rr.width&&tr.width){
           var left=Math.round(rr.right-w-7);
           var top=Math.round(tr.top-h-gap);
@@ -53,6 +53,8 @@
           hud.style.setProperty('transform','none','important');
           hud.style.setProperty('translate','none','important');
           hud.style.setProperty('z-index','2147483646','important');
+          hud.style.setProperty('transition','none','important');
+          hud.style.setProperty('animation','none','important');
 
           var row=hud.closest('.ktsecret-earn-row');
           if(row){
@@ -70,8 +72,7 @@
   }
 
   fix();
-  [30,80,160,320,700,1400,2400].forEach(function(ms){setTimeout(fix,ms);});
-  setInterval(fix,450);
+  [30,120,350].forEach(function(ms){setTimeout(fix,ms);});
   try{
     new MutationObserver(function(){
       clearTimeout(window.__ktSecretVisualFinalTimer20260929);
