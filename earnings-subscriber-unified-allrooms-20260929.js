@@ -90,6 +90,11 @@
     if(room){
       wrap=room.querySelector('.ktg13-earn');hud=wrap&&wrap.querySelector('#myEarnHud');tools=room.querySelector('.ktg13-tools');
       pinHost(room,wrap,hud,tools);
+      /* 9명방만 수익률 박스를 왼쪽으로 20px 이동 */
+      if(wrap&&room.getAttribute('data-kt-room')==='9'){
+        var g9Left=parseInt(wrap.style.left||'0',10);
+        if(isFinite(g9Left))wrap.style.setProperty('left',Math.max(8,g9Left-20)+'px','important');
+      }
     }
 
     room=document.querySelector('#screen .ktsecret-room');
