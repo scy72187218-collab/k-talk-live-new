@@ -62,7 +62,9 @@
     if(!room||!wrapper||!hud||!tools)return;
     var rr=room.getBoundingClientRect(),tr=tools.getBoundingClientRect();
     if(!rr.width||!tr.width)return;
-    var left=Math.round(rr.right-W-7);
+    /* 구독자방 기준: 방 폭이 아니라 실제 화면 오른쪽에 고정 */
+    var vw=Math.min(window.innerWidth||9999,document.documentElement.clientWidth||9999);
+    var left=Math.max(8,Math.round(vw-W-7));
     var top=Math.round(tr.top-H-GAP);
     [
       ['position','fixed'],['left',left+'px'],['right','auto'],['top',top+'px'],['bottom','auto'],
@@ -88,22 +90,12 @@
     if(room){
       wrap=room.querySelector('.ktg13-earn');hud=wrap&&wrap.querySelector('#myEarnHud');tools=room.querySelector('.ktg13-tools');
       pinHost(room,wrap,hud,tools);
-      /* 9명방만: 오른쪽 잘림 방지용으로 수익률 박스를 살짝 왼쪽 이동 */
-      if(wrap&&room.getAttribute('data-kt-room')==='9'){
-        var g9Left=parseInt(wrap.style.left||'0',10);
-        if(isFinite(g9Left))wrap.style.setProperty('left',Math.max(8,g9Left-16)+'px','important');
-      }
     }
 
     room=document.querySelector('#screen .ktsecret-room');
     if(room){
       wrap=room.querySelector('.ktsecret-earn-row');hud=wrap&&wrap.querySelector('#myEarnHud');tools=room.querySelector('.ktsecret-tools');
       pinHost(room,wrap,hud,tools);
-      /* 비밀방만: 효과/더보기 버튼을 가리지 않도록 수익률 박스를 조금 위로 이동 */
-      if(wrap){
-        var secretTop=parseInt(wrap.style.top||'0',10);
-        if(isFinite(secretTop))wrap.style.setProperty('top',Math.max(8,secretTop-18)+'px','important');
-      }
     }
   }
 
@@ -115,7 +107,8 @@
       var tools=room.querySelector('.kgh-tools')||document.querySelector('#screen .kt-remote-bottom');
       var rr=room.getBoundingClientRect();
       var tr=tools&&tools.getBoundingClientRect();
-      var left=Math.round(rr.right-W-7);
+      var vw=Math.min(window.innerWidth||9999,document.documentElement.clientWidth||9999);
+      var left=Math.max(8,Math.round(vw-W-7));
       var top=tr&&tr.width?Math.round(tr.top-H-GAP):Math.round(rr.bottom-H-62);
       [
         ['position','fixed'],['left',left+'px'],['right','auto'],['top',top+'px'],['bottom','auto'],
@@ -131,7 +124,8 @@
       if(!root)return;
       var tools=root.querySelector('.kt-remote-bottom')||document.querySelector('#screen .kt-remote-bottom');
       var rr=root.getBoundingClientRect(),tr=tools&&tools.getBoundingClientRect();
-      var left=Math.round(rr.right-W-7);
+      var vw=Math.min(window.innerWidth||9999,document.documentElement.clientWidth||9999);
+      var left=Math.max(8,Math.round(vw-W-7));
       var top=tr&&tr.width?Math.round(tr.top-H-GAP):Math.round(rr.bottom-H-62);
       [['position','fixed'],['left',left+'px'],['right','auto'],['top',top+'px'],['bottom','auto'],['z-index','2147483000']]
         .forEach(function(p){hud.style.setProperty(p[0],p[1],'important');});
