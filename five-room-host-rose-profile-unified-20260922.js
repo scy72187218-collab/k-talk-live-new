@@ -81,7 +81,7 @@
   }
 
   function roseCount(){
-    if(ownerFixedProfile20260928())return 500000;
+    if(ownerFixedProfile20260928())return 5000;
     var el=document.getElementById('hudEarnRoses')||
            document.getElementById('ktSubscriberEarnRoses')||
            document.getElementById('ktGuestEarnRoses');
