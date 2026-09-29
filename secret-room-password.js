@@ -4,7 +4,7 @@
   window.__ktSecretPasswordInstalled=true;
   window.ktSecretChatMessages=window.ktSecretChatMessages||[];
   var secretSetupRequested=false;
-  var DEFAULT_SECRET_PASSWORD='1111';
+  var DEFAULT_SECRET_PASSWORD='5555';
 
   function esc(v){
     return String(v==null?'':v).replace(/[&<>"']/g,function(ch){
@@ -114,7 +114,7 @@
       var r=oldSelect.apply(this,arguments);
       secretSetupRequested=(type==='password');
       if(window.state&&type==='password'){
-        state.liveRoomType='password';state.liveRoomName='비밀방';state.liveRoomMax=6;
+        state.liveRoomType='password';state.liveRoomName='비밀방';state.liveRoomMax=5;
         state.liveRoomPassword=getSaved();
         state.roomPassword=getSaved();
       }
@@ -129,7 +129,7 @@
       var r=oldOpenRoomPrep.apply(this,arguments);
       secretSetupRequested=String(name||'').indexOf('비밀')>-1;
       if(String(name||'').indexOf('비밀')>-1&&window.state){
-        state.liveRoomType='password';state.liveRoomName='비밀방';state.liveRoomMax=6;
+        state.liveRoomType='password';state.liveRoomName='비밀방';state.liveRoomMax=5;
         state.liveRoomPassword=getSaved();
         state.roomPassword=getSaved();
       }
@@ -358,7 +358,7 @@
       e.style.setProperty('bottom','4px','important');
       e.style.setProperty('right','6px','important');
       e.style.setProperty('left','auto','important');
-      e.style.setProperty('z-index','45','important');
+      e.style.setProperty('z-index','24','important');
     }catch(err){}
   }
   place();
