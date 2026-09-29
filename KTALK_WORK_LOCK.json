@@ -93,7 +93,8 @@
     "locked_working_live_entry_exit_restore_5555_20260929",
     "current_locked_working_live_entry_exit_5555_20260929",
     "profile_photo_display_fix_5555_20260929",
-    "premium_gift_fullscreen_effect_5555_20260929"
+    "premium_gift_fullscreen_effect_5555_20260929",
+    "treasure_package_label_position_time_20260929"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -182,11 +183,12 @@
     "locked_working_live_entry_exit_restore_5555_20260929",
     "current_locked_working_live_entry_exit_5555_20260929",
     "profile_photo_display_fix_5555_20260929",
-    "premium_gift_fullscreen_effect_5555_20260929"
+    "premium_gift_fullscreen_effect_5555_20260929",
+    "treasure_package_label_position_time_20260929"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "5555 승인. 큰 선물 화면 효과만 전체 화면급으로 확대. 보낸 사람/선물명 표시 유지. LIVE 입장/퇴장/통신, 방 배치, 채팅, 수익률, 운세, 스위치 변경 금지.",
+  "note": "보물상자 표기를 보물 패키지로 변경. 패키지 발생 시 출석체크 옆 상단 영역에 패키지와 남은 시간을 함께 표시. 다른 LIVE 입장/퇴장/통신, 방 배치, 채팅, 선물 효과, 수익률, 운세, 스위치 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -278,6 +280,6 @@
     ]
   },
   "last_unlock": "2026-09-29-fortune-ladder-switch-5555",
-  "last_lock": "2026-09-29-premium-gift-fullscreen-effect-5555",
+  "last_lock": "2026-09-29-treasure-package-label-position-time",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
