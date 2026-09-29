@@ -103,6 +103,8 @@
     st.textContent=''
       +'.kt-premium-clip-switch-20260928{position:absolute!important;right:8px!important;top:52px!important;z-index:170!important;height:34px!important;padding:0 10px!important;border-radius:999px!important;border:1px solid #ff587c99!important;background:rgba(25,9,15,.9)!important;color:#fff!important;font-size:11px!important;font-weight:950!important;box-shadow:0 0 9px #ff3e6844!important;touch-action:manipulation!important}'
       +'.kt-premium-clip-switch-20260928 b{color:#ff6b88!important;margin-left:4px!important}'
+      +'.kt-match-top .kt-premium-clip-switch-20260928{position:static!important;right:auto!important;top:auto!important;height:38px!important;margin-left:6px!important;padding:0 10px!important;flex:0 0 auto!important;order:8!important}'
+      +'.kt-match-top>button[onclick*="closeSheet"]{order:9!important}'
       +'.kt-premium-clip-list{display:flex!important;flex-direction:column!important;gap:8px!important}'
       +'.kt-premium-clip-row{padding:10px!important;border-radius:13px!important;background:#15151a!important;border:1px solid #ffffff18!important}'
       +'.kt-premium-clip-row strong{display:block!important;color:#ffe06d!important;font-size:13px!important}.kt-premium-clip-row small{display:block!important;margin-top:3px!important;color:#bbb!important;font-size:10px!important}'
@@ -125,7 +127,7 @@
     }
     var room=switchHost();if(!room)return;
     try{room.style.setProperty('position','relative','important');}catch(e){}
-    var b=room.querySelector('.kt-premium-clip-switch-20260928');
+    var b=document.querySelector('.kt-premium-clip-switch-20260928');
     if(!b){
       b=document.createElement('button');
       b.type='button';
@@ -135,8 +137,17 @@
         try{e.preventDefault();e.stopPropagation();}catch(_e){}
         openMarkers();
       };
+    }
+
+    /* 매치 화면에서는 녹화 버튼을 나가기 버튼 바로 왼쪽에 배치 */
+    var matchTop=document.querySelector('.match-arena-sheet .kt-match-top');
+    var exitBtn=matchTop&&matchTop.querySelector('button[onclick*="closeSheet"]');
+    if(matchTop&&exitBtn){
+      if(b.parentElement!==matchTop)matchTop.insertBefore(b,exitBtn);
+    }else if(b.parentElement!==room){
       room.appendChild(b);
     }
+
     var n=b.querySelector('b');if(n)n.textContent=String(markers.length);
   }
 
