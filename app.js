@@ -1196,12 +1196,62 @@ window.prepTap=async function(el,name){
 
 window.ktMatchMode='1대1';
 
+/* 매치 참가자 사진 좋아요 보상
+   - 사진 좋아요 20개마다 회사가 장미 1송이 지급
+   - 한 참가자당 한 매치에서 최대 3회(20/40/60), 총 3송이
+   - 좋아요를 누른 사람의 장미/코인은 차감하지 않음 */
+window.ktMatchLikeRewards=window.ktMatchLikeRewards||{};
+
+window.ktMatchLikeData=function(id){
+  id=String(id||'match-person');
+  var data=window.ktMatchLikeRewards[id];
+  if(!data){
+    data={likes:0,roses:0};
+    window.ktMatchLikeRewards[id]=data;
+  }
+  return data;
+};
+
+window.ktMatchLikePerson=function(id,name){
+  id=String(id||'match-person');
+  name=String(name||'매치 참가자');
+  var data=ktMatchLikeData(id);
+
+  if((data.roses||0)>=3){
+    try{ktSpeak('이 참가자는 매치 좋아요 장미 보상 3회를 모두 받았습니다.');}catch(e){}
+    return;
+  }
+
+  data.likes=(data.likes||0)+1;
+
+  var next=(data.roses+1)*20;
+  if(data.likes>=next){
+    data.roses=Math.min(3,(data.roses||0)+1);
+    try{ktAnnounceEvent('reward',{text:name+'님이 매치 좋아요 '+data.likes+'개를 받아 회사 장미 1송이를 받았습니다.'});}catch(e){}
+    try{ktSpeak(name+'님 좋아요 '+data.likes+'개 달성. 회사 장미 1송이 지급.');}catch(e){}
+  }
+
+  document.querySelectorAll('[data-kt-match-like-id="'+id.replace(/"/g,'')+'"]').forEach(function(el){
+    var count=el.querySelector('.kt-match-like-count');
+    var rose=el.querySelector('.kt-match-like-rose');
+    if(count)count.textContent='💗 '+data.likes;
+    if(rose)rose.textContent='🌹 '+data.roses+'/3';
+  });
+};
+
+window.ktMatchLikeBadge=function(id){
+  var data=ktMatchLikeData(id);
+  return '<span class="kt-match-like-count" style="position:absolute;right:5px;top:5px;z-index:8;padding:3px 6px;border-radius:999px;background:#000b;color:#ff7fc1;font-size:9px;font-weight:950">💗 '+(data.likes||0)+'</span>'
+    +'<span class="kt-match-like-rose" style="position:absolute;right:5px;bottom:5px;z-index:8;padding:3px 6px;border-radius:999px;background:#000b;color:#ffe071;font-size:9px;font-weight:950">🌹 '+(data.roses||0)+'/3</span>';
+
+
 window.ktMatchSlots=function(side,host){
   var count=side==='3대3'?3:side==='2대2'?2:1;
   var html='';
   for(var i=0;i<count;i++){
     if(host&&i===0){
-      html+='<div class="kt-match-slot live"><video id="ktMatchHostVideo" autoplay playsinline muted></video><span>LIVE</span><b>나</b></div>';
+      var matchId='host-'+String(window.ktMatchMode||'1대1');
+      html+='<div class="kt-match-slot live" data-kt-match-like-id="'+matchId+'" onclick="ktMatchLikePerson(\''+matchId+'\',\'나\')" style="cursor:pointer;touch-action:manipulation"><video id="ktMatchHostVideo" autoplay playsinline muted></video><span>LIVE</span><b>나</b>'+ktMatchLikeBadge(matchId)+'</div>';
     }else{
       html+='<div class="kt-match-slot"><em>👤</em><b>'+(host?'팀원 대기':'상대 대기')+'</b></div>';
     }
@@ -1226,6 +1276,7 @@ window.ktRenderMatchArena=function(mode){
       +'<div class="kt-match-team pink">'+ktMatchSlots(mode,false)+'</div>'
     +'</div>'
     +'<div class="kt-match-roses"><div><b>0 🌹</b><span>내 팀</span></div><em>VS</em><div><b>0 🌹</b><span>상대 팀</span></div></div>'
+    +'<div style="margin:6px 0 2px;padding:7px 9px;border:1px solid #ff6db766;border-radius:12px;background:#ff4f9810;color:#ffd8eb;font-size:10px;font-weight:900;text-align:center">💗 매치 참가자 사진 좋아요 20개마다 회사가 🌹 1송이 지급 · 최대 3회(총 3송이)</div>'
     +'<div class="kt-match-bars"><i></i><i></i></div>'
     +'<div class="kt-match-tabs"><b>매치 정보</b><span>실시간 랭킹</span><span>선물 순위</span><span>매치 규칙</span></div>'
     +'<div class="kt-match-body">'
