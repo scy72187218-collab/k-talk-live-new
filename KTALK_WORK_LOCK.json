@@ -76,7 +76,8 @@
     "public_video_9am_single_playback_20260929",
     "fortune_button_public_video_screen_20260929",
     "fortune_ladder_weighted_rewards_5555_20260929",
-    "fortune_button_below_share_5555_20260929"
+    "fortune_button_below_share_5555_20260929",
+    "fortune_button_actual_video_home_below_share_5555_20260929"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -148,11 +149,12 @@
     "public_video_9am_single_playback_20260929",
     "fortune_button_public_video_screen_20260929",
     "fortune_ladder_weighted_rewards_5555_20260929",
-    "fortune_button_below_share_5555_20260929"
+    "fortune_button_below_share_5555_20260929",
+    "fortune_button_actual_video_home_below_share_5555_20260929"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "5555 승인. 공개 동영상 오른쪽 액션에서 오늘의 운세 버튼을 공유 바로 아래로만 이동. 동영상 재생/다른 버튼/방송/운세 기능 자체는 변경 금지.",
+  "note": "5555 승인. 실제 app.js 동영상 홈/미디어 오른쪽 액션에서 공유 바로 아래 오늘의 운세 버튼 추가. 다른 버튼/동영상/방송/사다리 기능 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -167,7 +169,8 @@
       "current_public_video_output_locked_20260929",
       "public_video_9am_single_playback_20260929",
       "fortune_button_public_video_screen_20260929",
-      "fortune_button_below_share_5555_20260929"
+      "fortune_button_below_share_5555_20260929",
+      "fortune_button_actual_video_home_below_share_5555_20260929"
     ],
     "3": [
       "subscriber_room_current_state",
@@ -242,6 +245,6 @@
     ]
   },
   "last_unlock": "2026-09-29-fortune-ladder-switch-5555",
-  "last_lock": "2026-09-29-fortune-button-below-share-5555-lock",
+  "last_lock": "2026-09-29-fortune-actual-video-home-below-share-5555-lock",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
