@@ -106,6 +106,7 @@
     if(Date.now()<forceOffUntil)return;
     var on=hostRoomVisible()||hostStreamLive();
     if(on){
+      try{if(typeof window.ktRepairVisibleHostPresence20260928==='function')window.ktRepairVisibleHostPresence20260928();}catch(e){}
       startGraceUntil=0;
       send(lastActive?'heartbeat':'publish');
       lastActive=true;
