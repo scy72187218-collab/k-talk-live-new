@@ -95,7 +95,8 @@
     "profile_photo_display_fix_5555_20260929",
     "premium_gift_fullscreen_effect_5555_20260929",
     "treasure_package_label_position_time_20260929",
-    "treasure_package_immediate_display_5555_20260929"
+    "treasure_package_immediate_display_5555_20260929",
+    "standalone_red_live_signal_publisher_5555_20260929"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -186,11 +187,12 @@
     "profile_photo_display_fix_5555_20260929",
     "premium_gift_fullscreen_effect_5555_20260929",
     "treasure_package_label_position_time_20260929",
-    "treasure_package_immediate_display_5555_20260929"
+    "treasure_package_immediate_display_5555_20260929",
+    "standalone_red_live_signal_publisher_5555_20260929"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "5555 승인. 보물 패키지는 통신/DB 동기화를 기다리지 않고 로컬 생성 즉시 출석체크 옆 상단에 남은 시간과 함께 표시. LIVE 입장/퇴장/통신, 채팅, 수익률, 스위치 등 다른 기능 변경 금지.",
+  "note": "5555 승인. 기존 잠금 LIVE 통신/입장/퇴장/WebRTC 파일은 수정하지 않고 별도 live-signal-publisher-20260929.js만 추가해 /api/live-beacon-memory에 publish/heartbeat/end 신호 전송. 다른 기능 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -282,6 +284,6 @@
     ]
   },
   "last_unlock": "2026-09-29-fortune-ladder-switch-5555",
-  "last_lock": "2026-09-29-treasure-package-immediate-display-5555",
+  "last_lock": "2026-09-29-standalone-red-live-signal-publisher-5555",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
