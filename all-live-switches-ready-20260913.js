@@ -226,6 +226,15 @@
 
   function clickRoom(b){
     var text=String(b.textContent||b.getAttribute('aria-label')||'').replace(/\s+/g,'');
+    if(text.indexOf('오늘의운세')>-1||b.classList.contains('kt-daily-fortune-room-switch')){
+      try{
+        if(typeof window.ktOpenDailyFortuneLadder20260928==='function'){
+          window.ktOpenDailyFortuneLadder20260928();
+          return true;
+        }
+      }catch(e){}
+      return false;
+    }
     var d=null;
     if(text.indexOf('1인')>-1)d={type:'solo',name:'1인 방송',max:1};
     else if(text.indexOf('9명')>-1)d={type:'group9',name:'9명 일반방',max:9};
