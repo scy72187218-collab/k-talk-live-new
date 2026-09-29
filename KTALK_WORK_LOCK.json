@@ -82,7 +82,8 @@
     "all_switches_final_audit_locked_20260929",
     "public_video_continuous_no_duplicate_5555_20260929",
     "red_live_all_devices_5555_20260929",
-    "public_video_restore_sep28_known_good_5555_20260929"
+    "public_video_restore_sep28_known_good_5555_20260929",
+    "simple_staff_badge_host_name_level_20260929"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -160,11 +161,12 @@
     "all_switches_final_audit_locked_20260929",
     "public_video_continuous_no_duplicate_5555_20260929",
     "red_live_all_devices_5555_20260929",
-    "public_video_restore_sep28_known_good_5555_20260929"
+    "public_video_restore_sep28_known_good_5555_20260929",
+    "simple_staff_badge_host_name_level_20260929"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "5555 승인. 공개 동영상 재생 부분만 2026-09-28 저녁 정상 동작 상태로 복구. 오늘의 운세 버튼/빨간 LIVE/방송방/스위치/채팅/수익률 등 다른 기능은 유지. 명시적 요청 없이는 변경 금지.",
+  "note": "사용자 요청: 호스트는 '호스트' 글자 없이 닉네임+레벨만 표시 유지. 운영진으로 지정된 사람은 닉네임/레벨 옆에 '운영진' 표시. 다른 기능 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -256,6 +258,6 @@
     ]
   },
   "last_unlock": "2026-09-29-fortune-ladder-switch-5555",
-  "last_lock": "2026-09-29-public-video-restore-sep28-known-good-lock",
+  "last_lock": "2026-09-29-simple-staff-badge-host-name-level-lock",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
