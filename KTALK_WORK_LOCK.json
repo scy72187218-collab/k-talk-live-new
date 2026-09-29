@@ -58,7 +58,8 @@
     "earnings_cleanup_single_controller_20260929",
     "unified_host_earnings_center_20260929",
     "unified_host_guest_chat_center_above_earnings_20260929",
-    "public_video_fast_open_relock_20260929"
+    "public_video_fast_open_relock_20260929",
+    "public_video_app_startup_fixed_20260929"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -112,11 +113,12 @@
     "earnings_cleanup_single_controller_20260929",
     "unified_host_earnings_center_20260929",
     "unified_host_guest_chat_center_above_earnings_20260929",
-    "public_video_fast_open_relock_20260929"
+    "public_video_fast_open_relock_20260929",
+    "public_video_app_startup_fixed_20260929"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "공개 동영상 첫 화면/빠른 열기 보호를 다시 잠금. public_video_first_page_opening 유지. 다른 방송방 UI는 변경 금지.",
+  "note": "공개 동영상 첫 화면/빠른 열기/앱 시작 오류 수정 상태 최종 잠금. 이 영역은 이후 다른 작업에서 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -124,7 +126,8 @@
     "2": [
       "public_video_first_page_opening",
       "group13_open_room_then_countdown",
-      "public_video_fast_open_relock_20260929"
+      "public_video_fast_open_relock_20260929",
+      "public_video_app_startup_fixed_20260929"
     ],
     "3": [
       "subscriber_room_current_state",
@@ -185,6 +188,6 @@
     ]
   },
   "last_unlock": "2026-09-27-solo-countdown-only-code-5555",
-  "last_lock": "2026-09-29-public-video-fast-open-relock",
+  "last_lock": "2026-09-29-public-video-opening-final-lock",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
