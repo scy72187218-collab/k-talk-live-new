@@ -88,7 +88,8 @@
     "red_live_immediate_touch_restore_5555_20260929",
     "red_live_room_first_immediate_5555_20260929",
     "red_live_single_entry_handler_5555_20260929",
-    "red_live_single_all_input_immediate_5555_20260929"
+    "red_live_single_all_input_immediate_5555_20260929",
+    "sep18_1447_touch_and_live_connection_restore_5555"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -172,11 +173,12 @@
     "red_live_immediate_touch_restore_5555_20260929",
     "red_live_room_first_immediate_5555_20260929",
     "red_live_single_entry_handler_5555_20260929",
-    "red_live_single_all_input_immediate_5555_20260929"
+    "red_live_single_all_input_immediate_5555_20260929",
+    "sep18_1447_touch_and_live_connection_restore_5555"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "5555 승인. 빨간 LIVE 입장은 단일 처리만 유지하고 pointerdown/touchstart/click 입력 중 가장 먼저 들어온 1회로 즉시 입장. 다른 기능 변경 금지.",
+  "note": "5555 승인. 2026-09-18 14:47 시점 기준으로 빨간 LIVE 터치 경로와 live-presence 통신 연결 핵심만 복구. 다른 방 배치/채팅/선물/수익률/운세/스위치 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -268,6 +270,6 @@
     ]
   },
   "last_unlock": "2026-09-29-fortune-ladder-switch-5555",
-  "last_lock": "2026-09-29-red-live-single-all-input-immediate-5555-lock",
+  "last_lock": "2026-09-29-sep18-1447-touch-live-connection-restore-5555",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
