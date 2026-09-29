@@ -90,11 +90,16 @@
     if(room){
       wrap=room.querySelector('.ktg13-earn');hud=wrap&&wrap.querySelector('#myEarnHud');tools=room.querySelector('.ktg13-tools');
       pinHost(room,wrap,hud,tools);
-      /* 9명방 수익률: 화면 오른쪽에서 잘리지 않도록 뷰포트 안쪽에 고정 */
+      /* 9명방 수익률: 다른 코드가 left 값을 다시 써도 안 밀리도록 오른쪽 기준으로 강제 고정 */
       if(wrap&&room.getAttribute('data-kt-room')==='9'){
-        var safeLeft=Math.max(8,window.innerWidth-W-22);
-        wrap.style.setProperty('left',safeLeft+'px','important');
-        wrap.style.setProperty('right','auto','important');
+        wrap.style.setProperty('position','fixed','important');
+        wrap.style.setProperty('left','auto','important');
+        wrap.style.setProperty('right','14px','important');
+        wrap.style.setProperty('width',W+'px','important');
+        wrap.style.setProperty('min-width',W+'px','important');
+        wrap.style.setProperty('max-width',W+'px','important');
+        wrap.style.setProperty('transform','none','important');
+        wrap.style.setProperty('z-index','2147483640','important');
       }
     }
 
