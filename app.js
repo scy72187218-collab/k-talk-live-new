@@ -1068,14 +1068,35 @@ window.playStoredVideo=async function(id){
       ktLibraryPlayUrl=URL.createObjectURL(item.blob);
       var safeName=String(item.name||'내 동영상').replace(/</g,'&lt;');
       showSheet('동영상 재생','<div class="kt-myvideo-player">'
-        +'<video id="ktLibraryPlayer" controls autoplay playsinline src="'+ktLibraryPlayUrl+'"></video>'
+        +'<video id="ktLibraryPlayer" controls autoplay playsinline preload="metadata" src="'+ktLibraryPlayUrl+'"></video>'
         +'<b>'+safeName+'</b>'
+        +'<div id="ktLibraryPlayerError" style="display:none;margin-top:8px;padding:8px;border-radius:10px;background:#2a1015;color:#ffd7df;font-size:11px;font-weight:850">동영상 재생을 다시 준비하고 있습니다.</div>'
         +'<div class="kt-myvideo-player-actions">'
           +'<button class="back" onclick="openMyVideoLibrary()">← 내 동영상</button>'
           +'<button class="upload" onclick="postStoredVideo(\''+id+'\',this)">⬆ 동영상 올리기</button>'
         +'</div>'
         +'<button type="button" class="kt-myvideo-player-delete" onclick="deleteStoredVideo(\''+id+'\',this,true)">🗑 삭제</button>'
       +'</div>');
+      setTimeout(function(){
+        try{
+          var p=document.getElementById('ktLibraryPlayer');
+          if(!p)return;
+          p.muted=false;
+          p.volume=1;
+          p.load();
+          var play=p.play();
+          if(play&&play.catch)play.catch(function(){});
+          p.onerror=function(){
+            var er=document.getElementById('ktLibraryPlayerError');
+            if(er)er.style.display='block';
+            try{
+              p.removeAttribute('src');
+              p.src=ktLibraryPlayUrl;
+              p.load();
+            }catch(_e){}
+          };
+        }catch(e){}
+      },60);
     };
     req.onerror=function(){db.close();alert('동영상을 재생하지 못했습니다.');};
   }catch(e){alert('동영상을 재생하지 못했습니다.');}
