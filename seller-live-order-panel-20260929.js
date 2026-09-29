@@ -96,6 +96,7 @@
       +'수량: '+esc(o.qty||'1')+'<br>'
       +'주문자: '+esc(o.name||'-')+'<br>'
       +'연락처: '+esc(o.phone||'-')+'<br>'
+      +'배송주소: <strong>'+esc(o.address||'-')+'</strong><br>'
       +'입금상태: <strong>'+esc(o.paymentStatus||'미확인')+'</strong><br>'
       +'배송/전달 메모: '+esc(o.memo||'-')+'<br>'
       +'<small>'+esc(o.createdText||'')+'</small></div>'
@@ -219,7 +220,7 @@
         return '<button class="kt-seller-order-card-20260929" onclick="ktOpenSellerOrderDetail20260929(\''+esc(String(o.id))+'\')">'
           +'<strong>주문 '+esc(o.no||'')+' · '+esc(o.status||'접수')+'</strong>'
           +'<span>'+esc(orderSummary(o)||'-')+'</span>'
-          +'<em>'+esc(o.name||'')+' · '+esc(o.phone||'')+' · '+esc(o.paymentStatus||'미입금')+'</em>'
+          +'<em>'+esc(o.name||'')+' · '+esc(o.phone||'')+' · '+esc(o.address||'주소없음')+' · '+esc(o.paymentStatus||'미입금')+'</em>'
           +'</button>';
       }).join('');
       old.innerHTML=info+summary+(list?'<div class="kt-seller-orders-20260929">'+list+'</div>':'');
@@ -260,7 +261,7 @@
       +'<div class="rowbox"><b>전화번호</b><input id="ktSellerPhone20260929" value="'+esc(p.phone||'')+'" placeholder="전화번호" inputmode="tel" style="width:100%;box-sizing:border-box;margin-top:6px;padding:9px"></div>'
       +'<div class="rowbox"><b>은행 · 계좌번호 · 예금주</b><input id="ktSellerBank20260929" value="'+esc(p.bank||'')+'" placeholder="은행" style="width:100%;box-sizing:border-box;margin-top:6px;padding:9px"><input id="ktSellerAccount20260929" value="'+esc(p.account||'')+'" placeholder="계좌번호" style="width:100%;box-sizing:border-box;margin-top:6px;padding:9px"><input id="ktSellerHolder20260929" value="'+esc(p.holder||'')+'" placeholder="예금주" style="width:100%;box-sizing:border-box;margin-top:6px;padding:9px"></div>'
       +'<div class="rowbox"><b>방송 안내 문구</b><textarea id="ktSellerMessage20260929" placeholder="예: 상품명과 수량을 선택해서 주문해 주세요." style="width:100%;min-height:70px;box-sizing:border-box;margin-top:6px;padding:9px">'+esc(p.message||'')+'</textarea></div>'
-      +'<div class="rowbox"><b>주문 정리</b><br>시청자가 주문하면 판매자 방송 화면 오른쪽에 주문번호·상품·수량·주문자·전화번호가 순서대로 쌓입니다. 주문을 누르면 크게 열려 캡처할 수 있습니다.</div>'
+      +'<div class="rowbox"><b>주문 정리</b><br>시청자가 주문하면 판매자 방송 화면 오른쪽에 주문번호·상품·수량·주문자·전화번호·배송주소가 순서대로 쌓입니다. 주문을 누르면 크게 열려 캡처할 수 있습니다.</div>'
       +'<button class="act" onclick="ktSaveSeller300Setup20260929()">판매자 정보 저장 · 방송에 표시</button>';
     window.showSheet('🛍️ 판매방송 설정',html);
     return false;
@@ -297,6 +298,7 @@
       +'<div class="rowbox"><b>수량</b><input id="ktOrderQty20260929" type="number" min="1" value="1" style="width:100%;box-sizing:border-box;margin-top:6px;padding:9px"></div>'
       +'<div class="rowbox"><b>주문자 이름</b><input id="ktOrderName20260929" placeholder="이름" style="width:100%;box-sizing:border-box;margin-top:6px;padding:9px"></div>'
       +'<div class="rowbox"><b>전화번호</b><input id="ktOrderPhone20260929" placeholder="전화번호" inputmode="tel" style="width:100%;box-sizing:border-box;margin-top:6px;padding:9px"></div>'
+      +'<div class="rowbox"><b>배송 주소</b><input id="ktOrderAddress20260929" placeholder="배송 받을 주소" style="width:100%;box-sizing:border-box;margin-top:6px;padding:9px"></div>'
       +'<div class="rowbox"><b>배송/전달 메모</b><textarea id="ktOrderMemo20260929" placeholder="배송이나 전달에 필요한 메모" style="width:100%;min-height:60px;box-sizing:border-box;margin-top:6px;padding:9px"></textarea></div>'
       +'<button class="act" onclick="ktSubmitLiveOrder20260929()">주문 접수</button>';
     window.showSheet('🛒 주문하기',html);
@@ -314,12 +316,13 @@
       qty:v('ktOrderQty20260929')||'1',
       name:v('ktOrderName20260929'),
       phone:v('ktOrderPhone20260929'),
+      address:v('ktOrderAddress20260929'),
       memo:v('ktOrderMemo20260929'),
       status:'접수',
       createdAt:Date.now(),
       createdText:new Date().toLocaleString('ko-KR')
     };
-    if(!o.product||!o.name||!o.phone){alert('상품명, 주문자 이름, 전화번호를 입력해 주세요.');return false;}
+    if(!o.product||!o.name||!o.phone||!o.address){alert('상품명, 주문자 이름, 전화번호, 배송 주소를 입력해 주세요.');return false;}
     try{
       var r=await fetch(BASE+'ktalk_live_messages',{
         method:'POST',
