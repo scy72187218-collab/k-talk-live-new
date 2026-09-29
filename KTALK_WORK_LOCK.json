@@ -74,7 +74,8 @@
     "fortune_ladder_ai_voice_read_20260929",
     "current_public_video_output_locked_20260929",
     "public_video_9am_single_playback_20260929",
-    "fortune_button_public_video_screen_20260929"
+    "fortune_button_public_video_screen_20260929",
+    "fortune_ladder_weighted_rewards_5555_20260929"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -144,11 +145,12 @@
     "fortune_ladder_ai_voice_read_20260929",
     "current_public_video_output_locked_20260929",
     "public_video_9am_single_playback_20260929",
-    "fortune_button_public_video_screen_20260929"
+    "fortune_button_public_video_screen_20260929",
+    "fortune_ladder_weighted_rewards_5555_20260929"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "오늘의 운세 진입 버튼을 공개 동영상 화면 오른쪽 액션 영역에 배치. 방송하지 않는 사용자도 동영상 화면에서 바로 접근 가능. 공개 동영상 재생 동작 자체와 다른 기능은 변경 금지.",
+  "note": "5555 승인. 사다리 장미 보상 확률만 조정: 1~3송이 자주, 4~5송이 드물게, 꽝 유지. 다른 기능/화면/동영상/스위치 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -232,10 +234,11 @@
       "daily_fortune_ladder_roses_1_to_5_and_blank_20260929",
       "fortune_ladder_switch_working_5555_20260929",
       "fortune_ladder_two_week_draw_20260929",
-      "fortune_ladder_ai_voice_read_20260929"
+      "fortune_ladder_ai_voice_read_20260929",
+      "fortune_ladder_weighted_rewards_5555_20260929"
     ]
   },
   "last_unlock": "2026-09-29-fortune-ladder-switch-5555",
-  "last_lock": "2026-09-29-fortune-button-on-public-video-lock",
+  "last_lock": "2026-09-29-fortune-weighted-reward-lock",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
