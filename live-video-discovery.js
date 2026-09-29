@@ -449,7 +449,7 @@
     var person=b.querySelector('.ktvl-person');
     var live=b.querySelector('.ktvl-live');
     if(person)person.onclick=function(e){e.stopPropagation();window.ktOpenLiveHostActions(hostId,hostName,hostPhoto);};
-    if(live)live.onclick=function(e){e.preventDefault();e.stopPropagation();if(window.ktEnterRemoteLive)window.ktEnterRemoteLive(hostId);};
+    if(live)live.onclick=function(e){e.stopPropagation();if(window.ktEnterRemoteLive)window.ktEnterRemoteLive(hostId);};
     host.appendChild(b);
     paintSocialState(hostId);
   }
@@ -471,31 +471,6 @@
       if(renderAgain){renderAgain=false;scheduleRender(250);}
     }
   }
-
-  /* 2026-09-28: 빨간 LIVE는 모바일에서 click 소실을 기다리지 않고 pointerdown 즉시 입장. */
-  var __ktLivePeekTapAt=0;
-  function enterRedLiveNow(e){
-    var btn=e.target&&e.target.closest?e.target.closest('.ktvl-live'):null;
-    if(!btn)return;
-    var now=Date.now();
-    if(now-__ktLivePeekTapAt<500){
-      try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
-      return;
-    }
-    var hid=String(btn.getAttribute('data-host')||'').trim();
-    if(!hid){
-      try{hid=String(window.__ktLastLiveRoom&&window.__ktLastLiveRoom.host_id||'').trim();}catch(_e){}
-    }
-    if(!hid||typeof window.ktEnterRemoteLive!=='function')return;
-    __ktLivePeekTapAt=now;
-    try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
-    try{window.ktEnterRemoteLive(hid);}catch(_e){}
-  }
-  /* 한 군데에서만 처리하되 기기별 입력 차이를 모두 받는다.
-     pointerdown/touchstart/click 중 가장 먼저 들어온 1회만 입장한다. */
-  window.addEventListener('pointerdown',enterRedLiveNow,true);
-  window.addEventListener('touchstart',enterRedLiveNow,{capture:true,passive:false});
-  window.addEventListener('click',enterRedLiveNow,true);
 
   window.ktRefreshVideoLivePeek=render;
   var mo=new MutationObserver(function(){scheduleRender(400);});
