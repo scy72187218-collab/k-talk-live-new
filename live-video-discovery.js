@@ -194,7 +194,7 @@
     s.textContent=''
       +'@keyframes ktVideoLivePulse{0%,45%{opacity:1}55%,100%{opacity:.45}}'
       +'@keyframes ktFollowLiveGlow{0%,100%{box-shadow:0 0 5px #ff244f,0 0 11px rgba(255,36,79,.5)}50%{box-shadow:0 0 9px #ff244f,0 0 18px rgba(255,36,79,.8)}}'
-      +'.kt-video-live-peek{position:absolute!important;left:10px!important;top:56px!important;z-index:18!important;max-width:min(94vw,330px)!important;height:38px!important;padding:4px!important;border:0!important;outline:0!important;border-radius:999px!important;background:rgba(8,8,12,.78)!important;color:#fff!important;display:flex!important;align-items:center!important;gap:5px!important;box-shadow:none!important;backdrop-filter:blur(5px)!important;touch-action:manipulation!important}'
+      +'.kt-video-live-peek{position:fixed!important;left:10px!important;top:56px!important;z-index:18!important;max-width:min(94vw,330px)!important;height:38px!important;padding:4px!important;border:0!important;outline:0!important;border-radius:999px!important;background:rgba(8,8,12,.78)!important;color:#fff!important;display:flex!important;align-items:center!important;gap:5px!important;box-shadow:none!important;backdrop-filter:blur(5px)!important;touch-action:manipulation!important}'
       +'body.kt-follow-status-open .kt-video-live-peek{top:126px!important}'
       +'.kt-video-live-peek button{border:0!important;color:#fff!important;touch-action:manipulation!important}'
       +'.kt-video-live-peek .ktvl-person{min-width:0!important;flex:1 1 auto!important;height:30px!important;padding:0!important;background:transparent!important;display:flex!important;align-items:center!important;gap:7px!important;text-align:left!important}'
@@ -418,8 +418,7 @@
 
     await renderFollowStatus(rooms);
 
-    var host=currentFeedHost();
-    if(!host){if(old)old.remove();return;}
+    var host=currentFeedHost()||document.body;
 
     var r=rooms[0];
     var hostId=String(r.host_id||''),hostName=String(r.host_name||'K-Talk 방송자'),hostPhoto=String(r.host_photo||'');
