@@ -63,7 +63,8 @@
     "current_full_state_20260929_final",
     "hidden_automatic_recording_all_rooms_20260929",
     "match_three_minute_three_clip_recording_20260929",
-    "remove_clock_heart_counter_all_rooms_20260929"
+    "remove_clock_heart_counter_all_rooms_20260929",
+    "all_switches_working_final_20260929"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -122,11 +123,12 @@
     "current_full_state_20260929_final",
     "hidden_automatic_recording_all_rooms_20260929",
     "match_three_minute_three_clip_recording_20260929",
-    "remove_clock_heart_counter_all_rooms_20260929"
+    "remove_clock_heart_counter_all_rooms_20260929",
+    "all_switches_working_final_20260929"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "2026-09-29 현재 K-Talk 최종 상태 전체 잠금. 공개 동영상 빠른 열기, 앱 시작 오류 수정, 모든 방 수익률/채팅 배치, 자동 녹화, 매치 3분·3개 녹화, 방송시간 옆 하트 제거 상태를 다른 작업에서 변경 금지.",
+  "note": "모든 알려진 K-Talk 스위치/방 선택/관리자 모니터/설정 토글/체크박스 터치 작동 상태 최종 잠금. 다른 작업에서 스위치 처리 코드 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -199,10 +201,11 @@
       "public_video_app_startup_fixed_20260929",
       "hidden_automatic_recording_all_rooms_20260929",
       "match_three_minute_three_clip_recording_20260929",
-      "remove_clock_heart_counter_all_rooms_20260929"
+      "remove_clock_heart_counter_all_rooms_20260929",
+      "all_switches_working_final_20260929"
     ]
   },
   "last_unlock": "2026-09-27-solo-countdown-only-code-5555",
-  "last_lock": "2026-09-29-current-full-state-final-lock",
+  "last_lock": "2026-09-29-all-switches-final-lock",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
