@@ -11,6 +11,8 @@
   var markers=[]; // {id,name,cost,sender,ts}
   var sourceStream=null;
   var starting=false;
+  var wasInHostRoom=false;
+  var reviewOpenedAfterLeave=false;
   var MAX_BUFFER_MS=90000;
   var PRE_MS=10000;
   var POST_MS=20000;
@@ -121,34 +123,10 @@
 
   function ensureSwitch(){
     ensureStyle();
-    if(!inHostRoom()){
-      document.querySelectorAll('.kt-premium-clip-switch-20260928').forEach(function(x){x.remove();});
-      return;
-    }
-    var room=switchHost();if(!room)return;
-    try{room.style.setProperty('position','relative','important');}catch(e){}
-    var b=document.querySelector('.kt-premium-clip-switch-20260928');
-    if(!b){
-      b=document.createElement('button');
-      b.type='button';
-      b.className='kt-premium-clip-switch-20260928';
-      b.innerHTML='🎥 녹화 <b>0</b>';
-      b.onclick=function(e){
-        try{e.preventDefault();e.stopPropagation();}catch(_e){}
-        openMarkers();
-      };
-    }
-
-    /* 매치 화면에서는 녹화 버튼을 나가기 버튼 바로 왼쪽에 배치 */
-    var matchTop=document.querySelector('.match-arena-sheet .kt-match-top');
-    var exitBtn=matchTop&&matchTop.querySelector('button[onclick*="closeSheet"]');
-    if(matchTop&&exitBtn){
-      if(b.parentElement!==matchTop)matchTop.insertBefore(b,exitBtn);
-    }else if(b.parentElement!==room){
-      room.appendChild(b);
-    }
-
-    var n=b.querySelector('b');if(n)n.textContent=String(markers.length);
+    /* 모든 방송방 공통: 녹화 버튼은 화면에 표시하지 않고 뒤에서만 자동 녹화 */
+    document.querySelectorAll('.kt-premium-clip-switch-20260928').forEach(function(x){
+      try{x.remove();}catch(e){}
+    });
   }
 
   function fmtTime(ts){
@@ -166,9 +144,8 @@
   }
 
   function openMarkers(){
-    if(!inHostRoom())return;
     prune();
-    var html='<div class="rowbox"><b>🎥 큰 선물 구간</b><br>큰 선물이 들어온 앞 10초부터 뒤 20초까지 찾아서 내 동영상에 올릴 수 있습니다.</div>';
+    var html='<div class="rowbox"><b>🎥 방송 종료 후 녹화본</b><br>높은 선물이 들어온 구간만 자동으로 잡아 두었습니다. 필요한 영상만 내 동영상에 올릴 수 있습니다.</div>';
     if(!markers.length){
       html+='<div class="rowbox">아직 기록된 큰 선물이 없습니다.</div>';
     }else{
@@ -261,13 +238,34 @@
   };
 
   function tick(){
-    if(inHostRoom()){
+    var nowIn=inHostRoom();
+
+    if(nowIn){
+      wasInHostRoom=true;
+      reviewOpenedAfterLeave=false;
       startRecorder();
       ensureSwitch();
-    }else{
-      stopRecorder();
-      document.querySelectorAll('.kt-premium-clip-switch-20260928').forEach(function(x){x.remove();});
+      return;
     }
+
+    if(wasInHostRoom){
+      stopRecorder();
+      wasInHostRoom=false;
+
+      /* 방송이 끝난 뒤에만 녹화본 확인 화면을 보여 준다. */
+      if(markers.length && !reviewOpenedAfterLeave){
+        reviewOpenedAfterLeave=true;
+        setTimeout(function(){
+          try{
+            if(typeof window.showSheet==='function')openMarkers();
+          }catch(e){}
+        },450);
+      }
+    }
+
+    document.querySelectorAll('.kt-premium-clip-switch-20260928').forEach(function(x){
+      try{x.remove();}catch(e){}
+    });
   }
 
   ensureStyle();
