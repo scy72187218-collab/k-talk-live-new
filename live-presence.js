@@ -345,6 +345,7 @@
       if(!hostStarting)startHostPresence();
     }catch(e){}
   }
+  window.ktRepairVisibleHostPresence20260928=repairVisibleHostPresence;
   setInterval(repairVisibleHostPresence,1800);
   window.addEventListener('pageshow',function(){setTimeout(repairVisibleHostPresence,120);});
   document.addEventListener('visibilitychange',function(){
