@@ -94,7 +94,7 @@
       if(wrap&&room.getAttribute('data-kt-room')==='9'){
         wrap.style.setProperty('position','fixed','important');
         wrap.style.setProperty('left','auto','important');
-        wrap.style.setProperty('right','14px','important');
+        wrap.style.setProperty('right','34px','important');
         wrap.style.setProperty('width',W+'px','important');
         wrap.style.setProperty('min-width',W+'px','important');
         wrap.style.setProperty('max-width',W+'px','important');
