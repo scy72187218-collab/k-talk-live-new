@@ -1264,6 +1264,7 @@ window.ktMatchLikeBadge=function(id){
   var data=ktMatchLikeData(id);
   return '<span class="kt-match-like-count" style="position:absolute;right:5px;top:5px;z-index:8;padding:3px 6px;border-radius:999px;background:#000b;color:#ff7fc1;font-size:9px;font-weight:950">💗 '+(data.likes||0)+'</span>'
     +'<span class="kt-match-like-rose" style="position:absolute;right:5px;bottom:5px;z-index:8;padding:3px 6px;border-radius:999px;background:#000b;color:#ffe071;font-size:9px;font-weight:950">🌹 '+(data.roses||0)+'/3</span>';
+};
 
 
 window.ktMatchSlots=function(side,host){
