@@ -13,7 +13,8 @@
       +'#screen .ktsolo-wave,#screen .ktg13-wave,#screen .ktsubscriber-wave,#screen .ktsecret-wave,'
       +'#screen .kt-secret-wave,#screen .secret-wave,#screen .kt-room-live-wave,'
       +'#screen .kt-active-sound-wave-20260928{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;animation:none!important}'
-      +'#screen .ktg13-main::after{content:none!important;display:none!important;visibility:hidden!important;opacity:0!important}';
+      +'#screen .ktg13-main::after{content:none!important;display:none!important;visibility:hidden!important;opacity:0!important}'
+      +'html.kt-inside-broadcast-room .kt-video-live-peek .ktvl-live{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}';
     document.head.appendChild(s);
   }
 
@@ -64,6 +65,8 @@
 
   function apply(){
     ensureStyle();
+    var inside=isInsideRoom();
+    try{document.documentElement.classList.toggle('kt-inside-broadcast-room',inside);}catch(e){}
     removeWaves();
     hideInnerLiveBadges();
   }
