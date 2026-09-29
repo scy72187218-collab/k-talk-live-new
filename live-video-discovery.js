@@ -5,12 +5,11 @@
 
   var BASE='https://zupwbfmacwzexyvznlzq.supabase.co/rest/v1/';
   var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1cHdiZm1hY3d6ZXh5dnpubHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjEwNzYsImV4cCI6MjEwNDAzNzA3Nn0.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo';
-  var STALE_MS=15000;
+  var STALE_MS=60000;
   var roomMetaCache=[];
   var roomMetaAt=0;
   var stableActiveRooms=[];
   var stableActiveAt=0;
-  var hostPhotoCache={};
 
   function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   function enc(v){return encodeURIComponent(String(v==null?'':v));}
@@ -428,24 +427,6 @@
 
     var r=rooms[0];
     var hostId=String(r.host_id||''),hostName=String(r.host_name||'K-Talk 방송자'),hostPhoto=String(r.host_photo||'');
-    /* Realtime/보조 신호에 사진이 비어 와도 기존 프로필 사진을 지우지 않는다.
-       마지막 정상 사진 또는 방 기록의 사진을 유지해 깜빡임과 기본 아이콘 전환을 막는다. */
-    if(hostPhoto){
-      hostPhotoCache[hostId]=hostPhoto;
-    }else{
-      hostPhoto=String(hostPhotoCache[hostId]||'');
-      if(!hostPhoto){
-        try{
-          var hist=await roomHistory();
-          var hr=(hist||[]).find(function(x){return String(x.host_id||'')===hostId&&String(x.host_photo||'');});
-          if(hr&&hr.host_photo){
-            hostPhoto=String(hr.host_photo);
-            hostPhotoCache[hostId]=hostPhoto;
-          }
-        }catch(_e){}
-      }
-      if(hostPhoto)r.host_photo=hostPhoto;
-    }
     window.__ktLastLiveRoom={
       host_id:hostId,
       host_name:hostName,
@@ -464,7 +445,7 @@
     var b=document.createElement('div');
     b.id='ktVideoLivePeek';b.className='kt-video-live-peek';b.setAttribute('data-kt-signature',signature);
     b.innerHTML='<button type="button" class="ktvl-person" aria-label="방송자 프로필"><span class="ktvl-avatar">'+photo+'</span><span class="ktvl-copy"><b>'+esc(hostName)+'</b><small>'+esc(r.title||r.room_name||'방송 중')+'</small></span></button>'
-      +'<button type="button" class="ktvl-live">● LIVE</button>';
+      +'<button type="button" class="ktvl-live" data-host="'+esc(hostId)+'">● LIVE</button>';
     var person=b.querySelector('.ktvl-person');
     var live=b.querySelector('.ktvl-live');
     if(person)person.onclick=function(e){e.stopPropagation();window.ktOpenLiveHostActions(hostId,hostName,hostPhoto);};
@@ -491,12 +472,36 @@
     }
   }
 
+  /* 2026-09-28: 빨간 LIVE는 모바일에서 click 소실을 기다리지 않고 pointerdown 즉시 입장. */
+  var __ktLivePeekTapAt=0;
+  function enterRedLiveNow(e){
+    var btn=e.target&&e.target.closest?e.target.closest('.ktvl-live'):null;
+    if(!btn)return;
+    var now=Date.now();
+    if(now-__ktLivePeekTapAt<500){
+      try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
+      return;
+    }
+    var hid=String(btn.getAttribute('data-host')||'').trim();
+    if(!hid){
+      try{hid=String(window.__ktLastLiveRoom&&window.__ktLastLiveRoom.host_id||'').trim();}catch(_e){}
+    }
+    if(!hid||typeof window.ktEnterRemoteLive!=='function')return;
+    __ktLivePeekTapAt=now;
+    try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
+    try{window.ktEnterRemoteLive(hid);}catch(_e){}
+  }
+  document.addEventListener('pointerdown',enterRedLiveNow,true);
+  if(!window.PointerEvent)document.addEventListener('touchstart',enterRedLiveNow,true);
+
   window.ktRefreshVideoLivePeek=render;
   var mo=new MutationObserver(function(){scheduleRender(400);});
   var screen=document.getElementById('screen');if(screen)mo.observe(screen,{childList:true,subtree:true});
   if(screen)screen.addEventListener('scroll',function(){scheduleRender(350);},true);
   document.addEventListener('touchend',function(){scheduleRender(250);},true);
   document.addEventListener('pointerup',function(){scheduleRender(250);},true);
-  setInterval(function(){scheduleRender(0);},2000);
+  setInterval(function(){scheduleRender(0);},700);
+  window.addEventListener('pageshow',function(){scheduleRender(40);});
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)scheduleRender(40);});
   scheduleRender(600);
 })();
