@@ -19,6 +19,31 @@
   }
   function clean(v){return String(v==null?'':v).replace(/\s+/g,'').toLowerCase();}
   function enc(v){return encodeURIComponent(String(v==null?'':v));}
+  function secretPwToken20260929(v){
+    var s=String(v==null?'':v),h=2166136261;
+    for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}
+    return (h>>>0).toString(36);
+  }
+  function secretExpectedToken20260929(meta){
+    var m=String(meta&&meta.room_name||'').match(/\|pw:([a-z0-9]+)$/i);
+    return m?String(m[1]||''):'';
+  }
+  function askSecretPassword20260929(meta){
+    var expected=secretExpectedToken20260929(meta);
+    if(!expected){
+      try{alert('비밀방 비밀번호 정보를 확인할 수 없습니다. 방송자가 비밀방을 다시 열어 주세요.');}catch(e){}
+      return false;
+    }
+    var v=null;
+    try{v=prompt('🔒 비밀방 비밀번호 4자리를 입력하세요.','');}catch(e){}
+    if(v===null)return false;
+    v=String(v||'').replace(/\D/g,'').slice(0,4);
+    if(v.length!==4||secretPwToken20260929(v)!==expected){
+      try{alert('비밀번호가 맞지 않습니다.');}catch(e){}
+      return false;
+    }
+    return true;
+  }
 
   function owner(){
     try{if(typeof window.ktIsOwnerAdmin==='function'&&window.ktIsOwnerAdmin())return true;}catch(e){}
@@ -302,28 +327,33 @@
     if(typeof window.ktEnterRemoteLive==='function'&&!window.ktEnterRemoteLive.__ktFinalAccessRules){
       var oldEnter=window.ktEnterRemoteLive;
       var ent=async function(hostId){
-        if(owner())return oldEnter.apply(this,arguments);
         var meta=await roomMeta(hostId);
         var k=kind(meta&&meta.room_type,meta&&meta.room_name,0);
-        var lv=level();
-        if(!allowed(k,lv))return deny(k,lv);
-        if(k==='subscriber'){
-          var ok=await mutualFollow(hostId,meta&&meta.host_name);
-          if(!ok){
-            try{alert('구독자방은 서로 팔로우된 사람만 참여할 수 있습니다.');}catch(e){}
-            return false;
+
+        /* 비밀방은 관리자/대표 계정 포함, 시청자로 들어갈 때마다 비밀번호 확인 */
+        if(k==='secret'&&!askSecretPassword20260929(meta))return false;
+
+        if(!owner()){
+          var lv=level();
+          if(!allowed(k,lv))return deny(k,lv);
+          if(k==='subscriber'){
+            var ok=await mutualFollow(hostId,meta&&meta.host_name);
+            if(!ok){
+              try{alert('구독자방은 서로 팔로우된 사람만 참여할 수 있습니다.');}catch(e){}
+              return false;
+            }
           }
-        }
-        if(k==='secret'){
-          var followed=await mutualFollow(hostId,meta&&meta.host_name);
-          if(!followed){
-            try{alert('비밀방은 서로 팔로우된 사람만 초청받을 수 있습니다.');}catch(e){}
-            return false;
-          }
-          var invited=await secretInviteAllowed(hostId,meta&&meta.started_at);
-          if(!invited){
-            try{alert('비밀방은 호스트에게 초청받은 사람만 들어갈 수 있습니다.');}catch(e){}
-            return false;
+          if(k==='secret'){
+            var followed=await mutualFollow(hostId,meta&&meta.host_name);
+            if(!followed){
+              try{alert('비밀방은 서로 팔로우된 사람만 초청받을 수 있습니다.');}catch(e){}
+              return false;
+            }
+            var invited=await secretInviteAllowed(hostId,meta&&meta.started_at);
+            if(!invited){
+              try{alert('비밀방은 호스트에게 초청받은 사람만 들어갈 수 있습니다.');}catch(e){}
+              return false;
+            }
           }
         }
         return oldEnter.apply(this,arguments);
