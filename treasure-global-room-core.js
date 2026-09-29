@@ -1,4 +1,4 @@
-/* K-Talk 보물상자 전용: 다른 방 UI/버튼은 건드리지 않고 보물상자 알림·방입장·받기만 연결. */
+/* K-Talk 보물 패키지 전용: 다른 방 UI/버튼은 건드리지 않고 보물 패키지 알림·방입장·받기만 연결. */
 (function(){
   if(window.__ktGlobalTreasureRoomInstalled)return;
   window.__ktGlobalTreasureRoomInstalled=true;
@@ -56,18 +56,18 @@
     s.textContent=''
       +'.kt-global-treasure-alert{position:fixed;left:50%;top:76px;transform:translateX(-50%);z-index:99990;width:min(92vw,430px);min-height:42px;border:2px solid #ff2fc5;border-radius:18px;background-color:#120712;background-image:radial-gradient(circle,#ff35ce 1.5px,transparent 2px);background-size:9px 9px;box-shadow:0 0 10px #ff2fc5,0 0 24px #ff2fc577;color:#ffe047;font:950 13px/1.2 system-ui,-apple-system,"Noto Sans KR",sans-serif;padding:7px 12px;display:flex;align-items:center;justify-content:center;gap:7px;text-align:center;touch-action:manipulation}'
       +'.kt-global-treasure-alert b{color:#fff}.kt-global-treasure-alert .chest{font-size:23px;filter:drop-shadow(0 0 6px #ffb000)}.kt-global-treasure-alert .time{color:#7ff7ff}'
-      +'.kt-global-treasure-hostbadge{position:absolute!important;right:5px!important;left:auto!important;top:5px!important;z-index:80!important;width:56px!important;min-height:58px!important;border:1px solid #ffd45b!important;border-radius:16px!important;background:rgba(26,16,5,.92)!important;color:#fff!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:1px!important;padding:4px 3px!important;box-shadow:0 0 10px #ffb00099!important;font:950 9px/1.05 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;touch-action:manipulation!important;transform:scale(.5)!important;transform-origin:top right!important}'
-      +'.kt-global-treasure-hostbadge .ico{font-size:25px!important;line-height:1!important}.kt-global-treasure-hostbadge strong{font-size:9px!important;color:#ffe052!important}.kt-global-treasure-hostbadge small{font-size:8px!important;color:#fff!important}.kt-global-treasure-hostbadge.ready{animation:ktTreasurePulse .8s ease-in-out infinite alternate!important}'
+      +'.kt-global-treasure-hostbadge{position:absolute!important;left:252px!important;right:auto!important;top:64px!important;z-index:80!important;width:auto!important;min-width:96px!important;height:28px!important;min-height:28px!important;border:1px solid #ffd45b!important;border-radius:999px!important;background:rgba(26,16,5,.92)!important;color:#fff!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:4px!important;padding:3px 8px!important;box-shadow:0 0 10px #ffb00099!important;font:950 9px/1.05 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;touch-action:manipulation!important;transform:none!important;transform-origin:center!important}'
+      +'.kt-global-treasure-hostbadge .ico{font-size:14px!important;line-height:1!important}.kt-global-treasure-hostbadge strong{font-size:9px!important;color:#ffe052!important;white-space:nowrap!important}.kt-global-treasure-hostbadge small{font-size:9px!important;color:#7ff7ff!important;white-space:nowrap!important}.kt-global-treasure-hostbadge.ready{animation:ktTreasurePulse .8s ease-in-out infinite alternate!important}'
       +'@keyframes ktTreasurePulse{from{box-shadow:0 0 8px #ffb00099}to{box-shadow:0 0 20px #ffe500}}'
       +'.kt-global-treasure-viewbadge{position:absolute!important;right:10px!important;top:76px!important;z-index:20!important;width:66px!important;min-height:72px!important;border:2px solid #ffd45b!important;border-radius:18px!important;background:rgba(26,16,5,.92)!important;color:#fff!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:2px!important;padding:5px!important;box-shadow:0 0 13px #ffb00099!important;font:950 10px/1.05 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;transform:scale(.5)!important;transform-origin:top right!important}'
       +'.kt-global-treasure-viewbadge .ico{font-size:31px!important}.kt-global-treasure-viewbadge strong{color:#ffe052!important}.kt-global-treasure-viewbadge.ready{animation:ktTreasurePulse .8s ease-in-out infinite alternate!important}'
       +'.kt-global-treasure-led{cursor:pointer!important}'
-      +'@media(max-width:390px){.kt-global-treasure-alert{top:68px;font-size:12px;padding:6px 9px}.kt-global-treasure-hostbadge{width:51px!important;min-height:54px!important;right:4px!important;left:auto!important;top:4px!important}.kt-global-treasure-viewbadge{width:60px!important;min-height:66px!important;right:7px!important}}';
+      +'@media(max-width:390px){.kt-global-treasure-alert{top:68px;font-size:12px;padding:6px 9px}.kt-global-treasure-hostbadge{left:248px!important;right:auto!important;top:64px!important;min-width:92px!important;height:27px!important;min-height:27px!important}.kt-global-treasure-viewbadge{width:60px!important;min-height:66px!important;right:7px!important}}';
     document.head.appendChild(s);
   }
 
 
-  /* 2026-09-27: 3분 보물상자 방 홍보 표시 */
+  /* 2026-09-27: 3분 보물 패키지 방 홍보 표시 */
   window.ktTreasurePromotion20260927=true;
 
   function localMarker(localId){try{return localStorage.getItem('ktalk_treasure_global_id:'+String(localId||''))||'';}catch(e){return '';}}
@@ -152,7 +152,7 @@
       var old=document.getElementById('ktGlobalTreasureHostBadge');if(old)old.remove();
       restoreLed();return;
     }
-    var box=hostBox(root);if(!box)return;
+    var box=root;
     try{
       if(root.classList.contains('ktg13-room')){
         var h13=root.querySelector('.ktg13-host');
@@ -167,12 +167,12 @@
     b.dataset.eventId=ev.id;
     var left=Math.max(0,ms(ev.unlock_at)-now()),ready=left>0;
     b.classList.toggle('ready',ready);
-    b.innerHTML='<span class="ico">🎁</span><strong>보물상자</strong><small>'+fmt(left)+'</small>';
+    b.innerHTML='<span class="ico">🎁</span><strong>보물 패키지</strong><small>'+fmt(left)+'</small>';
     var led=roomLed(root);
     if(led){
       if(led.dataset.ktTreasureLedOriginal==null)led.dataset.ktTreasureLedOriginal=led.innerHTML;
       led.dataset.ktTreasureEventId=ev.id;
-      led.innerHTML='🎁 보물상자 떴습니다 · '+fmt(left)+' 남음 · 눌러서 이 방으로 입장';
+      led.innerHTML='🎁 보물 패키지 떴습니다 · '+fmt(left)+' 남음 · 눌러서 이 방으로 입장';
       if(led.parentElement)led.parentElement.classList.add('kt-global-treasure-led');
     }
   }
@@ -221,7 +221,7 @@
       a.style.setProperty('top',(baseTop+(i*58))+'px','important');
       a.dataset.eventId=ev.id;
       var left=Math.max(0,ms(ev.unlock_at)-now());
-      a.innerHTML='<span class="chest">🎁</span><span><b>'+String(ev.host_name||'호스트')+' 방</b>에 보물상자 떴습니다<br><span class="time">'+fmt(left)+' 남음</span> · 누르면 바로 그 방으로 이동</span>';
+      a.innerHTML='<span class="chest">🎁</span><span><b>'+String(ev.host_name||'호스트')+' 방</b>에 보물 패키지 떴습니다<br><span class="time">'+fmt(left)+' 남음</span> · 누르면 바로 그 방으로 이동</span>';
     });
     document.querySelectorAll('.kt-global-treasure-alert').forEach(function(a){
       if(!keep[a.id])a.remove();
@@ -264,7 +264,7 @@
           try{localStorage.setItem('ktalk_treasure_reward_seen:'+ev.id,'1');}catch(e){}
           if(reward>0){
             var total=0;try{total=parseInt(localStorage.getItem('ktalk_treasure_roses')||'0',10)||0;localStorage.setItem('ktalk_treasure_roses',String(total+reward));}catch(e){}
-            alert('🎉 보물상자에서 장미 '+reward+'송이를 받았습니다!');
+            alert('🎉 보물 패키지에서 장미 '+reward+'송이를 받았습니다!');
           }
         }
       }
@@ -273,7 +273,7 @@
 
   async function claimEvent(id){
     var ev=eventById(id);if(!ev){await fetchEvents();ev=eventById(id);}if(!ev)return;
-    if(now()>=ms(ev.claim_close_at)){alert('이 보물상자는 마감되었습니다.');return;}
+    if(now()>=ms(ev.claim_close_at)){alert('이 보물 패키지는 마감되었습니다.');return;}
     if(now()<ms(ev.unlock_at)){
       try{localStorage.setItem('ktalk_treasure_waiting:'+ev.id,'1');}catch(e){}
       alert('🎁 참여 대기 완료! 3분이 끝나면 당첨 확인이 열립니다.');
@@ -286,12 +286,12 @@
       if(row&&row.ok){
         try{localStorage.setItem('ktalk_treasure_joined:'+ev.id,'1');}catch(e){}
         paintViewerBadge();
-        alert('🎁 보물상자 참여 완료! 참여자 중 당첨 결과를 확인해 주세요.');
+        alert('🎁 보물 패키지 참여 완료! 참여자 중 당첨 결과를 확인해 주세요.');
         var delay=Math.max(600,ms(ev.claim_close_at)-now()+700);
         setTimeout(function(){settleAndReward(ev);},delay);
-      }else if(row&&row.state==='waiting')alert('아직 보물상자가 열리지 않았습니다.');
-      else if(row&&row.state==='full')alert('보물상자 참여 인원이 다 찼습니다.');
-      else alert('보물상자가 마감되었습니다.');
+      }else if(row&&row.state==='waiting')alert('아직 보물 패키지가 열리지 않았습니다.');
+      else if(row&&row.state==='full')alert('보물 패키지 참여 인원이 다 찼습니다.');
+      else alert('보물 패키지가 마감되었습니다.');
     }catch(e){}
   }
 
@@ -304,7 +304,7 @@
     var h=t.closest('#ktGlobalTreasureHostBadge');
     if(h){
       e.preventDefault();e.stopPropagation();
-      var ev=eventById(h.dataset.eventId);if(ev){var left=Math.max(0,ms(ev.claim_close_at)-now());alert('🎁 보물상자 '+ev.amount+'개 · 남은 시간 '+fmt(left));}
+      var ev=eventById(h.dataset.eventId);if(ev){var left=Math.max(0,ms(ev.claim_close_at)-now());alert('🎁 보물 패키지 '+ev.amount+'개 · 남은 시간 '+fmt(left));}
       return;
     }
     var led=t.closest('.kt-global-treasure-led');
