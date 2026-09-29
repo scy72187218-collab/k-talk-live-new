@@ -103,16 +103,29 @@
 
   function speakFortuneText20260930(text){
     try{
-      if(typeof window.ktSpeak==='function'){window.ktSpeak(text);return;}
+      /* 오늘의 운세 음성만: 뒤에서 재생 중인 공개 동영상 때문에 AI 음성이 막히지 않게 한다. */
+      try{
+        document.querySelectorAll('#homeVideo,.kt-public-video').forEach(function(v){
+          try{v.pause();v.muted=true;}catch(e){}
+        });
+      }catch(e){}
+      try{if(window.state)state.aiVoiceOn=true;}catch(e){}
+      try{localStorage.setItem('ktalk_ai_voice','on');}catch(e){}
+      var ok=false;
+      try{
+        if(typeof window.ktSpeak==='function')ok=window.ktSpeak(text)!==false;
+      }catch(e){}
+      if(ok)return;
       if(!window.speechSynthesis||typeof window.SpeechSynthesisUtterance!=='function')return;
+      try{window.speechSynthesis.cancel();}catch(e){}
+      try{window.speechSynthesis.resume();}catch(e){}
       var u=new SpeechSynthesisUtterance(String(text||''));
-      u.lang='ko-KR';u.rate=.95;u.pitch=1;
+      u.lang='ko-KR';u.rate=.95;u.pitch=1;u.volume=1;
       try{
         var vs=window.speechSynthesis.getVoices()||[];
         var ko=vs.find(function(v){return /^ko(-|_)/i.test(String(v.lang||''));});
         if(ko)u.voice=ko;
       }catch(e){}
-      try{window.speechSynthesis.resume();}catch(e){}
       window.speechSynthesis.speak(u);
     }catch(e){}
   }
