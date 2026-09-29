@@ -161,7 +161,7 @@
   }
 
   function ensure(){
-    addFlip('.ktsolo-room','.ktsolo-right');
+    /* 1인방은 사용자가 뒤집기 버튼 제거로 확정: 다시 만들지 않는다. */
     addFlip('.ktg13-room','.ktg13-right-quick');
     addFlip('.ktsubscriber-room','.ktsubscriber-right');
     addFlip('.ktsecret-room','.ktsecret-right');
