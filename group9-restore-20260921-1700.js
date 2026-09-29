@@ -15,6 +15,10 @@
       var bottom=[].slice.call(document.querySelectorAll('.live-prep .kt-room-bottom5 button.on,.kt-room-bottom5 button.on'));
       if(bottom.some(function(b){return /9\s*명/.test(String(b.textContent||''));}))return true;
       var st=window.state||{};
+      /* 현재 사용자가 고른 방이 구독자/13명/비밀/1인방이면 예전 9명방 보조 상태가 남아 있어도 절대 가로채지 않는다. */
+      var currentType=String(st.liveRoomType||'');
+      var currentName=String(st.liveRoomName||'');
+      if(currentType && currentType!=='group9' && currentName && !/9\s*명/.test(currentName))return false;
       var vals=[st.liveRoomType,st.prepRoomType,st.roomType,st.liveRoomName,st.prepRoomName].join(' ');
       if(/group9|9명/.test(String(vals)))return true;
       if(Number(st.liveRoomMax||st.prepRoomMax||0)===9)return true;
