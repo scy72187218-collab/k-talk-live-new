@@ -77,7 +77,8 @@
     new MutationObserver(function(){
       clearTimeout(window.__ktSecretVisualFinalTimer20260929);
       window.__ktSecretVisualFinalTimer20260929=setTimeout(fix,20);
-    }).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['class','style']});
+    }).observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
   window.addEventListener('resize',function(){setTimeout(fix,30);});
+  window.addEventListener('orientationchange',function(){setTimeout(fix,120);});
 })();
