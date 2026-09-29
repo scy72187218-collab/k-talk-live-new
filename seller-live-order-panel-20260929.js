@@ -256,6 +256,9 @@
     if(!window.showSheet)return false;
     var p=readProfile();
     var html='<div class="rowbox"><b>🛍️ 월 300,000원 판매방송 판매자</b><br>사업자 정보를 등록한 판매자가 방송 중 연락처·정산계좌·안내문구를 표시하고 주문을 자동으로 받아볼 수 있습니다.</div>'
+      +'<div class="rowbox"><b>📘 판매자 등록 방법</b><br>① 상호명 입력<br>② 사업자등록번호 입력<br>③ 연락받을 전화번호 입력<br>④ 정산받을 은행·계좌번호·예금주 입력<br>⑤ 방송에 보여줄 안내 문구 입력<br>⑥ 저장을 누르면 판매방송 기능이 켜집니다.</div>'
+      +'<div class="rowbox"><b>📦 주문 처리 방법</b><br>시청자가 주문하면 오른쪽에 <strong>주문 / 남음 / 완료</strong> 숫자가 표시됩니다.<br>주문목록을 누르면 주문자 이름·전화번호·배송주소·상품·수량·입금상태를 확인할 수 있습니다.<br>배송을 마치면 <strong>처리 완료 표시</strong>를 누르세요. 주문 기록은 없어지지 않고 그대로 남습니다.</div>'
+      +'<div class="rowbox"><b>🖨️ 컴퓨터·프린터 사용</b><br>컴퓨터에서 판매방송을 열어 두면 주문이 들어올 때 주문 내용을 바로 확인할 수 있습니다. 프린터 자동 출력 기능을 연결하면 주문자 이름·전화번호·배송주소·상품·수량을 주문서로 바로 출력할 수 있습니다.<br><small>자동 인쇄는 판매자 컴퓨터의 프린터 연결 프로그램을 설정한 경우에 사용할 수 있습니다.</small></div>'
       +'<div class="rowbox"><b>상호명</b><input id="ktSellerShop20260929" value="'+esc(p.shopName||'')+'" placeholder="상호명" style="width:100%;box-sizing:border-box;margin-top:6px;padding:9px"></div>'
       +'<div class="rowbox"><b>사업자등록번호</b><input id="ktSellerBiz20260929" value="'+esc(p.bizNo||'')+'" placeholder="사업자등록번호" style="width:100%;box-sizing:border-box;margin-top:6px;padding:9px"></div>'
       +'<div class="rowbox"><b>전화번호</b><input id="ktSellerPhone20260929" value="'+esc(p.phone||'')+'" placeholder="전화번호" inputmode="tel" style="width:100%;box-sizing:border-box;margin-top:6px;padding:9px"></div>'
