@@ -81,7 +81,8 @@
     "video_fortune_below_share_duplicate_keep_broadcast_5555_20260929",
     "all_switches_final_audit_locked_20260929",
     "public_video_continuous_no_duplicate_5555_20260929",
-    "red_live_all_devices_5555_20260929"
+    "red_live_all_devices_5555_20260929",
+    "public_video_restore_sep28_known_good_5555_20260929"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -158,11 +159,12 @@
     "video_fortune_below_share_duplicate_keep_broadcast_5555_20260929",
     "all_switches_final_audit_locked_20260929",
     "public_video_continuous_no_duplicate_5555_20260929",
-    "red_live_all_devices_5555_20260929"
+    "red_live_all_devices_5555_20260929",
+    "public_video_restore_sep28_known_good_5555_20260929"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "5555 승인. 빨간 LIVE 표시만 수정: 느린 기기에서 상태 조회 450ms 제한을 1200ms로 완화하고, 일시적 빈 조회 시 직전 LIVE 상태를 5초 유지하며, 화면 복귀 시 즉시 재조회. 다른 기능/동영상/방송방/스위치/운세 변경 금지.",
+  "note": "5555 승인. 공개 동영상 재생 부분만 2026-09-28 저녁 정상 동작 상태로 복구. 오늘의 운세 버튼/빨간 LIVE/방송방/스위치/채팅/수익률 등 다른 기능은 유지. 명시적 요청 없이는 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -254,6 +256,6 @@
     ]
   },
   "last_unlock": "2026-09-29-fortune-ladder-switch-5555",
-  "last_lock": "2026-09-29-red-live-all-devices-5555-lock",
+  "last_lock": "2026-09-29-public-video-restore-sep28-known-good-lock",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
