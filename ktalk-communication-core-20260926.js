@@ -171,12 +171,25 @@
     if(p.photo&&p.photo.length>240000)p.photo='';
     return p;
   }
+  function secretPwToken20260929(v){
+    var s=String(v==null?'':v),h=2166136261;
+    for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}
+    return (h>>>0).toString(36);
+  }
+  function cleanRoomLabel20260929(v){
+    return String(v==null?'':v).replace(/\|pw:[a-z0-9]+$/i,'');
+  }
   function currentRoom(){
     var type='solo',name='1인 방송',title='';
     try{type=String((window.state&&state.liveRoomType)||'solo');name=String((window.state&&state.liveRoomName)||'1인 방송');}catch(e){}
     if(type==='group')type='group13';
     try{var t=document.getElementById('liveTitle');title=t?String(t.value||'').trim():'';}catch(e){}
     if(!title||title==='오늘 라이브 제목을 입력하세요')title=name;
+    if(type==='password'||type==='secret'||name.indexOf('비밀')>-1){
+      var pw='';
+      try{pw=String((window.state&&(state.liveRoomPassword||state.roomPassword))||localStorage.getItem('kt_secret_room_password')||'');}catch(e){}
+      if(pw)name=cleanRoomLabel20260929(name)+'|pw:'+secretPwToken20260929(pw);
+    }
     return {type:type,name:name,title:title};
   }
   function hasLiveLocalVideo(){
@@ -260,7 +273,7 @@
       var b=root.querySelector('.kt-remote-meta b');
       var sp=root.querySelector('.kt-remote-meta span');
       if(b)b.innerHTML='<i class="kt-live-dot"></i>'+esc(room.host_name||'K-Talk');
-      if(sp)sp.textContent=String(room.title||room.room_name||'라이브')+' · '+String(room.room_name||'방송');
+      if(sp)sp.textContent=String(room.title||cleanRoomLabel20260929(room.room_name)||'라이브')+' · '+cleanRoomLabel20260929(room.room_name||'방송');
     }catch(e){}
   }
 
