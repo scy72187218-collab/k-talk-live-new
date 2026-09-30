@@ -107,8 +107,14 @@
     window[name]=fn;
   }
 
+  var lastStartBroadcast=null;
   function installWraps(){
-    wrap('startBroadcast',forceStart);
+    try{
+      if(typeof window.startBroadcast==='function'&&window.startBroadcast!==lastStartBroadcast){
+        wrap('startBroadcast',forceStart);
+        lastStartBroadcast=window.startBroadcast;
+      }
+    }catch(e){}
     wrap('endBroadcastEarnings',forceEnd);
     wrap('leaveBroadcastToDashboard',forceEnd);
   }
