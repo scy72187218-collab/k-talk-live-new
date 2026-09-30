@@ -300,7 +300,7 @@
       }
     };
 
-    viewer.poll=setInterval(pollViewer,300);
+    viewer.poll=setInterval(pollViewer,180);
     viewer.touch=setInterval(function(){
       if(!viewer)return;
       fetch(API+'?t='+Date.now(),{
@@ -405,7 +405,7 @@
           var ok=await enterMemory(hostId,cached||room||null);
           if(ok)remoteEndArmed=true;
         }catch(e){}
-      },900);
+      },350);
 
       if(!room){
         var st=document.getElementById('ktRemoteLiveStatus');
@@ -451,6 +451,6 @@
     if(oldLeave)return oldLeave(silent);
   };
 
-  setInterval(hostPoll,500);
-  setTimeout(hostPoll,120);
+  setInterval(hostPoll,250);
+  setTimeout(hostPoll,60);
 })();
