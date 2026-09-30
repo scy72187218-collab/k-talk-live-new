@@ -40,7 +40,20 @@
 
   function showRoom(room){
     if(!room||!room.host_id||!inVideoView()){removeFallback();return;}
-    if(document.getElementById('ktVideoLivePeek')){removeFallback();return;}
+    var peek=document.getElementById('ktVideoLivePeek');
+    if(peek){
+      var liveBtn=null,visible=false;
+      try{
+        liveBtn=peek.querySelector('.ktvl-live');
+        if(liveBtn){
+          var cs=getComputedStyle(liveBtn);
+          var rect=liveBtn.getBoundingClientRect();
+          visible=cs.display!=='none'&&cs.visibility!=='hidden'&&Number(cs.opacity)!==0&&rect.width>0&&rect.height>0;
+        }
+      }catch(e){}
+      /* 표시 박스만 남아 있고 실제 빨간 LIVE가 안 보이면 보조 신호를 유지한다. */
+      if(visible){removeFallback();return;}
+    }
     ensureStyle();
     var box=document.getElementById('ktRedLiveReceiverFallback20260930');
     if(!box){
