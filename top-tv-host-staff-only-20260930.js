@@ -25,7 +25,7 @@
     try{
       if(typeof window.ktGetSelectedSubAccount==='function'){
         var k=norm(window.ktGetSelectedSubAccount());
-        if(k==='taekwon1'||k==='haine2'||k==='태권1'||k==='하이네2')return true;
+        if(k==='taekwon1'||k==='haine2'||k==='\ud0dc\uad8c1'||k==='\ud558\uc774\ub1242'||k==='\ud0dc\uad8c'||k==='\ud558\uc774\ub124')return true;
       }
     }catch(e){}
     return false;
