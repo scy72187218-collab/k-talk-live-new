@@ -476,10 +476,6 @@
     window.__ktRemoteHostId=hostId;
     window.__ktCurrentRemoteHostId=hostId;
     try{sessionStorage.setItem('kt_remote_host_id',hostId);}catch(e){}
-
-    /* 빨간 LIVE 터치 후 방 화면을 먼저 그리게 한다.
-       무거운 통신/연결 이벤트는 다음 작업으로 넘겨 화면 표시를 막지 않는다. */
-    await new Promise(function(resolve){setTimeout(resolve,0);});
     try{window.dispatchEvent(new CustomEvent('kt-remote-host-selected',{detail:{host_id:hostId,immediate:true}}));}catch(e){}
 
     try{
