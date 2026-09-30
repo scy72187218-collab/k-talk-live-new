@@ -47,6 +47,28 @@
       room_name:String(st.liveRoomName||st.currentLiveRoomTitle||'방송')
     };
   }
+
+  var hostFrameCache20261001='',hostFrameAt20261001=0;
+  function currentHostFrame20261001(){
+    try{
+      if(hostFrameCache20261001&&Date.now()-hostFrameAt20261001<700)return hostFrameCache20261001;
+      var stream=(window.state||{}).stream||null;
+      if(!stream)return hostFrameCache20261001||'';
+      var vids=[].slice.call(document.querySelectorAll('video'));
+      var v=vids.find(function(x){
+        try{return x&&x.srcObject===stream&&x.videoWidth>0&&x.videoHeight>0;}catch(e){return false;}
+      });
+      if(!v)return hostFrameCache20261001||'';
+      var cv=document.createElement('canvas');cv.width=96;cv.height=72;
+      var cx=cv.getContext('2d',{alpha:false});if(!cx)return hostFrameCache20261001||'';
+      cx.drawImage(v,0,0,96,72);
+      var frame=cv.toDataURL('image/jpeg',0.34);
+      if(/^data:image\/jpeg;base64,/.test(frame)&&frame.length<32000){
+        hostFrameCache20261001=frame;hostFrameAt20261001=Date.now();
+      }
+      return hostFrameCache20261001||'';
+    }catch(e){return hostFrameCache20261001||'';}
+  }
   function send(action){
     var id=deviceId();
     if(!id)return;
@@ -61,6 +83,7 @@
       room_name:r.room_name,
       run_id:runId,
       run_started_at:runStartedAt,
+      host_frame:currentHostFrame20261001(),
       at:Date.now()
     };
     try{
