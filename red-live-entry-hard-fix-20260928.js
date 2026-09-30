@@ -65,7 +65,7 @@
               window.ktEnterRemoteLive(id);
             }
           }catch(_e){}
-        },120);
+        },60);
         return true;
       }
     }catch(_e){}
@@ -93,16 +93,17 @@
   /* window capture에서 먼저 잡아서 다른 스크립트가 클릭을 먹어도 LIVE 입장은 살아 있게 한다. */
   window.addEventListener('pointerdown',function(e){
     var b=target(e);if(b)enter(b,e);
-  },true);
-
-  window.addEventListener('touchstart',function(e){
-    var b=target(e);if(b)enter(b,e);
   },{capture:true,passive:false});
 
-  window.addEventListener('touchend',function(e){
-    var b=target(e);if(b)enter(b,e);
-  },{capture:true,passive:false});
+  /* PointerEvent가 없는 구형 기기만 touchstart를 사용한다.
+     같은 터치를 여러 이벤트가 중복 처리하지 않게 해서 기기별 지연 차이를 줄인다. */
+  if(!window.PointerEvent){
+    window.addEventListener('touchstart',function(e){
+      var b=target(e);if(b)enter(b,e);
+    },{capture:true,passive:false});
+  }
 
+  /* click은 pointer/touch가 누락된 경우에만 마지막 예비 경로로 사용한다. */
   window.addEventListener('click',function(e){
     var b=target(e);if(b)enter(b,e);
   },true);
