@@ -27,7 +27,10 @@
 
   function keepOutsideVisible(){
     try{
-      var inside=!!document.documentElement.classList.contains('kt-inside-broadcast-room');
+      var inside=!!(
+        document.documentElement.classList.contains('kt-inside-broadcast-room')||
+        document.documentElement.classList.contains('kt-remote-viewing')
+      );
       if(inside)return;
       document.querySelectorAll('.kt-video-live-peek .ktvl-live').forEach(function(el){
         el.style.removeProperty('display');
