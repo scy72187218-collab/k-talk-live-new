@@ -91,6 +91,9 @@
   }
 
   function allowed(){
+    /* 텔레비전 버튼은 허용 대상이라도 레벨 21 이상이어야 사용 가능 */
+    if(currentLevel()<21)return false;
+
     try{
       var s=window.state||{};
       if(s.isAdmin===true||s.isOperator===true||s.isStaff===true||window.KT_IS_ADMIN===true||window.KT_IS_OPERATOR===true)return true;
@@ -99,7 +102,7 @@
     if(/최고\s*운영자|운영진|운영자|관리자|admin|operator|staff/i.test(roleText()))return true;
     if(isHostNow())return true;
     if(isSubscriberMember())return true;
-    return currentLevel()>=21;
+    return false;
   }
 
   function candidateText(el){
