@@ -95,8 +95,31 @@
   function roomEl(){return document.querySelector('#screen .ktsolo-room,#screen .ktg9-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room');}
   function isHostRole(){
     try{
-      /* 실제 원격 host id가 있는 시청자만 viewer로 본다.
-         예전 kt-remote-viewing 클래스가 남아 있어도 로컬 방송방이면 host 송신을 막지 않는다. */
+      /* 실제 로컬 카메라가 살아 있으면 원격 시청 흔적보다 호스트를 우선한다. */
+      var localCameraLive=false;
+      try{
+        var candidates=[];
+        if(window.state&&state.stream)candidates.push(state.stream);
+        var cv=document.getElementById('camera');if(cv&&cv.srcObject)candidates.push(cv.srcObject);
+        var bg=document.getElementById('cameraBg');if(bg&&bg.srcObject)candidates.push(bg.srcObject);
+        var lv=document.getElementById('ktLiveVideo');if(lv&&lv.srcObject)candidates.push(lv.srcObject);
+        localCameraLive=candidates.some(function(st){
+          if(!st||!st.getVideoTracks)return false;
+          if(isRemoteHostMedia20260926(st)||isLocalGuestMedia20260926(st))return false;
+          return st.getVideoTracks().some(function(t){return t&&t.readyState==='live';});
+        });
+      }catch(_e){}
+      if(localCameraLive){
+        try{
+          window.__ktRemoteHostId='';
+          window.__ktCurrentRemoteHostId='';
+          sessionStorage.removeItem('kt_remote_host_id');
+          document.documentElement.classList.remove('kt-remote-viewing');
+        }catch(_e){}
+        return true;
+      }
+
+      /* 실제 원격 host id가 있는 시청자만 viewer로 본다. */
       var remoteId='';
       try{remoteId=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||sessionStorage.getItem('kt_remote_host_id')||'').trim();}catch(_e){}
       if(document.documentElement.classList.contains('kt-remote-viewing')&&remoteId)return false;
