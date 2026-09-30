@@ -317,7 +317,7 @@
     try{
       if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
       var s=document.getElementById('screen');
-      return !!(s&&s.querySelector('#ktLiveVideo,.ktsolo-room,.ktg13-room,.ktg9-room,.ktsubscriber-room,.ktsecret-room'));
+      return !!(s&&s.querySelector('#ktLiveVideo,.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room'));
     }catch(e){return false;}
   }
 
