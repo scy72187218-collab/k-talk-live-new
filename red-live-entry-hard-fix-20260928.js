@@ -24,7 +24,16 @@
   function enter(btn,e){
     if(!btn)return false;
     var now=Date.now();
-    if(now-lastTap<450)return true;
+    if(now-lastTap<1500){
+      try{
+        if(e){
+          e.preventDefault();
+          e.stopPropagation();
+          if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+        }
+      }catch(_e){}
+      return true;
+    }
     var id=hostIdFrom(btn);
     if(!id)return false;
 
@@ -47,6 +56,16 @@
     try{
       if(typeof window.ktEnterRemoteLive==='function'){
         window.ktEnterRemoteLive(id);
+        /* 정상 함수는 즉시 방 껍데기를 연다. 120ms 뒤에도 화면 전환이
+           없을 때만 같은 입장을 한 번 더 호출해 느린 모바일 첫 탭 누락을 보정한다. */
+        setTimeout(function(){
+          try{
+            if(!document.documentElement.classList.contains('kt-remote-viewing')&&
+               typeof window.ktEnterRemoteLive==='function'){
+              window.ktEnterRemoteLive(id);
+            }
+          }catch(_e){}
+        },60);
         return true;
       }
     }catch(_e){}
@@ -56,30 +75,43 @@
       try{
         if(typeof window.ktEnterRemoteLive==='function')window.ktEnterRemoteLive(id);
       }catch(_e){}
-    },30);
+    },20);
     return true;
   }
 
   function target(e){
-    try{return e&&e.target&&e.target.closest?e.target.closest('.ktvl-live'):null;}catch(_e){return null;}
+    try{
+      if(!e||!e.target||!e.target.closest)return null;
+      return e.target.closest(
+        '.ktvl-live,#ktRedLiveReceiverFallback20260930 .kt-rx-live,.kt-rx-live,'+
+        '.kt-follow-person.live,.kt-friend-bubble.live,'+
+        '.kt-friend-contact-actions .livebtn,.kt-live-card,.kt-live-list-enter,'+
+        '[onclick*="ktFriendEnterLive"],[onclick*="ktEnterRemoteLive"]'
+      );
+    }catch(_e){return null;}
   }
 
   /* window capture에서 먼저 잡아서 다른 스크립트가 클릭을 먹어도 LIVE 입장은 살아 있게 한다. */
   window.addEventListener('pointerdown',function(e){
     var b=target(e);if(b)enter(b,e);
-  },true);
-
-  window.addEventListener('touchstart',function(e){
-    var b=target(e);if(b)enter(b,e);
   },{capture:true,passive:false});
 
+  /* PointerEvent가 없는 구형 기기만 touchstart를 사용한다.
+     같은 터치를 여러 이벤트가 중복 처리하지 않게 해서 기기별 지연 차이를 줄인다. */
+  if(!window.PointerEvent){
+    window.addEventListener('touchstart',function(e){
+      var b=target(e);if(b)enter(b,e);
+    },{capture:true,passive:false});
+  }
+
+  /* click은 pointer/touch가 누락된 경우에만 마지막 예비 경로로 사용한다. */
   window.addEventListener('click',function(e){
     var b=target(e);if(b)enter(b,e);
   },true);
 
   function repair(){
     try{
-      document.querySelectorAll('.ktvl-live').forEach(function(b){
+      document.querySelectorAll('.ktvl-live,#ktRedLiveReceiverFallback20260930 .kt-rx-live,.kt-rx-live,.kt-follow-person.live,.kt-friend-bubble.live,.kt-friend-contact-actions .livebtn,.kt-live-card,.kt-live-list-enter,[onclick*="ktFriendEnterLive"],[onclick*="ktEnterRemoteLive"]').forEach(function(b){
         b.style.setProperty('pointer-events','auto','important');
         b.style.setProperty('touch-action','manipulation','important');
         b.style.setProperty('position','relative','important');
