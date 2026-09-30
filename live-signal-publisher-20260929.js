@@ -4,7 +4,7 @@
   if(window.__ktLiveSignalPublisher20260929)return;
   window.__ktLiveSignalPublisher20260929=true;
 
-  var timer=null,runId='',runStartedAt=0,lastActive=false,forceOffUntil=0,startGraceUntil=0;
+  var timer=null,runId='',runStartedAt=0,lastActive=false,forceOffUntil=0,startGraceUntil=0,roomMissingSince=0;
 
   function deviceId(){
     var id='';
@@ -183,15 +183,25 @@
     if(Date.now()<forceOffUntil)return;
     var on=hostRoomVisible();
     if(on){
+      roomMissingSince=0;
       try{if(typeof window.ktRepairVisibleHostPresence20260928==='function')window.ktRepairVisibleHostPresence20260928();}catch(e){}
       startGraceUntil=0;
       send(lastActive?'heartbeat':'publish');
       lastActive=true;
     }else if(Date.now()<startGraceUntil&&lastActive){
       /* 방송 시작 직후 방 화면이 늦게 그려져도 빨간 LIVE 신호를 먼저 유지 */
+      roomMissingSince=0;
       send('heartbeat');
     }else if(lastActive){
+      /* 모바일/컴퓨터에서 방 DOM이 잠깐 재렌더링될 때 바로 종료로 오해하지 않는다.
+         실제 종료 버튼은 forceEnd() 래퍼가 즉시 처리한다. */
+      if(!roomMissingSince)roomMissingSince=Date.now();
+      if(Date.now()-roomMissingSince<3000){
+        send('heartbeat');
+        return;
+      }
       forceEnd();
+      roomMissingSince=0;
     }
   }
 
