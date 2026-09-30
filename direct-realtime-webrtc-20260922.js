@@ -2769,6 +2769,22 @@
       var hid=String(e&&e.detail&&e.detail.host_id||'').trim();
       if(!hid)return;
 
+      /* Fresh room entry: before this phone has requested/been approved,
+         never reuse an old approved roster from a previous guest session. */
+      if(!requestOn&&!guestApproved){
+        try{
+          var oldMap=window.__ktApprovedGuestIds20260924||{};
+          var hadOld=Object.keys(oldMap).some(function(id){return oldMap[id]===true;});
+          window.__ktApprovedGuestIds20260924={};
+          window.__ktApprovedGuestNames20260924={};
+          if(hadOld){
+            window.dispatchEvent(new CustomEvent('kt-host-session-reset',{
+              detail:{host_id:hid,run_id:'',started_at:Date.now(),fresh_entry:true}
+            }));
+          }
+        }catch(_e){}
+      }
+
       var current=String(activeHostId||remoteHostId()||lastRemoteHost||'').trim();
       var existing=null,existingLive=false;
       try{
