@@ -87,25 +87,51 @@
       if(typeof window.ktStopHostPresence==='function')window.ktStopHostPresence();
     }catch(e){}
 
-    /* 이미 띄운 첫 동영상은 그대로 유지하고, 전체 목록만 즉시 뒤에서 연결 */
+    /* 첫 동영상의 실제 첫 프레임이 준비된 뒤에만 전체 목록으로 넘긴다.
+       방송 종료 직후 0ms 재그리기로 첫 화면이 덮여 검게 되는 현상만 막는다. */
     try{
       if(typeof window.ktShowSharedServerFeed==='function'){
-        setTimeout(function(){
+        var first=document.getElementById('ktPublicFirstPaintVideo');
+        var handed=false;
+        var handoff=function(){
+          if(handed)return;
+          handed=true;
+          try{
+            if(first){
+              first.removeEventListener('loadeddata',handoff);
+              first.removeEventListener('canplay',handoff);
+              first.removeEventListener('playing',handoff);
+              first.removeEventListener('error',handoff);
+            }
+          }catch(e){}
           try{window.ktShowSharedServerFeed();}catch(e){}
-        },0);
+        };
+        if(first){
+          try{
+            first.addEventListener('loadeddata',handoff);
+            first.addEventListener('canplay',handoff);
+            first.addEventListener('playing',handoff);
+            first.addEventListener('error',handoff);
+            var retry=function(){try{if(first.isConnected&&first.paused){var p=first.play();if(p&&p.catch)p.catch(function(){});}}catch(e){}};
+            [30,90,180,350,700].forEach(function(ms){setTimeout(retry,ms);});
+          }catch(e){}
+          if(Number(first.readyState||0)>=2)setTimeout(handoff,120);
+          else setTimeout(handoff,1500);
+        }else{
+          setTimeout(handoff,120);
+        }
         return;
       }
       if(typeof window.ktForceHomeVideoRecovery==='function'){
-        window.ktForceHomeVideoRecovery(true);
         setTimeout(function(){
           try{window.ktForceHomeVideoRecovery(true);}catch(e){}
-        },180);
+        },500);
         return;
       }
     }catch(e){}
 
     try{
-      if(typeof window.home==='function')window.home();
+      if(typeof window.home==='function')setTimeout(function(){try{window.home();}catch(e){}},500);
     }catch(e){}
   }
 
