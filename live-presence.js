@@ -269,6 +269,13 @@
   }
 
   async function stopHostPresence(){
+    try{
+      var hid=deviceId();
+      if(typeof window.ktEmitRoomClosedNow20260930==='function'){
+        window.ktEmitRoomClosedNow20260930(hid);
+      }
+    }catch(e){}
+
     /* 방송 종료 때 상태값이 이미 풀렸어도 서버의 빨간 LIVE 표시를 반드시 끈다. */
     var hostId=deviceId(),roomId=hostRoomId;hostEndLock=true;hostRunToken++;var stopToken=hostRunToken;hostActive=false;hostRoomId='';
     window.__ktHostEndLock=true;window.__ktHostEndLockHostId=hostId;
