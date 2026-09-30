@@ -13,7 +13,7 @@
     s.id='ktGroup9EarningsPhotoMatch5555Style';
     s.textContent=
       '#screen .ktg13-room[data-kt-room="9"] .ktg13-earn{'+
-        'position:fixed!important;left:auto!important;right:8px!important;top:auto!important;bottom:58px!important;'+
+        'position:fixed!important;left:auto!important;right:18px!important;top:auto!important;bottom:58px!important;'+
         'width:150px!important;min-width:150px!important;max-width:150px!important;'+
         'height:40px!important;min-height:40px!important;max-height:40px!important;'+
         'margin:0!important;padding:0!important;display:block!important;overflow:visible!important;'+
