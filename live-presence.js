@@ -549,13 +549,20 @@
 
   window.ktLeaveRemoteLive=async function(silent){
     var c=viewerCtx;ktNotifyRemoteExit20260924(c);viewerCtx=null;window.__ktRemoteHostStream=null;window.__ktRemoteHostId='';window.__ktCurrentRemoteHostId='';try{sessionStorage.removeItem('kt_remote_host_id');}catch(e){}document.documentElement.classList.remove('kt-remote-viewing');
+    if(!silent){
+      /* 나가기는 화면 우선: 서버 정리를 기다리지 않고 즉시 원래 동영상 화면을 연다. */
+      try{
+        if(typeof window.home==='function')window.home();
+        else if(typeof window.showVideoHome==='function')window.showVideoHome('추천 동영상');
+      }catch(e){}
+    }
     if(c){
       clearInterval(c.signalTimer);clearInterval(c.heartbeat);clearInterval(c.activityTimer);try{c.pc.close();}catch(e){}
       try{await req('ktalk_live_viewers?host_id=eq.'+enc(c.hostId)+'&viewer_id=eq.'+enc(c.viewerId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})});}catch(e){}
       try{await req('ktalk_webrtc_sessions?id=eq.'+enc(c.sessionId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})});}catch(e){}
       await insertSystem(c.hostId,c.viewerId,c.viewerName,c.viewerName+'님이 나갔습니다.');
     }
-    if(!silent){if(window.openBroadcastList)window.openBroadcastList();else if(window.friends)window.friends();setTimeout(renderLiveCards,80);}
+    if(!silent)setTimeout(renderLiveCards,80);
   };
 
   function wrap(name,before,after){
