@@ -37,6 +37,23 @@
     var id=hostIdFrom(btn);
     if(!id)return false;
 
+    /* 다른 LIVE 입장 보강 코드와도 공유하는 전역 중복 방지.
+       같은 호스트는 한 번의 실제 터치에서 입장 함수를 한 번만 호출한다. */
+    try{
+      var gh=String(window.__ktLiveEnterOnceHost20260930||'');
+      var ga=Number(window.__ktLiveEnterOnceAt20260930||0);
+      if(gh===id&&now-ga<1800){
+        if(e){
+          e.preventDefault();
+          e.stopPropagation();
+          if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+        }
+        return true;
+      }
+      window.__ktLiveEnterOnceHost20260930=id;
+      window.__ktLiveEnterOnceAt20260930=now;
+    }catch(_e){}
+
     lastTap=now;
     try{
       if(e){
