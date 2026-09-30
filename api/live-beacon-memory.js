@@ -49,6 +49,7 @@ module.exports=async function handler(req,res){
           title:String(b.title||'방송 중').slice(0,160),
           room_type:String(b.room_type||'solo').slice(0,40),
           room_name:String(b.room_name||'방송').slice(0,80),
+          host_frame:(/^data:image\/jpeg;base64,/.test(String(b.host_frame||''))&&String(b.host_frame||'').length<32000)?String(b.host_frame):'',
           seen:Date.now()
         });
       }
@@ -70,6 +71,7 @@ module.exports=async function handler(req,res){
       rooms:Array.from(g.__ktLiveBeaconMemory.values()).map(x=>({
         host_id:x.host_id,run_id:x.run_id||'',run_started_at:Number(x.run_started_at||0),
         host_name:x.host_name,title:x.title,room_type:x.room_type,room_name:x.room_name,
+        host_frame:x.host_frame||'',
         updated_at:new Date(x.seen).toISOString()
       })),
       ended:Array.from(g.__ktLiveEndedMemory.values()).map(x=>({
