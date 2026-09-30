@@ -7,7 +7,7 @@ if(!g.__ktLiveEndedMemory)g.__ktLiveEndedMemory=new Map();
 function clean(){
   const now=Date.now();
   for(const [id,row] of g.__ktLiveBeaconMemory.entries()){
-    if(now-Number(row.seen||0)>600000)g.__ktLiveBeaconMemory.delete(id);
+    if(now-Number(row.seen||0)>60000)g.__ktLiveBeaconMemory.delete(id);
   }
   for(const [id,row] of g.__ktLiveEndedMemory.entries()){
     if(now-Number(row.ended||0)>45000)g.__ktLiveEndedMemory.delete(id);
