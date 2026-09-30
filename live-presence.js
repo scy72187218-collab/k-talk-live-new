@@ -274,6 +274,20 @@
       if(typeof window.ktEmitRoomClosedNow20260930==='function'){
         window.ktEmitRoomClosedNow20260930(hid);
       }
+      /* Explicit end beacon: every guest device can leave immediately even if
+         realtime/WebRTC is already reconnecting and missed the last socket event. */
+      try{
+        fetch('/api/live-beacon-memory?t='+Date.now(),{
+          method:'POST',cache:'no-store',keepalive:true,
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({
+            action:'end',
+            host_id:hid,
+            run_id:String(window.__ktHostRunId20260924||''),
+            run_started_at:Number(window.__ktHostRunStartedAt20260924||0)
+          })
+        }).catch(function(){});
+      }catch(_e){}
     }catch(e){}
 
     /* 방송 종료 때 상태값이 이미 풀렸어도 서버의 빨간 LIVE 표시를 반드시 끈다. */
