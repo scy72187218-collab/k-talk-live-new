@@ -79,7 +79,7 @@
       var timer=ctrl?setTimeout(function(){ctrl.abort();},2500):null;
       var opt={headers:{apikey:KEY,Authorization:'Bearer '+KEY}};
       if(ctrl)opt.signal=ctrl.signal;
-      var r=await fetch(BASE+'ktalk_live_rooms?select=host_id,host_name,title,room_name,host_photo,updated_at&active=eq.true&order=started_at.desc&limit=50',opt);
+      var r=await fetch(BASE+'ktalk_live_rooms?select=host_id,host_name,title,room_name,host_photo,updated_at&active=eq.true&updated_at=gte.'+enc(cut)+'&order=started_at.desc&limit=50',opt);
       if(timer)clearTimeout(timer);
       if(r.ok){
         rows=await r.json();
