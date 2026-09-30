@@ -138,6 +138,39 @@
     }catch(e){}
   }
 
+  /* 모든 일반 시청자도 방송방에서 같은 선물 연출을 본다.
+     이 경로는 표시 전용이며 장미·정산·결제·선물 수량을 변경하지 않는다. */
+  var viewerGiftSeen={},viewerGiftPollBusy=false;
+  async function pollViewerGiftEffects20260930(){
+    if(viewerGiftPollBusy||isHostRoom())return;
+    if(!document.querySelector('#screen .kt-remote-live')&&!document.documentElement.classList.contains('kt-remote-viewing'))return;
+    viewerGiftPollBusy=true;
+    try{
+      var host='';
+      try{host=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||sessionStorage.getItem('kt_remote_host_id')||'').trim();}catch(e){}
+      if(!host)return;
+      var since=new Date(Date.now()-12000).toISOString();
+      var rows=await req('ktalk_live_messages?select=id,sender_id,sender_name,message,message_type,created_at&host_id=eq.'+enc(host)+'&message_type=eq.gift&created_at=gte.'+enc(since)+'&order=created_at.asc&limit=20');
+      (rows||[]).forEach(function(row){
+        try{
+          var id=String(row.id||'');
+          if(!id||viewerGiftSeen[id])return;
+          viewerGiftSeen[id]=Date.now();
+          /* 보낸 본인 화면에서는 giftSend가 이미 애니메이션을 보여 준다. */
+          if(String(row.sender_id||'')==='gift:'+deviceId())return;
+          var data=JSON.parse(String(row.message||'{}'));
+          var cost=parseInt(data.cost||0,10)||0;
+          if(cost<=0)return;
+          var name=String(data.name||'선물'),sender=String(row.sender_name||'회원');
+          if(cost>=1000&&typeof window.showPremiumGiftFx==='function')window.showPremiumGiftFx(name,cost,sender);
+          else if(typeof window.showSmallGiftFx==='function')window.showSmallGiftFx(name,cost,sender);
+        }catch(e){}
+      });
+      var cutoff=Date.now()-60000;
+      Object.keys(viewerGiftSeen).forEach(function(k){if(viewerGiftSeen[k]<cutoff)delete viewerGiftSeen[k];});
+    }catch(e){}finally{viewerGiftPollBusy=false;}
+  }
+
   async function pollIncomingGuestGift(){
     if(!document.querySelector('.kt-remote-live'))return;
     try{
@@ -187,5 +220,6 @@
   }
   setInterval(poll,800);
   setInterval(pollIncomingGuestGift,900);
-  [300,900,1600].forEach(function(ms){setTimeout(poll,ms);setTimeout(pollIncomingGuestGift,ms+120);});
+  setInterval(pollViewerGiftEffects20260930,900);
+  [300,900,1600].forEach(function(ms){setTimeout(poll,ms);setTimeout(pollIncomingGuestGift,ms+120);setTimeout(pollViewerGiftEffects20260930,ms+150);});
 })();
