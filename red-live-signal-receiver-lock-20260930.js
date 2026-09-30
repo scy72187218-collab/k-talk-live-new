@@ -27,6 +27,38 @@
     }catch(e){}
   }
 
+  var endedHosts20261001={};
+  function markEnded20261001(hostId){
+    try{
+      hostId=String(hostId||'').trim();
+      if(!hostId)return;
+      endedHosts20261001[hostId]=Date.now();
+      removeFallback();
+      var peek=document.getElementById('ktVideoLivePeek');
+      if(peek){
+        var hit=peek.querySelector('[data-host="'+CSS.escape(hostId)+'"]');
+        if(hit)peek.remove();
+      }
+    }catch(e){}
+  }
+  function recentlyEnded20261001(hostId){
+    try{
+      var at=Number(endedHosts20261001[String(hostId||'')]||0);
+      if(!at)return false;
+      if(Date.now()-at>12000){delete endedHosts20261001[String(hostId||'')];return false;}
+      return true;
+    }catch(e){return false;}
+  }
+  window.addEventListener('kt-live-off',function(e){
+    try{markEnded20261001(e&&e.detail&&e.detail.host_id);}catch(_e){}
+  });
+  window.addEventListener('kt-room-closed',function(e){
+    try{markEnded20261001(e&&e.detail&&e.detail.host_id);}catch(_e){}
+  });
+  window.addEventListener('kt-broadcast-ended',function(e){
+    try{markEnded20261001(e&&e.detail&&e.detail.host_id);}catch(_e){}
+  });
+
   function ensureStyle(){
     if(document.getElementById('ktRedLiveReceiverFallbackStyle20260930'))return;
     var s=document.createElement('style');
@@ -40,6 +72,7 @@
 
   function showRoom(room){
     if(!room||!room.host_id||!inVideoView()){removeFallback();return;}
+    if(recentlyEnded20261001(room.host_id)){removeFallback();return;}
     if(document.getElementById('ktVideoLivePeek')){removeFallback();return;}
     ensureStyle();
     var box=document.getElementById('ktRedLiveReceiverFallback20260930');
