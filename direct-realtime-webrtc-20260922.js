@@ -2850,8 +2850,16 @@
         }
       }catch(e){}
       var reqData={host_id:hid,viewer_id:viewerId(),name:profileName(),at:Date.now()};
-      send('guest_request',reqData);
-      try{restBroadcast('guest_request',reqData);}catch(e){}
+
+      /* 신청 탭 자체를 최우선으로 즉시 전송한다.
+         카메라 준비/사진 생성/WebRTC warm-up이 늦어도 호스트 신청 표시는 기다리지 않는다. */
+      try{sendCriticalMedia20260926('guest_request',reqData,hid);}catch(e){}
+      [35,90,180,320].forEach(function(ms){
+        setTimeout(function(){
+          if(!requestOn)return;
+          try{sendCriticalMedia20260926('guest_request',reqData,hid);}catch(e){}
+        },ms);
+      });
       sharedApprovalPost(hid,'guest_request',reqData.viewer_id,reqData.name);
     }else{
       b.classList.remove('kt-requested');b.style.removeProperty('box-shadow');
