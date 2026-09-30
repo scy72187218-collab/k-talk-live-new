@@ -4,7 +4,7 @@
   if(window.__ktLiveSignalPublisher20260929)return;
   window.__ktLiveSignalPublisher20260929=true;
 
-  var timer=null,runId='',runStartedAt=0,lastActive=false,forceOffUntil=0,startGraceUntil=0,roomMissingSince=0;
+  var timer=null,runId='',runStartedAt=0,lastActive=false,forceOffUntil=0,startGraceUntil=0;
 
   function deviceId(){
     var id='';
@@ -29,18 +29,7 @@
     try{
       if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
       var s=document.getElementById('screen');
-      if(!s)return false;
-      var rooms=[].slice.call(s.querySelectorAll('#ktLiveVideo,.ktsolo-room,.ktg13-room,.ktg9-room,.ktsubscriber-room,.ktsecret-room'));
-      return rooms.some(function(el){
-        try{
-          var cs=getComputedStyle(el);
-          if(cs.display==='none'||cs.visibility==='hidden'||Number(cs.opacity||1)===0)return false;
-          if(el.hidden)return false;
-          if(el.getClientRects&&el.getClientRects().length===0)return false;
-          var r=el.getBoundingClientRect();
-          return r.width>8&&r.height>8;
-        }catch(e){return false;}
-      });
+      return !!(s&&s.querySelector('#ktLiveVideo,.ktsolo-room,.ktg13-room,.ktg9-room,.ktsubscriber-room,.ktsecret-room'));
     }catch(e){return false;}
   }
   function hostStreamLive(){
@@ -138,10 +127,8 @@
     startGraceUntil=Date.now()+10000;
     if(!runId){runStartedAt=Date.now();runId='sig-'+runStartedAt.toString(36)+'-'+Math.random().toString(36).slice(2,7);}
     try{send('publish');}catch(e){}
-    /* 방송 시작 직후 빨간 LIVE를 최대한 빨리 띄운다.
-       첫 1초 동안 촘촘히 재전송하고 이후에는 기존 heartbeat가 이어받는다.
-       잠가 둔 수신/입장 코드는 건드리지 않는다. */
-    [35,80,150,260,420,700,1000].forEach(function(ms){
+    /* 방송 시작 신호를 짧게 여러 번 보내 느린 기기/네트워크에서도 빨간 LIVE를 놓치지 않게 한다. */
+    [120,300,650,1200].forEach(function(ms){
       setTimeout(function(){
         try{
           if(lastActive||hostRoomVisible())send('heartbeat');
@@ -183,30 +170,20 @@
     if(Date.now()<forceOffUntil)return;
     var on=hostRoomVisible();
     if(on){
-      roomMissingSince=0;
       try{if(typeof window.ktRepairVisibleHostPresence20260928==='function')window.ktRepairVisibleHostPresence20260928();}catch(e){}
       startGraceUntil=0;
       send(lastActive?'heartbeat':'publish');
       lastActive=true;
     }else if(Date.now()<startGraceUntil&&lastActive){
       /* 방송 시작 직후 방 화면이 늦게 그려져도 빨간 LIVE 신호를 먼저 유지 */
-      roomMissingSince=0;
       send('heartbeat');
     }else if(lastActive){
-      /* 모바일/컴퓨터에서 방 DOM이 잠깐 재렌더링될 때 바로 종료로 오해하지 않는다.
-         실제 종료 버튼은 forceEnd() 래퍼가 즉시 처리한다. */
-      if(!roomMissingSince)roomMissingSince=Date.now();
-      if(Date.now()-roomMissingSince<3000){
-        send('heartbeat');
-        return;
-      }
       forceEnd();
-      roomMissingSince=0;
     }
   }
 
   installWraps();
-  timer=setInterval(tick,250);
+  timer=setInterval(tick,450);
   setTimeout(tick,80);
   [100,300,700,1400].forEach(function(ms){setTimeout(installWraps,ms);});
   window.addEventListener('pageshow',function(){setTimeout(tick,60);});
