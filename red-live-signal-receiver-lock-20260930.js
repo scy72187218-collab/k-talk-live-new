@@ -58,6 +58,12 @@
   window.addEventListener('kt-broadcast-ended',function(e){
     try{markEnded20261001(e&&e.detail&&e.detail.host_id);}catch(_e){}
   });
+  window.addEventListener('kt-live-on',function(e){
+    try{
+      var id=String(e&&e.detail&&e.detail.host_id||'').trim();
+      if(id)delete endedHosts20261001[id];
+    }catch(_e){}
+  });
 
   function ensureStyle(){
     if(document.getElementById('ktRedLiveReceiverFallbackStyle20260930'))return;
@@ -72,6 +78,19 @@
 
   function showRoom(room){
     if(!room||!room.host_id||!inVideoView()){removeFallback();return;}
+
+    /* 같은 호스트가 새 방송을 다시 시작한 경우에는 예전 종료 차단을 즉시 해제한다.
+       run_started_at 또는 updated_at이 종료 시각보다 새로우면 현재 LIVE가 우선이다. */
+    try{
+      var hid=String(room.host_id||'').trim();
+      var endedAt=Number(endedHosts20261001[hid]||0);
+      var startedAt=Number(room.run_started_at||0);
+      var updatedAt=Date.parse(String(room.updated_at||''))||0;
+      if(endedAt&&((startedAt&&startedAt>endedAt)||(updatedAt&&updatedAt>endedAt))){
+        delete endedHosts20261001[hid];
+      }
+    }catch(e){}
+
     if(recentlyEnded20261001(room.host_id)){removeFallback();return;}
     if(document.getElementById('ktVideoLivePeek')){removeFallback();return;}
     ensureStyle();
