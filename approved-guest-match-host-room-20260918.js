@@ -286,7 +286,8 @@
     var grid=document.createElement('div');
     grid.className='kgh-main'+(info.is13?' is13':'');
     var hostCell=makeCell('host','호스트');
-    var selfCell=makeCell('self','나 · 게스트');
+    /* 자기 카메라가 실제 준비되기 전에는 파란 빈 self 칸으로 바꾸지 않는다. */
+    var selfCell=selfCandidate?makeCell('self','나 · 게스트'):makeCell('','게스트 연결 중');
 
     hostVideo.id='ktRemoteHostPreview';
     hostVideo.className='';
@@ -309,7 +310,7 @@
     if(selfCandidate)selfVideo.srcObject=selfCandidate;
 
     hostCell.appendChild(hostVideo);
-    selfCell.appendChild(selfVideo);
+    if(selfCandidate)selfCell.appendChild(selfVideo);
     grid.appendChild(hostCell);
     grid.appendChild(selfCell);
     for(var i=2;i<info.total;i++)grid.appendChild(makeCell('',''));
@@ -379,7 +380,8 @@
         /* 기존 연결 스트림이 바뀌어도 두 영상만 유지 */
         var hostCell=room.querySelector('.kgh-cell.host');
         var hv=hostCell&&hostCell.querySelector('video');
-        var sv=room.querySelector('.kgh-cell.self video');
+        var selfCell=room.querySelector('.kgh-main .kgh-cell.self')||room.querySelector('.kgh-main .kgh-cell:nth-child(2)');
+        var sv=selfCell&&selfCell.querySelector('video');
         var candidates=[window.__ktRemoteHostStream,window.__ktLastApprovedGuestHostStream,hostStream];
         var trueHost=null;
         for(var ci=0;ci<candidates.length;ci++){
@@ -413,8 +415,22 @@
           if(sameVideoSource20260926(selfStream,latestSelf))selfStream=null;
         }
         if(selfStream&&hostStream&&sameVideoSource20260926(selfStream,hostStream))selfStream=null;
-        if(sv&&selfStream&&live(selfStream)&&sv.srcObject!==selfStream){
-          sv.srcObject=selfStream;
+        if(selfCell&&selfStream&&live(selfStream)){
+          if(!selfCell.classList.contains('self')){
+            selfCell.classList.add('self');
+            selfCell.innerHTML='';
+            var lab=document.createElement('span');
+            lab.className='kgh-label';lab.textContent='나 · 게스트';
+            selfCell.appendChild(lab);
+          }
+          if(!sv){
+            sv=document.createElement('video');
+            sv.id='ktRemoteLiveVideo';
+            sv.autoplay=true;sv.playsInline=true;sv.muted=true;sv.defaultMuted=true;
+            sv.setAttribute('autoplay','');sv.setAttribute('playsinline','');sv.setAttribute('muted','');
+            selfCell.appendChild(sv);
+          }
+          if(sv.srcObject!==selfStream)sv.srcObject=selfStream;
           try{var sp=sv.play();if(sp&&sp.catch)sp.catch(function(){});}catch(e){}
         }
         if(sv&&hostStream&&sameVideoSource20260926(sv.srcObject,hostStream)){
