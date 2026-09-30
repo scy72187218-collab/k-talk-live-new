@@ -448,7 +448,21 @@
 
   window.ktLeaveRemoteLive=async function(silent){
     remoteEndHost='';remoteEndArmed=false;remoteEndMisses=0;
+    var leavingHost='';
+    try{leavingHost=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||sessionStorage.getItem('kt_remote_host_id')||'').trim();}catch(e){}
+    /* Explicit user leave is final: cancel every direct/fallback transport and
+       clear every host id immediately so late signaling cannot reopen the room. */
+    try{
+      if(typeof window.ktDirectRemoteLeaveNow20260924==='function'){
+        window.ktDirectRemoteLeaveNow20260924(leavingHost);
+      }
+    }catch(e){}
     window.__ktRemoteHostId='';
+    window.__ktCurrentRemoteHostId='';
+    window.__ktRemoteHostStream=null;
+    window.__ktUseMemoryGuestVideo20260922=false;
+    try{sessionStorage.removeItem('kt_remote_host_id');}catch(e){}
+    try{document.documentElement.classList.remove('kt-remote-viewing');}catch(e){}
     if(viewer){
       closeViewer(!!silent);
       return;
