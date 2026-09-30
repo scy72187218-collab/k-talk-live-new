@@ -2264,12 +2264,14 @@
       }catch(e){}
     }
 
-    /* 준비 연결이 0.65초 안에 실제 첫 프레임을 못 보내면 그때만 fresh 연결.
-       방/승인 UI는 그대로 유지하고 통신 경로만 교체한다. */
+    /* 준비 연결을 먼저 충분히 살린다.
+       승인 직후 40ms에 끊어 새 연결을 만들면 Android에서 호스트 쪽 게스트 영상이
+       수십 초 늦어질 수 있다. 0.65초 동안 준비 연결의 첫 프레임을 기다리고,
+       그래도 실제 미디어가 없을 때만 fresh 연결로 교체한다. */
     setTimeout(function(){
       if(!guestApproved||guestApprovedHost!==hid||guestMediaReadyAt)return;
       forceFreshApprovedGuestOffer20260926(hid);
-    },40);
+    },650);
 
     /* Visible fallback requested by owner: place only the approved guest's own
        camera face into the host guest slot while live transport is connecting. */
