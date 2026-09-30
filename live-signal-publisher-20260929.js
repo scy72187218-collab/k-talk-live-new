@@ -108,7 +108,7 @@
     [120,300,650,1200].forEach(function(ms){
       setTimeout(function(){
         try{
-          if(lastActive||hostRoomVisible()||hostStreamLive())send('heartbeat');
+          if(lastActive||hostRoomVisible())send('heartbeat');
         }catch(e){}
       },ms);
     });
@@ -145,7 +145,7 @@
   function tick(){
     installWraps();
     if(Date.now()<forceOffUntil)return;
-    var on=hostRoomVisible()||hostStreamLive();
+    var on=hostRoomVisible();
     if(on){
       try{if(typeof window.ktRepairVisibleHostPresence20260928==='function')window.ktRepairVisibleHostPresence20260928();}catch(e){}
       startGraceUntil=0;
