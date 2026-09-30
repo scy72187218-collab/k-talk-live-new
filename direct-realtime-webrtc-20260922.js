@@ -1502,7 +1502,18 @@
     vid=String(vid||'').trim();
     if(!vid)return;
     name=String(name||'게스트');
-    var data={host_id:DEVICE,viewer_id:vid,name:name,at:Date.now()};
+
+    /* 승인 탭과 얼굴 표시를 한 패킷으로 묶는다.
+       다른 기기가 guest_photo_frame을 따로 기다리지 않게 해서 승인 직후 바로 얼굴이 보이게 한다. */
+    var approvalFrame='';
+    try{
+      var pre0=pendingGuestPhotos20260926[vid]||null;
+      if(pre0&&Date.now()-Number(pre0.at||0)<30000){
+        var pf=String(pre0.frame||'');
+        if(/^data:image\/jpeg;base64,/.test(pf)&&pf.length<32000)approvalFrame=pf;
+      }
+    }catch(e){}
+    var data={host_id:DEVICE,viewer_id:vid,name:name,at:Date.now(),frame:approvalFrame};
 
     approvedGuests[vid]={name:name,at:data.at};
     hostGuestAliveAt[vid]=data.at;
@@ -2655,6 +2666,14 @@
         if(aid){
           window.__ktApprovedGuestIds20260924[aid]=true;
           window.__ktApprovedGuestNames20260924[aid]=String(p.name||'게스트');
+
+          /* 승인 신호 안에 얼굴 프레임이 있으면 같은 순간 모든 기기에 먼저 그린다. */
+          try{
+            var af=String(p.frame||'');
+            if(/^data:image\/jpeg;base64,/.test(af)&&af.length<32000){
+              paintApprovedGuestPhotoAllDevices20261001(aid,String(p.name||'게스트'),af);
+            }
+          }catch(_e){}
         }
         window.dispatchEvent(new CustomEvent('kt-any-guest-approved',{
           detail:{
