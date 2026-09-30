@@ -1229,6 +1229,33 @@
       }
     }catch(e){}
 
+    /* Durable exit record:
+       the legacy approval lookup reads ktalk_live_messages directly.
+       Without a guest_left row there, an old approval can be revived on re-entry.
+       Write the leave to both shared memory and DB immediately, but do not wait
+       before clearing the local guest UI/transport. */
+    try{
+      if(hostId){
+        var p=profile();
+        var leftWrite=postGuestMessage(
+          hostId,
+          'guest_left:'+vid,
+          '↩ '+(p.name||'게스트')+'님이 방송 참여에서 퇴장했습니다.',
+          vid,
+          p.name||'게스트'
+        );
+        if(leftWrite&&leftWrite.catch)leftWrite.catch(function(){});
+      }
+    }catch(e){}
+
+    try{
+      if(window.__ktApprovedGuestIds20260924)delete window.__ktApprovedGuestIds20260924[vid];
+      if(window.__ktApprovedGuestNames20260924)delete window.__ktApprovedGuestNames20260924[vid];
+      window.dispatchEvent(new CustomEvent('kt-any-guest-left',{
+        detail:{host_id:hostId,viewer_id:vid,at:Date.now(),explicit:true}
+      }));
+    }catch(e){}
+
     /* 게스트가 방에서 나가는 순간 업링크 세션을 바로 종료해서 호스트 칸도 즉시 내려가게 한다. */
     try{
       if(sid){
