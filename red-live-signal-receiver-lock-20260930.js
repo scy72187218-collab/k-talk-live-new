@@ -50,7 +50,19 @@
     }
     var hostId=String(room.host_id||'');
     var hostName=String(room.host_name||'K-Talk 방송자');
-    box.innerHTML='<span class="kt-rx-name">'+esc(hostName)+'</span><button type="button" class="kt-rx-live">● LIVE</button>';
+    /* 이미 받은 방송 정보를 입장 함수가 바로 재사용하게 저장한다.
+       빨간 LIVE 터치 후 beacon 재조회 대기를 없애서 즉시 방 화면을 연다. */
+    try{
+      window.__ktLastLiveRoom={
+        host_id:hostId,
+        host_name:hostName,
+        title:String(room.title||room.room_name||'방송 중'),
+        room_name:String(room.room_name||'방송'),
+        host_photo:String(room.host_photo||''),
+        updated_at:String(room.updated_at||new Date().toISOString())
+      };
+    }catch(_e){}
+    box.innerHTML='<span class="kt-rx-name">'+esc(hostName)+'</span><button type="button" class="kt-rx-live" data-host="'+esc(hostId)+'">● LIVE</button>';
     var b=box.querySelector('.kt-rx-live');
     if(b)b.onclick=function(e){
       try{e.preventDefault();e.stopPropagation();}catch(_e){}
