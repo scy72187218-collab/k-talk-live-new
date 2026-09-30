@@ -842,6 +842,7 @@
     add(document.getElementById('ktRemoteHostPreview'));
     try{
       document.querySelectorAll(
+        '#screen .ktg13-room[data-kt-room="9"] .ktg13-host video,'+
         '.kt-guest-hostlike-room .kgh-cell.host video,'+
         '.kt-approved-guest-grid .kt-approved-guest-cell.host video,'+
         '.kt-prejoin-room-grid .kt-prejoin-room-cell.host video,'+
@@ -1093,7 +1094,7 @@
 
       /* 기존 영상이 살아 있으면 새 연결 확인 동안 화면을 유지한다.
          기존 영상이 없는 최초 연결은 빠르게 재시도한다. */
-      if(!previousUsable)retryViewerSoon(900);
+      if(!previousUsable)retryViewerSoon(450);
       else setTimeout(function(){
         if(viewerPc===pc&&!pc.__ktGotRemoteTrack20260923&&pc.connectionState!=='connected'){
           try{closePc(pc);}catch(e){}
@@ -1113,7 +1114,7 @@
           attachRemoteStreamNow();
         }else{
           viewerPc=null;viewerSession='';viewerConnected=false;
-          retryViewerSoon(900);
+          retryViewerSoon(450);
         }
       }
     }finally{
