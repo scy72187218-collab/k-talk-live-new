@@ -3442,6 +3442,11 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
   justify-content:center!important;
   gap:5px!important;
 }
+/* 9명방만: 노란 수익률 칸 오른쪽 공간 축소 */
+#myEarnHud.kt-nine-earn{
+  width:96px!important;
+  min-width:96px!important;
+}
 #myEarnDetail{
   display:none;
 }
