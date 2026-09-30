@@ -1356,11 +1356,22 @@
       window.__ktApprovedGuestNames20260924[vid]=name;
     }catch(e){}
 
-    /* REALTIME FIRST: the guest receives approval before host-side DOM work,
-       legacy persistence, or any extra rendering can delay the signal. */
-    /* 승인 버튼을 누르는 순간 WebSocket + REST 두 경로로 동시에 보낸다.
-       어느 한 경로가 늦어도 게스트 화면은 바로 승인 상태로 전환된다. */
+    /* REALTIME FIRST: approval tap must appear on every phone immediately.
+       Send the SAME approval through the fast dual path a few times before
+       any legacy DB/UI work can delay propagation. */
     try{sendCriticalMedia20260926('guest_approved',data,DEVICE);}catch(e){}
+    [30,90,180].forEach(function(ms){
+      setTimeout(function(){
+        try{sendCriticalMedia20260926('guest_approved',data,DEVICE);}catch(e){}
+      },ms);
+    });
+
+    /* Push the complete approved roster immediately as well, so all viewers
+       switch to the same 1/2/3-person state from the same tap. */
+    try{broadcastApprovedRoster20260928();}catch(e){}
+    [40,120,240].forEach(function(ms){
+      setTimeout(function(){try{broadcastApprovedRoster20260928();}catch(e){}},ms);
+    });
 
     delete pendingRequests[vid];
     guestSlot(vid,name);
