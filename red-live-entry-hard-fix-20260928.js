@@ -24,7 +24,7 @@
   function enter(btn,e){
     if(!btn)return false;
     var now=Date.now();
-    if(now-lastTap<180)return true;
+    if(now-lastTap<450)return true;
     var id=hostIdFrom(btn);
     if(!id)return false;
 
@@ -47,16 +47,6 @@
     try{
       if(typeof window.ktEnterRemoteLive==='function'){
         window.ktEnterRemoteLive(id);
-        /* 정상 함수는 즉시 방 껍데기를 연다. 120ms 뒤에도 화면 전환이
-           없을 때만 같은 입장을 한 번 더 호출해 느린 모바일 첫 탭 누락을 보정한다. */
-        setTimeout(function(){
-          try{
-            if(!document.documentElement.classList.contains('kt-remote-viewing')&&
-               typeof window.ktEnterRemoteLive==='function'){
-              window.ktEnterRemoteLive(id);
-            }
-          }catch(_e){}
-        },120);
         return true;
       }
     }catch(_e){}
@@ -66,19 +56,12 @@
       try{
         if(typeof window.ktEnterRemoteLive==='function')window.ktEnterRemoteLive(id);
       }catch(_e){}
-    },20);
+    },30);
     return true;
   }
 
   function target(e){
-    try{
-      if(!e||!e.target||!e.target.closest)return null;
-      return e.target.closest(
-        '.ktvl-live,.kt-follow-person.live,.kt-friend-bubble.live,'+
-        '.kt-friend-contact-actions .livebtn,.kt-live-card,.kt-live-list-enter,'+
-        '[onclick*="ktFriendEnterLive"],[onclick*="ktEnterRemoteLive"]'
-      );
-    }catch(_e){return null;}
+    try{return e&&e.target&&e.target.closest?e.target.closest('.ktvl-live'):null;}catch(_e){return null;}
   }
 
   /* window capture에서 먼저 잡아서 다른 스크립트가 클릭을 먹어도 LIVE 입장은 살아 있게 한다. */
@@ -90,17 +73,13 @@
     var b=target(e);if(b)enter(b,e);
   },{capture:true,passive:false});
 
-  window.addEventListener('touchend',function(e){
-    var b=target(e);if(b)enter(b,e);
-  },{capture:true,passive:false});
-
   window.addEventListener('click',function(e){
     var b=target(e);if(b)enter(b,e);
   },true);
 
   function repair(){
     try{
-      document.querySelectorAll('.ktvl-live,.kt-follow-person.live,.kt-friend-bubble.live,.kt-friend-contact-actions .livebtn,.kt-live-card,.kt-live-list-enter,[onclick*="ktFriendEnterLive"],[onclick*="ktEnterRemoteLive"]').forEach(function(b){
+      document.querySelectorAll('.ktvl-live').forEach(function(b){
         b.style.setProperty('pointer-events','auto','important');
         b.style.setProperty('touch-action','manipulation','important');
         b.style.setProperty('position','relative','important');
