@@ -6,8 +6,8 @@
   s.id='ktHostEarningsStableCSS20260929';
   s.textContent=
     '.ktsolo-earn,.ktg13-earn,.ktsubscriber-earn,.ktsecret-earn-row{'+
-    'position:fixed!important;left:calc(50% - 17.5px)!important;right:auto!important;top:auto!important;bottom:58px!important;'+
-    'transform:translateX(-50%)!important;width:150px!important;min-width:150px!important;max-width:150px!important;'+
+    'position:fixed!important;left:auto!important;right:8px!important;top:auto!important;bottom:58px!important;'+
+    'transform:none!important;width:150px!important;min-width:150px!important;max-width:150px!important;'+
     'height:40px!important;min-height:40px!important;max-height:40px!important;margin:0!important;padding:0!important;'+
     'display:block!important;overflow:visible!important;z-index:2147483000!important;animation:none!important;transition:none!important}'+
     '.ktsolo-earn #myEarnHud,.ktg13-earn #myEarnHud,.ktsubscriber-earn #ktSubscriberEarnHud,.ktsecret-earn-row #myEarnHud{'+
