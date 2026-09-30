@@ -943,9 +943,58 @@
     },Math.max(180,Number(delay||1200)));
   }
 
+  function hostPreviewFrame20261001(stream){
+    try{
+      var vids=[].slice.call(document.querySelectorAll('#screen video'));
+      var v=vids.find(function(x){
+        try{return x&&x.srcObject===stream&&x.videoWidth>0&&x.videoHeight>0;}catch(e){return false;}
+      });
+      if(!v)return '';
+      var cv=document.createElement('canvas');cv.width=96;cv.height=72;
+      var cx=cv.getContext('2d',{alpha:false});if(!cx)return '';
+      cx.drawImage(v,0,0,96,72);
+      var out=cv.toDataURL('image/jpeg',0.36);
+      return /^data:image\/jpeg;base64,/.test(out)&&out.length<32000?out:'';
+    }catch(e){return '';}
+  }
+
+  function paintRemoteHostPreview20261001(frame){
+    try{
+      frame=String(frame||'');
+      if(!/^data:image\/jpeg;base64,/.test(frame)||frame.length>=32000)return false;
+      var targets=[];
+      var a=document.getElementById('ktRemoteLiveVideo');if(a)targets.push(a);
+      var b=document.getElementById('ktRemoteHostPreview');if(b&&targets.indexOf(b)<0)targets.push(b);
+      document.querySelectorAll(
+        '.kt-guest-hostlike-room .kgh-cell.host video,'+
+        '.kt-approved-guest-grid .kt-approved-guest-cell.host video,'+
+        '.kt-prejoin-room-grid .kt-prejoin-room-cell.host video,'+
+        '.kt-guest-room-grid .kt-guest-room-cell.host video'
+      ).forEach(function(v){if(targets.indexOf(v)<0)targets.push(v);});
+      targets.forEach(function(v){
+        try{
+          if(v.srcObject)return;
+          v.setAttribute('poster',frame);
+          v.style.backgroundImage='url("'+frame+'")';
+          v.style.backgroundSize='cover';
+          v.style.backgroundPosition='center';
+        }catch(e){}
+      });
+      return !!targets.length;
+    }catch(e){return false;}
+  }
+
   async function hostOfferToViewer(vid,watchToken){
     if(!isHostRole())return;
-    var stream=hostStream();if(!stream)return;
+    var stream=hostStream();
+    if(!stream){
+      [40,100,220].forEach(function(ms){
+        setTimeout(function(){
+          try{if(isHostRole())hostOfferToViewer(vid,watchToken);}catch(e){}
+        },ms);
+      });
+      return;
+    }
     var old=hostViewPeers[vid];
     if(old&&old.watchToken===watchToken&&old.pc&&['new','connecting','connected'].indexOf(String(old.pc.connectionState||''))>-1){
       if(old.offer)send('video_offer',{host_id:DEVICE,viewer_id:vid,session_id:old.sid,watch_token:watchToken,offer_sdp:old.offer});
@@ -976,7 +1025,10 @@
       var offer=await pc.createOffer({offerToReceiveAudio:false,offerToReceiveVideo:false});
       await pc.setLocalDescription(offer);
       entry.offer=pc.localDescription.sdp;
-      var firstOffer={host_id:DEVICE,viewer_id:vid,session_id:session,watch_token:watchToken,offer_sdp:entry.offer};
+      var firstOffer={
+        host_id:DEVICE,viewer_id:vid,session_id:session,watch_token:watchToken,
+        offer_sdp:entry.offer,host_frame:hostPreviewFrame20261001(stream)
+      };
       sendCriticalMedia20260926('video_offer',firstOffer,DEVICE);
       /* Communication speed only: repeat the SAME first offer briefly so a
          missed mobile packet does not add several seconds. */
@@ -993,6 +1045,7 @@
     if(String(p.viewer_id||'')!==viewerId())return;
     var hid=remoteHostId();if(!hid||String(p.host_id||'')!==hid)return;
     var session=String(p.session_id||''),sdp=String(p.offer_sdp||'');if(!session||!sdp)return;
+    try{if(p.host_frame)paintRemoteHostPreview20261001(p.host_frame);}catch(_e){}
     if(viewerSession===session&&viewerPc&&viewerPc.currentRemoteDescription){
       if(viewerAnswerSdp){
         sendCriticalMedia20260926('video_answer',{host_id:hid,viewer_id:viewerId(),session_id:session,answer_sdp:viewerAnswerSdp},hid);
