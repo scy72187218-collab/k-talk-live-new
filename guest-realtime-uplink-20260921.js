@@ -419,6 +419,7 @@
     requests[hostId]={};approved[hostId]={};
     Object.keys(readyGuests).forEach(function(k){if(k.indexOf(hostId+'|')===0)delete readyGuests[k];});
   }
+  window.ktEmitRoomClosedNow20260930=emitRoomClosedNow;
 
   async function toggleRequest(){
     var hostId=remoteHostId();if(!hostId)return;
