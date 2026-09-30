@@ -91,7 +91,10 @@
   }
 
   function allowed(){
-    /* 텔레비전 버튼은 허용 대상이라도 레벨 21 이상이어야 사용 가능 */
+    /* 구독자는 레벨 제한 없이 사용 가능 */
+    if(isSubscriberMember())return true;
+
+    /* 호스트·운영진은 레벨 21 이상일 때만 사용 가능 */
     if(currentLevel()<21)return false;
 
     try{
@@ -101,7 +104,6 @@
     if(isOwnerAccount())return true;
     if(/최고\s*운영자|운영진|운영자|관리자|admin|operator|staff/i.test(roleText()))return true;
     if(isHostNow())return true;
-    if(isSubscriberMember())return true;
     return false;
   }
 
