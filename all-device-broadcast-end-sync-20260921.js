@@ -43,7 +43,11 @@
   function inJoinedLive(){
     try{
       return document.documentElement.classList.contains('kt-remote-viewing')||
-        !!document.querySelector('.kt-remote-live,.kt-prejoin-room-grid,.kt-approved-guest-grid');
+        !!document.querySelector(
+          '.kt-remote-live,.kt-prejoin-room-grid,.kt-approved-guest-grid,'+
+          '.kt-guest-hostlike-room,.kt-approved-guest-room,.kt-guest-room-grid,'+
+          '#screen .ktg13-room[data-kt-room="9"]'
+        );
     }catch(e){return false;}
   }
   function postEndOnce(hostId){
@@ -122,7 +126,9 @@
     if(!at||Date.now()-at>45000)return;
     var rr=currentViewedRun();
     var endedRun=String(x.run_id||'').trim();
-    if(rr.run_id&&!endedRun)return;
+    /* A host end event without run_id is still authoritative when the host id
+       matches the room currently being viewed. Do not leave the guest stuck
+       on "signal reconnecting" only because the optional run id was omitted. */
     if(endedRun&&rr.run_id&&endedRun!==rr.run_id)return;
     if(rr.started_at&&at<rr.started_at)return;
     var key=hostId+'|'+endedRun+'|'+at;
@@ -163,7 +169,6 @@
       if(age<0||age>45000)return;
       var rr=currentViewedRun();
       var endedRun=String(hit.run_id||'').trim();
-      if(rr.run_id&&!endedRun)return;
       if(endedRun&&rr.run_id&&endedRun!==rr.run_id)return;
       if(rr.started_at&&endedMs&&endedMs<rr.started_at)return;
       var key=hostId+'|'+endedRun+'|'+stamp;
