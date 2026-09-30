@@ -26,17 +26,17 @@
     if(!owner())return false;
     try{
       if(window.state){
-        state.level=1000;
-        state.userLevel=1000;
-        state.memberLevel=1000;
-        state.hostLevel=1000;
+        state.level=50000;
+        state.userLevel=50000;
+        state.memberLevel=50000;
+        state.hostLevel=50000;
         state.ktOwnerLevelBypass=true;
         state.ktOwnerAdmin=true;
       }
     }catch(e){}
     try{
       ['ktalk_level','ktalk_user_level','ktalk_member_level','ktalk_host_level','level','userLevel','memberLevel','hostLevel']
-        .forEach(function(k){localStorage.setItem(k,'1000');});
+        .forEach(function(k){localStorage.setItem(k,'50000');});
     }catch(e){}
     return true;
   }
@@ -54,13 +54,13 @@
 
     try{
       var oldEffective=window.ktEffectiveLevel;
-      if(typeof oldEffective!=='function'||!oldEffective.__ktOwner1000Final){
+      if(typeof oldEffective!=='function'||!oldEffective.__ktOwner50000Final){
         var fn=function(level){
-          if(owner()){forceLevel();return 1000;}
+          if(owner()){forceLevel();return 50000;}
           if(typeof oldEffective==='function')return oldEffective.apply(this,arguments);
           var n=parseInt(level,10);return isFinite(n)&&n>0?n:1;
         };
-        fn.__ktOwner1000Final=true;
+        fn.__ktOwner50000Final=true;
         window.ktEffectiveLevel=fn;
       }
     }catch(e){}
@@ -73,5 +73,5 @@
   document.addEventListener('visibilitychange',function(){
     if(document.visibilityState==='visible')setTimeout(install,30);
   });
-  setInterval(install,1000);
+  setInterval(install,50000);
 })();
