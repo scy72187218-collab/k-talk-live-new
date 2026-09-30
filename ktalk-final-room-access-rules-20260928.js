@@ -73,7 +73,7 @@
   }
 
   function level(){
-    if(owner())return 1000;
+    if(owner())return 50000;
     var best=0;
     try{
       if(typeof window.ktLevelGetLevel==='function')best=Math.max(best,n(window.ktLevelGetLevel()));
