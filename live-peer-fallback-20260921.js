@@ -29,13 +29,32 @@
   }
   function enc(v){return encodeURIComponent(String(v==null?'':v));}
   function stream(){
-    try{return window.state&&state.stream?state.stream:null;}catch(e){return null;}
+    try{
+      var s=window.state&&state.stream?state.stream:null;
+      if(s&&s.getVideoTracks&&s.getVideoTracks().some(function(t){return t&&t.readyState==='live';}))return s;
+    }catch(e){}
+    try{
+      var cam=document.getElementById('camera');
+      var s2=cam&&cam.srcObject;
+      if(s2&&s2.getVideoTracks&&s2.getVideoTracks().some(function(t){return t&&t.readyState==='live';}))return s2;
+    }catch(e){}
+    try{
+      var bg=document.getElementById('cameraBg');
+      var s3=bg&&bg.srcObject;
+      if(s3&&s3.getVideoTracks&&s3.getVideoTracks().some(function(t){return t&&t.readyState==='live';}))return s3;
+    }catch(e){}
+    try{
+      var lv=document.getElementById('ktLiveVideo');
+      var s4=lv&&lv.srcObject;
+      if(s4&&s4.getVideoTracks&&s4.getVideoTracks().some(function(t){return t&&t.readyState==='live';}))return s4;
+    }catch(e){}
+    return null;
   }
   function actualHostRoomVisible(){
     try{
       if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
       var s=document.getElementById('screen')||document;
-      return !!s.querySelector('.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room');
+      return !!s.querySelector('.ktsolo-room,.ktg9-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room');
     }catch(e){return false;}
   }
   function hasLiveVideo(){
@@ -300,7 +319,7 @@
       }
     };
 
-    viewer.poll=setInterval(pollViewer,180);
+    viewer.poll=setInterval(pollViewer,300);
     viewer.touch=setInterval(function(){
       if(!viewer)return;
       fetch(API+'?t='+Date.now(),{
@@ -386,18 +405,13 @@
     var cached=window.__ktLastLiveRoom&&String(window.__ktLastLiveRoom.host_id||'')===hostId?window.__ktLastLiveRoom:null;
 
     try{
-      /* Open the room shell immediately on the red LIVE tap.
-         Do not wait for beacon/API discovery before changing screens. */
-      var room=cached||null;
-      if(!document.querySelector('#screen .kt-remote-live')){
-        renderRemote(room||{host_id:hostId,host_name:'K-Talk',title:'라이브',room_name:'방송'});
-      }
-      remoteEndArmed=true;
-      try{window.dispatchEvent(new CustomEvent('kt-remote-host-selected',{detail:{host_id:hostId}}));}catch(e){}
-
-      /* Refresh room metadata in the background only. Video receive/signaling stays unchanged. */
-      if(!room){
-        try{room=await beaconRoom(hostId);}catch(_e){}
+      /* Primary path: cluster-wide Supabase Realtime signaling.
+         Only draw the room shell here; direct-realtime-webrtc owns video receive. */
+      var room=cached||await beaconRoom(hostId);
+      if(room){
+        renderRemote(room);
+        remoteEndArmed=true;
+        try{window.dispatchEvent(new CustomEvent('kt-remote-host-selected',{detail:{host_id:hostId}}));}catch(e){}
       }
 
       /* If the cluster-wide path still has no host stream after a short grace period,
@@ -410,7 +424,7 @@
           var ok=await enterMemory(hostId,cached||room||null);
           if(ok)remoteEndArmed=true;
         }catch(e){}
-      },350);
+      },900);
 
       if(!room){
         var st=document.getElementById('ktRemoteLiveStatus');
@@ -448,21 +462,7 @@
 
   window.ktLeaveRemoteLive=async function(silent){
     remoteEndHost='';remoteEndArmed=false;remoteEndMisses=0;
-    var leavingHost='';
-    try{leavingHost=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||sessionStorage.getItem('kt_remote_host_id')||'').trim();}catch(e){}
-    /* Explicit user leave is final: cancel every direct/fallback transport and
-       clear every host id immediately so late signaling cannot reopen the room. */
-    try{
-      if(typeof window.ktDirectRemoteLeaveNow20260924==='function'){
-        window.ktDirectRemoteLeaveNow20260924(leavingHost);
-      }
-    }catch(e){}
     window.__ktRemoteHostId='';
-    window.__ktCurrentRemoteHostId='';
-    window.__ktRemoteHostStream=null;
-    window.__ktUseMemoryGuestVideo20260922=false;
-    try{sessionStorage.removeItem('kt_remote_host_id');}catch(e){}
-    try{document.documentElement.classList.remove('kt-remote-viewing');}catch(e){}
     if(viewer){
       closeViewer(!!silent);
       return;
@@ -470,6 +470,6 @@
     if(oldLeave)return oldLeave(silent);
   };
 
-  setInterval(hostPoll,250);
-  setTimeout(hostPoll,60);
+  setInterval(hostPoll,500);
+  setTimeout(hostPoll,120);
 })();
