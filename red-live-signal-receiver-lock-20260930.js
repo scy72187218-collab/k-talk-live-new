@@ -70,8 +70,8 @@
     }catch(e){}
   }
 
-  setInterval(poll,450);
-  [60,180,420,800,1400].forEach(function(ms){setTimeout(poll,ms);});
+  setInterval(poll,700);
+  [80,300,700,1400].forEach(function(ms){setTimeout(poll,ms);});
   window.addEventListener('pageshow',function(){setTimeout(poll,80);});
   document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(poll,80);});
 })();
