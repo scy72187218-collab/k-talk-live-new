@@ -386,13 +386,18 @@
     var cached=window.__ktLastLiveRoom&&String(window.__ktLastLiveRoom.host_id||'')===hostId?window.__ktLastLiveRoom:null;
 
     try{
-      /* Primary path: cluster-wide Supabase Realtime signaling.
-         Only draw the room shell here; direct-realtime-webrtc owns video receive. */
-      var room=cached||await beaconRoom(hostId);
-      if(room){
-        renderRemote(room);
-        remoteEndArmed=true;
-        try{window.dispatchEvent(new CustomEvent('kt-remote-host-selected',{detail:{host_id:hostId}}));}catch(e){}
+      /* Open the room shell immediately on the red LIVE tap.
+         Do not wait for beacon/API discovery before changing screens. */
+      var room=cached||null;
+      if(!document.querySelector('#screen .kt-remote-live')){
+        renderRemote(room||{host_id:hostId,host_name:'K-Talk',title:'라이브',room_name:'방송'});
+      }
+      remoteEndArmed=true;
+      try{window.dispatchEvent(new CustomEvent('kt-remote-host-selected',{detail:{host_id:hostId}}));}catch(e){}
+
+      /* Refresh room metadata in the background only. Video receive/signaling stays unchanged. */
+      if(!room){
+        try{room=await beaconRoom(hostId);}catch(_e){}
       }
 
       /* If the cluster-wide path still has no host stream after a short grace period,
