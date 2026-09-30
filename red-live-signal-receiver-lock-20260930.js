@@ -78,6 +78,7 @@
 
   function showRoom(room){
     if(!room||!room.host_id||!inVideoView()){removeFallback();return;}
+    try{window.__ktLastLiveRoom=room;}catch(e){}
 
     /* 같은 호스트가 새 방송을 다시 시작한 경우에는 예전 종료 차단을 즉시 해제한다.
        run_started_at 또는 updated_at이 종료 시각보다 새로우면 현재 LIVE가 우선이다. */
