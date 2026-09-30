@@ -43,8 +43,15 @@
       room=room||{host_name:'K-Talk',title:'라이브',room_name:'방송'};
 
       function esc(s){return String(s||'').replace(/[&<>"]/g,'');}
+      var instantPhoto='';
+      try{
+        instantPhoto=String(room.host_photo||room.photo||room.profile_photo||'');
+        if(!/^data:image\/|^https?:/i.test(instantPhoto))instantPhoto='';
+      }catch(_e){instantPhoto='';}
+      var posterAttr=instantPhoto?' poster="'+esc(instantPhoto)+'"':'';
+      var bgStyle=instantPhoto?' style="background-image:url(\''+esc(instantPhoto)+'\');background-size:cover;background-position:center"':'';
       screen.innerHTML='<section class="kt-remote-live">'+
-        '<video id="ktRemoteLiveVideo" autoplay playsinline muted></video>'+
+        '<video id="ktRemoteLiveVideo" autoplay playsinline muted'+posterAttr+bgStyle+'></video>'+
         '<div class="kt-remote-shade"></div>'+
         '<div class="kt-remote-top">'+
           '<button class="kt-remote-back" type="button">‹</button>'+
