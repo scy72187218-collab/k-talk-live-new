@@ -84,8 +84,8 @@
         try{await window.ensureLiveCamera((window.state&&state.cameraFacing)||'user');}catch(e){}
         s=(window.state&&state.stream)||s;
       }
-      var v=document.querySelector('#screen .ktg13-room[data-kt-room="9"] .ktg13-host > video')||
-            document.querySelector('#screen .ktg13-room .ktg13-host > video')||
+      var v=document.querySelector('#screen .ktg13-room[data-kt-room="9"] .ktg13-host video')||
+            document.querySelector('#screen .ktg13-room .ktg13-host video')||
             document.getElementById('ktLiveVideo');
       if(v&&s){
         v.autoplay=true;v.muted=true;v.defaultMuted=true;v.playsInline=true;
