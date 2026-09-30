@@ -449,24 +449,7 @@
     hostId=String(hostId||'');if(!hostId)return;
 
     if(hostId===deviceId()&&hostActive){showActivity('현재 내가 방송 중인 방입니다.');return;}
-    if(viewerCtx){
-      /* 새 방송 입장은 이전 방 서버 정리를 기다리지 않는다.
-         로컬 연결만 즉시 닫고 서버 정리는 뒤에서 처리한다. */
-      var prev=viewerCtx;
-      viewerCtx=null;
-      try{clearInterval(prev.signalTimer);clearInterval(prev.heartbeat);clearInterval(prev.activityTimer);}catch(e){}
-      try{if(prev.pc)prev.pc.close();}catch(e){}
-      try{
-        req('ktalk_live_viewers?host_id=eq.'+enc(prev.hostId)+'&viewer_id=eq.'+enc(prev.viewerId),{
-          method:'PATCH',headers:{Prefer:'return=minimal'},
-          body:JSON.stringify({active:false,updated_at:nowIso()})
-        }).catch(function(){});
-        if(prev.sessionId)req('ktalk_webrtc_sessions?id=eq.'+enc(prev.sessionId),{
-          method:'PATCH',headers:{Prefer:'return=minimal'},
-          body:JSON.stringify({active:false,updated_at:nowIso()})
-        }).catch(function(){});
-      }catch(e){}
-    }
+    if(viewerCtx)await window.ktLeaveRemoteLive(true);
 
     /* UI FIRST: open the room shell immediately from cached/card data.
        Do not make the user wait for the live_rooms DB round trip before the
