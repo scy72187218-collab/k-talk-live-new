@@ -65,6 +65,16 @@
     var id=hostFrom(el);
     if(!id||typeof window.ktEnterRemoteLive!=='function')return;
     var now=Date.now();
+    try{
+      var gh=String(window.__ktLiveEnterOnceHost20260930||'');
+      var ga=Number(window.__ktLiveEnterOnceAt20260930||0);
+      if(gh===id&&now-ga<1800){
+        try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
+        return;
+      }
+      window.__ktLiveEnterOnceHost20260930=id;
+      window.__ktLiveEnterOnceAt20260930=now;
+    }catch(_e){}
     if(id===lastHost&&now-lastAt<650){
       try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
       return;
