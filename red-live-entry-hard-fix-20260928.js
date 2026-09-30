@@ -45,7 +45,7 @@
       function esc(s){return String(s||'').replace(/[&<>"]/g,'');}
       var instantPhoto='';
       try{
-        instantPhoto=String(room.host_photo||room.photo||room.profile_photo||'');
+        instantPhoto=String(room.host_frame||room.host_photo||room.photo||room.profile_photo||'');
         if(!/^data:image\/|^https?:/i.test(instantPhoto))instantPhoto='';
       }catch(_e){instantPhoto='';}
       var posterAttr=instantPhoto?' poster="'+esc(instantPhoto)+'"':'';
