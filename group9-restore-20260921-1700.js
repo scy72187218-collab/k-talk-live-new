@@ -76,6 +76,34 @@
     }catch(e){return false;}
   }
 
+  async function attachNineHostCameraNow(){
+    try{
+      var s=(window.state&&state.stream)||null;
+      var hasVideo=!!(s&&s.getVideoTracks&&s.getVideoTracks().some(function(t){return t.readyState==='live';}));
+      if(!hasVideo&&typeof window.ensureLiveCamera==='function'){
+        try{await window.ensureLiveCamera((window.state&&state.cameraFacing)||'user');}catch(e){}
+        s=(window.state&&state.stream)||s;
+      }
+      var v=document.querySelector('#screen .ktg13-room[data-kt-room="9"] .ktg13-host > video')||
+            document.querySelector('#screen .ktg13-room .ktg13-host > video')||
+            document.getElementById('ktLiveVideo');
+      if(v&&s){
+        v.autoplay=true;v.muted=true;v.defaultMuted=true;v.playsInline=true;
+        v.setAttribute('autoplay','');v.setAttribute('muted','');v.setAttribute('playsinline','');
+        if(v.srcObject!==s)v.srcObject=s;
+        try{var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
+        return true;
+      }
+    }catch(e){}
+    return false;
+  }
+
+  function queueNineHostCamera(){
+    [0,60,150,300,600,1000].forEach(function(ms){
+      setTimeout(function(){attachNineHostCameraNow();},ms);
+    });
+  }
+
   function openNineRoomNow(){
     try{
       
@@ -86,10 +114,14 @@
       if(typeof window.ktOpenApprovedGroup13Now==='function'){
         window.ktOpenApprovedGroup13Now(true);
         forceNineState();
-        return adaptNineRoomNow();
+        var opened=adaptNineRoomNow();
+        queueNineHostCamera();
+        return opened;
       }
 
-      return adaptNineRoomNow();
+      var opened=adaptNineRoomNow();
+      queueNineHostCamera();
+      return opened;
     }catch(e){return false;}
   }
 
@@ -121,6 +153,7 @@
     try{
       var result=await Promise.resolve(previousStart.apply(this,arguments));
       openNineRoomNow();
+      queueNineHostCamera();
       return result;
     }finally{
       try{if(keepObserver)keepObserver.disconnect();}catch(e){}
