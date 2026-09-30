@@ -7,7 +7,7 @@
   if(window.__ktLiveKitSfuBridge20260924)return;
   window.__ktLiveKitSfuBridge20260924=true;
 
-  var DEFAULT_URL='wss://lucia-freeware-tower-overview.trycloudflare.com';
+  var DEFAULT_URL='wss://magnetic-being-advised-gadgets.trycloudflare.com';
   var TOKEN_URL='https://zupwbfmacwzexyvznlzq.supabase.co/functions/v1/ktalk-livekit-token';
   var SDK_URL='https://cdn.jsdelivr.net/npm/livekit-client@2.22.3/dist/livekit-client.umd.min.js';
 
@@ -395,13 +395,6 @@
   }
 
   function attachGuestVideo(identity,stream){
-    if(!stream)return;
-    /* Never reuse the host stream as an approved guest picture. */
-    try{
-      var hostRef=window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream||null;
-      if(hostRef&&sameVideoSource20260926(stream,hostRef))return;
-      if(currentHostId&&String(identity||'')===String(currentHostId))return;
-    }catch(e){}
     if(isHostRole()){
       try{if(!window.__ktApprovedGuestIds20260924||!window.__ktApprovedGuestIds20260924[identity])return;}catch(e){return;}
     }
@@ -593,7 +586,7 @@
       var at=stream.getAudioTracks&&stream.getAudioTracks()[0];
       if(at&&at.readyState==='live'&&publishedAudioId!==at.id){
         var la=new LK.LocalAudioTrack(at);
-        await vp.publishTrack(la,{source:LK.Track.Source.Microphone,audioPreset:(LK.AudioPresets&&LK.AudioPresets.musicHighQualityStereo)?LK.AudioPresets.musicHighQualityStereo:undefined});
+        await vp.publishTrack(la,{source:LK.Track.Source.Microphone});
         publishedAudioId=at.id;
       }
     }catch(e){}
@@ -763,11 +756,11 @@
      download/parse delay from the approval path. */
   setTimeout(function(){try{var q=ensureSdk();if(q&&q.catch)q.catch(function(){});}catch(e){}},0);
 
-  setInterval(hostTick,180);
+  setInterval(hostTick,350);
   setInterval(function(){
     ensureApprovedRosterSlots20260924();
     reattachRemoteTracks();
-  },150);
+  },300);
   setTimeout(hostTick,30);
   setTimeout(hostTick,180);
   setTimeout(hostTick,700);
