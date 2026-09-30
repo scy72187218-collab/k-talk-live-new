@@ -34,7 +34,15 @@
       if(!host)return;
 
       var ids=approvedIds();
-      if(!ids.length)return;
+      if(!ids.length){
+        lastSig=host+'|';
+        try{
+          if(typeof window.ktClearApprovedGuestViewIfNotApproved20260930==='function'){
+            window.ktClearApprovedGuestViewIfNotApproved20260930();
+          }
+        }catch(e){}
+        return;
+      }
 
       var sig=host+'|'+ids.join(',');
       var now=Date.now();
