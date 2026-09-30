@@ -50,6 +50,46 @@
     }catch(e){return false;}
   }
 
+  function currentLevel(){
+    var best=0;
+    function num(v){
+      var n=parseInt(String(v==null?'':v).replace(/[^0-9]/g,''),10);
+      return isFinite(n)?n:0;
+    }
+    try{
+      if(typeof window.ktLevelGetLevel==='function')best=Math.max(best,num(window.ktLevelGetLevel()));
+    }catch(e){}
+    try{
+      if(typeof window.ktLevelInfo==='function')best=Math.max(best,num((window.ktLevelInfo()||{}).level));
+    }catch(e){}
+    try{
+      var s=window.state||{};
+      [s.level,s.userLevel,s.memberLevel,s.hostLevel].forEach(function(v){best=Math.max(best,num(v));});
+    }catch(e){}
+    try{
+      ['ktalk_level','ktalk_user_level','ktalk_member_level','ktalk_host_level','level','userLevel','memberLevel','hostLevel']
+        .forEach(function(k){best=Math.max(best,num(localStorage.getItem(k)));});
+    }catch(e){}
+    return best;
+  }
+
+  function isSubscriberMember(){
+    try{
+      var s=window.state||{};
+      if(s.isSubscriber===true||s.subscriber===true||s.paidSubscriber===true||s.subscriptionActive===true)return true;
+      var vals=[s.membershipName,s.memberType,s.membership,s.subscriptionType,s.planName,s.gradeName,s.rankName,s.role,s.userRole];
+      if(vals.some(function(v){return /구독자|subscriber/i.test(String(v||''));}))return true;
+    }catch(e){}
+    try{
+      var keys=['ktalk_member_type','ktalk_membership','ktalk_subscription','ktalk_subscription_type','ktalk_plan','memberType','membership','subscriptionType'];
+      for(var i=0;i<keys.length;i++){
+        var v=localStorage.getItem(keys[i]);
+        if(/구독자|subscriber/i.test(String(v||'')))return true;
+      }
+    }catch(e){}
+    return false;
+  }
+
   function allowed(){
     try{
       var s=window.state||{};
@@ -57,7 +97,9 @@
     }catch(e){}
     if(isOwnerAccount())return true;
     if(/최고\s*운영자|운영진|운영자|관리자|admin|operator|staff/i.test(roleText()))return true;
-    return isHostNow();
+    if(isHostNow())return true;
+    if(isSubscriberMember())return true;
+    return currentLevel()>=21;
   }
 
   function candidateText(el){
