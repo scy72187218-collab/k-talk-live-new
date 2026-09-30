@@ -211,9 +211,10 @@
   }
 
   function useLegacyApprovedGuestUplink(){
-    try{
-      return window.__ktGuestRequestFlow20260914===true && typeof window.ktRequestGuestJoin==='function';
-    }catch(e){return false;}
+    /* 2026-09-28: 승인 직후 게스트는 direct realtime 경로를 우선 사용한다.
+       legacy polling uplink가 함께 잡히면 승인/카메라 연결이 수초씩 늦어질 수 있으므로
+       승인된 게스트 영상 전송에는 사용하지 않는다. */
+    return false;
   }
 
   function remoteHostId(){
@@ -735,11 +736,84 @@
     }catch(e){scheduleReconnect();}
   }
 
+  function broadcastApprovedRoster20260928(){
+    if(!isHostRole())return;
+    try{
+      var items=[];
+      Object.keys(approvedGuests||{}).forEach(function(id){
+        var x=approvedGuests[id]||{};
+        items.push({viewer_id:String(id),name:String(x.name||'게스트')});
+      });
+      var payload={
+        host_id:DEVICE,
+        items:items,
+        at:Date.now()
+      };
+      send('guest_roster',payload);
+      try{restBroadcastToHost20260926(DEVICE,'guest_roster',payload);}catch(e){}
+    }catch(e){}
+  }
+
+  function applyApprovedRoster20260928(p){
+    if(isHostRole())return;
+    try{
+      var hid=String(p&&p.host_id||'').trim();
+      var current=String(remoteHostId()||lastRemoteHost||activeHostId||'').trim();
+      if(!hid||!current||hid!==current)return;
+
+      var list=Array.isArray(p&&p.items)?p.items:[];
+      var next={},names={};
+      list.forEach(function(x){
+        var id=String(x&&x.viewer_id||'').trim();
+        if(!id)return;
+        next[id]=true;
+        names[id]=String(x&&x.name||'게스트');
+      });
+
+      var old=window.__ktApprovedGuestIds20260924||{};
+      var oldNames=window.__ktApprovedGuestNames20260924||{};
+
+      Object.keys(next).forEach(function(id){
+        var was=old[id]===true;
+        old[id]=true;
+        oldNames[id]=names[id]||oldNames[id]||'게스트';
+        if(!was){
+          try{window.dispatchEvent(new CustomEvent('kt-any-guest-approved',{detail:{
+            host_id:hid,viewer_id:id,name:oldNames[id],at:Date.now(),roster:true
+          }}));}catch(e){}
+        }
+      });
+
+      Object.keys(old).forEach(function(id){
+        if(old[id]===true&&!next[id]){
+          delete old[id];
+          delete oldNames[id];
+          try{window.dispatchEvent(new CustomEvent('kt-any-guest-left',{detail:{
+            host_id:hid,viewer_id:id,at:Date.now(),roster:true
+          }}));}catch(e){}
+        }
+      });
+
+      window.__ktApprovedGuestIds20260924=old;
+      window.__ktApprovedGuestNames20260924=oldNames;
+
+      try{window.dispatchEvent(new CustomEvent('kt-three-person-sync-now',{detail:{host_id:hid,at:Date.now()}}));}catch(e){}
+      try{
+        if(typeof window.ktForceApprovedGuestGridNow20260924==='function'){
+          window.ktForceApprovedGuestGridNow20260924();
+        }
+      }catch(e){}
+    }catch(e){}
+  }
+
   function afterJoin(){
     if(isHostRole()){
       if(!hostRunId){hostRunId=sid('run');hostRunStartedAt=Date.now();}
       send('host_ready',{host_id:DEVICE,run_id:hostRunId,run_started_at:hostRunStartedAt,at:Date.now()});
       renderDirectRequests();
+      broadcastApprovedRoster20260928();
+      setTimeout(broadcastApprovedRoster20260928,120);
+      setTimeout(broadcastApprovedRoster20260928,450);
     }else{
       var hid=remoteHostId();
       if(hid===activeHostId){
@@ -1184,7 +1258,14 @@
     try{return guestSlot(String(vid||'').trim(),String(name||'게스트'));}catch(e){return null;}
   };
   function attachGuestToHost(vid,name,stream){
-    var slot=guestSlot(vid,name);if(!slot||!stream)return;
+    if(!stream)return;
+    /* Host video must never be painted into a guest slot. */
+    try{
+      var hs=hostStream();
+      if(hs&&sameVideoSource20260926(stream,hs))return;
+      if(isRemoteHostMedia20260926(stream))return;
+    }catch(e){}
+    var slot=guestSlot(vid,name);if(!slot)return;
     var v=slot.querySelector('video');
     if(v){
       var currentLive=false,liveKitOn=false;
@@ -1273,8 +1354,9 @@
 
     /* REALTIME FIRST: the guest receives approval before host-side DOM work,
        legacy persistence, or any extra rendering can delay the signal. */
-    send('guest_approved',data);
-    try{restBroadcast('guest_approved',data);}catch(e){}
+    /* 승인 버튼을 누르는 순간 WebSocket + REST 두 경로로 동시에 보낸다.
+       어느 한 경로가 늦어도 게스트 화면은 바로 승인 상태로 전환된다. */
+    try{sendCriticalMedia20260926('guest_approved',data,DEVICE);}catch(e){}
 
     delete pendingRequests[vid];
     guestSlot(vid,name);
@@ -1293,6 +1375,9 @@
     setTimeout(function(){send('guest_approved',data);},150);
     setTimeout(function(){send('guest_approved',data);},700);
     setTimeout(function(){send('guest_approved',data);},1200);
+    setTimeout(broadcastApprovedRoster20260928,20);
+    setTimeout(broadcastApprovedRoster20260928,180);
+    setTimeout(broadcastApprovedRoster20260928,600);
     try{
       window.dispatchEvent(new CustomEvent('kt-host-guest-approved',{
         detail:{host_id:DEVICE,viewer_id:vid,at:Date.now()}
@@ -2247,6 +2332,7 @@
 
   function handleSignal(ev,p){
     if(duplicateSignal(ev,p))return;
+    if(ev==='guest_roster'){applyApprovedRoster20260928(p);return;}
     if(ev==='broadcast_ended'&&!isHostRole()){
       var ended=String(p&&p.host_id||'').trim();
       var current=String(remoteHostId()||lastRemoteHost||activeHostId||'').trim();
@@ -2406,6 +2492,11 @@
         }catch(_e){}
       }catch(e){}
       onGuestApproved(p);
+      if(isHostRole()){
+        setTimeout(broadcastApprovedRoster20260928,0);
+        setTimeout(broadcastApprovedRoster20260928,120);
+        setTimeout(broadcastApprovedRoster20260928,400);
+      }
       return;
     }
     if(ev==='guest_request_photo'&&isHostRole()&&String(p.host_id||'')===DEVICE){
@@ -2613,6 +2704,10 @@
         lastHostReadyAt=tickNow;
         send('host_ready',{host_id:DEVICE,run_id:hostRunId,run_started_at:hostRunStartedAt,at:tickNow});
       }
+      if(!window.__ktLastRosterBroadcast20260928||tickNow-window.__ktLastRosterBroadcast20260928>500){
+        window.__ktLastRosterBroadcast20260928=tickNow;
+        broadcastApprovedRoster20260928();
+      }
     }else{
       if(lastRemoteHost!==hid){lastRemoteHost=hid;viewerWatchToken=sid('watch');viewerConnected=false;}
       ensureViewerWatch(false);
@@ -2630,9 +2725,9 @@
       }
     }
   }
-  setInterval(roleTick,120);
+  setInterval(roleTick,80);
   setTimeout(roleTick,20);
-  setInterval(syncSharedApprovalSignals,150);
+  setInterval(syncSharedApprovalSignals,100);
   setTimeout(syncSharedApprovalSignals,50);
 
   window.addEventListener('kt-remote-host-selected',function(e){
@@ -2700,6 +2795,10 @@
     guestAliveLastSent=0;
     roleTick();setTimeout(function(){attachRemoteStreamNow();},0);
   });
+  setInterval(function(){
+    if(isHostRole()&&joined)broadcastApprovedRoster20260928();
+  },250);
+
   window.addEventListener('pagehide',function(){
     if(guestApprovedHost||lastRemoteHost)announceGuestLeave(guestApprovedHost||lastRemoteHost);
     clearViewerConnectTimer();
