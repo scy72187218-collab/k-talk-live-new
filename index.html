@@ -749,7 +749,7 @@
           +'<span style="color:#ff6788;font-weight:900;white-space:nowrap">K-Talk LIVE</span>'
         +'</div>'
         +guestStrip
-        +'<button id="myEarnHud" onclick="toggleMyEarnings()" style="position:fixed;left:50%;bottom:68px;transform:translateX(-50%);z-index:9;width:116px;padding:5px 8px;border:1px solid #ffe07155;border-radius:999px;background:linear-gradient(135deg,#241b08e8,#16131ee8);color:#fff;text-align:center">'
+        +'<button id="myEarnHud" onclick="toggleMyEarnings()" style="position:fixed;left:50%;bottom:68px;transform:translateX(-50%);z-index:9;width:'+(String(session.title||'').indexOf('구독자')>-1?'96px':'116px')+';padding:5px 8px;border:1px solid #ffe07155;border-radius:999px;background:linear-gradient(135deg,#241b08e8,#16131ee8);color:#fff;text-align:center">'
           +'<div style="display:flex;align-items:center;justify-content:center;gap:5px">'
             +'<span style="font-size:7px;color:#8fe8ff;font-weight:950;white-space:nowrap">🔒 내 수익</span>'
             +'<b id="hudEarnNet" style="font-size:10px;color:#ffe071;white-space:nowrap">0원</b>'
