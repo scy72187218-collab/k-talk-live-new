@@ -124,7 +124,7 @@
   async function activeRooms(){
     var now=Date.now();
     if(activeRoomsBusy)return activeRoomsBusy;
-    if(now-activeRoomsCheckedAt<500)return stableActiveRooms.slice();
+    if(now-activeRoomsCheckedAt<150)return stableActiveRooms.slice();
     activeRoomsCheckedAt=now;
     activeRoomsBusy=activeRoomsCore();
     try{return await activeRoomsBusy;}
@@ -495,6 +495,6 @@
   if(screen)screen.addEventListener('scroll',function(){scheduleRender(350);},true);
   document.addEventListener('touchend',function(){scheduleRender(250);},true);
   document.addEventListener('pointerup',function(){scheduleRender(250);},true);
-  setInterval(function(){scheduleRender(0);},700);
+  setInterval(function(){scheduleRender(0);},200);
   scheduleRender(600);
 })();
