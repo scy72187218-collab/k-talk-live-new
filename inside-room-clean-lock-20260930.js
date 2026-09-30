@@ -14,9 +14,14 @@
       +'#screen .kt-secret-wave,#screen .secret-wave,#screen .kt-room-live-wave,'
       +'#screen .kt-active-sound-wave-20260928{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;animation:none!important}'
       +'#screen .ktg13-main::after{content:none!important;display:none!important;visibility:hidden!important;opacity:0!important}'
-      +'html.kt-inside-broadcast-room .kt-video-live-peek .ktvl-live,'+
+      +'html.kt-inside-broadcast-room .kt-video-live-peek,'+
+      +'html.kt-inside-broadcast-room .kt-follow-live-strip,'+
       +'html.kt-inside-broadcast-room .kt-friend-bubble.live .livebtn,'+
-      +'html.kt-inside-broadcast-room .kt-friend-contact-actions .livebtn{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}';
+      +'html.kt-inside-broadcast-room .kt-friend-contact-actions .livebtn,'+
+      +'html.kt-remote-viewing .kt-video-live-peek,'+
+      +'html.kt-remote-viewing .kt-follow-live-strip,'+
+      +'html.kt-remote-viewing .kt-friend-bubble.live .livebtn,'+
+      +'html.kt-remote-viewing .kt-friend-contact-actions .livebtn{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}';
     document.head.appendChild(s);
   }
 
