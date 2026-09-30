@@ -51,6 +51,7 @@
   }
 
   function currentLevel(){
+    if(isOwnerAccount())return 1000;
     var best=0;
     function num(v){
       var n=parseInt(String(v==null?'':v).replace(/[^0-9]/g,''),10);
