@@ -9,6 +9,10 @@
   function deviceId(){
     var id='';
     try{id=localStorage.getItem('kt_live_device_id')||'';}catch(e){}
+    if(!id){
+      id='kt_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,10);
+      try{localStorage.setItem('kt_live_device_id',id);}catch(e){}
+    }
     return id;
   }
   function profileName(){
