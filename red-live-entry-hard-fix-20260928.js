@@ -74,7 +74,7 @@
     try{
       if(!e||!e.target||!e.target.closest)return null;
       return e.target.closest(
-        '.ktvl-live,.kt-rx-live,.kt-follow-person.live,.kt-friend-bubble.live,'+
+        '.ktvl-live,.kt-follow-person.live,.kt-friend-bubble.live,'+
         '.kt-friend-contact-actions .livebtn,.kt-live-card,.kt-live-list-enter,'+
         '[onclick*="ktFriendEnterLive"],[onclick*="ktEnterRemoteLive"]'
       );
@@ -100,7 +100,7 @@
 
   function repair(){
     try{
-      document.querySelectorAll('.ktvl-live,.kt-rx-live,.kt-follow-person.live,.kt-friend-bubble.live,.kt-friend-contact-actions .livebtn,.kt-live-card,.kt-live-list-enter,[onclick*="ktFriendEnterLive"],[onclick*="ktEnterRemoteLive"]').forEach(function(b){
+      document.querySelectorAll('.ktvl-live,.kt-follow-person.live,.kt-friend-bubble.live,.kt-friend-contact-actions .livebtn,.kt-live-card,.kt-live-list-enter,[onclick*="ktFriendEnterLive"],[onclick*="ktEnterRemoteLive"]').forEach(function(b){
         b.style.setProperty('pointer-events','auto','important');
         b.style.setProperty('touch-action','manipulation','important');
         b.style.setProperty('position','relative','important');
