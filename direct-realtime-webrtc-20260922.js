@@ -638,14 +638,17 @@
           var t=String(m.message_type||''),ts=sharedMsgTime(m),id='',kind='';
           if(t.indexOf('guest_request:')===0){id=t.slice(14);kind='request';}
           else if(t.indexOf('guest_approved:')===0){id=t.slice(15);kind='approved';}
+          else if(t.indexOf('guest_alive:')===0){id=t.slice(12);kind='alive';}
           else if(t.indexOf('guest_cancelled:')===0){id=t.slice(16);kind='end';}
           else if(t.indexOf('guest_left:')===0){id=t.slice(11);kind='end';}
           if(!id)return;
-          var x=states[id]||(states[id]={request:0,approved:0,end:0,name:'게스트'});
+          var x=states[id]||(states[id]={request:0,approved:0,alive:0,end:0,name:'게스트'});
           if(kind==='request'){
             if(ts>=x.request){x.request=ts;x.name=String(m.sender_name||x.name||'게스트');}
           }else if(kind==='approved'){
             if(ts>=x.approved)x.approved=ts;
+          }else if(kind==='alive'){
+            if(ts>=x.alive)x.alive=ts;
           }else if(kind==='end'){
             if(ts>=x.end)x.end=ts;
           }
@@ -655,7 +658,10 @@
         var names=window.__ktApprovedGuestNames20260924||{};
         Object.keys(states).forEach(function(id){
           var x=states[id];
-          var active=!!(x.request&&x.approved>=x.request&&x.approved>x.end);
+          var nowState=Date.now();
+          var recentApproval=!!(x.approved&&nowState-x.approved<8000);
+          var recentAlive=!!(x.alive&&x.alive>=x.approved&&nowState-x.alive<12000);
+          var active=!!(x.request&&x.approved>=x.request&&x.approved>x.end&&(recentApproval||recentAlive));
           if(active){
             var was=roster[id]===true;
             roster[id]=true;
@@ -743,9 +749,21 @@
     if(!isHostRole())return;
     try{
       var items=[];
+      var rosterNow=Date.now();
       Object.keys(approvedGuests||{}).forEach(function(id){
         var x=approvedGuests[id]||{};
-        items.push({viewer_id:String(id),name:String(x.name||'게스트')});
+        var seen=Number(hostGuestAliveAt[id]||0);
+        var freshApproval=!!(x.at&&rosterNow-Number(x.at)<8000);
+        var peerLive=false;
+        try{
+          var hp=hostGuestPeers[id]&&hostGuestPeers[id].pc||null;
+          var cs=String(hp&&hp.connectionState||'');
+          var is=String(hp&&hp.iceConnectionState||'');
+          peerLive=(cs==='connected'||cs==='connecting'||is==='connected'||is==='completed'||is==='checking');
+        }catch(e){}
+        if(freshApproval||peerLive||(seen&&rosterNow-seen<12000)){
+          items.push({viewer_id:String(id),name:String(x.name||'게스트')});
+        }
       });
       var payload={
         host_id:DEVICE,
@@ -1344,6 +1362,7 @@
     var data={host_id:DEVICE,viewer_id:vid,name:name,at:Date.now()};
 
     approvedGuests[vid]={name:name,at:data.at};
+    hostGuestAliveAt[vid]=data.at;
     try{
       var pre= pendingGuestPhotos20260926[vid]||null;
       if(pre&&Date.now()-Number(pre.at||0)<30000){
