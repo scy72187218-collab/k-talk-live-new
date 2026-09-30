@@ -24,7 +24,16 @@
   function enter(btn,e){
     if(!btn)return false;
     var now=Date.now();
-    if(now-lastTap<180)return true;
+    if(now-lastTap<1500){
+      try{
+        if(e){
+          e.preventDefault();
+          e.stopPropagation();
+          if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+        }
+      }catch(_e){}
+      return true;
+    }
     var id=hostIdFrom(btn);
     if(!id)return false;
 
