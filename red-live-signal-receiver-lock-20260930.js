@@ -111,6 +111,9 @@
     };
   }
 
+  var lastLiveRoom20261001=null;
+  var lastLiveSeenAt20261001=0;
+
   async function poll(){
     if(!inVideoView()){removeFallback();return;}
     try{
@@ -118,9 +121,36 @@
       if(!r.ok)return;
       var j=await r.json();
       var rooms=Array.isArray(j&&j.rooms)?j.rooms:[];
-      if(rooms.length)showRoom(rooms[0]);
-      else removeFallback();
-    }catch(e){}
+      if(rooms.length){
+        lastLiveRoom20261001=rooms[0];
+        lastLiveSeenAt20261001=Date.now();
+        showRoom(rooms[0]);
+        return;
+      }
+
+      /* 서버의 짧은 빈 응답 한 번 때문에 LIVE를 꺼버리지 않는다.
+         방송 중에는 최근 신호를 8초간 유지하고, 명확한 종료 신호가 있을 때만 즉시 끈다. */
+      var ended=Array.isArray(j&&j.ended)?j.ended:[];
+      var lastId=String(lastLiveRoom20261001&&lastLiveRoom20261001.host_id||'');
+      var endedNow=ended.some(function(x){return String(x&&x.host_id||'')===lastId;});
+      if(lastId&&endedNow){
+        lastLiveRoom20261001=null;
+        lastLiveSeenAt20261001=0;
+        removeFallback();
+        return;
+      }
+
+      if(lastLiveRoom20261001&&Date.now()-lastLiveSeenAt20261001<8000){
+        showRoom(lastLiveRoom20261001);
+        return;
+      }
+      removeFallback();
+    }catch(e){
+      /* 네트워크 순간 오류도 바로 LIVE 제거 사유가 아니다. */
+      if(lastLiveRoom20261001&&Date.now()-lastLiveSeenAt20261001<8000){
+        showRoom(lastLiveRoom20261001);
+      }
+    }
   }
 
   setInterval(poll,450);
