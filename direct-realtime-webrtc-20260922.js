@@ -749,22 +749,24 @@
     if(!isHostRole())return;
     try{
       var items=[];
-      var rosterNow=Date.now();
+
+      /* 승인된 사람은 직접 나가거나 방송 종료 전까지 전체 명단에서 빼지 않는다.
+         일시적인 WebRTC/heartbeat 흔들림 때문에 4명이 1~2명으로 줄어드는 현상을 막는다. */
       Object.keys(approvedGuests||{}).forEach(function(id){
         var x=approvedGuests[id]||{};
-        var seen=Number(hostGuestAliveAt[id]||0);
-        var freshApproval=!!(x.at&&rosterNow-Number(x.at)<8000);
-        var peerLive=false;
+        var frame='';
         try{
-          var hp=hostGuestPeers[id]&&hostGuestPeers[id].pc||null;
-          var cs=String(hp&&hp.connectionState||'');
-          var is=String(hp&&hp.iceConnectionState||'');
-          peerLive=(cs==='connected'||cs==='connecting'||is==='connected'||is==='completed'||is==='checking');
+          var ph=pendingGuestPhotos20260926[id]||null;
+          var pf=String(ph&&ph.frame||'');
+          if(/^data:image\/jpeg;base64,/.test(pf)&&pf.length<32000)frame=pf;
         }catch(e){}
-        if(freshApproval||peerLive||(seen&&rosterNow-seen<12000)){
-          items.push({viewer_id:String(id),name:String(x.name||'게스트')});
-        }
+        items.push({
+          viewer_id:String(id),
+          name:String(x.name||'게스트'),
+          frame:frame
+        });
       });
+
       var payload={
         host_id:DEVICE,
         items:items,
@@ -784,11 +786,14 @@
 
       var list=Array.isArray(p&&p.items)?p.items:[];
       var next={},names={};
+      var frames={};
       list.forEach(function(x){
         var id=String(x&&x.viewer_id||'').trim();
         if(!id)return;
         next[id]=true;
         names[id]=String(x&&x.name||'게스트');
+        var fr=String(x&&x.frame||'');
+        if(/^data:image\/jpeg;base64,/.test(fr)&&fr.length<32000)frames[id]=fr;
       });
 
       var old=window.__ktApprovedGuestIds20260924||{};
@@ -818,7 +823,16 @@
       window.__ktApprovedGuestIds20260924=old;
       window.__ktApprovedGuestNames20260924=oldNames;
 
-      try{window.dispatchEvent(new CustomEvent('kt-three-person-sync-now',{detail:{host_id:hid,at:Date.now()}}));}catch(e){}
+      /* 전체 승인 명단에 포함된 얼굴 사진도 같은 순간 모든 기기에 그린다. */
+      try{
+        Object.keys(frames).forEach(function(id){
+          if(typeof paintApprovedGuestPhotoAllDevices20261001==='function'){
+            paintApprovedGuestPhotoAllDevices20261001(id,oldNames[id]||'게스트',frames[id]);
+          }
+        });
+      }catch(e){}
+
+      try{window.dispatchEvent(new CustomEvent('kt-three-person-sync-now',{detail:{host_id:hid,viewer_ids:Object.keys(next),sync_all_devices:true,at:Date.now()}}));}catch(e){}
       try{
         if(typeof window.ktForceApprovedGuestGridNow20260924==='function'){
           window.ktForceApprovedGuestGridNow20260924();
