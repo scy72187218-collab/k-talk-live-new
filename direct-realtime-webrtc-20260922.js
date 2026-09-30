@@ -2769,8 +2769,9 @@
       var hid=String(e&&e.detail&&e.detail.host_id||'').trim();
       if(!hid)return;
 
-      /* Fresh room entry: before this phone has requested/been approved,
-         never reuse an old approved roster from a previous guest session. */
+      /* Fresh room entry cleanup must never slow the LIVE tap.
+         Clear stale approval state immediately, but defer any old guest-view cleanup
+         until after the room shell has already opened. */
       if(!requestOn&&!guestApproved){
         try{
           var oldMap=window.__ktApprovedGuestIds20260924||{};
@@ -2778,9 +2779,13 @@
           window.__ktApprovedGuestIds20260924={};
           window.__ktApprovedGuestNames20260924={};
           if(hadOld){
-            window.dispatchEvent(new CustomEvent('kt-host-session-reset',{
-              detail:{host_id:hid,run_id:'',started_at:Date.now(),fresh_entry:true}
-            }));
+            setTimeout(function(){
+              try{
+                if(typeof window.ktClearApprovedGuestViewIfNotApproved20260930==='function'){
+                  window.ktClearApprovedGuestViewIfNotApproved20260930();
+                }
+              }catch(_e){}
+            },0);
           }
         }catch(_e){}
       }
