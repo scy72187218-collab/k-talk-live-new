@@ -76,7 +76,7 @@
     var rows=[];
     try{
       var ctrl=typeof AbortController!=='undefined'?new AbortController():null;
-      var timer=ctrl?setTimeout(function(){ctrl.abort();},2500):null;
+      var timer=ctrl?setTimeout(function(){ctrl.abort();},450):null;
       var opt={headers:{apikey:KEY,Authorization:'Bearer '+KEY}};
       if(ctrl)opt.signal=ctrl.signal;
       var r=await fetch(BASE+'ktalk_live_rooms?select=host_id,host_name,title,room_name,host_photo,updated_at&active=eq.true&updated_at=gte.'+enc(cut)+'&order=started_at.desc&limit=50',opt);
@@ -115,7 +115,11 @@
       return rows;
     }
 
-    /* DB와 보조 신호가 모두 비었을 때만 LIVE 표시를 내린다. */
+    /* 느린 기기에서 한 번의 조회 지연으로 빨간 LIVE가 빠지지 않도록
+       직전에 확인된 방송은 5초 동안 유지한다. 실제 종료 신호는 hostEndLock에서 즉시 제외된다. */
+    if(stableActiveRooms.length && Date.now()-stableActiveAt<5000){
+      return stableActiveRooms.slice();
+    }
     stableActiveRooms=[];stableActiveAt=0;
     return [];
   }
@@ -124,7 +128,7 @@
   async function activeRooms(){
     var now=Date.now();
     if(activeRoomsBusy)return activeRoomsBusy;
-    if(now-activeRoomsCheckedAt<150)return stableActiveRooms.slice();
+    if(now-activeRoomsCheckedAt<500)return stableActiveRooms.slice();
     activeRoomsCheckedAt=now;
     activeRoomsBusy=activeRoomsCore();
     try{return await activeRoomsBusy;}
@@ -194,7 +198,7 @@
     s.textContent=''
       +'@keyframes ktVideoLivePulse{0%,45%{opacity:1}55%,100%{opacity:.45}}'
       +'@keyframes ktFollowLiveGlow{0%,100%{box-shadow:0 0 5px #ff244f,0 0 11px rgba(255,36,79,.5)}50%{box-shadow:0 0 9px #ff244f,0 0 18px rgba(255,36,79,.8)}}'
-      +'.kt-video-live-peek{position:fixed!important;left:10px!important;top:56px!important;z-index:18!important;max-width:min(94vw,330px)!important;height:38px!important;padding:4px!important;border:0!important;outline:0!important;border-radius:999px!important;background:rgba(8,8,12,.78)!important;color:#fff!important;display:flex!important;align-items:center!important;gap:5px!important;box-shadow:none!important;backdrop-filter:blur(5px)!important;touch-action:manipulation!important}'
+      +'.kt-video-live-peek{position:absolute!important;left:10px!important;top:56px!important;z-index:18!important;max-width:min(94vw,330px)!important;height:38px!important;padding:4px!important;border:0!important;outline:0!important;border-radius:999px!important;background:rgba(8,8,12,.78)!important;color:#fff!important;display:flex!important;align-items:center!important;gap:5px!important;box-shadow:none!important;backdrop-filter:blur(5px)!important;touch-action:manipulation!important}'
       +'body.kt-follow-status-open .kt-video-live-peek{top:126px!important}'
       +'.kt-video-live-peek button{border:0!important;color:#fff!important;touch-action:manipulation!important}'
       +'.kt-video-live-peek .ktvl-person{min-width:0!important;flex:1 1 auto!important;height:30px!important;padding:0!important;background:transparent!important;display:flex!important;align-items:center!important;gap:7px!important;text-align:left!important}'
@@ -418,7 +422,8 @@
 
     await renderFollowStatus(rooms);
 
-    var host=currentFeedHost()||document.body;
+    var host=currentFeedHost();
+    if(!host){if(old)old.remove();return;}
 
     var r=rooms[0];
     var hostId=String(r.host_id||''),hostName=String(r.host_name||'K-Talk 방송자'),hostPhoto=String(r.host_photo||'');
@@ -495,6 +500,8 @@
   if(screen)screen.addEventListener('scroll',function(){scheduleRender(350);},true);
   document.addEventListener('touchend',function(){scheduleRender(250);},true);
   document.addEventListener('pointerup',function(){scheduleRender(250);},true);
-  setInterval(function(){scheduleRender(0);},200);
+  setInterval(function(){scheduleRender(0);},700);
+  window.addEventListener('pageshow',function(){scheduleRender(40);});
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)scheduleRender(40);});
   scheduleRender(600);
 })();
