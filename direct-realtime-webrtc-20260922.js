@@ -547,7 +547,7 @@
          이 브라우저가 열린 시점 이후 신호만 인정해서 오래된 승인을 자동 복구하지 않는다. */
       var roomCut=await sharedCurrentRoomCutoff(hid);
       var runCut=host?Number(hostRunStartedAt||0):Number(remoteRunStartedAt||0);
-      var effectiveCut=Math.max(Number(roomCut||0),Number(runCut||0));
+      var effectiveCut=host?Math.max(Number(roomCut||0),Number(runCut||0)):Number(roomCut||0);
       rows=rows.filter(function(m){return sharedMsgTime(m)>=effectiveCut;});
       if(host){
         var latest={};
@@ -679,11 +679,14 @@
         if(requestOn&&self&&self.request&&self.approved>=self.request&&self.approved>self.end&&!guestApproved){
           onGuestApproved({host_id:hid,viewer_id:vid,name:String(self.name||'게스트'),at:self.approved});
         }
-        if(roster[vid]===true){
+        if(Object.keys(roster).some(function(id){return roster[id]===true;})){
           try{
             if(typeof window.ktForceApprovedGuestGridNow20260924==='function'){
               window.ktForceApprovedGuestGridNow20260924();
             }
+            window.dispatchEvent(new CustomEvent('kt-three-person-sync-now',{
+              detail:{host_id:hid,viewer_ids:Object.keys(roster).filter(function(id){return roster[id]===true;}),sync_all_devices:true,at:Date.now()}
+            }));
           }catch(e){}
         }
       }
