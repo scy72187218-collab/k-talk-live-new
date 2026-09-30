@@ -5,6 +5,20 @@
   if(window.__ktRedLiveSignalReceiverLock20260930)return;
   window.__ktRedLiveSignalReceiverLock20260930=true;
 
+  /* OWNER LOCK 2026-10-01 / 5555
+     빨간 LIVE 신호 수신 기능은 사용자 명시 허락 전까지 잠금 유지.
+     다른 패치가 이 잠금값을 덮어쓰지 못하게 고정한다. */
+  try{
+    Object.defineProperty(window,'__ktRedLiveSignalOwnerLocked20261001',{
+      value:true,
+      writable:false,
+      configurable:false,
+      enumerable:true
+    });
+  }catch(e){
+    window.__ktRedLiveSignalOwnerLocked20261001=true;
+  }
+
   function inVideoView(){
     try{
       if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
