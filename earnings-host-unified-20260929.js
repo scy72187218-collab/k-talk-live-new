@@ -6,7 +6,7 @@
   s.id='ktHostEarningsStableCSS20260929';
   s.textContent=
     '.ktsolo-earn,.ktg13-earn,.ktsubscriber-earn,.ktsecret-earn-row{'+
-    'position:fixed!important;left:50%!important;right:auto!important;top:auto!important;bottom:58px!important;'+
+    'position:fixed!important;left:calc(50% - 10px)!important;right:auto!important;top:auto!important;bottom:58px!important;'+
     'transform:translateX(-50%)!important;width:180px!important;min-width:180px!important;max-width:180px!important;'+
     'height:40px!important;min-height:40px!important;max-height:40px!important;margin:0!important;padding:0!important;'+
     'display:block!important;overflow:visible!important;z-index:2147483000!important;animation:none!important;transition:none!important}'+
