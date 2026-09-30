@@ -1355,6 +1355,95 @@
     }catch(e){return false;}
   }
 
+  /* 2026-10-01: approved guest face photo must be visible on every device,
+     not only on the host phone. Keep a tiny frame cache and paint the
+     corresponding approved guest cell on remote guest/viewer layouts. */
+  window.__ktApprovedGuestPhotoFrames20261001=window.__ktApprovedGuestPhotoFrames20261001||{};
+  function paintApprovedGuestPhotoAllDevices20261001(vid,name,frame){
+    try{
+      vid=String(vid||'').trim();name=String(name||'게스트');frame=String(frame||'');
+      if(!vid||!/^data:image\/jpeg;base64,/.test(frame)||frame.length>=32000)return false;
+      window.__ktApprovedGuestPhotoFrames20261001[vid]={frame:frame,name:name,at:Date.now()};
+
+      /* Host keeps using the existing exact guest slot mapping. */
+      if(isHostRole()){
+        return paintHostGuestPhoto20260926(vid,name,frame);
+      }
+
+      var map=window.__ktApprovedGuestIds20260924||{};
+      if(map[vid]!==true)return false;
+      var selfId=viewerId();
+      if(vid===selfId)return true; /* local self cell already has live camera */
+
+      try{
+        if(typeof window.ktForceApprovedGuestGridNow20260924==='function'){
+          window.ktForceApprovedGuestGridNow20260924();
+        }
+      }catch(e){}
+
+      var room=document.querySelector('#screen .kt-guest-hostlike-room');
+      if(!room)return false;
+      var cells=[].slice.call(room.querySelectorAll('.kgh-main .kgh-cell')).filter(function(x){
+        return !x.classList.contains('host')&&!x.classList.contains('self');
+      });
+      if(!cells.length)return false;
+
+      var others=Object.keys(map).filter(function(id){
+        return map[id]===true&&String(id)!==String(selfId);
+      }).map(String).sort();
+      var idx=others.indexOf(vid);
+      if(idx<0||!cells[idx])return false;
+
+      var slot=cells[idx];
+      slot.dataset.ktGuestViewerId=vid;
+      slot.dataset.ktDirectGuest=vid;
+      slot.classList.add('kt-guest-approved');
+
+      var vv=slot.querySelector('video');
+      if(!vv){
+        slot.innerHTML='';
+        vv=document.createElement('video');
+        vv.autoplay=true;vv.playsInline=true;vv.muted=true;vv.defaultMuted=true;
+        vv.setAttribute('autoplay','');vv.setAttribute('playsinline','');vv.setAttribute('muted','');
+        vv.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#111';
+        slot.appendChild(vv);
+        var lab=document.createElement('span');
+        lab.className='kgh-label';
+        lab.textContent=name;
+        slot.appendChild(lab);
+      }else{
+        var lab2=slot.querySelector('.kgh-label');
+        if(lab2)lab2.textContent=name;
+      }
+      vv.setAttribute('poster',frame);
+      vv.style.backgroundImage='url("'+frame+'")';
+      vv.style.backgroundSize='cover';
+      vv.style.backgroundPosition='center';
+      return true;
+    }catch(e){return false;}
+  }
+  window.ktPaintApprovedGuestPhotoAllDevices20261001=paintApprovedGuestPhotoAllDevices20261001;
+
+  function repaintApprovedGuestPhotos20261001(){
+    try{
+      var cache=window.__ktApprovedGuestPhotoFrames20261001||{};
+      Object.keys(cache).forEach(function(id){
+        var x=cache[id]||{};
+        if(Date.now()-Number(x.at||0)<30000){
+          paintApprovedGuestPhotoAllDevices20261001(id,x.name||'게스트',x.frame||'');
+        }
+      });
+    }catch(e){}
+  }
+  window.addEventListener('kt-three-person-sync-now',function(){
+    setTimeout(repaintApprovedGuestPhotos20261001,0);
+    setTimeout(repaintApprovedGuestPhotos20261001,80);
+  });
+  window.addEventListener('kt-any-guest-approved',function(){
+    setTimeout(repaintApprovedGuestPhotos20261001,20);
+    setTimeout(repaintApprovedGuestPhotos20261001,120);
+  });
+
   function approveDirectGuest(vid,name){
     vid=String(vid||'').trim();
     if(!vid)return;
@@ -2546,12 +2635,20 @@
       }catch(e){}
       return;
     }
-    if(ev==='guest_photo_frame'&&isHostRole()&&String(p.host_id||'')===DEVICE){
+    if(ev==='guest_photo_frame'){
       try{
-        var pv=String(p.viewer_id||'').trim();
-        var frame=String(p.frame||'');
-        if(pv&&approvedGuests[pv]){
-          paintHostGuestPhoto20260926(pv,String(p.name||(approvedGuests[pv]&&approvedGuests[pv].name)||'게스트'),frame);
+        var photoHost=String(p.host_id||'').trim();
+        var currentPhotoHost=isHostRole()?DEVICE:String(remoteHostId()||activeHostId||'').trim();
+        if(photoHost&&currentPhotoHost&&photoHost===currentPhotoHost){
+          var pv=String(p.viewer_id||'').trim();
+          var frame=String(p.frame||'');
+          var nm=String(p.name||'게스트');
+          if(pv&&/^data:image\/jpeg;base64,/.test(frame)&&frame.length<32000){
+            paintApprovedGuestPhotoAllDevices20261001(pv,nm,frame);
+            [40,120,260].forEach(function(ms){
+              setTimeout(function(){paintApprovedGuestPhotoAllDevices20261001(pv,nm,frame);},ms);
+            });
+          }
         }
       }catch(e){}
       return;
