@@ -127,6 +127,16 @@
       var r=roomEl(),v=r&&r.querySelector('video'),s2=v&&v.srcObject;
       if(s2&&s2.getTracks&&s2.getVideoTracks().some(function(t){return t.readyState==='live';}))return s2;
     }catch(e){}
+    try{
+      var cam=document.getElementById('camera');
+      var s3=cam&&cam.srcObject;
+      if(s3&&s3.getTracks&&s3.getVideoTracks().some(function(t){return t.readyState==='live';}))return s3;
+    }catch(e){}
+    try{
+      var bg=document.getElementById('cameraBg');
+      var s4=bg&&bg.srcObject;
+      if(s4&&s4.getTracks&&s4.getVideoTracks().some(function(t){return t.readyState==='live';}))return s4;
+    }catch(e){}
     return null;
   }
   function sameVideoSource20260926(a,b){
