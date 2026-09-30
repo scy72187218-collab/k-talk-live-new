@@ -842,6 +842,7 @@
     add(document.getElementById('ktRemoteHostPreview'));
     try{
       document.querySelectorAll(
+        '#screen .ktg13-room[data-kt-room="9"] .ktg13-host video,'+
         '.kt-guest-hostlike-room .kgh-cell.host video,'+
         '.kt-approved-guest-grid .kt-approved-guest-cell.host video,'+
         '.kt-prejoin-room-grid .kt-prejoin-room-cell.host video,'+
