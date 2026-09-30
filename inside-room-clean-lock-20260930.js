@@ -27,7 +27,9 @@
 
   function isInsideRoom(){
     return !!document.querySelector(
-      '#screen .ktsolo-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room,#screen .ktg9-room'
+      '#screen .ktsolo-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room,#screen .ktg9-room,'+
+      '#screen .ktg13-main,#screen .ktg13-grid,#screen .ktg13-host,#screen .ktg13-cell,'+
+      '#screen .ktg9-main,#screen .ktg9-grid,#screen .ktg9-host,#screen .ktg9-cell'
     );
   }
 
@@ -76,9 +78,22 @@
     var inside=isInsideRoom();
     try{
       document.documentElement.classList.toggle('kt-inside-broadcast-room',inside);
-      /* 방 밖으로 나오면 LIVE 숨김 흔적을 즉시 제거해서 빨간 신호가 다시 보이게 한다. */
-      if(!inside){
-        document.querySelectorAll('.kt-video-live-peek .ktvl-live,.kt-friend-bubble.live .livebtn,.kt-friend-contact-actions .livebtn').forEach(function(el){
+      if(inside){
+        /* 방 안에서는 빨간 방송 표시 박스 자체를 바로 숨긴다. */
+        document.querySelectorAll(
+          '#ktVideoLivePeek,.kt-video-live-peek,#ktRedLiveReceiverFallback20260930,.kt-follow-live-strip'
+        ).forEach(function(el){
+          el.style.setProperty('display','none','important');
+          el.style.setProperty('visibility','hidden','important');
+          el.style.setProperty('opacity','0','important');
+          el.style.setProperty('pointer-events','none','important');
+        });
+      }else{
+        /* 방 밖으로 나오면 LIVE 숨김 흔적을 즉시 제거해서 빨간 신호가 다시 보이게 한다. */
+        document.querySelectorAll(
+          '#ktVideoLivePeek,.kt-video-live-peek,#ktRedLiveReceiverFallback20260930,.kt-follow-live-strip,'+
+          '.kt-video-live-peek .ktvl-live,.kt-friend-bubble.live .livebtn,.kt-friend-contact-actions .livebtn'
+        ).forEach(function(el){
           el.style.removeProperty('display');
           el.style.removeProperty('visibility');
           el.style.removeProperty('opacity');
