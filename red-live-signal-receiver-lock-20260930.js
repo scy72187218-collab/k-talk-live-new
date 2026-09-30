@@ -50,12 +50,17 @@
     }
     var hostId=String(room.host_id||'');
     var hostName=String(room.host_name||'K-Talk 방송자');
-    box.innerHTML='<span class="kt-rx-name">'+esc(hostName)+'</span><button type="button" class="kt-rx-live">● LIVE</button>';
+    box.innerHTML='<span class="kt-rx-name">'+esc(hostName)+'</span><button type="button" class="kt-rx-live" data-host="'+esc(hostId)+'">● LIVE</button>';
     var b=box.querySelector('.kt-rx-live');
-    if(b)b.onclick=function(e){
-      try{e.preventDefault();e.stopPropagation();}catch(_e){}
-      try{if(typeof window.ktEnterRemoteLive==='function')window.ktEnterRemoteLive(hostId);}catch(_e){}
-    };
+    if(b){
+      var enterNow=function(e){
+        try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
+        try{if(typeof window.ktEnterRemoteLive==='function')window.ktEnterRemoteLive(hostId);}catch(_e){}
+      };
+      b.onpointerdown=enterNow;
+      b.ontouchstart=enterNow;
+      b.onclick=enterNow;
+    }
   }
 
   async function poll(){
