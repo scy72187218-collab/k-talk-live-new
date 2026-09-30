@@ -187,6 +187,14 @@
     }catch(e){}
   }
 
+  /* Owner lock: keep the current instant red-LIVE entry behavior fixed.
+     This locks only this entry handler state, not other room/buttons/features. */
+  try{
+    Object.defineProperty(window,'__ktRedLiveInstantEntryLocked20261001',{
+      value:true,writable:false,configurable:false,enumerable:true
+    });
+  }catch(e){window.__ktRedLiveInstantEntryLocked20261001=true;}
+
   repair();
   setInterval(repair,400);
   try{
