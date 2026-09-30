@@ -147,9 +147,14 @@
       +'#screen .ktg13-room[data-kt-room="9"] .ktg13-host>video{width:100%!important;height:100%!important;left:0!important;top:0!important;position:absolute!important;object-fit:cover!important;object-position:center!important}'
       +'.ktg13-room[data-kt-room="9"] .ktg13-guest{font-size:13px!important}'
       +'#screen .ktg13-room[data-kt-room="9"] .ktg13-gifts{position:relative!important;transform:translateY(5px)!important;z-index:8!important}'
+      +'#screen .ktg13-room[data-kt-room="9"] .ktg13-earn{width:118px!important;min-width:118px!important;max-width:118px!important;justify-self:end!important;justify-content:flex-end!important;margin-left:auto!important}'
+      +'#screen .ktg13-room[data-kt-room="9"] .ktg13-earn #myEarnHud{width:118px!important;min-width:118px!important;max-width:118px!important;padding:2px 4px!important;box-sizing:border-box!important}'
+      +'#screen .ktg13-room[data-kt-room="9"] .ktg13-earn #myEarnHud span{font-size:6px!important}'
+      +'#screen .ktg13-room[data-kt-room="9"] .ktg13-earn #hudEarnNet{font-size:9px!important}'
+      +'#screen .ktg13-room[data-kt-room="9"] .ktg13-earn #myEarnDetail{font-size:5.5px!important;line-height:1.05!important}'
       +'#screen .ktg13-room[data-kt-room="9"] .ktg9-mission-btn{pointer-events:auto!important;touch-action:manipulation!important;position:relative!important;z-index:12!important}'
       +'.live-prep .kt-room9-switch,.live-prep .prep-bottom button[data-kt-nine-direct="1"]{pointer-events:auto!important;touch-action:manipulation!important;position:relative!important;z-index:12!important}'
-      +'@media(max-width:390px){.ktg13-room[data-kt-room="9"] .ktg13-guest{font-size:11px!important}#screen .ktg13-room[data-kt-room="9"] .ktg13-gifts{transform:translateY(4px)!important}}';
+      +'@media(max-width:390px){.ktg13-room[data-kt-room="9"] .ktg13-guest{font-size:11px!important}#screen .ktg13-room[data-kt-room="9"] .ktg13-gifts{transform:translateY(4px)!important}#screen .ktg13-room[data-kt-room="9"] .ktg13-earn,#screen .ktg13-room[data-kt-room="9"] .ktg13-earn #myEarnHud{width:108px!important;min-width:108px!important;max-width:108px!important}}';
     document.head.appendChild(st);
   }
 
