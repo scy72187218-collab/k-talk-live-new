@@ -249,6 +249,7 @@
       hostRoomId=rows&&rows[0]?rows[0].id:'';
       if(!hostRoomId)throw new Error('host-room');
       hostActive=true;lastActivityStamp='';hostRoomMissingSince=0;
+      try{window.dispatchEvent(new CustomEvent('kt-live-on',{detail:{host_id:hostId,run_id:String(window.__ktHostRunId20260924||''),at:Date.now()}}));}catch(e){}
       showActivity('🔴 방송이 시작되었습니다. 방송목록에 표시됩니다.');
       clearInterval(hostHeartbeat);clearInterval(hostSignalTimer);clearInterval(hostActivityTimer);
       var beatToken=hostRunToken;
