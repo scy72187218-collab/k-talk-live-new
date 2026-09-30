@@ -95,34 +95,6 @@
   function roomEl(){return document.querySelector('#screen .ktsolo-room,#screen .ktg9-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room');}
   function isHostRole(){
     try{
-      /* 실제 로컬 카메라가 살아 있으면 원격 시청 흔적보다 호스트를 우선한다. */
-      var localCameraLive=false;
-      try{
-        var candidates=[];
-        if(window.state&&state.stream)candidates.push(state.stream);
-        var cv=document.getElementById('camera');if(cv&&cv.srcObject)candidates.push(cv.srcObject);
-        var bg=document.getElementById('cameraBg');if(bg&&bg.srcObject)candidates.push(bg.srcObject);
-        var lv=document.getElementById('ktLiveVideo');if(lv&&lv.srcObject)candidates.push(lv.srcObject);
-        localCameraLive=candidates.some(function(st){
-          if(!st||!st.getVideoTracks)return false;
-          if(isRemoteHostMedia20260926(st)||isLocalGuestMedia20260926(st))return false;
-          return st.getVideoTracks().some(function(t){return t&&t.readyState==='live';});
-        });
-      }catch(_e){}
-      if(localCameraLive){
-        try{
-          window.__ktRemoteHostId='';
-          window.__ktCurrentRemoteHostId='';
-          sessionStorage.removeItem('kt_remote_host_id');
-          document.documentElement.classList.remove('kt-remote-viewing');
-        }catch(_e){}
-        return true;
-      }
-
-      /* 실제 원격 host id가 있는 시청자만 viewer로 본다. */
-      var remoteId='';
-      try{remoteId=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||sessionStorage.getItem('kt_remote_host_id')||'').trim();}catch(_e){}
-      if(document.documentElement.classList.contains('kt-remote-viewing')&&remoteId)return false;
       var local=roomEl(),visible=false;
       try{
         if(local){
@@ -138,6 +110,7 @@
         }catch(_e){}
         return true;
       }
+      if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
       var rh='';
       try{rh=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||sessionStorage.getItem('kt_remote_host_id')||'').trim();}catch(_e){}
       if(rh)return false;
@@ -152,16 +125,6 @@
     try{
       var r=roomEl(),v=r&&r.querySelector('video'),s2=v&&v.srcObject;
       if(s2&&s2.getTracks&&s2.getVideoTracks().some(function(t){return t.readyState==='live';}))return s2;
-    }catch(e){}
-    try{
-      var cam=document.getElementById('camera');
-      var s3=cam&&cam.srcObject;
-      if(s3&&s3.getTracks&&s3.getVideoTracks().some(function(t){return t.readyState==='live';}))return s3;
-    }catch(e){}
-    try{
-      var bg=document.getElementById('cameraBg');
-      var s4=bg&&bg.srcObject;
-      if(s4&&s4.getTracks&&s4.getVideoTracks().some(function(t){return t.readyState==='live';}))return s4;
     }catch(e){}
     return null;
   }
@@ -879,7 +842,6 @@
     add(document.getElementById('ktRemoteHostPreview'));
     try{
       document.querySelectorAll(
-        '#screen .ktg13-room[data-kt-room="9"] .ktg13-host video,'+
         '.kt-guest-hostlike-room .kgh-cell.host video,'+
         '.kt-approved-guest-grid .kt-approved-guest-cell.host video,'+
         '.kt-prejoin-room-grid .kt-prejoin-room-cell.host video,'+
@@ -1131,7 +1093,7 @@
 
       /* 기존 영상이 살아 있으면 새 연결 확인 동안 화면을 유지한다.
          기존 영상이 없는 최초 연결은 빠르게 재시도한다. */
-      if(!previousUsable)retryViewerSoon(350);
+      if(!previousUsable)retryViewerSoon(900);
       else setTimeout(function(){
         if(viewerPc===pc&&!pc.__ktGotRemoteTrack20260923&&pc.connectionState!=='connected'){
           try{closePc(pc);}catch(e){}
@@ -1151,7 +1113,7 @@
           attachRemoteStreamNow();
         }else{
           viewerPc=null;viewerSession='';viewerConnected=false;
-          retryViewerSoon(350);
+          retryViewerSoon(900);
         }
       }
     }finally{
