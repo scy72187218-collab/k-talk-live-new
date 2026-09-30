@@ -59,15 +59,15 @@
     return accountNames().some(isFixedOwnerName);
   }
 
-  /* 관리자 계정은 어느 화면/방 판정에서도 레벨 1000으로 고정한다. */
+  /* 관리자 계정은 어느 화면/방 판정에서도 레벨 50000으로 고정한다. */
   window.ktForceOwnerLevel1000=function(){
     if(!ownerAccountDetected())return false;
     try{
       if(window.state){
-        state.level=1000;
-        state.userLevel=1000;
-        state.memberLevel=1000;
-        state.hostLevel=1000;
+        state.level=50000;
+        state.userLevel=50000;
+        state.memberLevel=50000;
+        state.hostLevel=50000;
         state.ktOwnerLevelBypass=true;
         state.ktOwnerAdmin=true;
         state.ktOwnerGiftPermission=true;
@@ -75,7 +75,7 @@
     }catch(e){}
     try{
       ['ktalk_level','ktalk_user_level','ktalk_member_level','ktalk_host_level','level','userLevel','memberLevel','hostLevel'].forEach(function(k){
-        localStorage.setItem(k,'1000');
+        localStorage.setItem(k,'50000');
       });
       localStorage.setItem('ktalk_owner_admin','1');
       localStorage.setItem('ktalk_owner_gift_permission','1');
@@ -96,7 +96,7 @@
   };
 
   window.ktEffectiveLevel=function(level){
-    if(window.ktForceOwnerLevel1000())return 1000;
+    if(window.ktForceOwnerLevel1000())return 50000;
     var lv=parseInt(level,10);
     return isFinite(lv)&&lv>0?lv:1;
   };
