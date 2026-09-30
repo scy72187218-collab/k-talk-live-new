@@ -1578,7 +1578,7 @@
         pc.__ktMediaAckGrace20260926++;
         var payload=pc.__ktGuestOfferPayload20260926||pc.__ktPreApprovalPayload||null;
         if(payload)try{sendCriticalMedia20260926('guest_offer',payload,hid);}catch(e){}
-        scheduleGuestMediaAckFallback20260926(hid,pc,session,450);
+        scheduleGuestMediaAckFallback20260926(hid,pc,session,300);
         return;
       }
 
@@ -1790,7 +1790,7 @@
       pc.__ktGuestOfferPayload20260926=guestOfferPayload;
       sendCriticalMedia20260926('guest_offer',guestOfferPayload,hid);
       scheduleGuestOfferRetries(hid,pc,guestOfferPayload);
-      scheduleGuestMediaAckFallback20260926(hid,pc,offerSession,500);
+      scheduleGuestMediaAckFallback20260926(hid,pc,offerSession,320);
 
       /* 연결 협상도 짧은 흔들림 때문에 계속 새로 만들지 않는다.
          10초 동안 기존 세션을 기다린 뒤 실제 연결이 없을 때만 재시도한다. */
@@ -2269,7 +2269,7 @@
     setTimeout(function(){
       if(!guestApproved||guestApprovedHost!==hid||guestMediaReadyAt)return;
       forceFreshApprovedGuestOffer20260926(hid);
-    },100);
+    },40);
 
     /* Visible fallback requested by owner: place only the approved guest's own
        camera face into the host guest slot while live transport is connecting. */
@@ -2706,8 +2706,28 @@
     var role=host?'host':(hid?'viewer':'');
     if(!hid){
       if(!remoteHostMissingSince)remoteHostMissingSince=Date.now();
+
+      /* 실제로 방 화면을 벗어난 경우에는 12초/heartbeat timeout을 기다리지 않는다.
+         단순 네트워크 흔들림으로 host id만 잠깐 비는 경우에는 기존 grace를 유지한다. */
+      var remoteUiStillOpen=false;
+      try{
+        remoteUiStillOpen=
+          document.documentElement.classList.contains('kt-remote-viewing')||
+          !!document.querySelector('#screen .kt-remote-live,#screen .kt-guest-hostlike-room,#screen .kt-approved-guest-room,#screen .kt-prejoin-room-grid,#screen .kt-approved-guest-grid');
+      }catch(e){}
+      if(!remoteUiStillOpen&&(guestApprovedHost||lastRemoteHost)){
+        announceGuestLeave(guestApprovedHost||lastRemoteHost);
+        lastHostRole='';
+        lastRemoteHost='';
+        requestOn=false;guestApproved=false;guestApprovedHost='';
+        clearViewerConnectTimer();
+        closePc(viewerPc);viewerPc=null;viewerConnected=false;
+        closePc(guestPc);guestPc=null;
+        return;
+      }
+
       /* 모바일 브라우저/네트워크 전환 때 host id가 한두 번 비는 현상은
-         실제 퇴장으로 보지 않는다. 12초 이상 계속 비었을 때만 정리한다. */
+         실제 퇴장으로 보지 않는다. 방 화면이 남아 있으면 12초 grace를 유지한다. */
       if(Date.now()-remoteHostMissingSince<12000)return;
 
       if(guestApprovedHost)announceGuestLeave(guestApprovedHost);
@@ -2853,6 +2873,26 @@
   setInterval(function(){
     if(isHostRole()&&joined)broadcastApprovedRoster20260928();
   },250);
+
+  /* 사용자가 방의 뒤로/나가기 버튼 또는 브라우저 뒤로가기를 누른 순간
+     host 쪽 guest slot에 즉시 퇴장 신호를 보낸다. */
+  document.addEventListener('pointerdown',function(e){
+    try{
+      var b=e.target&&e.target.closest&&e.target.closest('.kt-remote-back,button');
+      if(!b)return;
+      var t=String(b.textContent||'').replace(/\s+/g,'');
+      if(b.classList.contains('kt-remote-back')||/나가기|방송나가기|뒤로/.test(t)){
+        var h=guestApprovedHost||remoteHostId()||lastRemoteHost;
+        if(h)announceGuestLeave(h);
+      }
+    }catch(_e){}
+  },true);
+  window.addEventListener('popstate',function(){
+    try{
+      var h=guestApprovedHost||remoteHostId()||lastRemoteHost;
+      if(h)announceGuestLeave(h);
+    }catch(_e){}
+  });
 
   window.addEventListener('pagehide',function(){
     if(guestApprovedHost||lastRemoteHost)announceGuestLeave(guestApprovedHost||lastRemoteHost);
