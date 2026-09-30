@@ -1,26 +1,32 @@
 {
-  "version": 183,
+  "version": 184,
   "locked": true,
-  "scope": "live_entry_exit_only",
+  "scope": "live_entry_exit_and_group9_earnings",
   "lock_slot": 0,
   "unlock_requires_pin": true,
   "runtime_controls_remain_usable": true,
-  "default_policy": "lock_live_entry_exit_only",
+  "default_policy": "lock_live_entry_exit_and_group9_earnings",
   "protected_components": [
     "locked_working_live_entry_exit_restore_5555_20260929",
     "current_locked_working_live_entry_exit_5555_20260929",
-    "live_entry_exit_do_not_change_20260929"
+    "live_entry_exit_do_not_change_20260929",
+    "locked_working_group9_earnings_current_5555_20260930",
+    "group9_earnings_width_170px_fixed_5555_20260930",
+    "group9_earnings_no_flicker_current_5555_20260930"
   ],
   "locked_components": [
     "locked_working_live_entry_exit_restore_5555_20260929",
     "current_locked_working_live_entry_exit_5555_20260929",
-    "live_entry_exit_do_not_change_20260929"
+    "live_entry_exit_do_not_change_20260929",
+    "locked_working_group9_earnings_current_5555_20260930",
+    "group9_earnings_width_170px_fixed_5555_20260930",
+    "group9_earnings_no_flicker_current_5555_20260930"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "5555 승인. 저장 목록은 방송 들어가기/나가기 정상 상태 관련 항목만 남기고 나머지 저장/잠금 기록은 모두 정리. 실제 사이트 기능 파일은 삭제하지 않음.",
+  "note": "5555 승인. 현재 화면 상태 그대로 유지. 기존 방송 들어가기/나가기 정상 상태와 9명방 노란 수익률 칸 현재 상태(170px, 깜빡임 방지)를 잠금. 다른 UI/버튼/기능은 변경 금지.",
   "lock_slots": {},
   "last_unlock": "2026-09-29-fortune-ladder-switch-5555",
-  "last_lock": "2026-09-29-clean-lock-records-keep-live-entry-exit-only",
+  "last_lock": "2026-09-30-group9-earnings-current-state-lock-5555",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
