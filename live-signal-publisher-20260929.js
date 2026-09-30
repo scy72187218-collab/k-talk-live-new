@@ -73,8 +73,26 @@
       }).catch(function(){});
     }catch(e){}
   }
+  var wakeLockSentinel=null;
+  async function keepBroadcastAwake(){
+    try{
+      if(!('wakeLock' in navigator)||document.hidden||wakeLockSentinel)return;
+      wakeLockSentinel=await navigator.wakeLock.request('screen');
+      if(wakeLockSentinel&&wakeLockSentinel.addEventListener){
+        wakeLockSentinel.addEventListener('release',function(){wakeLockSentinel=null;});
+      }
+    }catch(e){wakeLockSentinel=null;}
+  }
+  function releaseBroadcastAwake(){
+    try{
+      var w=wakeLockSentinel;wakeLockSentinel=null;
+      if(w&&w.release)w.release().catch(function(){});
+    }catch(e){}
+  }
+
   function forceEnd(){
     try{send('end');}catch(e){}
+    releaseBroadcastAwake();
     lastActive=false;
     forceOffUntil=Date.now()+6000;
     runId='';runStartedAt=0;
@@ -82,6 +100,7 @@
 
   function forceStart(){
     forceOffUntil=0;
+    keepBroadcastAwake();
     startGraceUntil=Date.now()+10000;
     if(!runId){runStartedAt=Date.now();runId='sig-'+runStartedAt.toString(36)+'-'+Math.random().toString(36).slice(2,7);}
     try{send('publish');}catch(e){}
@@ -145,6 +164,18 @@
   setTimeout(tick,80);
   [100,300,700,1400].forEach(function(ms){setTimeout(installWraps,ms);});
   window.addEventListener('pageshow',function(){setTimeout(tick,60);});
-  document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(tick,60);});
-  window.addEventListener('pagehide',function(){if(lastActive)forceEnd();});
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden){
+      if(lastActive)keepBroadcastAwake();
+      setTimeout(tick,60);
+    }
+  });
+  /* 잠깐 백그라운드/화면 전환은 방송 종료가 아니다.
+     실제 종료 버튼에서만 forceEnd()를 호출하고,
+     신호가 끊기면 1분 유효시간으로 자연 정리한다. */
+  window.addEventListener('pagehide',function(){
+    if(lastActive){
+      try{send('heartbeat');}catch(e){}
+    }
+  });
 })();
