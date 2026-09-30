@@ -138,8 +138,10 @@
     startGraceUntil=Date.now()+10000;
     if(!runId){runStartedAt=Date.now();runId='sig-'+runStartedAt.toString(36)+'-'+Math.random().toString(36).slice(2,7);}
     try{send('publish');}catch(e){}
-    /* 방송 시작 신호를 짧게 여러 번 보내 느린 기기/네트워크에서도 빨간 LIVE를 놓치지 않게 한다. */
-    [120,300,650,1200].forEach(function(ms){
+    /* 방송 시작 직후 빨간 LIVE를 최대한 빨리 띄운다.
+       첫 1초 동안 촘촘히 재전송하고 이후에는 기존 heartbeat가 이어받는다.
+       잠가 둔 수신/입장 코드는 건드리지 않는다. */
+    [35,80,150,260,420,700,1000].forEach(function(ms){
       setTimeout(function(){
         try{
           if(lastActive||hostRoomVisible())send('heartbeat');
@@ -194,7 +196,7 @@
   }
 
   installWraps();
-  timer=setInterval(tick,450);
+  timer=setInterval(tick,250);
   setTimeout(tick,80);
   [100,300,700,1400].forEach(function(ms){setTimeout(installWraps,ms);});
   window.addEventListener('pageshow',function(){setTimeout(tick,60);});
