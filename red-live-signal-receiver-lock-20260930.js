@@ -93,7 +93,20 @@
     }catch(e){}
 
     if(recentlyEnded20261001(room.host_id)){removeFallback();return;}
-    if(document.getElementById('ktVideoLivePeek')){removeFallback();return;}
+
+    /* 예전 LIVE 표시 컨테이너가 DOM에 남아 있기만 한 경우에는
+       새 빨간 LIVE를 숨기지 않는다. 실제로 화면에 보이는 LIVE 버튼/호스트가 있을 때만 중복 표시를 막는다. */
+    try{
+      var peek=document.getElementById('ktVideoLivePeek');
+      var peekVisible=false;
+      if(peek){
+        var cs=getComputedStyle(peek);
+        var rect=peek.getBoundingClientRect();
+        var liveBtn=peek.querySelector('.ktvl-live,.kt-rx-live,[data-host]');
+        peekVisible=!!(liveBtn&&cs.display!=='none'&&cs.visibility!=='hidden'&&rect.width>0&&rect.height>0);
+      }
+      if(peekVisible){removeFallback();return;}
+    }catch(e){}
     ensureStyle();
     var box=document.getElementById('ktRedLiveReceiverFallback20260930');
     if(!box){
