@@ -29,13 +29,32 @@
   }
   function enc(v){return encodeURIComponent(String(v==null?'':v));}
   function stream(){
-    try{return window.state&&state.stream?state.stream:null;}catch(e){return null;}
+    try{
+      var s=window.state&&state.stream?state.stream:null;
+      if(s&&s.getVideoTracks&&s.getVideoTracks().some(function(t){return t&&t.readyState==='live';}))return s;
+    }catch(e){}
+    try{
+      var cam=document.getElementById('camera');
+      var s2=cam&&cam.srcObject;
+      if(s2&&s2.getVideoTracks&&s2.getVideoTracks().some(function(t){return t&&t.readyState==='live';}))return s2;
+    }catch(e){}
+    try{
+      var bg=document.getElementById('cameraBg');
+      var s3=bg&&bg.srcObject;
+      if(s3&&s3.getVideoTracks&&s3.getVideoTracks().some(function(t){return t&&t.readyState==='live';}))return s3;
+    }catch(e){}
+    try{
+      var lv=document.getElementById('ktLiveVideo');
+      var s4=lv&&lv.srcObject;
+      if(s4&&s4.getVideoTracks&&s4.getVideoTracks().some(function(t){return t&&t.readyState==='live';}))return s4;
+    }catch(e){}
+    return null;
   }
   function actualHostRoomVisible(){
     try{
       if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
       var s=document.getElementById('screen')||document;
-      return !!s.querySelector('.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room');
+      return !!s.querySelector('.ktsolo-room,.ktg9-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room');
     }catch(e){return false;}
   }
   function hasLiveVideo(){
