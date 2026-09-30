@@ -1113,9 +1113,10 @@
         },ms);
       });
 
-      /* 기존 영상이 살아 있으면 새 연결 확인 동안 화면을 유지한다.
-         기존 영상이 없는 최초 연결은 빠르게 재시도한다. */
-      if(!previousUsable)retryViewerSoon(220);
+      /* 첫 입장에서는 0.22초 만에 PeerConnection을 끊지 않는다.
+         모바일에서 첫 원격 프레임이 오기 전에 연결을 재시작하면 호스트 얼굴 표시가 늦어진다.
+         처음 연결은 최소 1.2초 동안 같은 연결을 유지하고, 그동안 answer/ICE 재전송만 한다. */
+      if(!previousUsable)retryViewerSoon(1200);
       else setTimeout(function(){
         if(viewerPc===pc&&!pc.__ktGotRemoteTrack20260923&&pc.connectionState!=='connected'){
           try{closePc(pc);}catch(e){}
