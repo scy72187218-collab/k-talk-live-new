@@ -102,25 +102,64 @@
       box.className='kt-allhost-profile';
       tile.appendChild(box);
     }
-    box.innerHTML='';
-    if(photo){
-      var img=document.createElement('img');
-      img.className='kt-allhost-photo';
-      img.alt='프로필';
-      img.src=photo;
-      img.onerror=function(){try{this.replaceWith(fallback(name));}catch(e){}};
-      box.appendChild(img);
-    }else{
-      box.appendChild(fallback(name));
+
+    /* 2026-10-01: 프로필 표시가 같으면 DOM을 절대 다시 만들지 않는다.
+       기존 innerHTML='' 반복이 img를 매번 재로딩해서 깜빡임을 만들었다. */
+    var key=[String(photo||''),String(name||''),String(level||'')].join('|');
+    if(box.dataset.ktStableProfileKey===key &&
+       box.querySelector('.kt-allhost-level') &&
+       box.querySelector('.kt-allhost-name') &&
+       box.querySelector('.kt-allhost-photo,.kt-allhost-fallback')){
+      return;
     }
-    var lv=document.createElement('span');
-    lv.className='kt-allhost-level';
-    lv.textContent='Lv.'+level;
-    box.appendChild(lv);
-    var nm=document.createElement('span');
-    nm.className='kt-allhost-name';
-    nm.textContent=name;
-    box.appendChild(nm);
+    box.dataset.ktStableProfileKey=key;
+
+    var visual=box.querySelector('.kt-allhost-photo,.kt-allhost-fallback');
+    if(photo){
+      var img=visual&&visual.tagName==='IMG'?visual:null;
+      if(!img){
+        if(visual)try{visual.remove();}catch(e){}
+        img=document.createElement('img');
+        img.className='kt-allhost-photo';
+        img.alt='프로필';
+        box.insertBefore(img,box.firstChild);
+      }
+      var src=String(photo||'');
+      if(String(img.getAttribute('src')||'')!==src)img.src=src;
+      img.onerror=function(){
+        try{
+          var fb=fallback(name);
+          this.replaceWith(fb);
+          box.dataset.ktStableProfileKey='';
+        }catch(e){}
+      };
+    }else{
+      if(!visual||!visual.classList.contains('kt-allhost-fallback')){
+        if(visual)try{visual.remove();}catch(e){}
+        visual=fallback(name);
+        box.insertBefore(visual,box.firstChild);
+      }else{
+        var ch=text(name).charAt(0)||'👤';
+        if(visual.textContent!==ch)visual.textContent=ch;
+      }
+    }
+
+    var lv=box.querySelector('.kt-allhost-level');
+    if(!lv){
+      lv=document.createElement('span');
+      lv.className='kt-allhost-level';
+      box.appendChild(lv);
+    }
+    var lvText='Lv.'+level;
+    if(lv.textContent!==lvText)lv.textContent=lvText;
+
+    var nm=box.querySelector('.kt-allhost-name');
+    if(!nm){
+      nm=document.createElement('span');
+      nm.className='kt-allhost-name';
+      box.appendChild(nm);
+    }
+    if(nm.textContent!==name)nm.textContent=name;
   }
 
   function removeHostWords(){
