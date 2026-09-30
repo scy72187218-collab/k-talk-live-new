@@ -286,8 +286,8 @@
     var grid=document.createElement('div');
     grid.className='kgh-main'+(info.is13?' is13':'');
     var hostCell=makeCell('host','호스트');
-    /* 자기 카메라가 실제 준비되기 전에는 파란 빈 self 칸으로 바꾸지 않는다. */
-    var selfCell=selfCandidate?makeCell('self','나 · 게스트'):makeCell('','게스트 연결 중');
+    /* 실제 첫 프레임이 나오기 전에는 절대 파란 self 칸으로 만들지 않는다. */
+    var selfCell=makeCell('','게스트 연결 중');
 
     hostVideo.id='ktRemoteHostPreview';
     hostVideo.className='';
@@ -310,7 +310,26 @@
     if(selfCandidate)selfVideo.srcObject=selfCandidate;
 
     hostCell.appendChild(hostVideo);
-    if(selfCandidate)selfCell.appendChild(selfVideo);
+    if(selfCandidate){
+      selfCell.appendChild(selfVideo);
+      var promoteSelf=function(){
+        try{
+          if(!selfVideo||selfVideo.readyState<2||!(selfVideo.videoWidth>0&&selfVideo.videoHeight>0))return;
+          selfCell.classList.add('self');
+          var oldLabel=selfCell.querySelector('.kgh-label');
+          if(oldLabel)oldLabel.textContent='나 · 게스트';
+          else{
+            var lab=document.createElement('span');
+            lab.className='kgh-label';lab.textContent='나 · 게스트';
+            selfCell.appendChild(lab);
+          }
+        }catch(e){}
+      };
+      selfVideo.addEventListener('loadeddata',promoteSelf);
+      selfVideo.addEventListener('playing',promoteSelf);
+      setTimeout(promoteSelf,80);
+      setTimeout(promoteSelf,220);
+    }
     grid.appendChild(hostCell);
     grid.appendChild(selfCell);
     for(var i=2;i<info.total;i++)grid.appendChild(makeCell('',''));
@@ -416,14 +435,8 @@
         }
         if(selfStream&&hostStream&&sameVideoSource20260926(selfStream,hostStream))selfStream=null;
         if(selfCell&&selfStream&&live(selfStream)){
-          if(!selfCell.classList.contains('self')){
-            selfCell.classList.add('self');
-            selfCell.innerHTML='';
-            var lab=document.createElement('span');
-            lab.className='kgh-label';lab.textContent='나 · 게스트';
-            selfCell.appendChild(lab);
-          }
           if(!sv){
+            selfCell.innerHTML='';
             sv=document.createElement('video');
             sv.id='ktRemoteLiveVideo';
             sv.autoplay=true;sv.playsInline=true;sv.muted=true;sv.defaultMuted=true;
@@ -431,7 +444,23 @@
             selfCell.appendChild(sv);
           }
           if(sv.srcObject!==selfStream)sv.srcObject=selfStream;
+          var promoteReadySelf=function(){
+            try{
+              if(!sv||sv.readyState<2||!(sv.videoWidth>0&&sv.videoHeight>0))return;
+              selfCell.classList.add('self');
+              var lab=selfCell.querySelector('.kgh-label');
+              if(!lab){
+                lab=document.createElement('span');
+                lab.className='kgh-label';selfCell.appendChild(lab);
+              }
+              lab.textContent='나 · 게스트';
+            }catch(e){}
+          };
+          sv.addEventListener('loadeddata',promoteReadySelf,{once:true});
+          sv.addEventListener('playing',promoteReadySelf,{once:true});
           try{var sp=sv.play();if(sp&&sp.catch)sp.catch(function(){});}catch(e){}
+          setTimeout(promoteReadySelf,60);
+          setTimeout(promoteReadySelf,180);
         }
         if(sv&&hostStream&&sameVideoSource20260926(sv.srcObject,hostStream)){
           try{sv.pause();}catch(e){}
