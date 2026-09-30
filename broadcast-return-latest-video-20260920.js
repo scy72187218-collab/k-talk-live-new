@@ -42,10 +42,26 @@
     if(!hostExitArmed20260928&&!isLocalHostRoom20260928())return;
     hostExitArmed20260928=false;
     try{if(window.closeSheet)window.closeSheet();}catch(e){}
+
+    /* 카메라를 끄기 전에 마지막 화면을 한 장 잡아 두어 검은 화면이 먼저 보이지 않게 한다. */
+    var exitHoldImage='';
+    try{
+      var holdVideo=document.querySelector('#screen video');
+      if(holdVideo&&Number(holdVideo.videoWidth||0)>0&&Number(holdVideo.videoHeight||0)>0){
+        var holdCanvas=document.createElement('canvas');
+        holdCanvas.width=Math.max(2,Number(holdVideo.videoWidth||2));
+        holdCanvas.height=Math.max(2,Number(holdVideo.videoHeight||2));
+        var holdCtx=holdCanvas.getContext('2d');
+        if(holdCtx){
+          holdCtx.drawImage(holdVideo,0,0,holdCanvas.width,holdCanvas.height);
+          exitHoldImage=holdCanvas.toDataURL('image/jpeg',0.82);
+        }
+      }
+    }catch(e){}
     stopCamera();
 
-    /* 방송 종료 직후 검은 로딩 화면을 만들지 않는다.
-       캐시된 첫 공개 동영상을 즉시 화면에 붙이고, 전체 목록은 뒤에서 이어 붙인다. */
+    /* 방송 종료 직후 검은 로딩 화면 대신 마지막 방송 화면을 유지한다.
+       첫 공개 동영상의 실제 프레임이 준비되면 그때 자연스럽게 교체한다. */
     try{
       var s=document.getElementById('screen');
       if(s){
@@ -56,8 +72,11 @@
         }catch(_e){}
         if(!u)u='https://zupwbfmacwzexyvznlzq.supabase.co/storage/v1/object/public/ktalk-videos/guest/1788516618159-4ep5ki.mp4';
 
-        s.innerHTML='<section id="ktBroadcastReturnFirstFrame" style="height:calc(100dvh - 78px);min-height:560px;position:relative;background:#000;overflow:hidden">'
-          +'<video id="ktPublicFirstPaintVideo" class="kt-public-video" autoplay muted loop playsinline preload="auto" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000"></video>'
+        var holdStyle=exitHoldImage
+          ?'background-image:url('+exitHoldImage+');background-size:cover;background-position:center;background-repeat:no-repeat;'
+          :'background:#111;';
+        s.innerHTML='<section id="ktBroadcastReturnFirstFrame" style="height:calc(100dvh - 78px);min-height:560px;position:relative;'+holdStyle+'overflow:hidden">'
+          +'<video id="ktPublicFirstPaintVideo" class="kt-public-video" autoplay muted loop playsinline preload="auto" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:transparent;opacity:0"></video>'
           +'</section>';
 
         var v=document.getElementById('ktPublicFirstPaintVideo');
@@ -73,10 +92,26 @@
           v.setAttribute('webkit-playsinline','');
           window.__ktPublicFirstPaintVideo20260924=v;
           window.__ktPublicFirstPaintUrl20260924=u;
+          var reveal=function(){
+            try{
+              if(Number(v.readyState||0)>=2){
+                v.style.opacity='1';
+                var frame=document.getElementById('ktBroadcastReturnFirstFrame');
+                if(frame){
+                  frame.style.backgroundImage='none';
+                  frame.style.background='#000';
+                }
+              }
+            }catch(e){}
+          };
           try{
+            v.addEventListener('loadeddata',reveal,{once:true});
+            v.addEventListener('canplay',reveal,{once:true});
+            v.addEventListener('playing',reveal,{once:true});
             var pp=v.play();
             if(pp&&pp.catch)pp.catch(function(){});
           }catch(_e){}
+          if(Number(v.readyState||0)>=2)reveal();
         }
       }
       document.body.classList.remove('kt-home');
