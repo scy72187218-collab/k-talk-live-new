@@ -78,9 +78,17 @@
 
   function forceStart(){
     forceOffUntil=0;
-    startGraceUntil=Date.now()+8000;
+    startGraceUntil=Date.now()+10000;
     if(!runId){runStartedAt=Date.now();runId='sig-'+runStartedAt.toString(36)+'-'+Math.random().toString(36).slice(2,7);}
     try{send('publish');}catch(e){}
+    /* 방송 시작 신호를 짧게 여러 번 보내 느린 기기/네트워크에서도 빨간 LIVE를 놓치지 않게 한다. */
+    [120,300,650,1200].forEach(function(ms){
+      setTimeout(function(){
+        try{
+          if(lastActive||hostRoomVisible()||hostStreamLive())send('heartbeat');
+        }catch(e){}
+      },ms);
+    });
     lastActive=true;
   }
 
@@ -119,7 +127,7 @@
   }
 
   installWraps();
-  timer=setInterval(tick,700);
+  timer=setInterval(tick,450);
   setTimeout(tick,80);
   [100,300,700,1400].forEach(function(ms){setTimeout(installWraps,ms);});
   window.addEventListener('pageshow',function(){setTimeout(tick,60);});
