@@ -31,9 +31,9 @@
         var r=el.getBoundingClientRect();
         if(r.width<120 || r.width>360)return;
 
-        el.style.setProperty('width','220px','important');
+        el.style.setProperty('width','210px','important');
         el.style.setProperty('min-width','0','important');
-        el.style.setProperty('max-width','220px','important');
+        el.style.setProperty('max-width','210px','important');
         el.style.setProperty('box-sizing','border-box','important');
         el.style.setProperty('left','auto','important');
         el.style.setProperty('right','8px','important');
@@ -45,9 +45,9 @@
         if(p){
           var pt=String(p.innerText||'').replace(/\s+/g,' ');
           if(pt.indexOf('내 수익')>-1 && p.children.length<=3){
-            p.style.setProperty('width','220px','important');
+            p.style.setProperty('width','210px','important');
             p.style.setProperty('min-width','0','important');
-            p.style.setProperty('max-width','220px','important');
+            p.style.setProperty('max-width','210px','important');
             p.style.setProperty('left','auto','important');
             p.style.setProperty('right','8px','important');
             p.style.setProperty('transform','none','important');
