@@ -120,16 +120,30 @@
   function isTopTvButton(btn,room){
     if(!btn||!room)return false;
     var txt=candidateText(btn);
-    if(!(/📺|텔레비전|티비|TV|모니터|monitor|television/i.test(txt)))return false;
 
-    /* Never touch the bottom movie button. */
+    /* Never touch bottom tools / movie controls. */
     if(btn.closest('.ktsolo-tools,.ktg13-tools,.ktsubscriber-tools,.ktsecret-tools,.kgh-tools,.kt-remote-bottom'))return false;
     if(/영화/.test(txt))return false;
 
+    /* Normal identification by label/icon. */
+    if(/📺|텔레비전|티비|TV|모니터|monitor|television/i.test(txt)){
+      try{
+        var rr1=room.getBoundingClientRect(),br1=btn.getBoundingClientRect();
+        return br1.top<=rr1.top+155;
+      }catch(e){return true;}
+    }
+
+    /* Fallback for the photo's unlabeled TV icon:
+       small button at the upper-right edge of the active room header. */
     try{
       var rr=room.getBoundingClientRect(),br=btn.getBoundingClientRect();
-      return br.top<=rr.top+155;
-    }catch(e){return true;}
+      var nearTop=br.top>=rr.top-8&&br.top<=rr.top+125;
+      var nearRight=br.right>=rr.right-92;
+      var small=br.width>20&&br.width<=82&&br.height>20&&br.height<=82;
+      var notBack=!btn.matches('.ktsolo-back,.ktsubscriber-back,.ktsecret-back,.kt-remote-back');
+      var notAttend=!btn.matches('.kgh-attend,.ktg13-attend,.ktsolo-att,.ktsubscriber-att,.ktsecret-att');
+      return nearTop&&nearRight&&small&&notBack&&notAttend;
+    }catch(e){return false;}
   }
 
   function apply(){
