@@ -29,7 +29,18 @@
     try{
       if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
       var s=document.getElementById('screen');
-      return !!(s&&s.querySelector('#ktLiveVideo,.ktsolo-room,.ktg13-room,.ktg9-room,.ktsubscriber-room,.ktsecret-room'));
+      if(!s)return false;
+      var rooms=[].slice.call(s.querySelectorAll('#ktLiveVideo,.ktsolo-room,.ktg13-room,.ktg9-room,.ktsubscriber-room,.ktsecret-room'));
+      return rooms.some(function(el){
+        try{
+          var cs=getComputedStyle(el);
+          if(cs.display==='none'||cs.visibility==='hidden'||Number(cs.opacity||1)===0)return false;
+          if(el.hidden)return false;
+          if(el.getClientRects&&el.getClientRects().length===0)return false;
+          var r=el.getBoundingClientRect();
+          return r.width>8&&r.height>8;
+        }catch(e){return false;}
+      });
     }catch(e){return false;}
   }
   function hostStreamLive(){
