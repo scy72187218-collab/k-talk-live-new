@@ -312,9 +312,11 @@
     hostCell.appendChild(hostVideo);
     if(selfCandidate){
       selfCell.appendChild(selfVideo);
+      var selfFrameSeen20261001=false;
       var promoteSelf=function(){
         try{
-          if(!selfVideo||selfVideo.readyState<2||!(selfVideo.videoWidth>0&&selfVideo.videoHeight>0))return;
+          if(!selfVideo||!selfFrameSeen20261001)return;
+          if(selfVideo.readyState<2||!(selfVideo.videoWidth>0&&selfVideo.videoHeight>0))return;
           selfCell.classList.add('self');
           var oldLabel=selfCell.querySelector('.kgh-label');
           if(oldLabel)oldLabel.textContent='나 · 게스트';
@@ -325,10 +327,27 @@
           }
         }catch(e){}
       };
-      selfVideo.addEventListener('loadeddata',promoteSelf);
-      selfVideo.addEventListener('playing',promoteSelf);
-      setTimeout(promoteSelf,80);
-      setTimeout(promoteSelf,220);
+      try{
+        if(selfVideo.requestVideoFrameCallback){
+          selfVideo.requestVideoFrameCallback(function(){
+            selfFrameSeen20261001=true;
+            promoteSelf();
+          });
+        }else{
+          selfVideo.addEventListener('timeupdate',function onceFrame(){
+            selfFrameSeen20261001=true;
+            promoteSelf();
+            try{selfVideo.removeEventListener('timeupdate',onceFrame);}catch(e){}
+          });
+        }
+      }catch(e){}
+      selfVideo.addEventListener('playing',function(){
+        setTimeout(function(){
+          try{
+            if(selfVideo.currentTime>0){selfFrameSeen20261001=true;promoteSelf();}
+          }catch(e){}
+        },120);
+      });
     }
     grid.appendChild(hostCell);
     grid.appendChild(selfCell);
@@ -444,9 +463,11 @@
             selfCell.appendChild(sv);
           }
           if(sv.srcObject!==selfStream)sv.srcObject=selfStream;
+          var repairFrameSeen20261001=false;
           var promoteReadySelf=function(){
             try{
-              if(!sv||sv.readyState<2||!(sv.videoWidth>0&&sv.videoHeight>0))return;
+              if(!sv||!repairFrameSeen20261001)return;
+              if(sv.readyState<2||!(sv.videoWidth>0&&sv.videoHeight>0))return;
               selfCell.classList.add('self');
               var lab=selfCell.querySelector('.kgh-label');
               if(!lab){
@@ -456,11 +477,28 @@
               lab.textContent='나 · 게스트';
             }catch(e){}
           };
-          sv.addEventListener('loadeddata',promoteReadySelf,{once:true});
-          sv.addEventListener('playing',promoteReadySelf,{once:true});
+          try{
+            if(sv.requestVideoFrameCallback){
+              sv.requestVideoFrameCallback(function(){
+                repairFrameSeen20261001=true;
+                promoteReadySelf();
+              });
+            }else{
+              sv.addEventListener('timeupdate',function onceRepairFrame(){
+                repairFrameSeen20261001=true;
+                promoteReadySelf();
+                try{sv.removeEventListener('timeupdate',onceRepairFrame);}catch(e){}
+              });
+            }
+          }catch(e){}
           try{var sp=sv.play();if(sp&&sp.catch)sp.catch(function(){});}catch(e){}
-          setTimeout(promoteReadySelf,60);
-          setTimeout(promoteReadySelf,180);
+          sv.addEventListener('playing',function(){
+            setTimeout(function(){
+              try{
+                if(sv.currentTime>0){repairFrameSeen20261001=true;promoteReadySelf();}
+              }catch(e){}
+            },120);
+          },{once:true});
         }
         if(sv&&hostStream&&sameVideoSource20260926(sv.srcObject,hostStream)){
           try{sv.pause();}catch(e){}
