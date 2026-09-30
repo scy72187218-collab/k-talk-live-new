@@ -107,12 +107,16 @@
     window[name]=fn;
   }
 
-  var lastStartBroadcast=null;
+  var lastStartBroadcast=null,lastStartLiveRoomNow=null;
   function installWraps(){
     try{
       if(typeof window.startBroadcast==='function'&&window.startBroadcast!==lastStartBroadcast){
         wrap('startBroadcast',forceStart);
         lastStartBroadcast=window.startBroadcast;
+      }
+      if(typeof window.ktStartLiveRoomNow==='function'&&window.ktStartLiveRoomNow!==lastStartLiveRoomNow){
+        wrap('ktStartLiveRoomNow',forceStart);
+        lastStartLiveRoomNow=window.ktStartLiveRoomNow;
       }
     }catch(e){}
     wrap('endBroadcastEarnings',forceEnd);
