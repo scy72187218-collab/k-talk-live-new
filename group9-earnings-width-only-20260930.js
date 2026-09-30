@@ -13,18 +13,18 @@
       var hud=wrap&&wrap.querySelector('#myEarnHud');
       if(!wrap||!hud)return;
 
-      wrap.style.setProperty('width','210px','important');
-      wrap.style.setProperty('min-width','210px','important');
-      wrap.style.setProperty('max-width','210px','important');
+      wrap.style.setProperty('width','170px','important');
+      wrap.style.setProperty('min-width','170px','important');
+      wrap.style.setProperty('max-width','170px','important');
       wrap.style.setProperty('left','auto','important');
       wrap.style.setProperty('right','8px','important');
       wrap.style.setProperty('transform','none','important');
       wrap.style.setProperty('animation','none','important');
       wrap.style.setProperty('transition','none','important');
 
-      hud.style.setProperty('width','210px','important');
-      hud.style.setProperty('min-width','210px','important');
-      hud.style.setProperty('max-width','210px','important');
+      hud.style.setProperty('width','170px','important');
+      hud.style.setProperty('min-width','170px','important');
+      hud.style.setProperty('max-width','170px','important');
       hud.style.setProperty('box-sizing','border-box','important');
       hud.style.setProperty('left','auto','important');
       hud.style.setProperty('right','auto','important');
