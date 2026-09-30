@@ -95,6 +95,8 @@
   function roomEl(){return document.querySelector('#screen .ktsolo-room,#screen .ktg9-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room');}
   function isHostRole(){
     try{
+      /* 시청자는 9명방과 같은 .ktg13-room 틀을 써도 절대 호스트로 판단하지 않는다. */
+      if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
       var local=roomEl(),visible=false;
       try{
         if(local){
@@ -110,7 +112,6 @@
         }catch(_e){}
         return true;
       }
-      if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
       var rh='';
       try{rh=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||sessionStorage.getItem('kt_remote_host_id')||'').trim();}catch(_e){}
       if(rh)return false;
