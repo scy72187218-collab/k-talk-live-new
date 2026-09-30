@@ -5,7 +5,6 @@
   if(window.__ktRedLiveSignalReceiverLock20260930)return;
   window.__ktRedLiveSignalReceiverLock20260930=true;
 
-
   function inVideoView(){
     try{
       if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
@@ -28,44 +27,6 @@
     }catch(e){}
   }
 
-  var endedHosts20261001={};
-  function markEnded20261001(hostId){
-    try{
-      hostId=String(hostId||'').trim();
-      if(!hostId)return;
-      endedHosts20261001[hostId]=Date.now();
-      removeFallback();
-      var peek=document.getElementById('ktVideoLivePeek');
-      if(peek){
-        var hit=peek.querySelector('[data-host="'+CSS.escape(hostId)+'"]');
-        if(hit)peek.remove();
-      }
-    }catch(e){}
-  }
-  function recentlyEnded20261001(hostId){
-    try{
-      var at=Number(endedHosts20261001[String(hostId||'')]||0);
-      if(!at)return false;
-      if(Date.now()-at>12000){delete endedHosts20261001[String(hostId||'')];return false;}
-      return true;
-    }catch(e){return false;}
-  }
-  window.addEventListener('kt-live-off',function(e){
-    try{markEnded20261001(e&&e.detail&&e.detail.host_id);}catch(_e){}
-  });
-  window.addEventListener('kt-room-closed',function(e){
-    try{markEnded20261001(e&&e.detail&&e.detail.host_id);}catch(_e){}
-  });
-  window.addEventListener('kt-broadcast-ended',function(e){
-    try{markEnded20261001(e&&e.detail&&e.detail.host_id);}catch(_e){}
-  });
-  window.addEventListener('kt-live-on',function(e){
-    try{
-      var id=String(e&&e.detail&&e.detail.host_id||'').trim();
-      if(id)delete endedHosts20261001[id];
-    }catch(_e){}
-  });
-
   function ensureStyle(){
     if(document.getElementById('ktRedLiveReceiverFallbackStyle20260930'))return;
     var s=document.createElement('style');
@@ -79,35 +40,7 @@
 
   function showRoom(room){
     if(!room||!room.host_id||!inVideoView()){removeFallback();return;}
-    try{window.__ktLastLiveRoom=room;}catch(e){}
-
-    /* 같은 호스트가 새 방송을 다시 시작한 경우에는 예전 종료 차단을 즉시 해제한다.
-       run_started_at 또는 updated_at이 종료 시각보다 새로우면 현재 LIVE가 우선이다. */
-    try{
-      var hid=String(room.host_id||'').trim();
-      var endedAt=Number(endedHosts20261001[hid]||0);
-      var startedAt=Number(room.run_started_at||0);
-      var updatedAt=Date.parse(String(room.updated_at||''))||0;
-      if(endedAt&&((startedAt&&startedAt>endedAt)||(updatedAt&&updatedAt>endedAt))){
-        delete endedHosts20261001[hid];
-      }
-    }catch(e){}
-
-    if(recentlyEnded20261001(room.host_id)){removeFallback();return;}
-
-    /* 예전 LIVE 표시 컨테이너가 DOM에 남아 있기만 한 경우에는
-       새 빨간 LIVE를 숨기지 않는다. 실제로 화면에 보이는 LIVE 버튼/호스트가 있을 때만 중복 표시를 막는다. */
-    try{
-      var peek=document.getElementById('ktVideoLivePeek');
-      var peekVisible=false;
-      if(peek){
-        var cs=getComputedStyle(peek);
-        var rect=peek.getBoundingClientRect();
-        var liveBtn=peek.querySelector('.ktvl-live,.kt-rx-live,[data-host]');
-        peekVisible=!!(liveBtn&&cs.display!=='none'&&cs.visibility!=='hidden'&&rect.width>0&&rect.height>0);
-      }
-      if(peekVisible){removeFallback();return;}
-    }catch(e){}
+    if(document.getElementById('ktVideoLivePeek')){removeFallback();return;}
     ensureStyle();
     var box=document.getElementById('ktRedLiveReceiverFallback20260930');
     if(!box){
@@ -125,9 +58,6 @@
     };
   }
 
-  var lastLiveRoom20261001=null;
-  var lastLiveSeenAt20261001=0;
-
   async function poll(){
     if(!inVideoView()){removeFallback();return;}
     try{
@@ -135,36 +65,9 @@
       if(!r.ok)return;
       var j=await r.json();
       var rooms=Array.isArray(j&&j.rooms)?j.rooms:[];
-      if(rooms.length){
-        lastLiveRoom20261001=rooms[0];
-        lastLiveSeenAt20261001=Date.now();
-        showRoom(rooms[0]);
-        return;
-      }
-
-      /* 서버의 짧은 빈 응답 한 번 때문에 LIVE를 꺼버리지 않는다.
-         방송 중에는 최근 신호를 8초간 유지하고, 명확한 종료 신호가 있을 때만 즉시 끈다. */
-      var ended=Array.isArray(j&&j.ended)?j.ended:[];
-      var lastId=String(lastLiveRoom20261001&&lastLiveRoom20261001.host_id||'');
-      var endedNow=ended.some(function(x){return String(x&&x.host_id||'')===lastId;});
-      if(lastId&&endedNow){
-        lastLiveRoom20261001=null;
-        lastLiveSeenAt20261001=0;
-        removeFallback();
-        return;
-      }
-
-      if(lastLiveRoom20261001&&Date.now()-lastLiveSeenAt20261001<8000){
-        showRoom(lastLiveRoom20261001);
-        return;
-      }
-      removeFallback();
-    }catch(e){
-      /* 네트워크 순간 오류도 바로 LIVE 제거 사유가 아니다. */
-      if(lastLiveRoom20261001&&Date.now()-lastLiveSeenAt20261001<8000){
-        showRoom(lastLiveRoom20261001);
-      }
-    }
+      if(rooms.length)showRoom(rooms[0]);
+      else removeFallback();
+    }catch(e){}
   }
 
   setInterval(poll,450);
