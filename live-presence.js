@@ -547,14 +547,45 @@
     return true;
   };
 
+  function ktShowExitVideoImmediately20260930(){
+    try{
+      var s=document.getElementById('screen');
+      if(!s)return false;
+      var u='';
+      try{
+        var fast=JSON.parse(localStorage.getItem('ktalk_fast_feed')||'[]');
+        if(Array.isArray(fast)&&fast[0]&&fast[0].video_url)u=String(fast[0].video_url||'');
+      }catch(e){}
+      if(!u)u='https://zupwbfmacwzexyvznlzq.supabase.co/storage/v1/object/public/ktalk-videos/guest/1788516618159-4ep5ki.mp4';
+
+      document.body.classList.remove('kt-home');
+      document.body.classList.add('kt-video-mode');
+      s.innerHTML='<section class="video-home" style="background:#000">'
+        +'<video id="homeVideo" autoplay muted loop playsinline preload="auto" fetchpriority="high" src="'+u+'" style="width:100%;height:100%;object-fit:cover;background:#000"></video>'
+        +'</section>';
+      var v=document.getElementById('homeVideo');
+      if(v){
+        v.muted=true;v.defaultMuted=true;v.volume=0;v.playsInline=true;v.preload='auto';
+        v.setAttribute('autoplay','');v.setAttribute('muted','');v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');v.setAttribute('fetchpriority','high');
+        var play=function(){try{var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(e){}};
+        play();
+        [30,90,180,350,700].forEach(function(ms){setTimeout(function(){if(v&&v.isConnected&&v.paused)play();},ms);});
+      }
+      return true;
+    }catch(e){return false;}
+  }
+
   window.ktLeaveRemoteLive=async function(silent){
     var c=viewerCtx;ktNotifyRemoteExit20260924(c);viewerCtx=null;window.__ktRemoteHostStream=null;window.__ktRemoteHostId='';window.__ktCurrentRemoteHostId='';try{sessionStorage.removeItem('kt_remote_host_id');}catch(e){}document.documentElement.classList.remove('kt-remote-viewing');
     if(!silent){
-      /* 나가기는 화면 우선: 서버 정리를 기다리지 않고 즉시 원래 동영상 화면을 연다. */
-      try{
-        if(typeof window.home==='function')window.home();
-        else if(typeof window.showVideoHome==='function')window.showVideoHome('추천 동영상');
-      }catch(e){}
+      /* 나가기는 화면 우선: 첫 동영상을 즉시 붙이고 서버 정리는 뒤에서 처리한다. */
+      var shown=ktShowExitVideoImmediately20260930();
+      if(!shown){
+        try{
+          if(typeof window.home==='function')window.home();
+          else if(typeof window.showVideoHome==='function')window.showVideoHome('추천 동영상');
+        }catch(e){}
+      }
     }
     if(c){
       clearInterval(c.signalTimer);clearInterval(c.heartbeat);clearInterval(c.activityTimer);try{c.pc.close();}catch(e){}
