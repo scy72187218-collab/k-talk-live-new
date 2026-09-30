@@ -75,8 +75,9 @@
         var holdStyle=exitHoldImage
           ?'background-image:url('+exitHoldImage+');background-size:cover;background-position:center;background-repeat:no-repeat;'
           :'background:#111;';
-        s.innerHTML='<section id="ktBroadcastReturnFirstFrame" style="height:calc(100dvh - 78px);min-height:560px;position:relative;'+holdStyle+'overflow:hidden">'
-          +'<video id="ktPublicFirstPaintVideo" class="kt-public-video" autoplay muted loop playsinline preload="auto" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:transparent;opacity:0"></video>'
+        s.innerHTML='<section id="ktBroadcastReturnFirstFrame" style="height:calc(100dvh - 78px);min-height:560px;position:relative;background:#111;overflow:hidden">'
+          +'<video id="ktPublicFirstPaintVideo" class="kt-public-video" autoplay muted loop playsinline preload="auto" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000;z-index:1"></video>'
+          +'<div id="ktBroadcastExitHoldFrame" style="position:absolute;inset:0;z-index:2;'+holdStyle+'pointer-events:none"></div>'
           +'</section>';
 
         var v=document.getElementById('ktPublicFirstPaintVideo');
@@ -95,12 +96,8 @@
           var reveal=function(){
             try{
               if(Number(v.readyState||0)>=2){
-                v.style.opacity='1';
-                var frame=document.getElementById('ktBroadcastReturnFirstFrame');
-                if(frame){
-                  frame.style.backgroundImage='none';
-                  frame.style.background='#000';
-                }
+                var hold=document.getElementById('ktBroadcastExitHoldFrame');
+                if(hold)hold.remove();
               }
             }catch(e){}
           };
