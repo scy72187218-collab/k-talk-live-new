@@ -641,10 +641,9 @@
   },true);
 
   window.addEventListener('pagehide',function(){
-    if(hostActive){
-      var body=JSON.stringify({active:false,updated_at:nowIso()});
-      try{fetch(BASE+'ktalk_live_rooms?host_id=eq.'+enc(deviceId())+'&active=eq.true',{method:'PATCH',headers:headers({Prefer:'return=minimal'}),body:body,keepalive:true});}catch(e){}
-    }
+    /* 잠깐 백그라운드/화면 전환은 호스트 방송 종료가 아니다.
+       실제 종료 버튼에서 stopHostPresence()가 active:false를 기록한다.
+       호스트 신호가 끊긴 경우 시청 화면에서는 1분 유효시간으로 정리한다. */
     if(viewerCtx){
       try{fetch(BASE+'ktalk_live_viewers?host_id=eq.'+enc(viewerCtx.hostId)+'&viewer_id=eq.'+enc(viewerCtx.viewerId),{method:'PATCH',headers:headers({Prefer:'return=minimal'}),body:JSON.stringify({active:false,updated_at:nowIso()}),keepalive:true});}catch(e){}
     }
