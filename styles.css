@@ -3450,3 +3450,19 @@ body.kt-home .kt-dash-top,body.kt-home .kt-notice,body.kt-home .kt-room-grid,bod
 #myEarnDetail{
   display:none;
 }
+
+/* 2026-09-30 9명방 수익률 노란칸 폭만 고정 — 5555 */
+#screen .ktg13-room[data-kt-room="9"] .ktg13-earn{
+  width:170px!important;
+  min-width:170px!important;
+  max-width:170px!important;
+  margin-left:auto!important;
+}
+#screen .ktg13-room[data-kt-room="9"] .ktg13-earn #myEarnHud{
+  width:170px!important;
+  min-width:170px!important;
+  max-width:170px!important;
+  box-sizing:border-box!important;
+  animation:none!important;
+  transition:none!important;
+}
