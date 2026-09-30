@@ -21,6 +21,48 @@
     return id;
   }
 
+  function openShellNow20261001(hostId){
+    try{
+      hostId=String(hostId||'').trim();
+      if(!hostId)return false;
+      window.__ktRemoteHostId=hostId;
+      window.__ktCurrentRemoteHostId=hostId;
+      try{sessionStorage.setItem('kt_remote_host_id',hostId);}catch(e){}
+      document.documentElement.classList.add('kt-remote-viewing');
+
+      var screen=document.getElementById('screen');
+      if(!screen)return false;
+      if(screen.querySelector('.kt-remote-live'))return true;
+
+      var room=null;
+      try{
+        if(window.__ktLastLiveRoom&&String(window.__ktLastLiveRoom.host_id||'')===hostId){
+          room=window.__ktLastLiveRoom;
+        }
+      }catch(e){}
+      room=room||{host_name:'K-Talk',title:'라이브',room_name:'방송'};
+
+      function esc(s){return String(s||'').replace(/[&<>"]/g,'');}
+      screen.innerHTML='<section class="kt-remote-live">'+
+        '<video id="ktRemoteLiveVideo" autoplay playsinline muted></video>'+
+        '<div class="kt-remote-shade"></div>'+
+        '<div class="kt-remote-top">'+
+          '<button class="kt-remote-back" type="button">‹</button>'+
+          '<div class="kt-remote-meta"><b><i class="kt-live-dot"></i>'+esc(room.host_name||'K-Talk')+'</b>'+
+          '<span>'+esc(room.title||room.room_name||'라이브')+' · '+esc(room.room_name||'방송')+'</span></div>'+
+          '<div id="ktRemoteViewerCount" class="kt-remote-viewers">👁 연결 중</div>'+
+        '</div>'+
+        '<div id="ktRemoteLiveStatus" class="kt-remote-status">방송 영상 연결 중…</div>'+
+      '</section>';
+      var back=screen.querySelector('.kt-remote-back');
+      if(back)back.onclick=function(){try{if(window.ktLeaveRemoteLive)window.ktLeaveRemoteLive();}catch(e){}};
+      try{
+        window.dispatchEvent(new CustomEvent('kt-remote-host-selected',{detail:{host_id:hostId,instant_shell:true}}));
+      }catch(e){}
+      return true;
+    }catch(e){return false;}
+  }
+
   function enter(btn,e){
     if(!btn)return false;
     var now=Date.now();
@@ -62,6 +104,10 @@
         if(e.stopImmediatePropagation)e.stopImmediatePropagation();
       }
     }catch(_e){}
+
+    /* Show the room shell on the exact pointer/touch event.
+       Network discovery and video negotiation continue after the screen change. */
+    try{openShellNow20261001(id);}catch(_e){}
 
     try{
       btn.style.setProperty('pointer-events','auto','important');
