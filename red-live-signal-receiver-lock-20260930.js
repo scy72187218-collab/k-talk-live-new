@@ -8,11 +8,9 @@
   function inVideoView(){
     try{
       if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
-      /* 동영상 모드가 확실하면, 이전 방송방 표시가 잠깐 남아 있어도 LIVE 신호는 보여준다. */
-      if(document.body.classList.contains('kt-video-mode'))return true;
-      if(document.querySelector('#screen .kt-public-video,#screen #homeVideo,#screen .video-home,#screen .media'))return true;
       if(document.documentElement.classList.contains('kt-inside-broadcast-room'))return false;
-      return false;
+      if(document.body.classList.contains('kt-video-mode'))return true;
+      return !!document.querySelector('#screen .kt-public-video,#screen #homeVideo,#screen .video-home,#screen .media');
     }catch(e){return false;}
   }
 
@@ -42,18 +40,7 @@
 
   function showRoom(room){
     if(!room||!room.host_id||!inVideoView()){removeFallback();return;}
-    var peek=document.getElementById('ktVideoLivePeek');
-    if(peek){
-      var liveBtn=peek.querySelector('.ktvl-live');
-      var visible=false;
-      try{
-        if(liveBtn){
-          var cs=getComputedStyle(liveBtn);
-          visible=cs.display!=='none'&&cs.visibility!=='hidden'&&Number(cs.opacity)!==0;
-        }
-      }catch(e){}
-      if(visible){removeFallback();return;}
-    }
+    if(document.getElementById('ktVideoLivePeek')){removeFallback();return;}
     ensureStyle();
     var box=document.getElementById('ktRedLiveReceiverFallback20260930');
     if(!box){
