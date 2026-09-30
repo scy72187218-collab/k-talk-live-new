@@ -404,7 +404,7 @@
       if(!room||Date.now()-new Date(room.updated_at).getTime()>STALE_MS){
         /* 호스트 종료 신호는 두 게스트 모두 짧게 확인 후 동영상 화면으로 자동 복귀 */
         if(!c.roomMissingSince)c.roomMissingSince=Date.now();
-        if(Date.now()-c.roomMissingSince>2500){
+        if(Date.now()-c.roomMissingSince>60000){
           if(viewerCtx===c)returnGuestToVideoAfterHostExit(c);
         }
         return;
