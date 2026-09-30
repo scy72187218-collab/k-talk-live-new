@@ -492,6 +492,20 @@
     }catch(e){}
   }
 
+  window.ktClearApprovedGuestViewIfNotApproved20260930=function(){
+    try{
+      if(approvedByRealtimeRoster20260924())return false;
+      if(!approvalActive&&!document.querySelector('.kt-guest-hostlike-room'))return false;
+      clearApprovedViewForFreshRoom();
+      return true;
+    }catch(e){return false;}
+  };
+  window.addEventListener('kt-any-guest-left',function(){
+    setTimeout(function(){
+      try{window.ktClearApprovedGuestViewIfNotApproved20260930();}catch(e){}
+    },0);
+  });
+
   window.addEventListener('kt-host-session-reset',clearApprovedViewForFreshRoom);
 
   /* Do NOT tear down an already-approved 3-person room just because the same
