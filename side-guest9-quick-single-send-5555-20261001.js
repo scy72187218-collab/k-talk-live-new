@@ -70,42 +70,11 @@
     grid.parentNode.insertBefore(q,grid);
   }
 
-  function ensureSingleSend(root){
-    var bar=root.querySelector(':scope > .kt-remote-bottom')||root.querySelector('.kt-remote-bottom');
-    if(!bar)return;
-    var input=bar.querySelector('input');
-    if(!input)return;
-
-    var sends=[].slice.call(bar.querySelectorAll(
-      '.kt-remote-action.send,[data-kt-g9-final="send"],[data-kt-send-plane-5555],[data-kt-send-plane-hard-5555]'
-    ));
-
-    var keep=sends[0]||null;
-    if(!keep){
-      keep=document.createElement('button');
-      keep.type='button';
-      keep.className='kt-remote-action send';
-      keep.textContent='➤';
-      input.insertAdjacentElement('afterend',keep);
-    }else if(keep.previousElementSibling!==input){
-      input.insertAdjacentElement('afterend',keep);
-    }
-
-    keep.setAttribute('data-kt-single-send-5555','1');
-    keep.setAttribute('aria-label','채팅 보내기');
-    keep.textContent='➤';
-    keep.onclick=function(){
-      try{if(typeof window.ktRemoteSendChat==='function')return window.ktRemoteSendChat();}catch(e){}
-    };
-
-    sends.forEach(function(b){if(b!==keep){try{b.remove();}catch(e){}}});
-  }
 
   function apply(){
     document.querySelectorAll('#screen .kt-remote-live').forEach(function(root){
       if(!isNine(root))return;
       ensureQuick(root);
-      ensureSingleSend(root);
     });
   }
 
