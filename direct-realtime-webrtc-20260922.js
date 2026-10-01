@@ -1261,7 +1261,7 @@
          This changes host-video signaling only; it does not re-enter/leave the room. */
       var now=Date.now();
       var progressAt=Number(window.__ktDirectRtcProgressAt||0);
-      if(!viewerWatchToken || !progressAt || now-progressAt>900){
+      if(!viewerWatchToken || !progressAt || now-progressAt>600){
         viewerWatchToken=sid('watch');
         window.__ktDirectRtcProgressAt=now;
         window.__ktDirectRtcPhase='watch-retry';
