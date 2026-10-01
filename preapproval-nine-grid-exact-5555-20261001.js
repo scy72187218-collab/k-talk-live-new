@@ -61,7 +61,45 @@
     return Math.max(220,Math.min(w,h));
   }
 
+  function forceRemoteViewingNineMain(){
+    try{
+      if(!document.documentElement.classList.contains('kt-remote-viewing'))return;
+      var room=document.querySelector('#screen .ktg13-room[data-kt-room="9"]');
+      if(!room)return;
+      /* 승인 후 hostlike 화면은 건드리지 않음 */
+      if(document.querySelector('#screen .kt-remote-live .kt-guest-hostlike-room'))return;
+      var grid=room.querySelector(':scope > .ktg13-main')||room.querySelector('.ktg13-main');
+      if(!grid)return;
+
+      grid.setAttribute('data-kt-preapproval-nine-main-5555','1');
+      grid.style.setProperty('display','grid','important');
+      grid.style.setProperty('grid-template-columns','repeat(3,minmax(0,1fr))','important');
+      grid.style.setProperty('grid-template-rows','repeat(3,minmax(0,1fr))','important');
+      grid.style.setProperty('gap','2px','important');
+      grid.style.setProperty('flex','0 0 auto','important');
+      grid.style.setProperty('height','calc(100vw - 14px)','important');
+      grid.style.setProperty('min-height','0','important');
+      grid.style.setProperty('max-height','calc(100dvh - 355px)','important');
+      grid.style.setProperty('overflow','hidden','important');
+
+      var host=grid.querySelector('.ktg13-host');
+      if(host){
+        host.style.setProperty('min-width','0','important');
+        host.style.setProperty('min-height','0','important');
+        host.style.setProperty('width','auto','important');
+        host.style.setProperty('height','auto','important');
+      }
+      grid.querySelectorAll('.ktg13-guest').forEach(function(cell){
+        cell.style.setProperty('min-width','0','important');
+        cell.style.setProperty('min-height','0','important');
+        cell.style.setProperty('width','auto','important');
+        cell.style.setProperty('height','auto','important');
+      });
+    }catch(e){}
+  }
+
   function apply(){
+    forceRemoteViewingNineMain();
     var root=document.querySelector('#screen .kt-remote-live,.kt-remote-live');
     if(!root||!isRemoteNine(root))return;
     var grid=findGrid(root);
@@ -88,6 +126,7 @@
   }
 
   apply();
+  [30,100,250,500,900,1500,2500].forEach(function(ms){setTimeout(forceRemoteViewingNineMain,ms);});
   [30,100,250,500,900,1500,2500].forEach(function(ms){setTimeout(apply,ms);});
   window.addEventListener('resize',function(){setTimeout(apply,30);});
   window.addEventListener('pageshow',function(){setTimeout(apply,50);});
