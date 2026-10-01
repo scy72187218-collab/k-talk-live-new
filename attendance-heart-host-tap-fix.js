@@ -114,7 +114,9 @@
     s.id='ktAttendanceRoomCountStyle';
     s.textContent=''
       +'.kt-attendance-room-count{display:inline-grid!important;place-items:center!important;min-width:20px!important;height:20px!important;padding:0 5px!important;margin-left:4px!important;border-radius:999px!important;background:#ff3ba7!important;color:#fff!important;font-size:11px!important;font-weight:950!important;line-height:20px!important;vertical-align:middle!important;box-shadow:0 0 7px rgba(255,59,167,.72)!important;flex:0 0 auto!important}'
-      +'.ktsolo-att .kt-attendance-room-count{min-width:18px!important;height:18px!important;line-height:18px!important;font-size:10px!important;padding:0 4px!important;margin-left:2px!important}';
+      +'.ktsolo-att .kt-attendance-room-count{min-width:18px!important;height:18px!important;line-height:18px!important;font-size:10px!important;padding:0 4px!important;margin-left:2px!important}'
+      +'.ktsolo-att,.ktg13-attend,.ktsubscriber-att,.ktsecret-att,.kt-live-attendance,[data-kt-attendance]{position:relative!important}'
+      +'.kt-attendance-heart-badge{position:absolute!important;right:-10px!important;top:-10px!important;z-index:25!important;display:inline-flex!important;align-items:center!important;gap:2px!important;min-width:30px!important;height:20px!important;padding:0 5px!important;border-radius:999px!important;background:rgba(52,12,38,.94)!important;border:1px solid rgba(255,91,185,.62)!important;color:#fff!important;font-size:10px!important;font-weight:950!important;line-height:20px!important;box-shadow:0 0 7px rgba(255,67,174,.38)!important;white-space:nowrap!important;pointer-events:none!important}';
     document.head.appendChild(s);
   }
 
@@ -133,6 +135,17 @@
       btn.appendChild(badge);
     }
     badge.textContent=String(n);
+
+    /* 출석체크 전용 하트: 좋아요 하트와 완전히 별개.
+       출석체크 버튼 바로 위/옆에 출석 인원 숫자와 함께 표시한다. */
+    var heart=btn.querySelector('.kt-attendance-heart-badge');
+    if(!heart){
+      heart=document.createElement('span');
+      heart.className='kt-attendance-heart-badge';
+      heart.setAttribute('aria-label','출석체크 하트');
+      btn.appendChild(heart);
+    }
+    heart.textContent='💗 '+String(n);
   }
 
   function attendance(btn){
