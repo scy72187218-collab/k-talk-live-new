@@ -8,10 +8,10 @@
   window.__ktGuest9HostMatchFinal20261001=true;
 
   function root(){
-    var r=document.querySelector('#screen .kt-remote-live.kt-guest-hostlike-active');
-    if(!r)return null;
-    var room=r.querySelector('.kt-guest-hostlike-room[data-kt-room="9"]');
-    return room?{root:r,room:room}:null;
+    var room=document.querySelector('#screen .kt-remote-live .kt-guest-hostlike-room[data-kt-room="9"]');
+    if(!room)return null;
+    var r=room.closest('.kt-remote-live');
+    return r?{root:r,room:room}:null;
   }
 
   function ensureStyle(){
