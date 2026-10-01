@@ -112,17 +112,28 @@
     var input=bar.querySelector('input');
     if(!input)return;
 
-    var b=bar.querySelector('[data-kt-send-plane-hard-5555]');
-    if(!b){
-      b=document.createElement('button');
-      b.type='button';
-      b.className='kt-remote-action send';
-      b.setAttribute('data-kt-send-plane-hard-5555','1');
-      b.setAttribute('aria-label','채팅 보내기');
-      b.textContent='➤';
-      input.insertAdjacentElement('afterend',b);
-    }
-    b.onclick=sendChat;
+    /* Use the button already beside the chat input. Never create a new arrow. */
+    var keep=(input.nextElementSibling&&input.nextElementSibling.tagName==='BUTTON')
+      ? input.nextElementSibling
+      : null;
+    var sends=[].slice.call(bar.querySelectorAll(
+      '.kt-remote-action.send,'+
+      '[data-kt-g9-final="send"],'+
+      '[data-kt-send-plane-5555],'+
+      '[data-kt-send-plane-hard-5555],'+
+      '[data-kt-single-send-5555],'+
+      '[data-kt-preapproval-single-send-5555]'
+    ));
+    if(!keep)keep=sends[0]||null;
+    if(!keep)return;
+
+    keep.setAttribute('aria-label','채팅 보내기');
+    keep.onclick=sendChat;
+    sends.forEach(function(b){
+      if(b!==keep){
+        try{b.remove();}catch(e){}
+      }
+    });
   }
 
   function apply(){
