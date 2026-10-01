@@ -152,11 +152,11 @@
       chat.style.setProperty('flex-direction','column','important');
       chat.style.setProperty('justify-content','flex-end','important');
       chat.style.setProperty('overflow','hidden','important');
-      chat.style.setProperty('background','linear-gradient(180deg,rgba(31,23,38,.76),rgba(17,17,22,.86))','important');
+      chat.style.setProperty('background','transparent','important');
       chat.style.setProperty('border','0','important');
       chat.style.setProperty('outline','0','important');
       chat.style.setProperty('border-color','transparent','important');
-      chat.style.setProperty('border-radius','14px','important');
+      chat.style.setProperty('border-radius','0','important');
       chat.style.setProperty('box-shadow','none','important');
       chat.style.setProperty('transform','none','important');
       chat.style.setProperty('z-index','500','important');
