@@ -1248,23 +1248,44 @@
   window.ktRetryRemoteHostVideoOnly20261001=function(){
     try{
       if(isHostRole())return false;
-      if(ktRemoteStreamStillLive20260923()){
+
+      /* A live MediaStream track alone is not enough on Android:
+         the track can stay "live" while the rendered host picture is frozen.
+         Only stop retrying after an actual host video element is rendering frames. */
+      var rendered=false;
+      try{
+        var hostVideos=[].slice.call(document.querySelectorAll(
+          '#ktRemoteLiveVideo,#ktRemoteHostPreview,'+
+          '#screen .ktg13-room[data-kt-room="9"] .ktg13-host video,'+
+          '.kt-guest-hostlike-room .kgh-cell.host video,'+
+          '.kt-approved-guest-grid .kt-approved-guest-cell.host video,'+
+          '.kt-prejoin-room-grid .kt-prejoin-room-cell.host video,'+
+          '.kt-guest-room-grid .kt-guest-room-cell.host video'
+        ));
+        rendered=hostVideos.some(function(v){
+          try{return !!(v&&v.srcObject&&v.readyState>=2&&v.videoWidth>0&&v.videoHeight>0&&v.currentTime>0);}catch(e){return false;}
+        });
+      }catch(e){}
+
+      if(rendered){
         attachRemoteStreamNow();
         return true;
       }
+
       var hid=remoteHostId();
       if(!hid)return false;
       if(activeHostId!==hid)connect(hid);
 
-      /* If negotiation has made no useful progress for a short time,
-         ask the host with a fresh watch token so the host creates a fresh offer.
-         This changes host-video signaling only; it does not re-enter/leave the room. */
+      /* Re-attach any existing remote stream first, but keep negotiating if
+         no real frame is being rendered. This is host-video only. */
+      try{if(ktRemoteStreamStillLive20260923())attachRemoteStreamNow();}catch(e){}
+
       var now=Date.now();
       var progressAt=Number(window.__ktDirectRtcProgressAt||0);
       if(!viewerWatchToken || !progressAt || now-progressAt>2500){
         viewerWatchToken=sid('watch');
         window.__ktDirectRtcProgressAt=now;
-        window.__ktDirectRtcPhase='watch-retry';
+        window.__ktDirectRtcPhase='watch-retry-frozen-host';
       }
       lastWatchAt=0;
       ensureViewerWatch(true);
