@@ -1255,7 +1255,17 @@
       var hid=remoteHostId();
       if(!hid)return false;
       if(activeHostId!==hid)connect(hid);
-      if(!viewerWatchToken)viewerWatchToken=sid('watch');
+
+      /* If negotiation has made no useful progress for a short time,
+         ask the host with a fresh watch token so the host creates a fresh offer.
+         This changes host-video signaling only; it does not re-enter/leave the room. */
+      var now=Date.now();
+      var progressAt=Number(window.__ktDirectRtcProgressAt||0);
+      if(!viewerWatchToken || !progressAt || now-progressAt>900){
+        viewerWatchToken=sid('watch');
+        window.__ktDirectRtcProgressAt=now;
+        window.__ktDirectRtcPhase='watch-retry';
+      }
       lastWatchAt=0;
       ensureViewerWatch(true);
       attachRemoteStreamNow();
