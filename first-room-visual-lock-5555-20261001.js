@@ -113,10 +113,21 @@
       if(hostlike)return true;
       if(root.classList.contains('kt-g9-final-5555'))return true;
       var grid=root.querySelector('.kt-approved-guest-grid,.kt-prejoin-room-grid,.kt-guest-room-grid');
-      if(!grid)return false;
-      var cells=grid.querySelectorAll('.kt-approved-guest-cell,.kt-prejoin-room-cell,.kt-guest-room-cell,[data-guest-slot]');
-      if(cells.length===9)return true;
+      if(grid){
+        var cells=grid.querySelectorAll('.kt-approved-guest-cell,.kt-prejoin-room-cell,.kt-guest-room-cell,[data-guest-slot]');
+        if(cells.length===9)return true;
+        var direct=[].slice.call(grid.children||[]).filter(function(el){return el&&el.nodeType===1;});
+        if(direct.length===9)return true;
+      }
       var txt=String(root.textContent||'');
+      try{
+        var last=window.__ktLastLiveRoom||{};
+        txt+=' '+String(last.room_name||'')+' '+String(last.title||'')+' '+String(last.room_type||'');
+      }catch(_e){}
+      try{
+        var st=window.state||{};
+        txt+=' '+String(st.liveRoomName||'')+' '+String(st.liveRoomType||'')+' '+String(st.liveRoomMax||'');
+      }catch(_e2){}
       return /9\s*명|group9/i.test(txt);
     }catch(e){return false;}
   }
