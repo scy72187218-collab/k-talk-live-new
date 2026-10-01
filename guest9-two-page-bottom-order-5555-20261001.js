@@ -1,8 +1,7 @@
-/* K-Talk 9-room guest two-page bottom order lock — 2026-10-01 — PIN 5555
-   Applies ONLY to remote 9-room guest screens:
-   - guest entry/request page
-   - approved guest page
+/* K-Talk 9-room guest PRE-APPROVAL bottom order lock — 2026-10-01 — PIN 5555
+   Applies ONLY to the 9-room guest screen BEFORE approval/entry.
    Exact order: chat input -> send arrow -> people -> rose -> gift -> share.
+   Approved in-room guest screen is left unchanged.
    Does not touch grid, video, approval/signaling, earnings, host room, or other rooms.
 */
 (function(){
@@ -63,8 +62,21 @@
     })||null;
   }
 
+  function isApprovedInside(root){
+    try{
+      return root.classList.contains('kt-guest-hostlike-active')||
+        root.classList.contains('kt-approved-guest-room')||
+        !!root.querySelector('.kt-guest-hostlike-room,.kt-approved-guest-grid');
+    }catch(e){return false;}
+  }
+
   function ensure(root){
-    if(!isNine(root)){root.classList.remove('kt-g9-six-order-5555');return;}
+    /* Owner request: third-photo layout ONLY before approval/entry.
+       Once approval changes to the in-room guest layout, do not touch it. */
+    if(!isNine(root)||isApprovedInside(root)){
+      root.classList.remove('kt-g9-six-order-5555');
+      return;
+    }
     var bar=root.querySelector(':scope > .kt-remote-bottom')||root.querySelector('.kt-remote-bottom');
     if(!bar)return;
     var input=bar.querySelector('input');
