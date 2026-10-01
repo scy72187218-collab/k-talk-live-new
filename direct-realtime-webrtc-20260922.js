@@ -1173,17 +1173,16 @@
       var firstAnswer={host_id:hid,viewer_id:viewerId(),session_id:session,answer_sdp:viewerAnswerSdp};
       sendCriticalMedia20260926('video_answer',firstAnswer,hid);
       /* Communication speed only: repeat the SAME first answer briefly. */
-      [40,120,280,560].forEach(function(ms){
+      [30,80,180,360].forEach(function(ms){
         setTimeout(function(){
           if(viewerPc!==pc||viewerSession!==session||viewerConnected)return;
           sendCriticalMedia20260926('video_answer',firstAnswer,hid);
         },ms);
       });
 
-      /* 첫 입장에서는 0.22초 만에 PeerConnection을 끊지 않는다.
-         모바일에서 첫 원격 프레임이 오기 전에 연결을 재시작하면 호스트 얼굴 표시가 늦어진다.
-         처음 연결은 최소 1.2초 동안 같은 연결을 유지하고, 그동안 answer/ICE 재전송만 한다. */
-      if(!previousUsable)retryViewerSoon(1200);
+      /* 1111: 첫 호스트 영상 연결 대기만 조금 단축.
+         너무 빨리 끊지는 않되, 1.2초보다 빠르게 다음 재시도를 시작한다. */
+      if(!previousUsable)retryViewerSoon(750);
       else setTimeout(function(){
         if(viewerPc===pc&&!pc.__ktGotRemoteTrack20260923&&pc.connectionState!=='connected'){
           try{closePc(pc);}catch(e){}
