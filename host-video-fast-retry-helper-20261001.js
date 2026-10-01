@@ -26,11 +26,42 @@
 
   function streamReady(){
     try{
-      var s=window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream||null;
-      if(s&&s.getVideoTracks&&s.getVideoTracks().some(function(t){return t&&t.readyState==='live';}))return true;
-      var v=document.querySelector('#ktRemoteLiveVideo,#ktRemoteHostPreview,.kt-guest-hostlike-room .kgh-cell.host video');
-      return !!(v&&v.srcObject&&v.readyState>=2&&v.videoWidth>0&&v.videoHeight>0);
+      /* A MediaStream track can be "live" before Android has rendered a frame.
+         Treat it as ready only after a host video element is actually drawing frames. */
+      var vids=[].slice.call(document.querySelectorAll(
+        '#ktRemoteLiveVideo,#ktRemoteHostPreview,'+
+        '#screen .ktg13-room[data-kt-room="9"] .ktg13-host video,'+
+        '.kt-guest-hostlike-room .kgh-cell.host video,'+
+        '.kt-approved-guest-grid .kt-approved-guest-cell.host video,'+
+        '.kt-prejoin-room-grid .kt-prejoin-room-cell.host video,'+
+        '.kt-guest-room-grid .kt-guest-room-cell.host video'
+      ));
+      return vids.some(function(v){
+        try{return !!(v&&v.srcObject&&v.readyState>=2&&v.videoWidth>0&&v.videoHeight>0&&v.currentTime>0);}catch(e){return false;}
+      });
     }catch(e){return false;}
+  }
+
+  function clearHostPreviewWhenPlaying(){
+    try{
+      if(!streamReady())return;
+      document.querySelectorAll(
+        '#ktRemoteLiveVideo,#ktRemoteHostPreview,'+
+        '#screen .ktg13-room[data-kt-room="9"] .ktg13-host video,'+
+        '.kt-guest-hostlike-room .kgh-cell.host video,'+
+        '.kt-approved-guest-grid .kt-approved-guest-cell.host video,'+
+        '.kt-prejoin-room-grid .kt-prejoin-room-cell.host video,'+
+        '.kt-guest-room-grid .kt-guest-room-cell.host video'
+      ).forEach(function(v){
+        try{
+          if(v.srcObject){
+            v.removeAttribute('poster');
+            v.style.backgroundImage='none';
+            var p=v.play();if(p&&p.catch)p.catch(function(){});
+          }
+        }catch(e){}
+      });
+    }catch(e){}
   }
 
   var previewBusy=false,previewLastAt=0;
@@ -83,10 +114,12 @@
   }
 
   function kick(expected){
-    if(streamReady())return;
+    if(streamReady()){clearHostPreviewWhenPlaying();return;}
     var hid=hostId();
     if(!hid||hid!==expected)return;
     try{
+      /* Keep re-attaching the real stream until a frame is actually rendered.
+         This prevents the fast preview photo from remaining frozen on screen. */
       if(typeof window.ktRetryRemoteHostVideoOnly20261001==='function'){
         window.ktRetryRemoteHostVideoOnly20261001();
       }
@@ -122,8 +155,9 @@
       if(!hid)return;
       fetchHostPreview();
       kick(hid);
+      clearHostPreviewWhenPlaying();
     }catch(e){}
-  },450);
+  },350);
 
   window.addEventListener('kt-approved-guest-stream-ready',clearTimers);
   window.addEventListener('kt-broadcast-ended',clearTimers);
