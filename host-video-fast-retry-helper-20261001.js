@@ -48,7 +48,7 @@
     clearTimers();
     var hid=hostId();
     if(!hid)return;
-    [250,650,1200,2200,3500].forEach(function(ms){
+    [180,450,850,1400,2200,3200,4600,6500].forEach(function(ms){
       timers.push(setTimeout(function(){kick(hid);},ms));
     });
   }
@@ -59,6 +59,20 @@
     }catch(_e){}
     setTimeout(arm,0);
   });
+
+  /* Stay on the same room and keep asking only for host video while the
+     connection banner is still visible. */
+  setInterval(function(){
+    try{
+      if(streamReady())return;
+      var root=document.querySelector('.kt-remote-live');
+      var st=document.getElementById('ktRemoteLiveStatus');
+      if(!root||!st||st.style.display==='none')return;
+      var hid=hostId();
+      if(!hid)return;
+      kick(hid);
+    }catch(e){}
+  },900);
 
   window.addEventListener('kt-approved-guest-stream-ready',clearTimers);
   window.addEventListener('kt-broadcast-ended',clearTimers);
