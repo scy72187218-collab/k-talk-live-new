@@ -11,9 +11,22 @@
     try{id=String(btn&&btn.getAttribute&&btn.getAttribute('data-host')||'').trim();}catch(e){}
     if(!id){
       try{
+        var oc=String(btn&&btn.getAttribute&&btn.getAttribute('onclick')||'');
+        var m=oc.match(/kt(?:FriendEnterLive|EnterRemoteLive)\(\s*['"]([^'"]+)['"]/);
+        if(m&&m[1])id=String(m[1]).trim();
+      }catch(e){}
+    }
+    if(!id){
+      try{
         var p=btn&&btn.closest&&btn.closest('[data-host]');
         id=String(p&&p.getAttribute('data-host')||'').trim();
       }catch(e){}
+    }
+    if(!id){
+      try{id=String(window.__ktRemoteHostId||'').trim();}catch(e){}
+    }
+    if(!id){
+      try{id=String(sessionStorage.getItem('kt_remote_host_id')||'').trim();}catch(e){}
     }
     if(!id){
       try{id=String(window.__ktLastLiveRoom&&window.__ktLastLiveRoom.host_id||'').trim();}catch(e){}
@@ -47,6 +60,15 @@
     try{
       if(typeof window.ktEnterRemoteLive==='function'){
         window.ktEnterRemoteLive(id);
+        /* 일부 Android WebView에서 첫 pointer 호출이 먹히지 않는 경우만
+           같은 host_id로 짧게 한 번 더 보강한다. */
+        setTimeout(function(){
+          try{
+            var root=document.querySelector('.kt-remote-live');
+            var visible=!!(root&&getComputedStyle(root).display!=='none');
+            if(!visible&&typeof window.ktEnterRemoteLive==='function')window.ktEnterRemoteLive(id);
+          }catch(_e){}
+        },90);
         return true;
       }
     }catch(_e){}
