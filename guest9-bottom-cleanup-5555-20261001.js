@@ -1,8 +1,7 @@
 /* K-Talk guest 9-room bottom cleanup — 2026-10-01 — PIN 5555
    ONLY remove:
-   - black people button created by g9-final UI
-   - rose buttons in remote guest 9-room bottom bar
-   KEEP blue people, chat send, gift, share, and everything else.
+   - black duplicate people button created by g9-final UI
+   KEEP blue people, chat send, rose, gift, share, and everything else.
 */
 (function(){
   if(window.__ktGuest9BottomCleanup5555_20261001)return;
@@ -29,12 +28,6 @@
 
       var blackPeople=bar.querySelector('[data-kt-g9-final="people"]');
       if(blackPeople){try{blackPeople.remove();}catch(e){}}
-
-      [].slice.call(bar.querySelectorAll('button')).forEach(function(b){
-        if(String(b.textContent||'').trim()==='🌹'){
-          try{b.remove();}catch(e){}
-        }
-      });
     });
   }
 
