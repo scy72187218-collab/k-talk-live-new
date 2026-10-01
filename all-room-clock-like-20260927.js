@@ -59,6 +59,14 @@
     var r=room();
     if(!r)return;
 
+    /* 2026-10-01: keep exactly one heart beside the clock.
+       Remove only the older duplicate heart badge if another helper created it. */
+    try{
+      r.querySelectorAll('.kt-live-clock-heart').forEach(function(x){
+        try{if(x&&x.parentNode)x.parentNode.removeChild(x);}catch(e){}
+      });
+    }catch(e){}
+
     var clock=r.querySelector('#ktLiveClock');
     if(!clock)return;
 
