@@ -1011,7 +1011,7 @@
     }
     var old=hostViewPeers[vid];
     if(old&&old.watchToken===watchToken&&old.pc&&['new','connecting','connected'].indexOf(String(old.pc.connectionState||''))>-1){
-      if(old.offer)send('video_offer',{host_id:DEVICE,viewer_id:vid,session_id:old.sid,watch_token:watchToken,offer_sdp:old.offer});
+      if(old.offer)sendCriticalMedia20260926('video_offer',{host_id:DEVICE,viewer_id:vid,session_id:old.sid,watch_token:watchToken,offer_sdp:old.offer,host_frame:hostPreviewFrame20261001(stream)},DEVICE);
       return;
     }
     if(old){closePc(old.pc);delete hostViewPeers[vid];}
@@ -1261,7 +1261,7 @@
          This changes host-video signaling only; it does not re-enter/leave the room. */
       var now=Date.now();
       var progressAt=Number(window.__ktDirectRtcProgressAt||0);
-      if(!viewerWatchToken || !progressAt || now-progressAt>450){
+      if(!viewerWatchToken || !progressAt || now-progressAt>2500){
         viewerWatchToken=sid('watch');
         window.__ktDirectRtcProgressAt=now;
         window.__ktDirectRtcPhase='watch-retry';
