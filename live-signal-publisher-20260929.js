@@ -187,19 +187,6 @@
   setTimeout(tick,80);
   [100,300,700,1400].forEach(function(ms){setTimeout(installWraps,ms);});
 
-  /* 시작 버튼 이름이 바뀌거나 래퍼 설치 전에 눌린 경우에도
-     실제 방송방이 화면에 나타나는 순간 즉시 publish 한다.
-     수신/표시 잠금 코드는 건드리지 않는다. */
-  try{
-    new MutationObserver(function(){
-      try{
-        if(Date.now()<forceOffUntil)return;
-        if(hostRoomVisible()&&!lastActive){
-          forceStart();
-        }
-      }catch(e){}
-    }).observe(document.getElementById('screen')||document.documentElement,{childList:true,subtree:true});
-  }catch(e){}
   window.addEventListener('pageshow',function(){setTimeout(tick,60);});
   document.addEventListener('visibilitychange',function(){
     if(!document.hidden){
