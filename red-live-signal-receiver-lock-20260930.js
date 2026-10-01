@@ -69,7 +69,10 @@
       var ended=Array.isArray(j&&j.ended)?j.ended:[];
       if(rooms.length){
         lastRoom=rooms[0];
-        lastRoomSeenAt=Date.now();
+        /* 1111: use the server's shared update timestamp so every device
+           ages the same LIVE signal from the same reference point. */
+        var serverSeen=Date.parse(String(lastRoom.updated_at||''));
+        lastRoomSeenAt=isFinite(serverSeen)&&serverSeen>0?serverSeen:Date.now();
         showRoom(lastRoom);
       }else{
         var endedCurrent=!!(lastRoom&&ended.some(function(x){
@@ -91,8 +94,9 @@
     }catch(e){}
   }
 
-  setInterval(poll,450);
-  [60,180,420,800,1400].forEach(function(ms){setTimeout(poll,ms);});
+  /* 1111: tighter shared polling window so phones show/hide LIVE nearly together. */
+  setInterval(poll,220);
+  [20,80,160,280,460,700].forEach(function(ms){setTimeout(poll,ms);});
   window.addEventListener('pageshow',function(){setTimeout(poll,80);});
   document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(poll,80);});
 })();
