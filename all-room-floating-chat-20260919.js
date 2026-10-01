@@ -133,8 +133,8 @@
          다른 방/버튼/게스트/스위치/방송 기능은 건드리지 않음. */
       var mr=match.getBoundingClientRect();
       var rr=room.getBoundingClientRect();
-      var h=72;
-      var top=Math.round(mr.top-h-4);
+      var h=Math.max(105,Math.min(160,Math.round(window.innerHeight*0.17)));
+      var top=Math.round(mr.top-h-10);
       if(!isFinite(top))return;
 
       chat.style.setProperty('position','fixed','important');
@@ -142,19 +142,20 @@
       chat.style.setProperty('right','auto','important');
       chat.style.setProperty('top',top+'px','important');
       chat.style.setProperty('bottom','auto','important');
-      chat.style.setProperty('width',Math.max(180,Math.round((rr.width||window.innerWidth)*0.58))+'px','important');
+      chat.style.setProperty('width',Math.max(250,Math.round((rr.width||window.innerWidth)-20))+'px','important');
       chat.style.setProperty('height',h+'px','important');
       chat.style.setProperty('min-height',h+'px','important');
       chat.style.setProperty('max-height',h+'px','important');
-      chat.style.setProperty('padding','0 6px 2px','important');
+      chat.style.setProperty('padding','8px 10px','important');
       chat.style.setProperty('margin','0','important');
       chat.style.setProperty('display','flex','important');
       chat.style.setProperty('flex-direction','column','important');
       chat.style.setProperty('justify-content','flex-end','important');
       chat.style.setProperty('overflow','hidden','important');
-      chat.style.setProperty('background','transparent','important');
-      chat.style.setProperty('border','0','important');
-      chat.style.setProperty('box-shadow','none','important');
+      chat.style.setProperty('background','linear-gradient(180deg,rgba(31,23,38,.76),rgba(17,17,22,.86))','important');
+      chat.style.setProperty('border','1px solid rgba(255,255,255,.12)','important');
+      chat.style.setProperty('border-radius','14px','important');
+      chat.style.setProperty('box-shadow','0 0 14px rgba(255,56,190,.10)','important');
       chat.style.setProperty('transform','none','important');
       chat.style.setProperty('z-index','500','important');
       chat.style.setProperty('pointer-events','none','important');
