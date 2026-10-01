@@ -1544,11 +1544,11 @@
 
       var cs=String(pc.connectionState||''),is=String(pc.iceConnectionState||'');
       pc.__ktMediaAckGrace20260926=Number(pc.__ktMediaAckGrace20260926||0);
-      if((cs==='connected'||cs==='connecting'||cs==='new'||is==='connected'||is==='completed'||is==='checking')&&pc.__ktMediaAckGrace20260926<2){
+      if((cs==='connected'||cs==='connecting'||cs==='new'||is==='connected'||is==='completed'||is==='checking')&&pc.__ktMediaAckGrace20260926<5){
         pc.__ktMediaAckGrace20260926++;
         var payload=pc.__ktGuestOfferPayload20260926||pc.__ktPreApprovalPayload||null;
         if(payload)try{sendCriticalMedia20260926('guest_offer',payload,hid);}catch(e){}
-        scheduleGuestMediaAckFallback20260926(hid,pc,session,450);
+        scheduleGuestMediaAckFallback20260926(hid,pc,session,650);
         return;
       }
 
@@ -1903,9 +1903,23 @@
       }
       if(st==='failed'||st==='closed'){
         if(hostGuestPeers[vid]===entry){
-          delete hostGuestPeers[vid];
           var ap=approvedGuests[vid];
           if(ap)setTimeout(function(){send('guest_approved',{host_id:DEVICE,viewer_id:vid,name:ap.name||'게스트',at:Date.now(),reconnect:true});},180);
+
+          /* 1111: an approved guest that already produced real video should
+             not disappear from every device on a brief mobile transport drop.
+             Keep this old entry as the fallback while the fresh guest offer
+             replaces it; remove only if nothing new has taken over. */
+          if(entry.gotTrack===true&&ap){
+            setTimeout(function(){
+              if(hostGuestPeers[vid]===entry){
+                try{closePc(pc);}catch(e){}
+                delete hostGuestPeers[vid];
+              }
+            },8000);
+          }else{
+            delete hostGuestPeers[vid];
+          }
         }
       }
       if(st==='disconnected')setTimeout(function(){
