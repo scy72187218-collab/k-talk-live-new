@@ -167,29 +167,36 @@
     var bar=root.querySelector(':scope > .kt-remote-bottom');
     if(!bar)return;
     var input=bar.querySelector('input');
-    var value=input?input.value:'';
-    var sig=[].slice.call(bar.children).map(function(x){return x.getAttribute&&x.getAttribute('data-kt-g9-final');}).join(',');
-    if(bar.dataset.ktG9Final==='1'&&sig.indexOf('send')>-1&&sig.indexOf('gift')>-1&&sig.indexOf('share')>-1)return;
+    if(!input)return;
 
-    bar.innerHTML='<input id="ktRemoteChatInput" maxlength="100" placeholder="입력하세요…" aria-label="라이브 채팅 입력">'
-      +'<button type="button" class="kt-remote-action send" data-kt-g9-final="send" aria-label="채팅 보내기">➤</button>'
-      +'<button type="button" class="kt-remote-action gift" data-kt-g9-final="gift" aria-label="선물상자">🎁</button>'
-      +'<button type="button" class="kt-remote-action share" data-kt-g9-final="share" aria-label="공유">↗</button>';
-    bar.dataset.ktG9Final='1';
+    /* Keep the CURRENT chat arrow/button already beside the input.
+       Do not rebuild the bottom bar or create a different arrow. */
+    var keep=(input.nextElementSibling&&input.nextElementSibling.tagName==='BUTTON')
+      ? input.nextElementSibling
+      : null;
 
-    input=bar.querySelector('#ktRemoteChatInput');
-    if(input){
-      input.value=value||'';
-      input.addEventListener('keydown',function(e){
-        if(e.key==='Enter'){
-          e.preventDefault();
-          try{if(typeof window.ktRemoteSendChat==='function')window.ktRemoteSendChat();}catch(z){}
-        }
-      });
-    }
-    var snd=bar.querySelector('[data-kt-g9-final="send"]'); if(snd)snd.onclick=function(){try{if(typeof window.ktRemoteSendChat==='function')window.ktRemoteSendChat();}catch(e){}};
-    var g=bar.querySelector('[data-kt-g9-final="gift"]'); if(g)g.onclick=gift;
-    var sh=bar.querySelector('[data-kt-g9-final="share"]'); if(sh)sh.onclick=share;
+    var sends=[].slice.call(bar.querySelectorAll(
+      '.kt-remote-action.send,'+
+      '[data-kt-g9-final="send"],'+
+      '[data-kt-send-plane-5555],'+
+      '[data-kt-send-plane-hard-5555],'+
+      '[data-kt-single-send-5555],'+
+      '[data-kt-preapproval-single-send-5555]'
+    ));
+
+    if(!keep)keep=sends[0]||null;
+    if(!keep)return;
+
+    keep.setAttribute('aria-label','채팅 보내기');
+    keep.onclick=function(){
+      try{if(typeof window.ktRemoteSendChat==='function')return window.ktRemoteSendChat();}catch(e){}
+    };
+
+    sends.forEach(function(b){
+      if(b!==keep){
+        try{b.remove();}catch(e){}
+      }
+    });
   }
 
   function apply(){
