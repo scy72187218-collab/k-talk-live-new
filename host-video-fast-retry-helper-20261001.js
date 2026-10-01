@@ -156,17 +156,27 @@
      connection banner is still visible. */
   setInterval(function(){
     try{
-      if(streamReady())return;
-      var root=document.querySelector('.kt-remote-live');
-      var st=document.getElementById('ktRemoteLiveStatus');
-      if(!root||!st||st.style.display==='none')return;
+      if(streamReady()){clearHostPreviewWhenPlaying();return;}
+      var root=document.querySelector(
+        '.kt-remote-live,'+
+        '.kt-guest-hostlike-room,'+
+        '.kt-approved-guest-room,'+
+        '.kt-prejoin-room-grid,'+
+        '.kt-approved-guest-grid,'+
+        '#screen .ktg13-room[data-kt-room="9"]'
+      );
+      if(!root)return;
       var hid=hostId();
       if(!hid)return;
+
+      /* 1111: do not stop host-video recovery just because the
+         "연결 중" label was hidden after ontrack. Keep retrying until
+         real frames are actually advancing. */
       fetchHostPreview();
       kick(hid);
       clearHostPreviewWhenPlaying();
     }catch(e){}
-  },350);
+  },300);
 
   window.addEventListener('kt-approved-guest-stream-ready',clearTimers);
   window.addEventListener('kt-broadcast-ended',clearTimers);
