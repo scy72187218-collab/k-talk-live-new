@@ -45,11 +45,11 @@
       +'#screen .kt-remote-live.kt-guest9-hostmatch-final>.kt-remote-bottom input{'
         +'flex:1 1 auto!important;min-width:80px!important;height:44px!important;border-radius:23px!important}'
       +'#screen .kt-remote-live.kt-guest9-hostmatch-final>.kt-remote-bottom .kt-remote-action{'
-        +'width:44px!important;height:44px!important;flex:0 0 44px!important;border-radius:50%!important;display:grid!important;place-items:center!important}'
+        +'width:36px!important;height:36px!important;flex:0 0 36px!important;border-radius:50%!important;display:grid!important;place-items:center!important;font-size:16px!important}'
       +'@media(max-width:390px){'
         +'#screen .kt-remote-live.kt-guest9-hostmatch-final .kt-guest-hostlike-room[data-kt-room="9"] .kgh-main{width:calc(100% - 16px)!important;margin-top:7px!important;height:calc(68vw - 10px)!important;flex-basis:calc(68vw - 10px)!important}'
         +'#screen .kt-remote-live.kt-guest9-hostmatch-final>.kt-remote-bottom{left:5px!important;right:5px!important;gap:4px!important}'
-        +'#screen .kt-remote-live.kt-guest9-hostmatch-final>.kt-remote-bottom .kt-remote-action{width:40px!important;height:40px!important;flex-basis:40px!important}'
+        +'#screen .kt-remote-live.kt-guest9-hostmatch-final>.kt-remote-bottom .kt-remote-action{width:34px!important;height:34px!important;flex-basis:34px!important;font-size:15px!important}'
         +'#screen .kt-remote-live.kt-guest9-hostmatch-final>.kt-remote-bottom input{height:40px!important}'
       +'}';
     (document.head||document.documentElement).appendChild(s);
