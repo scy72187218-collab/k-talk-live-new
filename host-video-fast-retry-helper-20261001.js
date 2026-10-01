@@ -38,9 +38,9 @@
     var hid=hostId();
     if(!hid||hid!==expected)return;
     try{
-      window.dispatchEvent(new CustomEvent('kt-remote-host-selected',{
-        detail:{host_id:hid,fast_retry_helper:true,at:Date.now()}
-      }));
+      if(typeof window.ktRetryRemoteHostVideoOnly20261001==='function'){
+        window.ktRetryRemoteHostVideoOnly20261001();
+      }
     }catch(e){}
   }
 
@@ -48,7 +48,7 @@
     clearTimers();
     var hid=hostId();
     if(!hid)return;
-    [650,1400,2600].forEach(function(ms){
+    [250,650,1200,2200,3500].forEach(function(ms){
       timers.push(setTimeout(function(){kick(hid);},ms));
     });
   }
