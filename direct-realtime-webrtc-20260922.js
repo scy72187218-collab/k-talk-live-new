@@ -1754,7 +1754,7 @@
          candidate packet is delayed or missed. Keep the wait short. */
       /* Trickle ICE is already dual-sent over WebSocket + REST. Do not hold
          the first guest offer for half a second waiting for full ICE gather. */
-      try{await waitIceCompleteDirect(pc,80);}catch(e){}
+      try{await waitIceCompleteDirect(pc,20);}catch(e){}
       if(guestPc!==pc||guestSession!==offerSession)return;
       var guestOfferPayload={host_id:hid,viewer_id:viewerId(),name:profileName(),session_id:offerSession,offer_sdp:pc.localDescription.sdp};
       pc.__ktGuestOfferPayload20260926=guestOfferPayload;
@@ -2257,7 +2257,7 @@
     setTimeout(function(){
       if(!guestApproved||guestApprovedHost!==hid||guestMediaReadyAt)return;
       forceFreshApprovedGuestOffer20260926(hid);
-    },100);
+    },420);
 
     /* Visible fallback requested by owner: place only the approved guest's own
        camera face into the host guest slot while live transport is connecting. */
