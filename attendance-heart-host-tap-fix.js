@@ -178,6 +178,25 @@
 
   function ensureTopHeart(room,key){
     if(!room)return null;
+
+    /* 2026-10-01: all-room-clock-like already owns the single heart beside
+       the live clock. Reuse that exact counter and remove only the duplicate
+       heart created by this attendance helper. */
+    try{
+      var canonical=room.querySelector('.kt-clock-like-20260927');
+      if(canonical){
+        var dup=room.querySelector('.kt-live-clock-heart');
+        if(dup&&dup.parentNode)dup.parentNode.removeChild(dup);
+        var span=canonical.querySelector('span');
+        if(span){
+          var shown=parseInt(String(span.textContent||'0').replace(/[^0-9]/g,''),10)||0;
+          window.__ktLiveClockLikes=window.__ktLiveClockLikes||{solo:0,group9:0,group13:0,subscriber:0,secret:0};
+          if(Number(window.__ktLiveClockLikes[key]||0)<shown)window.__ktLiveClockLikes[key]=shown;
+          return span;
+        }
+      }
+    }catch(e){}
+
     if(!document.getElementById('ktTopHeartStyle')){
       var s=document.createElement('style');
       s.id='ktTopHeartStyle';
