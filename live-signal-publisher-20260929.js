@@ -213,6 +213,15 @@
       var creatorLive=txt==='라이브'&&!!el.closest('.creator-bottom,.live-prep,.creator');
       if(exactStart||creatorLive){
         forceStart();
+        return;
+      }
+
+      /* 1111: host exit must end only the red LIVE beacon immediately.
+         Do not alter the existing exit/navigation function itself. */
+      var hostExit=/^(퇴장|나가기|방송종료|종료)$/.test(txt)||
+        /leaveBroadcastToDashboard\s*\(|endBroadcastEarnings\s*\(/.test(oc);
+      if(hostExit&&(lastActive||hostRoomVisible())){
+        forceEnd();
       }
     }catch(_e){}
   },true);
