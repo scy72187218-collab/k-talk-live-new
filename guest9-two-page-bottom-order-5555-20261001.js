@@ -64,9 +64,10 @@
 
   function isApprovedInside(root){
     try{
-      return root.classList.contains('kt-guest-hostlike-active')||
+      return !!root.querySelector('.kt-guest-hostlike-room[data-kt-room="9"]')||
+        root.classList.contains('kt-guest-hostlike-active')||
         root.classList.contains('kt-approved-guest-room')||
-        !!root.querySelector('.kt-guest-hostlike-room,.kt-approved-guest-grid');
+        !!root.querySelector('.kt-approved-guest-grid');
     }catch(e){return false;}
   }
 
