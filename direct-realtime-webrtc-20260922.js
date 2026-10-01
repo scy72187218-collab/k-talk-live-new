@@ -1242,6 +1242,27 @@
     sendCriticalMedia20260926('video_watch',{host_id:hid,viewer_id:viewerId(),watch_token:viewerWatchToken,at:now},hid);
   }
 
+  /* 1111 - host video only retry.
+     Re-asks for the host video without re-entering the room, changing LIVE
+     signal state, or touching leave/exit behavior. */
+  window.ktRetryRemoteHostVideoOnly20261001=function(){
+    try{
+      if(isHostRole())return false;
+      if(ktRemoteStreamStillLive20260923()){
+        attachRemoteStreamNow();
+        return true;
+      }
+      var hid=remoteHostId();
+      if(!hid)return false;
+      if(activeHostId!==hid)connect(hid);
+      if(!viewerWatchToken)viewerWatchToken=sid('watch');
+      lastWatchAt=0;
+      ensureViewerWatch(true);
+      attachRemoteStreamNow();
+      return true;
+    }catch(e){return false;}
+  };
+
   function ensureDirectStyle(){
     if(document.getElementById('ktDirectGuestTransportStyle'))return;
     var s=document.createElement('style');s.id='ktDirectGuestTransportStyle';
