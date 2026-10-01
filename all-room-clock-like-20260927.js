@@ -8,6 +8,28 @@
   var count=0;
   var originalAddHostLike=null;
 
+  function likeStoreKey(){
+    var r=room();
+    if(!r)return 'ktalk_live_like:unknown';
+    if(r.classList.contains('ktsolo-room'))return 'ktalk_live_like:solo';
+    if(r.classList.contains('ktsubscriber-room'))return 'ktalk_live_like:subscriber';
+    if(r.classList.contains('ktsecret-room'))return 'ktalk_live_like:secret';
+    if(r.classList.contains('ktg13-room'))return r.getAttribute('data-kt-room')==='9'?'ktalk_live_like:group9':'ktalk_live_like:group13';
+    if(r.classList.contains('ktg9-room'))return 'ktalk_live_like:group9';
+    return 'ktalk_live_like:room';
+  }
+
+  function loadCount(){
+    try{
+      var v=parseInt(localStorage.getItem(likeStoreKey())||'0',10);
+      if(isFinite(v)&&v>=0)count=v;
+    }catch(e){}
+  }
+
+  function saveCount(){
+    try{localStorage.setItem(likeStoreKey(),String(Math.max(0,count||0)));}catch(e){}
+  }
+
   function room(){
     return document.querySelector(
       '#screen .ktsolo-room,'+
@@ -30,6 +52,7 @@
   }
 
   function paint(){
+    loadCount();
     document.querySelectorAll('.kt-clock-like-20260927 span').forEach(function(el){
       el.textContent=String(count);
     });
@@ -47,7 +70,9 @@
     if(step<1)step=1;
     var r;
     try{if(originalAddHostLike)r=originalAddHostLike.apply(this,arguments);}catch(e){}
+    loadCount();
     count+=step;
+    saveCount();
     paint();
     return r;
   }
@@ -55,6 +80,7 @@
   function ensure(){
     ensureStyle();
     installWrap();
+    loadCount();
 
     var r=room();
     if(!r)return;
@@ -85,7 +111,7 @@
     b.addEventListener('click',function(e){
       try{e.preventDefault();e.stopPropagation();}catch(_e){}
       if(typeof window.addHostLike==='function')window.addHostLike(1);
-      else{count+=1;paint();}
+      else{loadCount();count+=1;saveCount();paint();}
     });
     clock.insertAdjacentElement('afterend',b);
   }
