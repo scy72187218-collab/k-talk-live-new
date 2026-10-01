@@ -18,8 +18,7 @@
 
   function exactButtons(){
     return '<button type="button">↩ 되돌리기</button>'+
-           '<button type="button">🎁 보물</button>'+
-           '<button type="button">📦 패키지</button>'+
+           '<button type="button">📦 패키지 상자</button>'+
            '<button type="button">⚔ 매치</button>';
   }
 
@@ -31,7 +30,7 @@
         var q=hostlike.querySelector('.kgh-quick');
         if(q){
           q.style.setProperty('display','grid','important');
-          q.style.setProperty('grid-template-columns','repeat(4,1fr)','important');
+          q.style.setProperty('grid-template-columns','repeat(3,1fr)','important');
           q.innerHTML=exactButtons();
         }
       }
@@ -47,7 +46,7 @@
         if(!/(보물상자|패키지|되돌리기|매치)/.test(txt))return;
         if(/일일랭킹|시청자|미션/.test(txt))return;
         box.style.setProperty('display','grid','important');
-        box.style.setProperty('grid-template-columns','repeat(4,1fr)','important');
+        box.style.setProperty('grid-template-columns','repeat(3,1fr)','important');
         box.innerHTML=exactButtons();
       });
     }catch(e){}
