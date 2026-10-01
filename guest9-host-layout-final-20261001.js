@@ -169,9 +169,10 @@
     var input=bar.querySelector('input');
     var value=input?input.value:'';
     var sig=[].slice.call(bar.children).map(function(x){return x.getAttribute&&x.getAttribute('data-kt-g9-final');}).join(',');
-    if(bar.dataset.ktG9Final==='1'&&sig.indexOf('people')>-1&&sig.indexOf('rose')>-1&&sig.indexOf('gift')>-1&&sig.indexOf('share')>-1)return;
+    if(bar.dataset.ktG9Final==='1'&&sig.indexOf('send')>-1&&sig.indexOf('people')>-1&&sig.indexOf('rose')>-1&&sig.indexOf('gift')>-1&&sig.indexOf('share')>-1)return;
 
     bar.innerHTML='<input id="ktRemoteChatInput" maxlength="100" placeholder="입력하세요…" aria-label="라이브 채팅 입력">'
+      +'<button type="button" class="kt-remote-action send" data-kt-g9-final="send" aria-label="채팅 보내기">➤</button>'
       +'<button type="button" class="kt-remote-action people" data-kt-g9-final="people" aria-label="사람">👥</button>'
       +'<button type="button" class="kt-remote-action rose" data-kt-g9-final="rose" aria-label="장미">🌹</button>'
       +'<button type="button" class="kt-remote-action gift" data-kt-g9-final="gift" aria-label="선물상자">🎁</button>'
@@ -188,6 +189,7 @@
         }
       });
     }
+    var snd=bar.querySelector('[data-kt-g9-final="send"]'); if(snd)snd.onclick=function(){try{if(typeof window.ktRemoteSendChat==='function')window.ktRemoteSendChat();}catch(e){}};
     var p=bar.querySelector('[data-kt-g9-final="people"]'); if(p)p.onclick=people;
     var r=bar.querySelector('[data-kt-g9-final="rose"]'); if(r)r.onclick=rose;
     var g=bar.querySelector('[data-kt-g9-final="gift"]'); if(g)g.onclick=gift;
