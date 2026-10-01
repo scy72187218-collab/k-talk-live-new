@@ -16,10 +16,12 @@
       v.style.setProperty('object-fit','contain','important');
       v.style.setProperty('object-position','center center','important');
       v.style.setProperty('background','#111','important');
+      v.style.setProperty('transform','scale(.50)','important');
+      v.style.setProperty('transform-origin','center center','important');
     });
 
     var hv=room.querySelector('.ktg13-host>video');
-    if(hv)hv.style.setProperty('transform','scaleX(-1)','important');
+    if(hv)hv.style.setProperty('transform','scaleX(-1) scale(.50)','important');
   }
 
   apply();
