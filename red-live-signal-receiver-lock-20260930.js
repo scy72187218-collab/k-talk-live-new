@@ -20,6 +20,7 @@
     });
   }
 
+  var lastRoom=null,lastRoomSeenAt=0;
   function removeFallback(){
     try{
       var x=document.getElementById('ktRedLiveReceiverFallback20260930');
@@ -65,8 +66,28 @@
       if(!r.ok)return;
       var j=await r.json();
       var rooms=Array.isArray(j&&j.rooms)?j.rooms:[];
-      if(rooms.length)showRoom(rooms[0]);
-      else removeFallback();
+      var ended=Array.isArray(j&&j.ended)?j.ended:[];
+      if(rooms.length){
+        lastRoom=rooms[0];
+        lastRoomSeenAt=Date.now();
+        showRoom(lastRoom);
+      }else{
+        var endedCurrent=!!(lastRoom&&ended.some(function(x){
+          return String(x&&x.host_id||'')===String(lastRoom.host_id||'');
+        }));
+        if(endedCurrent){
+          lastRoom=null;
+          lastRoomSeenAt=0;
+          removeFallback();
+        }else if(lastRoom&&Date.now()-lastRoomSeenAt<12000){
+          /* 1111: 서버 응답이 잠깐 빈 값이어도 방송 중 LIVE 불을 바로 지우지 않는다. */
+          showRoom(lastRoom);
+        }else{
+          lastRoom=null;
+          lastRoomSeenAt=0;
+          removeFallback();
+        }
+      }
     }catch(e){}
   }
 
