@@ -1,0 +1,27 @@
+{
+  "name": "K-Talk LIVE current working state lock",
+  "locked_at": "2026-10-01",
+  "rule": "Do not modify these files or related locked room/UI/transport behavior unless the user explicitly authorizes the exact current issue.",
+  "menu_rule": "Guest top menu: 일일 랭킹 · 미션 · 시청자 / second row: 되돌리기 · 보물 · 패키지 · 매치",
+  "heart_rule": "Exactly one heart counter beside the live clock; duplicate top-heart badge must not appear.",
+  "protected": [
+    "room layouts",
+    "host video",
+    "guest video",
+    "red LIVE",
+    "entry/exit",
+    "approval flow",
+    "9/13 room grids",
+    "menus except exact authorized target"
+  ],
+  "files": {
+    "index.html": "65ff1f6ce210a2be2a3c3ce5c2d2a7429918a3fa",
+    "approved-guest-match-host-room-20260918.js": "93157734cadc9b1e32e0199b438aeb9fde3cc2ae",
+    "all-room-clock-like-20260927.js": "48b3beb49fc6e79114614c7102497aa3b92d44ce",
+    "direct-realtime-webrtc-20260922.js": "cad42f9f64ff8628649942363607777f5ab5be2e",
+    "red-live-entry-hard-fix-20260928.js": "15426d1c2f9d04ab426b287411dd0923fb34f0b5",
+    "group9-host-grid-match-guest-20260919.js": "575e345627993be796eab33ed6b1e9bf90f4ad73",
+    "group9-approved-room.js": "2792e4089a97a05e7e3a056bd59420aae1e25721",
+    "group13-approved-room.js": "b359ba33251377aa6f505cd11a632bdff5a9bcbe"
+  }
+}
