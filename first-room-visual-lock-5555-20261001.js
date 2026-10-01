@@ -66,6 +66,7 @@
       +'#screen .kt-remote-live.kt-first-room-5555 .kgh-chatbox{'
         +'width:calc(100% - 90px)!important;height:52px!important;max-height:52px!important;'
       +'}'
+      /* 5555: pre-approval 9-grid only — slightly taller to match the left/reference room. */      +'#screen .kt-remote-live.kt-first-room-5555 .kt-prejoin-room-grid{'        +'height:min(calc(100vw - 14px),calc(100dvh - 335px))!important;'      +'}'      +'@media(max-width:390px){#screen .kt-remote-live.kt-first-room-5555 .kt-prejoin-room-grid{height:min(calc(100vw - 8px),calc(100dvh - 330px))!important}}'
       /* Guest earnings compact like the host reference. Host earnings itself is intentionally untouched. */
       +'#screen .kt-remote-live.kt-first-room-5555 .kgh-earn{'
         +'position:absolute!important;right:4px!important;left:auto!important;bottom:3px!important;'
