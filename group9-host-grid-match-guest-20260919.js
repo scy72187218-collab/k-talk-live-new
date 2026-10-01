@@ -9,7 +9,23 @@
       var t=String((window.state&&state.liveRoomType)||'');
       var n=String((window.state&&state.liveRoomName)||'');
       var m=Number((window.state&&state.liveRoomMax)||0);
-      return t==='group9'||m===9||n.indexOf('9명')>-1;
+      if(t==='group9'||m===9||n.indexOf('9명')>-1)return true;
+
+      /* 1111: viewer phones do not share the host's local state object.
+         When they entered a real 9-person room, use the remote room label
+         already shown on that viewer to normalize only that room to 3x3. */
+      var meta=document.querySelector('#screen .kt-remote-meta span,.kt-remote-meta span');
+      var txt=String(meta&&meta.textContent||'');
+      if(/9\s*명\s*방송/.test(txt))return true;
+
+      try{
+        var r=window.__ktLastLiveRoom||{};
+        if(String(r.room_type||'')==='group9'||String(r.room_name||'').indexOf('9명')>-1)return true;
+      }catch(_e){}
+      try{
+        if(String(window.__ktRemoteRoomType||'')==='group9'||String(window.__ktRemoteRoomName||'').indexOf('9명')>-1)return true;
+      }catch(_e){}
+      return false;
     }catch(e){return false;}
   }
 
