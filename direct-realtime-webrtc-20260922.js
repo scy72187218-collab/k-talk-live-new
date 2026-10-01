@@ -1244,6 +1244,17 @@
   /* 1111 - host video only retry.
      Re-asks for the host video without re-entering the room, changing LIVE
      signal state, or touching leave/exit behavior. */
+  var __ktHostVideoMotion20261001=new WeakMap();
+  function ktHostVideoActuallyMoving20261001(v){
+    try{
+      if(!v||!v.srcObject||v.readyState<2||v.videoWidth<=0||v.videoHeight<=0)return false;
+      var now=Date.now(),t=Number(v.currentTime||0);
+      var prev=__ktHostVideoMotion20261001.get(v)||null;
+      __ktHostVideoMotion20261001.set(v,{t:t,at:now});
+      if(!prev)return false;
+      return (now-prev.at<=1600)&&(t-prev.t>0.03);
+    }catch(e){return false;}
+  }
   window.ktRetryRemoteHostVideoOnly20261001=function(){
     try{
       if(isHostRole())return false;
@@ -1262,7 +1273,7 @@
           '.kt-guest-room-grid .kt-guest-room-cell.host video'
         ));
         rendered=hostVideos.some(function(v){
-          try{return !!(v&&v.srcObject&&v.readyState>=2&&v.videoWidth>0&&v.videoHeight>0&&v.currentTime>0);}catch(e){return false;}
+          return ktHostVideoActuallyMoving20261001(v);
         });
       }catch(e){}
 
