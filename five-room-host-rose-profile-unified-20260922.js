@@ -64,6 +64,7 @@
     var n=parseInt(String(raw).replace(/[^0-9]/g,''),10);
     if(!isFinite(n)||n<1)n=1;
     try{if(typeof window.ktEffectiveLevel==='function')n=window.ktEffectiveLevel(n);}catch(e){}
+    if(ownerFixedProfile20260928())return 50000;
     return n;
   }
 
@@ -81,7 +82,7 @@
   }
 
   function roseCount(){
-    if(ownerFixedProfile20260928())return 500000;
+    if(ownerFixedProfile20260928())return 1000;
     var el=document.getElementById('hudEarnRoses')||
            document.getElementById('ktSubscriberEarnRoses')||
            document.getElementById('ktGuestEarnRoses');
