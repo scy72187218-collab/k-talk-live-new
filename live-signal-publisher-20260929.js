@@ -187,6 +187,22 @@
   setTimeout(tick,80);
   [100,300,700,1400].forEach(function(ms){setTimeout(installWraps,ms);});
 
+  /* 실제 사용자가 방송 시작 컨트롤을 누른 경우에만 LIVE publish.
+     자동 DOM 감지는 사용하지 않아 빈 방에서 빨간 LIVE가 뜨지 않게 한다. */
+  document.addEventListener('pointerdown',function(e){
+    try{
+      var el=e&&e.target&&e.target.closest?e.target.closest('[onclick],button,span'):null;
+      if(!el)return;
+      var oc=String(el.getAttribute&&el.getAttribute('onclick')||'');
+      var txt=String(el.textContent||'').replace(/\s+/g,'');
+      var exactStart=/ktStartLiveRoomNow\s*\(|startBroadcast\s*\(/.test(oc);
+      var creatorLive=txt==='라이브'&&!!el.closest('.creator-bottom,.live-prep,.creator');
+      if(exactStart||creatorLive){
+        forceStart();
+      }
+    }catch(_e){}
+  },true);
+
   window.addEventListener('pageshow',function(){setTimeout(tick,60);});
   document.addEventListener('visibilitychange',function(){
     if(!document.hidden){
