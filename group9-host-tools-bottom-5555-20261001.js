@@ -13,9 +13,10 @@
       +'#screen .ktg13-room[data-kt-room="9"]>.ktg13-tools{'
         +'margin-top:auto!important;'
         +'margin-bottom:0!important;'
-        +'transform:none!important;'
+        +'transform:translateY(-9px)!important;'
         +'align-self:stretch!important;'
-      +'}';
+      +'}'
+      +'#screen .ktg13-room[data-kt-room="9"]>.ktg13-tools .ktg13-tool span{display:block!important;visibility:visible!important;opacity:1!important;line-height:1.1!important;font-size:8px!important;}';
     (document.head||document.documentElement).appendChild(s);
   }
 
