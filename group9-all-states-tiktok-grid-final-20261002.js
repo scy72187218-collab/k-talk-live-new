@@ -81,6 +81,9 @@
         cell.style.setProperty('min-height','0','important');
         cell.style.setProperty('width','auto','important');
         cell.style.setProperty('height','auto','important');
+        cell.style.setProperty('border','0','important');
+        cell.style.setProperty('outline','0','important');
+        cell.style.setProperty('box-shadow','none','important');
         cell.style.setProperty('border-radius','9px','important');
         cell.style.setProperty('overflow','hidden','important');
       });
