@@ -137,23 +137,24 @@
     gift.setAttribute('data-kt-g9-order','gift');
     share.setAttribute('data-kt-g9-order','share');
 
-    /* Remove only duplicate copies of these five controls; keep the selected ones. */
+    /* PRE-APPROVAL 9-room must have exactly SIX bottom controls.
+       Remove every other direct button from this bottom bar so old copies
+       cannot remain before the input or duplicate after it. */
     var keep=[send,people,rose,gift,share];
-    [].slice.call(bar.querySelectorAll('button')).forEach(function(b){
-      if(keep.indexOf(b)>=0)return;
-      var t=String(b.textContent||'').replace(/\s+/g,'');
-      var duplicate=
-        b.matches('.kt-remote-action.send,.kt-remote-guest-request,.kt-remote-rose,.kt-remote-action.gift,.kt-remote-action.share')||
-        /^(➤|✈|👥|👤|🌹|🎁|↗)$/.test(t);
-      if(duplicate){try{b.remove();}catch(e){}}
+    [].slice.call(bar.children).forEach(function(el){
+      if(!el||el===input||keep.indexOf(el)>=0)return;
+      if(el.tagName==='BUTTON'){
+        try{el.remove();}catch(e){}
+      }
     });
 
-    /* Exact DOM order for older browsers that ignore flex order during mutation. */
-    input.insertAdjacentElement('afterend',send);
-    send.insertAdjacentElement('afterend',people);
-    people.insertAdjacentElement('afterend',rose);
-    rose.insertAdjacentElement('afterend',gift);
-    gift.insertAdjacentElement('afterend',share);
+    /* Exact DOM order: input -> send -> people -> rose -> gift -> share. */
+    bar.appendChild(input);
+    bar.appendChild(send);
+    bar.appendChild(people);
+    bar.appendChild(rose);
+    bar.appendChild(gift);
+    bar.appendChild(share);
   }
 
   function apply(){
