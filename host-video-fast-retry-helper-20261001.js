@@ -48,7 +48,7 @@
     clearTimers();
     var hid=hostId();
     if(!hid)return;
-    [180,450,850,1400,2200,3200,4600,6500].forEach(function(ms){
+    [80,180,350,600,900,1300,1800,2500,3400].forEach(function(ms){
       timers.push(setTimeout(function(){kick(hid);},ms));
     });
   }
@@ -72,7 +72,7 @@
       if(!hid)return;
       kick(hid);
     }catch(e){}
-  },900);
+  },600);
 
   window.addEventListener('kt-approved-guest-stream-ready',clearTimers);
   window.addEventListener('kt-broadcast-ended',clearTimers);
