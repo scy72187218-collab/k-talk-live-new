@@ -3037,8 +3037,10 @@
   }
   setInterval(roleTick,80);
   setTimeout(roleTick,20);
-  setInterval(syncSharedApprovalSignals,100);
-  setTimeout(syncSharedApprovalSignals,50);
+  /* 1111: this is fallback polling only. Realtime WebSocket still handles immediate events.
+     Avoid flooding 4~5 phones with duplicate HTTP polls every 100ms. */
+  setInterval(syncSharedApprovalSignals,700);
+  setTimeout(syncSharedApprovalSignals,80);
 
   window.addEventListener('kt-remote-host-selected',function(e){
     try{
@@ -3126,9 +3128,11 @@
     guestAliveLastSent=0;
     roleTick();setTimeout(function(){attachRemoteStreamNow();},0);
   });
+  /* 1111: roleTick already broadcasts the roster about every 500ms.
+     Keep this only as a low-frequency safety resend instead of duplicating it 4x/sec. */
   setInterval(function(){
     if(isHostRole()&&joined)broadcastApprovedRoster20260928();
-  },250);
+  },1200);
 
   /* 사용자가 방의 뒤로/나가기 버튼 또는 브라우저 뒤로가기를 누른 순간
      host 쪽 guest slot에 즉시 퇴장 신호를 보낸다. */
