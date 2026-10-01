@@ -1000,6 +1000,10 @@
 
   async function hostOfferToViewer(vid,watchToken){
     if(!isHostRole())return;
+    /* 1111: host-video connection speed only.
+       Let TURN finish its tiny warm-up before creating the first viewer PC. */
+    await ensureTurnBeforeGuestRtc20260926();
+    if(!isHostRole())return;
     var stream=hostStream();
     if(!stream){
       [40,100,220].forEach(function(ms){
@@ -1058,6 +1062,11 @@
   async function viewerHandleOffer(p){
     if(String(p.viewer_id||'')!==viewerId())return;
     var hid=remoteHostId();if(!hid||String(p.host_id||'')!==hid)return;
+    /* 1111: host-video connection speed only.
+       Use the ready TURN/STUN set for the very first answer instead of
+       discovering relay support only on later retries. */
+    await ensureTurnBeforeGuestRtc20260926();
+    hid=remoteHostId();if(!hid||String(p.host_id||'')!==hid)return;
     var session=String(p.session_id||''),sdp=String(p.offer_sdp||'');if(!session||!sdp)return;
     try{if(p.host_frame)paintRemoteHostPreview20261001(p.host_frame);}catch(_e){}
     if(viewerSession===session&&viewerPc&&viewerPc.currentRemoteDescription){
