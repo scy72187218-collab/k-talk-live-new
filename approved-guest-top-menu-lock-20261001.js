@@ -62,6 +62,28 @@
             return /일일랭킹/.test(t)&&/미션/.test(t)&&/시청자/.test(t);
           });
         }
+
+        /* 5555: 어떤 기기에서는 통계 3칸이 중첩 div로 나뉘어
+           위 검색이 실패한다. 버튼/텍스트 3개를 기준으로 공통 부모를 찾는다.
+           하단 입력창·채팅·도구 영역은 절대 대상으로 잡지 않는다. */
+        if(!stats){
+          var parts=[].slice.call(root.querySelectorAll('button,div,span')).filter(function(el){
+            if(el.closest('.kt-remote-bottom,.kt-remote-chat,.kgh-tools'))return false;
+            var t=String(el&&el.textContent||'').replace(/\s+/g,'');
+            return /^(?:🔥)?일일랭킹$|^(?:🎯)?미션$|시청자.*시청/.test(t);
+          });
+          parts.some(function(el){
+            var p=el.parentElement;
+            for(var i=0;p&&i<4;i++,p=p.parentElement){
+              if(p===root)break;
+              var t=String(p&&p.textContent||'').replace(/\s+/g,'');
+              if(/일일랭킹/.test(t)&&/미션/.test(t)&&/시청자/.test(t)){
+                stats=p;return true;
+              }
+            }
+            return false;
+          });
+        }
         if(stats&&stats.parentNode){
           var bar=document.createElement('div');
           bar.className='kt-viewer-quick-20261001';
