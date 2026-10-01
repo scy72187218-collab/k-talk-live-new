@@ -741,6 +741,10 @@
     try{
       var items=[];
       Object.keys(approvedGuests||{}).forEach(function(id){
+        /* 1111: do not show an approved guest on OTHER guest phones
+           before this host has received real, unmuted guest video. */
+        var peer=hostGuestPeers[id]||null;
+        if(!peer||peer.gotTrack!==true)return;
         var x=approvedGuests[id]||{};
         items.push({viewer_id:String(id),name:String(x.name||'게스트')});
       });
@@ -1860,6 +1864,10 @@
         if(vt.muted===true)return;
         attachIfApproved();
         entry.gotTrack=true;
+        /* 1111: now that real guest video is ready, publish the guest
+           to the other guest rooms immediately. */
+        try{broadcastApprovedRoster20260928();}catch(e){}
+        setTimeout(function(){try{broadcastApprovedRoster20260928();}catch(e){}},80);
         if(!entry.mediaReadySent){
           entry.mediaReadySent=true;
           sendCriticalMedia20260926('guest_media_ready',{host_id:DEVICE,viewer_id:vid,session_id:session,at:Date.now()},DEVICE);
