@@ -31,7 +31,7 @@
     bar.setAttribute('data-kt-top-quickbar','1');
     bar.innerHTML=''
       +'<button type="button" aria-label="되돌리기"><b>↻</b><span>되돌리기</span></button>'
-      +'<button type="button" aria-label="보물상자"><b>🎁</b><span>보물상자</span></button>'
+      +'<button type="button" aria-label="패키지 상자"><b>📦</b><span>패키지 상자</span></button>'
       +'<button type="button" aria-label="매치"><b>⚔</b><span>매치</span></button>';
     return bar;
   }
@@ -49,6 +49,10 @@
     if(room.classList.contains('ktsolo-room'))return findStatsAnchor(room,'.ktsolo-stats')||room.querySelector('.ktsolo-main');
     if(room.classList.contains('ktsubscriber-room'))return room.querySelector('.ktsubscriber-main');
     if(room.classList.contains('ktsecret-room'))return room.querySelector('.ktsecret-main');
+    if(room.classList.contains('kt-remote-live')){
+      return findStatsAnchor(room,'.kgh-stats,.ktg13-stats,.ktsolo-stats,.ktsubscriber-stats,.ktsecret-stats')
+        ||room.querySelector('.kgh-main,.ktg13-main,.ktsolo-main,.ktsubscriber-main,.ktsecret-main,[class*="guest-grid"],[class*="room-grid"]');
+    }
     return null;
   }
 
@@ -99,7 +103,7 @@
 
   function installAll(){
     ensureStyle();
-    document.querySelectorAll('.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room').forEach(installRoom);
+    document.querySelectorAll('.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room,.kt-remote-live').forEach(installRoom);
   }
 
   installAll();
