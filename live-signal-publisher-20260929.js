@@ -149,7 +149,7 @@
     window[name]=fn;
   }
 
-  var lastStartBroadcast=null,lastStartLiveRoomNow=null;
+  var lastStartBroadcast=null,lastStartLiveRoomNow=null,lastStartRoomNow=null;
   function installWraps(){
     try{
       if(typeof window.startBroadcast==='function'&&window.startBroadcast!==lastStartBroadcast){
@@ -159,6 +159,10 @@
       if(typeof window.ktStartLiveRoomNow==='function'&&window.ktStartLiveRoomNow!==lastStartLiveRoomNow){
         wrap('ktStartLiveRoomNow',forceStart);
         lastStartLiveRoomNow=window.ktStartLiveRoomNow;
+      }
+      if(typeof window.ktStartRoomNow==='function'&&window.ktStartRoomNow!==lastStartRoomNow){
+        wrap('ktStartRoomNow',forceStart);
+        lastStartRoomNow=window.ktStartRoomNow;
       }
     }catch(e){}
     wrap('endBroadcastEarnings',forceEnd);
@@ -205,7 +209,7 @@
       if(!el)return;
       var oc=String(el.getAttribute&&el.getAttribute('onclick')||'');
       var txt=String(el.textContent||'').replace(/\s+/g,'');
-      var exactStart=/ktStartLiveRoomNow\s*\(|startBroadcast\s*\(/.test(oc);
+      var exactStart=/ktStartLiveRoomNow\s*\(|ktStartRoomNow\s*\(|startBroadcast\s*\(/.test(oc);
       var creatorLive=txt==='라이브'&&!!el.closest('.creator-bottom,.live-prep,.creator');
       if(exactStart||creatorLive){
         forceStart();
