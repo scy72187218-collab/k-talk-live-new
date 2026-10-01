@@ -24,10 +24,12 @@
     }catch(e){return '';}
   }
 
+  var __ktHelperMotion20261001=new WeakMap();
   function streamReady(){
     try{
-      /* A MediaStream track can be "live" before Android has rendered a frame.
-         Treat it as ready only after a host video element is actually drawing frames. */
+      /* A frozen Android frame can keep currentTime > 0 forever.
+         Consider host video ready only when currentTime is still advancing. */
+      var now=Date.now();
       var vids=[].slice.call(document.querySelectorAll(
         '#ktRemoteLiveVideo,#ktRemoteHostPreview,'+
         '#screen .ktg13-room[data-kt-room="9"] .ktg13-host video,'+
@@ -37,7 +39,14 @@
         '.kt-guest-room-grid .kt-guest-room-cell.host video'
       ));
       return vids.some(function(v){
-        try{return !!(v&&v.srcObject&&v.readyState>=2&&v.videoWidth>0&&v.videoHeight>0&&v.currentTime>0);}catch(e){return false;}
+        try{
+          if(!v||!v.srcObject||v.readyState<2||v.videoWidth<=0||v.videoHeight<=0)return false;
+          var t=Number(v.currentTime||0);
+          var prev=__ktHelperMotion20261001.get(v)||null;
+          __ktHelperMotion20261001.set(v,{t:t,at:now});
+          if(!prev)return false;
+          return now-prev.at<=1500 && t-prev.t>0.03;
+        }catch(e){return false;}
       });
     }catch(e){return false;}
   }
