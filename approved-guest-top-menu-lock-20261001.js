@@ -8,10 +8,9 @@
   function approvedRemoteRoots(){
     var out=[];
     try{
-      document.querySelectorAll('.kt-remote-live.kt-guest-hostlike-active').forEach(function(x){out.push(x);});
-      document.querySelectorAll('.kt-remote-live').forEach(function(x){
-        if(x.querySelector('.kt-guest-hostlike-room,.kt-approved-guest-room'))out.push(x);
-      });
+      /* 5555: 일반 게스트/시청자 화면도 같은 상단 메뉴를 써야 한다.
+         호스트 화면은 건드리지 않고 원격 게스트 화면(.kt-remote-live)만 대상으로 한다. */
+      document.querySelectorAll('.kt-remote-live').forEach(function(x){out.push(x);});
     }catch(e){}
     return out.filter(function(x,i,a){return a.indexOf(x)===i;});
   }
@@ -35,8 +34,7 @@
         }
       }
 
-      /* 예전 게스트 화면이 남아 있어도 "보물상자"가 다시 나타나지 않게
-         빠른메뉴처럼 보이는 컨테이너만 골라 같은 4개로 통일한다. */
+      /* 기존 빠른메뉴가 있으면 같은 3개로 통일 */
       var candidates=[].slice.call(root.querySelectorAll('div,nav,section'));
       candidates.forEach(function(box){
         if(box.closest('.kgh-tools,.kt-remote-bottom,.kt-remote-chat'))return;
@@ -49,6 +47,32 @@
         box.style.setProperty('grid-template-columns','repeat(3,1fr)','important');
         box.innerHTML=exactButtons();
       });
+
+      /* 일반 게스트 화면은 기존에 빠른메뉴 자체가 없었다.
+         일일 랭킹/미션/시청자 줄 바로 아래에만 새 3칸 메뉴를 추가한다. */
+      if(!root.querySelector('.kgh-quick,.kt-viewer-quick-20261001')){
+        var stats=[].slice.call(root.children||[]).find(function(el){
+          var t=String(el&&el.textContent||'').replace(/\s+/g,'');
+          return /일일랭킹/.test(t)&&/미션/.test(t)&&/시청자/.test(t);
+        });
+        if(!stats){
+          stats=[].slice.call(root.querySelectorAll('div,section,nav')).find(function(el){
+            if(el.closest('.kt-remote-bottom,.kt-remote-chat'))return false;
+            var t=String(el&&el.textContent||'').replace(/\s+/g,'');
+            return /일일랭킹/.test(t)&&/미션/.test(t)&&/시청자/.test(t);
+          });
+        }
+        if(stats&&stats.parentNode){
+          var bar=document.createElement('div');
+          bar.className='kt-viewer-quick-20261001';
+          bar.style.cssText='display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px!important;width:100%!important;min-height:35px!important;flex:0 0 35px!important;position:relative!important;z-index:40!important;';
+          bar.innerHTML=exactButtons();
+          [].slice.call(bar.querySelectorAll('button')).forEach(function(b){
+            b.style.cssText='border:0!important;border-radius:11px!important;background:#101014!important;color:#fff!important;font-size:11px!important;font-weight:900!important;min-width:0!important;';
+          });
+          stats.insertAdjacentElement('afterend',bar);
+        }
+      }
     }catch(e){}
   }
 
