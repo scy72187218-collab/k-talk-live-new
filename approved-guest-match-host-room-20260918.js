@@ -98,21 +98,28 @@
   };
 
   function roomInfo(root){
-    var txt='';
-    try{
-      var meta=root&&root.querySelector('.kt-remote-meta');
-      txt=String(meta&&meta.textContent||root&&root.textContent||'');
-    }catch(e){}
-    /* 13명방은 게스트 기기에서 메타 문구가 늦게 붙어도 9칸으로 떨어지지 않게
-       현재 선택된 방송 메타까지 같이 확인한다. */
+    var structured='',screenText='';
     try{
       var r=window.__ktLastLiveRoom||{};
-      txt+=' '+String(r.room_name||'')+' '+String(r.title||'')+' '+String(r.room_type||'');
+      structured+=' '+String(r.room_name||'')+' '+String(r.title||'')+' '+String(r.room_type||'');
     }catch(e){}
     try{
-      txt+=' '+String(window.__ktRemoteRoomName||'')+' '+String(window.__ktRemoteRoomType||'');
+      structured+=' '+String(window.__ktRemoteRoomName||'')+' '+String(window.__ktRemoteRoomType||'');
     }catch(e){}
-    var is13=/13\s*명|group13/i.test(txt);
+    try{
+      var meta=root&&root.querySelector('.kt-remote-meta');
+      screenText=String(meta&&meta.textContent||root&&root.textContent||'');
+    }catch(e){}
+
+    /* 1111: if the actual remote room metadata says 9명/group9, it wins.
+       A stale 13명 label left in the old screen must not turn a 9명 room
+       into a 13-cell guest grid. */
+    var is9=/9\s*명|group9/i.test(structured);
+    var is13=!is9&&/13\s*명|group13/i.test(structured);
+    if(!is9&&!is13){
+      is9=/9\s*명|group9/i.test(screenText);
+      is13=!is9&&/13\s*명|group13/i.test(screenText);
+    }
     return {is13:is13,total:is13?13:9,label:is13?'13명 방송':'9명 방송'};
   }
 
