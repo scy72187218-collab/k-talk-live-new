@@ -10,7 +10,7 @@
 
     var grid=room.querySelector('.ktg13-main');
     if(grid){
-      grid.style.setProperty('width','calc(100% - 12px)','important');
+      grid.style.setProperty('width','calc(100% - 28px)','important');
       grid.style.setProperty('margin','2px auto 0','important');
       grid.style.setProperty('height','calc(72vw - 8px)','important');
       grid.style.setProperty('min-height','0','important');
