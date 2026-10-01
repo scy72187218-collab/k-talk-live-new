@@ -81,8 +81,47 @@
     guests.slice(8).forEach(function(g){try{g.remove();}catch(e){}});
   }
 
+  var __ktGroup9RemoteConfirmedHost20261001='';
+  async function confirmRemoteNineRoom20261001(){
+    try{
+      var hid=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||sessionStorage.getItem('kt_remote_host_id')||'').trim();
+      if(!hid)return false;
+      if(__ktGroup9RemoteConfirmedHost20261001===hid){
+        normalizeNineRoom();
+        return true;
+      }
+      var r=await fetch('/api/live-beacon-memory?t='+Date.now(),{cache:'no-store'});
+      if(!r.ok)return false;
+      var j=await r.json();
+      var rooms=Array.isArray(j&&j.rooms)?j.rooms:[];
+      var room=rooms.find(function(x){return String(x&&x.host_id||'')===hid;})||null;
+      if(!room)return false;
+      var typ=String(room.room_type||'');
+      var nam=String(room.room_name||'');
+      if(typ==='group9'||/9\s*명/.test(nam)){
+        __ktGroup9RemoteConfirmedHost20261001=hid;
+        try{
+          window.__ktRemoteRoomType='group9';
+          window.__ktRemoteRoomName='9명 방송';
+        }catch(e){}
+        normalizeNineRoom();
+        return true;
+      }
+      return false;
+    }catch(e){return false;}
+  }
+
   normalizeNineRoom();
   [20,80,180,400,800,1400,2400,4000].forEach(function(ms){setTimeout(normalizeNineRoom,ms);});
+  [60,180,420,800,1400,2400,4000,6500,9000].forEach(function(ms){setTimeout(confirmRemoteNineRoom20261001,ms);});
+  setInterval(function(){
+    try{
+      var room=document.querySelector('#screen .ktg13-room');
+      if(!room)return;
+      if(isGroup9State()){normalizeNineRoom();return;}
+      confirmRemoteNineRoom20261001();
+    }catch(e){}
+  },1200);
 
   try{
     new MutationObserver(function(){
