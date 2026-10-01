@@ -10,10 +10,10 @@
     ).forEach(function(g){
       g.style.setProperty('width','calc(100% - 26px)','important');
       g.style.setProperty('margin','2px auto 0','important');
-      g.style.setProperty('height','calc(61vw - 8px)','important');
+      g.style.setProperty('height','calc(64vw - 8px)','important');
       g.style.setProperty('min-height','0','important');
-      g.style.setProperty('max-height','calc(61vw - 8px)','important');
-      g.style.setProperty('flex','0 0 calc(61vw - 8px)','important');
+      g.style.setProperty('max-height','calc(64vw - 8px)','important');
+      g.style.setProperty('flex','0 0 calc(64vw - 8px)','important');
       g.style.setProperty('display','grid','important');
       g.style.setProperty('grid-template-columns','repeat(3,minmax(0,1fr))','important');
       g.style.setProperty('grid-template-rows','repeat(3,minmax(0,1fr))','important');
