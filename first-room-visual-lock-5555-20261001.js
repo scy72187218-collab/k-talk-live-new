@@ -106,7 +106,7 @@
     (document.head||document.documentElement).appendChild(s);
   }
 
-  function isApprovedNine(root){
+  function isNineRoom(root){
     if(!root)return false;
     try{
       var hostlike=root.querySelector('.kt-guest-hostlike-room[data-kt-room="9"]');
@@ -124,7 +124,7 @@
   function apply(){
     ensureStyle();
     document.querySelectorAll('#screen .kt-remote-live').forEach(function(root){
-      if(isApprovedNine(root))root.classList.add('kt-first-room-5555');
+      if(isNineRoom(root))root.classList.add('kt-first-room-5555');
       else root.classList.remove('kt-first-room-5555');
     });
   }
