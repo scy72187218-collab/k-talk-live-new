@@ -5,7 +5,7 @@
   if(window.__ktRoomLevel20Gate20260918)return;
   window.__ktRoomLevel20Gate20260918=true;
 
-  var MIN=20;
+  var MIN=21;
   var warnedAt=0;
 
   function num(v){
@@ -80,7 +80,12 @@
   }
 
   function allowed(type,label,max){
-    return true;
+    try{
+      if(typeof window.ktFinalRoomAllowed20260928==='function'){
+        return window.ktFinalRoomAllowed20260928(type,label,max);
+      }
+    }catch(e){}
+    return !restricted(type,label,max)||currentLevel()>=21;
   }
 
   function notice(type,label,max){
@@ -89,25 +94,28 @@
     warnedAt=now;
     var lv=currentLevel();
     var name=isSecret(type,label)?'비밀방':'13명방';
-    var msg=name+'은 레벨 20부터 사용할 수 있습니다. 현재 레벨 '+lv+'입니다.';
+    var msg=name+'은 레벨 21부터 사용할 수 있습니다. 현재 레벨 '+lv+'입니다.';
     try{if(typeof window.ktSpeak==='function')window.ktSpeak(msg);}catch(e){}
     try{alert(msg);}catch(e){}
     return false;
   }
 
   window.ktLevel20RoomAllowed=allowed;
-  window.ktLevelCanOpen13=function(){return true;};
-  window.ktLevelCanUseSecret=function(){return true;};
+  window.ktLevelCanOpen13=function(){return allowed('group13','13명방',13);};
+  window.ktLevelCanUseSecret=function(){return allowed('password','비밀방',7);};
 
   var oldCreate=window.ktCanCreateRoomByLevel;
   window.ktCanCreateRoomByLevel=function(roomType,level){
-    if(restricted(roomType,'',0))return true;
+    if(restricted(roomType,'',0))return allowed(roomType,'',0);
     return typeof oldCreate==='function'?oldCreate.apply(this,arguments):true;
   };
 
   var oldEnter=window.ktCanEnterRoomByLevel;
   window.ktCanEnterRoomByLevel=function(roomType,level,isSubscriber){
-    if(restricted(roomType,'',0))return true;
+    if(restricted(roomType,'',0)){
+      if(isSubscriber===true)return true;
+      return allowed(roomType,'',0);
+    }
     return typeof oldEnter==='function'?oldEnter.apply(this,arguments):true;
   };
 
