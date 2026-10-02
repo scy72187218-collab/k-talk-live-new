@@ -282,6 +282,7 @@
       document.querySelectorAll(
         '.kt-guest-hostlike-room .kgh-cell:not(.host):not(.self),'+
         '.kt-approved-guest-grid .kt-approved-guest-cell:not(.host):not(.self),'+
+        '.kt-prejoin-room-grid .kt-prejoin-room-cell:not(.host),'+
         '.kt-guest-room-grid .kt-guest-room-cell:not(.host):not(.self)'
       ).forEach(function(cell){cells.push(cell);});
     }catch(e){}
