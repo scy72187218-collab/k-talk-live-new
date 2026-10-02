@@ -119,6 +119,7 @@
       is16:is16,
       is13:is13,
       total:is16?16:(is13?13:9),
+      gridTotal:is16?15:(is13?13:9),
       label:is16?'16명 방송':(is13?'13명 방송':'9명 방송')
     };
   }
@@ -344,7 +345,7 @@
     selfCell.appendChild(selfVideo);
     grid.appendChild(hostCell);
     grid.appendChild(selfCell);
-    for(var i=2;i<info.total;i++)grid.appendChild(makeCell('',''));
+    for(var i=2;i<(info.gridTotal||info.total);i++)grid.appendChild(makeCell('',''));
 
     var chat=document.createElement('div');
     chat.className='kgh-chat';
