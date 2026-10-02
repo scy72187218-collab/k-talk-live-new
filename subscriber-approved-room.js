@@ -29,7 +29,7 @@
 
   function guestSlots(){
     var s='';
-    for(var i=1;i<=15;i++){
+    for(var i=1;i<=14;i++){
       s+='<div class="ktsubscriber-guest" data-guest-slot="'+i+'"><span>👤</span><b>게스트 '+i+'</b></div>';
     }
     return s;
