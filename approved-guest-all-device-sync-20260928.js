@@ -38,7 +38,7 @@
 
       var sig=host+'|'+ids.join(',');
       var now=Date.now();
-      if(!force&&sig===lastSig&&now-lastKick<700)return;
+      if(!force&&sig===lastSig)return;
       lastSig=sig;lastKick=now;
 
       try{
