@@ -532,7 +532,28 @@
       viewerCtx.signalTimer=setInterval(remotePollSignal,650);remotePollSignal();
       viewerCtx.heartbeat=setInterval(remotePollRoom,1500);remotePollRoom();
       viewerCtx.activityTimer=setInterval(remotePollActivity,1800);remotePollActivity();
-    }catch(e){document.documentElement.classList.remove('kt-remote-viewing');viewerCtx=null;}
+    }catch(e){
+      /* 느린 기기/순간 네트워크 오류에서는 방 화면을 바로 닫지 않는다.
+         빨간 LIVE를 눌렀을 때 먼저 열린 방을 유지하고 최대 2번만 재시도한다. */
+      try{
+        var st=document.getElementById('ktRemoteLiveStatus');
+        if(st){st.style.display='block';st.textContent='방송 연결 중...';}
+      }catch(_e){}
+      window.__ktRemoteEnterRetry=window.__ktRemoteEnterRetry||{};
+      var n=Number(window.__ktRemoteEnterRetry[hostId]||0);
+      if(n<2&&document.documentElement.classList.contains('kt-remote-viewing')){
+        window.__ktRemoteEnterRetry[hostId]=n+1;
+        setTimeout(function(){
+          try{
+            if(document.documentElement.classList.contains('kt-remote-viewing')&&!viewerCtx){
+              window.ktEnterRemoteLive(hostId);
+            }
+          }catch(_e){}
+        },700+(n*700));
+      }else{
+        window.__ktRemoteEnterRetry[hostId]=0;
+      }
+    }
   };
 
   function ktNotifyRemoteExit20260924(c){
