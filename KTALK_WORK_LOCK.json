@@ -146,8 +146,12 @@
     "public_video_top_live_circles_and_bottom_host_circle_20261002",
     "public_video_live_indicators_restored_correct_state_20261002"
   ],
-  "current_editable_components": [],
-  "temporarily_unlocked_components": [],
+  "current_editable_components": [
+    "approved_guest_grid_stability_only_20261002"
+  ],
+  "temporarily_unlocked_components": [
+    "approved_guest_grid_stability_only_20261002"
+  ],
   "note": "2222 승인: 승인 게스트 동기화가 너무 자주 재실행되어 칸 폭 변화/중복 표시가 생기지 않도록 직전 가속값만 안정값으로 복구. 방 구조/LED/채팅/버튼/수익률/기타 기능 변경 금지.",
   "lock_slots": {
     "1": [
@@ -246,7 +250,7 @@
       "creator_auto_youth_beauty_and_edit_effect_removed_20261002"
     ]
   },
-  "last_unlock": "2026-10-02-approved-guest-sync-stability-restore-code-2222",
+  "last_unlock": "2026-10-02-approved-guest-grid-stability-only-code-2222",
   "last_lock": "2026-10-02-approved-guest-sync-stability-restored-code-2222",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
