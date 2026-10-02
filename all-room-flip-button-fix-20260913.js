@@ -21,15 +21,18 @@
       }
 
       var videoStream=null;
-      var base={width:{ideal:1920},height:{ideal:1080},frameRate:{ideal:30,max:30}};
+      var soloNow=!!document.querySelector('.ktsolo-room');
+      var base=soloNow
+        ?{width:{ideal:720},height:{ideal:1280},aspectRatio:{ideal:0.5625},frameRate:{ideal:30,max:30}}
+        :{width:{ideal:1920},height:{ideal:1080},frameRate:{ideal:30,max:30}};
       try{
         videoStream=await navigator.mediaDevices.getUserMedia({
-          video:{facingMode:{exact:next},width:base.width,height:base.height,frameRate:base.frameRate},
+          video:{facingMode:{exact:next},width:base.width,height:base.height,aspectRatio:base.aspectRatio,frameRate:base.frameRate},
           audio:false
         });
       }catch(firstErr){
         videoStream=await navigator.mediaDevices.getUserMedia({
-          video:{facingMode:{ideal:next},width:base.width,height:base.height,frameRate:base.frameRate},
+          video:{facingMode:{ideal:next},width:base.width,height:base.height,aspectRatio:base.aspectRatio,frameRate:base.frameRate},
           audio:false
         });
       }
@@ -183,8 +186,19 @@
     };
   }
 
+  function removeSoloFlipOnly(){
+    var box=document.querySelector('.ktsolo-room .ktsolo-right');
+    if(!box)return;
+    [].slice.call(box.children||[]).forEach(function(btn){
+      if(isFlip(btn)){
+        try{btn.remove();}catch(e){}
+      }
+    });
+  }
+
   function ensure(){
-    addFlip('.ktsolo-room','.ktsolo-right');
+    /* 1111: 1인 방송 오른쪽의 동그라미 뒤집기/되돌리기만 제거 */
+    removeSoloFlipOnly();
     addFlip('.ktg13-room','.ktg13-right-quick');
     addFlip('.ktsubscriber-room','.ktsubscriber-right');
     addFlip('.ktsecret-room','.ktsecret-right');
