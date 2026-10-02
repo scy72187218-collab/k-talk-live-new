@@ -113,10 +113,11 @@
     var s=document.createElement('style');
     s.id='ktAttendanceRoomCountStyle';
     s.textContent=''
-      +'.kt-attendance-room-count{display:inline-grid!important;place-items:center!important;min-width:20px!important;height:20px!important;padding:0 5px!important;margin-left:4px!important;border-radius:999px!important;background:#ff3ba7!important;color:#fff!important;font-size:11px!important;font-weight:950!important;line-height:20px!important;vertical-align:middle!important;box-shadow:0 0 7px rgba(255,59,167,.72)!important;flex:0 0 auto!important}'
+      +'.kt-attendance-room-count{display:none!important}'
       +'.ktsolo-att .kt-attendance-room-count{min-width:18px!important;height:18px!important;line-height:18px!important;font-size:10px!important;padding:0 4px!important;margin-left:2px!important}'
       +'.ktsolo-att,.ktg13-attend,.ktsubscriber-att,.ktsecret-att,.kt-live-attendance,[data-kt-attendance]{position:relative!important}'
-      +'.kt-attendance-heart-badge{position:absolute!important;right:-10px!important;top:-31px!important;z-index:25!important;display:inline-flex!important;align-items:center!important;gap:2px!important;min-width:30px!important;height:20px!important;padding:0 5px!important;border-radius:999px!important;background:rgba(52,12,38,.94)!important;border:1px solid rgba(255,91,185,.62)!important;color:#fff!important;font-size:10px!important;font-weight:950!important;line-height:20px!important;box-shadow:0 0 7px rgba(255,67,174,.38)!important;white-space:nowrap!important;pointer-events:none!important}';
+      +'.kt-attendance-heart-badge{position:static!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:2px!important;min-width:36px!important;height:24px!important;padding:0 6px!important;margin-left:4px!important;border-radius:999px!important;background:rgba(52,12,38,.94)!important;border:1px solid rgba(255,91,185,.62)!important;color:#fff!important;font-size:10px!important;font-weight:950!important;line-height:24px!important;box-shadow:0 0 7px rgba(255,67,174,.38)!important;white-space:nowrap!important;pointer-events:none!important;flex:0 0 auto!important}'
+      +'.kt-attendance-inline-top{position:static!important;transform:none!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;min-width:0!important;width:auto!important;height:24px!important;max-height:24px!important;padding:0 7px!important;margin-left:4px!important;border-radius:999px!important;font-size:10px!important;line-height:24px!important;white-space:nowrap!important;flex:0 0 auto!important}';
     document.head.appendChild(s);
   }
 
@@ -138,14 +139,26 @@
 
     /* 출석체크 전용 하트: 좋아요 하트와 완전히 별개.
        출석체크 버튼 바로 위/옆에 출석 인원 숫자와 함께 표시한다. */
-    var heart=btn.querySelector('.kt-attendance-heart-badge');
+    var heart=room.querySelector('.kt-attendance-heart-badge');
     if(!heart){
       heart=document.createElement('span');
       heart.className='kt-attendance-heart-badge';
       heart.setAttribute('aria-label','출석체크 하트');
-      btn.appendChild(heart);
     }
     heart.textContent='💗 '+String(n);
+
+    /* 방송시간 옆 좋아요 하트 → 출석체크 → 출석 하트 숫자 순서로 둔다.
+       방 제목 위를 덮지 않게 기존 가운데/상단 위치는 사용하지 않는다. */
+    try{
+      var like=room.querySelector('.kt-clock-like-20260927');
+      var clock=room.querySelector('#ktLiveClock');
+      var anchor=like||clock;
+      if(anchor){
+        btn.classList.add('kt-attendance-inline-top');
+        anchor.insertAdjacentElement('afterend',btn);
+        btn.insertAdjacentElement('afterend',heart);
+      }
+    }catch(e){}
   }
 
   function attendance(btn){
