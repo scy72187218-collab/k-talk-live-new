@@ -148,7 +148,7 @@
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "2222 승인: 승인 후 별도 예전 방 배치를 사용하지 않고 승인 전 페이지의 칸 배치를 그대로 유지. 승인 후에는 첫 게스트 칸에 자기 영상만 표시. 다른 버튼/LED/채팅/선물/통신 변경 금지.",
+  "note": "1111 승인: 승인 전/후 동일 방 화면에서 기존 좋아요 숫자 바로 오른쪽에 출석체크 버튼, 그 오른쪽에 💗 출석 인원 숫자 배치. 방 이름을 가리지 않게 위치만 이동. 다른 UI/그리드/채팅/선물/통신 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -247,7 +247,7 @@
     ]
   },
   "last_unlock": "2026-10-02-red-live-and-same-3person-roster-code-2222",
-  "last_lock": "2026-10-02-attendance-inline-next-to-live-heart",
+  "last_lock": "2026-10-02-attendance-next-to-like",
   "last_note": "1111 승인: 방송시간 옆 좋아요 하트 숫자 바로 뒤에 출석체크 버튼, 그 뒤에 출석체크 전용 하트 숫자 배치. 방 제목 가림 해소. 다른 기능 변경 금지.",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
-}\n
+}
