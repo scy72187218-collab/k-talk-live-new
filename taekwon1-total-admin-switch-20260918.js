@@ -41,7 +41,9 @@
 
   function panelHtml(){
     var label=ownerKey()==='haine2'?'하이네2':'태권1';
-    return '<div class="kt-total-admin-wrap" id="ktTotalAdminWrap">'
+    var unlocked=false;
+    try{unlocked=String(localStorage.getItem('ktalk_total_admin_locked')||'1')==='0';}catch(e){}
+    return '<div class="kt-total-admin-wrap'+(unlocked?' open':'')+'" id="ktTotalAdminWrap">'
       +'<button class="kt-total-admin-row" type="button" onclick="ktToggleTotalAdminPanel()">'
       +'<span class="kt-admin-icon">🛡️</span>'
       +'<span class="kt-admin-copy"><b>총관리</b><small>'+label+' 관리자 전용</small></span>'
@@ -199,6 +201,7 @@
 
   window.ktEnterAdminAfterUnlock20261002=function(){
     try{
+      try{localStorage.setItem('ktalk_total_admin_locked','0');}catch(_e){}
       if(typeof window.ktOpenTotalAdminOverview20260928==='function'){
         window.ktOpenTotalAdminOverview20260928();
         return false;
