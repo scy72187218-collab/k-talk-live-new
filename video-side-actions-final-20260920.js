@@ -265,12 +265,27 @@
       }catch(e){}
     };
 
-    /* 오른쪽 영역만 교체: 프로필 사진 → 장미/개수 → 메시지 → 공유 */
+    var fortune=document.createElement('button');
+    fortune.type='button';
+    fortune.className='kt-feed-final-fortune';
+    fortune.setAttribute('aria-label','오늘의 운세');
+    fortune.innerHTML='🎯<small>오늘의 운세</small>';
+    fortune.onclick=function(e){
+      try{e.preventDefault();e.stopPropagation();}catch(x){}
+      try{
+        if(typeof window.ktOpenDailyFortuneLadder20260928==='function'){
+          window.ktOpenDailyFortuneLadder20260928();
+        }
+      }catch(x){}
+    };
+
+    /* 오른쪽 영역만 교체: 프로필 사진 → 장미/개수 → 메시지 → 공유 → 오늘의 운세 */
     while(box.firstChild)box.removeChild(box.firstChild);
     box.appendChild(profile);
     box.appendChild(rose);
     box.appendChild(message);
     box.appendChild(share);
+    box.appendChild(fortune);
   }
 
   function run(){
