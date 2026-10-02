@@ -35,9 +35,11 @@
       +'min-width:0!important;min-height:0!important;overflow:hidden!important;}'
       +'@media(max-width:600px){'
       +'#screen .kt-guest-hostlike-room[data-kt-room="15"] .kgh-cell.host{'
-      +'grid-column:auto!important;grid-row:auto!important;aspect-ratio:1/1!important;height:auto!important;min-height:0!important;}'
+      +'grid-column:auto!important;grid-row:auto!important;aspect-ratio:1/1!important;height:auto!important;min-height:0!important;padding:0!important;}'
       +'#screen .kt-guest-hostlike-room[data-kt-room="15"] .kgh-cell.host video{'
-      +'width:100%!important;height:100%!important;object-fit:cover!important;}'
+      +'position:absolute!important;inset:0!important;width:100%!important;height:100%!important;'
+      +'max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;border:0!important;'
+      +'object-fit:cover!important;object-position:center center!important;}'
       +'}';
     (document.head||document.documentElement).appendChild(s);
   }
