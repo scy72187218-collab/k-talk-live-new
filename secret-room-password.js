@@ -371,6 +371,7 @@
   window.__ktSecretEarnBottomFinal20260927=true;
   function place(){
     try{
+      if(window.__ktSecretEarnAboveBottomTools1111)return;
       var room=document.querySelector('#screen .ktsecret-room');
       var e=room&&room.querySelector('.ktsecret-earn-row');
       var tools=room&&room.querySelector('.ktsecret-tools');
