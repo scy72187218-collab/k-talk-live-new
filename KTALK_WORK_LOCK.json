@@ -148,7 +148,7 @@
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "게스트가 실제 연결에서 빠졌는데 호스트 방에 예전 승인 사진이 남는 현상만 수정. 실제 게스트 연결이 7초 이상 없으면 해당 호스트 칸을 자동으로 빈 칸으로 복귀. 다른 기능 변경 금지.",
+  "note": "현재 시청자 heartbeat가 정상 조회된 경우 7초 이상 방에 없는 승인 게스트를 현재 승인명단에서 제외하고 호스트 칸 잔상을 7초 유예 후 정리. 다른 기능 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -247,6 +247,6 @@
     ]
   },
   "last_unlock": "2026-10-02-red-live-and-same-3person-roster-code-2222",
-  "last_lock": "2026-10-02-host-stale-approved-guest-auto-clear",
+  "last_lock": "2026-10-02-stale-approved-viewer-cleanup",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
