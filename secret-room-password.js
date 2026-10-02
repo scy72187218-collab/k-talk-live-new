@@ -392,7 +392,7 @@
       var spanLeft=sr.left-rr.left;
       var spanRight=mr.right-rr.left;
       var left=Math.round(spanLeft+((spanRight-spanLeft)-w)/2);
-      var top=Math.round(sr.top-rr.top-h-3);
+      var top=Math.round(sr.top-rr.top-h+7);
 
       /* 비밀방만: 수익률을 공유·효과·더보기 3개 바로 위에 정확히 고정 */
       e.style.setProperty('position','absolute','important');
