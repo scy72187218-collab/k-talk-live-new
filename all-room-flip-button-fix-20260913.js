@@ -47,7 +47,10 @@
         state.cameraFacing=next;
       }
 
-      document.querySelectorAll('#camera,.ktsolo-room video,.ktg13-room video,.ktsubscriber-room video,.ktsecret-room video,#ktLiveVideo').forEach(function(v){
+      var targetSelector=soloRoom
+        ?'#screen .ktsolo-room #ktLiveVideo,#screen .ktsolo-room video'
+        :'#camera,.ktg13-room video,.ktsubscriber-room video,.ktsecret-room video,#ktLiveVideo';
+      document.querySelectorAll(targetSelector).forEach(function(v){
         try{
           v.srcObject=merged;
           v.style.setProperty('transform',next==='user'?'scaleX(-1)':'none','important');
@@ -62,7 +65,8 @@
         if(solo){
           var sv=solo.querySelector('#ktLiveVideo,video');
           if(sv){
-            sv.style.setProperty('position','absolute','important');
+            function soloFull(){
+              sv.style.setProperty('position','absolute','important');
             sv.style.setProperty('inset','0','important');
             sv.style.setProperty('width','100%','important');
             sv.style.setProperty('height','100%','important');
@@ -73,7 +77,10 @@
             sv.style.setProperty('object-fit','cover','important');
             sv.style.setProperty('object-position','50% 50%','important');
             sv.style.setProperty('border','0','important');
-            sv.style.setProperty('border-radius','0','important');
+              sv.style.setProperty('border-radius','0','important');
+            }
+            soloFull();
+            [40,120,300].forEach(function(ms){setTimeout(soloFull,ms);});
           }
         }
       }catch(e){}
