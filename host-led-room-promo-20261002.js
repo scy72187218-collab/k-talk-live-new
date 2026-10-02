@@ -94,11 +94,17 @@
     }
     var id=hostId();
     if(!id){alert('방송 정보를 확인하지 못했습니다.');return false;}
+    var promoText='';
+    try{
+      promoText=String(prompt('LED 홍보 내용을 입력하세요.\n예: 오늘 딸기 1박스 15,000원 판매합니다.','')||'').trim();
+    }catch(e){}
+    if(!promoText)return false;
+    if(promoText.length>80)promoText=promoText.slice(0,80);
     var payload={
       host_id:id,
       sender_id:id,
       sender_name:hostName(),
-      message:JSON.stringify({hostId:id,hostName:hostName(),roomName:roomName(),at:new Date().toISOString()}),
+      message:JSON.stringify({hostId:id,hostName:hostName(),roomName:roomName(),promoText:promoText,at:new Date().toISOString()}),
       message_type:'led_promo'
     };
     try{
@@ -154,7 +160,7 @@
     var d=document.createElement('div');
     d.id='ktLedPromoView20261002';
     d.className='kt-led-promo-view';
-    d.innerHTML='<b>● LED</b><span>'+String(x.hostName||'K-Talk 호스트')+' · '+String(x.roomName||'방송')+'</span><small>눌러서 입장 ›</small>';
+    d.innerHTML='<b>● LED</b><span>'+String(x.hostName||'K-Talk 호스트')+' · '+String(x.promoText||x.roomName||'방송')+'</span><small>눌러서 입장 ›</small>';
     d.onclick=function(e){
       try{e.preventDefault();e.stopPropagation();}catch(z){}
       if(typeof window.ktEnterRemoteLive==='function')window.ktEnterRemoteLive(String(x.hostId));
