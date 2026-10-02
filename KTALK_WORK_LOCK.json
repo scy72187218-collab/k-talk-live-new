@@ -148,7 +148,7 @@
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "방송방 종료/나가기 후 방송목록이 아니라 첫 동영상 화면(home)으로 이동. 다른 통신/승인/LED/채팅/수익률 기능 변경 금지.",
+  "note": "15명/구독자방 승인 게스트 화면만 4x4 구조로 보정. 호스트 1칸은 세로 2칸, 총 15명 자리 유지. 다른 방/통신/승인/LED/채팅/수익률 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -247,6 +247,6 @@
     ]
   },
   "last_unlock": "2026-10-02-red-live-and-same-3person-roster-code-2222",
-  "last_lock": "2026-10-02-room-end-go-video-home",
+  "last_lock": "2026-10-02-guest15-approved-layout-fix",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
