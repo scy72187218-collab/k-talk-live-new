@@ -37,7 +37,7 @@
       +'#screen .kt-guest-hostlike-room[data-kt-room="16"] .kgh-main>.kgh-cell:nth-child(n+16){display:none!important;}'
       +'@media(max-width:600px){'
       +'#screen .kt-guest-hostlike-room[data-kt-room="16"] .kgh-cell.host{'
-      +'grid-column:auto!important;grid-row:auto!important;aspect-ratio:1/1!important;height:auto!important;min-height:0!important;padding:0!important;}'
+      +'grid-column:1!important;grid-row:1/span 2!important;aspect-ratio:auto!important;height:auto!important;min-height:0!important;padding:0!important;}'
       +'#screen .kt-guest-hostlike-room[data-kt-room="16"] .kgh-cell.host video{'
       +'position:absolute!important;inset:0!important;width:100%!important;height:100%!important;'
       +'max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;border:0!important;'
