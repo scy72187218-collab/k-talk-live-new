@@ -42,6 +42,11 @@
         +'z-index:2147482300!important;'
       +'}'
       /* REMOTE/GUEST 9-room: bottom input bar fixed */
+      +'#screen .kt-remote-live.kt-g9-chat-bottom-5555>.kt-remote-chat>*{flex:0 0 auto!important;}'
+      +'#screen .kt-remote-live.kt-g9-chat-bottom-5555>.kt-remote-chat>*:first-child{margin-top:auto!important;}'
+      +'#screen .kt-remote-live.kt-g9-chat-bottom-5555 .kgh-chatbox{display:flex!important;flex-direction:column!important;justify-content:flex-end!important;overflow:hidden!important;}'
+      +'#screen .kt-remote-live.kt-g9-chat-bottom-5555 .kgh-chatbox>*{flex:0 0 auto!important;}'
+      +'#screen .kt-remote-live.kt-g9-chat-bottom-5555 .kgh-chatbox>*:first-child{margin-top:auto!important;}'
       +'#screen .kt-remote-live.kt-g9-chat-bottom-5555>.kt-remote-bottom{'
         +'position:absolute!important;'
         +'left:6px!important;right:6px!important;'
