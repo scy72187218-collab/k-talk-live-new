@@ -78,13 +78,23 @@
     return document.querySelector('#screen .ktg13-room[data-kt-room="9"] .ktg13-chat');
   }
 
+  function remoteChatBox(){
+    return document.querySelector('#screen .kt-remote-live>.kt-remote-chat,#screen .kt-remote-live .kt-remote-chat');
+  }
+
+  function currentRoomHostId(){
+    var hb=hostChatBox();
+    if(hb)return deviceId();
+    return guestHostId();
+  }
+
   function msgKey(m){
     return String((m&&m.id!=null?m.id:'')+'|'+String(m&&m.sender_id||'')+'|'+String(m&&m.message||'')+'|'+String(m&&m.created_at||''));
   }
 
   async function fetchHostMessages(){
-    var hid=deviceId();
-    if(!hid||!hostChatBox())return [];
+    var hid=currentRoomHostId();
+    if(!hid||(!hostChatBox()&&!remoteChatBox()))return [];
     try{
       var r=await fetch(API+'?action=messages&host_id='+encodeURIComponent(hid)+'&t='+Date.now(),{cache:'no-store'});
       if(!r.ok)return [];
@@ -111,24 +121,40 @@
   }
 
   function paint(rows){
-    var box=hostChatBox();
-    if(!box||!rows.length)return;
-    var html=rows.map(function(m){
+    if(!rows.length)return;
+
+    var host=hostChatBox();
+    var remote=remoteChatBox();
+
+    var hostHtml=rows.map(function(m){
       return '<div class="ktg13-chat-line"><b>'+esc(m.sender_name||'게스트')+'</b><span>'+esc(m.message||'')+'</span></div>';
     }).join('');
-    if(html!==hostLastHtml){
-      box.innerHTML=html;
-      box.scrollTop=box.scrollHeight;
-      hostLastHtml=html;
+
+    var remoteHtml=rows.map(function(m){
+      return '<div class="kt-remote-chat-line"><b>'+esc(m.sender_name||'게스트')+'</b><span>'+esc(m.message||'')+'</span></div>';
+    }).join('');
+
+    var sig=hostHtml+'||'+remoteHtml;
+    if(sig===hostLastHtml)return;
+    hostLastHtml=sig;
+
+    if(host){
+      host.innerHTML=hostHtml;
+      host.scrollTop=host.scrollHeight;
+    }
+    if(remote){
+      remote.innerHTML=remoteHtml;
+      remote.scrollTop=remote.scrollHeight;
     }
   }
 
   async function hostPoll(){
-    if(!hostChatBox())return;
+    if(!hostChatBox()&&!remoteChatBox())return;
     var rows=await fetchHostMessages();
     if(!rows.length)return;
     paint(rows);
-    speakNew(rows);
+    /* AI 읽기는 호스트 기기에서만 실행한다. */
+    if(hostChatBox())speakNew(rows);
   }
 
   function install(){
