@@ -72,6 +72,45 @@
     return next;
   }
 
+  function ktFortuneSpeakAll20261002(text){
+    text=String(text||'').replace(/\s+/g,' ').trim();
+    if(!text)return;
+    try{if(window.state)state.aiVoiceOn=true;}catch(e){}
+    try{localStorage.setItem('ktalk_ai_voice','on');}catch(e){}
+    try{
+      if(!window.speechSynthesis||typeof window.SpeechSynthesisUtterance!=='function'){
+        if(typeof window.ktSpeak==='function')window.ktSpeak(text);
+        return;
+      }
+      var synth=window.speechSynthesis;
+      var parts=[];
+      while(text.length>180){
+        var cut=text.lastIndexOf(' ',180);
+        if(cut<80)cut=180;
+        parts.push(text.slice(0,cut));
+        text=text.slice(cut).trim();
+      }
+      if(text)parts.push(text);
+      try{synth.cancel();}catch(e){}
+      var voices=synth.getVoices?synth.getVoices():[];
+      var ko=voices.find(function(v){return /^ko(-|_)/i.test(v.lang||'');})||null;
+      var i=0;
+      function next(){
+        if(i>=parts.length)return;
+        var u=new SpeechSynthesisUtterance(parts[i++]);
+        u.lang='ko-KR';
+        u.rate=.98;u.pitch=1.02;u.volume=1;
+        if(ko)u.voice=ko;
+        u.onend=next;
+        u.onerror=function(){setTimeout(next,60);};
+        synth.speak(u);
+      }
+      next();
+    }catch(e){
+      try{if(typeof window.ktSpeak==='function')window.ktSpeak(text);}catch(x){}
+    }
+  }
+
   var fortunes=[
     '오늘은 작은 행운이 자연스럽게 따라오는 날입니다.',
     '좋은 사람과 좋은 이야기가 이어질 수 있는 날입니다.',
@@ -184,6 +223,16 @@
   window.ktOpenDailyFortuneLadder20260928=function(){
     try{
       if(typeof window.showSheet==='function')window.showSheet('🎯 오늘의 운세',eventHtml());
+      setTimeout(function(){
+        ktFortuneSpeakAll20261002(
+          '오늘의 운세 장미따먹기. 무료 이벤트이며 하루에 한 번 참여할 수 있습니다. '+
+          '번호 하나를 골라 주세요. 고른 번호에서 사다리가 내려가 마지막 결과에 도착합니다. '+
+          '사다리타기에 참여하면 주간 행운 추첨에 자동 응모됩니다. '+
+          '일주일에 한 번 참여자 중에서 1등, 2등, 3등을 추첨합니다. '+
+          '1등 이벤트 장미 100개, 2등 50개, 3등 30개입니다. '+
+          '오늘의 행운 숫자는 재미로 보는 숫자입니다.'
+        );
+      },120);
     }catch(e){}
     return false;
   };
@@ -227,6 +276,12 @@
             +'<div class="rowbox"><b>참여 완료</b><br>오늘은 1회 참여가 끝났습니다. 내일 다시 이용할 수 있습니다.</div>';
           try{
             if(typeof window.showSheet==='function')window.showSheet('🎯 오늘의 운세 결과',html);
+            ktFortuneSpeakAll20261002(
+              '오늘의 운세 결과입니다. '+result+' '+
+              fortune+' '+
+              '오늘의 행운 숫자는 '+lucky.join(', ')+' 입니다. '+
+              '오늘 참여는 완료되었습니다. 내일 다시 이용할 수 있습니다.'
+            );
             if(typeof window.ktAnnounceEvent==='function')window.ktAnnounceEvent('reward',{text:reward?'오늘의 운세 장미 '+reward+'송이 당첨':'오늘의 운세 이벤트 완료'});
           }catch(e){}
         },350);
