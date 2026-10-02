@@ -1,11 +1,11 @@
 {
-  "version": 183,
+  "version": 184,
   "locked": true,
-  "scope": "full_snapshot_guard_except_chat",
+  "scope": "full_snapshot_guard_all_components",
   "lock_slot": 9,
   "unlock_requires_pin": true,
   "runtime_controls_remain_usable": true,
-  "default_policy": "locked_except_chat_runtime",
+  "default_policy": "locked_all_code_changes",
   "protected_components": [
     "group9_bottom_controls_8",
     "public_video_first_page_opening",
@@ -55,7 +55,8 @@
     "total_admin_tax_accounting_overview_csv_20260928",
     "live_audio_music_voice_quality_48khz_stereo_no_agc_20260928",
     "creator_edit_shop_under_undo_existing_beauty_background_20260928",
-    "current_full_state_20261002_except_chat"
+    "current_full_state_20261002_except_chat",
+    "live15_red_button_fast_tap_20261002"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -106,15 +107,12 @@
     "total_admin_tax_accounting_overview_csv_20260928",
     "live_audio_music_voice_quality_48khz_stereo_no_agc_20260928",
     "creator_edit_shop_under_undo_existing_beauty_background_20260928",
-    "current_full_state_20261002_except_chat"
+    "current_full_state_20261002_except_chat",
+    "live15_red_button_fast_tap_20261002"
   ],
-  "current_editable_components": [
-    "chat_only"
-  ],
-  "temporarily_unlocked_components": [
-    "chat_only"
-  ],
-  "note": "현재 화면/방/그리드/영상/버튼/게스트/호스트/배치/스위치/통신 등은 모두 보호. 채팅 표시·전송·호스트 수신·AI 읽기 관련 코드만 수정 허용.",
+  "current_editable_components": [],
+  "temporarily_unlocked_components": [],
+  "note": "현재 저장 상태 전체 보호. 카메라·마이크·영화·TV·유튜브·방 선택·모든 앱 스위치는 사용 가능 상태를 유지하되, 코드/화면/배치/통신/방송 신호/입장 버튼/채팅 등 기존 기능은 별도 요청 없이는 수정하지 않음.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -179,9 +177,13 @@
     ],
     "10": [
       "current_full_state_20261002_except_chat"
+    ],
+    "11": [
+      "current_full_state_20261002_after_live15_fast_tap",
+      "live15_red_button_fast_tap_20261002"
     ]
   },
   "last_unlock": "2026-09-27-solo-countdown-only-code-5555",
-  "last_lock": "2026-10-02-lock-all-except-chat",
+  "last_lock": "2026-10-02-lock-current-full-state-after-live15-fast-tap",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
