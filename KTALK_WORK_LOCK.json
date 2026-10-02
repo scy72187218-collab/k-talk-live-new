@@ -148,7 +148,7 @@
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "승인 명단 조회만 병렬 처리하고 0.45초 간격으로 확인. 화면/방/LED/버튼/채팅/수익률은 변경 금지. 같은 명단이면 재그리기 금지.",
+  "note": "빨간 LIVE 신호 표시 속도만 단축. 조회 캐시 150ms, 표시 확인 250ms, 초기 확인 80ms, DB 지연 대기 700ms. 방/영상/승인/LED/버튼/채팅/수익률 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -247,6 +247,6 @@
     ]
   },
   "last_unlock": "2026-10-02-red-live-and-same-3person-roster-code-2222",
-  "last_lock": "2026-10-02-approved-roster-faster-parallel",
+  "last_lock": "2026-10-02-red-live-signal-fast",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
