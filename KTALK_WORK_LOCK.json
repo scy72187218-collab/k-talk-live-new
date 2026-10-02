@@ -247,7 +247,7 @@
     ]
   },
   "last_unlock": "2026-10-02-red-live-and-same-3person-roster-code-2222",
-  "last_lock": "2026-10-02-secret-room-direct-password-change-1111",
-  "last_note": "1111 승인: 비밀방 입장 후 하단 도구줄에 비번변경 버튼만 추가. 기존 비밀번호 입력/잠금 해제/검증 로직은 변경 금지.",
+  "last_lock": "2026-10-02-secret-password-change-current1111",
+  "last_note": "1111 승인: 비밀방에서 비밀번호 바꾸기 시 현재 비밀방 비밀번호 확인 후 새 4자리로 변경. 기존 별도 변경 잠금번호는 사용하지 않음. 다른 기능 변경 금지.",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
