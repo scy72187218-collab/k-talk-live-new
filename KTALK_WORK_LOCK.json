@@ -148,7 +148,7 @@
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "승인 후 16명 방 모바일에서 호스트 칸이 1칸 정사각형으로 줄어드는 모바일 override만 제거. 호스트는 기존처럼 첫 열 2칸 높이를 꽉 채우고 video는 cover 유지. 다른 UI/채팅/게스트/버튼 변경 금지.",
+  "note": "2222 승인: 승인 후 방에서 사람을 가리던 채팅 오버레이 위치만 오른쪽으로 이동. 호스트/게스트 칸, LED, 버튼, 통신, 승인 기능 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -247,6 +247,6 @@
     ]
   },
   "last_unlock": "2026-10-02-red-live-and-same-3person-roster-code-2222",
-  "last_lock": "2026-10-02-approved-16-host-fill",
+  "last_lock": "2026-10-02-approved-chat-right",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
