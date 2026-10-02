@@ -247,7 +247,7 @@
     ]
   },
   "last_unlock": "2026-10-02-red-live-and-same-3person-roster-code-2222",
-  "last_lock": "2026-10-02-profile-admin-approval-restored-1111",
-  "last_note": "1111 승인: 프로필에서 사라진 총관리와 광고·동영상 관리자 승인 기능의 기존 스크립트 로딩만 복구. 다른 기능 변경 금지.",
+  "last_lock": "2026-10-02-subscriber-selling-allow-deny-1111",
+  "last_note": "1111 승인: 구독자 방송 더보기에 물건 판매 허용 / 물건 판매 불가 두 버튼만 추가. 다른 화면/기능 변경 금지.",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
