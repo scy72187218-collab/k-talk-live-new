@@ -1,6 +1,6 @@
 /* K-Talk: 비밀방 수익률 위치 전용 1111
    다른 방/기능은 건드리지 않음.
-   수익률을 공유·효과·더보기 바로 위에 고정. */
+   수익률을 공유·효과·더보기 쪽으로 더 내려서 고정. */
 (function(){
   if(window.__ktSecretEarnAboveBottomTools1111)return;
   window.__ktSecretEarnAboveBottomTools1111=true;
@@ -36,7 +36,7 @@
       var left=Math.round(mr.right-w-2);
 
       e.style.setProperty('position','fixed','important');
-      e.style.setProperty('top',Math.round(sr.top-h-6)+'px','important');
+      e.style.setProperty('top',Math.round(sr.top-h+12)+'px','important');
       e.style.setProperty('bottom','auto','important');
       e.style.setProperty('left',left+'px','important');
       e.style.setProperty('right','auto','important');
