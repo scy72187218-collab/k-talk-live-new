@@ -9,6 +9,7 @@
   var MEM_BEACON='/api/live-beacon-memory';
   var remote={hostId:'',viewerId:'',viewerName:'',roomStart:'',timer:null,lastLikeAt:0};
   var hostTimer=null,hostRoomStart='';
+  var hostChatStableBuffer=[];
 
   function headers(extra){var h={apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json'};Object.keys(extra||{}).forEach(function(k){h[k]=extra[k];});return h;}
   async function req(path,opt){
@@ -269,7 +270,32 @@
   }
   function paintHostMessages(box,rows){
     if(!box||!box.el)return;
-    var list=(rows||[]).slice(-6);
+
+    /* Keep a stable visible history. A temporary empty/partial fetch must not
+       erase a chat line that just appeared. New lines stack from the bottom
+       and push older lines upward; only the oldest line is dropped past 7. */
+    (rows||[]).forEach(function(m){
+      var key=String(
+        (m&&m.id!=null?m.id:'')+'|'+
+        String(m&&m.sender_id||'')+'|'+
+        String(m&&m.message_type||'')+'|'+
+        String(m&&m.message||'')
+      );
+      if(!key.replace(/\|/g,''))return;
+      var exists=hostChatStableBuffer.some(function(x){return x.__ktKey===key;});
+      if(exists)return;
+      var copy=Object.assign({},m);
+      copy.__ktKey=key;
+      hostChatStableBuffer.push(copy);
+    });
+
+    if(hostChatStableBuffer.length>40){
+      hostChatStableBuffer=hostChatStableBuffer.slice(-40);
+    }
+
+    var list=hostChatStableBuffer.slice(-7);
+    if(!list.length)return;
+
     var html=list.map(function(m){
       var sys=systemType(m.message_type);
       return '<div class="'+box.line+'"><b>'+(sys?'●':esc(m.sender_name||'게스트'))+'</b><span>'+esc(m.message||'')+'</span></div>';
@@ -278,8 +304,6 @@
     box.el.innerHTML=html;
     box.el.scrollTop=box.el.scrollHeight;
 
-    /* If another visible 9-room chat container exists, keep it in sync too.
-       This is display-only and does not touch layout, video, buttons or signaling. */
     if(box.line==='ktg13-chat-line'){
       document.querySelectorAll('#screen .ktg13-room[data-kt-room="9"] .ktg13-chat').forEach(function(el){
         if(el===box.el)return;
@@ -288,7 +312,17 @@
       });
     }
   }
-  async function refreshHost(){var box=currentHostBox();if(!box)return;var hid=deviceId(),room=await activeRoom(hid);if(!room)return;hostRoomStart=room.started_at||hostRoomStart;var rows=await fetchMessages(hid,hostRoomStart);processHostEvents(rows);paintHostMessages(box,rows);}
+
+  async function refreshHost(){
+    var box=currentHostBox();if(!box)return;
+    var hid=deviceId(),room=await activeRoom(hid);if(!room)return;
+    var nextStart=room.started_at||'';
+    if(hostRoomStart&&nextStart&&hostRoomStart!==nextStart)hostChatStableBuffer=[];
+    hostRoomStart=nextStart||hostRoomStart;
+    var rows=await fetchMessages(hid,hostRoomStart);
+    processHostEvents(rows);
+    paintHostMessages(box,rows);
+  }
   async function sendHostChat(text){text=String(text||'').trim();if(!text)return;var hid=deviceId(),room=await activeRoom(hid);if(!room)return;var p=profile();await postMessage(hid,hid,p.name||'호스트',text,'chat');setTimeout(refreshHost,80);}
   function wrapHostSend(name,inputId){var old=window[name];if(typeof old!=='function'||old.__ktDbChatWrapped)return;var fn=function(){var input=document.getElementById(inputId),text=input?String(input.value||'').trim():'';var r=old.apply(this,arguments);if(text)sendHostChat(text);return r;};fn.__ktDbChatWrapped=true;window[name]=fn;}
   function ensureHostSendWraps(){wrapHostSend('ktSoloSendChat','ktsoloChatInput');wrapHostSend('ktSubscriberSendChat','ktsubscriberChatInput');wrapHostSend('ktSecretSendChat','ktsecretChatInput');wrapHostSend('ktGroup13SendChat','ktg13ChatInput');}
