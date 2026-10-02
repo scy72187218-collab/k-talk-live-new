@@ -51,6 +51,29 @@
           var p=v.play();if(p&&p.catch)p.catch(function(){});
         }catch(e){}
       });
+
+      /* 1111: 1인 방송에서 뒤집기 후에도 카메라 화면은 방 전체를 꽉 채운다.
+         다른 방 배치/버튼은 건드리지 않는다. */
+      try{
+        var solo=document.querySelector('.ktsolo-room');
+        if(solo){
+          var sv=solo.querySelector('#ktLiveVideo,video');
+          if(sv){
+            sv.style.setProperty('position','absolute','important');
+            sv.style.setProperty('inset','0','important');
+            sv.style.setProperty('width','100%','important');
+            sv.style.setProperty('height','100%','important');
+            sv.style.setProperty('max-width','none','important');
+            sv.style.setProperty('max-height','none','important');
+            sv.style.setProperty('margin','0','important');
+            sv.style.setProperty('padding','0','important');
+            sv.style.setProperty('object-fit','cover','important');
+            sv.style.setProperty('object-position','50% 50%','important');
+            sv.style.setProperty('border','0','important');
+            sv.style.setProperty('border-radius','0','important');
+          }
+        }
+      }catch(e){}
       return true;
     }catch(e){
       try{if(window.state)state.cameraFacing=current;}catch(x){}
