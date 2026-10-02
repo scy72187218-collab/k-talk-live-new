@@ -140,7 +140,7 @@
 
   function gift(icon,count,label,img){
     var art=img?'<img src="'+img+'" alt="'+esc(label)+'">':'<span class="ktsecret-emoji">'+icon+'</span>';
-    return '<button class="ktsecret-gift" onclick="openGifts()">'+art+'<b>'+count+'</b><small>'+label+'</small></button>';
+    return '<button class="ktsecret-gift" onclick="openGifts()">'+art+'<small>'+label+'</small></button>';
   }
 
   function equalizerBars(){
