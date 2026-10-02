@@ -75,7 +75,7 @@
     screen.innerHTML =
     '<style id="k2-style">'+
     '#screen{padding:0!important;margin:0!important;width:100%!important;height:100dvh!important;overflow:hidden!important;background:#000!important}.bottom{display:none!important}'+
-    '.k2-room{width:100%;height:100%;max-height:100dvh;box-sizing:border-box;padding:4px 5px calc(4px + env(safe-area-inset-bottom));display:grid;grid-template-rows:58px 34px 54px 39px 39px minmax(0,1fr) 48px;gap:4px;background:#000;color:#fff;font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif;overflow:hidden}'+
+    '.k2-room{width:100%;height:100dvh;box-sizing:border-box;padding:4px 5px calc(4px + env(safe-area-inset-bottom));display:grid;grid-template-rows:58px 34px 54px 39px 39px minmax(0,1fr) 48px;gap:4px;background:#000;color:#fff;font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif;overflow:hidden}'+
     '.k2-head{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;padding:5px 8px;border-radius:15px;background:linear-gradient(180deg,#17171a,#0c0c0f)}'+
     '.k2-headleft{display:flex;align-items:center;min-width:0}.k2-back{width:30px;height:30px;border-radius:50%;border:1px solid #ffffff44;background:#111;color:#fff;font-size:24px;line-height:1}.k2-title{font-weight:950;font-size:18px;white-space:nowrap}.k2-att{height:34px;min-width:105px;border:2px solid #ff2ac7;border-radius:19px;background-color:#130714;background-image:radial-gradient(circle,#ff35ce 1.6px,transparent 2.2px);background-size:9px 9px;color:#ffd92e;font-size:13px;font-weight:950;box-shadow:0 0 9px #ff2ac7}.k2-brand{justify-self:end;color:#ff3f78;font-size:18px;font-weight:950;white-space:nowrap}'+
     '.k2-air{display:grid;grid-template-columns:auto auto auto minmax(74px,1fr);align-items:center;gap:8px;padding:0 8px;font-weight:950;white-space:nowrap}.k2-on{color:#ff315f;font-size:14px}.k2-clock{font-size:14px}.k2-heart{border:1px solid #ff4f91;border-radius:999px;padding:3px 9px;font-size:12px}.k2-invite{justify-self:end;max-width:96px;border:1px solid #d7ad39;border-radius:999px;background:#17140b;color:#ffe071;padding:5px 12px;font-size:12px;font-weight:950;white-space:nowrap}'+
@@ -86,7 +86,7 @@
     '.k2-chat,.k2-gifts{min-width:0;min-height:0;border:2px solid #ff28c4;border-radius:10px;background:#09090c;overflow:hidden;display:flex;flex-direction:column}.k2-tabs{height:30px;display:flex;align-items:center;gap:12px;padding:0 9px;border-bottom:1px solid #ff28c477;font-size:10px;font-weight:950}.k2-tabs .on{color:#ff45cf}.k2-chatlist{flex:1;overflow:hidden;padding:4px 7px;font-size:8.5px;line-height:1.55}.k2-msg{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.k2-msg b{margin-right:5px}.k2-msg:nth-child(1) b,.k2-msg:nth-child(2) b{color:#66ff8d}.k2-msg:nth-child(3) b{color:#ffd65b}.k2-msg:nth-child(4) b{color:#60dfff}.k2-msg:nth-child(5) b{color:#52e5ff}.k2-inputrow{height:36px;margin:3px 5px 5px;display:grid;grid-template-columns:1fr 44px 32px;gap:4px}.k2-input{border:1px solid #3d5270;border-radius:8px;display:flex;align-items:center;padding:0 7px;color:#9ab1ce;font-size:8px}.k2-send,.k2-present{border:0;border-radius:7px;color:#fff;font-size:9px;font-weight:950}.k2-send{background:linear-gradient(135deg,#8a24ff,#6c18e8)}.k2-present{background:#1b0b1d;font-size:18px}'+
     '.k2-ghead{height:30px;display:flex;align-items:center;padding:0 8px;font-size:10px;font-weight:950}.k2-ghead b{color:#ff45cf}.k2-rank{margin-left:auto;border:1px solid #ff4bd1;border-radius:999px;padding:2px 6px;color:#ff76dc}.k2-cats{height:22px;display:grid;grid-template-columns:repeat(4,1fr);font-size:7px}.k2-cats span{display:grid;place-items:center}.k2-cats .on{background:#ff12d8;border-radius:7px}.k2-grid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:3px;padding:4px}.k2-gift{min-width:0;border:1px solid #d5a80e;border-radius:6px;background:#0f0f12;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;overflow:hidden}.k2-gift i{font-style:normal;font-size:19px;line-height:1}.k2-gift b{font-size:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.k2-gift small{font-size:6.5px;color:#ffd53d}'+
     '.k2-tools{display:grid;grid-template-columns:repeat(8,1fr);gap:2px;align-items:start}.k2-tool{min-width:0;border:0;background:none;color:#fff;display:grid;justify-items:center;gap:1px}.k2-tool i{width:30px;height:30px;border-radius:50%;border:1px solid #35363d;background:linear-gradient(145deg,#1b1b20,#0b0b0f);display:grid;place-items:center;font-style:normal;font-size:15px}.k2-tool span{font-size:7px;white-space:nowrap;font-weight:900}'+
-    '@media(max-width:390px){.k2-room{grid-template-rows:54px 30px 48px 35px 35px minmax(0,1fr) 43px;padding-left:4px;padding-right:4px;gap:3px}.k2-title,.k2-brand{font-size:16px}.k2-att{min-width:90px;font-size:11px}.k2-main{grid-template-rows:minmax(0,1fr) 174px}.k2-ledtrack{font-size:19px}.k2-row>*{font-size:10px}.k2-tabs{gap:8px;font-size:9px}.k2-tool i{width:28px;height:28px;font-size:14px}.k2-tool span{font-size:6px}}'+
+    '@media(max-width:390px){.k2-room{grid-template-rows:54px 30px 48px 35px 35px minmax(0,1fr) 46px;padding-left:4px;padding-right:4px;gap:3px}.k2-title,.k2-brand{font-size:16px}.k2-att{min-width:90px;font-size:11px}.k2-main{grid-template-rows:minmax(0,1fr) 174px}.k2-ledtrack{font-size:19px}.k2-row>*{font-size:10px}.k2-tabs{gap:8px;font-size:9px}.k2-tool i{width:28px;height:28px;font-size:14px}.k2-tool span{font-size:6px}}'+
     '</style>'+
     '<section class="k2-room ktsecret-room">'+
       '<div class="k2-head"><div class="k2-headleft"><button class="k2-back" onclick="if(window.leaveBroadcastToDashboard)leaveBroadcastToDashboard()">‹</button><div class="k2-title">비밀방</div></div><button class="k2-att" onclick="if(window.ktAttendanceCheck)ktAttendanceCheck()">🪽 출석체크 🪽</button><div class="k2-brand">K-Talk LIVE</div></div>'+
@@ -127,6 +127,7 @@
     attach(streams);
     killPassword();
     cleanForeign();
+    settleOnce();
     return true;
   }
 
@@ -156,24 +157,39 @@
     }catch(e){}
   }
 
-  window.ktRenderSecretReferenceFinal1111=render;
+  function settleOnce(){
+      try{
+        var room=document.querySelector('#screen .k2-room');
+        if(!room)return;
+        var air=room.querySelector('.k2-air');
+        if(air){
+          [].slice.call(air.children).forEach(function(el){
+            if(el.classList.contains('k2-on')||el.classList.contains('k2-clock')||el.classList.contains('k2-heart')||el.classList.contains('k2-invite'))return;
+            try{el.remove();}catch(_e){}
+          });
+        }
+        document.querySelectorAll('#screen .k2-room *').forEach(function(el){
+          var t=(el.textContent||'').replace(/\s+/g,' ').trim();
+          if((/^([♥♡❤])\s*109$/.test(t)||/^109$/.test(t))&&!el.classList.contains('k2-heart')&&!el.closest('.k2-heart')){
+            try{el.remove();}catch(_e){}
+          }
+        });
+      }catch(e){}
+    }
+
+    window.ktRenderSecretReferenceFinal1111=render;
   window.ktRenderSecretReference20261003=render;
 
   var oldStart=window.startBroadcast;
   if(typeof oldStart==='function'){
     window.startBroadcast=async function(){
       var out=await oldStart.apply(this,arguments);
-      [0,50,150,350,700].forEach(function(ms){setTimeout(function(){if(isSecret())render();},ms);});
+      setTimeout(function(){if(isSecret())render();},0); setTimeout(settleOnce,180);
       return out;
     };
   }
 
-  [0,60,180,420,900,1600].forEach(function(ms){setTimeout(function(){if(isSecret())render();},ms);});
-  setInterval(function(){if(isSecret()){var s=document.getElementById('screen');if(s&&!s.querySelector('.k2-room'))render();else cleanForeign();killPassword();}},350);
-  try{
-    new MutationObserver(function(){
-      clearTimeout(window.__k2secretTimer);
-      window.__k2secretTimer=setTimeout(function(){if(isSecret()){var s=document.getElementById('screen');if(s&&!s.querySelector('.k2-room'))render();else cleanForeign();}},30);
-    }).observe(document.documentElement,{childList:true,subtree:true});
-  }catch(e){}
+  setTimeout(function(){if(isSecret())render();},60); setTimeout(settleOnce,240);
+  /* fixed secret-room screen: periodic repaint removed */
+  /* fixed secret-room screen: mutation repaint observer removed */
 })();
