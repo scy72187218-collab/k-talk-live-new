@@ -59,10 +59,27 @@
     try{
       var cells=[].slice.call(grid.querySelectorAll(':scope > .kgh-cell'));
       if(cells.length<=16)return;
-      cells.slice(16).forEach(function(cell){
-        if(!cell||cell.classList.contains('host')||cell.classList.contains('self'))return;
+
+      /* Keep the first 16 cells exactly as they are.
+         Remove only the tiny extra cell that drops under the host column. */
+      for(var i=cells.length-1;i>=16;i--){
+        var cell=cells[i];
+        if(!cell)continue;
+        if(cell.classList.contains('host')||cell.classList.contains('self'))continue;
         cell.remove();
-      });
+      }
+    }catch(e){}
+  }
+
+  function watchTinyHostColumnOverflow20261002(grid){
+    try{
+      if(!grid||grid.__ktTinyHostOverflowWatch)return;
+      grid.__ktTinyHostOverflowWatch=true;
+      var timer=null;
+      new MutationObserver(function(){
+        clearTimeout(timer);
+        timer=setTimeout(function(){removeTinyBottomOverflow20261002(grid);},10);
+      }).observe(grid,{childList:true});
     }catch(e){}
   }
 
@@ -79,6 +96,7 @@
     grid.classList.add('is16');
 
     removeTinyBottomOverflow20261002(grid);
+    watchTinyHostColumnOverflow20261002(grid);
     var cells=[].slice.call(grid.querySelectorAll(':scope > .kgh-cell'));
     while(cells.length<16){
       grid.appendChild(makeEmptyCell());
