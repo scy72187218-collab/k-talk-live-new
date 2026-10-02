@@ -116,6 +116,7 @@
             '<div class="rowbox"><b>🔒 현재 K-Talk 전체 잠금</b><br>현재 설정과 기능을 보호하는 관리자 잠금입니다.</div>'
             +'<input id="ktAdminLockPin20260928" class="form" type="password" inputmode="numeric" maxlength="4" placeholder="'+(saved?'관리 비밀번호 입력':'새 관리자 비밀번호 4자리')+'">'
             +'<button class="act" type="button" onclick="ktConfirmAdminLock20260928()">'+(saved?'잠그기':'비밀번호 저장 후 잠그기')+'</button>'
+            +(saved?'<button class="act" type="button" onclick="ktUnlockAdminLock20261002()" style="margin-top:8px;background:linear-gradient(135deg,#2b7a4b,#39a86a)">🔓 비밀번호 확인 후 열기</button>':'')
             +(saved?'<button class="act" type="button" onclick="ktOpenAdminPinChange20261002()" style="margin-top:8px;background:#25252d">🔑 비밀번호 바꾸기</button>':'')
           );
         }
@@ -164,6 +165,25 @@
     }
     try{localStorage.setItem('ktalk_total_admin_locked','1');}catch(e){}
     try{alert('🔒 전체 잠금이 설정되었습니다.');}catch(e){}
+    try{if(typeof window.closeSheet==='function')window.closeSheet();}catch(e){}
+    return false;
+  };
+
+  window.ktUnlockAdminLock20261002=function(){
+    var el=document.getElementById('ktAdminLockPin20260928');
+    var pin=String(el&&el.value||'').trim();
+    var saved='';
+    try{saved=String(localStorage.getItem('ktalk_total_admin_lock_pin')||'').trim();}catch(e){}
+    if(!saved){
+      try{alert('먼저 관리자 비밀번호를 저장해 주세요.');}catch(e){}
+      return false;
+    }
+    if(pin!==saved){
+      try{alert('비밀번호가 맞지 않습니다.');}catch(e){}
+      return false;
+    }
+    try{localStorage.setItem('ktalk_total_admin_locked','0');}catch(e){}
+    try{alert('🔓 전체 잠금을 열었습니다.');}catch(e){}
     try{if(typeof window.closeSheet==='function')window.closeSheet();}catch(e){}
     return false;
   };
