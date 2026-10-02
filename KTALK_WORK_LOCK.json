@@ -148,7 +148,7 @@
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "5555 승인: 호스트 줄 맨 밑에 따로 생기는 작은 게스트 칸 1개만 제거. 호스트 크기/나머지 게스트 칸/버튼/LED/채팅/기능은 그대로 유지.",
+  "note": "2222 승인: 16명 방 표시/시청자 수는 그대로 16명 유지. 호스트 칸이 2칸 높이를 쓰므로 실제 그리드 DOM만 15개로 생성하여 호스트 줄 맨 밑의 작은 overflow 게스트 칸 1개만 제거. 다른 기능/배치 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -247,6 +247,6 @@
     ]
   },
   "last_unlock": "2026-10-02-red-live-and-same-3person-roster-code-2222",
-  "last_lock": "2026-10-02-remove-only-host-column-bottom-tiny",
+  "last_lock": "2026-10-02-remove-only-host-bottom-tiny-cell",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
