@@ -1216,6 +1216,7 @@
     viewerRootMissingSince=0;
     var hostId=await currentViewerHost();
     if(!hostId){ensurePrejoinRoomGrid();return;}
+    syncViewerApprovedRoster(hostId);
     var vid=viewerId(),ap=await latestApproval(hostId,vid);
     if(ap){
       syncViewerApprovedRoster(hostId);
