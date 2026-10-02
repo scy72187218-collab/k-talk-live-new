@@ -7,6 +7,15 @@
   var observer=null;
   var fallbackTimer=null;
 
+  function isNineRoomStart(){
+    try{
+      var st=window.state||{};
+      var txt=[st.liveRoomType,st.liveRoomName,st.liveRoomMax,st.prepRoomType,st.prepRoomName,st.prepRoomMax].join(' ');
+      var title=String(((document.getElementById('liveTitle')||{}).value)||'');
+      return /group9|9\s*명/.test(String(txt)+' '+title);
+    }catch(e){return false;}
+  }
+
   function currentStream(){
     try{
       var s=window.state&&state.stream;
@@ -83,6 +92,9 @@
   }
 
   function beginHandoff(){
+    /* 9명방은 방 DOM을 즉시 열기 때문에 전체화면 카메라 덮개를 쓰지 않는다.
+       시작 순간 내 사진이 크게 한 번 보이는 현상만 차단. */
+    if(isNineRoomStart())return;
     if(handoff)return;
     var cam=document.getElementById('camera');
     var s=currentStream();
