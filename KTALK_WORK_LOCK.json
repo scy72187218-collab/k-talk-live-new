@@ -148,7 +148,7 @@
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "5555 승인: 16명 방에서 호스트 줄 아래에 생기는 작은 추가 칸만 제거. 원인인 is15 클래스의 host 2행 span을 제거하고 is16에서는 host를 정확히 1칸만 사용. 나머지 16칸/버튼/배치/기능 변경 금지.",
+  "note": "5555 승인: 호스트 줄 맨 밑에 따로 생기는 작은 게스트 칸 1개만 제거. 호스트 크기/나머지 게스트 칸/버튼/LED/채팅/기능은 그대로 유지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -247,6 +247,6 @@
     ]
   },
   "last_unlock": "2026-10-02-red-live-and-same-3person-roster-code-2222",
-  "last_lock": "2026-10-02-host-column-tiny-overflow-removed",
+  "last_lock": "2026-10-02-remove-only-host-column-bottom-tiny",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
