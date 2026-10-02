@@ -1140,13 +1140,23 @@
   async function syncViewerApprovedRoster(hostId){
     if(!hostId)return;
     var now=Date.now();
-    if(now-__ktViewerRosterAt<900)return;
+    if(now-__ktViewerRosterAt<450)return;
     __ktViewerRosterAt=now;
     try{
       var path='ktalk_live_messages?select=sender_id,sender_name,message_type,created_at&host_id=eq.'+enc(hostId)+'&order=created_at.desc&limit=240';
-      var rows=[],dbRows=[],memRows=[];
-      try{dbRows=await req(path)||[];}catch(e){}
-      try{memRows=await memoryReq(path,{})||[];}catch(e){}
+      var cut=new Date(Date.now()-90000).toISOString();
+      var activePath='ktalk_live_viewers?select=viewer_id,active,updated_at&host_id=eq.'+enc(hostId)+'&active=eq.true&updated_at=gte.'+enc(cut)+'&limit=300';
+      var dbRows=[],memRows=[],viewerRows=[];
+      try{
+        var got=await Promise.all([
+          req(path).catch(function(){return [];}),
+          memoryReq(path,{}).catch(function(){return [];}),
+          req(activePath).catch(function(){return [];})
+        ]);
+        dbRows=got[0]||[];
+        memRows=got[1]||[];
+        viewerRows=got[2]||[];
+      }catch(e){}
       var seen={},all=[];
       [dbRows,memRows].forEach(function(list){
         (list||[]).forEach(function(m){
@@ -1164,11 +1174,7 @@
         else if(t.indexOf('guest_left:')===0){id=t.slice(11);if(id&&!leftAt[id])leftAt[id]=ts;}
       });
       var active={};
-      try{
-        var cut=new Date(Date.now()-90000).toISOString();
-        var viewers=await req('ktalk_live_viewers?select=viewer_id,active,updated_at&host_id=eq.'+enc(hostId)+'&active=eq.true&updated_at=gte.'+enc(cut)+'&limit=300')||[];
-        viewers.forEach(function(v){active[String(v.viewer_id||'')]=true;});
-      }catch(e){}
+      try{viewerRows.forEach(function(v){active[String(v.viewer_id||'')]=true;});}catch(e){}
       var ids=[];
       Object.keys(reqAt).forEach(function(id){
         var r=reqAt[id],a=apAt[id]||'',c=cancelAt[id]||'',l=leftAt[id]||'';
