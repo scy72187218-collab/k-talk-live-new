@@ -148,7 +148,7 @@
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "16명 방 모바일에서 맨 아래 단독으로 남는 추가 게스트 칸 1개만 제거. host/self 칸은 유지하고 총 16칸만 남김. 다른 기능 변경 금지.",
+  "note": "16명 방 메인 4x4 칸은 그대로 유지. 맨 밑에 따로 생기는 조그만 추가 칸만 제거. 다른 레이아웃/호스트/게스트/버튼/기능 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -247,6 +247,6 @@
     ]
   },
   "last_unlock": "2026-10-02-red-live-and-same-3person-roster-code-2222",
-  "last_lock": "2026-10-02-16-room-extra-bottom-tile-removed",
+  "last_lock": "2026-10-02-remove-only-tiny-bottom-overflow",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
