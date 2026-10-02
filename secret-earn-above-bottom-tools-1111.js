@@ -30,13 +30,14 @@
       var sr=share.getBoundingClientRect();
       var mr=more.getBoundingClientRect();
       var hud=e.querySelector('#myEarnHud')||e;
+      if(hud!==e){hud.style.setProperty('left','0','important');hud.style.setProperty('transform','none','important');}
       var hr=hud.getBoundingClientRect();
       var w=Math.max(100,Math.round(hr.width||110));
       var h=Math.max(46,Math.round(hr.height||50));
       var left=Math.round(mr.right-w-2);
 
       e.style.setProperty('position','fixed','important');
-      e.style.setProperty('top',Math.round(sr.top-h+12)+'px','important');
+      e.style.setProperty('top',Math.round(sr.top-h-4)+'px','important');
       e.style.setProperty('bottom','auto','important');
       e.style.setProperty('left',left+'px','important');
       e.style.setProperty('right','auto','important');
