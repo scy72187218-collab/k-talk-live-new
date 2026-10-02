@@ -89,20 +89,6 @@
     var id=hostId();
     if(!id){alert('방송 정보를 확인하지 못했습니다.');return false;}
 
-    if(!st.draft){
-      var promoText='';
-      try{
-        promoText=String(prompt('LED 홍보 글을 입력하세요.\n예: 오늘 딸기 1박스 15,000원 판매합니다.','')||'').trim();
-      }catch(e){}
-      if(!promoText)return false;
-      if(promoText.length>80)promoText=promoText.slice(0,80);
-      st.draft=promoText;
-      save(st);
-      alert('홍보 글을 저장했습니다.\nLED 홍보 버튼을 한 번 더 누르면 전송됩니다.');
-      refreshHostButton();
-      return true;
-    }
-
     var left=GAP-(now-st.last);
     if(st.last&&left>0){
       var min=Math.ceil(left/60000);
@@ -110,7 +96,7 @@
       return false;
     }
 
-    var promoText=st.draft;
+    var promoText=st.draft||roomName();
     var payload={
       host_id:id,
       sender_id:id,
@@ -127,6 +113,7 @@
       if(!r.ok)throw new Error(String(r.status));
       st.count++;st.last=now;st.draft='';save(st);
       alert('LED 방 홍보 '+st.count+'회 전송했습니다. 총 3회까지 가능합니다.');
+      refreshTextButton();
       refreshHostButton();
       return true;
     }catch(e){
@@ -149,26 +136,46 @@
       b.onclick=function(e){try{e.preventDefault();e.stopPropagation();}catch(x){}sendPromo();};
       document.body.appendChild(b);
     }
-    b.classList.toggle('kt-led-ready',!!st.draft);
     if(st.count>=MAX){
-      b.textContent='LED 완료 3/3';
+      b.textContent='LED 3/3 완료';
       b.disabled=true;
-      b.classList.remove('kt-led-ready');
-      return;
-    }
-    if(st.draft){
-      b.disabled=false;
-      b.textContent='LED ON · 보내기 '+st.count+'/3';
       return;
     }
     var left=st.last?GAP-(now-st.last):0;
     if(left>0){
       b.disabled=true;
-      b.textContent='LED 대기 '+st.count+'/3 · '+Math.ceil(left/60000)+'분';
+      b.textContent='LED '+st.count+'/3 · '+Math.ceil(left/60000)+'분';
     }else{
       b.disabled=false;
-      b.textContent='LED OFF · 글쓰기 '+st.count+'/3';
+      b.textContent='LED 홍보 '+st.count+'/3';
     }
+  }
+
+  function refreshTextButton(){
+    ensureStyle();
+    var b=document.getElementById('ktLedPromoTextBtn20261002');
+    if(!liveHostRoom()){if(b)b.remove();return;}
+    var st=state();
+    if(!b){
+      b=document.createElement('button');
+      b.id='ktLedPromoTextBtn20261002';
+      b.className='kt-led-promo-text-btn';
+      b.type='button';
+      b.onclick=function(e){
+        try{e.preventDefault();e.stopPropagation();}catch(x){}
+        var cur=state();
+        var txt='';
+        try{txt=String(prompt('LED에 내보낼 홍보 글을 입력하세요.',cur.draft||'')||'').trim();}catch(_e){}
+        if(!txt)return;
+        if(txt.length>80)txt=txt.slice(0,80);
+        cur.draft=txt;
+        save(cur);
+        alert('홍보 글을 저장했습니다.\n이제 평소 LED 홍보 버튼을 누르면 이 글이 나갑니다.');
+        refreshTextButton();
+      };
+      document.body.appendChild(b);
+    }
+    b.textContent=st.draft?'문구 저장됨 ✓':'홍보 글 입력';
   }
 
   function showPromo(x){
@@ -206,11 +213,12 @@
 
   ensureStyle();
   refreshHostButton();
-  setInterval(refreshHostButton,15000);
+  refreshTextButton();
+  setInterval(function(){refreshHostButton();refreshTextButton();},15000);
   poll();
   pollTimer=setInterval(poll,4000);
   try{
-    new MutationObserver(function(){setTimeout(refreshHostButton,30);})
+    new MutationObserver(function(){setTimeout(function(){refreshHostButton();refreshTextButton();},30);})
       .observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 })();
