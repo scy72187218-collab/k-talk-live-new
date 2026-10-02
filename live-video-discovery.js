@@ -76,7 +76,7 @@
     var rows=[];
     try{
       var ctrl=typeof AbortController!=='undefined'?new AbortController():null;
-      var timer=ctrl?setTimeout(function(){ctrl.abort();},450):null;
+      var timer=ctrl?setTimeout(function(){ctrl.abort();},1800):null;
       var opt={headers:{apikey:KEY,Authorization:'Bearer '+KEY}};
       if(ctrl)opt.signal=ctrl.signal;
       var r=await fetch(BASE+'ktalk_live_rooms?select=host_id,host_name,title,room_name,host_photo,updated_at&active=eq.true&updated_at=gte.'+enc(cut)+'&order=started_at.desc&limit=50',opt);
@@ -115,7 +115,10 @@
       return rows;
     }
 
-    /* DB와 보조 신호가 모두 비었을 때만 LIVE 표시를 내린다. */
+    /* 느린 기기에서 한 번 조회가 빗나가도 방금 확인한 LIVE 신호는 잠깐 유지한다. */
+    if(stableActiveRooms.length&&stableActiveAt&&Date.now()-stableActiveAt<10000){
+      return stableActiveRooms.slice();
+    }
     stableActiveRooms=[];stableActiveAt=0;
     return [];
   }
@@ -312,7 +315,11 @@
           return s.display!=='none'&&s.visibility!=='hidden'&&Number(s.opacity)!==0&&r.width>20&&r.height>20;
         }catch(e){return false;}
       });
-      return !!visible;
+      if(visible)return true;
+      try{
+        if(document.body.classList.contains('kt-video-mode')&&candidates.length)return true;
+      }catch(e){}
+      return false;
     }catch(e){return false;}
   }
 
