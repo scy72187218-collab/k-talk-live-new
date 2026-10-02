@@ -73,7 +73,8 @@
     "marketplace_led_script_load_restored_20261002",
     "creator_auto_youth_beauty_and_edit_effect_removed_20261002",
     "group9_existing_led_banner_shell_restore_only_20261002",
-    "public_video_top_live_circles_and_bottom_host_circle_20261002"
+    "public_video_top_live_circles_and_bottom_host_circle_20261002",
+    "public_video_live_indicators_restored_correct_state_20261002"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -142,11 +143,12 @@
     "marketplace_led_script_load_restored_20261002",
     "creator_auto_youth_beauty_and_edit_effect_removed_20261002",
     "group9_existing_led_banner_shell_restore_only_20261002",
-    "public_video_top_live_circles_and_bottom_host_circle_20261002"
+    "public_video_top_live_circles_and_bottom_host_circle_20261002",
+    "public_video_live_indicators_restored_correct_state_20261002"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "2222 승인: 사용자가 '이게 맞다'고 확인한 상태로 복구. 첫 동영상 페이지 상단에는 작고 긴 방송자+LIVE 표시, 방송하기 + 바로 위에는 방송중 원형 목록 표시. 실제 방송방에는 표시 금지. 다른 기능 변경 금지.",
+  "note": "현재 K-Talk 전체 상태 최종 잠금. 사용자가 확인한 첫 동영상 페이지 상단 방송자+LIVE 표시와 방송하기 위 원형 방송자 표시 포함. LED, 방 구조, 매치, 보물상자, 카메라, 마이크, 채팅, 수익률, 더보기, 녹화, 게스트/호스트 화면 등 모든 기능 변경 금지. 다음 수정은 사용자가 정확히 지정한 항목만 잠깐 해제 후 다시 잠글 것.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -245,6 +247,6 @@
     ]
   },
   "last_unlock": "2026-10-02-restore-correct-live-indicators-code-2222",
-  "last_lock": "2026-10-02-restored-correct-live-indicators-code-2222",
+  "last_lock": "2026-10-02-full-site-lock-final-after-live-indicators-ok",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
