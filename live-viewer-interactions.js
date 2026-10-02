@@ -196,7 +196,25 @@
   document.addEventListener('click',function(e){var b=e.target&&e.target.closest?e.target.closest('#ktRemoteBottom button'):null;if(!b)return;var label=(String(b.getAttribute('aria-label')||'')+' '+String(b.textContent||'')).replace(/\s+/g,'');if(label.indexOf('🌹')===-1&&label.indexOf('장미')===-1)return;e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();window.ktRemoteSendOneRose();},true);
   window.ktRemoteShare=async function(){try{if(navigator.share){await navigator.share({title:'K-Talk LIVE',text:'K-Talk 라이브 방송',url:location.href});return;}if(navigator.clipboard){await navigator.clipboard.writeText(location.href);alert('K-Talk 주소를 복사했습니다.');return;}if(window.shareApp)window.shareApp();}catch(e){}};
 
-  function currentHostBox(){if(document.documentElement.classList.contains('kt-remote-viewing'))return null;var defs=[['ktsoloChatList','ktsolo-chat-line'],['ktsubscriberChatList','ktsubscriber-chat-line'],['ktsecretChatList','ktsecret-chat-line'],['ktg13ChatList','ktg13-chat-line']];for(var i=0;i<defs.length;i++){var el=document.getElementById(defs[i][0]);if(el)return {el:el,line:defs[i][1]};}return null;}
+  function currentHostBox(){
+    if(document.documentElement.classList.contains('kt-remote-viewing'))return null;
+
+    /* Prefer the chat box inside the room that is actually on screen.
+       A stale duplicate id can remain during room transitions; writing to that
+       invisible box made AI read the message while no text appeared to the host. */
+    var room=document.querySelector('#screen .ktg13-room[data-kt-room="9"],#screen .ktg13-room');
+    if(room){
+      var liveChat=room.querySelector('.ktg13-chat');
+      if(liveChat)return {el:liveChat,line:'ktg13-chat-line'};
+    }
+
+    var defs=[['ktsoloChatList','ktsolo-chat-line'],['ktsubscriberChatList','ktsubscriber-chat-line'],['ktsecretChatList','ktsecret-chat-line'],['ktg13ChatList','ktg13-chat-line']];
+    for(var i=0;i<defs.length;i++){
+      var el=document.getElementById(defs[i][0]);
+      if(el&&el.isConnected)return {el:el,line:defs[i][1]};
+    }
+    return null;
+  }
   function processedKey(m){return 'kt_live_host_event_done:'+(m&&m.id!=null?String(m.id):'');}
   function wasProcessed(m){if(!m||m.id==null)return true;try{return localStorage.getItem(processedKey(m))==='1';}catch(e){return false;}}
   function markProcessed(m){if(!m||m.id==null)return;try{localStorage.setItem(processedKey(m),'1');}catch(e){}}
@@ -249,7 +267,27 @@
       if(type==='chat'){speakIfNeeded((m.sender_name?String(m.sender_name)+'님, ':'')+String(m.message||''));markProcessed(m);return;}
     });
   }
-  function paintHostMessages(box,rows){if(!box||!box.el)return;var list=(rows||[]).slice(-6);box.el.innerHTML=list.map(function(m){var sys=systemType(m.message_type);return '<div class="'+box.line+'"><b>'+(sys?'●':esc(m.sender_name||'게스트'))+'</b><span>'+esc(m.message||'')+'</span></div>';}).join('');box.el.scrollTop=box.el.scrollHeight;}
+  function paintHostMessages(box,rows){
+    if(!box||!box.el)return;
+    var list=(rows||[]).slice(-6);
+    var html=list.map(function(m){
+      var sys=systemType(m.message_type);
+      return '<div class="'+box.line+'"><b>'+(sys?'●':esc(m.sender_name||'게스트'))+'</b><span>'+esc(m.message||'')+'</span></div>';
+    }).join('');
+
+    box.el.innerHTML=html;
+    box.el.scrollTop=box.el.scrollHeight;
+
+    /* If another visible 9-room chat container exists, keep it in sync too.
+       This is display-only and does not touch layout, video, buttons or signaling. */
+    if(box.line==='ktg13-chat-line'){
+      document.querySelectorAll('#screen .ktg13-room[data-kt-room="9"] .ktg13-chat').forEach(function(el){
+        if(el===box.el)return;
+        el.innerHTML=html;
+        el.scrollTop=el.scrollHeight;
+      });
+    }
+  }
   async function refreshHost(){var box=currentHostBox();if(!box)return;var hid=deviceId(),room=await activeRoom(hid);if(!room)return;hostRoomStart=room.started_at||hostRoomStart;var rows=await fetchMessages(hid,hostRoomStart);processHostEvents(rows);paintHostMessages(box,rows);}
   async function sendHostChat(text){text=String(text||'').trim();if(!text)return;var hid=deviceId(),room=await activeRoom(hid);if(!room)return;var p=profile();await postMessage(hid,hid,p.name||'호스트',text,'chat');setTimeout(refreshHost,80);}
   function wrapHostSend(name,inputId){var old=window[name];if(typeof old!=='function'||old.__ktDbChatWrapped)return;var fn=function(){var input=document.getElementById(inputId),text=input?String(input.value||'').trim():'';var r=old.apply(this,arguments);if(text)sendHostChat(text);return r;};fn.__ktDbChatWrapped=true;window[name]=fn;}
