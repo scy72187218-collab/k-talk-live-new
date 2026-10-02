@@ -496,10 +496,11 @@
 
     /* 실제로 지금 방을 보고 있는 기기만 승인 상태로 유지한다.
        홈 화면/앱 전환 등으로 heartbeat가 끊기면 몇 초 뒤 자동으로 게스트 칸에서 내려간다. */
-    var freshCut=new Date(Date.now()-60000).toISOString();
-    var freshViewers={};
+    var freshCut=new Date(Date.now()-7000).toISOString();
+    var freshViewers={},freshViewerCheckOk=false;
     try{
       var vr=await req('ktalk_live_viewers?select=viewer_id,active,updated_at&host_id=eq.'+enc(deviceId())+'&active=eq.true&updated_at=gte.'+enc(freshCut)+'&limit=300')||[];
+      freshViewerCheckOk=true;
       vr.forEach(function(v){freshViewers[String(v.viewer_id||'')]=true;});
     }catch(e){}
 
@@ -512,7 +513,7 @@
       if(leftTs&&leftTs>=reqTs)return;
       /* 승인 후에는 시청자 heartbeat가 잠깐 빠져도 승인 상태를 유지한다.
          실제 게스트 연결 종료는 WebRTC 세션/명시적 나가기에서 정리한다. */
-      if(apTs&&apTs>=reqTs)approvedNow[vid]=true;
+      if(apTs&&apTs>=reqTs&&(!freshViewerCheckOk||freshViewers[vid]))approvedNow[vid]=true;
       else if(!apTs||apTs<reqTs){
         /* A fresh explicit request is enough to show the host card.
            Viewer heartbeat can miss a serverless poll and must not hide the request. */
@@ -584,7 +585,7 @@
         /* 승인 직후 DB/메모리 신호가 잠깐 엇갈려도 게스트 칸을 바로 지우지 않는다.
            최대 2분 동안 같은 자리에서 재연결을 기다린다. */
         if(!hostGuestMissingSince[vid])hostGuestMissingSince[vid]=Date.now();
-        if(Date.now()-hostGuestMissingSince[vid]<120000)return;
+        if(Date.now()-hostGuestMissingSince[vid]<7000)return;
 
         releaseGuestSlot(slot,vid);
         delete hostGuestMissingSince[vid];
