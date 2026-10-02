@@ -429,6 +429,10 @@
 
   function repair(){
     try{
+      if(window.__ktApprovedUsePrejoinLayout20261002&&typeof window.ktApplyApprovedPrejoinLayout20261002==='function'){
+        window.ktApplyApprovedPrejoinLayout20261002();
+        return;
+      }
       var root=document.querySelector('.kt-remote-live');
       if(!root){builtRoot=null;return;}
       var room=root.querySelector('.kt-guest-hostlike-room');
