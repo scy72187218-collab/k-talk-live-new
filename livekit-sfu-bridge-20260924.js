@@ -254,21 +254,30 @@
   function clearDuplicateGuestTargets(identity,keepVideo){
     var esc=identity;
     try{esc=CSS.escape(identity);}catch(e){}
+    var seen=[];
     var selectors=[
-      '[data-kt-livekit-guest="'+esc+'"]',
-      '[data-kt-peer-viewer="'+esc+'"]'
+      '[data-kt-guest-viewer-id="'+esc+'"]',
+      '[data-kt-direct-guest="'+esc+'"]',
+      '[data-viewer-id="'+esc+'"]',
+      '[data-kt-peer-viewer="'+esc+'"]',
+      '[data-kt-livekit-guest="'+esc+'"]'
     ];
     selectors.forEach(function(sel){
       try{
         document.querySelectorAll(sel).forEach(function(cell){
+          if(seen.indexOf(cell)>=0)return;
+          seen.push(cell);
           var v=cell.querySelector&&cell.querySelector('video');
           if(v&&v===keepVideo)return;
-          var direct=String(cell.dataset&&cell.dataset.ktDirectGuest||'');
-          var legacy=String(cell.dataset&&cell.dataset.ktGuestViewerId||'');
-          if(direct===identity||legacy===identity)return;
           try{if(v){v.pause();v.srcObject=null;}}catch(e){}
-          try{delete cell.dataset.ktLivekitGuest;delete cell.dataset.ktPeerViewer;}catch(e){}
-          try{cell.classList.remove('kt-livekit-peer-guest','kt-peer-guest');}catch(e){}
+          try{
+            delete cell.dataset.ktGuestViewerId;
+            delete cell.dataset.ktDirectGuest;
+            delete cell.dataset.viewerId;
+            delete cell.dataset.ktLivekitGuest;
+            delete cell.dataset.ktPeerViewer;
+          }catch(e){}
+          try{cell.classList.remove('kt-livekit-peer-guest','kt-peer-guest','kt-guest-approved');}catch(e){}
           try{cell.innerHTML='<span>게스트</span>';}catch(e){}
         });
       }catch(e){}
