@@ -51,14 +51,27 @@
   function keyboardHeight(){
     var vv=window.visualViewport;
     if(!vv||!stableH)return Math.max(0,stableH-window.innerHeight);
-    return Math.max(0,Math.round(stableH-(vv.height+vv.offsetTop)));
+    return Math.max(0,Math.round(stableH-vv.height));
   }
 
   function moveChatOnly(){
-    if(!active||!activeBar)return;
-    var kh=keyboardHeight();
-    activeBar.style.setProperty('transform','translateY(-'+kh+'px)','important');
-    activeBar.style.setProperty('z-index','2147483646','important');
+    if(!active)return;
+    var vv=window.visualViewport;
+    var screen=document.getElementById('screen');
+
+    /* Android may pan the visual viewport upward when the keyboard opens.
+       Counter that pan so the people/grid stays exactly where it was. */
+    if(screen){
+      var off=vv?Math.max(0,Math.round(vv.offsetTop||0)):0;
+      screen.style.setProperty('top',off+'px','important');
+    }
+
+    /* Only the chat entry row rises above the keyboard. */
+    if(activeBar){
+      var kh=keyboardHeight();
+      activeBar.style.setProperty('transform','translateY(-'+kh+'px)','important');
+      activeBar.style.setProperty('z-index','2147483646','important');
+    }
   }
 
   function lock(field){
