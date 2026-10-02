@@ -415,6 +415,20 @@
     }catch(e){return false;}
   }
 
+  function hostOrGuestRoomOpen(){
+    try{
+      return !!document.querySelector(
+        '#screen .ktg13-room,'+
+        '#screen .ktg9-room,'+
+        '#screen .ktsolo-room,'+
+        '#screen .ktsubscriber-room,'+
+        '#screen .ktsecret-room,'+
+        '#screen .kt-guest-hostlike-room,'+
+        '#screen .kt-remote-live'
+      );
+    }catch(e){return false;}
+  }
+
   async function renderCore(){
     ensureStyle();
     var old=document.getElementById('ktVideoLivePeek');
