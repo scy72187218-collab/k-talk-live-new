@@ -55,14 +55,24 @@
   }
   async function postMessage(hostId,senderId,senderName,message,type){
     if(!hostId||!message)return false;
+    var payload={host_id:hostId,sender_id:senderId||'guest',sender_name:senderName||'게스트',message:String(message).slice(0,300),message_type:type||'chat'};
+    var ok=false;
+
+    /* Write to shared memory first so host chat appears immediately even when
+       the host device is temporarily using the fallback channel. */
     try{
-      await req('ktalk_live_messages',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({host_id:hostId,sender_id:senderId||'guest',sender_name:senderName||'게스트',message:String(message).slice(0,300),message_type:type||'chat'})});
-      return true;
+      await memPost({action:'message',host_id:payload.host_id,sender_id:payload.sender_id,sender_name:payload.sender_name,message:payload.message,message_type:payload.message_type});
+      ok=true;
     }catch(e){}
+
+    /* Also write to the primary DB. Host/guest devices may temporarily use
+       different paths, so writing both keeps chat synchronized. */
     try{
-      await memPost({action:'message',host_id:hostId,sender_id:senderId||'guest',sender_name:senderName||'게스트',message:String(message).slice(0,300),message_type:type||'chat'});
-      return true;
-    }catch(e){return false;}
+      await req('ktalk_live_messages',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify(payload)});
+      ok=true;
+    }catch(e){}
+
+    return ok;
   }
 
   function systemType(t){t=String(t||'');return t==='system'||t==='attendance'||t==='like'||t.indexOf('gift:')===0;}
@@ -140,7 +150,24 @@
     var ok=await postMessage(remote.hostId,remote.viewerId,remote.viewerName,msg,'attendance');
     if(ok){try{localStorage.setItem(attendanceKey(),'1');}catch(e){}markAttendance();await refreshRemote();}
   };
-  window.ktRemoteSendChat=async function(){if(!remote.hostId)return;var input=document.getElementById('ktRemoteChatInput'),text=input?String(input.value||'').trim():'';if(!text)return;if(input){input.value='';input.disabled=true;}await postMessage(remote.hostId,remote.viewerId,remote.viewerName,text,'chat');if(input){input.disabled=false;input.focus();}await refreshRemote();};
+  window.ktRemoteSendChat=async function(){
+    var hostId=String(remote.hostId||'');
+    if(!hostId){
+      try{hostId=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||sessionStorage.getItem('kt_remote_host_id')||'');}catch(e){hostId='';}
+      if(hostId)remote.hostId=hostId;
+    }
+    if(!hostId)return false;
+
+    var input=document.getElementById('ktRemoteChatInput');
+    var text=input?String(input.value||'').trim():'';
+    if(!text)return false;
+
+    if(input){input.value='';input.disabled=true;}
+    var ok=await postMessage(hostId,remote.viewerId||('viewer_'+deviceId()),remote.viewerName||profile().name||'게스트',text,'chat');
+    if(input){input.disabled=false;try{input.blur();}catch(e){}}
+    await refreshRemote();
+    return ok;
+  };
   window.ktRemoteLike=async function(){if(!remote.hostId)return;var now=Date.now();if(now-remote.lastLikeAt<700)return;remote.lastLikeAt=now;var root=document.querySelector('.kt-remote-live');if(root){var h=document.createElement('div');h.className='kt-remote-heart-pop';h.textContent='♥';root.appendChild(h);setTimeout(function(){if(h.parentNode)h.remove();},1250);}await postMessage(remote.hostId,remote.viewerId,remote.viewerName,'💗 '+remote.viewerName+'님이 좋아요를 눌렀습니다.','like');refreshRemote();};
   window.ktRemoteOpenGifts=function(){try{if(window.state)state.currentViewRoomTitle=remote.hostId||state.currentViewRoomTitle;}catch(e){}if(window.openGifts)window.openGifts();};
   window.ktRemoteSendOneRose=async function(){if(!remote.hostId)return;var ok=await postMessage(remote.hostId,remote.viewerId,remote.viewerName,'🌹 '+remote.viewerName+'님이 장미 1송이를 선물했습니다.','gift:1');if(ok)await refreshRemote();};
