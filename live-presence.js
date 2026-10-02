@@ -591,7 +591,7 @@
       try{await req('ktalk_webrtc_sessions?id=eq.'+enc(c.sessionId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})});}catch(e){}
       await insertSystem(c.hostId,c.viewerId,c.viewerName,c.viewerName+'님이 나갔습니다.');
     }
-    if(!silent){if(window.openBroadcastList)window.openBroadcastList();else if(window.friends)window.friends();setTimeout(renderLiveCards,80);}
+    if(!silent){if(window.home)window.home();else if(window.media)window.media('home');else if(window.openDashboard)window.openDashboard();}
   };
 
   function wrap(name,before,after){
