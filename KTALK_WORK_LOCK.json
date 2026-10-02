@@ -1,5 +1,5 @@
 {
-  "version": 187,
+  "version": 188,
   "locked": true,
   "scope": "full_snapshot_guard_everything",
   "lock_slot": 9,
@@ -66,7 +66,9 @@
     "seller_marketplace_products_orders_20261002",
     "seller_marketplace_after_broadcast_view_20261002",
     "host_led_room_promo_3times_10min_20261002",
-    "led_promo_tap_enters_room_20261002"
+    "led_promo_tap_enters_room_20261002",
+    "host_face_like_persist_20261002",
+    "attendance_heart_above_separate_20261002"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -128,11 +130,13 @@
     "seller_marketplace_products_orders_20261002",
     "seller_marketplace_after_broadcast_view_20261002",
     "host_led_room_promo_3times_10min_20261002",
-    "led_promo_tap_enters_room_20261002"
+    "led_promo_tap_enters_room_20261002",
+    "host_face_like_persist_20261002",
+    "attendance_heart_above_separate_20261002"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "현재 K-Talk 전체 상태 완전 보호. LED 방 홍보는 호스트가 직접 눌러 방송당 최대 3회, 각 회 사이 10분, 시청자가 LED 홍보를 누르면 해당 방송방 입장. 별도 요청 전에는 수정하지 않음.",
+  "note": "현재 K-Talk 전체 상태 완전 보호. 호스트 사진 좋아요 누적 유지와 출석체크 전용 하트 위치/카운트 포함. 별도 해제 요청 전에는 어떤 코드/화면/기능도 수정하지 않음.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -217,9 +221,13 @@
     "14": [
       "host_led_room_promo_3times_10min_20261002",
       "led_promo_tap_enters_room_20261002"
+    ],
+    "16": [
+      "host_face_like_persist_20261002",
+      "attendance_heart_above_separate_20261002"
     ]
   },
   "last_unlock": "2026-09-27-solo-countdown-only-code-5555",
-  "last_lock": "2026-10-02-lock-led-room-promo",
+  "last_lock": "2026-10-02-lock-like-persist-and-attendance-heart",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
