@@ -343,7 +343,9 @@
     chat.className='kgh-chat';
     var chatbox=document.createElement('div');
     chatbox.className='kgh-chatbox';
-    chatbox.innerHTML='<div style="color:#ffe071">● K-톡 태권1님이 들어왔습니다.</div><div><b style="color:#64c8ff">K-톡 태권1</b> 👥 방송 참여를 신청했습니다.</div><div><b style="color:#64c8ff">태권이</b> ✅ 참여를 승인했습니다.</div>';
+    /* Do not show the approval/system lines directly under the people grid.
+       Put them into the real bottom chat area so messages start above the input. */
+    chatbox.innerHTML='';
     chat.appendChild(chatbox);
     var earn=document.createElement('button');
     earn.type='button';
@@ -374,6 +376,28 @@
     room.appendChild(chat);
     room.appendChild(tools);
     root.appendChild(room);
+
+    /* Approved 9-room: first system lines belong to the bottom chat, not under the grid. */
+    try{
+      var bottomChat=root.querySelector(':scope > .kt-remote-chat')||root.querySelector('.kt-remote-chat');
+      if(bottomChat&&!bottomChat.dataset.ktApprovalIntroMoved20261002){
+        bottomChat.dataset.ktApprovalIntroMoved20261002='1';
+        var msgs=[
+          '<span style="color:#ffe071">● K-톡 태권1님이 들어왔습니다.</span>',
+          '<span><b style="color:#64c8ff">K-톡 태권1</b> 👥 방송 참여를 신청했습니다.</span>',
+          '<span><b style="color:#64c8ff">태권이</b> ✅ 참여를 승인했습니다.</span>'
+        ];
+        msgs.forEach(function(html){
+          var d=document.createElement('div');
+          d.innerHTML=html;
+          bottomChat.appendChild(d);
+        });
+        bottomChat.style.setProperty('display','flex','important');
+        bottomChat.style.setProperty('flex-direction','column','important');
+        bottomChat.style.setProperty('justify-content','flex-end','important');
+        bottomChat.style.setProperty('overflow','hidden','important');
+      }
+    }catch(e){}
 
     builtRoot=root;
 
