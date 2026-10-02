@@ -142,8 +142,12 @@
     "creator_auto_youth_beauty_and_edit_effect_removed_20261002",
     "group9_existing_led_banner_shell_restore_only_20261002"
   ],
-  "current_editable_components": [],
-  "temporarily_unlocked_components": [],
+  "current_editable_components": [
+    "public_video_long_follow_strip_bottom_only_20261002"
+  ],
+  "temporarily_unlocked_components": [
+    "public_video_long_follow_strip_bottom_only_20261002"
+  ],
   "note": "2222 승인 작업: 9명방 기존 LED 간판 복구와 공개 동영상 태권1/LIVE 표시 위치만 수정. 그 외 기능/버튼/방 구조 변경 금지.",
   "lock_slots": {
     "1": [
@@ -242,7 +246,7 @@
       "creator_auto_youth_beauty_and_edit_effect_removed_20261002"
     ]
   },
-  "last_unlock": "2026-10-02-led-and-live-badge-only-code-2222",
+  "last_unlock": "2026-10-02-long-strip-only-code-2222",
   "last_lock": "2026-10-02-led-and-live-badge-fixed-code-2222",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
