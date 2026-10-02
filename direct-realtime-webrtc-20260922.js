@@ -1375,6 +1375,7 @@
     setTimeout(function(){sharedApprovalPost(DEVICE,'guest_approved',vid,name);},120);
     setTimeout(function(){sharedApprovalPost(DEVICE,'guest_approved',vid,name);},350);
     setTimeout(function(){sharedApprovalPost(DEVICE,'guest_approved',vid,name);},800);
+    setTimeout(function(){send('guest_approved',data);},20);
     setTimeout(function(){send('guest_approved',data);},50);
     setTimeout(function(){send('guest_approved',data);},150);
     setTimeout(function(){send('guest_approved',data);},700);
@@ -2161,12 +2162,27 @@
        게스트 화면에서 호스트 ID가 잠깐 비어도 승인 신호에 들어있는 host_id로 즉시 복구한다.
        다른 UI/방배치/채팅/선물/스위치는 변경하지 않는다. */
     var signalHost=String(p.host_id||'').trim();
-    var hid=remoteHostId()||String(activeHostId||'').trim()||signalHost;
-    if(!hid||!signalHost)return;
-    if(String(activeHostId||'').trim()&&String(activeHostId)!==signalHost)return;
-    if(hid!==signalHost)hid=signalHost;
+    var selectedHost='';
+    try{
+      selectedHost=String(
+        window.__ktRemoteHostId||
+        window.__ktCurrentRemoteHostId||
+        sessionStorage.getItem('kt_remote_host_id')||
+        ''
+      ).trim();
+    }catch(e){}
+    if(!signalHost)return;
+
+    /* If this approval is for the viewer and comes from the host the guest
+       selected, accept it immediately even if activeHostId is briefly stale
+       during the approval screen transition. */
+    if(selectedHost&&selectedHost!==signalHost)return;
+    var hid=signalHost;
+    activeHostId=signalHost;
+    lastRemoteHost=signalHost;
 
     window.__ktRemoteHostId=hid;
+    window.__ktCurrentRemoteHostId=hid;
     try{sessionStorage.setItem('kt_remote_host_id',hid);}catch(e){}
 
     var keepApprovedHostStream20260926=null;
@@ -2257,7 +2273,7 @@
     setTimeout(function(){
       if(!guestApproved||guestApprovedHost!==hid||guestMediaReadyAt)return;
       forceFreshApprovedGuestOffer20260926(hid);
-    },420);
+    },180);
 
     /* Visible fallback requested by owner: place only the approved guest's own
        camera face into the host guest slot while live transport is connecting. */
