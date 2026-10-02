@@ -133,14 +133,17 @@
   window.ktConfirmAdminLock20260928=function(){
     var el=document.getElementById('ktAdminLockPin20260928');
     var pin=String(el&&el.value||'').trim();
-    if(pin!=='2222'){
+    var savedPin='';
+    try{savedPin=String(localStorage.getItem('ktalk_total_admin_lock_pin')||'').trim();}catch(e){}
+    if(!savedPin){
+      try{alert('설정된 관리자 비밀번호가 없습니다. 기존에 설정한 비밀번호를 먼저 저장해 주세요.');}catch(e){}
+      return false;
+    }
+    if(pin!==savedPin){
       try{alert('비밀번호가 맞지 않습니다.');}catch(e){}
       return false;
     }
-    try{
-      localStorage.setItem('ktalk_total_admin_locked','1');
-      localStorage.setItem('ktalk_total_admin_lock_pin','2222');
-    }catch(e){}
+    try{localStorage.setItem('ktalk_total_admin_locked','1');}catch(e){}
     try{alert('🔒 전체 잠금이 설정되었습니다.');}catch(e){}
     try{if(typeof window.closeSheet==='function')window.closeSheet();}catch(e){}
     return false;
