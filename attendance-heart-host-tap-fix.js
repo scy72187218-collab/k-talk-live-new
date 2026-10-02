@@ -116,7 +116,7 @@
       +'.kt-attendance-room-count{display:inline-grid!important;place-items:center!important;min-width:20px!important;height:20px!important;padding:0 5px!important;margin-left:4px!important;border-radius:999px!important;background:#ff3ba7!important;color:#fff!important;font-size:11px!important;font-weight:950!important;line-height:20px!important;vertical-align:middle!important;box-shadow:0 0 7px rgba(255,59,167,.72)!important;flex:0 0 auto!important}'
       +'.ktsolo-att .kt-attendance-room-count{min-width:18px!important;height:18px!important;line-height:18px!important;font-size:10px!important;padding:0 4px!important;margin-left:2px!important}'
       +'.ktsolo-att,.ktg13-attend,.ktsubscriber-att,.ktsecret-att,.kt-live-attendance,[data-kt-attendance]{position:relative!important}'
-      +'.kt-attendance-heart-badge{position:absolute!important;right:-10px!important;top:-10px!important;z-index:25!important;display:inline-flex!important;align-items:center!important;gap:2px!important;min-width:30px!important;height:20px!important;padding:0 5px!important;border-radius:999px!important;background:rgba(52,12,38,.94)!important;border:1px solid rgba(255,91,185,.62)!important;color:#fff!important;font-size:10px!important;font-weight:950!important;line-height:20px!important;box-shadow:0 0 7px rgba(255,67,174,.38)!important;white-space:nowrap!important;pointer-events:none!important}';
+      +'.kt-attendance-heart-badge{position:absolute!important;right:-10px!important;top:-31px!important;z-index:25!important;display:inline-flex!important;align-items:center!important;gap:2px!important;min-width:30px!important;height:20px!important;padding:0 5px!important;border-radius:999px!important;background:rgba(52,12,38,.94)!important;border:1px solid rgba(255,91,185,.62)!important;color:#fff!important;font-size:10px!important;font-weight:950!important;line-height:20px!important;box-shadow:0 0 7px rgba(255,67,174,.38)!important;white-space:nowrap!important;pointer-events:none!important}';
     document.head.appendChild(s);
   }
 
@@ -286,7 +286,9 @@
     if(room)addTopHeart(room);
   },true);
 
-  /* 호스트 얼굴/카메라 화면 자체를 누른 경우만 상단 하트 +1. 카메라·마이크 조작 버튼은 제외. */
+  /* 호스트 얼굴/카메라 화면 자체를 누른 경우 좋아요를 영구 누적.
+     방송시간 옆 공용 하트 저장소를 직접 올려서 0으로 되돌아가지 않게 한다.
+     카메라·마이크 조작 버튼은 제외. */
   document.addEventListener('click',function(e){
     var t=e.target;
     if(!t||!t.closest)return;
@@ -294,7 +296,16 @@
     var host=t.closest(hostSelector);
     if(!host)return;
     var room=host.closest(roomSelector);
-    if(room)addTopHeart(room);
+    if(!room)return;
+    try{
+      if(typeof window.addHostLike==='function'){
+        window.addHostLike(1);
+      }else{
+        addTopHeart(room);
+      }
+    }catch(_e){
+      addTopHeart(room);
+    }
   },true);
 
   installAttendanceCounts();
