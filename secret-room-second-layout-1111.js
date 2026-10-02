@@ -184,20 +184,31 @@
     }catch(err){}
   },true);
 
-  /* 기존 렌더가 비밀방을 만들면 바로 기준 화면으로 교체 */
+  /* 방송 시작 전 준비화면은 절대 건드리지 않는다.
+     실제 비밀방이 열린 뒤에만 두 번째 사진 레이아웃으로 교체한다. */
   var busy=false;
+  function secretBroadcastHasStarted(){
+    try{
+      var room=document.querySelector('#screen .ktsecret-room');
+      if(room)return true;
+      var cr=window.creator||document.getElementById('creator');
+      if(cr&&(cr.classList.contains('show')||cr.classList.contains('live-prep-open')))return false;
+      var s=document.getElementById('screen');
+      var txt=String(s&&s.textContent||'');
+      return isSecret() && txt.indexOf('ON AIR')>-1;
+    }catch(e){return false;}
+  }
   function enforce(){
     if(busy)return;
-    if(!isSecret())return;
+    if(!secretBroadcastHasStarted())return;
     var room=document.querySelector('#screen .ktsecret-room');
     if(room&&room.classList.contains('kt-secret-second-layout-1111')){clearPassword();return;}
     busy=true;
     try{render();}finally{setTimeout(function(){busy=false;},60);}
   }
 
-  clearPassword();
   [60,160,320,650,1100,1800].forEach(function(ms){setTimeout(enforce,ms);});
-  setInterval(function(){if(document.querySelector('#screen .ktsecret-room'))enforce();},500);
+  setInterval(enforce,500);
   try{
     new MutationObserver(function(){setTimeout(enforce,20);}).observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
