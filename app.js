@@ -1944,7 +1944,7 @@ window.openBenefitHub=function(){
       +'<button class="gold" onclick="openAttendanceBenefits()"><span>✅</span><b>출석 · 참여</b><small>출석과 참여 보상 안내</small><em>›</em></button>'
       +'<button class="violet" onclick="openSubscriberBenefits()"><span>💎</span><b>구독자 혜택</b><small>충전 · 모든 방 입장 · 방 만들기</small><em>›</em></button>'
       +'<button class="blue" onclick="openChargeBenefits()"><span>🪙</span><b>장미 · 코인 충전</b><small>충전 방법과 추가 혜택</small><em>›</em></button>'
-      +'<button class="gold" onclick="openCashout()"><span>💰</span><b>현금 환전</b><small>1만 · 5만 · 10만 · 20만 · 30만원</small><em>›</em></button>'
+      +'<button class="gold" onclick="openCashout()"><span>💰</span><b>현금 환전</b><small>5천 · 1만 · 5만 · 10만 · 20만 · 30만원</small><em>›</em></button>'
       +'<button class="cyan" onclick="openRoomBenefits()"><span>🚪</span><b>방 이용 혜택</b><small>방 입장 · 방송방 만들기</small><em>›</em></button>'
       +'<button class="pink" onclick="openGifts()"><span>🌹</span><b>장미 · 선물</b><small>장미와 선물 보내기</small><em>›</em></button>'
       +'<button class="purple" onclick="openGiveBenefits()"><span>💝</span><b>혜택 주기</b><small>팬에게 보상 보내기</small><em>›</em></button>'
@@ -2761,7 +2761,7 @@ window.selectCoinCharge=function(amount,base,bonus){
   alert(Number(amount).toLocaleString('ko-KR')+'원 · 기본 장미 '+base.toLocaleString('ko-KR')+'개 · 보너스 '+bonus.toLocaleString('ko-KR')+'개 · 총 '+total.toLocaleString('ko-KR')+'개');
 };
 window.openCashout=function(){
-  var amounts=[10000,50000,100000,200000,300000];
+  var amounts=[5000,10000,50000,100000,200000,300000];
   var html='<div class="rowbox"><b>💰 현금 환전</b><br>본인이 방송해서 실제로 번 방송 수익만 환전할 수 있습니다.</div>'
     +'<div class="rowbox" style="border-color:#ffcc66;background:rgba(255,204,102,.08)"><b>환전 불가</b><br>가입·이벤트·미션·출석·추첨·보너스·할인 구매 등 회사에서 받은 코인은 환전할 수 없습니다.</div>'
     +'<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px">'
@@ -2773,7 +2773,7 @@ window.openCashout=function(){
 
 window.selectCashoutAmount=function(amount){
   amount=parseInt(amount,10)||0;
-  if([10000,50000,100000,200000,300000].indexOf(amount)<0)return;
+  if([5000,10000,50000,100000,200000,300000].indexOf(amount)<0)return;
   try{localStorage.setItem('ktalk_cashout_request_amount',String(amount));localStorage.setItem('ktalk_cashout_request_at',new Date().toISOString());}catch(e){}
   try{if(typeof window.ktRecordCashoutRequest20260928==='function')window.ktRecordCashoutRequest20260928(amount);}catch(e){}
   showSheet('💰 환전 신청 확인',
