@@ -29,17 +29,17 @@
   }
 
   scan();
-  [100,350,800,1500,2500].forEach(function(ms){setTimeout(scan,ms);});
+  [0,60,140,280,520,900,1500,2400].forEach(function(ms){setTimeout(scan,ms);});
 
   try{
     var target=document.getElementById('screen')||document.documentElement;
     new MutationObserver(function(){
       clearTimeout(window.__ktApprovedGuestDirectBridgeTimer20260922);
-      window.__ktApprovedGuestDirectBridgeTimer20260922=setTimeout(scan,35);
+      window.__ktApprovedGuestDirectBridgeTimer20260922=setTimeout(scan,10);
     }).observe(target,{childList:true,subtree:true,attributes:true,attributeFilter:['data-kt-guest-viewer-id','class']});
   }catch(e){}
 
-  window.addEventListener('focus',function(){setTimeout(scan,80);});
+  window.addEventListener('focus',function(){setTimeout(scan,25);});
   document.addEventListener('visibilitychange',function(){
     if(!document.hidden)setTimeout(scan,80);
   });
