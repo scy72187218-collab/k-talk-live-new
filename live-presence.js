@@ -183,7 +183,7 @@
     var old=document.getElementById('ktLiveNowStrip');if(old)old.remove();
     if(dash&&rooms.length){
       var box=document.createElement('div');box.id='ktLiveNowStrip';box.className='kt-live-now-strip';
-      box.innerHTML='<div class="kt-live-now-title"><b><i class="kt-live-dot"></i>지금 방송 중</b><small>눌러서 바로 입장</small></div><div class="kt-live-now-cards">'+rooms.slice(0,4).map(function(r){return roomCard(r,counts[r.host_id]||0,false);}).join('')+'</div>';
+      box.innerHTML='<div class="kt-live-now-title"><b><i class="kt-live-dot"></i>지금 방송 중</b><small>눌러서 바로 입장</small></div><div class="kt-live-now-cards">'+rooms.slice(0,15).map(function(r){return roomCard(r,counts[r.host_id]||0,false);}).join('')+'</div>';
       var notice=dash.querySelector('.kt-notice');if(notice&&notice.parentNode)notice.parentNode.insertBefore(box,notice.nextSibling);else dash.insertBefore(box,dash.firstChild);
     }
     var list=document.querySelector('.friends-list');
