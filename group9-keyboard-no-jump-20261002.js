@@ -175,6 +175,29 @@
     setTimeout(rememberHeight,250);
   }
 
+  function finishChatEntry(){
+    if(!active)return;
+    try{if(activeField&&activeField.blur)activeField.blur();}catch(e){}
+    setTimeout(unlock,40);
+  }
+
+  document.addEventListener('keydown',function(e){
+    if(!active||!isChatField(e.target))return;
+    if(e.key==='Enter'&&!e.shiftKey){
+      setTimeout(finishChatEntry,30);
+    }
+  },true);
+
+  document.addEventListener('click',function(e){
+    if(!active)return;
+    var b=e.target&&e.target.closest?e.target.closest('button'):null;
+    if(!b)return;
+    var t=String((b.getAttribute('aria-label')||'')+' '+(b.textContent||''));
+    if(/채팅.*보내|보내기|send|➤|✈|↗/i.test(t)){
+      setTimeout(finishChatEntry,30);
+    }
+  },true);
+
   document.addEventListener('pointerdown',function(e){
     if(isChatField(e.target)){
       rememberHeight();
