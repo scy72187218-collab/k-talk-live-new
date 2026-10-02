@@ -146,8 +146,14 @@
     "public_video_top_live_circles_and_bottom_host_circle_20261002",
     "public_video_live_indicators_restored_correct_state_20261002"
   ],
-  "current_editable_components": [],
-  "temporarily_unlocked_components": [],
+  "current_editable_components": [
+    "red_live_touch_all_devices_only_20261002",
+    "approved_guest_same_roster_all_viewers_only_20261002"
+  ],
+  "temporarily_unlocked_components": [
+    "red_live_touch_all_devices_only_20261002",
+    "approved_guest_same_roster_all_viewers_only_20261002"
+  ],
   "note": "9명방이 폴링 중 반복 재구성되어 움직이지 않도록, 신청목록이 같으면 재그리기 금지 및 주기적 중복방 정리 제거. 실제 DOM 변경 때만 중복방 정리. 다른 기능 변경 금지.",
   "lock_slots": {
     "1": [
@@ -246,7 +252,7 @@
       "creator_auto_youth_beauty_and_edit_effect_removed_20261002"
     ]
   },
-  "last_unlock": "2026-10-02-approved-guest-grid-no-repeat-redraw-code-2222",
+  "last_unlock": "2026-10-02-red-live-and-same-3person-roster-code-2222",
   "last_lock": "2026-10-02-room-steady-polling-fixed",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
