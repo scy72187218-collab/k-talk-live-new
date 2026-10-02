@@ -148,7 +148,7 @@
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "사용자 요청으로 조금 전 정상 동작하던 guest flow 상태(5bd4ac7...)로 복구. 이후 추가한 7초 잔상 자동정리/heartbeat 축소 변경은 되돌림. 다른 기능 변경 금지.",
+  "note": "사용자 요청으로 조금 더 이전의 guest flow 정상 상태(409c264...)로 복구. 이후 승인명단 권위동기화/잔상 자동정리 변경은 제거. 다른 기능 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -247,6 +247,6 @@
     ]
   },
   "last_unlock": "2026-10-02-red-live-and-same-3person-roster-code-2222",
-  "last_lock": "2026-10-02-restored-earlier-working-guest-flow",
+  "last_lock": "2026-10-02-restored-409c-working-point",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
