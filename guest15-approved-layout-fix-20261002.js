@@ -1,11 +1,11 @@
-/* K-Talk 15-person approved guest layout fix — 2026-10-02
-   Only the approved guest view of the 15-person/subscriber room.
+/* K-Talk 16-person approved guest layout fix — 2026-10-02
+   Only the approved guest view of the 16-person/subscriber room.
    Keeps host/approval/media/chat/LED logic unchanged. */
 (function(){
   if(window.__ktGuest15ApprovedLayoutFix20261002)return;
   window.__ktGuest15ApprovedLayoutFix20261002=true;
 
-  function is15Room(){
+  function is16Room(){
     var t='';
     try{
       var r=window.__ktLastLiveRoom||{};
@@ -26,17 +26,17 @@
     var s=document.createElement('style');
     s.id='ktGuest15ApprovedLayoutStyle20261002';
     s.textContent=''
-      +'#screen .kt-guest-hostlike-room[data-kt-room="15"] .kgh-main{'
+      +'#screen .kt-guest-hostlike-room[data-kt-room="16"] .kgh-main{'
       +'display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;'
       +'grid-template-rows:repeat(4,minmax(0,1fr))!important;gap:2px!important;}'
-      +'#screen .kt-guest-hostlike-room[data-kt-room="15"] .kgh-cell.host{'
+      +'#screen .kt-guest-hostlike-room[data-kt-room="16"] .kgh-cell.host{'
       +'grid-column:1!important;grid-row:1/span 2!important;}'
-      +'#screen .kt-guest-hostlike-room[data-kt-room="15"] .kgh-cell{'
+      +'#screen .kt-guest-hostlike-room[data-kt-room="16"] .kgh-cell{'
       +'min-width:0!important;min-height:0!important;overflow:hidden!important;}'
       +'@media(max-width:600px){'
-      +'#screen .kt-guest-hostlike-room[data-kt-room="15"] .kgh-cell.host{'
+      +'#screen .kt-guest-hostlike-room[data-kt-room="16"] .kgh-cell.host{'
       +'grid-column:auto!important;grid-row:auto!important;aspect-ratio:1/1!important;height:auto!important;min-height:0!important;padding:0!important;}'
-      +'#screen .kt-guest-hostlike-room[data-kt-room="15"] .kgh-cell.host video{'
+      +'#screen .kt-guest-hostlike-room[data-kt-room="16"] .kgh-cell.host video{'
       +'position:absolute!important;inset:0!important;width:100%!important;height:100%!important;'
       +'max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;border:0!important;'
       +'object-fit:cover!important;object-position:center center!important;}'
@@ -55,23 +55,23 @@
   }
 
   function apply(){
-    if(!is15Room())return;
+    if(!is16Room())return;
     var room=document.querySelector('#screen .kt-guest-hostlike-room');
     if(!room)return;
     var grid=room.querySelector('.kgh-main');
     if(!grid)return;
 
     style();
-    room.setAttribute('data-kt-room','15');
+    room.setAttribute('data-kt-room','16');
     grid.classList.remove('is13');
-    grid.classList.add('is15');
+    grid.classList.add('is16');
 
     var cells=[].slice.call(grid.querySelectorAll(':scope > .kgh-cell'));
-    while(cells.length<15){
+    while(cells.length<16){
       grid.appendChild(makeEmptyCell());
       cells=[].slice.call(grid.querySelectorAll(':scope > .kgh-cell'));
     }
-    while(cells.length>15){
+    while(cells.length>16){
       var last=cells[cells.length-1];
       if(last&&!last.classList.contains('host')&&!last.classList.contains('self'))last.remove();
       else break;
@@ -80,9 +80,9 @@
 
     try{
       var title=room.querySelector('.kgh-air strong');
-      if(title)title.innerHTML='<i>●</i> 15명 방송';
+      if(title)title.innerHTML='<i>●</i> 16명 방송';
       var viewers=room.querySelector('.kgh-viewers');
-      if(viewers&&/시청자/.test(viewers.textContent||''))viewers.textContent='시청자 15명이 시청중 🏃';
+      if(viewers&&/시청자/.test(viewers.textContent||''))viewers.textContent='시청자 16명이 시청중 🏃';
     }catch(e){}
 
     try{
