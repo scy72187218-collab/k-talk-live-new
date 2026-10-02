@@ -142,13 +142,9 @@
     "creator_auto_youth_beauty_and_edit_effect_removed_20261002",
     "group9_existing_led_banner_shell_restore_only_20261002"
   ],
-  "current_editable_components": [
-    "group9_existing_led_banner_shell_restore_only_20261002"
-  ],
-  "temporarily_unlocked_components": [
-    "group9_existing_led_banner_shell_restore_only_20261002"
-  ],
-  "note": "9명방 LED 간판 껍데기는 기존 디자인 그대로 보호. 문구 외 위치/크기/색/테두리/방 구조 변경 금지.",
+  "current_editable_components": [],
+  "temporarily_unlocked_components": [],
+  "note": "9명방 기존 LED 간판만 복구/유지. 다른 방 구조, 버튼, 매치, 보물상자, 카메라, 마이크, 채팅, 수익률 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -247,6 +243,6 @@
     ]
   },
   "last_unlock": "2026-10-02-group9-led-only-code-2222",
-  "last_lock": "2026-10-02-group9-led-banner-shell-restored-2222",
+  "last_lock": "2026-10-02-group9-led-banner-fixed-code-2222",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
