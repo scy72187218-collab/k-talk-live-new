@@ -199,26 +199,12 @@
 
   window.ktEnterAdminAfterUnlock20261002=function(){
     try{
-      if(typeof window.openProfileDirect==='function'){
-        window.openProfileDirect();
-      }else if(typeof window.openProfile==='function'){
-        window.openProfile();
+      if(typeof window.ktOpenTotalAdminOverview20260928==='function'){
+        window.ktOpenTotalAdminOverview20260928();
+        return false;
       }
-      setTimeout(function(){
-        try{
-          var box=document.getElementById('ktTotalAdminWrap');
-          if(box){
-            box.classList.add('open');
-            if(box.scrollIntoView)box.scrollIntoView({block:'center',behavior:'smooth'});
-          }
-        }catch(e){}
-      },120);
-      setTimeout(function(){
-        try{
-          var box=document.getElementById('ktTotalAdminWrap');
-          if(box)box.classList.add('open');
-        }catch(e){}
-      },350);
+      if(typeof window.openProfileDirect==='function')window.openProfileDirect();
+      else if(typeof window.openProfile==='function')window.openProfile();
     }catch(e){}
     return false;
   };
