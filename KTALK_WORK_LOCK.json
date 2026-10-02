@@ -148,7 +148,7 @@
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "15명 방 입장 전 게스트 화면이 9명으로 뜨던 원인 수정. prejoin 화면도 15명/구독자 메타를 인식하고 15칸으로 재구성. 9명/13명/통신/승인/LED/채팅/수익률 변경 금지.",
+  "note": "15명 방 모바일에서만 호스트 칸 세로 길이 축소. 게스트 칸과 같은 1칸 비율로 표시하고 영상 object-fit cover 유지. 컴퓨터 화면과 다른 기능 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -247,6 +247,6 @@
     ]
   },
   "last_unlock": "2026-10-02-red-live-and-same-3person-roster-code-2222",
-  "last_lock": "2026-10-02-prejoin-15-room-fix",
+  "last_lock": "2026-10-02-15-mobile-host-tile-normalized",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
