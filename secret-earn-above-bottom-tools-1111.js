@@ -11,6 +11,11 @@
       if(!room)return;
       var e=room.querySelector('.ktsecret-earn-row');
       var tools=room.querySelector('.ktsecret-tools');
+      if(room.classList.contains('kt-secret-second-layout-1111')){
+        var main=room.querySelector('.ktsecret-main');
+        if(e&&main&&e.parentElement!==main)main.appendChild(e);
+        return;
+      }
       if(!e||!tools)return;
 
       /* 카메라 영역 안에 있으면 툴바 바로 앞으로 빼서 얼굴을 가리지 않게 함 */
