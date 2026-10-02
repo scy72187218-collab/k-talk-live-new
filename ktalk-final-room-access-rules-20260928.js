@@ -1,8 +1,8 @@
 /* K-Talk FINAL room access rules — 2026-09-28
    Current saved baseline:
-   Lv 1~20  : solo + group9
-   Lv 21~40 : + group13 + secret
-   Lv 41+   : + subscriber
+   일반 회원 Lv 1~20 : solo + group9
+   일반 회원 Lv 21+  : + group13 + secret
+   유료 구독자       : 레벨 제한 없이 모든 방 생성/이용
    Subscriber entry additionally requires mutual follow.
    Owner/admin accounts remain exempt.
 */
@@ -47,6 +47,24 @@
     });
   }
 
+  function paidSubscriber(){
+    try{if(typeof window.ktIsPaidSubscriber==='function'&&window.ktIsPaidSubscriber())return true;}catch(e){}
+    try{
+      var st=window.state||{};
+      if(st.isSubscriber===true||st.subscriber===true||st.paidSubscriber===true||st.vip===true)return true;
+    }catch(e){}
+    try{
+      var vals=[
+        localStorage.getItem('ktalk_is_subscriber'),
+        localStorage.getItem('ktalk_paid_subscriber'),
+        localStorage.getItem('ktalk_subscription_active'),
+        localStorage.getItem('ktalk_vip')
+      ];
+      if(vals.some(function(v){return v==='1'||v==='true'||v==='on'||v==='active';}))return true;
+    }catch(e){}
+    return false;
+  }
+
   function level(){
     if(owner())return 1000;
     var best=0;
@@ -85,6 +103,7 @@
 
   function allowed(k,lv){
     if(owner())return true;
+    if(paidSubscriber())return true;
     return n(lv)>=minLevel(k);
   }
 
@@ -109,8 +128,8 @@
   window.ktCanEnterRoomByLevel=function(roomType,lv){
     return allowed(kind(roomType,'',0),lv==null?level():lv);
   };
-  window.ktLevelCanOpen13=function(){return owner()||level()>=21;};
-  window.ktLevelCanUseSecret=function(){return owner()||level()>=21;};
+  window.ktLevelCanOpen13=function(){return owner()||paidSubscriber()||level()>=21;};
+  window.ktLevelCanUseSecret=function(){return owner()||paidSubscriber()||level()>=21;};
 
   function myIdentity(){
     var name='K-Talk',id='';
@@ -337,8 +356,8 @@
     // Re-assert final rules after legacy patches try to overwrite them.
     window.ktCanCreateRoomByLevel=function(roomType,lv){return allowed(kind(roomType,'',0),lv==null?level():lv);};
     window.ktCanEnterRoomByLevel=function(roomType,lv){return allowed(kind(roomType,'',0),lv==null?level():lv);};
-    window.ktLevelCanOpen13=function(){return owner()||level()>=21;};
-    window.ktLevelCanUseSecret=function(){return owner()||level()>=21;};
+    window.ktLevelCanOpen13=function(){return owner()||paidSubscriber()||level()>=21;};
+    window.ktLevelCanUseSecret=function(){return owner()||paidSubscriber()||level()>=21;};
     installLocalGates();
   }
 
