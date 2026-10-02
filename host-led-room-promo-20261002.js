@@ -37,9 +37,16 @@
       return String(s.liveRoomName||s.currentLiveRoomTitle||s.roomName||'방송');
     }catch(e){return '방송';}
   }
+  function isApprovedSeller(){
+    try{
+      var x=JSON.parse(localStorage.getItem('kt_ad_seller_application')||'null');
+      return !!(x&&x.businessName);
+    }catch(e){return false;}
+  }
   function liveHostRoom(){
     try{
       if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
+      if(!isApprovedSeller())return false;
       return !!document.querySelector(
         '#screen .ktg13-room,#screen .ktsolo-room,#screen .ktsubscriber-room,#screen .ktsecret-room,#screen .ktg9-room'
       );
