@@ -1135,6 +1135,64 @@
     }
   }
 
+  var __ktViewerRosterSig='';
+  var __ktViewerRosterAt=0;
+  async function syncViewerApprovedRoster(hostId){
+    if(!hostId)return;
+    var now=Date.now();
+    if(now-__ktViewerRosterAt<900)return;
+    __ktViewerRosterAt=now;
+    try{
+      var path='ktalk_live_messages?select=sender_id,sender_name,message_type,created_at&host_id=eq.'+enc(hostId)+'&order=created_at.desc&limit=240';
+      var rows=[],dbRows=[],memRows=[];
+      try{dbRows=await req(path)||[];}catch(e){}
+      try{memRows=await memoryReq(path,{})||[];}catch(e){}
+      var seen={},all=[];
+      [dbRows,memRows].forEach(function(list){
+        (list||[]).forEach(function(m){
+          var k=[String(m.message_type||''),String(m.sender_id||''),String(m.created_at||'')].join('|');
+          if(seen[k])return;seen[k]=1;all.push(m);
+        });
+      });
+      all.sort(function(a,b){return (Date.parse(b.created_at)||0)-(Date.parse(a.created_at)||0);});
+      var reqAt={},apAt={},cancelAt={},leftAt={},names={};
+      all.forEach(function(m){
+        var t=String(m.message_type||''),id='',ts=String(m.created_at||'');
+        if(t.indexOf('guest_request:')===0){id=t.slice(14);if(id&&!reqAt[id]){reqAt[id]=ts;names[id]=String(m.sender_name||'게스트');}}
+        else if(t.indexOf('guest_approved:')===0){id=t.slice(15);if(id&&!apAt[id])apAt[id]=ts;}
+        else if(t.indexOf('guest_cancelled:')===0){id=t.slice(16);if(id&&!cancelAt[id])cancelAt[id]=ts;}
+        else if(t.indexOf('guest_left:')===0){id=t.slice(11);if(id&&!leftAt[id])leftAt[id]=ts;}
+      });
+      var active={};
+      try{
+        var cut=new Date(Date.now()-90000).toISOString();
+        var viewers=await req('ktalk_live_viewers?select=viewer_id,active,updated_at&host_id=eq.'+enc(hostId)+'&active=eq.true&updated_at=gte.'+enc(cut)+'&limit=300')||[];
+        viewers.forEach(function(v){active[String(v.viewer_id||'')]=true;});
+      }catch(e){}
+      var ids=[];
+      Object.keys(reqAt).forEach(function(id){
+        var r=reqAt[id],a=apAt[id]||'',c=cancelAt[id]||'',l=leftAt[id]||'';
+        if(a&&a>=r&&!(c&&c>=r)&&!(l&&l>=r)&&(active[id]||id===viewerId()))ids.push(id);
+      });
+      ids.sort();
+      var sig=hostId+'|'+ids.join(',');
+      if(sig===__ktViewerRosterSig)return;
+      __ktViewerRosterSig=sig;
+      window.__ktApprovedGuestIds20260924={};
+      window.__ktApprovedGuestNames20260924=window.__ktApprovedGuestNames20260924||{};
+      ids.forEach(function(id){
+        window.__ktApprovedGuestIds20260924[id]=true;
+        if(names[id])window.__ktApprovedGuestNames20260924[id]=names[id];
+      });
+      window.dispatchEvent(new CustomEvent('kt-three-person-sync-now',{
+        detail:{host_id:hostId,viewer_ids:ids.slice(),sync_all_devices:true,at:Date.now()}
+      }));
+      try{
+        if(typeof window.ktForceApprovedGuestGridNow20260924==='function')window.ktForceApprovedGuestGridNow20260924();
+      }catch(e){}
+    }catch(e){}
+  }
+
   async function viewerTick(){
     ensureStyle();bindRequestButton();
     if(!document.querySelector('.kt-remote-live')){
@@ -1158,7 +1216,7 @@
     viewerRootMissingSince=0;
     var hostId=await currentViewerHost();
     if(!hostId){ensurePrejoinRoomGrid();return;}
-    var vid=viewerId(),ap=await latestApproval(hostId,vid);
+    syncViewerApprovedRoster(hostId);\n    var vid=viewerId(),ap=await latestApproval(hostId,vid);
     if(ap){
       viewerGuest.approvalMissingSince=0;
       var approvalKey=String(ap.id||ap.created_at||'approved');
