@@ -65,8 +65,8 @@
   function state(){
     try{
       var x=JSON.parse(localStorage.getItem(sessionKey())||'{}');
-      return {count:Number(x.count||0),last:Number(x.last||0)};
-    }catch(e){return {count:0,last:0};}
+      return {count:Number(x.count||0),last:Number(x.last||0),draft:String(x.draft||'')};
+    }catch(e){return {count:0,last:0,draft:''};}
   }
   function save(x){try{localStorage.setItem(sessionKey(),JSON.stringify(x));}catch(e){}}
 
@@ -86,20 +86,31 @@
     if(!liveHostRoom())return false;
     var st=state(),now=Date.now();
     if(st.count>=MAX){alert('이번 방송 LED 홍보 3회를 모두 사용했습니다.');return false;}
+    var id=hostId();
+    if(!id){alert('방송 정보를 확인하지 못했습니다.');return false;}
+
+    if(!st.draft){
+      var promoText='';
+      try{
+        promoText=String(prompt('LED 홍보 글을 입력하세요.\n예: 오늘 딸기 1박스 15,000원 판매합니다.','')||'').trim();
+      }catch(e){}
+      if(!promoText)return false;
+      if(promoText.length>80)promoText=promoText.slice(0,80);
+      st.draft=promoText;
+      save(st);
+      alert('홍보 글을 저장했습니다.\nLED 홍보 버튼을 한 번 더 누르면 전송됩니다.');
+      refreshHostButton();
+      return true;
+    }
+
     var left=GAP-(now-st.last);
     if(st.last&&left>0){
       var min=Math.ceil(left/60000);
       alert('다음 LED 홍보는 약 '+min+'분 뒤에 누를 수 있습니다.');
       return false;
     }
-    var id=hostId();
-    if(!id){alert('방송 정보를 확인하지 못했습니다.');return false;}
-    var promoText='';
-    try{
-      promoText=String(prompt('LED 홍보 내용을 입력하세요.\n예: 오늘 딸기 1박스 15,000원 판매합니다.','')||'').trim();
-    }catch(e){}
-    if(!promoText)return false;
-    if(promoText.length>80)promoText=promoText.slice(0,80);
+
+    var promoText=st.draft;
     var payload={
       host_id:id,
       sender_id:id,
@@ -114,7 +125,7 @@
         body:JSON.stringify(payload)
       });
       if(!r.ok)throw new Error(String(r.status));
-      st.count++;st.last=now;save(st);
+      st.count++;st.last=now;st.draft='';save(st);
       alert('LED 방 홍보 '+st.count+'회 전송했습니다. 총 3회까지 가능합니다.');
       refreshHostButton();
       return true;
@@ -141,6 +152,11 @@
     if(st.count>=MAX){
       b.textContent='LED 3/3 완료';
       b.disabled=true;
+      return;
+    }
+    if(st.draft){
+      b.disabled=false;
+      b.textContent='LED 내보내기 '+st.count+'/3';
       return;
     }
     var left=st.last?GAP-(now-st.last):0;
