@@ -38,7 +38,7 @@
 
       var sig=host+'|'+ids.join(',');
       var now=Date.now();
-      if(!force&&sig===lastSig&&now-lastKick<700)return;
+      if(!force&&sig===lastSig&&now-lastKick<220)return;
       lastSig=sig;lastKick=now;
 
       try{
@@ -65,6 +65,6 @@
   window.addEventListener('online',function(){setTimeout(function(){syncNow(true);},60);});
   document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(function(){syncNow(true);},60);});
 
-  setInterval(function(){syncNow(false);},500);
-  [40,100,220,450,900,1500,2500].forEach(function(ms){setTimeout(function(){syncNow(true);},ms);});
+  setInterval(function(){syncNow(false);},180);
+  [0,40,90,160,260,420,700,1100,1700,2500].forEach(function(ms){setTimeout(function(){syncNow(true);},ms);});
 })();
