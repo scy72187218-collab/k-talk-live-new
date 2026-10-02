@@ -33,6 +33,7 @@
       +'grid-column:1!important;grid-row:1/span 2!important;}'
       +'#screen .kt-guest-hostlike-room[data-kt-room="16"] .kgh-cell{'
       +'min-width:0!important;min-height:0!important;overflow:hidden!important;}'
+      +'#screen .kt-guest-hostlike-room[data-kt-room="16"] .kgh-main>.kgh-cell:nth-child(n+17){display:none!important;}'
       +'@media(max-width:600px){'
       +'#screen .kt-guest-hostlike-room[data-kt-room="16"] .kgh-cell.host{'
       +'grid-column:auto!important;grid-row:auto!important;aspect-ratio:1/1!important;height:auto!important;min-height:0!important;padding:0!important;}'
@@ -56,8 +57,7 @@
 
   function removeTinyBottomOverflow20261002(grid){
     try{
-      removeTinyBottomOverflow20261002(grid);
-    var cells=[].slice.call(grid.querySelectorAll(':scope > .kgh-cell'));
+      var cells=[].slice.call(grid.querySelectorAll(':scope > .kgh-cell'));
       if(cells.length<=16)return;
       cells.slice(16).forEach(function(cell){
         if(!cell||cell.classList.contains('host')||cell.classList.contains('self'))return;
@@ -78,6 +78,7 @@
     grid.classList.remove('is13');
     grid.classList.add('is16');
 
+    removeTinyBottomOverflow20261002(grid);
     var cells=[].slice.call(grid.querySelectorAll(':scope > .kgh-cell'));
     while(cells.length<16){
       grid.appendChild(makeEmptyCell());
