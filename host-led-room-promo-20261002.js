@@ -75,7 +75,7 @@
     var st=document.createElement('style');
     st.id='ktLedRoomPromoStyle20261002';
     st.textContent=''
-      +'.kt-led-promo-host-btn{position:fixed;right:10px;top:112px;z-index:10020;min-width:86px;height:34px;border:1px solid #ff45d7;border-radius:999px;background:#140813e8;color:#ffe25c;font-size:10px;font-weight:950;box-shadow:0 0 9px #ff28c477;pointer-events:auto;touch-action:manipulation}'
+      +'.kt-led-promo-host-btn{position:fixed;right:10px;top:112px;z-index:10020;min-width:112px;height:36px;border:1px solid #ff45d7;border-radius:999px;background:#140813e8;color:#ffe25c;font-size:10px;font-weight:950;box-shadow:0 0 9px #ff28c477;pointer-events:auto;touch-action:manipulation;padding:0 10px;display:flex;align-items:center;justify-content:center;gap:7px}.kt-led-promo-host-btn:before{content:\'\';width:28px;height:16px;border-radius:999px;background:#4a4450;box-shadow:inset 0 0 0 1px #ffffff22;transition:.15s}.kt-led-promo-host-btn.kt-led-ready:before{background:#ff2fc7;box-shadow:0 0 8px #ff2fc788,inset 0 0 0 1px #fff3}.kt-led-promo-host-btn:after{content:\'\';position:absolute;left:12px;width:12px;height:12px;border-radius:50%;background:#fff;transition:.15s}.kt-led-promo-host-btn.kt-led-ready:after{left:26px}'
       +'.kt-led-promo-host-btn[disabled]{opacity:.45}'
       +'.kt-led-promo-view{position:fixed;left:50%;top:58px;transform:translateX(-50%);z-index:10030;width:min(92vw,520px);min-height:46px;border:2px solid #ff28c4;border-radius:18px;background:#140813f2;color:#ffe04f;box-shadow:0 0 12px #ff28c4,0 0 24px #ff28c455;display:flex;align-items:center;gap:8px;padding:7px 12px;overflow:hidden;cursor:pointer;touch-action:manipulation}'
       +'.kt-led-promo-view b{flex:0 0 auto;color:#ff67dc;font-size:11px}.kt-led-promo-view span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px;font-weight:950}.kt-led-promo-view small{margin-left:auto;flex:0 0 auto;color:#fff;font-size:9px;font-weight:900}';
@@ -149,23 +149,25 @@
       b.onclick=function(e){try{e.preventDefault();e.stopPropagation();}catch(x){}sendPromo();};
       document.body.appendChild(b);
     }
+    b.classList.toggle('kt-led-ready',!!st.draft);
     if(st.count>=MAX){
-      b.textContent='LED 3/3 완료';
+      b.textContent='LED 완료 3/3';
       b.disabled=true;
+      b.classList.remove('kt-led-ready');
       return;
     }
     if(st.draft){
       b.disabled=false;
-      b.textContent='LED 내보내기 '+st.count+'/3';
+      b.textContent='LED ON · 보내기 '+st.count+'/3';
       return;
     }
     var left=st.last?GAP-(now-st.last):0;
     if(left>0){
       b.disabled=true;
-      b.textContent='LED '+st.count+'/3 · '+Math.ceil(left/60000)+'분';
+      b.textContent='LED 대기 '+st.count+'/3 · '+Math.ceil(left/60000)+'분';
     }else{
       b.disabled=false;
-      b.textContent='LED 홍보 '+st.count+'/3';
+      b.textContent='LED OFF · 글쓰기 '+st.count+'/3';
     }
   }
 
