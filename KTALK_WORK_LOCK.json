@@ -148,7 +148,7 @@
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "같은 승인 게스트 영상이 두 칸에 동시에 뜨는 중복만 제거. 게스트 1명당 영상칸 1개 유지. 방/LED/채팅/수익률/버튼/승인 규칙 변경 금지.",
+  "note": "호스트 영상칸을 게스트 중복정리 대상에서 제외하고, 호스트 identity는 항상 호스트 영상으로 라우팅. 다른 방/LED/채팅/수익률/버튼/승인 규칙 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -247,6 +247,6 @@
     ]
   },
   "last_unlock": "2026-10-02-red-live-and-same-3person-roster-code-2222",
-  "last_lock": "2026-10-02-one-approved-guest-one-slot",
+  "last_lock": "2026-10-02-host-video-protected",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
