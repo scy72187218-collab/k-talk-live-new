@@ -741,10 +741,8 @@
     try{
       var items=[];
       Object.keys(approvedGuests||{}).forEach(function(id){
-        /* 1111: do not show an approved guest on OTHER guest phones
-           before this host has received real, unmuted guest video. */
-        var peer=hostGuestPeers[id]||null;
-        if(!peer||peer.gotTrack!==true)return;
+        /* 승인 즉시 모든 기기에 자리부터 보이게 한다.
+           실제 영상 트랙은 도착하는 즉시 같은 자리에 붙는다. */
         var x=approvedGuests[id]||{};
         items.push({viewer_id:String(id),name:String(x.name||'게스트')});
       });
