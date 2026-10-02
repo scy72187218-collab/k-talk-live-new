@@ -148,7 +148,7 @@
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "빨간 LIVE 원형 목록 1~15번까지 가로 스크롤 가능하고 각 버튼 탭 시 해당 방송 입장. 다른 방송방 UI/게스트/LED/채팅/버튼 변경 금지.",
+  "note": "모바일 구독자방에서 사람 칸 높이만 조금 줄여 채팅 표시 공간을 다시 확보. 다른 버튼/LED/인원/통신/승인 기능 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -247,6 +247,6 @@
     ]
   },
   "last_unlock": "2026-10-02-red-live-and-same-3person-roster-code-2222",
-  "last_lock": "2026-10-02-live-buttons-1-to-15-entry",
+  "last_lock": "2026-10-02-subscriber-chat-space-restored",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
