@@ -302,75 +302,63 @@
   }
 
   async function renderFollowStatus(rooms){
-    /* 동영상에서는 아래 작은 방송 표시만 사용하고 위쪽 큰 목록은 표시하지 않는다. */
     var old=document.getElementById('ktFollowLiveStrip');
-    if(old)old.remove();
-    try{document.body.classList.remove('kt-follow-status-open');}catch(e){}
-    return;
+
     if(!inVideoView()){
       if(old)old.remove();
       try{document.body.classList.remove('kt-follow-status-open');}catch(e){}
       return;
     }
 
-    var follows=await followedUsers();
-    if(!follows.length){if(old)old.remove();try{document.body.classList.remove('kt-follow-status-open');}catch(e){}return;}
-
-    var history=await roomHistory();
-    var activeMap={},metaMap={};
-    (history||[]).forEach(function(x){
-      var id=String(x.host_id||'');if(!id||metaMap[id])return;
-      metaMap[id]={name:String(x.host_name||''),photo:String(x.host_photo||'')};
-    });
-    (rooms||[]).forEach(function(x){
-      var id=String(x.host_id||'');if(!id)return;
-      activeMap[id]=x;
-      metaMap[id]={name:String(x.host_name||''),photo:String(x.host_photo||'')};
-    });
-
-    /* 홈 위쪽에는 실제 방송 중인 팔로우만 표시한다. 오프라인 계정을 접속자로 오해하거나
-       5초마다 목록이 다시 그려져 깜빡이는 현상을 막는다. */
-    follows=follows.filter(function(f){return !!activeMap[String(f.following_id||'')];});
-    if(!follows.length){
-      if(old)return;
+    rooms=Array.isArray(rooms)?rooms.slice(0,15):[];
+    if(!rooms.length){
+      if(old)old.remove();
       try{document.body.classList.remove('kt-follow-status-open');}catch(e){}
       return;
     }
 
-    var signature=follows.map(function(f){
-      var id=String(f.following_id||''),r=activeMap[id]||{};
-      return [id,String(r.host_name||f.following_name||''),String(r.host_photo||'')].join(':');
+    var signature=rooms.map(function(r){
+      return [
+        String(r.host_id||''),
+        String(r.host_name||''),
+        String(r.host_photo||''),
+        String(r.updated_at||'')
+      ].join(':');
     }).join('|');
-    if(old&&old.getAttribute('data-kt-signature')===signature)return;
+
+    if(old&&old.getAttribute('data-kt-signature')===signature){
+      try{document.body.classList.add('kt-follow-status-open');}catch(e){}
+      return;
+    }
     if(old)old.remove();
 
     var strip=document.createElement('div');
-    strip.id='ktFollowLiveStrip';strip.className='kt-follow-live-strip';
+    strip.id='ktFollowLiveStrip';
+    strip.className='kt-follow-live-strip';
     strip.setAttribute('data-kt-signature',signature);
-    strip.setAttribute('aria-label','팔로우 방송 상태');
-    strip.innerHTML=follows.map(function(f){
-      var id=String(f.following_id||'');
-      var live=!!activeMap[id];
-      var meta=metaMap[id]||{};
-      var name=String(meta.name||f.following_name||'K-Talk');
-      var photo=String(meta.photo||'');
-      return '<button type="button" class="kt-follow-person '+(live?'live':'offline')+'" data-host="'+esc(id)+'" title="'+esc(name+(live?' · 방송 중':' · 방송 안 함'))+'" aria-label="'+esc(name+(live?' 방송 중':' 방송 안 함'))+'">'
-        +'<span class="kt-follow-avatar">'+photoHtml(photo,name)+'</span><i class="kt-follow-state"></i><span class="kt-follow-name">'+esc(name)+'</span></button>';
+    strip.setAttribute('aria-label','현재 방송 중');
+
+    strip.innerHTML=rooms.map(function(r){
+      var id=String(r.host_id||'');
+      var name=String(r.host_name||'K-Talk 방송자');
+      var photo=String(r.host_photo||'');
+      return '<button type="button" class="kt-follow-person live" data-host="'+esc(id)+'" title="'+esc(name+' · 방송 중')+'" aria-label="'+esc(name+' 방송 중')+'">'
+        +'<span class="kt-follow-avatar">'+photoHtml(photo,name)+'</span>'
+        +'<i class="kt-follow-state"></i>'
+        +'<span class="kt-follow-name">'+esc(name)+'</span>'
+        +'</button>';
     }).join('');
 
     document.body.appendChild(strip);
     document.body.classList.add('kt-follow-status-open');
-    strip.querySelectorAll('.kt-follow-person').forEach(function(btn){
+
+    strip.querySelectorAll('.kt-follow-person.live').forEach(function(btn){
       btn.onclick=function(e){
         try{e.preventDefault();e.stopPropagation();}catch(err){}
-        var id=String(btn.getAttribute('data-host')||'');
-        var live=activeMap[id]||null;
-        var meta=metaMap[id]||{};
-        var row=follows.find(function(f){return String(f.following_id||'')===id;})||{};
-        var name=String((live&&live.host_name)||meta.name||row.following_name||'K-Talk 방송자');
-        var photo=String((live&&live.host_photo)||meta.photo||'');
-        if(live&&window.ktEnterRemoteLive){window.ktEnterRemoteLive(id);return;}
-        if(window.ktOpenLiveHostActions)window.ktOpenLiveHostActions(id,name,photo);
+        var id=String(btn.getAttribute('data-host')||'').trim();
+        if(id&&typeof window.ktEnterRemoteLive==='function'){
+          window.ktEnterRemoteLive(id);
+        }
       };
     });
   }
@@ -419,7 +407,10 @@
     await renderFollowStatus(rooms);
 
     var host=currentFeedHost();
-    if(!host){if(old)old.remove();return;}
+    if(!host){
+      /* The fixed LIVE strip above remains visible while broadcasts are active. */
+      return;
+    }
 
     var r=rooms[0];
     var hostId=String(r.host_id||''),hostName=String(r.host_name||'K-Talk 방송자'),hostPhoto=String(r.host_photo||'');
