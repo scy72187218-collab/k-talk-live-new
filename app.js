@@ -3426,8 +3426,15 @@ setTimeout(function(){
     setTimeout(function(){closeSheet();},120);
   };
   window.selectLiveRoom=function(name,max,type){state.liveRoomType=type;state.liveRoomName=name;state.liveRoomMax=max;closeSheet();directCreator();var title=document.getElementById('liveTitle');if(title)title.value=name+' · 최대 '+max+'명';};
-  window.openPasswordRoomSetup=function(){showSheet('🔒 비밀번호방 설정','<div class="note">방에 들어올 때 사용할 비밀번호를 설정하세요.</div><input id="roomPasswordInput" class="form" type="password" inputmode="numeric" maxlength="8" placeholder="비밀번호 입력"><button class="act" onclick="confirmPasswordRoom()">비밀번호 설정하고 계속</button>');};
-  window.confirmPasswordRoom=function(){var input=document.getElementById('roomPasswordInput');var pw=input?input.value.trim():'';if(pw.length<4){alert('비밀번호를 4자리 이상 입력해 주세요.');return;}state.roomPassword=pw;state.liveRoomType='password';state.liveRoomName='비밀번호방';state.liveRoomMax=7;closeSheet();directCreator();var title=document.getElementById('liveTitle');if(title)title.value='비밀번호방 · 호스트 1 + 게스트 6';};
+  window.openPasswordRoomSetup=function(){
+  if(window.state){state.liveRoomType='password';state.liveRoomName='비밀방';state.liveRoomMax=7;delete state.roomPassword;delete state.liveRoomPassword;}
+  if(window.openRoomPrep)return window.openRoomPrep('비밀방',7);
+};
+window.confirmPasswordRoom=function(){
+  if(window.state){state.liveRoomType='password';state.liveRoomName='비밀방';state.liveRoomMax=7;delete state.roomPassword;delete state.liveRoomPassword;}
+  try{closeSheet();}catch(e){}
+  try{directCreator();}catch(e){}
+};
   var oldPrepBottom=window.prepBottomTap;
   window.prepBottomTap=function(el,name){if(oldPrepBottom)oldPrepBottom(el,name);};
 },0);
