@@ -744,7 +744,12 @@
         /* 승인 즉시 모든 기기에 자리부터 보이게 한다.
            실제 영상 트랙은 도착하는 즉시 같은 자리에 붙는다. */
         var x=approvedGuests[id]||{};
-        items.push({viewer_id:String(id),name:String(x.name||'게스트')});
+        var ph=pendingGuestPhotos20260926[id]||null;
+        var frame='';
+        try{
+          if(ph&&Date.now()-Number(ph.at||0)<30000)frame=String(ph.frame||'');
+        }catch(e){}
+        items.push({viewer_id:String(id),name:String(x.name||'게스트'),frame:frame});
       });
       var payload={
         host_id:DEVICE,
@@ -764,13 +769,17 @@
       if(!hid||!current||hid!==current)return;
 
       var list=Array.isArray(p&&p.items)?p.items:[];
-      var next={},names={};
+      var next={},names={},photos={};
       list.forEach(function(x){
         var id=String(x&&x.viewer_id||'').trim();
         if(!id)return;
         next[id]=true;
         names[id]=String(x&&x.name||'게스트');
+        var frame=String(x&&x.frame||'');
+        if(frame.indexOf('data:image/jpeg;base64,')===0&&frame.length<32000)photos[id]=frame;
       });
+      window.__ktApprovedGuestPhotos20261002=window.__ktApprovedGuestPhotos20261002||{};
+      Object.keys(photos).forEach(function(id){window.__ktApprovedGuestPhotos20261002[id]=photos[id];});
 
       var old=window.__ktApprovedGuestIds20260924||{};
       var oldNames=window.__ktApprovedGuestNames20260924||{};
