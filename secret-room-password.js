@@ -177,7 +177,11 @@
   };
 
   window.ktSecretMore=function(){
-    showSheet('더보기','<button class="act" onclick="closeSheet();if(window.openLiveSettings)openLiveSettings()">⚙ 설정</button><button class="act" onclick="closeSheet();if(window.endBroadcastEarnings)endBroadcastEarnings()" style="background:linear-gradient(135deg,#d9274c,#ff4669)">■ 방송 종료</button>');
+    showSheet('더보기',
+      '<button class="act" onclick="closeSheet();setTimeout(function(){ktSecretChangePassword();},60)">🔑 비밀번호 바꾸기</button>'
+      +'<button class="act" onclick="closeSheet();if(window.openLiveSettings)openLiveSettings()">⚙ 설정</button>'
+      +'<button class="act" onclick="closeSheet();if(window.endBroadcastEarnings)endBroadcastEarnings()" style="background:linear-gradient(135deg,#d9274c,#ff4669)">■ 방송 종료</button>'
+    );
   };
 
   window.ktSecretChangePassword=function(){
