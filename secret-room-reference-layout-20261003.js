@@ -14,7 +14,10 @@
       var st=window.state||{};
       var t=String(st.liveRoomType||st.roomType||'').toLowerCase();
       var n=String(st.liveRoomName||st.roomName||'');
-      return t==='password'||t==='secret'||n.indexOf('비밀')>-1;
+      if(t==='password'||t==='secret'||n.indexOf('비밀')>-1)return true;
+      var s=document.getElementById('screen');
+      var txt=String(s&&s.textContent||'');
+      return txt.indexOf('비밀방')>-1 && (txt.indexOf('ON AIR')>-1 || txt.indexOf('방송')>-1);
     }catch(e){return false;}
   }
   function gift(icon,label,img){
@@ -117,14 +120,24 @@
     };
   }
 
-  window.addEventListener('kt-room-opened',function(){if(isSecret())setTimeout(render,60);});
-  new MutationObserver(function(){
+  function enforceSecretReference(){
     if(!isSecret())return;
     var s=document.getElementById('screen');
     if(!s)return;
     if(s.querySelector('.ktsr-room'))return;
-    if(s.querySelector('.ktsecret-room'))setTimeout(render,30);
+    var txt=String(s.textContent||'');
+    if(txt.indexOf('비밀방')>-1)render();
+  }
+
+  window.addEventListener('kt-room-opened',function(){setTimeout(enforceSecretReference,40);});
+  window.addEventListener('pageshow',function(){setTimeout(enforceSecretReference,60);});
+  window.addEventListener('focus',function(){setTimeout(enforceSecretReference,60);});
+
+  new MutationObserver(function(){
+    clearTimeout(window.__ktSecretReferenceEnforceTimer20261003);
+    window.__ktSecretReferenceEnforceTimer20261003=setTimeout(enforceSecretReference,25);
   }).observe(document.documentElement,{childList:true,subtree:true});
 
-  setTimeout(function(){if(isSecret())render();},500);
+  [80,220,500,900,1500,2500].forEach(function(ms){setTimeout(enforceSecretReference,ms);});
+  setInterval(enforceSecretReference,700);
 })();
