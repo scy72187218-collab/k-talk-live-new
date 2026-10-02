@@ -1295,10 +1295,71 @@
   }
 
 
+  function signalApprovedGuestLeftNow20261002(hostId,vid){
+    hostId=String(hostId||'').trim();
+    vid=String(vid||'').trim();
+    if(!hostId||!vid)return;
+
+    /* Remove this guest locally first so a stale approved map cannot put the old
+       picture back before the server receives the leave event. */
+    try{
+      var map=window.__ktApprovedGuestIds20260924||{};
+      delete map[vid];
+      window.__ktApprovedGuestIds20260924=map;
+      window.dispatchEvent(new CustomEvent('kt-any-guest-left',{detail:{host_id:hostId,viewer_id:vid,at:Date.now()}}));
+      window.dispatchEvent(new CustomEvent('kt-three-person-sync-now',{detail:{host_id:hostId,viewer_ids:Object.keys(map).filter(function(id){return map[id]===true;}),sync_all_devices:true,at:Date.now()}}));
+    }catch(e){}
+
+    var payload={
+      host_id:hostId,
+      sender_id:vid,
+      sender_name:profile().name||'게스트',
+      message:'퇴장',
+      message_type:'guest_left:'+vid
+    };
+
+    /* Shared memory first, with keepalive so Back/home/page close does not leave
+       an approved tile behind. */
+    try{
+      fetch(MEM_INTERACT+'?t='+Date.now(),{
+        method:'POST',
+        cache:'no-store',
+        keepalive:true,
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          action:'message',
+          host_id:hostId,
+          sender_id:vid,
+          sender_name:payload.sender_name,
+          message:payload.message,
+          message_type:payload.message_type
+        })
+      }).catch(function(){});
+    }catch(e){}
+
+    /* Durable DB copy, also keepalive. */
+    try{
+      if(BASE&&KEY){
+        fetch(BASE+'ktalk_live_messages',{
+          method:'POST',
+          keepalive:true,
+          headers:headers({Prefer:'return=minimal'}),
+          body:JSON.stringify(payload)
+        }).catch(function(){});
+      }else{
+        postGuestMessage(hostId,payload.message_type,payload.message,vid,payload.sender_name).catch(function(){});
+      }
+    }catch(e){}
+  }
+
   async function leaveApprovedGuestNow(){
     var hostId=viewerGuest.hostId||'';
     var vid=viewerId();
     var sid=viewerGuest.sessionId||'';
+
+    if(hostId&&(viewerGuest.approvedKey||((window.__ktApprovedGuestIds20260924||{})[vid]===true))){
+      signalApprovedGuestLeftNow20261002(hostId,vid);
+    }
 
     /* 실제 퇴장 버튼은 호스트에게 즉시 guest_left를 먼저 보낸다.
        그래야 호스트 칸에 마지막 프레임이 남지 않고 바로 빈 칸으로 돌아간다. */
@@ -1375,5 +1436,14 @@
   try{if(screen.orientation&&screen.orientation.addEventListener)screen.orientation.addEventListener('change',function(){setTimeout(ktRefreshLocalNineOrientation,120);});}catch(e){}
   setInterval(ktRefreshLocalNineOrientation,1200);
   document.addEventListener('DOMContentLoaded',start);if(document.readyState!=='loading')start();
-  window.addEventListener('pagehide',function(){clearInterval(hostPoll);clearInterval(viewerPoll);endViewerGuestSession(true);stopLocalGuestViewGuard();removePrejoinRoomGrid();Object.keys(hostGuestPeers).forEach(function(k){try{hostGuestPeers[k].close();}catch(e){}});hostGuestPeers={};if(viewerGuest.pc){try{viewerGuest.pc.close();}catch(e){}}if(viewerGuest.stream){try{viewerGuest.stream.getTracks().forEach(function(t){t.stop();});}catch(e){}}});
+  window.addEventListener('pagehide',function(){
+    try{
+      var hid=viewerGuest.hostId||'';
+      var vid=viewerId();
+      if(hid&&(viewerGuest.approvedKey||((window.__ktApprovedGuestIds20260924||{})[vid]===true))){
+        signalApprovedGuestLeftNow20261002(hid,vid);
+      }
+    }catch(e){}
+    clearInterval(hostPoll);clearInterval(viewerPoll);endViewerGuestSession(true);stopLocalGuestViewGuard();removePrejoinRoomGrid();Object.keys(hostGuestPeers).forEach(function(k){try{hostGuestPeers[k].close();}catch(e){}});hostGuestPeers={};if(viewerGuest.pc){try{viewerGuest.pc.close();}catch(e){}}if(viewerGuest.stream){try{viewerGuest.stream.getTracks().forEach(function(t){t.stop();});}catch(e){}}
+  });
 })();
