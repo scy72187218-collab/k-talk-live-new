@@ -14,7 +14,13 @@
     '.creator-bottom .modes button',
     '.creator-bottom .creator-foot span',
     '.kt-total-admin-row',
-    '.kt-owner-monitor button'
+    '.kt-owner-monitor button',
+    '.kt-bottom-media-replaced',
+    '.kt-host-admin-media-20260928 button',
+    '.kt-guest-self-media-btn',
+    '.kt-inside-av-btn',
+    '.kt-remote-tv-btn',
+    '.kt-tv-movie-more'
   ].join(',');
 
   function enableOne(el){
