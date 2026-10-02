@@ -15,44 +15,8 @@
   }
 
   function ensureStyle(){
-    if(document.getElementById('ktGuest9HostMatchFinalStyle20261001'))return;
-    var s=document.createElement('style');
-    s.id='ktGuest9HostMatchFinalStyle20261001';
-    s.textContent=''
-      +'#screen .kt-remote-live.kt-guest9-hostmatch-final .kt-guest-hostlike-room[data-kt-room="9"] .kgh-main{'
-        +'display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:repeat(3,minmax(0,1fr))!important;'
-        +'gap:2px!important;width:calc(100% - 18px)!important;margin:8px auto 0!important;height:calc(68vw - 12px)!important;'
-        +'flex:0 0 calc(68vw - 12px)!important;max-height:none!important;min-height:0!important;overflow:hidden!important}'
-      +'#screen .kt-remote-live.kt-guest9-hostmatch-final .kt-guest-hostlike-room[data-kt-room="9"] .kgh-cell{'
-        +'min-width:0!important;min-height:0!important;width:auto!important;height:auto!important;border:1px solid #28282d!important;border-radius:7px!important;overflow:hidden!important}'
-      +'#screen .kt-remote-live.kt-guest9-hostmatch-final .kt-guest-hostlike-room[data-kt-room="9"] .kgh-quick{'
-        +'display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px!important;flex:0 0 42px!important;min-height:42px!important}'
-      +'#screen .kt-remote-live.kt-guest9-hostmatch-final .kt-guest-hostlike-room[data-kt-room="9"] .kgh-quick button{'
-        +'display:flex!important;align-items:center!important;justify-content:center!important;border:0!important;border-radius:12px!important;background:#111114!important;color:#fff!important;font-weight:950!important;font-size:12px!important}'
-      +'#screen .kt-remote-live.kt-guest9-hostmatch-final .kt-guest-hostlike-room[data-kt-room="9"] .kgh-chat{'
-        +'display:block!important;flex:0 0 0!important;height:0!important;min-height:0!important;padding:0!important;margin:0!important;overflow:visible!important;background:transparent!important}'
-      +'#screen .kt-remote-live.kt-guest9-hostmatch-final .kt-guest-hostlike-room[data-kt-room="9"] .kgh-chatbox{display:none!important}'
-      +'#screen .kt-remote-live.kt-guest9-hostmatch-final .kt-guest-hostlike-room[data-kt-room="9"] .kgh-earn{'
-        +'position:fixed!important;left:auto!important;right:8px!important;top:auto!important;bottom:74px!important;'
-        +'width:112px!important;min-width:112px!important;max-width:112px!important;height:62px!important;min-height:62px!important;max-height:62px!important;'
-        +'margin:0!important;padding:3px 4px!important;border-radius:9px!important;z-index:2147482490!important;overflow:hidden!important;box-sizing:border-box!important}'
-      +'#screen .kt-remote-live.kt-guest9-hostmatch-final .kgh-earn .top span{font-size:4.8px!important}'
-      +'#screen .kt-remote-live.kt-guest9-hostmatch-final .kgh-earn .top b{font-size:7.5px!important}'
-      +'#screen .kt-remote-live.kt-guest9-hostmatch-final .kgh-earn-detail{font-size:4.5px!important;gap:1px 2px!important;line-height:1.05!important;margin-top:1px!important}'
-      +'#screen .kt-remote-live.kt-guest9-hostmatch-final>.kt-remote-bottom{'
-        +'position:fixed!important;left:8px!important;right:8px!important;bottom:4px!important;z-index:2147482500!important;'
-        +'display:flex!important;align-items:center!important;gap:6px!important;margin:0!important;transform:none!important}'
-      +'#screen .kt-remote-live.kt-guest9-hostmatch-final>.kt-remote-bottom input{'
-        +'flex:1 1 auto!important;min-width:80px!important;height:44px!important;border-radius:23px!important}'
-      +'#screen .kt-remote-live.kt-guest9-hostmatch-final>.kt-remote-bottom .kt-remote-action{'
-        +'width:44px!important;height:44px!important;flex:0 0 44px!important;border-radius:50%!important;display:grid!important;place-items:center!important}'
-      +'@media(max-width:390px){'
-        +'#screen .kt-remote-live.kt-guest9-hostmatch-final .kt-guest-hostlike-room[data-kt-room="9"] .kgh-main{width:calc(100% - 16px)!important;margin-top:7px!important;height:calc(68vw - 10px)!important;flex-basis:calc(68vw - 10px)!important}'
-        +'#screen .kt-remote-live.kt-guest9-hostmatch-final>.kt-remote-bottom{left:5px!important;right:5px!important;gap:4px!important}'
-        +'#screen .kt-remote-live.kt-guest9-hostmatch-final>.kt-remote-bottom .kt-remote-action{width:40px!important;height:40px!important;flex-basis:40px!important}'
-        +'#screen .kt-remote-live.kt-guest9-hostmatch-final>.kt-remote-bottom input{height:40px!important}'
-      +'}';
-    (document.head||document.documentElement).appendChild(s);
+    /* Final 9-room layout is owned by group9-one-unified-screen-final-20261002.js.
+       This helper now keeps controls/actions only so it cannot fight the layout. */
   }
 
   function quick(room){
