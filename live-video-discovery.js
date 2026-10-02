@@ -290,8 +290,7 @@
   function inVideoView(){
     if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
     try{
-      /* 방송방 안에서는 방송중 표시/긴 표시줄을 절대 띄우지 않는다.
-         바깥 공개 동영상 화면에서만 보여서 시청자가 눌러 입장하게 한다. */
+      /* 방송방 안에서는 절대 표시하지 않는다. */
       if(document.querySelector(
         '#screen .ktg13-room,'+
         '#screen .ktg9-room,'+
@@ -299,13 +298,21 @@
         '#screen .ktsubscriber-room,'+
         '#screen .ktsecret-room,'+
         '#screen .kt-guest-hostlike-room,'+
-        '#screen .kt-remote-live'
+        '#screen .kt-remote-live,'+
+        '.ktg13-room[data-kt-room="9"]'
       ))return false;
 
-      var publicVideo=document.querySelector('#screen .kt-public-video,#screen #homeVideo,.video-home,#screen .media');
-      if(publicVideo)return true;
-
-      return document.body.classList.contains('kt-video-mode') && !!document.getElementById('ktPublicFirstPaintVideo');
+      /* 첫 공개 동영상 화면이 실제로 보일 때만 표시한다. */
+      var candidates=[].slice.call(document.querySelectorAll(
+        '#screen .kt-public-video,#screen #homeVideo,#screen #ktPublicFirstPaintVideo'
+      ));
+      var visible=candidates.some(function(v){
+        try{
+          var s=getComputedStyle(v),r=v.getBoundingClientRect();
+          return s.display!=='none'&&s.visibility!=='hidden'&&Number(s.opacity)!==0&&r.width>20&&r.height>20;
+        }catch(e){return false;}
+      });
+      return !!visible;
     }catch(e){return false;}
   }
 
@@ -519,6 +526,20 @@
     try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
     try{window.ktEnterRemoteLive(hid);}catch(_e){}
   }
+  function clearPublicLiveStripInRoom(){
+    try{
+      if(document.querySelector(
+        '#screen .ktg13-room,#screen .ktg9-room,#screen .ktsolo-room,'+
+        '#screen .ktsubscriber-room,#screen .ktsecret-room,'+
+        '#screen .kt-guest-hostlike-room,#screen .kt-remote-live,'+
+        '.ktg13-room[data-kt-room="9"]'
+      )){
+        var a=document.getElementById('ktFollowLiveStrip');if(a)a.remove();
+        var b=document.getElementById('ktVideoLivePeek');if(b)b.remove();
+        document.body.classList.remove('kt-follow-status-open');
+      }
+    }catch(e){}
+  }
   document.addEventListener('pointerdown',enterRedLiveNow,true);
   if(!window.PointerEvent)document.addEventListener('touchstart',enterRedLiveNow,true);
 
@@ -528,6 +549,6 @@
   if(screen)screen.addEventListener('scroll',function(){scheduleRender(350);},true);
   document.addEventListener('touchend',function(){scheduleRender(250);},true);
   document.addEventListener('pointerup',function(){scheduleRender(250);},true);
-  setInterval(function(){scheduleRender(0);},700);
+  setInterval(function(){clearPublicLiveStripInRoom();scheduleRender(0);},700);
   scheduleRender(600);
 })();
