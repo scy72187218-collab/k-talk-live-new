@@ -94,6 +94,16 @@
     ))||t.indexOf('뒤집기')>-1||t.indexOf('되돌리기')>-1;
   }
 
+  function removeSoloFlip20261002(){
+    try{
+      var box=document.querySelector('#screen .ktsolo-room .ktsolo-right');
+      if(!box)return;
+      [].slice.call(box.querySelectorAll('button')).forEach(function(btn){
+        if(isFlip(btn))btn.remove();
+      });
+    }catch(e){}
+  }
+
   function addFlip(roomSelector,boxSelector){
     var room=document.querySelector(roomSelector);
     if(!room)return;
