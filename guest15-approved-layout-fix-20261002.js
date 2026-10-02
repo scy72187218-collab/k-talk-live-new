@@ -29,6 +29,7 @@
       +'#screen .kt-guest-hostlike-room[data-kt-room="16"] .kgh-main{'
       +'display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;'
       +'grid-template-rows:repeat(4,minmax(0,1fr))!important;gap:2px!important;}'
+      +'#screen .kt-guest-hostlike-room[data-kt-room="16"] .kgh-main.is16>.kgh-cell.host{grid-column:auto!important;grid-row:auto!important;}'
       +'#screen .kt-guest-hostlike-room[data-kt-room="16"] .kgh-cell.host{'
       +'grid-column:1!important;grid-row:1/span 2!important;}'
       +'#screen .kt-guest-hostlike-room[data-kt-room="16"] .kgh-cell{'
@@ -93,6 +94,7 @@
     style();
     room.setAttribute('data-kt-room','16');
     grid.classList.remove('is13');
+    grid.classList.remove('is15');
     grid.classList.add('is16');
 
     removeTinyBottomOverflow20261002(grid);
