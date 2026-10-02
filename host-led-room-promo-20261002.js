@@ -46,7 +46,6 @@
   function liveHostRoom(){
     try{
       if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
-      if(!isApprovedSeller())return false;
       return !!document.querySelector(
         '#screen .ktg13-room,#screen .ktsolo-room,#screen .ktsubscriber-room,#screen .ktsecret-room,#screen .ktg9-room'
       );
@@ -154,7 +153,7 @@
   function refreshTextButton(){
     ensureStyle();
     var b=document.getElementById('ktLedPromoTextBtn20261002');
-    if(!liveHostRoom()){if(b)b.remove();return;}
+    if(!liveHostRoom()||!isApprovedSeller()){if(b)b.remove();return;}
     var st=state();
     if(!b){
       b=document.createElement('button');
