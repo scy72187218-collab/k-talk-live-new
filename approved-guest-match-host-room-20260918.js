@@ -112,8 +112,14 @@
     try{
       txt+=' '+String(window.__ktRemoteRoomName||'')+' '+String(window.__ktRemoteRoomType||'');
     }catch(e){}
-    var is13=/13\s*명|group13/i.test(txt);
-    return {is13:is13,total:is13?13:9,label:is13?'13명 방송':'9명 방송'};
+    var is15=/15\s*명|subscriber|구독자/i.test(txt);
+    var is13=!is15&&/13\s*명|group13/i.test(txt);
+    return {
+      is15:is15,
+      is13:is13,
+      total:is15?15:(is13?13:9),
+      label:is15?'15명 방송':(is13?'13명 방송':'9명 방송')
+    };
   }
 
   function ensureStyle(){
@@ -131,7 +137,7 @@
       +'.kgh-led-track{position:absolute;left:0;top:0;height:100%;display:flex;align-items:center;white-space:nowrap;will-change:transform;animation:kghMarquee 12s linear infinite;font-size:24px;font-weight:950;color:#ffd62d;text-shadow:0 0 7px #ff8b00}.kgh-led-track span{display:inline-block;padding-right:80px}.kgh-led-track b{color:#ff59c9}@keyframes kghMarquee{from{transform:translateX(55%)}to{transform:translateX(-100%)}}'
       +'.kgh-quick{flex:0 0 35px;display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.kgh-quick button{border:0;border-radius:11px;background:#101014;color:#fff;font-size:11px;font-weight:900}'
       +'.kgh-stats{flex:0 0 47px;display:grid;grid-template-columns:1fr 1fr 1.35fr;gap:7px}.kgh-stats button,.kgh-viewers{border:0;border-radius:14px;background:#111114;color:#fff;font-size:15px;font-weight:950;display:flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;overflow:hidden}'
-      +'.kgh-main{position:relative;flex:1 1 0;min-height:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:2px;overflow:hidden}.kt-guest-hostlike-room[data-kt-room="9"] .kgh-main{flex:0 0 auto!important;height:calc(100vw - 14px)!important;max-height:calc(100dvh - 410px)!important;min-height:0!important}.kgh-main.is13{grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr))}.kgh-main.is13 .kgh-cell:nth-child(13){grid-column:1}'
+      +'.kgh-main{position:relative;flex:1 1 0;min-height:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:2px;overflow:hidden}.kt-guest-hostlike-room[data-kt-room="9"] .kgh-main{flex:0 0 auto!important;height:calc(100vw - 14px)!important;max-height:calc(100dvh - 410px)!important;min-height:0!important}.kgh-main.is13{grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr))}.kgh-main.is13 .kgh-cell:nth-child(13){grid-column:1}.kgh-main.is15{grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr))}.kgh-main.is15 .kgh-cell.host{grid-column:1!important;grid-row:1/span 2!important}'
       +'.kgh-cell{position:relative;display:grid;place-items:center;min-width:0;min-height:0;border:1px solid #28282d;border-radius:7px;background:linear-gradient(145deg,#17181b,#111214);color:#bdbdc4;font-size:13px;font-weight:900;overflow:hidden}'
       +'.kgh-cell video{position:absolute;inset:0;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;border:0!important;object-fit:cover!important;object-position:center center!important;background:#111}'
       +'.kgh-cell.host video{transform:scaleX(-1)!important;-webkit-transform:scaleX(-1)!important}.kgh-cell.self video{left:0!important;top:0!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center center!important;transform:scaleX(-1)!important;-webkit-transform:scaleX(-1)!important}.kgh-cell.self{outline:2px solid #61d9ff;outline-offset:-2px}'
@@ -263,7 +269,7 @@
 
     var room=document.createElement('section');
     room.className='kt-guest-hostlike-room';
-    room.setAttribute('data-kt-room',info.is13?'13':'9');
+    room.setAttribute('data-kt-room',info.is15?'15':(info.is13?'13':'9'));
 
     var head=document.createElement('div');
     head.className='kgh-head';
@@ -306,10 +312,10 @@
 
     var stats=document.createElement('div');
     stats.className='kgh-stats';
-    stats.innerHTML='<button type="button">🔥 일일 랭킹</button><button type="button">🎯 미션</button><div class="kgh-viewers">시청자 9명이 시청중 🏃</div>';
+    stats.innerHTML='<button type="button">🔥 일일 랭킹</button><button type="button">🎯 미션</button><div class="kgh-viewers">시청자 '+info.total+'명이 시청중 🏃</div>';
 
     var grid=document.createElement('div');
-    grid.className='kgh-main'+(info.is13?' is13':'');
+    grid.className='kgh-main'+(info.is15?' is15':(info.is13?' is13':''));
     var hostCell=makeCell('host','호스트');
     var selfCell=makeCell('self','나 · 게스트');
 
