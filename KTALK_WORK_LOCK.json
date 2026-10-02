@@ -247,7 +247,7 @@
     ]
   },
   "last_unlock": "2026-10-02-red-live-and-same-3person-roster-code-2222",
-  "last_lock": "2026-10-02-secret-password-change-lock-7510",
-  "last_note": "비밀방 더보기의 비밀번호 바꾸기만 7510 잠금번호 확인 후 새 4자리 비밀번호를 바꿀 수 있게 수정. 다른 기능 변경 금지.",
+  "last_lock": "2026-10-02-admin-pin-first-save-and-change",
+  "last_note": "관리자 비밀번호가 없을 때 오류 팝업 대신 최초 4자리 저장 가능. 기존 비밀번호가 있으면 잠금 후 비밀번호 바꾸기 제공. 다른 기능 변경 금지.",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
