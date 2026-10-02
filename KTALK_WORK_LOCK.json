@@ -140,8 +140,12 @@
     "marketplace_led_script_load_restored_20261002",
     "creator_auto_youth_beauty_and_edit_effect_removed_20261002"
   ],
-  "current_editable_components": [],
-  "temporarily_unlocked_components": [],
+  "current_editable_components": [
+    "group9_existing_led_banner_shell_restore_only_20261002"
+  ],
+  "temporarily_unlocked_components": [
+    "group9_existing_led_banner_shell_restore_only_20261002"
+  ],
   "note": "현재 K-Talk 상태 보호. 편집효과 버튼 제거 + 자동 얼굴 보정 적용 상태 포함. 다른 방송 기능, 버튼, 방 구조, 통신, 채팅은 변경 금지.",
   "lock_slots": {
     "1": [
@@ -240,7 +244,7 @@
       "creator_auto_youth_beauty_and_edit_effect_removed_20261002"
     ]
   },
-  "last_unlock": "2026-09-27-solo-countdown-only-code-5555",
+  "last_unlock": "2026-10-02-led-banner-only-code-2222",
   "last_lock": "2026-10-02-auto-youth-beauty-and-edit-effect-removed",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
