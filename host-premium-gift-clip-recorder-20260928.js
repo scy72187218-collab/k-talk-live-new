@@ -118,26 +118,11 @@
   }
 
   function ensureSwitch(){
-    ensureStyle();
-    if(!inHostRoom()){
+    /* 녹화는 큰 선물 전용 자동 녹화로 내부 동작.
+       방 화면에는 녹화 버튼을 띄우지 않고 더보기에서만 확인한다. */
+    try{
       document.querySelectorAll('.kt-premium-clip-switch-20260928').forEach(function(x){x.remove();});
-      return;
-    }
-    var room=switchHost();if(!room)return;
-    try{room.style.setProperty('position','relative','important');}catch(e){}
-    var b=room.querySelector('.kt-premium-clip-switch-20260928');
-    if(!b){
-      b=document.createElement('button');
-      b.type='button';
-      b.className='kt-premium-clip-switch-20260928';
-      b.innerHTML='🎥 녹화 <b>0</b>';
-      b.onclick=function(e){
-        try{e.preventDefault();e.stopPropagation();}catch(_e){}
-        openMarkers();
-      };
-      room.appendChild(b);
-    }
-    var n=b.querySelector('b');if(n)n.textContent=String(markers.length);
+    }catch(e){}
   }
 
   function fmtTime(ts){
@@ -189,7 +174,6 @@
   }
 
   window.ktSavePremiumGiftClip20260928=async function(id){
-    if(!inHostRoom())return false;
     var m=markers.find(function(x){return x.id===id;});
     if(!m)return false;
     var selected=chunks.filter(function(x){
@@ -211,7 +195,8 @@
         createdAt:Date.now(),
         giftName:String(m.name||''),
         giftCost:Number(m.cost||0),
-        giftSender:String(m.sender||'')
+        giftSender:String(m.sender||''),
+        autoPremiumGift:true
       };
       await new Promise(function(resolve,reject){
         var tx=db.transaction('videos','readwrite');
@@ -221,9 +206,12 @@
         tx.onabort=function(){reject(tx.error||new Error('abort'));};
       });
       try{db.close();}catch(e){}
-      try{if(typeof window.closeSheet==='function')window.closeSheet();}catch(e){}
-      try{alert('✅ 큰 선물 구간을 내 동영상에 올렸습니다.');}catch(e){}
-      try{if(typeof window.openMyVideoLibrary==='function')window.openMyVideoLibrary();}catch(e){}
+      m.saved=true;
+      if(!m.autoSave){
+        try{if(typeof window.closeSheet==='function')window.closeSheet();}catch(e){}
+        try{alert('✅ 큰 선물 구간을 내 동영상에 올렸습니다.');}catch(e){}
+        try{if(typeof window.openMyVideoLibrary==='function')window.openMyVideoLibrary();}catch(e){}
+      }
       return true;
     }catch(e){
       try{alert('이 기기에서는 큰 선물 구간을 저장하지 못했습니다.');}catch(_e){}
@@ -238,15 +226,56 @@
     var now=Date.now();
     var last=markers[markers.length-1];
     if(last&&now-last.ts<1200&&String(last.name)===String(name)&&String(last.sender)===String(sender))return;
-    markers.push({
+    var marker={
       id:'gift-'+now+'-'+Math.random().toString(36).slice(2,6),
       name:String(name||'큰 선물'),
       cost:n,
       sender:String(sender||'회원'),
-      ts:now
-    });
+      ts:now,
+      autoSave:true,
+      saved:false
+    };
+    markers.push(marker);
     prune();
     ensureSwitch();
+    setTimeout(function(){
+      try{
+        if(!marker.saved&&typeof window.ktSavePremiumGiftClip20260928==='function'){
+          window.ktSavePremiumGiftClip20260928(marker.id);
+        }
+      }catch(e){}
+    },POST_MS+1200);
+  };
+
+  window.ktOpenPremiumRecordedVideos20261002=async function(){
+    try{
+      var db=await openDb();
+      var list=await new Promise(function(resolve,reject){
+        var tx=db.transaction('videos','readonly');
+        var rq=tx.objectStore('videos').getAll();
+        rq.onsuccess=function(){resolve(Array.isArray(rq.result)?rq.result:[]);};
+        rq.onerror=function(){reject(rq.error||new Error('read'));};
+      });
+      try{db.close();}catch(e){}
+      list=list.filter(function(x){return x&&x.autoPremiumGift===true;}).sort(function(a,b){return Number(b.createdAt||0)-Number(a.createdAt||0);});
+      var html='<div class="rowbox"><b>🎥 큰 선물 자동 녹화</b><br>큰 선물만 자동으로 녹화된 동영상입니다.</div>';
+      if(!list.length){
+        html+='<div class="rowbox">아직 자동 녹화된 큰 선물 동영상이 없습니다.</div>';
+      }else{
+        html+='<div class="kt-premium-clip-list">'+list.map(function(v){
+          var when='';try{when=new Date(v.createdAt||Date.now()).toLocaleString('ko-KR');}catch(e){}
+          return '<div class="kt-premium-clip-row"><strong>🎁 '+esc(v.giftName||'큰 선물')+' · '+Number(v.giftCost||0).toLocaleString('ko-KR')+'개</strong><small>'+esc(v.giftSender||'회원')+' · '+esc(when)+'</small></div>';
+        }).join('')+'</div>';
+        if(typeof window.openMyVideoLibrary==='function'){
+          html+='<button class="act" type="button" onclick="openMyVideoLibrary()">▶ 녹화 동영상 보기</button>';
+        }
+      }
+      if(typeof window.showSheet==='function')window.showSheet('🎥 녹화',html);
+      return true;
+    }catch(e){
+      try{alert('녹화 동영상 목록을 열지 못했습니다.');}catch(_e){}
+      return false;
+    }
   };
 
   function tick(){
