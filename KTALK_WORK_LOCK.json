@@ -142,8 +142,12 @@
     "creator_auto_youth_beauty_and_edit_effect_removed_20261002",
     "group9_existing_led_banner_shell_restore_only_20261002"
   ],
-  "current_editable_components": [],
-  "temporarily_unlocked_components": [],
+  "current_editable_components": [
+    "public_video_live_strip_outside_only_20261002"
+  ],
+  "temporarily_unlocked_components": [
+    "public_video_live_strip_outside_only_20261002"
+  ],
   "note": "2222 승인: 방송 들어오는 작은 표시는 위 유지, 위에 길게 뜨는 검은 표시줄만 아래로 이동. 다른 기능/LED/버튼/방 구조 변경 금지.",
   "lock_slots": {
     "1": [
@@ -242,7 +246,7 @@
       "creator_auto_youth_beauty_and_edit_effect_removed_20261002"
     ]
   },
-  "last_unlock": "2026-10-02-long-strip-only-code-2222",
+  "last_unlock": "2026-10-02-public-video-live-strip-only-code-2222",
   "last_lock": "2026-10-02-long-strip-only-fixed-code-2222",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
