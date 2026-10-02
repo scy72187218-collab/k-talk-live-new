@@ -23,49 +23,6 @@
       var mr=match.getBoundingClientRect();
       if(!rr.width||!mr.width)return;
 
-      /* 비밀방 1111: 호스트/게스트 화면을 조금 줄이고,
-         채팅을 방송화면 아래 별도 칸으로 내린다.
-         다른 방/버튼/기능은 변경하지 않음. */
-      if(roomSel==='.ktsecret-room'){
-        var main=room.querySelector('.ktsecret-main');
-        if(main){
-          main.style.setProperty('height','430px','important');
-          main.style.setProperty('min-height','430px','important');
-          main.style.setProperty('max-height','430px','important');
-          main.style.setProperty('overflow','hidden','important');
-          main.style.setProperty('margin-bottom','8px','important');
-        }
-
-        if(main&&chat.parentElement===room&&chat.previousElementSibling!==main){
-          room.insertBefore(chat,main.nextSibling);
-        }
-
-        chat.style.setProperty('position','relative','important');
-        chat.style.setProperty('left','auto','important');
-        chat.style.setProperty('right','auto','important');
-        chat.style.setProperty('top','auto','important');
-        chat.style.setProperty('bottom','auto','important');
-        chat.style.setProperty('width','58%','important');
-        chat.style.setProperty('height','140px','important');
-        chat.style.setProperty('min-height','140px','important');
-        chat.style.setProperty('max-height','140px','important');
-        chat.style.setProperty('margin','0 0 8px 8px','important');
-        chat.style.setProperty('padding','8px 8px 6px','important');
-        chat.style.setProperty('display','flex','important');
-        chat.style.setProperty('flex-direction','column','important');
-        chat.style.setProperty('justify-content','flex-end','important');
-        chat.style.setProperty('overflow','hidden','important');
-        chat.style.setProperty('background','rgba(8,8,12,.92)','important');
-        chat.style.setProperty('border','1px solid rgba(255,62,202,.65)','important');
-        chat.style.setProperty('border-radius','12px','important');
-        chat.style.setProperty('box-shadow','0 0 10px rgba(255,45,190,.20)','important');
-        chat.style.setProperty('transform','none','important');
-        chat.style.setProperty('z-index','50','important');
-        chat.style.setProperty('pointer-events','auto','important');
-        chat.dataset.ktBottomChat='secret-below-video-1111';
-        return;
-      }
-
       var h=72;
       var top=Math.round(mr.top-h-4);
       var left=Math.round(rr.left+8);
