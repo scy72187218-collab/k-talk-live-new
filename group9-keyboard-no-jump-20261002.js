@@ -1,10 +1,13 @@
-/* 9-room only: keep the people grid still when the chat keyboard opens.
-   Does not change grid size, colors, buttons, chat content, approval, camera or signaling. */
+/* 9-room only: keyboard opens without moving the people/video grid.
+   Freeze the room screen; move only the focused chat row above the keyboard.
+   Do not change grid size, buttons, colors, approval, camera, mic or signaling.
+*/
 (function(){
   if(window.__ktG9KeyboardNoJump20261002)return;
   window.__ktG9KeyboardNoJump20261002=true;
 
   var stableH=0, savedWinY=0, savedScreenY=0, active=false, raf=0;
+  var activeField=null, activeBar=null, saved={};
 
   function isNine(){
     try{
@@ -19,30 +22,83 @@
   }
 
   function isChatField(el){
-    if(!el||!el.matches)return false;
-    if(!el.matches('input,textarea,[contenteditable="true"]'))return false;
-    if(!el.closest('#screen'))return false;
-    return isNine();
+    if(!el||!el.matches||!el.matches('input,textarea,[contenteditable="true"]'))return false;
+    if(!el.closest('#screen')||!isNine())return false;
+    var ph=String(el.getAttribute('placeholder')||'');
+    var parentText=String((el.parentElement&&el.parentElement.textContent)||'');
+    return /채팅|입력|message|chat/i.test(ph+' '+parentText) ||
+      !!el.closest('.kt-remote-bottom,.ktg13-chat,.kgh-chat,.kt-remote-chat');
   }
 
   function rememberHeight(){
     if(active||!isNine())return;
-    var h=Math.round(window.innerHeight||document.documentElement.clientHeight||0);
-    if(h>300)stableH=h;
+    var h=Math.round(
+      (window.visualViewport&&window.visualViewport.height>window.innerHeight
+        ? window.visualViewport.height
+        : window.innerHeight) || document.documentElement.clientHeight || 0
+    );
+    if(h>500)stableH=h;
   }
 
-  function lock(){
+  function findChatBar(field){
+    if(!field)return null;
+    return field.closest(
+      '.kt-remote-bottom,.ktg13-chat-input-row,.ktg13-chatbar,.ktg13-compose,'+
+      '.kgh-chat-input-row,.kt-chat-input-row,.chat-input-row,.chatbar'
+    ) || field.parentElement;
+  }
+
+  function keyboardHeight(){
+    var vv=window.visualViewport;
+    if(!vv||!stableH)return Math.max(0,stableH-window.innerHeight);
+    return Math.max(0,Math.round(stableH-(vv.height+vv.offsetTop)));
+  }
+
+  function moveChatOnly(){
+    if(!active||!activeBar)return;
+    var kh=keyboardHeight();
+    activeBar.style.setProperty('transform','translateY(-'+kh+'px)','important');
+    activeBar.style.setProperty('z-index','2147483646','important');
+  }
+
+  function lock(field){
     if(active||!isNine())return;
-    active=true;
     rememberHeight();
+    active=true;
+    activeField=field;
+    activeBar=findChatBar(field);
+
     var screen=document.getElementById('screen');
     savedWinY=window.scrollY||window.pageYOffset||0;
     savedScreenY=screen?screen.scrollTop:0;
 
-    if(screen&&stableH>0){
-      screen.style.setProperty('height',stableH+'px','important');
-      screen.style.setProperty('min-height',stableH+'px','important');
-      screen.style.setProperty('max-height',stableH+'px','important');
+    if(screen){
+      saved.screenPosition=screen.style.getPropertyValue('position');
+      saved.screenTop=screen.style.getPropertyValue('top');
+      saved.screenLeft=screen.style.getPropertyValue('left');
+      saved.screenRight=screen.style.getPropertyValue('right');
+      saved.screenWidth=screen.style.getPropertyValue('width');
+      saved.screenHeight=screen.style.getPropertyValue('height');
+      saved.screenMinHeight=screen.style.getPropertyValue('min-height');
+      saved.screenMaxHeight=screen.style.getPropertyValue('max-height');
+      saved.screenOverflow=screen.style.getPropertyValue('overflow');
+
+      screen.style.setProperty('position','fixed','important');
+      screen.style.setProperty('top','0','important');
+      screen.style.setProperty('left','0','important');
+      screen.style.setProperty('right','0','important');
+      screen.style.setProperty('width','100%','important');
+      if(stableH>0){
+        screen.style.setProperty('height',stableH+'px','important');
+        screen.style.setProperty('min-height',stableH+'px','important');
+        screen.style.setProperty('max-height',stableH+'px','important');
+      }
+      screen.style.setProperty('overflow','hidden','important');
+    }
+
+    if(activeBar){
+      saved.barTransform=activeBar.style.getPropertyValue('transform');
+      saved.barZ=activeBar.style.getPropertyValue('z-index');
     }
 
     function hold(){
@@ -51,6 +107,7 @@
         window.scrollTo(0,savedWinY);
         if(screen)screen.scrollTop=savedScreenY;
       }catch(e){}
+      moveChatOnly();
       raf=requestAnimationFrame(hold);
     }
     hold();
@@ -62,8 +119,15 @@
           window.scrollTo(0,savedWinY);
           if(screen)screen.scrollTop=savedScreenY;
         }catch(e){}
+        moveChatOnly();
       },ms);
     });
+  }
+
+  function restore(el,prop,val){
+    if(!el)return;
+    if(val)el.style.setProperty(prop,val);
+    else el.style.removeProperty(prop);
   }
 
   function unlock(){
@@ -71,14 +135,30 @@
     active=false;
     if(raf)cancelAnimationFrame(raf);
     raf=0;
+
     var screen=document.getElementById('screen');
     if(screen){
-      screen.style.removeProperty('height');
-      screen.style.removeProperty('min-height');
-      screen.style.removeProperty('max-height');
+      restore(screen,'position',saved.screenPosition);
+      restore(screen,'top',saved.screenTop);
+      restore(screen,'left',saved.screenLeft);
+      restore(screen,'right',saved.screenRight);
+      restore(screen,'width',saved.screenWidth);
+      restore(screen,'height',saved.screenHeight);
+      restore(screen,'min-height',saved.screenMinHeight);
+      restore(screen,'max-height',saved.screenMaxHeight);
+      restore(screen,'overflow',saved.screenOverflow);
       try{screen.scrollTop=savedScreenY;}catch(e){}
     }
+
+    if(activeBar){
+      restore(activeBar,'transform',saved.barTransform);
+      restore(activeBar,'z-index',saved.barZ);
+    }
+
     try{window.scrollTo(0,savedWinY);}catch(e){}
+    activeField=null;
+    activeBar=null;
+    saved={};
     setTimeout(rememberHeight,250);
   }
 
@@ -92,19 +172,24 @@
   },true);
 
   document.addEventListener('focusin',function(e){
-    if(isChatField(e.target))lock();
+    if(isChatField(e.target))lock(e.target);
   },true);
 
   document.addEventListener('focusout',function(e){
-    if(isChatField(e.target))setTimeout(unlock,80);
+    if(isChatField(e.target))setTimeout(unlock,100);
   },true);
+
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize',moveChatOnly);
+    window.visualViewport.addEventListener('scroll',moveChatOnly);
+  }
 
   window.addEventListener('resize',function(){
     if(!active)setTimeout(rememberHeight,80);
   });
   window.addEventListener('orientationchange',function(){
     stableH=0;
-    setTimeout(rememberHeight,300);
+    setTimeout(rememberHeight,350);
   });
 
   rememberHeight();
