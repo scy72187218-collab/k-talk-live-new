@@ -376,17 +376,26 @@
       var tools=room&&room.querySelector('.ktsecret-tools');
       if(!room||!e||!tools)return;
 
-      var rr=room.getBoundingClientRect();
-      var tr=tools.getBoundingClientRect();
+      var btns=[].slice.call(tools.querySelectorAll('.ktsecret-tool'));
+      var share=btns.find(function(b){return String(b.textContent||'').replace(/\s+/g,'').indexOf('공유')>-1;});
+      var effect=btns.find(function(b){return String(b.textContent||'').replace(/\s+/g,'').indexOf('효과')>-1;});
+      var more=btns.find(function(b){return String(b.textContent||'').replace(/\s+/g,'').indexOf('더보기')>-1;});
+      if(!share||!effect||!more)return;
+
+      var sr=share.getBoundingClientRect();
+      var mr=more.getBoundingClientRect();
       var hud=e.querySelector('#myEarnHud')||e;
       var w=Math.max(100,Math.round((hud.getBoundingClientRect&&hud.getBoundingClientRect().width)||110));
       var h=Math.max(46,Math.round((hud.getBoundingClientRect&&hud.getBoundingClientRect().height)||50));
+      var spanLeft=sr.left;
+      var spanRight=mr.right;
+      var left=Math.round(spanLeft+((spanRight-spanLeft)-w)/2);
 
-      /* 비밀방만: 수익률을 하단 공유·효과·더보기 바로 위 오른쪽에 고정 */
+      /* 비밀방만: 수익률을 공유·효과·더보기 3개 바로 위에 정확히 고정 */
       e.style.setProperty('position','fixed','important');
-      e.style.setProperty('top',Math.round(tr.top-h-4)+'px','important');
+      e.style.setProperty('top',Math.round(sr.top-h-3)+'px','important');
       e.style.setProperty('bottom','auto','important');
-      e.style.setProperty('left',Math.round(rr.right-w-7)+'px','important');
+      e.style.setProperty('left',left+'px','important');
       e.style.setProperty('right','auto','important');
       e.style.setProperty('width',w+'px','important');
       e.style.setProperty('height',h+'px','important');
