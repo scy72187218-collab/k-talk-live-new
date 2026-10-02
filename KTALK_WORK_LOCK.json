@@ -146,13 +146,9 @@
     "public_video_top_live_circles_and_bottom_host_circle_20261002",
     "public_video_live_indicators_restored_correct_state_20261002"
   ],
-  "current_editable_components": [
-    "approved_guest_grid_no_repeat_redraw_20261002"
-  ],
-  "temporarily_unlocked_components": [
-    "approved_guest_grid_no_repeat_redraw_20261002"
-  ],
-  "note": "2222 승인: 승인된 게스트 사진/칸은 같은 명단에서 반복 재그리기 금지. 새 승인/퇴장 때만 갱신. 다른 기능 변경 금지.",
+  "current_editable_components": [],
+  "temporarily_unlocked_components": [],
+  "note": "승인된 게스트 사진/칸은 같은 명단에서 반복 재그리기 금지. 새 승인/실제 퇴장/복귀 이벤트에서만 갱신. 다른 기능 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -251,6 +247,6 @@
     ]
   },
   "last_unlock": "2026-10-02-approved-guest-grid-no-repeat-redraw-code-2222",
-  "last_lock": "2026-10-02-approved-guest-grid-stable-code-2222",
+  "last_lock": "2026-10-02-approved-guest-stable-display-fixed",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
