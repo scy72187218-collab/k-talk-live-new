@@ -365,13 +365,26 @@
   window.__ktSecretEarnBottomFinal20260927=true;
   function place(){
     try{
-      var e=document.querySelector('#screen .ktsecret-room .ktsecret-earn-row');
-      if(!e)return;
-      e.style.setProperty('top','auto','important');
-      e.style.setProperty('bottom','58px','important');
-      e.style.setProperty('right','6px','important');
-      e.style.setProperty('left','auto','important');
-      e.style.setProperty('z-index','24','important');
+      var room=document.querySelector('#screen .ktsecret-room');
+      var e=room&&room.querySelector('.ktsecret-earn-row');
+      var tools=room&&room.querySelector('.ktsecret-tools');
+      if(!room||!e||!tools)return;
+
+      var rr=room.getBoundingClientRect();
+      var tr=tools.getBoundingClientRect();
+      var hud=e.querySelector('#myEarnHud')||e;
+      var w=Math.max(100,Math.round((hud.getBoundingClientRect&&hud.getBoundingClientRect().width)||110));
+      var h=Math.max(46,Math.round((hud.getBoundingClientRect&&hud.getBoundingClientRect().height)||50));
+
+      /* 비밀방만: 수익률을 하단 공유·효과·더보기 바로 위 오른쪽에 고정 */
+      e.style.setProperty('position','fixed','important');
+      e.style.setProperty('top',Math.round(tr.top-h-4)+'px','important');
+      e.style.setProperty('bottom','auto','important');
+      e.style.setProperty('left',Math.round(rr.right-w-7)+'px','important');
+      e.style.setProperty('right','auto','important');
+      e.style.setProperty('width',w+'px','important');
+      e.style.setProperty('height',h+'px','important');
+      e.style.setProperty('z-index','80','important');
     }catch(err){}
   }
   place();
