@@ -9,6 +9,7 @@
     try{
       var room=document.querySelector('#screen '+roomSel);
       if(!room)return;
+      if(roomSel==='.ktsecret-room'&&room.classList.contains('kt-secret-second-layout-1111'))return;
       var chat=room.querySelector(chatSel);
       var match=room.querySelector(toolsSel+' > *:first-child');
       if(!chat||!match)return;
