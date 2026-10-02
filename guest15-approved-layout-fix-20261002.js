@@ -72,9 +72,15 @@
       cells=[].slice.call(grid.querySelectorAll(':scope > .kgh-cell'));
     }
     while(cells.length>16){
-      var last=cells[cells.length-1];
-      if(last&&!last.classList.contains('host')&&!last.classList.contains('self'))last.remove();
-      else break;
+      var removeCell=null;
+      for(var ri=cells.length-1;ri>=0;ri--){
+        if(!cells[ri].classList.contains('host')&&!cells[ri].classList.contains('self')){
+          removeCell=cells[ri];
+          break;
+        }
+      }
+      if(!removeCell)break;
+      removeCell.remove();
       cells=[].slice.call(grid.querySelectorAll(':scope > .kgh-cell'));
     }
 
