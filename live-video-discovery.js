@@ -207,7 +207,7 @@
       +'.kt-video-live-peek .ktvl-live{flex:0 0 auto!important;color:#fff!important;background:#e91845!important;border-radius:999px!important;padding:3px 5px!important;font-size:7px!important;font-weight:950!important;animation:none!important}'
       +'.kt-follow-live-strip{position:fixed!important;left:8px!important;right:8px!important;top:auto!important;bottom:92px!important;z-index:39!important;height:66px!important;padding:5px 7px!important;border-radius:16px!important;background:rgba(5,7,12,.64)!important;border:1px solid rgba(255,255,255,.13)!important;display:flex!important;align-items:flex-start!important;gap:8px!important;overflow-x:auto!important;overflow-y:hidden!important;backdrop-filter:blur(6px)!important;scrollbar-width:none!important}'
       +'.kt-follow-live-strip::-webkit-scrollbar{display:none!important}'
-      +'.kt-follow-person{position:relative!important;width:50px!important;min-width:50px!important;height:56px!important;padding:0!important;border:0!important;background:transparent!important;color:#fff!important;display:flex!important;flex-direction:column!important;align-items:center!important;gap:2px!important;touch-action:manipulation!important}'
+      +'.kt-follow-person{position:relative!important;width:56px!important;min-width:56px!important;height:60px!important;padding:2px!important;border:0!important;background:transparent!important;color:#fff!important;display:flex!important;flex-direction:column!important;align-items:center!important;gap:2px!important;touch-action:manipulation!important}'
       +'.kt-follow-avatar{position:relative!important;width:42px!important;height:42px!important;border-radius:50%!important;overflow:hidden!important;display:grid!important;place-items:center!important;background:#132443!important;border:3px solid #2b8cff!important;color:#fff!important;font-size:19px!important;font-weight:950!important;box-sizing:border-box!important}'
       +'.kt-follow-avatar img{width:100%!important;height:100%!important;object-fit:cover!important;display:block!important}'
       +'.kt-follow-person.live .kt-follow-avatar{border-color:#ff244f!important;background:#47101d!important;animation:ktFollowLiveGlow 1s ease-in-out infinite!important}'
@@ -383,6 +383,24 @@
       };
     });
   }
+
+  var __ktFollowHostTapAt=0;
+  function enterFollowHostNow(e){
+    var btn=e.target&&e.target.closest?e.target.closest('.kt-follow-person.live'):null;
+    if(!btn)return;
+    var now=Date.now();
+    if(now-__ktFollowHostTapAt<450){
+      try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
+      return;
+    }
+    var hid=String(btn.getAttribute('data-host')||'').trim();
+    if(!hid||typeof window.ktEnterRemoteLive!=='function')return;
+    __ktFollowHostTapAt=now;
+    try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
+    try{window.ktEnterRemoteLive(hid);}catch(_e){}
+  }
+  document.addEventListener('pointerdown',enterFollowHostNow,true);
+  if(!window.PointerEvent)document.addEventListener('touchstart',enterFollowHostNow,true);
 
   function visibleVideoNode(v){
     if(!v||!v.isConnected)return false;
