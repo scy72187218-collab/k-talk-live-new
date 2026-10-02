@@ -169,9 +169,9 @@
   function roomCard(r,count,listMode){
     var photo=r.host_photo&&/^data:image|^https?:/.test(r.host_photo)?'<img src="'+esc(r.host_photo)+'" alt="" loading="eager" decoding="async" fetchpriority="high">':'🎥';
     if(listMode){
-      return '<div class="kt-live-list-card"><div class="kt-live-list-thumb">'+photo+'</div><div class="kt-live-list-info"><b><i class="kt-live-dot"></i>'+esc(r.host_name||'K-Talk')+'</b><span>'+esc(r.title||r.room_name||'라이브')+' · '+esc(r.room_name||'방송')+'<br>👁 '+count+'명 시청 중</span></div><button class="kt-live-list-enter" onclick="ktEnterRemoteLive(\''+esc(r.host_id)+'\')">입장</button></div>';
+      return '<div class="kt-live-list-card"><div class="kt-live-list-thumb">'+photo+'</div><div class="kt-live-list-info"><b><i class="kt-live-dot"></i>'+esc(r.host_name||'K-Talk')+'</b><span>'+esc(r.title||r.room_name||'라이브')+' · '+esc(r.room_name||'방송')+'<br>👁 '+count+'명 시청 중</span></div><button class="kt-live-list-enter" data-host="'+esc(r.host_id)+'" onclick="ktEnterRemoteLive(\''+esc(r.host_id)+'\')">입장</button></div>';
     }
-    return '<button class="kt-live-card" onclick="ktEnterRemoteLive(\''+esc(r.host_id)+'\')"><em><i class="kt-live-dot"></i>LIVE</em><strong>'+esc(r.host_name||'K-Talk')+'</strong><span>'+esc(r.title||r.room_name||'라이브')+'<br>👁 '+count+'명</span><b class="kt-enter-live">방송 들어가기 ›</b></button>';
+    return '<button class="kt-live-card" data-host="'+esc(r.host_id)+'" onclick="ktEnterRemoteLive(\''+esc(r.host_id)+'\')"><em><i class="kt-live-dot"></i>LIVE</em><strong>'+esc(r.host_name||'K-Talk')+'</strong><span>'+esc(r.title||r.room_name||'라이브')+'<br>👁 '+count+'명</span><b class="kt-enter-live">방송 들어가기 ›</b></button>';
   }
 
   async function renderLiveCards(){
@@ -188,11 +188,26 @@
     }
     var list=document.querySelector('.friends-list');
     if(list){
-      if(rooms.length)list.innerHTML='<div class="kt-live-list-wrap"><div class="kt-live-list-head"><i class="kt-live-dot"></i>현재 방송 중 '+rooms.length+'개</div><div class="kt-live-list-grid">'+rooms.map(function(r){return roomCard(r,counts[r.host_id]||0,true);}).join('')+'</div></div>';
+      if(rooms.length)list.innerHTML='<div class="kt-live-list-wrap"><div class="kt-live-list-head"><i class="kt-live-dot"></i>현재 방송 중 '+rooms.length+'개</div><div class="kt-live-list-grid">'+rooms.slice(0,15).map(function(r){return roomCard(r,counts[r.host_id]||0,true);}).join('')+'</div></div>';
       else list.innerHTML='<div class="friend-row"><div class="friend-info"><b>현재 방송목록</b><span>지금 방송 중인 사람이 없습니다.</span></div></div>';
     }
   }
   window.ktRefreshLiveCards=renderLiveCards;
+
+  /* 모바일에서 최대 15개 방송의 빨간 LIVE/입장 버튼을 누르는 즉시 입장.
+     화면 배치나 방송 UI는 변경하지 않는다. */
+  var __ktLive15TapAt20261002=0;
+  document.addEventListener('pointerdown',function(e){
+    var btn=e.target&&e.target.closest?e.target.closest('.kt-live-card,.kt-live-list-enter'):null;
+    if(!btn)return;
+    var hostId=String(btn.getAttribute('data-host')||'').trim();
+    if(!hostId||typeof window.ktEnterRemoteLive!=='function')return;
+    var now=Date.now();
+    if(now-__ktLive15TapAt20261002<450)return;
+    __ktLive15TapAt20261002=now;
+    try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
+    try{window.ktEnterRemoteLive(hostId);}catch(_e){}
+  },true);
 
   function waitIce(pc,ms){
     return new Promise(function(resolve){
