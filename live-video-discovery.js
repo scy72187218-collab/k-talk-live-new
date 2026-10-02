@@ -76,7 +76,7 @@
     var rows=[];
     try{
       var ctrl=typeof AbortController!=='undefined'?new AbortController():null;
-      var timer=ctrl?setTimeout(function(){ctrl.abort();},1800):null;
+      var timer=ctrl?setTimeout(function(){ctrl.abort();},700):null;
       var opt={headers:{apikey:KEY,Authorization:'Bearer '+KEY}};
       if(ctrl)opt.signal=ctrl.signal;
       var r=await fetch(BASE+'ktalk_live_rooms?select=host_id,host_name,title,room_name,host_photo,updated_at&active=eq.true&updated_at=gte.'+enc(cut)+'&order=started_at.desc&limit=50',opt);
@@ -127,7 +127,7 @@
   async function activeRooms(){
     var now=Date.now();
     if(activeRoomsBusy)return activeRoomsBusy;
-    if(now-activeRoomsCheckedAt<500)return stableActiveRooms.slice();
+    if(now-activeRoomsCheckedAt<150)return stableActiveRooms.slice();
     activeRoomsCheckedAt=now;
     activeRoomsBusy=activeRoomsCore();
     try{return await activeRoomsBusy;}
@@ -636,6 +636,6 @@
   if(screen)screen.addEventListener('scroll',function(){scheduleRender(350);},true);
   document.addEventListener('touchend',function(){scheduleRender(250);},true);
   document.addEventListener('pointerup',function(){scheduleRender(250);},true);
-  setInterval(function(){clearPublicLiveStripInRoom();scheduleRender(0);},700);
-  scheduleRender(600);
+  setInterval(function(){clearPublicLiveStripInRoom();scheduleRender(0);},250);
+  scheduleRender(80);
 })();
