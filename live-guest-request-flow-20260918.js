@@ -596,10 +596,13 @@
         return;
       }
 
-      /* 승인된 게스트는 세션 조회가 잠깐 비어도 호스트 방에서 내리지 않는다.
-         실제 취소/나가기 신호만 위에서 즉시 자리를 비우고,
-         통신 흔들림은 같은 칸을 유지한 채 재연결만 기다린다. */
+      /* 승인 기록만 남고 실제 게스트 연결이 없으면 호스트 칸에 예전 사진을 계속 두지 않는다.
+         잠깐 재연결할 시간만 주고 자동으로 빈 칸으로 돌린다. */
       if(!hostGuestMissingSince[vid])hostGuestMissingSince[vid]=Date.now();
+      if(Date.now()-hostGuestMissingSince[vid]>=7000){
+        releaseGuestSlot(slot,vid);
+        delete hostGuestMissingSince[vid];
+      }
       return;
     });
 
