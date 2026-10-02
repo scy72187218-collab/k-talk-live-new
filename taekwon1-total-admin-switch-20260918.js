@@ -184,7 +184,15 @@
     }
     try{localStorage.setItem('ktalk_total_admin_locked','0');}catch(e){}
     try{alert('🔓 전체 잠금을 열었습니다.');}catch(e){}
-    try{if(typeof window.closeSheet==='function')window.closeSheet();}catch(e){}
+    try{
+      if(typeof window.showSheet==='function'){
+        window.showSheet('🔓 관리자 잠금 해제',
+          '<div class="rowbox"><b>관리자 잠금이 해제되었습니다.</b><br>현재 비밀번호를 바꾸려면 아래 버튼을 누르세요.</div>'
+          +'<button class="act" type="button" onclick="ktOpenAdminPinChange20261002()">🔑 비밀번호 바꾸기</button>');
+      }else if(typeof window.closeSheet==='function'){
+        window.closeSheet();
+      }
+    }catch(e){}
     return false;
   };
 
