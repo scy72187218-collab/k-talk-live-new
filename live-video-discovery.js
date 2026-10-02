@@ -395,6 +395,19 @@
     return homes.find(visibleVideoNode)||homes[0]||null;
   }
 
+  function insideAnyLiveRoom(){
+    try{
+      return !!document.querySelector(
+        '#screen .ktg13-room,'+
+        '#screen .ktg9-room,'+
+        '#screen .ktsolo-room,'+
+        '#screen .ktsubscriber-room,'+
+        '#screen .ktsecret-room,'+
+        '#screen .kt-remote-live'
+      );
+    }catch(e){return false;}
+  }
+
   async function renderCore(){
     ensureStyle();
     var old=document.getElementById('ktVideoLivePeek');
@@ -411,8 +424,9 @@
         return;
       }
     }catch(e){}
-    if(document.documentElement.classList.contains('kt-remote-viewing')){
+    if(document.documentElement.classList.contains('kt-remote-viewing')||insideAnyLiveRoom()){
       var fs=document.getElementById('ktFollowLiveStrip');if(fs)fs.remove();
+      if(old)old.remove();
       try{document.body.classList.remove('kt-follow-status-open');}catch(e){}
       return;
     }
