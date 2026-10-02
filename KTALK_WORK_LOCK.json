@@ -148,7 +148,7 @@
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "2222 승인: 첫 화면 빨간 LIVE 입장 신뢰성 및 호스트/모든 시청자 기기의 승인 게스트 인원 동일 동기화만 수정. 명단이 같으면 재그리기 금지. LED/방 배치/채팅/수익률/기타 기능 변경 금지.",
+  "note": "승인 전 페이지는 기존 9명방 대기 레이아웃 유지. 전체 승인명단 동기화는 해당 기기가 실제 승인된 뒤에만 적용. 다른 기능 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -247,6 +247,6 @@
     ]
   },
   "last_unlock": "2026-10-02-red-live-and-same-3person-roster-code-2222",
-  "last_lock": "2026-10-02-red-live-and-same-3person-roster-fixed-code-2222",
+  "last_lock": "2026-10-02-preapproval-page-restored",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
