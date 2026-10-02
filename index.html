@@ -1175,4 +1175,23 @@
 <script src="chat-only-host-sync-final-20261002.js?v=20261002-three-screen-chat-sync"></script>
 <script src="seller-marketplace-20261002.js?v=20261002-persistent-after-live"></script>
 <script src="host-led-room-promo-20261002.js?v=20261002-led-3x10min-room-enter"></script>
+
+<script id="ktCreatorKeepFlipOnly20261002">
+(function(){
+  function cleanCreatorRightTools(){
+    var creator=document.getElementById('creator');
+    if(!creator)return;
+    creator.querySelectorAll('.creator-tools,.kt-edit-under-rotate,.kt-text-under-effect').forEach(function(el){
+      try{el.remove();}catch(e){}
+    });
+  }
+  cleanCreatorRightTools();
+  [60,180,420,900,1600,2600].forEach(function(ms){setTimeout(cleanCreatorRightTools,ms);});
+  try{
+    new MutationObserver(function(){cleanCreatorRightTools();})
+      .observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+})();
+</script>
+
 </html>
