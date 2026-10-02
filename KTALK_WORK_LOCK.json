@@ -148,7 +148,7 @@
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "현재 K-Talk 상태 전체 잠금. 마지막으로 수정한 컴퓨터 호스트 구독자방 맨 밑 작은 칸 제거 상태 포함. 사용자 명시 승인 없이는 다른 부분 변경 금지.",
+  "note": "빨간 LIVE 원형 목록 1~15번까지 가로 스크롤 가능하고 각 버튼 탭 시 해당 방송 입장. 다른 방송방 UI/게스트/LED/채팅/버튼 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -247,6 +247,6 @@
     ]
   },
   "last_unlock": "2026-10-02-red-live-and-same-3person-roster-code-2222",
-  "last_lock": "2026-10-02-final-lock-after-tiny-bottom-tile-fix",
+  "last_lock": "2026-10-02-live-buttons-1-to-15-entry",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
