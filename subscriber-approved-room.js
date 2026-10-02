@@ -29,7 +29,7 @@
 
   function guestSlots(){
     var s='';
-    for(var i=1;i<=9;i++){
+    for(var i=1;i<=15;i++){
       s+='<div class="ktsubscriber-guest" data-guest-slot="'+i+'"><span>👤</span><b>게스트 '+i+'</b></div>';
     }
     return s;
@@ -114,7 +114,7 @@
       +'.ktsubscriber-led{flex:0 0 50px;position:relative;border:2px solid #ff28c4;border-radius:22px;background-color:#120712;background-image:radial-gradient(circle,#ff35ce 2px,transparent 2.7px);background-size:13px 13px;overflow:hidden;box-shadow:0 0 9px #ff28c4,0 0 22px #ff28c466}.ktsubscriber-led-track{position:absolute;left:0;top:0;height:100%;display:flex;align-items:center;white-space:nowrap;will-change:transform;animation:ktsubscriberMarquee 12s linear infinite;font-size:22px;font-weight:950;color:#ffd62d;text-shadow:0 0 7px #ff8b00}.ktsubscriber-led-track span{display:inline-block;padding-right:65px}.ktsubscriber-led-track b{color:#ff59c9}@keyframes ktsubscriberMarquee{from{transform:translateX(42%)}to{transform:translateX(-100%)}}'
       +'.ktsubscriber-main{flex:1 1 0;min-height:0;display:flex;flex-direction:column;background:#000;overflow:hidden}'
       +'.ktsubscriber-stage{flex:1 1 0;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 54px;gap:5px;overflow:hidden}'
-      +'.ktsubscriber-people{min-height:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr));gap:3px;overflow:hidden}'
+      +'.ktsubscriber-people{min-height:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr));gap:3px;overflow:hidden}'
       +'.ktsubscriber-host,.ktsubscriber-guest{position:relative;min-width:0;min-height:0;border:1px solid rgba(255,255,255,.07);border-radius:8px;overflow:hidden;background:linear-gradient(145deg,#17181d,#0e0f13);box-shadow:none}'
       +'.ktsubscriber-host{grid-column:auto;grid-row:auto}.ktsubscriber-host video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;transform:scaleX(-1);background:#111}.ktsubscriber-host-label{display:none!important}'
       +'.ktsubscriber-guest{display:grid;place-items:center;align-content:center;color:#ddd;text-align:center}.ktsubscriber-guest span{font-size:22px;line-height:1;opacity:.8}.ktsubscriber-guest b{position:absolute;left:4px;bottom:4px;padding:2px 6px;border-radius:9px;background:rgba(0,0,0,.72);color:#fff;font-size:8px;font-weight:900}'
