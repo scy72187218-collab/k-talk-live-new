@@ -10,11 +10,11 @@
     s.textContent=''
       +'#screen .ktsolo-room .ktsolo-earn{'
         +'top:auto!important;left:auto!important;right:6px!important;bottom:62px!important;'
-        +'transform:scale(.58)!important;transform-origin:bottom right!important;z-index:23!important}'
+        +'transform:scale(.72)!important;transform-origin:bottom right!important;z-index:23!important}'
       +'#screen .ktsolo-room .ktsolo-right{'
         +'top:auto!important;right:8px!important;bottom:124px!important;z-index:24!important}'
       +'@media(max-width:390px){'
-        +'#screen .ktsolo-room .ktsolo-earn{right:5px!important;bottom:58px!important;transform:scale(.56)!important}'
+        +'#screen .ktsolo-room .ktsolo-earn{right:5px!important;bottom:58px!important;transform:scale(.70)!important}'
         +'#screen .ktsolo-room .ktsolo-right{right:6px!important;bottom:116px!important}'
       +'}';
     (document.head||document.documentElement).appendChild(s);
@@ -31,7 +31,7 @@
       earn.style.setProperty('right','6px','important');
       earn.style.setProperty('bottom','62px','important');
       earn.style.setProperty('z-index','23','important');
-      earn.style.setProperty('transform','scale(.58)','important');
+      earn.style.setProperty('transform','scale(.72)','important');
     }
     var right=room.querySelector('.ktsolo-right');
     if(right){
