@@ -247,7 +247,7 @@
     ]
   },
   "last_unlock": "2026-10-02-red-live-and-same-3person-roster-code-2222",
-  "last_lock": "2026-10-02-total-admin-unlock-button-1111",
-  "last_note": "1111 승인: 전체 잠금 창에 기존 비밀번호 입력 후 여는 버튼만 추가. 비밀번호 바꾸기/잠그기 유지. 다른 기능 변경 금지.",
+  "last_lock": "2026-10-02-secret-room-direct-password-change-1111",
+  "last_note": "1111 승인: 비밀방 입장 후 하단 도구줄에 비번변경 버튼만 추가. 기존 비밀번호 입력/잠금 해제/검증 로직은 변경 금지.",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
