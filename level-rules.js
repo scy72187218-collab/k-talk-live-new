@@ -1,4 +1,4 @@
-/* K-Talk 레벨 규칙. 13명방/비밀방만 레벨 20 제한. 다른 레벨 표시·비용 규칙은 그대로 유지. */
+/* K-Talk 레벨 규칙. 13명방/비밀방만 레벨 21 제한. 다른 레벨 표시·비용 규칙은 그대로 유지. */
 (function(){
   if(window.__ktLevelCostRulesInstalled)return;
   window.__ktLevelCostRulesInstalled=true;
@@ -106,16 +106,23 @@
     return t==='group'||t==='group13'||t==='13'||t==='password'||t==='secret'||t==='private';
   }
 
-  /* 13명방/비밀방만 레벨 20부터 생성 가능. 나머지 방은 기존 그대로. */
+  /* 13명방/비밀방만 레벨 21부터 생성 가능. 나머지 방은 기존 그대로. */
+  function ktPaidSubscriberForRoom20261002(){
+    try{if(typeof window.ktIsPaidSubscriber==='function'&&window.ktIsPaidSubscriber())return true;}catch(e){}
+    try{return !!(window.state&&(state.isSubscriber===true||state.subscriber===true||state.vip===true));}catch(e){return false;}
+  }
+
   window.ktCanCreateRoomByLevel=function(roomType,level){
     if(!ktIsLevel20Room(roomType))return true;
-    return window.ktEffectiveLevel(level)>=20;
+    if(ktPaidSubscriberForRoom20261002())return true;
+    return window.ktEffectiveLevel(level)>=21;
   };
 
-  /* 13명방/비밀방만 레벨 20부터 이용 가능. 나머지 방은 기존 그대로. */
+  /* 13명방/비밀방만 레벨 21부터 이용 가능. 나머지 방은 기존 그대로. */
   window.ktCanEnterRoomByLevel=function(roomType,level,isSubscriber){
     if(!ktIsLevel20Room(roomType))return true;
-    return window.ktEffectiveLevel(level)>=20;
+    if(isSubscriber===true||ktPaidSubscriberForRoom20261002())return true;
+    return window.ktEffectiveLevel(level)>=21;
   };
 
   function wrapOwnerBypass(name){
