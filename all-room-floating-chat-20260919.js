@@ -133,20 +133,20 @@
          다른 방/버튼/게스트/스위치/방송 기능은 건드리지 않음. */
       var mr=match.getBoundingClientRect();
       var rr=room.getBoundingClientRect();
-      var h=Math.max(105,Math.min(160,Math.round(window.innerHeight*0.17)));
-      var top=Math.round(mr.top-h-10);
+      var h=92;
+      var top=Math.round(mr.top-h-8);
       if(!isFinite(top))return;
 
       chat.style.setProperty('position','fixed','important');
-      chat.style.setProperty('left',Math.round(rr.left+8)+'px','important');
+      chat.style.setProperty('left',Math.round(rr.left+10)+'px','important');
       chat.style.setProperty('right','auto','important');
       chat.style.setProperty('top',top+'px','important');
       chat.style.setProperty('bottom','auto','important');
-      chat.style.setProperty('width',Math.max(250,Math.round((rr.width||window.innerWidth)-20))+'px','important');
+      chat.style.setProperty('width',Math.max(220,Math.round((rr.width||window.innerWidth)*0.88))+'px','important');
       chat.style.setProperty('height',h+'px','important');
       chat.style.setProperty('min-height',h+'px','important');
       chat.style.setProperty('max-height',h+'px','important');
-      chat.style.setProperty('padding','8px 10px','important');
+      chat.style.setProperty('padding','4px 6px','important');
       chat.style.setProperty('margin','0','important');
       chat.style.setProperty('display','flex','important');
       chat.style.setProperty('flex-direction','column','important');
