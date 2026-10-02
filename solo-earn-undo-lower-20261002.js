@@ -31,6 +31,7 @@
       earn.style.setProperty('right','6px','important');
       earn.style.setProperty('bottom','62px','important');
       earn.style.setProperty('z-index','23','important');
+      earn.style.setProperty('transform','scale(.58)','important');
     }
     var right=room.querySelector('.ktsolo-right');
     if(right){
