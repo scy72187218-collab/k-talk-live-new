@@ -269,6 +269,16 @@
   }
 
   async function stopHostPresence(){
+    /* 호스트가 방을 끄는 순간 게스트들에게 먼저 종료 신호를 보낸다.
+       게스트들은 DB 타임아웃을 기다리지 않고 즉시 동영상 화면으로 복귀한다. */
+    try{
+      if(typeof window.ktDirectHostRunEnded20260924==='function'){
+        window.ktDirectHostRunEnded20260924();
+      }else if(typeof window.ktDirectEndAllGuestSessions20260923==='function'){
+        window.ktDirectEndAllGuestSessions20260923();
+      }
+    }catch(e){}
+
     /* 방송 종료 때 상태값이 이미 풀렸어도 서버의 빨간 LIVE 표시를 반드시 끈다. */
     var hostId=deviceId(),roomId=hostRoomId;hostEndLock=true;hostRunToken++;var stopToken=hostRunToken;hostActive=false;hostRoomId='';
     window.__ktHostEndLock=true;window.__ktHostEndLockHostId=hostId;
