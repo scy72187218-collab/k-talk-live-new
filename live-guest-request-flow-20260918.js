@@ -761,7 +761,7 @@
       +'.kt-remote-live.kt-prejoin-room-view>.kt-remote-shade{display:none!important}'
       +'.kt-prejoin-room-led{flex:0 0 44px!important;border:2px solid #ff28c4!important;border-radius:20px!important;background-color:#120712!important;background-image:radial-gradient(circle,#ff35ce 1.6px,transparent 2.4px)!important;background-size:12px 12px!important;box-shadow:0 0 9px #ff28c4,0 0 18px #ff28c455!important;color:#ffd62d!important;font-size:17px!important;font-weight:950!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;white-space:nowrap!important}'
       +'.kt-prejoin-room-stats{flex:0 0 42px!important;display:grid!important;grid-template-columns:1fr 1fr 1.3fr!important;gap:5px!important}.kt-prejoin-room-stats>div{border-radius:12px!important;background:#111114!important;color:#fff!important;display:flex!important;align-items:center!important;justify-content:center!important;font-size:11px!important;font-weight:900!important;white-space:nowrap!important}'
-      +'.kt-prejoin-room-grid{flex:1 1 0!important;min-height:0!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-auto-rows:minmax(0,1fr)!important;gap:3px!important;overflow:hidden!important}.kt-prejoin-room-grid.is13,.kt-prejoin-room-grid.is15{grid-template-columns:repeat(4,minmax(0,1fr))!important}.kt-prejoin-room-grid.is15 .kt-prejoin-room-cell.host{grid-row:span 2!important}'
+      +'.kt-prejoin-room-grid{flex:1 1 0!important;min-height:0!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-auto-rows:minmax(0,1fr)!important;gap:3px!important;overflow:hidden!important}.kt-prejoin-room-grid.is13,.kt-prejoin-room-grid.is16{grid-template-columns:repeat(4,minmax(0,1fr))!important}.kt-prejoin-room-grid.is16 .kt-prejoin-room-cell.host{grid-row:auto!important}'
       +'.kt-prejoin-room-cell{position:relative!important;min-width:0!important;min-height:0!important;overflow:hidden!important;border:1px solid #292a30!important;border-radius:8px!important;background:linear-gradient(145deg,#17181d,#0e0f13)!important;color:#e6e6eb!important;display:grid!important;place-items:center!important;font-size:12px!important;font-weight:900!important}'
       +'.kt-prejoin-room-cell.host>video{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;object-fit:cover!important;object-position:center center!important;background:#08090c!important;transform:scaleX(-1)!important;-webkit-transform:scaleX(-1)!important}'
       +'.kt-prejoin-room-cell.host>label{position:absolute!important;left:5px!important;bottom:5px!important;z-index:3!important;padding:2px 6px!important;border-radius:8px!important;background:#000b!important;color:#fff!important;font-size:8px!important;font-weight:950!important}'
@@ -804,9 +804,9 @@
       txt+=' '+String(window.__ktRemoteRoomName||'')+' '+String(window.__ktRemoteRoomType||'');
     }catch(e){}
 
-    var is15=/15\s*명|subscriber|구독자/i.test(txt);
-    var is13=!is15&&/13\s*명|group13/i.test(txt);
-    var total=is15?15:(is13?13:9);
+    var is16=/16\s*명|15\s*명|subscriber|구독자/i.test(txt);
+    var is13=!is16&&/13\s*명|group13/i.test(txt);
+    var total=is16?16:(is13?13:9);
 
     var oldGrid=root.querySelector('.kt-prejoin-room-grid');
     if(oldGrid){
@@ -830,7 +830,7 @@
     stats.innerHTML='<div>🔥 일일 랭킹</div><div>🎯 미션</div><div>👁 함께 시청 중</div>';
 
     var grid=document.createElement('div');
-    grid.className='kt-prejoin-room-grid'+(is15?' is15':(is13?' is13':''));
+    grid.className='kt-prejoin-room-grid'+(is16?' is16':(is13?' is13':''));
     grid.setAttribute('data-kt-total',String(total));
 
     var host=document.createElement('div');
