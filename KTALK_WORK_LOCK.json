@@ -148,7 +148,7 @@
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "구독자/16명 방 현재 배치 그대로 유지. 호스트가 세로 2칸을 쓰는 현재 구조에서 맨 아래 따로 튀어나오는 작은 게스트 칸 1개만 제거. 다른 칸/버튼/기능 변경 금지.",
+  "note": "5555 승인: 16명 방 첫 16칸은 그대로 유지하고 맨 밑에 따로 생기는 17번째 작은 게스트 칸만 숨김/제거. 다른 UI와 기능 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -247,6 +247,6 @@
     ]
   },
   "last_unlock": "2026-10-02-red-live-and-same-3person-roster-code-2222",
-  "last_lock": "2026-10-02-subscriber-bottom-tiny-tile-only",
+  "last_lock": "2026-10-02-hide-only-17th-tiny-tile",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
