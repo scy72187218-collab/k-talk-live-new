@@ -148,7 +148,7 @@
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "2222 승인: 승인 후 방에서 사람을 가리던 채팅 오버레이 위치만 오른쪽으로 이동. 호스트/게스트 칸, LED, 버튼, 통신, 승인 기능 변경 금지.",
+  "note": "승인 후 방 채팅 위치만 오른쪽으로 이동. 내부 채팅 표시도 오른쪽 칸, 외부 채팅 오버레이도 오른쪽 고정. 다른 UI/호스트/게스트/LED/버튼/통신 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -247,6 +247,6 @@
     ]
   },
   "last_unlock": "2026-10-02-red-live-and-same-3person-roster-code-2222",
-  "last_lock": "2026-10-02-approved-chat-right",
+  "last_lock": "2026-10-02-approved-chat-right2",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
