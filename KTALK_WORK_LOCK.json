@@ -148,7 +148,7 @@
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "15명 방 모바일 호스트 칸 크기는 유지하고 영상만 칸 안에 꽉 차게 cover/center로 고정. 컴퓨터 화면과 다른 기능 변경 금지.",
+  "note": "구독자/기존15명방을 16명으로 변경: 호스트 1 + 게스트 15, 4x4 전체 채움, 빈칸 없음. 9명/13명/비밀방/통신/승인/LED/채팅/수익률 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -247,6 +247,6 @@
     ]
   },
   "last_unlock": "2026-10-02-red-live-and-same-3person-roster-code-2222",
-  "last_lock": "2026-10-02-15-mobile-host-video-fill",
+  "last_lock": "2026-10-02-subscriber-16-full-grid",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
