@@ -31,10 +31,10 @@
     g.style.setProperty('gap','3px','important');
     g.style.setProperty('width','calc(100% - 20px)','important');
     g.style.setProperty('margin','4px auto 0','important');
-    g.style.setProperty('height','min(64vw, calc(100dvh - 520px))','important');
+    g.style.setProperty('height','78vw','important');
     g.style.setProperty('min-height','0','important');
-    g.style.setProperty('max-height','64vw','important');
-    g.style.setProperty('flex','0 0 min(64vw, calc(100dvh - 520px))','important');
+    g.style.setProperty('max-height','78vw','important');
+    g.style.setProperty('flex','0 0 78vw','important');
     g.style.setProperty('overflow','hidden','important');
 
     kids(g).forEach(function(cell){
@@ -48,6 +48,21 @@
       cell.style.setProperty('border-radius','9px','important');
       cell.style.setProperty('overflow','hidden','important');
     });
+    fillVideos(g);
+  }
+
+  function fillVideos(g){
+    try{
+      g.querySelectorAll('video').forEach(function(v){
+        v.style.setProperty('position','absolute','important');
+        v.style.setProperty('inset','0','important');
+        v.style.setProperty('width','100%','important');
+        v.style.setProperty('height','100%','important');
+        v.style.setProperty('object-fit','cover','important');
+        v.style.setProperty('object-position','center','important');
+        v.style.setProperty('background','#000','important');
+      });
+    }catch(e){}
   }
 
   function styleRemoteChat(root){
@@ -79,6 +94,10 @@
         box.style.setProperty('outline','0','important');
         box.style.setProperty('box-shadow','none','important');
         box.style.setProperty('border-radius','0','important');
+        box.style.setProperty('height','92px','important');
+        box.style.setProperty('min-height','92px','important');
+        box.style.setProperty('max-height','92px','important');
+        box.style.setProperty('overflow','hidden','important');
       }
 
       var quick=room.querySelector('.kgh-quick');
@@ -120,12 +139,49 @@
     return out;
   }
 
+  function styleHostChat(){
+    var room=document.querySelector('#screen .ktg13-room[data-kt-room="9"]');
+    if(!room)return;
+    var chat=room.querySelector('.ktg13-chat');
+    var tools=room.querySelector('.ktg13-tools');
+    if(!chat||!tools)return;
+    try{
+      var rr=room.getBoundingClientRect();
+      var tr=tools.getBoundingClientRect();
+      var h=92;
+      var top=Math.round(tr.top-h-8);
+      chat.style.setProperty('position','fixed','important');
+      chat.style.setProperty('left',Math.round(rr.left+10)+'px','important');
+      chat.style.setProperty('right','auto','important');
+      chat.style.setProperty('top',top+'px','important');
+      chat.style.setProperty('bottom','auto','important');
+      chat.style.setProperty('width',Math.max(220,Math.round((rr.width||window.innerWidth)*0.88))+'px','important');
+      chat.style.setProperty('height',h+'px','important');
+      chat.style.setProperty('min-height',h+'px','important');
+      chat.style.setProperty('max-height',h+'px','important');
+      chat.style.setProperty('padding','4px 6px','important');
+      chat.style.setProperty('margin','0','important');
+      chat.style.setProperty('display','flex','important');
+      chat.style.setProperty('flex-direction','column','important');
+      chat.style.setProperty('justify-content','flex-end','important');
+      chat.style.setProperty('overflow','hidden','important');
+      chat.style.setProperty('background','transparent','important');
+      chat.style.setProperty('border','0','important');
+      chat.style.setProperty('outline','0','important');
+      chat.style.setProperty('border-radius','0','important');
+      chat.style.setProperty('box-shadow','none','important');
+      chat.style.setProperty('transform','none','important');
+    }catch(e){}
+  }
+
   function apply(){
     /* Host */
     document.querySelectorAll(
       '#screen .ktg13-room[data-kt-room="9"] .ktg13-main,'+
       '#screen .ktg9-room .ktg9-main'
     ).forEach(styleGrid);
+
+    styleHostChat();
 
     /* Guest before approval + approved guest */
     document.querySelectorAll('#screen .kt-remote-live').forEach(function(root){
