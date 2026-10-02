@@ -4,7 +4,7 @@
   window.__ktSecretPasswordInstalled=true;
   window.ktSecretChatMessages=window.ktSecretChatMessages||[];
   var secretSetupRequested=false;
-  var DEFAULT_SECRET_PASSWORD='1111';
+  var DEFAULT_SECRET_PASSWORD='';
 
   function esc(v){
     return String(v==null?'':v).replace(/[&<>"']/g,function(ch){
@@ -33,17 +33,14 @@
   }
 
   function getSaved(){
-    try{
-      var v=String(localStorage.getItem('kt_secret_room_password')||'').replace(/\D/g,'').slice(0,4);
-      return v||DEFAULT_SECRET_PASSWORD;
-    }catch(e){return DEFAULT_SECRET_PASSWORD;}
+    try{localStorage.removeItem('kt_secret_room_password');}catch(e){}
+    return '';
   }
 
   function savePassword(v){
-    v=String(v||'').replace(/\D/g,'').slice(0,4);
-    try{localStorage.setItem('kt_secret_room_password',v);}catch(e){}
-    if(window.state)state.liveRoomPassword=v;
-    return v;
+    try{localStorage.removeItem('kt_secret_room_password');}catch(e){}
+    try{if(window.state){state.liveRoomPassword='';state.roomPassword='';}}catch(e){}
+    return '';
   }
 
   function ensureStyle(){
@@ -64,36 +61,10 @@
   }
 
   function ensurePasswordBox(){
-    ensureStyle();
-    var card=document.querySelector('.prep-card');
-    if(!card)return null;
-    var box=document.getElementById('ktSecretPasswordBox');
-    if(!secretSetupRequested){
-      if(box&&box.parentNode)box.parentNode.removeChild(box);
-      return null;
-    }
-    if(!box){
-      box=document.createElement('div');
-      box.id='ktSecretPasswordBox';
-      box.innerHTML='<label>🔒 비밀방 비밀번호</label><div id="ktSecretPasswordRow"><input id="ktSecretPassword" type="password" inputmode="numeric" maxlength="4" placeholder="4자리" aria-label="비밀방 비밀번호 4자리"><button id="ktSecretPasswordSave" type="button">저장</button></div><div id="ktSecretPasswordHelp">비밀방에 들어올 때 사용할 숫자 4자리를 입력하세요.</div><div id="ktSecretPasswordError">비밀번호 4자리를 입력해 주세요.</div>';
-      var start=card.querySelector('.prep-start');
-      card.insertBefore(box,start||null);
-      var input=box.querySelector('#ktSecretPassword');
-      var saved=(window.state&&state.liveRoomPassword)||getSaved();
-      if(saved)input.value=saved;
-      input.addEventListener('input',function(){
-        this.value=this.value.replace(/\D/g,'').slice(0,4);
-        var er=document.getElementById('ktSecretPasswordError');if(er)er.style.display='none';
-      });
-      box.querySelector('#ktSecretPasswordSave').addEventListener('click',function(){
-        var v=savePassword(input.value);
-        var er=document.getElementById('ktSecretPasswordError');
-        if(er)er.style.display=v.length===4?'none':'block';
-        if(v.length===4){this.textContent='저장됨';setTimeout(function(){var b=document.getElementById('ktSecretPasswordSave');if(b)b.textContent='저장';},900);}
-      });
-    }
-    box.classList.toggle('on',isSecretRoom()&&isSecretPrepVisible(box));
-    return box;
+    try{var box=document.getElementById('ktSecretPasswordBox');if(box&&box.parentNode)box.parentNode.removeChild(box);}catch(e){}
+    try{localStorage.removeItem('kt_secret_room_password');}catch(e){}
+    try{if(window.state){state.liveRoomPassword='';state.roomPassword='';}}catch(e){}
+    return null;
   }
 
   function updatePrep(){
@@ -185,20 +156,9 @@
   };
 
   window.ktSecretChangePassword=function(){
-    var current=(window.state&&state.liveRoomPassword)||getSaved();
-    var unlock=prompt('현재 비밀방 비밀번호 4자리','');
-    if(unlock===null)return;
-    unlock=String(unlock).replace(/\D/g,'').slice(0,4);
-    if(unlock!==String(current||'').replace(/\D/g,'').slice(0,4)){
-      alert('현재 비밀번호가 맞지 않습니다.');
-      return;
-    }
-    var v=prompt('새 비밀방 비밀번호 4자리','');
-    if(v===null)return;
-    v=savePassword(v);
-    if(v.length!==4){alert('숫자 4자리로 입력해 주세요.');return;}
-    if(window.state){state.liveRoomPassword=v;state.roomPassword=v;}
-    alert('✅ 비밀방 비밀번호를 바꿨습니다.');
+    try{localStorage.removeItem('kt_secret_room_password');}catch(e){}
+    try{if(window.state){state.liveRoomPassword='';state.roomPassword='';}}catch(e){}
+    return false;
   };
 
   function startSecretClock(initial){
@@ -310,21 +270,20 @@
     window.startBroadcast=async function(){
       var secret=isSecretRoom();
       if(secret){
-        updatePrep();
-        var input=document.getElementById('ktSecretPassword');
-        if(input&&!input.value)input.value=getSaved();
-        var v=savePassword(input?input.value:((window.state&&state.liveRoomPassword)||getSaved()));
-        if(window.state){state.liveRoomPassword=v;state.roomPassword=v;}
-        if(v.length!==4){
-          var er=document.getElementById('ktSecretPasswordError');if(er)er.style.display='block';
-          if(input){input.focus();input.select();}
-          return;
-        }
-        try{if(window.state)state.cameraFacing='user';}catch(e){}
+        try{localStorage.removeItem('kt_secret_room_password');}catch(e){}
+        try{if(window.state){state.liveRoomPassword='';state.roomPassword='';state.cameraFacing='user';}}catch(e){}
+        try{var box=document.getElementById('ktSecretPasswordBox');if(box)box.remove();}catch(e){}
         try{if(window.ensureLiveCamera)await window.ensureLiveCamera('user');}catch(e){}
       }
       var result=await oldStart.apply(this,arguments);
-      if(secret)setTimeout(renderSecretRoom,30);
+      if(secret){
+        setTimeout(function(){
+          try{
+            if(typeof window.ktRenderSecretReference20261003==='function')window.ktRenderSecretReference20261003();
+            else renderSecretRoom();
+          }catch(e){}
+        },30);
+      }
       return result;
     };
   }
