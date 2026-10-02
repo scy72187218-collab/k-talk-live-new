@@ -1,6 +1,12 @@
 /* 태권1/하이네2 프로필 전용 총관리 스위치.
    다른 계정/방송/카메라/채팅 기능은 변경하지 않음. */
 (function(){
+  var KT_DEFAULT_ADMIN_PIN_20261002='7510';
+  try{
+    if(!String(localStorage.getItem('ktalk_total_admin_lock_pin')||'').trim()){
+      localStorage.setItem('ktalk_total_admin_lock_pin',KT_DEFAULT_ADMIN_PIN_20261002);
+    }
+  }catch(e){}
   if(window.__ktOwnerTotalAdminSwitch20260918)return;
   window.__ktOwnerTotalAdminSwitch20260918=true;
 
