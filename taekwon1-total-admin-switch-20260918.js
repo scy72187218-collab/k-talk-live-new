@@ -187,11 +187,38 @@
     try{
       if(typeof window.showSheet==='function'){
         window.showSheet('🔓 관리자 잠금 해제',
-          '<div class="rowbox"><b>관리자 잠금이 해제되었습니다.</b><br>현재 비밀번호를 바꾸려면 아래 버튼을 누르세요.</div>'
-          +'<button class="act" type="button" onclick="ktOpenAdminPinChange20261002()">🔑 비밀번호 바꾸기</button>');
+          '<div class="rowbox"><b>관리자 잠금이 해제되었습니다.</b><br>아래 버튼으로 관리자 안으로 바로 들어갈 수 있습니다.</div>'
+          +'<button class="act" type="button" onclick="ktEnterAdminAfterUnlock20261002()" style="background:linear-gradient(135deg,#d9a221,#ffcf55);color:#111">🛡 관리자 안으로 들어가기</button>'
+          +'<button class="act" type="button" onclick="ktOpenAdminPinChange20261002()" style="margin-top:8px">🔑 비밀번호 바꾸기</button>');
       }else if(typeof window.closeSheet==='function'){
         window.closeSheet();
       }
+    }catch(e){}
+    return false;
+  };
+
+  window.ktEnterAdminAfterUnlock20261002=function(){
+    try{
+      if(typeof window.openProfileDirect==='function'){
+        window.openProfileDirect();
+      }else if(typeof window.openProfile==='function'){
+        window.openProfile();
+      }
+      setTimeout(function(){
+        try{
+          var box=document.getElementById('ktTotalAdminWrap');
+          if(box){
+            box.classList.add('open');
+            if(box.scrollIntoView)box.scrollIntoView({block:'center',behavior:'smooth'});
+          }
+        }catch(e){}
+      },120);
+      setTimeout(function(){
+        try{
+          var box=document.getElementById('ktTotalAdminWrap');
+          if(box)box.classList.add('open');
+        }catch(e){}
+      },350);
     }catch(e){}
     return false;
   };
