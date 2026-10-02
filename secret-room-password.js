@@ -394,7 +394,7 @@
       var left=Math.round(spanLeft+((spanRight-spanLeft)-w)/2);
       var top=Math.round(sr.top-rr.top-h+7);
 
-      /* 비밀방만: 수익률을 공유·효과·더보기 3개 바로 위에 정확히 고정 */
+      /* 비밀방만: 게스트를 덜 가리도록 수익률을 공유·효과·더보기 쪽으로 10px 더 내림 */
       e.style.setProperty('position','absolute','important');
       e.style.setProperty('top',top+'px','important');
       e.style.setProperty('bottom','auto','important');
