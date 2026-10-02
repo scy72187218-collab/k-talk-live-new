@@ -74,7 +74,7 @@
     var st=document.createElement('style');
     st.id='ktLedRoomPromoStyle20261002';
     st.textContent=''
-      +'.kt-led-promo-host-btn{position:fixed;right:10px;top:112px;z-index:10020;min-width:86px;height:34px;border:1px solid #ff45d7;border-radius:999px;background:#140813e8;color:#ffe25c;font-size:10px;font-weight:950;box-shadow:0 0 9px #ff28c477;pointer-events:auto;touch-action:manipulation}'
+      +'.kt-led-promo-host-btn{position:fixed;right:10px;top:78px;z-index:10020;min-width:86px;height:34px;border:1px solid #ff45d7;border-radius:999px;background:#140813e8;color:#ffe25c;font-size:10px;font-weight:950;box-shadow:0 0 9px #ff28c477;pointer-events:auto;touch-action:manipulation}'
       +'.kt-led-promo-text-btn{position:fixed;right:10px;bottom:92px;z-index:10020;min-width:96px;height:34px;border:1px solid #ff45d7;border-radius:999px;background:#140813ee;color:#ffe25c;font-size:9px;font-weight:950;pointer-events:auto;touch-action:manipulation;box-shadow:0 0 9px #ff28c455}.kt-led-promo-text-btn:before{content:'◉';display:inline-block;margin-right:5px;color:#ff58d5}.kt-led-promo-text-btn.kt-has-draft:before{content:'●';color:#52ff9b}'
       +'.kt-led-promo-host-btn[disabled]{opacity:.45}'
       +'.kt-led-promo-view{position:fixed;left:50%;top:58px;transform:translateX(-50%);z-index:10030;width:min(92vw,520px);min-height:46px;border:2px solid #ff28c4;border-radius:18px;background:#140813f2;color:#ffe04f;box-shadow:0 0 12px #ff28c4,0 0 24px #ff28c455;display:flex;align-items:center;gap:8px;padding:7px 12px;overflow:hidden;cursor:pointer;touch-action:manipulation}'
