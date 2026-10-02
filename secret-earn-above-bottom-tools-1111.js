@@ -37,7 +37,7 @@
       var left=Math.round(mr.right-w-2);
 
       e.style.setProperty('position','fixed','important');
-      e.style.setProperty('top',Math.round(sr.top-h-4)+'px','important');
+      e.style.setProperty('top',Math.round(sr.top-h+8)+'px','important');
       e.style.setProperty('bottom','auto','important');
       e.style.setProperty('left',left+'px','important');
       e.style.setProperty('right','auto','important');
