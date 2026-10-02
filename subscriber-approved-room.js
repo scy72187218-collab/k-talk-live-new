@@ -79,8 +79,23 @@
     }catch(e){}
   };
 
+  window.ktSubscriberSetSelling=function(allowed){
+    try{
+      localStorage.setItem('ktalk_subscriber_selling_allowed',allowed?'1':'0');
+      if(window.state)state.subscriberSellingAllowed=!!allowed;
+      alert(allowed?'✅ 물건 판매 허용으로 설정했습니다.':'🚫 물건 판매 불가로 설정했습니다.');
+    }catch(e){}
+    try{closeSheet();}catch(e){}
+    return false;
+  };
+
   window.ktSubscriberMore=function(){
-    try{showSheet('더보기','<button class="act" onclick="closeSheet();if(window.openLiveSettings)openLiveSettings()">⚙ 설정</button><button class="act" onclick="closeSheet();if(window.endBroadcastEarnings)endBroadcastEarnings()" style="background:linear-gradient(135deg,#d9274c,#ff4669)">■ 방송 종료</button>');}catch(e){}
+    try{showSheet('더보기',
+      '<button class="act" onclick="ktSubscriberSetSelling(true)">🛍️ 물건 판매 허용</button>'
+      +'<button class="act" onclick="ktSubscriberSetSelling(false)">🚫 물건 판매 불가</button>'
+      +'<button class="act" onclick="closeSheet();if(window.openLiveSettings)openLiveSettings()">⚙ 설정</button>'
+      +'<button class="act" onclick="closeSheet();if(window.endBroadcastEarnings)endBroadcastEarnings()" style="background:linear-gradient(135deg,#d9274c,#ff4669)">■ 방송 종료</button>'
+    );}catch(e){}
   };
 
   window.ktSubscriberToggleEarnings=function(){
