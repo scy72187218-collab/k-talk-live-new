@@ -148,7 +148,7 @@
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "첫 영상 화면의 모든 빨간 LIVE/방송자 프로필/방송목록 입장 영역을 pointer/touch/click 공통 처리. 다른 방/승인/LED/채팅/수익률 변경 금지.",
+  "note": "방송방 종료/나가기 후 방송목록이 아니라 첫 동영상 화면(home)으로 이동. 다른 통신/승인/LED/채팅/수익률 기능 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -247,6 +247,6 @@
     ]
   },
   "last_unlock": "2026-10-02-red-live-and-same-3person-roster-code-2222",
-  "last_lock": "2026-10-02-all-public-red-live-tap-fixed",
+  "last_lock": "2026-10-02-room-end-go-video-home",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
