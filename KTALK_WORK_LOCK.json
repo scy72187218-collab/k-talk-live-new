@@ -1,11 +1,11 @@
 {
-  "version": 184,
+  "version": 185,
   "locked": true,
-  "scope": "full_snapshot_guard_all_components",
+  "scope": "full_snapshot_guard_everything",
   "lock_slot": 9,
   "unlock_requires_pin": true,
   "runtime_controls_remain_usable": true,
-  "default_policy": "locked_all_code_changes",
+  "default_policy": "locked_everything_no_changes_without_explicit_unlock",
   "protected_components": [
     "group9_bottom_controls_8",
     "public_video_first_page_opening",
@@ -56,7 +56,13 @@
     "live_audio_music_voice_quality_48khz_stereo_no_agc_20260928",
     "creator_edit_shop_under_undo_existing_beauty_background_20260928",
     "current_full_state_20261002_except_chat",
-    "live15_red_button_fast_tap_20261002"
+    "live15_red_button_fast_tap_20261002",
+    "all_rooms_current_state_20261002",
+    "all_switches_current_state_20261002",
+    "all_chat_current_state_20261002",
+    "all_camera_mic_movie_controls_current_state_20261002",
+    "all_live_signal_and_entry_current_state_20261002",
+    "full_k_talk_snapshot_20261002"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -108,11 +114,17 @@
     "live_audio_music_voice_quality_48khz_stereo_no_agc_20260928",
     "creator_edit_shop_under_undo_existing_beauty_background_20260928",
     "current_full_state_20261002_except_chat",
-    "live15_red_button_fast_tap_20261002"
+    "live15_red_button_fast_tap_20261002",
+    "all_rooms_current_state_20261002",
+    "all_switches_current_state_20261002",
+    "all_chat_current_state_20261002",
+    "all_camera_mic_movie_controls_current_state_20261002",
+    "all_live_signal_and_entry_current_state_20261002",
+    "full_k_talk_snapshot_20261002"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "현재 저장 상태 전체 보호. 카메라·마이크·영화·TV·유튜브·방 선택·모든 앱 스위치는 사용 가능 상태를 유지하되, 코드/화면/배치/통신/방송 신호/입장 버튼/채팅 등 기존 기능은 별도 요청 없이는 수정하지 않음.",
+  "note": "현재 K-Talk 전체 상태를 완전 보호. 모든 방, 모든 스위치, 채팅, 카메라, 마이크, 영화/TV/유튜브, 방송 신호, 입장 버튼, 게스트/호스트, 레이아웃, 수익률, 선물, 미션, 운세, 통신 코드는 사용은 가능하지만 별도 해제 요청 전에는 어떤 코드/화면/배치/기능도 수정하지 않음.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -181,9 +193,17 @@
     "11": [
       "current_full_state_20261002_after_live15_fast_tap",
       "live15_red_button_fast_tap_20261002"
+    ],
+    "12": [
+      "all_rooms_current_state_20261002",
+      "all_switches_current_state_20261002",
+      "all_chat_current_state_20261002",
+      "all_camera_mic_movie_controls_current_state_20261002",
+      "all_live_signal_and_entry_current_state_20261002",
+      "full_k_talk_snapshot_20261002"
     ]
   },
   "last_unlock": "2026-09-27-solo-countdown-only-code-5555",
-  "last_lock": "2026-10-02-lock-current-full-state-after-live15-fast-tap",
+  "last_lock": "2026-10-02-lock-everything-rooms-switches-chat-current-state",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
