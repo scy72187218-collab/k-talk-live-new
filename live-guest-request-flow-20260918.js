@@ -1137,25 +1137,22 @@
 
   var __ktViewerRosterSig='';
   var __ktViewerRosterAt=0;
+  var __ktViewerRosterHost='';
   async function syncViewerApprovedRoster(hostId){
     if(!hostId)return;
     var now=Date.now();
-    if(now-__ktViewerRosterAt<450)return;
+    if(now-__ktViewerRosterAt<300)return;
     __ktViewerRosterAt=now;
     try{
       var path='ktalk_live_messages?select=sender_id,sender_name,message_type,created_at&host_id=eq.'+enc(hostId)+'&order=created_at.desc&limit=240';
-      var cut=new Date(Date.now()-90000).toISOString();
-      var activePath='ktalk_live_viewers?select=viewer_id,active,updated_at&host_id=eq.'+enc(hostId)+'&active=eq.true&updated_at=gte.'+enc(cut)+'&limit=300';
-      var dbRows=[],memRows=[],viewerRows=[];
+      var dbRows=[],memRows=[];
       try{
         var got=await Promise.all([
           req(path).catch(function(){return [];}),
-          memoryReq(path,{}).catch(function(){return [];}),
-          req(activePath).catch(function(){return [];})
+          memoryReq(path,{}).catch(function(){return [];})
         ]);
         dbRows=got[0]||[];
         memRows=got[1]||[];
-        viewerRows=got[2]||[];
       }catch(e){}
       var seen={},all=[];
       [dbRows,memRows].forEach(function(list){
@@ -1173,21 +1170,37 @@
         else if(t.indexOf('guest_cancelled:')===0){id=t.slice(16);if(id&&!cancelAt[id])cancelAt[id]=ts;}
         else if(t.indexOf('guest_left:')===0){id=t.slice(11);if(id&&!leftAt[id])leftAt[id]=ts;}
       });
-      var active={};
-      try{viewerRows.forEach(function(v){active[String(v.viewer_id||'')]=true;});}catch(e){}
-      var ids=[];
+      if(__ktViewerRosterHost!==hostId){
+        __ktViewerRosterHost=hostId;
+        __ktViewerRosterSig='';
+        window.__ktApprovedGuestIds20260924={};
+      }
+
+      /* A single slow/empty server read must not make approved people vanish.
+         Once approved, keep the tile until an explicit guest_cancelled/guest_left arrives. */
+      var previous=window.__ktApprovedGuestIds20260924||{};
+      var keep={};
+      Object.keys(previous).forEach(function(id){
+        if(previous[id]!==true)return;
+        var r=reqAt[id]||'',c=cancelAt[id]||'',l=leftAt[id]||'';
+        var explicitlyGone=!!((c&&(!r||c>=r))||(l&&(!r||l>=r)));
+        if(!explicitlyGone)keep[id]=true;
+      });
+
       Object.keys(reqAt).forEach(function(id){
         var r=reqAt[id],a=apAt[id]||'',c=cancelAt[id]||'',l=leftAt[id]||'';
-        if(a&&a>=r&&!(c&&c>=r)&&!(l&&l>=r)&&(active[id]||id===viewerId()))ids.push(id);
+        if(a&&a>=r&&!(c&&c>=r)&&!(l&&l>=r))keep[id]=true;
       });
-      ids.sort();
+
+      var ids=Object.keys(keep).sort();
+      if(!all.length&&Object.keys(previous).length)return;
+
       var sig=hostId+'|'+ids.join(',');
       if(sig===__ktViewerRosterSig)return;
       __ktViewerRosterSig=sig;
-      window.__ktApprovedGuestIds20260924={};
+      window.__ktApprovedGuestIds20260924=keep;
       window.__ktApprovedGuestNames20260924=window.__ktApprovedGuestNames20260924||{};
       ids.forEach(function(id){
-        window.__ktApprovedGuestIds20260924[id]=true;
         if(names[id])window.__ktApprovedGuestNames20260924[id]=names[id];
       });
       window.dispatchEvent(new CustomEvent('kt-three-person-sync-now',{
@@ -1343,7 +1356,7 @@
     window.ktLeaveRemoteLive=wrapped;
   }
 
-  function start(){if(started)return;started=true;bindGuestLeaveCleanup();setInterval(bindGuestLeaveCleanup,800);ensureStyle();bindRequestButton();hostPoll=setInterval(hostTick,400);viewerPoll=setInterval(viewerTick,500);setTimeout(hostTick,80);setTimeout(viewerTick,120);var dedupeTimer=null,obs=new MutationObserver(function(){bindRequestButton();clearTimeout(dedupeTimer);dedupeTimer=setTimeout(removeDuplicateGroupRoom,30);});obs.observe(document.documentElement,{childList:true,subtree:true});}
+  function start(){if(started)return;started=true;bindGuestLeaveCleanup();setInterval(bindGuestLeaveCleanup,800);ensureStyle();bindRequestButton();hostPoll=setInterval(hostTick,400);viewerPoll=setInterval(viewerTick,350);setTimeout(hostTick,80);setTimeout(viewerTick,120);var dedupeTimer=null,obs=new MutationObserver(function(){bindRequestButton();clearTimeout(dedupeTimer);dedupeTimer=setTimeout(removeDuplicateGroupRoom,30);});obs.observe(document.documentElement,{childList:true,subtree:true});}
   window.addEventListener('kt-guest-approval-received',function(){setTimeout(viewerTick,10);setTimeout(viewerTick,120);setTimeout(viewerTick,420);});
   window.addEventListener('kt-host-session-reset',function(e){
     try{
