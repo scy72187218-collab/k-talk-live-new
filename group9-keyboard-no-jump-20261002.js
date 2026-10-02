@@ -177,8 +177,13 @@
 
   function finishChatEntry(){
     if(!active)return;
-    try{if(activeField&&activeField.blur)activeField.blur();}catch(e){}
-    setTimeout(unlock,40);
+    try{
+      if(activeBar){
+        activeBar.style.setProperty('transform','translateY(0px)','important');
+      }
+      if(activeField&&activeField.blur)activeField.blur();
+    }catch(e){}
+    unlock();
   }
 
   document.addEventListener('keydown',function(e){
@@ -188,15 +193,17 @@
     }
   },true);
 
-  document.addEventListener('click',function(e){
+  function maybeFinishOnSend(e){
     if(!active)return;
     var b=e.target&&e.target.closest?e.target.closest('button'):null;
     if(!b)return;
     var t=String((b.getAttribute('aria-label')||'')+' '+(b.textContent||''));
     if(/채팅.*보내|보내기|send|➤|✈|↗/i.test(t)){
-      setTimeout(finishChatEntry,30);
+      finishChatEntry();
     }
-  },true);
+  }
+  document.addEventListener('pointerup',maybeFinishOnSend,true);
+  document.addEventListener('click',maybeFinishOnSend,true);
 
   document.addEventListener('pointerdown',function(e){
     if(isChatField(e.target)){
