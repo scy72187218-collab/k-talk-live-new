@@ -518,7 +518,7 @@
     if(old)old.remove();
     var b=document.createElement('div');
     b.id='ktVideoLivePeek';b.className='kt-video-live-peek';b.setAttribute('data-kt-signature',signature);
-    b.innerHTML='<button type="button" class="ktvl-person" aria-label="방송자 프로필"><span class="ktvl-avatar">'+photo+'</span><span class="ktvl-copy"><b>'+esc(hostName)+'</b><small>'+esc(r.title||r.room_name||'방송 중')+'</small></span></button>'
+    b.innerHTML='<button type="button" class="ktvl-person" data-host="'+esc(hostId)+'" aria-label="방송자 프로필"><span class="ktvl-avatar">'+photo+'</span><span class="ktvl-copy"><b>'+esc(hostName)+'</b><small>'+esc(r.title||r.room_name||'방송 중')+'</small></span></button>'
       +'<button type="button" class="ktvl-live" data-host="'+esc(hostId)+'">● LIVE</button>';
     var person=b.querySelector('.ktvl-person');
     var live=b.querySelector('.ktvl-live');
@@ -566,20 +566,30 @@
     try{window.ktEnterRemoteLive(hid);}catch(_e){}
   }
   function enterAnyPublicLiveNow(e){
-    var btn=e.target&&e.target.closest?e.target.closest('.ktvl-live,.kt-follow-person.live'):null;
+    var btn=e.target&&e.target.closest?e.target.closest(
+      '.ktvl-live,.ktvl-person,.kt-follow-person.live,.kt-live-card,.kt-live-list-enter'
+    ):null;
     if(!btn)return;
+
     var now=Date.now();
-    if(now-Number(window.__ktAnyPublicLiveTapAt||0)<380){
-      try{e.preventDefault();e.stopPropagation();}catch(_e){}
+    if(now-Number(window.__ktAnyPublicLiveTapAt||0)<320){
+      try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
       return;
     }
+
     var hid=String(btn.getAttribute('data-host')||'').trim();
+    if(!hid){
+      var wrap=btn.closest&&btn.closest('[data-host]');
+      if(wrap)hid=String(wrap.getAttribute('data-host')||'').trim();
+    }
     if(!hid){
       try{hid=String(window.__ktLastLiveRoom&&window.__ktLastLiveRoom.host_id||'').trim();}catch(_e){}
     }
     if(!hid||typeof window.ktEnterRemoteLive!=='function')return;
+
     window.__ktAnyPublicLiveTapAt=now;
-    try{e.preventDefault();e.stopPropagation();}catch(_e){}
+    try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
+
     try{window.ktEnterRemoteLive(hid);}catch(_e){}
     setTimeout(function(){
       try{
@@ -587,9 +597,10 @@
           window.ktEnterRemoteLive(hid);
         }
       }catch(_e){}
-    },650);
+    },420);
   }
-  document.addEventListener('touchend',enterAnyPublicLiveNow,true);
+  document.addEventListener('pointerdown',enterAnyPublicLiveNow,true);
+  document.addEventListener('touchstart',enterAnyPublicLiveNow,true);
   document.addEventListener('click',enterAnyPublicLiveNow,true);
 
   function clearPublicLiveStripInRoom(){
