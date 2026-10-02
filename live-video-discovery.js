@@ -582,6 +582,27 @@
   document.addEventListener('pointerdown',enterRedLiveNow,true);
   if(!window.PointerEvent)document.addEventListener('touchstart',enterRedLiveNow,true);
 
+  function ktForceLiveSignalRefresh(){
+    try{
+      activeRoomsCheckedAt=0;
+      activeRoomsBusy=null;
+      stableActiveAt=0;
+      roomMetaAt=0;
+    }catch(e){}
+    scheduleRender(0);
+    setTimeout(function(){scheduleRender(0);},180);
+    setTimeout(function(){scheduleRender(0);},700);
+  }
+
+  document.addEventListener('visibilitychange',function(){
+    try{
+      if(document.visibilityState==='visible')ktForceLiveSignalRefresh();
+    }catch(e){}
+  },true);
+  window.addEventListener('pageshow',ktForceLiveSignalRefresh,true);
+  window.addEventListener('focus',ktForceLiveSignalRefresh,true);
+  window.addEventListener('online',ktForceLiveSignalRefresh,true);
+
   window.ktRefreshVideoLivePeek=render;
   var mo=new MutationObserver(function(){scheduleRender(400);});
   var screen=document.getElementById('screen');if(screen)mo.observe(screen,{childList:true,subtree:true});
