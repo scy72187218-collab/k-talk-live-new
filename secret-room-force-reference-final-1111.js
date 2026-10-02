@@ -46,8 +46,8 @@
   function guest(){
     return '<div class="k2-guest"><div class="k2-plus">+</div><b>게스트</b></div>';
   }
-  function gift(icon,name,price){
-    return '<button class="k2-gift" onclick="if(window.openGifts)openGifts()"><i>'+icon+'</i><b>'+esc(name)+'</b><small>🟡 '+esc(price)+'</small></button>';
+  function gift(icon,name){
+    return '<button class="k2-gift" onclick="if(window.openGifts)openGifts()"><i>'+icon+'</i><b>'+esc(name)+'</b></button>';
   }
   function attach(streams){
     try{
@@ -84,7 +84,7 @@
     '.k2-main{min-height:0;display:grid;grid-template-columns:1.08fr .92fr;grid-template-rows:minmax(0,1fr) 184px;gap:5px}.k2-stage{grid-column:1/-1;min-height:0;display:grid;grid-template-columns:1.08fr .92fr;gap:5px}.k2-host{position:relative;min-height:0;border:2px solid #ff28c4;border-radius:10px;overflow:hidden;background:#111}.k2-host video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#111}.k2-hostbadge{position:absolute;left:7px;top:7px;z-index:3;padding:3px 8px;border:1px solid #d7ad39;border-radius:999px;background:#221f2ae8;font-size:9px;font-weight:950}.k2-hostline{position:absolute;left:8px;right:6px;bottom:8px;z-index:3;font-size:9px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 2px #000}.k2-hostline b{color:#78ff77;margin-right:5px}'+
     '.k2-guests{min-height:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(3,1fr);gap:4px;padding:4px;border:2px solid #ff28c4;border-radius:10px;background:#09090c}.k2-guest,.k2-earn{position:relative;min-width:0;min-height:0;border:1px solid #4a4a55;border-radius:8px;background:linear-gradient(145deg,#15151a,#09090c);display:grid;place-items:center;overflow:hidden}.k2-guest video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.k2-plus{width:30px;height:30px;border:1px solid #777;border-radius:50%;display:grid;place-items:center;font-size:23px;font-weight:900}.k2-guest b{font-size:9px;color:#ddd}.k2-earn{border-color:#d2a936;text-align:center}.k2-earn .top{color:#8fe8ff;font-size:7px;font-weight:950}.k2-earn strong{color:#ffe071;font-size:9px}.k2-earn small{font-size:6.5px;color:#ddd}'+
     '.k2-chat,.k2-gifts{min-width:0;min-height:0;border:2px solid #ff28c4;border-radius:10px;background:#09090c;overflow:hidden;display:flex;flex-direction:column}.k2-tabs{height:30px;display:flex;align-items:center;gap:12px;padding:0 9px;border-bottom:1px solid #ff28c477;font-size:10px;font-weight:950}.k2-tabs .on{color:#ff45cf}.k2-chatlist{flex:1;overflow:hidden;padding:4px 7px;font-size:8.5px;line-height:1.55}.k2-msg{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.k2-msg b{margin-right:5px}.k2-msg:nth-child(1) b,.k2-msg:nth-child(2) b{color:#66ff8d}.k2-msg:nth-child(3) b{color:#ffd65b}.k2-msg:nth-child(4) b{color:#60dfff}.k2-msg:nth-child(5) b{color:#52e5ff}.k2-inputrow{height:36px;margin:3px 5px 5px;display:grid;grid-template-columns:1fr 44px 32px;gap:4px}.k2-input{border:1px solid #3d5270;border-radius:8px;display:flex;align-items:center;padding:0 7px;color:#9ab1ce;font-size:8px}.k2-send,.k2-present{border:0;border-radius:7px;color:#fff;font-size:9px;font-weight:950}.k2-send{background:linear-gradient(135deg,#8a24ff,#6c18e8)}.k2-present{background:#1b0b1d;font-size:18px}'+
-    '.k2-ghead{height:30px;display:flex;align-items:center;padding:0 8px;font-size:10px;font-weight:950}.k2-ghead b{color:#ff45cf}.k2-rank{margin-left:auto;border:1px solid #ff4bd1;border-radius:999px;padding:2px 6px;color:#ff76dc}.k2-cats{height:22px;display:grid;grid-template-columns:repeat(4,1fr);font-size:7px}.k2-cats span{display:grid;place-items:center}.k2-cats .on{background:#ff12d8;border-radius:7px}.k2-grid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:3px;padding:4px}.k2-gift{min-width:0;border:1px solid #d5a80e;border-radius:6px;background:#0f0f12;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;overflow:hidden}.k2-gift i{font-style:normal;font-size:19px;line-height:1}.k2-gift b{font-size:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.k2-gift small{font-size:6.5px;color:#ffd53d}'+
+    '.k2-ghead{height:30px;display:flex;align-items:center;padding:0 8px;font-size:10px;font-weight:950}.k2-ghead b{color:#ff45cf}.k2-rank{margin-left:auto;border:1px solid #ff4bd1;border-radius:999px;padding:2px 6px;color:#ff76dc}.k2-cats{height:22px;display:grid;grid-template-columns:repeat(4,1fr);font-size:7px}.k2-cats span{display:grid;place-items:center}.k2-cats .on{background:#ff12d8;border-radius:7px}.k2-grid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:3px;padding:4px}.k2-gift{min-width:0;border:1px solid #d5a80e;border-radius:6px;background:#0f0f12;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;overflow:hidden}.k2-gift i{font-style:normal;font-size:19px;line-height:1}.k2-gift b{font-size:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.k2-gift small{display:none!important}'+
     '.k2-tools{display:grid;grid-template-columns:repeat(8,1fr);gap:2px;align-items:start}.k2-tool{min-width:0;border:0;background:none;color:#fff;display:grid;justify-items:center;gap:1px}.k2-tool i{width:30px;height:30px;border-radius:50%;border:1px solid #35363d;background:linear-gradient(145deg,#1b1b20,#0b0b0f);display:grid;place-items:center;font-style:normal;font-size:15px}.k2-tool span{font-size:7px;white-space:nowrap;font-weight:900}'+
     '@media(max-width:390px){.k2-room{grid-template-rows:54px 30px 48px 35px 35px minmax(0,1fr) 46px;padding-left:4px;padding-right:4px;gap:3px}.k2-title,.k2-brand{font-size:16px}.k2-att{min-width:90px;font-size:11px}.k2-main{grid-template-rows:minmax(0,1fr) 174px}.k2-ledtrack{font-size:19px}.k2-row>*{font-size:10px}.k2-tabs{gap:8px;font-size:9px}.k2-tool i{width:28px;height:28px;font-size:14px}.k2-tool span{font-size:6px}}'+
     '</style>'+
@@ -107,9 +107,9 @@
           '<div class="k2-msg"><b>● 민준</b> 완전 힐링되는 시간이에요 😍</div>'+
         '</div><div class="k2-inputrow"><div class="k2-input" onclick="if(window.ktSecretOpenMessage)ktSecretOpenMessage()">☺ 메시지를 입력하세요...</div><button class="k2-send">전송</button><button class="k2-present" onclick="if(window.openGifts)openGifts()">🎁</button></div></div>'+
         '<div class="k2-gifts"><div class="k2-ghead"><b>🎁 선물 / 후원</b><span class="k2-rank">후원 랭킹 ›</span></div><div class="k2-cats"><span class="on">전체</span><span>인기</span><span>스페셜</span><span>컬렉션</span></div><div class="k2-grid">'+
-          gift('🌹','1송이 장미','10')+gift('💐','10송이 장미','100')+gift('🌺','30송이 장미','300')+
-          gift('💗','하트','10')+gift('⭐','별','20')+gift('🎈','풍선','30')+
-          gift('👑','황금 왕관','100')+gift('🏰','스페셜 선물','500')+gift('🎁','비밀 선물','1,000')+
+          gift('🌹','장미')+gift('💐','장미다발')+gift('🌺','특대장미')+
+          gift('💗','하트')+gift('⭐','별')+gift('🎈','풍선')+
+          gift('👑','황금 왕관')+gift('🏰','스페셜 선물')+gift('🎁','비밀 선물')+
         '</div></div>'+
       '</div>'+
       '<div class="k2-tools">'+
@@ -189,7 +189,24 @@
     };
   }
 
-  setTimeout(function(){if(isSecret())render();},60); setTimeout(settleOnce,240);
-  /* fixed secret-room screen: periodic repaint removed */
-  /* fixed secret-room screen: mutation repaint observer removed */
+  function enforceApprovedSecretLayout1111(){
+    try{
+      killPassword();
+      var screen=document.getElementById('screen');
+      if(!screen)return;
+      if(screen.querySelector('.k2-room')){
+        cleanForeign();
+        return;
+      }
+      if(isSecret())render();
+    }catch(e){}
+  }
+
+  setTimeout(enforceApprovedSecretLayout1111,60);
+  setTimeout(enforceApprovedSecretLayout1111,240);
+  setTimeout(enforceApprovedSecretLayout1111,700);
+  window.addEventListener('kt-room-opened',function(){setTimeout(enforceApprovedSecretLayout1111,20);});
+  window.addEventListener('pageshow',function(){setTimeout(enforceApprovedSecretLayout1111,80);});
+  window.addEventListener('focus',function(){setTimeout(enforceApprovedSecretLayout1111,80);});
+  setInterval(enforceApprovedSecretLayout1111,350);
 })();
