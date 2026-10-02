@@ -54,6 +54,18 @@
     return d;
   }
 
+  function removeTinyBottomOverflow20261002(grid){
+    try{
+      removeTinyBottomOverflow20261002(grid);
+    var cells=[].slice.call(grid.querySelectorAll(':scope > .kgh-cell'));
+      if(cells.length<=16)return;
+      cells.slice(16).forEach(function(cell){
+        if(!cell||cell.classList.contains('host')||cell.classList.contains('self'))return;
+        cell.remove();
+      });
+    }catch(e){}
+  }
+
   function apply(){
     if(!is16Room())return;
     var room=document.querySelector('#screen .kt-guest-hostlike-room');
