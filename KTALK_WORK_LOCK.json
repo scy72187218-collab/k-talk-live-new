@@ -70,7 +70,8 @@
     "host_face_like_persist_20261002",
     "attendance_heart_above_separate_20261002",
     "post_stability_check_20261002",
-    "marketplace_led_script_load_restored_20261002"
+    "marketplace_led_script_load_restored_20261002",
+    "creator_auto_youth_beauty_and_edit_effect_removed_20261002"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -136,11 +137,12 @@
     "host_face_like_persist_20261002",
     "attendance_heart_above_separate_20261002",
     "post_stability_check_20261002",
-    "marketplace_led_script_load_restored_20261002"
+    "marketplace_led_script_load_restored_20261002",
+    "creator_auto_youth_beauty_and_edit_effect_removed_20261002"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "전체 점검 후 현재 K-Talk 상태 보호. 방송 입장/방 열기/통신/채팅/스위치/카메라/마이크/좋아요/출석/홈쇼핑/LED 홍보 포함. 누락된 홈쇼핑·LED 스크립트 로드를 복구한 현재 상태를 기준으로 잠금.",
+  "note": "현재 K-Talk 상태 보호. 편집효과 버튼 제거 + 자동 얼굴 보정 적용 상태 포함. 다른 방송 기능, 버튼, 방 구조, 통신, 채팅은 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -233,9 +235,12 @@
     "17": [
       "post_stability_check_20261002",
       "marketplace_led_script_load_restored_20261002"
+    ],
+    "18": [
+      "creator_auto_youth_beauty_and_edit_effect_removed_20261002"
     ]
   },
   "last_unlock": "2026-09-27-solo-countdown-only-code-5555",
-  "last_lock": "2026-10-02-post-stability-check-full-lock",
+  "last_lock": "2026-10-02-auto-youth-beauty-and-edit-effect-removed",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
