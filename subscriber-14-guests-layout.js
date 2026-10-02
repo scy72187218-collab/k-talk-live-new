@@ -21,7 +21,11 @@
     if(!people)return;
     addStyle();
     var guests=[].slice.call(people.querySelectorAll(':scope > .ktsubscriber-guest'));
-    for(var i=guests.length+1;i<=15;i++){
+    while(guests.length>14){
+      var extra=guests.pop();
+      if(extra)extra.remove();
+    }
+    for(var i=guests.length+1;i<=14;i++){
       var d=document.createElement('div');
       d.className='ktsubscriber-guest';
       d.setAttribute('data-guest-slot',String(i));
