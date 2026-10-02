@@ -185,11 +185,18 @@
   };
 
   window.ktSecretChangePassword=function(){
+    var unlock=prompt('비밀번호 변경 잠금번호 4자리','');
+    if(unlock===null)return;
+    if(String(unlock).replace(/\D/g,'')!=='7510'){
+      alert('잠금번호가 맞지 않습니다.');
+      return;
+    }
     var old=(window.state&&state.liveRoomPassword)||getSaved();
-    var v=prompt('비밀방 비밀번호 4자리',old||'');
+    var v=prompt('새 비밀방 비밀번호 4자리',old||'');
     if(v===null)return;
     v=savePassword(v);
-    if(v.length!==4)alert('숫자 4자리로 입력해 주세요.');
+    if(v.length!==4){alert('숫자 4자리로 입력해 주세요.');return;}
+    alert('✅ 비밀방 비밀번호를 바꿨습니다.');
   };
 
   function startSecretClock(initial){
