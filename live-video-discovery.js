@@ -565,6 +565,33 @@
     try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
     try{window.ktEnterRemoteLive(hid);}catch(_e){}
   }
+  function enterAnyPublicLiveNow(e){
+    var btn=e.target&&e.target.closest?e.target.closest('.ktvl-live,.kt-follow-person.live'):null;
+    if(!btn)return;
+    var now=Date.now();
+    if(now-Number(window.__ktAnyPublicLiveTapAt||0)<380){
+      try{e.preventDefault();e.stopPropagation();}catch(_e){}
+      return;
+    }
+    var hid=String(btn.getAttribute('data-host')||'').trim();
+    if(!hid){
+      try{hid=String(window.__ktLastLiveRoom&&window.__ktLastLiveRoom.host_id||'').trim();}catch(_e){}
+    }
+    if(!hid||typeof window.ktEnterRemoteLive!=='function')return;
+    window.__ktAnyPublicLiveTapAt=now;
+    try{e.preventDefault();e.stopPropagation();}catch(_e){}
+    try{window.ktEnterRemoteLive(hid);}catch(_e){}
+    setTimeout(function(){
+      try{
+        if(!document.documentElement.classList.contains('kt-remote-viewing')&&!document.querySelector('#screen .kt-remote-live')){
+          window.ktEnterRemoteLive(hid);
+        }
+      }catch(_e){}
+    },650);
+  }
+  document.addEventListener('touchend',enterAnyPublicLiveNow,true);
+  document.addEventListener('click',enterAnyPublicLiveNow,true);
+
   function clearPublicLiveStripInRoom(){
     try{
       if(document.querySelector(
