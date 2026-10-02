@@ -148,7 +148,7 @@
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "승인 게스트가 퇴장/뒤로가기/페이지 종료 시 guest_left를 즉시 전송하고 로컬 승인명단에서도 바로 제거. 새 승인 요청 전 이전 승인 사진 재등장 금지. 다른 기능 변경 금지.",
+  "note": "호스트 현재 승인명단을 단일 기준으로 모든 기기가 그대로 동기화. 빈 명단도 전송하여 퇴장 잔상 즉시 제거. 다른 방/LED/채팅/수익률/버튼/승인 절차 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -247,6 +247,6 @@
     ]
   },
   "last_unlock": "2026-10-02-red-live-and-same-3person-roster-code-2222",
-  "last_lock": "2026-10-02-approved-guest-exit-clears-immediately",
+  "last_lock": "2026-10-02-host-roster-authoritative",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
