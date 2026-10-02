@@ -310,38 +310,19 @@
       return;
     }
 
-    var follows=await followedUsers();
-    if(!follows.length){
+    rooms=Array.isArray(rooms)?rooms.slice(0,15):[];
+    if(!rooms.length){
       if(old)old.remove();
       try{document.body.classList.remove('kt-follow-status-open');}catch(e){}
       return;
     }
 
-    var activeMap={};
-    (Array.isArray(rooms)?rooms:[]).forEach(function(r){
-      var id=String(r&&r.host_id||'').trim();
-      if(id)activeMap[id]=r;
-    });
-
-    var history=await roomHistory();
-    var metaMap={};
-    (history||[]).forEach(function(x){
-      var id=String(x&&x.host_id||'').trim();
-      if(!id||metaMap[id])return;
-      metaMap[id]={name:String(x.host_name||''),photo:String(x.host_photo||'')};
-    });
-
-    follows=follows.slice(0,15);
-
-    var signature=follows.map(function(f){
-      var id=String(f.following_id||'');
-      var live=activeMap[id]||null;
-      var meta=metaMap[id]||{};
+    var signature=rooms.map(function(r){
       return [
-        id,
-        live?'1':'0',
-        String((live&&live.host_name)||meta.name||f.following_name||''),
-        String((live&&live.host_photo)||meta.photo||'')
+        String(r.host_id||''),
+        String(r.host_name||''),
+        String(r.host_photo||''),
+        String(r.updated_at||'')
       ].join(':');
     }).join('|');
 
@@ -353,42 +334,30 @@
 
     var strip=document.createElement('div');
     strip.id='ktFollowLiveStrip';
-    strip.className='kt-follow-live-strip kt-follow-remote-strip';
+    strip.className='kt-follow-live-strip';
     strip.setAttribute('data-kt-signature',signature);
-    strip.setAttribute('aria-label','팔로우 방송 상태');
+    strip.setAttribute('aria-label','현재 방송 중');
 
-    strip.innerHTML=follows.map(function(f){
-      var id=String(f.following_id||'');
-      var live=activeMap[id]||null;
-      var meta=metaMap[id]||{};
-      var name=String((live&&live.host_name)||meta.name||f.following_name||'K-Talk');
-      var photo=String((live&&live.host_photo)||meta.photo||'');
-      return '<button type="button" class="kt-follow-remote '+(live?'live':'offline')+'" data-host="'+esc(id)+'" data-live="'+(live?'1':'0')+'" aria-label="'+esc(name+(live?' 방송 중':' 방송 안 함'))+'">'
-        +'<span class="kt-fr-avatar">'+photoHtml(photo,name)+'</span>'
-        +'<span class="kt-fr-copy"><b>'+esc(name)+'</b><small>'+(live?'● 방송 중':'● 방송 안 함')+'</small></span>'
-        +'<span class="kt-fr-enter">'+(live?'입장':'보기')+'</span>'
+    strip.innerHTML=rooms.map(function(r){
+      var id=String(r.host_id||'');
+      var name=String(r.host_name||'K-Talk 방송자');
+      var photo=String(r.host_photo||'');
+      return '<button type="button" class="kt-follow-person live" data-host="'+esc(id)+'" title="'+esc(name+' · 방송 중')+'" aria-label="'+esc(name+' 방송 중')+'">'
+        +'<span class="kt-follow-avatar">'+photoHtml(photo,name)+'</span>'
+        +'<i class="kt-follow-state"></i>'
+        +'<span class="kt-follow-name">'+esc(name)+'</span>'
         +'</button>';
     }).join('');
 
     document.body.appendChild(strip);
     document.body.classList.add('kt-follow-status-open');
 
-    strip.querySelectorAll('.kt-follow-remote').forEach(function(btn){
+    strip.querySelectorAll('.kt-follow-person.live').forEach(function(btn){
       btn.onclick=function(e){
         try{e.preventDefault();e.stopPropagation();}catch(err){}
         var id=String(btn.getAttribute('data-host')||'').trim();
-        var isLive=btn.getAttribute('data-live')==='1';
-        var row=follows.find(function(f){return String(f.following_id||'')===id;})||{};
-        var live=activeMap[id]||null;
-        var meta=metaMap[id]||{};
-        var name=String((live&&live.host_name)||meta.name||row.following_name||'K-Talk 방송자');
-        var photo=String((live&&live.host_photo)||meta.photo||'');
-        if(isLive&&id&&typeof window.ktEnterRemoteLive==='function'){
+        if(id&&typeof window.ktEnterRemoteLive==='function'){
           window.ktEnterRemoteLive(id);
-          return;
-        }
-        if(typeof window.ktOpenLiveHostActions==='function'){
-          window.ktOpenLiveHostActions(id,name,photo);
         }
       };
     });
