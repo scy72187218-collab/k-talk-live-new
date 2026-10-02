@@ -146,13 +146,9 @@
     "public_video_top_live_circles_and_bottom_host_circle_20261002",
     "public_video_live_indicators_restored_correct_state_20261002"
   ],
-  "current_editable_components": [
-    "red_live_entry_retry_only_20261002"
-  ],
-  "temporarily_unlocked_components": [
-    "red_live_entry_retry_only_20261002"
-  ],
-  "note": "2222 승인: 화면 켜짐/브라우저 복귀/온라인 복귀 시 첫 동영상 페이지 LIVE 신호 즉시 재조회만 추가. 위치/디자인/터치/LED/방 구조/다른 기능 변경 금지.",
+  "current_editable_components": [],
+  "temporarily_unlocked_components": [],
+  "note": "2222 승인: 빨간 LIVE 터치 후 순간 네트워크 오류 시 방 화면 유지 및 최대 2회 재시도만 추가. 위치/디자인/LED/방 구조/다른 기능 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -251,6 +247,6 @@
     ]
   },
   "last_unlock": "2026-10-02-red-live-entry-retry-only-code-2222",
-  "last_lock": "2026-10-02-live-signal-resume-refresh-fixed-code-2222",
+  "last_lock": "2026-10-02-red-live-entry-retry-fixed-code-2222",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
