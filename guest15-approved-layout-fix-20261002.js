@@ -32,7 +32,13 @@
       +'#screen .kt-guest-hostlike-room[data-kt-room="15"] .kgh-cell.host{'
       +'grid-column:1!important;grid-row:1/span 2!important;}'
       +'#screen .kt-guest-hostlike-room[data-kt-room="15"] .kgh-cell{'
-      +'min-width:0!important;min-height:0!important;overflow:hidden!important;}';
+      +'min-width:0!important;min-height:0!important;overflow:hidden!important;}'
+      +'@media(max-width:600px){'
+      +'#screen .kt-guest-hostlike-room[data-kt-room="15"] .kgh-cell.host{'
+      +'grid-column:auto!important;grid-row:auto!important;aspect-ratio:1/1!important;height:auto!important;min-height:0!important;}'
+      +'#screen .kt-guest-hostlike-room[data-kt-room="15"] .kgh-cell.host video{'
+      +'width:100%!important;height:100%!important;object-fit:cover!important;}'
+      +'}';
     (document.head||document.documentElement).appendChild(s);
   }
 
