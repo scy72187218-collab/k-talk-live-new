@@ -406,8 +406,9 @@
     try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
     try{window.ktEnterRemoteLive(hid);}catch(_e){}
   }
-  document.addEventListener('pointerdown',enterFollowHostNow,true);
-  if(!window.PointerEvent)document.addEventListener('touchstart',enterFollowHostNow,true);
+  /* 방송자 원형 목록은 4~15번까지 가로 스크롤이 되어야 하므로
+     pointerdown에서 입장시키지 않고 실제 탭(click)일 때만 입장한다. */
+  document.addEventListener('click',enterFollowHostNow,true);
 
   function visibleVideoNode(v){
     if(!v||!v.isConnected)return false;
@@ -570,6 +571,9 @@
       '.ktvl-live,.ktvl-person,.kt-follow-person.live,.kt-live-card,.kt-live-list-enter'
     ):null;
     if(!btn)return;
+    /* 원형 LIVE 목록은 손가락을 옆으로 밀어 4~15번까지 이동할 수 있어야 한다.
+       스크롤 시작(pointer/touch)에는 입장하지 않고 실제 click에서만 입장한다. */
+    if(btn.classList&&btn.classList.contains('kt-follow-person')&&e.type!=='click')return;
 
     var now=Date.now();
     if(now-Number(window.__ktAnyPublicLiveTapAt||0)<320){
