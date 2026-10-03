@@ -61,3 +61,40 @@
     }).observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 })();
+
+/* 2026-10-03: 9명방 현재 화면 상태 추가 잠금.
+   화면/버튼 기능은 변경하지 않고 현재 배치만 보호 표시한다. */
+(function(){
+  if(window.__ktGroup9CurrentStateLock1111)return;
+  window.__ktGroup9CurrentStateLock1111=true;
+
+  function markGroup9Current(){
+    try{
+      document.querySelectorAll('#screen .ktg13-room[data-kt-room="9"]').forEach(function(room){
+        room.setAttribute('data-kt-layout-locked','1');
+        room.setAttribute('data-kt-work-protected','1');
+        room.setAttribute('data-kt-protected-area','group9_current_state_locked');
+      });
+    }catch(e){}
+  }
+
+  var oldState=window.ktRoomLayoutLockState;
+  window.ktRoomLayoutLockState=function(){
+    var s={solo:true,group9:true,group13:true,subscriber:true,secret:true};
+    try{if(typeof oldState==='function')s=oldState()||s;}catch(e){}
+    s.group9=true;
+    s.group9_current_state_locked=true;
+    return s;
+  };
+
+  window.ktGroup9CurrentStateLocked=function(){return true;};
+
+  markGroup9Current();
+  [40,120,300,700,1400].forEach(function(ms){setTimeout(markGroup9Current,ms);});
+  try{
+    new MutationObserver(function(){
+      clearTimeout(window.__ktGroup9CurrentStateLockTimer);
+      window.__ktGroup9CurrentStateLockTimer=setTimeout(markGroup9Current,25);
+    }).observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+})();
