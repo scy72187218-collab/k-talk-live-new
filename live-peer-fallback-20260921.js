@@ -29,7 +29,21 @@
   }
   function enc(v){return encodeURIComponent(String(v==null?'':v));}
   function stream(){
-    try{return window.state&&state.stream?state.stream:null;}catch(e){return null;}
+    try{
+      var s=window.state&&state.stream?state.stream:null;
+      if(s&&s.getVideoTracks&&s.getVideoTracks().some(function(t){return t.readyState==='live';}))return s;
+      var root=(document.getElementById('screen')||document);
+      var v=root.querySelector(
+        '.ktsecret-room .ktsecret-main video,'+
+        '.ktsecret-room video,'+
+        '.ktsolo-room video,'+
+        '.ktg13-room .ktg13-host video,'+
+        '.ktsubscriber-room video'
+      );
+      var vs=v&&v.srcObject;
+      if(vs&&vs.getVideoTracks&&vs.getVideoTracks().some(function(t){return t.readyState==='live';}))return vs;
+      return s;
+    }catch(e){return null;}
   }
   function actualHostRoomVisible(){
     try{
