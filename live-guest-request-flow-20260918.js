@@ -927,7 +927,32 @@
     }catch(e){}
   },500);
 
-    function ktGuestStreamLive(st){try{return !!(st&&st.getVideoTracks&&st.getVideoTracks().some(function(t){return t.readyState==='live';}));}catch(e){return false;}}
+    function ktRemoveOnlyGuest13LeaveChatHeart20261004(){
+    try{
+      var root=document.querySelector('.kt-remote-live.kt-prejoin-room-view');
+      var grid=root&&root.querySelector('.kt-prejoin-room-grid.is13');
+      var chat=root&&root.querySelector('.kt-remote-chat');
+      if(!root||!grid||!chat)return;
+
+      [].slice.call(chat.children||[]).forEach(function(line){
+        try{
+          var txt=String(line.textContent||'');
+          if(txt.indexOf('방송 나감')<0)return;
+
+          var walker=document.createTreeWalker(line,NodeFilter.SHOW_TEXT);
+          var nodes=[],n;
+          while((n=walker.nextNode()))nodes.push(n);
+          nodes.forEach(function(tn){
+            tn.nodeValue=String(tn.nodeValue||'').replace(/[♥♡❤💗💖💓💕💞]/g,'');
+          });
+        }catch(e){}
+      });
+    }catch(e){}
+  }
+
+  setInterval(ktRemoveOnlyGuest13LeaveChatHeart20261004,300);
+
+  function ktGuestStreamLive(st){try{return !!(st&&st.getVideoTracks&&st.getVideoTracks().some(function(t){return t.readyState==='live';}));}catch(e){return false;}}
   function showLocalGuestView(stream){
     if(!stream)return;
     var vid=viewerId();
