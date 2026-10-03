@@ -438,6 +438,20 @@
     },1000);
   }
 
+  function forceLast13GuestBottomRight20261004(root){
+    try{
+      if(!root)return;
+      var grid=root.querySelector('.kt-guest-hostlike-room[data-kt-room="13"] .kgh-main.is13');
+      if(!grid)return;
+      var cells=[].slice.call(grid.querySelectorAll(':scope > .kgh-cell'));
+      if(!cells.length)return;
+      var last=cells[cells.length-1];
+      if(!last)return;
+      last.style.setProperty('grid-column','4','important');
+      last.style.setProperty('grid-row','4','important');
+    }catch(e){}
+  }
+
   function removeGuest13ChatHeart20261004(root){
     try{
       if(!root)return;
@@ -477,6 +491,7 @@
       }
       var root=preRoot;
       removeGuest13ChatHeart20261004(root);
+      forceLast13GuestBottomRight20261004(root);
       if(!root){builtRoot=null;return;}
       var room=root.querySelector('.kt-guest-hostlike-room');
       if(room){
