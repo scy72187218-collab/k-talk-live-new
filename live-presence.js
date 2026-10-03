@@ -13,6 +13,7 @@
   var hostRoomMissingSince=0;
   var hostPeers={};
   var viewerCtx=null;
+  var hostSignalBusy=false,viewerSignalBusy=false;
   var lastActivityStamp='';
 
   function headers(extra){
@@ -224,8 +225,9 @@
   }
 
   async function hostProcessSignals(){
-    if(!hostActive)return;
+    if(!hostActive||hostSignalBusy)return;
     var hostId=deviceId(),stream=localStream();if(!stream)return;
+    hostSignalBusy=true;
     try{
       var rows=await req('ktalk_webrtc_sessions?select=id,host_id,viewer_id,offer_sdp,answer_sdp,active,updated_at&host_id=eq.'+enc(hostId)+'&active=eq.true&order=created_at.asc&limit=30');
       for(var i=0;i<(rows||[]).length;i++){
@@ -243,6 +245,7 @@
         }
       }
     }catch(e){}
+    finally{hostSignalBusy=false;}
   }
 
   async function hostPollActivity(){
@@ -277,7 +280,7 @@
           await req('ktalk_live_rooms?id=eq.'+enc(hostRoomId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:true,updated_at:nowIso()})});
         }catch(e){}
       },4000);
-      hostSignalTimer=setInterval(hostProcessSignals,40);hostProcessSignals();
+      hostSignalTimer=setInterval(hostProcessSignals,180);hostProcessSignals();
       hostActivityTimer=setInterval(hostPollActivity,1800);hostPollActivity();
       renderLiveCards();
     }catch(e){
@@ -457,8 +460,9 @@
   }
 
   async function remotePollSignal(){
-    if(!viewerCtx||viewerCtx.answered)return;
+    if(!viewerCtx||viewerCtx.answered||viewerSignalBusy)return;
     var c=viewerCtx;
+    viewerSignalBusy=true;
     try{
       var rows=await req('ktalk_webrtc_sessions?select=id,offer_sdp,answer_sdp,active&id=eq.'+enc(c.sessionId)+'&limit=1');var x=rows&&rows[0];
       if(!x||!x.active){
@@ -474,6 +478,7 @@
         c.answered=true;clearInterval(c.signalTimer);c.signalTimer=null;
       }
     }catch(e){}
+    finally{viewerSignalBusy=false;}
   }
 
   async function ktReconnectRemoteViewer20260921(c){
@@ -574,7 +579,7 @@
       pc.onconnectionstatechange=function(){var st=document.getElementById('ktRemoteLiveStatus');if(pc.connectionState==='connected'){if(viewerCtx&&viewerCtx.pc===pc&&viewerCtx.disconnectTimer){clearTimeout(viewerCtx.disconnectTimer);viewerCtx.disconnectTimer=null;}if(st)st.style.display='none';return;}if(pc.connectionState==='disconnected'||pc.connectionState==='failed'){if(st){st.style.display='block';st.textContent='신호 다시 연결 중...';}var c=viewerCtx;if(c&&c.pc===pc&&!c.disconnectTimer){c.disconnectTimer=setTimeout(function(){if(viewerCtx===c&&c.pc===pc&&(pc.connectionState==='failed'||pc.connectionState==='disconnected'))ktReconnectRemoteViewer20260921(c);},7000);}}};
       /* 시청자 영상 협상을 먼저 시작한다.
          입장 알림 저장이 느려도 영상 연결을 기다리게 하지 않는다. */
-      viewerCtx.signalTimer=setInterval(remotePollSignal,40);remotePollSignal();
+      viewerCtx.signalTimer=setInterval(remotePollSignal,180);remotePollSignal();
       viewerCtx.heartbeat=setInterval(remotePollRoom,100);remotePollRoom();
       viewerCtx.activityTimer=setInterval(remotePollActivity,1800);remotePollActivity();
       try{
