@@ -15,7 +15,7 @@
     try{t+=' '+(window.__ktRemoteRoomName||'')+' '+(window.__ktRemoteRoomType||'');}catch(e){}
     if(/16\s*명|15\s*명|subscriber|구독자/i.test(t))return 16;
     if(/13\s*명|group13/i.test(t))return 13;
-    return 9;
+    return 0;
   }
 
   function ensureStyle(){
@@ -128,6 +128,7 @@
     ensureLeaveButton(root);
 
     var total=roomTotal();
+    if(!total)return false;
     var hostStream=null,selfStream=null;
     try{hostStream=window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream||null;}catch(e){}
     try{selfStream=window.__ktLocalGuestCameraStream20260926||window.__ktApprovedGuestSelfStream||null;}catch(e){}
