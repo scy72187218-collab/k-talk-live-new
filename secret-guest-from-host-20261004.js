@@ -107,11 +107,11 @@
     var q=function(sel){return root.querySelector(sel);};
     q('.kt-sgfh-back').onclick=function(){try{if(typeof window.ktLeaveRemoteLive==='function')window.ktLeaveRemoteLive();}catch(e){}};
     q('.kt-sgfh-att').onclick=function(){callAny(['openAttendanceBenefits']);};
-    q('[data-a="rank"]').onclick=function(){callAny(['openDailyRanking','showDailyRanking','ktOpenDailyRanking','openRanking']);};
-    q('[data-a="mission"]').onclick=function(){callAny(['openMission','openMissionPanel','ktOpenMission','showMission']);};
-    q('[data-a="flip"]').onclick=function(){callAny(['ktBottomCameraFlip','toggleCameraFacing','switchCamera','flipCamera','rotateCamera']);};
-    q('[data-a="treasure"]').onclick=function(){callAny(['openTreasureBox','openTreasure','ktOpenTreasureBox','showTreasureBox']);};
-    q('[data-a="match"]').onclick=function(){callAny(['openMatch','startMatch','ktOpenMatch','showMatch']);};
+    q('[data-a="rank"]').onclick=function(){callAny(['openRewardCenter','openDailyRanking','showDailyRanking','ktOpenDailyRanking','openRanking']);};
+    q('[data-a="mission"]').onclick=function(){callAny(['openViewerMission','openRewardCenter','openMission','openMissionPanel','ktOpenMission','showMission']);};
+    q('[data-a="flip"]').onclick=function(){callAny(['ktAllRoomsFlipCamera','ktSoloFlipCamera','toggleCreatorCamera','ktBottomCameraFlip','toggleCameraFacing','switchCamera','flipCamera','rotateCamera']);};
+    q('[data-a="treasure"]').onclick=function(){callAny(['ktUnifiedQuickTreasure','openTreasure','openTreasureBox','ktOpenTreasureBox','showTreasureBox','openGifts']);};
+    q('[data-a="match"]').onclick=function(){callAny(['ktUnifiedQuickMatch','openHostMatchArena','openMatchArena','openMatch','startMatch','ktOpenMatch','showMatch']);};
 
     var input=q('#ktSgfhChatInput');
     async function sendChatNow(){
