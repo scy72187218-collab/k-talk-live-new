@@ -568,7 +568,7 @@
   }
   function enterAnyPublicLiveNow(e){
     var btn=e.target&&e.target.closest?e.target.closest(
-      '.ktvl-live,.ktvl-person,.kt-follow-person.live,.kt-live-card,.kt-live-list-enter'
+      '.ktvl-person,.kt-follow-person.live,.kt-live-card,.kt-live-list-enter'
     ):null;
     if(!btn)return;
     /* 원형 LIVE 목록은 손가락을 옆으로 밀어 4~15번까지 이동할 수 있어야 한다.
