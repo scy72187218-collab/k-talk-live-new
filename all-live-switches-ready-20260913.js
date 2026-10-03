@@ -51,7 +51,9 @@
     document.querySelectorAll('.live-prep .room-switch').forEach(function(b){
       var on=b===btn;
       b.classList.toggle('on',on);
+      b.classList.toggle('active',on);
       b.setAttribute('aria-pressed',on?'true':'false');
+      b.setAttribute('aria-checked',on?'true':'false');
     });
     try{
       if(window.state){
