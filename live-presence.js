@@ -166,6 +166,61 @@
     }catch(e){}
   }
 
+
+  function isRemoteNineRoom20261003(room){
+    var txt='';
+    try{
+      txt=[
+        room&&room.room_type,
+        room&&room.room_name,
+        room&&room.title,
+        window.__ktLastLiveRoom&&window.__ktLastLiveRoom.room_type,
+        window.__ktLastLiveRoom&&window.__ktLastLiveRoom.room_name,
+        window.__ktLastLiveRoom&&window.__ktLastLiveRoom.title
+      ].join(' ');
+    }catch(e){}
+    return /group9|9\s*명/i.test(String(txt));
+  }
+
+  function ensureImmediateNineGrid20261003(room){
+    try{
+      if(!isRemoteNineRoom20261003(room))return;
+      var root=document.querySelector('.kt-remote-live');
+      if(!root)return;
+      if(root.querySelector('.kt-remote-nine-immediate'))return;
+
+      if(!document.getElementById('ktRemoteNineImmediateStyle20261003')){
+        var st=document.createElement('style');
+        st.id='ktRemoteNineImmediateStyle20261003';
+        st.textContent=''
+          +'.kt-remote-live.kt-nine-immediate-active{background:#000!important}'
+          +'.kt-remote-live.kt-nine-immediate-active>.kt-remote-shade{display:none!important}'
+          +'.kt-remote-nine-immediate{position:absolute;left:7px;right:7px;top:78px;height:min(calc(100vw - 14px),calc(100dvh - 260px));display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:2px;z-index:1;overflow:hidden}'
+          +'.kt-remote-nine-cell{position:relative;min-width:0;min-height:0;display:grid;place-items:center;border:1px solid #28282d;border-radius:7px;background:linear-gradient(145deg,#17181b,#111214);color:#bdbdc4;font-size:13px;font-weight:900;overflow:hidden}'
+          +'.kt-remote-nine-cell video{position:absolute;inset:0;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center center!important;background:#111}'
+          +'@media(max-width:390px){.kt-remote-nine-immediate{left:4px;right:4px;top:72px;height:min(calc(100vw - 8px),calc(100dvh - 250px))}.kt-remote-nine-cell{font-size:11px}}';
+        (document.head||document.documentElement).appendChild(st);
+      }
+
+      var grid=document.createElement('div');
+      grid.className='kt-remote-nine-immediate';
+      for(var i=0;i<9;i++){
+        var cell=document.createElement('div');
+        cell.className='kt-remote-nine-cell'+(i===0?' host':'');
+        if(i===0){
+          var v=document.getElementById('ktRemoteLiveVideo');
+          if(v)cell.appendChild(v);
+          else cell.textContent='호스트';
+        }else{
+          cell.textContent='게스트';
+        }
+        grid.appendChild(cell);
+      }
+      root.insertBefore(grid,root.firstChild);
+      root.classList.add('kt-nine-immediate-active');
+    }catch(e){}
+  }
+
   function roomCard(r,count,listMode){
     var photo=r.host_photo&&/^data:image|^https?:/.test(r.host_photo)?'<img src="'+esc(r.host_photo)+'" alt="" loading="eager" decoding="async" fetchpriority="high">':'🎥';
     if(listMode){
@@ -498,6 +553,7 @@
        video element exists. Direct RTC/LiveKit can attach while metadata loads. */
     var cached=cachedRemoteRoom20260924(hostId);
     renderRemote(cached);
+    ensureImmediateNineGrid20261003(cached);
     window.__ktRemoteHostId=hostId;
     window.__ktCurrentRemoteHostId=hostId;
     try{sessionStorage.setItem('kt_remote_host_id',hostId);}catch(e){}
@@ -512,6 +568,7 @@
         return;
       }
       updateRemoteMeta20260924(room);
+      ensureImmediateNineGrid20261003(room);
 
       /* Re-announce without rebuilding the DOM. */
       window.__ktRemoteHostId=hostId;
@@ -574,6 +631,7 @@
     window.__ktCurrentRemoteHostId='';
     try{sessionStorage.removeItem('kt_remote_host_id');}catch(e){}
     try{document.documentElement.classList.remove('kt-remote-viewing');}catch(e){}
+    try{document.querySelectorAll('.kt-remote-nine-immediate').forEach(function(x){x.remove();});document.querySelectorAll('.kt-nine-immediate-active').forEach(function(x){x.classList.remove('kt-nine-immediate-active');});}catch(e){}
     if(c){
       clearInterval(c.signalTimer);clearInterval(c.heartbeat);clearInterval(c.activityTimer);
       try{c.pc.close();}catch(e){}
