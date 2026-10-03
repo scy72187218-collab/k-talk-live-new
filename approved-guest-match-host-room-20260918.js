@@ -457,19 +457,31 @@
       if(!root)return;
       var room=root.querySelector('.kt-guest-hostlike-room[data-kt-room="13"]');
       if(!room)return;
+
+      /* 13명방 게스트 화면 하단의 하트 0만 제거한다.
+         호스트 방/다른 방/전광판 하트는 건드리지 않는다. */
       root.querySelectorAll(
         '.kt-remote-chat .kt-live-clock-heart,'+
         '.kt-remote-chat .kt-attendance-heart-badge,'+
         '.kt-remote-chat .kt-remote-action.heart,'+
-        '.kt-remote-chat .heart'
+        '.kt-remote-chat .heart,'+
+        '.kt-remote-bottom .kt-live-clock-heart,'+
+        '.kt-remote-bottom .kt-attendance-heart-badge,'+
+        '.kt-remote-bottom .heart'
       ).forEach(function(el){try{el.remove();}catch(e){}});
-      var chat=root.querySelector('.kt-remote-chat');
-      if(chat){
-        [].slice.call(chat.children).forEach(function(el){
+
+      [].slice.call(root.querySelectorAll('*')).forEach(function(el){
+        try{
+          if(!el||el.children.length)return;
+          if(el.closest&&el.closest('.kgh-led,.kgh-head,.kgh-stats'))return;
           var t=String(el.textContent||'').replace(/\s+/g,'').trim();
-          if(/^[♥♡❤💗]0$/.test(t)){try{el.remove();}catch(e){}}
-        });
-      }
+          if(!/^[♥♡❤💗]0$/.test(t))return;
+          var r=el.getBoundingClientRect();
+          if(r&&r.top>window.innerHeight*0.58){
+            el.remove();
+          }
+        }catch(e){}
+      });
     }catch(e){}
   }
 
