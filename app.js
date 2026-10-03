@@ -2062,8 +2062,16 @@ window.selectPrepRoom=function(el,type,label,max){
   state.liveRoomType=type;
   state.liveRoomName=label;
   state.liveRoomMax=max;
-  document.querySelectorAll('.room-switch').forEach(function(b){b.classList.remove('on');});
-  if(el)el.classList.add('on');
+  document.querySelectorAll('.room-switch').forEach(function(b){
+    b.classList.remove('on','active');
+    b.setAttribute('aria-pressed','false');
+    b.setAttribute('aria-checked','false');
+  });
+  if(el){
+    el.classList.add('on','active');
+    el.setAttribute('aria-pressed','true');
+    el.setAttribute('aria-checked','true');
+  }
   var title=document.getElementById('liveTitle');
   if(title && (!title.value || title.value==='오늘 라이브 제목을 입력하세요' || title.dataset.autoRoom==='1')){
     title.value=label;
