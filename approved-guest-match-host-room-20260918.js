@@ -430,6 +430,7 @@
   }
 
   function repair(){
+    if(document.querySelector('#screen .kt-sgf'))return;
     try{
       if(window.__ktUseSingleG9ViewerHostCopy20261003){
         var r9=document.querySelector('.kt-remote-live');
