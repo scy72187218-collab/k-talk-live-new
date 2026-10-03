@@ -47,4 +47,51 @@
     new MutationObserver(function(){setTimeout(hideOnlyEffect,10);})
       .observe(document.getElementById('screen')||document.documentElement,{childList:true,subtree:true});
   }catch(e){}
+
+  /* __ktHostBottomEqualSpacing20261004: host bottom controls only. Equal spacing after effect removal. */
+  function equalizeHostBottomOnly(){
+    try{
+      if(isRemoteViewer())return;
+      var s=document.getElementById('screen');
+      if(!s)return;
+
+      var bars=s.querySelectorAll(
+        '.ktsolo-tools,'+
+        '.ktg13-tools,'+
+        '.ktsubscriber-tools,'+
+        '.ktsecret-tools,'+
+        '.kt-live-bottom-tools'
+      );
+      bars.forEach(function(bar){
+        try{
+          var visible=[].slice.call(bar.querySelectorAll('button')).filter(function(b){
+            return getComputedStyle(b).display!=='none';
+          });
+          if(visible.length!==7)return;
+
+          bar.style.setProperty('display','grid','important');
+          bar.style.setProperty('grid-template-columns','repeat(7,minmax(0,1fr))','important');
+          bar.style.setProperty('align-items','center','important');
+          bar.style.setProperty('justify-content','stretch','important');
+          bar.style.setProperty('column-gap','0','important');
+
+          visible.forEach(function(btn){
+            btn.style.setProperty('width','100%','important');
+            btn.style.setProperty('min-width','0','important');
+            btn.style.setProperty('margin-left','0','important');
+            btn.style.setProperty('margin-right','0','important');
+            btn.style.setProperty('justify-self','stretch','important');
+          });
+        }catch(e){}
+      });
+    }catch(e){}
+  }
+
+  setTimeout(equalizeHostBottomOnly,60);
+  setTimeout(equalizeHostBottomOnly,180);
+  setInterval(equalizeHostBottomOnly,500);
+  try{
+    new MutationObserver(function(){setTimeout(equalizeHostBottomOnly,20);})
+      .observe(document.getElementById('screen')||document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
 })();
