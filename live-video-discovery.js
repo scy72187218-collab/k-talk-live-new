@@ -507,6 +507,7 @@
       host_name:hostName,
       title:String(r.title||r.room_name||'방송 중'),
       room_name:String(r.room_name||'방송'),
+      room_type:String(r.room_type||''),
       host_photo:hostPhoto,
       updated_at:String(r.updated_at||new Date().toISOString())
     };
