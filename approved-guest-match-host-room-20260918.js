@@ -130,7 +130,7 @@
     s.id='ktApprovedGuestMatchHostRoomStyle';
     s.textContent=''
       +'.kt-remote-live.kt-guest-hostlike-active{display:block!important;padding:0!important;background:#000!important;overflow:hidden!important}'
-      +'.kt-remote-live.kt-guest-hostlike-active> :not(.kt-guest-hostlike-room):not(.kt-remote-chat):not(.kt-remote-bottom){display:none!important}'
+      +'.kt-remote-live.kt-guest-hostlike-active> :not(.kt-guest-hostlike-room):not(.kt-remote-chat):not(.kt-remote-bottom):not(.kt-remote-leave-fixed-1150617){display:none!important}'
       +'.kt-guest-hostlike-room{width:100%;height:100dvh;min-height:620px;display:flex;flex-direction:column;overflow:hidden;background:#000;color:#fff;font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif;padding:4px 7px calc(62px + env(safe-area-inset-bottom));gap:4px}'
       +'.kgh-head{flex:0 0 64px;position:relative;border-radius:16px;background:linear-gradient(180deg,#17171a,#0d0d10);box-shadow:inset 0 0 18px #ffffff08;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:5px 12px}'
       +'.kgh-air{font-weight:950;line-height:1.05}.kgh-air strong{display:block;font-size:20px;white-space:nowrap}.kgh-air strong i{font-style:normal;color:#ff2e67}.kgh-air small{display:block;margin-top:5px;color:#fff;font-size:12px;font-weight:900;white-space:nowrap}.kgh-air small i{font-style:normal;color:#ff315f}.kgh-brand{justify-self:end;color:#ff3d78;font-size:20px;font-weight:950;white-space:nowrap}'
