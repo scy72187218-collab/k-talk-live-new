@@ -64,7 +64,7 @@
       +'#screen .kt-sgfh-grid{position:absolute!important;inset:0!important;display:grid!important;grid-template-columns:46% 27% 27%!important;grid-template-rows:repeat(2,minmax(0,1fr))!important;gap:3px!important;padding:3px!important}'
       +'#screen .kt-sgfh-cell{position:relative!important;min-width:0!important;min-height:0!important;overflow:hidden!important;border:1px solid rgba(255,255,255,.08)!important;border-radius:8px!important;background:linear-gradient(145deg,#15151a,#09090c)!important;display:flex!important;align-items:center!important;justify-content:center!important}'
       +'#screen .kt-sgfh-cell.host{grid-row:1/3!important;grid-column:1!important;border-color:rgba(255,208,90,.25)!important;box-shadow:inset 0 0 0 1px rgba(255,208,90,.04)!important}'
-      +'#screen .kt-sgfh-cell video{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center!important;background:#111!important;transform:none!important}'
+      +'#screen .kt-sgfh-cell video{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center!important;background:#111!important;transform:none!important}'+'#screen .kt-sgfh-chat{position:absolute!important;left:8px!important;right:8px!important;bottom:8px!important;z-index:15!important;max-height:82px!important;overflow:hidden!important;display:flex!important;flex-direction:column!important;justify-content:flex-end!important;pointer-events:none!important}.kt-sgfh-chat-line{margin-top:3px!important;font-size:11px!important;font-weight:850!important;text-shadow:0 1px 4px #000!important}.kt-sgfh-chat-line b{color:#65c8ff!important;margin-right:6px!important}.kt-sgfh-chat-line span{color:#fff!important}'
       +'#screen .kt-sgfh-label{position:absolute!important;left:5px!important;bottom:5px!important;z-index:3!important;padding:2px 6px!important;border-radius:999px!important;background:rgba(0,0,0,.62)!important;color:#fff!important;font-size:9px!important;font-weight:900!important}'
       +'#screen .kt-sgfh-wait{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:3px!important;color:#bdbdc7!important;font-size:10px!important;font-weight:850!important}.kt-sgfh-wait b{display:grid!important;place-items:center!important;width:30px!important;height:30px!important;border-radius:50%!important;border:1px solid rgba(255,255,255,.25)!important;font-size:20px!important;color:#fff!important}'
       +'#screen .kt-sgfh-earn{position:fixed!important;right:8px!important;bottom:calc(69px + env(safe-area-inset-bottom))!important;z-index:2147482999!important;width:108px!important;height:52px!important;border:1px solid #d2a936!important;border-radius:10px!important;background:linear-gradient(135deg,#17140be8,#0d0d12e8)!important;color:#fff!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;padding:3px!important;font-size:7px!important;line-height:1.1!important}.kt-sgfh-earn b{color:#ffe071!important;font-size:9px!important}.kt-sgfh-earn small{display:block!important;font-size:6px!important;color:#ddd!important;margin-top:2px!important}'
@@ -98,10 +98,10 @@
       +'<div class="kt-sgfh-cell" data-g="1"><div class="kt-sgfh-wait"><b>+</b><span>게스트</span></div></div>'
       +'<div class="kt-sgfh-cell" data-g="2"><div class="kt-sgfh-wait"><b>+</b><span>게스트</span></div></div>'
       +'<div class="kt-sgfh-cell" data-g="3"><div class="kt-sgfh-wait"><b>+</b><span>게스트</span></div></div>'
-      +'</div></div>'
+      +'</div><div class="kt-sgfh-chat" id="ktSgfhChat"></div></div>'
       +'<div class="kt-sgfh-earn">🔒 내 수익 <b>0원</b><small>🌹 0송이 · 일반회원 35%</small></div>'
-      +'<div class="kt-sgfh-bottom"><input type="text" maxlength="100" placeholder="입력하세요..." aria-label="채팅 입력">'
-      +'<button type="button" data-b="send">➤</button><button type="button" data-b="join">👥</button><button type="button" data-b="rose">🌹</button><button type="button" data-b="gift">🎁</button><button type="button" data-b="share">↗</button></div>'
+      +'<div class="kt-sgfh-bottom"><input id="ktSgfhChatInput" type="text" maxlength="100" placeholder="입력하세요..." aria-label="채팅 입력">'
+      +'<button type="button" data-b="send" aria-label="채팅 보내기">✈</button><button type="button" data-b="join">👥</button><button type="button" data-b="rose">🌹</button><button type="button" data-b="gift">🎁</button><button type="button" data-b="share">↗</button></div>'
       +'</div></section>';
 
     var q=function(sel){return root.querySelector(sel);};
@@ -113,9 +113,27 @@
     q('[data-a="treasure"]').onclick=function(){callAny(['openTreasureBox','openTreasure','ktOpenTreasureBox','showTreasureBox']);};
     q('[data-a="match"]').onclick=function(){callAny(['openMatch','startMatch','ktOpenMatch','showMatch']);};
 
-    var input=q('.kt-sgfh-bottom input');
-    q('[data-b="send"]').onclick=function(){try{if(typeof window.ktRemoteSendChat==='function')window.ktRemoteSendChat();}catch(e){}};
-    if(input)input.onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();try{if(typeof window.ktRemoteSendChat==='function')window.ktRemoteSendChat();}catch(x){}}};
+    var input=q('#ktSgfhChatInput');
+    async function sendChatNow(){
+      try{
+        var text=String(input&&input.value||'').trim();
+        if(!text)return;
+        if(typeof window.ktRemoteSendChat!=='function')return;
+        var ok=await window.ktRemoteSendChat(text);
+        if(!ok)return;
+        if(input)input.value='';
+        var box=q('#ktSgfhChat');
+        if(box){
+          var line=document.createElement('div');
+          line.className='kt-sgfh-chat-line';
+          line.innerHTML='<b>나</b><span>'+esc(text)+'</span>';
+          box.appendChild(line);
+          while(box.children.length>5)box.removeChild(box.firstChild);
+        }
+      }catch(e){}
+    }
+    q('[data-b="send"]').onclick=sendChatNow;
+    if(input)input.onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();sendChatNow();}};
     var join=q('[data-b="join"]');
     if(join){join.id='ktRemoteGuestRequest';join.onclick=function(){callAny(['ktRequestGuestJoin']);};}
     q('[data-b="rose"]').onclick=function(){callAny(['ktRemoteOpenGifts','openGifts']);};
