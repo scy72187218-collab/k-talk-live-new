@@ -19,7 +19,6 @@
     +'.ktg13-room .ktg13-earn #myEarnHud,'
     +'.ktsubscriber-room #ktSubscriberEarnHud,'
     +'.ktsubscriber-room .ktsubscriber-earnhud,'
-    +'.ktsecret-room .ktsecret-earn-row #myEarnHud{width:110px!important;max-width:110px!important;min-width:110px!important;height:64px!important;max-height:64px!important;padding:2px 3px!important;box-sizing:border-box!important;overflow:hidden!important;border-radius:10px!important}'
     +'.ktg13-room .ktg13-earn #myEarnHud{margin-left:auto!important;margin-right:0!important;translate:0 0!important}'
     +'.ktsolo-room #myEarnHud>div:first-child,.ktg13-room #myEarnHud>div:first-child,.ktsubscriber-room #ktSubscriberEarnHud>div:first-child,.ktsubscriber-room .ktsubscriber-earnhud>div:first-child{display:flex!important;align-items:center!important;justify-content:center!important;gap:2px!important;white-space:nowrap!important;overflow:hidden!important}'
     +'.ktsolo-room #myEarnHud span,.ktg13-room #myEarnHud span,.ktsubscriber-room #ktSubscriberEarnHud span,.ktsubscriber-room .ktsubscriber-earnhud span{font-size:6.5px!important;line-height:1.05!important}'
