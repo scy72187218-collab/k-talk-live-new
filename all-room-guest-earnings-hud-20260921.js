@@ -7,6 +7,15 @@
 
   var localRoses=0;
 
+  function ktIsSecretRemoteReset20261004(){
+    try{
+      if(!document.documentElement.classList.contains('kt-remote-viewing'))return false;
+      var r=window.__ktLastLiveRoom||{};
+      var t=[r.room_type,r.room_name,r.title,window.__ktRemoteRoomName,window.__ktRemoteRoomType].filter(Boolean).join(' ').toLowerCase();
+      return /비밀|secret|password/.test(t);
+    }catch(e){return false;}
+  }
+
   function live(st){
     try{
       return !!(st&&st.getVideoTracks&&st.getVideoTracks().some(function(t){return t.readyState==='live';}));
@@ -137,6 +146,11 @@
   }
 
   function render(){
+    if(ktIsSecretRemoteReset20261004()){
+      var a=document.getElementById('ktAllRoomGuestEarnHud20260921');if(a)a.remove();
+      var b=document.getElementById('ktGuestEarnHud');if(b)b.remove();
+      return;
+    }
     ensureStyle();
     var root=document.querySelector('.kt-remote-live');
     var generic=document.getElementById('ktAllRoomGuestEarnHud20260921');
