@@ -28,7 +28,8 @@
       +'#screen .kt-guest-hostlike-room[data-kt-room="9"] .kgh-cell{'
       +'min-width:0!important;min-height:0!important;width:auto!important;height:auto!important;'
       +'border-radius:7px!important;overflow:hidden!important;'
-      +'}';
+      +'}'
+      +'#screen .ktg13-room[data-kt-room="9"] .ktg13-guests>.ktg13-guest:last-child{grid-column:auto!important;grid-row:auto!important}';
     (document.head||document.documentElement).appendChild(s);
   }
   style();
