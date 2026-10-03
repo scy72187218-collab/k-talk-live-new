@@ -514,9 +514,14 @@
       }catch(e){}
     }
 
-    /* UI FIRST: open the room shell immediately from cached/card data.
-       Do not make the user wait for the live_rooms DB round trip before the
-       video element exists. Direct RTC/LiveKit can attach while metadata loads. */
+    /* CONNECTION FIRST: start host-video transport before drawing the room.
+       This lets WebRTC/Realtime handshake begin on the same tap that opens LIVE. */
+    window.__ktRemoteHostId=hostId;
+    window.__ktCurrentRemoteHostId=hostId;
+    try{sessionStorage.setItem('kt_remote_host_id',hostId);}catch(e){}
+    try{window.dispatchEvent(new CustomEvent('kt-remote-host-selected',{detail:{host_id:hostId,immediate:true,connection_first:true}}));}catch(e){}
+
+    /* Draw the room immediately after the transport has been kicked off. */
     var cached=cachedRemoteRoom20260924(hostId);
     renderRemote(cached);
     try{
@@ -537,11 +542,6 @@
         });
       }
     }catch(_e){}
-    window.__ktRemoteHostId=hostId;
-    window.__ktCurrentRemoteHostId=hostId;
-    try{sessionStorage.setItem('kt_remote_host_id',hostId);}catch(e){}
-    try{window.dispatchEvent(new CustomEvent('kt-remote-host-selected',{detail:{host_id:hostId,immediate:true}}));}catch(e){}
-
     try{
       var rows=await req('ktalk_live_rooms?select=id,host_id,host_name,title,room_type,room_name,active,updated_at&host_id=eq.'+enc(hostId)+'&active=eq.true&order=started_at.desc&limit=1');
       var room=rows&&rows[0];
