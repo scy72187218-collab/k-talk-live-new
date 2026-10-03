@@ -189,6 +189,78 @@
     return true;
   }
 
+
+  /* 2026-10-03: 9명방 시청 입장 첫 화면 전용.
+     큰 1인 영상 화면을 거치지 않고 호스트 1칸 + 게스트 8칸을 즉시 보여준다.
+     승인 전에는 '나 · 게스트' 칸을 만들지 않는다. 기존 승인 후 apply() 동작은 그대로 둔다. */
+  window.ktShowNineViewerShellImmediately20261003=function(){
+    try{
+      var root=document.querySelector('.kt-remote-live');
+      if(!root)return false;
+      ensureStyle();
+
+      root.classList.remove('kt-guest-hostlike-active','kt-approved-guest-room');
+      root.classList.add('kt-prejoin-room-view');
+
+      var existingVideo=document.getElementById('ktRemoteLiveVideo');
+      if(!existingVideo){
+        existingVideo=document.createElement('video');
+        existingVideo.id='ktRemoteLiveVideo';
+        existingVideo.autoplay=true;
+        existingVideo.playsInline=true;
+        existingVideo.muted=true;
+        existingVideo.defaultMuted=true;
+      }
+
+      root.querySelectorAll('.kt-prejoin-room-led,.kt-prejoin-room-stats,.kt-prejoin-room-grid').forEach(function(x){
+        try{x.remove();}catch(e){}
+      });
+
+      var led=document.createElement('div');
+      led.className='kt-prejoin-room-led';
+      led.textContent='💗 K-Talk LIVE 환영합니다 ✨ 즐거운 방송';
+
+      var stats=document.createElement('div');
+      stats.className='kt-prejoin-room-stats';
+      stats.innerHTML='<div>🔥 일일 랭킹</div><div>🎯 미션</div><div>👁 함께 시청 중</div>';
+
+      var grid=document.createElement('div');
+      grid.className='kt-prejoin-room-grid';
+      grid.setAttribute('data-kt-total','9');
+
+      var host=document.createElement('div');
+      host.className='kt-prejoin-room-cell host';
+      var hl=document.createElement('label');
+      hl.textContent='호스트';
+      host.appendChild(hl);
+
+      existingVideo.autoplay=true;
+      existingVideo.playsInline=true;
+      existingVideo.muted=true;
+      existingVideo.defaultMuted=true;
+      existingVideo.setAttribute('autoplay','');
+      existingVideo.setAttribute('playsinline','');
+      existingVideo.setAttribute('muted','');
+      host.appendChild(existingVideo);
+      grid.appendChild(host);
+
+      for(var i=1;i<9;i++){
+        var cell=document.createElement('div');
+        cell.className='kt-prejoin-room-cell';
+        cell.textContent='게스트';
+        grid.appendChild(cell);
+      }
+
+      var top=root.querySelector('.kt-remote-top');
+      if(top&&top.nextSibling)root.insertBefore(led,top.nextSibling);else root.appendChild(led);
+      if(led.nextSibling)root.insertBefore(stats,led.nextSibling);else root.appendChild(stats);
+      if(stats.nextSibling)root.insertBefore(grid,stats.nextSibling);else root.appendChild(grid);
+
+      try{var p=existingVideo.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
+      return true;
+    }catch(e){return false;}
+  };
+
   window.ktApplyApprovedPrejoinLayout20261002=apply;
   window.ktForceApprovedGuestGridNow20260924=function(){return apply();};
 
