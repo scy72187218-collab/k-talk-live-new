@@ -7,7 +7,7 @@
   if(window.__ktLiveKitSfuBridge20260924)return;
   window.__ktLiveKitSfuBridge20260924=true;
 
-  var DEFAULT_URL='wss://lucia-freeware-tower-overview.trycloudflare.com';
+  var DEFAULT_URL='';
   var TOKEN_URL='https://zupwbfmacwzexyvznlzq.supabase.co/functions/v1/ktalk-livekit-token';
   var SDK_URL='https://cdn.jsdelivr.net/npm/livekit-client@2.22.3/dist/livekit-client.umd.min.js';
 
@@ -160,7 +160,7 @@
     var r=await fetch(TOKEN_URL+q,{cache:'no-store'});
     if(!r.ok)throw new Error('livekit_token_'+r.status);
     var j=await r.json();
-    if(!j||!j.ok||!j.token)throw new Error(String(j&&j.error||'livekit_token_invalid'));
+    if(!j||!j.ok||!j.token||!j.url)throw new Error(String(j&&j.error||'livekit_token_or_url_invalid'));
     return j;
   }
   function stopAudio(identity){
@@ -568,11 +568,11 @@
           },18200);
         }
       });
-      try{r.prepareConnection(auth.url||DEFAULT_URL,auth.token);}catch(e){}
-      await r.connect(auth.url||DEFAULT_URL,auth.token,{autoSubscribe:true});
+      try{r.prepareConnection(auth.url,auth.token);}catch(e){}
+      await r.connect(auth.url,auth.token,{autoSubscribe:true});
       if(room!==r){try{await r.disconnect(false);}catch(e){}return room;}
       connecting=false;
-      setState({url:auth.url||DEFAULT_URL,connected:true,connecting:false,hostId:hostId,role:currentRole,runId:runId});
+      setState({url:auth.url,connected:true,connecting:false,hostId:hostId,role:currentRole,runId:runId});
       try{
         r.remoteParticipants.forEach(function(p){
           p.trackPublications.forEach(function(pub){
