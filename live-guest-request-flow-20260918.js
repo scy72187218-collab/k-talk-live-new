@@ -910,7 +910,9 @@
           if(!el||el.children.length)return;
           if(el.closest&&el.closest('.kt-prejoin-room-led,.kt-remote-top,.kt-remote-attendance'))return;
           var t=String(el.textContent||'').replace(/\s+/g,'').trim();
-          if(!/^[♥♡❤💗]0$/.test(t))return;
+          /* 13명방 게스트 화면 맨 아래의 하트 표시만 제거.
+             하트 0 형태와, 퇴장 문구 앞에 따로 붙는 하트 아이콘 둘 다 대상. */
+          if(!(/^[♥♡❤💗💖💓💕💞]0$/.test(t)||/^[♥♡❤💗💖💓💕💞]$/.test(t)))return;
           var r=el.getBoundingClientRect();
           if(r&&r.top>window.innerHeight*0.55)el.remove();
         }catch(e){}
