@@ -128,6 +128,9 @@
     ensureLeaveButton(root);
 
     var total=roomTotal();
+    if(total===9&&window.__ktUseSingleG9ViewerHostCopy20261003){
+      return false;
+    }
     var hostStream=null,selfStream=null;
     try{hostStream=window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream||null;}catch(e){}
     try{selfStream=window.__ktLocalGuestCameraStream20260926||window.__ktApprovedGuestSelfStream||null;}catch(e){}
