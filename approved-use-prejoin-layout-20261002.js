@@ -101,6 +101,15 @@
 
   function ensureLeaveButton(root){
     if(!root)return;
+
+    /* 9명방은 현재 호스트와 같은 상단 화면을 그대로 쓰므로
+       좌측 상단 고정 '퇴장' 버튼을 만들지 않는다. */
+    if(root.classList.contains('kt-g9-host-copy')||root.querySelector('.ktg13-room[data-kt-room="9"]')){
+      var oldNineLeave=root.querySelector('.kt-remote-leave-fixed-1150617');
+      if(oldNineLeave){try{oldNineLeave.remove();}catch(e){}}
+      return;
+    }
+
     var b=root.querySelector('.kt-remote-leave-fixed-1150617');
     if(!b){
       b=document.createElement('button');
