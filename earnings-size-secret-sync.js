@@ -27,13 +27,11 @@
     +'html body .ktg13-room .ktg13-earn #myEarnHud span,'
     +'html body .ktsubscriber-room #ktSubscriberEarnHud span,'
     +'html body .ktsubscriber-room .ktsubscriber-earnhud span,'
-    +'html body .ktsecret-room .ktsecret-earn-row #myEarnHud span{font-size:6.5px!important}'
 
     +'html body .ktsolo-room .ktsolo-earn #myEarnHud b,'
     +'html body .ktg13-room .ktg13-earn #myEarnHud b,'
     +'html body .ktsubscriber-room #ktSubscriberEarnHud b,'
     +'html body .ktsubscriber-room .ktsubscriber-earnhud b,'
-    +'html body .ktsecret-room .ktsecret-earn-row #myEarnHud b{font-size:9px!important}'
 
     /* 비밀방과 동일하게 작은 휴대폰에서는 100px */
     +'@media(max-width:390px){'
