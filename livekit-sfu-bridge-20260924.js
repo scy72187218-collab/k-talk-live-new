@@ -543,8 +543,10 @@
       });
       if(LK.RoomEvent.Reconnecting)r.on(LK.RoomEvent.Reconnecting,function(){
         if(room===r){
-          reconnectHoldUntil=Date.now()+18000;
-          /* 화면은 그대로 두고 통신만 뒤에서 복구한다. */
+          /* 호스트 송출은 18초 안정 대기를 유지하되,
+             시청자/게스트는 얼굴이 늦게 뜨지 않도록 짧게만 기다린다. */
+          var hold=(currentRole==='host')?18000:800;
+          reconnectHoldUntil=Date.now()+hold;
           setState({connecting:true});
         }
       });
@@ -558,10 +560,12 @@
       });
       r.on(LK.RoomEvent.Disconnected,function(){
         if(room===r){
-          /* 통신이 잠깐 떨어졌다고 화면/방을 바로 갈아엎지 않는다.
-             호스트/게스트 칸은 그대로 두고 18초 동안 같은 연결의 복귀를 기다린다.
-             실제 나가기/방송종료 신호는 disconnectRoom()으로 즉시 정리된다. */
-          reconnectHoldUntil=Date.now()+18000;
+          /* 호스트 송출은 기존 안정 대기를 유지한다.
+             시청자/게스트는 18초를 기다리지 않고 빠르게 재연결한다. */
+          var guestFast=(currentRole!=='host');
+          var hold=guestFast?800:18000;
+          var retry=guestFast?900:18200;
+          reconnectHoldUntil=Date.now()+hold;
           connecting=false;
           setState({connected:false,connecting:true});
           if(reconnectRetryTimer)clearTimeout(reconnectRetryTimer);
@@ -571,7 +575,7 @@
               reconnectHoldUntil=0;
               setTimeout(hostTick,20);
             }
-          },18200);
+          },retry);
         }
       });
       try{r.prepareConnection(auth.url,auth.token);}catch(e){}
