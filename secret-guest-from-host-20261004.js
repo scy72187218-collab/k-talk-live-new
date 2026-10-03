@@ -64,13 +64,13 @@
       +'#screen .kt-sgfh-grid{position:absolute!important;inset:0!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:repeat(2,minmax(0,1fr))!important;gap:3px!important;padding:3px!important}'
       +'#screen .kt-sgfh-cell{position:relative!important;min-width:0!important;min-height:0!important;overflow:hidden!important;border:1px solid rgba(255,255,255,.08)!important;border-radius:8px!important;background:linear-gradient(145deg,#15151a,#09090c)!important;display:flex!important;align-items:center!important;justify-content:center!important}'
       +'#screen .kt-sgfh-cell.host{grid-row:auto!important;grid-column:auto!important;border-color:rgba(255,208,90,.25)!important;box-shadow:inset 0 0 0 1px rgba(255,208,90,.04)!important}'
-      +'#screen .kt-sgfh-cell video{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center!important;background:#111!important;transform:none!important}'+'#screen .kt-sgfh-chat{position:absolute!important;left:8px!important;right:8px!important;bottom:8px!important;z-index:15!important;max-height:82px!important;overflow:hidden!important;display:flex!important;flex-direction:column!important;justify-content:flex-end!important;pointer-events:none!important}.kt-sgfh-chat-line{margin-top:3px!important;font-size:11px!important;font-weight:850!important;text-shadow:0 1px 4px #000!important}.kt-sgfh-chat-line b{color:#65c8ff!important;margin-right:6px!important}.kt-sgfh-chat-line span{color:#fff!important}'
+      +'#screen .kt-sgfh-cell video{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center!important;background:#111!important;transform:none!important}'+'#screen .kt-sgfh-chat{position:absolute!important;left:8px!important;right:8px!important;bottom:8px!important;z-index:15!important;max-height:96px!important;overflow:hidden!important;display:flex!important;flex-direction:column!important;justify-content:flex-end!important;pointer-events:none!important}.kt-sgfh-chat-line{margin-top:4px!important;font-size:12px!important;font-weight:850!important;text-shadow:0 1px 4px #000!important;animation:ktSgfhChatRise .24s ease-out both!important}.kt-sgfh-chat-line b{color:#65c8ff!important;margin-right:6px!important}.kt-sgfh-chat-line span{color:#fff!important}@keyframes ktSgfhChatRise{from{transform:translateY(14px);opacity:0}to{transform:translateY(0);opacity:1}}'
       +'#screen .kt-sgfh-label{position:absolute!important;left:5px!important;bottom:5px!important;z-index:3!important;padding:2px 6px!important;border-radius:999px!important;background:rgba(0,0,0,.62)!important;color:#fff!important;font-size:9px!important;font-weight:900!important}'
       +'#screen .kt-sgfh-wait{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:3px!important;color:#bdbdc7!important;font-size:10px!important;font-weight:850!important}.kt-sgfh-wait b{display:grid!important;place-items:center!important;width:30px!important;height:30px!important;border-radius:50%!important;border:1px solid rgba(255,255,255,.25)!important;font-size:20px!important;color:#fff!important}'
       +'#screen .kt-sgfh-earn{position:fixed!important;right:8px!important;bottom:calc(69px + env(safe-area-inset-bottom))!important;z-index:2147482999!important;width:108px!important;height:52px!important;border:1px solid #d2a936!important;border-radius:10px!important;background:linear-gradient(135deg,#17140be8,#0d0d12e8)!important;color:#fff!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;padding:3px!important;font-size:7px!important;line-height:1.1!important}.kt-sgfh-earn b{color:#ffe071!important;font-size:9px!important}.kt-sgfh-earn small{display:block!important;font-size:6px!important;color:#ddd!important;margin-top:2px!important}'
       +'#screen .kt-sgfh-bottom{position:fixed!important;left:8px!important;right:8px!important;bottom:calc(8px + env(safe-area-inset-bottom))!important;height:50px!important;display:flex!important;align-items:center!important;gap:6px!important;z-index:2147483000!important}'
       +'#screen .kt-sgfh-bottom input{flex:1 1 auto!important;min-width:0!important;height:44px!important;border-radius:22px!important;border:1px solid #42434c!important;background:#1b1b20!important;color:#fff!important;padding:0 15px!important;font-size:14px!important;font-weight:800!important}'
-      +'#screen .kt-sgfh-bottom button{width:44px!important;height:44px!important;min-width:44px!important;flex:0 0 44px!important;border-radius:50%!important;border:1px solid #3c3d45!important;background:#17171d!important;color:#fff!important;padding:0!important;display:grid!important;place-items:center!important;font-size:21px!important}'
+      +'#screen .kt-sgfh-bottom button{width:44px!important;height:44px!important;min-width:44px!important;flex:0 0 44px!important;border-radius:50%!important;border:1px solid #3c3d45!important;background:#17171d!important;color:#fff!important;padding:0!important;display:grid!important;place-items:center!important;font-size:21px!important}#screen .kt-sgfh-bottom [data-b="send"]{font-size:28px!important;font-weight:300!important;transform:rotate(-18deg)!important}'
       +'@media(max-width:390px){#screen .kt-sgfh-room{padding-left:4px!important;padding-right:4px!important}.kt-sgfh-title,.kt-sgfh-brand{font-size:17px!important}.kt-sgfh-att{min-width:82px!important;font-size:10px!important}.kt-sgfh-actions{flex-basis:39px!important}.kt-sgfh-actions button{font-size:10px!important}.kt-sgfh-bottom button{width:40px!important;height:40px!important;min-width:40px!important;flex-basis:40px!important}.kt-sgfh-bottom input{height:40px!important;font-size:13px!important}}';
     document.head.appendChild(s);
   }
@@ -101,7 +101,7 @@
       +'</div><div class="kt-sgfh-chat" id="ktSgfhChat"></div></div>'
       +'<div class="kt-sgfh-earn">🔒 내 수익 <b>0원</b><small>🌹 0송이 · 일반회원 35%</small></div>'
       +'<div class="kt-sgfh-bottom"><input id="ktSgfhChatInput" type="text" maxlength="100" placeholder="입력하세요..." aria-label="채팅 입력">'
-      +'<button type="button" data-b="send" aria-label="채팅 보내기">✈</button><button type="button" data-b="join">👥</button><button type="button" data-b="rose">🌹</button><button type="button" data-b="gift">🎁</button><button type="button" data-b="share">↗</button></div>'
+      +'<button type="button" data-b="send" aria-label="채팅 보내기">◁</button><button type="button" data-b="join">👥</button><button type="button" data-b="rose">🌹</button><button type="button" data-b="gift">🎁</button><button type="button" data-b="share">↗</button></div>'
       +'</div></section>';
 
     var q=function(sel){return root.querySelector(sel);};
@@ -128,16 +128,6 @@
           line.className='kt-sgfh-chat-line';
           line.innerHTML='<b>나</b><span>'+esc(text)+'</span>';
           box.appendChild(line);
-          requestAnimationFrame(function(){
-            line.style.setProperty('transform','translateY(10px)');
-            line.style.setProperty('opacity','0');
-            line.style.setProperty('transition','none');
-            requestAnimationFrame(function(){
-              line.style.setProperty('transition','transform .22s ease, opacity .22s ease');
-              line.style.setProperty('transform','translateY(0)');
-              line.style.setProperty('opacity','1');
-            });
-          });
           while(box.children.length>5)box.removeChild(box.firstChild);
         }
       }catch(e){}
