@@ -141,6 +141,8 @@
 
   function apply(){
     if(ktIsSecretRemoteReset20261004())return;
+    /* 13명방은 새 게스트 전용 화면이 담당한다. 예전 승인전/후 강제 prejoin 변환 금지. */
+    if(roomTotal()===13)return false;
     var root=document.querySelector('.kt-remote-live');
     if(!root)return false;
     ensureStyle();
