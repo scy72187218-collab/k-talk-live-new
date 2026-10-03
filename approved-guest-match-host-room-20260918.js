@@ -14,6 +14,15 @@
      before the viewer has even requested or been approved for guest participation. */
   var approvalActive=false;
 
+  function ktIsSecretRemoteReset20261004(){
+    try{
+      if(!document.documentElement.classList.contains('kt-remote-viewing'))return false;
+      var r=window.__ktLastLiveRoom||{};
+      var t=[r.room_type,r.room_name,r.title,window.__ktRemoteRoomName,window.__ktRemoteRoomType].filter(Boolean).join(' ').toLowerCase();
+      return /비밀|secret|password/.test(t);
+    }catch(e){return false;}
+  }
+
   function localViewerId20260924(){
     try{
       var d=String(localStorage.getItem('kt_live_device_id')||'').trim();
@@ -28,6 +37,7 @@
     }catch(e){return false;}
   }
   function forceApprovedGridNow20260924(){
+    if(ktIsSecretRemoteReset20261004())return false;
     if(!approvedByRealtimeRoster20260924()&&!approvalActive)return false;
     approvalActive=true;
     repair();
@@ -429,6 +439,7 @@
   }
 
   function repair(){
+    if(ktIsSecretRemoteReset20261004())return;
     try{
       if(window.__ktUseSingleG9ViewerHostCopy20261003){
         var r9=document.querySelector('.kt-remote-live');
