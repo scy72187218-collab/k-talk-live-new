@@ -545,7 +545,7 @@
         if(room===r){
           /* 호스트 송출은 18초 안정 대기를 유지하되,
              시청자/게스트는 얼굴이 늦게 뜨지 않도록 짧게만 기다린다. */
-          var hold=(currentRole==='host')?18000:800;
+          var hold=(currentRole==='host')?18000:500;
           reconnectHoldUntil=Date.now()+hold;
           setState({connecting:true});
         }
@@ -563,8 +563,8 @@
           /* 호스트 송출은 기존 안정 대기를 유지한다.
              시청자/게스트는 18초를 기다리지 않고 빠르게 재연결한다. */
           var guestFast=(currentRole!=='host');
-          var hold=guestFast?800:18000;
-          var retry=guestFast?900:18200;
+          var hold=guestFast?500:18000;
+          var retry=guestFast?600:18200;
           reconnectHoldUntil=Date.now()+hold;
           connecting=false;
           setState({connected:false,connecting:true});
