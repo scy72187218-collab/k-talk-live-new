@@ -410,3 +410,47 @@
     try{return typeof oldProtected==='function'?!!oldProtected(name):false;}catch(e){return false;}
   };
 })();
+
+
+/* Lock 9: protect current red LIVE indicator behavior (2026-10-03, 1150617).
+   Maintenance marker only; runtime LIVE state still follows actual broadcast status. */
+(function(){
+  if(window.__ktRedLiveIndicatorLock1150617)return;
+  window.__ktRedLiveIndicatorLock1150617=true;
+
+  function markRedLive(){
+    try{
+      document.querySelectorAll('.kt-live-dot,.kt-live-card em,.kt-live-list-head,.kt-live-now-title').forEach(function(el){
+        el.setAttribute('data-kt-work-protected','1');
+        el.setAttribute('data-kt-protection-slot','9');
+        el.setAttribute('data-kt-protected-area','red_live_indicator_current_state_20261003_1150617');
+        el.setAttribute('data-kt-protection-password','1150617');
+      });
+    }catch(e){}
+  }
+
+  var oldState=window.ktCurrentProtectionState;
+  window.ktCurrentProtectionState=function(){
+    var s={};
+    try{s=typeof oldState==='function'?(oldState()||{}):{};}catch(e){s={};}
+    s.red_live_indicator_current_state_20261003_1150617=true;
+    s.lock_slots=s.lock_slots||{};
+    s.lock_slots[9]=['red_live_indicator_current_state_20261003_1150617'];
+    return s;
+  };
+
+  var oldProtected=window.ktIsWorkProtected;
+  window.ktIsWorkProtected=function(name){
+    if(name==='red_live_indicator_current_state_20261003_1150617')return true;
+    try{return typeof oldProtected==='function'?!!oldProtected(name):false;}catch(e){return false;}
+  };
+
+  markRedLive();
+  [80,220,500,1000,1800].forEach(function(ms){setTimeout(markRedLive,ms);});
+  try{
+    new MutationObserver(function(){
+      clearTimeout(window.__ktRedLiveLockTimer);
+      window.__ktRedLiveLockTimer=setTimeout(markRedLive,30);
+    }).observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+})();
