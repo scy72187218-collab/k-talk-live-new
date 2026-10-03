@@ -40,6 +40,23 @@
         '.kt-prejoin-room-stats,.ktg13-room'
       ).forEach(function(el){try{el.remove();}catch(e){}});
 
+      /* remove leftover duplicated controls from older secret/9-room guest layers */
+      var screen=document.getElementById('screen')||root;
+      screen.querySelectorAll('button,.kt-remote-action').forEach(function(el){
+        try{
+          if(el.closest('.kt-remote-bottom'))return;
+          if(el.classList&&el.classList.contains('kt-remote-back'))return;
+          var t=String(el.textContent||'').replace(/\s+/g,'');
+          if(/퇴장|되돌리기|패키지상자|매치|출석체크/.test(t))el.remove();
+        }catch(e){}
+      });
+      screen.querySelectorAll(
+        '.kt-remote-guest-request,.kt-remote-rose,.kt-remote-action.gift,.kt-remote-action.share,'+
+        '#ktRemoteGuestRequest,#ktRemoteRoseButton,#ktRemoteGiftButton,#ktRemoteShareButton'
+      ).forEach(function(el){
+        try{if(!el.closest('.kt-remote-bottom'))el.remove();}catch(e){}
+      });
+
       var bar=root.querySelector(':scope > .kt-remote-bottom')||root.querySelector('.kt-remote-bottom');
       if(!bar){
         bar=document.createElement('div');
