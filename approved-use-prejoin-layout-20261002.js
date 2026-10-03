@@ -99,10 +99,33 @@
     }
   }
 
+  function ensureLeaveButton(root){
+    if(!root)return;
+    var b=root.querySelector('.kt-remote-leave-fixed-1150617');
+    if(!b){
+      b=document.createElement('button');
+      b.type='button';
+      b.className='kt-remote-leave-fixed-1150617';
+      b.textContent='퇴장';
+      b.setAttribute('aria-label','방송방 퇴장');
+      b.style.cssText='position:absolute!important;left:8px!important;top:8px!important;z-index:200!important;height:34px!important;padding:0 12px!important;border:1px solid #ffffff55!important;border-radius:17px!important;background:rgba(15,15,20,.88)!important;color:#fff!important;font-size:12px!important;font-weight:950!important;pointer-events:auto!important;touch-action:manipulation!important';
+      b.onclick=function(e){
+        try{e.preventDefault();e.stopPropagation();}catch(_e){}
+        try{
+          if(typeof window.ktLeaveRemoteLive==='function'){
+            Promise.resolve(window.ktLeaveRemoteLive(false)).catch(function(){});
+          }
+        }catch(_e){}
+      };
+      root.appendChild(b);
+    }
+  }
+
   function apply(){
     var root=document.querySelector('.kt-remote-live');
     if(!root)return false;
     ensureStyle();
+    ensureLeaveButton(root);
 
     var hostStream=null,selfStream=null;
     try{hostStream=window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream||null;}catch(e){}
@@ -198,6 +221,7 @@
       var root=document.querySelector('.kt-remote-live');
       if(!root)return false;
       ensureStyle();
+      ensureLeaveButton(root);
 
       /* First viewer page must visually match the host 9-room.
          Keep signaling/approval/chat logic untouched; replace only the shell. */
