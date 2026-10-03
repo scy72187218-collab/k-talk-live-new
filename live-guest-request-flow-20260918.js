@@ -300,6 +300,23 @@
     return ok;
   }
 
+
+  window.ktRemoteSendChat=async function(text){
+    try{
+      text=String(text||'').trim();
+      if(!text)return false;
+      var hostId=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||'').trim();
+      if(!hostId)hostId=await currentViewerHost();
+      if(!hostId)return false;
+      var name=(profile&&profile().name)||'게스트';
+      var ok=await postGuestMessage(hostId,'chat',text,viewerId(),name);
+      if(ok){
+        try{window.dispatchEvent(new CustomEvent('kt-remote-chat-sent',{detail:{name:name,text:text,host_id:hostId,at:Date.now()}}));}catch(e){}
+      }
+      return !!ok;
+    }catch(e){return false;}
+  };
+
   async function prewarmViewerGuestMedia(){
     var liveVideo=false;
     try{liveVideo=!!(viewerGuest.stream&&viewerGuest.stream.getVideoTracks&&viewerGuest.stream.getVideoTracks().some(function(t){return t.readyState==='live';}));}catch(e){}
