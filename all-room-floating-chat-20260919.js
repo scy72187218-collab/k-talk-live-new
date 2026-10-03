@@ -28,7 +28,7 @@
 .ktsolo-chat-line:last-child,.ktg13-chat-line:last-child,
 .ktsubscriber-chat-line:last-child,.ktsecret-chat-line:last-child,
 .kgh-chatbox>div:last-child{
-  animation:ktChatFloatUp .24s ease-out both!important;
+  animation:none!important;transition:none!important;opacity:1!important;
 }
 @keyframes ktChatFloatUp{
   from{transform:translateY(10px);opacity:.15}
@@ -234,14 +234,18 @@
   window.addEventListener('orientationchange',function(){setTimeout(function(){placeNineChat();placeSubscriberChat();},120);});
   window.__ktNineChatExactFollowTimer20260919=setInterval(function(){placeNineChat();placeSubscriberChat();},300);
 
-  var __ktHostChatHiddenOnly20261003=true;
-  function ktHideHostChatOnly20261003(){
-    if(document.documentElement.classList.contains('kt-remote-viewing'))return;
-    var sel='#screen .ktsolo-room .ktsolo-chat,#screen .ktg13-room .ktg13-chat,#screen .ktsubscriber-room .ktsubscriber-chat,#screen .ktsecret-room .ktsecret-chat,#screen .ktsecret-room .ktsecret-chat-compose';
+  /* 2026-10-03: keep chat stable in every room.
+     Do not periodically hide host chat; that fought other room scripts and caused flicker. */
+  var __ktHostChatHiddenOnly20261003=false;
+  function ktKeepChatStable20261003(){
+    var sel='#screen .ktsolo-room .ktsolo-chat,#screen .ktg13-room .ktg13-chat,#screen .ktsubscriber-room .ktsubscriber-chat,#screen .ktsecret-room .ktsecret-chat,#screen .ktsecret-room .ktsecret-chat-compose,#screen .kt-remote-live .kt-remote-chat,#screen .kt-guest-hostlike-room .kgh-chatbox';
     document.querySelectorAll(sel).forEach(function(el){
-      el.style.setProperty('display','none','important');
+      el.style.setProperty('visibility','visible','important');
+      el.style.setProperty('opacity','1','important');
+      el.style.setProperty('animation','none','important');
+      el.style.setProperty('transition','none','important');
     });
   }
-  setInterval(ktHideHostChatOnly20261003,500);
-  setTimeout(ktHideHostChatOnly20261003,50);
+  setTimeout(ktKeepChatStable20261003,50);
+  setInterval(ktKeepChatStable20261003,1000);
 })();
