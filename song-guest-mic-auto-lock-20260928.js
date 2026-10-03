@@ -205,6 +205,35 @@
     pollBusy=false;
   }
 
+  function hideSongMicControlNotices(){
+    try{
+      var selectors=[
+        '.ktsolo-chat-line',
+        '.ktg13-chat-line',
+        '.ktsubscriber-chat-line',
+        '.ktsecret-chat-line',
+        '.kgh-chatbox>div',
+        '.kt-remote-chat>div'
+      ].join(',');
+      document.querySelectorAll(selectors).forEach(function(el){
+        var t=String(el.textContent||'');
+        if(
+          t.indexOf('노래 시작 · 게스트 마이크 잠금')>-1||
+          t.indexOf('노래 종료 · 게스트 마이크 해제')>-1
+        ){
+          try{el.remove();}catch(e){el.style.display='none';}
+        }
+      });
+    }catch(e){}
+  }
+
+  hideSongMicControlNotices();
+  try{
+    new MutationObserver(function(){hideSongMicControlNotices();})
+      .observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+  setInterval(hideSongMicControlNotices,500);
+
   hookSoundFunctions();
   [100,350,800,1600].forEach(function(ms){setTimeout(hookSoundFunctions,ms);});
   setInterval(hookSoundFunctions,800);
