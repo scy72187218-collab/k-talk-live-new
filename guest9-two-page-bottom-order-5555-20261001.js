@@ -96,7 +96,18 @@
       bar.querySelector('.kt-remote-guest-request')||
       byText(bar,/👥|👤/);
     if(!people){
-      people=iconButton('kt-remote-guest-request','👥','게스트');
+      people=iconButton('kt-remote-guest-request','👥','방송 참여 신청');
+      people.id='ktRemoteGuestRequest';
+      people.onclick=function(e){
+        try{if(e)e.preventDefault();}catch(_e){}
+        try{
+          if(typeof window.ktRequestGuestJoin==='function')return window.ktRequestGuestJoin();
+        }catch(_e){}
+      };
+    }else{
+      if(!people.id)people.id='ktRemoteGuestRequest';
+      people.setAttribute('aria-label','방송 참여 신청');
+      people.setAttribute('title','방송 참여 신청');
     }
 
     var rose=document.getElementById('ktRemoteRoseButton')||
