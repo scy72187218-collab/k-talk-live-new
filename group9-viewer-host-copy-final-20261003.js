@@ -77,6 +77,10 @@
 
     /* 예전 9칸을 지우기 전에 호스트 영상 노드를 먼저 잡아서 보존한다. */
     var remoteVideo=hostVideoNode();
+    try{
+      var hs0=window.__ktRemoteHostStream||null;
+      if(remoteVideo&&hs0&&remoteVideo.srcObject!==hs0)remoteVideo.srcObject=hs0;
+    }catch(_e){}
     removeLegacyTopNineGrids20261003(root,remoteVideo);
 
     var room=root.querySelector('.ktg13-room[data-kt-viewer-host-copy="1"]');
@@ -89,6 +93,10 @@
       if(remoteVideo&&stableHost&&remoteVideo.parentElement!==stableHost)stableHost.appendChild(remoteVideo);
       if(remoteVideo){
         remoteVideo.autoplay=true;remoteVideo.playsInline=true;remoteVideo.muted=true;remoteVideo.defaultMuted=true;
+        try{
+          var hs=window.__ktRemoteHostStream||null;
+          if(hs&&remoteVideo.srcObject!==hs)remoteVideo.srcObject=hs;
+        }catch(_e){}
         try{var sp=remoteVideo.play();if(sp&&sp.catch)sp.catch(function(){});}catch(e){}
       }
       syncSelf();
