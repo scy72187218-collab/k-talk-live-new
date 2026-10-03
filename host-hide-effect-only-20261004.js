@@ -57,34 +57,53 @@
       var s=document.getElementById('screen');
       if(!s)return;
 
-      var bars=s.querySelectorAll(
-        '.ktsolo-tools,'+
-        '.ktg13-tools,'+
-        '.ktsubscriber-tools,'+
-        '.ktsecret-tools,'+
-        '.kt-live-bottom-tools'
-      );
-      bars.forEach(function(bar){
+      function norm(v){return String(v||'').replace(/\s+/g,'').trim();}
+      var wanted=['카메라','마이크','친구','메시지','영화','공유','더보기'];
+
+      /* 방 클래스 이름에 의존하지 않고, 실제 하단 7개 버튼 줄 자체를 찾는다. */
+      var allButtons=[].slice.call(s.querySelectorAll('button'));
+      var matched=allButtons.filter(function(btn){
+        var t=norm(btn.textContent);
+        return wanted.indexOf(t)>=0;
+      });
+
+      if(matched.length!==7)return;
+
+      var parents=[];
+      matched.forEach(function(btn){
+        var p=btn.parentElement;
+        if(p&&parents.indexOf(p)<0)parents.push(p);
+      });
+
+      /* 7개 버튼이 모두 같은 부모 줄에 있을 때만 건드린다. */
+      var bar=parents.find(function(p){
         try{
-          var visible=[].slice.call(bar.querySelectorAll('button')).filter(function(b){
-            return getComputedStyle(b).display!=='none';
+          var bs=[].slice.call(p.querySelectorAll(':scope > button')).filter(function(b){
+            var t=norm(b.textContent);
+            return wanted.indexOf(t)>=0 && getComputedStyle(b).display!=='none';
           });
-          if(visible.length!==7)return;
+          return bs.length===7;
+        }catch(e){return false;}
+      });
+      if(!bar)return;
 
-          bar.style.setProperty('display','grid','important');
-          bar.style.setProperty('grid-template-columns','repeat(7,minmax(0,1fr))','important');
-          bar.style.setProperty('align-items','center','important');
-          bar.style.setProperty('justify-content','stretch','important');
-          bar.style.setProperty('column-gap','0','important');
+      bar.style.setProperty('display','grid','important');
+      bar.style.setProperty('grid-template-columns','repeat(7,minmax(0,1fr))','important');
+      bar.style.setProperty('align-items','center','important');
+      bar.style.setProperty('justify-content','stretch','important');
+      bar.style.setProperty('column-gap','0','important');
+      bar.style.setProperty('gap','0','important');
 
-          visible.forEach(function(btn){
-            btn.style.setProperty('width','100%','important');
-            btn.style.setProperty('min-width','0','important');
-            btn.style.setProperty('margin-left','0','important');
-            btn.style.setProperty('margin-right','0','important');
-            btn.style.setProperty('justify-self','stretch','important');
-          });
-        }catch(e){}
+      var visible=[].slice.call(bar.querySelectorAll(':scope > button')).filter(function(b){
+        return wanted.indexOf(norm(b.textContent))>=0 && getComputedStyle(b).display!=='none';
+      });
+
+      visible.forEach(function(btn){
+        btn.style.setProperty('width','100%','important');
+        btn.style.setProperty('min-width','0','important');
+        btn.style.setProperty('margin-left','0','important');
+        btn.style.setProperty('margin-right','0','important');
+        btn.style.setProperty('justify-self','stretch','important');
       });
     }catch(e){}
   }
