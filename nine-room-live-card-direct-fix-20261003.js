@@ -16,9 +16,18 @@
       var card=findCard(hostId);
       var txt=card?String(card.textContent||''):'';
       var cached=window.__ktLastLiveRoom||{};
-      var cachedTxt=[cached.room_type,cached.room_name,cached.title].join(' ');
-      return /9\s*명|group9/i.test(txt+' '+cachedTxt);
-    }catch(e){return false;}
+      var sameHost=!cached.host_id||String(cached.host_id||'')===String(hostId||'');
+      var cachedTxt=sameHost?[cached.room_type,cached.room_name,cached.title].join(' '):'';
+      var all=String(txt+' '+cachedTxt);
+
+      if(/9\s*명|group9/i.test(all))return true;
+
+      /* 빨간 LIVE 첫 입장 순간에는 방 메타가 아직 늦게 들어오는 기기가 있다.
+         이때 사람 전체 화면으로 떨어지지 않게, 다른 방이라는 정보가 명확하지 않으면
+         현재 기본 그룹방(9명방) 화면을 먼저 보여준다. */
+      if(/1\s*인|solo|13\s*명|group13|15\s*명|group15|subscriber|구독|secret|비밀/i.test(all))return false;
+      return true;
+    }catch(e){return true;}
   }
 
   function showNine(hostId){
