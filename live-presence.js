@@ -151,6 +151,10 @@
       var x=liveRoomCache20260924[String(hostId||'')];
       if(x)return x;
     }catch(e){}
+    try{
+      var last=window.__ktLastLiveRoom||null;
+      if(last&&String(last.host_id||'')===String(hostId||''))return last;
+    }catch(e){}
     return {host_id:String(hostId||''),host_name:'K-Talk',title:'라이브',room_type:'solo',room_name:'방송',active:true,updated_at:nowIso()};
   }
   function updateRemoteMeta20260924(room){
@@ -498,6 +502,14 @@
        video element exists. Direct RTC/LiveKit can attach while metadata loads. */
     var cached=cachedRemoteRoom20260924(hostId);
     renderRemote(cached);
+    try{
+      var nineTxt=[cached&&cached.room_type,cached&&cached.room_name,cached&&cached.title].join(' ');
+      if(/group9|9\s*명/i.test(String(nineTxt))&&typeof window.ktShowNineViewerShellImmediately20261003==='function'){
+        window.__ktRemoteRoomType=String(cached.room_type||'group9');
+        window.__ktRemoteRoomName=String(cached.room_name||'9명 방송');
+        window.ktShowNineViewerShellImmediately20261003();
+      }
+    }catch(_e){}
     window.__ktRemoteHostId=hostId;
     window.__ktCurrentRemoteHostId=hostId;
     try{sessionStorage.setItem('kt_remote_host_id',hostId);}catch(e){}
@@ -512,6 +524,14 @@
         return;
       }
       updateRemoteMeta20260924(room);
+      try{
+        window.__ktRemoteRoomType=String(room.room_type||'');
+        window.__ktRemoteRoomName=String(room.room_name||'');
+        var nineTxt2=[room.room_type,room.room_name,room.title].join(' ');
+        if(/group9|9\s*명/i.test(String(nineTxt2))&&typeof window.ktShowNineViewerShellImmediately20261003==='function'){
+          window.ktShowNineViewerShellImmediately20261003();
+        }
+      }catch(_e){}
 
       /* Re-announce without rebuilding the DOM. */
       window.__ktRemoteHostId=hostId;
