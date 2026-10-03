@@ -396,21 +396,11 @@
       if(!room||!e)return;
       if(e.parentNode!==room)room.appendChild(e);
       room.style.setProperty('position','relative','important');
-      var more=room.querySelector('.ktsecret-tools .ktsecret-tool:last-child');
-      var mr=more&&more.getBoundingClientRect?more.getBoundingClientRect():null;
-      var rr=room.getBoundingClientRect();
       e.style.setProperty('position','fixed','important');
-      e.style.setProperty('bottom','auto','important');
       e.style.setProperty('left','auto','important');
-      if(mr&&rr&&isFinite(mr.top)&&isFinite(mr.right)){
-        var eh=(e.getBoundingClientRect&&e.getBoundingClientRect().height)||50;
-        e.style.setProperty('top',Math.max(8,Math.round(mr.top-eh-2))+'px','important');
-        e.style.setProperty('right',Math.max(6,Math.round(window.innerWidth-mr.right))+'px','important');
-      }else{
-        e.style.setProperty('top','auto','important');
-        e.style.setProperty('right','6px','important');
-        e.style.setProperty('bottom','112px','important');
-      }
+      e.style.setProperty('top','auto','important');
+      e.style.setProperty('right','6px','important');
+      e.style.setProperty('bottom','58px','important');
       e.style.setProperty('z-index','2147483001','important');
       var hud=e.querySelector('#myEarnHud');
       if(hud){
