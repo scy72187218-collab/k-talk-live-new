@@ -58,10 +58,20 @@
     });
   }
 
+  function removeLegacyTopNineGrids20261003(root){
+    if(!root)return;
+    try{
+      root.querySelectorAll(':scope > .kt-prejoin-room-grid,:scope > .kt-approved-guest-grid,:scope > .kt-guest-room-grid,:scope > .kt-guest-hostlike-room').forEach(function(x){
+        try{x.remove();}catch(e){}
+      });
+    }catch(e){}
+  }
+
   function build(){
     var root=document.querySelector('#screen .kt-remote-live');
     if(!root||!isNine())return false;
     style();
+    removeLegacyTopNineGrids20261003(root);
 
     var room=root.querySelector('.ktg13-room[data-kt-viewer-host-copy="1"]');
     var remoteVideo=hostVideoNode();
@@ -81,7 +91,7 @@
     }
 
     /* 첫 생성 때만 오래된 9명방 잔여물을 제거한다. */
-    root.querySelectorAll('.kt-prejoin-room-led,.kt-prejoin-room-stats,.kt-prejoin-room-grid,.kt-approved-guest-led,.kt-approved-guest-stats,.kt-approved-guest-grid,.kt-guest-hostlike-room').forEach(function(x){
+    root.querySelectorAll('.kt-prejoin-room-led,.kt-prejoin-room-stats,.kt-prejoin-room-grid,.kt-approved-guest-led,.kt-approved-guest-stats,.kt-approved-guest-grid,.kt-guest-room-grid,.kt-guest-hostlike-room').forEach(function(x){
       try{x.remove();}catch(e){}
     });
     root.classList.remove('kt-prejoin-room-view','kt-approved-guest-room','kt-guest-hostlike-active');
