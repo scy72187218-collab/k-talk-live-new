@@ -63,6 +63,7 @@
             host_id:String(d.host_id||id||''),
             host_name:String(d.host_name||'K-Talk 방송자'),
             title:String(d.title||d.room_name||'방송 중'),
+            room_type:String(d.room_type||''),
             room_name:String(d.room_name||'방송'),
             host_photo:String(d.host_photo||''),
             updated_at:new Date(Number(d.at||x.last||Date.now())).toISOString()
@@ -79,7 +80,7 @@
       var timer=ctrl?setTimeout(function(){ctrl.abort();},1800):null;
       var opt={headers:{apikey:KEY,Authorization:'Bearer '+KEY}};
       if(ctrl)opt.signal=ctrl.signal;
-      var r=await fetch(BASE+'ktalk_live_rooms?select=host_id,host_name,title,room_name,host_photo,updated_at&active=eq.true&updated_at=gte.'+enc(cut)+'&order=started_at.desc&limit=50',opt);
+      var r=await fetch(BASE+'ktalk_live_rooms?select=host_id,host_name,title,room_type,room_name,host_photo,updated_at&active=eq.true&updated_at=gte.'+enc(cut)+'&order=started_at.desc&limit=50',opt);
       if(timer)clearTimeout(timer);
       if(r.ok){
         rows=await r.json();
@@ -505,6 +506,7 @@
       host_id:hostId,
       host_name:hostName,
       title:String(r.title||r.room_name||'방송 중'),
+      room_type:String(r.room_type||''),
       room_name:String(r.room_name||'방송'),
       host_photo:hostPhoto,
       updated_at:String(r.updated_at||new Date().toISOString())
@@ -561,6 +563,15 @@
       try{hid=String(window.__ktLastLiveRoom&&window.__ktLastLiveRoom.host_id||'').trim();}catch(_e){}
     }
     if(!hid||typeof window.ktEnterRemoteLive!=='function')return;
+    try{
+      var lr=window.__ktLastLiveRoom||{};
+      var roomTxt=[lr.room_type,lr.room_name,lr.title].join(' ');
+      if(String(lr.host_id||'')===hid&&/group9|9\s*명/i.test(String(roomTxt))){
+        window.__ktForceNineViewerShellHost20261003=hid;
+      }else{
+        window.__ktForceNineViewerShellHost20261003='';
+      }
+    }catch(_e){}
     __ktLivePeekTapAt=now;
     try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
     try{window.ktEnterRemoteLive(hid);}catch(_e){}
