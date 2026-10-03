@@ -76,7 +76,7 @@
     var rows=[];
     try{
       var ctrl=typeof AbortController!=='undefined'?new AbortController():null;
-      var timer=ctrl?setTimeout(function(){ctrl.abort();},700):null;
+      var timer=ctrl?setTimeout(function(){ctrl.abort();},1800):null;
       var opt={headers:{apikey:KEY,Authorization:'Bearer '+KEY}};
       if(ctrl)opt.signal=ctrl.signal;
       var r=await fetch(BASE+'ktalk_live_rooms?select=host_id,host_name,title,room_name,host_photo,updated_at&active=eq.true&updated_at=gte.'+enc(cut)+'&order=started_at.desc&limit=50',opt);
@@ -127,7 +127,7 @@
   async function activeRooms(){
     var now=Date.now();
     if(activeRoomsBusy)return activeRoomsBusy;
-    if(now-activeRoomsCheckedAt<150)return stableActiveRooms.slice();
+    if(now-activeRoomsCheckedAt<500)return stableActiveRooms.slice();
     activeRoomsCheckedAt=now;
     activeRoomsBusy=activeRoomsCore();
     try{return await activeRoomsBusy;}
@@ -406,9 +406,8 @@
     try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
     try{window.ktEnterRemoteLive(hid);}catch(_e){}
   }
-  /* 방송자 원형 목록은 4~15번까지 가로 스크롤이 되어야 하므로
-     pointerdown에서 입장시키지 않고 실제 탭(click)일 때만 입장한다. */
-  document.addEventListener('click',enterFollowHostNow,true);
+  document.addEventListener('pointerdown',enterFollowHostNow,true);
+  if(!window.PointerEvent)document.addEventListener('touchstart',enterFollowHostNow,true);
 
   function visibleVideoNode(v){
     if(!v||!v.isConnected)return false;
@@ -507,7 +506,6 @@
       host_name:hostName,
       title:String(r.title||r.room_name||'방송 중'),
       room_name:String(r.room_name||'방송'),
-      room_type:String(r.room_type||''),
       host_photo:hostPhoto,
       updated_at:String(r.updated_at||new Date().toISOString())
     };
@@ -520,7 +518,7 @@
     if(old)old.remove();
     var b=document.createElement('div');
     b.id='ktVideoLivePeek';b.className='kt-video-live-peek';b.setAttribute('data-kt-signature',signature);
-    b.innerHTML='<button type="button" class="ktvl-person" data-host="'+esc(hostId)+'" aria-label="방송자 프로필"><span class="ktvl-avatar">'+photo+'</span><span class="ktvl-copy"><b>'+esc(hostName)+'</b><small>'+esc(r.title||r.room_name||'방송 중')+'</small></span></button>'
+    b.innerHTML='<button type="button" class="ktvl-person" aria-label="방송자 프로필"><span class="ktvl-avatar">'+photo+'</span><span class="ktvl-copy"><b>'+esc(hostName)+'</b><small>'+esc(r.title||r.room_name||'방송 중')+'</small></span></button>'
       +'<button type="button" class="ktvl-live" data-host="'+esc(hostId)+'">● LIVE</button>';
     var person=b.querySelector('.ktvl-person');
     var live=b.querySelector('.ktvl-live');
@@ -567,47 +565,6 @@
     try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
     try{window.ktEnterRemoteLive(hid);}catch(_e){}
   }
-  function enterAnyPublicLiveNow(e){
-    var btn=e.target&&e.target.closest?e.target.closest(
-      '.ktvl-person,.kt-follow-person.live,.kt-live-card,.kt-live-list-enter'
-    ):null;
-    if(!btn)return;
-    /* 원형 LIVE 목록은 손가락을 옆으로 밀어 4~15번까지 이동할 수 있어야 한다.
-       스크롤 시작(pointer/touch)에는 입장하지 않고 실제 click에서만 입장한다. */
-    if(btn.classList&&btn.classList.contains('kt-follow-person')&&e.type!=='click')return;
-
-    var now=Date.now();
-    if(now-Number(window.__ktAnyPublicLiveTapAt||0)<320){
-      try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
-      return;
-    }
-
-    var hid=String(btn.getAttribute('data-host')||'').trim();
-    if(!hid){
-      var wrap=btn.closest&&btn.closest('[data-host]');
-      if(wrap)hid=String(wrap.getAttribute('data-host')||'').trim();
-    }
-    if(!hid){
-      try{hid=String(window.__ktLastLiveRoom&&window.__ktLastLiveRoom.host_id||'').trim();}catch(_e){}
-    }
-    if(!hid||typeof window.ktEnterRemoteLive!=='function')return;
-
-    window.__ktAnyPublicLiveTapAt=now;
-    try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
-
-    try{window.ktEnterRemoteLive(hid);}catch(_e){}
-    setTimeout(function(){
-      try{
-        if(!document.documentElement.classList.contains('kt-remote-viewing')&&!document.querySelector('#screen .kt-remote-live')){
-          window.ktEnterRemoteLive(hid);
-        }
-      }catch(_e){}
-    },420);
-  }
-  document.addEventListener('pointerdown',enterAnyPublicLiveNow,true);
-  document.addEventListener('touchstart',enterAnyPublicLiveNow,true);
-  document.addEventListener('click',enterAnyPublicLiveNow,true);
-
   function clearPublicLiveStripInRoom(){
     try{
       if(document.querySelector(
@@ -652,6 +609,6 @@
   if(screen)screen.addEventListener('scroll',function(){scheduleRender(350);},true);
   document.addEventListener('touchend',function(){scheduleRender(250);},true);
   document.addEventListener('pointerup',function(){scheduleRender(250);},true);
-  setInterval(function(){clearPublicLiveStripInRoom();scheduleRender(0);},250);
-  scheduleRender(80);
+  setInterval(function(){clearPublicLiveStripInRoom();scheduleRender(0);},700);
+  scheduleRender(600);
 })();
