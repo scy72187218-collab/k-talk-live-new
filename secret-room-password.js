@@ -367,9 +367,10 @@
     try{
       var e=document.querySelector('#screen .ktsecret-room .ktsecret-earn-row');
       if(!e)return;
+      e.style.setProperty('position','fixed','important');
       e.style.setProperty('top','auto','important');
-      e.style.setProperty('bottom','58px','important');
-      e.style.setProperty('right','6px','important');
+      e.style.setProperty('bottom','64px','important');
+      e.style.setProperty('right','8px','important');
       e.style.setProperty('left','auto','important');
       e.style.setProperty('z-index','24','important');
     }catch(err){}
