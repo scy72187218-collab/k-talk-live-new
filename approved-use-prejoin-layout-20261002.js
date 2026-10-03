@@ -199,9 +199,8 @@
       if(!root)return false;
       ensureStyle();
 
-      root.classList.remove('kt-guest-hostlike-active','kt-approved-guest-room');
-      root.classList.add('kt-prejoin-room-view');
-
+      /* First viewer page must visually match the host 9-room.
+         Keep signaling/approval/chat logic untouched; replace only the shell. */
       var existingVideo=document.getElementById('ktRemoteLiveVideo');
       if(!existingVideo){
         existingVideo=document.createElement('video');
@@ -212,27 +211,48 @@
         existingVideo.defaultMuted=true;
       }
 
+      var oldHostLike=root.querySelector('.kt-guest-hostlike-room[data-kt-first-view="1"]');
+      if(oldHostLike)try{oldHostLike.remove();}catch(e){}
       root.querySelectorAll('.kt-prejoin-room-led,.kt-prejoin-room-stats,.kt-prejoin-room-grid').forEach(function(x){
         try{x.remove();}catch(e){}
       });
 
+      root.classList.remove('kt-prejoin-room-view','kt-approved-guest-room');
+      root.classList.add('kt-guest-hostlike-active');
+
+      var room=document.createElement('section');
+      room.className='kt-guest-hostlike-room';
+      room.setAttribute('data-kt-room','9');
+      room.setAttribute('data-kt-first-view','1');
+
+      var head=document.createElement('div');
+      head.className='kgh-head';
+      head.innerHTML='<div class="kgh-air"><strong><i>●</i> 9명 방송</strong><small><i>● ON AIR</i> <span class="kgh-clock">00:00:00</span></small></div>'
+        +'<button class="kgh-attend" type="button">🌹 출석체크</button><div class="kgh-brand">K-Talk LIVE</div>';
+      var attend=head.querySelector('.kgh-attend');
+      if(attend)attend.onclick=function(){try{if(window.ktAttendanceCheck)window.ktAttendanceCheck();}catch(e){}};
+
       var led=document.createElement('div');
-      led.className='kt-prejoin-room-led';
-      led.textContent='💗 K-Talk LIVE 환영합니다 ✨ 즐거운 방송';
+      led.className='kgh-led';
+      led.innerHTML='<div class="kgh-led-track"><span>💗 <b>K-Talk LIVE</b> 환영합니다 ✨ 즐거운 방송 되세요 🌹</span><span>💗 <b>K-Talk LIVE</b> 환영합니다 ✨ 즐거운 방송 되세요 🌹</span></div>';
+
+      var quick=document.createElement('div');
+      quick.className='kgh-quick';
+      quick.innerHTML='<button type="button">↩ 되돌리기</button><button type="button">🎁 보물 상자</button><button type="button">⚔ 매치</button>';
 
       var stats=document.createElement('div');
-      stats.className='kt-prejoin-room-stats';
-      stats.innerHTML='<div>🔥 일일 랭킹</div><div>🎯 미션</div><div>👁 함께 시청 중</div>';
+      stats.className='kgh-stats';
+      stats.innerHTML='<button type="button">🔥 일일 랭킹</button><button type="button">🎯 미션</button><div class="kgh-viewers">시청자 9명이 시청중 🏃</div>';
 
       var grid=document.createElement('div');
-      grid.className='kt-prejoin-room-grid';
-      grid.setAttribute('data-kt-total','9');
+      grid.className='kgh-main';
 
       var host=document.createElement('div');
-      host.className='kt-prejoin-room-cell host';
-      var hl=document.createElement('label');
-      hl.textContent='호스트';
-      host.appendChild(hl);
+      host.className='kgh-cell host';
+      var label=document.createElement('span');
+      label.className='kgh-label';
+      label.textContent='호스트';
+      host.appendChild(label);
 
       existingVideo.autoplay=true;
       existingVideo.playsInline=true;
@@ -241,20 +261,33 @@
       existingVideo.setAttribute('autoplay','');
       existingVideo.setAttribute('playsinline','');
       existingVideo.setAttribute('muted','');
+      existingVideo.style.cssText='';
       host.appendChild(existingVideo);
       grid.appendChild(host);
 
       for(var i=1;i<9;i++){
         var cell=document.createElement('div');
-        cell.className='kt-prejoin-room-cell';
-        cell.textContent='게스트';
+        cell.className='kgh-cell';
+        var gl=document.createElement('span');
+        gl.className='kgh-label';
+        gl.textContent='게스트';
+        cell.appendChild(gl);
         grid.appendChild(cell);
       }
 
-      var top=root.querySelector('.kt-remote-top');
-      if(top&&top.nextSibling)root.insertBefore(led,top.nextSibling);else root.appendChild(led);
-      if(led.nextSibling)root.insertBefore(stats,led.nextSibling);else root.appendChild(stats);
-      if(stats.nextSibling)root.insertBefore(grid,stats.nextSibling);else root.appendChild(grid);
+      var chat=document.createElement('div');
+      chat.className='kgh-chat';
+      var chatbox=document.createElement('div');
+      chatbox.className='kgh-chatbox';
+      chat.appendChild(chatbox);
+
+      room.appendChild(head);
+      room.appendChild(led);
+      room.appendChild(quick);
+      room.appendChild(stats);
+      room.appendChild(grid);
+      room.appendChild(chat);
+      root.appendChild(room);
 
       try{var p=existingVideo.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
       return true;
