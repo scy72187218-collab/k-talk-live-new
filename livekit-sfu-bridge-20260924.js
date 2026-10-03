@@ -208,10 +208,7 @@
         '.kt-guest-hostlike-room .kgh-cell.host video,'+
         '.kt-approved-guest-grid .kt-approved-guest-cell.host video,'+
         '.kt-prejoin-room-grid .kt-prejoin-room-cell.host video,'+
-        '.kt-guest-room-grid .kt-guest-room-cell.host video,'+
-        '.kt-remote-live .ktg13-room .ktg13-host video,'+
-        '.kt-remote-live .ktsubscriber-room .ktsubscriber-host video,'+
-        '.kt-remote-live .ktsecret-room .ktsecret-slot.host video'
+        '.kt-guest-room-grid .kt-guest-room-cell.host video'
       ).forEach(add);
     }catch(e){}
     var main=document.getElementById('ktRemoteLiveVideo');
