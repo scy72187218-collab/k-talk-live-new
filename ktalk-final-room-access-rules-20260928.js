@@ -160,6 +160,14 @@
   }
 
   async function roomMeta(hostId){
+    /* 입장 속도: 화면에 이미 잡혀 있는 현재 LIVE 메타가 있으면 즉시 사용.
+       없을 때만 서버 조회. 방 권한 규칙/레이아웃은 변경하지 않음. */
+    try{
+      var cached=window.__ktLastLiveRoom||null;
+      if(cached&&String(cached.host_id||'')===String(hostId||'')&&(cached.room_type||cached.room_name)){
+        return cached;
+      }
+    }catch(_e){}
     try{
       var q='ktalk_live_rooms?select=host_id,host_name,room_type,room_name,started_at&host_id=eq.'+enc(hostId)+'&active=eq.true&order=started_at.desc&limit=1';
       var r=await fetch(BASE+q,{headers:headers(),cache:'no-store'});
