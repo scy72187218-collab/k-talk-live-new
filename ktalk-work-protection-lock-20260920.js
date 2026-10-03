@@ -305,3 +305,36 @@
   mark();
   [60,180,450,900,1800].forEach(function(ms){setTimeout(mark,ms);});
 })();
+
+
+/* 2026-10-03 explicit protected-area declaration.
+   Communication only is excluded; chat/switch/AI guidance/usage UI are protected under 6666. */
+(function(){
+  try{
+    window.__ktProtectedAreas6666 = {
+      password: '6666',
+      mode: 'communication_only',
+      chat_switch_ai_usage_locked_6666: true,
+      protected: [
+        'chat',
+        'switches',
+        'ai_voice_and_ai_talk',
+        'usage_guide_and_help',
+        'screen_layout',
+        'buttons',
+        'settings',
+        'revenue_ui',
+        'all_non_communication_features'
+      ],
+      allowed: [
+        'communication',
+        'live_signal',
+        'webrtc',
+        'livekit',
+        'peer_connection',
+        'remote_video_connection',
+        'host_viewer_connection'
+      ]
+    };
+  }catch(e){}
+})();
