@@ -127,45 +127,58 @@
     ensureStyle();
     ensureLeaveButton(root);
 
+    var total=roomTotal();
     var hostStream=null,selfStream=null;
     try{hostStream=window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream||null;}catch(e){}
     try{selfStream=window.__ktLocalGuestCameraStream20260926||window.__ktApprovedGuestSelfStream||null;}catch(e){}
 
-    var old=root.querySelector('.kt-guest-hostlike-room');
-    if(old){
-      try{
-        var hv=old.querySelector('.kgh-cell.host video');
-        var sv=old.querySelector('.kgh-cell.self video');
-        if(hv&&live(hv.srcObject))hostStream=hv.srcObject;
-        if(sv&&live(sv.srcObject))selfStream=sv.srcObject;
-      }catch(e){}
-      try{old.remove();}catch(e){}
-    }
-    root.classList.remove('kt-guest-hostlike-active','kt-approved-guest-room');
-    root.classList.add('kt-prejoin-room-view');
-
-    var total=roomTotal();
-
-    /* 9명방은 빨간 LIVE 첫 입장 화면과 승인 후 화면을 완전히 동일하게 유지한다.
-       승인 후 새 화면으로 갈아끼우지 않고, 기존 host-like 방 안의 첫 게스트 칸에
-       자기 영상만 넣는다. */
+    /* 9명방은 첫 입장부터 승인 후까지 같은 방 화면을 절대 갈아끼우지 않는다.
+       호스트 화면 구조를 그대로 유지하고 승인된 자기 영상만 빈 게스트 칸에 넣는다. */
     if(total===9){
       var hostLike=root.querySelector('.kt-guest-hostlike-room[data-kt-room="9"]');
-      if(hostLike){
-        root.classList.remove('kt-prejoin-room-view','kt-approved-guest-room');
-        root.classList.add('kt-guest-hostlike-active');
+      if(!hostLike&&typeof window.ktShowNineViewerShellImmediately20261003==='function'){
+        try{window.ktShowNineViewerShellImmediately20261003();}catch(e){}
+        hostLike=root.querySelector('.kt-guest-hostlike-room[data-kt-room="9"]');
+      }
+      if(!hostLike)return false;
 
-        var hostVideo=hostLike.querySelector('.kgh-cell.host video');
-        if(hostVideo&&hostStream&&hostVideo.srcObject!==hostStream){
-          hostVideo.srcObject=hostStream;
-          hostVideo.autoplay=true;hostVideo.playsInline=true;hostVideo.muted=true;
-          try{var hp=hostVideo.play();if(hp&&hp.catch)hp.catch(function(){});}catch(e){}
+      root.classList.remove('kt-prejoin-room-view','kt-approved-guest-room');
+      root.classList.add('kt-guest-hostlike-active');
+
+      var hv=hostLike.querySelector('.kgh-cell.host video');
+      if(hv){
+        var currentHost=hv.srcObject||null;
+        if(currentHost&&live(currentHost)){
+          hostStream=currentHost;
+          try{
+            window.__ktRemoteHostStream=currentHost;
+            window.__ktLastApprovedGuestHostStream=currentHost;
+          }catch(e){}
+        }else if(hostStream&&hv.srcObject!==hostStream){
+          hv.srcObject=hostStream;
         }
+        hv.autoplay=true;hv.playsInline=true;hv.muted=true;hv.defaultMuted=true;
+        try{var hp=hv.play();if(hp&&hp.catch)hp.catch(function(){});}catch(e){}
+      }
 
-        var selfCell=hostLike.querySelector('.kgh-cell.self');
+      var approved=false;
+      try{
+        var ids=window.__ktApprovedGuestIds20260924||{};
+        approved=!!(selfStream&&(window.__ktApprovedGuestSelfStream||window.__ktLocalGuestCameraStream20260926));
+        if(!approved){
+          var myId='';
+          try{
+            myId='viewer_'+(localStorage.getItem('kt_live_device_id')||'');
+          }catch(e){}
+          if(myId&&ids[myId]===true)approved=true;
+        }
+      }catch(e){}
+
+      var selfCell=hostLike.querySelector('.kgh-cell.self');
+      if(approved){
         if(!selfCell){
           var guestCells=[].slice.call(hostLike.querySelectorAll('.kgh-cell:not(.host)'));
-          selfCell=guestCells[0]||null;
+          selfCell=guestCells.find(function(x){return !x.querySelector('video');})||guestCells[0]||null;
           if(selfCell){
             selfCell.classList.add('self');
             selfCell.innerHTML='';
@@ -174,25 +187,46 @@
             lab.textContent='나 · 게스트';
             selfCell.appendChild(lab);
             var sv=document.createElement('video');
-            sv.id='ktRemoteLiveVideo';
-            sv.autoplay=true;sv.playsInline=true;sv.muted=true;
+            sv.autoplay=true;sv.playsInline=true;sv.muted=true;sv.defaultMuted=true;
+            sv.setAttribute('data-kt-approved-self-video','1');
             selfCell.appendChild(sv);
           }
         }
-
         if(selfCell){
           var selfV=selfCell.querySelector('video');
           if(selfV&&selfStream&&selfV.srcObject!==selfStream){
             selfV.srcObject=selfStream;
-            selfV.autoplay=true;selfV.playsInline=true;selfV.muted=true;
+            selfV.autoplay=true;selfV.playsInline=true;selfV.muted=true;selfV.defaultMuted=true;
             try{var sp=selfV.play();if(sp&&sp.catch)sp.catch(function(){});}catch(e){}
           }
         }
-
-        positionAttendanceBesideHeart(root);
-        return true;
+      }else if(selfCell){
+        /* 승인 전에는 게스트 칸을 비워 둔다. 방 전체 화면은 그대로 유지한다. */
+        try{
+          var oldV=selfCell.querySelector('video');
+          if(oldV){try{oldV.pause();}catch(e){}oldV.srcObject=null;}
+          selfCell.classList.remove('self');
+          selfCell.innerHTML='<span class="kgh-label">게스트</span>';
+        }catch(e){}
       }
+
+      positionAttendanceBesideHeart(root);
+      return true;
     }
+
+    /* 다른 방은 기존 처리 유지 */
+    var old=root.querySelector('.kt-guest-hostlike-room');
+    if(old){
+      try{
+        var ohv=old.querySelector('.kgh-cell.host video');
+        var osv=old.querySelector('.kgh-cell.self video');
+        if(ohv&&live(ohv.srcObject))hostStream=ohv.srcObject;
+        if(osv&&live(osv.srcObject))selfStream=osv.srcObject;
+      }catch(e){}
+      try{old.remove();}catch(e){}
+    }
+    root.classList.remove('kt-guest-hostlike-active','kt-approved-guest-room');
+    root.classList.add('kt-prejoin-room-view');
 
     var grid=root.querySelector('.kt-prejoin-room-grid');
     if(!grid || Number(grid.getAttribute('data-kt-total')||0)!==total){
@@ -213,11 +247,11 @@
       var host=document.createElement('div');
       host.className='kt-prejoin-room-cell host';
       var hl=document.createElement('label');hl.textContent='호스트';host.appendChild(hl);
-      var hv=document.createElement('video');
-      hv.id='ktRemoteHostPreview';
-      hv.autoplay=true;hv.playsInline=true;hv.muted=true;hv.defaultMuted=true;
-      if(hostStream)hv.srcObject=hostStream;
-      host.appendChild(hv);grid.appendChild(host);
+      var vh=document.createElement('video');
+      vh.id='ktRemoteHostPreview';
+      vh.autoplay=true;vh.playsInline=true;vh.muted=true;vh.defaultMuted=true;
+      if(hostStream)vh.srcObject=hostStream;
+      host.appendChild(vh);grid.appendChild(host);
 
       for(var i=1;i<total;i++){
         var cell=document.createElement('div');
@@ -230,37 +264,35 @@
       if(top&&top.nextSibling)root.insertBefore(led,top.nextSibling);else root.appendChild(led);
       if(led.nextSibling)root.insertBefore(stats,led.nextSibling);else root.appendChild(stats);
       if(stats.nextSibling)root.insertBefore(grid,stats.nextSibling);else root.appendChild(grid);
-      try{var p=hv.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
+      try{var p=vh.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
     }else{
       var hostV=grid.querySelector('.kt-prejoin-room-cell.host video');
-      if(hostV&&hostStream&&hostV.srcObject!==hostStream){hostV.srcObject=hostStream;try{var hp=hostV.play();if(hp&&hp.catch)hp.catch(function(){});}catch(e){}}
+      if(hostV&&hostStream&&hostV.srcObject!==hostStream){hostV.srcObject=hostStream;try{var hp2=hostV.play();if(hp2&&hp2.catch)hp2.catch(function(){});}catch(e){}}
     }
 
-    var selfCell=grid.querySelector('.kt-prejoin-room-cell.self');
-    if(!selfCell){
+    var selfCell2=grid.querySelector('.kt-prejoin-room-cell.self');
+    if(!selfCell2){
       var cells=[].slice.call(grid.querySelectorAll('.kt-prejoin-room-cell:not(.host)'));
-      selfCell=cells[0]||null;
-      if(selfCell){
-        selfCell.classList.add('self');
-        selfCell.textContent='';
-        var lab=document.createElement('label');lab.textContent='나 · 게스트';selfCell.appendChild(lab);
-        var sv=document.createElement('video');
-        sv.id='ktRemoteLiveVideo';
-        sv.autoplay=true;sv.playsInline=true;sv.muted=true;
-        selfCell.appendChild(sv);
+      selfCell2=cells[0]||null;
+      if(selfCell2){
+        selfCell2.classList.add('self');
+        selfCell2.textContent='';
+        var lab2=document.createElement('label');lab2.textContent='나 · 게스트';selfCell2.appendChild(lab2);
+        var sv2=document.createElement('video');
+        sv2.autoplay=true;sv2.playsInline=true;sv2.muted=true;
+        selfCell2.appendChild(sv2);
       }
     }
-    if(selfCell){
-      var selfV=selfCell.querySelector('video');
-      if(selfV&&selfStream&&selfV.srcObject!==selfStream){
-        selfV.srcObject=selfStream;
-        try{var sp=selfV.play();if(sp&&sp.catch)sp.catch(function(){});}catch(e){}
+    if(selfCell2){
+      var selfV2=selfCell2.querySelector('video');
+      if(selfV2&&selfStream&&selfV2.srcObject!==selfStream){
+        selfV2.srcObject=selfStream;
+        try{var sp2=selfV2.play();if(sp2&&sp2.catch)sp2.catch(function(){});}catch(e){}
       }
     }
     positionAttendanceBesideHeart(root);
     return true;
   }
-
 
   /* 2026-10-03: 9명방 시청 입장 첫 화면 전용.
      큰 1인 영상 화면을 거치지 않고 호스트 1칸 + 게스트 8칸을 즉시 보여준다.
