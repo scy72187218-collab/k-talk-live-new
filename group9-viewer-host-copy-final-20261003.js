@@ -66,7 +66,18 @@
       host.appendChild(v);
     }
 
-    if(stream&&v.srcObject!==stream){
+    var keepCurrent=false;
+    try{
+      var cur=v.srcObject;
+      var curTrack=cur&&cur.getVideoTracks&&cur.getVideoTracks()[0];
+      var nextTrack=stream&&stream.getVideoTracks&&stream.getVideoTracks()[0];
+      keepCurrent=!!(curTrack&&curTrack.readyState==='live'&&!curTrack.muted);
+      if(keepCurrent&&nextTrack&&curTrack.id===nextTrack.id)keepCurrent=true;
+    }catch(e){keepCurrent=false;}
+
+    /* 정상 영상이 이미 붙어 있으면 다른 통신 경로가 srcObject를 반복 교체하지 않는다.
+       현재 영상이 실제로 끝났거나 mute 상태일 때만 새 스트림으로 교체한다. */
+    if(stream&&v.srcObject!==stream&&!keepCurrent){
       try{v.srcObject=stream;}catch(e){}
     }
     v.autoplay=true;
