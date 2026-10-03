@@ -865,7 +865,18 @@
     }catch(e){}
     var main=null;
     try{
-      if(approvedNow)main=document.querySelector('.kt-guest-hostlike-room .kgh-cell.self video');
+      if(approvedNow){
+        main=document.querySelector('.kt-guest-hostlike-room .kgh-cell.self video, .kt-prejoin-room-grid .kt-prejoin-room-cell.self video');
+        /* 승인 후에는 자기 카메라를 절대로 전체 화면 비디오에 넣지 않는다.
+           방 전체 화면이 먼저 만들어질 때까지 기다렸다가 게스트 칸에만 붙인다. */
+        if(!main){
+          if(typeof window.ktForceApprovedGuestGridNow20260924==='function'){
+            try{window.ktForceApprovedGuestGridNow20260924();}catch(_e){}
+          }
+          main=document.querySelector('.kt-guest-hostlike-room .kgh-cell.self video, .kt-prejoin-room-grid .kt-prejoin-room-cell.self video');
+          if(!main)return;
+        }
+      }
     }catch(e){}
     if(!main)main=document.getElementById('ktRemoteLiveVideo');
     if(!main)return;
@@ -924,9 +935,17 @@
       }catch(e){}
       var main=null;
       try{
-        if(approvedNow)main=document.querySelector('.kt-guest-hostlike-room .kgh-cell.self video');
+        if(approvedNow){
+          main=document.querySelector('.kt-guest-hostlike-room .kgh-cell.self video, .kt-prejoin-room-grid .kt-prejoin-room-cell.self video');
+          if(!main){
+            if(typeof window.ktForceApprovedGuestGridNow20260924==='function'){
+              try{window.ktForceApprovedGuestGridNow20260924();}catch(_e){}
+            }
+            main=document.querySelector('.kt-guest-hostlike-room .kgh-cell.self video, .kt-prejoin-room-grid .kt-prejoin-room-cell.self video');
+          }
+        }
       }catch(e){}
-      if(!main)main=document.getElementById('ktRemoteLiveVideo');
+      if(!approvedNow&&!main)main=document.getElementById('ktRemoteLiveVideo');
       var pv=document.getElementById('ktRemoteHostPreview');
       if(!pv||(main&&main.srcObject!==stream)||(main&&main.paused)||(pv&&window.__ktRemoteHostStream&&pv.srcObject!==window.__ktRemoteHostStream)||(pv&&pv.paused)){
         showLocalGuestView(stream);
