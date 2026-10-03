@@ -239,6 +239,37 @@
     Array.from(root.children).forEach(function(el){
       if(!el.classList.contains('kt-sg-room'))try{el.remove();}catch(e){}
     });
+
+    /* keep exactly ONE host-style action pair and ONE earnings box.
+       Old 9-room/legacy scripts sometimes inject duplicate copies into this room. */
+    var room=root.querySelector('.kt-sg-room');
+    if(room){
+      var keep1=room.querySelector('.kt-sg-actions-1');
+      var keep2=room.querySelector('.kt-sg-actions-2');
+      Array.from(room.querySelectorAll('div,section,nav')).forEach(function(el){
+        if(el===keep1||el===keep2)return;
+        try{
+          var t=String(el.textContent||'').replace(/\\s+/g,'');
+          if((t.indexOf('일일랭킹')>=0&&t.indexOf('미션')>=0&&t.indexOf('시청자')>=0)||
+             (t.indexOf('되돌리기')>=0&&t.indexOf('보물상자')>=0&&t.indexOf('매치')>=0)){
+            el.remove();
+          }
+        }catch(e){}
+      });
+
+      room.querySelectorAll('#ktGuestEarnHud,#myEarnHud,.ktsecret-earn-row,.kgh-earn,.kt-guest-earn-hud').forEach(function(el){
+        try{if(!el.closest('.kt-sg-earn-wrap'))el.remove();}catch(e){}
+      });
+
+      /* old system/chat leftovers are not part of the clean guest phone view */
+      Array.from(room.querySelectorAll('div,span,p')).forEach(function(el){
+        try{
+          if(el.closest('.kt-sg-bottom,.kt-sg-earn-wrap,.ktsecret-head,.ktsecret-airrow,.ktsecret-led,.ktsecret-main,.kt-sg-actions'))return;
+          var t=String(el.textContent||'').trim();
+          if(/방송\\s*나감/.test(t))el.remove();
+        }catch(e){}
+      });
+    }
     syncVideo();
     syncGuests();
     updateClock();
