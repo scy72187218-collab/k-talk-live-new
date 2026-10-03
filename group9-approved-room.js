@@ -198,11 +198,42 @@
         state.liveRoomMax=9;
       }
     }catch(e){}
+    releaseGroup9Opening();
   }
 
-  window.startBroadcast=async function(){
+  function ensureNoOld9FlashStyle(){
+    if(document.getElementById('ktNoOld9FlashStyle'))return;
+    var st=document.createElement('style');
+    st.id='ktNoOld9FlashStyle';
+    st.textContent=''
+      +'html.kt-g9-opening #screen{background:#000!important}'
+      +'html.kt-g9-opening #screen>*{opacity:0!important;pointer-events:none!important}'
+      +'html.kt-g9-opening #screen .ktg13-room[data-kt-room="9"]{opacity:1!important;pointer-events:auto!important}';
+    (document.head||document.documentElement).appendChild(st);
+  }
+
+  function markGroup9Opening(){
+    ensureNoOld9FlashStyle();
+    document.documentElement.classList.add('kt-g9-opening');
+    clearTimeout(window.__ktG9OpeningFailsafe);
+    window.__ktG9OpeningFailsafe=setTimeout(function(){
+      try{document.documentElement.classList.remove('kt-g9-opening');}catch(e){}
+    },1400);
+  }
+
+  function releaseGroup9Opening(){
+    try{
+      if(document.querySelector('#screen .ktg13-room[data-kt-room="9"]')){
+        document.documentElement.classList.remove('kt-g9-opening');
+        clearTimeout(window.__ktG9OpeningFailsafe);
+      }
+    }catch(e){}
+  }
+
+  window.startBroadcast=async function(){ 
     if(!isGroup9())return oldStartBroadcast.apply(this,arguments);
 
+    markGroup9Opening();
     try{
       state.liveRoomType='group13';
       state.liveRoomName='13명 방송';
