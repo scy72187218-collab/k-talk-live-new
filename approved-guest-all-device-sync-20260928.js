@@ -29,6 +29,7 @@
   }
 
   function syncNow(force){
+    if(document.querySelector('#screen .kt-sgf'))return;
     try{
       var host=currentHost();
       if(!host)return;
