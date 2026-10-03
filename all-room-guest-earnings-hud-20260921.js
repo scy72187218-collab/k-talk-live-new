@@ -59,7 +59,7 @@
     var s=document.createElement('style');
     s.id='ktAllRoomGuestEarningsHudStyle20260921';
     s.textContent=''
-      +'.kt-allroom-guest-earn{position:absolute!important;right:7px!important;bottom:72px!important;z-index:2147482000!important;width:112px!important;min-width:112px!important;height:64px!important;max-height:64px!important;padding:2px 6px!important;box-sizing:border-box!important;border:1px solid #d2a936!important;border-radius:10px!important;background:linear-gradient(135deg,rgba(23,20,11,.94),rgba(13,13,18,.94))!important;color:#fff!important;text-align:center!important;overflow:hidden!important;box-shadow:0 2px 8px rgba(0,0,0,.35)!important;pointer-events:auto!important}'
+      +'.kt-allroom-guest-earn{position:absolute!important;right:7px!important;bottom:72px!important;z-index:2147483000!important;width:112px!important;min-width:112px!important;height:64px!important;max-height:64px!important;padding:2px 6px!important;box-sizing:border-box!important;border:1px solid #d2a936!important;border-radius:10px!important;background:linear-gradient(135deg,rgba(23,20,11,.94),rgba(13,13,18,.94))!important;color:#fff!important;text-align:center!important;overflow:hidden!important;box-shadow:0 2px 8px rgba(0,0,0,.35)!important;pointer-events:auto!important}'
       +'.kt-allroom-guest-earn .kt-ge-top{display:flex!important;align-items:center!important;justify-content:center!important;gap:2px!important;white-space:nowrap!important}'
       +'.kt-allroom-guest-earn .kt-ge-top span{font-size:5.7px!important;color:#8fe8ff!important;font-weight:950!important}'
       +'.kt-allroom-guest-earn .kt-ge-top b{font-size:8.5px!important;color:#ffe071!important;font-weight:950!important}'
@@ -68,6 +68,7 @@
       +'.kt-allroom-guest-earn .kt-ge-detail .note{grid-column:1/-1!important;text-align:right!important;color:#ffe071!important;font-size:5px!important}'
       +'.kt-guest-hostlike-room .kgh-earn{display:block!important;visibility:visible!important;opacity:1!important}'
       +'.kt-guest-hostlike-room .kgh-earn-detail{display:grid!important}'
+      +'.kt-remote-live .kt-allroom-guest-earn{display:block!important;visibility:visible!important;opacity:1!important}'
       +'@media(max-width:390px){.kt-allroom-guest-earn{right:5px!important;bottom:68px!important;width:108px!important;min-width:108px!important;height:62px!important;max-height:62px!important;padding:2px 5px!important}.kt-allroom-guest-earn .kt-ge-top span{font-size:5.2px!important}.kt-allroom-guest-earn .kt-ge-top b{font-size:8px!important}.kt-allroom-guest-earn .kt-ge-detail{font-size:5.1px!important}}';
     (document.head||document.documentElement).appendChild(s);
   }
