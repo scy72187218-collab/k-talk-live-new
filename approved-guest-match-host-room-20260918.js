@@ -28,7 +28,6 @@
     }catch(e){return false;}
   }
   function forceApprovedGridNow20260924(){
-    if(document.querySelector('#screen .kt-sgf'))return false;
     if(!approvedByRealtimeRoster20260924()&&!approvalActive)return false;
     approvalActive=true;
     repair();
@@ -430,7 +429,6 @@
   }
 
   function repair(){
-    if(document.querySelector('#screen .kt-sgf'))return;
     try{
       if(window.__ktUseSingleG9ViewerHostCopy20261003){
         var r9=document.querySelector('.kt-remote-live');
