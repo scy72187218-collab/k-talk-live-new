@@ -34,7 +34,7 @@
       +'grid-column:1!important;grid-row:1/span 2!important;}'
       +'#screen .kt-guest-hostlike-room[data-kt-room="16"] .kgh-cell{'
       +'min-width:0!important;min-height:0!important;overflow:hidden!important;}'
-      +'#screen .kt-guest-hostlike-room[data-kt-room="16"] .kgh-main>.kgh-cell:nth-child(n+16){display:none!important;}'
+      +'#screen .kt-guest-hostlike-room[data-kt-room="16"] .kgh-main>.kgh-cell:nth-child(n+17){display:none!important;}'
       +'@media(max-width:600px){'
       +'#screen .kt-guest-hostlike-room[data-kt-room="16"] .kgh-cell.host{'
       +'grid-column:1!important;grid-row:1/span 2!important;aspect-ratio:auto!important;height:auto!important;min-height:0!important;padding:0!important;}'
@@ -100,11 +100,11 @@
     removeTinyBottomOverflow20261002(grid);
     watchTinyHostColumnOverflow20261002(grid);
     var cells=[].slice.call(grid.querySelectorAll(':scope > .kgh-cell'));
-    while(cells.length<15){
+    while(cells.length<16){
       grid.appendChild(makeEmptyCell());
       cells=[].slice.call(grid.querySelectorAll(':scope > .kgh-cell'));
     }
-    while(cells.length>15){
+    while(cells.length>16){
       var removeCell=null;
       for(var ri=cells.length-1;ri>=0;ri--){
         if(!cells[ri].classList.contains('host')&&!cells[ri].classList.contains('self')){
@@ -119,9 +119,9 @@
 
     try{
       var title=room.querySelector('.kgh-air strong');
-      if(title)title.innerHTML='<i>●</i> 16명 방송';
+      if(title)title.innerHTML='<i>●</i> 15명 방송';
       var viewers=room.querySelector('.kgh-viewers');
-      if(viewers&&/시청자/.test(viewers.textContent||''))viewers.textContent='시청자 16명이 시청중 🏃';
+      if(viewers&&/시청자/.test(viewers.textContent||''))viewers.textContent='시청자 15명이 시청중 🏃';
     }catch(e){}
 
     try{
