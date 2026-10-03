@@ -58,10 +58,13 @@
     });
   }
 
-  function removeLegacyTopNineGrids20261003(root){
+  function removeLegacyTopNineGrids20261003(root,preserveVideo){
     if(!root)return;
     try{
       root.querySelectorAll(':scope > .kt-prejoin-room-grid,:scope > .kt-approved-guest-grid,:scope > .kt-guest-room-grid,:scope > .kt-guest-hostlike-room').forEach(function(x){
+        try{
+          if(preserveVideo&&x.contains(preserveVideo))root.appendChild(preserveVideo);
+        }catch(e){}
         try{x.remove();}catch(e){}
       });
     }catch(e){}
@@ -71,10 +74,12 @@
     var root=document.querySelector('#screen .kt-remote-live');
     if(!root||!isNine())return false;
     style();
-    removeLegacyTopNineGrids20261003(root);
+
+    /* 예전 9칸을 지우기 전에 호스트 영상 노드를 먼저 잡아서 보존한다. */
+    var remoteVideo=hostVideoNode();
+    removeLegacyTopNineGrids20261003(root,remoteVideo);
 
     var room=root.querySelector('.ktg13-room[data-kt-viewer-host-copy="1"]');
-    var remoteVideo=hostVideoNode();
 
     /* 이미 정상 9명방이 떠 있으면 DOM 구조는 절대 다시 만들거나 지우지 않는다.
        영상 노드 위치와 재생 상태만 유지해서 화면이 내려갔다 올라오는 재배치를 막는다. */
