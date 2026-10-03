@@ -185,6 +185,30 @@
     return false;
   };
 
+  window.ktSecretOpenFriendsSafe=function(){
+    try{
+      if(typeof window.friends==='function'){window.friends();return false;}
+      if(typeof window.showSheet==='function')window.showSheet('친구','<div class="rowbox"><b>친구</b><br>친구 목록을 확인합니다.</div>');
+    }catch(e){}
+    return false;
+  };
+
+  window.ktSecretOpenMovieSafe=function(){
+    try{
+      if(typeof window.ktOpenHostTvMovie==='function'){window.ktOpenHostTvMovie();return false;}
+      if(typeof window.showSheet==='function')window.showSheet('🎬 영화 · TV · 유튜브','<div class="rowbox"><b>영화 · TV · 유튜브</b><br>영상 메뉴를 엽니다.</div>');
+    }catch(e){}
+    return false;
+  };
+
+  window.ktSecretShareSafe=function(){
+    try{
+      if(typeof window.shareApp==='function'){window.shareApp();return false;}
+      if(navigator.share)navigator.share({title:'K-Talk LIVE',url:location.href}).catch(function(){});
+    }catch(e){}
+    return false;
+  };
+
   window.ktSecretOpenMessage=function(){
     showSheet('메시지','<div class="rowbox"><b>비밀방 채팅</b><br>입력한 글이 카메라 화면 위에 표시됩니다.</div><input id="ktsecretChatInput" class="form" maxlength="100" placeholder="메시지 입력" onkeydown="if(event.key===\'Enter\')ktSecretSendChat()"><button class="act" onclick="ktSecretSendChat()">보내기</button>');
     setTimeout(function(){var i=document.getElementById('ktsecretChatInput');if(i)i.focus();},80);
@@ -300,7 +324,7 @@
       +'.ktsecret-chat{position:absolute;left:8px;right:8px;bottom:70px;z-index:8;max-height:94px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;padding:5px 5px 6px;background:transparent;border-radius:9px}.ktsecret-chat:empty:before{content:none!important;display:none!important}.ktsecret-chat-line{display:flex;gap:7px;margin-top:4px;font-size:11px;font-weight:850}.ktsecret-chat-line b{color:#65c8ff}.ktsecret-chat-line span{color:#fff}'
       +'.ktsecret-gifts{position:absolute;left:3px;right:3px;bottom:3px;z-index:11;height:64px;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}.ktsecret-gift{min-width:0;border:1px solid #ffffff33;border-radius:7px;background:linear-gradient(180deg,rgba(17,17,22,.76),rgba(9,9,12,.84));color:#fff;padding:2px 1px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;overflow:hidden}.ktsecret-gift img{width:36px;max-width:84%;height:29px;object-fit:contain}.ktsecret-emoji{height:29px;display:grid;place-items:center;font-size:23px}.ktsecret-gift b{color:#ffe23e;font-size:8.5px;line-height:1}.ktsecret-gift small{margin-top:1px;color:#fff;font-size:7px;line-height:1.05;font-weight:900;text-align:center}'
       +'.ktsecret-earn-row{position:absolute;right:6px;top:auto!important;bottom:58px!important;z-index:12;width:92px;height:50px;display:flex;align-items:center;justify-content:flex-end;padding:0}html body .ktsecret-room .ktsecret-earn-row #myEarnHud{position:static!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;transform:none!important;width:92px!important;max-width:92px!important;min-width:92px!important;height:50px!important;max-height:50px!important;margin:0!important;padding:2px 3px!important;border:1px solid #d2a936!important;border-radius:10px!important;background:linear-gradient(135deg,#17140be8,#0d0d12e8)!important;color:#fff!important;overflow:hidden!important}html body .ktsecret-room .ktsecret-earn-row #myEarnHud span{font-size:5.8px!important;line-height:1!important}html body .ktsecret-room .ktsecret-earn-row #myEarnHud b{font-size:8px!important;line-height:1!important}html body .ktsecret-room .ktsecret-earn-row #myEarnDetail{font-size:5.4px!important;line-height:1!important;gap:1px!important;margin-top:1px!important}'
-      +'.ktsecret-chat-compose{flex:0 0 42px;margin-top:76px;display:grid;grid-template-columns:minmax(0,1fr) 38px;gap:5px;align-items:center;padding:3px 7px;background:#050509;z-index:30}.ktsecret-chat-compose input{width:100%;height:34px;border:1px solid #ffffff2d;border-radius:18px;background:rgba(255,255,255,.08);color:#fff;padding:0 13px;outline:none;font-size:12px;font-weight:800}.ktsecret-chat-compose input::placeholder{color:#aaa}.ktsecret-chat-send{width:34px;height:34px;border-radius:50%;border:1px solid #7ebcff55;background:#181a22;color:#fff;font-size:17px;font-weight:950}'+'.ktsecret-tools{flex:0 0 55px;margin-top:auto;display:grid;grid-template-columns:repeat(8,1fr);gap:2px}.ktsecret-tool{border:0;background:none;color:#fff;min-width:0;font-weight:900;display:grid;justify-items:center;gap:2px}.ktsecret-tool i{width:37px;height:37px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#1b1b20,#0b0b0f);border:1px solid #35363d;font-style:normal;font-size:18px}.ktsecret-tool span{font-size:8px;white-space:nowrap}'
+      +'.ktsecret-chat-compose{flex:0 0 42px;margin-top:76px;display:grid;grid-template-columns:minmax(0,1fr) 38px;gap:5px;align-items:center;padding:3px 7px;background:#050509;z-index:30}.ktsecret-chat-compose input{width:100%;height:34px;border:1px solid #ffffff2d;border-radius:18px;background:rgba(255,255,255,.08);color:#fff;padding:0 13px;outline:none;font-size:12px;font-weight:800}.ktsecret-chat-compose input::placeholder{color:#aaa}.ktsecret-chat-send{width:34px;height:34px;border-radius:50%;border:1px solid #7ebcff55;background:#181a22;color:#fff;font-size:17px;font-weight:950}'+'.ktsecret-tools{flex:0 0 55px;margin-top:auto;display:grid;grid-template-columns:repeat(8,1fr);gap:2px}.ktsecret-tool{border:0;background:none;color:#fff;min-width:0;font-weight:900;display:grid;justify-items:center;gap:2px;pointer-events:auto!important;touch-action:manipulation!important}.ktsecret-tool i{width:37px;height:37px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#1b1b20,#0b0b0f);border:1px solid #35363d;font-style:normal;font-size:18px}.ktsecret-tool span{font-size:8px;white-space:nowrap}'
       +'@media(max-width:390px){.ktsecret-room{padding-left:4px;padding-right:4px;gap:3px}.ktsecret-head{flex-basis:58px;padding:4px 7px}.ktsecret-title,.ktsecret-brand{font-size:17px}.ktsecret-att{min-width:82px;height:27px;font-size:10px}.ktsecret-att img{width:13px;height:13px}.ktsecret-airrow{flex-basis:31px;font-size:12px}.ktsecret-led{flex-basis:50px}.ktsecret-led-track{font-size:20px}.ktsecret-right{bottom:150px}.ktsecret-right button{width:40px;height:40px}.ktsecret-right .like{height:46px}.ktsecret-chat{left:5px;right:5px;bottom:64px;max-height:88px}.ktsecret-gifts{height:58px}.ktsecret-gift img,.ktsecret-emoji{height:26px}.ktsecret-earn-row{flex-basis:31px;top:auto!important;bottom:54px!important}html body .ktsecret-room .ktsecret-earn-row #myEarnHud{width:92px!important;max-width:92px!important;min-width:92px!important;height:50px!important;max-height:50px!important}.ktsecret-main{flex-basis:40dvh;min-height:220px;margin-top:-8px}.ktsecret-chat-compose{flex-basis:40px;margin-top:72px;padding:2px 5px}.ktsecret-chat-compose input{height:32px;font-size:11px}.ktsecret-chat-send{width:32px;height:32px}.ktsecret-tools{flex-basis:50px}.ktsecret-tool i{width:33px;height:33px;font-size:16px}}'
       +'</style>'
       +'<section class="ktsecret-room">'
@@ -315,7 +339,7 @@
           +'<div class="ktsecret-gifts">'+gift('','1개','장미','rose-single.svg')+gift('','50개','장미다발','rose-bouquet-50.svg')+gift('','100개','특대장미','rose-bouquet-100.svg')+gift('💗','10개','하트','')+gift('👑','100개','왕관','')+gift('🏎️','50개','스포츠카','')+gift('','선물상자','큰 선물 보기','gift-box.svg')+'</div>'
         +'</div>'
         +'<div class="ktsecret-chat-compose"><input id="ktsecretInlineChatInput" type="text" maxlength="100" placeholder="입력하세요..." autocomplete="off" onkeydown="if(event.key===\'Enter\'){event.preventDefault();ktSecretSendInlineChat();}"><button class="ktsecret-chat-send" type="button" onclick="ktSecretSendInlineChat()">➤</button></div>'
-        +'<div class="ktsecret-tools"><button class="ktsecret-tool" onclick="return window.ktBottomCameraToggle?ktBottomCameraToggle(this):false"><i>📷</i><span>카메라</span></button><button class="ktsecret-tool" onclick="return window.ktBottomMicToggle?ktBottomMicToggle(this):false"><i>🎤</i><span>마이크</span></button><button class="ktsecret-tool" onclick="shareApp()"><i>👥</i><span>친구</span></button><button class="ktsecret-tool" onclick="ktSecretFocusInlineChat()"><i>💬</i><span>메시지</span></button><button class="ktsecret-tool" onclick="return window.ktBottomMovieOpen?ktBottomMovieOpen():false"><i>🎬</i><span>영화</span></button><button class="ktsecret-tool" onclick="shareApp()"><i>↗</i><span>공유</span></button><button class="ktsecret-tool" onclick="ktSecretEffect()"><i>🪄</i><span>효과</span></button><button class="ktsecret-tool" onclick="ktSecretMore()"><i>•••</i><span>더보기</span></button></div>'
+        +'<div class="ktsecret-tools"><button class="ktsecret-tool" onclick="return window.ktBottomCameraToggle?ktBottomCameraToggle(this):false"><i>📷</i><span>카메라</span></button><button class="ktsecret-tool" onclick="return window.ktBottomMicToggle?ktBottomMicToggle(this):false"><i>🎤</i><span>마이크</span></button><button class="ktsecret-tool" onclick="return ktSecretOpenFriendsSafe()"><i>👥</i><span>친구</span></button><button class="ktsecret-tool" onclick="ktSecretFocusInlineChat()"><i>💬</i><span>메시지</span></button><button class="ktsecret-tool" onclick="return ktSecretOpenMovieSafe()"><i>🎬</i><span>영화</span></button><button class="ktsecret-tool" onclick="return ktSecretShareSafe()"><i>↗</i><span>공유</span></button><button class="ktsecret-tool" onclick="ktSecretEffect()"><i>🪄</i><span>효과</span></button><button class="ktsecret-tool" onclick="ktSecretMore()"><i>•••</i><span>더보기</span></button></div>'
       +'</section>';
 
     var v=document.getElementById('ktLiveVideo');
