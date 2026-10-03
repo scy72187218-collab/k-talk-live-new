@@ -4,6 +4,15 @@
   if(window.__ktApprovedUsePrejoinLayout20261002)return;
   window.__ktApprovedUsePrejoinLayout20261002=true;
 
+  function ktIsSecretRemoteReset20261004(){
+    try{
+      if(!document.documentElement.classList.contains('kt-remote-viewing'))return false;
+      var r=window.__ktLastLiveRoom||{};
+      var t=[r.room_type,r.room_name,r.title,window.__ktRemoteRoomName,window.__ktRemoteRoomType].filter(Boolean).join(' ').toLowerCase();
+      return /비밀|secret|password/.test(t);
+    }catch(e){return false;}
+  }
+
   function live(st){
     try{return !!(st&&st.getVideoTracks&&st.getVideoTracks().some(function(t){return t.readyState==='live';}));}
     catch(e){return false;}
@@ -131,6 +140,7 @@
   }
 
   function apply(){
+    if(ktIsSecretRemoteReset20261004())return;
     var root=document.querySelector('.kt-remote-live');
     if(!root)return false;
     ensureStyle();
