@@ -150,7 +150,7 @@
       +'.kgh-led-track{position:absolute;left:0;top:0;height:100%;display:flex;align-items:center;white-space:nowrap;will-change:transform;animation:kghMarquee 12s linear infinite;font-size:24px;font-weight:950;color:#ffd62d;text-shadow:0 0 7px #ff8b00}.kgh-led-track span{display:inline-block;padding-right:80px}.kgh-led-track b{color:#ff59c9}@keyframes kghMarquee{from{transform:translateX(55%)}to{transform:translateX(-100%)}}'
       +'.kgh-quick{flex:0 0 35px;display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.kgh-quick button{border:0;border-radius:11px;background:#101014;color:#fff;font-size:11px;font-weight:900}'
       +'.kgh-stats{flex:0 0 47px;display:grid;grid-template-columns:1fr 1fr 1.35fr;gap:7px}.kgh-stats button,.kgh-viewers{border:0;border-radius:14px;background:#111114;color:#fff;font-size:15px;font-weight:950;display:flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;overflow:hidden}'
-      +'.kgh-main{position:relative;flex:1 1 0;min-height:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:2px;overflow:hidden}.kgh-main.is13{grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr))}.kgh-main.is13 .kgh-cell:nth-child(13){grid-column:auto!important}.kgh-main.is15,.kgh-main.is16{grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr))}.kgh-main.is15 .kgh-cell.host,.kgh-main.is16 .kgh-cell.host{grid-column:1!important;grid-row:1/span 2!important}'
+      +'.kgh-main{position:relative;flex:1 1 0;min-height:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:2px;overflow:hidden}.kgh-main.is13{grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr))}.kgh-main.is13 .kgh-cell:nth-child(13){grid-column:4!important}.kgh-main.is15,.kgh-main.is16{grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr))}.kgh-main.is15 .kgh-cell.host,.kgh-main.is16 .kgh-cell.host{grid-column:1!important;grid-row:1/span 2!important}'
       +'.kgh-cell{position:relative;display:grid;place-items:center;min-width:0;min-height:0;border:1px solid #28282d;border-radius:7px;background:linear-gradient(145deg,#17181b,#111214);color:#bdbdc4;font-size:13px;font-weight:900;overflow:hidden}'
       +'.kgh-cell video{position:absolute;inset:0;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;border:0!important;object-fit:cover!important;object-position:center center!important;background:#111}'
       +'.kgh-cell.host video{transform:scaleX(-1)!important;-webkit-transform:scaleX(-1)!important}.kgh-cell.self video{left:0!important;top:0!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center center!important;transform:scaleX(-1)!important;-webkit-transform:scaleX(-1)!important}.kgh-cell.self{outline:2px solid #61d9ff;outline-offset:-2px}'
@@ -438,6 +438,27 @@
     },1000);
   }
 
+  function removeGuest13ChatHeart20261004(root){
+    try{
+      if(!root)return;
+      var room=root.querySelector('.kt-guest-hostlike-room[data-kt-room="13"]');
+      if(!room)return;
+      root.querySelectorAll(
+        '.kt-remote-chat .kt-live-clock-heart,'+
+        '.kt-remote-chat .kt-attendance-heart-badge,'+
+        '.kt-remote-chat .kt-remote-action.heart,'+
+        '.kt-remote-chat .heart'
+      ).forEach(function(el){try{el.remove();}catch(e){}});
+      var chat=root.querySelector('.kt-remote-chat');
+      if(chat){
+        [].slice.call(chat.children).forEach(function(el){
+          var t=String(el.textContent||'').replace(/\s+/g,'').trim();
+          if(/^[♥♡❤💗]0$/.test(t)){try{el.remove();}catch(e){}}
+        });
+      }
+    }catch(e){}
+  }
+
   function repair(){
     if(ktIsSecretRemoteReset20261004())return;
     try{
@@ -455,6 +476,7 @@
         return;
       }
       var root=preRoot;
+      removeGuest13ChatHeart20261004(root);
       if(!root){builtRoot=null;return;}
       var room=root.querySelector('.kt-guest-hostlike-room');
       if(room){
