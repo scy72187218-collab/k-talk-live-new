@@ -188,6 +188,12 @@
 
   function build(root){
     if(!root||!approvalActive)return;
+    try{
+      if(window.__ktUseSingleG9ViewerHostCopy20261003){
+        var info9=roomInfo(root);
+        if(info9&&info9.total===9)return;
+      }
+    }catch(e){}
     if(root.querySelector('.kt-guest-hostlike-room'))return;
     try{
       var rr=window.__ktLastLiveRoom||{};
@@ -437,6 +443,13 @@
 
   function repair(){
     try{
+      if(window.__ktUseSingleG9ViewerHostCopy20261003){
+        var r9=document.querySelector('.kt-remote-live');
+        if(r9){
+          var i9=roomInfo(r9);
+          if(i9&&i9.total===9)return;
+        }
+      }
       if(window.__ktApprovedUsePrejoinLayout20261002&&typeof window.ktApplyApprovedPrejoinLayout20261002==='function'){
         window.ktApplyApprovedPrejoinLayout20261002();
         return;
