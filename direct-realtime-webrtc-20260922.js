@@ -2844,60 +2844,6 @@
     if(isHostRole()&&joined)broadcastApprovedRoster20260928();
   },250);
 
-
-  /* 2026-10-03: 현재 방에 실제 승인/연결이 없는 예전 게스트 잔상만 정리.
-     현재 연결된 게스트, 살아 있는 heartbeat, WebRTC peer는 건드리지 않는다. */
-  function cleanupStaleGuestGhosts20261003(){
-    try{
-      if(!isHostRole())return;
-      var now=Date.now();
-
-      Object.keys(approvedGuests||{}).forEach(function(id){
-        var alive=Number(hostGuestAliveAt[id]||0);
-        var entry=hostGuestPeers[id]||null;
-        var pc=entry&&entry.pc||null;
-        var connected=false;
-        try{
-          var cs=String(pc&&pc.connectionState||'');
-          var ice=String(pc&&pc.iceConnectionState||'');
-          connected=(cs==='connected'||ice==='connected'||ice==='completed');
-        }catch(e){}
-        if(connected)return;
-        if(alive&&now-alive<20000)return;
-
-        var ap=approvedGuests[id]||{};
-        var at=Number(ap.at||0);
-        if(at&&now-at<20000)return;
-
-        clearApprovedGuestFromHost(id);
-      });
-
-      try{
-        var roster=window.__ktApprovedGuestIds20260924||{};
-        var names=window.__ktApprovedGuestNames20260924||{};
-        Object.keys(roster).forEach(function(id){
-          if(approvedGuests[id])return;
-          delete roster[id];
-          delete names[id];
-        });
-        window.__ktApprovedGuestIds20260924=roster;
-        window.__ktApprovedGuestNames20260924=names;
-      }catch(e){}
-
-      try{
-        var photos=window.__ktApprovedGuestPhotos20261002||{};
-        Object.keys(photos).forEach(function(id){
-          if(!approvedGuests[id])delete photos[id];
-        });
-        window.__ktApprovedGuestPhotos20261002=photos;
-      }catch(e){}
-    }catch(e){}
-  }
-
-  [1200,3000,7000].forEach(function(ms){
-    setTimeout(cleanupStaleGuestGhosts20261003,ms);
-  });
-
   window.addEventListener('pagehide',function(){
     if(guestApprovedHost||lastRemoteHost)announceGuestLeave(guestApprovedHost||lastRemoteHost);
     clearViewerConnectTimer();
