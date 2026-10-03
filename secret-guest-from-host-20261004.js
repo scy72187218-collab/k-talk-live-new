@@ -128,6 +128,16 @@
           line.className='kt-sgfh-chat-line';
           line.innerHTML='<b>나</b><span>'+esc(text)+'</span>';
           box.appendChild(line);
+          requestAnimationFrame(function(){
+            line.style.setProperty('transform','translateY(10px)');
+            line.style.setProperty('opacity','0');
+            line.style.setProperty('transition','none');
+            requestAnimationFrame(function(){
+              line.style.setProperty('transition','transform .22s ease, opacity .22s ease');
+              line.style.setProperty('transform','translateY(0)');
+              line.style.setProperty('opacity','1');
+            });
+          });
           while(box.children.length>5)box.removeChild(box.firstChild);
         }
       }catch(e){}
