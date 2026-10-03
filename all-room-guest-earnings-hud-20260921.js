@@ -129,7 +129,8 @@
       h.style.setProperty('position','fixed','important');
       h.style.setProperty('left','auto','important');
       h.style.setProperty('bottom','auto','important');
-      h.style.setProperty('top',Math.max(8,Math.round(mr.top-70))+'px','important');
+      var hh=(h.getBoundingClientRect&&h.getBoundingClientRect().height)||64;
+      h.style.setProperty('top',Math.max(8,Math.round(mr.top-hh-6))+'px','important');
       h.style.setProperty('right',Math.max(5,Math.round(window.innerWidth-mr.right))+'px','important');
       h.style.setProperty('z-index','2147483000','important');
     }catch(e){}
