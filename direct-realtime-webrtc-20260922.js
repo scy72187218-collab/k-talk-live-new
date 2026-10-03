@@ -2202,6 +2202,30 @@
        during the approval screen transition. */
     if(selectedHost&&selectedHost!==signalHost)return;
     var hid=signalHost;
+
+    /* Duplicate approval packets are expected for reliability, but they must
+       never restart an already-running guest media connection. Reuse the
+       current camera/peer and only re-pin the visible self video. */
+    if(guestApproved&&guestApprovedHost===hid){
+      try{
+        var liveGuest=guestStream||window.__ktApprovedGuestSelfStream||window.__ktLocalGuestCameraStream20260926||null;
+        if(liveGuest){
+          guestStream=liveGuest;
+          window.__ktApprovedGuestSelfStream=liveGuest;
+          rememberTrustedGuestCamera20260926(liveGuest);
+        }
+      }catch(_e){}
+      try{pinApprovedGuestSelfVideo20260926();}catch(_e){}
+      try{sendApprovedGuestPhoto20260926(hid);}catch(_e){}
+      try{
+        if(!guestPc||['failed','closed'].indexOf(String(guestPc.connectionState||''))>-1){
+          var retryMedia=startGuestCamera(hid);
+          if(retryMedia&&retryMedia.catch)retryMedia.catch(function(){});
+        }
+      }catch(_e){}
+      return;
+    }
+
     activeHostId=signalHost;
     lastRemoteHost=signalHost;
 
