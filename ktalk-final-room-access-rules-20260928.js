@@ -90,6 +90,7 @@
     var t=clean(type),nm=clean(name),m=n(max);
     if(t.indexOf('subscriber')>-1||nm.indexOf('구독자')>-1)return 'subscriber';
     if(t.indexOf('password')>-1||t.indexOf('secret')>-1||nm.indexOf('비밀')>-1)return 'secret';
+    if(t.indexOf('group15')>-1||nm.indexOf('15명')>-1||m===16)return 'group15';
     if(t.indexOf('group13')>-1||nm.indexOf('13명')>-1||m===13)return 'group13';
     if(t.indexOf('group9')>-1||nm.indexOf('9명')>-1||m===9)return 'group9';
     return 'solo';
@@ -97,7 +98,7 @@
 
   function minLevel(k){
     if(k==='subscriber')return 41;
-    if(k==='group13'||k==='secret')return 21;
+    if(k==='group13'||k==='group15'||k==='secret')return 21;
     return 1;
   }
 
@@ -109,7 +110,7 @@
 
   function deny(k,lv){
     var need=minLevel(k);
-    var label=k==='subscriber'?'구독자방':k==='secret'?'비밀방':k==='group13'?'13명 방송':k==='group9'?'9명 방송':'1인 방송';
+    var label=k==='subscriber'?'구독자방':k==='secret'?'비밀방':k==='group15'?'15명 방송':k==='group13'?'13명 방송':k==='group9'?'9명 방송':'1인 방송';
     try{alert(label+'은 레벨 '+need+'부터 이용할 수 있습니다. 현재 레벨 '+lv+'입니다.');}catch(e){}
     return false;
   }
