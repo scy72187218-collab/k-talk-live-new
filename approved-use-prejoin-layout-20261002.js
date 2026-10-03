@@ -131,7 +131,6 @@
   }
 
   function apply(){
-    if(document.querySelector('#screen .kt-sgf'))return;
     var root=document.querySelector('.kt-remote-live');
     if(!root)return false;
     ensureStyle();
