@@ -365,12 +365,15 @@
   window.__ktSecretEarnBottomFinal20260927=true;
   function place(){
     try{
+      var room=document.querySelector('#screen .ktsecret-room');
       var e=document.querySelector('#screen .ktsecret-room .ktsecret-earn-row');
-      if(!e)return;
-      e.style.setProperty('position','fixed','important');
+      if(!room||!e)return;
+      if(e.parentNode!==room)room.appendChild(e);
+      room.style.setProperty('position','relative','important');
+      e.style.setProperty('position','absolute','important');
       e.style.setProperty('top','auto','important');
-      e.style.setProperty('bottom','64px','important');
-      e.style.setProperty('right','8px','important');
+      e.style.setProperty('bottom','58px','important');
+      e.style.setProperty('right','6px','important');
       e.style.setProperty('left','auto','important');
       e.style.setProperty('z-index','24','important');
     }catch(err){}
