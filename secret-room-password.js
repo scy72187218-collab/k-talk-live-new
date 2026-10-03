@@ -404,7 +404,7 @@
       e.style.setProperty('left','auto','important');
       if(mr&&rr&&isFinite(mr.top)&&isFinite(mr.right)){
         var eh=(e.getBoundingClientRect&&e.getBoundingClientRect().height)||50;
-        e.style.setProperty('top',Math.max(8,Math.round(mr.top-eh-6))+'px','important');
+        e.style.setProperty('top',Math.max(8,Math.round(mr.top-eh-2))+'px','important');
         e.style.setProperty('right',Math.max(6,Math.round(window.innerWidth-mr.right))+'px','important');
       }else{
         e.style.setProperty('top','auto','important');
