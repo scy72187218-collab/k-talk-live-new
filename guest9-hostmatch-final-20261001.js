@@ -90,15 +90,21 @@
     if(!people){
       people=document.createElement('button');
       people.type='button';
-      people.className='kt-remote-action kt-guest9-people';
-      people.setAttribute('aria-label','사람');
+      people.id='ktRemoteGuestRequest';
+      people.className='kt-remote-action kt-guest9-people kt-remote-guest-request';
+      people.setAttribute('aria-label','방송 참여 신청');
+      people.setAttribute('title','방송 참여 신청');
       people.textContent='👥';
-      people.onclick=function(){
+      people.onclick=function(e){
+        try{if(e)e.preventDefault();}catch(_e){}
         try{
-          if(typeof window.friends==='function')return window.friends();
-          if(typeof window.openFriends==='function')return window.openFriends();
-        }catch(e){}
+          if(typeof window.ktRequestGuestJoin==='function')return window.ktRequestGuestJoin();
+        }catch(_e){}
       };
+    }else{
+      if(!people.id)people.id='ktRemoteGuestRequest';
+      people.setAttribute('aria-label','방송 참여 신청');
+      people.setAttribute('title','방송 참여 신청');
     }
 
     var rose=document.getElementById('ktRemoteRoseButton')||
