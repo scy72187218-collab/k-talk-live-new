@@ -57,6 +57,14 @@
     var root=document.querySelector('#screen .kt-remote-live');
     if(!root||!isNine())return false;
     style();
+
+    /* Delete any old prejoin/viewer remnants before drawing the single host-copy room.
+       These old nodes included the floating "나 · 게스트" area that pushed the room down. */
+    root.querySelectorAll('.kt-prejoin-room-led,.kt-prejoin-room-stats,.kt-prejoin-room-grid,.kt-approved-guest-led,.kt-approved-guest-stats,.kt-approved-guest-grid,.kt-guest-hostlike-room').forEach(function(x){
+      try{x.remove();}catch(e){}
+    });
+    root.classList.remove('kt-prejoin-room-view','kt-approved-guest-room','kt-guest-hostlike-active');
+
     var room=root.querySelector('.ktg13-room[data-kt-viewer-host-copy="1"]');
     var remoteVideo=hostVideoNode();
     if(!room){
