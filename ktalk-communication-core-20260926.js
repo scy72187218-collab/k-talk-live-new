@@ -402,10 +402,12 @@
     try{
       if(!hostActive&&!hostRoomId){hostRoomMissingSince=0;return;}
       if(hostRoomVisible()){hostRoomMissingSince=0;return;}
+      /* 실제 방송 영상도 없으면 방이 끝난 상태이므로 LIVE 상태를 즉시 정리한다. */
+      if(!hasLiveLocalVideo()){hostRoomMissingSince=0;stopHostPresence();return;}
       if(!hostRoomMissingSince)hostRoomMissingSince=Date.now();
-      if(Date.now()-hostRoomMissingSince>7000)stopHostPresence();
+      if(Date.now()-hostRoomMissingSince>2500)stopHostPresence();
     }catch(e){}
-  },1200);
+  },900);
 
   /* 실제 방송 화면과 카메라는 살아 있는데 LIVE 등록만 끊긴 경우 빨간 신호만 복구한다.
      방 배치·채팅·스위치·동영상 화면은 변경하지 않는다. */
@@ -468,10 +470,11 @@
       var rows=await req('ktalk_live_rooms?select=id,host_id,active,updated_at&host_id=eq.'+enc(c.hostId)+'&active=eq.true&order=started_at.desc&limit=1');
       var room=rows&&rows[0];
       if(!room||Date.now()-new Date(room.updated_at).getTime()>STALE_MS){
-        /* 휴대폰 신호가 잠깐 흔들릴 때 방에서 바로 내보내지 않는다. */
+        /* 방이 실제로 꺼졌으면 오래 남아 있지 않게 빠르게 퇴장한다. */
         if(!c.roomMissingSince)c.roomMissingSince=Date.now();
-        if(Date.now()-c.roomMissingSince>12000){
-          showActivity('방송 신호를 다시 확인해 주세요.');
+        var noRoom=!room;
+        var waitMs=noRoom?2200:4500;
+        if(Date.now()-c.roomMissingSince>waitMs){
           if(viewerCtx===c)window.ktLeaveRemoteLive();
         }
         return;
@@ -604,17 +607,30 @@
     try{document.documentElement.classList.remove('kt-remote-viewing');}catch(e){}
     if(c){
       clearInterval(c.heartbeat);clearInterval(c.activityTimer);
-      try{await req('ktalk_live_viewers?host_id=eq.'+enc(c.hostId)+'&viewer_id=eq.'+enc(c.viewerId),{
-        method:'PATCH',headers:{Prefer:'return=minimal'},
-        body:JSON.stringify({active:false,updated_at:nowIso()})
-      });}catch(e){}
-      try{await insertSystem(c.hostId,c.viewerId,c.viewerName,c.viewerName+'님이 나갔습니다.');}catch(e){}
     }
+
+    /* 화면 퇴장은 서버 응답을 기다리지 않고 즉시 처리한다. */
     if(!silent){
-      if(window.openBroadcastList)window.openBroadcastList();
-      else if(window.friends)window.friends();
-      setTimeout(renderLiveCards,80);
+      try{
+        if(window.openBroadcastList)window.openBroadcastList();
+        else if(window.friends)window.friends();
+      }catch(e){}
+      setTimeout(renderLiveCards,40);
     }
+
+    /* 서버의 시청자 퇴장 기록은 뒤에서 정리한다. */
+    if(c){
+      try{
+        req('ktalk_live_viewers?host_id=eq.'+enc(c.hostId)+'&viewer_id=eq.'+enc(c.viewerId),{
+          method:'PATCH',headers:{Prefer:'return=minimal'},
+          body:JSON.stringify({active:false,updated_at:nowIso()})
+        }).catch(function(){});
+      }catch(e){}
+      try{
+        insertSystem(c.hostId,c.viewerId,c.viewerName,c.viewerName+'님이 나갔습니다.').catch(function(){});
+      }catch(e){}
+    }
+    return true;
   }
 
   function wrap(name,before,after){
