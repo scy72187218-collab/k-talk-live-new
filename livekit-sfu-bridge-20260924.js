@@ -208,7 +208,10 @@
         '.kt-guest-hostlike-room .kgh-cell.host video,'+
         '.kt-approved-guest-grid .kt-approved-guest-cell.host video,'+
         '.kt-prejoin-room-grid .kt-prejoin-room-cell.host video,'+
-        '.kt-guest-room-grid .kt-guest-room-cell.host video'
+        '.kt-guest-room-grid .kt-guest-room-cell.host video,'+
+        '.kt-remote-live .ktg13-room .ktg13-host video,'+
+        '.kt-remote-live .ktsubscriber-room .ktsubscriber-host video,'+
+        '.kt-remote-live .ktsecret-room .ktsecret-slot.host video'
       ).forEach(add);
     }catch(e){}
     var main=document.getElementById('ktRemoteLiveVideo');
@@ -241,7 +244,11 @@
       '.ktg13-guest[data-kt-guest-viewer-id="'+esc+'"] video',
       '.ktg13-guest[data-kt-direct-guest="'+esc+'"] video',
       '.ktg13-guest[data-viewer-id="'+esc+'"] video',
-      '.ktg9-guest[data-viewer-id="'+esc+'"] video'
+      '.ktg9-guest[data-viewer-id="'+esc+'"] video',
+      '.ktsubscriber-guest[data-kt-livekit-guest="'+esc+'"] video',
+      '.ktsubscriber-guest[data-kt-peer-viewer="'+esc+'"] video',
+      '.ktsecret-slot[data-kt-livekit-guest="'+esc+'"] video',
+      '.ktsecret-slot[data-kt-peer-viewer="'+esc+'"] video'
     ];
     for(var i=0;i<selectors.length;i++){
       try{
@@ -294,7 +301,11 @@
         '.kt-guest-hostlike-room .kgh-cell:not(.host):not(.self),'+
         '.kt-approved-guest-grid .kt-approved-guest-cell:not(.host):not(.self),'+
         '.kt-prejoin-room-grid .kt-prejoin-room-cell:not(.host),'+
-        '.kt-guest-room-grid .kt-guest-room-cell:not(.host):not(.self)'
+        '.kt-guest-room-grid .kt-guest-room-cell:not(.host):not(.self),'+
+        '.kt-remote-live .ktg13-room .ktg13-guest,'+
+        '.kt-remote-live .ktsubscriber-room .ktsubscriber-guest,'+
+        '.kt-remote-live .ktsubscriber-people .ktsubscriber-guest,'+
+        '.kt-remote-live .ktsecret-room .ktsecret-slot:not(.host)'
       ).forEach(function(cell){cells.push(cell);});
     }catch(e){}
     var free=cells.find(function(cell){
