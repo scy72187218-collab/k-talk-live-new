@@ -209,6 +209,32 @@
     return false;
   };
 
+  window.ktSecretAction1111=function(kind){
+    try{
+      if(kind==='rank'){
+        if(typeof window.openRewardCenter==='function'){window.openRewardCenter();return false;}
+        if(typeof window.showSheet==='function')window.showSheet('🏆 미션 · 랭킹','<div class="rowbox"><b>미션 · 랭킹</b><br>미션과 랭킹을 확인합니다.</div>');
+      }else if(kind==='mission'){
+        if(typeof window.openViewerMission==='function'){window.openViewerMission();return false;}
+        if(typeof window.openRewardCenter==='function'){window.openRewardCenter();return false;}
+      }else if(kind==='flip'){
+        if(typeof window.ktAllRoomsFlipCamera==='function'){window.ktAllRoomsFlipCamera();return false;}
+        if(typeof window.ktSoloFlipCamera==='function'){window.ktSoloFlipCamera();return false;}
+        if(typeof window.toggleCreatorCamera==='function'){window.toggleCreatorCamera();return false;}
+      }else if(kind==='treasure'){
+        if(typeof window.ktUnifiedQuickTreasure==='function'){window.ktUnifiedQuickTreasure();return false;}
+        if(typeof window.openTreasure==='function'){window.openTreasure();return false;}
+        if(typeof window.openTreasureBox==='function'){window.openTreasureBox();return false;}
+        if(typeof window.openGifts==='function'){window.openGifts();return false;}
+      }else if(kind==='match'){
+        if(typeof window.ktUnifiedQuickMatch==='function'){window.ktUnifiedQuickMatch();return false;}
+        if(typeof window.openHostMatchArena==='function'){window.openHostMatchArena('1대1');return false;}
+        if(typeof window.openMatchArena==='function'){window.openMatchArena('1대1');return false;}
+      }
+    }catch(e){}
+    return false;
+  };
+
   window.ktSecretOpenMessage=function(){
     showSheet('메시지','<div class="rowbox"><b>비밀방 채팅</b><br>입력한 글이 카메라 화면 위에 표시됩니다.</div><input id="ktsecretChatInput" class="form" maxlength="100" placeholder="메시지 입력" onkeydown="if(event.key===\'Enter\')ktSecretSendChat()"><button class="act" onclick="ktSecretSendChat()">보내기</button>');
     setTimeout(function(){var i=document.getElementById('ktsecretChatInput');if(i)i.focus();},80);
@@ -317,7 +343,7 @@
       +'.ktsecret-att{justify-self:center;height:29px;min-width:88px;padding:0 3px;border-radius:18px;border:2px solid #ff2bbd;background-color:#130714;background-image:radial-gradient(circle,#ff35ce 1.4px,transparent 2px);background-size:8px 8px;color:#ffd52f;font-size:11px;font-weight:950;box-shadow:0 0 8px #ff2bbd;display:flex;align-items:center;justify-content:center;gap:1px;white-space:nowrap}.ktsecret-att img{width:14px;height:14px}'
       +'.ktsecret-airrow{flex:0 0 32px;display:flex;align-items:center;gap:8px;padding:0 8px;font-size:14px;font-weight:950}.ktsecret-airrow .on{color:#ff315f}.ktsecret-lock{margin-left:auto;border:1px solid #d7ad39;border-radius:999px;background:#17140be8;color:#ffe071;padding:5px 9px;font-size:10px;font-weight:950}'
       +'.ktsecret-led{flex:0 0 52px;position:relative;border:2px solid #ff28c4;border-radius:22px;background-color:#120712;background-image:radial-gradient(circle,#ff35ce 2px,transparent 2.7px);background-size:13px 13px;overflow:hidden;box-shadow:0 0 9px #ff28c4,0 0 22px #ff28c466}.ktsecret-led-track{position:absolute;left:0;top:0;height:100%;display:flex;align-items:center;white-space:nowrap;animation:ktsecretMarquee 12s linear infinite;font-size:24px;font-weight:950;color:#ffd62d;text-shadow:0 0 7px #ff8b00}.ktsecret-led-track span{display:inline-block;padding-right:80px}.ktsecret-led-track b{color:#ff59c9}@keyframes ktsecretMarquee{from{transform:translateX(45%)}to{transform:translateX(-100%)}}'
-      +'.ktsecret-main{position:relative;flex:0 0 43dvh;min-height:240px;max-height:470px;margin-top:-8px;overflow:hidden;border-radius:10px;background:#111;border:1px solid rgba(255,196,73,.12)}.ktsecret-six-grid{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:3px;padding:3px}.ktsecret-slot{position:relative;min-width:0;min-height:0;overflow:hidden;border:1px solid rgba(255,255,255,.08);border-radius:8px;background:linear-gradient(145deg,#15151a,#09090c);display:flex;align-items:center;justify-content:center}.ktsecret-slot.host{grid-column:auto!important;grid-row:auto!important;border-color:rgba(255,208,90,.25);box-shadow:inset 0 0 0 1px rgba(255,208,90,.04)}.ktsecret-slot video,.ktsecret-slot .ktsecret-guest-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%;background:#111}.ktsecret-slot video{transform:scaleX(-1);filter:brightness(1.08) contrast(.95) saturate(1.02)}.ktsecret-slot .ktsecret-guest-photo{transform:none;filter:brightness(1.03) contrast(.97) saturate(1.03)}.ktsecret-slot-label{position:absolute;left:5px;bottom:5px;z-index:3;padding:2px 6px;border-radius:999px;background:rgba(0,0,0,.62);color:#fff;font-size:9px;font-weight:900}.ktsecret-slot.host .ktsecret-slot-label{color:#ffe071}.ktsecret-guest-wait{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#bdbdc7;font-size:10px;font-weight:850}.ktsecret-guest-wait b{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.25);font-size:20px;color:#fff}.ktsecret-shade{position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(0,0,0,.06) 65%,rgba(0,0,0,.55) 100%);pointer-events:none}'
+      +'.ktsecret-actions1111{flex:0 0 42px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}.ktsecret-actions1111 button{border:0;border-radius:11px;background:#15151a;color:#fff;font-size:11px;font-weight:950;padding:0 4px;pointer-events:auto!important;touch-action:manipulation!important}.ktsecret-actions1111 button:active{transform:scale(.97)}'\n      +'.ktsecret-main{position:relative;flex:0 0 43dvh;min-height:240px;max-height:470px;margin-top:-8px;overflow:hidden;border-radius:10px;background:#111;border:1px solid rgba(255,196,73,.12)}.ktsecret-six-grid{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:3px;padding:3px}.ktsecret-slot{position:relative;min-width:0;min-height:0;overflow:hidden;border:1px solid rgba(255,255,255,.08);border-radius:8px;background:linear-gradient(145deg,#15151a,#09090c);display:flex;align-items:center;justify-content:center}.ktsecret-slot.host{grid-column:auto!important;grid-row:auto!important;border-color:rgba(255,208,90,.25);box-shadow:inset 0 0 0 1px rgba(255,208,90,.04)}.ktsecret-slot video,.ktsecret-slot .ktsecret-guest-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%;background:#111}.ktsecret-slot video{transform:scaleX(-1);filter:brightness(1.08) contrast(.95) saturate(1.02)}.ktsecret-slot .ktsecret-guest-photo{transform:none;filter:brightness(1.03) contrast(.97) saturate(1.03)}.ktsecret-slot-label{position:absolute;left:5px;bottom:5px;z-index:3;padding:2px 6px;border-radius:999px;background:rgba(0,0,0,.62);color:#fff;font-size:9px;font-weight:900}.ktsecret-slot.host .ktsecret-slot-label{color:#ffe071}.ktsecret-guest-wait{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#bdbdc7;font-size:10px;font-weight:850}.ktsecret-guest-wait b{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.25);font-size:20px;color:#fff}.ktsecret-shade{position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(0,0,0,.06) 65%,rgba(0,0,0,.55) 100%);pointer-events:none}'
       +'.ktsecret-right{position:absolute;right:8px;bottom:158px;z-index:9;display:grid;gap:6px}.ktsecret-right button{width:44px;height:44px;border-radius:50%;border:1px solid #ffffff38;background:#101014d9;color:#fff;font-size:16px;font-weight:950}.ktsecret-right .like{height:50px;border-radius:16px;border-color:#ff65b788;background:#321024d9}.ktsecret-right small{display:block;font-size:8px}'
       +'.ktsecret-wave{position:absolute;left:10px;right:10px;bottom:143px;height:44px;z-index:4;display:flex;align-items:end;gap:2px;opacity:.88}.ktsecret-wave i{flex:1;min-width:2px;height:var(--h);border-radius:3px;background:#ff38c6;animation:ktsecretWave var(--d) ease-in-out infinite alternate}.ktsecret-wave i:nth-child(6n+2){background:#6f5cff}.ktsecret-wave i:nth-child(6n+3){background:#28d9ff}.ktsecret-wave i:nth-child(6n+4){background:#41e968}.ktsecret-wave i:nth-child(6n+5){background:#ffd43b}.ktsecret-wave i:nth-child(6n){background:#ff774f}@keyframes ktsecretWave{from{transform:scaleY(.45)}to{transform:scaleY(1)}}'
       + 'html:not(.kt-remote-viewing) #screen .ktsecret-room .ktsecret-chat,html:not(.kt-remote-viewing) #screen .ktsecret-room .ktsecret-chat-compose{display:none!important;visibility:hidden!important;opacity:0!important;animation:none!important;transition:none!important}'
@@ -330,7 +356,8 @@
       +'<section class="ktsecret-room">'
         +'<div class="ktsecret-head"><div class="ktsecret-left"><button class="ktsecret-back" onclick="if(window.leaveBroadcastToDashboard)leaveBroadcastToDashboard()">‹</button><div class="ktsecret-title"><i>●</i> 비밀방</div></div><button class="ktsecret-att" onclick="if(window.openAttendanceBenefits)openAttendanceBenefits()"><img src="attendance-wing.svg" alt=""><span>출석체크</span><img src="attendance-wing.svg" alt=""></button><div class="ktsecret-brand">K-Talk LIVE</div></div>'
         +'<div class="ktsecret-airrow"><span class="on">● ON AIR</span><span id="ktLiveClock">'+esc(clock)+'</span></div>'
-        +'<div class="ktsecret-led"><div class="ktsecret-led-track"><span>💗 ✨ <b>K-Talk LIVE</b> 환영합니다 ✨ 💗</span><span>💗 ✨ <b>K-Talk LIVE</b> 환영합니다 ✨ 💗</span></div></div>'
+        +'<div class="ktsecret-led"><div class="ktsecret-led-track"><span>💗 ✨ <b>K-Talk LIVE</b> 환영합니다 ✨ 💗</span><span>💗 ✨ <b>K-Talk LIVE</b> 환영합니다 ✨ 💗</span></div></div>'        +'<div class="ktsecret-actions1111"><button type="button" onclick="return ktSecretAction1111(\'rank\')">🔥 일일 랭킹</button><button type="button" onclick="return ktSecretAction1111(\'mission\')">🎯 미션</button><button type="button" onclick="return false">👁 시청자</button></div>'
+        +'<div class="ktsecret-actions1111"><button type="button" onclick="return ktSecretAction1111(\'flip\')">↻ 되돌리기</button><button type="button" onclick="return ktSecretAction1111(\'treasure\')">🎁 보물상자</button><button type="button" onclick="return ktSecretAction1111(\'match\')">⚔ 매치</button></div>'
         +'<div class="ktsecret-main"><div class="ktsecret-six-grid"><div class="ktsecret-slot host"><video id="ktLiveVideo" autoplay playsinline muted></video><span class="ktsecret-slot-label">호스트</span></div><div class="ktsecret-slot"><div class="ktsecret-guest-wait"><b>+</b><span>게스트</span></div></div><div class="ktsecret-slot"><div class="ktsecret-guest-wait"><b>+</b><span>게스트</span></div></div><div class="ktsecret-slot"><div class="ktsecret-guest-wait"><b>+</b><span>게스트</span></div></div><div class="ktsecret-slot"><div class="ktsecret-guest-wait"><b>+</b><span>게스트</span></div></div></div><div class="ktsecret-shade"></div>'
           
           +'<div class="ktsecret-wave">'+equalizerBars()+'</div>'
@@ -380,32 +407,6 @@
   window.addEventListener('resize',function(){setTimeout(placeSecretChatBottomExact,30);});
   window.addEventListener('orientationchange',function(){setTimeout(placeSecretChatBottomExact,120);});
   setTimeout(updatePrep,100);
-})();
-
-
-/* 2026-09-27: 비밀방 오른쪽 5개(되돌리기/좋아요/효과/보물상자/매치) 숨김.
-   하단 도구줄은 그대로 유지. */
-(function(){
-  if(window.__ktSecretRightFiveHidden20260927)return;
-  window.__ktSecretRightFiveHidden20260927=true;
-  function hide(){
-    try{
-      document.querySelectorAll('#screen .ktsecret-room .ktsecret-right').forEach(function(el){
-        el.remove();
-      });
-      document.querySelectorAll('#screen .ktsecret-room .kt-three-quick-flip,#screen .ktsecret-room .kt-three-quick-treasure,#screen .ktsecret-room .kt-three-quick-match').forEach(function(el){
-        el.remove();
-      });
-    }catch(e){}
-  }
-  hide();
-  [80,220,500,1000,1800].forEach(function(ms){setTimeout(hide,ms);});
-  try{
-    new MutationObserver(function(){
-      clearTimeout(window.__ktSecretRightFiveHideTimer);
-      window.__ktSecretRightFiveHideTimer=setTimeout(hide,30);
-    }).observe(document.documentElement,{childList:true,subtree:true});
-  }catch(e){}
 })();
 
 
