@@ -35,6 +35,16 @@
     return item.stream||item.mediaStream||item.srcObject||item;
   }
 
+  function callAny(names){
+    for(var i=0;i<names.length;i++){
+      try{
+        var fn=window[names[i]];
+        if(typeof fn==='function'){fn();return true;}
+      }catch(e){}
+    }
+    return false;
+  }
+
   function makeButton(cls,icon,fn,aria){
     var b=document.createElement('button');
     b.type='button';
@@ -65,6 +75,16 @@
         '</div>'+
         '<div class="ktsecret-airrow"><span class="on">● ON AIR</span><span class="kt-sg-clock">00:00:00</span></div>'+
         '<div class="ktsecret-led"><div class="ktsecret-led-track"><span>💗 ✨ <b>K-Talk LIVE</b> 환영합니다 ✨ 💗</span><span>💗 ✨ <b>K-Talk LIVE</b> 환영합니다 ✨ 💗</span></div></div>'+
+        '<div class="kt-sg-actions kt-sg-actions-1">'+
+          '<button type="button" data-act="rank">🔥 일일 랭킹</button>'+
+          '<button type="button" data-act="mission">🎯 미션</button>'+
+          '<button type="button" class="kt-sg-viewers">시청자 <b id="ktSgViewerCount">0</b>명 시청중 🏃</button>'+
+        '</div>'+
+        '<div class="kt-sg-actions kt-sg-actions-2">'+
+          '<button type="button" data-act="flip">↻ 되돌리기</button>'+
+          '<button type="button" data-act="treasure">🎁 보물상자</button>'+
+          '<button type="button" data-act="match">⚔ 매치</button>'+
+        '</div>'+
         '<div class="ktsecret-main kt-sg-main">'+
           '<div class="ktsecret-six-grid kt-sg-grid">'+
             '<div class="ktsecret-slot host"><video id="ktRemoteLiveVideo" autoplay playsinline muted></video><span class="ktsecret-slot-label">'+hostName+'</span></div>'+
@@ -83,6 +103,17 @@
 
     var attend=root.querySelector('.ktsecret-att');
     if(attend)attend.onclick=function(){try{if(typeof window.openAttendanceBenefits==='function')window.openAttendanceBenefits();}catch(e){}};
+
+    var actRank=root.querySelector('[data-act="rank"]');
+    if(actRank)actRank.onclick=function(){callAny(['openDailyRanking','showDailyRanking','ktOpenDailyRanking','openRanking']);};
+    var actMission=root.querySelector('[data-act="mission"]');
+    if(actMission)actMission.onclick=function(){callAny(['openMission','openMissionPanel','ktOpenMission','showMission']);};
+    var actFlip=root.querySelector('[data-act="flip"]');
+    if(actFlip)actFlip.onclick=function(){callAny(['ktBottomCameraFlip','toggleCameraFacing','switchCamera','flipCamera','rotateCamera']);};
+    var actTreasure=root.querySelector('[data-act="treasure"]');
+    if(actTreasure)actTreasure.onclick=function(){callAny(['openTreasureBox','openTreasure','ktOpenTreasureBox','showTreasureBox']);};
+    var actMatch=root.querySelector('[data-act="match"]');
+    if(actMatch)actMatch.onclick=function(){callAny(['openMatch','startMatch','ktOpenMatch','showMatch']);};
 
     var bar=root.querySelector('.kt-sg-bottom');
     var input=document.createElement('input');
@@ -182,7 +213,10 @@
       '#screen .kt-remote-live.kt-secret-guest-host-clone-final .ktsecret-guest-wait{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:3px!important;color:#bdbdc7!important;font-size:10px!important;font-weight:850!important}'+
       '#screen .kt-remote-live.kt-secret-guest-host-clone-final .ktsecret-guest-wait b{display:grid!important;place-items:center!important;width:30px!important;height:30px!important;border-radius:50%!important;border:1px solid rgba(255,255,255,.25)!important;font-size:20px!important;color:#fff!important}'+
       '#screen .kt-remote-live.kt-secret-guest-host-clone-final .kt-sg-room{height:100dvh!important;padding-bottom:calc(68px + env(safe-area-inset-bottom))!important}'+
-      '#screen .kt-remote-live.kt-secret-guest-host-clone-final .kt-sg-main{flex:0 0 43dvh!important;min-height:240px!important;max-height:470px!important;margin-top:-8px!important}'+
+      '#screen .kt-remote-live.kt-secret-guest-host-clone-final .kt-sg-actions{flex:0 0 48px!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:4px!important}'+
+      '#screen .kt-remote-live.kt-secret-guest-host-clone-final .kt-sg-actions button{min-width:0!important;border:0!important;border-radius:12px!important;background:#15151a!important;color:#fff!important;font-size:11px!important;font-weight:950!important;padding:0 5px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}'+
+      '#screen .kt-remote-live.kt-secret-guest-host-clone-final .kt-sg-actions-2{flex-basis:46px!important}'+
+      '#screen .kt-remote-live.kt-secret-guest-host-clone-final .kt-sg-main{flex:0 0 34dvh!important;min-height:220px!important;max-height:390px!important;margin-top:0!important}'+
       '#screen .kt-remote-live.kt-secret-guest-host-clone-final .ktsecret-slot video{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;background:#111!important}'+
       '#screen .kt-remote-live.kt-secret-guest-host-clone-final .ktsecret-slot.host video{transform:none!important}'+
       '#screen .kt-remote-live.kt-secret-guest-host-clone-final .kt-sg-earn-wrap{position:fixed!important;right:8px!important;bottom:calc(74px + env(safe-area-inset-bottom))!important;z-index:2147483000!important}'+
