@@ -230,14 +230,14 @@
 
 
 /* Lock 8: 2026-10-03 approved full-state lock.
-   Password marker: 6666.
+   Password marker: 1150617.
    Only communication / live-signal connection work is allowed.
    Runtime controls remain usable; this is an edit/maintenance protection marker. */
 (function(){
-  if(window.__ktFullStateExceptCommunicationLock6666)return;
-  window.__ktFullStateExceptCommunicationLock6666=true;
+  if(window.__ktFullStateExceptCommunicationLock1150617)return;
+  window.__ktFullStateExceptCommunicationLock1150617=true;
 
-  var PASSWORD='6666';
+  var PASSWORD='1150617';
   var ALLOWED=[
     'communication',
     'live_signal',
@@ -254,13 +254,13 @@
       root.setAttribute('data-kt-work-protected','1');
       root.setAttribute('data-kt-protection-password',PASSWORD);
       root.setAttribute('data-kt-protection-mode','communication_only');
-      root.setAttribute('data-kt-protected-area','everything_except_communication_20261003_6666');
+      root.setAttribute('data-kt-protected-area','everything_except_communication_20261003_1150617');
 
       document.querySelectorAll('#screen,.ktsolo-room,.ktg9-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room').forEach(function(el){
         el.setAttribute('data-kt-work-protected','1');
         el.setAttribute('data-kt-protection-password',PASSWORD);
         el.setAttribute('data-kt-protection-mode','communication_only');
-        el.setAttribute('data-kt-protected-area','everything_except_communication_20261003_6666');
+        el.setAttribute('data-kt-protected-area','everything_except_communication_20261003_1150617');
       });
 
       /* Do not disable user controls. Lock is for edits, not app usage. */
@@ -279,16 +279,16 @@
   window.ktCurrentProtectionState=function(){
     var s={};
     try{s=typeof oldState==='function'?(oldState()||{}):{};}catch(e){s={};}
-    s.everything_except_communication_20261003_6666=true;
-    s.protection_password='6666';
+    s.everything_except_communication_20261003_1150617=true;
+    s.protection_password='1150617';
     s.edit_mode='communication_only';
     s.allowed_edit_areas=ALLOWED.slice();
     s.lock_slots=s.lock_slots||{};
-    s.lock_slots[8]=['everything_except_communication_20261003_6666'];
+    s.lock_slots[8]=['everything_except_communication_20261003_1150617'];
     return s;
   };
 
-  window.ktProtectionPassword6666=function(v){return String(v||'')===PASSWORD;};
+  window.ktProtectionPassword1150617=function(v){return String(v||'')===PASSWORD;};
   window.ktIsCommunicationEditAllowed=function(name){
     name=String(name||'').toLowerCase();
     return ALLOWED.some(function(x){return name.indexOf(x)>-1;});
@@ -297,7 +297,7 @@
 
   var oldProtected=window.ktIsWorkProtected;
   window.ktIsWorkProtected=function(name){
-    if(name==='everything_except_communication_20261003_6666')return true;
+    if(name==='everything_except_communication_20261003_1150617')return true;
     if(window.ktIsCommunicationEditAllowed(name))return false;
     try{return typeof oldProtected==='function'?!!oldProtected(name):true;}catch(e){return true;}
   };
@@ -308,13 +308,13 @@
 
 
 /* 2026-10-03 explicit protected-area declaration.
-   Communication only is excluded; chat/switch/AI guidance/usage UI are protected under 6666. */
+   Communication only is excluded; chat/switch/AI guidance/usage UI are protected under 1150617. */
 (function(){
   try{
-    window.__ktProtectedAreas6666 = {
-      password: '6666',
+    window.__ktProtectedAreas1150617 = {
+      password: '1150617',
       mode: 'communication_only',
-      chat_switch_ai_usage_locked_6666: true,
+      chat_switch_ai_usage_locked_1150617: true,
       protected: [
         'chat',
         'switches',
