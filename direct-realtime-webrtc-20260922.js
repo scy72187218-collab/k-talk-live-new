@@ -903,57 +903,6 @@
     window.__ktLastApprovedGuestHostStream=stream;
     attachRemoteStreamNow(stream);
   }
-
-
-  var __ktGuestHostFrameWatch20261003={lastTime:-1,still:0,lastKick:0};
-  function keepRemoteHostVideoMoving20261003(){
-    try{
-      var hid=remoteHostId();
-      if(!hid||isHostRole())return;
-      var v=document.querySelector(
-        '#screen .kt-guest-hostlike-room .kgh-cell.host video,'+
-        '#screen .kt-remote-nine-immediate .kt-remote-nine-cell.host video,'+
-        '#screen #ktRemoteLiveVideo'
-      );
-      if(!v||!v.srcObject)return;
-      var tracks=v.srcObject.getVideoTracks?v.srcObject.getVideoTracks():[];
-      var t=tracks&&tracks[0];
-      if(!t||t.readyState!=='live')return;
-      try{
-        v.autoplay=true;v.playsInline=true;v.muted=true;v.defaultMuted=true;
-        if(v.paused){var p=v.play();if(p&&p.catch)p.catch(function(){});}
-      }catch(e){}
-      var now=Date.now();
-      var ct=Number(v.currentTime||0);
-      if(v.readyState>=2&&v.videoWidth>0&&v.videoHeight>0){
-        if(__ktGuestHostFrameWatch20261003.lastTime>=0&&Math.abs(ct-__ktGuestHostFrameWatch20261003.lastTime)<0.01){
-          __ktGuestHostFrameWatch20261003.still++;
-        }else{
-          __ktGuestHostFrameWatch20261003.still=0;
-        }
-        __ktGuestHostFrameWatch20261003.lastTime=ct;
-      }
-      if(__ktGuestHostFrameWatch20261003.still>=4&&now-__ktGuestHostFrameWatch20261003.lastKick>5000){
-        __ktGuestHostFrameWatch20261003.lastKick=now;
-        __ktGuestHostFrameWatch20261003.still=0;
-        viewerConnected=false;
-        viewerWatchToken=sid('watch');
-        lastWatchAt=0;
-        try{ensureViewerWatch(true);}catch(e){}
-        setTimeout(function(){
-          try{
-            if(remoteHostId()===hid){
-              if(viewerPc&&String(viewerPc.connectionState||'')==='disconnected'){
-                closePc(viewerPc);viewerPc=null;viewerSession='';
-              }
-              ensureViewerWatch(true);
-            }
-          }catch(e){}
-        },350);
-      }
-    }catch(e){}
-  }
-  setInterval(keepRemoteHostVideoMoving20261003,1200);
   function ktRemoteStreamStillLive20260923(){
     try{
       var s=window.__ktRemoteHostStream;
