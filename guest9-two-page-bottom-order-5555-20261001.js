@@ -8,6 +8,15 @@
   if(window.__ktGuest9TwoPageBottomOrder5555_20261001)return;
   window.__ktGuest9TwoPageBottomOrder5555_20261001=true;
 
+  function ktSecretGuestWipe20261004(){
+    try{
+      if(!document.documentElement.classList.contains('kt-remote-viewing'))return false;
+      var r=window.__ktLastLiveRoom||{};
+      var t=[r.room_type,r.room_name,r.title,window.__ktRemoteRoomName,window.__ktRemoteRoomType].filter(Boolean).join(' ').toLowerCase();
+      return /비밀|secret|password/.test(t);
+    }catch(e){return false;}
+  }
+
   function isNine(root){
     if(!root)return false;
     try{
@@ -170,6 +179,7 @@
   }
 
   function apply(){
+    if(ktSecretGuestWipe20261004())return;
     ensureStyle();
     document.querySelectorAll('#screen .kt-remote-live,.kt-remote-live').forEach(ensure);
   }
