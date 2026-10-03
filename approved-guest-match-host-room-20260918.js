@@ -114,13 +114,14 @@
     }catch(e){}
     var is16=/16\s*명|15\s*명|subscriber|구독자/i.test(txt);
     var is13=!is16&&/13\s*명|group13/i.test(txt);
+    if(!is16&&!is13)return null;
     return {
       is15:is16,
       is16:is16,
       is13:is13,
-      total:is16?16:(is13?13:9),
-      gridTotal:is16?16:(is13?13:9),
-      label:is16?'15명 방송':(is13?'13명 방송':'9명 방송')
+      total:is16?16:13,
+      gridTotal:is16?16:13,
+      label:is16?'15명 방송':'13명 방송'
     };
   }
 
@@ -139,7 +140,7 @@
       +'.kgh-led-track{position:absolute;left:0;top:0;height:100%;display:flex;align-items:center;white-space:nowrap;will-change:transform;animation:kghMarquee 12s linear infinite;font-size:24px;font-weight:950;color:#ffd62d;text-shadow:0 0 7px #ff8b00}.kgh-led-track span{display:inline-block;padding-right:80px}.kgh-led-track b{color:#ff59c9}@keyframes kghMarquee{from{transform:translateX(55%)}to{transform:translateX(-100%)}}'
       +'.kgh-quick{flex:0 0 35px;display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.kgh-quick button{border:0;border-radius:11px;background:#101014;color:#fff;font-size:11px;font-weight:900}'
       +'.kgh-stats{flex:0 0 47px;display:grid;grid-template-columns:1fr 1fr 1.35fr;gap:7px}.kgh-stats button,.kgh-viewers{border:0;border-radius:14px;background:#111114;color:#fff;font-size:15px;font-weight:950;display:flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;overflow:hidden}'
-      +'.kgh-main{position:relative;flex:1 1 0;min-height:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:2px;overflow:hidden}.kt-guest-hostlike-room[data-kt-room="9"] .kgh-main{flex:0 0 auto!important;height:calc(100vw - 14px)!important;max-height:calc(100dvh - 410px)!important;min-height:0!important}.kgh-main.is13{grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr))}.kgh-main.is13 .kgh-cell:nth-child(13){grid-column:1}.kgh-main.is15,.kgh-main.is16{grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr))}.kgh-main.is15 .kgh-cell.host,.kgh-main.is16 .kgh-cell.host{grid-column:1!important;grid-row:1/span 2!important}'
+      +'.kgh-main{position:relative;flex:1 1 0;min-height:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:2px;overflow:hidden}.kgh-main.is13{grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr))}.kgh-main.is13 .kgh-cell:nth-child(13){grid-column:1}.kgh-main.is15,.kgh-main.is16{grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr))}.kgh-main.is15 .kgh-cell.host,.kgh-main.is16 .kgh-cell.host{grid-column:1!important;grid-row:1/span 2!important}'
       +'.kgh-cell{position:relative;display:grid;place-items:center;min-width:0;min-height:0;border:1px solid #28282d;border-radius:7px;background:linear-gradient(145deg,#17181b,#111214);color:#bdbdc4;font-size:13px;font-weight:900;overflow:hidden}'
       +'.kgh-cell video{position:absolute;inset:0;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;border:0!important;object-fit:cover!important;object-position:center center!important;background:#111}'
       +'.kgh-cell.host video{transform:scaleX(-1)!important;-webkit-transform:scaleX(-1)!important}.kgh-cell.self video{left:0!important;top:0!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center center!important;transform:scaleX(-1)!important;-webkit-transform:scaleX(-1)!important}.kgh-cell.self{outline:2px solid #61d9ff;outline-offset:-2px}'
@@ -188,21 +189,9 @@
 
   function build(root){
     if(!root||!approvalActive)return;
-    try{
-      if(window.__ktUseSingleG9ViewerHostCopy20261003){
-        var info9=roomInfo(root);
-        if(info9&&info9.total===9)return;
-      }
-    }catch(e){}
+    var info=roomInfo(root);
+    if(!info)return;
     if(root.querySelector('.kt-guest-hostlike-room'))return;
-    try{
-      var rr=window.__ktLastLiveRoom||{};
-      var rtxt=[rr.room_type,rr.room_name,window.__ktRemoteRoomType,window.__ktRemoteRoomName].join(' ');
-      if(/group9|9\s*명/i.test(rtxt)&&window.__ktApprovedUsePrejoinLayout20261002){
-        if(typeof window.ktApplyApprovedPrejoinLayout20261002==='function')window.ktApplyApprovedPrejoinLayout20261002();
-        return;
-      }
-    }catch(e){}
 
     var main=document.getElementById('ktRemoteLiveVideo');
     var preview=document.getElementById('ktRemoteHostPreview');
@@ -277,15 +266,13 @@
       selfVideo=document.createElement('video');
     }
 
-    var info=roomInfo(root);
-
     root.querySelectorAll('.kt-approved-guest-led,.kt-approved-guest-stats,.kt-approved-guest-grid,.kt-prejoin-room-led,.kt-prejoin-room-stats,.kt-prejoin-room-grid').forEach(function(x){try{x.remove();}catch(e){}});
     root.classList.remove('kt-approved-guest-room','kt-prejoin-room-view');
     root.classList.add('kt-guest-hostlike-active');
 
     var room=document.createElement('section');
     room.className='kt-guest-hostlike-room';
-    room.setAttribute('data-kt-room',info.is16?'16':(info.is13?'13':'9'));
+    room.setAttribute('data-kt-room',info.is16?'16':'13');
 
     var head=document.createElement('div');
     head.className='kgh-head';
@@ -331,7 +318,7 @@
     stats.innerHTML='<button type="button">🔥 일일 랭킹</button><button type="button">🎯 미션</button><div class="kgh-viewers">시청자 '+(info.is16?15:info.total)+'명이 시청중 🏃</div>';
 
     var grid=document.createElement('div');
-    grid.className='kgh-main'+(info.is16?' is16':(info.is13?' is13':''));
+    grid.className='kgh-main'+(info.is16?' is16':' is13');
     var hostCell=makeCell('host','호스트');
     var selfCell=makeCell('self','나 · 게스트');
 
