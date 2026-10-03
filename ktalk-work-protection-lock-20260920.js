@@ -227,3 +227,81 @@
   markLock7();
   [80,220,500,1000,1800].forEach(function(ms){setTimeout(markLock7,ms);});
 })();
+
+
+/* Lock 8: 2026-10-03 approved full-state lock.
+   Password marker: 6666.
+   Only communication / live-signal connection work is allowed.
+   Runtime controls remain usable; this is an edit/maintenance protection marker. */
+(function(){
+  if(window.__ktFullStateExceptCommunicationLock6666)return;
+  window.__ktFullStateExceptCommunicationLock6666=true;
+
+  var PASSWORD='6666';
+  var ALLOWED=[
+    'communication',
+    'live_signal',
+    'webrtc',
+    'livekit',
+    'peer_connection',
+    'remote_video_connection',
+    'host_viewer_connection'
+  ];
+
+  function mark(){
+    try{
+      var root=document.documentElement;
+      root.setAttribute('data-kt-work-protected','1');
+      root.setAttribute('data-kt-protection-password',PASSWORD);
+      root.setAttribute('data-kt-protection-mode','communication_only');
+      root.setAttribute('data-kt-protected-area','everything_except_communication_20261003_6666');
+
+      document.querySelectorAll('#screen,.ktsolo-room,.ktg9-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room').forEach(function(el){
+        el.setAttribute('data-kt-work-protected','1');
+        el.setAttribute('data-kt-protection-password',PASSWORD);
+        el.setAttribute('data-kt-protection-mode','communication_only');
+        el.setAttribute('data-kt-protected-area','everything_except_communication_20261003_6666');
+      });
+
+      /* Do not disable user controls. Lock is for edits, not app usage. */
+      document.querySelectorAll('button,[role="switch"],input,select,textarea').forEach(function(el){
+        try{
+          if(el.tagName==='BUTTON')el.disabled=false;
+          el.setAttribute('aria-disabled','false');
+          el.style.setProperty('pointer-events','auto','important');
+          el.style.setProperty('touch-action','manipulation','important');
+        }catch(e){}
+      });
+    }catch(e){}
+  }
+
+  var oldState=window.ktCurrentProtectionState;
+  window.ktCurrentProtectionState=function(){
+    var s={};
+    try{s=typeof oldState==='function'?(oldState()||{}):{};}catch(e){s={};}
+    s.everything_except_communication_20261003_6666=true;
+    s.protection_password='6666';
+    s.edit_mode='communication_only';
+    s.allowed_edit_areas=ALLOWED.slice();
+    s.lock_slots=s.lock_slots||{};
+    s.lock_slots[8]=['everything_except_communication_20261003_6666'];
+    return s;
+  };
+
+  window.ktProtectionPassword6666=function(v){return String(v||'')===PASSWORD;};
+  window.ktIsCommunicationEditAllowed=function(name){
+    name=String(name||'').toLowerCase();
+    return ALLOWED.some(function(x){return name.indexOf(x)>-1;});
+  };
+  window.ktIsLiveSignalWorkAllowed=function(){return true;};
+
+  var oldProtected=window.ktIsWorkProtected;
+  window.ktIsWorkProtected=function(name){
+    if(name==='everything_except_communication_20261003_6666')return true;
+    if(window.ktIsCommunicationEditAllowed(name))return false;
+    try{return typeof oldProtected==='function'?!!oldProtected(name):true;}catch(e){return true;}
+  };
+
+  mark();
+  [60,180,450,900,1800].forEach(function(ms){setTimeout(mark,ms);});
+})();
