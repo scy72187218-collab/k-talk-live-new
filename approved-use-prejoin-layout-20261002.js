@@ -335,7 +335,12 @@
       head.innerHTML='<div class="kgh-air"><strong><i>●</i> 9명 방송</strong><small><i>● ON AIR</i> <span class="kgh-clock">00:00:00</span></small></div>'
         +'<button class="kgh-attend" type="button">🌹 출석체크</button><div class="kgh-brand">K-Talk LIVE</div>';
       var attend=head.querySelector('.kgh-attend');
-      if(attend)attend.onclick=function(){try{if(window.ktAttendanceCheck)window.ktAttendanceCheck();}catch(e){}};
+      if(attend)attend.onclick=function(){
+        try{
+          if(typeof window.ktAttendanceCheck==='function')return window.ktAttendanceCheck();
+          if(typeof window.ktRemoteAttendanceCheck==='function')return window.ktRemoteAttendanceCheck();
+        }catch(e){}
+      };
 
       var led=document.createElement('div');
       led.className='kgh-led';
@@ -347,7 +352,23 @@
 
       var stats=document.createElement('div');
       stats.className='kgh-stats';
-      stats.innerHTML='<button type="button">🔥 일일 랭킹</button><button type="button">🎯 미션</button><div class="kgh-viewers">시청자 9명이 시청중 🏃</div>';
+      stats.innerHTML='<button type="button" class="kgh-ranking-btn">🔥 일일 랭킹</button><button type="button" class="kgh-mission-btn">🎯 미션</button><div class="kgh-viewers">시청자 9명이 시청중 🏃</div>';
+      var rankingBtn=stats.querySelector('.kgh-ranking-btn');
+      if(rankingBtn)rankingBtn.onclick=function(){
+        try{
+          if(typeof window.ktGroup13Ranking==='function')return window.ktGroup13Ranking();
+          if(typeof window.openDailyRanking==='function')return window.openDailyRanking();
+          if(typeof window.openRanking==='function')return window.openRanking();
+        }catch(e){}
+      };
+      var missionBtn=stats.querySelector('.kgh-mission-btn');
+      if(missionBtn)missionBtn.onclick=function(){
+        try{
+          if(typeof window.ktGroup13Invite==='function')return window.ktGroup13Invite();
+          if(typeof window.openMission==='function')return window.openMission();
+          if(typeof window.ktOpenMission==='function')return window.ktOpenMission();
+        }catch(e){}
+      };
 
       var grid=document.createElement('div');
       grid.className='kgh-main';
