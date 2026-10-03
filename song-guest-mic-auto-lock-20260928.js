@@ -107,30 +107,8 @@
     songLocked=false;
   }
 
-  function hasApprovedGuests(){
-    try{
-      var ids=window.__ktApprovedGuestIds20260924||{};
-      if(Object.keys(ids).some(function(k){return !!ids[k];}))return true;
-    }catch(e){}
-    try{
-      var sels=[
-        '#screen .ktg13-guest[data-kt-direct-guest]',
-        '#screen .ktg13-guest[data-kt-guest-viewer-id]',
-        '#screen .ktsubscriber-guest[data-kt-direct-guest]',
-        '#screen .ktsubscriber-guest[data-kt-guest-viewer-id]',
-        '#screen .ktsecret-slot[data-kt-direct-guest]',
-        '#screen .ktsecret-slot[data-kt-guest-viewer-id]'
-      ].join(',');
-      if(document.querySelector(sels))return true;
-    }catch(e){}
-    return false;
-  }
-
   async function postControl(lock){
     if(!isLocalHost()&&!isAdmin())return;
-    /* 게스트가 한 명도 없으면 마이크 제어 메시지도 만들지 않는다.
-       기능은 유지하되 빈 방에서 '노래 종료 · 게스트 마이크 해제'가 뜨는 현상만 막는다. */
-    if(!hasApprovedGuests())return;
     var host=deviceId();
     var type=lock?'song_guest_mic_lock':'song_guest_mic_unlock';
     try{
