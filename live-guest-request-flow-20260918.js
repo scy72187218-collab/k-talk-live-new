@@ -366,6 +366,25 @@
       if(b)delete b.dataset.ktGuestToggleBusy;
     }
   }
+  /* 방 입장 순간 게스트 카메라를 미리 준비한다.
+     참여 승인 후 getUserMedia를 다시 기다리지 않게 해서 얼굴을 즉시 붙인다.
+     화면 배치/버튼은 변경하지 않는다. */
+  window.addEventListener('kt-remote-host-selected',function(e){
+    var hostId=String(e&&e.detail&&e.detail.host_id||'').trim();
+    if(!hostId)return;
+    try{
+      var q=prewarmViewerGuestMedia();
+      if(q&&q.then)q.then(function(stream){
+        if(!stream)return;
+        try{
+          window.dispatchEvent(new CustomEvent('kt-guest-camera-prewarmed',{
+            detail:{host_id:hostId,stream_ready:true,at:Date.now()}
+          }));
+        }catch(_e){}
+      }).catch(function(){});
+    }catch(_e){}
+  });
+
   window.ktRequestGuestJoin=sendGuestRequest;
   function bindRequestButton(){var b=document.getElementById('ktRemoteGuestRequest');if(!b)return;if(b.__ktGuestRequestBound)return;b.__ktGuestRequestBound=true;b.onclick=function(e){if(e)e.preventDefault();sendGuestRequest();};}
   function removeDuplicateGroupRoom(){var screen=document.getElementById('screen');if(!screen)return;var rooms=[].slice.call(screen.querySelectorAll('.ktg13-room'));if(rooms.length>1)rooms.slice(1).forEach(function(x){x.remove();});['.ktg13-head','.ktg13-led','.ktg13-stats','.ktg13-main','.ktg13-mid','.ktg13-gifts','.ktg13-tools'].forEach(function(sel){var parts=[].slice.call(screen.querySelectorAll(sel));if(parts.length>1)parts.slice(1).forEach(function(x){x.remove();});});var root=screen.querySelector('.kt-remote-live');if(root&&root.querySelector('.kt-approved-guest-grid')){root.querySelectorAll('.kt-prejoin-room-led,.kt-prejoin-room-stats,.kt-prejoin-room-grid').forEach(function(x){try{x.remove();}catch(e){}});root.classList.remove('kt-prejoin-room-view');}}
