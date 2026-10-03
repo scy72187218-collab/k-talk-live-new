@@ -385,3 +385,28 @@
     }).observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 })();
+
+
+/* Saved state: 2026-10-03 current approved 9-room appearance/video behavior.
+   Password marker: 1150617.
+   Preserve current room layout, host video placement, and transient-flash suppression. */
+(function(){
+  if(window.__ktSavedNineRoomState20261003_1150617)return;
+  window.__ktSavedNineRoomState20261003_1150617=true;
+
+  var oldState=window.ktCurrentProtectionState;
+  window.ktCurrentProtectionState=function(){
+    var s={};
+    try{s=typeof oldState==='function'?(oldState()||{}):{};}catch(e){s={};}
+    s.saved_current_nine_room_state_20261003_1150617=true;
+    s.lock_slots=s.lock_slots||{};
+    s.lock_slots[10]=['saved_current_nine_room_state_20261003_1150617'];
+    return s;
+  };
+
+  var oldProtected=window.ktIsWorkProtected;
+  window.ktIsWorkProtected=function(name){
+    if(name==='saved_current_nine_room_state_20261003_1150617')return true;
+    try{return typeof oldProtected==='function'?!!oldProtected(name):false;}catch(e){return false;}
+  };
+})();
