@@ -62,10 +62,6 @@
   function go(e){
     var el=target(e);
     if(!el)return;
-    if(el.classList&&el.classList.contains('ktvl-live'))return;
-    /* 원형 방송 목록은 1~15번까지 가로 스크롤 후 눌러야 하므로
-       pointerdown/touchstart/touchend에서는 가로 스크롤을 막지 않는다. */
-    if(el.classList&&el.classList.contains('kt-follow-person')&&e.type!=='click')return;
     var id=hostFrom(el);
     if(!id||typeof window.ktEnterRemoteLive!=='function')return;
     var now=Date.now();
