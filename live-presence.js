@@ -420,11 +420,23 @@
       var rows=await req('ktalk_live_rooms?select=id,host_id,active,updated_at&host_id=eq.'+enc(c.hostId)+'&active=eq.true&order=started_at.desc&limit=1');
       var room=rows&&rows[0];
       if(!room||Date.now()-new Date(room.updated_at).getTime()>STALE_MS){
-        /* 휴대폰 신호가 잠깐 흔들릴 때 방에서 바로 내보내지 않는다. */
         if(!c.roomMissingSince)c.roomMissingSince=Date.now();
-        if(Date.now()-c.roomMissingSince>12000){
-          showActivity('방송 신호를 다시 확인해 주세요.');
-          if(viewerCtx===c)window.ktLeaveRemoteLive();
+        if(Date.now()-c.roomMissingSince>500){
+          if(viewerCtx===c){
+            var old=viewerCtx;
+            viewerCtx=null;
+            try{clearInterval(old.signalTimer);clearInterval(old.heartbeat);clearInterval(old.activityTimer);}catch(e){}
+            try{if(old.pc)old.pc.close();}catch(e){}
+            window.__ktRemoteHostStream=null;
+            window.__ktRemoteHostId='';
+            window.__ktCurrentRemoteHostId='';
+            try{sessionStorage.removeItem('kt_remote_host_id');}catch(e){}
+            try{document.documentElement.classList.remove('kt-remote-viewing');}catch(e){}
+            try{
+              if(typeof window.showVideoHome==='function')window.showVideoHome('추천 동영상');
+              else if(typeof window.home==='function')window.home();
+            }catch(e){}
+          }
         }
         return;
       }
@@ -561,7 +573,7 @@
       /* 시청자 영상 협상을 먼저 시작한다.
          입장 알림 저장이 느려도 영상 연결을 기다리게 하지 않는다. */
       viewerCtx.signalTimer=setInterval(remotePollSignal,180);remotePollSignal();
-      viewerCtx.heartbeat=setInterval(remotePollRoom,1200);remotePollRoom();
+      viewerCtx.heartbeat=setInterval(remotePollRoom,250);remotePollRoom();
       viewerCtx.activityTimer=setInterval(remotePollActivity,1800);remotePollActivity();
       try{
         insertSystem(hostId,viewerId,viewerCtx.viewerName,viewerCtx.viewerName+'님이 들어왔습니다.').catch(function(){});
