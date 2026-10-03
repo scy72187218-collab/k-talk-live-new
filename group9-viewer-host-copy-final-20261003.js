@@ -20,7 +20,7 @@
     s.textContent=''
     +'#screen .kt-remote-live.kt-g9-host-copy{display:block!important;padding:0!important;background:#000!important;overflow:hidden!important}'
     +'#screen .kt-remote-live.kt-g9-host-copy> :not(.ktg13-room):not(.kt-remote-chat):not(.kt-remote-bottom):not(.kt-remote-leave-fixed-1150617){display:none!important}'
-    +'#screen .kt-remote-live.kt-g9-host-copy>.ktg13-room{height:100dvh!important;min-height:0!important;padding:4px 7px calc(62px + env(safe-area-inset-bottom))!important;display:flex!important;flex-direction:column!important;gap:4px!important;background:#000!important;color:#fff!important;overflow:hidden!important}'
+    +'#screen .kt-remote-live.kt-g9-host-copy>.ktg13-room{height:calc(100dvh + 6px)!important;min-height:0!important;margin-top:-6px!important;padding:4px 7px calc(62px + env(safe-area-inset-bottom))!important;display:flex!important;flex-direction:column!important;gap:4px!important;background:#000!important;color:#fff!important;overflow:hidden!important}'
     +'#screen .kt-remote-live.kt-g9-host-copy .ktg13-head{flex:0 0 58px!important;display:grid!important;grid-template-columns:1fr auto 1fr!important;align-items:center!important;padding:4px 8px!important;border-radius:16px!important;background:linear-gradient(180deg,#17171a,#0d0d10)!important}'
     +'#screen .kt-remote-live.kt-g9-host-copy .ktg13-air strong{display:block!important;font-size:17px!important;font-weight:950!important}#screen .kt-remote-live.kt-g9-host-copy .ktg13-air strong i{color:#ff2e67!important;font-style:normal!important}'
     +'#screen .kt-remote-live.kt-g9-host-copy .ktg13-air small{display:block!important;margin-top:4px!important;font-size:10px!important;font-weight:900!important}'
@@ -33,12 +33,26 @@
     +'#screen .kt-remote-live.kt-g9-host-copy .ktg13-main{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:repeat(3,minmax(0,1fr))!important;gap:3px!important;width:calc(100% - 20px)!important;height:78vw!important;max-height:78vw!important;flex:0 0 78vw!important;margin:4px auto 0!important;overflow:hidden!important}'
     +'#screen .kt-remote-live.kt-g9-host-copy .ktg13-host,#screen .kt-remote-live.kt-g9-host-copy .ktg13-guest{position:relative!important;display:grid!important;place-items:center!important;min-width:0!important;min-height:0!important;border-radius:9px!important;background:linear-gradient(145deg,#17181b,#111214)!important;color:#bdbdc4!important;font-size:11px!important;font-weight:900!important;overflow:hidden!important}'
     +'#screen .kt-remote-live.kt-g9-host-copy .ktg13-host video,#screen .kt-remote-live.kt-g9-host-copy .ktg13-guest video{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center!important;background:#000!important}'
+    +'#screen .kt-remote-live.kt-g9-host-copy .kt-room-second-stats-row-20260927{display:none!important}'
     +'#screen .kt-remote-live.kt-g9-host-copy>.kt-remote-bottom{display:flex!important;z-index:90!important}';
     (document.head||document.documentElement).appendChild(s);
   }
   function hostVideoNode(){
     return document.getElementById('ktRemoteLiveVideo');
   }
+  function removeDuplicateQuick(room){
+    if(!room)return;
+    var quicks=[].slice.call(room.querySelectorAll(':scope > .ktg13-quick'));
+    quicks.slice(1).forEach(function(x){try{x.remove();}catch(e){}});
+    [].slice.call(room.children||[]).forEach(function(el){
+      if(!el||el.classList&&el.classList.contains('ktg13-quick'))return;
+      var t=String(el.textContent||'').replace(/\s+/g,'');
+      if(t.indexOf('되돌리기')>=0&&t.indexOf('보물상자')>=0&&t.indexOf('매치')>=0){
+        try{el.remove();}catch(e){}
+      }
+    });
+  }
+
   function build(){
     var root=document.querySelector('#screen .kt-remote-live');
     if(!root||!isNine())return false;
@@ -64,6 +78,7 @@
       root.appendChild(room);
     }
     root.classList.add('kt-g9-host-copy');
+    removeDuplicateQuick(room);
     if(remoteVideo){
       var host=room.querySelector('.ktg13-host');
       if(host&&remoteVideo.parentElement!==host)host.appendChild(remoteVideo);
