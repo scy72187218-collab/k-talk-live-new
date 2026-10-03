@@ -189,6 +189,14 @@
   function build(root){
     if(!root||!approvalActive)return;
     if(root.querySelector('.kt-guest-hostlike-room'))return;
+    try{
+      var rr=window.__ktLastLiveRoom||{};
+      var rtxt=[rr.room_type,rr.room_name,window.__ktRemoteRoomType,window.__ktRemoteRoomName].join(' ');
+      if(/group9|9\s*명/i.test(rtxt)&&window.__ktApprovedUsePrejoinLayout20261002){
+        if(typeof window.ktApplyApprovedPrejoinLayout20261002==='function')window.ktApplyApprovedPrejoinLayout20261002();
+        return;
+      }
+    }catch(e){}
 
     var main=document.getElementById('ktRemoteLiveVideo');
     var preview=document.getElementById('ktRemoteHostPreview');
@@ -521,6 +529,30 @@
     approvalActive=false;
     try{
       var root=document.querySelector('.kt-remote-live');
+
+      /* 9명방은 신호 재연결/호스트 상태 갱신 때 방 화면 자체를 절대 지우지 않는다.
+         기존 코드는 여기서 ktRemoteLiveVideo를 방 밖으로 꺼내고 room을 remove해서
+         일부 기기가 다시 사람 전체 화면으로 튀었다. */
+      if(root){
+        var keep9=root.querySelector('.kt-guest-hostlike-room[data-kt-room="9"]');
+        if(keep9){
+          try{
+            var selfCell=keep9.querySelector('.kgh-cell.self');
+            if(selfCell){
+              var sv=selfCell.querySelector('video');
+              if(sv){try{sv.pause();}catch(e){}try{sv.srcObject=null;}catch(e){}}
+              selfCell.classList.remove('self');
+              selfCell.innerHTML='<span class="kgh-label">게스트</span>';
+            }
+            root.classList.remove('kt-approved-guest-room','kt-prejoin-room-view');
+            root.classList.add('kt-guest-hostlike-active');
+            selfVideo=null;selfStream=null;
+            try{window.__ktApprovedGuestSelfStream=null;}catch(e){}
+          }catch(e){}
+          return;
+        }
+      }
+
       if(!root){
         selfVideo=null;hostVideo=null;selfStream=null;builtRoot=null;
         try{window.__ktApprovedGuestSelfStream=null;}catch(e){}
