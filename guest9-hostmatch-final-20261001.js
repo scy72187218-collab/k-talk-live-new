@@ -94,6 +94,7 @@
       people.className='kt-remote-action kt-guest9-people kt-remote-guest-request';
       people.setAttribute('aria-label','방송 참여 신청');
       people.setAttribute('title','방송 참여 신청');
+      people.onclick=function(e){try{if(e)e.preventDefault();}catch(_e){}try{if(typeof window.ktRequestGuestJoin==='function')return window.ktRequestGuestJoin();}catch(_e){}};
       people.textContent='👥';
       people.onclick=function(e){
         try{if(e)e.preventDefault();}catch(_e){}
