@@ -23,6 +23,35 @@
     }catch(e){return false;}
   }
 
+  function ensureNineOpeningGuard(){
+    if(document.getElementById('ktNineOpeningGuardStyle'))return;
+    var st=document.createElement('style');
+    st.id='ktNineOpeningGuardStyle';
+    st.textContent=''
+      +'html.kt-nine-opening #screen{background:#000!important}'
+      +'html.kt-nine-opening #screen>*{visibility:hidden!important}'
+      +'html.kt-nine-opening #screen .ktg13-room[data-kt-room="9"]{visibility:visible!important}';
+    (document.head||document.documentElement).appendChild(st);
+  }
+
+  function beginNineOpening(){
+    ensureNineOpeningGuard();
+    document.documentElement.classList.add('kt-nine-opening');
+    clearTimeout(window.__ktNineOpeningGuardFailsafe);
+    window.__ktNineOpeningGuardFailsafe=setTimeout(function(){
+      try{document.documentElement.classList.remove('kt-nine-opening');}catch(e){}
+    },1200);
+  }
+
+  function endNineOpening(){
+    try{
+      if(document.querySelector('#screen .ktg13-room[data-kt-room="9"]')){
+        document.documentElement.classList.remove('kt-nine-opening');
+        clearTimeout(window.__ktNineOpeningGuardFailsafe);
+      }
+    }catch(e){}
+  }
+
   function forceNineState(){
     try{
       if(window.state){
@@ -68,6 +97,7 @@
         if(cr)cr.classList.remove('show','live-prep-open');
         document.body.classList.remove('kt-home');
       }catch(e){}
+      endNineOpening();
       return true;
     }catch(e){return false;}
   }
@@ -108,6 +138,7 @@
   window.startBroadcast=async function(){
     if(!isNine())return previousStart.apply(this,arguments);
 
+    beginNineOpening();
     forceNineState();
 
     /* 9명방: 카운트다운 없이 방을 먼저 즉시 연다. */
@@ -121,6 +152,7 @@
     }finally{
       try{if(keepObserver)keepObserver.disconnect();}catch(e){}
       openNineRoomNow();
+      endNineOpening();
       try{
         var old=document.getElementById('ktLiveCountdown');
         if(old)old.remove();
