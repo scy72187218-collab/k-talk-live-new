@@ -233,4 +233,15 @@
   window.addEventListener('resize',function(){setTimeout(function(){placeNineChat();placeSubscriberChat();},30);});
   window.addEventListener('orientationchange',function(){setTimeout(function(){placeNineChat();placeSubscriberChat();},120);});
   window.__ktNineChatExactFollowTimer20260919=setInterval(function(){placeNineChat();placeSubscriberChat();},300);
+
+  var __ktHostChatHiddenOnly20261003=true;
+  function ktHideHostChatOnly20261003(){
+    if(document.documentElement.classList.contains('kt-remote-viewing'))return;
+    var sel='#screen .ktsolo-room .ktsolo-chat,#screen .ktg13-room .ktg13-chat,#screen .ktsubscriber-room .ktsubscriber-chat,#screen .ktsecret-room .ktsecret-chat,#screen .ktsecret-room .ktsecret-chat-compose';
+    document.querySelectorAll(sel).forEach(function(el){
+      el.style.setProperty('display','none','important');
+    });
+  }
+  setInterval(ktHideHostChatOnly20261003,500);
+  setTimeout(ktHideHostChatOnly20261003,50);
 })();
