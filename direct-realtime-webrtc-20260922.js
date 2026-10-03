@@ -2321,7 +2321,7 @@
     setTimeout(function(){
       if(!guestApproved||guestApprovedHost!==hid||guestMediaReadyAt)return;
       forceFreshApprovedGuestOffer20260926(hid);
-    },180);
+    },80);
 
     /* Visible fallback requested by owner: place only the approved guest's own
        camera face into the host guest slot while live transport is connecting. */
