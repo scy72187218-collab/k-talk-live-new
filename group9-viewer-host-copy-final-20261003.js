@@ -63,15 +63,29 @@
     if(!root||!isNine())return false;
     style();
 
-    /* Delete any old prejoin/viewer remnants before drawing the single host-copy room.
-       These old nodes included the floating "나 · 게스트" area that pushed the room down. */
+    var room=root.querySelector('.ktg13-room[data-kt-viewer-host-copy="1"]');
+    var remoteVideo=hostVideoNode();
+
+    /* 이미 정상 9명방이 떠 있으면 DOM 구조는 절대 다시 만들거나 지우지 않는다.
+       영상 노드 위치와 재생 상태만 유지해서 화면이 내려갔다 올라오는 재배치를 막는다. */
+    if(room){
+      root.classList.add('kt-g9-host-copy');
+      var stableHost=room.querySelector('.ktg13-host');
+      if(remoteVideo&&stableHost&&remoteVideo.parentElement!==stableHost)stableHost.appendChild(remoteVideo);
+      if(remoteVideo){
+        remoteVideo.autoplay=true;remoteVideo.playsInline=true;remoteVideo.muted=true;remoteVideo.defaultMuted=true;
+        try{var sp=remoteVideo.play();if(sp&&sp.catch)sp.catch(function(){});}catch(e){}
+      }
+      syncSelf();
+      return true;
+    }
+
+    /* 첫 생성 때만 오래된 9명방 잔여물을 제거한다. */
     root.querySelectorAll('.kt-prejoin-room-led,.kt-prejoin-room-stats,.kt-prejoin-room-grid,.kt-approved-guest-led,.kt-approved-guest-stats,.kt-approved-guest-grid,.kt-guest-hostlike-room').forEach(function(x){
       try{x.remove();}catch(e){}
     });
     root.classList.remove('kt-prejoin-room-view','kt-approved-guest-room','kt-guest-hostlike-active');
 
-    var room=root.querySelector('.ktg13-room[data-kt-viewer-host-copy="1"]');
-    var remoteVideo=hostVideoNode();
     if(!room){
       room=document.createElement('section');
       room.className='ktg13-room';
