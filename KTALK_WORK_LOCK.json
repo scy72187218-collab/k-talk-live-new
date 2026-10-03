@@ -1,5 +1,5 @@
 {
-  "version": 193,
+  "version": 194,
   "locked": true,
   "scope": "full_snapshot_guard_everything",
   "lock_slot": 9,
@@ -80,7 +80,10 @@
     "group9_room_no_old_flash_saved_20261003",
     "secret_room_host_current_state_20261004",
     "secret_room_guest_current_state_20261004",
-    "secret_room_host_guest_layout_pair_20261004"
+    "secret_room_host_guest_layout_pair_20261004",
+    "group13_guest_current_state_20261004",
+    "group13_guest_final_tile_right_20261004",
+    "group13_guest_chat_heart_removed_20261004"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -156,7 +159,10 @@
     "group9_room_no_old_flash_saved_20261003",
     "secret_room_host_current_state_20261004",
     "secret_room_guest_current_state_20261004",
-    "secret_room_host_guest_layout_pair_20261004"
+    "secret_room_host_guest_layout_pair_20261004",
+    "group13_guest_current_state_20261004",
+    "group13_guest_final_tile_right_20261004",
+    "group13_guest_chat_heart_removed_20261004"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
@@ -261,11 +267,16 @@
       "secret_room_host_current_state_20261004",
       "secret_room_guest_current_state_20261004",
       "secret_room_host_guest_layout_pair_20261004"
+    ],
+    "7777_group13_guest": [
+      "group13_guest_current_state_20261004",
+      "group13_guest_final_tile_right_20261004",
+      "group13_guest_chat_heart_removed_20261004"
     ]
   },
   "last_unlock": "2026-10-02-red-live-and-same-3person-roster-code-2222",
-  "last_lock": "2026-10-04-secret-host-guest-current-state-pin-7777",
-  "last_note": "사용자 요청: 현재 비밀방 호스트/게스트 화면 상태를 7777로 잠금. 호스트/게스트 방 모양, 수익률, 하단 게스트 줄 포함. 명시적 7777 해제 전 관련 코드 변경 금지.",
+  "last_lock": "2026-10-04-group13-guest-current-state-pin-7777",
+  "last_note": "사용자 7777 요청: 현재 13명방 게스트 화면 상태 잠금. 채팅 하트 제거, 마지막 게스트 칸 오른쪽 정렬 상태 포함. 명시적 해제 전 13명방 게스트 관련 변경 금지.",
   "unlock_pin_sha256": "41c991eb6a66242c0454191244278183ce58cf4a6bcd372f799e4b9cc01886af",
   "secret_room_lock_snapshot": {
     "host_file": "secret-room-password.js",
@@ -273,6 +284,13 @@
     "guest_file": "secret-guest-from-host-20261004.js",
     "guest_sha": "c65ded3437203b6b87b5d1eecb6d92ac8f2bd294",
     "index_sha": "9ccd57e5838c3d06c6e662795af56f9a473f251e",
+    "locked_at": "2026-10-04",
+    "pin_hint": "7777"
+  },
+  "group13_guest_lock_snapshot_20261004": {
+    "guest_file": "approved-guest-match-host-room-20260918.js",
+    "guest_sha": "35ce1a17b42535a6eede98269c562c68ef5c68f4",
+    "index_sha": "4638afa0bde863e47bd0246e8dd4aa5e0269ade8",
     "locked_at": "2026-10-04",
     "pin_hint": "7777"
   }
