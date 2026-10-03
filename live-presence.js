@@ -626,7 +626,20 @@
   }
 
   ensureStyle();
-  wrap('startBroadcast',function(){hostEndLock=false;hostRunToken++;hostRoomMissingSince=0;window.__ktHostEndLock=false;window.__ktHostEndLockHostId='';},function(){setTimeout(function(){syncHostPresenceAfterStart(0);},260);});
+  wrap('startBroadcast',function(){
+    hostEndLock=false;hostRunToken++;hostRoomMissingSince=0;window.__ktHostEndLock=false;window.__ktHostEndLockHostId='';
+    /* 방송 시작 버튼을 누르는 순간 통신 등록을 먼저 시작한다.
+       방 화면/배치/채팅/수익률은 건드리지 않고 LIVE 연결만 앞당긴다. */
+    try{
+      if(hasLiveLocalVideo()){
+        startHostPresence();
+      }else if(window.ensureLiveCamera){
+        Promise.resolve(window.ensureLiveCamera((window.state&&state.cameraFacing)||'user')).then(function(){
+          if(hasLiveLocalVideo()&&!hostActive&&!hostStarting&&!hostEndLock)startHostPresence();
+        }).catch(function(){});
+      }
+    }catch(e){}
+  },function(){setTimeout(function(){syncHostPresenceAfterStart(0);},80);});
   wrap('friends',null,function(){setTimeout(renderLiveCards,60);});
   wrap('openDashboard',null,function(){setTimeout(renderLiveCards,60);});
   wrap('openBroadcastList',null,function(){setTimeout(renderLiveCards,60);});
