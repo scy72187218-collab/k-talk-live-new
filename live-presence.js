@@ -514,14 +514,20 @@
       }catch(e){}
     }
 
-    /* CONNECTION FIRST: start host-video transport before drawing the room.
-       This lets WebRTC/Realtime handshake begin on the same tap that opens LIVE. */
+    /* SAME TAP / SAME FUNCTION:
+       Start host-video signaling directly, then draw the room immediately.
+       No event-loop wait between the room opening action and video start. */
     window.__ktRemoteHostId=hostId;
     window.__ktCurrentRemoteHostId=hostId;
     try{sessionStorage.setItem('kt_remote_host_id',hostId);}catch(e){}
-    try{window.dispatchEvent(new CustomEvent('kt-remote-host-selected',{detail:{host_id:hostId,immediate:true,connection_first:true}}));}catch(e){}
+    try{
+      if(typeof window.ktStartRemoteHostVideoNow20261003==='function'){
+        window.ktStartRemoteHostVideoNow20261003(hostId,window.__ktRemoteHostStream||null);
+      }
+    }catch(e){}
+    try{window.dispatchEvent(new CustomEvent('kt-remote-host-selected',{detail:{host_id:hostId,immediate:true,same_action:true}}));}catch(e){}
 
-    /* Draw the room immediately after the transport has been kicked off. */
+    /* Draw the room in the same synchronous entry action. */
     var cached=cachedRemoteRoom20260924(hostId);
     renderRemote(cached);
     try{
