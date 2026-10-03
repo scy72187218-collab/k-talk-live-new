@@ -45,50 +45,6 @@
     return document.getElementById('ktRemoteLiveVideo');
   }
 
-  function syncHostVideo(room){
-    if(!room)return;
-    var host=room.querySelector('.ktg13-host');
-    if(!host)return;
-
-    var stream=null;
-    try{stream=window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream||null;}catch(e){}
-
-    var v=host.querySelector('video')||document.getElementById('ktRemoteLiveVideo');
-    if(!v){
-      v=document.createElement('video');
-      v.id='ktRemoteLiveVideo';
-      v.autoplay=true;
-      v.playsInline=true;
-      v.muted=true;
-      v.defaultMuted=true;
-      host.appendChild(v);
-    }else if(v.parentElement!==host){
-      host.appendChild(v);
-    }
-
-    var keepCurrent=false;
-    try{
-      var cur=v.srcObject;
-      var curTrack=cur&&cur.getVideoTracks&&cur.getVideoTracks()[0];
-      var nextTrack=stream&&stream.getVideoTracks&&stream.getVideoTracks()[0];
-      keepCurrent=!!(curTrack&&curTrack.readyState==='live'&&!curTrack.muted);
-      if(keepCurrent&&nextTrack&&curTrack.id===nextTrack.id)keepCurrent=true;
-    }catch(e){keepCurrent=false;}
-
-    /* 정상 영상이 이미 붙어 있으면 다른 통신 경로가 srcObject를 반복 교체하지 않는다.
-       현재 영상이 실제로 끝났거나 mute 상태일 때만 새 스트림으로 교체한다. */
-    if(stream&&v.srcObject!==stream&&!keepCurrent){
-      try{v.srcObject=stream;}catch(e){}
-    }
-    v.autoplay=true;
-    v.playsInline=true;
-    v.muted=true;
-    v.defaultMuted=true;
-    try{
-      var p=v.play();
-      if(p&&p.catch)p.catch(function(){});
-    }catch(e){}
-  }
   function removeDuplicateQuick(room){
     if(!room)return;
     var quicks=[].slice.call(room.querySelectorAll(':scope > .ktg13-quick'));
@@ -139,8 +95,9 @@
     if(remoteVideo){
       var host=room.querySelector('.ktg13-host');
       if(host&&remoteVideo.parentElement!==host)host.appendChild(remoteVideo);
+      remoteVideo.autoplay=true;remoteVideo.playsInline=true;remoteVideo.muted=true;remoteVideo.defaultMuted=true;
+      try{var p=remoteVideo.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
     }
-    syncHostVideo(room);
     syncSelf();
     return true;
   }
@@ -175,21 +132,8 @@
   window.ktForceApprovedGuestGridNow20260924=function(){if(isNine()){build();syncSelf();return true;}return false;};
 
   ['kt-guest-approval-received','kt-approved-guest-stream-ready','kt-any-guest-approved','kt-three-person-sync-now','kt-livekit-state'].forEach(function(n){
-    window.addEventListener(n,function(){
-      build();
-      var room=document.querySelector('#screen .kt-remote-live .ktg13-room[data-kt-viewer-host-copy="1"]');
-      syncHostVideo(room);
-      syncSelf();
-      setTimeout(function(){syncHostVideo(room);syncSelf();},80);
-    });
+    window.addEventListener(n,function(){build();syncSelf();setTimeout(syncSelf,80);});
   });
   [0,50,120,300,700].forEach(function(ms){setTimeout(build,ms);});
-  setInterval(function(){
-    if(isNine()){
-      build();
-      var room=document.querySelector('#screen .kt-remote-live .ktg13-room[data-kt-viewer-host-copy="1"]');
-      syncHostVideo(room);
-      syncSelf();
-    }
-  },500);
+  setInterval(function(){if(isNine()){build();syncSelf();}},500);
 })();
