@@ -1,5 +1,5 @@
 {
-  "version": 189,
+  "version": 190,
   "locked": true,
   "scope": "full_snapshot_guard_everything",
   "lock_slot": 9,
@@ -74,7 +74,8 @@
     "creator_auto_youth_beauty_and_edit_effect_removed_20261002",
     "group9_existing_led_banner_shell_restore_only_20261002",
     "public_video_top_live_circles_and_bottom_host_circle_20261002",
-    "public_video_live_indicators_restored_correct_state_20261002"
+    "public_video_live_indicators_restored_correct_state_20261002",
+    "group13_room_current_state_20261003"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -144,7 +145,8 @@
     "creator_auto_youth_beauty_and_edit_effect_removed_20261002",
     "group9_existing_led_banner_shell_restore_only_20261002",
     "public_video_top_live_circles_and_bottom_host_circle_20261002",
-    "public_video_live_indicators_restored_correct_state_20261002"
+    "public_video_live_indicators_restored_correct_state_20261002",
+    "group13_room_current_state_20261003"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
@@ -247,7 +249,7 @@
     ]
   },
   "last_unlock": "2026-10-02-red-live-and-same-3person-roster-code-2222",
-  "last_lock": "2026-10-02-solo-fullscreen-after-flip-1111",
-  "last_note": "1111 승인: 1인 방송 뒤집기 후 영상이 방 전체를 꽉 채우도록 solo 영상 스타일만 고정. 다른 방/UI/기능 변경 금지.",
+  "last_lock": "2026-10-03-group13-room-current-state-1111",
+  "last_note": "1111 승인: 현재 13명방 상태 잠금. 이후 13명방 레이아웃/기능은 명시적 해제 승인 전 변경 금지.",
   "unlock_pin_sha256": "edee29f882543b956620b26d0ee0e7e950399b1c4222f5de05e06425b4c995e9"
 }
