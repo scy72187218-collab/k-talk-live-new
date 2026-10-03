@@ -145,6 +145,55 @@
     root.classList.add('kt-prejoin-room-view');
 
     var total=roomTotal();
+
+    /* 9명방은 빨간 LIVE 첫 입장 화면과 승인 후 화면을 완전히 동일하게 유지한다.
+       승인 후 새 화면으로 갈아끼우지 않고, 기존 host-like 방 안의 첫 게스트 칸에
+       자기 영상만 넣는다. */
+    if(total===9){
+      var hostLike=root.querySelector('.kt-guest-hostlike-room[data-kt-room="9"]');
+      if(hostLike){
+        root.classList.remove('kt-prejoin-room-view','kt-approved-guest-room');
+        root.classList.add('kt-guest-hostlike-active');
+
+        var hostVideo=hostLike.querySelector('.kgh-cell.host video');
+        if(hostVideo&&hostStream&&hostVideo.srcObject!==hostStream){
+          hostVideo.srcObject=hostStream;
+          hostVideo.autoplay=true;hostVideo.playsInline=true;hostVideo.muted=true;
+          try{var hp=hostVideo.play();if(hp&&hp.catch)hp.catch(function(){});}catch(e){}
+        }
+
+        var selfCell=hostLike.querySelector('.kgh-cell.self');
+        if(!selfCell){
+          var guestCells=[].slice.call(hostLike.querySelectorAll('.kgh-cell:not(.host)'));
+          selfCell=guestCells[0]||null;
+          if(selfCell){
+            selfCell.classList.add('self');
+            selfCell.innerHTML='';
+            var lab=document.createElement('span');
+            lab.className='kgh-label';
+            lab.textContent='나 · 게스트';
+            selfCell.appendChild(lab);
+            var sv=document.createElement('video');
+            sv.id='ktRemoteLiveVideo';
+            sv.autoplay=true;sv.playsInline=true;sv.muted=true;
+            selfCell.appendChild(sv);
+          }
+        }
+
+        if(selfCell){
+          var selfV=selfCell.querySelector('video');
+          if(selfV&&selfStream&&selfV.srcObject!==selfStream){
+            selfV.srcObject=selfStream;
+            selfV.autoplay=true;selfV.playsInline=true;selfV.muted=true;
+            try{var sp=selfV.play();if(sp&&sp.catch)sp.catch(function(){});}catch(e){}
+          }
+        }
+
+        positionAttendanceBesideHeart(root);
+        return true;
+      }
+    }
+
     var grid=root.querySelector('.kt-prejoin-room-grid');
     if(!grid || Number(grid.getAttribute('data-kt-total')||0)!==total){
       root.querySelectorAll('.kt-prejoin-room-led,.kt-prejoin-room-stats,.kt-prejoin-room-grid').forEach(function(x){try{x.remove();}catch(e){}});
