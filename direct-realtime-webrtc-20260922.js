@@ -96,6 +96,15 @@
   function isHostRole(){
     try{
       var local=roomEl(),visible=false;
+
+      /* Viewer 9-room intentionally uses the same .ktg13-room layout as host.
+         Never classify a room inside .kt-remote-live (or kt-remote-viewing)
+         as the local host, otherwise the guest-request host id gets erased. */
+      try{
+        if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
+        if(local&&local.closest&&local.closest('.kt-remote-live'))return false;
+      }catch(_e){}
+
       try{
         if(local){
           var st=getComputedStyle(local);
