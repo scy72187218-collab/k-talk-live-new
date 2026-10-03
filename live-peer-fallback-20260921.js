@@ -133,6 +133,16 @@
 
   function renderRemote(room){
     try{
+      /* Publish selected room metadata BEFORE any guest layout scripts run.
+         This prevents secret-room viewers from briefly falling into old 9/13 guest UI. */
+      try{
+        window.__ktLastLiveRoom=room||window.__ktLastLiveRoom||{};
+        window.__ktRemoteRoomName=String((room&&(room.room_name||room.title))||'');
+        window.__ktRemoteRoomType=String((room&&room.room_type)||'');
+        window.__ktRemoteSecretRoom=/비밀|secret|password/i.test(
+          [window.__ktRemoteRoomName,window.__ktRemoteRoomType,(room&&room.title)||''].join(' ')
+        );
+      }catch(_metaErr){}
       document.documentElement.classList.add('kt-remote-viewing');
       var s=document.getElementById('screen');if(!s)return false;
       s.innerHTML='<section class="kt-remote-live"><video id="ktRemoteLiveVideo" autoplay playsinline muted></video><div class="kt-remote-shade"></div><div class="kt-remote-top"><button class="kt-remote-back" type="button">‹</button><div class="kt-remote-meta"><b><i class="kt-live-dot"></i>'+String(room.host_name||'K-Talk').replace(/[&<>"]/g,'')+'</b><span>'+String(room.title||room.room_name||'라이브').replace(/[&<>"]/g,'')+' · '+String(room.room_name||'방송').replace(/[&<>"]/g,'')+'</span></div><div id="ktRemoteViewerCount" class="kt-remote-viewers">👁 연결 중</div></div><div id="ktRemoteLiveStatus" class="kt-remote-status">방송 영상 연결 중…</div></section>';
