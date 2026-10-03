@@ -338,3 +338,50 @@
     };
   }catch(e){}
 })();
+
+
+/* Lock 9: preserve the currently working 9-room entry/display exactly as approved.
+   Password marker: 1150617.
+   Runtime buttons remain usable; this is an edit/maintenance lock only. */
+(function(){
+  if(window.__ktNineRoomDisplayLock1150617)return;
+  window.__ktNineRoomDisplayLock1150617=true;
+
+  function markNine(){
+    try{
+      document.querySelectorAll(
+        '#screen .ktg13-room[data-kt-room="9"],#screen .kt-remote-live.kt-g9-host-copy,#screen .ktg9-room'
+      ).forEach(function(el){
+        el.setAttribute('data-kt-work-protected','1');
+        el.setAttribute('data-kt-protection-password','1150617');
+        el.setAttribute('data-kt-protected-area','nine_room_entry_display_20261003_1150617');
+        el.setAttribute('data-kt-nine-room-locked','1');
+      });
+    }catch(e){}
+  }
+
+  var oldState=window.ktCurrentProtectionState;
+  window.ktCurrentProtectionState=function(){
+    var s={};
+    try{s=typeof oldState==='function'?(oldState()||{}):{};}catch(e){s={};}
+    s.nine_room_entry_display_20261003_1150617=true;
+    s.lock_slots=s.lock_slots||{};
+    s.lock_slots[9]=['nine_room_entry_display_20261003_1150617'];
+    return s;
+  };
+
+  var oldProtected=window.ktIsWorkProtected;
+  window.ktIsWorkProtected=function(name){
+    if(name==='nine_room_entry_display_20261003_1150617')return true;
+    try{return typeof oldProtected==='function'?!!oldProtected(name):false;}catch(e){return false;}
+  };
+
+  markNine();
+  [60,180,450,900,1800].forEach(function(ms){setTimeout(markNine,ms);});
+  try{
+    new MutationObserver(function(){
+      clearTimeout(window.__ktNineRoomDisplayLockTimer1150617);
+      window.__ktNineRoomDisplayLockTimer1150617=setTimeout(markNine,30);
+    }).observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+})();
