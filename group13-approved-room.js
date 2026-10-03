@@ -20,7 +20,7 @@
 
       var t=(window.state&&state.liveRoomType)||'';
       var n=(window.state&&state.liveRoomName)||'';
-      return t==='group'||t==='group13'||n==='13명 방송';
+      return t==='group'||t==='group13'||t==='group15'||n==='13명 방송'||n==='15명 방송';
     }catch(e){return false;}
   }
 
@@ -96,9 +96,17 @@
     var art=img?'<img src="'+img+'" alt="'+esc(label)+'">':'<span class="ktg13-emoji">'+icon+'</span>';
     return '<button class="ktg13-gift" onclick="openGifts()">'+art+'<b>'+count+'</b><small>'+label+'</small></button>';
   }
+  function isGroup15Mode(){
+    try{
+      var t=(window.state&&state.liveRoomType)||'';
+      var n=(window.state&&state.liveRoomName)||'';
+      var m=Number((window.state&&state.liveRoomMax)||0);
+      return t==='group15'||n==='15명 방송'||m===16;
+    }catch(e){return false;}
+  }
   function guestSlots(){
-    var s='';
-    for(var i=0;i<12;i++)s+='<div class="ktg13-guest"><span>게스트</span></div>';
+    var s='',count=isGroup15Mode()?15:12;
+    for(var i=0;i<count;i++)s+='<div class="ktg13-guest"><span>게스트</span></div>';
     return s;
   }
   function renderChat(){
@@ -167,9 +175,9 @@
       +'.ktg13-tools{flex:0 0 50px;display:grid;grid-template-columns:repeat(8,1fr);gap:2px;align-items:start}.ktg13-tool{border:0;background:none;color:#fff;min-width:0;font-weight:900;font-size:9px;display:grid;justify-items:center;gap:2px}.ktg13-tool i{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#1b1b20,#0b0b0f);border:1px solid #35363d;font-style:normal;font-size:18px;box-shadow:inset 0 0 13px #ffffff08}.ktg13-tool:first-child i{color:#fff;box-shadow:0 0 12px #a53fff66,inset 0 0 13px #ffffff08}.ktg13-tool:nth-child(5) i{transform:translateY(-2px)}.ktg13-tool span{font-size:8px;color:#fff;white-space:nowrap}'
       +'@media(max-width:390px){.ktg13-room{padding-left:4px;padding-right:4px;gap:3px}.ktg13-head{flex-basis:58px;padding:4px 8px}.ktg13-air strong{font-size:18px}.ktg13-air small{font-size:10px}.ktg13-brand{font-size:17px}.ktg13-attend{min-width:112px;height:38px;font-size:17px;padding:0 9px}.ktg13-led{flex-basis:50px}.ktg13-led-track{font-size:21px}.ktg13-stats{flex-basis:42px;gap:4px}.ktg13-stats button,.ktg13-viewers{font-size:12px}.ktg13-main{grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr))}.ktg13-guest{font-size:12px}.ktg13-mid{flex-basis:70px;grid-template-columns:minmax(0,1fr) 40%;gap:5px}.ktg13-chat{height:70px;max-height:70px;padding-left:3px;padding-right:3px;transform:none}.ktg13-chat-line{font-size:9px}.ktg13-earn{height:62px}.ktg13-earn #myEarnHud{padding:2px 4px!important}.ktg13-gifts{flex-basis:52px}.ktg13-gift img{height:23px}.ktg13-emoji{height:23px;font-size:20px}.ktg13-gift b{font-size:8px}.ktg13-gift small{font-size:6.5px}.ktg13-tools{flex-basis:47px}.ktg13-tool i{width:32px;height:32px;font-size:16px}.ktg13-tool span{font-size:8px}}'
       +'</style>'
-      +'<section class="ktg13-room" data-kt-approved13="1">'
+      +'<section class="ktg13-room" data-kt-approved13="1" data-kt-room="'+(isGroup15Mode()?'16':'13')+'">'
         +'<div class="ktg13-head">'
-          +'<div class="ktg13-air"><strong><i>●</i> 13명 방송</strong><small><i>● ON AIR</i> <span id="ktLiveClock">'+esc(clock)+'</span></small></div>'
+          +'<div class="ktg13-air"><strong><i>●</i> '+(isGroup15Mode()?'15명 방송':'13명 방송')+'</strong><small><i>● ON AIR</i> <span id="ktLiveClock">'+esc(clock)+'</span></small></div>'
           +'<button class="ktg13-attend" onclick="if(window.ktAttendanceCheck)ktAttendanceCheck()">🪽 출석체크 🪽</button>'
           +'<div class="ktg13-brand">K-Talk LIVE</div>'
         +'</div>'
@@ -243,13 +251,14 @@
     if(!force&&!isGroup13())return false;
     try{
       if(force&&window.state){
-        state.liveRoomType='group13';
-        state.liveRoomName='13명 방송';
-        state.liveRoomMax=13;
-        state.prepRoomType='group13';
-        state.prepRoomName='13명 방송';
-        state.prepRoomMax=13;
-        state.roomType='group13';
+        var keep15=isGroup15Mode();
+        state.liveRoomType=keep15?'group15':'group13';
+        state.liveRoomName=keep15?'15명 방송':'13명 방송';
+        state.liveRoomMax=keep15?16:13;
+        state.prepRoomType=keep15?'group15':'group13';
+        state.prepRoomName=keep15?'15명 방송':'13명 방송';
+        state.prepRoomMax=keep15?16:13;
+        state.roomType=keep15?'group15':'group13';
       }
       markGroup13Opening();
       renderApprovedGroup13();
