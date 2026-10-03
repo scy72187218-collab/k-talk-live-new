@@ -1,6 +1,8 @@
 /* K-Talk host-only effect button hide
    1111: effect button only. Do not change guest/viewer UI or any other control. */
 (function(){
+  window.__ktHostBottomLock1111='1111';
+  window.__ktHostBottomLockedState20261004='effect-hidden+equal-spacing';
   if(window.__ktHostHideEffectOnly20261004)return;
   window.__ktHostHideEffectOnly20261004=true;
 
