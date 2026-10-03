@@ -119,8 +119,8 @@
       is16:is16,
       is13:is13,
       total:is16?16:(is13?13:9),
-      gridTotal:is16?15:(is13?13:9),
-      label:is16?'16명 방송':(is13?'13명 방송':'9명 방송')
+      gridTotal:is16?16:(is13?13:9),
+      label:is16?'15명 방송':(is13?'13명 방송':'9명 방송')
     };
   }
 
@@ -314,7 +314,7 @@
 
     var stats=document.createElement('div');
     stats.className='kgh-stats';
-    stats.innerHTML='<button type="button">🔥 일일 랭킹</button><button type="button">🎯 미션</button><div class="kgh-viewers">시청자 '+info.total+'명이 시청중 🏃</div>';
+    stats.innerHTML='<button type="button">🔥 일일 랭킹</button><button type="button">🎯 미션</button><div class="kgh-viewers">시청자 '+(info.is16?15:info.total)+'명이 시청중 🏃</div>';
 
     var grid=document.createElement('div');
     grid.className='kgh-main'+(info.is16?' is16':(info.is13?' is13':''));
