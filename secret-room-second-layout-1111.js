@@ -141,7 +141,7 @@
           '<div class="ktsecret2-chatbox"><div class="ktsecret2-panelhead"><b>채팅</b><span>참가자</span><span>팬클럽</span><span>공지</span></div><div id="ktsecretChatList" class="ktsecret2-chatlist">'+chatHtml()+'</div><div class="ktsecret2-chatinputrow"><div class="ktsecret2-chatinput" onclick="if(window.ktSecretOpenMessage)ktSecretOpenMessage()">☺　메시지를 입력하세요...</div><button class="ktsecret2-send" type="button" onclick="if(window.ktSecretOpenMessage)ktSecretOpenMessage()">전송</button></div></div>'+
           '<div class="ktsecret2-giftbox"><div class="ktsecret2-panelhead"><b>🎁 선물 / 후원</b><span style="margin-left:auto">후원 랭킹 ›</span></div><div class="ktsecret2-gifttabs"><span>전체</span><span>인기</span><span>스페셜</span><span>컬렉션</span></div><div class="ktsecret2-gifts">'+
             gift('','1송이 장미','rose-single.svg')+gift('','10송이 장미','rose-bouquet-50.svg')+gift('','30송이 장미','rose-bouquet-100.svg')+
-            gift('💗','하트','')+gift('⭐','별','')+gift('🎈','풍선','')+
+            gift('💗','하트 10개','')+gift('⭐','별 20개','')+gift('🎈','풍선 30개','')+
             gift('👑','황금 왕관','')+gift('🏰','스페셜 선물','')+gift('🎁','비밀 선물','')+
           '</div></div>'+
         '</div>'+
