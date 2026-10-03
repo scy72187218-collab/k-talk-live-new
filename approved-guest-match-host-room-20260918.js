@@ -28,6 +28,7 @@
     }catch(e){return false;}
   }
   function forceApprovedGridNow20260924(){
+    if(document.querySelector('#screen .kt-sgf'))return false;
     if(!approvedByRealtimeRoster20260924()&&!approvalActive)return false;
     approvalActive=true;
     repair();
