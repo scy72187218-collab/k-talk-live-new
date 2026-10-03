@@ -6,8 +6,6 @@
 (function(){
   if(window.__ktLiveKitSfuBridge20260924)return;
   window.__ktLiveKitSfuBridge20260924=true;
-
-  var DEFAULT_URL='';
   var TOKEN_URL='https://zupwbfmacwzexyvznlzq.supabase.co/functions/v1/ktalk-livekit-token';
   var SDK_URL='https://cdn.jsdelivr.net/npm/livekit-client@2.22.3/dist/livekit-client.umd.min.js';
 
@@ -17,7 +15,7 @@
   var sdkPromise=null;
 
   window.__ktLiveKitSfuState20260924={
-    enabled:true,connected:false,connecting:false,url:DEFAULT_URL,hostId:'',role:'',lastError:''
+    enabled:true,connected:false,connecting:false,url:'',hostId:'',role:'',lastError:''
   };
 
   function setState(p){
