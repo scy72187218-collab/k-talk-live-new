@@ -55,7 +55,6 @@
 
   function apply(){
     put('.ktsubscriber-room','.ktsubscriber-chat','.ktsubscriber-tools','subscriber-bottom-v1');
-    put('.ktsecret-room','.ktsecret-chat','.ktsecret-tools','secret-bottom-v1');
   }
 
   apply();
