@@ -1346,8 +1346,16 @@
 
   function approveDirectGuest(vid,name){
     vid=String(vid||'').trim();
-    if(!vid)return;
+    if(!vid)return false;
     name=String(name||'게스트');
+    if(!approvedGuests[vid]){
+      try{
+        var free=[].slice.call(document.querySelectorAll('#screen .ktg13-room .ktg13-guest')).some(function(slot){
+          return !slot.dataset.ktDirectGuest&&!slot.dataset.ktGuestViewerId;
+        });
+        if(!free)return false;
+      }catch(e){}
+    }
     var data={host_id:DEVICE,viewer_id:vid,name:name,at:Date.now()};
 
     approvedGuests[vid]={name:name,at:data.at};
@@ -1398,11 +1406,11 @@
         detail:{host_id:DEVICE,viewer_id:vid,at:Date.now()}
       }));
     }catch(e){}
+    return true;
   }
   window.ktDirectApproveGuest20260922=function(vid,name){
     try{window.__ktFastApprovedGuest20260926={vid:String(vid||''),at:Date.now()};}catch(e){}
-    approveDirectGuest(vid,name);
-    return true;
+    return approveDirectGuest(vid,name)!==false;
   };
 
   var __ktApprovalTapAt=0;
