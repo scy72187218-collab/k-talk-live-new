@@ -732,10 +732,29 @@
   });
   window.addEventListener('kt-remote-host-selected',function(e){
     var h=String(e&&e.detail&&e.detail.host_id||'').trim();
-    if(h){
-      watchHostId=h;
+    if(!h)return;
+
+    /* 통신 전용: 빨간 LIVE로 다른 방송을 누르면 이전 승인방/연결을 붙잡지 않는다.
+       선택한 host를 최우선으로 즉시 전환하고 UI/방배치에는 손대지 않는다. */
+    var changed=!!(currentHostId&&currentHostId!==h);
+    if(approvedHostId&&approvedHostId!==h)approvedHostId='';
+    watchHostId=h;
+
+    if(changed){
+      try{
+        var p=disconnectRoom();
+        if(p&&p.then){
+          p.then(function(){setTimeout(hostTick,0);setTimeout(hostTick,35);}).catch(function(){setTimeout(hostTick,0);});
+        }else{
+          setTimeout(hostTick,0);
+          setTimeout(hostTick,35);
+        }
+      }catch(_e){
+        setTimeout(hostTick,0);
+      }
+    }else{
       setTimeout(hostTick,0);
-      setTimeout(hostTick,60);
+      setTimeout(hostTick,35);
     }
   });
   window.addEventListener('kt-host-session-reset',function(e){
