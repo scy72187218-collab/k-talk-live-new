@@ -7,6 +7,15 @@
   if(window.__ktRemote9BottomFixed5555_20261001)return;
   window.__ktRemote9BottomFixed5555_20261001=true;
 
+  function ktSecretGuestWipe20261004(){
+    try{
+      if(!document.documentElement.classList.contains('kt-remote-viewing'))return false;
+      var r=window.__ktLastLiveRoom||{};
+      var t=[r.room_type,r.room_name,r.title,window.__ktRemoteRoomName,window.__ktRemoteRoomType].filter(Boolean).join(' ').toLowerCase();
+      return /비밀|secret|password/.test(t);
+    }catch(e){return false;}
+  }
+
   function style(){
     if(document.getElementById('ktRemote9BottomFixed5555Style'))return;
     var s=document.createElement('style');
@@ -79,6 +88,7 @@
   }
 
   function apply(){
+    if(ktSecretGuestWipe20261004())return;
     style();
     document.querySelectorAll('#screen .kt-remote-live').forEach(function(root){
       if(isNine(root))root.classList.add('kt-g9-bottom-fixed-5555');
