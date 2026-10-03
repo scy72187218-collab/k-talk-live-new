@@ -8,6 +8,10 @@
 
   function isNine(){
     try{
+      var forced=String(window.__ktForceNineViewerShellHost20261003||'').trim();
+      var current=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||'').trim();
+      if(forced&&(!current||forced===current))return true;
+
       var last=window.__ktLastLiveRoom||{}, st=window.state||{};
       var txt=[last.room_type,last.room_name,last.title,window.__ktRemoteRoomType,window.__ktRemoteRoomName,st.liveRoomType,st.liveRoomName].join(' ');
       return /group9|9\s*명/i.test(String(txt));
