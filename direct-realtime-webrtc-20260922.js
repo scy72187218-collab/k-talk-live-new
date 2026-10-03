@@ -2787,20 +2787,19 @@
   setInterval(syncSharedApprovalSignals,100);
   setTimeout(syncSharedApprovalSignals,50);
 
-  window.addEventListener('kt-remote-host-selected',function(e){
+  function ktStartRemoteHostVideoNow20261003(hid,existing){
     try{
-      var hid=String(e&&e.detail&&e.detail.host_id||'').trim();
-      if(!hid)return;
+      hid=String(hid||'').trim();
+      if(!hid)return false;
 
       var current=String(activeHostId||remoteHostId()||lastRemoteHost||'').trim();
-      var existing=null,existingLive=false;
+      var existingLive=false;
       try{
-        existing=(e&&e.detail&&e.detail.entry_stream)||window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream||window.__ktEntryHostStream20260925||null;
+        existing=existing||window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream||window.__ktEntryHostStream20260925||null;
         existingLive=!!(existing&&existing.getVideoTracks&&existing.getVideoTracks().some(function(t){return t&&t.readyState==='live';}));
       }catch(_e){}
 
-      /* Re-selecting the SAME host during approval/DOM transition must never
-         reset the viewer watch token or close the already-working host video. */
+      /* Re-selecting the same host must keep the live frame and transport. */
       if(current&&hid===current&&existingLive){
         lastRemoteHost=hid;
         window.__ktRemoteHostStream=existing;
@@ -2811,14 +2810,17 @@
         [20,70,160].forEach(function(ms){
           setTimeout(function(){attachRemoteStreamNow(existing);},ms);
         });
-        return;
+        return true;
       }
 
       lastRemoteHost=hid;
       viewerWatchToken=sid('watch');
       viewerConnected=false;
       lastWatchAt=0;
+
+      /* Start signaling immediately on the same tap that opens the room. */
       if(activeHostId!==hid)connect(hid);
+      ensureViewerWatch(true);
 
       try{
         if(existingLive){
@@ -2827,11 +2829,20 @@
         }
       }catch(_e){}
 
-      ensureViewerWatch(true);
       attachRemoteStreamNow();
       [20,60,120,220].forEach(function(ms){
         setTimeout(function(){ensureViewerWatch(true);attachRemoteStreamNow();},ms);
       });
+      return true;
+    }catch(z){return false;}
+  }
+  window.ktStartRemoteHostVideoNow20261003=ktStartRemoteHostVideoNow20261003;
+
+  window.addEventListener('kt-remote-host-selected',function(e){
+    try{
+      var hid=String(e&&e.detail&&e.detail.host_id||'').trim();
+      if(!hid)return;
+      ktStartRemoteHostVideoNow20261003(hid,e&&e.detail&&e.detail.entry_stream);
     }catch(z){}
   });
 
