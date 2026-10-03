@@ -2384,7 +2384,11 @@
   }
 
   function handleSignal(ev,p){
-    if(duplicateSignal(ev,p))return;
+    /* video_watch must stay retryable.
+       The first watch can arrive a few ms before the host camera stream is ready.
+       hostOfferToViewer already safely reuses/resends the same watch token, so
+       suppressing repeated watch packets can delay the first visible host frame. */
+    if(ev!=='video_watch'&&duplicateSignal(ev,p))return;
     if(ev==='guest_roster'){applyApprovedRoster20260928(p);return;}
     if(ev==='broadcast_ended'&&!isHostRole()){
       var ended=String(p&&p.host_id||'').trim();
