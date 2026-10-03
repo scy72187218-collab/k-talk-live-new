@@ -1,5 +1,5 @@
 {
-  "version": 193,
+  "version": 194,
   "locked": true,
   "scope": "full_snapshot_guard_everything",
   "lock_slot": 9,
@@ -80,7 +80,9 @@
     "group9_room_no_old_flash_saved_20261003",
     "secret_room_host_current_state_20261004",
     "secret_room_guest_current_state_20261004",
-    "secret_room_host_guest_layout_pair_20261004"
+    "secret_room_host_guest_layout_pair_20261004",
+    "secret_room_working_state_20261004_pause",
+    "secret_room_switches_current_branch_20261004"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -156,7 +158,9 @@
     "group9_room_no_old_flash_saved_20261003",
     "secret_room_host_current_state_20261004",
     "secret_room_guest_current_state_20261004",
-    "secret_room_host_guest_layout_pair_20261004"
+    "secret_room_host_guest_layout_pair_20261004",
+    "secret_room_working_state_20261004_pause",
+    "secret_room_switches_current_branch_20261004"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
@@ -264,8 +268,8 @@
     ]
   },
   "last_unlock": "2026-10-02-red-live-and-same-3person-roster-code-2222",
-  "last_lock": "2026-10-04-secret-host-guest-current-state-pin-7777",
-  "last_note": "사용자 요청: 현재 비밀방 호스트/게스트 화면 상태를 7777로 잠금. 호스트/게스트 방 모양, 수익률, 하단 게스트 줄 포함. 명시적 7777 해제 전 관련 코드 변경 금지.",
+  "last_lock": "2026-10-04-secret-room-current-working-state-paused-until-tomorrow",
+  "last_note": "사용자 요청: 오늘 비밀방 작업 현재 상태에서 잠금. 내일 이어서 작업. 다른 방/기능 변경 금지. 배포 금지 상태 유지.",
   "unlock_pin_sha256": "41c991eb6a66242c0454191244278183ce58cf4a6bcd372f799e4b9cc01886af",
   "secret_room_lock_snapshot": {
     "host_file": "secret-room-password.js",
@@ -275,5 +279,15 @@
     "index_sha": "9ccd57e5838c3d06c6e662795af56f9a473f251e",
     "locked_at": "2026-10-04",
     "pin_hint": "7777"
+  },
+  "secret_room_working_snapshot_20261004": {
+    "branch": "secret-controls-20261004",
+    "host_file": "secret-room-password.js",
+    "host_sha": "0f49812961ca580a05d822cbd2340b119a9596c4",
+    "guest_file": "secret-guest-from-host-20261004.js",
+    "guest_sha": "526cf02cb092b5e4fcdecf667d64e5bb9cf27f65",
+    "index_sha": "4ed7d6c87ed3a2a6a1d0e18e734fe02f449994f4",
+    "deploy": false,
+    "note": "비밀방 스위치 및 게스트 하단 UI 현재 작업 상태 저장, 내일 계속"
   }
 }
