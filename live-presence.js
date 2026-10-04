@@ -434,7 +434,7 @@
       var room=rows&&rows[0];
       if(!room||Date.now()-new Date(room.updated_at).getTime()>STALE_MS){
         if(!c.roomMissingSince)c.roomMissingSince=Date.now();
-        if(Date.now()-c.roomMissingSince>200){
+        if(Date.now()-c.roomMissingSince>8000){
           if(viewerCtx===c){
             var old=viewerCtx;
             viewerCtx=null;
@@ -596,7 +596,7 @@
       /* 시청자 영상 협상을 먼저 시작한다.
          입장 알림 저장이 느려도 영상 연결을 기다리게 하지 않는다. */
       viewerCtx.signalTimer=setInterval(remotePollSignal,180);remotePollSignal();
-      viewerCtx.heartbeat=setInterval(remotePollRoom,100);remotePollRoom();
+      viewerCtx.heartbeat=setInterval(remotePollRoom,1500);remotePollRoom();
       viewerCtx.activityTimer=setInterval(remotePollActivity,1800);remotePollActivity();
       try{
         insertSystem(hostId,viewerId,viewerCtx.viewerName,viewerCtx.viewerName+'님이 들어왔습니다.').catch(function(){});
