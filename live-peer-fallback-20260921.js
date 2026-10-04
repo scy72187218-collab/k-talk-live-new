@@ -319,7 +319,7 @@
             setTimeout(function(){
               try{if(typeof window.ktEnterRemoteLive==='function')window.ktEnterRemoteLive(host);}catch(e){}
             },500);
-          },8000);
+          },3000);
         }
       }
     };
