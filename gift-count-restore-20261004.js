@@ -35,8 +35,8 @@
 
   function restore(){
     style();
-    document.querySelectorAll('.ktgf-card').forEach(function(card){
-      var i=parseInt(card.getAttribute('data-i'),10);
+    document.querySelectorAll('.ktgf-card,.kt-gift-final-card').forEach(function(card){
+      var i=parseInt(card.getAttribute('data-i')||card.getAttribute('data-index'),10);
       if(!isFinite(i)||i<0||i>=counts.length)return;
       var strong=card.querySelector('strong');
       if(!strong){
@@ -44,6 +44,25 @@
         card.appendChild(strong);
       }
       strong.textContent=Number(counts[i]).toLocaleString('ko-KR')+'개';
+      /* 다른 스타일이 뒤에서 덮어써도 수량은 반드시 보이게 고정 */
+      strong.style.setProperty('display','block','important');
+      strong.style.setProperty('visibility','visible','important');
+      strong.style.setProperty('opacity','1','important');
+      strong.style.setProperty('position','static','important');
+      strong.style.setProperty('height','10px','important');
+      strong.style.setProperty('min-height','10px','important');
+      strong.style.setProperty('max-height','10px','important');
+      strong.style.setProperty('margin','0','important');
+      strong.style.setProperty('padding','0','important');
+      strong.style.setProperty('font-size','8.8px','important');
+      strong.style.setProperty('line-height','10px','important');
+      strong.style.setProperty('font-weight','950','important');
+      strong.style.setProperty('color','#ffe06b','important');
+      strong.style.setProperty('text-align','center','important');
+      strong.style.setProperty('white-space','nowrap','important');
+      strong.style.setProperty('overflow','visible','important');
+      strong.style.setProperty('transform','none','important');
+      card.style.setProperty('overflow','visible','important');
     });
   }
 
@@ -68,6 +87,6 @@
     new MutationObserver(function(){
       if(document.querySelector('.ktgf-card'))setTimeout(restore,0);
       wrapOpen();
-    }).observe(document.documentElement,{childList:true,subtree:true});
+    }).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['class','style']});
   }catch(e){}
 })();
