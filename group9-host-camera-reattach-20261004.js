@@ -13,9 +13,32 @@
     }catch(e){return false;}
   }
 
+  var prewarmedHostStream20261004=null;
+
+  function rememberHostStream20261004(){
+    try{
+      var s=(window.state&&window.state.stream)||null;
+      if(!liveStream(s)){
+        var cam=document.getElementById('camera');
+        if(cam&&liveStream(cam.srcObject))s=cam.srcObject;
+      }
+      if(!liveStream(s)){
+        var bg=document.getElementById('cameraBg');
+        if(bg&&liveStream(bg.srcObject))s=bg.srcObject;
+      }
+      if(liveStream(s))prewarmedHostStream20261004=s;
+    }catch(e){}
+  }
+
   function localHostStream(){
     try{
-      if(window.state&&liveStream(window.state.stream))return window.state.stream;
+      if(window.state&&liveStream(window.state.stream)){
+        prewarmedHostStream20261004=window.state.stream;
+        return window.state.stream;
+      }
+    }catch(e){}
+    try{
+      if(liveStream(prewarmedHostStream20261004))return prewarmedHostStream20261004;
     }catch(e){}
     try{
       var c=document.getElementById('camera');
@@ -59,8 +82,31 @@
     }catch(e){}
   }
 
+  function nineStartTarget20261004(t){
+    try{
+      var btn=t&&t.closest?t.closest('.room-switch,.kt-room-bottom5 button,.kt-creator-room-shortcuts button,.prep-start'):null;
+      if(!btn)return false;
+      var text=String(btn.textContent||'').replace(/\s+/g,'');
+      if(text.indexOf('9명')>-1)return true;
+      if(btn.matches('.prep-start')){
+        var st=window.state||{};
+        return String(st.liveRoomType||'')==='group9'||String(st.liveRoomName||'').indexOf('9명')>-1||Number(st.liveRoomMax||0)===9;
+      }
+    }catch(e){}
+    return false;
+  }
+
+  function prewarmOnNineStart20261004(e){
+    if(!nineStartTarget20261004(e&&e.target))return;
+    rememberHostStream20261004();
+  }
+
+  document.addEventListener('pointerdown',prewarmOnNineStart20261004,true);
+  document.addEventListener('touchstart',prewarmOnNineStart20261004,{capture:true,passive:true});
+  document.addEventListener('click',prewarmOnNineStart20261004,true);
+
   attach();
-  [20,80,180,350,700,1200,2200,4000].forEach(function(ms){setTimeout(attach,ms);});
+  [0,20,60,120,250,500,900,1600].forEach(function(ms){setTimeout(attach,ms);});
   window.addEventListener('pageshow',function(){setTimeout(attach,60);});
   window.addEventListener('online',function(){setTimeout(attach,100);});
   document.addEventListener('visibilitychange',function(){
@@ -69,7 +115,9 @@
   try{
     new MutationObserver(function(){
       clearTimeout(window.__ktG9HostCameraReattachTimer20261004);
-      window.__ktG9HostCameraReattachTimer20261004=setTimeout(attach,35);
+      rememberHostStream20261004();
+      attach();
+      window.__ktG9HostCameraReattachTimer20261004=setTimeout(attach,12);
     }).observe(document.getElementById('screen')||document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 })();
