@@ -51,3 +51,30 @@
   var mo=new MutationObserver(function(){setTimeout(expandBoth,0);});
   mo.observe(document.documentElement,{childList:true,subtree:true});
 })();
+
+
+/* KT_SECRET_HOST_EARN_LOWER_1111: 비밀방 호스트 수익률 박스 위치만 아래로 이동 */
+(function(){
+  if(window.__ktSecretHostEarnLower1111)return;
+  window.__ktSecretHostEarnLower1111=true;
+  function apply(){
+    try{
+      if(document.documentElement.classList.contains('kt-remote-viewing'))return;
+      var room=document.querySelector('#screen .ktsecret-room');
+      if(!room)return;
+      var earn=room.querySelector('#myEarnHud');
+      if(!earn)return;
+      earn.style.setProperty('position','fixed','important');
+      earn.style.setProperty('left','auto','important');
+      earn.style.setProperty('right','8px','important');
+      earn.style.setProperty('top','auto','important');
+      earn.style.setProperty('bottom','calc(96px + env(safe-area-inset-bottom))','important');
+      earn.style.setProperty('transform','none','important');
+      earn.style.setProperty('translate','none','important');
+      earn.style.setProperty('margin','0','important');
+      earn.style.setProperty('z-index','120','important');
+    }catch(e){}
+  }
+  setTimeout(apply,40);setTimeout(apply,160);setInterval(apply,500);
+  try{new MutationObserver(function(){setTimeout(apply,20);}).observe(document.getElementById('screen')||document.documentElement,{childList:true,subtree:true});}catch(e){}
+})();
