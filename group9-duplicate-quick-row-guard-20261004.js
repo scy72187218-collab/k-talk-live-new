@@ -12,34 +12,49 @@
     if(document.documentElement.classList.contains('kt-remote-viewing'))return false;
     return String(room.getAttribute('data-kt-room')||'')==='9';
   }
-  function rows(room){
-    return [].slice.call(room.querySelectorAll('div,section,nav')).filter(function(el){
+
+  function exactDuplicateRowFromPackageButton(btn,room){
+    var el=btn;
+    for(var i=0;i<7&&el&&el!==room;i++,el=el.parentElement){
       var t=norm(el);
-      if(t.indexOf('되돌리기')<0||t.indexOf('매치')<0)return false;
-      var bs=el.querySelectorAll(':scope > button, :scope > * > button');
-      return bs.length>=3&&bs.length<=6;
-    });
+      if(t.indexOf('보물상자')>-1)return null;
+      if(t.indexOf('되돌리기')>-1&&t.indexOf('패키지상자')>-1&&t.indexOf('매치')>-1){
+        var buttons=[].slice.call(el.querySelectorAll('button'));
+        var labels=buttons.map(norm);
+        var hasUndo=labels.some(function(x){return x.indexOf('되돌리기')>-1;});
+        var hasPackage=labels.some(function(x){return x.indexOf('패키지상자')>-1;});
+        var hasMatch=labels.some(function(x){return x.indexOf('매치')>-1;});
+        if(hasUndo&&hasPackage&&hasMatch&&buttons.length<=8)return el;
+      }
+    }
+    return null;
   }
+
   function clean(){
     var room=document.querySelector('#screen .ktg13-room[data-kt-room="9"]');
     if(!isHost9(room))return;
-    rows(room).forEach(function(r){
-      var t=norm(r);
-      /* 정확히 아래 중복줄만 삭제:
-         되돌리기 + 패키지 상자 + 매치
-         보물상자/일일랭킹/미션/시청자/게스트칸/하단도구는 건드리지 않는다. */
-      if(t.indexOf('되돌리기')>-1&&t.indexOf('패키지상자')>-1&&t.indexOf('매치')>-1){
-        try{r.remove();}catch(e){}
+
+    var packageButtons=[].slice.call(room.querySelectorAll('button')).filter(function(b){
+      return norm(b).indexOf('패키지상자')>-1;
+    });
+
+    packageButtons.forEach(function(btn){
+      var row=exactDuplicateRowFromPackageButton(btn,room);
+      if(row){
+        try{row.remove();}catch(e){}
       }
     });
   }
 
   clean();
-  [30,100,250,600,1200,2500].forEach(function(ms){setTimeout(clean,ms);});
+  [0,16,40,80,160,320,700,1200,2200,4000].forEach(function(ms){setTimeout(clean,ms);});
+  setInterval(clean,500);
+
   try{
     new MutationObserver(function(){
+      clean();
       clearTimeout(window.__ktG9DuplicateQuickRowGuardTimer);
-      window.__ktG9DuplicateQuickRowGuardTimer=setTimeout(clean,25);
-    }).observe(document.getElementById('screen')||document.documentElement,{childList:true,subtree:true});
+      window.__ktG9DuplicateQuickRowGuardTimer=setTimeout(clean,8);
+    }).observe(document.getElementById('screen')||document.documentElement,{childList:true,subtree:true,characterData:true});
   }catch(e){}
 })();
