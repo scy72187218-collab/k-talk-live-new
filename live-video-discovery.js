@@ -117,7 +117,7 @@
     }
 
     /* 느린 기기에서 한 번 조회가 빗나가도 방금 확인한 LIVE 신호는 잠깐 유지한다. */
-    if(stableActiveRooms.length&&stableActiveAt&&Date.now()-stableActiveAt<10000){
+    if(stableActiveRooms.length&&stableActiveAt&&Date.now()-stableActiveAt<15000){
       return stableActiveRooms.slice();
     }
     stableActiveRooms=[];stableActiveAt=0;
