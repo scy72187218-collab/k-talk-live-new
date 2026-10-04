@@ -1340,6 +1340,31 @@
   }
   function paintHostGuestPhoto20260926(vid,name,frame){
     try{
+      /* 13명 호스트방에서는 임시 캡처/이전 사진을 게스트칸에 절대 붙이지 않는다.
+         실제 원격 게스트 영상이 들어왔을 때만 표시한다. 다른 방 동작은 유지. */
+      var local13=false;
+      try{
+        var st=window.state||{};
+        local13=!document.documentElement.classList.contains('kt-remote-viewing')&&(
+          String(st.liveRoomType||'')==='group13'||
+          (String(st.liveRoomType||'')==='group'&&Number(st.liveRoomMax||0)===13)||
+          String(st.liveRoomName||'')==='13명 방송'||
+          !!document.querySelector('#screen .ktg13-room[data-kt-approved13="1"],#screen .ktg13-room[data-kt-room="13"]')
+        );
+      }catch(_e){}
+      if(local13){
+        vid=String(vid||'').trim();
+        var cleanSlot=vid?guestSlot(vid,String(name||'게스트')):null;
+        var cleanV=cleanSlot&&cleanSlot.querySelector('video');
+        if(cleanV){
+          cleanV.removeAttribute('poster');
+          cleanV.style.removeProperty('background-image');
+          cleanV.style.removeProperty('background-size');
+          cleanV.style.removeProperty('background-position');
+        }
+        return false;
+      }
+
       vid=String(vid||'').trim();frame=String(frame||'');
       if(!vid||!/^data:image\/jpeg;base64,/.test(frame)||frame.length>=32000)return false;
       var slot=guestSlot(vid,String(name||'게스트'));if(!slot)return false;
