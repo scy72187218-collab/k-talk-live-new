@@ -96,9 +96,21 @@
     return false;
   }
 
+  function burstAttach20261004(){
+    var until=performance.now()+900;
+    function tick(){
+      rememberHostStream20261004();
+      attach();
+      if(performance.now()<until)requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
   function prewarmOnNineStart20261004(e){
     if(!nineStartTarget20261004(e&&e.target))return;
     rememberHostStream20261004();
+    attach();
+    burstAttach20261004();
   }
 
   document.addEventListener('pointerdown',prewarmOnNineStart20261004,true);
@@ -106,7 +118,7 @@
   document.addEventListener('click',prewarmOnNineStart20261004,true);
 
   attach();
-  [0,20,60,120,250,500,900,1600].forEach(function(ms){setTimeout(attach,ms);});
+  [0,8,16,32,60,100,180,300,500,800,1200].forEach(function(ms){setTimeout(attach,ms);});
   window.addEventListener('pageshow',function(){setTimeout(attach,60);});
   window.addEventListener('online',function(){setTimeout(attach,100);});
   document.addEventListener('visibilitychange',function(){
@@ -117,7 +129,8 @@
       clearTimeout(window.__ktG9HostCameraReattachTimer20261004);
       rememberHostStream20261004();
       attach();
-      window.__ktG9HostCameraReattachTimer20261004=setTimeout(attach,12);
+      burstAttach20261004();
+      window.__ktG9HostCameraReattachTimer20261004=setTimeout(attach,6);
     }).observe(document.getElementById('screen')||document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 })();
