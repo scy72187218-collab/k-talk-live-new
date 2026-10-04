@@ -751,20 +751,23 @@
     watchHostId=h;
 
     if(changed){
-      try{
-        var p=disconnectRoom();
-        if(p&&p.then){
-          p.then(function(){setTimeout(hostTick,0);setTimeout(hostTick,35);}).catch(function(){setTimeout(hostTick,0);});
-        }else{
-          setTimeout(hostTick,0);
-          setTimeout(hostTick,35);
-        }
-      }catch(_e){
-        setTimeout(hostTick,0);
-      }
+      /* 새 방송방을 눌렀을 때 이전 방 disconnect 완료를 기다리지 않는다.
+         room 참조는 disconnectRoom() 시작 즉시 비워지므로 새 방 연결을 바로 시작한다.
+         UI/방배치는 건드리지 않고 게스트 영상 연결 속도만 단축한다. */
+      try{disconnectRoom();}catch(_e){}
+      [0,20,55,110,220,420].forEach(function(ms){
+        setTimeout(function(){
+          try{hostTick();}catch(e){}
+          try{ensureApprovedRosterSlots20260924();reattachRemoteTracks();}catch(e){}
+        },ms);
+      });
     }else{
-      setTimeout(hostTick,0);
-      setTimeout(hostTick,35);
+      [0,20,55,110,220].forEach(function(ms){
+        setTimeout(function(){
+          try{hostTick();}catch(e){}
+          try{ensureApprovedRosterSlots20260924();reattachRemoteTracks();}catch(e){}
+        },ms);
+      });
     }
   });
   window.addEventListener('kt-host-session-reset',function(e){
