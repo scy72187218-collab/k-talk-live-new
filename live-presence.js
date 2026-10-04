@@ -114,14 +114,24 @@
     try{await req('ktalk_live_messages',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({host_id:hostId,sender_id:senderId,sender_name:senderName,message:message,message_type:'system'})});}catch(e){}
   }
 
+  var lastActiveRooms20261004=[],lastActiveRoomsAt20261004=0;
   async function activeRooms(){
     var cut=new Date(Date.now()-STALE_MS).toISOString();
     try{
       var rows=await req('ktalk_live_rooms?select=id,host_id,host_name,title,room_type,room_name,active,started_at,updated_at,host_photo&active=eq.true&updated_at=gte.'+enc(cut)+'&order=started_at.desc&limit=20');
       rows=Array.isArray(rows)?rows:[];
       if(hostEndLock){var own=deviceId();rows=rows.filter(function(x){return String(x.host_id||'')!==String(own);});}
+      lastActiveRooms20261004=rows.slice();
+      lastActiveRoomsAt20261004=Date.now();
       return rows;
-    }catch(e){return [];}
+    }catch(e){
+      /* 서버 조회가 잠깐 실패해도 방송 중 빨간 LIVE를 지우지 않는다.
+         마지막 정상 목록을 짧게 유지하고, 정상 응답이 오면 즉시 갱신한다. */
+      if(lastActiveRooms20261004.length&&Date.now()-lastActiveRoomsAt20261004<15000){
+        return lastActiveRooms20261004.slice();
+      }
+      return [];
+    }
   }
   async function viewerCounts(){
     var cut=new Date(Date.now()-STALE_MS).toISOString();
