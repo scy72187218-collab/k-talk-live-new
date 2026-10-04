@@ -33,10 +33,10 @@
   }
 
   function limits(count){
-    if(count<=2)return {bitrate:900000,fps:24,scale:1.25};
-    if(count<=4)return {bitrate:650000,fps:20,scale:1.50};
-    if(count<=7)return {bitrate:480000,fps:18,scale:1.70};
-    return {bitrate:360000,fps:15,scale:1.90};
+    if(count<=2)return {bitrate:1200000,fps:30,scale:1.00};
+    if(count<=4)return {bitrate:900000,fps:24,scale:1.25};
+    if(count<=7)return {bitrate:600000,fps:20,scale:1.50};
+    return {bitrate:420000,fps:18,scale:1.75};
   }
 
   async function tuneOne(x,lim){
