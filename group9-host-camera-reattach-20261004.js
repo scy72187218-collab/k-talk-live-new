@@ -109,6 +109,23 @@
   function prewarmOnNineStart20261004(e){
     if(!nineStartTarget20261004(e&&e.target))return;
     rememberHostStream20261004();
+
+    /* 9명방 탭 순간 아직 카메라 스트림이 없으면, 방 렌더링과 동시에
+       기존 ensureLiveCamera를 바로 시작한다. 기다리지 않고 병렬로 준비해서
+       방 화면보다 얼굴이 늦게 붙는 마지막 텀만 줄인다. */
+    if(!liveStream(prewarmedHostStream20261004)&&window.ensureLiveCamera){
+      try{
+        var q=window.ensureLiveCamera((window.state&&window.state.cameraFacing)||'user');
+        if(q&&q.then){
+          q.then(function(){
+            rememberHostStream20261004();
+            attach();
+            burstAttach20261004();
+          }).catch(function(){});
+        }
+      }catch(_e){}
+    }
+
     attach();
     burstAttach20261004();
   }
