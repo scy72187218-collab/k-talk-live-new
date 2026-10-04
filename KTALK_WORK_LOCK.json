@@ -274,9 +274,9 @@
       "group13_guest_chat_heart_removed_20261004"
     ]
   },
-  "last_unlock": "2026-10-02-red-live-and-same-3person-roster-code-2222",
-  "last_lock": "2026-10-04-group13-guest-current-state-pin-7777",
-  "last_note": "사용자 7777 요청: 현재 13명방 게스트 화면 상태 잠금. 채팅 하트 제거, 마지막 게스트 칸 오른쪽 정렬 상태 포함. 명시적 해제 전 13명방 게스트 관련 변경 금지.",
+  "last_unlock": "2026-10-04-9room-duplicate-package-row-only-pin-1150617",
+  "last_lock": "2026-10-04-9room-relocked-after-duplicate-package-row-fix",
+  "last_note": "사용자 1150617 승인: 9명방의 중복 '되돌리기 / 패키지 상자 / 매치' 한 줄만 수정 후 즉시 재잠금. 다른 줄/게스트칸/채팅/하단버튼 변경 금지.",
   "unlock_pin_sha256": "41c991eb6a66242c0454191244278183ce58cf4a6bcd372f799e4b9cc01886af",
   "secret_room_lock_snapshot": {
     "host_file": "secret-room-password.js",
