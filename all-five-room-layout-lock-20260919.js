@@ -98,3 +98,34 @@
     }).observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 })();
+
+
+/* 2026-10-04: 13명방 + 비밀방 현재 화면 상태 추가 잠금 (1111)
+   배치 보호 표시만 추가. 기능/통신/버튼 동작은 변경하지 않음. */
+(function(){
+  if(window.__ktGroup13SecretCurrentStateLock1111)return;
+  window.__ktGroup13SecretCurrentStateLock1111=true;
+
+  function markLockedRooms(){
+    try{
+      document.querySelectorAll('#screen .ktg13-room:not([data-kt-room="9"]),#screen .ktsecret-room').forEach(function(room){
+        room.setAttribute('data-kt-layout-locked','1');
+        room.setAttribute('data-kt-work-protected','1');
+        room.setAttribute('data-kt-protected-area',
+          room.classList.contains('ktsecret-room')
+            ? 'secret_current_state_locked_1111'
+            : 'group13_current_state_locked_1111'
+        );
+      });
+    }catch(e){}
+  }
+
+  markLockedRooms();
+  [40,120,300,700,1400].forEach(function(ms){setTimeout(markLockedRooms,ms);});
+  try{
+    new MutationObserver(function(){
+      clearTimeout(window.__ktGroup13SecretLockTimer1111);
+      window.__ktGroup13SecretLockTimer1111=setTimeout(markLockedRooms,25);
+    }).observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+})();
