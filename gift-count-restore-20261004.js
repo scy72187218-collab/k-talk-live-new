@@ -43,7 +43,9 @@
         strong=document.createElement('strong');
         card.appendChild(strong);
       }
-      strong.textContent=Number(counts[i]).toLocaleString('ko-KR')+'개';
+      var live=(window.ktalkGifts&&window.ktalkGifts[i])?parseInt(window.ktalkGifts[i][1],10):NaN;
+      var amount=isFinite(live)?live:counts[i];
+      strong.textContent=Number(amount).toLocaleString('ko-KR')+'개';
       /* 다른 스타일이 뒤에서 덮어써도 수량은 반드시 보이게 고정 */
       strong.style.setProperty('display','block','important');
       strong.style.setProperty('visibility','visible','important');
@@ -83,9 +85,12 @@
   wrapOpen();
   restore();
   [60,180,400,900].forEach(function(ms){setTimeout(function(){wrapOpen();restore();},ms);});
+  setInterval(function(){
+    if(document.querySelector('#sheet.kt-gift-force,.ktgf,.kt-gift-final')){wrapOpen();restore();}
+  },500);
   try{
     new MutationObserver(function(){
-      if(document.querySelector('.ktgf-card'))setTimeout(restore,0);
+      if(document.querySelector('.ktgf-card,.kt-gift-final-card'))setTimeout(restore,0);
       wrapOpen();
     }).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['class','style']});
   }catch(e){}
