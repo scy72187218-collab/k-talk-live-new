@@ -127,7 +127,7 @@
     return allowed(kind(roomType,'',0),lv==null?level():lv);
   };
   window.ktCanEnterRoomByLevel=function(roomType,lv){
-    return allowed(kind(roomType,'',0),lv==null?level():lv);
+    return true;
   };
   window.ktLevelCanOpen13=function(){return owner()||paidSubscriber()||level()>=21;};
   window.ktLevelCanUseSecret=function(){return owner()||paidSubscriber()||level()>=21;};
@@ -333,8 +333,6 @@
         if(owner())return oldEnter.apply(this,arguments);
         var meta=await roomMeta(hostId);
         var k=kind(meta&&meta.room_type,meta&&meta.room_name,0);
-        var lv=level();
-        if(!allowed(k,lv))return deny(k,lv);
         if(k==='subscriber'){
           var ok=await mutualFollow(hostId,meta&&meta.host_name);
           if(!ok){
@@ -364,7 +362,7 @@
   function keep(){
     // Re-assert final rules after legacy patches try to overwrite them.
     window.ktCanCreateRoomByLevel=function(roomType,lv){return allowed(kind(roomType,'',0),lv==null?level():lv);};
-    window.ktCanEnterRoomByLevel=function(roomType,lv){return allowed(kind(roomType,'',0),lv==null?level():lv);};
+    window.ktCanEnterRoomByLevel=function(roomType,lv){return true;};
     window.ktLevelCanOpen13=function(){return owner()||paidSubscriber()||level()>=21;};
     window.ktLevelCanUseSecret=function(){return owner()||paidSubscriber()||level()>=21;};
     installLocalGates();
