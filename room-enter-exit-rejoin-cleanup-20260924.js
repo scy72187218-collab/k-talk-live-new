@@ -42,10 +42,45 @@
     try{sessionStorage.removeItem('kt_remote_host_id');}catch(e){}
   }
 
+  function inRemoteRoom(){
+    try{
+      return document.documentElement.classList.contains('kt-remote-viewing')||
+        !!document.querySelector('.kt-remote-live,.kt-prejoin-room-grid,.kt-approved-guest-grid,.kt-guest-hostlike-room');
+    }catch(e){return false;}
+  }
+
+  function fastReturnNow(){
+    if(!inRemoteRoom())return;
+    try{document.documentElement.classList.remove('kt-remote-viewing');}catch(e){}
+    try{
+      var s=document.getElementById('screen');
+      if(s)s.style.pointerEvents='none';
+    }catch(e){}
+    setTimeout(function(){
+      try{
+        var s=document.getElementById('screen');
+        if(s)s.style.pointerEvents='';
+      }catch(e){}
+    },120);
+    try{
+      if(typeof window.ktShowSharedServerFeed==='function'){
+        window.ktShowSharedServerFeed();
+        return;
+      }
+      if(typeof window.ktForceHomeVideoRecovery==='function'){
+        window.ktForceHomeVideoRecovery(true);
+        return;
+      }
+      if(typeof window.home==='function')window.home();
+    }catch(e){}
+  }
+
   function wrap(name){
     var old=window[name];
     if(typeof old!=='function'||old.__ktRoomRejoinCleanupWrapped)return;
     var fn=function(){
+      var wasRemote=inRemoteRoom();
+      if(wasRemote)fastReturnNow();
       cleanupNow();
       return old.apply(this,arguments);
     };
@@ -64,6 +99,20 @@
     tries++;
     if(tries>20)clearInterval(t);
   },250);
+
+  document.addEventListener('click',function(e){
+    try{
+      if(!inRemoteRoom())return;
+      var b=e.target&&e.target.closest?e.target.closest('button,.ktg13-back,.ktsolo-back,.ktsubscriber-back,.ktsecret-back'):null;
+      if(!b)return;
+      var t=String(b.textContent||'').replace(/\s+/g,'');
+      var isExit=!!(b.matches&&b.matches('.ktg13-back,.ktsolo-back,.ktsubscriber-back,.ktsecret-back'))||
+        t.indexOf('나가기')>-1||t.indexOf('퇴장')>-1||t.indexOf('뒤로')>-1;
+      if(!isExit)return;
+      fastReturnNow();
+      setTimeout(cleanupNow,0);
+    }catch(_e){}
+  },true);
 
   window.addEventListener('pagehide',cleanupNow);
 })();
