@@ -23,18 +23,12 @@
   function clean(){
     var room=document.querySelector('#screen .ktg13-room[data-kt-room="9"]');
     if(!isHost9(room))return;
-    var list=rows(room);
-    if(list.length<2){
-      list.forEach(function(r){
-        if(norm(r).indexOf('패키지상자')>-1)r.remove();
-      });
-      return;
-    }
-    var keep=list.find(function(r){return norm(r).indexOf('보물상자')>-1;})||list[0];
-    list.forEach(function(r){
-      if(r===keep)return;
+    rows(room).forEach(function(r){
       var t=norm(r);
-      if(t.indexOf('패키지상자')>-1||t.indexOf('되돌리기')>-1&&t.indexOf('매치')>-1){
+      /* 정확히 아래 중복줄만 삭제:
+         되돌리기 + 패키지 상자 + 매치
+         보물상자/일일랭킹/미션/시청자/게스트칸/하단도구는 건드리지 않는다. */
+      if(t.indexOf('되돌리기')>-1&&t.indexOf('패키지상자')>-1&&t.indexOf('매치')>-1){
         try{r.remove();}catch(e){}
       }
     });
