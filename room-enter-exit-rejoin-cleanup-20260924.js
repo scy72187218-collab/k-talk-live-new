@@ -79,6 +79,11 @@
     var old=window[name];
     if(typeof old!=='function'||old.__ktRoomRejoinCleanupWrapped)return;
     var fn=function(){
+      /* silent=true is an internal reconnect, not a real user exit.
+         Keep the viewer inside the live room while transport is rebuilt. */
+      var silent=arguments&&arguments.length&&arguments[0]===true;
+      if(silent)return old.apply(this,arguments);
+
       var wasRemote=inRemoteRoom();
       if(wasRemote)fastReturnNow();
       cleanupNow();
