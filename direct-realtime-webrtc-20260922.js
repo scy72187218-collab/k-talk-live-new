@@ -350,9 +350,11 @@
     if(!vid)return;
     delete pendingRequests[vid];
     delete approvedGuests[vid];
+    delete pendingGuestPhotos20260926[vid];
     try{
       delete window.__ktApprovedGuestIds20260924[vid];
       if(window.__ktApprovedGuestNames20260924)delete window.__ktApprovedGuestNames20260924[vid];
+      if(window.__ktApprovedGuestPhotos20261002)delete window.__ktApprovedGuestPhotos20261002[vid];
     }catch(e){}
     delete hostGuestAliveAt[vid];
     delete pendingHostGuestOffers[vid];
@@ -808,6 +810,7 @@
         if(old[id]===true&&!next[id]){
           delete old[id];
           delete oldNames[id];
+          try{if(window.__ktApprovedGuestPhotos20261002)delete window.__ktApprovedGuestPhotos20261002[id];}catch(_e){}
           try{window.dispatchEvent(new CustomEvent('kt-any-guest-left',{detail:{
             host_id:hid,viewer_id:id,at:Date.now(),roster:true
           }}));}catch(e){}
