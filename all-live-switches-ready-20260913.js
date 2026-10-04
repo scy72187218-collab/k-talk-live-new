@@ -184,6 +184,9 @@
       e.preventDefault();e.stopPropagation();
       if(e.stopImmediatePropagation)e.stopImmediatePropagation();
       applyRoom(b,d);
+      try{
+        if(typeof window.ktStartRoomNow==='function')window.ktStartRoomNow(d.type,d.name,d.max);
+      }catch(_e){}
     }
   },true);
 
@@ -333,6 +336,17 @@
       e.preventDefault();
       e.stopPropagation();
       clickRoom(room);
+      try{
+        var txt=String(room.textContent||'').replace(/\s+/g,'');
+        var d=null;
+        if(txt.indexOf('1인')>-1)d={type:'solo',name:'1인 방송',max:1};
+        else if(txt.indexOf('9명')>-1)d={type:'group9',name:'9명 방송',max:9};
+        else if(txt.indexOf('13명')>-1)d={type:'group13',name:'13명 방송',max:13};
+        else if(txt.indexOf('15명')>-1)d={type:'group15',name:'15명 방송',max:15};
+        else if(txt.indexOf('구독자')>-1)d={type:'subscriber',name:'구독자 방송',max:10};
+        else if(txt.indexOf('비밀')>-1)d={type:'password',name:'비밀방',max:7};
+        if(d&&typeof window.ktStartRoomNow==='function')window.ktStartRoomNow(d.type,d.name,d.max);
+      }catch(_e){}
       return;
     }
 
