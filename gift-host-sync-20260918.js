@@ -48,11 +48,14 @@
     var t=await r.text();return t?JSON.parse(t):null;
   }
   function isHostRoom(){
-    return !!document.querySelector('.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room');
+    return !!document.querySelector('.ktsolo-room,.ktg13-room,.ktg9-room,.ktsubscriber-room,.ktsecret-room');
   }
   async function targetHost(){
     if(isHostRoom())return deviceId();
-    if(!document.querySelector('.kt-remote-live'))return '';
+    var h='';
+    try{h=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||sessionStorage.getItem('kt_remote_host_id')||'').trim();}catch(e){}
+    if(h)return h;
+    if(!document.querySelector('.kt-remote-live,.kt-guest-hostlike-room,.kt-prejoin-room-grid,.kt-approved-guest-grid,.kt-guest-room-grid'))return '';
     try{
       var vid='viewer_'+deviceId();
       var rows=await req('ktalk_live_viewers?select=host_id&viewer_id=eq.'+enc(vid)+'&active=eq.true&order=updated_at.desc&limit=1');
@@ -117,6 +120,26 @@
 
   window.ktRecordReceivedRose=window.ktRecordReceivedRose||function(){};
 
+  function showGiftChatLine(sender,name,cost){
+    try{
+      var box=document.querySelector('.ktsolo-chat,.ktg13-chat,.ktsubscriber-chat,.ktsecret-chat');
+      if(!box)return;
+      var cls=box.classList.contains('ktsolo-chat')?'ktsolo-chat-line':
+        box.classList.contains('ktg13-chat')?'ktg13-chat-line':
+        box.classList.contains('ktsubscriber-chat')?'ktsubscriber-chat-line':'ktsecret-chat-line';
+      var line=document.createElement('div');
+      line.className=cls;
+      var b=document.createElement('b');
+      b.textContent=String(sender||'회원');
+      var s=document.createElement('span');
+      s.textContent=' 🎁 '+String(name||'선물')+' '+String(cost||1)+'개 선물';
+      line.appendChild(b);line.appendChild(s);
+      box.appendChild(line);
+      while(box.children.length>7)box.removeChild(box.firstElementChild);
+      box.scrollTop=box.scrollHeight;
+    }catch(e){}
+  }
+
   function showGift(row){
     try{
       var data=JSON.parse(String(row.message||'{}'));
@@ -134,6 +157,7 @@
       }else if(typeof window.showSmallGiftFx==='function'){
         window.showSmallGiftFx(String(data.name||'선물'),cost,String(row.sender_name||'회원'));
       }
+      try{showGiftChatLine(String(row.sender_name||'회원'),String(data.name||'선물'),cost);}catch(e){}
       try{if(typeof window.ktAnnounceEvent==='function')window.ktAnnounceEvent('gift',{sender:row.sender_name||'',name:data.name||'선물',count:cost});}catch(e){}
     }catch(e){}
   }
@@ -185,7 +209,7 @@
     }catch(e){}
     polling=false;
   }
-  setInterval(poll,800);
+  setInterval(poll,400);
   setInterval(pollIncomingGuestGift,900);
   [300,900,1600].forEach(function(ms){setTimeout(poll,ms);setTimeout(pollIncomingGuestGift,ms+120);});
 })();
