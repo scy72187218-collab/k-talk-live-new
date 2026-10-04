@@ -3,6 +3,7 @@
    제거: 뒤늦게 다시 생기는 되돌리기 / 패키지 상자 / 매치
    다른 방/배치/버튼은 변경하지 않는다. */
 (function(){
+  var LOCK_PIN_20261004='1150617';
   if(window.__ktG9DuplicateQuickRowGuard20261004)return;
   window.__ktG9DuplicateQuickRowGuard20261004=true;
 
@@ -30,6 +31,22 @@
     return null;
   }
 
+  function lockDuplicatePackageRow20261004(row){
+    try{
+      row.setAttribute('data-kt-locked-duplicate-package-row',LOCK_PIN_20261004);
+      row.style.setProperty('display','none','important');
+      row.style.setProperty('visibility','hidden','important');
+      row.style.setProperty('pointer-events','none','important');
+      row.style.setProperty('height','0','important');
+      row.style.setProperty('min-height','0','important');
+      row.style.setProperty('max-height','0','important');
+      row.style.setProperty('margin','0','important');
+      row.style.setProperty('padding','0','important');
+      row.style.setProperty('overflow','hidden','important');
+      row.remove();
+    }catch(e){}
+  }
+
   function clean(){
     var room=document.querySelector('#screen .ktg13-room[data-kt-room="9"]');
     if(!isHost9(room))return;
@@ -41,10 +58,16 @@
     packageButtons.forEach(function(btn){
       var row=exactDuplicateRowFromPackageButton(btn,room);
       if(row){
-        try{row.remove();}catch(e){}
+        lockDuplicatePackageRow20261004(row);
       }
     });
   }
+
+  try{
+    Object.defineProperty(window,'__ktG9DuplicatePackageRowLock1150617',{
+      value:true,writable:false,configurable:false,enumerable:false
+    });
+  }catch(e){window.__ktG9DuplicatePackageRowLock1150617=true;}
 
   clean();
   [0,16,40,80,160,320,700,1200,2200,4000].forEach(function(ms){setTimeout(clean,ms);});
