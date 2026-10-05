@@ -1,5 +1,5 @@
 {
-  "version": 229,
+  "version": 230,
   "locked": true,
   "scope": "full_snapshot_guard_everything",
   "lock_slot": 9,
@@ -86,8 +86,7 @@
     "followed_guest_large_photo_30likes_10min_max5roses",
     "all_five_room_gift_current_state_20261005",
     "person_photo_inline_gifts",
-    "approved_guest_immediate_photo_then_live_video_20261005",
-    "all_live_signal_and_entry_current_state_20261002"
+    "approved_guest_immediate_photo_then_live_video_20261005"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -169,11 +168,14 @@
     "followed_guest_large_photo_30likes_10min_max5roses",
     "all_five_room_gift_current_state_20261005",
     "person_photo_inline_gifts",
-    "approved_guest_immediate_photo_then_live_video_20261005",
+    "approved_guest_immediate_photo_then_live_video_20261005"
+  ],
+  "current_editable_components": [
     "all_live_signal_and_entry_current_state_20261002"
   ],
-  "current_editable_components": [],
-  "temporarily_unlocked_components": [],
+  "temporarily_unlocked_components": [
+    "all_live_signal_and_entry_current_state_20261002"
+  ],
   "note": "approved guest flow protected after restore",
   "lock_slots": {
     "1": [
@@ -289,9 +291,9 @@
       "approved_guest_immediate_photo_then_live_video_20261005"
     ]
   },
-  "last_unlock": "2026-10-06-nine-room-host-face-immediate-7777",
+  "last_unlock": "2026-10-06-all-five-room-host-first-frame-7777",
   "last_lock": "2026-10-06-nine-room-host-first-frame-relocked",
-  "last_note": "9명방 첫 입장 시 LIVE 카드의 기존 호스트 스트림을 즉시 재사용해 호스트 얼굴이 빨리 뜨도록 수정 후 재잠금. 다른 기능 변경 없음.",
+  "last_note": "사용자 7777 승인: 1인방/9명방/13명방/구독자방/비밀방 모두 LIVE 카드에서 방 입장할 때 이미 재생 중인 호스트 스트림을 첫 프레임으로 즉시 넘겨 호스트 얼굴이 처음부터 빨리 보이게 하는 공통 통신 보강만 수행. 방 배치/채팅/선물/수익률/게스트 기능 변경 금지.",
   "unlock_pin_sha256": "41c991eb6a66242c0454191244278183ce58cf4a6bcd372f799e4b9cc01886af",
   "secret_room_lock_snapshot": {
     "host_file": "secret-room-password.js",
