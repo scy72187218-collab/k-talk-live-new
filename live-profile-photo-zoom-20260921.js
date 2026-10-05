@@ -22,7 +22,7 @@
       +'.kt-photo-inline-gifts button em{font-style:normal!important;font-size:21px!important;line-height:1!important}.kt-photo-inline-gifts button b{font-size:7.5px!important;line-height:1.1!important;max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}.kt-photo-inline-gifts button small{font-size:7px!important;color:#ffd86b!important;font-weight:950!important}'
       +'.kt-photo-zoom-box.kt-has-guest-controls img,.kt-photo-zoom-box.kt-has-guest-controls video{padding-bottom:252px!important;box-sizing:border-box!important}'
       +'@media(max-width:390px){.kt-photo-guest-controls{left:8px!important;right:8px!important;bottom:8px!important;gap:5px!important;padding:7px!important}.kt-photo-guest-controls button{height:58px!important;border-radius:13px!important}.kt-photo-guest-controls button b{font-size:22px!important}.kt-photo-guest-controls button span{font-size:9px!important}.kt-photo-inline-gifts{grid-template-columns:repeat(4,minmax(0,1fr))!important;max-height:136px!important;gap:4px!important;padding:4px!important}.kt-photo-inline-gifts button{height:52px!important}.kt-photo-inline-gifts button em{font-size:19px!important}.kt-photo-zoom-box.kt-has-guest-controls img,.kt-photo-zoom-box.kt-has-guest-controls video{padding-bottom:224px!important}}'
-      +'.kt-photo-zoomable{cursor:zoom-in!important;pointer-events:auto!important;touch-action:manipulation!important}';
+      +'.kt-photo-zoomable{cursor:pointer!important;pointer-events:auto!important;touch-action:manipulation!important}';
     (document.head||document.documentElement).appendChild(s);
   }
 
@@ -292,13 +292,10 @@
     });
   }
 
+  /* 2026-10-06: 호스트/게스트 모두 사진 크게 보기 사용 안 함.
+     사람 터치는 all-room-person-gift-target 파일의 선물 대상 선택만 유지. */
   document.addEventListener('click',function(e){
-    if(e.target&&e.target.closest&&e.target.closest('.kt-photo-zoom-overlay'))return;
-    var hit=clickTarget(e.target);
-    if(!hit)return;
-    try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(err){}
-    if(hit.kind==='video')openVideo(hit.el,hit.tile);
-    else openImage(hit.src,(hit.el&&hit.el.alt)||'프로필 사진 확대',hit.tile,hit.el);
+    return;
   },true);
 
   document.addEventListener('keydown',function(e){if(e.key==='Escape')closeZoom();});
