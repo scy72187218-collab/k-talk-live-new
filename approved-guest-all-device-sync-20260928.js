@@ -55,26 +55,16 @@
     }catch(e){}
   }
 
-  function burstSync(){
-    [0,20,45,80,130,200,320,500,800].forEach(function(ms){
-      setTimeout(function(){syncNow(true);},ms);
-    });
-  }
-
   window.addEventListener('kt-any-guest-approved',function(e){
     try{if(e&&e.detail&&e.detail.sync_all_devices)return;}catch(_e){}
-    burstSync();
+    setTimeout(function(){syncNow(true);},0);
   });
-  window.addEventListener('kt-guest-approval-received',burstSync);
-  window.addEventListener('kt-approved-guest-stream-ready',burstSync);
-  window.addEventListener('kt-three-person-sync-now',function(e){
-    try{if(e&&e.detail&&e.detail.sync_all_devices)return;}catch(_e){}
-    burstSync();
-  });
+  window.addEventListener('kt-guest-approval-received',function(){setTimeout(function(){syncNow(true);},0);});
+  window.addEventListener('kt-approved-guest-stream-ready',function(){setTimeout(function(){syncNow(true);},0);});
   window.addEventListener('kt-livekit-state',function(){setTimeout(function(){syncNow(false);},0);});
   window.addEventListener('online',function(){setTimeout(function(){syncNow(true);},60);});
   document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(function(){syncNow(true);},60);});
 
-  setInterval(function(){syncNow(false);},120);
-  [0,20,45,80,130,200,320,500,800,1200].forEach(function(ms){setTimeout(function(){syncNow(true);},ms);});
+  setInterval(function(){syncNow(false);},180);
+  [0,30,70,120,200,320,500,800,1200].forEach(function(ms){setTimeout(function(){syncNow(true);},ms);});
 })();
