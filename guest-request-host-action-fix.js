@@ -117,22 +117,10 @@
   }
 
   function syncPendingLines(pending){
-    var list=document.getElementById('ktg13ChatList')||document.querySelector('.ktg13-chat');
-    if(!list){clearPendingLines();return;}
-    var wanted=pending.map(function(x){return x.vid;}).sort().join('|');
-    var existing=[].slice.call(list.querySelectorAll('.ktGuestPendingLine[data-kt-managed="1"]'));
-    var have=existing.map(function(x){return x.getAttribute('data-viewer-id')||'';}).sort().join('|');
-    if(wanted===have&&existing.length===pending.length)return;
-    existing.forEach(function(x){x.remove();});
-    pending.forEach(function(x){
-      var row=document.createElement('div');
-      row.className='ktg13-chat-line ktGuestPendingLine';
-      row.setAttribute('data-kt-managed','1');row.setAttribute('data-viewer-id',x.vid);
-      row.innerHTML='<b>👤 '+esc(x.name||'게스트')+'</b><span> 참여 신청 · 눌러서 선택</span>';
-      row.onclick=function(e){if(e){e.preventDefault();e.stopPropagation();}openChoice(x);};
-      list.appendChild(row);
-    });
-    try{list.scrollTop=list.scrollHeight;}catch(e){}
+    /* 2026-10-05: 신청 표시는 위쪽 요청 카드에서만 보인다.
+       밑 채팅의 중복 참여신청 줄은 만들지 않는다. */
+    clearPendingLines();
+    return;
   }
 
   /* 9명방 호스트의 올리기/거부/차단 버튼을 터치 즉시 처리.
