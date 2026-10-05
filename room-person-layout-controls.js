@@ -45,6 +45,13 @@
 
   function allTiles(info){return info?[].slice.call(info.room.querySelectorAll(info.tiles)):[];}
   function guestTiles(info){return info?[].slice.call(info.room.querySelectorAll(info.guests)):[];}
+  function hostTile(info){
+    if(!info||!info.room)return null;
+    if(info.key==='group13')return info.room.querySelector('.ktg13-host');
+    if(info.key==='subscriber')return info.room.querySelector('.ktsubscriber-host');
+    if(info.key==='secret')return info.room.querySelector('.ktsecret-slot.host,.ktsecret-host');
+    return null;
+  }
   function tileIndex(info,tile){return Math.max(0,allTiles(info).indexOf(tile));}
   function stateKey(info,tile){return 'kt_person_layout_'+info.key+'_'+tileIndex(info,tile);}
 
@@ -177,8 +184,8 @@
     s.id='ktPersonLayoutControlsStyleV2';
     s.textContent=`
       .kt-person-seat-number{position:absolute!important;right:4px!important;top:4px!important;z-index:18!important;min-width:22px!important;height:22px!important;padding:0 5px!important;border-radius:999px!important;display:grid!important;place-items:center!important;background:#000c!important;border:1px solid #ffd43b!important;color:#ffd43b!important;font:950 11px/1 system-ui!important;pointer-events:none!important}
-      .kt-person-layout-launch{position:fixed!important;right:7px!important;top:45%!important;z-index:2147482000!important;width:44px!important;height:36px!important;border:1px solid #ffffff45!important;border-radius:13px!important;background:#111d!important;color:#fff!important;font-size:11px!important;font-weight:950!important;box-shadow:0 2px 12px #0009!important}
-      .kt-person-layout-panel{position:fixed!important;right:7px!important;top:calc(45% + 42px)!important;z-index:2147482000!important;width:174px!important;padding:7px!important;border:1px solid #ffffff38!important;border-radius:14px!important;background:#0d0d11f2!important;box-shadow:0 8px 28px #000c!important;display:none!important;grid-template-columns:repeat(3,1fr)!important;gap:5px!important}
+      .kt-person-layout-launch{position:absolute!important;right:4px!important;top:4px!important;z-index:2147482000!important;width:44px!important;height:32px!important;border:1px solid #ffffff45!important;border-radius:13px!important;background:#111d!important;color:#fff!important;font-size:11px!important;font-weight:950!important;box-shadow:0 2px 12px #0009!important}
+      .kt-person-layout-panel{position:absolute!important;right:4px!important;top:40px!important;z-index:2147482000!important;width:154px!important;max-width:calc(100% - 8px)!important;padding:6px!important;border:1px solid #ffffff38!important;border-radius:14px!important;background:#0d0d11f2!important;box-shadow:0 8px 28px #000c!important;display:none!important;grid-template-columns:repeat(3,1fr)!important;gap:5px!important}
       .kt-person-layout-panel.on{display:grid!important}
       .kt-person-layout-panel button,.kt-person-layout-panel select,.kt-person-layout-panel input{height:34px!important;border:1px solid #ffffff2b!important;border-radius:10px!important;background:#1b1b22!important;color:#fff!important;font-size:11px!important;font-weight:900!important;padding:0 4px!important;min-width:0!important}
       .kt-person-layout-panel .wide{grid-column:span 3!important}
@@ -218,11 +225,17 @@
       return;
     }
 
+    var host=hostTile(info);
+    if(host){
+      try{host.style.setProperty('position','relative','important');}catch(e){}
+      if(oldBtn&&oldBtn.parentNode!==host)host.appendChild(oldBtn);
+      if(oldPanel&&oldPanel.parentNode!==host)host.appendChild(oldPanel);
+    }
     if(!oldBtn){
       var b=document.createElement('button');
       b.id='ktPersonLayoutLaunch';b.className='kt-person-layout-launch';b.type='button';b.textContent='배치';
       b.onclick=function(e){e.stopPropagation();var p=document.getElementById('ktPersonLayoutPanel');if(p)p.classList.toggle('on');};
-      document.body.appendChild(b);
+      (host||info.room).appendChild(b);
     }
     if(!oldPanel){
       var p=document.createElement('div');
@@ -246,7 +259,7 @@
           moveSeat(0,Math.max(1,Number(inp&&inp.value)||1));
         }else changeSelected(act);
       });
-      document.body.appendChild(p);
+      (host||info.room).appendChild(p);
     }
 
     allTiles(info).forEach(function(tile){
