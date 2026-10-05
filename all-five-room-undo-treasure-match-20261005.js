@@ -1,36 +1,42 @@
-/* K-Talk - only add 되돌리기 / 보물상자 / 매치 to all five live rooms.
-   No other layout, chat, gift, video, signaling or room logic changes. 1150617 */
+/* K-Talk 2026-10-05 — HOST five rooms only.
+   Restore only: 되돌리기 / 보물상자 / 매치.
+   Do not change grid, video, chat, earnings, gifts, signaling or bottom tools. PIN 1111 */
 (function(){
-  if(window.__ktAllFiveUndoTreasureMatch20261005)return;
-  window.__ktAllFiveUndoTreasureMatch20261005=true;
+  if(window.__ktAllFiveUTMHardRestore1111)return;
+  window.__ktAllFiveUTMHardRestore1111=true;
 
+  function isRemote(){return document.documentElement.classList.contains('kt-remote-viewing');}
+  function hostRooms(){
+    if(isRemote())return [];
+    return [].slice.call(document.querySelectorAll(
+      '#screen .ktsolo-room,'+
+      '#screen .ktg13-room[data-kt-room="9"],'+
+      '#screen .ktg13-room[data-kt-room="13"],'+
+      '#screen .ktsubscriber-room,'+
+      '#screen .ktsecret-room'
+    ));
+  }
   function ensureStyle(){
-    if(document.getElementById('ktAllFiveUndoTreasureMatchStyle20261005'))return;
+    if(document.getElementById('ktAllFiveUTMHardRestoreStyle1111'))return;
     var s=document.createElement('style');
-    s.id='ktAllFiveUndoTreasureMatchStyle20261005';
+    s.id='ktAllFiveUTMHardRestoreStyle1111';
     s.textContent=''
-      +'#screen .kt-all-five-utm-20261005{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;'
-      +'gap:4px!important;width:100%!important;box-sizing:border-box!important;margin:0!important;padding:0 2px!important;'
-      +'min-height:34px!important;height:34px!important;position:relative!important;z-index:45!important;pointer-events:auto!important}'
-      +'#screen .kt-all-five-utm-20261005 button{height:34px!important;min-width:0!important;margin:0!important;padding:2px 3px!important;'
-      +'border:1px solid rgba(255,255,255,.16)!important;border-radius:10px!important;'
-      +'background:linear-gradient(180deg,rgba(28,28,34,.96),rgba(10,10,14,.96))!important;color:#fff!important;'
+      +'#screen .kt-all-five-utm-hard1111{'
+      +'flex:0 0 32px!important;min-height:32px!important;height:32px!important;'
+      +'width:100%!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;'
+      +'gap:4px!important;margin:0 0 2px!important;padding:0!important;position:relative!important;z-index:99!important;'
+      +'visibility:visible!important;opacity:1!important;pointer-events:auto!important;overflow:visible!important}'
+      +'#screen .kt-all-five-utm-hard1111>button{'
       +'display:flex!important;align-items:center!important;justify-content:center!important;gap:4px!important;'
-      +'font-size:10px!important;font-weight:950!important;white-space:nowrap!important;touch-action:manipulation!important}'
-      +'#screen .kt-all-five-utm-20261005 button b{font-size:14px!important;line-height:1!important}'
-      +'#screen .kt-all-five-utm-20261005 button span{font-size:10px!important;font-weight:950!important;line-height:1!important}';
+      +'height:32px!important;min-height:32px!important;min-width:0!important;margin:0!important;padding:0 4px!important;'
+      +'border:1px solid rgba(255,255,255,.14)!important;border-radius:9px!important;background:#111114!important;'
+      +'color:#fff!important;font:950 10px/1 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;'
+      +'visibility:visible!important;opacity:1!important;pointer-events:auto!important;touch-action:manipulation!important;white-space:nowrap!important}'
+      +'#screen .kt-all-five-utm-hard1111 b{font-size:14px!important;line-height:1!important}'
+      +'#screen .kt-all-five-utm-hard1111 span{font-size:10px!important;font-weight:950!important;line-height:1!important}';
     (document.head||document.documentElement).appendChild(s);
   }
-
-  function hasWantedRow(room){
-    var rows=[].slice.call(room.querySelectorAll(':scope > .kt-all-five-utm-20261005,:scope > .kt-live-top-quickbar'));
-    return rows.some(function(row){
-      var t=String(row.textContent||'').replace(/\s+/g,'');
-      return t.indexOf('되돌리기')>-1&&t.indexOf('보물상자')>-1&&t.indexOf('매치')>-1;
-    });
-  }
-
-  function runAction(label,btn){
+  function act(label,btn){
     if(label==='되돌리기'){
       try{if(typeof window.ktUnifiedQuickFlip==='function'){window.ktUnifiedQuickFlip(btn);return;}}catch(e){}
       try{if(typeof window.ktAllRoomsFlipCamera==='function'){window.ktAllRoomsFlipCamera(btn);return;}}catch(e){}
@@ -52,61 +58,51 @@
       try{if(typeof window.openMatch==='function')window.openMatch();}catch(e){}
     }
   }
-
-  function makeButton(icon,label){
+  function button(icon,label){
     var b=document.createElement('button');
-    b.type='button';
-    b.setAttribute('aria-label',label);
+    b.type='button';b.setAttribute('aria-label',label);
     b.innerHTML='<b>'+icon+'</b><span>'+label+'</span>';
-    b.addEventListener('click',function(e){
-      try{e.preventDefault();e.stopPropagation();}catch(_e){}
-      runAction(label,b);
-    });
+    b.onclick=function(e){try{e.preventDefault();e.stopPropagation();}catch(_e){}act(label,b);};
     return b;
   }
-
-  function makeRow(){
-    var row=document.createElement('div');
-    row.className='kt-all-five-utm-20261005';
-    row.setAttribute('data-kt-utm','1111');
-    row.appendChild(makeButton('↻','되돌리기'));
-    row.appendChild(makeButton('🎁','보물상자'));
-    row.appendChild(makeButton('⚔','매치'));
-    return row;
+  function row(){
+    var d=document.createElement('div');
+    d.className='kt-all-five-utm-hard1111';
+    d.setAttribute('data-kt-all-five-utm','1111');
+    d.appendChild(button('↻','되돌리기'));
+    d.appendChild(button('🎁','보물상자'));
+    d.appendChild(button('⚔','매치'));
+    return d;
   }
-
   function anchor(room){
-    if(room.classList.contains('ktsolo-room'))
-      return room.querySelector('.ktsolo-stats,.ktsolo-main');
-    if(room.classList.contains('ktg13-room'))
-      return room.querySelector('.ktg13-stats,.ktg13-main');
-    if(room.classList.contains('ktsubscriber-room'))
-      return room.querySelector('.ktsubscriber-stats,.ktsubscriber-main');
-    if(room.classList.contains('ktsecret-room'))
-      return room.querySelector('.ktsecret-stats,.ktsecret-main');
-    if(room.classList.contains('kt-remote-live'))
-      return room.querySelector('.kgh-stats,.ktg13-stats,.ktsolo-stats,.ktsubscriber-stats,.ktsecret-stats,.kgh-main,.ktg13-main,.ktsolo-main,.ktsubscriber-main,.ktsecret-main');
+    if(room.classList.contains('ktsolo-room'))return room.querySelector(':scope > .ktsolo-stats')||room.querySelector(':scope > .ktsolo-main');
+    if(room.classList.contains('ktg13-room'))return room.querySelector(':scope > .ktg13-stats')||room.querySelector(':scope > .ktg13-main');
+    if(room.classList.contains('ktsubscriber-room'))return room.querySelector(':scope > .ktsubscriber-stats')||room.querySelector(':scope > .ktsubscriber-main');
+    if(room.classList.contains('ktsecret-room'))return room.querySelector(':scope > .ktsecret-stats')||room.querySelector(':scope > .ktsecret-main');
     return null;
   }
-
   function install(room){
-    if(!room||!room.isConnected||hasWantedRow(room))return;
+    if(!room||!room.isConnected)return;
+    var r=room.querySelector(':scope > .kt-all-five-utm-hard1111');
+    if(!r)r=row();
     var a=anchor(room);
-    if(!a||!a.parentNode)return;
-    a.parentNode.insertBefore(makeRow(),a);
+    if(a&&a.parentNode===room){
+      if(r.parentNode!==room||r.nextElementSibling!==a)room.insertBefore(r,a);
+    }else if(r.parentNode!==room){
+      room.appendChild(r);
+    }
   }
-
   function run(){
     ensureStyle();
-    document.querySelectorAll('#screen .ktsolo-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room,#screen .kt-remote-live').forEach(install);
+    hostRooms().forEach(install);
   }
-
   run();
-  [80,250,700,1500,2800].forEach(function(ms){setTimeout(run,ms);});
+  [20,60,120,250,500,900,1500,2500].forEach(function(ms){setTimeout(run,ms);});
+  setInterval(run,600);
   try{
     new MutationObserver(function(){
-      clearTimeout(window.__ktAllFiveUTMTimer20261005);
-      window.__ktAllFiveUTMTimer20261005=setTimeout(run,30);
-    }).observe(document.getElementById('screen')||document.body,{childList:true,subtree:true});
+      clearTimeout(window.__ktAllFiveUTMHardTimer1111);
+      window.__ktAllFiveUTMHardTimer1111=setTimeout(run,20);
+    }).observe(document.getElementById('screen')||document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 })();
