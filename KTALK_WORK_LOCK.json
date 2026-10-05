@@ -1,5 +1,5 @@
 {
-  "version": 225,
+  "version": 226,
   "locked": true,
   "scope": "full_snapshot_guard_everything",
   "lock_slot": 9,
@@ -86,8 +86,7 @@
     "public_video_feed_dynamic_20261006",
     "followed_guest_large_photo_30likes_10min_max5roses",
     "all_five_room_gift_current_state_20261005",
-    "person_photo_inline_gifts",
-    "approved_guest_immediate_photo_then_live_video_20261005"
+    "person_photo_inline_gifts"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -169,11 +168,14 @@
     "public_video_feed_dynamic_20261006",
     "followed_guest_large_photo_30likes_10min_max5roses",
     "all_five_room_gift_current_state_20261005",
-    "person_photo_inline_gifts",
+    "person_photo_inline_gifts"
+  ],
+  "current_editable_components": [
     "approved_guest_immediate_photo_then_live_video_20261005"
   ],
-  "current_editable_components": [],
-  "temporarily_unlocked_components": [],
+  "temporarily_unlocked_components": [
+    "approved_guest_immediate_photo_then_live_video_20261005"
+  ],
   "note": "person_photo_inline_gifts protected.",
   "lock_slots": {
     "1": [
@@ -289,9 +291,9 @@
       "approved_guest_immediate_photo_then_live_video_20261005"
     ]
   },
-  "last_unlock": "2026-10-06-approved-guest-sync-speed-7777",
+  "last_unlock": "2026-10-06-restore-yesterday-good-guest-state-7777",
   "last_lock": "2026-10-06-approved-guest-sync-speed-relocked",
-  "last_note": "게스트 승인 후 여러 기기에 표시되는 동기화 속도만 보강 후 재잠금. approved-guest-all-device-sync 외 기능 변경 없음.",
+  "last_note": "사용자 7777 승인: 어제 '잠가 놓으라'고 했을 때 잘 열리던 게스트 승인/접속 상태로 해당 통신·동기화 파일만 복구. 다른 기능 변경 금지.",
   "unlock_pin_sha256": "41c991eb6a66242c0454191244278183ce58cf4a6bcd372f799e4b9cc01886af",
   "secret_room_lock_snapshot": {
     "host_file": "secret-room-password.js",
