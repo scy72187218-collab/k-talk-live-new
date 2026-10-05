@@ -1195,18 +1195,15 @@
     ensureDirectStyle();
     var main=requestMount();
     if(!main){var o=document.getElementById('ktDirectGuestRequestRail');if(o)o.remove();return;}
-    try{
-      if(getComputedStyle(main).position==='static')main.style.setProperty('position','relative','important');
-    }catch(e){}
     var ids=Object.keys(pendingRequests).filter(function(id){return !approvedGuests[id];});
     var rail=document.getElementById('ktDirectGuestRequestRail');
     if(!ids.length){if(rail)rail.remove();return;}
     if(!rail){
       rail=document.createElement('div');
       rail.id='ktDirectGuestRequestRail';
-      main.appendChild(rail);
-    }else if(rail.parentNode!==main){
-      main.appendChild(rail);
+      document.body.appendChild(rail);
+    }else if(rail.parentNode!==document.body){
+      document.body.appendChild(rail);
     }
     rail.innerHTML='';
     ids.forEach(function(id){
@@ -2355,7 +2352,7 @@
     setTimeout(function(){
       if(!guestApproved||guestApprovedHost!==hid||guestMediaReadyAt)return;
       forceFreshApprovedGuestOffer20260926(hid);
-    },450);
+    },650);
 
     /* Visible fallback requested by owner: place only the approved guest's own
        camera face into the host guest slot while live transport is connecting. */
