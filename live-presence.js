@@ -114,6 +114,20 @@
     try{await req('ktalk_live_messages',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({host_id:hostId,sender_id:senderId,sender_name:senderName,message:message,message_type:'system'})});}catch(e){}
   }
 
+  /* Settings posting bridge only: reuse the existing live system-message path.
+     Does not change chat/gifts/layout/signaling. */
+  window.ktPostHostSettingMessage=async function(message){
+    message=String(message||'').trim();
+    if(!message)return false;
+    try{
+      var p=profile(),hid=deviceId();
+      if(!hostActive&&!hasLiveLocalVideo())return false;
+      await insertSystem(hid,hid,p.name,message);
+      showActivity(message);
+      return true;
+    }catch(e){return false;}
+  };
+
   var lastActiveRooms20261004=[],lastActiveRoomsAt20261004=0;
   async function activeRooms(){
     var cut=new Date(Date.now()-STALE_MS).toISOString();
