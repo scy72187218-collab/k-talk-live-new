@@ -324,7 +324,7 @@
       }
     };
 
-    viewer.poll=setInterval(pollViewer,300);
+    viewer.poll=setInterval(pollViewer,700);
     viewer.touch=setInterval(function(){
       if(!viewer)return;
       fetch(API+'?t='+Date.now(),{
@@ -475,6 +475,6 @@
     if(oldLeave)return oldLeave(silent);
   };
 
-  setInterval(hostPoll,500);
+  setInterval(hostPoll,1500);
   setTimeout(hostPoll,120);
 })();
