@@ -402,9 +402,7 @@
       if(bottomChat&&!bottomChat.dataset.ktApprovalIntroMoved20261002){
         bottomChat.dataset.ktApprovalIntroMoved20261002='1';
         var msgs=[
-          '<span style="color:#ffe071">● K-톡 태권1님이 들어왔습니다.</span>',
-          '<span><b style="color:#64c8ff">K-톡 태권1</b> 👥 방송 참여를 신청했습니다.</span>',
-          '<span><b style="color:#64c8ff">태권이</b> ✅ 참여를 승인했습니다.</span>'
+          '<span style="color:#ffe071">● K-톡 태권1님이 들어왔습니다.</span>'
         ];
         msgs.forEach(function(html){
           var d=document.createElement('div');
