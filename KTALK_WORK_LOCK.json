@@ -1,5 +1,5 @@
 {
-  "version": 222,
+  "version": 223,
   "locked": true,
   "scope": "full_snapshot_guard_everything",
   "lock_slot": 9,
@@ -86,7 +86,8 @@
     "public_video_feed_dynamic_20261006",
     "followed_guest_large_photo_30likes_10min_max5roses",
     "all_five_room_gift_current_state_20261005",
-    "approved_guest_immediate_photo_then_live_video_20261005"
+    "approved_guest_immediate_photo_then_live_video_20261005",
+    "person_photo_inline_gifts"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -168,14 +169,11 @@
     "public_video_feed_dynamic_20261006",
     "followed_guest_large_photo_30likes_10min_max5roses",
     "all_five_room_gift_current_state_20261005",
-    "approved_guest_immediate_photo_then_live_video_20261005"
-  ],
-  "current_editable_components": [
+    "approved_guest_immediate_photo_then_live_video_20261005",
     "person_photo_inline_gifts"
   ],
-  "temporarily_unlocked_components": [
-    "person_photo_inline_gifts"
-  ],
+  "current_editable_components": [],
+  "temporarily_unlocked_components": [],
   "note": "person_photo_inline_gifts protected.",
   "lock_slots": {
     "1": [
@@ -292,8 +290,8 @@
     ]
   },
   "last_unlock": "2026-10-06-photo-overlay-giftbox-7777",
-  "last_lock": "2026-10-06-person-photo-gift-relocked",
-  "last_note": "사용자 승인: 사람 사진을 눌렀을 때 사진 안의 카메라/마이크/되돌리기/초대 버튼은 제거하고 선물상자 버튼만 표시. 다른 기능 변경 금지.",
+  "last_lock": "2026-10-06-photo-overlay-giftbox-relocked",
+  "last_note": "사람 사진 안에서 카메라/마이크/되돌리기/초대 버튼을 제거하고 선물상자 버튼만 표시하도록 수정 후 재잠금. 다른 기능 변경 없음.",
   "unlock_pin_sha256": "41c991eb6a66242c0454191244278183ce58cf4a6bcd372f799e4b9cc01886af",
   "secret_room_lock_snapshot": {
     "host_file": "secret-room-password.js",
