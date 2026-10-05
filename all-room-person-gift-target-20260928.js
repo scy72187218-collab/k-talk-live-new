@@ -88,32 +88,55 @@
     document.head.appendChild(s);
   }
 
-  var openTimer=0,lastOpenAt=0;
+  var openTimer=0,lastOpenAt=0,lastTile=null;
   function openGiftFor(tile){
-    if(!choose(tile))return;
+    if(!choose(tile))return false;
     var now=Date.now();
-    if(now-lastOpenAt<450)return;
-    lastOpenAt=now;
+    if(now-lastOpenAt<300&&lastTile===tile)return true;
+    lastOpenAt=now;lastTile=tile;
     clearTimeout(openTimer);
+    try{
+      if(typeof window.openGifts==='function'){
+        window.openGifts();
+        return true;
+      }
+    }catch(e){}
     openTimer=setTimeout(function(){
       try{if(typeof window.openGifts==='function')window.openGifts();}catch(e){}
-    },30);
+    },0);
+    return true;
   }
 
-  function onDown(e){
-    var tile=tileOf(e.target);if(!tile)return;
-    // 사람의 실제 사진/영상 영역만 선물 대상으로 사용
-    var media=e.target.closest&&e.target.closest('video,img,.kt-allhost-photo,.kt-allhost-fallback,.kt-guest-profile-photo,.kt-guest-profile-fallback,.kt-hg-photo,.kt-hg-fallback,.kt-allguest-profile,.kt-five-host-profile,.kgh-cell,.kt-approved-guest-cell,.kt-guest-room-cell');
-    if(!media)return;
+  function excludedUi(el){
     try{
-      if(e.cancelable)e.preventDefault();
-      e.stopPropagation();
-      if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      return !!(el&&el.closest&&el.closest(
+        'button,input,textarea,select,a,[role="button"],'+
+        '.kt-live-tools,.kt-room-tools,.creator-tools,.creator-bottom,'+
+        '.ktsolo-right,.ktg13-right-quick,.ktsubscriber-right,.ktsecret-right,'+
+        '.kt-photo-zoom-overlay,#sheet,.kt-live-profile-pop'
+      ));
+    }catch(e){return false;}
+  }
+
+  function personTap(e){
+    var target=e&&e.target;
+    var tile=tileOf(target);if(!tile||excludedUi(target))return false;
+
+    /* 사진 위에 닉네임/레벨/작은 오버레이가 있어도 같은 사람 칸이면 인정.
+       빈 게스트 칸은 viewer id가 없어 choose()에서 자동 제외된다. */
+    var kind=kindOf(tile);
+    if(kind==='guest'&&!viewerId(tile))return false;
+
+    try{
+      if(e&&e.cancelable)e.preventDefault();
+      if(e&&e.stopPropagation)e.stopPropagation();
+      if(e&&e.stopImmediatePropagation)e.stopImmediatePropagation();
     }catch(_e){}
-    openGiftFor(tile);
+    return openGiftFor(tile);
   }
 
   style();
-  document.addEventListener('pointerdown',onDown,true);
-  document.addEventListener('touchstart',onDown,{capture:true,passive:false});
+  document.addEventListener('pointerdown',personTap,true);
+  document.addEventListener('touchstart',personTap,{capture:true,passive:false});
+  document.addEventListener('click',personTap,true);
 })();
