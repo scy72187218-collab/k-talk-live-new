@@ -202,6 +202,20 @@
     return ['🌹 1개','🌹 2개','🌹 3개','🌹 4개','🌹 5개','꽝'];
   }
 
+  /* Reward odds only:
+     1~3 roses are the common outcomes.
+     4 or 5 roses together are about 1 in 100 plays.
+     Keep a small miss chance. */
+  function weightedReward20261005(){
+    var x=Math.random()*100;
+    if(x<35)return 1;      // 35%
+    if(x<65)return 2;      // 30%
+    if(x<90)return 3;      // 25%
+    if(x<90.5)return 4;    // 0.5%
+    if(x<91)return 5;      // 0.5%
+    return 0;              // 9%
+  }
+
   function eventHtml(){
     var used=alreadyUsed();
     window.__ktFortuneLadderData20260928=buildLadderData();
@@ -263,7 +277,7 @@
     function step(){
       if(i>=pts.length){
         var slot=trace.endIndex;
-        var reward=slot===5?0:slot+1;
+        var reward=weightedReward20261005();
         var fortune=fortunes[Math.floor(Math.random()*fortunes.length)]||fortunes[0];
         var lucky=luckyNumbers20260928();
         var result=reward?('🌹 장미 '+reward+'송이 당첨!'):'꽝! 오늘은 좋은 운세를 받아가세요.';
