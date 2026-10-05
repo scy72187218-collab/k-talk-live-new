@@ -1,5 +1,5 @@
 {
-  "version": 232,
+  "version": 233,
   "locked": true,
   "scope": "full_snapshot_guard_everything",
   "lock_slot": 9,
@@ -85,7 +85,9 @@
     "public_video_feed_dynamic_20261006",
     "followed_guest_large_photo_30likes_10min_max5roses",
     "all_five_room_gift_current_state_20261005",
-    "person_photo_inline_gifts"
+    "person_photo_inline_gifts",
+    "all_live_signal_and_entry_current_state_20261002",
+    "approved_guest_immediate_photo_then_live_video_20261005"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -166,16 +168,12 @@
     "public_video_feed_dynamic_20261006",
     "followed_guest_large_photo_30likes_10min_max5roses",
     "all_five_room_gift_current_state_20261005",
-    "person_photo_inline_gifts"
-  ],
-  "current_editable_components": [
+    "person_photo_inline_gifts",
     "all_live_signal_and_entry_current_state_20261002",
     "approved_guest_immediate_photo_then_live_video_20261005"
   ],
-  "temporarily_unlocked_components": [
-    "all_live_signal_and_entry_current_state_20261002",
-    "approved_guest_immediate_photo_then_live_video_20261005"
-  ],
+  "current_editable_components": [],
+  "temporarily_unlocked_components": [],
   "note": "approved guest flow protected after restore",
   "lock_slots": {
     "1": [
@@ -292,8 +290,8 @@
     ]
   },
   "last_unlock": "2026-10-06-all-five-room-connection-stay-7777",
-  "last_lock": "2026-10-06-all-five-room-host-first-frame-relocked",
-  "last_note": "사용자 7777 승인: 1인방/9명방/13명방/구독자방/비밀방 방송 중 모바일 pagehide/잠깐 백그라운드에서 통신을 스스로 끊지 않고, 복귀 시 같은 방/스트림을 즉시 재부착·재연결하도록 통신 유지 부분만 수정. UI/배치/채팅/선물/수익률 변경 금지.",
+  "last_lock": "2026-10-06-all-five-room-connection-stay-relocked",
+  "last_note": "1인방/9명방/13명방/구독자방/비밀방 공통으로 모바일 pagehide/잠깐 백그라운드에서 통신을 스스로 끊지 않고 pageshow 복귀 시 같은 스트림/방을 재부착·재연결하도록 수정 후 재잠금. UI 변경 없음.",
   "unlock_pin_sha256": "41c991eb6a66242c0454191244278183ce58cf4a6bcd372f799e4b9cc01886af",
   "secret_room_lock_snapshot": {
     "host_file": "secret-room-password.js",
