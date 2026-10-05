@@ -804,7 +804,17 @@
   window.addEventListener('kt-broadcast-ended',function(){approvedHostId='';watchHostId='';disconnectRoom();});
   window.addEventListener('online',function(){setTimeout(hostTick,150);});
   document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(hostTick,120);});
-  window.addEventListener('pagehide',function(){try{if(room)room.disconnect(false);}catch(e){}});
+  window.addEventListener('pagehide',function(){
+    try{window.__ktLivekitTransientPageHideAt20261006=Date.now();}catch(e){}
+  });
+  window.addEventListener('pageshow',function(){
+    try{
+      setTimeout(hostTick,0);
+      setTimeout(hostTick,120);
+      setTimeout(function(){reattachRemoteTracks();},40);
+      setTimeout(function(){reattachRemoteTracks();},220);
+    }catch(e){}
+  });
 
   /* Load the SFU SDK before the user presses approve. This removes the CDN
      download/parse delay from the approval path. */
