@@ -506,7 +506,15 @@
       var rows=await req('ktalk_webrtc_sessions?select=id,offer_sdp,answer_sdp,active&id=eq.'+enc(c.sessionId)+'&limit=1');var x=rows&&rows[0];
       if(!x||!x.active){
         if(!c.signalMissingSince)c.signalMissingSince=Date.now();
-        if(Date.now()-c.signalMissingSince>10000&&viewerCtx===c)window.ktLeaveRemoteLive();
+        if(Date.now()-c.signalMissingSince>10000&&viewerCtx===c&&!c.signalReconnectBusy20261005){
+          c.signalReconnectBusy20261005=true;
+          c.signalMissingSince=Date.now();
+          /* Temporary session loss must not eject the viewer or navigate away.
+             Rebuild transport silently inside the same room. */
+          Promise.resolve(ktReconnectRemoteViewer20260921(c)).catch(function(){}).finally(function(){
+            setTimeout(function(){try{c.signalReconnectBusy20261005=false;}catch(e){}},1800);
+          });
+        }
         return;
       }
       c.signalMissingSince=0;
