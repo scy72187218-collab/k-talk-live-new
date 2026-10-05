@@ -628,6 +628,13 @@
       /* 시청자 영상 협상을 먼저 시작한다.
          입장 알림 저장이 느려도 영상 연결을 기다리게 하지 않는다. */
       viewerCtx.signalTimer=setInterval(remotePollSignal,300);remotePollSignal();
+      /* 입장 직후 첫 얼굴만 빠르게 붙인다.
+         장시간 폴링 속도는 300ms 그대로 유지해 흰 오류/과부하를 만들지 않는다. */
+      [70,140,240,380,620,900].forEach(function(ms){
+        setTimeout(function(){
+          try{if(viewerCtx&&viewerCtx.pc===pc&&!viewerCtx.answered)remotePollSignal();}catch(e){}
+        },ms);
+      });
       viewerCtx.heartbeat=setInterval(remotePollRoom,1500);remotePollRoom();
       viewerCtx.activityTimer=setInterval(remotePollActivity,1800);remotePollActivity();
       try{
