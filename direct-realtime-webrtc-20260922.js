@@ -233,31 +233,16 @@
     return id;
   }
   function rtcConfig(){return window.ktGetRtcConfig?window.ktGetRtcConfig():{iceServers:[{urls:'stun:stun.cloudflare.com:3478'},{urls:'stun:stun.l.google.com:19302'}]};}
-  var __ktGuestTurnRefreshPromise20261005=null;
-  var __ktGuestTurnRefreshAt20261005=0;
   async function ensureTurnBeforeGuestRtc20260926(){
     try{
       if(typeof window.ktRefreshTurnRelay!=='function')return;
-      var now=Date.now();
-
-      /* 여러 게스트를 연속 승인할 때 TURN 갱신을 사람마다 다시 기다리지 않는다.
-         첫 갱신 하나만 공유하고, 뒤 게스트들은 같은 결과를 재사용해서
-         최대 15명까지 각자의 WebRTC offer를 병렬로 바로 처리한다. */
-      if(now-__ktGuestTurnRefreshAt20261005<10000)return;
-      if(!__ktGuestTurnRefreshPromise20261005){
-        __ktGuestTurnRefreshAt20261005=now;
-        var q=window.ktRefreshTurnRelay();
-        __ktGuestTurnRefreshPromise20261005=(q&&typeof q.then==='function')
-          ? Promise.resolve(q).catch(function(){})
-          : Promise.resolve();
-        __ktGuestTurnRefreshPromise20261005.then(function(){
-          setTimeout(function(){__ktGuestTurnRefreshPromise20261005=null;},0);
-        });
+      var q=window.ktRefreshTurnRelay();
+      if(q&&typeof q.then==='function'){
+        await Promise.race([
+          q,
+          new Promise(function(resolve){setTimeout(resolve,120);})
+        ]);
       }
-      await Promise.race([
-        __ktGuestTurnRefreshPromise20261005,
-        new Promise(function(resolve){setTimeout(resolve,80);})
-      ]);
     }catch(e){}
   }
   function ktTuneDirectVideoSender20260923(sender,kind){
