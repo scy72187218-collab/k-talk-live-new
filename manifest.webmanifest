@@ -11,16 +11,16 @@
   "prefer_related_applications": false,
   "icons": [
     {
-      "src": "/ktalk-icon-192.png?v=20260918-install7",
+      "src": "/ktalk-icon-192.png?v=20261005-icon-reset1150617",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/ktalk-icon.svg?v=20260918-install7",
+      "src": "/ktalk-icon.svg?v=20261005-icon-reset1150617",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "maskable"
     }
   ]
 }
