@@ -1,5 +1,5 @@
 {
-  "version": 194,
+  "version": 195,
   "locked": true,
   "scope": "full_snapshot_guard_everything",
   "lock_slot": 9,
@@ -83,7 +83,8 @@
     "secret_room_host_guest_layout_pair_20261004",
     "group13_guest_current_state_20261004",
     "group13_guest_final_tile_right_20261004",
-    "group13_guest_chat_heart_removed_20261004"
+    "group13_guest_chat_heart_removed_20261004",
+    "all_five_room_gift_current_state_20261005"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -162,11 +163,12 @@
     "secret_room_host_guest_layout_pair_20261004",
     "group13_guest_current_state_20261004",
     "group13_guest_final_tile_right_20261004",
-    "group13_guest_chat_heart_removed_20261004"
+    "group13_guest_chat_heart_removed_20261004",
+    "all_five_room_gift_current_state_20261005"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "1111 승인: 방송시간 옆 좋아요 하트 숫자 바로 뒤에 출석체크 버튼, 그 뒤에 출석체크 전용 하트 숫자 배치. 방 제목 가림 해소. 다른 기능 변경 금지.",
+  "note": "1150617 승인: 현재 5개 방송방 선물 상태 잠금. 다른 기능 변경 금지.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -252,6 +254,9 @@
       "host_led_room_promo_3times_10min_20261002",
       "led_promo_tap_enters_room_20261002"
     ],
+    "15": [
+      "all_five_room_gift_current_state_20261005"
+    ],
     "16": [
       "host_face_like_persist_20261002",
       "attendance_heart_above_separate_20261002"
@@ -275,8 +280,8 @@
     ]
   },
   "last_unlock": "2026-10-04-9room-duplicate-package-row-only-pin-1150617",
-  "last_lock": "2026-10-04-9room-relocked-after-duplicate-package-row-fix",
-  "last_note": "사용자 1150617 승인: 9명방의 중복 '되돌리기 / 패키지 상자 / 매치' 한 줄만 수정 후 즉시 재잠금. 다른 줄/게스트칸/채팅/하단버튼 변경 금지.",
+  "last_lock": "2026-10-05-all-five-room-gift-current-state-pin-1150617",
+  "last_note": "사용자 1150617 승인: 1인방·9명방·13명방·구독자방·비밀방의 현재 선물 상태를 잠금. 선물 아이콘/개수/배치/동작은 이후 명시적 해제 승인 없이는 변경 금지.",
   "unlock_pin_sha256": "41c991eb6a66242c0454191244278183ce58cf4a6bcd372f799e4b9cc01886af",
   "secret_room_lock_snapshot": {
     "host_file": "secret-room-password.js",
