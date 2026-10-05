@@ -1,5 +1,5 @@
 {
-  "version": 200,
+  "version": 201,
   "locked": true,
   "scope": "full_snapshot_guard_everything",
   "lock_slot": 9,
@@ -84,7 +84,8 @@
     "group13_guest_current_state_20261004",
     "group13_guest_final_tile_right_20261004",
     "group13_guest_chat_heart_removed_20261004",
-    "all_five_room_gift_current_state_20261005"
+    "all_five_room_gift_current_state_20261005",
+    "approved_guest_immediate_photo_then_live_video_20261005"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -164,15 +165,12 @@
     "group13_guest_current_state_20261004",
     "group13_guest_final_tile_right_20261004",
     "group13_guest_chat_heart_removed_20261004",
-    "all_five_room_gift_current_state_20261005"
-  ],
-  "current_editable_components": [
+    "all_five_room_gift_current_state_20261005",
     "approved_guest_immediate_photo_then_live_video_20261005"
   ],
-  "temporarily_unlocked_components": [
-    "approved_guest_immediate_photo_then_live_video_20261005"
-  ],
-  "note": "7777 승인: 승인 게스트 연결 부분만 이전 정상 상태로 복원 후 재잠금.",
+  "current_editable_components": [],
+  "temporarily_unlocked_components": [],
+  "note": "7777 잠금: 승인 게스트 이전 정상 상태 복원 완료.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -288,8 +286,8 @@
     ]
   },
   "last_unlock": "2026-10-05-restore-earlier-good-approved-guest-state-pin-7777",
-  "last_lock": "2026-10-05-approved-guest-multi-join-pin-7777",
-  "last_note": "사용자 7777 승인: 아까 잘 뜨던 승인 게스트 상태로 되돌리기 위해 승인 게스트 다중 연결 속도 부분만 임시 해제. 다른 기능 변경 금지.",
+  "last_lock": "2026-10-05-approved-guest-earlier-good-state-pin-7777",
+  "last_note": "사용자 7777 승인: 아까 잘 뜨던 승인 게스트 연결 상태로 복원 후 7777로 재잠금. 다른 기능 변경 금지.",
   "unlock_pin_sha256": "41c991eb6a66242c0454191244278183ce58cf4a6bcd372f799e4b9cc01886af",
   "secret_room_lock_snapshot": {
     "host_file": "secret-room-password.js",
