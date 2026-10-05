@@ -1,5 +1,5 @@
 {
-  "version": 217,
+  "version": 218,
   "locked": true,
   "scope": "full_snapshot_guard_everything",
   "lock_slot": 9,
@@ -82,7 +82,6 @@
     "group13_guest_current_state_20261004",
     "group13_guest_final_tile_right_20261004",
     "group13_guest_chat_heart_removed_20261004",
-    "approved_guest_immediate_photo_then_live_video_20261005",
     "public_video_upload_auth_20261006",
     "public_video_feed_dynamic_20261006",
     "followed_guest_large_photo_30likes_10min_max5roses",
@@ -165,16 +164,19 @@
     "group13_guest_current_state_20261004",
     "group13_guest_final_tile_right_20261004",
     "group13_guest_chat_heart_removed_20261004",
-    "approved_guest_immediate_photo_then_live_video_20261005",
     "public_video_upload_auth_20261006",
     "public_video_feed_dynamic_20261006",
     "followed_guest_large_photo_30likes_10min_max5roses",
     "all_five_room_gift_current_state_20261005",
     "person_photo_inline_gifts"
   ],
-  "current_editable_components": [],
-  "temporarily_unlocked_components": [],
-  "note": "1150617 잠금: 사람 터치→선물 대상→선물창 직접 열기 상태 보호.",
+  "current_editable_components": [
+    "approved_guest_immediate_photo_then_live_video_20261005"
+  ],
+  "temporarily_unlocked_components": [
+    "approved_guest_immediate_photo_then_live_video_20261005"
+  ],
+  "note": "7777 승인: 게스트 즉시 사진 표시 재시도만 수정 후 재잠금.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -289,9 +291,9 @@
       "approved_guest_immediate_photo_then_live_video_20261005"
     ]
   },
-  "last_unlock": "2026-10-06-person-tap-open-gifts-pin-1150617",
+  "last_unlock": "2026-10-06-guest-fast-photo-retry-pin-7777",
   "last_lock": "2026-10-06-person-tap-open-gifts-relocked-pin-1150617",
-  "last_note": "사용자 1150617 승인 작업 완료: 호스트/게스트 사람 사진·영상 터치 시 다른 카메라/확대 UI 대신 해당 사람을 선물 대상으로 지정하고 선물창을 바로 열도록 수정 후 재잠금. 다른 기능 변경 없음.",
+  "last_note": "사용자 7777 승인: 게스트 승인 직후 사진→움직이는 영상 전환 속도만 보강. 반복 참여신청에도 준비된 게스트 사진 프레임을 포함해 호스트가 승인 순간 즉시 표시할 수 있게 수정. 방 배치/채팅/선물/수익률/다른 기능 변경 금지.",
   "unlock_pin_sha256": "41c991eb6a66242c0454191244278183ce58cf4a6bcd372f799e4b9cc01886af",
   "secret_room_lock_snapshot": {
     "host_file": "secret-room-password.js",
