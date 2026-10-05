@@ -30,14 +30,48 @@
     });
   }
 
+  function runAction(label,btn){
+    if(label==='되돌리기'){
+      try{if(typeof window.ktUnifiedQuickFlip==='function'){window.ktUnifiedQuickFlip(btn);return;}}catch(e){}
+      try{if(typeof window.ktAllRoomsFlipCamera==='function'){window.ktAllRoomsFlipCamera(btn);return;}}catch(e){}
+      try{if(typeof window.ktSoloFlipCamera==='function'){window.ktSoloFlipCamera(btn);return;}}catch(e){}
+      return;
+    }
+    if(label==='보물상자'){
+      try{if(typeof window.ktUnifiedQuickTreasure==='function'){window.ktUnifiedQuickTreasure();return;}}catch(e){}
+      try{if(typeof window.placeTreasureChest==='function'){window.placeTreasureChest();return;}}catch(e){}
+      try{if(typeof window.openTreasureBox==='function'){window.openTreasureBox();return;}}catch(e){}
+      try{if(typeof window.openTreasure==='function'){window.openTreasure();return;}}catch(e){}
+      try{if(typeof window.openGifts==='function')window.openGifts();}catch(e){}
+      return;
+    }
+    if(label==='매치'){
+      try{if(typeof window.ktUnifiedQuickMatch==='function'){window.ktUnifiedQuickMatch();return;}}catch(e){}
+      try{if(typeof window.openHostMatchArena==='function'){window.openHostMatchArena('1대1');return;}}catch(e){}
+      try{if(typeof window.openMatchArena==='function'){window.openMatchArena('1대1');return;}}catch(e){}
+      try{if(typeof window.openMatch==='function')window.openMatch();}catch(e){}
+    }
+  }
+
+  function makeButton(icon,label){
+    var b=document.createElement('button');
+    b.type='button';
+    b.setAttribute('aria-label',label);
+    b.innerHTML='<b>'+icon+'</b><span>'+label+'</span>';
+    b.addEventListener('click',function(e){
+      try{e.preventDefault();e.stopPropagation();}catch(_e){}
+      runAction(label,b);
+    });
+    return b;
+  }
+
   function makeRow(){
     var row=document.createElement('div');
     row.className='kt-all-five-utm-20261005';
-    row.setAttribute('data-kt-utm','1150617');
-    row.innerHTML=''
-      +'<button type="button" aria-label="되돌리기"><b>↻</b><span>되돌리기</span></button>'
-      +'<button type="button" aria-label="보물상자"><b>🎁</b><span>보물상자</span></button>'
-      +'<button type="button" aria-label="매치"><b>⚔</b><span>매치</span></button>';
+    row.setAttribute('data-kt-utm','1111');
+    row.appendChild(makeButton('↻','되돌리기'));
+    row.appendChild(makeButton('🎁','보물상자'));
+    row.appendChild(makeButton('⚔','매치'));
     return row;
   }
 
