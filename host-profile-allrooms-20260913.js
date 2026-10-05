@@ -416,8 +416,9 @@
   function onPhoto(e){
     var p=photoTarget(e.target);if(!p)return;
     if(!p.closest('.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room,.ktg9-room'))return;
-    try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(x){}
-    openCard(personFrom(p));
+    /* 2026-10-06: 방송 중 사진 터치는 프로필 팝업을 열지 않는다.
+       선물 대상 선택은 별도 all-room-person-gift-target에서 그대로 처리한다. */
+    return;
   }
 
   ensureFollowStyle();
