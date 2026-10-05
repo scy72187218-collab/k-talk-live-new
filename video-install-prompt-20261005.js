@@ -71,7 +71,9 @@
   window.ktVideoInstallNowV220261005=installNow;
 
   function show(){
-    if(shown||closed()||isInstalled()||!inPublicVideo())return;
+    /* 실제 브라우저 설치 이벤트가 준비된 경우에만 설치 카드를 표시한다.
+       이미 설치됐거나 설치 이벤트가 없는 기기에서는 안내창을 남기지 않는다. */
+    if(shown||closed()||isInstalled()||!deferredPrompt||!inPublicVideo())return;
     shown=true;
 
     var d=document.createElement('div');
