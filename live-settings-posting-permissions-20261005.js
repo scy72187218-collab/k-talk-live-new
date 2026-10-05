@@ -43,20 +43,39 @@
   function postingPass3000(){
     try{return localStorage.getItem('kt_live_posting_pass_3000')==='1';}catch(e){return false;}
   }
+  function phonePass5000(){
+    try{return localStorage.getItem('kt_live_phone_pass_5000')==='1';}catch(e){return false;}
+  }
+  function bankPass5000(){
+    try{return localStorage.getItem('kt_live_bank_pass_5000')==='1';}catch(e){return false;}
+  }
 
-  /* Payment/entitlement bridge: the real 3,000 won payment flow can call this after success. */
+  /* Payment/entitlement bridges. Each pass is kept separate. */
   window.ktSetPostingPass3000=function(on){
     try{localStorage.setItem('kt_live_posting_pass_3000',on?'1':'0');}catch(e){}
+    return !!on;
+  };
+  window.ktSetPhonePass5000=function(on){
+    try{localStorage.setItem('kt_live_phone_pass_5000',on?'1':'0');}catch(e){}
+    return !!on;
+  };
+  window.ktSetBankPass5000=function(on){
+    try{localStorage.setItem('kt_live_bank_pass_5000',on?'1':'0');}catch(e){}
     return !!on;
   };
 
   function allowed(kind){
     if(subscriber())return true;
     var lv=level();
-    if(kind==='bank'||kind==='phone')return lv>=30;
+    if(lv>=31)return true;
     if(kind==='text'||kind==='gift'){
-      if(lv>=31)return true;
       return lv>=1&&lv<=30&&postingPass3000();
+    }
+    if(kind==='phone'){
+      return lv>=1&&lv<=30&&phonePass5000();
+    }
+    if(kind==='bank'){
+      return lv>=1&&lv<=30&&bankPass5000();
     }
     return false;
   }
@@ -78,15 +97,22 @@
   }
 
   function denied(kind){
-    if(kind==='text'||kind==='gift'){
-      var lv=level();
-      if(lv>=1&&lv<=30){
+    var lv=level();
+    if(lv>=1&&lv<=30){
+      if(kind==='text'||kind==='gift'){
         alert(label(kind)+' 올리기는 일반 회원 Lv.1~30은 3,000원 이용권이 필요합니다. 구독자는 이용권 없이 사용할 수 있습니다.');
         return;
       }
+      if(kind==='phone'){
+        alert('전화번호 올리기는 일반 회원 Lv.1~30은 전화번호 전용 5,000원 이용권이 필요합니다. 구독자는 이용권 없이 사용할 수 있습니다.');
+        return;
+      }
+      if(kind==='bank'){
+        alert('계좌번호 올리기는 일반 회원 Lv.1~30은 계좌번호 전용 5,000원 이용권이 필요합니다. 구독자는 이용권 없이 사용할 수 있습니다.');
+        return;
+      }
     }
-    var need=30;
-    alert(label(kind)+' 올리기는 레벨 '+need+'부터 사용할 수 있습니다. 구독자는 레벨 제한 없이 사용할 수 있습니다.');
+    alert(label(kind)+' 올리기를 사용할 수 없습니다.');
   }
 
   function maskPreview(kind,v){
@@ -133,8 +159,14 @@
     else if(kind==='text'||kind==='gift'){
       if(lv>=31)status='Lv.31+ 사용 가능';
       else status=postingPass3000()?'3,000원 이용권 사용 중':'Lv.1~30 · 3,000원 이용권 필요';
+    }else if(kind==='phone'){
+      if(lv>=31)status='Lv.31+ 사용 가능';
+      else status=phonePass5000()?'전화번호 5,000원 이용권 사용 중':'Lv.1~30 · 전화번호 5,000원 이용권 필요';
+    }else if(kind==='bank'){
+      if(lv>=31)status='Lv.31+ 사용 가능';
+      else status=bankPass5000()?'계좌번호 5,000원 이용권 사용 중':'Lv.1~30 · 계좌번호 5,000원 이용권 필요';
     }else{
-      status='Lv.'+need+(ok?' 사용 가능':'부터');
+      status=ok?'사용 가능':'사용 불가';
     }
     return '<button type="button" class="kt-setting-row kt-posting-setting" onclick="ktLiveSettingPost20261005(\''+kind+'\')">'
       +'<span>'+icon(kind)+'</span><b>'+label(kind)+'</b>'
@@ -156,7 +188,7 @@
       row('bank',30)+
       row('phone',30)+
       row('gift',20)+
-      '<div style="padding:7px 4px 2px;color:#aaa;font-size:9px;line-height:1.45">일반 회원 Lv.1~30: 문구·선물 올리기 3,000원 이용권 필요 · Lv.31+: 이용권 없이 사용 · 계좌번호·전화번호: Lv.30부터 · 구독자: 모두 이용권 없이 사용 가능</div>';
+      '<div style="padding:7px 4px 2px;color:#aaa;font-size:9px;line-height:1.45">일반 회원 Lv.1~30: 문구·선물 3,000원 이용권 · 전화번호 5,000원 전용 이용권 · 계좌번호 5,000원 전용 이용권 · 각 이용권은 서로 별도 · Lv.31+: 이용권 없이 사용 · 구독자: 모두 이용권 없이 사용 가능</div>';
     while(box.firstChild)root.appendChild(box.firstChild);
   }
 
