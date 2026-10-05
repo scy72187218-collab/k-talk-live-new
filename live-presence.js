@@ -304,7 +304,7 @@
           await req('ktalk_live_rooms?id=eq.'+enc(hostRoomId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:true,updated_at:nowIso()})});
         }catch(e){}
       },4000);
-      hostSignalTimer=setInterval(hostProcessSignals,120);hostProcessSignals();
+      hostSignalTimer=setInterval(hostProcessSignals,90);hostProcessSignals();
       hostActivityTimer=setInterval(hostPollActivity,1800);hostPollActivity();
       renderLiveCards();
     }catch(e){
