@@ -1888,25 +1888,46 @@
         attachGuestToHost(vid,String(p.name||(approvedGuests[vid]&&approvedGuests[vid].name)||'게스트'),rs);
       }
       function confirmRealMedia(){
-        if(!approvedGuests[vid])return;
+        if(!approvedGuests[vid]||entry.mediaReadySent||entry.__ktFrameConfirmPending)return;
         var vt=null;
         try{vt=rs.getVideoTracks().find(function(t){return t&&t.readyState==='live';})||null;}catch(e){}
-        if(!vt)return;
-        /* ontrack can fire before Android has delivered the first frame.
-           Do not acknowledge media until the remote video track is actually
-           unmuted, otherwise the guest stops its recovery while host stays blank. */
-        if(vt.muted===true)return;
+        if(!vt||vt.muted===true)return;
         attachIfApproved();
-        entry.gotTrack=true;
-        /* 1111: now that real guest video is ready, publish the guest
-           to the other guest rooms immediately. */
-        try{broadcastApprovedRoster20260928();}catch(e){}
-        setTimeout(function(){try{broadcastApprovedRoster20260928();}catch(e){}},80);
-        if(!entry.mediaReadySent){
+
+        /* Android에서는 track unmute 뒤 첫 화면 한 장만 보이고 멈추는 경우가 있다.
+           실제 <video> 시간이 진행되는지 확인한 뒤에만 media-ready를 보내야
+           게스트 쪽 복구 타이머가 너무 일찍 멈추지 않는다. */
+        var slotNow=guestSlot(vid,String(p.name||(approvedGuests[vid]&&approvedGuests[vid].name)||'게스트'));
+        var videoNow=slotNow&&slotNow.querySelector('video');
+        if(!videoNow)return;
+        try{
+          videoNow.muted=true;videoNow.autoplay=true;videoNow.playsInline=true;
+          var playNow=videoNow.play();if(playNow&&playNow.catch)playNow.catch(function(){});
+        }catch(e){}
+        var t0=0;
+        try{t0=Number(videoNow.currentTime||0);}catch(e){}
+        entry.__ktFrameConfirmPending=true;
+        setTimeout(function(){
+          entry.__ktFrameConfirmPending=false;
+          if(!approvedGuests[vid]||entry.mediaReadySent||hostGuestPeers[vid]!==entry)return;
+          var liveTrack=null,t1=0;
+          try{liveTrack=(videoNow.srcObject&&videoNow.srcObject.getVideoTracks&&videoNow.srcObject.getVideoTracks()[0])||vt;}catch(e){liveTrack=vt;}
+          try{t1=Number(videoNow.currentTime||0);}catch(e){}
+          if(!liveTrack||liveTrack.readyState!=='live'||liveTrack.muted===true)return;
+          if(!(videoNow.readyState>=2&&videoNow.videoWidth>0&&videoNow.videoHeight>0&&t1>t0+0.03))return;
+
+          entry.gotTrack=true;
+          try{
+            videoNow.style.removeProperty('background-image');
+            videoNow.removeAttribute('poster');
+            var sm=slotNow.querySelector('small');if(sm)sm.style.display='none';
+          }catch(e){}
+          try{broadcastApprovedRoster20260928();}catch(e){}
+          setTimeout(function(){try{broadcastApprovedRoster20260928();}catch(e){}},80);
           entry.mediaReadySent=true;
           sendCriticalMedia20260926('guest_media_ready',{host_id:DEVICE,viewer_id:vid,session_id:session,at:Date.now()},DEVICE);
-        }
-        if(entry.old&&entry.old.pc){try{closePc(entry.old.pc);}catch(e){}entry.old=null;}
+          if(entry.old&&entry.old.pc){try{closePc(entry.old.pc);}catch(e){}entry.old=null;}
+        },240);
       }
 
       /* Reserve/paint the slot immediately, but keep recovery active until
