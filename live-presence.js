@@ -615,7 +615,10 @@
       /* 방 화면이 열린 직후 얼굴 연결 준비를 병렬로 시작한다. */
       var viewerReady=req('ktalk_live_viewers?on_conflict=host_id,viewer_id',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({host_id:hostId,viewer_id:viewerId,viewer_name:p.name||'게스트',active:true,updated_at:nowIso()})});
       var oldSessionClosed=req('ktalk_webrtc_sessions?host_id=eq.'+enc(hostId)+'&viewer_id=eq.'+enc(viewerId)+'&active=eq.true',{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})});
-      await Promise.all([viewerReady,oldSessionClosed]);
+      /* Viewer presence 저장은 영상 협상을 막지 않는다.
+         이전 세션 정리만 끝나면 새 영상 세션을 바로 만든다. */
+      try{if(viewerReady&&viewerReady.catch)viewerReady.catch(function(){});}catch(_e){}
+      await oldSessionClosed;
       var sessions=await req('ktalk_webrtc_sessions',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify({host_id:hostId,viewer_id:viewerId,offer_sdp:'pending',answer_sdp:null,active:true,updated_at:nowIso()})});
       var sessionId=sessions&&sessions[0]?sessions[0].id:'';if(!sessionId)throw new Error('session');
       var pc=new RTCPeerConnection(ktIceConfig20260921());
