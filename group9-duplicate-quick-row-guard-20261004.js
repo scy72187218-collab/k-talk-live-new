@@ -16,16 +16,19 @@
 
   function exactDuplicateRowFromPackageButton(btn,room){
     var el=btn;
-    for(var i=0;i<7&&el&&el!==room;i++,el=el.parentElement){
+    for(var i=0;i<10&&el&&el!==room;i++,el=el.parentElement){
       var t=norm(el);
+      /* 정상 줄(되돌리기/보물상자/매치)은 절대 제거하지 않는다. */
       if(t.indexOf('보물상자')>-1)return null;
-      if(t.indexOf('되돌리기')>-1&&t.indexOf('패키지상자')>-1&&t.indexOf('매치')>-1){
-        var buttons=[].slice.call(el.querySelectorAll('button'));
-        var labels=buttons.map(norm);
-        var hasUndo=labels.some(function(x){return x.indexOf('되돌리기')>-1;});
-        var hasPackage=labels.some(function(x){return x.indexOf('패키지상자')>-1;});
-        var hasMatch=labels.some(function(x){return x.indexOf('매치')>-1;});
-        if(hasUndo&&hasPackage&&hasMatch&&buttons.length<=8)return el;
+
+      var buttons=[].slice.call(el.querySelectorAll('button'));
+      var labels=buttons.map(norm);
+      var hasUndo=labels.some(function(x){return x.indexOf('되돌리기')>-1;});
+      var hasPackage=labels.some(function(x){return x.indexOf('패키지상자')>-1;});
+      var hasMatch=labels.some(function(x){return x.indexOf('매치')>-1;});
+
+      if(hasUndo&&hasPackage&&hasMatch){
+        return el;
       }
     }
     return null;
@@ -59,7 +62,15 @@
       var row=exactDuplicateRowFromPackageButton(btn,room);
       if(row){
         lockDuplicatePackageRow20261004(row);
+        return;
       }
+      /* 구조가 달라져도 패키지상자 버튼 자체는 남기지 않는다.
+         정상 보물상자 버튼과 다른 버튼은 그대로 둔다. */
+      try{
+        var parent=btn.parentElement;
+        btn.remove();
+        if(parent&&parent.children&&parent.children.length===0)parent.remove();
+      }catch(e){}
     });
   }
 
