@@ -2838,6 +2838,13 @@
       if(requestOn&&tickNow-lastGuestRequestAt>1500){
         lastGuestRequestAt=tickNow;
         var repeatReq={host_id:hid,viewer_id:viewerId(),name:profileName(),at:tickNow};
+        try{
+          cacheTrustedGuestPhoto20260926();
+          var retryFrame=String(guestPhotoCache20260926||'');
+          if(/^data:image\/jpeg;base64,/.test(retryFrame)&&retryFrame.length<32000){
+            repeatReq.frame=retryFrame;
+          }
+        }catch(e){}
         sendCriticalMedia20260926('guest_request',repeatReq,hid);
         try{sharedApprovalPost(hid,'guest_request',repeatReq.viewer_id,repeatReq.name);}catch(e){}
       }
