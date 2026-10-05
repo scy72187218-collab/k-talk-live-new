@@ -1,5 +1,5 @@
 {
-  "version": 211,
+  "version": 212,
   "locked": true,
   "scope": "full_snapshot_guard_everything",
   "lock_slot": 9,
@@ -85,9 +85,7 @@
     "group13_guest_chat_heart_removed_20261004",
     "approved_guest_immediate_photo_then_live_video_20261005",
     "public_video_upload_auth_20261006",
-    "public_video_feed_dynamic_20261006",
-    "all_five_room_gift_current_state_20261005",
-    "person_photo_inline_gifts"
+    "public_video_feed_dynamic_20261006"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -168,13 +166,17 @@
     "group13_guest_chat_heart_removed_20261004",
     "approved_guest_immediate_photo_then_live_video_20261005",
     "public_video_upload_auth_20261006",
-    "public_video_feed_dynamic_20261006",
+    "public_video_feed_dynamic_20261006"
+  ],
+  "current_editable_components": [
     "all_five_room_gift_current_state_20261005",
     "person_photo_inline_gifts"
   ],
-  "current_editable_components": [],
-  "temporarily_unlocked_components": [],
-  "note": "1150617 잠금: 호스트 프로필 카드 선물상자 연결 상태 보호.",
+  "temporarily_unlocked_components": [
+    "all_five_room_gift_current_state_20261005",
+    "person_photo_inline_gifts"
+  ],
+  "note": "1150617 승인: 호스트 얼굴/영상 터치→기존 프로필/선물 연결만 수정 후 재잠금.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -289,9 +291,9 @@
       "approved_guest_immediate_photo_then_live_video_20261005"
     ]
   },
-  "last_unlock": "2026-10-06-host-profile-gift-pin-1150617",
+  "last_unlock": "2026-10-06-host-video-profile-gift-pin-1150617",
   "last_lock": "2026-10-06-host-profile-gift-relocked-pin-1150617",
-  "last_note": "사용자 1150617 승인 작업 완료: 원격 게스트가 호스트 프로필 사진을 눌렀을 때 기존 프로필 카드 안에 '호스트에게 선물하기' 버튼 표시, 해당 호스트를 선물 대상으로 유지해 기존 선물 목록에서 선택 가능하도록 연결 후 재잠금. 다른 기능 변경 없음.",
+  "last_note": "사용자 1150617 승인: 원격 게스트가 호스트 얼굴/영상 칸을 눌러도 기존 호스트 프로필 카드가 열리고 선물상자 버튼을 사용할 수 있게 터치 연결만 수정. 다른 기능 변경 금지.",
   "unlock_pin_sha256": "41c991eb6a66242c0454191244278183ce58cf4a6bcd372f799e4b9cc01886af",
   "secret_room_lock_snapshot": {
     "host_file": "secret-room-password.js",
