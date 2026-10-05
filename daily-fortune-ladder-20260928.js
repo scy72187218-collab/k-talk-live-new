@@ -191,7 +191,7 @@
   function luckyNumbers20260928(){
     var nums=[];
     while(nums.length<6){
-      var n=1+Math.floor(Math.random()*99);
+      var n=1+Math.floor(Math.random()*45);
       if(nums.indexOf(n)<0)nums.push(n);
     }
     nums.sort(function(a,b){return a-b;});
