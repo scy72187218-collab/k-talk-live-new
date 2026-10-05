@@ -1178,7 +1178,7 @@
   function ensureDirectStyle(){
     if(document.getElementById('ktDirectGuestTransportStyle'))return;
     var s=document.createElement('style');s.id='ktDirectGuestTransportStyle';
-    s.textContent='#ktDirectGuestRequestRail{position:absolute!important;left:44%!important;right:4px!important;bottom:4px!important;z-index:2147482000!important;display:flex!important;gap:5px!important;overflow-x:auto!important;padding:3px!important;pointer-events:auto!important}#ktDirectGuestRequestRail button{flex:0 0 auto!important;min-width:86px!important;height:34px!important;border:1px solid #62d8ff!important;border-radius:18px!important;background:rgba(6,18,28,.96)!important;color:#fff!important;padding:0 10px!important;font-size:9px!important;font-weight:950!important;box-shadow:0 0 9px #38cfff55!important}';
+    s.textContent='#ktDirectGuestRequestRail{position:absolute!important;left:44%!important;right:4px!important;top:4px!important;bottom:auto!important;z-index:2147482000!important;display:flex!important;gap:5px!important;overflow-x:auto!important;padding:3px!important;pointer-events:auto!important}#ktDirectGuestRequestRail button{flex:0 0 auto!important;min-width:86px!important;height:34px!important;border:1px solid #62d8ff!important;border-radius:18px!important;background:rgba(6,18,28,.96)!important;color:#fff!important;padding:0 10px!important;font-size:9px!important;font-weight:950!important;box-shadow:0 0 9px #38cfff55!important}';
     document.head.appendChild(s);
   }
   function requestMount(){
