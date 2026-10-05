@@ -304,7 +304,7 @@
           await req('ktalk_live_rooms?id=eq.'+enc(hostRoomId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:true,updated_at:nowIso()})});
         }catch(e){}
       },4000);
-      hostSignalTimer=setInterval(hostProcessSignals,600);hostProcessSignals();
+      hostSignalTimer=setInterval(hostProcessSignals,300);hostProcessSignals();
       hostActivityTimer=setInterval(hostPollActivity,1800);hostPollActivity();
       renderLiveCards();
     }catch(e){
@@ -627,7 +627,7 @@
       pc.onconnectionstatechange=function(){var st=document.getElementById('ktRemoteLiveStatus');if(pc.connectionState==='connected'){if(viewerCtx&&viewerCtx.pc===pc&&viewerCtx.disconnectTimer){clearTimeout(viewerCtx.disconnectTimer);viewerCtx.disconnectTimer=null;}if(st)st.style.display='none';return;}if(pc.connectionState==='disconnected'||pc.connectionState==='failed'){if(st){st.style.display='block';st.textContent='신호 다시 연결 중...';}var c=viewerCtx;if(c&&c.pc===pc&&!c.disconnectTimer){c.disconnectTimer=setTimeout(function(){if(viewerCtx===c&&c.pc===pc&&(pc.connectionState==='failed'||pc.connectionState==='disconnected'))ktReconnectRemoteViewer20260921(c);},2200);}}};
       /* 시청자 영상 협상을 먼저 시작한다.
          입장 알림 저장이 느려도 영상 연결을 기다리게 하지 않는다. */
-      viewerCtx.signalTimer=setInterval(remotePollSignal,600);remotePollSignal();
+      viewerCtx.signalTimer=setInterval(remotePollSignal,300);remotePollSignal();
       /* 입장 직후 첫 얼굴만 빠르게 붙인다.
          장시간 폴링 속도는 300ms 그대로 유지해 흰 오류/과부하를 만들지 않는다. */
       [70,140,240,380,620,900].forEach(function(ms){
@@ -696,11 +696,20 @@
     var c=viewerCtx;ktNotifyRemoteExit20260924(c);viewerCtx=null;window.__ktRemoteHostStream=null;window.__ktRemoteHostId='';window.__ktCurrentRemoteHostId='';try{sessionStorage.removeItem('kt_remote_host_id');}catch(e){}document.documentElement.classList.remove('kt-remote-viewing');
     if(c){
       clearInterval(c.signalTimer);clearInterval(c.heartbeat);clearInterval(c.activityTimer);try{c.pc.close();}catch(e){}
-      try{await req('ktalk_live_viewers?host_id=eq.'+enc(c.hostId)+'&viewer_id=eq.'+enc(c.viewerId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})});}catch(e){}
-      try{await req('ktalk_webrtc_sessions?id=eq.'+enc(c.sessionId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})});}catch(e){}
-      await insertSystem(c.hostId,c.viewerId,c.viewerName,c.viewerName+'님이 나갔습니다.');
     }
-    if(!silent){if(window.openBroadcastList)window.openBroadcastList();else if(window.friends)window.friends();setTimeout(renderLiveCards,80);}
+
+    /* 실제 퇴장은 서버 정리를 기다리지 않고 화면에서 먼저 즉시 빠진다.
+       silent=true 내부 재연결은 기존처럼 화면 이동하지 않는다. */
+    if(!silent){
+      try{if(window.openBroadcastList)window.openBroadcastList();else if(window.friends)window.friends();}catch(e){}
+      setTimeout(renderLiveCards,80);
+    }
+
+    if(c){
+      try{req('ktalk_live_viewers?host_id=eq.'+enc(c.hostId)+'&viewer_id=eq.'+enc(c.viewerId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})}).catch(function(){});}catch(e){}
+      try{req('ktalk_webrtc_sessions?id=eq.'+enc(c.sessionId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})}).catch(function(){});}catch(e){}
+      try{insertSystem(c.hostId,c.viewerId,c.viewerName,c.viewerName+'님이 나갔습니다.').catch(function(){});}catch(e){}
+    }
   };
 
   function wrap(name,before,after){
