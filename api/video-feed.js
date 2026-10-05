@@ -6,18 +6,8 @@ module.exports = async function handler(req,res){
   }
 
   try{
-    var host=String(req.headers&&req.headers.host||'').trim();
-    if(!host)throw new Error('missing host');
-    var proto=String(req.headers&&req.headers['x-forwarded-proto']||'https').split(',')[0].trim()||'https';
-
-    /* Read the current publishable key from the already-deployed realtime file.
-       This keeps video-feed in sync with the app without storing another stale key here. */
-    var keyResp=await fetch(proto+'://'+host+'/direct-realtime-webrtc-20260922.js?v=feed-key-sync',{cache:'no-store'});
-    if(!keyResp.ok)throw new Error('key source '+keyResp.status);
-    var keyText=await keyResp.text();
-    var m=keyText.match(/sb_publishable_[A-Za-z0-9_-]+/);
-    if(!m)throw new Error('publishable key not found');
-    var key=m[0];
+    var key=String(process.env.SUPABASE_PUBLISHABLE_KEY||'').trim();
+    if(!key)throw new Error('missing publishable key');
 
     var url='https://zupwbfmacwzexyvznlzq.supabase.co/rest/v1/ktalk_videos'
       +'?select=id,author_name,title,video_url,created_at,likes'
