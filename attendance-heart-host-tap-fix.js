@@ -4,7 +4,7 @@
   window.__ktAttendanceHeartHostTapFixInstalled=true;
 
   var roomSelector='.ktsolo-room,.ktg13-room,.ktg9-room,.ktsubscriber-room,.ktsecret-room';
-  var attendanceSelector='.ktsolo-att,.ktg13-attend,.ktsubscriber-att,.ktsecret-att,.kt-live-attendance,[data-kt-attendance]';
+  var attendanceSelector='.ktsolo-att,.ktg13-attend,.ktsubscriber-att,.ktsecret-att,.kt-live-attendance,[data-kt-attendance],.kt-s2-att-small,.kt-s2-att-large,.kt-sa-att';
   var sideLikeSelector='.ktsolo-right .like,.ktg9-right .like,.ktg13-right-quick .ktg13-like,.ktg13-right-quick .like,.ktsubscriber-right .like,.ktsecret-right .like';
   var hostSelector='.ktsolo-room .ktsolo-main,.ktg9-room .ktg9-host,.ktg13-room .ktg13-host,.ktsubscriber-room .ktsubscriber-host,.ktsecret-room .ktsecret-slot.host';
 
@@ -69,7 +69,27 @@
     return name||'회원';
   }
 
+  function playAttendanceChime(){
+    try{
+      var AC=window.AudioContext||window.webkitAudioContext;
+      if(!AC)return;
+      var ac=window.__ktAttendanceAudioCtx||(window.__ktAttendanceAudioCtx=new AC());
+      if(ac.state==='suspended'&&ac.resume)ac.resume().catch(function(){});
+      var now=ac.currentTime;
+      [659.25,783.99].forEach(function(freq,i){
+        var o=ac.createOscillator(),g=ac.createGain();
+        o.type='sine';o.frequency.setValueAtTime(freq,now+(i*.08));
+        g.gain.setValueAtTime(0.0001,now+(i*.08));
+        g.gain.exponentialRampToValueAtTime(0.12,now+(i*.08)+.015);
+        g.gain.exponentialRampToValueAtTime(0.0001,now+(i*.08)+.16);
+        o.connect(g);g.connect(ac.destination);
+        o.start(now+(i*.08));o.stop(now+(i*.08)+.18);
+      });
+    }catch(e){}
+  }
+
   function speakAttendanceDone(){
+    playAttendanceChime();
     var msg=attendanceNickname()+'님, 출석 체크해 주셔서 감사합니다.';
     try{if(window.state)state.aiVoiceOn=true;}catch(e){}
     try{localStorage.setItem('ktalk_ai_voice','on');}catch(e){}
@@ -108,6 +128,19 @@
   function setCount(room,n){
     try{localStorage.setItem(countKey(room),String(Math.max(0,Number(n)||0)));}catch(e){}
   }
+
+  function globalHeartCount(){
+    try{return Math.max(0,parseInt(localStorage.getItem('ktalk_attendance_hearts')||'0',10)||0);}catch(e){return 0;}
+  }
+  function setGlobalHeartCount(n){
+    try{localStorage.setItem('ktalk_attendance_hearts',String(Math.max(0,Number(n)||0)));}catch(e){}
+  }
+  window.ktAttendanceHeartCount=function(){
+    var room=null;
+    try{room=document.querySelector('#screen '+roomSelector.split(',').join(',#screen '));}catch(e){}
+    var n=room?getCount(room):0;
+    return Math.max(n,globalHeartCount());
+  };
 
   function ensureCountStyle(){
     if(document.getElementById('ktAttendanceRoomCountStyle'))return;
@@ -193,11 +226,14 @@
     if(!done){
       try{localStorage.setItem(key,'1');}catch(e){}
       setCount(room,getCount(room)+1);
+      setGlobalHeartCount(globalHeartCount()+1);
       addRoseOne();
     }else if(getCount(room)<1){
       setCount(room,1);
+      if(globalHeartCount()<1)setGlobalHeartCount(1);
     }
     speakAttendanceDone();
+    try{window.dispatchEvent(new CustomEvent('kt-attendance-heart-updated',{detail:{count:window.ktAttendanceHeartCount(),at:Date.now()}}));}catch(e){};
     try{
       btn.classList.add('kt-attendance-done');
       btn.setAttribute('aria-pressed','true');
@@ -299,15 +335,28 @@
     }catch(e){}
   }
 
-  /* window 캡처에서 5개 방 출석 클릭을 먼저 잡아 기존 alert/혜택 팝업 호출만 막는다. */
-  window.addEventListener('click',function(e){
+  /* 호스트 출석 버튼은 레이아웃마다 클래스가 달라도 '출석체크' 문구까지 확인해 한 번만 처리한다. */
+  var lastAttendanceTapAt=0,lastAttendanceTapBtn=null;
+  function hostAttendanceHit(e){
     var t=e.target;
     if(!t||!t.closest)return;
     var btn=t.closest(attendanceSelector);
-    if(!btn)return;
-    try{e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();}catch(err){}
+    if(!btn){
+      var cand=t.closest('button,[role="button"],div,span');
+      if(cand&&cand.closest(roomSelector)){
+        var txt=String(cand.textContent||cand.getAttribute('aria-label')||'').replace(/\s+/g,'');
+        if(txt.indexOf('출석체크')>-1)btn=cand;
+      }
+    }
+    if(!btn||!btn.closest(roomSelector))return;
+    var now=Date.now();
+    if(lastAttendanceTapBtn===btn&&now-lastAttendanceTapAt<500)return;
+    lastAttendanceTapBtn=btn;lastAttendanceTapAt=now;
+    try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(err){}
     attendance(btn);
-  },true);
+  }
+  window.addEventListener('pointerup',hostAttendanceHit,true);
+  window.addEventListener('click',hostAttendanceHit,true);
 
   /* 오른쪽 좋아요 버튼은 기존 기능은 그대로 두고 상단 하트 숫자만 +1 한다. */
   document.addEventListener('click',function(e){
