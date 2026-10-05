@@ -101,4 +101,8 @@
     }).observe(document.getElementById('screen')||document.documentElement,{childList:true,subtree:true});
   }catch(e){}
   window.addEventListener('resize',paint);
+  window.addEventListener('kt-attendance-heart-updated',function(){
+    setTimeout(paint,0);
+    setTimeout(paint,80);
+  });
 })();
