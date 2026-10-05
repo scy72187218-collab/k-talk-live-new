@@ -1,5 +1,5 @@
 {
-  "version": 204,
+  "version": 205,
   "locked": true,
   "scope": "full_snapshot_guard_everything",
   "lock_slot": 9,
@@ -85,7 +85,8 @@
     "group13_guest_final_tile_right_20261004",
     "group13_guest_chat_heart_removed_20261004",
     "all_five_room_gift_current_state_20261005",
-    "approved_guest_immediate_photo_then_live_video_20261005"
+    "approved_guest_immediate_photo_then_live_video_20261005",
+    "public_video_upload_auth_20261006"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -166,15 +167,12 @@
     "group13_guest_final_tile_right_20261004",
     "group13_guest_chat_heart_removed_20261004",
     "all_five_room_gift_current_state_20261005",
-    "approved_guest_immediate_photo_then_live_video_20261005"
-  ],
-  "current_editable_components": [
+    "approved_guest_immediate_photo_then_live_video_20261005",
     "public_video_upload_auth_20261006"
   ],
-  "temporarily_unlocked_components": [
-    "public_video_upload_auth_20261006"
-  ],
-  "note": "동영상 업로드 인증 부분만 수정 후 재잠금.",
+  "current_editable_components": [],
+  "temporarily_unlocked_components": [],
+  "note": "동영상 업로드 인증 수정 완료 후 재잠금.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -290,8 +288,8 @@
     ]
   },
   "last_unlock": "2026-10-06-video-upload-auth",
-  "last_lock": "2026-10-05-approved-guest-moving-video-fix-relocked-pin-7777",
-  "last_note": "사용자 승인: 동영상 업로드 403 인증 오류 해결을 위해 공개 동영상 업로드 인증 경로만 임시 수정. 다른 기능 변경 금지.",
+  "last_lock": "2026-10-06-video-upload-auth-relocked",
+  "last_note": "동영상 업로드 403 인증 오류 수정 완료: 공개 동영상 업로드 POST 요청만 현재 publishable key 방식으로 보정하고 Authorization legacy JWT는 제거. 다른 기능 변경 없음.",
   "unlock_pin_sha256": "41c991eb6a66242c0454191244278183ce58cf4a6bcd372f799e4b9cc01886af",
   "secret_room_lock_snapshot": {
     "host_file": "secret-room-password.js",
