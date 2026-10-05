@@ -40,11 +40,25 @@
     return false;
   }
 
+  function postingPass3000(){
+    try{return localStorage.getItem('kt_live_posting_pass_3000')==='1';}catch(e){return false;}
+  }
+
+  /* Payment/entitlement bridge: the real 3,000 won payment flow can call this after success. */
+  window.ktSetPostingPass3000=function(on){
+    try{localStorage.setItem('kt_live_posting_pass_3000',on?'1':'0');}catch(e){}
+    return !!on;
+  };
+
   function allowed(kind){
     if(subscriber())return true;
     var lv=level();
     if(kind==='bank'||kind==='phone')return lv>=30;
-    return lv>=20;
+    if(kind==='text'||kind==='gift'){
+      if(lv>=31)return true;
+      return lv>=1&&lv<=30&&postingPass3000();
+    }
+    return false;
   }
 
   function label(kind){
@@ -64,7 +78,14 @@
   }
 
   function denied(kind){
-    var need=(kind==='bank'||kind==='phone')?30:20;
+    if(kind==='text'||kind==='gift'){
+      var lv=level();
+      if(lv>=1&&lv<=30){
+        alert(label(kind)+' 올리기는 일반 회원 Lv.1~30은 3,000원 이용권이 필요합니다. 구독자는 이용권 없이 사용할 수 있습니다.');
+        return;
+      }
+    }
+    var need=30;
     alert(label(kind)+' 올리기는 레벨 '+need+'부터 사용할 수 있습니다. 구독자는 레벨 제한 없이 사용할 수 있습니다.');
   }
 
@@ -107,10 +128,17 @@
   window.ktLiveSettingPost20261005=function(kind){saveAndPost(String(kind||''));};
 
   function row(kind,need){
-    var ok=allowed(kind),v=read(kind);
+    var ok=allowed(kind),v=read(kind),lv=level(),status='';
+    if(subscriber())status='구독자 사용 가능';
+    else if(kind==='text'||kind==='gift'){
+      if(lv>=31)status='Lv.31+ 사용 가능';
+      else status=postingPass3000()?'3,000원 이용권 사용 중':'Lv.1~30 · 3,000원 이용권 필요';
+    }else{
+      status='Lv.'+need+(ok?' 사용 가능':'부터');
+    }
     return '<button type="button" class="kt-setting-row kt-posting-setting" onclick="ktLiveSettingPost20261005(\''+kind+'\')">'
       +'<span>'+icon(kind)+'</span><b>'+label(kind)+'</b>'
-      +'<em>'+maskPreview(kind,v)+' · '+(subscriber()?'구독자 사용 가능':'Lv.'+need+(ok?' 사용 가능':'부터'))+' ›</em></button>';
+      +'<em>'+maskPreview(kind,v)+' · '+status+' ›</em></button>';
   }
 
   function inject(){
@@ -128,7 +156,7 @@
       row('bank',30)+
       row('phone',30)+
       row('gift',20)+
-      '<div style="padding:7px 4px 2px;color:#aaa;font-size:9px;line-height:1.45">문구·선물 안내: Lv.20부터 · 계좌번호·전화번호: Lv.30부터 · 구독자: 모두 사용 가능</div>';
+      '<div style="padding:7px 4px 2px;color:#aaa;font-size:9px;line-height:1.45">일반 회원 Lv.1~30: 문구·선물 올리기 3,000원 이용권 필요 · Lv.31+: 이용권 없이 사용 · 계좌번호·전화번호: Lv.30부터 · 구독자: 모두 이용권 없이 사용 가능</div>';
     while(box.firstChild)root.appendChild(box.firstChild);
   }
 
