@@ -12,7 +12,7 @@
     if(!room)return null;
     try{
       if(document.documentElement.classList.contains('kt-remote-viewing'))return null;
-      if(document.querySelector('#screen .kt-remote-live'))return null;
+      if(room.closest&&room.closest('.kt-remote-live'))return null;
     }catch(e){}
     return room;
   }
@@ -29,10 +29,59 @@
     try{
       btn.classList.toggle('kt-media-off',!on);
       btn.classList.toggle('off',!on);
+      btn.setAttribute('aria-pressed',on?'true':'false');
       var sp=btn.querySelector('span');
+      var icon=btn.querySelector('i,b');
       if(sp){
         if(kind==='camera')sp.textContent=on?'카메라':'카메라 꺼짐';
         if(kind==='mic')sp.textContent=on?'마이크':'마이크 잠금';
+      }
+      if(icon){
+        if(kind==='camera')icon.textContent=on?'📷':'🚫';
+        if(kind==='mic')icon.textContent=on?'🎤':'🔇';
+      }
+    }catch(e){}
+  }
+
+  function hostVideo(room){
+    if(!room)return null;
+    try{
+      return room.querySelector(
+        '.ktsolo-main video,'+
+        '.ktg9-host video,'+
+        '.ktg13-host video,'+
+        '.ktsubscriber-host video,'+
+        '.ktsecret-slot.host video,'+
+        'video#ktLiveVideo'
+      );
+    }catch(e){return null;}
+  }
+
+  function paintCamera(room,on){
+    try{
+      var v=hostVideo(room);
+      if(!v)return;
+      if(on){
+        v.style.removeProperty('opacity');
+        v.style.removeProperty('visibility');
+        v.style.removeProperty('background');
+        var s=stream();
+        if(s&&v.srcObject!==s)v.srcObject=s;
+        var p=v.play&&v.play();if(p&&p.catch)p.catch(function(){});
+      }else{
+        v.style.setProperty('opacity','0','important');
+        v.style.setProperty('background','#08090c','important');
+      }
+      var host=v.closest('.ktsolo-main,.ktg9-host,.ktg13-host,.ktsubscriber-host,.ktsecret-slot.host');
+      if(host){
+        var mark=host.querySelector(':scope > .kt-host-camera-off-mark');
+        if(!on&&!mark){
+          mark=document.createElement('div');
+          mark.className='kt-host-camera-off-mark';
+          mark.textContent='📷 카메라 꺼짐';
+          mark.style.cssText='position:absolute;inset:0;display:grid;place-items:center;z-index:6;background:#08090c;color:#fff;font-weight:900;font-size:13px;pointer-events:none';
+          host.appendChild(mark);
+        }else if(on&&mark){mark.remove();}
       }
     }catch(e){}
   }
@@ -47,6 +96,7 @@
           s=stream();live=s&&s.getVideoTracks?s.getVideoTracks().filter(function(t){return t.readyState==='live';}):[];
           live.forEach(function(t){t.enabled=true;});
           setState(btn,'camera',live.length>0);
+          paintCamera(localHostRoom(btn),live.length>0);
           try{if(typeof window.ktCameraOffAvatarState20260928==='function')window.ktCameraOffAvatarState20260928(false);}catch(e){}
         }
       }catch(e){}
@@ -55,6 +105,7 @@
     var on=live.some(function(t){return t.enabled!==false;});
     live.forEach(function(t){t.enabled=!on;});
     setState(btn,'camera',!on);
+    paintCamera(localHostRoom(btn),!on);
     try{if(typeof window.ktCameraOffAvatarState20260928==='function')window.ktCameraOffAvatarState20260928(on);}catch(e){}
   }
 
@@ -93,9 +144,13 @@
         window.ktOpenHostTvMovie();
         return;
       }
+      if(typeof window.openHostMovieRoom==='function'){
+        window.openHostMovieRoom();
+        return;
+      }
       if(typeof window.showSheet==='function'){
         window.showSheet('🎬 영화 · TV · 화면공유',
-          '<div class="rowbox">영화 기능을 불러오는 중입니다. 잠시 후 다시 눌러 주세요.</div>');
+          '<div class="rowbox"><b>영화 기능 연결 확인 중</b><br>동영상 선택·화면공유 기능을 다시 불러와 주세요.</div>');
       }
     }catch(e){}
   }
