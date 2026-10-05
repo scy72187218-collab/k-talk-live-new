@@ -483,7 +483,7 @@
       c.signalMissingSince=0;
       if(x.offer_sdp&&x.offer_sdp!=='pending'){
         await c.pc.setRemoteDescription({type:'offer',sdp:x.offer_sdp});
-        var answer=await c.pc.createAnswer();await c.pc.setLocalDescription(answer);await waitIce(c.pc,1200);
+        var answer=await c.pc.createAnswer();await c.pc.setLocalDescription(answer);await waitIce(c.pc,800);
         await req('ktalk_webrtc_sessions?id=eq.'+enc(c.sessionId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({answer_sdp:c.pc.localDescription.sdp,updated_at:nowIso()})});
         c.answered=true;clearInterval(c.signalTimer);c.signalTimer=null;
       }
