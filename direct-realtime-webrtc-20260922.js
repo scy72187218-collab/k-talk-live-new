@@ -2914,12 +2914,26 @@
     if(isHostRole()&&joined)broadcastApprovedRoster20260928();
   },250);
 
+  /* Mobile browsers may fire pagehide during a short app switch/BFCache move.
+     Do not tear down the live room there; the browser will release resources on a real exit.
+     When the page comes back, reattach/reconnect in place instead of rebuilding the room. */
   window.addEventListener('pagehide',function(){
-    if(guestApprovedHost||lastRemoteHost)announceGuestLeave(guestApprovedHost||lastRemoteHost);
-    clearViewerConnectTimer();
-    closeSocket();closePc(viewerPc);closePc(guestPc);
-    Object.keys(hostViewPeers).forEach(function(k){closePc(hostViewPeers[k].pc);});
-    Object.keys(hostGuestPeers).forEach(function(k){closePc(hostGuestPeers[k].pc);});
+    try{window.__ktTransientPageHideAt20261006=Date.now();}catch(e){}
+  });
+  window.addEventListener('pageshow',function(){
+    try{
+      guestAliveLastSent=0;
+      roleTick();
+      var hid=remoteHostId()||activeHostId||lastRemoteHost||'';
+      if(hid){
+        if(activeHostId!==hid||!ws||ws.readyState>1)connect(hid);
+        setTimeout(function(){ensureViewerWatch(true);attachRemoteStreamNow();},0);
+        setTimeout(function(){ensureViewerWatch(true);attachRemoteStreamNow();},80);
+        setTimeout(function(){ensureViewerWatch(true);attachRemoteStreamNow();},220);
+      }else{
+        setTimeout(function(){attachRemoteStreamNow();},0);
+      }
+    }catch(e){}
   });
 })();
 /* 2026-10-05 approval-center-last-wins 1150617 */
