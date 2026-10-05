@@ -1183,9 +1183,8 @@
   }
   function requestMount(){
     return document.querySelector(
-      '#screen .ktg9-room .ktg9-main,'+
-      '#screen .ktg9-room .ktg9-host,'+
-      '#screen .ktg13-room[data-kt-room="9"] .ktg13-main,'+
+      '#screen .ktg9-room,'+
+      '#screen .ktg13-room[data-kt-room="9"],'+
       '#screen .ktg13-room .ktg13-main,'+
       '#screen .ktsolo-room .ktsolo-main,'+
       '#screen .ktsubscriber-room .ktsubscriber-people,'+
@@ -2839,7 +2838,9 @@
       var tickNow=Date.now();
       if(requestOn&&tickNow-lastGuestRequestAt>1500){
         lastGuestRequestAt=tickNow;
-        send('guest_request',{host_id:hid,viewer_id:viewerId(),name:profileName(),at:tickNow});
+        var repeatReq={host_id:hid,viewer_id:viewerId(),name:profileName(),at:tickNow};
+        sendCriticalMedia20260926('guest_request',repeatReq,hid);
+        try{sharedApprovalPost(hid,'guest_request',repeatReq.viewer_id,repeatReq.name);}catch(e){}
       }
       if(guestApproved&&guestApprovedHost===hid){
         if(!document.hidden&&tickNow-guestAliveLastSent>4000){
