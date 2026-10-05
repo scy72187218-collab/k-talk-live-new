@@ -49,6 +49,9 @@
   function bankPass5000(){
     try{return localStorage.getItem('kt_live_bank_pass_5000')==='1';}catch(e){return false;}
   }
+  function allPass10000(){
+    try{return localStorage.getItem('kt_live_all_pass_10000')==='1';}catch(e){return false;}
+  }
 
   /* Payment/entitlement bridges. Each pass is kept separate. */
   window.ktSetPostingPass3000=function(on){
@@ -63,11 +66,16 @@
     try{localStorage.setItem('kt_live_bank_pass_5000',on?'1':'0');}catch(e){}
     return !!on;
   };
+  window.ktSetAllPass10000=function(on){
+    try{localStorage.setItem('kt_live_all_pass_10000',on?'1':'0');}catch(e){}
+    return !!on;
+  };
 
   function allowed(kind){
     if(subscriber())return true;
     var lv=level();
     if(lv>=31)return true;
+    if(lv>=1&&lv<=30&&allPass10000())return true;
     if(kind==='text'||kind==='gift'){
       return lv>=1&&lv<=30&&postingPass3000();
     }
@@ -99,6 +107,9 @@
   function denied(kind){
     var lv=level();
     if(lv>=1&&lv<=30){
+      if(allPass10000()){
+        return;
+      }
       if(kind==='text'||kind==='gift'){
         alert(label(kind)+' 올리기는 일반 회원 Lv.1~30은 3,000원 이용권이 필요합니다. 구독자는 이용권 없이 사용할 수 있습니다.');
         return;
@@ -156,6 +167,7 @@
   function row(kind,need){
     var ok=allowed(kind),v=read(kind),lv=level(),status='';
     if(subscriber())status='구독자 사용 가능';
+    else if(lv>=1&&lv<=30&&allPass10000())status='1만원 전체 이용권 사용 중';
     else if(kind==='text'||kind==='gift'){
       if(lv>=31)status='Lv.31+ 사용 가능';
       else status=postingPass3000()?'3,000원 이용권 사용 중':'Lv.1~30 · 3,000원 이용권 필요';
@@ -188,7 +200,7 @@
       row('bank',30)+
       row('phone',30)+
       row('gift',20)+
-      '<div style="padding:7px 4px 2px;color:#aaa;font-size:9px;line-height:1.45">일반 회원 Lv.1~30: 문구·선물 3,000원 이용권 · 전화번호 5,000원 전용 이용권 · 계좌번호 5,000원 전용 이용권 · 각 이용권은 서로 별도 · Lv.31+: 이용권 없이 사용 · 구독자: 모두 이용권 없이 사용 가능</div>';
+      '<div style="padding:7px 4px 2px;color:#aaa;font-size:9px;line-height:1.45">일반 회원 Lv.1~30: 문구·선물 3,000원 이용권 · 전화번호 5,000원 전용 · 계좌번호 5,000원 전용 · 1만원 전체 이용권이면 문구·선물·전화번호·계좌번호 모두 사용 · Lv.31+: 이용권 없이 사용 · 구독자: 모두 이용권 없이 사용 가능</div>';
     while(box.firstChild)root.appendChild(box.firstChild);
   }
 
