@@ -1183,6 +1183,9 @@
   }
   function requestMount(){
     return document.querySelector(
+      '#screen .ktg9-room .ktg9-main,'+
+      '#screen .ktg9-room .ktg9-host,'+
+      '#screen .ktg13-room[data-kt-room="9"] .ktg13-main,'+
       '#screen .ktg13-room .ktg13-main,'+
       '#screen .ktsolo-room .ktsolo-main,'+
       '#screen .ktsubscriber-room .ktsubscriber-people,'+
@@ -1247,6 +1250,8 @@
     var slot=null,matches=[];
     try{
       matches=[].slice.call(document.querySelectorAll(
+        '.ktg9-guest[data-kt-direct-guest="'+CSS.escape(vid)+'"],'+
+        '.ktg9-guest[data-kt-guest-viewer-id="'+CSS.escape(vid)+'"],'+
         '.ktg13-guest[data-kt-direct-guest="'+CSS.escape(vid)+'"],'+
         '.ktg13-guest[data-kt-guest-viewer-id="'+CSS.escape(vid)+'"]'
       ));
@@ -1257,7 +1262,9 @@
       }
     }catch(e){}
     if(!slot){
-      var all=[].slice.call(document.querySelectorAll('#screen .ktg13-room .ktg13-guest'));
+      var all=[].slice.call(document.querySelectorAll(
+        '#screen .ktg9-room .ktg9-guest,#screen .ktg13-room .ktg13-guest'
+      ));
       for(var i=0;i<all.length;i++){
         if(!all[i].dataset.ktDirectGuest&&!all[i].dataset.ktGuestViewerId){slot=all[i];break;}
       }
