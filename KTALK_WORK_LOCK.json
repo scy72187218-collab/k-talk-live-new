@@ -1,5 +1,5 @@
 {
-  "version": 234,
+  "version": 235,
   "locked": true,
   "scope": "full_snapshot_guard_everything",
   "lock_slot": 9,
@@ -85,7 +85,9 @@
     "public_video_feed_dynamic_20261006",
     "followed_guest_large_photo_30likes_10min_max5roses",
     "all_five_room_gift_current_state_20261005",
-    "person_photo_inline_gifts"
+    "person_photo_inline_gifts",
+    "all_live_signal_and_entry_current_state_20261002",
+    "approved_guest_immediate_photo_then_live_video_20261005"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -166,16 +168,12 @@
     "public_video_feed_dynamic_20261006",
     "followed_guest_large_photo_30likes_10min_max5roses",
     "all_five_room_gift_current_state_20261005",
-    "person_photo_inline_gifts"
-  ],
-  "current_editable_components": [
+    "person_photo_inline_gifts",
     "all_live_signal_and_entry_current_state_20261002",
     "approved_guest_immediate_photo_then_live_video_20261005"
   ],
-  "temporarily_unlocked_components": [
-    "all_live_signal_and_entry_current_state_20261002",
-    "approved_guest_immediate_photo_then_live_video_20261005"
-  ],
+  "current_editable_components": [],
+  "temporarily_unlocked_components": [],
   "note": "approved guest flow protected after restore",
   "lock_slots": {
     "1": [
@@ -292,8 +290,8 @@
     ]
   },
   "last_unlock": "2026-10-06-restore-yesterday-good-entry-7777",
-  "last_lock": "2026-10-06-all-five-room-connection-stay-relocked",
-  "last_note": "사용자 7777 승인: 어제 잠가 놓으라고 했을 때 잘 열리던 접속/통신 상태로만 복귀. direct realtime, LiveKit, 9명방 LIVE 입장, 공통 첫 프레임 보강 파일만 복구/제거. 선물/채팅/수익률/UI는 변경 금지.",
+  "last_lock": "2026-10-06-yesterday-good-entry-restored-relocked",
+  "last_note": "사용자 요청대로 어제 잘 열리던 접속/통신 상태로 direct realtime, LiveKit, 9명방 LIVE 입장 스크립트를 복구하고 이후 추가한 공통 첫 프레임 파일은 제거. 선물/채팅/수익률/UI는 유지 후 재잠금.",
   "unlock_pin_sha256": "41c991eb6a66242c0454191244278183ce58cf4a6bcd372f799e4b9cc01886af",
   "secret_room_lock_snapshot": {
     "host_file": "secret-room-password.js",
