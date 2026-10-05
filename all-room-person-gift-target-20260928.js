@@ -10,9 +10,15 @@
     var d='';try{d=localStorage.getItem('kt_live_device_id')||'';}catch(e){}
     return d?'viewer_'+d:'';
   }
+  function isRemoteViewer(){
+    try{
+      return document.documentElement.classList.contains('kt-remote-viewing')||
+        !!document.querySelector('#screen .kt-remote-live,#screen .kt-guest-hostlike-room,#screen .kt-approved-guest-grid,#screen .kt-guest-room-grid');
+    }catch(e){return false;}
+  }
   function isLocalHostRoom(){
-    return !!document.querySelector('#screen .ktsolo-room,#screen .ktg13-room,#screen .ktg9-room,#screen .ktsubscriber-room,#screen .ktsecret-room') &&
-      !document.documentElement.classList.contains('kt-remote-viewing');
+    if(isRemoteViewer())return false;
+    return !!document.querySelector('#screen .ktsolo-room,#screen .ktg13-room,#screen .ktg9-room,#screen .ktsubscriber-room,#screen .ktsecret-room');
   }
   function tileOf(el){
     return el&&el.closest?el.closest(
@@ -70,6 +76,7 @@
       if(typeof window.showSmallGiftFx==='function')
         window.showSmallGiftFx('🎁 선물 대상: '+nameOf(tile),'','K-Talk');
     }catch(e){}
+    return true;
   }
 
   function style(){
@@ -81,15 +88,32 @@
     document.head.appendChild(s);
   }
 
+  var openTimer=0,lastOpenAt=0;
+  function openGiftFor(tile){
+    if(!choose(tile))return;
+    var now=Date.now();
+    if(now-lastOpenAt<450)return;
+    lastOpenAt=now;
+    clearTimeout(openTimer);
+    openTimer=setTimeout(function(){
+      try{if(typeof window.openGifts==='function')window.openGifts();}catch(e){}
+    },30);
+  }
+
   function onDown(e){
     var tile=tileOf(e.target);if(!tile)return;
-    // only when actual person media/photo area is touched
-    var media=e.target.closest&&e.target.closest('video,img,.kt-allguest-profile,.kt-five-host-profile,.kgh-cell,.kt-approved-guest-cell,.kt-guest-room-cell');
+    // 사람의 실제 사진/영상 영역만 선물 대상으로 사용
+    var media=e.target.closest&&e.target.closest('video,img,.kt-allhost-photo,.kt-allhost-fallback,.kt-guest-profile-photo,.kt-guest-profile-fallback,.kt-hg-photo,.kt-hg-fallback,.kt-allguest-profile,.kt-five-host-profile,.kgh-cell,.kt-approved-guest-cell,.kt-guest-room-cell');
     if(!media)return;
-    choose(tile);
+    try{
+      if(e.cancelable)e.preventDefault();
+      e.stopPropagation();
+      if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+    }catch(_e){}
+    openGiftFor(tile);
   }
 
   style();
   document.addEventListener('pointerdown',onDown,true);
-  document.addEventListener('touchstart',onDown,{capture:true,passive:true});
+  document.addEventListener('touchstart',onDown,{capture:true,passive:false});
 })();
