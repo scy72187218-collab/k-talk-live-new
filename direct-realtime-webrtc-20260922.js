@@ -2355,7 +2355,7 @@
     setTimeout(function(){
       if(!guestApproved||guestApprovedHost!==hid||guestMediaReadyAt)return;
       forceFreshApprovedGuestOffer20260926(hid);
-    },650);
+    },450);
 
     /* Visible fallback requested by owner: place only the approved guest's own
        camera face into the host guest slot while live transport is connecting. */
@@ -2944,3 +2944,9 @@
     Object.keys(hostGuestPeers).forEach(function(k){closePc(hostGuestPeers[k].pc);});
   });
 })();
+/* 2026-10-05 approval-center-last-wins 1150617 */
+(function(){try{
+  var s=document.createElement('style');s.id='ktApprovalCenterLastWins20261005';
+  s.textContent='#ktDirectGuestRequestRail{position:fixed!important;left:50%!important;right:auto!important;top:50%!important;bottom:auto!important;transform:translate(-50%,-50%)!important;max-width:88vw!important;z-index:2147483640!important}';
+  document.head.appendChild(s);
+}catch(e){}})();
