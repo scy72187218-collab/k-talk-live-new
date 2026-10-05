@@ -630,7 +630,7 @@
       viewerCtx.signalTimer=setInterval(remotePollSignal,300);remotePollSignal();
       /* 입장 직후 첫 얼굴만 빠르게 붙인다.
          장시간 폴링 속도는 300ms 그대로 유지해 흰 오류/과부하를 만들지 않는다. */
-      [70,140,240,380,620,900].forEach(function(ms){
+      [30,80,150,240,380,600].forEach(function(ms){
         setTimeout(function(){
           try{if(viewerCtx&&viewerCtx.pc===pc&&!viewerCtx.answered)remotePollSignal();}catch(e){}
         },ms);
