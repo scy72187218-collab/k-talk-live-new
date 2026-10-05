@@ -47,5 +47,20 @@
   }
 
   clean();
-  [80,250,700,1500,3000].forEach(function(ms){setTimeout(clean,ms);});
+  [80,250,700,1500].forEach(function(ms){setTimeout(clean,ms);});
+
+  /* 뒤늦게 다시 생기는 구형 줄만 감지해서 즉시 제거.
+     주기적인 전체 화면 검색은 하지 않는다. */
+  try{
+    var root=document.getElementById('screen');
+    if(root){
+      new MutationObserver(function(list){
+        var need=false;
+        for(var i=0;i<list.length&&!need;i++){
+          if(list[i].addedNodes&&list[i].addedNodes.length)need=true;
+        }
+        if(need)clean();
+      }).observe(root,{childList:true,subtree:true});
+    }
+  }catch(e){}
 })();
