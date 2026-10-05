@@ -1,5 +1,5 @@
 {
-  "version": 198,
+  "version": 199,
   "locked": true,
   "scope": "full_snapshot_guard_everything",
   "lock_slot": 9,
@@ -170,7 +170,7 @@
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "1150617 승인 작업 완료: 승인된 게스트 다중 연결 속도 경로 재잠금.",
+  "note": "7777 잠금: 승인된 게스트 즉시 표시 + 최대 15명 다중 연결 속도 경로 보호.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -280,11 +280,14 @@
       "group13_guest_current_state_20261004",
       "group13_guest_final_tile_right_20261004",
       "group13_guest_chat_heart_removed_20261004"
+    ],
+    "7777_multiguest_20261005": [
+      "approved_guest_immediate_photo_then_live_video_20261005"
     ]
   },
   "last_unlock": "2026-10-05-approved-guest-multi-join-speed-pin-1150617",
-  "last_lock": "2026-10-05-approved-guest-multi-join-speed-relocked",
-  "last_note": "여러 게스트 연속 승인 시 TURN 갱신을 공유해 승인된 게스트 RTC 연결을 병렬 처리하도록 수정 후 재잠금. 최대 15명 연속 승인 속도 경로 보호. 다른 기능 변경 금지.",
+  "last_lock": "2026-10-05-approved-guest-multi-join-pin-7777",
+  "last_note": "사용자 7777 승인: 게스트 승인 즉시 표시 및 최대 15명 연속 승인 연결 속도 경로를 7777로 잠금. 다른 잠금/기능은 변경 금지.",
   "unlock_pin_sha256": "41c991eb6a66242c0454191244278183ce58cf4a6bcd372f799e4b9cc01886af",
   "secret_room_lock_snapshot": {
     "host_file": "secret-room-password.js",
@@ -301,5 +304,12 @@
     "index_sha": "4638afa0bde863e47bd0246e8dd4aa5e0269ade8",
     "locked_at": "2026-10-04",
     "pin_hint": "7777"
+  },
+  "approved_guest_multi_join_lock_snapshot_20261005": {
+    "component": "approved_guest_immediate_photo_then_live_video_20261005",
+    "file": "direct-realtime-webrtc-20260922.js",
+    "locked_at": "2026-10-05",
+    "pin_hint": "7777",
+    "scope": "guest approval immediate display and rapid multi-join up to 15 only"
   }
 }
