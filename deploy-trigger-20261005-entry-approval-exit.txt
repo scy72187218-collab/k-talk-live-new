@@ -1,0 +1,1 @@
+K-Talk entry / approval / exit communication fixes only. 1150617. Trigger production deploy for current main head.
