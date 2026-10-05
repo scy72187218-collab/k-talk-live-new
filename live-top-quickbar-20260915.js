@@ -31,7 +31,7 @@
     bar.setAttribute('data-kt-top-quickbar','1');
     bar.innerHTML=''
       +'<button type="button" aria-label="되돌리기"><b>↻</b><span>되돌리기</span></button>'
-      +'<button type="button" aria-label="패키지 상자"><b>📦</b><span>패키지 상자</span></button>'
+      +'<button type="button" aria-label="보물상자"><b>🎁</b><span>보물상자</span></button>'
       +'<button type="button" aria-label="매치"><b>⚔</b><span>매치</span></button>';
     return bar;
   }
@@ -87,14 +87,6 @@
   function installRoom(room){
     if(!room||!room.isConnected)return;
     fixBottomGiftRow(room);
-    /* 9명방은 원래 상단 버튼줄을 사용한다.
-       뒤늦게 생기는 되돌리기/패키지 상자/매치 생성줄은 만들지 않는다. */
-    if(room.classList.contains('ktg13-room')&&String(room.getAttribute('data-kt-room')||'')==='9'){
-      var dup=room.querySelector(':scope > .kt-live-top-quickbar');
-      if(dup)dup.remove();
-      return;
-    }
-    if(room.classList.contains('ktg13-room')&&String(room.getAttribute('data-kt-room')||'')==='15')return;
     var anchor=anchorFor(room);
     if(!anchor||!anchor.parentNode)return;
     var bar=room.querySelector(':scope > .kt-live-top-quickbar');
