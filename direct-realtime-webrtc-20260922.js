@@ -1346,31 +1346,9 @@
   }
   function paintHostGuestPhoto20260926(vid,name,frame){
     try{
-      /* 13명 호스트방에서는 임시 캡처/이전 사진을 게스트칸에 절대 붙이지 않는다.
-         실제 원격 게스트 영상이 들어왔을 때만 표시한다. 다른 방 동작은 유지. */
-      var local13=false;
-      try{
-        var st=window.state||{};
-        local13=!document.documentElement.classList.contains('kt-remote-viewing')&&(
-          String(st.liveRoomType||'')==='group13'||
-          (String(st.liveRoomType||'')==='group'&&Number(st.liveRoomMax||0)===13)||
-          String(st.liveRoomName||'')==='13명 방송'||
-          !!document.querySelector('#screen .ktg13-room[data-kt-approved13="1"],#screen .ktg13-room[data-kt-room="13"]')
-        );
-      }catch(_e){}
-      if(local13){
-        vid=String(vid||'').trim();
-        var cleanSlot=vid?guestSlot(vid,String(name||'게스트')):null;
-        var cleanV=cleanSlot&&cleanSlot.querySelector('video');
-        if(cleanV){
-          cleanV.removeAttribute('poster');
-          cleanV.style.removeProperty('background-image');
-          cleanV.style.removeProperty('background-size');
-          cleanV.style.removeProperty('background-position');
-        }
-        return false;
-      }
-
+      /* 승인 직후 실제 원격 영상 첫 프레임이 오기 전까지만
+         방 종류와 상관없이 방금 신청한 게스트의 최신 카메라 캡처를 같은 게스트 칸에 표시한다.
+         실제 영상이 재생되면 attachGuestToHost()가 자동으로 이 임시 사진을 지운다. */
       vid=String(vid||'').trim();frame=String(frame||'');
       if(!vid||!/^data:image\/jpeg;base64,/.test(frame)||frame.length>=32000)return false;
       var slot=guestSlot(vid,String(name||'게스트'));if(!slot)return false;
@@ -2356,9 +2334,12 @@
 
     /* Visible fallback requested by owner: place only the approved guest's own
        camera face into the host guest slot while live transport is connecting. */
-    [0,10,25,50,90].forEach(function(ms){
+    [0,20,60,150,300,600].forEach(function(ms){
       setTimeout(function(){
-        if(guestApproved&&guestApprovedHost===hid)try{sendApprovedGuestPhoto20260926(hid);}catch(e){}
+        if(guestApproved&&guestApprovedHost===hid){
+          try{cacheTrustedGuestPhoto20260926();}catch(e){}
+          try{sendApprovedGuestPhoto20260926(hid);}catch(e){}
+        }
       },ms);
     });
 
