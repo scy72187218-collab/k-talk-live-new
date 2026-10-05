@@ -1,5 +1,5 @@
 {
-  "version": 213,
+  "version": 214,
   "locked": true,
   "scope": "full_snapshot_guard_everything",
   "lock_slot": 9,
@@ -36,7 +36,6 @@
     "room_access_levels_1_20_solo9_21_40_13secret_41_subscriber_mutual_follow",
     "secret_room_mutual_follow_current_session_invite_only",
     "host_like_reward_5000_steps_max5_roses_25000",
-    "followed_guest_large_photo_30likes_10min_max5roses",
     "complete_usage_benefits_guide_current_rules_20260928",
     "daily_fortune_ladder_6_free_once_per_day",
     "daily_fortune_ladder_selected_number_animated_positive_fortunes",
@@ -85,9 +84,7 @@
     "group13_guest_chat_heart_removed_20261004",
     "approved_guest_immediate_photo_then_live_video_20261005",
     "public_video_upload_auth_20261006",
-    "public_video_feed_dynamic_20261006",
-    "all_five_room_gift_current_state_20261005",
-    "person_photo_inline_gifts"
+    "public_video_feed_dynamic_20261006"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -119,7 +116,6 @@
     "room_access_levels_1_20_solo9_21_40_13secret_41_subscriber_mutual_follow",
     "secret_room_mutual_follow_current_session_invite_only",
     "host_like_reward_5000_steps_max5_roses_25000",
-    "followed_guest_large_photo_30likes_10min_max5roses",
     "complete_usage_benefits_guide_current_rules_20260928",
     "daily_fortune_ladder_6_free_once_per_day",
     "daily_fortune_ladder_selected_number_animated_positive_fortunes",
@@ -168,13 +164,19 @@
     "group13_guest_chat_heart_removed_20261004",
     "approved_guest_immediate_photo_then_live_video_20261005",
     "public_video_upload_auth_20261006",
-    "public_video_feed_dynamic_20261006",
-    "all_five_room_gift_current_state_20261005",
-    "person_photo_inline_gifts"
+    "public_video_feed_dynamic_20261006"
   ],
-  "current_editable_components": [],
-  "temporarily_unlocked_components": [],
-  "note": "1150617 잠금: 호스트 얼굴/영상→프로필→선물 연결 상태 보호.",
+  "current_editable_components": [
+    "person_photo_inline_gifts",
+    "followed_guest_large_photo_30likes_10min_max5roses",
+    "all_five_room_gift_current_state_20261005"
+  ],
+  "temporarily_unlocked_components": [
+    "person_photo_inline_gifts",
+    "followed_guest_large_photo_30likes_10min_max5roses",
+    "all_five_room_gift_current_state_20261005"
+  ],
+  "note": "1150617 승인: 호스트/게스트 사진 크게 보기 제거 + 선물 대상 선택 유지 후 재잠금.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -289,9 +291,9 @@
       "approved_guest_immediate_photo_then_live_video_20261005"
     ]
   },
-  "last_unlock": "2026-10-06-host-video-profile-gift-pin-1150617",
+  "last_unlock": "2026-10-06-no-photo-enlarge-gift-target-pin-1150617",
   "last_lock": "2026-10-06-host-video-profile-gift-relocked-pin-1150617",
-  "last_note": "사용자 1150617 승인 작업 완료: 원격 게스트가 호스트 얼굴/영상 칸을 눌러도 기존 호스트 프로필 카드가 열리고, 그 안 선물상자 버튼에서 해당 호스트를 대상으로 기존 선물 목록을 선택할 수 있도록 터치 연결만 수정 후 재잠금. 다른 기능 변경 없음.",
+  "last_note": "사용자 1150617 승인: 호스트/게스트 모두 사진 크게 보기와 방송 중 프로필 팝업을 열지 않고, 사람 사진/영상 터치는 선물 대상 선택만 유지. 다른 기능 변경 금지.",
   "unlock_pin_sha256": "41c991eb6a66242c0454191244278183ce58cf4a6bcd372f799e4b9cc01886af",
   "secret_room_lock_snapshot": {
     "host_file": "secret-room-password.js",
