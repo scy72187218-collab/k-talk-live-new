@@ -1116,7 +1116,7 @@
 
       /* 기존 영상이 살아 있으면 새 연결 확인 동안 화면을 유지한다.
          기존 영상이 없는 최초 연결은 빠르게 재시도한다. */
-      if(!previousUsable)retryViewerSoon(300);
+      if(!previousUsable)retryViewerSoon(220);
       else setTimeout(function(){
         if(viewerPc===pc&&!pc.__ktGotRemoteTrack20260923&&pc.connectionState!=='connected'){
           try{closePc(pc);}catch(e){}
@@ -1170,7 +1170,7 @@
     if(!viewerWatchToken)viewerWatchToken=sid('watch');
     var now=Date.now();
     if(!force&&viewerConnected)return;
-    if(!force&&now-lastWatchAt<120)return;
+    if(!force&&now-lastWatchAt<90)return;
     lastWatchAt=now;
     sendCriticalMedia20260926('video_watch',{host_id:hid,viewer_id:viewerId(),watch_token:viewerWatchToken,at:now},hid);
   }
@@ -2891,7 +2891,7 @@
       }catch(_e){}
 
       attachRemoteStreamNow();
-      [20,60,120,220].forEach(function(ms){
+      [0,30,80,150].forEach(function(ms){
         setTimeout(function(){ensureViewerWatch(true);attachRemoteStreamNow();},ms);
       });
       return true;
