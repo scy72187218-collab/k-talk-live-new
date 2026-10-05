@@ -447,23 +447,38 @@
       var rows=await req('ktalk_live_rooms?select=id,host_id,active,updated_at&host_id=eq.'+enc(c.hostId)+'&active=eq.true&order=started_at.desc&limit=1');
       var room=rows&&rows[0];
       if(!room||Date.now()-new Date(room.updated_at).getTime()>STALE_MS){
-        if(!c.roomMissingSince)c.roomMissingSince=Date.now();
-        if(Date.now()-c.roomMissingSince>8000){
-          if(viewerCtx===c){
-            var old=viewerCtx;
-            viewerCtx=null;
-            try{clearInterval(old.signalTimer);clearInterval(old.heartbeat);clearInterval(old.activityTimer);}catch(e){}
-            try{if(old.pc)old.pc.close();}catch(e){}
-            window.__ktRemoteHostStream=null;
-            window.__ktRemoteHostId='';
-            window.__ktCurrentRemoteHostId='';
-            try{sessionStorage.removeItem('kt_remote_host_id');}catch(e){}
-            try{document.documentElement.classList.remove('kt-remote-viewing');}catch(e){}
-            try{
-              if(typeof window.showVideoHome==='function')window.showVideoHome('추천 동영상');
-              else if(typeof window.home==='function')window.home();
-            }catch(e){}
+        /* A brief LIVE-row/heartbeat miss must never eject a viewer while the
+           actual room/video transport is still alive. Real broadcast-end is
+           handled by the explicit end-sync path. */
+        var transportAlive=false;
+        try{
+          var rs=window.__ktRemoteHostStream||null;
+          transportAlive=!!(rs&&rs.getVideoTracks&&rs.getVideoTracks().some(function(t){
+            return t&&t.readyState==='live';
+          }));
+        }catch(e){}
+        try{
+          if(!transportAlive&&c.pc){
+            var pcs=String(c.pc.connectionState||'');
+            var ics=String(c.pc.iceConnectionState||'');
+            transportAlive=(pcs==='connected'||ics==='connected'||ics==='completed');
           }
+        }catch(e){}
+
+        if(transportAlive){
+          c.roomMissingSince=0;
+          return;
+        }
+
+        if(!c.roomMissingSince)c.roomMissingSince=Date.now();
+        if(Date.now()-c.roomMissingSince>8000&&viewerCtx===c&&!c.roomReconnectBusy20261005){
+          c.roomReconnectBusy20261005=true;
+          c.roomMissingSince=Date.now();
+          /* Rebuild transport silently inside the same room. Do not navigate
+             to feed/home because of a temporary server heartbeat miss. */
+          Promise.resolve(ktReconnectRemoteViewer20260921(c)).catch(function(){}).finally(function(){
+            setTimeout(function(){try{c.roomReconnectBusy20261005=false;}catch(e){}},1800);
+          });
         }
         return;
       }
