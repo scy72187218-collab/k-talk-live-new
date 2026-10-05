@@ -1,5 +1,5 @@
 {
-  "version": 207,
+  "version": 208,
   "locked": true,
   "scope": "full_snapshot_guard_everything",
   "lock_slot": 9,
@@ -84,7 +84,6 @@
     "group13_guest_current_state_20261004",
     "group13_guest_final_tile_right_20261004",
     "group13_guest_chat_heart_removed_20261004",
-    "all_five_room_gift_current_state_20261005",
     "approved_guest_immediate_photo_then_live_video_20261005",
     "public_video_upload_auth_20261006",
     "public_video_feed_dynamic_20261006"
@@ -167,14 +166,17 @@
     "group13_guest_current_state_20261004",
     "group13_guest_final_tile_right_20261004",
     "group13_guest_chat_heart_removed_20261004",
-    "all_five_room_gift_current_state_20261005",
     "approved_guest_immediate_photo_then_live_video_20261005",
     "public_video_upload_auth_20261006",
     "public_video_feed_dynamic_20261006"
   ],
-  "current_editable_components": [],
-  "temporarily_unlocked_components": [],
-  "note": "공개 동영상 목록 동적 연결 완료 후 재잠금.",
+  "current_editable_components": [
+    "all_five_room_gift_current_state_20261005"
+  ],
+  "temporarily_unlocked_components": [
+    "all_five_room_gift_current_state_20261005"
+  ],
+  "note": "1150617 승인: 선물 대상 표시와 선물 목록 스크롤만 수정 후 재잠금.",
   "lock_slots": {
     "1": [
       "group9_bottom_controls_8"
@@ -289,9 +291,9 @@
       "approved_guest_immediate_photo_then_live_video_20261005"
     ]
   },
-  "last_unlock": "2026-10-06-public-video-feed-dynamic",
+  "last_unlock": "2026-10-06-gift-recipient-scroll-pin-1150617",
   "last_lock": "2026-10-06-public-video-feed-dynamic-relocked",
-  "last_note": "방금 업로드된 동영상이 /api/video-feed에 즉시 포함되도록 동적 조회 연결 완료. 최신 업로드 영상 26852.mp4가 API 응답에 확인됨. 다른 기능 변경 없음.",
+  "last_note": "사용자 1150617 승인: 사진으로 선택한 사람을 선물 받을 사람으로 유지하고, 선물창 상단에 그 사람 얼굴/이름 표시 + 선물 목록 위로 스크롤 선택 기능만 수정. 방송방/게스트 승인/채팅/수익률/다른 버튼 변경 금지.",
   "unlock_pin_sha256": "41c991eb6a66242c0454191244278183ce58cf4a6bcd372f799e4b9cc01886af",
   "secret_room_lock_snapshot": {
     "host_file": "secret-room-password.js",
