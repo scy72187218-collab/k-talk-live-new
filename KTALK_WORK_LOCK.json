@@ -1,5 +1,5 @@
 {
-  "version": 268,
+  "version": 269,
   "locked": true,
   "scope": "full_snapshot_guard_everything",
   "lock_slot": 9,
@@ -90,7 +90,8 @@
     "group9_room_no_old_flash_saved_20261003",
     "canonical_three_buttons_all_rooms_20261006",
     "pwa_install_icon_prompt_progress_and_hide_20261006",
-    "creator_inapp_free_sound_12_no_external_20261006"
+    "creator_inapp_free_sound_12_no_external_20261006",
+    "sound_direct_playback_20261006"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -176,7 +177,8 @@
     "group9_room_no_old_flash_saved_20261003",
     "canonical_three_buttons_all_rooms_20261006",
     "pwa_install_icon_prompt_progress_and_hide_20261006",
-    "creator_inapp_free_sound_12_no_external_20261006"
+    "creator_inapp_free_sound_12_no_external_20261006",
+    "sound_direct_playback_20261006"
   ],
   "current_editable_components": [
     "communication_guest_approval_realtime_only",
@@ -288,7 +290,8 @@
     ],
     "1515": [
       "creator_inapp_free_sound_12_no_external_20261006",
-      "live_audio_music_voice_quality_48khz_stereo_no_agc_20260928"
+      "live_audio_music_voice_quality_48khz_stereo_no_agc_20260928",
+      "sound_direct_playback_20261006"
     ],
     "2222": [
       "group9_bottom_controls_8",
@@ -341,8 +344,8 @@
     ]
   },
   "last_unlock": "2026-10-06-1111-visible-solo-right-controls",
-  "last_lock": "2026-10-06-1111-visible-solo-controls-relocked",
-  "last_note": "사운드 추가에서 외부 Bugs 등으로 넘어가지 않고 K-Talk 안에서 바로 재생되는 자유 이용 사운드 12곡으로 교체 후 1515로 잠금.",
+  "last_lock": "2026-10-06-sound-direct-playback-relocked",
+  "last_note": "사운드 직접 재생 수정만 반영 후 다시 잠금. 다른 기능 변경 없음.",
   "unlock_pin_sha256": "41c991eb6a66242c0454191244278183ce58cf4a6bcd372f799e4b9cc01886af",
   "secret_room_lock_snapshot": {
     "host_file": "secret-room-password.js",
