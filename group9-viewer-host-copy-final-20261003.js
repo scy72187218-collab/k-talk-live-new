@@ -91,9 +91,10 @@
       var hs0=window.__ktRemoteHostStream||null;
       if(remoteVideo&&hs0&&remoteVideo.srcObject!==hs0)remoteVideo.srcObject=hs0;
     }catch(_e){}
-    removeLegacyTopNineGrids20261003(root,remoteVideo);
-
     var room=root.querySelector('.ktg13-room[data-kt-viewer-host-copy="1"]');
+    /* Once the current viewer room is visible, freeze that shell.
+       Do not tear down/rebuild legacy shells on later sync ticks. */
+    if(!room)removeLegacyTopNineGrids20261003(root,remoteVideo);
 
     /* 이미 정상 9명방이 떠 있으면 DOM 구조는 절대 다시 만들거나 지우지 않는다.
        영상 노드 위치와 재생 상태만 유지해서 화면이 내려갔다 올라오는 재배치를 막는다. */
@@ -181,5 +182,11 @@
     window.addEventListener(n,function(){build();syncSelf();setTimeout(syncSelf,80);});
   });
   [0,50,120,300,700].forEach(function(ms){setTimeout(build,ms);});
-  setInterval(function(){if(isNine()){build();syncSelf();}},500);
+  /* Keep video state synchronized without repeatedly rebuilding the visible room. */
+  setInterval(function(){
+    if(!isNine())return;
+    var room=document.querySelector('#screen .kt-remote-live .ktg13-room[data-kt-viewer-host-copy="1"]');
+    if(room){syncSelf();return;}
+    build();
+  },1200);
 })();
