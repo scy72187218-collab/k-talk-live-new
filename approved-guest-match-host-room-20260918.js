@@ -455,6 +455,23 @@
     }catch(e){}
   }
 
+  function removeGuestAttendanceAndChatHeart8888(root){
+    try{
+      if(!root)return;
+      var guest=!!root.querySelector('.kt-guest-hostlike-room,.kt-approved-guest-room,.kt-prejoin-room,.kt-guest-room');
+      if(!guest)return;
+      root.querySelectorAll('.kgh-attend,.kt-live-attendance,.kt-attendance-check,.kt-attendance-btn,[data-kt-attendance]').forEach(function(el){try{el.remove();}catch(e){}});
+      root.querySelectorAll('.kt-remote-chat .kt-live-clock-heart,.kt-remote-chat .kt-attendance-heart-badge,.kt-remote-chat .kt-remote-action.heart,.kt-remote-chat .heart,.kt-remote-bottom .kt-live-clock-heart,.kt-remote-bottom .kt-attendance-heart-badge,.kt-remote-bottom .heart').forEach(function(el){try{el.remove();}catch(e){}});
+      [].slice.call(root.querySelectorAll('.kt-remote-chat *,.kt-remote-bottom *')).forEach(function(el){
+        try{
+          if(!el||el.children.length)return;
+          var t=String(el.textContent||'').replace(/\s+/g,'').trim();
+          if(/^[♥♡❤💗]\d*$/.test(t))el.remove();
+        }catch(e){}
+      });
+    }catch(e){}
+  }
+
   function repair(){
     if(ktIsSecretRemoteReset20261004())return;
     try{
@@ -472,6 +489,7 @@
         return;
       }
       var root=preRoot;
+      removeGuestAttendanceAndChatHeart8888(root);
       removeGuest13ChatHeart20261004(root);
       forceLast13GuestBottomRight20261004(root);
       if(!root){builtRoot=null;return;}
