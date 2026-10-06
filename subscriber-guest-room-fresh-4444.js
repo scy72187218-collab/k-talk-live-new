@@ -8,8 +8,15 @@
     try{t+=' '+((window.state&&state.currentViewRoomTitle)||'');}catch(e){}
     return /subscriber|구독자/i.test(t);
   }
+  function enteredByRedLive(){
+    try{
+      return !!(window.__ktSubscriberRedLiveEntered4444 ||
+        window.__ktRemoteRoomEnteredByClick ||
+        (window.state&&state.ktRemoteRoomEnteredByClick));
+    }catch(e){return false;}
+  }
   function hostOnly(){
-    if(!sub()||typeof window.ktRenderSubscriberHostRoom4444!=='function')return false;
+    if(!sub()||!enteredByRedLive()||typeof window.ktRenderSubscriberHostRoom4444!=='function')return false;
     /* 구독자 게스트의 예전 화면 껍데기를 전부 제거한 뒤 호스트 화면 하나만 만든다. */
     try{
       document.querySelectorAll('#screen .kt-remote-live,#screen .kt-approved-guest-room,#screen .kt-prejoin-room,#screen .kt-guest-room,#screen .kt-guest-hostlike-room').forEach(function(x){x.remove();});
@@ -22,6 +29,12 @@
     return true;
   }
   window.ktRenderSubscriberGuestFresh4444=hostOnly;
+  document.addEventListener('click',function(e){
+    var x=e.target&&e.target.closest?e.target.closest('.on-air,.live-badge,.kt-live-badge,[data-live-room],[data-action="enter-live"]'):null;
+    if(!x)return;
+    var tx=String(x.textContent||'')+' '+String(x.getAttribute('aria-label')||'');
+    if(/ON\s*AIR|LIVE|빨간|방송/i.test(tx)){window.__ktSubscriberRedLiveEntered4444=true;setTimeout(hostOnly,0);}
+  },true);
   ['kt-guest-approval-received','kt-approved-guest-stream-ready','kt-any-guest-approved','kt-livekit-state','kt-remote-room-opened'].forEach(function(ev){
     window.addEventListener(ev,function(){setTimeout(hostOnly,0);});
   });
