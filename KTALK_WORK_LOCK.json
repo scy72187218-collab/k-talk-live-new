@@ -1,5 +1,5 @@
 {
-  "version": 260,
+  "version": 261,
   "locked": true,
   "scope": "full_snapshot_guard_everything",
   "lock_slot": 9,
@@ -182,15 +182,17 @@
     "communication_guest_approval_realtime_only",
     "communication_broadcast_crash_recovery_only",
     "communication_all_device_video_sync_only",
-    "communication_all_approved_guest_video_sync_only"
+    "communication_all_approved_guest_video_sync_only",
+    "guest_common_ui_remove_attendance_and_chat_heart_only"
   ],
   "temporarily_unlocked_components": [
     "communication_guest_approval_realtime_only",
     "communication_broadcast_crash_recovery_only",
     "communication_all_device_video_sync_only",
-    "communication_all_approved_guest_video_sync_only"
+    "communication_all_approved_guest_video_sync_only",
+    "guest_common_ui_remove_attendance_and_chat_heart_only"
   ],
-  "note": "사용자 승인: 비밀번호 해제. 호스트에 올라온 승인 게스트 전체 영상(예: 4명)이 모든 기기에 동일하게 보이도록 통신 동기화만 수정. 화면·버튼·채팅·선물·배치는 잠금 유지.",
+  "note": "사용자 8888 승인: 모든 게스트 화면의 출석체크와 게스트 하단 채팅 ♥0만 제거. 호스트 출석체크 및 다른 UI/통신/선물/버튼은 잠금 유지.",
   "lock_slots": {
     "6": [
       "current_full_approved_state_20260927_1740"
@@ -332,7 +334,7 @@
       "approved_guest_immediate_photo_then_live_video_20261005"
     ]
   },
-  "last_unlock": "2026-10-06-canonical-three-buttons-all-rooms-7777",
+  "last_unlock": "2026-10-06-8888-guest-attendance-chat-heart-only",
   "last_lock": "2026-10-06-inapp-free-sound-12-locked",
   "last_note": "사운드 추가에서 외부 Bugs 등으로 넘어가지 않고 K-Talk 안에서 바로 재생되는 자유 이용 사운드 12곡으로 교체 후 1515로 잠금.",
   "unlock_pin_sha256": "41c991eb6a66242c0454191244278183ce58cf4a6bcd372f799e4b9cc01886af",
