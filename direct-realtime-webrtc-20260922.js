@@ -423,7 +423,13 @@
     approvedGuests={};
     hostGuestPeers={};
     hostGuestAliveAt={};
-    try{send('broadcast_ended',{host_id:DEVICE,run_id:hostRunId,run_started_at:hostRunStartedAt,at:Date.now()});}catch(e){}
+    var endPayload={host_id:DEVICE,run_id:hostRunId,run_started_at:hostRunStartedAt,at:Date.now()};
+    /* Broadcast end is a critical state change. Dual-send it so phones that
+       are reconnecting do not stay trapped in the ended room. */
+    try{send('broadcast_ended',endPayload);}catch(e){}
+    try{restBroadcastToHost20260926(DEVICE,'broadcast_ended',endPayload);}catch(e){}
+    setTimeout(function(){try{restBroadcastToHost20260926(DEVICE,'broadcast_ended',endPayload);}catch(e){}},180);
+    setTimeout(function(){try{restBroadcastToHost20260926(DEVICE,'broadcast_ended',endPayload);}catch(e){}},650);
     return true;
   };
 
