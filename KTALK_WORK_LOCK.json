@@ -179,14 +179,12 @@
     "creator_inapp_free_sound_12_no_external_20261006"
   ],
   "current_editable_components": [
-    "creator_inapp_free_sound_12_no_external_20261006",
-    "live_audio_music_voice_quality_48khz_stereo_no_agc_20260928"
+    "solo_broadcast_current_state"
   ],
   "temporarily_unlocked_components": [
-    "creator_inapp_free_sound_12_no_external_20261006",
-    "live_audio_music_voice_quality_48khz_stereo_no_agc_20260928"
+    "solo_broadcast_current_state"
   ],
-  "note": "Sound work temporarily unlocked with authorized slot 1515; all other components remain locked.",
+  "note": "Solo host broadcast temporarily unlocked with authorized slot 1111; only host camera startup delay may be edited. All other components remain locked.",
   "lock_slots": {
     "6": [
       "current_full_approved_state_20260927_1740"
