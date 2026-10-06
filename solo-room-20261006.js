@@ -5,7 +5,7 @@ window.ktOpenSoloRoom20261006=async function(){
  var screen=document.getElementById('screen');if(!screen)return false;
  document.body.classList.remove('kt-home');
  screen.innerHTML='<section class="kt1-room"><video class="kt1-video" autoplay playsinline muted></video>'
- +'<header class="kt1-top"><button class="kt1-close">×</button><div class="kt1-host">📶 대충그동</div><button class="kt1-heart">♥ <b>10</b></button><button class="kt1-att">출석체크</button><div class="kt1-brand">K-Talk LIVE</div></header>'
+ +'<header class="kt1-top"><button class="kt1-close">×</button><div class="kt1-onair">🔴 ON AIR <b>00:00:00</b></div><button class="kt1-heart">♥ <b>10</b></button><button class="kt1-att">출석체크</button><div class="kt1-brand">K-Talk LIVE</div></header>'
  +'<div class="kt1-neon"><div class="kt1-marquee"><span>방송 켰어요 🎁　💗 K-Talk LIVE 환영합니다　　방송 켰어요 🎁　💗 K-Talk LIVE 환영합니다</span></div></div>'
  +'<div class="kt1-tools"><button>↻ 되돌리기</button><button>🎁 보물상자</button><button>⚔ 매치</button></div>'
  +'<div class="kt1-stats"><span>🔥 일일 랭킹</span><span>🎯 미션</span><span>시청자 5명이 시청중</span></div>'
@@ -25,7 +25,7 @@ window.ktOpenSoloRoom20261006=async function(){
   }catch(e){}
  room.querySelector('.kt1-close').onclick=function(){try{if(window.home)home();}catch(e){}};
  room.querySelector('.kt1-heart').onclick=function(){var b=this.querySelector('b');b.textContent=String((+b.textContent||0)+1);};
- room.querySelector('.kt1-att').onclick=function(){this.textContent='💗 출석완료';};
+ room.querySelector('.kt1-att').onclick=function(){this.textContent='💗 출석완료';}; var sec=0,timer=setInterval(function(){if(!document.body.contains(room)){clearInterval(timer);return;}sec++;var h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=sec%60,b=room.querySelector('.kt1-onair b');if(b)b.textContent=[h,m,s].map(function(n){return String(n).padStart(2,'0');}).join(':');},1000);
  room.querySelector('.kt1-earn').onclick=function(){var x=room.querySelector('.kt1-earnbox');x.hidden=!x.hidden;};
  var input=room.querySelector('.kt1-input'),log=room.querySelector('.kt1-chatlog');
  function send(){var s=input.value.trim();if(!s)return;var d=document.createElement('div');d.textContent=s;log.appendChild(d);input.value='';}
@@ -36,7 +36,7 @@ var st=document.createElement('style');st.textContent=`
 body:has(.kt1-room)>#ktMainBottomNav,body:has(.kt1-room)>.bottom{display:none!important}
 .kt1-room{position:fixed;inset:0;background:#050508;color:#fff;z-index:2147483000;overflow:hidden;font-family:system-ui,-apple-system,'Noto Sans KR',sans-serif}
 .kt1-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#08080c}.kt1-room:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.42),transparent 30%,transparent 68%,rgba(0,0,0,.58));pointer-events:none}
-.kt1-top{position:absolute;z-index:3;left:8px;right:8px;top:max(8px,env(safe-area-inset-top));display:flex;align-items:center;gap:6px}.kt1-close,.kt1-att,.kt1-heart,.kt1-earn{border:1px solid #ffffff42;background:#090910a8;color:#fff;border-radius:18px;min-height:34px;padding:6px 9px;font-weight:900}.kt1-close{width:35px;border-radius:50%;font-size:22px;padding:0}.kt1-host{font-weight:950}.kt1-heart{color:#ff4b7c}.kt1-heart b{color:#fff}.kt1-brand{margin-left:auto;color:#ff4e86;font-weight:950}
+.kt1-top{position:absolute;z-index:3;left:8px;right:8px;top:max(8px,env(safe-area-inset-top));display:flex;align-items:center;gap:6px}.kt1-close,.kt1-att,.kt1-heart,.kt1-earn{border:1px solid #ffffff42;background:#090910a8;color:#fff;border-radius:18px;min-height:34px;padding:6px 9px;font-weight:900}.kt1-close{width:35px;border-radius:50%;font-size:22px;padding:0}.kt1-onair{font-weight:950;font-size:12px;white-space:nowrap}.kt1-onair b{font-variant-numeric:tabular-nums}.kt1-heart{color:#ff4b7c}.kt1-heart b{color:#fff}.kt1-brand{margin-left:auto;color:#ff4e86;font-weight:950}
 .kt1-neon{position:absolute;z-index:3;top:58px;left:8px;right:8px;padding:9px 0;border:2px solid #ff39c7;border-radius:12px;background:#23001caf;box-shadow:0 0 11px #ff39c7;color:#ffe83e;font-weight:950;overflow:hidden;white-space:nowrap}.kt1-marquee{overflow:hidden;width:100%}.kt1-marquee span{display:inline-block;min-width:max-content;padding-left:100%;animation:kt1marquee 11s linear infinite}@keyframes kt1marquee{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
 .kt1-tools{position:absolute;z-index:3;top:108px;left:8px;right:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.kt1-tools button{height:48px;border:1px solid #ffffff30;border-radius:13px;background:#15151dbd;color:#fff;font-weight:900}
 .kt1-stats{position:absolute;z-index:3;top:166px;left:12px;right:12px;display:flex;justify-content:space-between;font-size:12px;font-weight:900}.kt1-earn{position:absolute;z-index:3;right:10px;top:198px}
