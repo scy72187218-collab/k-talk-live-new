@@ -123,9 +123,11 @@
     try{
       txt+=' '+String(window.__ktRemoteRoomName||'')+' '+String(window.__ktRemoteRoomType||'');
     }catch(e){}
-    var is16=/15\s*명|subscriber|구독자/i.test(txt);
-    var is13=!is16&&/13\s*명|group13/i.test(txt);
-    if(!is16&&!is13)return null;
+    /* 4444: 15명 구독자방은 이 구형 게스트 렌더러에서 완전히 제외.
+       구독자방은 subscriber-approved-room.js의 호스트 동일 화면만 사용한다. */
+    var is16=false;
+    var is13=/13\s*명|group13/i.test(txt);
+    if(!is13)return null;
     return {
       is15:is16,
       is16:is16,
