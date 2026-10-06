@@ -110,16 +110,6 @@ html.kt-remote-viewing .live-prep{
 <link rel="icon" href="/ktalk-icon-192.png?v=20261005-icon-reset1150617" sizes="192x192">
 <link rel="apple-touch-icon" href="/ktalk-icon-192.png?v=20261005-icon-reset1150617">
 <meta name="theme-color" content="#000000">
-<style id="kt-video-bottom-gap-fix-20261006">
-/* 동영상 화면과 하단 메뉴 사이 이중 검정 여백 제거: 동영상 영역만 아래로 확장 */
-body.kt-video-mode #screen{height:calc(100dvh - 58px - env(safe-area-inset-bottom))!important;min-height:0!important;padding:0!important;margin:0!important;overflow:hidden!important}
-body.kt-video-mode #ktMainBottomNav{position:fixed!important;left:0!important;right:0!important;height:76px!important;bottom:env(safe-area-inset-bottom)!important;margin:0!important}
-body.kt-video-mode #ktMainBottomNav button{font-size:11px!important}
-body.kt-video-mode #ktMainBottomNav b{font-size:22px!important;margin-bottom:3px!important}
-body.kt-video-mode #ktMainBottomNav .plus b{width:52px!important;height:42px!important;font-size:31px!important}
-body.kt-live-mode #ktMainBottomNav,body:has(.ktsolo-room) #ktMainBottomNav{display:none!important}
-body.kt-video-mode #screen .video-card,body.kt-video-mode #screen .feed-item,body.kt-video-mode #screen video{margin-bottom:0!important}
-</style>
 </head>
 <body>
 <div class="app">
@@ -147,7 +137,6 @@ body.kt-video-mode #screen .video-card,body.kt-video-mode #screen .feed-item,bod
 })();
 </script>
 
-<nav class="bottom" id="ktMainBottomNav"><button data-bottom="home"><b>⌂</b>홈</button><button data-bottom="friends"><b>👥</b>친구</button><button class="plus" type="button" onclick="return quickStartBroadcast(event)"><b>＋</b>방송하기</button><button data-bottom="help"><b>?</b>사용방법</button><button data-bottom="profile"><b>♙</b>프로필</button></nav>
 </div>
 <div id="creator" class="creator">
 <video id="cameraBg" autoplay playsinline muted aria-hidden="true"></video>
@@ -1059,7 +1048,7 @@ window.openRoomPrep=function(name,max){
   line-height:1.05!important;
 }
 </style>
-<script src="solo-approved-room.js?v=20261005-1500-restore-1111"></script>
+<script src="solo-approved-room.js?v=20260928-cam-mic-adjacent1"></script>
 <script src="solo-earn-undo-lower-20261002.js?v=20261002-earn-72-1111"></script>
 <script src="solo-chat-under-wave-20260920.js?v=20260920-above-tools2"></script>
 <script src="subscriber-approved-room.js?v=20261002-selling-toggle1111"></script>
