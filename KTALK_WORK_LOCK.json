@@ -1,5 +1,5 @@
 {
-  "version": 255,
+  "version": 256,
   "locked": true,
   "scope": "full_snapshot_guard_everything",
   "lock_slot": 9,
@@ -178,12 +178,6 @@
   "temporarily_unlocked_components": [],
   "note": "approved guest flow protected after restore",
   "lock_slots": {
-    "2": [
-      "public_video_first_page_opening"
-    ],
-    "3": [
-      "public_video_rose_message_share"
-    ],
     "6": [
       "current_full_approved_state_20260927_1740"
     ],
@@ -211,9 +205,6 @@
       "host_like_reward_5000_steps_max5_roses_25000",
       "followed_guest_large_photo_30likes_10min_max5roses",
       "complete_usage_benefits_guide_current_rules_20260928",
-      "daily_fortune_ladder_6_free_once_per_day",
-      "daily_fortune_ladder_selected_number_animated_positive_fortunes",
-      "daily_fortune_weekly_draw_final_rules_20260928",
       "hine_telecom_ai24_ad_fortune_event_20260928",
       "weekly_7day_broadcast_reward_50coins_noncashable_20260928",
       "signup_immediate_broadcast_solo9_no_wait_20260928",
@@ -234,7 +225,6 @@
     "12": [
       "all_rooms_current_state_20261002",
       "all_switches_current_state_20261002",
-      "all_live_signal_and_entry_current_state_20261002",
       "full_k_talk_snapshot_20261002"
     ],
     "13": [
@@ -254,6 +244,14 @@
     ],
     "18": [
       "creator_auto_youth_beauty_and_edit_effect_removed_20261002"
+    ],
+    "1010": [
+      "public_video_first_page_opening",
+      "public_video_rose_message_share",
+      "all_live_signal_and_entry_current_state_20261002",
+      "daily_fortune_ladder_6_free_once_per_day",
+      "daily_fortune_ladder_selected_number_animated_positive_fortunes",
+      "daily_fortune_weekly_draw_final_rules_20260928"
     ],
     "1111": [
       "solo_broadcast_current_state"
@@ -310,8 +308,8 @@
     ]
   },
   "last_unlock": "2026-10-06-canonical-three-buttons-all-rooms-7777",
-  "last_lock": "2026-10-06-revenue-rules-locked",
-  "last_note": "가격 및 일반/구독자/호스트/소속사/회사 수익, 정산·환전 규칙을 9999로 별도 잠금.",
+  "last_lock": "2026-10-06-video-entry-side-actions-fortune-locked",
+  "last_note": "사용자 요청: 동영상 빨리 뜨는 기능, 동영상 옆 장미/메시지/공유, 오늘의 운세를 1010으로 별도 잠금.",
   "unlock_pin_sha256": "41c991eb6a66242c0454191244278183ce58cf4a6bcd372f799e4b9cc01886af",
   "secret_room_lock_snapshot": {
     "host_file": "secret-room-password.js",
@@ -355,5 +353,9 @@
   "revenue_password_map": {
     "9999": "가격·수익·정산·환전 공통 규칙"
   },
-  "revenue_policy": "9999 승인 없이는 가격, 수익률, 정산 배분, 환전 규칙 수정 금지."
+  "revenue_policy": "9999 승인 없이는 가격, 수익률, 정산 배분, 환전 규칙 수정 금지.",
+  "media_ui_password_map": {
+    "1010": "동영상 빠른 표시/입장 + 동영상 옆 장미·메시지·공유 + 오늘의 운세"
+  },
+  "media_ui_policy": "1010 승인 없이는 동영상 첫 표시 속도/입장 연결, 장미·메시지·공유 버튼, 오늘의 운세 기능 수정 금지."
 }
