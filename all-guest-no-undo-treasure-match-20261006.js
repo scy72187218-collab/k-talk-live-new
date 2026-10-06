@@ -1,80 +1,80 @@
-/* K-Talk 2026-10-06 — ALL GUEST/VIEWER rooms only.
-   Remove ONLY the upper quick row: 되돌리기 / 보물상자 / 매치.
-   Keep ranking, mission, viewer count, chat, gifts, earnings, videos and host rooms unchanged. */
+/* K-Talk 2026-10-06: guest/viewer screens only.
+   Remove only the horizontal trio: 되돌리기 / 보물상자 / 매치.
+   Keep ranking/mission/viewer row, chat, gifts, earnings, video, signaling, and host screens unchanged. */
 (function(){
   if(window.__ktAllGuestNoUndoTreasureMatch20261006)return;
   window.__ktAllGuestNoUndoTreasureMatch20261006=true;
 
   function isRemote(){
-    return document.documentElement.classList.contains('kt-remote-viewing') ||
-      !!document.querySelector('#screen .kt-remote-live');
+    try{return document.documentElement.classList.contains('kt-remote-viewing');}catch(e){return false;}
   }
 
-  function norm(s){return String(s||'').replace(/\s+/g,'');}
-
-  function exactQuickRow(el){
+  function exactTrio(el){
     if(!el)return false;
-    var t=norm(el.textContent);
-    return t.indexOf('되돌리기')>-1 && t.indexOf('보물상자')>-1 && t.indexOf('매치')>-1;
+    var t='';
+    try{t=String(el.textContent||'').replace(/\s+/g,'');}catch(e){}
+    return t.indexOf('되돌리기')>=0&&t.indexOf('보물상자')>=0&&t.indexOf('매치')>=0;
   }
 
   function clean(){
     if(!isRemote())return;
-
-    var root=document.querySelector('#screen .kt-remote-live')||document.getElementById('screen');
+    var root=document.querySelector('#screen .kt-remote-live')||document.querySelector('#screen');
     if(!root)return;
 
-    /* Known quick-row containers used by the five viewer/guest rooms. */
-    root.querySelectorAll(
-      '.ktg13-quick,'+
-      '.kt-all-five-utm-hard1111,'+
-      '.kt-three-quick-box,'+
-      '.ktsolo-quick,'+
-      '.ktsubscriber-quick,'+
-      '.ktsecret-quick'
-    ).forEach(function(el){
-      try{
-        if(exactQuickRow(el) || el.classList.contains('ktg13-quick') || el.classList.contains('kt-all-five-utm-hard1111')){
-          el.remove();
-        }
-      }catch(e){}
+    [
+      '.ktg13-quick',
+      '.ktsolo-quick',
+      '.ktsubscriber-quick',
+      '.ktsecret-quick',
+      '.kt-all-five-utm-hard1111',
+      '[data-kt-all-five-utm]'
+    ].forEach(function(sel){
+      try{root.querySelectorAll(sel).forEach(function(el){try{el.remove();}catch(e){}});}catch(e){}
     });
 
-    /* Fallback: remove only a direct row whose combined labels are exactly the
-       three unwanted guest controls. Do not touch ranking/mission/viewers. */
-    root.querySelectorAll('div,section,nav').forEach(function(el){
-      try{
-        if(!exactQuickRow(el))return;
-        if(el.querySelector('.ktg13-main,.ktsolo-main,.ktsubscriber-main,.ktsecret-main'))return;
-        var buttons=el.querySelectorAll(':scope > button');
-        if(buttons.length>=2 && buttons.length<=4)el.remove();
-      }catch(e){}
-    });
+    try{
+      root.querySelectorAll('.kt-three-quick-box').forEach(function(el){
+        if(exactTrio(el))try{el.remove();}catch(e){}
+      });
+    }catch(e){}
+
+    try{
+      [].slice.call(root.querySelectorAll(
+        '.ktsolo-room>div,.ktg13-room>div,.ktsubscriber-room>div,.ktsecret-room>div,'+
+        '.kt-prejoin-room-view>div,.kt-approved-guest-room>div,.kt-guest-hostlike-room>div'
+      )).forEach(function(el){
+        if(exactTrio(el)){
+          try{el.remove();}catch(e){}
+        }
+      });
+    }catch(e){}
   }
 
   function style(){
-    if(document.getElementById('ktAllGuestNoUTMStyle20261006'))return;
+    if(document.getElementById('ktAllGuestNoUndoTreasureMatchStyle20261006'))return;
     var s=document.createElement('style');
-    s.id='ktAllGuestNoUTMStyle20261006';
+    s.id='ktAllGuestNoUndoTreasureMatchStyle20261006';
     s.textContent=''
       +'html.kt-remote-viewing #screen .kt-remote-live .ktg13-quick,'
-      +'html.kt-remote-viewing #screen .kt-remote-live .kt-all-five-utm-hard1111,'
       +'html.kt-remote-viewing #screen .kt-remote-live .ktsolo-quick,'
       +'html.kt-remote-viewing #screen .kt-remote-live .ktsubscriber-quick,'
-      +'html.kt-remote-viewing #screen .kt-remote-live .ktsecret-quick'
-      +'{display:none!important;visibility:hidden!important;height:0!important;min-height:0!important;'
-      +'max-height:0!important;margin:0!important;padding:0!important;overflow:hidden!important;pointer-events:none!important}';
+      +'html.kt-remote-viewing #screen .kt-remote-live .ktsecret-quick,'
+      +'html.kt-remote-viewing #screen .kt-remote-live .kt-all-five-utm-hard1111,'
+      +'html.kt-remote-viewing #screen .kt-remote-live [data-kt-all-five-utm]{'
+      +'display:none!important;visibility:hidden!important;pointer-events:none!important;height:0!important;'
+      +'min-height:0!important;max-height:0!important;flex-basis:0!important;margin:0!important;padding:0!important;overflow:hidden!important}';
     (document.head||document.documentElement).appendChild(s);
   }
 
   style();
   clean();
-  [0,20,60,120,250,500,900,1500].forEach(function(ms){setTimeout(clean,ms);});
-  setInterval(clean,700);
+  [0,30,80,160,320,700,1400].forEach(function(ms){setTimeout(clean,ms);});
+  setInterval(clean,900);
+
   try{
     new MutationObserver(function(){
       clearTimeout(window.__ktAllGuestNoUTMTimer20261006);
-      window.__ktAllGuestNoUTMTimer20261006=setTimeout(clean,10);
+      window.__ktAllGuestNoUTMTimer20261006=setTimeout(clean,15);
     }).observe(document.getElementById('screen')||document.documentElement,{childList:true,subtree:true});
   }catch(e){}
 })();
