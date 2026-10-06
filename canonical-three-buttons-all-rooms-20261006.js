@@ -53,16 +53,20 @@
   function install(root){
     var rows=root.querySelectorAll(':scope > .'+CLS); for(var i=1;i<rows.length;i++)rows[i].remove();
     var row=rows[0]||make(), a=anchor(root);
-    /* 13명 게스트: 옛날 위쪽 3버튼 줄만 제거한다. */
+    /* 게스트 화면의 옛날 위쪽 3버튼 줄은 클래스/문구와 관계없이 제거 */
     try{
-      if(root.classList.contains('kt-guest-hostlike-room')&&root.getAttribute('data-kt-room')==='13'){
+      var guest=!!root.closest('.kt-remote-live,.kt-guest-hostlike-room,.kt-approved-guest-room,.kt-guest-room,.kt-prejoin-room');
+      if(guest){
+        root.querySelectorAll('.kt-room-second-stats-row-20260927').forEach(function(el){el.remove();});
         Array.prototype.slice.call(root.children||[]).forEach(function(el){
-          if(!el||el===row)return;
+          if(!el||el===row||el.contains(row))return;
           var t=String(el.textContent||'').replace(/\s+/g,'');
-          if(t.indexOf('되돌리기')>=0&&t.indexOf('패키지')>=0&&t.indexOf('매치')>=0)el.remove();
+          var old3=t.indexOf('되돌리기')>=0&&t.indexOf('매치')>=0&&(t.indexOf('패키지')>=0||t.indexOf('패키지상자')>=0);
+          if(old3)el.remove();
         });
       }
     }catch(e){}
+    /* 살아있는 새 줄을 메인 화면 바로 위로 올림 */
     if(a&&a.parentNode===root){if(a.previousElementSibling!==row)root.insertBefore(row,a);}
     else if(row.parentNode!==root)root.appendChild(row);
   }
