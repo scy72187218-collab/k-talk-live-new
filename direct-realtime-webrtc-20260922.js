@@ -841,6 +841,9 @@
       var hid=remoteHostId();
       if(hid===activeHostId){
         ensureViewerWatch(true);
+        /* A joining/reconnecting phone asks the host for the current authoritative roster.
+           This prevents an old/empty local roster from leaving that phone out of sync. */
+        send('guest_roster_request',{host_id:hid,viewer_id:viewerId(),at:Date.now()});
         if(requestOn)send('guest_request',{host_id:hid,viewer_id:viewerId(),name:profileName(),at:Date.now()});
       }
     }
@@ -2435,6 +2438,10 @@
        suppressing repeated watch packets can delay the first visible host frame. */
     if(ev!=='video_watch'&&duplicateSignal(ev,p))return;
     if(ev==='guest_roster'){applyApprovedRoster20260928(p);return;}
+    if(ev==='guest_roster_request'){
+      if(isHostRole())broadcastApprovedRoster20260928();
+      return;
+    }
     if(ev==='broadcast_ended'&&!isHostRole()){
       var ended=String(p&&p.host_id||'').trim();
       var current=String(remoteHostId()||lastRemoteHost||activeHostId||'').trim();
