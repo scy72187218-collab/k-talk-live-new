@@ -1,5 +1,5 @@
 {
-  "version": 259,
+  "version": 260,
   "locked": true,
   "scope": "full_snapshot_guard_everything",
   "lock_slot": 9,
@@ -89,7 +89,8 @@
     "group9_room_current_state_20261003",
     "group9_room_no_old_flash_saved_20261003",
     "canonical_three_buttons_all_rooms_20261006",
-    "pwa_install_icon_prompt_progress_and_hide_20261006"
+    "pwa_install_icon_prompt_progress_and_hide_20261006",
+    "creator_inapp_free_sound_12_no_external_20261006"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -174,7 +175,8 @@
     "group9_room_current_state_20261003",
     "group9_room_no_old_flash_saved_20261003",
     "canonical_three_buttons_all_rooms_20261006",
-    "pwa_install_icon_prompt_progress_and_hide_20261006"
+    "pwa_install_icon_prompt_progress_and_hide_20261006",
+    "creator_inapp_free_sound_12_no_external_20261006"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
@@ -266,6 +268,10 @@
     "1414": [
       "pwa_install_icon_prompt_progress_and_hide_20261006"
     ],
+    "1515": [
+      "creator_inapp_free_sound_12_no_external_20261006",
+      "live_audio_music_voice_quality_48khz_stereo_no_agc_20260928"
+    ],
     "2222": [
       "group9_bottom_controls_8",
       "group9_room_current_state",
@@ -317,8 +323,8 @@
     ]
   },
   "last_unlock": "2026-10-06-canonical-three-buttons-all-rooms-7777",
-  "last_lock": "2026-10-06-pwa-install-progress-hide-locked",
-  "last_note": "아이콘 설치 누르면 설치 중 상태를 보여주고 appinstalled 완료 후 안내를 없애며, 설치 완료 기기에서는 다음부터 설치 안내를 다시 띄우지 않도록 1414로 잠금.",
+  "last_lock": "2026-10-06-inapp-free-sound-12-locked",
+  "last_note": "사운드 추가에서 외부 Bugs 등으로 넘어가지 않고 K-Talk 안에서 바로 재생되는 자유 이용 사운드 12곡으로 교체 후 1515로 잠금.",
   "unlock_pin_sha256": "41c991eb6a66242c0454191244278183ce58cf4a6bcd372f799e4b9cc01886af",
   "secret_room_lock_snapshot": {
     "host_file": "secret-room-password.js",
@@ -378,5 +384,9 @@
   "install_password_map": {
     "1414": "K-Talk 아이콘 설치 안내·설치 중 표시·설치 완료 후 영구 숨김"
   },
-  "install_policy": "1414 승인 없이는 PWA 아이콘 설치 안내/진행 표시/설치 완료 후 숨김 동작 수정 금지."
+  "install_policy": "1414 승인 없이는 PWA 아이콘 설치 안내/진행 표시/설치 완료 후 숨김 동작 수정 금지.",
+  "sound_password_map": {
+    "1515": "촬영 화면 사운드 목록·사운드 재생·녹음용 음악 연결"
+  },
+  "sound_policy": "1515 승인 없이는 사운드 목록, 곡 선택 동작, 외부 이동 여부, 음악 재생/녹음 연결 수정 금지."
 }
