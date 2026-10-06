@@ -110,7 +110,11 @@ html.kt-remote-viewing .live-prep{
 <link rel="icon" href="/ktalk-icon-192.png?v=20261005-icon-reset1150617" sizes="192x192">
 <link rel="apple-touch-icon" href="/ktalk-icon-192.png?v=20261005-icon-reset1150617">
 <meta name="theme-color" content="#000000">
-</head>
+<style>
+body.kt-solo-live #ktMainBottomNav{display:none!important}
+body.kt-solo-live .ktsolo-right{display:none!important}
+body.kt-solo-live .kt-solo-new-bottom-20261006{display:none!important}
+</style></head>
 <body>
 <div class="app">
 <header class="header"><div class="brand"><div class="logo">♛ K-Talk</div><div class="live">LIVE</div></div><div id="globalLed" class="led" onclick="handleLedClick()">♛ K-Talk · 신곡 광고 신청하세요! 🎵 🎤</div></header>
@@ -136,7 +140,7 @@ html.kt-remote-viewing .live-prep{
   }catch(e){}
 })();
 </script>
-<nav class="bottom"><button data-bottom="home"><b>⌂</b>홈</button><button data-bottom="friends"><b>👥</b>친구</button><button class="plus" type="button" onclick="return quickStartBroadcast(event)"><b>＋</b>방송하기</button><button data-bottom="help"><b>?</b>사용방법</button><button data-bottom="profile"><b>♙</b>프로필</button></nav>
+<nav class="bottom" id="ktMainBottomNav"><button data-bottom="home"><b>⌂</b>홈</button><button data-bottom="friends"><b>👥</b>친구</button><button class="plus" type="button" onclick="return quickStartBroadcast(event)"><b>＋</b>방송하기</button><button data-bottom="help"><b>?</b>사용방법</button><button data-bottom="profile"><b>♙</b>프로필</button></nav>
 </div>
 <div id="creator" class="creator">
 <video id="cameraBg" autoplay playsinline muted aria-hidden="true"></video>
@@ -377,7 +381,7 @@ html.kt-remote-viewing .live-prep{
 
   /* 1111: 1인 방송은 이미 준비 화면에서 열린 카메라를 그대로 사용한다.
      빨간 시작 버튼을 누를 때 카메라를 다시 기다리지 않고 방을 먼저 연다. */
-  if(type==='solo'){
+  if(type==='solo'){ document.body.classList.add('kt-solo-live');
     try{
       var hasLiveVideo=!!(window.state&&state.stream&&state.stream.getVideoTracks&&state.stream.getVideoTracks().some(function(track){return track.readyState==='live';}));
       if(hasLiveVideo&&window.startTestBroadcast){
@@ -387,7 +391,7 @@ html.kt-remote-viewing .live-prep{
   }
   if(window.startBroadcast) return window.startBroadcast();
  };
- window.openRoomPrep=function(name,max){
+ window.openRoomPrep=function(name,max){ if(String(name).indexOf('1인 방송')<0)document.body.classList.remove('kt-solo-live');
   if(window.state){
     state.liveRoomName=name;
     state.liveRoomMax=max;
