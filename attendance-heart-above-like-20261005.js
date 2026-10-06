@@ -31,6 +31,20 @@
       var like=findLike(room);
       if(!like)return;
 
+      /* 1인방 출석체크 하트는 화면 맨 위에 고정 */
+      if(room.classList&&room.classList.contains('ktsolo-room')){
+        var topHeart=room.querySelector(':scope > .kt-attendance-like-count');
+        if(!topHeart){
+          topHeart=document.createElement('button'); topHeart.type='button'; topHeart.className='kt-attendance-like-count';
+          topHeart.setAttribute('aria-label','하트 출석체크'); topHeart.innerHTML='<span>♥</span> <b data-kt-attendance-like-number>0</b>';
+          topHeart.onclick=function(e){try{e.preventDefault();e.stopPropagation();}catch(_e){} try{if(typeof window.ktAttendanceCheck==='function')window.ktAttendanceCheck();}catch(_e){}};
+          room.appendChild(topHeart);
+        }
+        topHeart.style.setProperty('top','6px','important'); topHeart.style.setProperty('left','50%','important'); topHeart.style.setProperty('transform','translateX(-50%)','important');
+        var tn=topHeart.querySelector('[data-kt-attendance-like-number]'); if(tn)tn.textContent=String(count());
+        return;
+      }
+
       var holder=like.parentElement||room;
       if(getComputedStyle(holder).position==='static')holder.style.setProperty('position','relative');
 
