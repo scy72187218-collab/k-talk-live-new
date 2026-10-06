@@ -110,6 +110,12 @@ html.kt-remote-viewing .live-prep{
 <link rel="icon" href="/ktalk-icon-192.png?v=20261005-icon-reset1150617" sizes="192x192">
 <link rel="apple-touch-icon" href="/ktalk-icon-192.png?v=20261005-icon-reset1150617">
 <meta name="theme-color" content="#000000">
+<style id="ktSolo1111HideLegacyRight">
+/* 1111: solo host only - remove legacy right gift/mic/camera controls shown in test-live view */
+#screen .ktsolo-room .ktsolo-right button[onclick*="openGifts"],
+#screen .ktsolo-room button[onclick*="ktBottomMicToggle"],
+#screen .ktsolo-room button[onclick*="ktBottomCameraToggle"]{display:none!important}
+</style>
 </head>
 <body>
 <div class="app">
