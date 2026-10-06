@@ -1,5 +1,5 @@
 {
-  "version": 269,
+  "version": 270,
   "locked": true,
   "scope": "full_snapshot_guard_everything",
   "lock_slot": 9,
@@ -51,7 +51,6 @@
     "latest_usage_guide_ranking_match_cashout_seat_wave_20260928",
     "total_admin_spreadsheet_overview_members_ranking_match_events_cashout_live_20260928",
     "total_admin_tax_accounting_overview_csv_20260928",
-    "live_audio_music_voice_quality_48khz_stereo_no_agc_20260928",
     "creator_edit_shop_under_undo_existing_beauty_background_20260928",
     "current_full_state_20261002_except_chat",
     "live15_red_button_fast_tap_20261002",
@@ -89,9 +88,7 @@
     "group9_room_current_state_20261003",
     "group9_room_no_old_flash_saved_20261003",
     "canonical_three_buttons_all_rooms_20261006",
-    "pwa_install_icon_prompt_progress_and_hide_20261006",
-    "creator_inapp_free_sound_12_no_external_20261006",
-    "sound_direct_playback_20261006"
+    "pwa_install_icon_prompt_progress_and_hide_20261006"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -138,7 +135,6 @@
     "latest_usage_guide_ranking_match_cashout_seat_wave_20260928",
     "total_admin_spreadsheet_overview_members_ranking_match_events_cashout_live_20260928",
     "total_admin_tax_accounting_overview_csv_20260928",
-    "live_audio_music_voice_quality_48khz_stereo_no_agc_20260928",
     "creator_edit_shop_under_undo_existing_beauty_background_20260928",
     "current_full_state_20261002_except_chat",
     "live15_red_button_fast_tap_20261002",
@@ -176,29 +172,17 @@
     "group9_room_current_state_20261003",
     "group9_room_no_old_flash_saved_20261003",
     "canonical_three_buttons_all_rooms_20261006",
-    "pwa_install_icon_prompt_progress_and_hide_20261006",
-    "creator_inapp_free_sound_12_no_external_20261006",
-    "sound_direct_playback_20261006"
+    "pwa_install_icon_prompt_progress_and_hide_20261006"
   ],
   "current_editable_components": [
-    "communication_guest_approval_realtime_only",
-    "communication_broadcast_crash_recovery_only",
-    "communication_all_device_video_sync_only",
-    "communication_all_approved_guest_video_sync_only",
-    "guest_common_ui_remove_attendance_and_chat_heart_only",
-    "guest_current_screen_freeze_no_old_rerender_8888",
-    "broadcast_end_all_guests_return_video_feed_8888",
-    "broadcast_end_block_guest_room_rerender_return_feed_8888"
+    "creator_inapp_free_sound_12_no_external_20261006",
+    "live_audio_music_voice_quality_48khz_stereo_no_agc_20260928",
+    "sound_direct_playback_20261006"
   ],
   "temporarily_unlocked_components": [
-    "communication_guest_approval_realtime_only",
-    "communication_broadcast_crash_recovery_only",
-    "communication_all_device_video_sync_only",
-    "communication_all_approved_guest_video_sync_only",
-    "guest_common_ui_remove_attendance_and_chat_heart_only",
-    "guest_current_screen_freeze_no_old_rerender_8888",
-    "broadcast_end_all_guests_return_video_feed_8888",
-    "broadcast_end_block_guest_room_rerender_return_feed_8888"
+    "creator_inapp_free_sound_12_no_external_20261006",
+    "live_audio_music_voice_quality_48khz_stereo_no_agc_20260928",
+    "sound_direct_playback_20261006"
   ],
   "note": "1111 재작업 완료 후 재잠금: 1인방에 실제 표시되던 레거시 오른쪽 선물박스·마이크·카메라 숨김 처리. 다른 방/통신 변경 없음.",
   "lock_slots": {
@@ -343,9 +327,9 @@
       "approved_guest_immediate_photo_then_live_video_20261005"
     ]
   },
-  "last_unlock": "2026-10-06-1111-visible-solo-right-controls",
+  "last_unlock": "2026-10-06-sound-playback-fix-1515",
   "last_lock": "2026-10-06-sound-direct-playback-relocked",
-  "last_note": "사운드 직접 재생 수정만 반영 후 다시 잠금. 다른 기능 변경 없음.",
+  "last_note": "사용자 1515 승인: 사운드 목록 재생 실패만 수정. 방/채팅/선물/수익/통신은 변경 금지.",
   "unlock_pin_sha256": "41c991eb6a66242c0454191244278183ce58cf4a6bcd372f799e4b9cc01886af",
   "secret_room_lock_snapshot": {
     "host_file": "secret-room-password.js",
