@@ -57,7 +57,12 @@
     if(!is13()&&!opening()){disarmIfDone();return;}
 
     var room=null;
-    try{room=document.querySelector('#screen .ktg13-room');}catch(e){}
+    try{
+      /* 3333: 여러 13명 DOM이 잠깐 겹쳐도 현재 승인 화면을 우선 선택한다. */
+      room=document.querySelector('#screen .ktg13-room[data-kt-approved13="1"]')||
+           document.querySelector('#screen .ktg13-room[data-kt-room="13"]')||
+           document.querySelector('#screen .ktg13-room');
+    }catch(e){}
     if(!room)return;
 
     if(room.getAttribute('data-kt-room')==='9'||room.getAttribute('data-kt-room')==='15')return;
