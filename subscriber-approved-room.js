@@ -176,51 +176,8 @@
     renderChat();
   }
 
-  /* 4444: 구독자 게스트도 위의 정상 호스트방 화면을 그대로 사용한다.
-     화면을 새로 만드는 별도 게스트 UI는 사용하지 않고 영상 소스만 호스트/게스트에 맞춘다. */
-  window.ktRenderSubscriberGuestLikeHost4444=function(){
-    var remoteType='',remoteName='';
-    try{remoteType=String(window.__ktRemoteRoomType||'');remoteName=String(window.__ktRemoteRoomName||'');}catch(e){}
-    try{
-      var lr=window.__ktLastLiveRoom||{};
-      remoteType+=' '+String(lr.room_type||'');
-      remoteName+=' '+String(lr.room_name||'')+' '+String(lr.title||'');
-    }catch(e){}
-    if(!/subscriber|구독자|15\s*명/i.test(remoteType+' '+remoteName))return false;
-
-    renderApprovedSubscriber();
-
-    var hostVideo=document.getElementById('ktLiveVideo');
-    var hostStream=null,selfStream=null;
-    try{hostStream=window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream||null;}catch(e){}
-    try{selfStream=window.__ktLocalGuestCameraStream20260926||window.__ktApprovedGuestSelfStream||(window.state&&state.stream)||null;}catch(e){}
-
-    try{
-      if(hostVideo&&hostStream){
-        hostVideo.muted=false;
-        hostVideo.srcObject=hostStream;
-        var hp=hostVideo.play();if(hp&&hp.catch)hp.catch(function(){});
-      }
-    }catch(e){}
-
-    try{
-      var selfCell=document.querySelector('.ktsubscriber-guest[data-guest-slot="1"]');
-      if(selfCell&&selfStream){
-        selfCell.innerHTML='<video class="ktsubscriber-self-video" autoplay playsinline muted></video><b>나 · 게스트</b>';
-        var sv=selfCell.querySelector('video');
-        sv.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#111';
-        sv.srcObject=selfStream;
-        var sp=sv.play();if(sp&&sp.catch)sp.catch(function(){});
-      }
-    }catch(e){}
-    return true;
-  };
-
-  ['kt-guest-approval-received','kt-approved-guest-stream-ready','kt-any-guest-approved','kt-livekit-state'].forEach(function(ev){
-    window.addEventListener(ev,function(){
-      setTimeout(function(){try{window.ktRenderSubscriberGuestLikeHost4444();}catch(e){}},40);
-    });
-  });
+  /* 4444: 정상 구독자 호스트방 렌더러를 새 게스트방에서도 재사용할 수 있게 공개만 한다. */
+  window.ktRenderSubscriberHostRoom4444=renderApprovedSubscriber;
 
   window.startBroadcast=async function(){
     var subscriber=isSubscriber();
