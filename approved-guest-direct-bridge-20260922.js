@@ -31,7 +31,7 @@
   window.addEventListener('kt-any-guest-approved',function(){setTimeout(scan,0);});
   window.addEventListener('kt-guest-approval-received',function(){setTimeout(scan,0);});
   scan();
-  [0,20,50,100,180,300,500,800,1200].forEach(function(ms){setTimeout(scan,ms);});
+  [0,80,250,700,1500].forEach(function(ms){setTimeout(scan,ms);});
 
   try{
     var target=document.getElementById('screen')||document.documentElement;
