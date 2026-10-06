@@ -424,11 +424,14 @@
   function removeGuest13ChatHeart20261004(root){
     try{
       if(!root)return;
-      var room=root.querySelector('.kt-guest-hostlike-room[data-kt-room="13"]');
-      if(!room)return;
-
-      /* 13명방 게스트 화면 하단의 하트 0만 제거한다.
-         호스트 방/다른 방/전광판 하트는 건드리지 않는다. */
+      /* 게스트로 들어간 모든 방송방의 하단 채팅 하트만 제거한다.
+         호스트 방/전광판/선물 하트는 건드리지 않는다. */
+      var guestView=!!(
+        root.closest&&root.closest('.kt-remote-live') ||
+        root.querySelector('.kt-guest-hostlike-room,.kt-approved-guest-room,.kt-prejoin-room,.kt-guest-room') ||
+        document.documentElement.classList.contains('kt-remote-viewing')
+      );
+      if(!guestView)return;
       root.querySelectorAll(
         '.kt-remote-chat .kt-live-clock-heart,'+
         '.kt-remote-chat .kt-attendance-heart-badge,'+
