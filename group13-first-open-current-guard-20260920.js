@@ -34,7 +34,7 @@
   function arm(){
     /* 사양이 낮은 기기에서는 13명방 DOM 생성 전에 홈 동영상 복구가 먼저 실행될 수 있어
        방송 시작 터치 순간부터 13명방이 실제로 그려질 때까지 홈 복구를 막는다. */
-    guardUntil=Date.now()+20000;
+    guardUntil=Date.now()+30000;
     stableUntil=0;
     window.__ktGroup13StartInProgress=true;
     try{document.documentElement.classList.add('kt-g13-current-guard');}catch(e){}
@@ -64,18 +64,24 @@
     if(room.getAttribute('data-kt-approved13')==='1'){
       /* 현재 승인 화면이 떠도 보호를 바로 풀지 않는다.
          느린 기기에서 뒤늦게 옛 13명방 렌더가 한 번 더 들어오는 구간을 6초간 막는다. */
-      stableUntil=Math.max(stableUntil,Date.now()+6000);
+      stableUntil=Math.max(stableUntil,Date.now()+15000);
       window.__ktGroup13StartInProgress=false;
       try{document.documentElement.classList.add('kt-g13-current-guard');}catch(e){}
       return;
     }
 
     if(typeof window.ktOpenApprovedGroup13Now!=='function')return;
+    /* 3333: 옛 13명방이 다시 그려지는 순간 화면에 노출시키지 않고
+       현재 승인 13명방으로 즉시 되돌린다. 다른 UI/기능은 변경하지 않음. */
+    try{
+      room.style.setProperty('display','none','important');
+      room.style.setProperty('visibility','hidden','important');
+    }catch(e){}
     repairing=true;
     try{
       window.ktOpenApprovedGroup13Now(true);
     }catch(e){}
-    setTimeout(function(){repairing=false;},60);
+    setTimeout(function(){repairing=false;check();},20);
   }
 
   function ensureStyle(){
