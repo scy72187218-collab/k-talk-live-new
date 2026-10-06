@@ -42,7 +42,7 @@
     +'#screen .kt-remote-live.kt-g9-host-copy .ktg13-brand{justify-self:end!important;color:#ff3d78!important;font-size:17px!important;font-weight:950!important}'
     +'#screen .kt-remote-live.kt-g9-host-copy .ktg13-led{flex:0 0 50px!important;position:relative!important;border:2px solid #ff28c4!important;border-radius:22px!important;background:#120712!important;overflow:hidden!important}'
     +'#screen .kt-remote-live.kt-g9-host-copy .ktg13-led-track{height:100%!important;display:flex!important;align-items:center!important;white-space:nowrap!important;font-size:20px!important;font-weight:950!important;color:#ffd62d!important}'
-    +'#screen .kt-remote-live.kt-g9-host-copy .ktg13-quick{flex:0 0 29px!important;display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:4px!important}#screen .kt-remote-live.kt-g9-host-copy .ktg13-quick button{border:0!important;border-radius:9px!important;background:#101014!important;color:#fff!important;font-size:10px!important;font-weight:900!important}'
+    +'#screen .kt-remote-live.kt-g9-host-copy .ktg13-quick{display:none!important}'
     +'#screen .kt-remote-live.kt-g9-host-copy .ktg13-stats{flex:0 0 31px!important;display:grid!important;grid-template-columns:1fr 1fr 1.35fr!important;gap:4px!important}#screen .kt-remote-live.kt-g9-host-copy .ktg13-stats button,#screen .kt-remote-live.kt-g9-host-copy .ktg13-viewers{border:0!important;border-radius:9px!important;background:#111114!important;color:#fff!important;font-size:10px!important;font-weight:950!important;display:flex!important;align-items:center!important;justify-content:center!important}'
     +'#screen .kt-remote-live.kt-g9-host-copy .ktg13-main{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:repeat(3,minmax(0,1fr))!important;gap:3px!important;width:calc(100% - 20px)!important;height:78vw!important;max-height:78vw!important;flex:0 0 78vw!important;margin:-4px auto 0!important;overflow:hidden!important}'
     +'#screen .kt-remote-live.kt-g9-host-copy .ktg13-host,#screen .kt-remote-live.kt-g9-host-copy .ktg13-guest{position:relative!important;display:grid!important;place-items:center!important;min-width:0!important;min-height:0!important;border-radius:9px!important;background:linear-gradient(145deg,#17181b,#111214)!important;color:#bdbdc4!important;font-size:11px!important;font-weight:900!important;overflow:hidden!important}'
@@ -58,10 +58,9 @@
   function removeDuplicateQuick(room){
     if(!room)return;
     var quicks=[].slice.call(room.querySelectorAll(':scope > .ktg13-quick'));
-    quicks.slice(1).forEach(function(x){try{x.remove();}catch(e){}});
+    quicks.forEach(function(x){try{x.remove();}catch(e){}});
     [].slice.call(room.children||[]).forEach(function(el){
-      if(!el||el.classList&&el.classList.contains('ktg13-quick'))return;
-      var t=String(el.textContent||'').replace(/\s+/g,'');
+      var t=String(el&&el.textContent||'').replace(/\s+/g,'');
       if(t.indexOf('되돌리기')>=0&&t.indexOf('보물상자')>=0&&t.indexOf('매치')>=0){
         try{el.remove();}catch(e){}
       }
@@ -127,7 +126,7 @@
       room.innerHTML=''
       +'<div class="ktg13-head"><div class="ktg13-air"><strong><i>●</i> 9명 방송</strong><small><i>● ON AIR</i> <span class="ktg9-copy-clock">00:00:00</span></small></div><button type="button" class="ktg13-attend">🪽 출석체크 🪽</button><div class="ktg13-brand">K-Talk LIVE</div></div>'
       +'<div class="ktg13-led"><div class="ktg13-led-track">💗 K-Talk LIVE 환영합니다 ✨ 즐거운 방송 되세요 🌹</div></div>'
-      +'<div class="ktg13-quick"><button type="button">↩ 되돌리기</button><button type="button">🎁 보물상자</button><button type="button">⚔ 매치</button></div>'
+
       +'<div class="ktg13-stats"><button type="button" class="ktg9-rank">🔥 일일 랭킹</button><button type="button" class="ktg9-mission">🎯 미션</button><div class="ktg13-viewers">시청자 9명이 시청중 🏃</div></div>'
       +'<div class="ktg13-main"><div class="ktg13-host"></div><div class="ktg13-guests"></div></div>';
       var guests=room.querySelector('.ktg13-guests');
