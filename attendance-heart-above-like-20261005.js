@@ -46,8 +46,12 @@
       }
 
       /* 3333: 13명방의 맨 아래 출석 하트 하나만 방송시간 옆으로 이동 */
-      if(room.classList&&room.classList.contains('ktg13-room')&&room.getAttribute('data-kt-room')==='13'){
-        var clock=room.querySelector('#ktLiveClock,.ktg13-air small span');
+      if((room.classList&&room.classList.contains('ktg13-room')&&room.getAttribute('data-kt-room')==='13') ||
+         (room.classList&&room.classList.contains('kt-remote-live')&&(
+           room.querySelector('.kt-guest-hostlike-room[data-kt-room="13"]') ||
+           room.querySelector('.ktg13-room[data-kt-room="13"]')
+         ))){
+        var clock=room.querySelector('#ktLiveClock,.ktg13-air small span,.kgh-clock');
         if(clock&&clock.parentElement){
           var existing=room.querySelector('.kt-attendance-like-count');
           if(existing&&existing.parentElement!==clock.parentElement)existing.remove();
