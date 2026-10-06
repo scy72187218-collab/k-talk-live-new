@@ -156,7 +156,7 @@
     }else if(p&&p.catch){
       p.catch(function(){
         stopCreatorMusic();
-        alert('사운드를 재생하지 못했습니다. 곡을 한 번 더 눌러 주세요.');
+        setNote('재생에 실패했습니다. 다시 눌러 주세요.');
       });
     }
   }
