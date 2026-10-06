@@ -518,8 +518,11 @@ window.ensureLiveCamera=async function(facing){
 };
 
 window.startBroadcast=async function(){
+  /* Base camera startup only. Room UI is rendered by the active room module.
+     Do not show the retired test-live creator screen here. */
   var ok=await ensureLiveCamera(state.cameraFacing||'user');
-  if(!ok)return;
+  if(!ok)return false;
+  return true;
 };
 
 var ktCreatorRecorder=null;
