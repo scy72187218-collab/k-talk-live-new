@@ -5,6 +5,7 @@
   if(window.__ktG9ViewerHostCopyFinal20261003)return;
   window.__ktG9ViewerHostCopyFinal20261003=true;
   window.__ktUseSingleG9ViewerHostCopy20261003=true;
+  var broadcastEnded8888=false;
 
   function isNine(){
     try{
@@ -81,6 +82,7 @@
   }
 
   function build(){
+    if(broadcastEnded8888)return false;
     var root=document.querySelector('#screen .kt-remote-live');
     if(!root||!isNine())return false;
     style();
@@ -189,4 +191,8 @@
     if(room){syncSelf();return;}
     build();
   },1200);
+  window.addEventListener('kt-broadcast-ended',function(){broadcastEnded8888=true;});
+  window.addEventListener('kt-host-session-reset',function(e){
+    try{broadcastEnded8888=!!(e&&e.detail&&e.detail.ended);}catch(_e){}
+  });
 })();
