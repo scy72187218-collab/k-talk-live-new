@@ -133,12 +133,16 @@
     audio.preload='auto';
     audio.loop=true;
     audio.src=t.url;
-    var processed=connectBroadcastSound(audio);
-    audio.volume=processed?.42:.16;
+    /* Android/Samsung: play directly from the user's tap first.
+       Building/resuming WebAudio before play() can consume user activation
+       and make the first tap fail. Connect processing only after playback starts. */
+    audio.volume=.64;
     window.ktCreatorMusicAudio=audio;
+    var processed=false;
     var p=audio.play();
     if(p&&p.then){
       p.then(function(){
+        processed=connectBroadcastSound(audio);
         var target=processed?.78:.64;
         window.ktCreatorMusicFadeTimer=setInterval(function(){
           if(!window.ktCreatorMusicAudio||window.ktCreatorMusicAudio!==audio){clearInterval(window.ktCreatorMusicFadeTimer);window.ktCreatorMusicFadeTimer=null;return;}
@@ -147,7 +151,7 @@
         },70);
       }).catch(function(){
         stopCreatorMusic();
-        alert('사운드를 재생하지 못했습니다. 곡을 한 번 더 눌러 주세요.');
+        setNote('재생에 실패했습니다. 잠시 후 다시 눌러 주세요.');
       });
     }else if(p&&p.catch){
       p.catch(function(){
