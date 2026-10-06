@@ -1,5 +1,5 @@
 {
-  "version": 262,
+  "version": 263,
   "locked": true,
   "scope": "full_snapshot_guard_everything",
   "lock_slot": 9,
@@ -184,7 +184,8 @@
     "communication_all_device_video_sync_only",
     "communication_all_approved_guest_video_sync_only",
     "guest_common_ui_remove_attendance_and_chat_heart_only",
-    "guest_current_screen_freeze_no_old_rerender_8888"
+    "guest_current_screen_freeze_no_old_rerender_8888",
+    "broadcast_end_all_guests_return_video_feed_8888"
   ],
   "temporarily_unlocked_components": [
     "communication_guest_approval_realtime_only",
@@ -192,9 +193,10 @@
     "communication_all_device_video_sync_only",
     "communication_all_approved_guest_video_sync_only",
     "guest_common_ui_remove_attendance_and_chat_heart_only",
-    "guest_current_screen_freeze_no_old_rerender_8888"
+    "guest_current_screen_freeze_no_old_rerender_8888",
+    "broadcast_end_all_guests_return_video_feed_8888"
   ],
-  "note": "사용자 8888 연속 승인: 현재 사진의 게스트 화면을 그대로 유지하고 옛날 게스트 화면 재렌더만 차단. 현재 배치/크기/버튼/호스트/통신은 변경 금지.",
+  "note": "사용자 8888 승인: 방송 종료 시 종료 신호를 놓친 게스트까지 방 화면에 남지 않고 동영상 피드로 자동 복귀하는 종료 통신 처리만 수정. 방 배치/버튼/호스트 UI는 변경 금지.",
   "lock_slots": {
     "6": [
       "current_full_approved_state_20260927_1740"
@@ -336,7 +338,7 @@
       "approved_guest_immediate_photo_then_live_video_20261005"
     ]
   },
-  "last_unlock": "2026-10-06-8888-guest-current-screen-freeze",
+  "last_unlock": "2026-10-06-8888-broadcast-end-return-feed",
   "last_lock": "2026-10-06-inapp-free-sound-12-locked",
   "last_note": "사운드 추가에서 외부 Bugs 등으로 넘어가지 않고 K-Talk 안에서 바로 재생되는 자유 이용 사운드 12곡으로 교체 후 1515로 잠금.",
   "unlock_pin_sha256": "41c991eb6a66242c0454191244278183ce58cf4a6bcd372f799e4b9cc01886af",
