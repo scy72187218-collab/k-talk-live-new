@@ -125,14 +125,13 @@
       room.setAttribute('data-kt-room','9');
       room.setAttribute('data-kt-viewer-host-copy','1');
       room.innerHTML=''
-      +'<div class="ktg13-head"><div class="ktg13-air"><strong><i>●</i> 9명 방송</strong><small><i>● ON AIR</i> <span class="ktg9-copy-clock">00:00:00</span></small></div><button type="button" class="ktg13-attend">🪽 출석체크 🪽</button><div class="ktg13-brand">K-Talk LIVE</div></div>'
+      +'<div class="ktg13-head"><div class="ktg13-air"><strong><i>●</i> 9명 방송</strong><small><i>● ON AIR</i> <span class="ktg9-copy-clock">00:00:00</span></small></div><div class="ktg13-brand">K-Talk LIVE</div></div>'
       +'<div class="ktg13-led"><div class="ktg13-led-track">💗 K-Talk LIVE 환영합니다 ✨ 즐거운 방송 되세요 🌹</div></div>'
 
       +'<div class="ktg13-stats"><button type="button" class="ktg9-rank">🔥 일일 랭킹</button><button type="button" class="ktg9-mission">🎯 미션</button><div class="ktg13-viewers">시청자 9명이 시청중 🏃</div></div>'
       +'<div class="ktg13-main"><div class="ktg13-host"></div><div class="ktg13-guests"></div></div>';
       var guests=room.querySelector('.ktg13-guests');
       for(var i=0;i<8;i++){var g=document.createElement('div');g.className='ktg13-guest';g.textContent='게스트';guests.appendChild(g);}
-      var attend=room.querySelector('.ktg13-attend');if(attend)attend.onclick=function(){try{if(window.ktAttendanceCheck)return window.ktAttendanceCheck();if(window.ktRemoteAttendanceCheck)return window.ktRemoteAttendanceCheck();}catch(e){}};
       var rank=room.querySelector('.ktg9-rank');if(rank)rank.onclick=function(){try{if(window.ktGroup13Ranking)return window.ktGroup13Ranking();if(window.openDailyRanking)return window.openDailyRanking();}catch(e){}};
       var mission=room.querySelector('.ktg9-mission');if(mission)mission.onclick=function(){try{if(window.ktGroup9Mission)return window.ktGroup9Mission();if(window.openMission)return window.openMission();if(window.ktGroup13Invite)return window.ktGroup13Invite();}catch(e){}};
       root.appendChild(room);
