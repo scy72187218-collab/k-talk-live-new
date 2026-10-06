@@ -1,5 +1,5 @@
 {
-  "version": 258,
+  "version": 259,
   "locked": true,
   "scope": "full_snapshot_guard_everything",
   "lock_slot": 9,
@@ -88,7 +88,8 @@
     "all_rooms_current_state_20261002",
     "group9_room_current_state_20261003",
     "group9_room_no_old_flash_saved_20261003",
-    "canonical_three_buttons_all_rooms_20261006"
+    "canonical_three_buttons_all_rooms_20261006",
+    "pwa_install_icon_prompt_progress_and_hide_20261006"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -172,7 +173,8 @@
     "all_rooms_current_state_20261002",
     "group9_room_current_state_20261003",
     "group9_room_no_old_flash_saved_20261003",
-    "canonical_three_buttons_all_rooms_20261006"
+    "canonical_three_buttons_all_rooms_20261006",
+    "pwa_install_icon_prompt_progress_and_hide_20261006"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
@@ -261,6 +263,9 @@
       "total_admin_spreadsheet_overview_members_ranking_match_events_cashout_live_20260928",
       "total_admin_tax_accounting_overview_csv_20260928"
     ],
+    "1414": [
+      "pwa_install_icon_prompt_progress_and_hide_20261006"
+    ],
     "2222": [
       "group9_bottom_controls_8",
       "group9_room_current_state",
@@ -312,8 +317,8 @@
     ]
   },
   "last_unlock": "2026-10-06-canonical-three-buttons-all-rooms-7777",
-  "last_lock": "2026-10-06-total-admin-locked",
-  "last_note": "사용자 요청: 총관리자/운영자 전용 기능과 관리자 통계·회계 영역을 1313으로 별도 잠금.",
+  "last_lock": "2026-10-06-pwa-install-progress-hide-locked",
+  "last_note": "아이콘 설치 누르면 설치 중 상태를 보여주고 appinstalled 완료 후 안내를 없애며, 설치 완료 기기에서는 다음부터 설치 안내를 다시 띄우지 않도록 1414로 잠금.",
   "unlock_pin_sha256": "41c991eb6a66242c0454191244278183ce58cf4a6bcd372f799e4b9cc01886af",
   "secret_room_lock_snapshot": {
     "host_file": "secret-room-password.js",
@@ -369,5 +374,9 @@
   "admin_password_map": {
     "1313": "총관리자/운영자 권한·관리화면·회계/통계·관리자 전용 기능"
   },
-  "admin_policy": "1313 승인 없이는 총관리자 권한, 관리자 전용 기능, 관리 통계/회계 화면 수정 금지."
+  "admin_policy": "1313 승인 없이는 총관리자 권한, 관리자 전용 기능, 관리 통계/회계 화면 수정 금지.",
+  "install_password_map": {
+    "1414": "K-Talk 아이콘 설치 안내·설치 중 표시·설치 완료 후 영구 숨김"
+  },
+  "install_policy": "1414 승인 없이는 PWA 아이콘 설치 안내/진행 표시/설치 완료 후 숨김 동작 수정 금지."
 }
