@@ -178,9 +178,13 @@
     "pwa_install_icon_prompt_progress_and_hide_20261006",
     "creator_inapp_free_sound_12_no_external_20261006"
   ],
-  "current_editable_components": [],
-  "temporarily_unlocked_components": [],
-  "note": "1111 작업 완료: 호스트·게스트 모든 방의 되돌리기·보물상자·매치 작업 상태를 잠금. 추가 변경은 다시 승인 후 진행.",
+  "current_editable_components": [
+    "communication_guest_approval_realtime_only"
+  ],
+  "temporarily_unlocked_components": [
+    "communication_guest_approval_realtime_only"
+  ],
+  "note": "사용자 승인: 다른 기능은 잠금 유지. 통신 부분만 임시 해제하여 게스트 승인 후 즉시 자리/영상 반영 지연만 수정.",
   "lock_slots": {
     "6": [
       "current_full_approved_state_20260927_1740"
