@@ -282,7 +282,7 @@
 
     var room=document.createElement('section');
     room.className='kt-guest-hostlike-room';
-    room.setAttribute('data-kt-room',info.is16?'16':'13');
+    room.setAttribute('data-kt-room',info.is16?'15':'13');
 
     var head=document.createElement('div');
     head.className='kgh-head';
@@ -298,7 +298,7 @@
     stats.innerHTML='<button type="button">🔥 일일 랭킹</button><button type="button">🎯 미션</button><div class="kgh-viewers">시청자 '+(info.is16?15:info.total)+'명이 시청중 🏃</div>';
 
     var grid=document.createElement('div');
-    grid.className='kgh-main'+(info.is16?' is16':' is13');
+    grid.className='kgh-main'+(info.is16?' is15':' is13');
     var hostCell=makeCell('host','호스트');
     var selfCell=makeCell('self','나 · 게스트');
 
