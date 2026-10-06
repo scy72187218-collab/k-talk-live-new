@@ -767,8 +767,9 @@
         items:items,
         at:Date.now()
       };
+      /* One authoritative roster packet covers every approved subscriber (up to the room limit),
+         instead of adding per-person sync code as A/B/C... grow. */
       send('guest_roster',payload);
-      try{restBroadcastToHost20260926(DEVICE,'guest_roster',payload);}catch(e){}
     }catch(e){}
   }
 
