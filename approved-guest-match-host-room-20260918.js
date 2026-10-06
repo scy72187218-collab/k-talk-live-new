@@ -123,15 +123,15 @@
     try{
       txt+=' '+String(window.__ktRemoteRoomName||'')+' '+String(window.__ktRemoteRoomType||'');
     }catch(e){}
-    var is16=/16\s*명|15\s*명|subscriber|구독자/i.test(txt);
+    var is16=/15\s*명|subscriber|구독자/i.test(txt);
     var is13=!is16&&/13\s*명|group13/i.test(txt);
     if(!is16&&!is13)return null;
     return {
       is15:is16,
       is16:is16,
       is13:is13,
-      total:is16?16:13,
-      gridTotal:is16?16:13,
+      total:is16?15:13,
+      gridTotal:is16?15:13,
       label:is16?'15명 방송':'13명 방송'
     };
   }
