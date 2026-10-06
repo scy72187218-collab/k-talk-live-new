@@ -2666,11 +2666,11 @@ window.claimTreasureChest=function(){
 window.ktEnsureHostTreasureBadge20260927=function(){
   if(window.ktClearExpiredTreasure&&window.ktClearExpiredTreasure())return;
   var t=ktGetTreasure();
-  var room=document.querySelector('#screen .ktsolo-room,#screen .ktg9-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room');
+  var room=document.querySelector('#screen .ktg9-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room');
   var old=document.getElementById('ktHostTreasureRightBadge20260927');
   if(!room||!t){if(old)old.remove();return;}
 
-  var host=room.querySelector('.ktsolo-main,.ktg9-host,.ktg13-host,.ktsubscriber-host,.ktsecret-host,.ktg13-main')||room;
+  var host=room.querySelector('.ktg9-host,.ktg13-host,.ktsubscriber-host,.ktsecret-host,.ktg13-main')||room;
   try{
     /* 13명방은 보물상자를 반드시 호스트 카메라 칸 안쪽에 고정 */
     if(room.classList.contains('ktg13-room')){
