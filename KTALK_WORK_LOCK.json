@@ -178,13 +178,9 @@
     "pwa_install_icon_prompt_progress_and_hide_20261006",
     "creator_inapp_free_sound_12_no_external_20261006"
   ],
-  "current_editable_components": [
-    "solo_broadcast_current_state"
-  ],
-  "temporarily_unlocked_components": [
-    "solo_broadcast_current_state"
-  ],
-  "note": "Solo host broadcast temporarily unlocked with authorized slot 1111; only host camera startup delay may be edited. All other components remain locked.",
+  "current_editable_components": [],
+  "temporarily_unlocked_components": [],
+  "note": "1111 작업 완료: 호스트·게스트 모든 방의 되돌리기·보물상자·매치 작업 상태를 잠금. 추가 변경은 다시 승인 후 진행.",
   "lock_slots": {
     "6": [
       "current_full_approved_state_20260927_1740"
