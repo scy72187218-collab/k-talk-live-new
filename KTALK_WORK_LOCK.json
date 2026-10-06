@@ -1,5 +1,5 @@
 {
-  "version": 247,
+  "version": 248,
   "locked": true,
   "scope": "full_snapshot_guard_everything",
   "lock_slot": 9,
@@ -83,7 +83,11 @@
     "person_photo_inline_gifts",
     "group9_room_current_state_20261003",
     "group9_room_no_old_flash_saved_20261003",
-    "all_live_signal_and_entry_current_state_20261002"
+    "all_live_signal_and_entry_current_state_20261002",
+    "all_rooms_current_state_20261002",
+    "secret_room_guest_current_state_20261004",
+    "group13_guest_current_state_20261004",
+    "approved_guest_immediate_photo_then_live_video_20261005"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -162,14 +166,14 @@
     "person_photo_inline_gifts",
     "group9_room_current_state_20261003",
     "group9_room_no_old_flash_saved_20261003",
-    "all_live_signal_and_entry_current_state_20261002"
+    "all_live_signal_and_entry_current_state_20261002",
+    "all_rooms_current_state_20261002",
+    "secret_room_guest_current_state_20261004",
+    "group13_guest_current_state_20261004",
+    "approved_guest_immediate_photo_then_live_video_20261005"
   ],
-  "current_editable_components": [
-    "all_rooms_current_state_20261002"
-  ],
-  "temporarily_unlocked_components": [
-    "all_rooms_current_state_20261002"
-  ],
+  "current_editable_components": [],
+  "temporarily_unlocked_components": [],
   "note": "approved guest flow protected after restore",
   "lock_slots": {
     "1": [
@@ -286,8 +290,8 @@
     ]
   },
   "last_unlock": "2026-10-06-remove-top3-all-rooms-7777",
-  "last_lock": "2026-10-06-instant-first-frame-five-rooms-relocked",
-  "last_note": "사용자 7777 승인: 사진 세 번째 모양 기준으로 되돌리기/보물상자(패키지상자)/매치 3버튼 줄을 1인/9/13/구독자/비밀방에서 아예 제거. 그 외 UI/채팅/선물/수익률/통신은 변경 금지.",
+  "last_lock": "2026-10-06-all-guest-no-quickrow-relocked",
+  "last_note": "모든 게스트 화면에서 상단 3버튼 줄만 제거 후 재잠금. 호스트 및 나머지 UI/기능 유지.",
   "unlock_pin_sha256": "41c991eb6a66242c0454191244278183ce58cf4a6bcd372f799e4b9cc01886af",
   "secret_room_lock_snapshot": {
     "host_file": "secret-room-password.js",
