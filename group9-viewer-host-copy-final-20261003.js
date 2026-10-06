@@ -57,14 +57,15 @@
 
   function removeDuplicateQuick(room){
     if(!room)return;
-    var quicks=[].slice.call(room.querySelectorAll(':scope > .ktg13-quick'));
-    quicks.forEach(function(x){try{x.remove();}catch(e){}});
-    [].slice.call(room.children||[]).forEach(function(el){
-      var t=String(el&&el.textContent||'').replace(/\s+/g,'');
-      if(t.indexOf('되돌리기')>=0&&t.indexOf('보물상자')>=0&&t.indexOf('매치')>=0){
-        try{el.remove();}catch(e){}
-      }
-    });
+    /* Only remove the retired legacy 9-room quick rows.
+       The new canonical all-room row is owned by canonical-three-buttons-all-rooms-20261006.js. */
+    [].slice.call(room.querySelectorAll(
+      ':scope > .ktg13-quick,'+
+      ':scope > .kt-all-five-utm-hard1111,'+
+      ':scope > .kt-g9-host-top3-restore-20261005,'+
+      ':scope > .kt-room-second-stats-row-20260927,'+
+      ':scope > .kt-g9-host-utm-20261005'
+    )).forEach(function(x){try{x.remove();}catch(e){}});
   }
 
   function removeLegacyTopNineGrids20261003(root,preserveVideo){
