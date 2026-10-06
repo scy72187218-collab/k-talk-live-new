@@ -72,6 +72,28 @@
     return targets.length>0;
   }
 
+  function hideBlackSoloEntry(){
+    try{
+      var st=window.state||{};
+      var txt=[st.liveRoomType,st.liveRoomName,st.prepRoomType,st.prepRoomName].join(' ');
+      if(!/solo|1\s*인/.test(String(txt)))return;
+      var screen=document.getElementById('screen');
+      if(screen){
+        screen.style.setProperty('background','transparent','important');
+        screen.querySelectorAll('[id*="Countdown"],[class*="countdown"],.kt-live-countdown,.kt-countdown-overlay').forEach(function(el){
+          el.style.setProperty('display','none','important');
+        });
+      }
+      var v=document.getElementById('ktLiveVideo')||document.querySelector('#screen .ktsolo-room video');
+      var s=(window.state&&state.stream)||window.__ktEntryHostStream20260925||null;
+      if(v&&liveStream(s)){
+        if(v.srcObject!==s)v.srcObject=s;
+        v.autoplay=true;v.playsInline=true;v.muted=true;
+        var p=v.play();if(p&&p.catch)p.catch(function(){});
+      }
+    }catch(e){}
+  }
+
   function install(){
     var old=window.ktEnterRemoteLive;
     if(typeof old!=='function')return false;
@@ -93,6 +115,7 @@
       }
 
       var out=old.apply(this,arguments);
+      hideBlackSoloEntry();
 
       if(liveStream(stream)){
         [0,8,20,45,80,140,240].forEach(function(ms){
@@ -117,6 +140,7 @@
     new MutationObserver(function(){
       var s=window.__ktEntryHostStream20260925||null;
       if(liveStream(s))paint(s);
+      hideBlackSoloEntry();
       install();
     }).observe(document.getElementById('screen')||document.documentElement,{childList:true,subtree:true});
   }catch(e){}
