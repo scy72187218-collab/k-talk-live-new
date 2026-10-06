@@ -374,6 +374,17 @@ html.kt-remote-viewing .live-prep{
     var cr=window.creator||document.getElementById('creator');
     if(cr)cr.classList.remove('live-prep-open');
   }catch(e){}
+
+  /* 1111: 1인 방송은 이미 준비 화면에서 열린 카메라를 그대로 사용한다.
+     빨간 시작 버튼을 누를 때 카메라를 다시 기다리지 않고 방을 먼저 연다. */
+  if(type==='solo'){
+    try{
+      var hasLiveVideo=!!(window.state&&state.stream&&state.stream.getVideoTracks&&state.stream.getVideoTracks().some(function(track){return track.readyState==='live';}));
+      if(hasLiveVideo&&window.startTestBroadcast){
+        return Promise.resolve(window.startTestBroadcast()).catch(function(){});
+      }
+    }catch(e){}
+  }
   if(window.startBroadcast) return window.startBroadcast();
  };
  window.openRoomPrep=function(name,max){
