@@ -345,7 +345,7 @@
         else if(txt.indexOf('15명')>-1)d={type:'group15',name:'15명 방송',max:15};
         else if(txt.indexOf('구독자')>-1)d={type:'subscriber',name:'구독자 방송',max:10};
         else if(txt.indexOf('비밀')>-1)d={type:'password',name:'비밀방',max:7};
-        if(d&&typeof window.ktStartRoomNow==='function')window.ktStartRoomNow(d.type,d.name,d.max);
+        if(d&&d.type!=='subscriber'&&typeof window.ktStartRoomNow==='function')window.ktStartRoomNow(d.type,d.name,d.max);
       }catch(_e){}
       return;
     }
