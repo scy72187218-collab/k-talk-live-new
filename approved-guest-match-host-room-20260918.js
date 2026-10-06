@@ -541,13 +541,6 @@
       forceLast13GuestBottomRight20261004(root);
       if(!root){builtRoot=null;return;}
       var room=root.querySelector('.kt-guest-hostlike-room');
-      /* 4444: 구독자 게스트방은 한 번 정상 15명 화면이 만들어지면
-         빨간 방송 진입/재연결 중 예전 단일 카메라 화면으로 다시 바꾸지 않는다. */
-      if(room&&room.getAttribute('data-kt-room')==='15'){
-        root.classList.remove('kt-approved-guest-room','kt-prejoin-room-view');
-        root.classList.add('kt-guest-hostlike-active');
-        removeGuestAttendanceAndChatHeart8888(root);
-      }
       if(room){
         /* 기존 연결 스트림이 바뀌어도 두 영상만 유지 */
         var hostCell=room.querySelector('.kgh-cell.host');
