@@ -1,21 +1,19 @@
-/* K-Talk 사운드 목록 전용: 자유 이용 사운드 12곡 + 허가된 옛날 가요 메뉴. 다른 기능은 변경하지 않음. */
+/* K-Talk 사운드 목록 전용: 자유 이용 사운드 10곡 + 허가된 옛날 가요 메뉴. 다른 기능은 변경하지 않음. */
 (function(){
   if(window.__ktFreeVocal20Installed20260915)return;
   window.__ktFreeVocal20Installed20260915=true;
 
   var tracks=[
-    {name:'Tiger Rag',source:'Original Dixieland Jass Band · 신나는 올드 재즈',time:'3:05',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Tiger_Rag_ODJB.ogg'},
-    {name:'Livery Stable Blues',source:'Original Dixieland Jass Band · 신나는 올드 재즈',time:'3:10',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/ODJB_Livery_Stable_Blues_1917.ogg'},
-    {name:'Texas Tommy Swing',source:'Collins & Harlan · 올드 스윙',time:'2:55',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Collins_%26_Harlan_-_Texas_Tommy_Swing_(1911).ogg'},
-    {name:'Jazz Me Blues',source:'Original Dixieland Jass Band · 올드 재즈',time:'2:59',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/OriginalDixielandJassBand-JazzMeBlues.ogg'},
-    {name:'Dixie Jass Band One-Step',source:'Original Dixieland Jass Band · 빠른 올드 재즈',time:'2:36',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/OriginalDixielandJassBand_DixieJassBandOneStep1917.ogg'},
-    {name:'Hot Lips',source:'Paul Whiteman Orchestra · 올드 댄스 재즈',time:'3:13',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Hot_Lips.ogg'},
-    {name:'St. Louis Blues',source:'Original Dixieland Jazz Band · 올드 재즈',time:'3:11',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/OriginalDixielandJazzBandwithAlBernard_StLouisBlues.ogg'},
-    {name:'The Entertainer',source:'Scott Joplin · 빠른 스윙 피아노',time:'3:33',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/The_Entertainer_-_Scott_Joplin.ogg'},
-    {name:'Frankie and Johnny',source:'전통 포크 · 자유 이용 음원',time:'3:20',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/FrankieandJohnny_Live.ogg'},
-    {name:'Jesse James',source:'Bentley Ball · 올드 포크',time:'3:00',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Jesse_James_(Bentley_Ball).ogg'},
-    {name:'In My Merry Oldsmobile',source:'Billy Murray · 올드 팝',time:'2:51',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Bill_Murray_-_In_My_Merry_Oldsmobile.ogg'},
-    {name:"I Shall Not Be Moved",source:'전통 포크 · 자유 이용 음원',time:'3:06',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/IShallNotBeMoved.ogg'}
+    {name:'에어 온 더 G 스트링',source:'미 공군 밴드 · 퍼블릭도메인 MP3',time:'3:03',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Air_-_Air_Force_Strings_-_United_States_Air_Force_Band.mp3'},
+    {name:'타란텔라',source:'미 공군 밴드 · 퍼블릭도메인 MP3',time:'',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Tarantella_-_Air_Force_Strings_-_United_States_Air_Force_Band.mp3'},
+    {name:'스킵 투 마이 루',source:'미 공군 밴드 · 퍼블릭도메인 MP3',time:'2:11',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Skip_to_My_Lou_-_Singing_Sergeants_-_United_States_Air_Force_Band.mp3'},
+    {name:'셰넌도어',source:'미 공군 밴드 · 퍼블릭도메인 MP3',time:'',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Shenandoah_(2017)_-_Singing_Sergeants_-_United_States_Air_Force_Band.mp3'},
+    {name:'왕벌의 비행',source:'미 공군 밴드 · 퍼블릭도메인 MP3',time:'',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Flight_of_the_Bumblebee_-_Strolling_Strings_-_United_States_Air_Force_Band.mp3'},
+    {name:'내 주를 가까이',source:'미 공군 밴드 · 퍼블릭도메인 MP3',time:'',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Nearer_My_God_to_Thee_-_Ceremonial_Brass_-_United_States_Air_Force_Band.mp3'},
+    {name:'왈츠 E단조',source:'Musopen · CC0 MP3',time:'2:56',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/WaltzB.56InEMinor.mp3'},
+    {name:'왈츠 E플랫장조',source:'Musopen · CC0 MP3',time:'2:24',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/WaltzB.46InEFlatMajor.mp3'},
+    {name:'모차르트 미사 Kyrie',source:'Musopen · CC0 MP3',time:'6:51',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Mozart_-_Mass_in_C_minor_K.427_-_I._Kyrie.mp3'},
+    {name:'Shenandoah 연주곡',source:'미 공군 아카데미 밴드 · 퍼블릭도메인 MP3',time:'3:23',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Shenandoah_-_United_States_Air_Force_Academy_Band.mp3'}
   ];
 
   function currentTracks(){
@@ -24,7 +22,7 @@
 
   function setNote(text){
     var note=document.querySelector('.kt-sound-panel .note');
-    if(note)note.textContent=text||'사람이 직접 부른 자유 이용 사운드 12곡만 들어 있습니다. 곡을 누르면 촬영 화면에서도 바로 소리가 납니다.';
+    if(note)note.textContent=text||'사람이 직접 부른 자유 이용 사운드 10곡만 들어 있습니다. 곡을 누르면 촬영 화면에서도 바로 소리가 납니다.';
   }
 
   function disconnectBroadcastNodes(){
@@ -189,7 +187,7 @@
   }
 
   function apply(){
-    window.ktCreatorTracks=tracks.slice(0,12);
+    window.ktCreatorTracks=tracks.slice(0,10);
     window.ktSearchFreeMusicOnline=function(){ return Promise.resolve(); };
     window.ktOpenLicensedSongSearch=function(index,ev){
       if(ev){try{ev.stopPropagation();ev.preventDefault();if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();}catch(e){}}
@@ -230,7 +228,7 @@
   var oldOpen=window.openSoundPanel;
   if(typeof oldOpen==='function'){
     window.openSoundPanel=function(){
-      window.ktCreatorTracks=tracks.slice(0,12);
+      window.ktCreatorTracks=tracks.slice(0,10);
       oldOpen.apply(this,arguments);
       setTimeout(function(){
         installOldSongTab();
