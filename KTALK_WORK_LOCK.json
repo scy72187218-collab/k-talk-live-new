@@ -1,5 +1,5 @@
 {
-  "version": 271,
+  "version": 272,
   "locked": true,
   "scope": "full_snapshot_guard_everything",
   "lock_slot": 9,
@@ -88,10 +88,7 @@
     "group9_room_current_state_20261003",
     "group9_room_no_old_flash_saved_20261003",
     "canonical_three_buttons_all_rooms_20261006",
-    "pwa_install_icon_prompt_progress_and_hide_20261006",
-    "creator_inapp_free_sound_12_no_external_20261006",
-    "live_audio_music_voice_quality_48khz_stereo_no_agc_20260928",
-    "sound_direct_playback_20261006"
+    "pwa_install_icon_prompt_progress_and_hide_20261006"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -175,13 +172,18 @@
     "group9_room_current_state_20261003",
     "group9_room_no_old_flash_saved_20261003",
     "canonical_three_buttons_all_rooms_20261006",
-    "pwa_install_icon_prompt_progress_and_hide_20261006",
+    "pwa_install_icon_prompt_progress_and_hide_20261006"
+  ],
+  "current_editable_components": [
     "creator_inapp_free_sound_12_no_external_20261006",
     "live_audio_music_voice_quality_48khz_stereo_no_agc_20260928",
     "sound_direct_playback_20261006"
   ],
-  "current_editable_components": [],
-  "temporarily_unlocked_components": [],
+  "temporarily_unlocked_components": [
+    "creator_inapp_free_sound_12_no_external_20261006",
+    "live_audio_music_voice_quality_48khz_stereo_no_agc_20260928",
+    "sound_direct_playback_20261006"
+  ],
   "note": "1111 재작업 완료 후 재잠금: 1인방에 실제 표시되던 레거시 오른쪽 선물박스·마이크·카메라 숨김 처리. 다른 방/통신 변경 없음.",
   "lock_slots": {
     "6": [
@@ -327,7 +329,7 @@
   },
   "last_unlock": "2026-10-06-sound-playback-fix-1515",
   "last_lock": "2026-10-06-sound-playback-fix-1515-relocked",
-  "last_note": "1515 승인 작업 완료: 재생 안 되던 OGG 중심 목록을 MP3 10곡으로 교체, 첫 탭에서 직접 재생, 예전 외부/중복 재생 핸들러 차단 후 재잠금.",
+  "last_note": "사운드 12곡 목록은 유지하고, 재생만 안 되는 문제 수정. 외부 이동/방송방/채팅/선물/수익은 변경 금지.",
   "unlock_pin_sha256": "41c991eb6a66242c0454191244278183ce58cf4a6bcd372f799e4b9cc01886af",
   "secret_room_lock_snapshot": {
     "host_file": "secret-room-password.js",
