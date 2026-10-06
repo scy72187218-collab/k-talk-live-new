@@ -51,6 +51,16 @@
       ||root.querySelector(':scope > .ktsolo-main,:scope > .ktgroup9-main,:scope > .ktg9-main,:scope > .ktgroup13-main,:scope > .ktg13-main,:scope > .ktsubscriber-main,:scope > .ktsecret-main,:scope > .kgh-main,:scope > [class*="room-grid"]');
   }
   function install(root){
+    /* Remove the obsolete old 3-button row (undo/package/match) but never the fresh row. */
+    try{
+      Array.prototype.slice.call(root.children||[]).forEach(function(el){
+        if(!el||el.classList&&el.classList.contains(CLS))return;
+        var t=String(el.textContent||'').replace(/\s+/g,'');
+        if(t.indexOf('되돌리기')>=0&&t.indexOf('매치')>=0&&(t.indexOf('패키지')>=0||t.indexOf('보물')>=0)){
+          el.remove();
+        }
+      });
+    }catch(e){}
     var rows=root.querySelectorAll(':scope > .'+CLS); for(var i=1;i<rows.length;i++)rows[i].remove();
     var row=rows[0]||make(), a=anchor(root);
     if(a&&a.parentNode===root){if(a.previousElementSibling!==row)root.insertBefore(row,a);}
