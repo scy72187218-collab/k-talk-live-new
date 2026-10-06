@@ -91,7 +91,8 @@
     "pwa_install_icon_prompt_progress_and_hide_20261006",
     "creator_inapp_free_sound_12_no_external_20261006",
     "live_audio_music_voice_quality_48khz_stereo_no_agc_20260928",
-    "sound_direct_playback_20261006"
+    "sound_direct_playback_20261006",
+    "all_five_rooms_large_camera_mic_movie_removed_20261006"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -178,7 +179,8 @@
     "pwa_install_icon_prompt_progress_and_hide_20261006",
     "creator_inapp_free_sound_12_no_external_20261006",
     "live_audio_music_voice_quality_48khz_stereo_no_agc_20260928",
-    "sound_direct_playback_20261006"
+    "sound_direct_playback_20261006",
+    "all_five_rooms_large_camera_mic_movie_removed_20261006"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
@@ -312,7 +314,8 @@
       "group9_bottom_controls_8",
       "attendance_heart_above_separate_20261002",
       "host_led_room_promo_3times_10min_20261002",
-      "led_promo_tap_enters_room_20261002"
+      "led_promo_tap_enters_room_20261002",
+      "all_five_rooms_large_camera_mic_movie_removed_20261006"
     ],
     "9999": [
       "current_full_state_20260928_rewards_and_payouts",
@@ -326,8 +329,8 @@
     ]
   },
   "last_unlock": "2026-10-06-solo-border-fix-1111",
-  "last_lock": "2026-10-06-solo-borderless-relocked",
-  "last_note": "사운드 ▶ 버튼이 app.js 구형 미리듣기 대신 현재 K-Talk 내부 플레이어를 사용하도록 수정 후 1515 재잠금.",
+  "last_lock": "2026-10-06-8888-five-rooms-large-media-bar-removed",
+  "last_note": "8888: 1인방·9명방·13명방·구독자방·비밀방의 큰 카메라·마이크·영화/TV/유튜브 3칸 제거 상태 재잠금. 작은 하단 아이콘 줄 및 다른 UI는 유지.",
   "unlock_pin_sha256": "41c991eb6a66242c0454191244278183ce58cf4a6bcd372f799e4b9cc01886af",
   "secret_room_lock_snapshot": {
     "host_file": "secret-room-password.js",
