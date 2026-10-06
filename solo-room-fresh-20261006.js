@@ -25,7 +25,7 @@
   function render(){
     var s=document.getElementById("screen"); if(!s)return;
     s.innerHTML='<style>'
-      +'#screen{padding:0!important;margin:0!important;height:100dvh!important;background:#000!important;overflow:hidden!important}.bottom{display:none!important}'
+      +'#screen{padding:0!important;margin:0!important;height:100dvh!important;background:#000!important;overflow:hidden!important}.bottom,.kt-bottom{display:none!important}'
       +'.kt-solo-fresh{position:relative;width:100%;height:100dvh;background:#000;color:#fff;overflow:hidden;font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif}'
       +'.kt-solo-fresh video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1);background:#111}'
       +'.ksf-top{position:absolute;z-index:5;left:12px;right:12px;top:calc(10px + env(safe-area-inset-top));display:flex;align-items:center;gap:8px}.ksf-live{font-weight:950;font-size:18px;text-shadow:0 1px 5px #000}.ksf-live b{color:#ff315f}.ksf-att{margin-left:auto;border:1px solid #ff55c9;background:#1c0c1dbf;color:#fff;border-radius:999px;padding:8px 12px;font-weight:900}.ksf-close{border:0;background:#111b;color:#fff;width:38px;height:38px;border-radius:50%;font-size:22px}'
