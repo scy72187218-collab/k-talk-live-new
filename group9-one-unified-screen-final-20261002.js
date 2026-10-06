@@ -140,7 +140,25 @@
   }
 
 
+  function removeDuplicateNineGrids(){
+    /* 2222: 정상 9명방이 이미 떠 있으면 위에 남는 예전 9칸만 제거.
+       정상 방/영상/채팅/버튼/다른 방은 건드리지 않는다. */
+    try{
+      document.querySelectorAll('#screen .kt-remote-live').forEach(function(root){
+        if(!isNineRemote(root))return;
+        var stable=root.querySelector(':scope > .ktg13-room[data-kt-room="9"]');
+        if(!stable)return;
+        root.querySelectorAll(':scope > .kt-prejoin-room-grid,:scope > .kt-approved-guest-grid,:scope > .kt-guest-room-grid,:scope > .kt-guest-hostlike-room').forEach(function(x){
+          if(x!==stable&&!stable.contains(x)){
+            try{x.remove();}catch(e){}
+          }
+        });
+      });
+    }catch(e){}
+  }
+
   function apply(){
+    removeDuplicateNineGrids();
     /* Host */
     document.querySelectorAll(
       '#screen .ktg13-room[data-kt-room="9"] .ktg13-main,'+
