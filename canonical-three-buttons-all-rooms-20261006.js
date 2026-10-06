@@ -42,8 +42,7 @@
   }
   function roots(){
     var a=[]; function add(x){if(x&&x.isConnected&&a.indexOf(x)<0)a.push(x);}
-    document.querySelectorAll('#screen .ktsolo-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room,#screen .kt-guest-hostlike-room,#screen .kt-prejoin-room,#screen .kt-approved-guest-room').forEach(add);
-    var remote=document.querySelector('#screen .kt-remote-live'); if(remote&&!remote.querySelector('.kt-guest-hostlike-room,.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room'))add(remote);
+    document.querySelectorAll('#screen .ktsolo-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room').forEach(add);
     return a;
   }
   function anchor(root){
