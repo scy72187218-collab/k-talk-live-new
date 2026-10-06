@@ -385,6 +385,7 @@ window.openRoomPrep=function(name,max){ document.body.classList.remove('kt-solo-
     else if(String(name).indexOf('비밀')>-1)state.liveRoomType='password';
     else if(String(name).indexOf('15명')>-1)state.liveRoomType='group15';
     else if(String(name).indexOf('13명')>-1)state.liveRoomType='group13';
+    else if(String(name).indexOf('1인 방송')>-1)state.liveRoomType='solo';
     else state.liveRoomType='general';
   }
   var title=document.getElementById('liveTitle');
