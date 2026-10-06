@@ -45,33 +45,6 @@
         return;
       }
 
-      /* 3333: 13명방의 맨 아래 출석 하트 하나만 방송시간 옆으로 이동 */
-      if((room.classList&&room.classList.contains('ktg13-room')&&room.getAttribute('data-kt-room')==='13') ||
-         (room.classList&&room.classList.contains('kt-remote-live')&&(
-           room.querySelector('.kt-guest-hostlike-room[data-kt-room="13"]') ||
-           room.querySelector('.ktg13-room[data-kt-room="13"]')
-         ))){
-        var clock=room.querySelector('#ktLiveClock,.ktg13-air small span,.kgh-clock');
-        if(clock&&clock.parentElement){
-          var existing=room.querySelector('.kt-attendance-like-count');
-          if(existing&&existing.parentElement!==clock.parentElement)existing.remove();
-          var top=clock.parentElement.querySelector(':scope > .kt-attendance-like-count');
-          if(!top){
-            top=document.createElement('button'); top.type='button'; top.className='kt-attendance-like-count';
-            top.setAttribute('aria-label','하트 출석체크'); top.innerHTML='<span>♥</span> <b data-kt-attendance-like-number>0</b>';
-            top.onclick=function(e){try{e.preventDefault();e.stopPropagation();}catch(_e){} try{if(typeof window.ktAttendanceCheck==='function')window.ktAttendanceCheck();}catch(_e){}};
-            clock.insertAdjacentElement('afterend',top);
-          }
-          top.style.setProperty('position','static','important');
-          top.style.setProperty('width','auto','important');
-          top.style.setProperty('height','20px','important');
-          top.style.setProperty('margin-left','5px','important');
-          top.style.setProperty('display','inline-flex','important');
-          var tnum=top.querySelector('[data-kt-attendance-like-number]'); if(tnum)tnum.textContent=String(count());
-          return;
-        }
-      }
-
       var holder=like.parentElement||room;
       if(getComputedStyle(holder).position==='static')holder.style.setProperty('position','relative');
 
