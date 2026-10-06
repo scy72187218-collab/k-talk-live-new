@@ -178,9 +178,15 @@
     "pwa_install_icon_prompt_progress_and_hide_20261006",
     "creator_inapp_free_sound_12_no_external_20261006"
   ],
-  "current_editable_components": [],
-  "temporarily_unlocked_components": [],
-  "note": "approved guest flow protected after restore",
+  "current_editable_components": [
+    "creator_inapp_free_sound_12_no_external_20261006",
+    "live_audio_music_voice_quality_48khz_stereo_no_agc_20260928"
+  ],
+  "temporarily_unlocked_components": [
+    "creator_inapp_free_sound_12_no_external_20261006",
+    "live_audio_music_voice_quality_48khz_stereo_no_agc_20260928"
+  ],
+  "note": "Sound work temporarily unlocked with authorized slot 1515; all other components remain locked.",
   "lock_slots": {
     "6": [
       "current_full_approved_state_20260927_1740"
