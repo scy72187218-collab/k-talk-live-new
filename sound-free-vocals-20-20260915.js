@@ -213,8 +213,9 @@
       }catch(e){}
       var btn=document.getElementById('creatorSoundBtn');
       if(btn)btn.textContent='♪ '+t.name;
+      /* Keep the sound sheet open while playback starts.
+         closeSheet() can trigger global media-stop handlers and immediately pause this audio. */
       playCreatorTrack(t);
-      if(typeof window.closeSheet==='function')window.closeSheet();
     };
     renderCurrent();
     installOldSongTab();
