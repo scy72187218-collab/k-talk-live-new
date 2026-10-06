@@ -286,9 +286,7 @@
     var head=document.createElement('div');
     head.className='kgh-head';
     head.innerHTML='<div class="kgh-air"><strong><i>●</i> '+info.label+'</strong><small><i>● ON AIR</i> <span class="kgh-clock">00:00:00</span></small></div>'
-      +'<button class="kgh-attend" type="button">🌹 출석체크</button><div class="kgh-brand">K-Talk LIVE</div>';
-    var attend=head.querySelector('.kgh-attend');
-    attend.addEventListener('click',function(){try{if(window.ktAttendanceCheck)window.ktAttendanceCheck();}catch(e){}});
+      +'<div class="kgh-brand">K-Talk LIVE</div>';
 
     var led=document.createElement('div');
     led.className='kgh-led';
