@@ -1,5 +1,5 @@
 {
-  "version": 251,
+  "version": 252,
   "locked": true,
   "scope": "full_snapshot_guard_everything",
   "lock_slot": 9,
@@ -176,19 +176,11 @@
   "temporarily_unlocked_components": [],
   "note": "approved guest flow protected after restore",
   "lock_slots": {
-    "1": [
-      "group9_bottom_controls_8"
-    ],
     "2": [
-      "public_video_first_page_opening",
-      "group13_open_room_then_countdown"
+      "public_video_first_page_opening"
     ],
     "3": [
-      "subscriber_room_current_state",
       "public_video_rose_message_share"
-    ],
-    "4": [
-      "secret_room_rank_mission_viewers_flip_treasure_match"
     ],
     "6": [
       "current_full_approved_state_20260927_1740"
@@ -274,24 +266,43 @@
     "18": [
       "creator_auto_youth_beauty_and_edit_effect_removed_20261002"
     ],
-    "7777": [
-      "secret_room_host_current_state_20261004",
-      "secret_room_guest_current_state_20261004",
-      "secret_room_host_guest_layout_pair_20261004",
-      "person_photo_inline_gifts"
+    "1111": [
+      "solo_broadcast_current_state"
     ],
-    "7777_group13_guest": [
+    "2222": [
+      "group9_bottom_controls_8",
+      "group9_room_current_state",
+      "group9_existing_led_banner_shell_restore_only_20261002",
+      "group9_room_current_state_20261003",
+      "group9_room_no_old_flash_saved_20261003"
+    ],
+    "3333": [
+      "group13_open_room_then_countdown",
+      "group13_room_current_state_20261003",
       "group13_guest_current_state_20261004",
       "group13_guest_final_tile_right_20261004",
       "group13_guest_chat_heart_removed_20261004"
+    ],
+    "4444": [
+      "subscriber_room_current_state"
+    ],
+    "5555": [
+      "secret_room_rank_mission_viewers_flip_treasure_match",
+      "secret_room_current_state",
+      "secret_room_host_current_state_20261004",
+      "secret_room_guest_current_state_20261004",
+      "secret_room_host_guest_layout_pair_20261004"
+    ],
+    "7777": [
+      "person_photo_inline_gifts"
     ],
     "7777_multiguest_20261005": [
       "approved_guest_immediate_photo_then_live_video_20261005"
     ]
   },
   "last_unlock": "2026-10-06-canonical-three-buttons-all-rooms-7777",
-  "last_lock": "2026-10-06-canonical-three-buttons-all-rooms-relocked",
-  "last_note": "예전 되돌리기/보물상자(패키지상자)/매치 중복 스크립트 삭제 완료. 호스트·게스트 모든 방은 canonical-three-buttons-all-rooms-20261006.js 한 파일만 사용하도록 통합 후 재잠금.",
+  "last_lock": "2026-10-06-five-room-passwords-separated",
+  "last_note": "사용자 요청대로 방별 잠금 분리: 1111=1인방, 2222=9명방, 3333=13명방, 4444=구독자방, 5555=비밀방. 기존 중복 방 잠금 매핑 제거.",
   "unlock_pin_sha256": "41c991eb6a66242c0454191244278183ce58cf4a6bcd372f799e4b9cc01886af",
   "secret_room_lock_snapshot": {
     "host_file": "secret-room-password.js",
@@ -315,5 +326,13 @@
     "locked_at": "2026-10-05",
     "pin_hint": "7777",
     "scope": "guest approval immediate display and rapid multi-join up to 15 only"
-  }
+  },
+  "room_password_map": {
+    "1111": "1인방",
+    "2222": "9명방",
+    "3333": "13명방",
+    "4444": "구독자방",
+    "5555": "비밀방"
+  },
+  "room_password_policy": "각 방 수정은 해당 방 비밀번호만 사용. 다른 방 코드/레이아웃/통신은 건드리지 않음. 공통 기능은 별도 공통 잠금 상태를 유지."
 }
