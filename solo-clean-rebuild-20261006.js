@@ -2,6 +2,7 @@
 (function(){
  if(window.__ktSoloCleanRebuild)return; window.__ktSoloCleanRebuild=true;
  var previousStart=window.startBroadcast;
+ window.__ktSolo1111Unlocked=true;
  function soloSelected(){
    try{
      var t=String((window.state&&state.liveRoomType)||"");
@@ -42,6 +43,15 @@
    try{if(window.leaveBroadcastToDashboard)return leaveBroadcastToDashboard();}catch(e){}
    try{location.reload();}catch(e){}
  };
+ window.ktOpenSoloCleanRebuild20261006=async function(){
+   var ok=true;
+   try{
+     var live=!!(window.state&&state.stream&&state.stream.getVideoTracks&&state.stream.getVideoTracks().some(function(t){return t.readyState===\"live\";}));
+     if(!live&&window.ensureLiveCamera)ok=await window.ensureLiveCamera((state&&state.cameraFacing)||\"user\");
+   }catch(e){ok=false;}
+   if(ok!==false)render();
+   return ok;
+ };
  window.startBroadcast=async function(){
    if(!soloSelected())return typeof previousStart==="function"?previousStart.apply(this,arguments):false;
    var ok=true;
@@ -51,5 +61,13 @@
    }catch(e){ok=false;}
    if(ok!==false)render();
    return ok;
+ };
+ var oldRoom=window.ktStartRoomNow;
+ window.ktStartRoomNow=function(type,name,max){
+   if(type==='solo'||Number(max)===1||/1인/.test(String(name||''))){
+     try{if(window.state){state.liveRoomType='solo';state.liveRoomName='1인 방송';state.liveRoomMax=1;}}catch(e){}
+     return window.ktOpenSoloCleanRebuild20261006();
+   }
+   return typeof oldRoom==='function'?oldRoom.apply(this,arguments):false;
  };
 })();
