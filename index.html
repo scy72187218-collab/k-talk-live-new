@@ -110,11 +110,7 @@ html.kt-remote-viewing .live-prep{
 <link rel="icon" href="/ktalk-icon-192.png?v=20261005-icon-reset1150617" sizes="192x192">
 <link rel="apple-touch-icon" href="/ktalk-icon-192.png?v=20261005-icon-reset1150617">
 <meta name="theme-color" content="#000000">
-<style>
-body.kt-solo-live #ktMainBottomNav{display:none!important}
-body.kt-solo-live .ktsolo-right{display:none!important}
-body.kt-solo-live .kt-solo-new-bottom-20261006{display:none!important}
-</style></head>
+</head>
 <body>
 <div class="app">
 <header class="header"><div class="brand"><div class="logo">♛ K-Talk</div><div class="live">LIVE</div></div><div id="globalLed" class="led" onclick="handleLedClick()">♛ K-Talk · 신곡 광고 신청하세요! 🎵 🎤</div></header>
@@ -381,12 +377,7 @@ body.kt-solo-live .kt-solo-new-bottom-20261006{display:none!important}
 
   /* 1111: 1인 방송은 이미 준비 화면에서 열린 카메라를 그대로 사용한다.
      빨간 시작 버튼을 누를 때 카메라를 다시 기다리지 않고 방을 먼저 연다. */
-  if(type==='solo'){ document.body.classList.add('kt-solo-live');
-    try{
-      var hasLiveVideo=!!(window.state&&state.stream&&state.stream.getVideoTracks&&state.stream.getVideoTracks().some(function(track){return track.readyState==='live';}));
-      if(hasLiveVideo&&window.startTestBroadcast){
-        return Promise.resolve(window.startTestBroadcast()).catch(function(){});
-      }
+  if(type==='solo'){ alert('1인 방송은 새로 만드는 중입니다.'); return; }
     }catch(e){}
   }
   if(window.startBroadcast) return window.startBroadcast();
