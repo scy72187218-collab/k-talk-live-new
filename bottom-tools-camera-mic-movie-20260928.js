@@ -135,9 +135,19 @@
       else if(!gift&&(t==='선물'||t.indexOf('선물')>-1))gift=b;
     });
 
-    if(match)setButton(match,'camera',room);
-    if(rose)setButton(rose,'mic',room);
-    if(gift)setButton(gift,'movie',room);
+    if(room.classList.contains('ktsolo-room')){
+      /* 1인방: 채팅창 옆 하단 버튼줄에 카메라/마이크/선물 배치 */
+      if(match)setButton(match,'camera',room);
+      if(rose)setButton(rose,'mic',room);
+      if(gift){
+        gift.innerHTML='<i>🎁</i><span>선물</span>';
+        gift.onclick=function(e){try{e.preventDefault();e.stopPropagation();}catch(_e){} try{if(typeof window.openGifts==='function')window.openGifts();}catch(_e){} return false;};
+      }
+    }else{
+      if(match)setButton(match,'camera',room);
+      if(rose)setButton(rose,'mic',room);
+      if(gift)setButton(gift,'movie',room);
+    }
   }
 
   function style(){
