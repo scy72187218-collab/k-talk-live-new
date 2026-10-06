@@ -6,7 +6,7 @@
     var t='';
     try{var r=window.__ktLastLiveRoom||{};t+=' '+(r.room_type||'')+' '+(r.room_name||'')+' '+(r.title||'');}catch(e){}
     try{t+=' '+(window.__ktRemoteRoomType||'')+' '+(window.__ktRemoteRoomName||'');}catch(e){}
-    return /subscriber|구독자|15\s*명/i.test(t);
+    return /subscriber|구독자/i.test(t);
   }
   function renderHostCodeOnly(){
     if(!isSubscriberRemote())return false;
