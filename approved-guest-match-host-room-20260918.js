@@ -285,7 +285,14 @@
     if(info.is16){
       try{
         root.querySelectorAll(':scope > .kt-remote-leave-fixed-1150617').forEach(function(x){
-          x.style.setProperty('display','none','important');
+          try{x.remove();}catch(e){x.style.setProperty('display','none','important');}
+        });
+        [].slice.call(root.children||[]).forEach(function(x){
+          try{
+            if(x.classList&&x.classList.contains('kt-guest-hostlike-room'))return;
+            var t=String(x.textContent||'').replace(/\s+/g,'').trim();
+            if(t==='퇴장')x.remove();
+          }catch(e){}
         });
       }catch(e){}
     }
