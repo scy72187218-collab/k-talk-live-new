@@ -1,5 +1,5 @@
 {
-  "version": 252,
+  "version": 253,
   "locked": true,
   "scope": "full_snapshot_guard_everything",
   "lock_slot": 9,
@@ -87,7 +87,8 @@
     "approved_guest_immediate_photo_then_live_video_20261005",
     "all_rooms_current_state_20261002",
     "group9_room_current_state_20261003",
-    "group9_room_no_old_flash_saved_20261003"
+    "group9_room_no_old_flash_saved_20261003",
+    "canonical_three_buttons_all_rooms_20261006"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -170,7 +171,8 @@
     "approved_guest_immediate_photo_then_live_video_20261005",
     "all_rooms_current_state_20261002",
     "group9_room_current_state_20261003",
-    "group9_room_no_old_flash_saved_20261003"
+    "group9_room_no_old_flash_saved_20261003",
+    "canonical_three_buttons_all_rooms_20261006"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
@@ -293,6 +295,10 @@
       "secret_room_guest_current_state_20261004",
       "secret_room_host_guest_layout_pair_20261004"
     ],
+    "6666": [
+      "canonical_three_buttons_all_rooms_20261006",
+      "all_rooms_stats_second_row_flip_treasure_match_20260928"
+    ],
     "7777": [
       "person_photo_inline_gifts"
     ],
@@ -301,8 +307,8 @@
     ]
   },
   "last_unlock": "2026-10-06-canonical-three-buttons-all-rooms-7777",
-  "last_lock": "2026-10-06-five-room-passwords-separated",
-  "last_note": "사용자 요청대로 방별 잠금 분리: 1111=1인방, 2222=9명방, 3333=13명방, 4444=구독자방, 5555=비밀방. 기존 중복 방 잠금 매핑 제거.",
+  "last_lock": "2026-10-06-common-six-controls-locked",
+  "last_note": "사용자 요청: 되돌리기/보물상자/매치/일일 랭킹/미션/시청자 6개는 공통 잠금으로 별도 보호. 방별 1111~5555 잠금과 분리.",
   "unlock_pin_sha256": "41c991eb6a66242c0454191244278183ce58cf4a6bcd372f799e4b9cc01886af",
   "secret_room_lock_snapshot": {
     "host_file": "secret-room-password.js",
@@ -334,5 +340,9 @@
     "4444": "구독자방",
     "5555": "비밀방"
   },
-  "room_password_policy": "각 방 수정은 해당 방 비밀번호만 사용. 다른 방 코드/레이아웃/통신은 건드리지 않음. 공통 기능은 별도 공통 잠금 상태를 유지."
+  "room_password_policy": "각 방 수정은 해당 방 비밀번호만 사용. 다른 방 코드/레이아웃/통신은 건드리지 않음. 공통 기능은 별도 공통 잠금 상태를 유지.",
+  "common_control_password_map": {
+    "6666": "되돌리기·보물상자·매치·일일 랭킹·미션·시청자 공통 상단 6개"
+  },
+  "common_control_policy": "상단 6개 공통요소는 6666 승인 없이는 수정 금지. 1111~5555 방별 PIN으로는 방 레이아웃/방별 기능만 수정."
 }
