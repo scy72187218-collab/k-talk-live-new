@@ -7,9 +7,15 @@
  function btn(icon,label,fn){var b=document.createElement('button');b.type='button';b.innerHTML='<b>'+icon+'</b><small>'+label+'</small>';b.onclick=function(e){e.preventDefault();e.stopPropagation();fn(b)};return b}
  function run(){
   var r=document.querySelector('#screen .ktsolo-room'); if(!r)return;
+  /* 1111: 1인방 하단 홈/친구/방송하기/사용방법/프로필 + 선물/마이크/카메라 전부 삭제 */
+  document.querySelectorAll('.kt-solo-new-bottom-20261006').forEach(function(x){x.remove();});
+  document.querySelectorAll('nav,footer,.bottom-nav,.bottomnav,.app-bottom-nav,#bottomNav').forEach(function(x){
+    var t=String(x.textContent||'').replace(/\s+/g,'');
+    if(t.indexOf('홈')>=0&&t.indexOf('친구')>=0&&t.indexOf('방송하기')>=0&&t.indexOf('프로필')>=0)x.remove();
+  });
   /* 기존 우측 선물/카메라/마이크는 DOM에서 제거 */
   r.querySelectorAll('.ktsolo-right').forEach(function(box){Array.from(box.children).forEach(function(x){var t=(x.textContent||'').replace(/\s+/g,'');if(/선물|카메라|마이크/.test(t))x.remove()})});
-  var bar=r.querySelector('.kt-solo-new-bottom-20261006');
+  return;\n  var bar=r.querySelector('.kt-solo-new-bottom-20261006');
   if(!bar){bar=document.createElement('div');bar.className='kt-solo-new-bottom-20261006';bar.appendChild(btn('📷','카메라',b=>cam(b,r)));bar.appendChild(btn('🎤','마이크',b=>mic(b,r)));bar.appendChild(btn('🎁','선물',()=>{if(window.openGifts)window.openGifts()}));var chat=r.querySelector('.ktsolo-chat,.ktsolo-chatbar,.ktsolo-bottom,.ktsolo-tools');(chat&&chat.parentNode?chat.parentNode:r).insertBefore(bar,chat?chat.nextSibling:null)}
   var h=r.querySelector('.kt-solo-top-attendance-20261006');if(!h){h=document.createElement('button');h.className='kt-solo-top-attendance-20261006';h.innerHTML='♥ <b>출석체크</b>';h.onclick=function(e){e.stopPropagation();if(window.ktAttendanceCheck)window.ktAttendanceCheck()};r.appendChild(h)}
  }
