@@ -181,14 +181,16 @@
   "current_editable_components": [
     "communication_guest_approval_realtime_only",
     "communication_broadcast_crash_recovery_only",
-    "communication_all_device_video_sync_only"
+    "communication_all_device_video_sync_only",
+    "communication_all_approved_guest_video_sync_only"
   ],
   "temporarily_unlocked_components": [
     "communication_guest_approval_realtime_only",
     "communication_broadcast_crash_recovery_only",
-    "communication_all_device_video_sync_only"
+    "communication_all_device_video_sync_only",
+    "communication_all_approved_guest_video_sync_only"
   ],
-  "note": "사용자 승인: 통신 비밀번호 해제. 같은 방의 호스트·승인 게스트 영상이 모든 기기에 동일하게 반영되는 통신 동기화만 수정. 화면·버튼·채팅·선물·배치는 잠금 유지.",
+  "note": "사용자 승인: 비밀번호 해제. 호스트에 올라온 승인 게스트 전체 영상(예: 4명)이 모든 기기에 동일하게 보이도록 통신 동기화만 수정. 화면·버튼·채팅·선물·배치는 잠금 유지.",
   "lock_slots": {
     "6": [
       "current_full_approved_state_20260927_1740"
