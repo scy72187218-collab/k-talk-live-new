@@ -374,6 +374,20 @@
     tools.appendChild(makeTool('🪄','효과',function(){try{if(window.openEditEffectPanel)window.openEditEffectPanel();else if(window.ktGroup13Effect)window.ktGroup13Effect();}catch(e){}}));
     tools.appendChild(makeTool('•••','더보기',function(){try{if(window.openLiveSettings)window.openLiveSettings();else if(window.ktGroup13More)window.ktGroup13More();}catch(e){}}));
 
+    /* 4444: 구독자 게스트 화면의 좌측 상단 '퇴장' 표시를 최종 단계에서 제거 */
+    if(info.is16){
+      try{
+        root.querySelectorAll('button,a,div,span').forEach(function(x){
+          if(x.closest&&x.closest('.kt-guest-hostlike-room'))return;
+          var t=String(x.textContent||'').replace(/\\s+/g,'').trim();
+          if(t==='퇴장'){
+            var r=x.getBoundingClientRect();
+            if(!r||r.top<220){try{x.remove();}catch(e){x.style.display='none';}}
+          }
+        });
+      }catch(e){}
+    }
+
     room.appendChild(head);
     room.appendChild(led);
     room.appendChild(stats);
