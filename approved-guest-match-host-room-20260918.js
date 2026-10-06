@@ -360,7 +360,7 @@
     room.appendChild(head);
     room.appendChild(led);
     room.appendChild(stats);
-    room.appendChild(quick);
+    /* 4444: 구독자 게스트방은 존재하지 않는 quick 변수를 붙이지 않는다. */
     room.appendChild(grid);
     room.appendChild(chat);
     room.appendChild(tools);
