@@ -26,7 +26,10 @@
 
     var rooms=[].slice.call(document.querySelectorAll('#screen .ktg13-room'));
     rooms.forEach(function(room){
-      if(!room||room.querySelector('.kt-remote-guest-upper-quick-5555'))return;
+      if(!room)return;
+      /* 3333: 13명 게스트방은 이 3버튼 줄을 한 번만 만들고 이후 절대 재생성/교체하지 않는다. */
+      var existing=room.querySelector(':scope > .kt-remote-guest-upper-quick-5555');
+      if(existing)return;
       var stats=room.querySelector(':scope > .ktg13-stats')||room.querySelector('.ktg13-stats');
       var main=room.querySelector(':scope > .ktg13-main')||room.querySelector('.ktg13-main');
       if(!stats||!main||!stats.parentNode)return;
