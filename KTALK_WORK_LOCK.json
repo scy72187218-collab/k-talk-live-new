@@ -1,5 +1,5 @@
 {
-  "version": 249,
+  "version": 250,
   "locked": true,
   "scope": "full_snapshot_guard_everything",
   "lock_slot": 9,
@@ -81,10 +81,7 @@
     "followed_guest_large_photo_30likes_10min_max5roses",
     "all_five_room_gift_current_state_20261005",
     "person_photo_inline_gifts",
-    "group9_room_current_state_20261003",
-    "group9_room_no_old_flash_saved_20261003",
     "all_live_signal_and_entry_current_state_20261002",
-    "all_rooms_current_state_20261002",
     "secret_room_guest_current_state_20261004",
     "group13_guest_current_state_20261004",
     "approved_guest_immediate_photo_then_live_video_20261005"
@@ -164,16 +161,21 @@
     "followed_guest_large_photo_30likes_10min_max5roses",
     "all_five_room_gift_current_state_20261005",
     "person_photo_inline_gifts",
-    "group9_room_current_state_20261003",
-    "group9_room_no_old_flash_saved_20261003",
     "all_live_signal_and_entry_current_state_20261002",
-    "all_rooms_current_state_20261002",
     "secret_room_guest_current_state_20261004",
     "group13_guest_current_state_20261004",
     "approved_guest_immediate_photo_then_live_video_20261005"
   ],
-  "current_editable_components": [],
-  "temporarily_unlocked_components": [],
+  "current_editable_components": [
+    "all_rooms_current_state_20261002",
+    "group9_room_current_state_20261003",
+    "group9_room_no_old_flash_saved_20261003"
+  ],
+  "temporarily_unlocked_components": [
+    "all_rooms_current_state_20261002",
+    "group9_room_current_state_20261003",
+    "group9_room_no_old_flash_saved_20261003"
+  ],
   "note": "approved guest flow protected after restore",
   "lock_slots": {
     "1": [
@@ -289,9 +291,9 @@
       "approved_guest_immediate_photo_then_live_video_20261005"
     ]
   },
-  "last_unlock": "2026-10-06-remove-top3-all-rooms-7777",
+  "last_unlock": "2026-10-06-canonical-three-buttons-all-rooms-7777",
   "last_lock": "2026-10-06-remove-top3-all-rooms-relocked",
-  "last_note": "사진 세 번째 모양 기준: 1인/9/13/구독자/비밀방에서 되돌리기/보물상자(패키지상자)/매치 3버튼 줄을 완전히 제거하고 재잠금. 랭킹/미션/시청자, 하단 도구, 채팅, 선물, 수익률, 통신은 유지.",
+  "last_note": "사용자 7777 승인: 예전 되돌리기/보물상자(패키지상자)/매치 관련 중복 코드는 사용 중단/삭제하고, 호스트·게스트 모든 방에 새 통합 3버튼 줄 하나만 유지. 그 외 방송/채팅/선물/수익률/통신 변경 금지.",
   "unlock_pin_sha256": "41c991eb6a66242c0454191244278183ce58cf4a6bcd372f799e4b9cc01886af",
   "secret_room_lock_snapshot": {
     "host_file": "secret-room-password.js",
