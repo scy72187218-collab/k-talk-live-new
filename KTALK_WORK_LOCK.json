@@ -1,5 +1,5 @@
 {
-  "version": 248,
+  "version": 249,
   "locked": true,
   "scope": "full_snapshot_guard_everything",
   "lock_slot": 9,
@@ -290,8 +290,8 @@
     ]
   },
   "last_unlock": "2026-10-06-remove-top3-all-rooms-7777",
-  "last_lock": "2026-10-06-all-guest-no-quickrow-relocked",
-  "last_note": "모든 게스트 화면에서 상단 3버튼 줄만 제거 후 재잠금. 호스트 및 나머지 UI/기능 유지.",
+  "last_lock": "2026-10-06-remove-top3-all-rooms-relocked",
+  "last_note": "사진 세 번째 모양 기준: 1인/9/13/구독자/비밀방에서 되돌리기/보물상자(패키지상자)/매치 3버튼 줄을 완전히 제거하고 재잠금. 랭킹/미션/시청자, 하단 도구, 채팅, 선물, 수익률, 통신은 유지.",
   "unlock_pin_sha256": "41c991eb6a66242c0454191244278183ce58cf4a6bcd372f799e4b9cc01886af",
   "secret_room_lock_snapshot": {
     "host_file": "secret-room-password.js",
