@@ -70,7 +70,21 @@
     if(a&&a.parentNode===root){if(a.previousElementSibling!==row)root.insertBefore(row,a);}
     else if(row.parentNode!==root)root.appendChild(row);
   }
-  function run(){style();roots().forEach(install);}
-  run(); [30,100,250,600,1200,2200].forEach(function(ms){setTimeout(run,ms);});
+  function run(){
+    style();
+    var rs=roots();
+    rs.forEach(install);
+    /* Viewer 9-room and approved-room shells can be rebuilt after this script runs.
+       Keep one canonical row alive on every current room instead of leaving some
+       phones on the retired package-box row or with no row at all. */
+    try{
+      document.querySelectorAll('#screen .kt-room-second-stats-row-20260927,#screen .ktg13-quick,#screen .kt-all-five-utm-hard1111,#screen .kt-g9-host-top3-restore-20261005,#screen .kt-g9-host-utm-20261005').forEach(function(el){
+        var t=String(el.textContent||'').replace(/\s+/g,'');
+        if(t.indexOf('패키지')>=0||(t.indexOf('되돌리기')>=0&&t.indexOf('매치')>=0))el.remove();
+      });
+    }catch(e){}
+  }
+  run(); [30,100,250,600,1200,2200,4000].forEach(function(ms){setTimeout(run,ms);});
+  setInterval(run,1200);
   try{new MutationObserver(function(){clearTimeout(window.__ktFreshThreeTimer1111);window.__ktFreshThreeTimer1111=setTimeout(run,20);}).observe(document.getElementById('screen')||document.documentElement,{childList:true,subtree:true});}catch(e){}
 })();
