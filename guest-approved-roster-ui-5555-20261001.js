@@ -44,6 +44,13 @@
     if(!isApproved())return;
     var root=document.querySelector('.kt-remote-live');
     if(!root)return;
+    /* 4444: 15명 구독자 게스트방은 새 전용 화면만 사용. 이 옛 공통 승인 UI는 제외. */
+    try{
+      var rr=window.__ktLastLiveRoom||{}, rt=[
+        rr.room_type,rr.room_name,rr.title,window.__ktRemoteRoomType,window.__ktRemoteRoomName
+      ].filter(Boolean).join(' ');
+      if(/subscriber|구독자|15\s*명/i.test(rt))return;
+    }catch(e){}
     root.classList.add('kt-approved-roster-5555');
 
     var existing=root.querySelector('.kgh-quick');
