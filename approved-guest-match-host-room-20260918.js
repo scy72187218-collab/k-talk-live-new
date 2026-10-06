@@ -280,6 +280,16 @@
     root.classList.remove('kt-approved-guest-room','kt-prejoin-room-view');
     root.classList.add('kt-guest-hostlike-active');
 
+    /* 4444: 구독자 게스트방 맨 위에 겹쳐 보이는 퇴장 버튼만 숨긴다.
+       실제 방송 나가기 기능/하단 UI/다른 방은 변경하지 않는다. */
+    if(info.is16){
+      try{
+        root.querySelectorAll(':scope > .kt-remote-leave-fixed-1150617').forEach(function(x){
+          x.style.setProperty('display','none','important');
+        });
+      }catch(e){}
+    }
+
     var room=document.createElement('section');
     room.className='kt-guest-hostlike-room';
     room.setAttribute('data-kt-room',info.is16?'15':'13');
