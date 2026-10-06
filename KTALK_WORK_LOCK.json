@@ -1,5 +1,5 @@
 {
-  "version": 264,
+  "version": 265,
   "locked": true,
   "scope": "full_snapshot_guard_everything",
   "lock_slot": 9,
@@ -186,7 +186,8 @@
     "guest_common_ui_remove_attendance_and_chat_heart_only",
     "guest_current_screen_freeze_no_old_rerender_8888",
     "broadcast_end_all_guests_return_video_feed_8888",
-    "broadcast_end_block_guest_room_rerender_return_feed_8888"
+    "broadcast_end_block_guest_room_rerender_return_feed_8888",
+    "solo_1111_host_right_controls_and_guest_bottom_only"
   ],
   "temporarily_unlocked_components": [
     "communication_guest_approval_realtime_only",
@@ -196,9 +197,10 @@
     "guest_common_ui_remove_attendance_and_chat_heart_only",
     "guest_current_screen_freeze_no_old_rerender_8888",
     "broadcast_end_all_guests_return_video_feed_8888",
-    "broadcast_end_block_guest_room_rerender_return_feed_8888"
+    "broadcast_end_block_guest_room_rerender_return_feed_8888",
+    "solo_1111_host_right_controls_and_guest_bottom_only"
   ],
-  "note": "사용자 8888 승인: 방송 종료 후 게스트 방 재생성을 차단하고 동영상 피드로 1회 복귀시키는 처리만 수정. 다른 UI/통신/버튼은 변경 금지.",
+  "note": "사용자 1111 승인: 1인방만 수정. 호스트 오른쪽 선물박스·마이크·카메라 제거, 게스트 하단 채팅창+사람+장미+선물박스+공유 구성. 다른 방/통신/배치 금지.",
   "lock_slots": {
     "6": [
       "current_full_approved_state_20260927_1740"
@@ -340,7 +342,7 @@
       "approved_guest_immediate_photo_then_live_video_20261005"
     ]
   },
-  "last_unlock": "2026-10-06-8888-end-block-rerender",
+  "last_unlock": "2026-10-06-1111-solo-controls-only",
   "last_lock": "2026-10-06-inapp-free-sound-12-locked",
   "last_note": "사운드 추가에서 외부 Bugs 등으로 넘어가지 않고 K-Talk 안에서 바로 재생되는 자유 이용 사운드 12곡으로 교체 후 1515로 잠금.",
   "unlock_pin_sha256": "41c991eb6a66242c0454191244278183ce58cf4a6bcd372f799e4b9cc01886af",
