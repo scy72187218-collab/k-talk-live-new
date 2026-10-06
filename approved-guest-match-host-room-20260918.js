@@ -13,6 +13,7 @@
      This prevents an old/prewarmed camera stream from appearing as '나 · 게스트'
      before the viewer has even requested or been approved for guest participation. */
   var approvalActive=false;
+  var broadcastEnded8888=false;
 
   function ktIsSecretRemoteReset20261004(){
     try{
@@ -473,6 +474,7 @@
   }
 
   function repair(){
+    if(broadcastEnded8888)return;
     if(ktIsSecretRemoteReset20261004())return;
     try{
       if(window.__ktUseSingleG9ViewerHostCopy20261003){
@@ -635,7 +637,11 @@
     }catch(e){}
   }
 
-  window.addEventListener('kt-host-session-reset',clearApprovedViewForFreshRoom);
+  window.addEventListener('kt-host-session-reset',function(e){
+    var ended=false;try{ended=!!(e&&e.detail&&e.detail.ended);}catch(_e){}
+    broadcastEnded8888=ended;
+    clearApprovedViewForFreshRoom();
+  });
 
   /* Do NOT tear down an already-approved 3-person room just because the same
      host is selected/refreshed again. That old listener was clearing the self
@@ -662,7 +668,11 @@
     clearApprovedViewForFreshRoom();
   });
 
-  window.addEventListener('kt-broadcast-ended',clearApprovedViewForFreshRoom);
+  window.addEventListener('kt-broadcast-ended',function(){
+    broadcastEnded8888=true;
+    approvalActive=false;
+    clearApprovedViewForFreshRoom();
+  });
 
   repair();
   [50,120,250,500,900,1500,2400,4000].forEach(function(ms){setTimeout(repair,ms);});
