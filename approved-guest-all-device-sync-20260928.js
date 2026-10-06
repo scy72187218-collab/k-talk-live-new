@@ -12,7 +12,10 @@
       return String(
         window.__ktRemoteHostId||
         window.__ktCurrentRemoteHostId||
+        window.__ktLocalHostId||
+        window.__ktHostDeviceId||
         sessionStorage.getItem('kt_remote_host_id')||
+        sessionStorage.getItem('kt_host_id')||
         ''
       ).trim();
     }catch(e){return '';}
