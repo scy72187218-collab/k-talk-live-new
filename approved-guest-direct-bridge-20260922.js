@@ -28,19 +28,21 @@
     });
   }
 
+  window.addEventListener('kt-any-guest-approved',function(){setTimeout(scan,0);});
+  window.addEventListener('kt-guest-approval-received',function(){setTimeout(scan,0);});
   scan();
-  [100,350,800,1500,2500].forEach(function(ms){setTimeout(scan,ms);});
+  [0,20,50,100,180,300,500,800,1200].forEach(function(ms){setTimeout(scan,ms);});
 
   try{
     var target=document.getElementById('screen')||document.documentElement;
     new MutationObserver(function(){
       clearTimeout(window.__ktApprovedGuestDirectBridgeTimer20260922);
-      window.__ktApprovedGuestDirectBridgeTimer20260922=setTimeout(scan,35);
+      window.__ktApprovedGuestDirectBridgeTimer20260922=setTimeout(scan,0);
     }).observe(target,{childList:true,subtree:true,attributes:true,attributeFilter:['data-kt-guest-viewer-id','class']});
   }catch(e){}
 
-  window.addEventListener('focus',function(){setTimeout(scan,80);});
+  window.addEventListener('focus',function(){setTimeout(scan,0);});
   document.addEventListener('visibilitychange',function(){
-    if(!document.hidden)setTimeout(scan,80);
+    if(!document.hidden)setTimeout(scan,0);
   });
 })();
