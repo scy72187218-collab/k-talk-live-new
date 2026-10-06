@@ -92,7 +92,8 @@
     "creator_inapp_free_sound_12_no_external_20261006",
     "live_audio_music_voice_quality_48khz_stereo_no_agc_20260928",
     "sound_direct_playback_20261006",
-    "all_five_rooms_large_camera_mic_movie_removed_20261006"
+    "all_five_rooms_large_camera_mic_movie_removed_20261006",
+    "group9_duplicate_grid_fix_20261006"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -180,7 +181,8 @@
     "creator_inapp_free_sound_12_no_external_20261006",
     "live_audio_music_voice_quality_48khz_stereo_no_agc_20260928",
     "sound_direct_playback_20261006",
-    "all_five_rooms_large_camera_mic_movie_removed_20261006"
+    "all_five_rooms_large_camera_mic_movie_removed_20261006",
+    "group9_duplicate_grid_fix_20261006"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
@@ -282,7 +284,8 @@
       "group9_room_current_state",
       "group9_existing_led_banner_shell_restore_only_20261002",
       "group9_room_current_state_20261003",
-      "group9_room_no_old_flash_saved_20261003"
+      "group9_room_no_old_flash_saved_20261003",
+      "group9_duplicate_grid_fix_20261006"
     ],
     "3333": [
       "group13_open_room_then_countdown",
@@ -329,8 +332,8 @@
     ]
   },
   "last_unlock": "2026-10-06-solo-border-fix-1111",
-  "last_lock": "2026-10-06-8888-five-rooms-large-media-bar-removed",
-  "last_note": "8888: 1인방·9명방·13명방·구독자방·비밀방의 큰 카메라·마이크·영화/TV/유튜브 3칸 제거 상태 재잠금. 작은 하단 아이콘 줄 및 다른 UI는 유지.",
+  "last_lock": "2026-10-06-2222-group9-duplicate-grid-fix",
+  "last_note": "2222: 9명방 위쪽에 중복 생성되던 레거시 9칸 제거 수정 상태 재잠금. 정상 9명방·채팅·버튼·다른 방은 유지.",
   "unlock_pin_sha256": "41c991eb6a66242c0454191244278183ce58cf4a6bcd372f799e4b9cc01886af",
   "secret_room_lock_snapshot": {
     "host_file": "secret-room-password.js",
