@@ -6,14 +6,23 @@ window.ktOpenSoloRoom20261006=async function(){
  document.body.classList.remove('kt-home');
  screen.innerHTML='<section class="kt1-room"><video class="kt1-video" autoplay playsinline muted></video>'
  +'<header class="kt1-top"><button class="kt1-close">×</button><div class="kt1-host">📶 대충그동</div><button class="kt1-heart">♥ <b>10</b></button><button class="kt1-att">출석체크</button><div class="kt1-brand">K-Talk LIVE</div></header>'
- +'<div class="kt1-neon">방송 켰어요 🎁　💗 K-Talk LIVE 환영합니다</div>'
+ +'<div class="kt1-neon"><div class="kt1-marquee"><span>방송 켰어요 🎁　💗 K-Talk LIVE 환영합니다　　방송 켰어요 🎁　💗 K-Talk LIVE 환영합니다</span></div></div>'
  +'<div class="kt1-tools"><button>↻ 되돌리기</button><button>🎁 보물상자</button><button>⚔ 매치</button></div>'
  +'<div class="kt1-stats"><span>🔥 일일 랭킹</span><span>🎯 미션</span><span>시청자 5명이 시청중</span></div>'
  +'<button class="kt1-earn">수익률</button><div class="kt1-chatlog"></div>'
  +'<footer class="kt1-bottom"><input class="kt1-input" placeholder="입력하세요...."><button class="kt1-send">➤</button><button>👥</button><button>🌹</button><button>🎁</button><button>↗</button></footer>'
  +'<div class="kt1-earnbox" hidden><b>1인 방송 수익률</b><div>현재 수익률은 관리자 설정을 따릅니다.</div></div></section>';
  var room=screen.querySelector('.kt1-room'),v=room.querySelector('.kt1-video');
- try{if(window.state&&state.stream){v.srcObject=state.stream;v.play().catch(function(){});}}catch(e){}
+ try{
+   if(window.state&&state.stream){
+    v.srcObject=state.stream;v.muted=true;
+    var playNow=function(){v.play().catch(function(){});};
+    v.onloadedmetadata=playNow;playNow();
+   }else if(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia){
+    var s=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:true});
+    if(window.state)state.stream=s;v.srcObject=s;v.muted=true;v.play().catch(function(){});
+   }
+  }catch(e){}
  room.querySelector('.kt1-close').onclick=function(){try{if(window.home)home();}catch(e){}};
  room.querySelector('.kt1-heart').onclick=function(){var b=this.querySelector('b');b.textContent=String((+b.textContent||0)+1);};
  room.querySelector('.kt1-att').onclick=function(){this.textContent='💗 출석완료';};
@@ -28,7 +37,7 @@ body:has(.kt1-room)>#ktMainBottomNav,body:has(.kt1-room)>.bottom{display:none!im
 .kt1-room{position:fixed;inset:0;background:#050508;color:#fff;z-index:2147483000;overflow:hidden;font-family:system-ui,-apple-system,'Noto Sans KR',sans-serif}
 .kt1-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#08080c}.kt1-room:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.42),transparent 30%,transparent 68%,rgba(0,0,0,.58));pointer-events:none}
 .kt1-top{position:absolute;z-index:3;left:8px;right:8px;top:max(8px,env(safe-area-inset-top));display:flex;align-items:center;gap:6px}.kt1-close,.kt1-att,.kt1-heart,.kt1-earn{border:1px solid #ffffff42;background:#090910a8;color:#fff;border-radius:18px;min-height:34px;padding:6px 9px;font-weight:900}.kt1-close{width:35px;border-radius:50%;font-size:22px;padding:0}.kt1-host{font-weight:950}.kt1-heart{color:#ff4b7c}.kt1-heart b{color:#fff}.kt1-brand{margin-left:auto;color:#ff4e86;font-weight:950}
-.kt1-neon{position:absolute;z-index:3;top:58px;left:8px;right:8px;padding:9px 6px;border:2px solid #ff39c7;border-radius:12px;background:#23001caf;box-shadow:0 0 11px #ff39c7;color:#ffe83e;font-weight:950;text-align:center}
+.kt1-neon{position:absolute;z-index:3;top:58px;left:8px;right:8px;padding:9px 0;border:2px solid #ff39c7;border-radius:12px;background:#23001caf;box-shadow:0 0 11px #ff39c7;color:#ffe83e;font-weight:950;overflow:hidden;white-space:nowrap}.kt1-marquee{overflow:hidden;width:100%}.kt1-marquee span{display:inline-block;min-width:max-content;padding-left:100%;animation:kt1marquee 11s linear infinite}@keyframes kt1marquee{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
 .kt1-tools{position:absolute;z-index:3;top:108px;left:8px;right:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.kt1-tools button{height:48px;border:1px solid #ffffff30;border-radius:13px;background:#15151dbd;color:#fff;font-weight:900}
 .kt1-stats{position:absolute;z-index:3;top:166px;left:12px;right:12px;display:flex;justify-content:space-between;font-size:12px;font-weight:900}.kt1-earn{position:absolute;z-index:3;right:10px;top:198px}
 .kt1-chatlog{position:absolute;z-index:3;left:14px;right:14px;bottom:78px;max-height:27vh;overflow:auto;text-shadow:0 1px 3px #000;font-weight:700}.kt1-chatlog div{margin:4px 0}
