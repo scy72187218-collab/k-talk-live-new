@@ -22,10 +22,22 @@
     }
     i.value="";
   };
+  function hideLegacySoloUi(){
+    try{
+      document.body.classList.add("kt-solo-fresh-active");
+      ["creator","livePrep","ktLiveRoom","ktSoloRoom"].forEach(function(id){
+        var el=document.getElementById(id); if(el)el.style.setProperty("display","none","important");
+      });
+      document.querySelectorAll(".creator,.creator-tools,.creator-bottom,.live-prep,.kt-bottom,.bottom").forEach(function(el){
+        el.style.setProperty("display","none","important");
+      });
+    }catch(e){}
+  }
   function render(){
     var s=document.getElementById("screen"); if(!s)return;
+    hideLegacySoloUi();
     s.innerHTML='<style>'
-      +'#screen{padding:0!important;margin:0!important;height:100dvh!important;background:#000!important;overflow:hidden!important}.bottom,.kt-bottom{display:none!important}'
+      +'body.kt-solo-fresh-active .bottom,body.kt-solo-fresh-active .kt-bottom,body.kt-solo-fresh-active .creator,body.kt-solo-fresh-active .creator-tools,body.kt-solo-fresh-active .creator-bottom,body.kt-solo-fresh-active .live-prep{display:none!important}#screen{padding:0!important;margin:0!important;height:100dvh!important;background:#000!important;overflow:hidden!important}.bottom,.kt-bottom{display:none!important}'
       +'.kt-solo-fresh{position:relative;width:100%;height:100dvh;background:#000;color:#fff;overflow:hidden;font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif}'
       +'.kt-solo-fresh video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1);background:#111}'
       +'.ksf-top{position:absolute;z-index:5;left:12px;right:12px;top:calc(10px + env(safe-area-inset-top));display:flex;align-items:center;gap:8px}.ksf-live{font-weight:950;font-size:18px;text-shadow:0 1px 5px #000}.ksf-live b{color:#ff315f}.ksf-att{margin-left:auto;border:1px solid #ff55c9;background:#1c0c1dbf;color:#fff;border-radius:999px;padding:8px 12px;font-weight:900}.ksf-close{border:0;background:#111b;color:#fff;width:38px;height:38px;border-radius:50%;font-size:22px}'
@@ -50,7 +62,7 @@
       var live=!!(window.state&&state.stream&&state.stream.getVideoTracks&&state.stream.getVideoTracks().some(function(t){return t.readyState==="live";}));
       if(!live&&window.ensureLiveCamera)ok=await window.ensureLiveCamera((state&&state.cameraFacing)||"user");
     }catch(e){ok=false;}
-    if(ok!==false)render();
+    if(ok!==false){render();setTimeout(hideLegacySoloUi,0);setTimeout(hideLegacySoloUi,120);setTimeout(hideLegacySoloUi,500);}
     return ok;
   };
 })();
