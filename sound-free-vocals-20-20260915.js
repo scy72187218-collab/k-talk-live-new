@@ -49,6 +49,7 @@
       if(window.ktCreatorMusicFadeTimer){clearInterval(window.ktCreatorMusicFadeTimer);window.ktCreatorMusicFadeTimer=null;}
       if(window.ktCreatorMusicAudio){
         window.ktCreatorMusicAudio.pause();
+        try{window.ktCreatorMusicAudio.remove();}catch(e){}
         window.ktCreatorMusicAudio.removeAttribute('src');
         try{window.ktCreatorMusicAudio.load();}catch(e){}
         window.ktCreatorMusicAudio=null;
@@ -128,36 +129,30 @@
   function playCreatorTrack(t){
     if(!t||!t.url)return;
     stopCreatorMusic();
-    var audio=new Audio();
-    audio.crossOrigin='anonymous';
+
+    /* Keep playback simple and inside the user's tap.
+       WebAudio/crossOrigin processing was causing Android first-tap failures. */
+    var audio=document.createElement('audio');
+    audio.id='ktCreatorMusicAudio';
     audio.preload='auto';
     audio.loop=true;
+    audio.playsInline=true;
+    audio.setAttribute('playsinline','');
     audio.src=t.url;
-    /* Android/Samsung: play directly from the user's tap first.
-       Building/resuming WebAudio before play() can consume user activation
-       and make the first tap fail. Connect processing only after playback starts. */
-    audio.volume=.64;
+    audio.volume=.85;
+    document.body.appendChild(audio);
     window.ktCreatorMusicAudio=audio;
-    var processed=false;
-    var p=audio.play();
-    if(p&&p.then){
-      p.then(function(){
-        processed=connectBroadcastSound(audio);
-        var target=processed?.78:.64;
-        window.ktCreatorMusicFadeTimer=setInterval(function(){
-          if(!window.ktCreatorMusicAudio||window.ktCreatorMusicAudio!==audio){clearInterval(window.ktCreatorMusicFadeTimer);window.ktCreatorMusicFadeTimer=null;return;}
-          audio.volume=Math.min(target,audio.volume+.035);
-          if(audio.volume>=target){clearInterval(window.ktCreatorMusicFadeTimer);window.ktCreatorMusicFadeTimer=null;}
-        },70);
-      }).catch(function(){
-        stopCreatorMusic();
-        setNote('재생에 실패했습니다. 잠시 후 다시 눌러 주세요.');
-      });
-    }else if(p&&p.catch){
-      p.catch(function(){
-        stopCreatorMusic();
-        setNote('재생에 실패했습니다. 다시 눌러 주세요.');
-      });
+
+    try{
+      var p=audio.play();
+      if(p&&p.catch){
+        p.catch(function(err){
+          try{console.warn('K-Talk sound play failed',err);}catch(e){}
+          setNote('이 음원은 재생되지 않습니다. 다른 곡을 눌러 주세요.');
+        });
+      }
+    }catch(err){
+      setNote('이 음원은 재생되지 않습니다. 다른 곡을 눌러 주세요.');
     }
   }
 
