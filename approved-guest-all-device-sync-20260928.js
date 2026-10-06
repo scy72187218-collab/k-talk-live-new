@@ -61,6 +61,7 @@
   });
   window.addEventListener('kt-guest-approval-received',function(){setTimeout(function(){syncNow(true);},0);});
   window.addEventListener('kt-approved-guest-stream-ready',function(){setTimeout(function(){syncNow(true);},0);});
+  window.addEventListener('kt-host-session-ready',function(){setTimeout(function(){syncNow(true);},0);});
   window.addEventListener('kt-livekit-state',function(){setTimeout(function(){syncNow(false);},0);});
   window.addEventListener('online',function(){setTimeout(function(){syncNow(true);},60);});
   document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(function(){syncNow(true);},60);});
