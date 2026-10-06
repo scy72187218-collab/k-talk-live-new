@@ -1,5 +1,5 @@
 {
-  "version": 257,
+  "version": 258,
   "locked": true,
   "scope": "full_snapshot_guard_everything",
   "lock_slot": 9,
@@ -196,14 +196,11 @@
       "host_premium_gift_clip_recorder",
       "host_only_instant_video_return",
       "all_rooms_stats_second_row_flip_treasure_match_20260928",
-      "owner_taekwon1_haine2_level10000_roses500000_multidevice",
       "room_access_levels_1_20_solo9_21_40_13secret_41_subscriber_mutual_follow",
       "secret_room_mutual_follow_current_session_invite_only",
       "followed_guest_large_photo_30likes_10min_max5roses",
       "signup_immediate_broadcast_solo9_no_wait_20260928",
-      "host_admin_seat_move_sound_wave_multiroom_20260928",
       "latest_usage_guide_ranking_match_cashout_seat_wave_20260928",
-      "total_admin_tax_accounting_overview_csv_20260928",
       "live_audio_music_voice_quality_48khz_stereo_no_agc_20260928",
       "creator_edit_shop_under_undo_existing_beauty_background_20260928"
     ],
@@ -258,6 +255,12 @@
       "weekly_7day_broadcast_reward_50coins_noncashable_20260928",
       "weekly_match_rewards_100_70_50_30_20_10_5_3_20260928"
     ],
+    "1313": [
+      "owner_taekwon1_haine2_level10000_roses500000_multidevice",
+      "host_admin_seat_move_sound_wave_multiroom_20260928",
+      "total_admin_spreadsheet_overview_members_ranking_match_events_cashout_live_20260928",
+      "total_admin_tax_accounting_overview_csv_20260928"
+    ],
     "2222": [
       "group9_bottom_controls_8",
       "group9_room_current_state",
@@ -302,7 +305,6 @@
       "rose_30won_payout_rules",
       "cashout_only_actual_broadcast_earnings_20260928",
       "cashout_amounts_1_5_10_20_30man_broadcast_earnings_only_20260928",
-      "total_admin_spreadsheet_overview_members_ranking_match_events_cashout_live_20260928",
       "noncashable_event_discount_bonus_coins_20260928"
     ],
     "7777_multiguest_20261005": [
@@ -310,8 +312,8 @@
     ]
   },
   "last_unlock": "2026-10-06-canonical-three-buttons-all-rooms-7777",
-  "last_lock": "2026-10-06-benefits-rewards-locked",
-  "last_note": "사용자 요청: 혜택 주는 곳 전체를 1212로 별도 잠금.",
+  "last_lock": "2026-10-06-total-admin-locked",
+  "last_note": "사용자 요청: 총관리자/운영자 전용 기능과 관리자 통계·회계 영역을 1313으로 별도 잠금.",
   "unlock_pin_sha256": "41c991eb6a66242c0454191244278183ce58cf4a6bcd372f799e4b9cc01886af",
   "secret_room_lock_snapshot": {
     "host_file": "secret-room-password.js",
@@ -363,5 +365,9 @@
   "benefits_password_map": {
     "1212": "가입·친구·제비뽑기·충전·좋아요·이벤트·주간방송·매치 보상 혜택"
   },
-  "benefits_policy": "1212 승인 없이는 이용자 혜택/보상 지급 규칙 수정 금지."
+  "benefits_policy": "1212 승인 없이는 이용자 혜택/보상 지급 규칙 수정 금지.",
+  "admin_password_map": {
+    "1313": "총관리자/운영자 권한·관리화면·회계/통계·관리자 전용 기능"
+  },
+  "admin_policy": "1313 승인 없이는 총관리자 권한, 관리자 전용 기능, 관리 통계/회계 화면 수정 금지."
 }
