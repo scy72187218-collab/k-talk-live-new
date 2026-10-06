@@ -179,12 +179,14 @@
     "creator_inapp_free_sound_12_no_external_20261006"
   ],
   "current_editable_components": [
-    "communication_guest_approval_realtime_only"
+    "communication_guest_approval_realtime_only",
+    "communication_broadcast_crash_recovery_only"
   ],
   "temporarily_unlocked_components": [
-    "communication_guest_approval_realtime_only"
+    "communication_guest_approval_realtime_only",
+    "communication_broadcast_crash_recovery_only"
   ],
-  "note": "사용자 승인: 다른 기능은 잠금 유지. 통신 부분만 임시 해제하여 게스트 승인 후 즉시 자리/영상 반영 지연만 수정.",
+  "note": "사용자 승인: 통신 비밀번호 해제. 방송 중 흰색 오류 화면/통신 끊김 원인 수정만 허용. 화면·버튼·채팅·선물·배치는 잠금 유지.",
   "lock_slots": {
     "6": [
       "current_full_approved_state_20260927_1740"
