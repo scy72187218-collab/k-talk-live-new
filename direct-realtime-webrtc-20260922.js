@@ -751,10 +751,20 @@
     if(!isHostRole())return;
     try{
       var items=[];
-      Object.keys(approvedGuests||{}).forEach(function(id){
+      /* Build the authoritative list from every approved source, not only the
+         one guest whose peer happened to update last. This keeps 4, 5 ... 15
+         approved people present in the same roster on every phone. */
+      var rosterIds={};
+      Object.keys(approvedGuests||{}).forEach(function(id){rosterIds[id]=true;});
+      try{Object.keys(window.__ktApprovedGuestIds20260924||{}).forEach(function(id){
+        if(window.__ktApprovedGuestIds20260924[id]===true)rosterIds[id]=true;
+      });}catch(e){}
+      Object.keys(hostGuestPeers||{}).forEach(function(id){if(approvedGuests[id])rosterIds[id]=true;});
+      Object.keys(rosterIds).forEach(function(id){
         /* 승인 즉시 모든 기기에 자리부터 보이게 한다.
            실제 영상 트랙은 도착하는 즉시 같은 자리에 붙는다. */
         var x=approvedGuests[id]||{};
+        try{if(!x.name&&window.__ktApprovedGuestNames20260924)x.name=window.__ktApprovedGuestNames20260924[id]||'게스트';}catch(e){}
         var ph=pendingGuestPhotos20260926[id]||null;
         var frame='';
         try{
