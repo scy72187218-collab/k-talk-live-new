@@ -493,6 +493,20 @@
       var guest=!!root.querySelector('.kt-guest-hostlike-room,.kt-approved-guest-room,.kt-prejoin-room,.kt-guest-room');
       if(!guest)return;
       root.querySelectorAll('.kgh-attend,.kt-live-attendance,.kt-attendance-check,.kt-attendance-btn,[data-kt-attendance]').forEach(function(el){try{el.remove();}catch(e){}});
+      /* 4444: 구독자 게스트방 하단 출석체크/하트 막대는 사용하지 않는다. */
+      var gi=roomInfo(root);
+      if(gi&&gi.is16){
+        [].slice.call(root.querySelectorAll('*')).forEach(function(el){
+          try{
+            if(!el||el.children.length)return;
+            var t=String(el.textContent||'').replace(/\s+/g,'').trim();
+            if(/출석체크\d*$/.test(t)||/^[♥♡❤💗]\d*$/.test(t)){
+              var rr=el.getBoundingClientRect();
+              if(rr&&rr.top>window.innerHeight*0.55)el.remove();
+            }
+          }catch(e){}
+        });
+      }
       root.querySelectorAll('.kt-remote-chat .kt-live-clock-heart,.kt-remote-chat .kt-attendance-heart-badge,.kt-remote-chat .kt-remote-action.heart,.kt-remote-chat .heart,.kt-remote-bottom .kt-live-clock-heart,.kt-remote-bottom .kt-attendance-heart-badge,.kt-remote-bottom .heart').forEach(function(el){try{el.remove();}catch(e){}});
       [].slice.call(root.querySelectorAll('.kt-remote-chat *,.kt-remote-bottom *')).forEach(function(el){
         try{
@@ -517,7 +531,7 @@
       }
       var preRoot=document.querySelector('.kt-remote-live');
       var preInfo=preRoot?roomInfo(preRoot):null;
-      if(window.__ktApprovedUsePrejoinLayout20261002&&typeof window.ktApplyApprovedPrejoinLayout20261002==='function'&&!(preInfo&&preInfo.is13)){
+      if(window.__ktApprovedUsePrejoinLayout20261002&&typeof window.ktApplyApprovedPrejoinLayout20261002==='function'&&!(preInfo&&(preInfo.is13||preInfo.is16))){
         window.ktApplyApprovedPrejoinLayout20261002();
         return;
       }
