@@ -189,6 +189,39 @@
   function apply(){
     window.ktCreatorTracks=tracks.slice(0,10);
     window.ktSearchFreeMusicOnline=function(){ return Promise.resolve(); };
+    /* 2026-10-06 Android: visible ▶ button must use this in-app player.
+       app.js legacy preview can show the 'press again' alert and fail on these URLs. */
+    window.ktPlaySoundPreview=function(index,ev){
+      if(ev){
+        try{
+          ev.preventDefault();
+          ev.stopPropagation();
+          if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();
+        }catch(e){}
+      }
+      var t=currentTracks()[index];
+      if(!t)return false;
+      try{
+        if(window.ktSoundAudio){
+          window.ktSoundAudio.pause();
+          window.ktSoundAudio.removeAttribute('src');
+          if(window.ktSoundAudio.remove)window.ktSoundAudio.remove();
+        }
+      }catch(e){}
+      window.ktSoundAudio=null;
+
+      playCreatorTrack(t);
+      try{
+        if(window.state){
+          window.state.creatorSound=t.name;
+          window.state.creatorSoundUrl=t.url;
+        }
+        var btn=document.getElementById('creatorSoundBtn');
+        if(btn)btn.textContent='♪ '+t.name;
+        if(ev&&ev.currentTarget)ev.currentTarget.textContent='■';
+      }catch(e){}
+      return false;
+    };
     window.ktOpenLicensedSongSearch=function(index,ev){
       if(ev){try{ev.stopPropagation();ev.preventDefault();if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();}catch(e){}}
       var t=currentTracks()[index];
@@ -206,8 +239,8 @@
       var t=currentTracks()[index];
       if(!t)return;
       try{
-        if(window.state)window.state.creatorSound=t.name;
-        else if(typeof state!=='undefined')state.creatorSound=t.name;
+        if(window.state){window.state.creatorSound=t.name;window.state.creatorSoundUrl=t.url;}
+        else if(typeof state!=='undefined'){state.creatorSound=t.name;state.creatorSoundUrl=t.url;}
       }catch(e){}
       var btn=document.getElementById('creatorSoundBtn');
       if(btn)btn.textContent='♪ '+t.name;
