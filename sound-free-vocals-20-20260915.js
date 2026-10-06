@@ -4,18 +4,18 @@
   window.__ktFreeVocal20Installed20260915=true;
 
   var tracks=[
-    {name:'오빠는 풍각쟁이',source:'박향림 · 오래된 자유 이용 음원',time:'2:52',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Park_Hyang-rim_-_Oppaneun_punggakjaeng-i.ogg',oldKorean:true},
-    {name:'청춘계급',source:'김해송 · 오래된 자유 이용 음원',time:'3:08',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Kim_Hae-Song,_Cheong-chun-gye-geup.ogg',oldKorean:true},
-    {name:'전화일기',source:'박향림·김해송 · 오래된 자유 이용 음원',time:'3:06',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Bak_Hyang_Rim_Kim_Hae_Song_jeonhwa_ilgi.ogg',oldKorean:true},
-    {name:'사의 찬미',source:'윤심덕 · 오래된 자유 이용 음원',time:'',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Yun_Sim-Deok_-_In_Praise_of_Death.ogg',oldKorean:true},
-    {name:'진국명산',source:'송만갑 · 오래된 자유 이용 음원',time:'3:28',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Song_Mangab_-_Jingukmyeongsan.ogg',oldKorean:true},
-    {name:'Frankie and Johnny',source:'전통 포크 · 퍼블릭도메인 음원',time:'3:20',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/FrankieandJohnny_Live.ogg'},
-    {name:'Jesse James',source:'Bentley Ball · 퍼블릭도메인 음원',time:'3:00',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Jesse_James_(Bentley_Ball).ogg'},
-    {name:'Au Clair de la Lune',source:'고전 성악 · 퍼블릭도메인 음원',time:'2:46',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Au_Clair_de_la_Lune_1913.ogg'},
-    {name:'Old Folks at Home',source:'고전 보컬 · 퍼블릭도메인 음원',time:'4:02',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Foster_-_Schumann-Heink_-_Old_Folks_at_Home_(rec._1918).ogg'},
-    {name:'In My Merry Oldsmobile',source:'Billy Murray · 퍼블릭도메인 음원',time:'2:51',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Bill_Murray_-_In_My_Merry_Oldsmobile.ogg'},
-    {name:'I Shall Not Be Moved',source:'전통 포크 · 퍼블릭도메인 음원',time:'3:06',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/IShallNotBeMoved.ogg'},
-    {name:"Nobody Knows the Trouble I've Seen",source:'전통 보컬 · 퍼블릭도메인 음원',time:'3:33',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/NobodyKnowsTheTroubleISee.ogg'}
+    {name:'Tiger Rag',source:'Original Dixieland Jass Band · 신나는 올드 재즈',time:'3:05',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Tiger_Rag_ODJB.ogg'},
+    {name:'Livery Stable Blues',source:'Original Dixieland Jass Band · 신나는 올드 재즈',time:'3:10',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/ODJB_Livery_Stable_Blues_1917.ogg'},
+    {name:'Texas Tommy Swing',source:'Collins & Harlan · 올드 스윙',time:'2:55',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Collins_%26_Harlan_-_Texas_Tommy_Swing_(1911).ogg'},
+    {name:'Jazz Me Blues',source:'Original Dixieland Jass Band · 올드 재즈',time:'2:59',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/OriginalDixielandJassBand-JazzMeBlues.ogg'},
+    {name:'Dixie Jass Band One-Step',source:'Original Dixieland Jass Band · 빠른 올드 재즈',time:'2:36',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/OriginalDixielandJassBand_DixieJassBandOneStep1917.ogg'},
+    {name:'Hot Lips',source:'Paul Whiteman Orchestra · 올드 댄스 재즈',time:'3:13',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Hot_Lips.ogg'},
+    {name:'St. Louis Blues',source:'Original Dixieland Jazz Band · 올드 재즈',time:'3:11',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/OriginalDixielandJazzBandwithAlBernard_StLouisBlues.ogg'},
+    {name:'The Entertainer',source:'Scott Joplin · 빠른 스윙 피아노',time:'3:33',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/The_Entertainer_-_Scott_Joplin.ogg'},
+    {name:'Frankie and Johnny',source:'전통 포크 · 자유 이용 음원',time:'3:20',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/FrankieandJohnny_Live.ogg'},
+    {name:'Jesse James',source:'Bentley Ball · 올드 포크',time:'3:00',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Jesse_James_(Bentley_Ball).ogg'},
+    {name:'In My Merry Oldsmobile',source:'Billy Murray · 올드 팝',time:'2:51',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Bill_Murray_-_In_My_Merry_Oldsmobile.ogg'},
+    {name:"I Shall Not Be Moved",source:'전통 포크 · 자유 이용 음원',time:'3:06',url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/IShallNotBeMoved.ogg'}
   ];
 
   function currentTracks(){
@@ -172,14 +172,14 @@
   }
 
   window.ktShowOldKoreanSongs=function(btn){
-    window.ktCreatorTracks=tracks.filter(function(t){return !!t.oldKorean;});
+    window.ktCreatorTracks=tracks.slice();
     var tabs=document.querySelectorAll('.kt-sound-tabs button');
     tabs.forEach(function(b){b.classList.remove('on');});
     if(btn)btn.classList.add('on');
     var input=document.getElementById('ktSoundSearchInput');
     if(input)input.value='';
     renderCurrent();
-    setNote('옛날 가요는 사용 가능한 퍼블릭도메인·자유 이용 음원만 표시합니다. 김광석·바다새·골목길 등 권리 확인이 필요한 유명곡 원음은 넣지 않습니다.');
+    setNote('신나는 외국 올드 재즈·스윙·팝 계열의 자유 이용 음원만 표시합니다.');
   };
 
   function installOldSongTab(){
@@ -188,7 +188,7 @@
     var b=document.createElement('button');
     b.type='button';
     b.className='kt-old-song-tab';
-    b.textContent='옛날 가요';
+    b.textContent='신나는 올드팝';
     b.onclick=function(){window.ktShowOldKoreanSongs(b);};
     tabs.appendChild(b);
   }
