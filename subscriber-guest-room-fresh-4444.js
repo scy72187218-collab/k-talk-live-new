@@ -24,7 +24,32 @@
     if(!isSubscriberRemote())return false;
     if(typeof window.ktRenderSubscriberHostRoom4444!=='function')return false;
 
+    /* 4444: 구독자 게스트의 기존/대기/승인 화면을 먼저 완전히 비우고
+       정상 구독자 호스트방 화면 하나만 남긴다. */
+    var remoteRoot=document.querySelector('#screen .kt-remote-live');
+    if(remoteRoot){
+      try{
+        remoteRoot.querySelectorAll(
+          '.kt-guest-hostlike-room,.kt-approved-guest-room,.kt-prejoin-room,'+
+          '.kt-guest-room,.kt-approved-guest-grid,.kt-prejoin-room-grid,.kt-guest-room-grid,'+
+          '.kt-approved-roster-quick-5555,.kt-prejoin-quick-5555,.kgh-attend,'+
+          '.kt-live-attendance,.kt-attendance-check,.kt-attendance-like-count'
+        ).forEach(function(el){try{el.remove();}catch(e){}});
+      }catch(e){}
+    }
+
     window.ktRenderSubscriberHostRoom4444();
+
+    /* 새 호스트 동일 화면 외에 남은 원격 게스트 껍데기는 숨긴다. */
+    try{
+      document.querySelectorAll('#screen .kt-remote-live').forEach(function(el){
+        if(!el.querySelector('.ktsubscriber-room'))el.style.setProperty('display','none','important');
+      });
+      var sr=document.querySelector('#screen .ktsubscriber-room');
+      if(sr){
+        sr.querySelectorAll('.kt-attendance-like-count,.kgh-attend,.kt-live-attendance,.kt-attendance-check').forEach(function(el){try{el.remove();}catch(e){}});
+      }
+    }catch(e){}
 
     var host=null,self=null;
     try{host=window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream||null;}catch(e){}
