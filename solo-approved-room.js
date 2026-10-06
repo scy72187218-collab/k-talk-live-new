@@ -207,15 +207,21 @@
   window.startBroadcast=async function(){
     var solo=isSolo();
     if(solo){
+      /* 1111: 예전 테스트 방송 화면을 먼저 그리지 않는다.
+         현재 승인된 1인방을 즉시 표시하고, 이미 켜진 호스트 스트림을 그대로 붙인다. */
       try{if(window.state)state.cameraFacing='user';}catch(e){}
-      try{if(window.ensureLiveCamera)await window.ensureLiveCamera('user');}catch(e){}
-      try{await ktSoloKeepCameraWide();}catch(e){}
-    }
-    var result=await oldStartBroadcast.apply(this,arguments);
-    if(solo){
-      setTimeout(renderApprovedSolo,0);
+      var hasLive=false;
+      try{
+        hasLive=!!(window.state&&state.stream&&state.stream.getVideoTracks&&state.stream.getVideoTracks().some(function(t){return t.readyState==='live';}));
+      }catch(e){}
+      if(!hasLive){
+        try{if(window.ensureLiveCamera)await window.ensureLiveCamera('user');}catch(e){}
+      }
+      renderApprovedSolo();
+      /* 화면을 바꾼 뒤 카메라 비율 조정은 뒤에서 처리하여 옛날 화면이 비치지 않게 한다. */
       [80,250,700,1500].forEach(function(ms){setTimeout(ktSoloKeepCameraWide,ms);});
+      return true;
     }
-    return result;
+    return await oldStartBroadcast.apply(this,arguments);
   };
 })();
