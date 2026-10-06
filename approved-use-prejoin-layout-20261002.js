@@ -150,6 +150,9 @@
 
     var total=roomTotal();
     if(!total)return false;
+    /* 4444: 15명 구독자 게스트방은 이 예전 prejoin 렌더러가 건드리지 않는다.
+       정상 구독자방 화면 코드를 사용하도록 충돌 경로만 차단. */
+    if(total===15||total===16)return false;
     var hostStream=null,selfStream=null;
     try{hostStream=window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream||null;}catch(e){}
     try{selfStream=window.__ktLocalGuestCameraStream20260926||window.__ktApprovedGuestSelfStream||null;}catch(e){}
