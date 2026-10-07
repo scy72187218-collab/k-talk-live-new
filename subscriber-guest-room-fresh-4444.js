@@ -28,6 +28,20 @@
 
   window.ktRenderSubscriberGuestFresh4444=render;
 
+  function clearSubscriberLiveFlag(){
+    armed=false;
+    window.__ktSubscriberRedLiveEntered4444=false;
+  }
+  var oldLeave=window.leaveBroadcastToDashboard;
+  if(typeof oldLeave==='function'){
+    window.leaveBroadcastToDashboard=function(){
+      clearSubscriberLiveFlag();
+      return oldLeave.apply(this,arguments);
+    };
+  }
+  window.addEventListener('kt-live-ended',clearSubscriberLiveFlag);
+  window.addEventListener('kt-room-ended',clearSubscriberLiveFlag);
+
   document.addEventListener('click',function(e){
     var x=e.target&&e.target.closest?e.target.closest('button,[role="button"],.on-air,.live-badge,.kt-live-badge,[data-live-room],[data-action="enter-live"]'):null;
     if(!x)return;
