@@ -127,6 +127,12 @@
     try{
       if(document.documentElement.classList.contains('kt-remote-viewing')||document.querySelector('.kt-remote-live,.kt-guest-hostlike-room,.kt-prejoin-room-grid'))return;
       var t=e.target&&e.target.closest?e.target.closest('.kt-allhost-photo,.kt-allhost-fallback,.ktg13-host,.ktg13-host video,.ktg13-host img,.ktg13-host .kt-profile-photo,.ktsubscriber-host,.ktsubscriber-host video,.ktsubscriber-host img,.ktsecret-host,.ktsecret-host video,.ktsecret-host img,.ktg9-host,.ktg9-host video,.ktg9-host img,#ktLiveVideo,[data-kt-host-photo]'):null;
+      /* 실제 호스트 화면은 방마다 호스트 칸 클래스가 달라도 첫 카메라 영상이 호스트다. */
+      if(!t&&e.target&&e.target.closest){
+        var v=e.target.closest('video');
+        var rr=room();
+        if(v&&rr&&v===rr.querySelector('video'))t=v;
+      }
       if(!t)return;
       var now=Date.now();if(now-Number(window.__ktHostPhotoLikeTapAt||0)<350)return;window.__ktHostPhotoLikeTapAt=now;
       if(typeof window.addHostLike==='function')window.addHostLike(1);
