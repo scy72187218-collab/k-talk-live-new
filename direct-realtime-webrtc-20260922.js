@@ -1,3 +1,4 @@
+/* KT_CAMERA_QUALITY_LOCK_9999: 1080p30 + high-bitrate camera quality is locked. Do not change unless unlock code 9999 is explicitly requested. */
 /* K-Talk direct realtime WebRTC transport (2026-09-22)
    Communications only: host video, guest request/approval, approved guest camera.
    Uses Supabase Realtime broadcast and does not depend on Postgres polling.
