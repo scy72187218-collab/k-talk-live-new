@@ -12,10 +12,7 @@
       return String(
         window.__ktRemoteHostId||
         window.__ktCurrentRemoteHostId||
-        window.__ktLocalHostId||
-        window.__ktHostDeviceId||
         sessionStorage.getItem('kt_remote_host_id')||
-        sessionStorage.getItem('kt_host_id')||
         ''
       ).trim();
     }catch(e){return '';}
@@ -64,13 +61,10 @@
   });
   window.addEventListener('kt-guest-approval-received',function(){setTimeout(function(){syncNow(true);},0);});
   window.addEventListener('kt-approved-guest-stream-ready',function(){setTimeout(function(){syncNow(true);},0);});
-  window.addEventListener('kt-host-session-ready',function(){setTimeout(function(){syncNow(true);},0);});
   window.addEventListener('kt-livekit-state',function(){setTimeout(function(){syncNow(false);},0);});
   window.addEventListener('online',function(){setTimeout(function(){syncNow(true);},60);});
   document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(function(){syncNow(true);},60);});
 
-  /* Keep background sync light: realtime approval events above do the immediate work.
-     A slower fallback avoids hammering several phones during a live broadcast. */
-  setInterval(function(){syncNow(false);},1500);
-  [0,80,250,700,1500].forEach(function(ms){setTimeout(function(){syncNow(true);},ms);});
+  setInterval(function(){syncNow(false);},180);
+  [0,30,70,120,200,320,500,800,1200].forEach(function(ms){setTimeout(function(){syncNow(true);},ms);});
 })();
