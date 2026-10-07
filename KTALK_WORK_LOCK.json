@@ -1,5 +1,5 @@
 {
-  "version": 273,
+  "version": 274,
   "locked": true,
   "scope": "full_snapshot_guard_everything",
   "lock_slot": 9,
@@ -186,7 +186,7 @@
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "1111 작업 완료 후 재잠금: 1인 방송 화면 테두리 제거 및 캐시 갱신만 적용. 다른 방/기능 변경 없음.",
+  "note": "2026-10-07 owner PIN 1111: changed only subscriber-room empty guest placeholder person icons to blue SVG silhouettes. No layout, LED, buttons, text, video, communication, guest numbering, or other room changes. Relocked after deployment.",
   "lock_slots": {
     "6": [
       "current_full_approved_state_20260927_1740"
@@ -397,5 +397,9 @@
   "sound_password_map": {
     "1515": "촬영 화면 사운드 목록·사운드 재생·녹음용 음악 연결"
   },
-  "sound_policy": "1515 승인 없이는 사운드 목록, 곡 선택 동작, 외부 이동 여부, 음악 재생/녹음 연결 수정 금지."
+  "sound_policy": "1515 승인 없이는 사운드 목록, 곡 선택 동작, 외부 이동 여부, 음악 재생/녹음 연결 수정 금지.",
+  "snapshot_branch": "main",
+  "snapshot_commit": "bc7e3e6f8c965c406c3becd8b62b05701f22dfbe",
+  "temporarily_unlocked": [],
+  "last_ui_fix": "2026-10-07-subscriber-blue-guest-person-icons-only"
 }
