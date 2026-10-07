@@ -2945,7 +2945,11 @@
       }catch(_e){}
 
       attachRemoteStreamNow();
-      [0,30,80,150].forEach(function(ms){
+      /* KT_OPEN_TIME_FORWARD_9999:
+         Pull the first-view timing forward on the actual room-icon path.
+         All phones fire their own watch immediately; no viewer waits behind
+         another viewer. Same-token repeats only cover a missed first packet. */
+      [0,12,28,55,95].forEach(function(ms){
         setTimeout(function(){ensureViewerWatch(true);attachRemoteStreamNow();},ms);
       });
       return true;
