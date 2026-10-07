@@ -123,6 +123,18 @@
   }
 
   /* 호스트 사진을 누를 때마다 시계 옆 하트 숫자 +1. 게스트 화면은 제외. */
+  document.addEventListener('touchend',function(e){
+    try{
+      if(document.documentElement.classList.contains('kt-remote-viewing')||document.querySelector('.kt-remote-live,.kt-guest-hostlike-room,.kt-prejoin-room-grid'))return;
+      var rr=room(),v=e.target&&e.target.closest?e.target.closest('video,.ktg13-host,.ktsubscriber-host,.ktsecret-host,.ktg9-host,[data-kt-host-photo]'):null;
+      if(!v||!rr)return;
+      var first=rr.querySelector('video');if(v.tagName==='VIDEO'&&first&&v!==first)return;
+      var now=Date.now();if(now-Number(window.__ktHostPhotoLikeTapAt||0)<500)return;window.__ktHostPhotoLikeTapAt=now;
+      if(typeof window.addHostLike==='function')window.addHostLike(1);else{loadCount();count+=1;saveCount();paint();}
+      setTimeout(ensure,0);
+    }catch(_e){}
+  },{capture:true,passive:true});
+
   document.addEventListener('click',function(e){
     try{
       if(document.documentElement.classList.contains('kt-remote-viewing')||document.querySelector('.kt-remote-live,.kt-guest-hostlike-room,.kt-prejoin-room-grid'))return;
