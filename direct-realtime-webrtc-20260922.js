@@ -2933,7 +2933,15 @@
       viewerConnected=false;
       lastWatchAt=0;
 
-      /* Start signaling immediately on the same tap that opens the room. */
+      /* KT_FIRST_PAGE_JOIN_9999:
+         Join/signaling starts on the exact first-page entry path. Persist the
+         selected host before connect so remoteHostId() is already available
+         when the first watch is sent. No UI/quality/room layout is changed. */
+      try{
+        window.__ktRemoteHostId=hid;
+        window.__ktCurrentRemoteHostId=hid;
+        sessionStorage.setItem('kt_remote_host_id',hid);
+      }catch(_e){}
       if(activeHostId!==hid)connect(hid);
       ensureViewerWatch(true);
 
