@@ -13,7 +13,6 @@
      This prevents an old/prewarmed camera stream from appearing as '나 · 게스트'
      before the viewer has even requested or been approved for guest participation. */
   var approvalActive=false;
-  var broadcastEnded8888=false;
 
   function ktIsSecretRemoteReset20261004(){
     try{
@@ -123,17 +122,15 @@
     try{
       txt+=' '+String(window.__ktRemoteRoomName||'')+' '+String(window.__ktRemoteRoomType||'');
     }catch(e){}
-    /* 4444: 15명 구독자방은 이 구형 게스트 렌더러에서 완전히 제외.
-       구독자방은 subscriber-approved-room.js의 호스트 동일 화면만 사용한다. */
-    var is16=false;
-    var is13=/13\s*명|group13/i.test(txt);
-    if(!is13)return null;
+    var is16=/16\s*명|15\s*명|subscriber|구독자/i.test(txt);
+    var is13=!is16&&/13\s*명|group13/i.test(txt);
+    if(!is16&&!is13)return null;
     return {
       is15:is16,
       is16:is16,
       is13:is13,
-      total:is16?15:13,
-      gridTotal:is16?15:13,
+      total:is16?16:13,
+      gridTotal:is16?16:13,
       label:is16?'15명 방송':'13명 방송'
     };
   }
@@ -151,6 +148,7 @@
       +'.kgh-attend{justify-self:center;min-width:132px;height:43px;padding:0 14px;border-radius:19px;border:2px solid #ff2bbd;background:#130714;color:#ffd52f;font-size:18px;font-weight:950;box-shadow:0 0 8px #ff2bbd,0 0 18px #ff2bbd66;white-space:nowrap}'
       +'.kgh-led{flex:0 0 58px;position:relative;border:2px solid #ff28c4;border-radius:22px;background-color:#120712;background-image:radial-gradient(circle,#ff35ce 2px,transparent 2.7px);background-size:13px 13px;overflow:hidden;box-shadow:0 0 9px #ff28c4,0 0 22px #ff28c466}'
       +'.kgh-led-track{position:absolute;left:0;top:0;height:100%;display:flex;align-items:center;white-space:nowrap;will-change:transform;animation:kghMarquee 12s linear infinite;font-size:24px;font-weight:950;color:#ffd62d;text-shadow:0 0 7px #ff8b00}.kgh-led-track span{display:inline-block;padding-right:80px}.kgh-led-track b{color:#ff59c9}@keyframes kghMarquee{from{transform:translateX(55%)}to{transform:translateX(-100%)}}'
+      +'.kgh-quick{flex:0 0 35px;display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.kgh-quick button{border:0;border-radius:11px;background:#101014;color:#fff;font-size:11px;font-weight:900}'
       +'.kgh-stats{flex:0 0 47px;display:grid;grid-template-columns:1fr 1fr 1.35fr;gap:7px}.kgh-stats button,.kgh-viewers{border:0;border-radius:14px;background:#111114;color:#fff;font-size:15px;font-weight:950;display:flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;overflow:hidden}'
       +'.kgh-main{position:relative;flex:1 1 0;min-height:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:2px;overflow:hidden}.kgh-main.is13{grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr))}.kgh-main.is13 .kgh-cell:nth-child(13){grid-column:4!important}.kt-guest-hostlike-room[data-kt-room="13"] .kgh-main.is13>.kgh-cell:last-child{grid-column:4!important;grid-row:auto!important}.kgh-main.is15,.kgh-main.is16{grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr))}.kgh-main.is15 .kgh-cell.host,.kgh-main.is16 .kgh-cell.host{grid-column:1!important;grid-row:1/span 2!important}'
       +'.kgh-cell{position:relative;display:grid;place-items:center;min-width:0;min-height:0;border:1px solid #28282d;border-radius:7px;background:linear-gradient(145deg,#17181b,#111214);color:#bdbdc4;font-size:13px;font-weight:900;overflow:hidden}'
@@ -161,7 +159,7 @@
       +'.kgh-chat{flex:0 0 74px;position:relative;overflow:hidden;background:#000;display:grid;grid-template-columns:38% minmax(0,1fr);gap:7px;align-items:end;padding:1px 6px 2px}.kgh-chatbox{grid-column:2!important;width:100%!important;height:74px;max-height:74px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;font-size:11px;font-weight:850;line-height:1.35;color:#fff}.kgh-earn{grid-column:1!important}'
       +'.kgh-earn{position:static!important;right:auto!important;bottom:auto!important;z-index:6;width:100%!important;height:64px;border:1px solid #d2a936;border-radius:10px;background:linear-gradient(135deg,#17140be8,#0d0d12e8);color:#fff;padding:2px 6px;text-align:center;overflow:hidden;align-self:end}.kgh-earn .top{display:flex;align-items:center;justify-content:center;gap:4px;white-space:nowrap}.kgh-earn .top span{font-size:8px;color:#8fe8ff;font-weight:950}.kgh-earn .top b{font-size:12px;color:#ffe071}.kgh-earn-detail{display:grid;grid-template-columns:1fr auto;gap:1px 4px;margin-top:2px;font-size:7px;color:#ddd;white-space:nowrap}'
       +'.kgh-tools{display:none!important}.kgh-tool{border:0;background:none;color:#fff;min-width:0;font-weight:900;font-size:9px;display:grid;justify-items:center;gap:2px}.kgh-tool i{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#1b1b20,#0b0b0f);border:1px solid #35363d;font-style:normal;font-size:18px;box-shadow:inset 0 0 13px #ffffff08}.kgh-tool span{font-size:8px;color:#fff;white-space:nowrap}'
-      +'@media(max-width:390px){.kt-guest-hostlike-room{padding-left:4px;padding-right:4px;gap:3px}.kgh-head{flex-basis:58px;padding:4px 8px}.kgh-air strong{font-size:17px}.kgh-air small{font-size:10px}.kgh-brand{font-size:17px}.kgh-attend{min-width:108px;height:38px;font-size:15px;padding:0 8px}.kgh-led{flex-basis:50px}.kgh-led-track{font-size:20px}.kgh-stats{flex-basis:42px;gap:4px}.kgh-stats button,.kgh-viewers{font-size:12px}.kgh-cell{font-size:11px}.kgh-chat{flex-basis:70px;grid-template-columns:40% minmax(0,1fr);gap:5px;padding-left:3px;padding-right:3px}.kgh-chatbox{height:70px;max-height:70px;font-size:9px}.kgh-earn{height:62px}.kgh-tools{flex-basis:48px}.kgh-tool i{width:32px;height:32px;font-size:16px}}';
+      +'@media(max-width:390px){.kt-guest-hostlike-room{padding-left:4px;padding-right:4px;gap:3px}.kgh-head{flex-basis:58px;padding:4px 8px}.kgh-air strong{font-size:17px}.kgh-air small{font-size:10px}.kgh-brand{font-size:17px}.kgh-attend{min-width:108px;height:38px;font-size:15px;padding:0 8px}.kgh-led{flex-basis:50px}.kgh-led-track{font-size:20px}.kgh-quick{flex-basis:31px}.kgh-stats{flex-basis:42px;gap:4px}.kgh-stats button,.kgh-viewers{font-size:12px}.kgh-cell{font-size:11px}.kgh-chat{flex-basis:70px;grid-template-columns:40% minmax(0,1fr);gap:5px;padding-left:3px;padding-right:3px}.kgh-chatbox{height:70px;max-height:70px;font-size:9px}.kgh-earn{height:62px}.kgh-tools{flex-basis:48px}.kgh-tool i{width:32px;height:32px;font-size:16px}}';
     document.head.appendChild(s);
   }
 
@@ -282,42 +280,55 @@
     root.classList.remove('kt-approved-guest-room','kt-prejoin-room-view');
     root.classList.add('kt-guest-hostlike-active');
 
-    /* 4444: 구독자 게스트방 맨 위에 겹쳐 보이는 퇴장 버튼만 숨긴다.
-       실제 방송 나가기 기능/하단 UI/다른 방은 변경하지 않는다. */
-    if(info.is16){
-      try{
-        root.querySelectorAll(':scope > .kt-remote-leave-fixed-1150617').forEach(function(x){
-          try{x.remove();}catch(e){x.style.setProperty('display','none','important');}
-        });
-        [].slice.call(root.children||[]).forEach(function(x){
-          try{
-            if(x.classList&&x.classList.contains('kt-guest-hostlike-room'))return;
-            var t=String(x.textContent||'').replace(/\s+/g,'').trim();
-            if(t==='퇴장')x.remove();
-          }catch(e){}
-        });
-      }catch(e){}
-    }
-
     var room=document.createElement('section');
     room.className='kt-guest-hostlike-room';
-    room.setAttribute('data-kt-room',info.is16?'15':'13');
+    room.setAttribute('data-kt-room',info.is16?'16':'13');
 
     var head=document.createElement('div');
     head.className='kgh-head';
     head.innerHTML='<div class="kgh-air"><strong><i>●</i> '+info.label+'</strong><small><i>● ON AIR</i> <span class="kgh-clock">00:00:00</span></small></div>'
-      +'<div class="kgh-brand">K-Talk LIVE</div>';
+      +'<button class="kgh-attend" type="button">🌹 출석체크</button><div class="kgh-brand">K-Talk LIVE</div>';
+    var attend=head.querySelector('.kgh-attend');
+    attend.addEventListener('click',function(){try{if(window.ktAttendanceCheck)window.ktAttendanceCheck();}catch(e){}});
 
     var led=document.createElement('div');
     led.className='kgh-led';
     led.innerHTML='<div class="kgh-led-track"><span>💗 <b>K-Talk LIVE</b> 환영합니다 ✨ 즐거운 방송 되세요 🌹</span><span>💗 <b>K-Talk LIVE</b> 환영합니다 ✨ 즐거운 방송 되세요 🌹</span></div>';
+
+    var quick=document.createElement('div');
+    quick.className='kgh-quick';
+    quick.innerHTML='<button type="button" class="kgh-undo-btn">↩ 되돌리기</button><button type="button" class="kgh-treasure-btn">🎁 보물 상자</button><button type="button" class="kgh-match-btn">⚔ 매치</button>';
+    var undoBtn=quick.querySelector('.kgh-undo-btn');
+    var treasureBtn=quick.querySelector('.kgh-treasure-btn');
+    var matchBtn=quick.querySelector('.kgh-match-btn');
+    if(undoBtn)undoBtn.onclick=function(){
+      try{
+        if(typeof window.ktUndoLastSeatMove==='function')return window.ktUndoLastSeatMove();
+        if(typeof window.ktUndoLastAction==='function')return window.ktUndoLastAction();
+        if(typeof window.undoLastSeatMove==='function')return window.undoLastSeatMove();
+      }catch(e){}
+    };
+    if(treasureBtn)treasureBtn.onclick=function(){
+      try{
+        if(typeof window.openTreasureBox==='function')return window.openTreasureBox();
+        if(typeof window.openTreasure==='function')return window.openTreasure();
+        if(typeof window.openPackageBox==='function')return window.openPackageBox();
+        if(typeof window.openGifts==='function')return window.openGifts();
+      }catch(e){}
+    };
+    if(matchBtn)matchBtn.onclick=function(){
+      try{
+        if(typeof window.openHostMatchArena==='function')return window.openHostMatchArena('1대1');
+        if(typeof window.openMatch==='function')return window.openMatch();
+      }catch(e){}
+    };
 
     var stats=document.createElement('div');
     stats.className='kgh-stats';
     stats.innerHTML='<button type="button">🔥 일일 랭킹</button><button type="button">🎯 미션</button><div class="kgh-viewers">시청자 '+(info.is16?15:info.total)+'명이 시청중 🏃</div>';
 
     var grid=document.createElement('div');
-    grid.className='kgh-main'+(info.is16?' is15':' is13');
+    grid.className='kgh-main'+(info.is16?' is16':' is13');
     var hostCell=makeCell('host','호스트');
     var selfCell=makeCell('self','나 · 게스트');
 
@@ -376,24 +387,10 @@
     tools.appendChild(makeTool('🪄','효과',function(){try{if(window.openEditEffectPanel)window.openEditEffectPanel();else if(window.ktGroup13Effect)window.ktGroup13Effect();}catch(e){}}));
     tools.appendChild(makeTool('•••','더보기',function(){try{if(window.openLiveSettings)window.openLiveSettings();else if(window.ktGroup13More)window.ktGroup13More();}catch(e){}}));
 
-    /* 4444: 구독자 게스트 화면의 좌측 상단 '퇴장' 표시를 최종 단계에서 제거 */
-    if(info.is16){
-      try{
-        root.querySelectorAll('button,a,div,span').forEach(function(x){
-          if(x.closest&&x.closest('.kt-guest-hostlike-room'))return;
-          var t=String(x.textContent||'').replace(/\\s+/g,'').trim();
-          if(t==='퇴장'){
-            var r=x.getBoundingClientRect();
-            if(!r||r.top<220){try{x.remove();}catch(e){x.style.display='none';}}
-          }
-        });
-      }catch(e){}
-    }
-
     room.appendChild(head);
     room.appendChild(led);
     room.appendChild(stats);
-    /* 4444: 구독자 게스트방은 존재하지 않는 quick 변수를 붙이지 않는다. */
+    room.appendChild(quick);
     room.appendChild(grid);
     room.appendChild(chat);
     room.appendChild(tools);
@@ -456,14 +453,11 @@
   function removeGuest13ChatHeart20261004(root){
     try{
       if(!root)return;
-      /* 게스트로 들어간 모든 방송방의 하단 채팅 하트만 제거한다.
-         호스트 방/전광판/선물 하트는 건드리지 않는다. */
-      var guestView=!!(
-        root.closest&&root.closest('.kt-remote-live') ||
-        root.querySelector('.kt-guest-hostlike-room,.kt-approved-guest-room,.kt-prejoin-room,.kt-guest-room') ||
-        document.documentElement.classList.contains('kt-remote-viewing')
-      );
-      if(!guestView)return;
+      var room=root.querySelector('.kt-guest-hostlike-room[data-kt-room="13"]');
+      if(!room)return;
+
+      /* 13명방 게스트 화면 하단의 하트 0만 제거한다.
+         호스트 방/다른 방/전광판 하트는 건드리지 않는다. */
       root.querySelectorAll(
         '.kt-remote-chat .kt-live-clock-heart,'+
         '.kt-remote-chat .kt-attendance-heart-badge,'+
@@ -489,39 +483,7 @@
     }catch(e){}
   }
 
-  function removeGuestAttendanceAndChatHeart8888(root){
-    try{
-      if(!root)return;
-      var guest=!!root.querySelector('.kt-guest-hostlike-room,.kt-approved-guest-room,.kt-prejoin-room,.kt-guest-room');
-      if(!guest)return;
-      root.querySelectorAll('.kgh-attend,.kt-live-attendance,.kt-attendance-check,.kt-attendance-btn,[data-kt-attendance]').forEach(function(el){try{el.remove();}catch(e){}});
-      /* 4444: 구독자 게스트방 하단 출석체크/하트 막대는 사용하지 않는다. */
-      var gi=roomInfo(root);
-      if(gi&&gi.is16){
-        [].slice.call(root.querySelectorAll('*')).forEach(function(el){
-          try{
-            if(!el||el.children.length)return;
-            var t=String(el.textContent||'').replace(/\s+/g,'').trim();
-            if(/출석체크\d*$/.test(t)||/^[♥♡❤💗]\d*$/.test(t)){
-              var rr=el.getBoundingClientRect();
-              if(rr&&rr.top>window.innerHeight*0.55)el.remove();
-            }
-          }catch(e){}
-        });
-      }
-      root.querySelectorAll('.kt-remote-chat .kt-live-clock-heart,.kt-remote-chat .kt-attendance-heart-badge,.kt-remote-chat .kt-remote-action.heart,.kt-remote-chat .heart,.kt-remote-bottom .kt-live-clock-heart,.kt-remote-bottom .kt-attendance-heart-badge,.kt-remote-bottom .heart').forEach(function(el){try{el.remove();}catch(e){}});
-      [].slice.call(root.querySelectorAll('.kt-remote-chat *,.kt-remote-bottom *')).forEach(function(el){
-        try{
-          if(!el||el.children.length)return;
-          var t=String(el.textContent||'').replace(/\s+/g,'').trim();
-          if(/^[♥♡❤💗]\d*$/.test(t))el.remove();
-        }catch(e){}
-      });
-    }catch(e){}
-  }
-
   function repair(){
-    if(broadcastEnded8888)return;
     if(ktIsSecretRemoteReset20261004())return;
     try{
       if(window.__ktUseSingleG9ViewerHostCopy20261003){
@@ -533,12 +495,11 @@
       }
       var preRoot=document.querySelector('.kt-remote-live');
       var preInfo=preRoot?roomInfo(preRoot):null;
-      if(window.__ktApprovedUsePrejoinLayout20261002&&typeof window.ktApplyApprovedPrejoinLayout20261002==='function'&&!(preInfo&&(preInfo.is13||preInfo.is16))){
+      if(window.__ktApprovedUsePrejoinLayout20261002&&typeof window.ktApplyApprovedPrejoinLayout20261002==='function'&&!(preInfo&&preInfo.is13)){
         window.ktApplyApprovedPrejoinLayout20261002();
         return;
       }
       var root=preRoot;
-      removeGuestAttendanceAndChatHeart8888(root);
       removeGuest13ChatHeart20261004(root);
       forceLast13GuestBottomRight20261004(root);
       if(!root){builtRoot=null;return;}
@@ -684,11 +645,7 @@
     }catch(e){}
   }
 
-  window.addEventListener('kt-host-session-reset',function(e){
-    var ended=false;try{ended=!!(e&&e.detail&&e.detail.ended);}catch(_e){}
-    broadcastEnded8888=ended;
-    clearApprovedViewForFreshRoom();
-  });
+  window.addEventListener('kt-host-session-reset',clearApprovedViewForFreshRoom);
 
   /* Do NOT tear down an already-approved 3-person room just because the same
      host is selected/refreshed again. That old listener was clearing the self
@@ -715,11 +672,7 @@
     clearApprovedViewForFreshRoom();
   });
 
-  window.addEventListener('kt-broadcast-ended',function(){
-    broadcastEnded8888=true;
-    approvalActive=false;
-    clearApprovedViewForFreshRoom();
-  });
+  window.addEventListener('kt-broadcast-ended',clearApprovedViewForFreshRoom);
 
   repair();
   [50,120,250,500,900,1500,2400,4000].forEach(function(ms){setTimeout(repair,ms);});
