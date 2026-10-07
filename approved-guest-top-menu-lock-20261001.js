@@ -24,6 +24,14 @@
   function normalizeRoot(root){
     if(!root)return;
     try{
+      /* 4444: 구독자 게스트는 현재 정상 호스트 화면을 따로 사용하므로
+         이 구형 상단 빠른메뉴(되돌리기/상자/매치)를 만들거나 이동하지 않는다. */
+      var r=window.__ktLastLiveRoom||{};
+      var rt=[r.room_type,r.room_name,r.title,window.__ktRemoteRoomName,window.__ktRemoteRoomType].filter(Boolean).join(' ');
+      if(/subscriber|구독자/i.test(rt)){
+        root.querySelectorAll('.kt-viewer-quick-20261001,.kt-remote-guest-upper-quick-5555').forEach(function(x){try{x.remove();}catch(e){}});
+        return;
+      }
       var hostlike=root.querySelector('.kt-guest-hostlike-room');
       if(hostlike){
         var q=hostlike.querySelector('.kgh-quick');
