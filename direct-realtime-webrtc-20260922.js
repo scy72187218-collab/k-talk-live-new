@@ -252,7 +252,7 @@
       if(!p.encodings||!p.encodings.length)p.encodings=[{}];
       var guest=(kind==='guest');
       p.encodings.forEach(function(enc){
-        enc.maxBitrate=guest?1800000:2500000;
+        enc.maxBitrate=guest?3500000:4500000;
         enc.maxFramerate=30;
         enc.scaleResolutionDownBy=1.0;
         try{enc.networkPriority='high';}catch(e){}
@@ -2677,7 +2677,7 @@
     }
     try{
       guestStream=await navigator.mediaDevices.getUserMedia({
-        video:{facingMode:{ideal:'user'},width:{ideal:1280,max:1920},height:{ideal:720,max:1080},frameRate:{ideal:30,max:30}},
+        video:{facingMode:{ideal:'user'},width:{ideal:1920,max:1920},height:{ideal:1080,max:1080},frameRate:{ideal:30,max:30}},
         audio:true
       });
     }catch(e){
