@@ -139,6 +139,16 @@
       var photo=String(p.photo||'');btn.innerHTML=(photo&&(/^data:image/.test(photo)||/^https?:/.test(photo))?'<img src="'+esc(photo)+'" alt="">':'<span class="fallback">👤</span>')+'<span class="name">'+esc(x.name||p.name||'게스트')+' 신청</span><span class="dot"></span>';
       btn.onclick=function(e){e.preventDefault();e.stopPropagation();openChoice(x);};rail.appendChild(btn);
     });
+    /* 모바일에서 신청 사진 터치가 다른 오버레이에 먹히지 않게 직접 처리 */
+    if(!rail.__ktDirectTouchBound){
+      rail.__ktDirectTouchBound=true;
+      rail.addEventListener('touchstart',function(e){
+        var b=e.target&&e.target.closest?e.target.closest('.kt-guest-photo-request'):null;if(!b)return;
+        var idx=[].indexOf.call(rail.querySelectorAll('.kt-guest-photo-request'),b),x=pending[idx];if(!x)return;
+        e.preventDefault();e.stopPropagation();openChoice(x);
+      },{passive:false});
+    }
+  }
   }
 
   async function tick(){
