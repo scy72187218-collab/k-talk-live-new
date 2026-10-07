@@ -120,7 +120,7 @@
   function openChoice(x){
     var oldLine=document.querySelector('.ktGuestPendingLine[data-viewer-id="'+String(x.vid).replace(/"/g,'\\"')+'"]');
     if(oldLine){try{oldLine.click();return;}catch(e){}}
-    closeChoice();var room=document.querySelector('.ktg13-room');if(!room)return;
+    closeChoice();var room=document.querySelector('.ktg13-room,.ktsubscriber-room,.ktsecret-room,.ktg9-room,[data-kt-room="9"],[data-kt-room="13"]');if(!room)return;
     var b=document.createElement('div');b.id='ktGuestPhotoChoice';
     b.innerHTML='<button type="button" class="approve">올리기</button><button type="button" class="reject">거부하기</button><button type="button" class="block">차단하기</button>';
     b.querySelector('.approve').onclick=function(e){e.preventDefault();e.stopPropagation();closeChoice();if(typeof window.ktApproveGuest==='function')window.ktApproveGuest(x.vid,x.name,null);};
@@ -130,7 +130,7 @@
   }
 
   async function render(pending){
-    ensureStyle();var room=document.querySelector('.ktg13-room');if(!room){removeRail();return;}
+    ensureStyle();var room=document.querySelector('.ktg13-room,.ktsubscriber-room,.ktsecret-room,.ktg9-room,[data-kt-room="9"],[data-kt-room="13"]');if(!room){removeRail();return;}
     if(!pending.length){removeRail();return;}
     var rail=document.getElementById('ktGuestPhotoRequestRail');if(!rail){rail=document.createElement('div');rail.id='ktGuestPhotoRequestRail';room.appendChild(rail);}
     var infos=await Promise.all(pending.map(function(x){return getPhoto(x.vid,x.name);}));
@@ -143,7 +143,7 @@
 
   async function tick(){
     wrapGuestRequest();
-    if(document.documentElement.classList.contains('kt-remote-viewing')||!document.querySelector('.ktg13-room')){removeRail();lastPending=[];lastPendingAt=0;return;}
+    if(document.documentElement.classList.contains('kt-remote-viewing')||!document.querySelector('.ktg13-room,.ktsubscriber-room,.ktsecret-room,.ktg9-room,[data-kt-room="9"],[data-kt-room="13"]')){removeRail();lastPending=[];lastPendingAt=0;return;}
     var hid=deviceId();if(!hid)return;
     try{
       var room=null;
