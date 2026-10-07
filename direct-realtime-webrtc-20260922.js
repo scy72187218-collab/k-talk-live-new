@@ -132,6 +132,7 @@
       var t=stream&&stream.getVideoTracks&&stream.getVideoTracks()[0];
       if(!t||t.readyState!=='live')return stream;
       try{t.contentHint='detail';}catch(e){}
+      try{var s=t.getSettings&&t.getSettings();if(s&&s.width&&s.height&&(s.width<1280||s.height<720)){var q0=t.applyConstraints({width:{ideal:1920,min:1280},height:{ideal:1080,min:720},frameRate:{ideal:30,max:30}});if(q0&&q0.catch)q0.catch(function(){});}}catch(e){}
       if(t.applyConstraints){var q=t.applyConstraints({width:{ideal:1920},height:{ideal:1080},frameRate:{ideal:30,max:30}});if(q&&q.catch)q.catch(function(){});}
     }catch(e){}
     return stream;
@@ -262,7 +263,8 @@
       if(!p.encodings||!p.encodings.length)p.encodings=[{}];
       var guest=(kind==='guest');
       p.encodings.forEach(function(enc){
-        enc.maxBitrate=guest?3500000:4500000;
+        enc.maxBitrate=guest?3500000:8000000;
+        if(!guest){try{enc.minBitrate=2500000;}catch(e){} try{enc.priority='high';}catch(e){}}
         enc.maxFramerate=30;
         enc.scaleResolutionDownBy=1.0;
         try{enc.networkPriority='high';}catch(e){}
