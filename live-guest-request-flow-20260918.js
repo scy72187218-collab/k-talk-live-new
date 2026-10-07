@@ -415,7 +415,20 @@
       if(t.closest&&t.closest('button,a,input,textarea,[contenteditable="true"]'))return;
       var now=Date.now();if(now-Number(window.__ktGuestPersonRequestTapAt||0)<700)return;window.__ktGuestPersonRequestTapAt=now;
       e.preventDefault();e.stopPropagation();
-      var q=sendGuestRequest();if(q&&q.catch)q.catch(function(){});
+      /* 사람 칸 터치는 현재 선택된 호스트 ID를 먼저 확정한 뒤 신청한다. */
+      var host=String(window.__ktRemoteHostId||'').trim();
+      try{if(!host)host=String(sessionStorage.getItem('kt_remote_host_id')||'').trim();}catch(_e){}
+      if(host){
+        window.__ktRemoteHostId=host;
+        try{sessionStorage.setItem('kt_remote_host_id',host);}catch(_e){}
+        var p=profile(),vid=viewerId();
+        var q=postGuestMessage(host,'guest_request:'+vid,'👥 '+(p.name||'게스트')+'님이 방송 참여를 신청했습니다.',vid,p.name||'게스트');
+        if(q&&q.then)q.then(function(ok){
+          if(ok){try{document.querySelectorAll('.kt-remote-live').forEach(function(root){root.dataset.ktGuestRequested='1';});}catch(_e){}}
+        }).catch(function(){});
+      }else{
+        var q2=sendGuestRequest();if(q2&&q2.catch)q2.catch(function(){});
+      }
     }catch(z){}
   }
   window.addEventListener('click',ktAllRoomGuestPersonRequest20261007,true);
