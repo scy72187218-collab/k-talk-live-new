@@ -127,14 +127,23 @@
       return false;
     }catch(e){return false;}
   }
+  function ktKeepHostQuality9999(stream){
+    try{
+      var t=stream&&stream.getVideoTracks&&stream.getVideoTracks()[0];
+      if(!t||t.readyState!=='live')return stream;
+      try{t.contentHint='detail';}catch(e){}
+      if(t.applyConstraints){var q=t.applyConstraints({width:{ideal:1920},height:{ideal:1080},frameRate:{ideal:30,max:30}});if(q&&q.catch)q.catch(function(){});}
+    }catch(e){}
+    return stream;
+  }
   function hostStream(){
     try{
       var s=window.state&&state.stream;
-      if(s&&s.getTracks&&s.getVideoTracks().some(function(t){return t.readyState==='live';}))return s;
+      if(s&&s.getTracks&&s.getVideoTracks().some(function(t){return t.readyState==='live';}))return ktKeepHostQuality9999(s);
     }catch(e){}
     try{
       var r=roomEl(),v=r&&r.querySelector('video'),s2=v&&v.srcObject;
-      if(s2&&s2.getTracks&&s2.getVideoTracks().some(function(t){return t.readyState==='live';}))return s2;
+      if(s2&&s2.getTracks&&s2.getVideoTracks().some(function(t){return t.readyState==='live';}))return ktKeepHostQuality9999(s2);
     }catch(e){}
     return null;
   }
