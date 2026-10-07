@@ -1,5 +1,15 @@
 /* K-Talk: 승인된 게스트 화면을 호스트의 9/13명방 화면처럼 한 화면으로 표시. 다른 방/기능 변경 없음. */
 (function(){
+  /* KT_GUEST_FIRST_PAGE_NO_ATTENDANCE_20261007: 게스트 첫 페이지는 모든 방에서 출석체크 숨김, 호스트만 유지 */
+  function hideGuestAttendance20261007(){
+    try{
+      if(!document.documentElement.classList.contains('kt-remote-viewing')&&!document.querySelector('.kt-remote-live,.kt-guest-hostlike-room'))return;
+      document.querySelectorAll('.kt-remote-live [class*="attend"],.kt-remote-live [class*="attendance"],.kt-remote-live [id*="Attend"],.kt-remote-live [id*="Attendance"],.kt-guest-hostlike-room [class*="attend"],.kt-guest-hostlike-room [class*="attendance"],.kt-guest-hostlike-room [id*="Attend"],.kt-guest-hostlike-room [id*="Attendance"]').forEach(function(x){x.style.setProperty('display','none','important');});
+    }catch(e){}
+  }
+  setTimeout(hideGuestAttendance20261007,0);setTimeout(hideGuestAttendance20261007,120);setInterval(hideGuestAttendance20261007,500);
+  try{new MutationObserver(function(){setTimeout(hideGuestAttendance20261007,0);}).observe(document.documentElement,{childList:true,subtree:true});}catch(e){}
+
   if(window.__ktApprovedGuestMatchHostRoom20260918)return;
   window.__ktApprovedGuestMatchHostRoom20260918=true;
 
