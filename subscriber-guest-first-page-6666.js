@@ -25,16 +25,17 @@
   var root=document.querySelector('.kt-remote-live');var main=document.getElementById('ktRemoteLiveVideo');if(!root||!main)return;
   if(root.querySelector('.kt-sub6666-grid'))return;
   style();root.classList.add('kt-sub-first-6666');
-  var att=document.createElement('button');att.type='button';att.className='kt-sub6666-att';att.innerHTML='<img src="attendance-wing.svg" alt=""><span>출석체크</span><img src="attendance-wing.svg" alt="">';att.onclick=function(){if(typeof window.ktRemoteAttendance==='function')return window.ktRemoteAttendance();if(typeof window.openAttendanceBenefits==='function')return window.openAttendanceBenefits();};root.appendChild(att);
+  var air=document.createElement('div');air.className='kt-sub6666-air';air.innerHTML='<span class="on">● ON AIR</span><span class="kt-sub6666-clock">00:00:00</span>';
   var led=document.createElement('div');led.className='kt-sub6666-led';led.innerHTML='<div class="kt-sub6666-led-track"><span><b>K LIVE</b> · 환영합니다 ✨ 💗</span><span><b>K LIVE</b> · 환영합니다 ✨ 💗</span></div>';
   var stats=document.createElement('div');stats.className='kt-sub6666-stats';stats.innerHTML='<div>🔥 일일 랭킹</div><div>🎯 미션</div><div>👁 함께 시청 중</div>';
   var grid=document.createElement('div');grid.className='kt-sub6666-grid';
   var host=document.createElement('div');host.className='kt-sub6666-cell host';var lab=document.createElement('label');lab.textContent='호스트';host.appendChild(lab);host.appendChild(main);grid.appendChild(host);
   for(var i=1;i<15;i++){var c=document.createElement('div');c.className='kt-sub6666-cell';c.textContent='게스트';grid.appendChild(c);}
-  var top=root.querySelector('.kt-remote-top');if(top&&top.nextSibling)root.insertBefore(led,top.nextSibling);else root.appendChild(led);
+  var top=root.querySelector('.kt-remote-top');if(top&&top.nextSibling)root.insertBefore(air,top.nextSibling);else root.appendChild(air);if(air.nextSibling)root.insertBefore(led,air.nextSibling);else root.appendChild(led);
   if(led.nextSibling)root.insertBefore(stats,led.nextSibling);else root.appendChild(stats);
   if(stats.nextSibling)root.insertBefore(grid,stats.nextSibling);else root.appendChild(grid); setTimeout(function(){var q=root.querySelector(':scope > .kt-fresh-three-1111');if(q&&stats.nextElementSibling!==q)stats.insertAdjacentElement('afterend',q);},80);
   try{var p=main.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
+  var started=Date.now();try{var rr=window.__ktLastLiveRoom||{};var raw=rr.started_at||rr.startedAt||rr.created_at||rr.createdAt;if(raw){var d=new Date(raw).getTime();if(isFinite(d)&&d>0)started=d;}}catch(e){} function tick(){var el=root.querySelector('.kt-sub6666-clock');if(!el||!root.isConnected)return;var sec=Math.max(0,Math.floor((Date.now()-started)/1000));var h=String(Math.floor(sec/3600)).padStart(2,'0'),m=String(Math.floor((sec%3600)/60)).padStart(2,'0'),s=String(sec%60).padStart(2,'0');el.textContent=h+':'+m+':'+s;} tick();var timer=setInterval(function(){if(!root.isConnected){clearInterval(timer);return;}tick();},1000);
  }
  new MutationObserver(function(){setTimeout(apply,0);}).observe(document.documentElement,{childList:true,subtree:true});
  ['kt-livekit-state','kt-remote-room-opened'].forEach(function(e){window.addEventListener(e,apply);});
