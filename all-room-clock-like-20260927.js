@@ -78,6 +78,12 @@
   }
 
   function ensure(){
+    /* 게스트 화면에서는 시계 옆 하트/숫자를 만들지 않는다. 호스트만 유지. */
+    var guestView=!!(document.documentElement.classList.contains('kt-remote-viewing')||document.querySelector('.kt-remote-live,.kt-guest-hostlike-room,.kt-prejoin-room-grid'));
+    if(guestView){
+      try{document.querySelectorAll('.kt-clock-like-20260927,.kt-live-clock-heart').forEach(function(x){x.remove();});}catch(e){}
+      return;
+    }
     ensureStyle();
     installWrap();
     loadCount();
