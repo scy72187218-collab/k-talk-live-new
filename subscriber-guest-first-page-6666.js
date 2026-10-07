@@ -25,6 +25,7 @@
   var root=document.querySelector('.kt-remote-live');var main=document.getElementById('ktRemoteLiveVideo');if(!root||!main)return;
   if(root.querySelector('.kt-sub6666-grid'))return;
   style();root.classList.add('kt-sub-first-6666');
+  var topAtt=document.createElement('button');topAtt.type='button';topAtt.className='kt-sub6666-top-att';topAtt.textContent='👼 출석체크 👼';topAtt.onclick=function(){if(typeof window.ktRemoteAttendance==='function')return window.ktRemoteAttendance();if(typeof window.openAttendanceBenefits==='function')return window.openAttendanceBenefits();};root.appendChild(topAtt);
   var air=document.createElement('div');air.className='kt-sub6666-air';air.innerHTML='<span class="on">● ON AIR</span><span class="kt-sub6666-clock">00:00:00</span>';
   var led=document.createElement('div');led.className='kt-sub6666-led';led.innerHTML='<div class="kt-sub6666-led-track"><span><b>K LIVE</b> · 환영합니다 ✨ 💗</span><span><b>K LIVE</b> · 환영합니다 ✨ 💗</span></div>';
   var stats=document.createElement('div');stats.className='kt-sub6666-stats';stats.innerHTML='<div>🔥 일일 랭킹</div><div>🎯 미션</div><div>👁 함께 시청 중</div>';
