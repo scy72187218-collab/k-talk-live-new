@@ -150,7 +150,7 @@
 
   async function tick(){
     ensureStyle();
-    if(!document.querySelector('.ktg13-room')){clearPendingLines();closeChoice();return;}
+    if(!document.querySelector('.ktg13-room,.ktsubscriber-room,.ktsecret-room,.ktg9-room,[data-kt-room="9"],[data-kt-room="13"]')){clearPendingLines();closeChoice();return;}
     var hid=deviceId();if(!hid)return;
     try{
       var roomRows=await req('ktalk_live_rooms?select=started_at&host_id=eq.'+enc(hid)+'&active=eq.true&order=started_at.desc&limit=1');
