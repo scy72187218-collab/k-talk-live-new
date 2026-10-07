@@ -45,49 +45,15 @@
     return /subscriber|구독자/i.test(t);
   }
 
-  function exactButtons(){
-    return '<button type="button" data-kt5555="back">↩ 되돌리기</button>'
-      +'<button type="button" data-kt5555="package">📦 패키지 상자</button>'
-      +'<button type="button" data-kt5555="match">⚔ 매치</button>';
-  }
-
-  function wire(bar){
-    if(!bar)return;
-    var b=bar.querySelector('[data-kt5555="back"]');
-    var p=bar.querySelector('[data-kt5555="package"]');
-    var m=bar.querySelector('[data-kt5555="match"]');
-    if(b)b.onclick=function(){
-      try{
-        if(typeof window.leaveBroadcastToDashboard==='function')return window.leaveBroadcastToDashboard();
-        if(typeof window.home==='function')return window.home();
-      }catch(e){}
-    };
-    if(p)p.onclick=function(){
-      try{
-        if(typeof window.openGifts==='function')return window.openGifts();
-        if(typeof window.ktSubscriberTreasure==='function')return window.ktSubscriberTreasure();
-      }catch(e){}
-    };
-    if(m)m.onclick=function(){
-      try{
-        if(typeof window.openHostMatchArena==='function')return window.openHostMatchArena('1대1');
-        if(typeof window.openMatch==='function')return window.openMatch();
-      }catch(e){}
-    };
-  }
-
+  /* 4444: 구독자 15명방 게스트에서는 되돌리기/보물상자/매치 3개를 표시하지 않는다. */
   function ensureStyle(){
     if(document.getElementById('ktSubscriberApprovedGuestLayoutStyle20261001'))return;
     var s=document.createElement('style');
     s.id='ktSubscriberApprovedGuestLayoutStyle20261001';
     s.textContent=''
       +'.kt-remote-live.kt-sub-approved-5555 .kt-sub-approved-quick-5555,'
-      +'.kt-remote-live.kt-sub-approved-5555 .kgh-quick{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px!important;flex:0 0 35px!important;min-height:35px!important;width:100%!important;position:relative!important;z-index:60!important}'
-      +'.kt-remote-live.kt-sub-approved-5555 .kt-sub-approved-quick-5555 button,'
-      +'.kt-remote-live.kt-sub-approved-5555 .kgh-quick button{min-width:0!important;border:0!important;border-radius:11px!important;background:#101014!important;color:#fff!important;font-size:11px!important;font-weight:900!important;white-space:nowrap!important;padding:0 3px!important}'
-      /* hostlike 승인 게스트: 3칸 줄이 생기면 main이 flex로 자연스럽게 줄어든다 */
+      +'.kt-remote-live.kt-sub-approved-5555 .kgh-quick{display:none!important}'
       +'.kt-remote-live.kt-sub-approved-5555 .kt-guest-hostlike-room{gap:4px!important}'
-      /* 구독자 호스트방 수익 박스와 같은 크기 */
       +'.kt-remote-live.kt-sub-approved-5555 .kgh-chat{grid-template-columns:minmax(0,1fr) 76px!important;gap:4px!important}'
       +'.kt-remote-live.kt-sub-approved-5555 .kgh-earn{width:76px!important;min-width:76px!important;max-width:76px!important;height:45px!important;max-height:45px!important;padding:1px 2px!important;border-radius:8px!important;align-self:end!important}'
       +'.kt-remote-live.kt-sub-approved-5555 .kgh-earn .top{gap:1px!important}'
@@ -99,8 +65,6 @@
       +'.kt-remote-live.kt-sub-approved-5555>#ktAllRoomGuestEarnHud20260921 .kt-ge-top b{font-size:7px!important;line-height:1!important}'
       +'.kt-remote-live.kt-sub-approved-5555>#ktAllRoomGuestEarnHud20260921 .kt-ge-detail{font-size:4.5px!important;line-height:1!important;gap:0 1px!important;margin-top:1px!important}'
       +'@media(max-width:390px){'
-        +'.kt-remote-live.kt-sub-approved-5555 .kt-sub-approved-quick-5555,.kt-remote-live.kt-sub-approved-5555 .kgh-quick{flex-basis:31px!important;min-height:31px!important;gap:4px!important}'
-        +'.kt-remote-live.kt-sub-approved-5555 .kt-sub-approved-quick-5555 button,.kt-remote-live.kt-sub-approved-5555 .kgh-quick button{font-size:10px!important}'
         +'.kt-remote-live.kt-sub-approved-5555 .kgh-chat{grid-template-columns:minmax(0,1fr) 72px!important}'
         +'.kt-remote-live.kt-sub-approved-5555 .kgh-earn,.kt-remote-live.kt-sub-approved-5555>#ktAllRoomGuestEarnHud20260921{width:72px!important;min-width:72px!important;max-width:72px!important;height:43px!important;max-height:43px!important}'
       +'}';
@@ -137,25 +101,7 @@
     if(!root||!isSubscriberRoom(root))return;
     root.classList.add('kt-sub-approved-5555');
 
-    var hostlike=root.querySelector('.kt-guest-hostlike-room');
-    if(hostlike){
-      var q=hostlike.querySelector('.kgh-quick');
-      if(q){
-        q.innerHTML=exactButtons();
-        wire(q);
-      }
-    }
-
-    if(!root.querySelector('.kgh-quick,.kt-sub-approved-quick-5555')){
-      var stats=findStats(root), grid=findGrid(root);
-      var bar=document.createElement('div');
-      bar.className='kt-sub-approved-quick-5555';
-      bar.innerHTML=exactButtons();
-      wire(bar);
-      if(stats&&stats.parentNode)stats.insertAdjacentElement('afterend',bar);
-      else if(grid&&grid.parentNode)grid.parentNode.insertBefore(bar,grid);
-      else return;
-    }
+    root.querySelectorAll('.kgh-quick,.kt-sub-approved-quick-5555,.kt-viewer-quick-20261001,.kt-remote-guest-upper-quick-5555').forEach(function(x){try{x.remove();}catch(e){}});
   }
 
   window.addEventListener('kt-guest-approval-received',function(){
