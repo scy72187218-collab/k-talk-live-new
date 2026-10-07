@@ -122,9 +122,11 @@
     try{
       txt+=' '+String(window.__ktRemoteRoomName||'')+' '+String(window.__ktRemoteRoomType||'');
     }catch(e){}
-    var is16=/16\s*명|15\s*명|subscriber|구독자/i.test(txt);
-    var is13=!is16&&/13\s*명|group13/i.test(txt);
-    if(!is16&&!is13)return null;
+    /* 4444: 구독자 15명방은 이 공통 게스트 렌더러가 시작 화면을 가로채지 않는다. */
+    if(/16\s*명|15\s*명|subscriber|구독자/i.test(txt))return null;
+    var is16=false;
+    var is13=/13\s*명|group13/i.test(txt);
+    if(!is13)return null;
     return {
       is15:is16,
       is16:is16,
