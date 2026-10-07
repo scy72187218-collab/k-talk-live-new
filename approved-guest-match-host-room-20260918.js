@@ -1,3 +1,4 @@
+/* KT_GUEST_ATTENDANCE_HOST_ONLY_LOCK_9999: guest first pages must have NO attendance check; attendance remains host-only. Do not change unless unlock code 9999 is explicitly requested. */
 /* K-Talk: 승인된 게스트 화면을 호스트의 9/13명방 화면처럼 한 화면으로 표시. 다른 방/기능 변경 없음. */
 (function(){
   /* KT_GUEST_FIRST_PAGE_NO_ATTENDANCE_20261007: 게스트 첫 페이지는 모든 방에서 출석체크 숨김, 호스트만 유지 */
