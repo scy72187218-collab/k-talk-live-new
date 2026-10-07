@@ -126,7 +126,7 @@
   document.addEventListener('click',function(e){
     try{
       if(document.documentElement.classList.contains('kt-remote-viewing')||document.querySelector('.kt-remote-live,.kt-guest-hostlike-room,.kt-prejoin-room-grid'))return;
-      var t=e.target&&e.target.closest?e.target.closest('.kt-allhost-photo,.kt-allhost-fallback,.ktg13-host img,.ktg13-host .kt-profile-photo,.ktsubscriber-host img,.ktsecret-host img,[data-kt-host-photo]'):null;
+      var t=e.target&&e.target.closest?e.target.closest('.kt-allhost-photo,.kt-allhost-fallback,.ktg13-host,.ktg13-host video,.ktg13-host img,.ktg13-host .kt-profile-photo,.ktsubscriber-host,.ktsubscriber-host video,.ktsubscriber-host img,.ktsecret-host,.ktsecret-host video,.ktsecret-host img,.ktg9-host,.ktg9-host video,.ktg9-host img,#ktLiveVideo,[data-kt-host-photo]'):null;
       if(!t)return;
       var now=Date.now();if(now-Number(window.__ktHostPhotoLikeTapAt||0)<350)return;window.__ktHostPhotoLikeTapAt=now;
       if(typeof window.addHostLike==='function')window.addHostLike(1);
