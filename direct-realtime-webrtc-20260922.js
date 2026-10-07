@@ -1224,7 +1224,19 @@
     if(!force&&viewerConnected)return;
     if(!force&&now-lastWatchAt<90)return;
     lastWatchAt=now;
-    sendCriticalMedia20260926('video_watch',{host_id:hid,viewer_id:viewerId(),watch_token:viewerWatchToken,at:now},hid);
+    var watch={host_id:hid,viewer_id:viewerId(),watch_token:viewerWatchToken,at:now};
+    sendCriticalMedia20260926('video_watch',watch,hid);
+
+    /* KT_PARALLEL_VIEWER_OPEN_9999:
+       Each phone asks for its own host video immediately and independently.
+       Short repeats use the SAME watch token, so the host reuses that phone's
+       peer instead of queueing/restarting viewers one by one. */
+    [35,90,180].forEach(function(ms){
+      setTimeout(function(){
+        if(viewerConnected||remoteHostId()!==hid)return;
+        sendCriticalMedia20260926('video_watch',watch,hid);
+      },ms);
+    });
   }
 
   function ensureDirectStyle(){
