@@ -17,7 +17,7 @@
    +'.kt-sub6666-stats{flex:0 0 42px;display:grid;grid-template-columns:1fr 1fr 1.3fr;gap:5px}.kt-sub6666-stats>div{border-radius:12px;background:#111114;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900}'
    +'.kt-sub6666-grid{flex:1 1 0;min-height:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:3px;overflow:hidden}.kt-sub6666-cell{position:relative;min-width:0;min-height:0;overflow:hidden;border:1px solid #292a30;border-radius:8px;background:linear-gradient(145deg,#17181d,#0e0f13);color:#ddd;display:grid;place-items:center;font-size:11px;font-weight:900}.kt-sub6666-cell.host>video{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;background:#08090c!important}.kt-sub6666-cell label{position:absolute;left:5px;bottom:5px;z-index:3;padding:2px 6px;border-radius:8px;background:#000b;color:#fff;font-size:8px;font-weight:950}'
    +'.kt-remote-live.kt-sub-first-6666>.kt-remote-guest-upper-quick-5555,.kt-remote-live.kt-sub-first-6666>.kgh-quick{display:none!important}';
-  s.textContent+='.kt-sub6666-quick{flex:0 0 48px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;width:100%}.kt-sub6666-quick button{border:1px solid #ffffff22;border-radius:13px;background:#111114;color:#fff;font-size:12px;font-weight:950}';document.head.appendChild(s);
+  s.textContent+='.kt-remote-live.kt-sub-first-6666 .kt-remote-guest-upper-quick-5555{display:grid!important;position:relative!important;order:20!important;flex:0 0 48px!important;margin:0!important;width:100%!important}';document.head.appendChild(s);
  }
  function apply(){
   if(!isSub())return;
@@ -31,7 +31,7 @@
   for(var i=1;i<12;i++){var c=document.createElement('div');c.className='kt-sub6666-cell';c.textContent='게스트';grid.appendChild(c);}
   var top=root.querySelector('.kt-remote-top');if(top&&top.nextSibling)root.insertBefore(led,top.nextSibling);else root.appendChild(led);
   if(led.nextSibling)root.insertBefore(stats,led.nextSibling);else root.appendChild(stats);
-  if(stats.nextSibling)root.insertBefore(grid,stats.nextSibling);else root.appendChild(grid); var quick=document.createElement('div');quick.className='kt-sub6666-quick';quick.innerHTML='<button type="button">↩ 되돌리기</button><button type="button">🎁 보물상자</button><button type="button">⚔ 매치</button>';grid.insertAdjacentElement('afterend',quick);
+  if(stats.nextSibling)root.insertBefore(grid,stats.nextSibling);else root.appendChild(grid);
   try{var p=main.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
  }
  new MutationObserver(function(){setTimeout(apply,0);}).observe(document.documentElement,{childList:true,subtree:true});
