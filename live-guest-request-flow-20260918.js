@@ -403,6 +403,23 @@
   });
 
   window.ktRequestGuestJoin=sendGuestRequest;
+
+  /* 2026-10-07: 모든 게스트 첫 페이지의 사람 모양을 누르면 참여 신청.
+     방 종류와 상관없이 같은 신청 함수를 사용하고, 다른 UI는 변경하지 않는다. */
+  function ktAllRoomGuestPersonRequest20261007(e){
+    try{
+      if(!document.documentElement.classList.contains('kt-remote-viewing')&&!document.querySelector('.kt-remote-live,.kt-guest-hostlike-room,.kt-prejoin-room-grid'))return;
+      var t=e&&e.target,cell=t&&t.closest?t.closest('.kt-sub6666-cell,.kt-approved-guest-cell,.kt-guest-room-cell,.kt-prejoin-room-cell,.kgh-cell,[class*="guest-cell"]'):null;
+      if(!cell)return;
+      if(cell.classList.contains('host')||cell.classList.contains('self')||cell.querySelector('video'))return;
+      if(t.closest&&t.closest('button,a,input,textarea,[contenteditable="true"]'))return;
+      e.preventDefault();e.stopPropagation();
+      sendGuestRequest();
+    }catch(z){}
+  }
+  window.addEventListener('click',ktAllRoomGuestPersonRequest20261007,true);
+  window.addEventListener('touchend',ktAllRoomGuestPersonRequest20261007,true);
+
   function bindRequestButton(){var b=document.getElementById('ktRemoteGuestRequest');if(!b)return;if(b.__ktGuestRequestBound)return;b.__ktGuestRequestBound=true;b.onclick=function(e){if(e)e.preventDefault();sendGuestRequest();};}
   function removeDuplicateGroupRoom(){var screen=document.getElementById('screen');if(!screen)return;var rooms=[].slice.call(screen.querySelectorAll('.ktg13-room'));if(rooms.length>1)rooms.slice(1).forEach(function(x){x.remove();});['.ktg13-head','.ktg13-led','.ktg13-stats','.ktg13-main','.ktg13-mid','.ktg13-gifts','.ktg13-tools'].forEach(function(sel){var parts=[].slice.call(screen.querySelectorAll(sel));if(parts.length>1)parts.slice(1).forEach(function(x){x.remove();});});var root=screen.querySelector('.kt-remote-live');if(root&&root.querySelector('.kt-approved-guest-grid')){root.querySelectorAll('.kt-prejoin-room-led,.kt-prejoin-room-stats,.kt-prejoin-room-grid').forEach(function(x){try{x.remove();}catch(e){}});root.classList.remove('kt-prejoin-room-view');}}
 
