@@ -408,13 +408,14 @@
      방 종류와 상관없이 같은 신청 함수를 사용하고, 다른 UI는 변경하지 않는다. */
   function ktAllRoomGuestPersonRequest20261007(e){
     try{
-      if(!document.documentElement.classList.contains('kt-remote-viewing')&&!document.querySelector('.kt-remote-live,.kt-guest-hostlike-room,.kt-prejoin-room-grid'))return;
-      var t=e&&e.target,cell=t&&t.closest?t.closest('.kt-sub6666-cell,.kt-approved-guest-cell,.kt-guest-room-cell,.kt-prejoin-room-cell,.kgh-cell,[class*="guest-cell"]'):null;
+      if(!document.querySelector('.kt-remote-live,.kt-guest-hostlike-room,.kt-prejoin-room-grid'))return;
+      var t=e&&e.target,cell=t&&t.closest?t.closest('.kt-sub6666-cell,.kt-approved-guest-cell,.kt-guest-room-cell,.kt-prejoin-room-cell,.kgh-cell,[class*="guest-cell"],[class*="guest-slot"],.ktg13-guest'):null;
       if(!cell)return;
       if(cell.classList.contains('host')||cell.classList.contains('self')||cell.querySelector('video'))return;
       if(t.closest&&t.closest('button,a,input,textarea,[contenteditable="true"]'))return;
+      var now=Date.now();if(now-Number(window.__ktGuestPersonRequestTapAt||0)<700)return;window.__ktGuestPersonRequestTapAt=now;
       e.preventDefault();e.stopPropagation();
-      sendGuestRequest();
+      var q=sendGuestRequest();if(q&&q.catch)q.catch(function(){});
     }catch(z){}
   }
   window.addEventListener('click',ktAllRoomGuestPersonRequest20261007,true);
