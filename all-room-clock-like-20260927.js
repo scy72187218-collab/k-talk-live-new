@@ -122,6 +122,19 @@
     clock.insertAdjacentElement('afterend',b);
   }
 
+  /* 호스트 사진을 누를 때마다 시계 옆 하트 숫자 +1. 게스트 화면은 제외. */
+  document.addEventListener('click',function(e){
+    try{
+      if(document.documentElement.classList.contains('kt-remote-viewing')||document.querySelector('.kt-remote-live,.kt-guest-hostlike-room,.kt-prejoin-room-grid'))return;
+      var t=e.target&&e.target.closest?e.target.closest('.kt-allhost-photo,.kt-allhost-fallback,.ktg13-host img,.ktg13-host .kt-profile-photo,.ktsubscriber-host img,.ktsecret-host img,[data-kt-host-photo]'):null;
+      if(!t)return;
+      var now=Date.now();if(now-Number(window.__ktHostPhotoLikeTapAt||0)<350)return;window.__ktHostPhotoLikeTapAt=now;
+      if(typeof window.addHostLike==='function')window.addHostLike(1);
+      else{loadCount();count+=1;saveCount();paint();}
+      setTimeout(ensure,0);
+    }catch(_e){}
+  },true);
+
   ensure();
   [60,160,350,700,1200,2200].forEach(function(ms){setTimeout(ensure,ms);});
   setInterval(ensure,700);
