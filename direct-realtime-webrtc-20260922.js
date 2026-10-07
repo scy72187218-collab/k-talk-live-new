@@ -137,38 +137,6 @@
     }catch(e){}
     return stream;
   }
-  /* KT_FAST_FACE_ATTACH_20261008: speed-only fix. Reuse the already-open local camera
-     immediately in every live room. No layout, quality, buttons or room UI changes. */
-  function ktFastAttachLocalFace20261008(){
-    try{
-      if(!isHostRole())return;
-      var st=window.state&&state.stream||null;
-      if(!st||!st.getVideoTracks||!st.getVideoTracks().some(function(t){return t.readyState==='live';}))return;
-      var selectors=['#ktLiveVideo','#camera','#cameraBg','.ktg9-host video','.ktg13-host video','.ktsubscriber-host video','.ktsecret-host video'];
-      selectors.forEach(function(sel){
-        var v=document.querySelector(sel);
-        if(!v||v.srcObject===st)return;
-        v.srcObject=st;
-        try{v.muted=true;v.playsInline=true;var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(e){}
-      });
-    }catch(e){}
-  }
-  function ktFastFaceBurst20261008(){
-    ktFastAttachLocalFace20261008();
-    [16,40,80,140,220,360].forEach(function(ms){setTimeout(ktFastAttachLocalFace20261008,ms);});
-  }
-  document.addEventListener('DOMContentLoaded',ktFastFaceBurst20261008,false);
-  window.addEventListener('kt-live-room-opened',ktFastFaceBurst20261008,false);
-  window.addEventListener('kt-live-stream-ready',ktFastFaceBurst20261008,false);
-  window.addEventListener('kt-approved-guest-stream-ready',ktFastFaceBurst20261008,false);
-  var __ktFastFaceAttachQueued20261008=false;
-  var __ktFastFaceAttachObserver20261008=new MutationObserver(function(){
-    if(__ktFastFaceAttachQueued20261008)return;
-    __ktFastFaceAttachQueued20261008=true;
-    requestAnimationFrame(function(){__ktFastFaceAttachQueued20261008=false;ktFastAttachLocalFace20261008();});
-  });
-  try{__ktFastFaceAttachObserver20261008.observe(document.documentElement,{childList:true,subtree:true});}catch(e){}
-
   function hostStream(){
     try{
       var s=window.state&&state.stream;
