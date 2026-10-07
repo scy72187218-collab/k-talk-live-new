@@ -1,5 +1,5 @@
 {
-  "version": 274,
+  "version": 275,
   "locked": true,
   "scope": "full_snapshot_guard_everything",
   "lock_slot": 9,
@@ -93,7 +93,8 @@
     "live_audio_music_voice_quality_48khz_stereo_no_agc_20260928",
     "sound_direct_playback_20261006",
     "all_five_rooms_large_camera_mic_movie_removed_20261006",
-    "group9_duplicate_grid_fix_20261006"
+    "group9_duplicate_grid_fix_20261006",
+    "guest_room_current_state_20261007"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -182,11 +183,12 @@
     "live_audio_music_voice_quality_48khz_stereo_no_agc_20260928",
     "sound_direct_playback_20261006",
     "all_five_rooms_large_camera_mic_movie_removed_20261006",
-    "group9_duplicate_grid_fix_20261006"
+    "group9_duplicate_grid_fix_20261006",
+    "guest_room_current_state_20261007"
   ],
   "current_editable_components": [],
   "temporarily_unlocked_components": [],
-  "note": "2026-10-07 owner PIN 1111: changed only subscriber-room empty guest placeholder person icons to blue SVG silhouettes. No layout, LED, buttons, text, video, communication, guest numbering, or other room changes. Relocked after deployment.",
+  "note": "2026-10-07 owner PIN 6666: locked the current guest-room state only. No UI, layout, LED, buttons, video, communication, guest numbering, or other room changes.",
   "lock_slots": {
     "6": [
       "current_full_approved_state_20260927_1740"
@@ -306,7 +308,8 @@
     ],
     "6666": [
       "canonical_three_buttons_all_rooms_20261006",
-      "all_rooms_stats_second_row_flip_treasure_match_20260928"
+      "all_rooms_stats_second_row_flip_treasure_match_20260928",
+      "guest_room_current_state_20261007"
     ],
     "7777": [
       "person_photo_inline_gifts"
@@ -332,8 +335,8 @@
     ]
   },
   "last_unlock": "2026-10-06-solo-border-fix-1111",
-  "last_lock": "2026-10-06-2222-group9-duplicate-grid-fix",
-  "last_note": "2222: 9명방 위쪽에 중복 생성되던 레거시 9칸 제거 수정 상태 재잠금. 정상 9명방·채팅·버튼·다른 방은 유지.",
+  "last_lock": "2026-10-07-6666-guest-room-current-state",
+  "last_note": "6666: 게스트방 현재 상태 잠금. 다른 방과 공통 기능은 그대로 유지.",
   "unlock_pin_sha256": "41c991eb6a66242c0454191244278183ce58cf4a6bcd372f799e4b9cc01886af",
   "secret_room_lock_snapshot": {
     "host_file": "secret-room-password.js",
@@ -399,7 +402,11 @@
   },
   "sound_policy": "1515 승인 없이는 사운드 목록, 곡 선택 동작, 외부 이동 여부, 음악 재생/녹음 연결 수정 금지.",
   "snapshot_branch": "main",
-  "snapshot_commit": "bc7e3e6f8c965c406c3becd8b62b05701f22dfbe",
+  "snapshot_commit": "2128cb6fc88d7f3e865445cce6b0a0184a863d7e",
   "temporarily_unlocked": [],
-  "last_ui_fix": "2026-10-07-subscriber-blue-guest-person-icons-only"
+  "last_ui_fix": "2026-10-07-subscriber-blue-guest-person-icons-only",
+  "guest_room_password_map": {
+    "6666": "게스트방"
+  },
+  "guest_room_policy": "게스트방 현재 상태는 6666 승인 없이는 수정 금지. 다른 방·공통 UI·동영상·통신은 별도 잠금 정책을 그대로 유지."
 }
