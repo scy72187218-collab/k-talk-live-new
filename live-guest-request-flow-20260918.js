@@ -1347,38 +1347,8 @@
     }catch(e){}
   }
 
-  function ktIsSubscriberRemote4444(){
-    try{
-      var r=window.__ktLastLiveRoom||{};
-      var t=[r.room_type,r.room_name,r.title,window.__ktRemoteRoomName,window.__ktRemoteRoomType].filter(Boolean).join(' ');
-      return /subscriber|구독자/i.test(t);
-    }catch(e){return false;}
-  }
-
-  function ktRenderSubscriberGuestAsHost4444(){
-    if(!ktIsSubscriberRemote4444())return false;
-    if(typeof window.ktRenderSubscriberHostRoom4444!=='function')return false;
-    var remote=null;
-    try{
-      var rv=document.getElementById('ktRemoteLiveVideo');
-      remote=(rv&&rv.srcObject)||window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream||null;
-    }catch(e){}
-    window.ktRenderSubscriberHostRoom4444();
-    try{
-      var v=document.getElementById('ktLiveVideo');
-      if(v&&remote){
-        v.muted=false;
-        v.srcObject=remote;
-        var p=v.play();if(p&&p.catch)p.catch(function(){});
-      }
-    }catch(e){}
-    return true;
-  }
-
   async function viewerTick(){
     ensureStyle();bindRequestButton();
-    /* 4444: 구독자 게스트는 별도/옛 게스트 화면을 만들지 않고 현재 정상 호스트방 화면을 그대로 사용. */
-    if(ktRenderSubscriberGuestAsHost4444())return;
     if(!document.querySelector('.kt-remote-live')){
       if(!viewerRootMissingSince)viewerRootMissingSince=Date.now();
 
