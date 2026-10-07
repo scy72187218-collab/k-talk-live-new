@@ -1,3 +1,4 @@
+/* KT_ALL_ROOM_CONTROLS_UNLOCKED_20261007: all room switches/controls are intentionally unlocked; no password gate. */
 /* K-Talk final switch/runtime enable — functionality only.
    Does not change room layout, video size, chat position, or visual design. */
 (function(){
@@ -20,6 +21,13 @@
     '.kt-guest-self-media-btn',
     '.kt-inside-av-btn',
     '.kt-remote-tv-btn',
+    '.ktg13-room button',
+    '.ktg13-room [role="button"]',
+    '.kt-remote-live button',
+    '.kt-remote-live [role="button"]',
+    '[class*="attendance"]',
+    '[class*="like"]',
+    '[class*="timer"]',
     '.kt-tv-movie-more'
   ].join(',');
 
@@ -36,6 +44,7 @@
   }
 
   function enableAll(){
+    try{localStorage.setItem('ktalk_work_controls_unlocked','1');}catch(e){}
     try{document.querySelectorAll(selector).forEach(enableOne);}catch(e){}
     try{
       var sh=document.getElementById('sheet');
