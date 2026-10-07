@@ -475,7 +475,7 @@
 
   async function hostTick(){
     ensureStyle();bindRequestButton();removeDuplicateGroupRoom();
-    if(!document.querySelector('.ktg13-room')){
+    if(!document.querySelector('.ktg13-room,.ktsubscriber-room,.ktsecret-room,.ktg9-room,[data-kt-room="9"],[data-kt-room="13"]')){
       var old=document.getElementById('ktg13RequestRail');if(old)old.remove();return;
     }
     var room=await activeHostRoom();
@@ -566,7 +566,7 @@
   /* 현재 방송에서 호스트가 승인한 게스트만 호스트 화면에 카메라를 올린다. 예전/남은 WebRTC 세션은 표시하지 않는다. */
   async function hostGuestSessionTick(approvedNow,cancelledAt,leftAt,requestAt){
     approvedNow=approvedNow||{};cancelledAt=cancelledAt||{};leftAt=leftAt||{};requestAt=requestAt||{};
-    if(!document.querySelector('.ktg13-room'))return;
+    if(!document.querySelector('.ktg13-room,.ktsubscriber-room,.ktsecret-room,.ktg9-room,[data-kt-room="9"],[data-kt-room="13"]'))return;
 
     var hid=deviceId(),rows=[],dbRows=[],memRows=[];
     var sessionPath='ktalk_webrtc_sessions?select=id,host_id,viewer_id,offer_sdp,answer_sdp,active,updated_at&host_id=eq.'+enc(hid)+'&active=eq.true&order=created_at.desc&limit=60';
