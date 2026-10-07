@@ -10,9 +10,9 @@
   s.textContent=''
     +'.ktsolo-room .ktsolo-earn{left:auto!important;right:0!important;top:8px!important;width:82px!important;max-width:82px!important;transform:scale(.78)!important;transform-origin:top right!important}'
     +'.ktg13-room .ktg13-mid{grid-template-columns:minmax(0,1fr) 110px!important}'
-    +'.ktsubscriber-room .ktsubscriber-info{grid-template-columns:minmax(0,1fr) 110px!important}'
+    +'.ktsubscriber-room .ktsubscriber-info{grid-template-columns:minmax(0,1fr) 94px!important}'
     +'.ktg13-room .ktg13-earn{grid-column:2!important;justify-self:end!important;width:110px!important;max-width:110px!important;display:flex!important;justify-content:flex-end!important}'
-    +'.ktg13-room .ktg13-earn,.ktsubscriber-room .ktsubscriber-earn{height:64px!important;min-height:64px!important;align-items:flex-end!important}'
+    +'.ktg13-room .ktg13-earn,.ktsubscriber-room .ktsubscriber-earn{height:46px!important;min-height:46px!important;align-items:flex-end!important}'
     +'.ktsolo-room .ktsolo-earn #myEarnHud{width:82px!important;max-width:82px!important;min-width:82px!important;height:50px!important;max-height:50px!important;padding:1px 2px!important}'
     +'.ktsolo-room .ktsolo-main #ktLiveVideo{left:50%!important;right:auto!important;inset-block:0!important;width:100%!important;height:100%!important;max-width:none!important;object-fit:cover!important;object-position:center center!important;transform:translateX(-50%) scaleX(-1)!important;transform-origin:center center!important}'
     +'.ktg13-room .ktg13-earn #myEarnHud,'
@@ -25,7 +25,7 @@
     +'.ktsolo-room #myEarnHud b,.ktg13-room #myEarnHud b,.ktsubscriber-room #ktSubscriberEarnHud b,.ktsubscriber-room .ktsubscriber-earnhud b{font-size:9px!important;line-height:1.05!important}'
     +'.ktg13-room #myEarnDetail,.ktsubscriber-room #ktSubscriberEarnDetail{display:grid!important;width:100%!important;max-width:100%!important;overflow:hidden!important;font-size:6px!important;line-height:1.05!important;gap:1px 2px!important;margin-top:2px!important}'
     +'.ktg13-room #myEarnDetail>*,.ktsubscriber-room #ktSubscriberEarnDetail>*{white-space:nowrap!important;overflow:hidden!important;text-overflow:clip!important}'
-            +'@media(max-width:390px){.ktg13-room .ktg13-mid{grid-template-columns:minmax(0,1fr) 100px!important}.ktsubscriber-room .ktsubscriber-info{grid-template-columns:minmax(0,1fr) 100px!important}.ktg13-room .ktg13-earn{width:100px!important;max-width:100px!important}.ktg13-room .ktg13-earn #myEarnHud,.ktsubscriber-room #ktSubscriberEarnHud,.ktsubscriber-room .ktsubscriber-earnhud{width:100px!important;max-width:100px!important;min-width:100px!important;height:64px!important;max-height:64px!important;padding:2px 2px!important}}'
+            +'@media(max-width:390px){.ktg13-room .ktg13-mid{grid-template-columns:minmax(0,1fr) 100px!important}.ktsubscriber-room .ktsubscriber-info{grid-template-columns:minmax(0,1fr) 92px!important}.ktg13-room .ktg13-earn{width:100px!important;max-width:100px!important}.ktg13-room .ktg13-earn #myEarnHud,.ktsubscriber-room #ktSubscriberEarnHud,.ktsubscriber-room .ktsubscriber-earnhud{width:92px!important;max-width:92px!important;min-width:92px!important;height:42px!important;max-height:42px!important;padding:1px 2px!important}}'
 
     /* 13명방만: 수익표를 줄이고 그만큼 게스트 화면을 넓힘 */
     +'.ktg13-room .ktg13-main{grid-template-columns:38% 62%!important}'
