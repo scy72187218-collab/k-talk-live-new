@@ -33,31 +33,17 @@
       out.push(g);
     }
 
+    /* 9999 — 9명 호스트 화면은 그대로 둔다.
+       게스트 화면은 group9-one-unified-screen-final-20261002.js 한 곳에서만
+       위치/높이를 관리하게 해서 700ms마다 서로 다른 높이값이 덮어써지며
+       위아래로 흔들리던 현상을 막는다. */
     document.querySelectorAll(
       '#screen .ktg13-room[data-kt-room="9"] .ktg13-main,'+
-      '#screen .ktg9-room .ktg9-main,'+
-      '#screen .kt-guest-hostlike-room[data-kt-room="9"] .kgh-main,'+
-      '#screen .kt-remote-live .kt-prejoin-room-grid,'+
-      '#screen .kt-remote-live .kt-approved-guest-grid,'+
-      '#screen .kt-remote-live .kt-guest-room-grid'
+      '#screen .ktg9-room .ktg9-main'
     ).forEach(function(g){
       if(kids(g).length===9)add(g);
     });
 
-    document.querySelectorAll('#screen .kt-remote-live').forEach(function(root){
-      if(!isNineRemote(root))return;
-      root.querySelectorAll('div,section,main').forEach(function(g){
-        if(g.closest('.kt-remote-bottom,.kt-remote-chat,.kgh-chat,.kgh-quick'))return;
-        var c=kids(g);
-        if(c.length!==9)return;
-        var score=0;
-        c.forEach(function(x){
-          if(/게스트|호스트/.test(String(x.textContent||'')))score++;
-          if(x.querySelector&&x.querySelector('video'))score+=2;
-        });
-        if(score>=4)add(g);
-      });
-    });
     return out;
   }
 
