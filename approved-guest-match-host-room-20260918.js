@@ -122,12 +122,9 @@
     try{
       txt+=' '+String(window.__ktRemoteRoomName||'')+' '+String(window.__ktRemoteRoomType||'');
     }catch(e){}
-    /* 4444: 구독자 15명 게스트 화면은 새 전용 코드가 담당한다.
-       이 공통 13/15명 게스트 렌더러가 구독자 화면을 다시 만들지 못하게 차단한다. */
-    if(/16\s*명|15\s*명|subscriber|구독자/i.test(txt))return null;
-    var is16=false;
-    var is13=/13\s*명|group13/i.test(txt);
-    if(!is13)return null;
+    var is16=/16\s*명|15\s*명|subscriber|구독자/i.test(txt);
+    var is13=!is16&&/13\s*명|group13/i.test(txt);
+    if(!is16&&!is13)return null;
     return {
       is15:is16,
       is16:is16,
