@@ -263,8 +263,7 @@
       if(!p.encodings||!p.encodings.length)p.encodings=[{}];
       var guest=(kind==='guest');
       p.encodings.forEach(function(enc){
-        enc.maxBitrate=guest?3500000:8000000;
-        if(!guest){try{enc.minBitrate=2500000;}catch(e){} try{enc.priority='high';}catch(e){}}
+        enc.maxBitrate=guest?3500000:4500000;
         enc.maxFramerate=30;
         enc.scaleResolutionDownBy=1.0;
         try{enc.networkPriority='high';}catch(e){}
