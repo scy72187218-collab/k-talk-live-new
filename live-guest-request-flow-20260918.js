@@ -846,7 +846,9 @@
       txt+=' '+String(window.__ktRemoteRoomName||'')+' '+String(window.__ktRemoteRoomType||'');
     }catch(e){}
 
-    var is16=/16\s*명|15\s*명|subscriber|구독자/i.test(txt);
+    /* 4444: 구독자방은 옛 게스트/prejoin 화면을 만들지 않는다. */
+    if(/subscriber|구독자/i.test(txt))return;
+    var is16=/16\s*명|15\s*명/i.test(txt);
     var is13=!is16&&/13\s*명|group13/i.test(txt);
     var total=is16?16:(is13?13:9);
 
