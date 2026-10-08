@@ -261,7 +261,7 @@
           stream.getTracks().forEach(function(t){try{pc.addTrack(t,stream);}catch(e){}});
           pc.onconnectionstatechange=(function(id,p){return function(){if(p.connectionState==='closed'||p.connectionState==='failed'){if(hostPeers[id]){try{p.close();}catch(e){}delete hostPeers[id];}return;}if(p.connectionState==='disconnected'){setTimeout(function(){if(hostPeers[id]&&p.connectionState==='disconnected'){/* 짧은 신호 끊김은 브라우저 WebRTC 자체 복구를 기다린다. */}},12000);}};})(x.id,pc);
           try{
-            var offer=await pc.createOffer({offerToReceiveAudio:false,offerToReceiveVideo:false});await pc.setLocalDescription(offer);await waitIce(pc,1200);
+            var offer=await pc.createOffer({offerToReceiveAudio:false,offerToReceiveVideo:false});await pc.setLocalDescription(offer);await waitIce(pc,500);
             await req('ktalk_webrtc_sessions?id=eq.'+enc(x.id),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({offer_sdp:pc.localDescription.sdp,updated_at:nowIso()})});
           }catch(e){try{pc.close();}catch(z){}delete hostPeers[x.id];}
         }else if(entry&&x.answer_sdp&&!entry.remoteSet){
@@ -520,7 +520,7 @@
       c.signalMissingSince=0;
       if(x.offer_sdp&&x.offer_sdp!=='pending'){
         await c.pc.setRemoteDescription({type:'offer',sdp:x.offer_sdp});
-        var answer=await c.pc.createAnswer();await c.pc.setLocalDescription(answer);await waitIce(c.pc,650);
+        var answer=await c.pc.createAnswer();await c.pc.setLocalDescription(answer);await waitIce(c.pc,300);
         await req('ktalk_webrtc_sessions?id=eq.'+enc(c.sessionId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({answer_sdp:c.pc.localDescription.sdp,updated_at:nowIso()})});
         c.answered=true;clearInterval(c.signalTimer);c.signalTimer=null;
       }
