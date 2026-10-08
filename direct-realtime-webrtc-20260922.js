@@ -1254,6 +1254,15 @@
     });
   }
 
+  /* 9999 통신 전용: 빨간 LIVE 입장 직후 호스트 영상 요청을 즉시 보낼 수 있게 공개 */
+  window.ktDirectViewerWatchNow9999=function(){
+    try{
+      lastWatchAt=0;
+      ensureViewerWatch(true);
+      return true;
+    }catch(e){return false;}
+  };
+
   function ensureDirectStyle(){
     if(document.getElementById('ktDirectGuestTransportStyle'))return;
     var s=document.createElement('style');s.id='ktDirectGuestTransportStyle';
