@@ -62,18 +62,26 @@
       if(!hostId)return;
 
       var now=Date.now();
-      if(hostId===prewarmHost&&now-prewarmAt<1200)return;
+      if(hostId===prewarmHost&&now-prewarmAt<700)return;
       prewarmHost=hostId;prewarmAt=now;
-      run(hostId,null);
+
+      /* host_id를 먼저 고정한 뒤 통신을 시작해야 첫 영상 요청이 빈 host로 빠지지 않는다. */
       try{
         window.__ktRemoteHostId=hostId;
         window.__ktCurrentRemoteHostId=hostId;
         sessionStorage.setItem('kt_remote_host_id',hostId);
       }catch(_e){}
+
+      run(hostId,null);
+
+      /* 첫 0~200ms 구간에 같은 host로 짧게 재요청해 첫 프레임 도착을 더 앞당긴다. */
       try{
         if(typeof window.ktDirectViewerWatchNow9999==='function'){
-          window.ktDirectViewerWatchNow9999();
-          setTimeout(function(){try{window.ktDirectViewerWatchNow9999();}catch(_e){}},60);
+          [0,25,60,120,200].forEach(function(ms){
+            setTimeout(function(){
+              try{window.ktDirectViewerWatchNow9999();}catch(_e){}
+            },ms);
+          });
         }
       }catch(_e){}
     }catch(e){}
@@ -84,5 +92,5 @@
     new MutationObserver(function(){setTimeout(prewarmVisibleLive,0);})
       .observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
-  setInterval(prewarmVisibleLive,1200);
+  setInterval(prewarmVisibleLive,700);
 })();
