@@ -261,7 +261,7 @@
           stream.getTracks().forEach(function(t){try{pc.addTrack(t,stream);}catch(e){}});
           pc.onconnectionstatechange=(function(id,p){return function(){if(p.connectionState==='closed'||p.connectionState==='failed'){if(hostPeers[id]){try{p.close();}catch(e){}delete hostPeers[id];}return;}if(p.connectionState==='disconnected'){setTimeout(function(){if(hostPeers[id]&&p.connectionState==='disconnected'){/* 짧은 신호 끊김은 브라우저 WebRTC 자체 복구를 기다린다. */}},12000);}};})(x.id,pc);
           try{
-            var offer=await pc.createOffer({offerToReceiveAudio:false,offerToReceiveVideo:false});await pc.setLocalDescription(offer);await waitIce(pc,500);
+            var offer=await pc.createOffer({offerToReceiveAudio:false,offerToReceiveVideo:false});await pc.setLocalDescription(offer);await waitIce(pc,220);
             await req('ktalk_webrtc_sessions?id=eq.'+enc(x.id),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({offer_sdp:pc.localDescription.sdp,updated_at:nowIso()})});
           }catch(e){try{pc.close();}catch(z){}delete hostPeers[x.id];}
         }else if(entry&&x.answer_sdp&&!entry.remoteSet){
@@ -304,7 +304,7 @@
           await req('ktalk_live_rooms?id=eq.'+enc(hostRoomId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:true,updated_at:nowIso()})});
         }catch(e){}
       },4000);
-      hostSignalTimer=setInterval(hostProcessSignals,300);hostProcessSignals();
+      hostSignalTimer=setInterval(hostProcessSignals,140);hostProcessSignals();
       hostActivityTimer=setInterval(hostPollActivity,1800);hostPollActivity();
       renderLiveCards();
     }catch(e){
@@ -520,7 +520,7 @@
       c.signalMissingSince=0;
       if(x.offer_sdp&&x.offer_sdp!=='pending'){
         await c.pc.setRemoteDescription({type:'offer',sdp:x.offer_sdp});
-        var answer=await c.pc.createAnswer();await c.pc.setLocalDescription(answer);await waitIce(c.pc,300);
+        var answer=await c.pc.createAnswer();await c.pc.setLocalDescription(answer);await waitIce(c.pc,150);
         await req('ktalk_webrtc_sessions?id=eq.'+enc(c.sessionId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({answer_sdp:c.pc.localDescription.sdp,updated_at:nowIso()})});
         c.answered=true;clearInterval(c.signalTimer);c.signalTimer=null;
       }
@@ -636,10 +636,10 @@
       pc.onconnectionstatechange=function(){var st=document.getElementById('ktRemoteLiveStatus');if(pc.connectionState==='connected'){if(viewerCtx&&viewerCtx.pc===pc&&viewerCtx.disconnectTimer){clearTimeout(viewerCtx.disconnectTimer);viewerCtx.disconnectTimer=null;}if(st)st.style.display='none';return;}if(pc.connectionState==='disconnected'||pc.connectionState==='failed'){if(st){st.style.display='block';st.textContent='신호 다시 연결 중...';}var c=viewerCtx;if(c&&c.pc===pc&&!c.disconnectTimer){c.disconnectTimer=setTimeout(function(){if(viewerCtx===c&&c.pc===pc&&(pc.connectionState==='failed'||pc.connectionState==='disconnected'))ktReconnectRemoteViewer20260921(c);},2200);}}};
       /* 시청자 영상 협상을 먼저 시작한다.
          입장 알림 저장이 느려도 영상 연결을 기다리게 하지 않는다. */
-      viewerCtx.signalTimer=setInterval(remotePollSignal,300);remotePollSignal();
+      viewerCtx.signalTimer=setInterval(remotePollSignal,140);remotePollSignal();
       /* 입장 직후 첫 얼굴만 빠르게 붙인다.
          장시간 폴링 속도는 300ms 그대로 유지해 흰 오류/과부하를 만들지 않는다. */
-      [30,80,150,240,380,600].forEach(function(ms){
+      [0,20,45,80,130,200,300,450].forEach(function(ms){
         setTimeout(function(){
           try{if(viewerCtx&&viewerCtx.pc===pc&&!viewerCtx.answered)remotePollSignal();}catch(e){}
         },ms);
