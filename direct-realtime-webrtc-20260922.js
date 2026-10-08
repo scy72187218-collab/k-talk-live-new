@@ -2961,13 +2961,11 @@
       }catch(_e){}
 
       attachRemoteStreamNow();
-      /* KT_OPEN_TIME_FORWARD_9999:
-         Pull the first-view timing forward on the actual room-icon path.
-         All phones fire their own watch immediately; no viewer waits behind
-         another viewer. Same-token repeats only cover a missed first packet. */
-      [0,12,28,55,95].forEach(function(ms){
-        setTimeout(function(){ensureViewerWatch(true);attachRemoteStreamNow();},ms);
-      });
+      /* KT_SINGLE_ENTRY_WATCH_9999:
+         Entry already requested the host stream above. Do not fire five
+         additional forced watches while the first connection is negotiating.
+         The existing role tick and transport retry own recovery. */
+      setTimeout(function(){attachRemoteStreamNow();},95);
       return true;
     }catch(z){return false;}
   }
