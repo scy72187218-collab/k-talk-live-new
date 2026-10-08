@@ -134,6 +134,8 @@
 
   try{
     new MutationObserver(function(){
+      /* 13명 방의 이전 화면이 잠깐 보이지 않도록 DOM 변경 즉시 확인한다. */
+      check();
       clearTimeout(window.__ktG13FirstOpenGuardTimer);
       window.__ktG13FirstOpenGuardTimer=setTimeout(check,10);
     }).observe(document.documentElement,{childList:true,subtree:true});
