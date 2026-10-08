@@ -1682,7 +1682,7 @@
     if(!pc||!payload)return;
     clearGuestOfferRetryTimers(pc);
     pc.__ktGuestOfferRetryTimers=[];
-    [40,120,280,600,1200,2400].forEach(function(ms){
+    [40,120,280,600].forEach(function(ms){
       var t=setTimeout(function(){
         if(guestPc!==pc||guestSession!==payload.session_id||!guestApproved||guestApprovedHost!==hid)return;
         var cs=String(pc.connectionState||''),is=String(pc.iceConnectionState||'');
