@@ -60,6 +60,17 @@
     try{
       if(typeof window.ktEnterRemoteLive==='function'){
         window.ktEnterRemoteLive(id);
+        /* 9999 통신 전용: 방에 들어가자마자 호스트 영상 요청을 즉시 보낸다.
+           화면/배치/버튼은 건드리지 않는다. */
+        [0,45,120].forEach(function(ms){
+          setTimeout(function(){
+            try{
+              if(typeof window.ktDirectViewerWatchNow9999==='function'){
+                window.ktDirectViewerWatchNow9999();
+              }
+            }catch(_e){}
+          },ms);
+        });
         /* 일부 Android WebView에서 첫 pointer 호출이 먹히지 않는 경우만
            같은 host_id로 짧게 한 번 더 보강한다. */
         setTimeout(function(){
