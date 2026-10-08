@@ -1175,7 +1175,7 @@
 
       /* 기존 영상이 살아 있으면 새 연결 확인 동안 화면을 유지한다.
          기존 영상이 없는 최초 연결은 빠르게 재시도한다. */
-      if(!previousUsable)retryViewerSoon(220);
+      if(!previousUsable)retryViewerSoon(900);
       else setTimeout(function(){
         if(viewerPc===pc&&!pc.__ktGotRemoteTrack20260923&&pc.connectionState!=='connected'){
           try{closePc(pc);}catch(e){}
