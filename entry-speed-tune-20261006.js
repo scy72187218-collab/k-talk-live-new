@@ -43,14 +43,39 @@
   function prewarmVisibleLive(){
     try{
       if(document.documentElement.classList.contains('kt-remote-viewing'))return;
+      var hostId='';
       var b=document.querySelector('.ktvl-live[data-host],.kt-live-card[data-host],.kt-live-list-enter[data-host]');
-      if(!b)return;
-      var hostId=String(b.getAttribute('data-host')||'').trim();
+      if(b)hostId=String(b.getAttribute('data-host')||'').trim();
+
+      /* LIVE 버튼 DOM이 아직 안 그려졌어도, 방 메타/Realtime에서 host_id가 잡히는 즉시
+         영상 연결부터 먼저 시작한다. 페이지가 뜬 뒤 20초 기다리는 구간을 없애기 위한 통신 전용 보강. */
+      if(!hostId){
+        try{hostId=String(window.__ktLastLiveRoom&&window.__ktLastLiveRoom.host_id||'').trim();}catch(_e){}
+      }
+      if(!hostId){
+        try{
+          var rh=window.__ktRealtimeLiveHosts||{};
+          var ids=Object.keys(rh);
+          if(ids.length)hostId=String((rh[ids[0]]&&rh[ids[0]].data&&rh[ids[0]].data.host_id)||ids[0]||'').trim();
+        }catch(_e){}
+      }
       if(!hostId)return;
+
       var now=Date.now();
-      if(hostId===prewarmHost&&now-prewarmAt<3000)return;
+      if(hostId===prewarmHost&&now-prewarmAt<1200)return;
       prewarmHost=hostId;prewarmAt=now;
       run(hostId,null);
+      try{
+        window.__ktRemoteHostId=hostId;
+        window.__ktCurrentRemoteHostId=hostId;
+        sessionStorage.setItem('kt_remote_host_id',hostId);
+      }catch(_e){}
+      try{
+        if(typeof window.ktDirectViewerWatchNow9999==='function'){
+          window.ktDirectViewerWatchNow9999();
+          setTimeout(function(){try{window.ktDirectViewerWatchNow9999();}catch(_e){}},60);
+        }
+      }catch(_e){}
     }catch(e){}
   }
 
