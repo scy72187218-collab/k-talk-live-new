@@ -101,7 +101,7 @@
       +'</div><div class="kt-sgfh-chat" id="ktSgfhChat"></div></div>'
       +'<div class="kt-sgfh-earn">🔒 내 수익 <b>0원</b><small>🌹 0송이 · 일반회원 35%</small></div>'
       +'<div class="kt-sgfh-bottom"><input id="ktSgfhChatInput" type="text" maxlength="100" placeholder="입력하세요..." aria-label="채팅 입력">'
-      +'<button type="button" data-b="send" aria-label="채팅 보내기">◁</button><button type="button" data-b="join">👥</button><button type="button" data-b="rose">🌹</button><button type="button" data-b="gift">🎁</button><button type="button" data-b="share">↗</button></div>'
+      +'<button type="button" data-b="send" aria-label="채팅 보내기">➤</button><button type="button" data-b="join">👥</button><button type="button" data-b="rose">🌹</button><button type="button" data-b="gift">🎁</button><button type="button" data-b="share">↗</button></div>'
       +'</div></section>';
 
     var q=function(sel){return root.querySelector(sel);};
