@@ -2948,15 +2948,8 @@
       viewerConnected=false;
       lastWatchAt=0;
 
-      /* KT_FIRST_PAGE_JOIN_9999:
-         Join/signaling starts on the exact first-page entry path. Persist the
-         selected host before connect so remoteHostId() is already available
-         when the first watch is sent. No UI/quality/room layout is changed. */
-      try{
-        window.__ktRemoteHostId=hid;
-        window.__ktCurrentRemoteHostId=hid;
-        sessionStorage.setItem('kt_remote_host_id',hid);
-      }catch(_e){}
+      /* KT_9999: do not persist a room selection as an active broadcast.
+         Room entry lifecycle owns the selected host and live state. */
       if(activeHostId!==hid)connect(hid);
       ensureViewerWatch(true);
 
