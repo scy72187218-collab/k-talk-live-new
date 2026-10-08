@@ -99,10 +99,10 @@
     var fn=async function(hostId){
       currentHost=String(hostId||'');retryCount=0;lastFallbackAt=0;
       await closeFallback();
-      var r=await old.apply(this,arguments);
-      mirrorRemote();
-      /* 기본 연결이 먼저 충분히 시도되도록 기다린 뒤에만 보조 연결을 시작한다. */
+      /* 입장 작업이 오래 걸려도 영상 보조 연결 타이머는 즉시 시작한다. */
+      var r=old.apply(this,arguments);
       schedule(currentHost,900);
+      Promise.resolve(r).then(function(){mirrorRemote();},function(){});
       return r;
     };
     fn.__ktVideoFallbackWrapped=true;
