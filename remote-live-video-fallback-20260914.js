@@ -38,7 +38,7 @@
 
   async function startFallback(hostId){
     if(!hostId||fallback||videoWorking()||!canReconnect())return;
-    if(Date.now()-lastFallbackAt<7000)return;
+    if(Date.now()-lastFallbackAt<1800)return;
     lastFallbackAt=Date.now();
     try{
       var viewerId='viewer_fallback_'+deviceId()+'_'+Date.now().toString(36);
@@ -75,22 +75,22 @@
           if(!x||!x.active)return;
           if(x.offer_sdp&&x.offer_sdp!=='pending'&&!ctx.answered){
             await pc.setRemoteDescription({type:'offer',sdp:x.offer_sdp});
-            var ans=await pc.createAnswer();await pc.setLocalDescription(ans);await waitIce(pc,7000);
+            var ans=await pc.createAnswer();await pc.setLocalDescription(ans);await waitIce(pc,350);
             await req('ktalk_webrtc_sessions?id=eq.'+enc(sessionId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({answer_sdp:pc.localDescription.sdp,updated_at:now()})});
             ctx.answered=true;
           }
         }catch(e){}
-      },1200);
+      },180);
       ctx.failTimer=setTimeout(function(){
         if(fallback===ctx&&!videoWorking()&&retryCount<2&&canReconnect()){retryCount++;closeFallback().then(function(){startFallback(currentHost);});}
-      },15000);
+      },5000);
     }catch(e){}
   }
 
   function schedule(hostId,delay){
     clearTimeout(checkTimer);
     if(!hostId)return;
-    checkTimer=setTimeout(function(){if(!videoWorking()&&canReconnect())startFallback(hostId);},delay||9000);
+    checkTimer=setTimeout(function(){if(!videoWorking()&&canReconnect())startFallback(hostId);},delay||900);
   }
 
   function wrapEnter(){
@@ -102,7 +102,7 @@
       var r=await old.apply(this,arguments);
       mirrorRemote();
       /* 기본 연결이 먼저 충분히 시도되도록 기다린 뒤에만 보조 연결을 시작한다. */
-      schedule(currentHost,9000);
+      schedule(currentHost,900);
       return r;
     };
     fn.__ktVideoFallbackWrapped=true;
