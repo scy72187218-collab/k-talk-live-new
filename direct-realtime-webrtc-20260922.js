@@ -320,6 +320,14 @@
     restBroadcast(eventName,payload);
   }
   function sendCriticalMedia20260926(eventName,payload,hostId){
+    /* ICE candidates can arrive in bursts. Sending every candidate through both
+       WebSocket and REST congests signaling on slower phones. Keep the joined
+       WebSocket as the single ICE path; REST remains the fallback while offline.
+       Offers and answers retain both paths for fast initial delivery. */
+    if(eventName==='video_ice'||eventName==='guest_ice'){
+      try{send(eventName,payload||{});}catch(e){}
+      return;
+    }
     try{send(eventName,payload||{});}catch(e){}
     try{restBroadcastToHost20260926(hostId||payload&&payload.host_id||activeHostId,eventName,payload||{});}catch(e){}
   }
