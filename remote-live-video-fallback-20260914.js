@@ -98,7 +98,8 @@
     if(typeof old!=='function'||old.__ktVideoFallbackWrapped)return;
     var fn=async function(hostId){
       currentHost=String(hostId||'');retryCount=0;lastFallbackAt=0;
-      await closeFallback();
+      /* 이전 보조 연결의 서버 정리를 기다리지 않고 방송 입장을 바로 시작한다. */
+      closeFallback().catch(function(){});
       /* 입장 작업이 오래 걸려도 영상 보조 연결 타이머는 즉시 시작한다. */
       var r=old.apply(this,arguments);
       schedule(currentHost,900);
