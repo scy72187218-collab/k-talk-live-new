@@ -7,6 +7,7 @@
 
   var count=0;
   var originalAddHostLike=null;
+  var activeKey='';
 
   function likeStoreKey(){
     var r=room();
@@ -20,14 +21,28 @@
   }
 
   function loadCount(){
+    var key=likeStoreKey();
+    if(key==='ktalk_live_like:unknown')return;
+    if(activeKey!==key){activeKey=key;count=0;}
     try{
-      var v=parseInt(localStorage.getItem(likeStoreKey())||'0',10);
-      if(isFinite(v)&&v>=0)count=v;
+      var saved=parseInt(localStorage.getItem(key)||'0',10)||0;
+      var backup=parseInt(localStorage.getItem(key+':backup')||'0',10)||0;
+      var visible=0;
+      var badge=room()&&room().querySelector('.kt-clock-like-20260927 span');
+      if(badge)visible=parseInt(badge.textContent||'0',10)||0;
+      count=Math.max(count,saved,backup,visible);
+      if(count>saved||count>backup)saveCount();
     }catch(e){}
   }
 
   function saveCount(){
-    try{localStorage.setItem(likeStoreKey(),String(Math.max(0,count||0)));}catch(e){}
+    var key=likeStoreKey();
+    if(key==='ktalk_live_like:unknown')return;
+    try{
+      var n=String(Math.max(0,count||0));
+      localStorage.setItem(key,n);
+      localStorage.setItem(key+':backup',n);
+    }catch(e){}
   }
 
   function room(){
