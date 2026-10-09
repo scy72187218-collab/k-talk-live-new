@@ -1315,4 +1315,40 @@ html.kt-remote-viewing #screen [data-kt-attendance],
   setInterval(hide,1200);
 })();
 </script>
+
+<!-- 9999: guest-only attendance duplicate guard. Never touch host rooms. -->
+<style id="ktGuestAttendanceAllRoomsGuard9999">
+html.kt-remote-viewing #screen [class*="attend"],
+html.kt-remote-viewing #screen [class*="Attend"],
+#screen .kt-remote-live [class*="attend"],
+#screen .kt-remote-live [class*="Attend"],
+#screen .kt-guest-hostlike-room [class*="attend"],
+#screen .kt-approved-guest-room [class*="attend"],
+#screen .kt-guest-room [class*="attend"],
+#screen .kt-prejoin-room [class*="attend"] {display:none!important;visibility:hidden!important;pointer-events:none!important}
+</style>
+<script id="ktGuestAttendanceAllRoomsGuardScript9999">
+(function(){
+  function isGuest(el){
+    if(!el || !el.closest)return false;
+    if(el.closest('#screen .kt-remote-live,#screen .kt-guest-hostlike-room,#screen .kt-approved-guest-room,#screen .kt-guest-room,#screen .kt-prejoin-room'))return true;
+    return document.documentElement.classList.contains('kt-remote-viewing') && !!el.closest('#screen');
+  }
+  function clean(){
+    var root=document.getElementById('screen');if(!root)return;
+    root.querySelectorAll('button,[role="button"]').forEach(function(el){
+      if(!isGuest(el))return;
+      var label=String(el.getAttribute('aria-label')||'')+' '+String(el.textContent||'');
+      if(/출석\\s*(체크|완료)|attendance/i.test(label)){
+        if(el.style.display!=='none')el.style.setProperty('display','none','important');
+      }
+    });
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',clean);else clean();
+  var scheduled=false;
+  new MutationObserver(function(){if(scheduled)return;scheduled=true;requestAnimationFrame(function(){scheduled=false;clean();});})
+    .observe(document.getElementById('screen')||document.documentElement,{childList:true,subtree:true});
+  document.addEventListener('kt-room-entered',clean);
+})();
+</script>
 </html>
