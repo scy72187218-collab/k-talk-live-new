@@ -1339,7 +1339,7 @@ html.kt-remote-viewing #screen [class*="Attend"],
     root.querySelectorAll('button,[role="button"]').forEach(function(el){
       if(!isGuest(el))return;
       var label=String(el.getAttribute('aria-label')||'')+' '+String(el.textContent||'');
-      if(/출석\\s*(체크|완료)|attendance/i.test(label)){
+      if(/출석\s*(체크|완료)|attendance/i.test(label)){
         if(el.style.display!=='none')el.style.setProperty('display','none','important');
       }
     });
