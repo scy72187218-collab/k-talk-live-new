@@ -1253,7 +1253,7 @@
        Each phone asks for its own host video immediately and independently.
        Short repeats use the SAME watch token, so the host reuses that phone's
        peer instead of queueing/restarting viewers one by one. */
-    [35,90,180].forEach(function(ms){
+    [35,90,180,450,900,1800].forEach(function(ms){
       setTimeout(function(){
         if(viewerConnected||remoteHostId()!==hid)return;
         sendCriticalMedia20260926('video_watch',watch,hid);
