@@ -52,6 +52,15 @@
       b.textContent='💗 0';
       root.appendChild(b);
     }
+    /* In the 9-person guest room, show the same like count beside the clock,
+       not over the host camera. Do not change other rooms. */
+    try{
+      var nineClock=root.classList.contains('kt-g9-host-copy')&&root.querySelector('.ktg9-copy-clock');
+      if(nineClock){
+        if(b.previousElementSibling!==nineClock)nineClock.insertAdjacentElement('afterend',b);
+        b.style.cssText='display:inline-flex;align-items:center;vertical-align:middle;position:static;z-index:auto;margin-left:5px;padding:2px 6px;border-radius:999px;background:rgba(0,0,0,.58);color:#fff;font:900 11px/1 system-ui,-apple-system,"Noto Sans KR",sans-serif;pointer-events:none';
+      }
+    }catch(e){}
     return b;
   }
 
