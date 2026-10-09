@@ -118,6 +118,26 @@ html.kt-remote-viewing .header .brand .logo{font-size:0!important;line-height:1!
 html.kt-remote-viewing .header .brand .logo::after{content:"K-Talk";font-size:clamp(17px,4.5vw,26px)!important;font-weight:900!important;color:#ff478e!important}
 html.kt-remote-viewing .header .brand .live{font-size:clamp(17px,4.5vw,26px)!important;font-weight:900!important;line-height:1!important;white-space:nowrap!important;margin:0!important;color:#ff478e!important}
 </style>
+
+<style id="ktGuestBrandVerifiedOneLine20261009">
+/* Guest page only, detected from the active room DOM, not the optional remote-viewing class. */
+html.kt-guest-title-one-line .header .brand{display:flex!important;flex-direction:row!important;align-items:center!important;gap:5px!important;white-space:nowrap!important;flex-wrap:nowrap!important;width:max-content!important;max-width:none!important}
+html.kt-guest-title-one-line .header .brand .logo{font-size:0!important;white-space:nowrap!important}
+html.kt-guest-title-one-line .header .brand .logo:after{content:"K-Talk";font-size:clamp(16px,4.2vw,25px)!important;font-weight:900!important;color:#ff478e!important}
+html.kt-guest-title-one-line .header .brand .live{font-size:clamp(16px,4.2vw,25px)!important;white-space:nowrap!important;margin:0!important;line-height:1!important}
+</style>
+<script id="ktGuestTitleDetector20261009">
+(function(){
+ function update(){
+   var screen=document.getElementById('screen');
+   var guest=!!(screen&&screen.querySelector('.kt-remote-live,.kt-guest-hostlike-room,.kt-approved-guest-room,.kt-prejoin-room,.kt-guest-room,.kt-remote-room'));
+   document.documentElement.classList.toggle('kt-guest-title-one-line',guest||document.documentElement.classList.contains('kt-remote-viewing'));
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',update);else update();
+ var timer=0;
+ new MutationObserver(function(){clearTimeout(timer);timer=setTimeout(update,80)}).observe(document.getElementById('screen')||document.documentElement,{childList:true,subtree:true});
+})();
+</script>
 </head>
 <body>
 <div class="app">
