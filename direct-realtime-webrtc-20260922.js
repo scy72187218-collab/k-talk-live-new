@@ -319,17 +319,24 @@
     window.__ktSignalTransport20260924='rest-fallback';
     restBroadcast(eventName,payload);
   }
+  var ktFirstIceBackup20261009={};
   function sendCriticalMedia20260926(eventName,payload,hostId){
-    /* ICE candidates can arrive in bursts. Sending every candidate through both
-       WebSocket and REST congests signaling on slower phones. Keep the joined
-       WebSocket as the single ICE path; REST remains the fallback while offline.
-       Offers and answers retain both paths for fast initial delivery. */
+    payload=payload||{};
+    try{send(eventName,payload);}catch(e){}
     if(eventName==='video_ice'||eventName==='guest_ice'){
-      try{send(eventName,payload||{});}catch(e){}
+      /* Keep routine ICE on WebSocket. Back up only the first candidate for
+         each peer/session through REST, so a lost early mobile WS signal does
+         not leave the video black until a full reconnect. */
+      var key=eventName+':'+String(payload.session_id||'')+':'+String(payload.from||'')+':'+String(payload.viewer_id||'');
+      if(payload.session_id&&!ktFirstIceBackup20261009[key]){
+        ktFirstIceBackup20261009[key]=Date.now();
+        try{restBroadcastToHost20260926(hostId||payload.host_id||activeHostId,eventName,payload);}catch(e){}
+        var keys=Object.keys(ktFirstIceBackup20261009);
+        if(keys.length>100)keys.forEach(function(k){if(Date.now()-ktFirstIceBackup20261009[k]>120000)delete ktFirstIceBackup20261009[k];});
+      }
       return;
     }
-    try{send(eventName,payload||{});}catch(e){}
-    try{restBroadcastToHost20260926(hostId||payload&&payload.host_id||activeHostId,eventName,payload||{});}catch(e){}
+    try{restBroadcastToHost20260926(hostId||payload.host_id||activeHostId,eventName,payload);}catch(e){}
   }
 
   function flush(){
