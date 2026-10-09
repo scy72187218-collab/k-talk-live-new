@@ -28,6 +28,15 @@
       var room=document.querySelector('#screen .ktsolo-room,#screen .ktg13-room,#screen .ktg9-room,'+
         '#screen .ktsubscriber-room,#screen .ktsecret-room,#screen .kt-remote-live');
       if(!room)return;
+      /* 9-person guest: retain the one main attendance button; do not create
+         extra heart/attendance counters that accumulate on rerender. */
+      var guest9=document.querySelector('#screen .kt-remote-live.kt-g9-host-copy');
+      if(guest9){
+        guest9.querySelectorAll('.kt-attendance-like-count').forEach(function(el){el.remove();});
+        var buttons=guest9.querySelectorAll('.ktg13-attend');
+        for(var k=1;k<buttons.length;k++)buttons[k].remove();
+        return;
+      }
       var like=findLike(room);
       if(!like)return;
 
