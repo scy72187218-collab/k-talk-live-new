@@ -1048,7 +1048,7 @@
       sendCriticalMedia20260926('video_offer',firstOffer,DEVICE);
       /* Communication speed only: repeat the SAME first offer briefly so a
          missed mobile packet does not add several seconds. */
-      [40,120,280,600].forEach(function(ms){
+      [40,120,280,600,1200,2400].forEach(function(ms){
         setTimeout(function(){
           if(hostViewPeers[vid]!==entry||entry.pc.currentRemoteDescription)return;
           sendCriticalMedia20260926('video_offer',firstOffer,DEVICE);
