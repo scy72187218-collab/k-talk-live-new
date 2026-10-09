@@ -12,7 +12,9 @@
     s.textContent=''
       +'#screen .'+CLS+'{flex:0 0 34px!important;height:34px!important;min-height:34px!important;width:100%!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px!important;margin:0 0 3px!important;padding:0!important;box-sizing:border-box!important;position:relative!important;z-index:95!important}'
       +'#screen .'+CLS+'>button{height:34px!important;min-width:0!important;margin:0!important;padding:0 4px!important;border:1px solid #ffffff20!important;border-radius:10px!important;background:#111114!important;color:#fff!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:4px!important;font:950 11px/1 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;white-space:nowrap!important;touch-action:manipulation!important}'
-      +'#screen .'+CLS+' b{font-size:15px!important;line-height:1!important}';
+      +'#screen .'+CLS+' b{font-size:15px!important;line-height:1!important}'
+      /* Guest-only: prevent the retired second row from flashing back between rerenders. */
+      +'html.kt-remote-viewing #screen .kt-room-second-stats-row-20260927,html.kt-remote-viewing #screen .ktg13-quick,html.kt-remote-viewing #screen .kt-all-five-utm-hard1111{display:none!important}';
     (document.head||document.documentElement).appendChild(s);
   }
   function act(kind,btn){
