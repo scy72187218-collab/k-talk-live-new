@@ -74,6 +74,15 @@
     style();
     var rs=roots();
     rs.forEach(install);
+    /* 13-person guest only: remove legacy duplicate lower action rows.
+       Keep the single fresh top row and leave every other room unchanged. */
+    try{
+      document.querySelectorAll('#screen .kt-remote-live .ktg13-room[data-kt-room="13"]').forEach(function(room){
+        room.querySelectorAll('.kt-room-second-stats-row-20260927,.ktg13-quick,.kt-all-five-utm-hard1111').forEach(function(el){
+          if(!el.classList.contains(CLS))el.remove();
+        });
+      });
+    }catch(e){}
     /* Viewer 9-room and approved-room shells can be rebuilt after this script runs.
        Keep one canonical row alive on every current room instead of leaving some
        phones on the retired package-box row or with no row at all. */
