@@ -32,9 +32,7 @@
       explainHostAttendance();
       return;
     }
-    if(document.documentElement.classList.contains('kt-remote-viewing')&&typeof window.ktRemoteAttendance==='function'){
-      return window.ktRemoteAttendance();
-    }
+    if(document.documentElement.classList.contains('kt-remote-viewing'))return;
     if(typeof originalAttendanceCheck==='function')return originalAttendanceCheck.apply(this,arguments);
   };
 
@@ -43,9 +41,7 @@
       explainHostAttendance();
       return;
     }
-    if(document.documentElement.classList.contains('kt-remote-viewing')&&typeof window.ktRemoteAttendance==='function'){
-      return window.ktRemoteAttendance();
-    }
+    if(document.documentElement.classList.contains('kt-remote-viewing'))return;
     if(typeof originalOpenAttendanceBenefits==='function')return originalOpenAttendanceBenefits.apply(this,arguments);
   };
 })();
@@ -375,4 +371,23 @@
     new MutationObserver(function(){setTimeout(cleanStaleSelf,0);}).observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
   setTimeout(cleanStaleSelf,100);
+})();
+
+/* Guest-only attendance removal. Host controls and other room UI unchanged. */
+(function(){
+  function cleanGuestAttendance(){
+    if(!document.documentElement.classList.contains('kt-remote-viewing'))return;
+    document.querySelectorAll('.kt-live-attendance,.kgh-attend,.kt-attendance-check,.kt-attendance-btn,.kt-attendance-like-count,[data-kt-attendance]').forEach(function(el){
+      if(el.closest('#screen,.kt-remote-live,.kt-guest-room,.kt-approved-guest-room,.kt-prejoin-room'))el.remove();
+    });
+    document.querySelectorAll('#screen button,#screen [role="button"]').forEach(function(el){
+      if(/출석\s*체크/.test(el.textContent||'')||/출석\s*체크/.test(el.getAttribute('aria-label')||''))el.remove();
+    });
+  }
+  var pending=false;
+  function schedule(){if(pending)return;pending=true;setTimeout(function(){pending=false;cleanGuestAttendance();},50);}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedule);
+  else schedule();
+  new MutationObserver(schedule).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
+  window.addEventListener('kt-room-entered',schedule);
 })();
