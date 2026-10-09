@@ -1275,4 +1275,36 @@ html.kt-guest-title-one-line .header .brand .live{font-size:clamp(16px,4.2vw,25p
 <script src="ktalk-install-only-20261005.js?v=20261006-progress-complete-hide1414"></script>
 <script src="legacy-old-controls-remove-20261005.js?v=20261005-remove-old1150617"></script>
 <script src="host-instant-join-leave-ai-20261006.js?v=20261006-instant-join-leave-1406"></script>
+
+<!-- Guest-only attendance display guard: all room types; host unchanged. -->
+<style id="ktGuestAttendanceHide9999">
+html.kt-remote-viewing #screen .kgh-attend,
+html.kt-remote-viewing #screen .kt-live-attendance,
+html.kt-remote-viewing #screen .kt-attendance-check,
+html.kt-remote-viewing #screen .kt-attendance-btn,
+html.kt-remote-viewing #screen .kt-attendance-like-count,
+html.kt-remote-viewing #screen .kt-attendance-heart-badge,
+html.kt-remote-viewing #screen .kt-attendance-room-count,
+html.kt-remote-viewing #screen [data-kt-attendance],
+#screen .kt-guest-hostlike-room .kgh-attend,
+#screen .kt-approved-guest-room .kt-attendance-like-count,
+#screen .kt-guest-room .kt-attendance-like-count,
+#screen .kt-prejoin-room .kt-attendance-like-count{display:none!important;visibility:hidden!important;pointer-events:none!important}
+</style>
+<script id="ktGuestAttendanceTextHide9999">
+(function(){
+  function hide(){
+    var guest=document.documentElement.classList.contains('kt-remote-viewing');
+    var roots=guest?[document.getElementById('screen')]:Array.from(document.querySelectorAll('#screen .kt-guest-hostlike-room,#screen .kt-approved-guest-room,#screen .kt-guest-room,#screen .kt-prejoin-room'));
+    roots.forEach(function(root){if(!root)return;root.querySelectorAll('button,[role="button"]').forEach(function(b){
+      if(/출석\\s*체크|출석완료/.test((b.textContent||'')+' '+(b.getAttribute('aria-label')||''))){b.style.setProperty('display','none','important');}
+    });});
+  }
+  var pending=false;
+  function schedule(){if(pending)return;pending=true;setTimeout(function(){pending=false;hide();},50);}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedule);else hide();
+  new MutationObserver(schedule).observe(document.getElementById('screen')||document.documentElement,{childList:true,subtree:true});
+  setInterval(hide,1200);
+})();
+</script>
 </html>
