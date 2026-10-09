@@ -2601,7 +2601,26 @@
       }
       return;
     }
-    if(ev==='video_watch'&&isHostRole()&&String(p.host_id||'')===DEVICE){hostOfferToViewer(String(p.viewer_id||''),String(p.watch_token||''));return;}
+    if(ev==='video_watch'&&isHostRole()&&String(p.host_id||'')===DEVICE){
+      var watchViewer=String(p.viewer_id||''),watchToken=String(p.watch_token||'');
+      if(!watchViewer)return;
+      hostOfferToViewer(watchViewer,watchToken);
+      /* A viewer can enter before the host camera stream becomes live.
+         Remember that viewer independently and retry only until its host
+         peer exists, rather than silently dropping its first watch. */
+      if(!hostStream()){
+        var tries=0;
+        var waitForHostCamera=setInterval(function(){
+          tries++;
+          if(!isHostRole()||tries>40){clearInterval(waitForHostCamera);return;}
+          if(hostStream()){
+            clearInterval(waitForHostCamera);
+            hostOfferToViewer(watchViewer,watchToken);
+          }
+        },200);
+      }
+      return;
+    }
     if(ev==='video_offer'){viewerHandleOffer(p);return;}
     if(ev==='video_answer'){hostHandleAnswer(p);return;}
     if(ev==='video_ice'){handleVideoIce(p);return;}
