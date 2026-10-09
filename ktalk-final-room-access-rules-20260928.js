@@ -333,13 +333,8 @@
         if(owner())return oldEnter.apply(this,arguments);
         var meta=await roomMeta(hostId);
         var k=kind(meta&&meta.room_type,meta&&meta.room_name,0);
-        if(k==='subscriber'){
-          var ok=await mutualFollow(hostId,meta&&meta.host_name);
-          if(!ok){
-            try{alert('구독자방은 서로 팔로우된 사람만 참여할 수 있습니다.');}catch(e){}
-            return false;
-          }
-        }
+        /* Practice mode: subscriber room entry does not require mutual follow.
+           Keep follow actions and all other room access rules unchanged. */
         if(k==='secret'){
           var followed=await mutualFollow(hostId,meta&&meta.host_name);
           if(!followed){
