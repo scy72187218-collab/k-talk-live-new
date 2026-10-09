@@ -2928,9 +2928,10 @@
     guestAliveLastSent=0;
     roleTick();setTimeout(function(){attachRemoteStreamNow();},0);
   });
+  /* Keep guest roster sync while avoiding four full roster packets per second. */
   setInterval(function(){
     if(isHostRole()&&joined)broadcastApprovedRoster20260928();
-  },250);
+  },2000);
 
   window.addEventListener('pagehide',function(){
     if(guestApprovedHost||lastRemoteHost)announceGuestLeave(guestApprovedHost||lastRemoteHost);
