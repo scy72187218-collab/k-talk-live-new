@@ -432,6 +432,33 @@
   }
   window.ktAttachRemoteHostStreamEverywhere20261009=ktAttachRemoteHostStreamEverywhere20261009;
 
+  /* 방 화면이 먼저 그려지고 호스트 video 칸이 나중에 생겨도,
+     이미 받은 호스트 스트림을 같은 순간 바로 다시 붙인다. */
+  var ktRemoteHostAttachBusy20261009=false;
+  function ktRemoteHostAttachSweep20261009(){
+    if(ktRemoteHostAttachBusy20261009)return;
+    ktRemoteHostAttachBusy20261009=true;
+    try{
+      var s=window.__ktRemoteHostStream||null;
+      if(s)ktAttachRemoteHostStreamEverywhere20261009(s);
+    }catch(e){}
+    ktRemoteHostAttachBusy20261009=false;
+  }
+  try{
+    var ktRemoteHostAttachObserver20261009=new MutationObserver(function(){
+      if(!window.__ktRemoteHostStream)return;
+      ktRemoteHostAttachSweep20261009();
+    });
+    ktRemoteHostAttachObserver20261009.observe(document.documentElement,{childList:true,subtree:true});
+  }catch(e){}
+  window.addEventListener('kt-remote-host-selected',function(){
+    [0,20,50,100,180,300,500,800].forEach(function(ms){
+      setTimeout(ktRemoteHostAttachSweep20261009,ms);
+    });
+  });
+  window.addEventListener('kt-approved-guest-stream-ready',ktRemoteHostAttachSweep20261009);
+  window.addEventListener('kt-guest-approval-received',ktRemoteHostAttachSweep20261009);
+
   function renderRemote(room){
     ensureStyle();document.documentElement.classList.add('kt-remote-viewing');
     var s=document.getElementById('screen');if(!s)return;
@@ -658,7 +685,7 @@
       var sessionId=sessions&&sessions[0]?sessions[0].id:'';if(!sessionId)throw new Error('session');
       var pc=new RTCPeerConnection(ktIceConfig20260921());
       viewerCtx={hostId:hostId,viewerId:viewerId,viewerName:p.name||'게스트',sessionId:sessionId,pc:pc,answered:false,signalTimer:null,heartbeat:null,activityTimer:null,lastMsg:'',roomMissingSince:0,signalMissingSince:0,disconnectTimer:null};
-      pc.ontrack=function(ev){var hs=ev.streams[0]||new MediaStream([ev.track]);window.__ktRemoteHostStream=hs;ktAttachRemoteHostStreamEverywhere20261009(hs);var v=document.getElementById('ktRemoteLiveVideo');if(v){v.srcObject=hs;v.play().catch(function(){});}try{if(String(window.__ktForceNineViewerShellHost20261003||'')===hostId&&typeof window.ktShowNineViewerShellImmediately20261003==='function'){window.ktShowNineViewerShellImmediately20261003();}}catch(_e){}try{if(ev.track){ev.track.onended=function(){var c=viewerCtx;if(c&&c.pc===pc)ktReconnectRemoteViewer20260921(c);};ev.track.onmute=function(){var tr=ev.track;var st=document.getElementById('ktRemoteLiveStatus');if(st){st.style.display='block';st.textContent='신호 다시 연결 중...';}setTimeout(function(){if(viewerCtx&&viewerCtx.pc===pc&&!tr.muted){var s=document.getElementById('ktRemoteLiveStatus');if(s)s.style.display='none';}},12000);};ev.track.onunmute=function(){var st=document.getElementById('ktRemoteLiveStatus');if(st)st.style.display='none';};}}catch(e){}var st=document.getElementById('ktRemoteLiveStatus');if(st)st.style.display='none';};
+      pc.ontrack=function(ev){var hs=ev.streams[0]||new MediaStream([ev.track]);window.__ktRemoteHostStream=hs;ktAttachRemoteHostStreamEverywhere20261009(hs);[0,20,50,100,180,300,500,800].forEach(function(ms){setTimeout(ktRemoteHostAttachSweep20261009,ms);});var v=document.getElementById('ktRemoteLiveVideo');if(v){v.srcObject=hs;v.play().catch(function(){});}try{if(String(window.__ktForceNineViewerShellHost20261003||'')===hostId&&typeof window.ktShowNineViewerShellImmediately20261003==='function'){window.ktShowNineViewerShellImmediately20261003();}}catch(_e){}try{if(ev.track){ev.track.onended=function(){var c=viewerCtx;if(c&&c.pc===pc)ktReconnectRemoteViewer20260921(c);};ev.track.onmute=function(){var tr=ev.track;var st=document.getElementById('ktRemoteLiveStatus');if(st){st.style.display='block';st.textContent='신호 다시 연결 중...';}setTimeout(function(){if(viewerCtx&&viewerCtx.pc===pc&&!tr.muted){var s=document.getElementById('ktRemoteLiveStatus');if(s)s.style.display='none';}},12000);};ev.track.onunmute=function(){var st=document.getElementById('ktRemoteLiveStatus');if(st)st.style.display='none';};}}catch(e){}var st=document.getElementById('ktRemoteLiveStatus');if(st)st.style.display='none';};
       pc.onconnectionstatechange=function(){var st=document.getElementById('ktRemoteLiveStatus');if(pc.connectionState==='connected'){if(viewerCtx&&viewerCtx.pc===pc&&viewerCtx.disconnectTimer){clearTimeout(viewerCtx.disconnectTimer);viewerCtx.disconnectTimer=null;}if(st)st.style.display='none';return;}if(pc.connectionState==='disconnected'||pc.connectionState==='failed'){if(st){st.style.display='block';st.textContent='신호 다시 연결 중...';}var c=viewerCtx;if(c&&c.pc===pc&&!c.disconnectTimer){c.disconnectTimer=setTimeout(function(){if(viewerCtx===c&&c.pc===pc&&(pc.connectionState==='failed'||pc.connectionState==='disconnected'))ktReconnectRemoteViewer20260921(c);},2200);}}};
       /* 시청자 영상 협상을 먼저 시작한다.
          입장 알림 저장이 느려도 영상 연결을 기다리게 하지 않는다. */
