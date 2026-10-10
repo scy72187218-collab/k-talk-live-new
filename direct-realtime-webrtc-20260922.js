@@ -914,9 +914,7 @@
         '.kt-guest-hostlike-room .kgh-cell.host video,'+
         '.kt-approved-guest-grid .kt-approved-guest-cell.host video,'+
         '.kt-prejoin-room-grid .kt-prejoin-room-cell.host video,'+
-        '.kt-guest-room-grid .kt-guest-room-cell.host video,'+
-        'html.kt-remote-viewing #screen .ktg13-room .ktg13-host video,'+
-        'html.kt-remote-viewing #screen .ktg13-host video'
+        '.kt-guest-room-grid .kt-guest-room-cell.host video'
       ).forEach(add);
     }catch(e){}
 
