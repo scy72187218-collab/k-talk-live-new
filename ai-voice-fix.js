@@ -296,8 +296,7 @@
   function runRoomShortcut(btn){
     var t=text(btn);
     var type='solo',name='1인 방송',max=1;
-    if(t.indexOf('13명')>-1){type='group13';name='13명 방송';max=13;}
-    else if(t.indexOf('구독자')>-1){type='subscriber';name='구독자 방송';max=10;}
+    if(t.indexOf('구독자')>-1){type='subscriber';name='구독자 방송';max=10;}
     else if(t.indexOf('비밀')>-1){type='password';name='비밀방';max=7;}
     try{
       if(window.state){state.liveRoomType=type;state.liveRoomName=name;state.liveRoomMax=max;}
@@ -307,7 +306,7 @@
         try{
           var list=[].slice.call(document.querySelectorAll('.live-prep .room-switch'));
           var b=list.find(function(x){return text(x).indexOf(name.replace(' 방송','').replace('방',''))>-1;})||list[0];
-          if(typeof window.selectPrepRoom==='function')window.selectPrepRoom(b,type==='group13'?'group':type,name,max);
+          if(typeof window.selectPrepRoom==='function')window.selectPrepRoom(b,type,name,max);
         }catch(e){}
       },30);
     }catch(e){}
