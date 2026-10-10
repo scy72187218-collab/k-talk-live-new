@@ -132,20 +132,15 @@
     }catch(err){}
   },true);
 
-  try{
-    new MutationObserver(function(){
-      /* 13명 방의 이전 화면이 잠깐 보이지 않도록 DOM 변경 즉시 확인한다. */
-      check();
-      clearTimeout(window.__ktG13FirstOpenGuardTimer);
-      window.__ktG13FirstOpenGuardTimer=setTimeout(check,10);
-    }).observe(document.documentElement,{childList:true,subtree:true});
-  }catch(e){}
-
-  [50,120,250,500,900,1500,2500,4000,6500,9000].forEach(function(ms){
+  /* 첫 입장에만 제한적으로 확인한다. DOM 변경마다 재렌더하거나
+     120ms 무한 반복 검사하지 않아 하단 도구가 깜빡이는 경합을 줄인다. */
+  [120,500,1200,2500].forEach(function(ms){
     setTimeout(check,ms);
   });
-  setInterval(function(){
-    check();
+  /* 기존 시작 보호는 유지하되, 무한 폴링 없이 시간이 지나면 해제한다. */
+  setTimeout(function(){
+    guardUntil=0;
+    stableUntil=0;
     disarmIfDone();
-  },120);
+  },46000);
 })();
