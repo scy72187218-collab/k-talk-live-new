@@ -517,7 +517,7 @@
       if(preRoot && !preInfo && document.documentElement.classList.contains('kt-remote-viewing')){
         var selected=window.__ktLastLiveRoom||{};
         var selectedLabel=[selected.room_name,selected.room_type,selected.title,window.__ktRemoteRoomName,window.__ktRemoteRoomType].filter(Boolean).join(' ');
-        if(/13\\s*명|group13/i.test(selectedLabel)&&!/15\\s*명|16\\s*명|구독자|subscriber/i.test(selectedLabel)){
+        if(/13\s*명|group13/i.test(selectedLabel)&&!/15\s*명|16\s*명|구독자|subscriber/i.test(selectedLabel)){
           preInfo={is13:true,is15:false,is16:false,total:13,gridTotal:13,label:'13명 방송'};
         }
       }
