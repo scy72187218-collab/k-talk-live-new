@@ -259,6 +259,17 @@
     window.addEventListener(ev,function(){apply();setTimeout(apply,60);setTimeout(apply,220);});
   });
   [0,80,240,700].forEach(function(ms){setTimeout(apply,ms);});
+  /* 13명방 전용: 승인 뒤 다른 게스트 페이지가 생성되면 첫 화면으로 되돌린다.
+     호스트 및 9명/구독자/비밀방은 이 감시 대상에서 제외한다. */
+  var kt13RestorePending=false;
+  new MutationObserver(function(){
+    if(kt13RestorePending||roomTotal()!==13)return;
+    if(!document.documentElement.classList.contains('kt-remote-viewing'))return;
+    var root=document.querySelector('.kt-remote-live');
+    if(!root||(!root.querySelector('.kt-guest-hostlike-room,.kt-approved-guest-room')&&root.classList.contains('kt-prejoin-room-view')))return;
+    kt13RestorePending=true;
+    setTimeout(function(){try{apply();}finally{kt13RestorePending=false;}},80);
+  }).observe(document.getElementById('screen')||document.body,{childList:true,subtree:true});
   setInterval(function(){
     var root=document.querySelector('.kt-remote-live.kt-prejoin-room-view');
     if(root)positionAttendanceBesideHeart(root);
