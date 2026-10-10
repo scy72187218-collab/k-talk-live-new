@@ -130,6 +130,8 @@
     });
     mo.observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
+  /* Keep the host's chat anchored immediately above its bottom tools even after other layout scripts rerender. */
+  setInterval(forceLayout,500);
   window.addEventListener('resize',function(){setTimeout(forceLayout,30);});
   window.addEventListener('orientationchange',function(){setTimeout(forceLayout,120);});
 })();
