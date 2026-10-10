@@ -88,7 +88,7 @@
     return '<section id="ktFullGuide20260915" style="margin:12px 0 4px;padding:13px;border:1px solid rgba(255,255,255,.14);border-radius:16px;background:rgba(10,10,16,.72);color:#fff;text-align:left;line-height:1.55">'
       +'<h3 style="margin:0 0 10px;font-size:17px;color:#ffd85a">📘 K-Talk 사용 방법 · 혜택</h3>'
       +'<div style="display:grid;gap:10px;font-size:13px">'
-        +'<div><b style="color:#74e7ff">1. 방송 시작</b><br>방송하기를 누른 뒤 1인 방송, 9명 방송, 13명 방송, 구독자방, 비밀방 중 원하는 방을 선택합니다. 카메라와 마이크를 확인하고 방송 시작을 누르면 카운트 후 방송이 시작됩니다.</div>'
+        +'<div><b style="color:#74e7ff">1. 방송 시작</b><br>방송하기를 누른 뒤 1인 방송, 9명 방송, 구독자방, 비밀방 중 원하는 방을 선택합니다. 카메라와 마이크를 확인하고 방송 시작을 누르면 카운트 후 방송이 시작됩니다.</div>'
         +'<div><b style="color:#74e7ff">2. 비밀방</b><br>비밀방은 비밀번호를 설정해 입장할 사람을 제한할 수 있습니다. 비밀번호는 필요한 사람에게만 알려주세요.</div>'
         +'<div><b style="color:#74e7ff">3. AI 보정 · 편집효과</b><br>촬영 화면의 AI 보정 또는 편집효과를 눌러 얼굴 밝기, 색감, 화면 효과를 조절합니다. 너무 강하면 자연스럽지 않을 수 있으니 화면을 보면서 맞추면 됩니다.</div>'
         +'<div><b style="color:#74e7ff">4. 음악 · 사운드</b><br>사운드 추가에서 방송에 사용할 음악이나 소리를 선택합니다. 방송용 음악은 사용 권한이 있는 음원을 이용하는 것이 안전합니다.</div>'
