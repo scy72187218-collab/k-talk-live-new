@@ -1,1 +1,0 @@
-Deploy trigger for current-broadcast guest approval fix only.
