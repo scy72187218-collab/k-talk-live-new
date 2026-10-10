@@ -455,6 +455,27 @@
     }catch(e){}
   }
 
+  (function(){
+    if(document.getElementById('ktG13GuestHideAttendanceHeartStyle'))return;
+    var style=document.createElement('style');
+    style.id='ktG13GuestHideAttendanceHeartStyle';
+    style.textContent=[
+      '.kt-remote-live.kt-g13-guest-hide-attendance-heart .kgh-attend',
+      '.kt-remote-live.kt-g13-guest-hide-attendance-heart .kt-live-attendance',
+      '.kt-remote-live.kt-g13-guest-hide-attendance-heart .kt-attendance-check',
+      '.kt-remote-live.kt-g13-guest-hide-attendance-heart .kt-attendance-btn',
+      '.kt-remote-live.kt-g13-guest-hide-attendance-heart [data-kt-attendance]',
+      '.kt-remote-live.kt-g13-guest-hide-attendance-heart .kt-remote-chat .kt-live-clock-heart',
+      '.kt-remote-live.kt-g13-guest-hide-attendance-heart .kt-remote-chat .kt-attendance-heart-badge',
+      '.kt-remote-live.kt-g13-guest-hide-attendance-heart .kt-remote-chat .kt-remote-action.heart',
+      '.kt-remote-live.kt-g13-guest-hide-attendance-heart .kt-remote-chat .heart',
+      '.kt-remote-live.kt-g13-guest-hide-attendance-heart .kt-remote-bottom .kt-live-clock-heart',
+      '.kt-remote-live.kt-g13-guest-hide-attendance-heart .kt-remote-bottom .kt-attendance-heart-badge',
+      '.kt-remote-live.kt-g13-guest-hide-attendance-heart .kt-remote-bottom .heart'
+    ].join(',')+'{display:none!important}';
+    (document.head||document.documentElement).appendChild(style);
+  })();
+
   function removeGuestAttendanceAndChatHeart8888(root){
     try{
       if(!root)return;
@@ -489,6 +510,11 @@
         return;
       }
       var root=preRoot;
+      /* 13명 게스트방의 출석 체크/채팅 하트만 렌더 순간부터 숨김.
+         영상 연결 및 다른 방의 동작은 변경하지 않는다. */
+      if(root){
+        root.classList.toggle('kt-g13-guest-hide-attendance-heart',!!(preInfo&&preInfo.is13));
+      }
       removeGuestAttendanceAndChatHeart8888(root);
       removeGuest13ChatHeart20261004(root);
       forceLast13GuestBottomRight20261004(root);
