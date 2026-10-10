@@ -392,7 +392,7 @@ window.openRoomPrep=function(name,max){
     if(String(name).indexOf('구독자')>-1)state.liveRoomType='subscriber';
     else if(String(name).indexOf('비밀')>-1)state.liveRoomType='password';
     else if(String(name).indexOf('15명')>-1)state.liveRoomType='group15';
-    else if(String(name).indexOf('13명')>-1)state.liveRoomType='group13';
+    
     else state.liveRoomType='general';
   }
   var title=document.getElementById('liveTitle');
@@ -421,7 +421,7 @@ window.openRoomPrep=function(name,max){
   }
   document.querySelectorAll('.kt-room-bottom5 button').forEach(function(b){b.classList.toggle('on',b===btn);});
  };
- window.openLiveRoom=function(){showSheet('라이브룸','<div class="aux-grid"><button class="aux-card" onclick="closeSheet();openRoomPrep(\'일반 13명방\',13)"><b>👥 일반 13명방</b><small>최대 13명</small></button><button class="aux-card" onclick="closeSheet();openRoomPrep(\'15명 방송\',16)"><b>🔴 15명 방송</b><small>호스트 승인 · 게스트 최대 15명</small></button><button class="aux-card" onclick="closeSheet();openRoomPrep(\'비밀방\',7)"><b>🔒 비밀방</b><small>호스트 1 + 게스트 6</small></button><button class="aux-card" onclick="closeSheet();openRoomPrep(\'구독자 전용방\',10)"><b>👑 구독자 전용방</b><small>최대 10명</small></button></div>');};
+ window.openLiveRoom=function(){showSheet('라이브룸','<div class="aux-grid"><button class="aux-card" onclick="closeSheet();openRoomPrep(\'15명 방송\',16)"><b>🔴 15명 방송</b><small>호스트 승인 · 게스트 최대 15명</small></button><button class="aux-card" onclick="closeSheet();openRoomPrep(\'비밀방\',7)"><b>🔒 비밀방</b><small>호스트 1 + 게스트 6</small></button><button class="aux-card" onclick="closeSheet();openRoomPrep(\'구독자 전용방\',10)"><b>👑 구독자 전용방</b><small>최대 10명</small></button></div>');};
  window.openProfileVideos=function(){leaveDash();if(window.openMyVideoLibrary)openMyVideoLibrary();else if(originalProfile)originalProfile();};
  window.openMatchMode=function(label,side,total){
    var left='',right='';
