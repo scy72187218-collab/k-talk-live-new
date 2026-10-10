@@ -152,8 +152,7 @@
 
   function apply(){
     if(ktIsSecretRemoteReset20261004())return;
-    /* 13명방은 새 게스트 전용 화면이 담당한다. 예전 승인전/후 강제 prejoin 변환 금지. */
-    if(roomTotal()===13)return false;
+    /* 13명방: 승인 뒤에도 첫 번째 prejoin 화면을 유지하고 별도 화면은 제거한다. */
     var root=document.querySelector('.kt-remote-live');
     if(!root)return false;
     ensureStyle();
