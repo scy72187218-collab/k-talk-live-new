@@ -122,4 +122,30 @@
   ['.kt-guest-room','.kt-approved-guest-room','.kt-prejoin-room','.kt-guest-hostlike-room','.kt-remote-live'].forEach(function(root){scoped.forEach(function(x){selectors.push('#screen '+root+' '+x);});});
   s.textContent=selectors.join(',')+'{display:none!important;visibility:hidden!important;pointer-events:none!important}';
   (document.head||document.documentElement).appendChild(s);
+  /* Hide text-only duplicate attendance controls in every guest room, without removing DOM nodes. */
+  function hideGuestDuplicates(){
+    try{
+      var roots=[].slice.call(document.querySelectorAll('#screen .kt-remote-live,#screen .kt-guest-room,#screen .kt-approved-guest-room,#screen .kt-prejoin-room,#screen .kt-guest-hostlike-room'));
+      if(document.documentElement.classList.contains('kt-remote-viewing')){
+        var screen=document.getElementById('screen');if(screen)roots.push(screen);
+      }
+      roots.forEach(function(root){
+        root.querySelectorAll('button,[role="button"],a,.kt-live-attendance,.kgh-attend,.kt-attendance-check,.kt-attendance-btn').forEach(function(el){
+          var label=String(el.getAttribute('aria-label')||'');
+          var text=String(el.textContent||'').replace(/\\s+/g,'').trim();
+          if(/출석\\s*체크/.test(label)||(/^.{0,16}출석체크.{0,16}$/.test(text))||/하트출석체크/.test(label)){
+            el.style.setProperty('display','none','important');
+          }
+        });
+      });
+    }catch(e){}
+  }
+  var scheduled=false;
+  function scheduleGuestHide(){
+    if(scheduled)return;scheduled=true;
+    setTimeout(function(){scheduled=false;hideGuestDuplicates();},70);
+  }
+  hideGuestDuplicates();
+  new MutationObserver(scheduleGuestHide).observe(document.getElementById('screen')||document.documentElement,{childList:true,subtree:true});
+  window.addEventListener('kt-room-entered',scheduleGuestHide);
 })();
