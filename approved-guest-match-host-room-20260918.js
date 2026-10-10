@@ -507,6 +507,11 @@
       }
       var preRoot=document.querySelector('.kt-remote-live');
       var preInfo=preRoot?roomInfo(preRoot):null;
+      /* Always clean the 13-person guest overlay before a prejoin layout can return early. */
+      if(preRoot && preInfo && preInfo.is13){
+        preRoot.classList.add('kt-g13-guest-hide-attendance-heart');
+        preRoot.querySelectorAll('.ktg13-attend,.kgh-attend').forEach(function(el){try{el.remove();}catch(e){}});
+      }
       if(window.__ktApprovedUsePrejoinLayout20261002&&typeof window.ktApplyApprovedPrejoinLayout20261002==='function'&&!(preInfo&&preInfo.is13)){
         window.ktApplyApprovedPrejoinLayout20261002();
         return;
