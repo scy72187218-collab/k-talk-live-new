@@ -1,4 +1,3 @@
-/* KT_CAMERA_QUALITY_LOCK_9999: 1080p30 + high-bitrate camera quality is locked. Do not change unless unlock code 9999 is explicitly requested. */
 /* K-Talk direct realtime WebRTC transport (2026-09-22)
    Communications only: host video, guest request/approval, approved guest camera.
    Uses Supabase Realtime broadcast and does not depend on Postgres polling.
@@ -127,24 +126,14 @@
       return false;
     }catch(e){return false;}
   }
-  function ktKeepHostQuality9999(stream){
-    try{
-      var t=stream&&stream.getVideoTracks&&stream.getVideoTracks()[0];
-      if(!t||t.readyState!=='live')return stream;
-      try{t.contentHint='detail';}catch(e){}
-      try{var s=t.getSettings&&t.getSettings();if(s&&s.width&&s.height&&(s.width<1280||s.height<720)){var q0=t.applyConstraints({width:{ideal:1920,min:1280},height:{ideal:1080,min:720},frameRate:{ideal:30,max:30}});if(q0&&q0.catch)q0.catch(function(){});}}catch(e){}
-      if(t.applyConstraints){var q=t.applyConstraints({width:{ideal:1920},height:{ideal:1080},frameRate:{ideal:30,max:30}});if(q&&q.catch)q.catch(function(){});}
-    }catch(e){}
-    return stream;
-  }
   function hostStream(){
     try{
       var s=window.state&&state.stream;
-      if(s&&s.getTracks&&s.getVideoTracks().some(function(t){return t.readyState==='live';}))return ktKeepHostQuality9999(s);
+      if(s&&s.getTracks&&s.getVideoTracks().some(function(t){return t.readyState==='live';}))return s;
     }catch(e){}
     try{
       var r=roomEl(),v=r&&r.querySelector('video'),s2=v&&v.srcObject;
-      if(s2&&s2.getTracks&&s2.getVideoTracks().some(function(t){return t.readyState==='live';}))return ktKeepHostQuality9999(s2);
+      if(s2&&s2.getTracks&&s2.getVideoTracks().some(function(t){return t.readyState==='live';}))return s2;
     }catch(e){}
     return null;
   }
@@ -263,12 +252,12 @@
       if(!p.encodings||!p.encodings.length)p.encodings=[{}];
       var guest=(kind==='guest');
       p.encodings.forEach(function(enc){
-        enc.maxBitrate=guest?3500000:4500000;
-        enc.maxFramerate=30;
-        enc.scaleResolutionDownBy=1.0;
+        enc.maxBitrate=guest?400000:600000;
+        enc.maxFramerate=guest?15:18;
+        if(!enc.scaleResolutionDownBy||enc.scaleResolutionDownBy<1.20)enc.scaleResolutionDownBy=guest?1.35:1.20;
         try{enc.networkPriority='high';}catch(e){}
       });
-      try{p.degradationPreference='maintain-resolution';}catch(e){}
+      try{p.degradationPreference='balanced';}catch(e){}
       var q=sender.setParameters(p);if(q&&q.catch)q.catch(function(){});
     }catch(e){}
   }
@@ -319,24 +308,9 @@
     window.__ktSignalTransport20260924='rest-fallback';
     restBroadcast(eventName,payload);
   }
-  var ktFirstIceBackup20261009={};
   function sendCriticalMedia20260926(eventName,payload,hostId){
-    payload=payload||{};
-    try{send(eventName,payload);}catch(e){}
-    if(eventName==='video_ice'||eventName==='guest_ice'){
-      /* Keep routine ICE on WebSocket. Back up only the first candidate for
-         each peer/session through REST, so a lost early mobile WS signal does
-         not leave the video black until a full reconnect. */
-      var key=eventName+':'+String(payload.session_id||'')+':'+String(payload.from||'')+':'+String(payload.viewer_id||'');
-      if(payload.session_id&&!ktFirstIceBackup20261009[key]){
-        ktFirstIceBackup20261009[key]=Date.now();
-        try{restBroadcastToHost20260926(hostId||payload.host_id||activeHostId,eventName,payload);}catch(e){}
-        var keys=Object.keys(ktFirstIceBackup20261009);
-        if(keys.length>100)keys.forEach(function(k){if(Date.now()-ktFirstIceBackup20261009[k]>120000)delete ktFirstIceBackup20261009[k];});
-      }
-      return;
-    }
-    try{restBroadcastToHost20260926(hostId||payload.host_id||activeHostId,eventName,payload);}catch(e){}
+    try{send(eventName,payload||{});}catch(e){}
+    try{restBroadcastToHost20260926(hostId||payload&&payload.host_id||activeHostId,eventName,payload||{});}catch(e){}
   }
 
   function flush(){
@@ -981,35 +955,6 @@
     viewerConnectTimer=setTimeout(function(){
       viewerConnectTimer=null;
       if(viewerConnected)return;
-
-      /* KT_ALL_VIEWERS_FIRST_FRAME_9999:
-         Slow phones must not have their first WebRTC connection destroyed after
-         only ~220ms. Keep the same peer alive and re-request the SAME offer first,
-         so every viewer can paint the host as quickly as the first phone. */
-      if(viewerPc&&['new','connecting','disconnected'].indexOf(String(viewerPc.connectionState||''))>-1){
-        if(!viewerPc.__ktStalledSince13) viewerPc.__ktStalledSince13=Date.now();
-        lastWatchAt=0;
-        ensureViewerWatch(true);
-        viewerConnectTimer=setTimeout(function(){
-          viewerConnectTimer=null;
-          if(viewerConnected)return;
-          /* KT_KEEP_BROADCAST_ON_BRIEF_DROP_9999: allow slow ICE and
-             short mobile signal gaps to recover before replacing the peer. */
-          if(viewerPc&&['new','connecting','disconnected'].indexOf(String(viewerPc.connectionState||''))>-1 && Date.now()-Number(viewerPc.__ktStalledSince13||Date.now())<10000){
-            lastWatchAt=0;ensureViewerWatch(true);
-            retryViewerSoon(3000);
-            return;
-          }
-          if(viewerPc){closePc(viewerPc);viewerPc=null;}
-          viewerSession='';viewerAnswerSdp='';
-          viewerWatchToken=sid('watch');
-          lastWatchAt=0;
-          showConnecting();
-          ensureViewerWatch(true);
-        },1400);
-        return;
-      }
-
       if(viewerPc){closePc(viewerPc);viewerPc=null;}
       viewerSession='';viewerAnswerSdp='';
       viewerWatchToken=sid('watch');
@@ -1056,7 +1001,7 @@
       sendCriticalMedia20260926('video_offer',firstOffer,DEVICE);
       /* Communication speed only: repeat the SAME first offer briefly so a
          missed mobile packet does not add several seconds. */
-      [40,120,280,600,1200,2400].forEach(function(ms){
+      [40,120,280,600].forEach(function(ms){
         setTimeout(function(){
           if(hostViewPeers[vid]!==entry||entry.pc.currentRemoteDescription)return;
           sendCriticalMedia20260926('video_offer',firstOffer,DEVICE);
@@ -1191,7 +1136,7 @@
 
       /* 기존 영상이 살아 있으면 새 연결 확인 동안 화면을 유지한다.
          기존 영상이 없는 최초 연결은 빠르게 재시도한다. */
-      if(!previousUsable)retryViewerSoon(900);
+      if(!previousUsable)retryViewerSoon(220);
       else setTimeout(function(){
         if(viewerPc===pc&&!pc.__ktGotRemoteTrack20260923&&pc.connectionState!=='connected'){
           try{closePc(pc);}catch(e){}
@@ -1247,29 +1192,8 @@
     if(!force&&viewerConnected)return;
     if(!force&&now-lastWatchAt<90)return;
     lastWatchAt=now;
-    var watch={host_id:hid,viewer_id:viewerId(),watch_token:viewerWatchToken,at:now};
-    sendCriticalMedia20260926('video_watch',watch,hid);
-
-    /* KT_PARALLEL_VIEWER_OPEN_9999:
-       Each phone asks for its own host video immediately and independently.
-       Short repeats use the SAME watch token, so the host reuses that phone's
-       peer instead of queueing/restarting viewers one by one. */
-    [35,90,180,450,900,1800].forEach(function(ms){
-      setTimeout(function(){
-        if(viewerConnected||remoteHostId()!==hid)return;
-        sendCriticalMedia20260926('video_watch',watch,hid);
-      },ms);
-    });
+    sendCriticalMedia20260926('video_watch',{host_id:hid,viewer_id:viewerId(),watch_token:viewerWatchToken,at:now},hid);
   }
-
-  /* 9999 통신 전용: 빨간 LIVE 입장 직후 호스트 영상 요청을 즉시 보낼 수 있게 공개 */
-  window.ktDirectViewerWatchNow9999=function(){
-    try{
-      lastWatchAt=0;
-      ensureViewerWatch(true);
-      return true;
-    }catch(e){return false;}
-  };
 
   function ensureDirectStyle(){
     if(document.getElementById('ktDirectGuestTransportStyle'))return;
@@ -2602,26 +2526,7 @@
       }
       return;
     }
-    if(ev==='video_watch'&&isHostRole()&&String(p.host_id||'')===DEVICE){
-      var watchViewer=String(p.viewer_id||''),watchToken=String(p.watch_token||'');
-      if(!watchViewer)return;
-      hostOfferToViewer(watchViewer,watchToken);
-      /* A viewer can enter before the host camera stream becomes live.
-         Remember that viewer independently and retry only until its host
-         peer exists, rather than silently dropping its first watch. */
-      if(!hostStream()){
-        var tries=0;
-        var waitForHostCamera=setInterval(function(){
-          tries++;
-          if(!isHostRole()||tries>40){clearInterval(waitForHostCamera);return;}
-          if(hostStream()){
-            clearInterval(waitForHostCamera);
-            hostOfferToViewer(watchViewer,watchToken);
-          }
-        },200);
-      }
-      return;
-    }
+    if(ev==='video_watch'&&isHostRole()&&String(p.host_id||'')===DEVICE){hostOfferToViewer(String(p.viewer_id||''),String(p.watch_token||''));return;}
     if(ev==='video_offer'){viewerHandleOffer(p);return;}
     if(ev==='video_answer'){hostHandleAnswer(p);return;}
     if(ev==='video_ice'){handleVideoIce(p);return;}
@@ -2772,7 +2677,7 @@
     }
     try{
       guestStream=await navigator.mediaDevices.getUserMedia({
-        video:{facingMode:{ideal:'user'},width:{ideal:1920,max:1920},height:{ideal:1080,max:1080},frameRate:{ideal:30,max:30}},
+        video:{facingMode:{ideal:'user'},width:{ideal:640,max:640},height:{ideal:480,max:480},frameRate:{ideal:15,max:18}},
         audio:true
       });
     }catch(e){
@@ -2984,8 +2889,7 @@
       viewerConnected=false;
       lastWatchAt=0;
 
-      /* KT_9999: do not persist a room selection as an active broadcast.
-         Room entry lifecycle owns the selected host and live state. */
+      /* Start signaling immediately on the same tap that opens the room. */
       if(activeHostId!==hid)connect(hid);
       ensureViewerWatch(true);
 
@@ -2997,11 +2901,9 @@
       }catch(_e){}
 
       attachRemoteStreamNow();
-      /* KT_SINGLE_ENTRY_WATCH_9999:
-         Entry already requested the host stream above. Do not fire five
-         additional forced watches while the first connection is negotiating.
-         The existing role tick and transport retry own recovery. */
-      setTimeout(function(){attachRemoteStreamNow();},95);
+      [0,30,80,150].forEach(function(ms){
+        setTimeout(function(){ensureViewerWatch(true);attachRemoteStreamNow();},ms);
+      });
       return true;
     }catch(z){return false;}
   }
