@@ -95,6 +95,19 @@
       setImp(chat,'display','flex');
       setImp(chat,'flex-direction','column');
       setImp(chat,'justify-content','flex-end');
+      /* 13-person host: keep chat at the bottom, directly above the camera/mic tools, without moving gifts or changing other rooms. */
+      var toolsBar=room.querySelector('.ktg13-tools');
+      var giftsBar=room.querySelector('.ktg13-gifts');
+      if(toolsBar&&giftsBar){
+        setImp(chat,'position','absolute');
+        setImp(chat,'bottom','0');
+        setImp(chat,'left','0');
+        setImp(chat,'width','min(68%, 320px)');
+        setImp(chat,'height','58px');
+        setImp(chat,'max-height','58px');
+        setImp(chat,'z-index','25');
+        setImp(mid,'position','relative');
+      }
       setImp(chat,'overflow','hidden');
       setImp(chat,'background','transparent');
       setImp(chat,'border','0');
