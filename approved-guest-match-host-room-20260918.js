@@ -518,6 +518,7 @@
         if(!document.getElementById('kt13LegacyOverlayRetired')){
           var hide=document.createElement('style');hide.id='kt13LegacyOverlayRetired';
           hide.textContent='.kt-remote-live.kt-g13-guest-hide-attendance-heart .kt-remote-attendance,.kt-remote-live.kt-g13-guest-hide-attendance-heart .kt-live-attendance,.kt-remote-live.kt-g13-guest-hide-attendance-heart .ktg13-attend,.kt-remote-live.kt-g13-guest-hide-attendance-heart .kgh-attend,.kt-remote-live.kt-g13-guest-hide-attendance-heart .kt-remote-watch-tv,.kt-remote-live.kt-g13-guest-hide-attendance-heart .kt-remote-co-watch,.kt-remote-live.kt-g13-guest-hide-attendance-heart .kt-approved-attendance-heart-count{display:none!important}';
+          hide.textContent+=' .kt-remote-live.kt-g13-guest-hide-attendance-heart [class*="watch-tv"],.kt-remote-live.kt-g13-guest-hide-attendance-heart [class*="co-watch"],.kt-remote-live.kt-g13-guest-hide-attendance-heart [class*="television"]{display:none!important}.kt-remote-live.kt-g13-guest-hide-attendance-heart .kgh-viewers,.kt-remote-live.kt-g13-guest-hide-attendance-heart .ktg13-viewers{color:#fff!important}';
           document.head.appendChild(hide);
         }
       }
