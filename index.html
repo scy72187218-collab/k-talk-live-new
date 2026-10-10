@@ -1351,4 +1351,44 @@ html.kt-remote-viewing #screen [class*="Attend"],
   document.addEventListener('kt-room-entered',clean);
 })();
 </script>
+
+<!-- Guest attendance visibility only. Host and all other controls unchanged. -->
+<style id="ktGuestAttendanceFinalOnly20261010">
+html.kt-remote-viewing .kt-live-attendance,
+html.kt-remote-viewing .kgh-attend,
+html.kt-remote-viewing .kt-attendance-like-count,
+html.kt-remote-viewing .kt-attendance-heart-badge,
+html.kt-remote-viewing .kt-attendance-room-count,
+html.kt-remote-viewing .kt-attendance-check,
+html.kt-remote-viewing .kt-attendance-btn,
+html.kt-remote-viewing [data-kt-attendance],
+#screen .kt-guest-room .kt-live-attendance,
+#screen .kt-approved-guest-room .kt-live-attendance,
+#screen .kt-prejoin-room .kt-live-attendance,
+#screen .kt-guest-hostlike-room .kt-live-attendance {display:none!important;visibility:hidden!important;pointer-events:none!important}
+</style>
+<script id="ktGuestAttendanceFinalTextOnly20261010">
+(function(){
+  function guestRoot(el){
+    if(!el||!el.closest)return false;
+    if(el.closest('#screen .kt-remote-live,#screen .kt-guest-room,#screen .kt-approved-guest-room,#screen .kt-prejoin-room,#screen .kt-guest-hostlike-room'))return true;
+    return document.documentElement.classList.contains('kt-remote-viewing')&&!!el.closest('#screen');
+  }
+  function hide(){
+    var screen=document.getElementById('screen');if(!screen)return;
+    screen.querySelectorAll('button,[role="button"],.badge,.kt-attendance-like-count').forEach(function(el){
+      if(!guestRoot(el))return;
+      var own=String(el.getAttribute('aria-label')||'')+' '+String(el.textContent||'');
+      if(/출석\\s*(체크|완료)|하트\\s*출석체크/.test(own)){
+        if(el.style.getPropertyValue('display')!=='none')el.style.setProperty('display','none','important');
+      }
+    });
+  }
+  var queued=false;
+  function schedule(){if(queued)return;queued=true;setTimeout(function(){queued=false;hide();},0);}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedule);else schedule();
+  new MutationObserver(schedule).observe(document.getElementById('screen')||document.documentElement,{childList:true,subtree:true});
+  document.addEventListener('kt-room-entered',schedule);
+})();
+</script>
 </html>
