@@ -76,6 +76,23 @@
     style();
     var rs=roots();
     rs.forEach(install);
+    /* Guest rooms only: remove any re-created lower duplicate three-button row.
+       The canonical upper row and all host controls are untouched. */
+    try{
+      rs.forEach(function(root){
+        if(!root.closest('.kt-remote-live,.kt-guest-hostlike-room,.kt-approved-guest-room,.kt-guest-room,.kt-prejoin-room') &&
+           !document.documentElement.classList.contains('kt-remote-viewing'))return;
+        Array.prototype.slice.call(root.children||[]).forEach(function(el){
+          if(!el||el.classList.contains(CLS)||el.querySelector('.'+CLS))return;
+          var buttons=el.querySelectorAll(':scope > button');
+          if(buttons.length!==3)return;
+          var labels=Array.prototype.map.call(buttons,function(b){return String(b.textContent||'').replace(/\\s+/g,'');});
+          if(labels[0].indexOf('되돌리기')>=0 &&
+             (labels[1].indexOf('패키지')>=0||labels[1].indexOf('보물상자')>=0) &&
+             labels[2].indexOf('매치')>=0)el.remove();
+        });
+      });
+    }catch(e){}
     /* 13-person guest only: remove legacy duplicate lower action rows.
        Keep the single fresh top row and leave every other room unchanged. */
     try{
