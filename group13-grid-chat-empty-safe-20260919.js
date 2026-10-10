@@ -71,7 +71,7 @@
 
       /* 채팅을 빈 3칸에서 빼고, 두 번째 사진처럼 그리드 아래 하단으로 내림.
          중간줄을 조금 줄여서 13개 칸이 약간 더 커지게 함. */
-      if(chat.parentElement!==mid)mid.insertBefore(chat,mid.firstChild);
+      if(chat.parentElement!==room)room.appendChild(chat);
       setImp(mid,'flex','0 0 58px');
       setImp(mid,'min-height','58px');
       setImp(mid,'height','58px');
@@ -99,8 +99,9 @@
       var toolsBar=room.querySelector('.ktg13-tools');
       var giftsBar=room.querySelector('.ktg13-gifts');
       if(toolsBar&&giftsBar){
+        setImp(room,'position','relative');
         setImp(chat,'position','absolute');
-        setImp(chat,'bottom','0');
+        setImp(chat,'bottom',Math.max(0,Math.round(room.getBoundingClientRect().bottom-toolsBar.getBoundingClientRect().top))+'px');
         setImp(chat,'left','0');
         setImp(chat,'width','min(68%, 320px)');
         setImp(chat,'height','58px');
