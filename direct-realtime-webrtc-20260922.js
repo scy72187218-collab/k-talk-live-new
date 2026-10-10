@@ -987,6 +987,7 @@
          only ~220ms. Keep the same peer alive and re-request the SAME offer first,
          so every viewer can paint the host as quickly as the first phone. */
       if(viewerPc&&['new','connecting','disconnected'].indexOf(String(viewerPc.connectionState||''))>-1){
+        if(!viewerPc.__ktStalledSince13) viewerPc.__ktStalledSince13=Date.now();
         lastWatchAt=0;
         ensureViewerWatch(true);
         viewerConnectTimer=setTimeout(function(){
@@ -994,7 +995,7 @@
           if(viewerConnected)return;
           /* KT_KEEP_BROADCAST_ON_BRIEF_DROP_9999: allow slow ICE and
              short mobile signal gaps to recover before replacing the peer. */
-          if(viewerPc&&['new','connecting','disconnected'].indexOf(String(viewerPc.connectionState||''))>-1){
+          if(viewerPc&&['new','connecting','disconnected'].indexOf(String(viewerPc.connectionState||''))>-1 && Date.now()-Number(viewerPc.__ktStalledSince13||Date.now())<10000){
             lastWatchAt=0;ensureViewerWatch(true);
             retryViewerSoon(3000);
             return;
