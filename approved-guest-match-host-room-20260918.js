@@ -201,6 +201,11 @@
     var info=roomInfo(root);
     if(!info)return;
     if(root.querySelector('.kt-guest-hostlike-room'))return;
+    /* 13-person guest uses a fresh isolated room renderer instead of legacy overlay. */
+    if(info.is13 && typeof window.ktBuildFresh13GuestRoom==='function'){
+      window.ktBuildFresh13GuestRoom(root);
+      return;
+    }
 
     var main=document.getElementById('ktRemoteLiveVideo');
     var preview=document.getElementById('ktRemoteHostPreview');
