@@ -51,6 +51,9 @@
       ||root.querySelector(':scope > .ktsolo-main,:scope > .ktgroup9-main,:scope > .ktg9-main,:scope > .ktgroup13-main,:scope > .ktg13-main,:scope > .ktsubscriber-main,:scope > .ktsecret-main,:scope > .kgh-main,:scope > [class*="room-grid"]');
   }
   function install(root){
+    /* 13명 게스트 화면에는 반복 생성되는 보조 3버튼 줄을 만들지 않는다. */
+    var guest13=!!root.closest('.kt-remote-live,.kt-guest-hostlike-room,.kt-approved-guest-room,.kt-guest-room,.kt-prejoin-room') && !!(root.matches('.ktg13-room,.ktgroup13-room') || root.querySelector('.ktg13-room,.ktgroup13-room') || /13명/.test(String((window.state||{}).liveRoomName||'')));
+    if(guest13){root.querySelectorAll(':scope > .'+CLS).forEach(function(el){el.remove();});return;}
     var rows=root.querySelectorAll(':scope > .'+CLS); for(var i=1;i<rows.length;i++)rows[i].remove();
     var row=rows[0]||make(), a=anchor(root);
     /* 게스트 화면의 옛날 위쪽 3버튼 줄은 클래스/문구와 관계없이 제거 */
