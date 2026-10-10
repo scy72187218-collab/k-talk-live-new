@@ -45,6 +45,9 @@
     var root=document.querySelector('.kt-remote-live');
     if(!root)return null;
     var b=document.getElementById('ktHostFaceLikeCount');
+    /* Keep the 9-person clock-side count, but never create a floating bottom heart in guest rooms. */
+    var nineClock=root.classList.contains('kt-g9-host-copy')&&root.querySelector('.ktg9-copy-clock');
+    if(!nineClock){if(b)b.remove();return null;}
     if(!b){
       b=document.createElement('div');
       b.id='ktHostFaceLikeCount';
