@@ -460,6 +460,7 @@
     var style=document.createElement('style');
     style.id='ktG13GuestHideAttendanceHeartStyle';
     style.textContent=[
+      '.kt-remote-live.kt-g13-guest-hide-attendance-heart .ktg13-attend',
       '.kt-remote-live.kt-g13-guest-hide-attendance-heart .kgh-attend',
       '.kt-remote-live.kt-g13-guest-hide-attendance-heart .kt-live-attendance',
       '.kt-remote-live.kt-g13-guest-hide-attendance-heart .kt-attendance-check',
@@ -471,6 +472,7 @@
       '.kt-remote-live.kt-g13-guest-hide-attendance-heart .kt-remote-chat .heart',
       '.kt-remote-live.kt-g13-guest-hide-attendance-heart .kt-remote-bottom .kt-live-clock-heart',
       '.kt-remote-live.kt-g13-guest-hide-attendance-heart .kt-remote-bottom .kt-attendance-heart-badge',
+      '.kt-remote-live.kt-g13-guest-hide-attendance-heart #ktRemoteLiveStatus',
       '.kt-remote-live.kt-g13-guest-hide-attendance-heart .kt-remote-bottom .heart'
     ].join(',')+'{display:none!important}';
     (document.head||document.documentElement).appendChild(style);
