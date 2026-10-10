@@ -356,6 +356,23 @@
     tools.appendChild(makeTool('🪄','효과',function(){try{if(window.openEditEffectPanel)window.openEditEffectPanel();else if(window.ktGroup13Effect)window.ktGroup13Effect();}catch(e){}}));
     tools.appendChild(makeTool('•••','더보기',function(){try{if(window.openLiveSettings)window.openLiveSettings();else if(window.ktGroup13More)window.ktGroup13More();}catch(e){}}));
 
+    /* 13-person room: match host's 8-button bottom row, keep guest-specific actions. */
+    if(info.is13){
+      tools.replaceChildren(
+        makeTool('📷','카메라',function(){try{if(window.ktBottomCameraToggle)window.ktBottomCameraToggle(this);}catch(e){}}),
+        makeTool('🎤','마이크',function(){try{if(window.ktBottomMicToggle)window.ktBottomMicToggle(this);}catch(e){}}),
+        makeTool('👥','친구',safeAction('shareApp')),
+        makeTool('💬','메시지',function(){try{var inp=root.querySelector('.kt-remote-chat input');if(inp)inp.focus();else if(window.ktGroup13OpenMessage)window.ktGroup13OpenMessage();}catch(e){}}),
+        makeTool('🎬','영화',safeAction('ktBottomMovieOpen')),
+        makeTool('↗','공유',safeAction('shareApp')),
+        makeTool('🪄','효과',safeAction('openEditEffectPanel')),
+        makeTool('•••','더보기',safeAction('openLiveSettings'))
+      );
+      tools.style.setProperty('display','grid','important');
+      tools.style.setProperty('grid-template-columns','repeat(8,minmax(0,1fr))','important');
+      tools.style.setProperty('gap','2px','important');
+    }
+
     room.appendChild(head);
     room.appendChild(led);
     room.appendChild(stats);
