@@ -27,6 +27,11 @@
     room.appendChild(grid);
     var bottom=document.createElement('div');bottom.className='kt-fresh13-bottom';bottom.textContent='채팅';room.appendChild(bottom);
     root.classList.remove('kt-approved-guest-room','kt-prejoin-room-view');root.classList.add('kt-guest-hostlike-active','kt-fresh13-on');
+    /* 13-person guest only: remove obsolete visual panels, retain signaling and toolbar. */
+    Array.from(root.children).forEach(function(el){
+      if(el===room||el.matches('.kt-remote-bottom,.kt-remote-chat,.kt-remote-toolbar,.kt-remote-controls'))return;
+      if(el.matches('.kt-remote-header,.kt-remote-banner,.kt-remote-actions,.kt-remote-stats,.kt-prejoin-room-grid,.kt-prejoin-room-view,.kt-approved-guest-room,.kt-guest-hostlike-room,.kt-remote-watch-tv,.kt-remote-co-watch,.kt-remote-attendance'))el.style.setProperty('display','none','important');
+    });
     root.appendChild(room);
     var videos=room.querySelectorAll('video');videos.forEach(function(v){v.autoplay=true;v.playsInline=true;try{var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(e){}});
   };
