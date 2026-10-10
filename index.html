@@ -1304,4 +1304,50 @@ html.kt-remote-viewing #screen [data-kt-attendance],
  display:none!important;visibility:hidden!important;pointer-events:none!important;
 }
 </style>
+<!-- guest attendance controls hide only 20261010 -->
+<style>
+/* Only guest views: hide all legacy attendance badges, leave host controls untouched. */
+html.kt-remote-viewing #screen .kt-live-attendance,
+html.kt-remote-viewing #screen .kgh-attend,
+html.kt-remote-viewing #screen .kt-attendance-check,
+html.kt-remote-viewing #screen .kt-attendance-btn,
+html.kt-remote-viewing #screen .kt-attendance-like-count,
+html.kt-remote-viewing #screen [data-kt-attendance],
+#screen .kt-guest-room .kt-live-attendance,
+#screen .kt-guest-room .kgh-attend,
+#screen .kt-approved-guest-room .kt-live-attendance,
+#screen .kt-approved-guest-room .kgh-attend,
+#screen .kt-prejoin-room .kt-live-attendance,
+#screen .kt-prejoin-room .kgh-attend,
+#screen .kt-guest-hostlike-room .kt-live-attendance,
+#screen .kt-guest-hostlike-room .kgh-attend {display:none!important;visibility:hidden!important;pointer-events:none!important}
+</style>
+<script>
+(function(){
+ if(window.__ktGuestAttendanceHideOnly20261010)return;
+ window.__ktGuestAttendanceHideOnly20261010=true;
+ function guest(el){
+   return document.documentElement.classList.contains('kt-remote-viewing')||
+     !!el.closest('.kt-guest-room,.kt-approved-guest-room,.kt-prejoin-room,.kt-guest-hostlike-room,.kt-remote-live');
+ }
+ function hide(){
+   var root=document.getElementById('screen');if(!root)return;
+   root.querySelectorAll('button,[role="button"],.kt-attendance-like-count,.kt-live-attendance,.kgh-attend,.kt-attendance-check,.kt-attendance-btn,[data-kt-attendance]').forEach(function(el){
+     if(!guest(el))return;
+     var label=String(el.getAttribute('aria-label')||'');
+     var own=String(el.textContent||'').replace(/\s+/g,'');
+     var attendance=el.matches('.kt-attendance-like-count,.kt-live-attendance,.kgh-attend,.kt-attendance-check,.kt-attendance-btn,[data-kt-attendance]')||
+       /출석\s*체크|출석체크|하트출석/.test(label)||(/출석체크|출석/.test(own)&&own.length<45);
+     if(attendance&&el.style.getPropertyValue('display')!=='none')el.style.setProperty('display','none','important');
+   });
+ }
+ var pending=false;
+ function schedule(){if(pending)return;pending=true;requestAnimationFrame(function(){pending=false;hide();});}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedule);else schedule();
+ var root=document.getElementById('screen');
+ if(root)new MutationObserver(schedule).observe(root,{childList:true,subtree:true});
+ new MutationObserver(schedule).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
+ window.addEventListener('kt-room-entered',schedule);
+})();
+</script>
 </html>
