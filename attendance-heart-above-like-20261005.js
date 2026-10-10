@@ -24,6 +24,7 @@
   }
 
   function paint(){
+    if(document.documentElement.classList.contains('kt-remote-viewing'))return;
     try{
       var room=document.querySelector('#screen .ktsolo-room,#screen .ktg13-room,#screen .ktg9-room,'+
         '#screen .ktsubscriber-room,#screen .ktsecret-room,#screen .kt-remote-live');
@@ -132,8 +133,8 @@
       roots.forEach(function(root){
         root.querySelectorAll('button,[role="button"],a,.kt-live-attendance,.kgh-attend,.kt-attendance-check,.kt-attendance-btn').forEach(function(el){
           var label=String(el.getAttribute('aria-label')||'');
-          var text=String(el.textContent||'').replace(/\\s+/g,'').trim();
-          if(/출석\\s*체크/.test(label)||(/^.{0,16}출석체크.{0,16}$/.test(text))||/하트출석체크/.test(label)){
+          var text=String(el.textContent||'').replace(/\s+/g,'').trim();
+          if(/출석\s*체크/.test(label)||(/^.{0,16}출석체크.{0,16}$/.test(text))||/하트출석체크/.test(label)){
             el.style.setProperty('display','none','important');
           }
         });
