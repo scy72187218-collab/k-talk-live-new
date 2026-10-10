@@ -85,6 +85,22 @@
         });
       });
     }catch(e){}
+    /* 13-person room only: hide and remove the retired second package-box row.
+       Do not touch the canonical top row or any camera/stats/chat container. */
+    try{
+      document.querySelectorAll('#screen .ktg13-room,#screen .ktgroup13-room').forEach(function(room){
+        Array.prototype.slice.call(room.children||[]).forEach(function(el){
+          if(!el||el.classList.contains(CLS))return;
+          var buttons=el.querySelectorAll(':scope > button');
+          if(buttons.length!==3)return;
+          var names=Array.prototype.map.call(buttons,function(b){return String(b.textContent||'').replace(/\\s+/g,'');});
+          if(names[0].indexOf('되돌리기')>=0&&names[1].indexOf('패키지')>=0&&names[2].indexOf('매치')>=0){
+            el.style.setProperty('display','none','important');
+            el.remove();
+          }
+        });
+      });
+    }catch(e){}
     /* Viewer 9-room and approved-room shells can be rebuilt after this script runs.
        Keep one canonical row alive on every current room instead of leaving some
        phones on the retired package-box row or with no row at all. */
