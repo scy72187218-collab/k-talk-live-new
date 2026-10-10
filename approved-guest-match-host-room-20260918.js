@@ -726,7 +726,7 @@
 
   repair();
   [50,120,250,500,900,1500,2400,4000].forEach(function(ms){setTimeout(repair,ms);});
-  setInterval(repair,300);
+  /* Disable legacy 300ms guest layout polling; event/DOM-change repair remains. */
   try{
     new MutationObserver(function(){setTimeout(repair,20);}).observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
