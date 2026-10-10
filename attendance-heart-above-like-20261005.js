@@ -109,3 +109,17 @@
     setTimeout(paint,80);
   });
 })();
+
+/* 9999: hide duplicate attendance UI in guest views only; do not remove nodes or affect hosts. */
+(function(){
+  if(document.getElementById('kt-guest-attendance-hide-9999'))return;
+  var s=document.createElement('style');
+  s.id='kt-guest-attendance-hide-9999';
+  var guest='html.kt-remote-viewing #screen ';
+  var scoped=['.kt-live-attendance','.kgh-attend','.kt-attendance-check','.kt-attendance-btn','.kt-attendance-like-count','[data-kt-attendance]','[aria-label="하트 출석체크"]'];
+  var selectors=[];
+  scoped.forEach(function(x){selectors.push(guest+x);});
+  ['.kt-guest-room','.kt-approved-guest-room','.kt-prejoin-room','.kt-guest-hostlike-room','.kt-remote-live'].forEach(function(root){scoped.forEach(function(x){selectors.push('#screen '+root+' '+x);});});
+  s.textContent=selectors.join(',')+'{display:none!important;visibility:hidden!important;pointer-events:none!important}';
+  (document.head||document.documentElement).appendChild(s);
+})();
