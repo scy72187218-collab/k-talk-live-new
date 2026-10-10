@@ -1276,81 +1276,32 @@ html.kt-guest-title-one-line .header .brand .live{font-size:clamp(16px,4.2vw,25p
 <script src="legacy-old-controls-remove-20261005.js?v=20261005-remove-old1150617"></script>
 <script src="host-instant-join-leave-ai-20261006.js?v=20261006-instant-join-leave-1406"></script>
 
-<!-- Guest-only attendance display guard: all room types; host unchanged. -->
-<style id="ktGuestAttendanceHide9999">
-html.kt-remote-viewing #screen .kgh-attend,
+<!-- Guest-only attendance: one scoped rule, no DOM deletion or repeated repaint. Host unchanged. -->
+<style id="ktGuestAttendanceGuard9999">
 html.kt-remote-viewing #screen .kt-live-attendance,
+html.kt-remote-viewing #screen .kgh-attend,
 html.kt-remote-viewing #screen .kt-attendance-check,
 html.kt-remote-viewing #screen .kt-attendance-btn,
 html.kt-remote-viewing #screen .kt-attendance-like-count,
 html.kt-remote-viewing #screen .kt-attendance-heart-badge,
 html.kt-remote-viewing #screen .kt-attendance-room-count,
 html.kt-remote-viewing #screen [data-kt-attendance],
-#screen .kt-guest-hostlike-room .kgh-attend,
-#screen .kt-approved-guest-room .kt-attendance-like-count,
-#screen .kt-guest-room .kt-attendance-like-count,
-#screen .kt-guest-hostlike-room .kt-attendance-room-count,
-#screen .kt-guest-hostlike-room .kt-attendance-heart-badge,
-#screen .kt-approved-guest-room .kt-attendance-room-count,
-#screen .kt-approved-guest-room .kt-attendance-heart-badge,
-#screen .kt-guest-room .kt-attendance-room-count,
-#screen .kt-guest-room .kt-attendance-heart-badge,
-#screen .kt-prejoin-room .kt-attendance-room-count,
-#screen .kt-prejoin-room .kt-attendance-heart-badge,
-#screen .kt-prejoin-room .kt-attendance-like-count{display:none!important;visibility:hidden!important;pointer-events:none!important}
-</style>
-<!-- 9999: guest-only attendance duplicate guard. Never touch host rooms. -->
-<style id="ktGuestAttendanceAllRoomsGuard9999">
-html.kt-remote-viewing #screen [class*="attend"],
-html.kt-remote-viewing #screen [class*="Attend"],
-#screen .kt-remote-live [class*="attend"],
-#screen .kt-remote-live [class*="Attend"],
-#screen .kt-guest-hostlike-room [class*="attend"],
-#screen .kt-approved-guest-room [class*="attend"],
-#screen .kt-guest-room [class*="attend"],
-#screen .kt-prejoin-room [class*="attend"] {display:none!important;visibility:hidden!important;pointer-events:none!important}
-</style>
-<!-- Guest attendance visibility only. Host and all other controls unchanged. -->
-<style id="ktGuestAttendanceFinalOnly20261010">
-html.kt-remote-viewing .kt-live-attendance,
-html.kt-remote-viewing .kgh-attend,
-html.kt-remote-viewing .kt-attendance-like-count,
-html.kt-remote-viewing .kt-attendance-heart-badge,
-html.kt-remote-viewing .kt-attendance-room-count,
-html.kt-remote-viewing .kt-attendance-check,
-html.kt-remote-viewing .kt-attendance-btn,
-html.kt-remote-viewing [data-kt-attendance],
-#screen .kt-guest-room .kt-live-attendance,
-#screen .kt-approved-guest-room .kt-live-attendance,
-#screen .kt-prejoin-room .kt-live-attendance,
-#screen .kt-guest-hostlike-room .kt-live-attendance {display:none!important;visibility:hidden!important;pointer-events:none!important}
-</style>
-<style id="ktGuestAttendanceSingleGuard20261010">
-html.kt-remote-viewing #screen .kt-attendance-like-count,
+#screen .kt-remote-live .kt-live-attendance,
+#screen .kt-remote-live .kgh-attend,
 #screen .kt-remote-live .kt-attendance-like-count,
+#screen .kt-guest-room .kt-live-attendance,
+#screen .kt-guest-room .kgh-attend,
 #screen .kt-guest-room .kt-attendance-like-count,
+#screen .kt-approved-guest-room .kt-live-attendance,
+#screen .kt-approved-guest-room .kgh-attend,
 #screen .kt-approved-guest-room .kt-attendance-like-count,
+#screen .kt-prejoin-room .kt-live-attendance,
+#screen .kt-prejoin-room .kgh-attend,
 #screen .kt-prejoin-room .kt-attendance-like-count,
-#screen .kt-guest-hostlike-room .kt-attendance-like-count{display:none!important}
+#screen .kt-guest-hostlike-room .kt-live-attendance,
+#screen .kt-guest-hostlike-room .kgh-attend,
+#screen .kt-guest-hostlike-room .kt-attendance-like-count {
+ display:none!important;visibility:hidden!important;pointer-events:none!important;
+}
 </style>
-<script id="ktGuestAttendanceSingleGuardScript20261010">
-(function(){
-  function clean(){
-    var screen=document.getElementById('screen');if(!screen)return;
-    var remote=document.documentElement.classList.contains('kt-remote-viewing');
-    screen.querySelectorAll('button,[role="button"],.kt-attendance-like-count').forEach(function(el){
-      var guest=remote||!!el.closest('.kt-remote-live,.kt-guest-room,.kt-approved-guest-room,.kt-prejoin-room,.kt-guest-hostlike-room');
-      if(!guest)return;
-      var label=(el.getAttribute('aria-label')||'')+' '+(el.textContent||'');
-      if(/출석\s*(체크|완료)|하트\s*출석체크/.test(label) || el.classList.contains('kt-attendance-like-count'))
-        el.style.setProperty('display','none','important');
-    });
-  }
-  var pending=false;
-  function schedule(){if(pending)return;pending=true;requestAnimationFrame(function(){pending=false;clean();});}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedule);else schedule();
-  new MutationObserver(schedule).observe(document.getElementById('screen')||document.documentElement,{childList:true,subtree:true});
-  document.addEventListener('kt-room-entered',schedule);
-})();
-</script>
 </html>
