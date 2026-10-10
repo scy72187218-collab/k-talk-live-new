@@ -1122,7 +1122,10 @@
       resetViewerGuestPc(viewerGuest.pc);
     }
 
-    removePrejoinRoomGrid();
+    /* 13명 게스트는 승인해도 첫 화면을 제거하거나 두 번째 화면으로 전환하지 않는다. */
+    var kt13Name='';
+    try{var kt13Room=window.__ktLastLiveRoom||{};kt13Name=[kt13Room.room_type,kt13Room.room_name,kt13Room.title,window.__ktRemoteRoomType,window.__ktRemoteRoomName].filter(Boolean).join(' ');}catch(e){}
+    if(!/13\s*명|group13/i.test(kt13Name))removePrejoinRoomGrid();
 
     if(viewerGuest.pc)resetViewerGuestPc(viewerGuest.pc);
     stopLocalGuestViewGuard();
