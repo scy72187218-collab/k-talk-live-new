@@ -512,6 +512,15 @@
       }
       var preRoot=document.querySelector('.kt-remote-live');
       var preInfo=preRoot?roomInfo(preRoot):null;
+      /* 13-person guest only: retire legacy UI overlays, keep live video and signaling. */
+      if(preRoot && preInfo && preInfo.is13){
+        preRoot.querySelectorAll('.kt-remote-attendance,.kt-live-attendance,.ktg13-attend,.kgh-attend,.kt-remote-watch-tv,.kt-remote-co-watch,.kt-approved-attendance-heart-count').forEach(function(el){try{el.remove();}catch(e){}});
+        if(!document.getElementById('kt13LegacyOverlayRetired')){
+          var hide=document.createElement('style');hide.id='kt13LegacyOverlayRetired';
+          hide.textContent='.kt-remote-live.kt-g13-guest-hide-attendance-heart .kt-remote-attendance,.kt-remote-live.kt-g13-guest-hide-attendance-heart .kt-live-attendance,.kt-remote-live.kt-g13-guest-hide-attendance-heart .ktg13-attend,.kt-remote-live.kt-g13-guest-hide-attendance-heart .kgh-attend,.kt-remote-live.kt-g13-guest-hide-attendance-heart .kt-remote-watch-tv,.kt-remote-live.kt-g13-guest-hide-attendance-heart .kt-remote-co-watch,.kt-remote-live.kt-g13-guest-hide-attendance-heart .kt-approved-attendance-heart-count{display:none!important}';
+          document.head.appendChild(hide);
+        }
+      }
       /* Always clean the 13-person guest overlay before a prejoin layout can return early. */
       if(preRoot && preInfo && preInfo.is13){
         preRoot.classList.add('kt-g13-guest-hide-attendance-heart');
