@@ -28,7 +28,7 @@ html.kt-remote-viewing .live-prep{
 
 
 <style id="ktRoomWaveOnly">
-/* 방송 파장만: 1인/13명/구독자/비밀방 모두 동일 */
+/* 방송 파장 표시 */
 .kt-room-live-wave{
   position:absolute;left:12px;right:12px;bottom:150px;height:70px;z-index:4;
   display:flex;align-items:center;justify-content:center;gap:2px;
@@ -340,27 +340,7 @@ body.kt-video-mode .bottom .plus b{width:56px!important;height:46px!important;fo
 
      /* 모든 방 카운트다운 제거: 바로 방송 시작 */
      if(window.startTestBroadcast){
-       var is13=false;
-       try{
-         is13=!!(window.state&&(
-           state.liveRoomType==='group13'||
-           state.liveRoomType==='group15'||
-           (state.liveRoomType==='group'&&(Number(state.liveRoomMax||0)===13||Number(state.liveRoomMax||0)===16))||
-           String(state.liveRoomName||'')==='13명 방송'||
-           String(state.liveRoomName||'')==='15명 방송'
-         ));
-       }catch(_e){}
-       if(is13&&typeof window.ktOpenApprovedGroup13Now==='function'){
-         /* 13명방에서는 예전 테스트 방송 화면을 절대 만들지 않는다.
-            카운트다운 뒤 바로 현재 승인된 13명방만 연다. */
-         try{
-           var cr=window.creator||document.getElementById('creator');
-           if(cr)cr.classList.remove('show','live-prep-open');
-         }catch(_e){}
-         window.ktOpenApprovedGroup13Now(true);
-       }else{
-         await window.startTestBroadcast();
-       }
+       await window.startTestBroadcast();
      }else{
        throw new Error('broadcast screen not available');
      }
@@ -740,7 +720,7 @@ window.openRoomPrep=function(name,max){
     for(var wi=0;wi<64;wi++){
       waveBars+='<span style="animation-duration:'+(0.60+(wi%9)*0.055).toFixed(3)+'s"></span>';
     }
-    var liveWave=(['solo','general','group','group13','subscriber','password'].indexOf(liveRoomType)>-1)
+    var liveWave=(['solo','general','group','subscriber','password'].indexOf(liveRoomType)>-1)
       ?'<div class="kt-room-live-wave" aria-hidden="true">'+waveBars+'</div>'
       :'';
     if(window.state){
