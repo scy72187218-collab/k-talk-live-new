@@ -512,6 +512,15 @@
       }
       var preRoot=document.querySelector('.kt-remote-live');
       var preInfo=preRoot?roomInfo(preRoot):null;
+      /* Use selected broadcast metadata when the 13-person room header is not yet rendered.
+         Only run inside the remote viewer, never on the host screen. */
+      if(preRoot && !preInfo && document.documentElement.classList.contains('kt-remote-viewing')){
+        var selected=window.__ktLastLiveRoom||{};
+        var selectedLabel=[selected.room_name,selected.room_type,selected.title,window.__ktRemoteRoomName,window.__ktRemoteRoomType].filter(Boolean).join(' ');
+        if(/13\\s*명|group13/i.test(selectedLabel)&&!/15\\s*명|16\\s*명|구독자|subscriber/i.test(selectedLabel)){
+          preInfo={is13:true,is15:false,is16:false,total:13,gridTotal:13,label:'13명 방송'};
+        }
+      }
       /* 13-person guest only: retire legacy UI overlays, keep live video and signaling. */
       if(preRoot && preInfo && preInfo.is13){
         preRoot.querySelectorAll('.kt-remote-attendance,.kt-live-attendance,.ktg13-attend,.kgh-attend,.kt-remote-watch-tv,.kt-remote-co-watch,.kt-approved-attendance-heart-count').forEach(function(el){try{el.remove();}catch(e){}});
