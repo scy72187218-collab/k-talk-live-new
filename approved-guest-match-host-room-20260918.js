@@ -515,7 +515,7 @@
       /* 13명 게스트방의 출석 체크/채팅 하트만 렌더 순간부터 숨김.
          영상 연결 및 다른 방의 동작은 변경하지 않는다. */
       if(root){
-        root.classList.toggle('kt-g13-guest-hide-attendance-heart',!!(preInfo&&preInfo.is13));
+        root.classList.toggle('kt-g13-guest-hide-attendance-heart',!!((preInfo&&preInfo.is13)||root.classList.contains('kt-g13-guest-hide-attendance-heart')&&(!preInfo||!preInfo.is16)&&!!root.querySelector('.kt-guest-hostlike-room,.kt-approved-guest-room')));
       }
       removeGuestAttendanceAndChatHeart8888(root);
       removeGuest13ChatHeart20261004(root);
