@@ -543,14 +543,6 @@
           document.head.appendChild(hide);
         }
       }
-      /* Legacy 13-person guest renderer retired: use only the isolated fresh renderer. */
-      if(preRoot && preInfo && preInfo.is13){
-        if(typeof window.ktBuildFresh13GuestRoom==='function'){
-          window.ktBuildFresh13GuestRoom(preRoot);
-        }
-        preRoot.classList.add('kt-g13-guest-hide-attendance-heart');
-        return;
-      }
       /* Always clean the 13-person guest overlay before a prejoin layout can return early. */
       if(preRoot && preInfo && preInfo.is13){
         preRoot.classList.add('kt-g13-guest-hide-attendance-heart');
