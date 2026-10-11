@@ -594,6 +594,7 @@
     }catch(e){
       connecting=false;
       setState({connected:false,connecting:false,lastError:String(e&&e.message||e)});
+      try{console.warn('K-Talk LIVE video connection: '+String(e&&e.message||e));}catch(_logError){}
       return null;
     }
   }
