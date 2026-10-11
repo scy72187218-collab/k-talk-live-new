@@ -178,12 +178,47 @@
 
   /* 4444: 정상 구독자 호스트방 렌더러를 새 게스트방에서도 재사용할 수 있게 공개만 한다. */
   window.ktRenderSubscriberHostRoom4444=renderApprovedSubscriber;
-  // Build the existing host layout off-screen without starting a camera or broadcast.
-  window.ktBuildSubscriberViewerTemplate20261012=function(){
-    var target=document.createElement('div');
-    renderApprovedSubscriber(target);
-    return target;
-  };
+
+  // Host and viewer share renderApprovedSubscriber; only role-specific controls differ.
+  function renderSubscriberViewer(){
+    var root=document.querySelector('#screen .kt-remote-live[data-kt-room-type="subscriber"]');
+    if(!root)return;
+    var room=root.querySelector('[data-kt-subscriber-viewer="1"]');
+    if(!room){
+      var video=root.querySelector('#ktRemoteLiveVideo');
+      if(!video)return;
+      var target=document.createElement('div');
+      renderApprovedSubscriber(target);
+      room=target.querySelector('.ktsubscriber-room');
+      var style=target.querySelector('#ktSubscriberApprovedStyle');
+      if(!room||!style)return;
+      room.classList.replace('ktsubscriber-room','kt-subscriber-viewer-room');
+      room.setAttribute('data-kt-subscriber-viewer','1');
+      style.id='ktSubscriberSharedViewerStyle20261012';
+      style.textContent=style.textContent.replace(/\.ktsubscriber-room/g,'.kt-subscriber-viewer-room');
+      style.textContent+='#screen .kt-subscriber-viewer-room .ktsubscriber-stage{grid-template-columns:minmax(0,1fr)!important}#screen .kt-subscriber-viewer-room .ktsubscriber-people{grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:repeat(5,minmax(0,1fr))!important}.kt-remote-live:has([data-kt-subscriber-viewer="1"])>.kt-remote-top{display:none!important}#screen .kt-subscriber-viewer-room #ktRemoteLiveVideo{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;transform:none!important}.kt-remote-live:has([data-kt-subscriber-viewer="1"])>.kt-remote-status{top:40%;pointer-events:none}#screen .kt-subscriber-viewer-room .ktsubscriber-tools{visibility:hidden}';
+      room.querySelector('#ktLiveVideo').replaceWith(video);
+      room.querySelector('.ktsubscriber-back').setAttribute('onclick','if(window.ktLeaveRemoteLive)ktLeaveRemoteLive()');
+      room.querySelectorAll('.ktsubscriber-gift').forEach(function(button){button.setAttribute('onclick','if(window.ktRemoteOpenGifts)ktRemoteOpenGifts()');});
+      var chat=room.querySelector('.ktsubscriber-chat');
+      chat.removeAttribute('onclick');
+      room.querySelector('.ktsubscriber-earnhud').removeAttribute('onclick');
+      root.prepend(style,room);
+    }
+    // Preserve the original guest chat and join controls, including their handlers.
+    var footer=root.querySelector('.kt-remote-bottom');
+    if(footer&&!room.contains(footer))room.querySelector('.ktsubscriber-tools').appendChild(footer);
+    if(footer)footer.style.setProperty('visibility','visible','important');
+    var remoteChat=root.querySelector('.kt-remote-chat');
+    if(remoteChat&&!room.contains(remoteChat))room.querySelector('.ktsubscriber-chat').appendChild(remoteChat);
+  }
+  window.ktRenderSubscriberRemoteRoom20261012=renderSubscriberViewer;
+  var subscriberViewerQueued=false;
+  new MutationObserver(function(){
+    if(subscriberViewerQueued)return;
+    subscriberViewerQueued=true;
+    setTimeout(function(){subscriberViewerQueued=false;renderSubscriberViewer();},0);
+  }).observe(document.getElementById('screen')||document.documentElement,{childList:true,subtree:true});
 
   window.startBroadcast=async function(){
     var subscriber=isSubscriber();
