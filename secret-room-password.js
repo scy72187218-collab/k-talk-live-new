@@ -347,7 +347,14 @@
         try{if(window.ensureLiveCamera)await window.ensureLiveCamera('user');}catch(e){}
       }
       var result=await oldStart.apply(this,arguments);
-      if(secret&&!document.querySelector('#screen .ktsecret-room'))renderSecretRoom();
+      if(secret){
+        // Keep the authenticated secret-room route and view; do not fall through to the 9-person room.
+        if(window.state){state.liveRoomType='password';state.liveRoomName='비밀방';state.liveRoomMax=6;state.roomType='password';}
+        if(!document.querySelector('#screen .ktsecret-room'))renderSecretRoom();
+        setTimeout(function(){
+          if(window.state&&state.liveRoomType==='password'&&!document.querySelector('#screen .ktsecret-room'))renderSecretRoom();
+        },120);
+      }
       return result;
     };
   }
