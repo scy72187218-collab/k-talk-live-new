@@ -30,7 +30,7 @@
   load('chat-benefit-ai-reader.js','__ktChatBenefitAIReaderInstalled',function(){
     load('live-presence.js?v=20260918-live-off-stable1','__ktLivePresenceInstalled',function(){
       load('live-video-discovery.js?v=20260919-no-plus-bell1','__ktLiveVideoDiscoveryInstalled',function(){
-        load('live-viewer-interactions.js?v=20261011-host-attendance-guest-bar1','__ktLiveViewerInteractionInstalled');
+        load('live-viewer-interactions.js?v=20261011-chat-full-history1','__ktLiveViewerInteractionInstalled');
       });
     });
   });
@@ -46,7 +46,7 @@
   load('creator-person-smaller-only-20260917.js','__ktCreatorPersonSmallerOnly20260917');
   load('participant-photo-wave-only-20260915.js','__ktParticipantPhotoWaveOnly20260915');
   load('gift-balance-box-20260915.js','__ktGiftBalanceBox20260915');
-  load('group13-approved-room.js?v=20260918-chat-above-tools1','__ktGroup13ApprovedRoomInstalled');
+  load('group13-approved-room.js?v=20261011-chat-full-history1','__ktGroup13ApprovedRoomInstalled');
   load('feed-swipe-playback-fix.js','__ktFeedSwipePlaybackFixInstalled',function(){
     load('broadcast-video-resume-fix.js','__ktBroadcastVideoResumeFixInstalled');
   });

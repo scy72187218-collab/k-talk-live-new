@@ -35,6 +35,11 @@
   to{transform:translateY(0);opacity:1}
 }
 
+/* 13명방: 메시지 수에 관계없이 행을 압축하지 않고 경계 안에서 위로 쌓는다. */
+#screen .ktg13-room[data-kt-room="13"] .ktg13-chat-line,
+#screen .kt-shared13-remote .kt-remote-chat-line{flex:0 0 auto!important;min-height:min-content!important;overflow-wrap:anywhere!important}
+#screen .ktg13-room[data-kt-room="13"] .ktg13-chat-line span{min-width:0!important;overflow-wrap:anywhere!important}
+
 /* 1인방/비밀방은 현재 정상 위치를 그대로 유지하고 떠 보이는 표시만 적용 */
 .ktsolo-chat,.ktsecret-chat{
   z-index:18!important;

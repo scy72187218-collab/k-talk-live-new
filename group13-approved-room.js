@@ -109,11 +109,28 @@
     for(var i=0;i<count;i++)s+='<div class="ktg13-guest"><span>게스트</span></div>';
     return s;
   }
+  function ensureGuestChatButton(root){
+    var bar=root.querySelector('#ktRemoteBottom'),input=root.querySelector('#ktRemoteChatInput');
+    if(!bar||!input||bar.querySelector('[data-kt-chat-open]'))return;
+    var button=document.createElement('button');
+    button.type='button';button.className='kt-remote-action';button.setAttribute('data-kt-chat-open','1');
+    button.setAttribute('aria-label','채팅 입력 열기');button.textContent='💬';
+    button.style.setProperty('border-radius','50%','important');
+    button.style.setProperty('background','#26262d','important');
+    function close(){input.style.setProperty('display','none','important');button.style.removeProperty('display');}
+    button.addEventListener('click',function(){
+      button.style.setProperty('display','none','important');input.style.setProperty('display','block','important');
+      try{input.focus({preventScroll:true});}catch(e){input.focus();}
+    });
+    input.addEventListener('blur',close);
+    bar.insertBefore(button,input);close();
+  }
+
   function renderChat(){
     var box=document.getElementById('ktg13ChatList');
     if(!box)return;
     var msgs=window.ktGroup13ChatMessages||[];
-    box.innerHTML=msgs.slice(-6).map(function(m){
+    box.innerHTML=msgs.slice(-80).map(function(m){
       return '<div class="ktg13-chat-line"><b>'+esc(m.name||'나')+'</b><span>'+esc(m.text||'')+'</span></div>';
     }).join('');
     box.scrollTop=box.scrollHeight;
@@ -357,6 +374,7 @@
     if(video.parentElement!==hostCell)hostCell.appendChild(video);
     var hs=window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream;
     if(hs&&video.srcObject!==hs){video.srcObject=hs;var hp=video.play();if(hp&&hp.catch)hp.catch(function(){});}
+    ensureGuestChatButton(root);
     var chat=root.querySelector('#ktRemoteChatList');
     if(chat&&chat.parentElement!==room.querySelector('.ktg13-mid'))room.querySelector('.ktg13-mid').prepend(chat);
     var r=window.__ktLastLiveRoom||{},begun=Date.parse(r.started_at||r.created_at||'');
