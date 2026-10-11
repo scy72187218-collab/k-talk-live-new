@@ -182,7 +182,7 @@
     heart.textContent='💗 '+String(n);
 
     var host13=room.matches('.ktg13-room[data-kt-approved13="1"][data-kt-room="13"]');
-    if(host13&&btn.closest('.ktg13-title-row')){
+    if(btn.closest('.kt-host-unified-title')||(host13&&btn.closest('.ktg13-title-row'))){
       heart.textContent='💗 '+String(n)+'명';
       heart.setAttribute('aria-label','출석 인원 '+n+'명');
       if(btn.nextElementSibling!==heart)btn.insertAdjacentElement('afterend',heart);
