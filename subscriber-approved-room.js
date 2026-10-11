@@ -199,11 +199,18 @@
       style.textContent+='#screen .kt-subscriber-viewer-room .ktsubscriber-stage{grid-template-columns:minmax(0,1fr)!important}#screen .kt-subscriber-viewer-room .ktsubscriber-people{grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:repeat(5,minmax(0,1fr))!important}.kt-remote-live:has([data-kt-subscriber-viewer="1"])>.kt-remote-top{display:none!important}#screen .kt-subscriber-viewer-room #ktRemoteLiveVideo{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;transform:none!important}.kt-remote-live:has([data-kt-subscriber-viewer="1"])>.kt-remote-status{top:40%;pointer-events:none}#screen .kt-subscriber-viewer-room .ktsubscriber-tools{visibility:hidden}';
       room.querySelector('#ktLiveVideo').replaceWith(video);
       room.querySelector('.ktsubscriber-back').setAttribute('onclick','if(window.ktLeaveRemoteLive)ktLeaveRemoteLive()');
-      room.querySelectorAll('.ktsubscriber-gift').forEach(function(button){button.setAttribute('onclick','if(window.ktRemoteOpenGifts)ktRemoteOpenGifts()');});
+      room.querySelectorAll('.ktsubscriber-att,.kt-attendance-heart-badge,.ktsubscriber-gifts,.ktsubscriber-earn').forEach(function(el){el.remove();});
       var chat=room.querySelector('.ktsubscriber-chat');
       chat.removeAttribute('onclick');
-      room.querySelector('.ktsubscriber-earnhud').removeAttribute('onclick');
+
       root.prepend(style,room);
+    }
+    // Legacy attendance is not part of the subscriber guest screen.
+    if(!root.querySelector('#ktSubscriberGuestOnlyCleanup20261012')){
+      var cleanup=document.createElement('style');
+      cleanup.id='ktSubscriberGuestOnlyCleanup20261012';
+      cleanup.textContent='#screen .kt-remote-live[data-kt-room-type="subscriber"] #ktRemoteAttendance{display:none!important}#screen .kt-remote-live[data-kt-room-type="subscriber"] .ktsubscriber-info{grid-template-columns:minmax(0,1fr)!important}';
+      root.appendChild(cleanup);
     }
     // Preserve the original guest chat and join controls, including their handlers.
     var footer=root.querySelector('.kt-remote-bottom');
