@@ -116,12 +116,10 @@
 
     var clock=r.querySelector('#ktLiveClock');
     if(!clock)return;
-    var titleRow=r.querySelector('.ktg13-host-head .ktg13-title-row');
 
     var old=r.querySelector('.kt-clock-like-20260927');
     if(old){
-      if(titleRow){if(old.parentElement!==titleRow)titleRow.appendChild(old);}
-      else if(old.previousElementSibling!==clock)clock.insertAdjacentElement('afterend',old);
+      if(old.previousElementSibling!==clock)clock.insertAdjacentElement('afterend',old);
       paint();
       return;
     }
@@ -136,8 +134,7 @@
       if(typeof window.addHostLike==='function')window.addHostLike(1);
       else{loadCount();count+=1;saveCount();paint();}
     });
-    if(titleRow)titleRow.appendChild(b);
-    else clock.insertAdjacentElement('afterend',b);
+    clock.insertAdjacentElement('afterend',b);
   }
 
   /* 호스트 사진을 누를 때마다 시계 옆 하트 숫자 +1. 게스트 화면은 제외. */
