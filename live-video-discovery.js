@@ -498,6 +498,13 @@
 
     var rooms=await activeRooms();
 
+    // Keep server-observed LIVE metadata separate from legacy shell overrides.
+    var entryRooms={};
+    rooms.forEach(function(room){
+      if(room&&room.host_id)entryRooms[String(room.host_id)]=Object.assign({},room);
+    });
+    window.__ktLiveEntryRooms20261011={at:Date.now(),rooms:entryRooms};
+
     /* 방송 종료 신호가 확인되면 다른 조회를 기다리지 않고 빨간 LIVE부터 즉시 내린다. */
     if(!rooms.length){
       if(old)old.remove();

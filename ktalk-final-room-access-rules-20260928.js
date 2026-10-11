@@ -162,6 +162,10 @@
     /* 입장 속도: 화면에 이미 잡혀 있는 현재 LIVE 메타가 있으면 즉시 사용.
        없을 때만 서버 조회. 방 권한 규칙/레이아웃은 변경하지 않음. */
     try{
+      var observed=window.__ktLiveEntryRooms20261011;
+      var age=observed?Date.now()-observed.at:-1;
+      var selected=age>=0&&age<5000&&observed.rooms&&observed.rooms[String(hostId||'')];
+      if(selected&&(selected.room_type||selected.room_name))return selected;
       var cached=window.__ktLastLiveRoom||null;
       if(cached&&String(cached.host_id||'')===String(hostId||'')&&(cached.room_type||cached.room_name)){
         return cached;

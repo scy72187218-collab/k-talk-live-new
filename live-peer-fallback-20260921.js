@@ -426,9 +426,12 @@
     try{
       /* Primary path: cluster-wide Supabase Realtime signaling.
          Only draw the room shell here; direct-realtime-webrtc owns video receive. */
-      // The final entry owner must resolve this host's actual broadcast, not
-      // reuse an earlier nine-room shell cached by another LIVE entry handler.
-      var room=await beaconRoom(hostId)||cached;
+      // Restore fast entry from freshly observed LIVE metadata, never a shell
+      // synthesized by legacy nine-room handlers. Unknown/stale rooms revalidate.
+      var observed=window.__ktLiveEntryRooms20261011;
+      var fresh=observed&&Date.now()-observed.at>=0&&Date.now()-observed.at<5000;
+      var selected=fresh&&observed.rooms&&observed.rooms[hostId];
+      var room=selected||await beaconRoom(hostId)||cached;
       if(room&&/subscriber|구독|password|secret|비밀/i.test([room.room_type,room.room_name].join(' '))){
         window.__ktForceNineViewerShellHost20261003='';
       }
