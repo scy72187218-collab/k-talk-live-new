@@ -1,0 +1,21 @@
+<!doctype html><meta charset="utf-8"><title>Solo person scale verification</title>
+<style>body{background:#111;color:white;font:16px sans-serif}canvas,video{width:180px;height:320px;object-fit:cover}#screen{display:inline-block}button{padding:12px}</style>
+<button id="run">Run compositor test</button><button id="leave">Leave solo room</button><button id="failure">Test failure fallback</button><button id="real">Test real model</button><pre id="status">Ready</pre>
+<canvas id="input" width="360" height="640"></canvas><div id="screen"><section class="ktsolo-room"><video id="ktLiveVideo" autoplay muted playsinline></video></section></div>
+<script>
+var source=document.getElementById('input'),ctx=source.getContext('2d');ctx.fillStyle='#2875b0';ctx.fillRect(0,0,360,640);ctx.fillStyle='#ff3020';ctx.fillRect(120,100,120,440);
+var mask=document.createElement('canvas');mask.width=360;mask.height=640;var mc=mask.getContext('2d');mc.fillStyle='white';mc.fillRect(120,100,120,440);
+var original=source.captureStream(15);var state={stream:original};document.getElementById('ktLiveVideo').srcObject=original;var fail=false;
+window.SelfieSegmentation=class{setOptions(){}onResults(fn){this.fn=fn;}async send(o){if(fail)throw Error('simulated model failure');this.fn({image:o.image,segmentationMask:mask});}async close(){}};
+</script><script src="solo-person-half-module.js"></script><script>
+var statusBox=document.getElementById('status');
+document.getElementById('run').onclick=async function(){
+ var ok=await ktSoloPersonHalfPrepare();var video=document.getElementById('ktLiveVideo');await new Promise(r=>setTimeout(r,300));
+ var check=document.createElement('canvas');check.width=360;check.height=640;var c=check.getContext('2d');c.drawImage(video,0,0,360,640);var p=c.getImageData(0,0,360,640).data;var minX=360,maxX=-1,minY=640,maxY=-1,black=0;
+ for(var y=0;y<640;y++)for(var x=0;x<360;x++){var i=(y*360+x)*4;if(p[i]>200&&p[i+1]<100){minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y);}if(p[i]+p[i+1]+p[i+2]<10)black++;}
+ statusBox.textContent=JSON.stringify({ok,frame:[video.videoWidth,video.videoHeight],person:[maxX-minX+1,maxY-minY+1],expected:[60,220],black,rawStillLive:original.getVideoTracks()[0].readyState,outputIsDifferent:state.stream!==original,pass:ok&&maxX-minX+1===60&&maxY-minY+1===220&&black===0},null,2);
+};
+document.getElementById('leave').onclick=async function(){document.querySelector('.ktsolo-room').className='other-room';await new Promise(r=>setTimeout(r,450));statusBox.textContent=JSON.stringify({restoredRaw:state.stream===original,rawLive:original.getVideoTracks()[0].readyState,pass:state.stream===original&&original.getVideoTracks()[0].readyState==='live'});};
+document.getElementById('failure').onclick=async function(){document.querySelector('#screen section').className='ktsolo-room';fail=true;var old=state.stream;var ok=await ktSoloPersonHalfPrepare();statusBox.textContent=JSON.stringify({ok,preservedRaw:state.stream===old,rawLive:old.getVideoTracks()[0].readyState,pass:!ok&&state.stream===old&&old.getVideoTracks()[0].readyState==='live'});};
+document.getElementById('real').onclick=async function(){delete window.SelfieSegmentation;fail=false;var script=document.createElement('script');script.src='https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1.1675465747/selfie_segmentation.js';await new Promise((resolve,reject)=>{script.onload=resolve;script.onerror=reject;document.head.appendChild(script);});var seg=new SelfieSegmentation({locateFile:f=>'https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1.1675465747/'+f});seg.setOptions({modelSelection:1});seg.onResults(r=>{statusBox.textContent=JSON.stringify({realModel:true,mask:!!r.segmentationMask,image:!!r.image,pass:!!r.segmentationMask&&!!r.image});});await seg.send({image:source});await seg.close();};
+</script>
