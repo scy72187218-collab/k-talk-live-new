@@ -27,3 +27,11 @@ Preserve the subscriber-room host and guest screens, video layout, header, chat 
 # Owner reaffirmation: three locked rooms (2026-10-11)
 
 The owner explicitly reaffirmed all three change locks: 9-person room 5051, 13-person room 5052, and subscriber room 5053. Do not modify any of these rooms or their behavior through shared code without explicit owner authorization for that specific change. This instruction authorizes policy recording only; it does not authorize runtime code changes, repairs, or release actions.
+
+# Secret-room owner change lock (5054)
+
+The owner approved and locked the current secret-room state on 2026-10-11 under maintenance identifier 5054. Recoverable runtime source commit: `682558343f7bdf8954d498846f8d1efa5bd28d20`.
+
+Preserve the secret room's host 1 + guest 5 (six total) seats. The last guest seat must remain one full cell; do not recreate the split pair or a sixth guest. Preserve secret-room layout, video, chat, buttons, password, invitation/follow conditions, camera/microphone, guest approval, gifts, and communications. Preserve the owner-authorized removal of broadcast room level gates. Change this locked behavior only when the owner explicitly authorizes the specific change; changes in shared files must preserve it. Existing 5051, 5052, and 5053 locks remain in effect.
+
+5054 is a maintenance change lock and recoverable source reference, not a room password or runtime access restriction. All existing runtime controls remain usable. This record does not claim phone broadcast verification. This request authorizes policy recording only.
