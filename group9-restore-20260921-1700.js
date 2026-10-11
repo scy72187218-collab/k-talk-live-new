@@ -105,6 +105,8 @@
   }
 
   function openNineRoomNow(){
+    if(window.__ktLiveChooserAwaitSelection)return false;
+    if(window.__ktLiveChooserSelection&&window.__ktLiveChooserSelection.type!=='group9')return false;
     try{
       
       forceNineState();
@@ -138,6 +140,8 @@
     return mo;
   }
   window.startBroadcast=async function(){
+    if(window.__ktLiveChooserAwaitSelection)return;
+    if(window.ktApplyLiveChooserSelection)window.ktApplyLiveChooserSelection();
     if(!isNine())return previousStart.apply(this,arguments);
 
     beginNineOpening();
