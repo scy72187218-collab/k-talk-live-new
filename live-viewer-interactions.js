@@ -162,7 +162,7 @@
     all.sort(function(a,b){return (Date.parse(a&&a.created_at)||0)-(Date.parse(b&&b.created_at)||0);});
     return all.slice(-80);
   }
-  function paintRemoteMessages(rows){var box=document.getElementById('ktRemoteChatList');if(!box)return;var list=(rows||[]).slice(box.closest('.kt-shared13-remote')?-80:-7);box.innerHTML=list.map(function(m){var sys=systemType(m.message_type);return '<div class="kt-remote-chat-line'+(sys?' system':'')+'"><b>'+(sys?'●':esc(m.sender_name||'게스트'))+'</b><span>'+esc(m.message||'')+'</span></div>';}).join('');box.scrollTop=box.scrollHeight;}
+  function paintRemoteMessages(rows){var box=document.getElementById('ktRemoteChatList');if(!box)return;var list=(rows||[]).slice(-80);box.innerHTML=list.map(function(m){var sys=systemType(m.message_type);return '<div class="kt-remote-chat-line'+(sys?' system':'')+'"><b>'+(sys?'●':esc(m.sender_name||'게스트'))+'</b><span>'+esc(m.message||'')+'</span></div>';}).join('');box.scrollTop=box.scrollHeight;}
   async function refreshRemote(){
     if(!remote.hostId||!document.querySelector('.kt-remote-live'))return;
     ensureRemoteUi();
@@ -326,7 +326,7 @@
     }
 
     var full13=box.el.closest('.ktg13-room[data-kt-room="13"]');
-    var list=hostChatStableBuffer.slice(full13?-40:-7);
+    var list=hostChatStableBuffer.slice(-40);
     if(!list.length)return;
 
     var html=list.map(function(m){

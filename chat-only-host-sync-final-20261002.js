@@ -102,7 +102,7 @@
       var rows=Array.isArray(j&&j.messages)?j.messages:[];
       return rows.filter(function(m){return String(m&&m.message_type||'')==='chat';})
                  .sort(function(a,b){return (Date.parse(a&&a.created_at)||0)-(Date.parse(b&&b.created_at)||0);})
-                 .slice(document.querySelector('#screen .kt-remote-live.kt-shared13-remote')?-80:-7);
+                 .slice(-80);
     }catch(e){return [];}
   }
 

@@ -36,8 +36,8 @@
 }
 
 /* 13명방: 메시지 수에 관계없이 행을 압축하지 않고 경계 안에서 위로 쌓는다. */
-#screen .ktg13-room[data-kt-room="13"] .ktg13-chat-line,
-#screen .kt-shared13-remote .kt-remote-chat-line{flex:0 0 auto!important;min-height:min-content!important;overflow-wrap:anywhere!important}
+#screen .ktg13-room .ktg13-chat-line,
+#screen .kt-remote-live .kt-remote-chat-line{flex:0 0 auto!important;min-height:min-content!important;overflow-wrap:anywhere!important}
 #screen .ktg13-room[data-kt-room="13"] .ktg13-chat-line span{min-width:0!important;overflow-wrap:anywhere!important}
 
 /* 1인방/비밀방은 현재 정상 위치를 그대로 유지하고 떠 보이는 표시만 적용 */
@@ -126,63 +126,29 @@
 
   /* 9명방 채팅의 마지막 줄을 하단 '매치' 버튼 바로 위에 맞춘다.
      다른 방/버튼/게스트칸은 건드리지 않음. */
-  function placeNineChat(){
-    try{
-      var room=document.querySelector('#screen .ktg13-room[data-kt-room="9"]');
-      if(!room)return;
-      var chat=room.querySelector('.ktg13-chat');
-      var match=room.querySelector('.ktg13-tools .ktg13-tool:first-child');
-      if(!chat||!match)return;
+  function placeNineChat(){placeThirteenHostChat();}
 
-      /* 9명방 채팅만: 화면에서 실제 매치 버튼 바로 위 4px에 고정.
-         다른 방/버튼/게스트/스위치/방송 기능은 건드리지 않음. */
-      var mr=match.getBoundingClientRect();
-      var rr=room.getBoundingClientRect();
-      var h=92;
-      var top=Math.round(mr.top-h-8);
-      if(!isFinite(top))return;
-
-      chat.style.setProperty('position','fixed','important');
-      chat.style.setProperty('left',Math.round(rr.left+10)+'px','important');
-      chat.style.setProperty('right','auto','important');
-      chat.style.setProperty('top',top+'px','important');
-      chat.style.setProperty('bottom','auto','important');
-      chat.style.setProperty('width',Math.max(220,Math.round((rr.width||window.innerWidth)*0.88))+'px','important');
-      chat.style.setProperty('height',h+'px','important');
-      chat.style.setProperty('min-height',h+'px','important');
-      chat.style.setProperty('max-height',h+'px','important');
-      chat.style.setProperty('padding','4px 6px','important');
-      chat.style.setProperty('margin','0','important');
-      chat.style.setProperty('display','flex','important');
-      chat.style.setProperty('flex-direction','column','important');
-      chat.style.setProperty('justify-content','flex-end','important');
-      chat.style.setProperty('overflow','hidden','important');
-      chat.style.setProperty('background','transparent','important');
-      chat.style.setProperty('border','0','important');
-      chat.style.setProperty('outline','0','important');
-      chat.style.setProperty('border-color','transparent','important');
-      chat.style.setProperty('border-radius','0','important');
-      chat.style.setProperty('box-shadow','none','important');
-      chat.style.setProperty('transform','none','important');
-      chat.style.setProperty('z-index','500','important');
-      chat.style.setProperty('pointer-events','none','important');
-      chat.dataset.ktNineChatAtMatch='fixed-exact-above-match-20260919-v4';
-    }catch(e){}
+  function guestBottom(grid){
+    var cells=grid.querySelectorAll?grid.querySelectorAll('.ktg13-host,.ktg13-guest'):[];
+    var bottom=0;
+    cells.forEach(function(cell){var r=cell.getBoundingClientRect();if(r.width&&r.height)bottom=Math.max(bottom,r.bottom);});
+    return bottom||grid.getBoundingClientRect().bottom;
   }
 
   function placeThirteenGuestChat(){
     try{
-      var root=document.querySelector('#screen .kt-remote-live.kt-shared13-remote');
+      var root=document.querySelector('#screen .kt-remote-live');
       if(!root)return;
-      var room=root.querySelector('.ktg13-room[data-kt-remote13="1"]');
+      var room=root.querySelector('.ktg13-room[data-kt-room="13"],.ktg13-room[data-kt-room="9"]');
       var chat=root.querySelector('#ktRemoteChatList'),bar=root.querySelector('#ktRemoteBottom');
       var grid=room&&room.querySelector('.ktg13-main');
       if(!room||!chat||!bar||!grid)return;
       var rr=room.getBoundingClientRect(),br=bar.getBoundingClientRect(),gr=grid.getBoundingClientRect();
       if(!rr.width||!br.height)return;
-      var top=Math.round(gr.bottom+4),height=Math.max(0,Math.round(br.top-4)-top);
+      if(chat.parentElement&&chat.parentElement!==root)root.appendChild(chat);
+      var top=Math.round(guestBottom(grid)+4),height=Math.max(0,Math.round(br.top-4)-top);
       var values={position:'fixed',left:Math.round(rr.left+8)+'px',right:'auto',top:top+'px',bottom:'auto',
-        width:Math.max(0,Math.round(rr.width*0.58)-8)+'px',height:height+'px','min-height':height+'px','max-height':height+'px',
+        width:Math.max(0,Math.round(rr.width)-16)+'px',height:height+'px','min-height':height+'px','max-height':height+'px',
         'box-sizing':'border-box',padding:'0 4px',margin:'0',display:'flex','flex-direction':'column','justify-content':'flex-end',
         overflow:'hidden',background:'transparent',border:'0',transform:'none','z-index':'500','pointer-events':'none'};
       Object.keys(values).forEach(function(key){if(chat.style.getPropertyValue(key)!==values[key])chat.style.setProperty(key,values[key],'important');});
@@ -192,7 +158,7 @@
   function placeThirteenHostChat(){
     placeThirteenGuestChat();
     try{
-      var room=document.querySelector('#screen .ktg13-room[data-kt-room="13"]');
+      var room=document.querySelector('#screen .ktg13-room[data-kt-room="13"],#screen .ktg13-room[data-kt-room="9"]');
       if(!room||room.closest('.kt-remote-live')||room.hasAttribute('data-kt-remote13'))return;
       var chat=room.querySelector('.ktg13-chat');
       var tools=room.querySelector('.ktg13-tools');
@@ -200,12 +166,13 @@
       if(!chat||!tools||!grid)return;
       var rr=room.getBoundingClientRect(),tr=tools.getBoundingClientRect(),gr=grid.getBoundingClientRect();
       if(!rr.width||!tr.height)return;
-      var top=Math.round(gr.bottom+4);
+      if(chat.parentElement&&chat.parentElement!==room)room.appendChild(chat);
+      var top=Math.round(guestBottom(grid)+4);
       var height=Math.max(0,Math.round(tr.top-4)-top);
       var values={
         position:'fixed',left:Math.round(rr.left+8)+'px',right:'auto',
         top:top+'px',bottom:'auto',
-        width:Math.max(0,Math.round(rr.width*0.58)-8)+'px',
+        width:Math.max(0,Math.round(rr.width)-16)+'px',
         height:height+'px','min-height':height+'px','max-height':height+'px',
         'box-sizing':'border-box',padding:'0 4px',margin:'0',
         display:'flex','flex-direction':'column','justify-content':'flex-end',
