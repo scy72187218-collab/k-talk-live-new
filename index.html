@@ -1353,18 +1353,18 @@ html.kt-remote-viewing #screen [data-kt-attendance],
 <!-- Guest-only attendance deduplication guard 20261011 -->
 <style>
 /* Guest screens only. Hide attendance controls without altering host UI. */
-html.kt-remote-viewing #screen [class*="attendance" i],
-html.kt-remote-viewing #screen [class*="attend" i],
-#screen .kt-remote-live [class*="attendance" i],
-#screen .kt-remote-live [class*="attend" i],
-#screen .kt-guest-room [class*="attendance" i],
-#screen .kt-guest-room [class*="attend" i],
-#screen .kt-approved-guest-room [class*="attendance" i],
-#screen .kt-approved-guest-room [class*="attend" i],
-#screen .kt-prejoin-room [class*="attendance" i],
-#screen .kt-prejoin-room [class*="attend" i],
-#screen .kt-guest-hostlike-room [class*="attendance" i],
-#screen .kt-guest-hostlike-room [class*="attend" i]{
+html.kt-remote-viewing #screen button[class*="attendance" i],
+html.kt-remote-viewing #screen button[class*="attend" i],
+#screen .kt-remote-live button[class*="attendance" i],
+#screen .kt-remote-live button[class*="attend" i],
+#screen .kt-guest-room button[class*="attendance" i],
+#screen .kt-guest-room button[class*="attend" i],
+#screen .kt-approved-guest-room button[class*="attendance" i],
+#screen .kt-approved-guest-room button[class*="attend" i],
+#screen .kt-prejoin-room button[class*="attendance" i],
+#screen .kt-prejoin-room button[class*="attend" i],
+#screen .kt-guest-hostlike-room button[class*="attendance" i],
+#screen .kt-guest-hostlike-room button[class*="attend" i]{
  display:none!important;visibility:hidden!important;pointer-events:none!important;
 }
 </style>
