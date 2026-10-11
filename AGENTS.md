@@ -35,3 +35,11 @@ The owner approved and locked the current secret-room state on 2026-10-11 under 
 Preserve the secret room's host 1 + guest 5 (six total) seats. The last guest seat must remain one full cell; do not recreate the split pair or a sixth guest. Preserve secret-room layout, video, chat, buttons, password, invitation/follow conditions, camera/microphone, guest approval, gifts, and communications. Preserve the owner-authorized removal of broadcast room level gates. Change this locked behavior only when the owner explicitly authorizes the specific change; changes in shared files must preserve it. Existing 5051, 5052, and 5053 locks remain in effect.
 
 5054 is a maintenance change lock and recoverable source reference, not a room password or runtime access restriction. All existing runtime controls remain usable. This record does not claim phone broadcast verification. This request authorizes policy recording only.
+
+# Solo-room owner change lock (5155)
+
+The owner explicitly saved and locked the current solo broadcast state on 2026-10-11 under maintenance identifier 5155. Recoverable runtime source commit: `84a8efb01bc94830100a3dcedc51e8f6942288aa`.
+
+Preserve the current solo host camera, full-frame video fill, person size, background, header, chat display and input, buttons, camera/microphone controls, attendance, likes, gifts, earnings, and existing communication connections. Preserve the startup camera stability fix. The person-shrinking/background compositor was reverted at the owner's request and must remain removed; do not reintroduce it or change camera/person sizing without explicit owner authorization for that specific change. Shared-file changes for other rooms must preserve this solo-room state. Existing room locks 5051, 5052, 5053 and 5054 remain in effect.
+
+5155 is a maintenance change lock and recoverable source reference, not a runtime password or an access restriction. Runtime controls remain usable. This request authorizes policy recording only, not runtime modifications, and does not claim phone verification beyond what the owner reported.
