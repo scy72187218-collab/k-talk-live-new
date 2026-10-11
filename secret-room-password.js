@@ -114,7 +114,7 @@
       var r=oldSelect.apply(this,arguments);
       secretSetupRequested=(type==='password');
       if(window.state&&type==='password'){
-        state.liveRoomType='password';state.liveRoomName='비밀방';state.liveRoomMax=5;
+        state.liveRoomType='password';state.liveRoomName='비밀방';state.liveRoomMax=6;
         state.liveRoomPassword=getSaved();
         state.roomPassword=getSaved();
       }
@@ -129,7 +129,7 @@
       var r=oldOpenRoomPrep.apply(this,arguments);
       secretSetupRequested=String(name||'').indexOf('비밀')>-1;
       if(String(name||'').indexOf('비밀')>-1&&window.state){
-        state.liveRoomType='password';state.liveRoomName='비밀방';state.liveRoomMax=5;
+        state.liveRoomType='password';state.liveRoomName='비밀방';state.liveRoomMax=6;
         state.liveRoomPassword=getSaved();
         state.roomPassword=getSaved();
       }
@@ -306,7 +306,7 @@
       +'<section class="ktsecret-room">'
         +'<div class="ktsecret-head"><div class="kt-host-unified-column"><div class="ktsecret-left"><button class="ktsecret-back" onclick="if(window.leaveBroadcastToDashboard)leaveBroadcastToDashboard()">‹</button><div class="ktsecret-title"><i>●</i> 비밀방</div><button class="ktsecret-att" onclick="if(window.openAttendanceBenefits)openAttendanceBenefits()"><img src="attendance-wing.svg" alt=""><span>출석체크</span><img src="attendance-wing.svg" alt=""></button><span class="kt-attendance-heart-badge" aria-label="출석 인원 0명">💗 0명</span></div><div class="ktsecret-airrow"><span class="on">● ON AIR</span><span id="ktLiveClock">'+esc(clock)+'</span></div></div><div class="ktsecret-brand">K-Talk LIVE</div></div>'
         +'<div class="ktsecret-led"><div class="ktsecret-led-track"><span>💗 ✨ <b>K-Talk LIVE</b> 환영합니다 ✨ 💗</span><span>💗 ✨ <b>K-Talk LIVE</b> 환영합니다 ✨ 💗</span></div></div>'
-        +'<div class="ktsecret-main"><div class="ktsecret-six-grid"><div class="ktsecret-slot host"><video id="ktLiveVideo" autoplay playsinline muted></video><span class="ktsecret-slot-label">호스트</span></div><div class="ktsecret-slot"><div class="ktsecret-guest-wait"><b>+</b><span>게스트</span></div></div><div class="ktsecret-slot"><div class="ktsecret-guest-wait"><b>+</b><span>게스트</span></div></div><div class="ktsecret-slot"><div class="ktsecret-guest-wait"><b>+</b><span>게스트</span></div></div><div class="ktsecret-slot"><div class="ktsecret-guest-wait"><b>+</b><span>게스트</span></div></div></div><div class="ktsecret-shade"></div>'
+        +'<div class="ktsecret-main"><div class="ktsecret-six-grid"><div class="ktsecret-slot host"><video id="ktLiveVideo" autoplay playsinline muted></video><span class="ktsecret-slot-label">호스트</span></div><div class="ktsecret-slot ktsecret-guest"><div class="ktsecret-guest-wait"><b>+</b><span>게스트</span></div></div><div class="ktsecret-slot ktsecret-guest"><div class="ktsecret-guest-wait"><b>+</b><span>게스트</span></div></div><div class="ktsecret-slot ktsecret-guest"><div class="ktsecret-guest-wait"><b>+</b><span>게스트</span></div></div><div class="ktsecret-slot ktsecret-guest"><div class="ktsecret-guest-wait"><b>+</b><span>게스트</span></div></div><div class="ktsecret-slot ktsecret-guest"><div class="ktsecret-guest-wait"><b>+</b><span>게스트</span></div></div></div><div class="ktsecret-shade"></div>'
           
           +'<div class="ktsecret-wave">'+equalizerBars()+'</div>'
           +'<div id="ktsecretChatList" class="ktsecret-chat" style="left:8px!important;right:8px!important;bottom:70px!important"></div>'        +'<div class="ktsecret-earn-row"><button id="myEarnHud" onclick="toggleMyEarnings()"><div style="display:flex;align-items:center;justify-content:center;gap:5px"><span style="font-size:8px;color:#8fe8ff;font-weight:950;white-space:nowrap">🔒 내 수익</span><b id="hudEarnNet" style="font-size:12px;color:#ffe071;white-space:nowrap">'+esc(net)+'</b></div><div id="myEarnDetail" style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:2px;font-size:7px;color:#ddd"><span id="hudEarnRoses">'+esc(roses)+'</span><span id="hudEarnRate" style="text-align:right">'+esc(rate)+'</span></div></button></div>'

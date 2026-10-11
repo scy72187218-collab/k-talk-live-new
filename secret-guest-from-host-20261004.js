@@ -98,6 +98,7 @@
       +'<div class="kt-sgfh-cell" data-g="1"><div class="kt-sgfh-wait"><b>+</b><span>게스트</span></div></div>'
       +'<div class="kt-sgfh-cell" data-g="2"><div class="kt-sgfh-wait"><b>+</b><span>게스트</span></div></div>'
       +'<div class="kt-sgfh-cell" data-g="3"><div class="kt-sgfh-wait"><b>+</b><span>게스트</span></div></div>'
+      +'<div class="kt-sgfh-cell" data-g="4"><div class="kt-sgfh-wait"><b>+</b><span>게스트</span></div></div>'
       +'</div><div class="kt-sgfh-chat" id="ktSgfhChat"></div></div>'
       +'<div class="kt-sgfh-earn">🔒 내 수익 <b>0원</b><small>🌹 0송이 · 일반회원 35%</small></div>'
       +'<div class="kt-sgfh-bottom"><input id="ktSgfhChatInput" type="text" maxlength="100" placeholder="입력하세요..." aria-label="채팅 입력">'
