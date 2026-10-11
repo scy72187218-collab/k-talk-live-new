@@ -68,6 +68,8 @@
     try{
       var t=String((window.state&&state.liveRoomType)||'');
       var n=String((window.state&&state.liveRoomName)||'');
+      // Explicit room selection owns publication; stale nine-room DOM must not override it.
+      if(t&&t!=='group9')return false;
       if(t==='group9'||n==='9명 방송'){
         if(document.querySelector('.ktg13-room[data-kt-room="9"],.ktg13-room,#ktLiveVideo'))return true;
       }
