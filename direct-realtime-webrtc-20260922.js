@@ -324,6 +324,15 @@
     payload=payload||{};
     try{send(eventName,payload);}catch(e){}
     if(eventName==='video_ice'||eventName==='guest_ice'){
+      // Subscriber rooms retain every ICE route through the existing REST
+      // backup, as in the Oct 6 baseline, including later public/relay routes.
+      var remote=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||'');
+      var meta=remote?(window.__ktLastLiveRoom||{}):(window.state||{});
+      var kind=remote?String(window.__ktRemoteRoomType||meta.room_type||''):String(meta.liveRoomType||'');
+      if(kind==='subscriber'){
+        try{restBroadcastToHost20260926(hostId||payload.host_id||activeHostId,eventName,payload);}catch(e){}
+        return;
+      }
       /* Keep routine ICE on WebSocket. Back up only the first candidate for
          each peer/session through REST, so a lost early mobile WS signal does
          not leave the video black until a full reconnect. */
