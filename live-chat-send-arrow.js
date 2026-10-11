@@ -97,17 +97,18 @@
   }
 
   function ensureGuestChatButton(root){
-    var bar=root.querySelector('#ktRemoteBottom'),input=root.querySelector('#ktRemoteChatInput');
+    var bar=root.querySelector('.kt-sgfh-bottom')||root.querySelector('#ktRemoteBottom');
+    var input=bar&&bar.querySelector('input');
     if(!bar||!input)return;
     function style(el,values){Object.keys(values).forEach(function(k){if(el.style.getPropertyValue(k)!==values[k])el.style.setProperty(k,values[k],'important');});}
     style(bar,{display:'flex','flex-wrap':'nowrap','align-items':'center','justify-content':'flex-start',left:'6px',right:'6px','max-width':'calc(100% - 12px)',height:'48px','min-height':'48px','max-height':'48px',padding:'5px',gap:'3px',border:'1px solid #ffffff26','border-radius':'24px',background:'rgba(20,20,26,.94)',overflow:'hidden','box-sizing':'border-box'});
     style(input,{display:'block',flex:'1 1 0',width:'0','min-width':'0','max-width':'none',height:'36px','min-height':'36px','max-height':'36px',border:'0','border-radius':'0',background:'transparent',padding:'0 7px','font-size':'13px','box-sizing':'border-box'});
-    bar.querySelectorAll('button.kt-remote-action').forEach(function(btn){var chat=btn.hasAttribute('data-kt-chat-open');style(btn,{flex:'0 0 clamp(30px,9vw,40px)',width:'clamp(30px,9vw,40px)','min-width':'0',height:'36px','min-height':'36px','max-height':'36px',margin:'0',padding:'0',border:'0','border-radius':chat?'50%':'9px',background:chat?'#26262d':'transparent','font-size':'21px','box-sizing':'border-box'});});
-    if(root.classList.contains('kt-shared13-remote')){
+    bar.querySelectorAll('button.kt-remote-action,button[data-b]').forEach(function(btn){var chat=btn.hasAttribute('data-kt-chat-open');style(btn,{flex:'0 0 clamp(30px,9vw,40px)',width:'clamp(30px,9vw,40px)','min-width':'0',height:'36px','min-height':'36px','max-height':'36px',margin:'0',padding:'0',border:'0','border-radius':chat?'50%':'9px',background:chat?'#26262d':'transparent','font-size':'21px','box-sizing':'border-box'});});
+    { /* Same guest chat input and circular actions in every room. */
       style(bar,{background:'transparent',border:'0','border-radius':'0',padding:'2px 0',gap:'5px',overflow:'visible'});
       style(input,{display:'block','min-width':'60px',height:'40px','min-height':'40px','max-height':'40px',border:'1px solid #ffffff40','border-radius':'22px',background:'rgba(28,28,34,.92)',padding:'0 10px'});
-      bar.querySelectorAll('button.kt-remote-action').forEach(function(btn){
-        style(btn,{flex:'0 0 clamp(32px,10vw,44px)',width:'clamp(32px,10vw,44px)',height:'clamp(32px,10vw,44px)','min-height':'clamp(32px,10vw,44px)','max-height':'clamp(32px,10vw,44px)','border-radius':'50%',border:'1px solid #ffffff40',background:btn.classList.contains('gift')?'rgba(62,37,11,.92)':'rgba(23,23,29,.92)'});
+      bar.querySelectorAll('button.kt-remote-action,button[data-b]').forEach(function(btn){
+        style(btn,{flex:'0 0 clamp(32px,10vw,44px)',width:'clamp(32px,10vw,44px)',height:'clamp(32px,10vw,44px)','min-height':'clamp(32px,10vw,44px)','max-height':'clamp(32px,10vw,44px)','border-radius':'50%',border:'1px solid #ffffff40',background:(btn.classList.contains('gift')||btn.getAttribute('data-b')==='gift')?'rgba(62,37,11,.92)':'rgba(23,23,29,.92)'});
       });
     }
     bar.querySelectorAll('[data-kt-chat-open]').forEach(function(button){button.remove();});
