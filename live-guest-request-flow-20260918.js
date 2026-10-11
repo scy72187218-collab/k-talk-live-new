@@ -864,6 +864,9 @@
   function ensurePrejoinRoomGrid(){
     var root=document.querySelector('.kt-remote-live');
     if(!root||root.querySelector('.kt-approved-guest-grid'))return;
+    // The saved nine-room shell already owns the host video. Legacy prejoin
+    // must not move it into a second grid that cleanup will later remove.
+    if(root.querySelector('.ktg13-room[data-kt-viewer-host-copy="1"]'))return;
     var main=document.getElementById('ktRemoteLiveVideo');
     if(!main)return;
     if(main.srcObject)viewerGuest.prejoinHostStream=main.srcObject;
