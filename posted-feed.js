@@ -487,8 +487,8 @@
     }catch(e){return false;}
   }
   function renderFeedNow(a){
-    // A delayed home-feed response must not replace an opened solo broadcast.
-    if(screen.querySelector('.ktsolo-room'))return false;
+    // Home-feed work must not replace a live room opened while it was pending.
+    if(screen.querySelector('.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room,.kt-remote-live'))return false;
     if(!Array.isArray(a)||!a.length)return false;
 
     /* If the lightweight first-paint video is already buffering/playing,
@@ -598,7 +598,7 @@
     return feedRefreshInFlight;
   }
   async function show(fallback){
-    if(screen.querySelector('.ktsolo-room'))return;
+    if(screen.querySelector('.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room,.kt-remote-live'))return;
     var fast=cachedFeed();
     if(fast.length){
       /* Keep the parser-started first video physically on screen until its first
