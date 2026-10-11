@@ -145,9 +145,23 @@
       }catch(_metaErr){}
       document.documentElement.classList.add('kt-remote-viewing');
       var s=document.getElementById('screen');if(!s)return false;
+      /* Reconnecting to the same 13-person broadcast keeps its existing layout,
+         video nodes, chat and guest controls. */
+      var current=s.querySelector('.kt-remote-live');
+      var host=String((room&&room.host_id)||window.__ktCurrentRemoteHostId||'');
+      var thirteen=room.room_type==='group13'||(/^(?:general|group)?$/.test(String(room.room_type||''))&&/13\s*명/.test(String(room.room_name||'')));
+      if(thirteen&&current&&current.getAttribute('data-kt-host-id')===host&&
+          current.querySelector('.ktg13-room[data-kt-remote13="1"]'))return true;
       s.innerHTML='<section class="kt-remote-live"><video id="ktRemoteLiveVideo" autoplay playsinline muted></video><div class="kt-remote-shade"></div><div class="kt-remote-top"><button class="kt-remote-back" type="button">‹</button><div class="kt-remote-meta"><b><i class="kt-live-dot"></i>'+String(room.host_name||'K-Talk').replace(/[&<>"]/g,'')+'</b><span>'+String(room.title||room.room_name||'라이브').replace(/[&<>"]/g,'')+' · '+String(room.room_name||'방송').replace(/[&<>"]/g,'')+'</span></div><div id="ktRemoteViewerCount" class="kt-remote-viewers">👁 연결 중</div></div><div id="ktRemoteLiveStatus" class="kt-remote-status">방송 영상 연결 중…</div></section>';
       var back=s.querySelector('.kt-remote-back');
+      var root=s.querySelector('.kt-remote-live');
+      if(root){
+        root.setAttribute('data-kt-host-id',host);
+        root.setAttribute('data-kt-room-type',String(room.room_type||''));
+        root.setAttribute('data-kt-room-name',String(room.room_name||''));
+      }
       if(back)back.onclick=function(){window.ktLeaveRemoteLive();};
+      if(typeof window.ktSyncSharedGroup13Remote==='function')window.ktSyncSharedGroup13Remote();
       return true;
     }catch(e){return false;}
   }
