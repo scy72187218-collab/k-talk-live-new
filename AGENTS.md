@@ -56,3 +56,28 @@ The owner approved the current subscriber viewer layout and requested saving it 
 # 13-person host room saved and locked by owner (2026-10-12)
 
 The owner explicitly approved saving and locking the current 13-person host room after the host video black-margin correction. Recoverable runtime commit: `6b93d4a9831ea1aa25290a05736cf68e75003b8e`; `group13-approved-room.js` blob: `701b3c82329b295edf78a25acc9dc7058ae873be`. Preserve the host-only full-cell video rule (`object-fit:cover; transform:none`) scoped to `.ktg13-room[data-kt-approved13="1"][data-kt-room="13"]`, plus the existing host layout, guest seats, camera/microphone, chat, buttons and communications. Do not change this state without explicit owner authorization for the specific change. All other room locks remain in force. This is a maintenance change lock, not a runtime password; existing room controls remain usable. This policy recording does not claim phone UI verification or authorize additional runtime changes.
+
+
+# Owner saved and separately locked all five rooms (2026-10-12)
+
+The owner explicitly approved the current state after removal of the colored host video borders and requested separate maintenance locks for every room. Recoverable runtime commit for all five locks: `9a46ea67c8c6ed37d55334701dea6279c0deee4e`. Preserve transparent host borders and removal of the reddish inset effect in `all-five-room-host-mini-no-wave-20260921.js` (blob `bcaba90b4c7bf0e1fd14b7ae4f837066ded6b6f7`). The following locks supersede earlier releases for these rooms. Each lock is independent; authorization to change one room does not authorize changes to another. These are maintenance change locks, not runtime passwords or access restrictions. This record does not claim the outstanding LiveKit connection-key issue is resolved.
+
+## Solo room separately locked (5155)
+
+Preserve the current solo host and viewer screens, full-frame camera and current person sizing. Preserve current video dimensions, framing, backgrounds, headers, chat, buttons, camera/microphone, attendance and earnings where currently present, guest approval, gifts, access rules and communications. Do not modify this room directly or through shared files without explicit owner authorization for the specific change. Existing runtime controls remain usable. Saving this lock authorizes policy recording only, not additional runtime changes or deployment.
+
+## 9-person room separately locked (5051)
+
+Preserve the current 9-person host and viewer screens and approved seat layout. Preserve current video dimensions, framing, backgrounds, headers, chat, buttons, camera/microphone, attendance and earnings where currently present, guest approval, gifts, access rules and communications. Do not modify this room directly or through shared files without explicit owner authorization for the specific change. Existing runtime controls remain usable. Saving this lock authorizes policy recording only, not additional runtime changes or deployment.
+
+## 13-person room separately locked (5052)
+
+Preserve the current 13-person host and viewer screens, including the host-only full-cell video correction. Preserve current video dimensions, framing, backgrounds, headers, chat, buttons, camera/microphone, attendance and earnings where currently present, guest approval, gifts, access rules and communications. Do not modify this room directly or through shared files without explicit owner authorization for the specific change. Existing runtime controls remain usable. Saving this lock authorizes policy recording only, not additional runtime changes or deployment.
+
+## Subscriber room separately locked (5053)
+
+Preserve the current subscriber host screen and approved four-column, four-row viewer layout with the host spanning two rows, no viewer attendance or gift strip, and one guest earnings HUD. Preserve current video dimensions, framing, backgrounds, headers, chat, buttons, camera/microphone, attendance and earnings where currently present, guest approval, gifts, access rules and communications. Do not modify this room directly or through shared files without explicit owner authorization for the specific change. Existing runtime controls remain usable. Saving this lock authorizes policy recording only, not additional runtime changes or deployment.
+
+## Secret room separately locked (5054)
+
+Preserve the current secret host and viewer screens with one host and five guest seats. Preserve current video dimensions, framing, backgrounds, headers, chat, buttons, camera/microphone, attendance and earnings where currently present, guest approval, gifts, access rules and communications. Do not modify this room directly or through shared files without explicit owner authorization for the specific change. Existing runtime controls remain usable. Saving this lock authorizes policy recording only, not additional runtime changes or deployment.
