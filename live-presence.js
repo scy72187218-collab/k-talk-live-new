@@ -477,6 +477,33 @@
     }
     s.innerHTML='<section class="kt-remote-live"><video id="ktRemoteLiveVideo" autoplay playsinline></video><div class="kt-remote-shade"></div><div class="kt-remote-top"><button class="kt-remote-back" onclick="ktLeaveRemoteLive()">‹</button><div class="kt-remote-meta"><b><i class="kt-live-dot"></i>'+esc(room.host_name||'K-Talk')+'</b><span>'+esc(room.title||room.room_name||'라이브')+' · '+esc(room.room_name||'방송')+'</span></div><div id="ktRemoteViewerCount" class="kt-remote-viewers">👁 1명</div></div><div id="ktRemoteLiveStatus" class="kt-remote-status">방송 영상 연결 중…</div></section>';
     publishRemoteRoomLayout(room);
+    /* Subscriber viewer only: preserve the original 15-seat room grid, not a fullscreen host video. */
+    if(String(room.room_type||'').toLowerCase()==='subscriber'||/구독자/.test(String(room.room_name||''))){
+      try{
+        var remote=s.querySelector('.kt-remote-live');
+        if(remote){
+          remote.classList.add('kt-subscriber-viewer-grid');
+          if(!document.getElementById('ktSubscriberViewerGridOnly20261011')){
+            var css=document.createElement('style');
+            css.id='ktSubscriberViewerGridOnly20261011';
+            css.textContent='.kt-remote-live.kt-subscriber-viewer-grid .kt-subscriber-viewer-seats{position:absolute;top:27%;left:2%;right:2%;height:53%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr));gap:3px;z-index:1}.kt-remote-live.kt-subscriber-viewer-grid .kt-subscriber-viewer-seat{position:relative;min-width:0;min-height:0;background:#151519;border:1px solid #ffffff18;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#ddd;font-size:10px;font-weight:700}.kt-remote-live.kt-subscriber-viewer-grid .kt-subscriber-viewer-seat:first-child{border-color:#ff39bd}.kt-remote-live.kt-subscriber-viewer-grid #ktRemoteLiveVideo{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:contain!important;background:#111!important;transform:none!important}.kt-remote-live.kt-subscriber-viewer-grid .kt-subscriber-viewer-seat:last-child{grid-column:4}.kt-remote-live.kt-subscriber-viewer-grid .kt-remote-shade{pointer-events:none;z-index:0}.kt-remote-live.kt-subscriber-viewer-grid .kt-remote-status{top:53%}';
+            document.head.appendChild(css);
+          }
+          var seats=document.createElement('div');
+          seats.className='kt-subscriber-viewer-seats';
+          for(var si=0;si<15;si++){
+            var seat=document.createElement('div');
+            seat.className='kt-subscriber-viewer-seat';
+            if(si===0){
+              var remoteVideo=remote.querySelector('#ktRemoteLiveVideo');
+              if(remoteVideo)seat.appendChild(remoteVideo);
+            }else{seat.textContent='👤 게스트';}
+            seats.appendChild(seat);
+          }
+          remote.insertBefore(seats,remote.firstChild);
+        }
+      }catch(_subscriberGridError){}
+    }
     try{ktAttachRemoteHostStreamEverywhere20261009(window.__ktRemoteHostStream||null);}catch(e){}
   }
 
