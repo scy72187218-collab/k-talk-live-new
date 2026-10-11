@@ -12,14 +12,16 @@
 
   function isNine(){
     try{
-      var bottom=[].slice.call(document.querySelectorAll('.live-prep .kt-room-bottom5 button.on,.kt-room-bottom5 button.on'));
-      if(bottom.some(function(b){return /9\s*명/.test(String(b.textContent||''));}))return true;
       var st=window.state||{};
-      var vals=[st.liveRoomType,st.prepRoomType,st.roomType,st.liveRoomName,st.prepRoomName].join(' ');
-      if(/group9|9명/.test(String(vals)))return true;
-      if(Number(st.liveRoomMax||st.prepRoomMax||0)===9)return true;
-      var title=document.getElementById('liveTitle');
-      return !!(title&&/9\s*명/.test(String(title.value||'')));
+      // The current selection wins over hidden buttons and previous-room fields.
+      var type=String(st.liveRoomType||'').trim();
+      if(type)return type==='group9';
+      var selected=[].slice.call(document.querySelectorAll('.live-prep .room-switch.on,.live-prep .kt-room9-general.on'));
+      if(selected.length)return selected.some(function(b){return /9\s*명/.test(String(b.textContent||''));});
+      var name=String(st.liveRoomName||'').trim();
+      if(name)return /9\s*명/.test(name);
+      if(st.liveRoomMax)return Number(st.liveRoomMax)===9;
+      return false;
     }catch(e){return false;}
   }
 
