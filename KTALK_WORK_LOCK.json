@@ -1,5 +1,5 @@
 {
-  "version": 275,
+  "version": 276,
   "locked": true,
   "scope": "full_snapshot_guard_everything",
   "lock_slot": 9,
@@ -94,7 +94,8 @@
     "sound_direct_playback_20261006",
     "all_five_rooms_large_camera_mic_movie_removed_20261006",
     "group9_duplicate_grid_fix_20261006",
-    "guest_room_current_state_20261007"
+    "guest_room_current_state_20261007",
+    "group13_host_guest_full_current_state_20261011_5050"
   ],
   "locked_components": [
     "group9_bottom_controls_8",
@@ -408,5 +409,39 @@
   "guest_room_password_map": {
     "6666": "게스트방"
   },
-  "guest_room_policy": "게스트방 현재 상태는 6666 승인 없이는 수정 금지. 다른 방·공통 UI·동영상·통신은 별도 잠금 정책을 그대로 유지."
+  "guest_room_policy": "게스트방 현재 상태는 6666 승인 없이는 수정 금지. 다른 방·공통 UI·동영상·통신은 별도 잠금 정책을 그대로 유지.",
+  "group13_host_guest_lock_5050": {
+    "name": "13명방 호스트·게스트 5050 확정본",
+    "lock_id": "5050",
+    "locked_at": "2026-10-11",
+    "locked": true,
+    "snapshot_commit": "61e03b9c4fcd21a0ce90555e9637fe4a066afe8f",
+    "snapshot_tree": "5f9ff4496a019c15395d8d6e72ecf05b8b9c7b9a",
+    "scope": [
+      "13명방 호스트와 게스트 화면",
+      "채팅 영역·채팅 입력칸·원형 아이콘",
+      "출석 인원 하트·방송시간 옆 좋아요 하트",
+      "카메라·마이크·게스트 승인·영상 배치",
+      "13명방의 선물·장미·수익 표시 및 연결"
+    ],
+    "policy": "Preserve this state. Change the protected 13-room behavior only when the user explicitly authorizes the specific change. Shared files may be edited for other rooms only while preserving this 13-room behavior.",
+    "runtime_controls_remain_usable": true,
+    "lock_type": "change-policy-and-recoverable-git-snapshot",
+    "security_note": "5050 is the owner-provided change lock identifier, not a room entry password or repository access control.",
+    "verification": "Deployment ready and source delivery verified; actual phone display and keyboard behavior have not been directly verified.",
+    "files": {
+      "index.html": "129b65316a92e38c803136e8aff15c8eeb382926",
+      "group13-approved-room.js": "51542f68aaae54a29ad3f2fe7232e5da1378fefe",
+      "all-room-floating-chat-20260919.js": "64240baf13895e50b5a4916c4d3f20bc06f85fb1",
+      "live-chat-send-arrow.js": "d24b28e14f761db34a294a0ba432f29b4223e458",
+      "live-viewer-interactions.js": "d95f80addf51aa5f1f8964848ecdb693f5efe2cb",
+      "chat-only-host-sync-final-20261002.js": "7c987cad25407d7d45dbca6ba09b2ab892b302ad",
+      "attendance-heart-host-tap-fix.js": "ed3d41b253bec5cb9ddf091c50f594333ce5c451",
+      "all-room-clock-like-20260927.js": "28ea978f067c59944a79259c6b5151d14e531833",
+      "group9-keyboard-no-jump-20261002.js": "cad40bdf8bc96527479795e109fddeb0dedbc3c4",
+      "canonical-three-buttons-all-rooms-20261006.js": "2e97fd86f0bc694f5b534e0650ae18aafbb66271",
+      "live-presence.js": "8db50394c2a5e60042dacf381d79334c1a3426a1",
+      "live-peer-fallback-20260921.js": "db20de7294fe3f98b1453c07ee70427f553cda4c"
+    }
+  }
 }
