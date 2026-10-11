@@ -13,6 +13,16 @@
 
   function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   function enc(v){return encodeURIComponent(String(v==null?'':v));}
+  function liveRoomLabel(room){
+    var type=String(room.room_type||'').toLowerCase(),name=String(room.room_name||'');
+    if(type==='subscriber'||/구독/.test(name))return '구독자방';
+    if(type==='password'||type==='secret'||/비밀/.test(name))return '비밀방 🔒';
+    if(type==='group13'||/13\s*명/.test(name))return '13명방';
+    if(type==='group9'||/9\s*명/.test(name))return '9명방';
+    if(type==='group15'||/15\s*명/.test(name))return '15명방';
+    if(type==='solo'||/1\s*인/.test(name))return '1인방';
+    return '방 정보 확인 중';
+  }
   function js(v){return String(v==null?'':v).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\r?\n/g,' ');}
   function me(){
     var name='K-Talk',id='';
@@ -220,6 +230,7 @@
       +'.kt-follow-name{display:block!important;width:50px!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;text-align:center!important;font-size:8px!important;font-weight:850!important;line-height:10px!important;color:#fff!important;text-shadow:0 1px 3px #000!important}'
       +'.kt-live-host-actions{padding:4px 0 8px!important}.kt-live-host-actions .head{display:flex;align-items:center;gap:11px;padding:8px 2px 14px}.kt-live-host-actions .avatar{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#70214e,#193d79);font-size:26px;border:2px solid #ff315f;overflow:hidden}.kt-live-host-actions .avatar img{width:100%;height:100%;object-fit:cover}.kt-live-host-actions .name{font-size:18px;font-weight:950}.kt-live-host-actions .buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.kt-live-host-actions .buttons button{min-height:54px;border:1px solid rgba(255,255,255,.15);border-radius:14px;background:#17171d;color:#fff;font-weight:900}.kt-live-host-actions .buttons button.follow{background:#e91845}.kt-live-host-actions .buttons button.on{background:#ff9f1a;color:#111}'
       +'@media(max-width:390px){.kt-video-live-peek{max-width:96vw!important;height:36px!important;position:absolute!important;left:10px!important;top:52px!important;bottom:auto!important;transform:none!important}.kt-video-live-peek{}body.kt-follow-status-open .kt-video-live-peek{top:52px!important;bottom:auto!important}.kt-video-live-peek .ktvl-person{height:28px!important}.kt-video-live-peek .ktvl-avatar{width:27px!important;height:27px!important;flex-basis:27px!important}.kt-video-live-peek .ktvl-copy small{display:none!important}.kt-video-live-peek .ktvl-follow,.kt-video-live-peek .ktvl-bell{width:26px!important;height:26px!important;flex-basis:26px!important}.kt-follow-live-strip{top:auto!important;bottom:88px!important;left:5px!important;right:5px!important}}';
+    s.textContent+='.kt-follow-live-strip{height:82px!important}.kt-follow-person.live{height:72px!important;min-height:72px!important;flex-shrink:0!important}.kt-live-room-label{display:block!important;color:#ffe16a!important;font-size:10px!important;font-weight:950!important;line-height:13px!important;white-space:nowrap!important;text-shadow:0 1px 2px #000!important}.kt-follow-person .kt-follow-avatar{flex-shrink:0!important}.kt-video-live-peek .ktvl-live{display:flex!important;flex-direction:column!important;align-items:center!important;gap:2px!important}.kt-video-live-peek .ktvl-live .kt-live-room-label{font-size:10px!important;line-height:12px!important}';
     document.head.appendChild(s);
   }
 
@@ -351,6 +362,7 @@
         String(r.host_id||''),
         String(r.host_name||''),
         String(r.host_photo||''),
+        liveRoomLabel(r),
         String(r.updated_at||'')
       ].join(':');
     }).join('|');
@@ -375,6 +387,7 @@
         +'<span class="kt-follow-avatar">'+photoHtml(photo,name)+'</span>'
         +'<i class="kt-follow-state"></i>'
         +'<span class="kt-follow-name">'+esc(name)+'</span>'
+        +'<span class="kt-live-room-label">'+esc(liveRoomLabel(r))+'</span>'
         +'</button>';
     }).join('');
 
@@ -512,7 +525,7 @@
       updated_at:String(r.updated_at||new Date().toISOString())
     };
     var photo=(hostPhoto&&(/^data:image/.test(hostPhoto)||/^https?:/.test(hostPhoto)))?'<img src="'+esc(hostPhoto)+'" alt="">':'🎥';
-    var signature=hostId+'|'+hostName+'|'+hostPhoto;
+    var signature=hostId+'|'+hostName+'|'+hostPhoto+'|'+liveRoomLabel(r);
     if(old&&old.getAttribute('data-kt-signature')===signature){
       if(old.parentElement!==host)host.appendChild(old);
       return;
@@ -521,7 +534,7 @@
     var b=document.createElement('div');
     b.id='ktVideoLivePeek';b.className='kt-video-live-peek';b.setAttribute('data-kt-signature',signature);
     b.innerHTML='<button type="button" class="ktvl-person" aria-label="방송자 프로필"><span class="ktvl-avatar">'+photo+'</span><span class="ktvl-copy"><b>'+esc(hostName)+'</b><small>'+esc(r.title||r.room_name||'방송 중')+'</small></span></button>'
-      +'<button type="button" class="ktvl-live" data-host="'+esc(hostId)+'">● LIVE</button>';
+      +'<button type="button" class="ktvl-live" data-host="'+esc(hostId)+'" aria-label="'+esc(liveRoomLabel(r)+' 방송 입장')+'"><span>● LIVE</span><span class="kt-live-room-label">'+esc(liveRoomLabel(r))+'</span></button>';
     var person=b.querySelector('.ktvl-person');
     var live=b.querySelector('.ktvl-live');
     if(person)person.onclick=function(e){e.preventDefault();e.stopPropagation();if(window.ktEnterRemoteLive)window.ktEnterRemoteLive(hostId);};
