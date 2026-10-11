@@ -126,7 +126,7 @@
     if(!screen||!window.MutationObserver)return null;
     var busy=false;
     var mo=new MutationObserver(function(){
-      if(busy||window.__ktGroup9RoomFirstCountdown!==true)return;
+      if(busy||window.__ktGroup9RoomFirstCountdown!==true||!isNine())return;
       try{
         var room=screen.querySelector('.ktg13-room[data-kt-room="9"]');
         if(room)return;
@@ -149,11 +149,11 @@
 
     try{
       var result=await Promise.resolve(previousStart.apply(this,arguments));
-      openNineRoomNow();
+      if(isNine())openNineRoomNow();
       return result;
     }finally{
       try{if(keepObserver)keepObserver.disconnect();}catch(e){}
-      openNineRoomNow();
+      if(isNine())openNineRoomNow();
       endNineOpening();
       try{
         var old=document.getElementById('ktLiveCountdown');

@@ -2062,7 +2062,11 @@ window.selectPrepRoom=function(el,type,label,max){
   state.liveRoomType=type;
   state.liveRoomName=label;
   state.liveRoomMax=max;
-  document.querySelectorAll('.room-switch').forEach(function(b){
+  state.prepRoomType=type;
+  state.prepRoomName=label;
+  state.prepRoomMax=max;
+  state.roomType=type;
+  document.querySelectorAll('.room-switch,.live-prep .kt-room9-general,.live-prep .kt-room-bottom5 button').forEach(function(b){
     b.classList.remove('on','active');
     b.setAttribute('aria-pressed','false');
     b.setAttribute('aria-checked','false');
