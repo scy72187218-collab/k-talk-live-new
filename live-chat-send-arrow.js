@@ -126,7 +126,7 @@
 (function(){
   if(document.querySelector('script[data-kt-front-camera-user-fallback]'))return;
   var s=document.createElement('script');
-  s.src='front-camera-user-fallback-20260914.js?v=20260918-hostface2';
+  s.src='front-camera-user-fallback-20260914.js?v=20261011-remove-dead-guest-grid1';
   s.async=false;
   s.setAttribute('data-kt-front-camera-user-fallback','1');
   document.head.appendChild(s);
@@ -136,7 +136,7 @@
 (function(){
   if(document.querySelector('script[data-kt-guest-request-flow]'))return;
   var s=document.createElement('script');
-  s.src='live-guest-request-flow-20260918.js?v=20260926-instant-approval16';
+  s.src='live-guest-request-flow-20260918.js?v=20261011-remove-legacy13-grid1';
   s.async=false;
   s.setAttribute('data-kt-guest-request-flow','1');
   document.head.appendChild(s);

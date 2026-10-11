@@ -435,7 +435,7 @@
   window.addEventListener('touchend',ktAllRoomGuestPersonRequest20261007,true);
 
   function bindRequestButton(){var b=document.getElementById('ktRemoteGuestRequest');if(!b)return;if(b.__ktGuestRequestBound)return;b.__ktGuestRequestBound=true;b.onclick=function(e){if(e)e.preventDefault();sendGuestRequest();};}
-  function removeDuplicateGroupRoom(){var screen=document.getElementById('screen');if(!screen)return;var rooms=[].slice.call(screen.querySelectorAll('.ktg13-room'));if(rooms.length>1)rooms.slice(1).forEach(function(x){x.remove();});['.ktg13-head','.ktg13-led','.ktg13-stats','.ktg13-main','.ktg13-mid','.ktg13-gifts','.ktg13-tools'].forEach(function(sel){var parts=[].slice.call(screen.querySelectorAll(sel));if(parts.length>1)parts.slice(1).forEach(function(x){x.remove();});});var root=screen.querySelector('.kt-remote-live');if(root&&root.querySelector('.kt-approved-guest-grid')){var info=window.__ktLastLiveRoom||{};var kind=[info.room_type,info.room_name,info.title,window.__ktRemoteRoomType,window.__ktRemoteRoomName].filter(Boolean).join(' ');if(/13\s*명|group13/i.test(kind)&&document.documentElement.classList.contains('kt-remote-viewing')){root.querySelectorAll('.kt-approved-guest-grid').forEach(function(x){try{x.remove();}catch(e){}});if(typeof window.ktApplyApprovedPrejoinLayout20261002==='function')setTimeout(window.ktApplyApprovedPrejoinLayout20261002,0);}else{root.querySelectorAll('.kt-prejoin-room-led,.kt-prejoin-room-stats,.kt-prejoin-room-grid').forEach(function(x){try{x.remove();}catch(e){}});root.classList.remove('kt-prejoin-room-view');}}}
+  function removeDuplicateGroupRoom(){var screen=document.getElementById('screen');if(!screen)return;var rooms=[].slice.call(screen.querySelectorAll('.ktg13-room'));if(rooms.length>1)rooms.slice(1).forEach(function(x){x.remove();});['.ktg13-head','.ktg13-led','.ktg13-stats','.ktg13-main','.ktg13-mid','.ktg13-gifts','.ktg13-tools'].forEach(function(sel){var parts=[].slice.call(screen.querySelectorAll(sel));if(parts.length>1)parts.slice(1).forEach(function(x){x.remove();});});var root=screen.querySelector('.kt-remote-live');if(root&&root.querySelector('.kt-approved-guest-grid')&&!root.querySelector('[data-kt-remote13="1"]')){root.querySelectorAll('.kt-prejoin-room-led,.kt-prejoin-room-stats,.kt-prejoin-room-grid').forEach(function(x){try{x.remove();}catch(e){}});root.classList.remove('kt-prejoin-room-view');}}
 
   function slotIndex(slot){var all=[].slice.call(document.querySelectorAll('.ktg13-guest'));return Math.max(0,all.indexOf(slot));}
   function decorateSlot(slot,vid,name){if(!slot)return;slot.dataset.ktGuestViewerId=vid;slot.classList.add('kt-guest-approved');slot.innerHTML='<video autoplay playsinline></video><small>게스트 연결 중...</small><span class="kt-guest-name">👤 '+esc(name||'게스트')+'</span>';try{localStorage.setItem('kt_guest_slot:'+deviceId()+':'+vid,String(slotIndex(slot)));}catch(e){}}
@@ -835,7 +835,7 @@
       +'.kt-remote-live.kt-prejoin-room-view>.kt-remote-shade{display:none!important}'
       +'.kt-prejoin-room-led{flex:0 0 44px!important;border:2px solid #ff28c4!important;border-radius:20px!important;background-color:#120712!important;background-image:radial-gradient(circle,#ff35ce 1.6px,transparent 2.4px)!important;background-size:12px 12px!important;box-shadow:0 0 9px #ff28c4,0 0 18px #ff28c455!important;color:#ffd62d!important;font-size:17px!important;font-weight:950!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;white-space:nowrap!important}'
       +'.kt-prejoin-room-stats{flex:0 0 42px!important;display:grid!important;grid-template-columns:1fr 1fr 1.3fr!important;gap:5px!important}.kt-prejoin-room-stats>div{border-radius:12px!important;background:#111114!important;color:#fff!important;display:flex!important;align-items:center!important;justify-content:center!important;font-size:11px!important;font-weight:900!important;white-space:nowrap!important}'
-      +'.kt-prejoin-room-grid{flex:1 1 0!important;min-height:0!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-auto-rows:minmax(0,1fr)!important;gap:3px!important;overflow:hidden!important}.kt-prejoin-room-grid.is13,.kt-prejoin-room-grid.is16{grid-template-columns:repeat(4,minmax(0,1fr))!important}.kt-prejoin-room-grid.is13>.kt-prejoin-room-cell:last-child{grid-column:4!important;grid-row:4!important}.kt-prejoin-room-grid.is16 .kt-prejoin-room-cell.host{grid-row:auto!important}'
+      +'.kt-prejoin-room-grid{flex:1 1 0!important;min-height:0!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-auto-rows:minmax(0,1fr)!important;gap:3px!important;overflow:hidden!important}.kt-prejoin-room-grid.is16{grid-template-columns:repeat(4,minmax(0,1fr))!important}.kt-prejoin-room-grid.is16 .kt-prejoin-room-cell.host{grid-row:auto!important}'
       +'.kt-prejoin-room-cell{position:relative!important;min-width:0!important;min-height:0!important;overflow:hidden!important;border:1px solid #292a30!important;border-radius:8px!important;background:linear-gradient(145deg,#17181d,#0e0f13)!important;color:#e6e6eb!important;display:grid!important;place-items:center!important;font-size:12px!important;font-weight:900!important}'
       +'.kt-prejoin-room-cell.host>video{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;object-fit:cover!important;object-position:center center!important;background:#08090c!important;transform:scaleX(-1)!important;-webkit-transform:scaleX(-1)!important}'
       +'.kt-prejoin-room-cell.host>label{position:absolute!important;left:5px!important;bottom:5px!important;z-index:3!important;padding:2px 6px!important;border-radius:8px!important;background:#000b!important;color:#fff!important;font-size:8px!important;font-weight:950!important}'
@@ -881,8 +881,11 @@
     /* 4444: 구독자방은 옛 게스트/prejoin 화면을 만들지 않는다. */
     if(/subscriber|구독자/i.test(txt))return;
     var is16=/16\s*명|15\s*명/i.test(txt);
-    var is13=!is16&&/13\s*명|group13/i.test(txt);
-    var total=is16?16:(is13?13:9);
+    // 13-person viewers use the shared host template, never a second guest grid.
+    var kind=String(root.getAttribute('data-kt-room-type')||'');
+    var name=String(root.getAttribute('data-kt-room-name')||'');
+    if(root.querySelector('[data-kt-remote13="1"]')||kind==='group13'||(/^(?:general|group)?$/.test(kind)&&/13\s*명/.test(name)))return;
+    var total=is16?16:9;
 
     var oldGrid=root.querySelector('.kt-prejoin-room-grid');
     if(oldGrid){
@@ -906,7 +909,7 @@
     stats.innerHTML='<div>🔥 일일 랭킹</div><div>🎯 미션</div><div>👁 함께 시청 중</div>';
 
     var grid=document.createElement('div');
-    grid.className='kt-prejoin-room-grid'+(is16?' is16':(is13?' is13':''));
+    grid.className='kt-prejoin-room-grid'+(is16?' is16':'');
     grid.setAttribute('data-kt-total',String(total));
 
     var host=document.createElement('div');
@@ -921,76 +924,12 @@
       cell.textContent='게스트';
       grid.appendChild(cell);
     }
-    if(is13){
-      var last13=grid.lastElementChild;
-      if(last13){
-        last13.style.setProperty('grid-column','4','important');
-        last13.style.setProperty('grid-row','4','important');
-      }
-    }
 
     var top=root.querySelector('.kt-remote-top');
     if(top&&top.nextSibling)root.insertBefore(led,top.nextSibling);else root.appendChild(led);
     if(led.nextSibling)root.insertBefore(stats,led.nextSibling);else root.appendChild(stats);
     if(stats.nextSibling)root.insertBefore(grid,stats.nextSibling);else root.appendChild(grid);
-    if(is13){
-      ktRemovePrejoin13HeartZero20261004();
-      setTimeout(ktRemovePrejoin13HeartZero20261004,40);
-      setTimeout(ktRemovePrejoin13HeartZero20261004,160);
-    }
   }
-
-  function ktRemovePrejoin13HeartZero20261004(){
-    try{
-      var root=document.querySelector('.kt-remote-live.kt-prejoin-room-view');
-      var grid=root&&root.querySelector('.kt-prejoin-room-grid.is13');
-      if(!root||!grid)return;
-      [].slice.call(root.querySelectorAll('*')).forEach(function(el){
-        try{
-          if(!el||el.children.length)return;
-          if(el.closest&&el.closest('.kt-prejoin-room-led,.kt-remote-top,.kt-remote-attendance'))return;
-          var t=String(el.textContent||'').replace(/\s+/g,'').trim();
-          /* 13명방 게스트 화면 맨 아래의 하트 표시만 제거.
-             하트 0 형태와, 퇴장 문구 앞에 따로 붙는 하트 아이콘 둘 다 대상. */
-          if(!(/^[♥♡❤💗💖💓💕💞]0$/.test(t)||/^[♥♡❤💗💖💓💕💞]$/.test(t)))return;
-          var r=el.getBoundingClientRect();
-          if(r&&r.top>window.innerHeight*0.55)el.remove();
-        }catch(e){}
-      });
-    }catch(e){}
-  }
-
-    setInterval(function(){
-    try{
-      var root=document.querySelector('.kt-remote-live.kt-prejoin-room-view');
-      if(root&&root.querySelector('.kt-prejoin-room-grid.is13'))ktRemovePrejoin13HeartZero20261004();
-    }catch(e){}
-  },500);
-
-    function ktRemoveOnlyGuest13LeaveChatHeart20261004(){
-    try{
-      var root=document.querySelector('.kt-remote-live.kt-prejoin-room-view');
-      var grid=root&&root.querySelector('.kt-prejoin-room-grid.is13');
-      var chat=root&&root.querySelector('.kt-remote-chat');
-      if(!root||!grid||!chat)return;
-
-      [].slice.call(chat.children||[]).forEach(function(line){
-        try{
-          var txt=String(line.textContent||'');
-          if(txt.indexOf('방송 나감')<0)return;
-
-          var walker=document.createTreeWalker(line,NodeFilter.SHOW_TEXT);
-          var nodes=[],n;
-          while((n=walker.nextNode()))nodes.push(n);
-          nodes.forEach(function(tn){
-            tn.nodeValue=String(tn.nodeValue||'').replace(/[♥♡❤💗💖💓💕💞]/g,'');
-          });
-        }catch(e){}
-      });
-    }catch(e){}
-  }
-
-  setInterval(ktRemoveOnlyGuest13LeaveChatHeart20261004,300);
 
   function ktGuestStreamLive(st){try{return !!(st&&st.getVideoTracks&&st.getVideoTracks().some(function(t){return t.readyState==='live';}));}catch(e){return false;}}
   function showLocalGuestView(stream){
