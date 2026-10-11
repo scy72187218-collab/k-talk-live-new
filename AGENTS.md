@@ -15,3 +15,11 @@ The owner froze the current 9-person host and guest state on 2026-10-11. See `LO
 Preserve the 9-room header above the LED, attendance and separate like counters, host and guest layout, video fill, chat area and input, icons, camera/mic, guest approval and existing business connections. Change protected 9-room behavior only when the owner explicitly authorizes the specific change. Shared files may be changed for other rooms only while preserving 9-room behavior. Existing 13-room lock remains in effect.
 
 5051 is a maintenance policy identifier, not a runtime password or repository access control. All runtime room controls remain usable. Do not claim phone verification from deployment or source checks.
+
+# Subscriber-room owner change lock (5053)
+
+The owner explicitly locked the subscriber room on 2026-10-11 under change lock identifier 5053.
+
+Preserve the subscriber-room host and guest screens, video layout, header, chat display and input, buttons, camera/microphone, approval, gifts, subscriptions, access rules, and existing communication connections. Do not modify, refactor, or replace subscriber-room behavior without explicit owner authorization for the specific change. Changes in shared files for other rooms must preserve subscriber-room behavior. Existing room locks remain in effect.
+
+5053 is a maintenance change-policy identifier, not a runtime password or repository access control. All existing runtime controls remain usable. This policy does not declare the current runtime bug-free or phone-verified, and does not authorize fixes or deployment.
