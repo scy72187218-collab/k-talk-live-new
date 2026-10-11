@@ -1102,10 +1102,11 @@
     pc.ontrack=function(ev){
       try{window.__ktUseMemoryGuestVideo20260922=false;}catch(e){}
       pc.__ktGotRemoteTrack20260923=true;
-      viewerConnected=true;
+      var subscriberPending=String(window.__ktRemoteRoomType||'')==='subscriber'&&String(pc.connectionState||'')!=='connected';
+      viewerConnected=!subscriberPending;
       window.__ktDirectRtcProgressAt=Date.now();
-      window.__ktDirectRtcPhase='connected';
-      clearViewerConnectTimer();
+      window.__ktDirectRtcPhase=subscriberPending?'connecting':'connected';
+      if(!subscriberPending)clearViewerConnectTimer();
       showRemoteStream((ev.streams&&ev.streams[0])||new MediaStream([ev.track]));
 
       /* 새 영상이 화면에 붙은 뒤에만 이전 PeerConnection을 닫는다. */
