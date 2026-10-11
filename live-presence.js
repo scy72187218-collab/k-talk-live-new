@@ -475,6 +475,7 @@
     if(thirteen&&current&&current.getAttribute('data-kt-host-id')===host&&current.querySelector('.ktg13-room[data-kt-remote13="1"]')){
       publishRemoteRoomLayout(room);return;
     }
+    if(room.room_type==='subscriber'&&current&&current.getAttribute('data-kt-host-id')===host&&current.querySelector('[data-kt-subscriber-viewer="1"]')){publishRemoteRoomLayout(room);return;}
     s.innerHTML='<section class="kt-remote-live"><video id="ktRemoteLiveVideo" autoplay playsinline></video><div class="kt-remote-shade"></div><div class="kt-remote-top"><button class="kt-remote-back" onclick="ktLeaveRemoteLive()">‹</button><div class="kt-remote-meta"><b><i class="kt-live-dot"></i>'+esc(room.host_name||'K-Talk')+'</b><span>'+esc(room.title||room.room_name||'라이브')+' · '+esc(room.room_name||'방송')+'</span></div><div id="ktRemoteViewerCount" class="kt-remote-viewers">👁 1명</div></div><div id="ktRemoteLiveStatus" class="kt-remote-status">방송 영상 연결 중…</div></section>';
     publishRemoteRoomLayout(room);
     try{ktAttachRemoteHostStreamEverywhere20261009(window.__ktRemoteHostStream||null);}catch(e){}

@@ -112,8 +112,8 @@
     return s;
   }
 
-  function renderApprovedSubscriber(){
-    var screen=document.getElementById('screen');
+  function renderApprovedSubscriber(viewerTarget){
+    var screen=viewerTarget||document.getElementById('screen');
     if(!screen)return;
 
     var net=(document.getElementById('hudEarnNet')||{}).textContent||'0원';
@@ -164,6 +164,7 @@
         +'<div class="ktsubscriber-tools"><button class="ktsubscriber-tool" onclick="return window.ktBottomCameraToggle?ktBottomCameraToggle(this):false"><i>📷</i><span>카메라</span></button><button class="ktsubscriber-tool" onclick="return window.ktBottomMicToggle?ktBottomMicToggle(this):false"><i>🎤</i><span>마이크</span></button><button class="ktsubscriber-tool" onclick="shareApp()"><i>👥</i><span>친구</span></button><button class="ktsubscriber-tool" onclick="ktSubscriberOpenMessage()"><i>💬</i><span>메시지</span></button><button class="ktsubscriber-tool" onclick="return window.ktBottomMovieOpen?ktBottomMovieOpen():false"><i>🎬</i><span>영화</span></button><button class="ktsubscriber-tool" onclick="shareApp()"><i>↗</i><span>공유</span></button><button class="ktsubscriber-tool" onclick="ktSubscriberEffect()"><i>🪄</i><span>효과</span></button><button class="ktsubscriber-tool" onclick="ktSubscriberMore()"><i>•••</i><span>더보기</span></button></div>'
       +'</section>';
 
+    if(viewerTarget)return;
     var v=document.getElementById('ktLiveVideo');
     try{
       if(v&&window.state&&state.stream){
@@ -177,6 +178,12 @@
 
   /* 4444: 정상 구독자 호스트방 렌더러를 새 게스트방에서도 재사용할 수 있게 공개만 한다. */
   window.ktRenderSubscriberHostRoom4444=renderApprovedSubscriber;
+  // Build the existing host layout off-screen without starting a camera or broadcast.
+  window.ktBuildSubscriberViewerTemplate20261012=function(){
+    var target=document.createElement('div');
+    renderApprovedSubscriber(target);
+    return target;
+  };
 
   window.startBroadcast=async function(){
     var subscriber=isSubscriber();
