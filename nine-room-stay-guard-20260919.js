@@ -30,10 +30,23 @@
     }catch(e){return false;}
   }
 
+  function creatingOwnRoom(){
+    try{
+      if(window.__ktLiveStarting)return true;
+      if(document.querySelector('.creator.show,.creator.live-prep-open'))return true;
+      return !!document.querySelector('#screen > .ktsolo-room,#screen > .ktsubscriber-room,#screen > .ktsecret-room,#screen > .ktg13-room:not([data-kt-remote13])');
+    }catch(e){return false;}
+  }
+  function clearPinnedRoom(){
+    pinnedHost='';
+    clearTimeout(reconnectTimer);
+  }
   function scheduleReconnect(){
+    if(creatingOwnRoom()){clearPinnedRoom();return;}
     if(!pinnedHost||manualLeave||document.hidden)return;
     clearTimeout(reconnectTimer);
     reconnectTimer=setTimeout(function(){
+      if(creatingOwnRoom()){clearPinnedRoom();return;}
       if(!pinnedHost||manualLeave||document.hidden)return;
       try{
         if(liveVisible())return;
@@ -77,9 +90,17 @@
     }catch(e){}
   }
 
+  // Choosing/creating another room cancels only this old viewer reconnect intent.
+  function onNewRoomIntent(e){
+    var t=e.target&&e.target.closest?e.target.closest('.bottom .plus,.kt-bottom .livebtn,.live-prep .room-switch,.live-prep .kt-room9-general,.kt-creator-room-shortcuts button,.creator-bottom .modes span,.creator-bottom .creator-foot span,.kt-remote-leave-fixed-1150617'):null;
+    if(t)clearPinnedRoom();
+  }
+  window.addEventListener('pointerdown',onNewRoomIntent,true);
+  window.addEventListener('click',onNewRoomIntent,true);
+
   function allowManualLeave(){
     manualLeave=true;
-    clearTimeout(reconnectTimer);
+    clearPinnedRoom();
     setTimeout(function(){manualLeave=false;},1200);
   }
 
