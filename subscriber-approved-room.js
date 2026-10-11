@@ -181,11 +181,13 @@
   window.startBroadcast=async function(){
     var subscriber=isSubscriber();
     if(subscriber){
+      renderApprovedSubscriber();
+      if(window.ktRevealPreparedHostRoom)window.ktRevealPreparedHostRoom();
       try{if(window.state)state.cameraFacing='user';}catch(e){}
       try{if(window.ensureLiveCamera)await window.ensureLiveCamera('user');}catch(e){}
     }
     var result=await oldStartBroadcast.apply(this,arguments);
-    if(subscriber)setTimeout(renderApprovedSubscriber,0);
+    if(subscriber&&isSubscriber()&&!document.querySelector('#screen .ktsubscriber-room'))renderApprovedSubscriber();
     return result;
   };
 })();

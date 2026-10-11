@@ -46,11 +46,11 @@
   load('creator-person-smaller-only-20260917.js','__ktCreatorPersonSmallerOnly20260917');
   load('participant-photo-wave-only-20260915.js','__ktParticipantPhotoWaveOnly20260915');
   load('gift-balance-box-20260915.js','__ktGiftBalanceBox20260915');
-  load('group13-approved-room.js?v=20261011-common-guest-chatbar1','__ktGroup13ApprovedRoomInstalled');
+  load('group13-approved-room.js?v=20261011-immediate-host-room1','__ktGroup13ApprovedRoomInstalled');
   load('feed-swipe-playback-fix.js','__ktFeedSwipePlaybackFixInstalled',function(){
     load('broadcast-video-resume-fix.js','__ktBroadcastVideoResumeFixInstalled');
   });
-  load('live-room-instant-video-fix-20260915.js?v=20260918-no-black-after5-1','__ktLiveRoomInstantVideoFixInstalled');
+  load('live-room-instant-video-fix-20260915.js?v=20261011-immediate-host-room1','__ktLiveRoomInstantVideoFixInstalled');
 
 
   load('host-gift-row-hide-only-20260917.js','__ktHostGiftRowHideOnly20260917');

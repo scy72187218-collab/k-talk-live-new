@@ -364,6 +364,11 @@ body.kt-video-mode .bottom .plus b{width:56px!important;height:46px!important;fo
      window.__ktLiveStarting=false;
    }
  };
+ window.ktRevealPreparedHostRoom=function(){
+   var cr=window.creator||document.getElementById('creator');
+   if(cr)cr.classList.remove('show','live-prep-open');
+   document.body.classList.remove('kt-home');
+ };
  window.ktStartLiveRoomNow=function(type,name,max){
   if(window.__ktLiveChooserAwaitSelection)return false;
   try{
@@ -756,6 +761,7 @@ window.openRoomPrep=function(name,max){
     document.body.classList.remove('kt-home');
     try{history.pushState({ktLiveBroadcast:true},'',location.href);}catch(e){}
 
+    if(!screen.querySelector('.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room')){
     screen.innerHTML='<section style="height:100dvh;min-height:620px;position:relative;overflow:hidden;background:#050309;color:#fff">'
       +'<video id="ktLiveVideo" autoplay playsinline muted style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#09070d;transform:scaleX(-1);filter:brightness(1.14) contrast(.90) saturate(1.02) blur(.72px)"></video>'
       +'<div style="position:absolute;inset:0;background:linear-gradient(180deg,#00000045,transparent 34%,#00000018 62%,#000000d9 100%);pointer-events:none"></div>'
@@ -797,6 +803,7 @@ window.openRoomPrep=function(name,max){
       +'</div>'
       +'</section>';
 
+    }
     var liveVideo=document.getElementById('ktLiveVideo');
     if(ok&&liveVideo&&window.state&&state.stream){
       liveVideo.srcObject=state.stream;
@@ -1054,17 +1061,17 @@ window.openRoomPrep=function(name,max){
   line-height:1.05!important;
 }
 </style>
-<script src="solo-approved-room.js?v=20261011-host-header-source2"></script>
+<script src="solo-approved-room.js?v=20261011-immediate-host-room1"></script>
 <script src="solo-earn-undo-lower-20261002.js?v=20261002-earn-72-1111"></script>
 <script src="solo-chat-under-wave-20260920.js?v=20260920-above-tools2"></script>
-<script src="subscriber-approved-room.js?v=20261011-host-header-source2"></script>
+<script src="subscriber-approved-room.js?v=20261011-immediate-host-room1"></script>
 <script src="posted-feed.js?v=20260927-rose-fallback2"></script>
 <script src="music-recording-fix.js?v=20260921-g13-sync1"></script>
 <script src="sound-free-vocals-20-20260915.js?v=20261006-android-playfix1515"></script>
 <script src="sound-direct-playback-20261006.js?v=20261006-one-tap-v2-1515"></script>
 <script src="creator-record-timer.js?v=20260907-recordtimer1"></script>
-<script src="secret-room-password.js?v=20261011-five-guest-seats1"></script>
-<script src="group13-approved-room.js?v=20261011-common-guest-chatbar1"></script>
+<script src="secret-room-password.js?v=20261011-immediate-host-room1"></script>
+<script src="group13-approved-room.js?v=20261011-immediate-host-room1"></script>
 <script src="rainbow-waveform.js?v=20260907-wave1"></script>
 <script src="ad-seller-registration.js?v=20261011-all-guest-input-like13-1"></script>
 <script src="earnings-size-secret-sync.js?v=20260913-secret-size1"></script>
@@ -1097,7 +1104,7 @@ window.openRoomPrep=function(name,max){
 <script src="approved-guest-direct-bridge-20260922.js?v=20261006-fast-host-current-1325"></script>
 <script src="livekit-sfu-bridge-20260924.js?v=20261004-guest-fast-entry1"></script>
 <script src="guest-room-video-source-lock-20260926.js?v=20260926-source-lock1"></script>
-<script src="runtime-live-ai-health-20260913.js?v=20261011-chat-boundaries2"></script>
+<script src="runtime-live-ai-health-20260913.js?v=20261011-immediate-host-room1"></script>
 
 <script src="group9-bottom-tools-lower-20260919.js?v=20260921-1700restore1"></script>
 <script src="group9-host-video-size-match-guest-20260919.js?v=20260921-1700restore1"></script>
@@ -1140,7 +1147,7 @@ window.openRoomPrep=function(name,max){
 <script src="all-room-guest-rose-name-level-20260922.js?v=20260923-clean-guest-only17"></script>
 
 <script src="live-profile-photo-zoom-20260921.js?v=20261006-giftbox-only7777"></script>
-<script src="group9-restore-20260921-1700.js?v=20261011-explicit-choice2"></script>
+<script src="group9-restore-20260921-1700.js?v=20261011-immediate-host-room1"></script>
 
 
 <script src="host-video-true-direction-20260922.js?v=20260923-direction-unified4"></script>

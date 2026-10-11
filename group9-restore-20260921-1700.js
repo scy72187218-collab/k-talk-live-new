@@ -111,6 +111,8 @@
       
       forceNineState();
 
+      if(document.querySelector('#screen .ktg13-room[data-kt-room="9"]'))return adaptNineRoomNow();
+
       /* 현재 승인된 방 틀을 같은 JS 턴 안에서 만들고 바로 9명방으로 바꾼다.
          브라우저가 중간 13명방/단일영상/테스트 화면을 그릴 틈을 주지 않는다. */
       if(typeof window.ktOpenApprovedGroup13Now==='function'){

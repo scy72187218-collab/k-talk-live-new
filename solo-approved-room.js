@@ -206,13 +206,15 @@
   window.startBroadcast=async function(){
     var solo=isSolo();
     if(solo){
+      renderApprovedSolo();
+      if(window.ktRevealPreparedHostRoom)window.ktRevealPreparedHostRoom();
       try{if(window.state)state.cameraFacing='user';}catch(e){}
       try{if(window.ensureLiveCamera)await window.ensureLiveCamera('user');}catch(e){}
       try{await ktSoloKeepCameraWide();}catch(e){}
     }
     var result=await oldStartBroadcast.apply(this,arguments);
-    if(solo){
-      setTimeout(renderApprovedSolo,0);
+    if(solo&&isSolo()){
+      if(!document.querySelector('#screen .ktsolo-room'))renderApprovedSolo();
       [80,250,700,1500].forEach(function(ms){setTimeout(ktSoloKeepCameraWide,ms);});
     }
     return result;

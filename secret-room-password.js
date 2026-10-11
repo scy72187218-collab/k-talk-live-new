@@ -341,11 +341,13 @@
           if(input){input.focus();input.select();}
           return;
         }
+        renderSecretRoom();
+        if(window.ktRevealPreparedHostRoom)window.ktRevealPreparedHostRoom();
         try{if(window.state)state.cameraFacing='user';}catch(e){}
         try{if(window.ensureLiveCamera)await window.ensureLiveCamera('user');}catch(e){}
       }
       var result=await oldStart.apply(this,arguments);
-      if(secret)setTimeout(renderSecretRoom,30);
+      if(secret&&!document.querySelector('#screen .ktsecret-room'))renderSecretRoom();
       return result;
     };
   }

@@ -92,6 +92,7 @@
   }
 
   function beginHandoff(){
+    if(document.querySelector('#screen .ktsolo-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room'))return;
     /* 9명방은 방 DOM을 즉시 열기 때문에 전체화면 카메라 덮개를 쓰지 않는다.
        시작 순간 내 사진이 크게 한 번 보이는 현상만 차단. */
     if(isNineRoomStart())return;

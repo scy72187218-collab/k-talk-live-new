@@ -20,6 +20,7 @@
 
       var t=(window.state&&state.liveRoomType)||'';
       var n=(window.state&&state.liveRoomName)||'';
+      if(t&&t!=='group13'&&t!=='group')return false;
       return t==='group13'||n==='13명 방송'||(t==='group'&&Number(state.liveRoomMax||0)===13);
     }catch(e){return false;}
   }
@@ -101,6 +102,7 @@
       var t=(window.state&&state.liveRoomType)||'';
       var n=(window.state&&state.liveRoomName)||'';
       var m=Number((window.state&&state.liveRoomMax)||0);
+      if(t)return t==='group15';
       return t==='group15'||n==='15명 방송'||m===16;
     }catch(e){return false;}
   }
@@ -277,18 +279,23 @@
   };
 
   window.startBroadcast=async function(){
-    if(!isGroup13())return oldStartBroadcast.apply(this,arguments);
+    if(!isGroup13()&&!isGroup15Mode())return oldStartBroadcast.apply(this,arguments);
 
     markGroup13Opening();
 
+    renderApprovedGroup13(false);
+    if(window.ktRevealPreparedHostRoom)window.ktRevealPreparedHostRoom();
+
     var self=this,args=arguments;
     var result=await Promise.resolve(oldStartBroadcast.apply(self,args));
+
+    if(!isGroup13()&&!isGroup15Mode())return result;
 
     try{
       if(window.creator)creator.classList.remove('show','live-prep-open');
     }catch(e){}
 
-    renderApprovedGroup13(false);
+    if(!document.querySelector('#screen .ktg13-room'))renderApprovedGroup13(false);
 
     try{
       var v=document.getElementById('ktLiveVideo');
