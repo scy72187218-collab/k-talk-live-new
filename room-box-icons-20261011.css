@@ -1,0 +1,23 @@
+/* Owner-authorized icon appearance only: all five host and guest rooms.
+   Preserve existing buttons, handlers, labels, positions and control dimensions. */
+#screen .kt-fresh-three-1111 > button[aria-label="보물상자"] > b,
+#screen .kt-room-treasure-meta-btn > .kt-room-treasure-icon {
+  display:inline-block!important; width:20px!important; height:20px!important;
+  flex:0 0 20px!important; font-size:0!important; color:transparent!important;
+  background:url("room-treasure-blue-20261011.svg") center/contain no-repeat!important;
+}
+#screen #ktRemoteBottom button.kt-remote-action.gift,
+#screen .kt-sgfh-bottom button[data-b="gift"] {
+  position:relative!important; color:transparent!important;
+}
+#screen #ktRemoteBottom button.kt-remote-action.gift::before,
+#screen .kt-sgfh-bottom button[data-b="gift"]::before {
+  content:""; position:absolute; inset:20%; pointer-events:none;
+  background:url("room-gift-yellow-20261011.svg") center/contain no-repeat;
+}
+#screen .ktsolo-gifts img[src*="gift-box.svg"],
+#screen .ktg13-gifts img[src*="gift-box.svg"],
+#screen .ktsubscriber-gifts img[src*="gift-box.svg"],
+#screen .ktsecret-gifts img[src*="gift-box.svg"] {
+  content:url("room-gift-yellow-20261011.svg");
+}
