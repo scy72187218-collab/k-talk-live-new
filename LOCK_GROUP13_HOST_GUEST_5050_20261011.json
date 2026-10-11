@@ -30,5 +30,11 @@
     "canonical-three-buttons-all-rooms-20261006.js": "2e97fd86f0bc694f5b534e0650ae18aafbb66271",
     "live-presence.js": "8db50394c2a5e60042dacf381d79334c1a3426a1",
     "live-peer-fallback-20260921.js": "db20de7294fe3f98b1453c07ee70427f553cda4c"
+  },
+  "scoped_authorization": {
+    "date": "2026-10-11",
+    "status": "unlocked_for_authorized_chat_input_change",
+    "scope": "All guest rooms: remove only the separate speech-bubble chat opener and expand the always-visible input into its freed space.",
+    "preserve": "All other icons, chat display boundaries, host UI, attendance and like hearts, video, camera/mic, approval, gifts, payments and business logic remain protected."
   }
 }

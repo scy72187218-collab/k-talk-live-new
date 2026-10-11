@@ -181,7 +181,7 @@
 (function(){
   if(document.querySelector('script[data-kt-live-chat-send-arrow]'))return;
   var s=document.createElement('script');
-  s.src='live-chat-send-arrow.js?v=20261011-visible-guest13-input1';
+  s.src='live-chat-send-arrow.js?v=20261011-guest-wide-input-no-bubble1';
   s.async=false;
   s.setAttribute('data-kt-live-chat-send-arrow','1');
   document.head.appendChild(s);
