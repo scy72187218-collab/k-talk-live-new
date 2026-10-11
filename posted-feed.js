@@ -487,6 +487,8 @@
     }catch(e){return false;}
   }
   function renderFeedNow(a){
+    // A delayed home-feed response must not replace an opened solo broadcast.
+    if(screen.querySelector('.ktsolo-room'))return false;
     if(!Array.isArray(a)||!a.length)return false;
 
     /* If the lightweight first-paint video is already buffering/playing,
@@ -596,6 +598,7 @@
     return feedRefreshInFlight;
   }
   async function show(fallback){
+    if(screen.querySelector('.ktsolo-room'))return;
     var fast=cachedFeed();
     if(fast.length){
       /* Keep the parser-started first video physically on screen until its first
