@@ -3,8 +3,8 @@
   "lock_id": "5050",
   "locked_at": "2026-10-11",
   "locked": true,
-  "snapshot_commit": "61e03b9c4fcd21a0ce90555e9637fe4a066afe8f",
-  "snapshot_tree": "5f9ff4496a019c15395d8d6e72ecf05b8b9c7b9a",
+  "snapshot_commit": "13b33ecd88eb9e614a0c07f10903cf3c11cbe1f3",
+  "snapshot_tree": "42275627e29edd20a64dd3d760bbfd2a20a8c344",
   "scope": [
     "13명방 호스트와 게스트 화면",
     "채팅 영역·채팅 입력칸·원형 아이콘",
@@ -18,10 +18,10 @@
   "security_note": "5050 is the owner-provided change lock identifier, not a room entry password or repository access control.",
   "verification": "Deployment ready and source delivery verified; actual phone display and keyboard behavior have not been directly verified.",
   "files": {
-    "index.html": "129b65316a92e38c803136e8aff15c8eeb382926",
+    "index.html": "e0f8f8b6d650312d99dcb641a3aad04153f38f27",
     "group13-approved-room.js": "51542f68aaae54a29ad3f2fe7232e5da1378fefe",
     "all-room-floating-chat-20260919.js": "64240baf13895e50b5a4916c4d3f20bc06f85fb1",
-    "live-chat-send-arrow.js": "d24b28e14f761db34a294a0ba432f29b4223e458",
+    "live-chat-send-arrow.js": "373a69476379109d38fe1396d7469fc38e947d0c",
     "live-viewer-interactions.js": "d95f80addf51aa5f1f8964848ecdb693f5efe2cb",
     "chat-only-host-sync-final-20261002.js": "7c987cad25407d7d45dbca6ba09b2ab892b302ad",
     "attendance-heart-host-tap-fix.js": "ed3d41b253bec5cb9ddf091c50f594333ce5c451",
@@ -33,8 +33,11 @@
   },
   "scoped_authorization": {
     "date": "2026-10-11",
-    "status": "unlocked_for_authorized_chat_input_change",
+    "status": "completed_and_relocked",
     "scope": "All guest rooms: remove only the separate speech-bubble chat opener and expand the always-visible input into its freed space.",
     "preserve": "All other icons, chat display boundaries, host UI, attendance and like hearts, video, camera/mic, approval, gifts, payments and business logic remain protected."
-  }
+  },
+  "previous_snapshot_commit": "61e03b9c4fcd21a0ce90555e9637fe4a066afe8f",
+  "relocked_at": "2026-10-11",
+  "current_chat_input_state": "All guest rooms: speech-bubble opener removed; chat input always visible and expanded into freed width; other controls preserved."
 }
