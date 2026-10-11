@@ -670,6 +670,15 @@
         renderLiveCards();
         return;
       }
+      // Restore the 2026-09-18 entry order for these two rooms: actual server
+      // room metadata wins before drawing; never keep the guessed nine-room shell.
+      if(/subscriber|구독|password|secret|비밀/i.test([room.room_type,room.room_name].join(' '))){
+        window.__ktForceNineViewerShellHost20261003='';
+        window.__ktLastLiveRoom=room;
+        window.__ktRemoteRoomType=String(room.room_type||'');
+        window.__ktRemoteRoomName=String(room.room_name||'');
+        renderRemote(room);
+      }
       updateRemoteMeta20260924(room);
       publishRemoteRoomLayout(room);
       try{

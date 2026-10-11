@@ -9,6 +9,10 @@
 
   function isNine(){
     try{
+      var root=document.querySelector('#screen .kt-remote-live');
+      var actual=root&&root.getAttribute('data-kt-room-type');
+      if(/^(subscriber|password|secret)$/.test(String(actual||'')))return false;
+      if(/subscriber|구독|password|secret|비밀/i.test(String(window.__ktRemoteRoomType||'')+' '+String(window.__ktRemoteRoomName||'')))return false;
       var last=window.__ktLastLiveRoom||{}, st=window.state||{};
       var roomType=String(last.room_type||window.__ktRemoteRoomType||st.liveRoomType||'').toLowerCase();
       var roomName=String(last.room_name||window.__ktRemoteRoomName||st.liveRoomName||'');
