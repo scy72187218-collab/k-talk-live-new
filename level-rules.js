@@ -237,7 +237,7 @@
       return;
     }
     var s=document.createElement('script');
-    s.src='live-viewer-interactions.js?v=20261011-chat-full-history1';
+    s.src='live-viewer-interactions.js?v=20261011-common-guest-chatbar1';
     s.async=false;
     s.setAttribute('data-kt-live-viewer-interactions','1');
     document.head.appendChild(s);

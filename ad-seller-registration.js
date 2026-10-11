@@ -171,7 +171,7 @@
 (function(){
   if(document.querySelector('script[data-kt-live-viewer-interactions]'))return;
   var s=document.createElement('script');
-  s.src='live-viewer-interactions.js?v=20261011-chat-full-history1';
+  s.src='live-viewer-interactions.js?v=20261011-common-guest-chatbar1';
   s.async=false;
   s.setAttribute('data-kt-live-viewer-interactions','1');
   document.head.appendChild(s);
@@ -181,7 +181,7 @@
 (function(){
   if(document.querySelector('script[data-kt-live-chat-send-arrow]'))return;
   var s=document.createElement('script');
-  s.src='live-chat-send-arrow.js?v=20261011-remove-dead-guest-grid1';
+  s.src='live-chat-send-arrow.js?v=20261011-common-guest-chatbar1';
   s.async=false;
   s.setAttribute('data-kt-live-chat-send-arrow','1');
   document.head.appendChild(s);
