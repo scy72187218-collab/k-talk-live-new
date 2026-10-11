@@ -1,4 +1,4 @@
-/* 9-room only: keyboard opens without moving the people/video grid.
+/* All live rooms: keyboard opens without moving the people/video grid.
    Freeze the room screen; move only the focused chat row above the keyboard.
    Do not change grid size, buttons, colors, approval, camera, mic or signaling.
 */
@@ -10,20 +10,13 @@
   var activeField=null, activeBar=null, saved={};
 
   function isNine(){
-    try{
-      if(document.querySelector('#screen .ktg13-room[data-kt-room="9"],#screen .ktg9-room'))return true;
-      var r=document.querySelector('#screen .kt-remote-live');
-      if(!r)return false;
-      if(r.querySelector('.kt-guest-hostlike-room[data-kt-room="9"]'))return true;
-      var st=window.state||{}, last=window.__ktLastLiveRoom||{};
-      var txt=[st.liveRoomType,st.liveRoomName,st.liveRoomMax,last.room_type,last.room_name,r.textContent].join(' ');
-      return /group9|9\s*명/i.test(String(txt));
-    }catch(e){return false;}
+    return !!document.querySelector('#screen .ktsolo-room,#screen .ktg9-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room,#screen .kt-remote-live,#screen .kt-guest-hostlike-room');
   }
 
   function isChatField(el){
     if(!el||!el.matches||!el.matches('input,textarea,[contenteditable="true"]'))return false;
-    if(!el.closest('#screen')||!isNine())return false;
+    if(!isNine())return false;
+    if(!el.closest('#screen')&&!/^(ktsoloChatInput|ktg13ChatInput|ktsubscriberChatInput|ktsecretChatInput)$/.test(el.id||''))return false;
     var ph=String(el.getAttribute('placeholder')||'');
     var parentText=String((el.parentElement&&el.parentElement.textContent)||'');
     return /채팅|입력|message|chat/i.test(ph+' '+parentText) ||
@@ -37,14 +30,16 @@
         ? window.visualViewport.height
         : window.innerHeight) || document.documentElement.clientHeight || 0
     );
-    if(h>500)stableH=h;
+    if(h>0)stableH=h;
   }
 
   function findChatBar(field){
     if(!field)return null;
+    /* Host chat sheets already follow the viewport; freeze the room behind them only. */
+    if(!field.closest('#screen'))return null;
     return field.closest(
       '.kt-remote-bottom,.ktg13-chat-input-row,.ktg13-chatbar,.ktg13-compose,'+
-      '.kgh-chat-input-row,.kt-chat-input-row,.chat-input-row,.chatbar'
+      '.kgh-chat-input-row,.kt-chat-input-row,.chat-input-row,.chatbar,.ktsecret-chat-compose'
     ) || field.parentElement;
   }
 
@@ -84,6 +79,28 @@
     var screen=document.getElementById('screen');
     savedWinY=window.scrollY||window.pageYOffset||0;
     savedScreenY=screen?screen.scrollTop:0;
+    var rooms=screen?screen.querySelectorAll('.ktsolo-room,.ktg9-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room,.kt-remote-live,.kt-guest-hostlike-room'):[];
+    saved.frozen=[];
+    if(screen){
+      screen.querySelectorAll('.ktsolo-main,.ktg9-main,.ktg13-main,.ktsubscriber-main,.ktsecret-main,.kgh-main').forEach(function(el){
+        if(!el.getBoundingClientRect)return;
+        var h=el.getBoundingClientRect().height;
+        if(!h)return;
+        ['height','min-height','max-height','flex-basis'].forEach(function(prop){
+          saved.frozen.push([el,prop,el.style.getPropertyValue(prop),el.style.getPropertyPriority(prop)]);
+          el.style.setProperty(prop,h+'px','important');
+        });
+      });
+    }
+    if(rooms.length){
+      rooms.forEach(function(el){
+        if(!el||!stableH)return;
+        ['height','min-height','max-height'].forEach(function(prop){
+          saved.frozen.push([el,prop,el.style.getPropertyValue(prop),el.style.getPropertyPriority(prop)]);
+          el.style.setProperty(prop,stableH+'px','important');
+        });
+      });
+    }
 
     if(screen){
       saved.screenPosition=screen.style.getPropertyValue('position');
@@ -171,6 +188,10 @@
     try{window.scrollTo(0,savedWinY);}catch(e){}
     activeField=null;
     activeBar=null;
+    (saved.frozen||[]).forEach(function(item){
+      if(item[2])item[0].style.setProperty(item[1],item[2],item[3]);
+      else item[0].style.removeProperty(item[1]);
+    });
     saved={};
     setTimeout(rememberHeight,250);
   }

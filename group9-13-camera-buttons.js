@@ -193,7 +193,7 @@
 (function(){
   if(document.querySelector('script[data-kt-att-heart-fix="1"]'))return;
   var s=document.createElement('script');
-  s.src='attendance-heart-host-tap-fix.js?v=20260913-heart1';
+  s.src='attendance-heart-host-tap-fix.js?v=20261011-keyboard-attendance2';
   s.async=false;
   s.setAttribute('data-kt-att-heart-fix','1');
   document.head.appendChild(s);
