@@ -312,9 +312,10 @@
   /* One room template for host and remote viewers; remote controls keep their existing handlers. */
   function isRemote13(){
     if(!document.documentElement.classList.contains('kt-remote-viewing'))return false;
-    var r=window.__ktLastLiveRoom||{};
-    var type=String(r.room_type||window.__ktRemoteRoomType||'');
-    var name=String(r.room_name||window.__ktRemoteRoomName||'');
+    var root=document.querySelector('#screen .kt-remote-live');
+    if(!root)return false;
+    var type=String(root.getAttribute('data-kt-room-type')||'');
+    var name=String(root.getAttribute('data-kt-room-name')||'');
     return type==='group13'||((type===''||type==='group'||type==='general')&&/13\s*명/.test(name));
   }
   function syncRemote13(){
@@ -381,7 +382,7 @@
     return true;
   }
   window.ktSyncSharedGroup13Remote=syncRemote13;
-  ['kt-remote-room-opened','kt-guest-approval-received','kt-approved-guest-stream-ready','kt-any-guest-approved','kt-livekit-state','kt-three-person-sync-now'].forEach(function(ev){window.addEventListener(ev,syncRemote13);});
+  ['kt-remote-host-selected','kt-remote-room-opened','kt-guest-approval-received','kt-approved-guest-stream-ready','kt-any-guest-approved','kt-livekit-state','kt-three-person-sync-now'].forEach(function(ev){window.addEventListener(ev,syncRemote13);});
   setInterval(syncRemote13,500);
   syncRemote13();
 

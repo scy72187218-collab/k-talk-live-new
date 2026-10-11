@@ -459,10 +459,18 @@
   window.addEventListener('kt-approved-guest-stream-ready',ktRemoteHostAttachSweep20261009);
   window.addEventListener('kt-guest-approval-received',ktRemoteHostAttachSweep20261009);
 
+  function publishRemoteRoomLayout(room){
+    var root=document.querySelector('#screen .kt-remote-live');
+    if(!root)return;
+    root.setAttribute('data-kt-host-id',String(room.host_id||window.__ktCurrentRemoteHostId||''));
+    root.setAttribute('data-kt-room-type',String(room.room_type||''));
+    root.setAttribute('data-kt-room-name',String(room.room_name||''));
+  }
   function renderRemote(room){
     ensureStyle();document.documentElement.classList.add('kt-remote-viewing');
     var s=document.getElementById('screen');if(!s)return;
     s.innerHTML='<section class="kt-remote-live"><video id="ktRemoteLiveVideo" autoplay playsinline></video><div class="kt-remote-shade"></div><div class="kt-remote-top"><button class="kt-remote-back" onclick="ktLeaveRemoteLive()">‹</button><div class="kt-remote-meta"><b><i class="kt-live-dot"></i>'+esc(room.host_name||'K-Talk')+'</b><span>'+esc(room.title||room.room_name||'라이브')+' · '+esc(room.room_name||'방송')+'</span></div><div id="ktRemoteViewerCount" class="kt-remote-viewers">👁 1명</div></div><div id="ktRemoteLiveStatus" class="kt-remote-status">방송 영상 연결 중…</div></section>';
+    publishRemoteRoomLayout(room);
     try{ktAttachRemoteHostStreamEverywhere20261009(window.__ktRemoteHostStream||null);}catch(e){}
   }
 
@@ -657,6 +665,7 @@
         return;
       }
       updateRemoteMeta20260924(room);
+      publishRemoteRoomLayout(room);
       try{
         window.__ktRemoteRoomType=String(room.room_type||'');
         window.__ktRemoteRoomName=String(room.room_name||'');
