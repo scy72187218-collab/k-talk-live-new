@@ -105,7 +105,7 @@
     bar.querySelectorAll('button.kt-remote-action').forEach(function(btn){var chat=btn.hasAttribute('data-kt-chat-open');style(btn,{flex:'0 0 clamp(30px,9vw,40px)',width:'clamp(30px,9vw,40px)','min-width':'0',height:'36px','min-height':'36px','max-height':'36px',margin:'0',padding:'0',border:'0','border-radius':chat?'50%':'9px',background:chat?'#26262d':'transparent','font-size':'21px','box-sizing':'border-box'});});
     if(root.classList.contains('kt-shared13-remote')){
       style(bar,{background:'transparent',border:'0','border-radius':'0',padding:'2px 0',gap:'5px',overflow:'visible'});
-      style(input,{height:'40px','min-height':'40px','max-height':'40px',border:'1px solid #ffffff40','border-radius':'22px',background:'rgba(28,28,34,.92)',padding:'0 10px'});
+      style(input,{display:'block','min-width':'60px',height:'40px','min-height':'40px','max-height':'40px',border:'1px solid #ffffff40','border-radius':'22px',background:'rgba(28,28,34,.92)',padding:'0 10px'});
       bar.querySelectorAll('button.kt-remote-action').forEach(function(btn){
         style(btn,{flex:'0 0 clamp(32px,10vw,44px)',width:'clamp(32px,10vw,44px)',height:'clamp(32px,10vw,44px)','min-height':'clamp(32px,10vw,44px)','max-height':'clamp(32px,10vw,44px)','border-radius':'50%',border:'1px solid #ffffff40',background:btn.classList.contains('gift')?'rgba(62,37,11,.92)':'rgba(23,23,29,.92)'});
       });
@@ -116,9 +116,9 @@
     button.setAttribute('aria-label','채팅 입력 열기');button.textContent='💬';
     button.style.setProperty('border-radius','50%','important');
     button.style.setProperty('background','#26262d','important');
-    function close(){input.style.setProperty('display','none','important');button.style.removeProperty('display');}
+    function close(){input.style.setProperty('display',root.classList.contains('kt-shared13-remote')?'block':'none','important');button.style.removeProperty('display');}
     button.addEventListener('click',function(){
-      button.style.setProperty('display','none','important');input.style.setProperty('display','block','important');
+      if(!root.classList.contains('kt-shared13-remote'))button.style.setProperty('display','none','important');input.style.setProperty('display','block','important');
       try{input.focus({preventScroll:true});}catch(e){input.focus();}
     });
     input.addEventListener('blur',close);
