@@ -85,7 +85,7 @@
         return window.ktFinalRoomAllowed20260928(type,label,max);
       }
     }catch(e){}
-    return !restricted(type,label,max)||currentLevel()>=21;
+    return true;
   }
 
   function notice(type,label,max){

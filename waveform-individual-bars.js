@@ -180,22 +180,6 @@
     return tileHasPerson(tile);
   }
 
-  function ensureSecretSeventhSlot(){
-    var grid=document.querySelector('.ktsecret-room .ktsecret-six-grid');
-    if(!grid)return;
-    if(grid.querySelector(':scope > .ktsecret-extra-pair'))return;
-    var slots=[].slice.call(grid.querySelectorAll(':scope > .ktsecret-slot'));
-    if(slots.length<6)return;
-    var last=slots[slots.length-1];
-    var pair=document.createElement('div');
-    pair.className='ktsecret-extra-pair';
-    grid.insertBefore(pair,last);
-    pair.appendChild(last);
-    var extra=document.createElement('div');
-    extra.className='ktsecret-slot ktsecret-extra-slot';
-    extra.innerHTML='<div class="ktsecret-guest-wait"><b>+</b><span>게스트 6</span></div>';
-    pair.appendChild(extra);
-  }
 
   function directWaves(tile){
     var out=[];
@@ -259,7 +243,6 @@
 
   function sync(){
     addStyle();
-    ensureSecretSeventhSlot();
     var idx=0;
 
     /* 1인방: 호스트 카메라가 열려 있을 때만 파장 */

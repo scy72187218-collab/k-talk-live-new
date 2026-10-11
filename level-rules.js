@@ -115,14 +115,14 @@
   window.ktCanCreateRoomByLevel=function(roomType,level){
     if(!ktIsLevel20Room(roomType))return true;
     if(ktPaidSubscriberForRoom20261002())return true;
-    return window.ktEffectiveLevel(level)>=21;
+    return true;
   };
 
   /* 13명방/비밀방만 레벨 21부터 이용 가능. 나머지 방은 기존 그대로. */
   window.ktCanEnterRoomByLevel=function(roomType,level,isSubscriber){
     if(!ktIsLevel20Room(roomType))return true;
     if(isSubscriber===true||ktPaidSubscriberForRoom20261002())return true;
-    return window.ktEffectiveLevel(level)>=21;
+    return true;
   };
 
   function wrapOwnerBypass(name){

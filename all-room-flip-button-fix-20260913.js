@@ -151,7 +151,7 @@
     }
   }
 
-  /* 비밀방만: 호스트 1 + 게스트 4 = 총 5명 */
+  /* 비밀방만: 호스트 1 + 게스트 5 = 총 6명 */
   function isSecretRoomState(){
     try{
       var t=(window.state&&state.liveRoomType)||'';
@@ -161,15 +161,15 @@
     }catch(e){return false;}
   }
 
-  function enforceSecretFive(){
-    try{if(isSecretRoomState()&&window.state)state.liveRoomMax=5;}catch(e){}
+  function enforceSecretSix(){
+    try{if(isSecretRoomState()&&window.state)state.liveRoomMax=6;}catch(e){}
     var room=document.querySelector('.ktsecret-room');
     if(!room)return;
     var grid=room.querySelector('.ktsecret-six-grid');
     if(!grid)return;
     var slots=[].slice.call(grid.children||[]).filter(function(el){return el.classList&&el.classList.contains('ktsecret-slot');});
     slots.forEach(function(slot,i){
-      try{slot.style.setProperty('display',i<5?'flex':'none','important');}catch(e){}
+      try{slot.style.setProperty('display',i<6?'flex':'none','important');}catch(e){}
     });
   }
 
@@ -178,7 +178,7 @@
     window.selectPrepRoom=function(el,type,name,max){
       var r=oldSelectPrepRoom.apply(this,arguments);
       if(type==='password'||String(name||'').indexOf('비밀')>-1){
-        try{if(window.state)state.liveRoomMax=5;}catch(e){}
+        try{if(window.state)state.liveRoomMax=6;}catch(e){}
       }
       return r;
     };
@@ -189,7 +189,7 @@
     window.openRoomPrep=function(name,max){
       var r=oldOpenRoomPrep.apply(this,arguments);
       if(String(name||'').indexOf('비밀')>-1){
-        try{if(window.state)state.liveRoomMax=5;}catch(e){}
+        try{if(window.state)state.liveRoomMax=6;}catch(e){}
       }
       return r;
     };
@@ -198,7 +198,7 @@
   var oldStartBroadcast=window.startBroadcast;
   if(typeof oldStartBroadcast==='function'){
     window.startBroadcast=function(){
-      try{if(isSecretRoomState()&&window.state)state.liveRoomMax=5;}catch(e){}
+      try{if(isSecretRoomState()&&window.state)state.liveRoomMax=6;}catch(e){}
       return oldStartBroadcast.apply(this,arguments);
     };
   }
@@ -219,7 +219,7 @@
     addFlip('.ktg13-room','.ktg13-right-quick');
     addFlip('.ktsubscriber-room','.ktsubscriber-right');
     addFlip('.ktsecret-room','.ktsecret-right');
-    enforceSecretFive();
+    enforceSecretSix();
   }
 
   ensure();

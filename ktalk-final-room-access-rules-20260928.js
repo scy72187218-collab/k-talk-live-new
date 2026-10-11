@@ -97,9 +97,7 @@
   }
 
   function minLevel(k){
-    if(k==='subscriber')return 41;
-    if(k==='group13'||k==='group15'||k==='secret')return 21;
-    return 1;
+    return 0;
   }
 
   function allowed(k,lv){
@@ -129,8 +127,8 @@
   window.ktCanEnterRoomByLevel=function(roomType,lv){
     return true;
   };
-  window.ktLevelCanOpen13=function(){return owner()||paidSubscriber()||level()>=21;};
-  window.ktLevelCanUseSecret=function(){return owner()||paidSubscriber()||level()>=21;};
+  window.ktLevelCanOpen13=function(){return true;};
+  window.ktLevelCanUseSecret=function(){return true;};
 
   function myIdentity(){
     var name='K-Talk',id='';
@@ -358,8 +356,8 @@
     // Re-assert final rules after legacy patches try to overwrite them.
     window.ktCanCreateRoomByLevel=function(roomType,lv){return allowed(kind(roomType,'',0),lv==null?level():lv);};
     window.ktCanEnterRoomByLevel=function(roomType,lv){return true;};
-    window.ktLevelCanOpen13=function(){return owner()||paidSubscriber()||level()>=21;};
-    window.ktLevelCanUseSecret=function(){return owner()||paidSubscriber()||level()>=21;};
+    window.ktLevelCanOpen13=function(){return true;};
+    window.ktLevelCanUseSecret=function(){return true;};
     installLocalGates();
   }
 
