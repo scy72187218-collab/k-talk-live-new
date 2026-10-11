@@ -2,7 +2,23 @@
 (function(){
   if(window.__ktLiveChooserGesture20261011)return;
   window.__ktLiveChooserGesture20261011=true;
-  var opening=false, openedAt=0;
+  var opening=false, openedAt=0, roomGesture=false, roomGestureAt=0;
+  function selectSpecialRoom(e){
+    var el=e.target&&e.target.closest?e.target.closest('.live-prep .room-switch,.live-prep .kt-room-bottom5 button'):null;
+    if(!el)return false;
+    var text=String(el.textContent||'').replace(/\s+/g,''),type=/구독/.test(text)?'subscriber':(/비밀/.test(text)?'password':'');
+    if(!type||typeof window.selectPrepRoom!=='function')return false;
+    stop(e);
+    roomGesture=true;roomGestureAt=Date.now();
+    var name=type==='subscriber'?'구독자 방송':'비밀방',max=type==='subscriber'?15:5;
+    // Keep the existing access gates and secret-password setup in the selection chain.
+    var result=window.selectPrepRoom(el,type,name,max);
+    if(result===false||!window.state||window.state.liveRoomType!==type)return true;
+    choose(el);
+    var title=document.getElementById('liveTitle');
+    if(title){title.value=name;title.dataset.autoRoom='1';}
+    return true;
+  }
   function liveControl(target){
     if(target&&target.closest&&target.closest('.bottom .plus,.kt-bottom .livebtn'))return true;
     var el=target&&target.closest?target.closest('.creator-bottom .modes span,.creator-bottom .modes button,.creator-bottom .creator-foot span,.creator-bottom .creator-foot button'):null;
@@ -41,17 +57,21 @@
     window.openTikLivePrep();
   }
   window.addEventListener('pointerdown',function(e){
-    opening=false;
+    opening=false;roomGesture=false;
     if(liveControl(e.target)){open(e);return;}
+    if(selectSpecialRoom(e))return;
     choose(e.target);
   },true);
   ['pointerup','touchend','click'].forEach(function(name){
     window.addEventListener(name,function(e){
       if(opening&&Date.now()-openedAt<900){stop(e);return;}
+      // Legacy coordinate hit-testing must not select a different room on release.
+      if(roomGesture&&Date.now()-roomGestureAt<900){stop(e);return;}
       opening=false;
       if(name==='click'&&liveControl(e.target)){open(e);return;}
+      if(name==='click'&&selectSpecialRoom(e))return;
       if(name==='click')choose(e.target);
     },true);
   });
-  window.addEventListener('pointercancel',function(){opening=false;},true);
+  window.addEventListener('pointercancel',function(){opening=false;roomGesture=false;},true);
 })();
