@@ -171,13 +171,15 @@
       if(!room||room.closest('.kt-remote-live')||room.hasAttribute('data-kt-remote13'))return;
       var chat=room.querySelector('.ktg13-chat');
       var tools=room.querySelector('.ktg13-tools');
-      if(!chat||!tools)return;
-      var rr=room.getBoundingClientRect(),tr=tools.getBoundingClientRect();
+      var grid=room.querySelector('.ktg13-main');
+      if(!chat||!tools||!grid)return;
+      var rr=room.getBoundingClientRect(),tr=tools.getBoundingClientRect(),gr=grid.getBoundingClientRect();
       if(!rr.width||!tr.height)return;
-      var height=Math.min(96,Math.max(60,Math.round(rr.height*0.12)));
+      var top=Math.round(gr.bottom+4);
+      var height=Math.max(0,Math.round(tr.top-4)-top);
       var values={
         position:'fixed',left:Math.round(rr.left+8)+'px',right:'auto',
-        top:Math.round(tr.top-height-4)+'px',bottom:'auto',
+        top:top+'px',bottom:'auto',
         width:Math.max(0,Math.round(rr.width*0.58)-8)+'px',
         height:height+'px','min-height':height+'px','max-height':height+'px',
         'box-sizing':'border-box',padding:'0 4px',margin:'0',
