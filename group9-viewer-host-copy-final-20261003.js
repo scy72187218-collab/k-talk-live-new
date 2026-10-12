@@ -11,6 +11,9 @@
     try{
       var root=document.querySelector('#screen .kt-remote-live');
       var actual=root&&root.getAttribute('data-kt-room-type');
+      var actualName=root&&root.getAttribute('data-kt-room-name');
+      // Never replace a selected solo viewer with the nine-room shell on later ticks.
+      if(String(actual||'')==='solo'||/1\s*인|solo/i.test(String(actualName||'')))return false;
       if(/^(subscriber|password|secret)$/.test(String(actual||'')))return false;
       if(/subscriber|구독|password|secret|비밀/i.test(String(window.__ktRemoteRoomType||'')+' '+String(window.__ktRemoteRoomName||'')))return false;
       var last=window.__ktLastLiveRoom||{}, st=window.state||{};
