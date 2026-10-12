@@ -62,13 +62,15 @@
       var root=document.querySelector('#sheet.kt-gift-force .ktgf');
       if(!root)return;
       var old=root.querySelector('.kt-gift-recipient-bar-20261006');
-      if(old)old.remove();
-
       var t=selectedTarget();
+      var key=t?[t.kind,t.viewerId||'',targetName()].join('|'):'';
+      if(old&&old.dataset.recipientKey===key)return;
+      if(old)old.remove();
       if(!t)return;
 
       var bar=document.createElement('div');
       bar.className='kt-gift-recipient-bar-20261006';
+      bar.dataset.recipientKey=key;
 
       var face=document.createElement('div');
       face.className='kt-gift-recipient-face-20261006';

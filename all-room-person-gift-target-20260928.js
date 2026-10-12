@@ -88,24 +88,71 @@
     document.head.appendChild(s);
   }
 
-  var openTimer=0,lastOpenAt=0,lastTile=null;
+
+  function ownTile(tile){
+    if(tile.classList.contains('self'))return true;
+    if(kindOf(tile)==='host'&&isLocalHostRoom())return true;
+    var id=viewerId(tile),self=selfViewerId();
+    if(id&&self&&id===self)return true;
+    var v=tile.querySelector('video'),s=v&&v.srcObject;
+    return !!(s&&(s===window.__ktApprovedGuestSelfStream||s===window.__ktLocalGuestCameraStream20260926));
+  }
+  function closeMenu(){
+    var el=document.getElementById('ktPersonMenu20261012');if(el)el.remove();
+  }
   function openGiftFor(tile){
-    if(!choose(tile))return false;
-    var now=Date.now();
-    if(now-lastOpenAt<300&&lastTile===tile)return true;
-    lastOpenAt=now;lastTile=tile;
-    clearTimeout(openTimer);
-    try{
-      if(typeof window.openGifts==='function'){
-        window.openGifts();
-        return true;
-      }
-    }catch(e){}
-    openTimer=setTimeout(function(){
-      try{if(typeof window.openGifts==='function')window.openGifts();}catch(e){}
-    },0);
+    var own=ownTile(tile);
+    if(!own&&!choose(tile))return false;
+    closeMenu();
+    var overlay=document.createElement('div');overlay.id='ktPersonMenu20261012';
+    overlay.style.cssText='position:fixed;inset:0;z-index:2147483646;background:#0004;display:flex;align-items:flex-end;justify-content:center';
+    var panel=document.createElement('section');
+    panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');panel.setAttribute('aria-label','사람 메뉴');
+    panel.style.cssText='box-sizing:border-box;width:100%;max-width:560px;background:#202024;color:white;border-radius:24px 24px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom));max-height:65dvh;overflow:auto';
+    var title=document.createElement('h2');title.style.cssText='margin:0 0 16px;font:700 20px system-ui';
+    title.textContent=own?'내 방송 메뉴':nameOf(tile);panel.appendChild(title);
+    function button(text,action){
+      var b=document.createElement('button');b.type='button';b.textContent=text;
+      b.style.cssText='font:700 16px system-ui;border:0;border-radius:16px;padding:20px;margin:4px;background:#333338;color:white;min-height:64px';
+      b.onclick=action;panel.appendChild(b);return b;
+    }
+    if(own){
+      ['camera','mic'].forEach(function(k){
+        var v=tile.querySelector('video');
+        var s=(v&&v.srcObject)||window.__ktApprovedGuestSelfStream||window.__ktLocalGuestCameraStream20260926;
+        if(kindOf(tile)==='host'&&isLocalHostRoom())s=window.state&&window.state.stream||s;
+        var tracks=s&&(k==='camera'?s.getVideoTracks():s.getAudioTracks());
+        var live=(tracks||[]).filter(function(t){return t.readyState==='live';});
+        var label=k==='camera'?'카메라':'마이크';
+        var b=button(label,function(){
+          if(!tile.isConnected||!ownTile(tile)){closeMenu();return;}
+          if(!live.length)return;
+          var on=live.some(function(t){return t.enabled;});
+          live.forEach(function(t){t.enabled=!on;});
+          if(k==='mic'&&kindOf(tile)==='host'&&window.state)window.state.mic=!on;
+          if(k==='camera'&&kindOf(tile)==='host'&&typeof window.ktCameraOffAvatarState20260928==='function')window.ktCameraOffAvatarState20260928(on);
+          paint();
+        });
+        function paint(){b.textContent=label+(live.some(function(t){return t.enabled;})?' 끄기':' 켜기');}
+        paint();b.disabled=!live.length;
+        if(!live.length)b.textContent=label+' 연결 없음';
+      });
+    }else{
+      button('🎁 선물 상자',function(){
+        if(!tile.isConnected){closeMenu();return;}
+        if(!choose(tile))return;
+        closeMenu();
+        if(typeof window.openGifts==='function')window.openGifts();
+      });
+    }
+    button('닫기',closeMenu);
+    overlay.appendChild(panel);
+    overlay.onclick=function(e){if(e.target===overlay)closeMenu();};
+    document.body.appendChild(overlay);
+    panel.querySelector('button').focus({preventScroll:true});
     return true;
   }
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeMenu();});
 
   function excludedUi(el){
     try{

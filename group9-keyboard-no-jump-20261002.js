@@ -7,7 +7,7 @@
   window.__ktG9KeyboardNoJump20261002=true;
 
   var stableH=0, savedWinY=0, savedScreenY=0, active=false, raf=0;
-  var activeField=null, activeBar=null, saved={};
+  var activeField=null, activeBar=null, saved={}, screenRect=null, barRect=null;
 
   function isNine(){
     return !!document.querySelector('#screen .ktsolo-room,#screen .ktg9-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room,#screen .kt-remote-live,#screen .kt-guest-hostlike-room');
@@ -58,13 +58,19 @@
        Counter that pan so the people/grid stays exactly where it was. */
     if(screen){
       var off=vv?Math.max(0,Math.round(vv.offsetTop||0)):0;
-      screen.style.setProperty('top',off+'px','important');
+      screen.style.setProperty('top',(screenRect.top+off)+'px','important');
     }
 
     /* Only the chat entry row rises above the keyboard. */
     if(activeBar){
       var kh=keyboardHeight();
-      activeBar.style.setProperty('transform','translateY(-'+kh+'px)','important');
+      var bottom=vv?vv.offsetTop+vv.height:window.innerHeight;
+      activeBar.style.setProperty('position','fixed','important');
+      activeBar.style.setProperty('left',barRect.left+'px','important');
+      activeBar.style.setProperty('width',barRect.width+'px','important');
+      activeBar.style.setProperty('top',Math.max(0,bottom-barRect.height-8)+'px','important');
+      activeBar.style.setProperty('bottom','auto','important');
+      activeBar.style.setProperty('transform','none','important');
       activeBar.style.setProperty('z-index','2147483646','important');
     }
   }
@@ -79,6 +85,11 @@
     var screen=document.getElementById('screen');
     savedWinY=window.scrollY||window.pageYOffset||0;
     savedScreenY=screen?screen.scrollTop:0;
+    screenRect=screen?screen.getBoundingClientRect():null;
+    barRect=activeBar?activeBar.getBoundingClientRect():null;
+    saved.inline=[];
+    if(screen)['position','top','left','right','width','height','min-height','max-height','overflow'].forEach(function(p){saved.inline.push([screen,p,screen.style.getPropertyValue(p),screen.style.getPropertyPriority(p)]);});
+    if(activeBar)['position','top','left','width','bottom','transform','z-index'].forEach(function(p){saved.inline.push([activeBar,p,activeBar.style.getPropertyValue(p),activeBar.style.getPropertyPriority(p)]);});
     var rooms=screen?screen.querySelectorAll('.ktsolo-room,.ktg9-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room,.kt-remote-live,.kt-guest-hostlike-room'):[];
     saved.frozen=[];
     if(screen){
@@ -95,9 +106,10 @@
     if(rooms.length){
       rooms.forEach(function(el){
         if(!el||!stableH)return;
+        var roomH=el.getBoundingClientRect().height;
         ['height','min-height','max-height'].forEach(function(prop){
           saved.frozen.push([el,prop,el.style.getPropertyValue(prop),el.style.getPropertyPriority(prop)]);
-          el.style.setProperty(prop,stableH+'px','important');
+          el.style.setProperty(prop,roomH+'px','important');
         });
       });
     }
@@ -114,14 +126,14 @@
       saved.screenOverflow=screen.style.getPropertyValue('overflow');
 
       screen.style.setProperty('position','fixed','important');
-      screen.style.setProperty('top','0','important');
-      screen.style.setProperty('left','0','important');
-      screen.style.setProperty('right','0','important');
-      screen.style.setProperty('width','100%','important');
+      screen.style.setProperty('top',screenRect.top+'px','important');
+      screen.style.setProperty('left',screenRect.left+'px','important');
+      screen.style.setProperty('right','auto','important');
+      screen.style.setProperty('width',screenRect.width+'px','important');
       if(stableH>0){
-        screen.style.setProperty('height',stableH+'px','important');
-        screen.style.setProperty('min-height',stableH+'px','important');
-        screen.style.setProperty('max-height',stableH+'px','important');
+        screen.style.setProperty('height',screenRect.height+'px','important');
+        screen.style.setProperty('min-height',screenRect.height+'px','important');
+        screen.style.setProperty('max-height',screenRect.height+'px','important');
       }
       screen.style.setProperty('overflow','hidden','important');
     }
@@ -192,7 +204,8 @@
       if(item[2])item[0].style.setProperty(item[1],item[2],item[3]);
       else item[0].style.removeProperty(item[1]);
     });
-    saved={};
+    (saved.inline||[]).forEach(function(item){if(item[2])item[0].style.setProperty(item[1],item[2],item[3]);else item[0].style.removeProperty(item[1]);});
+    saved={};screenRect=null;barRect=null;
     setTimeout(rememberHeight,250);
   }
 
@@ -209,7 +222,7 @@
 
   document.addEventListener('keydown',function(e){
     if(!active||!isChatField(e.target))return;
-    if(e.key==='Enter'&&!e.shiftKey){
+    if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){
       setTimeout(finishChatEntry,30);
     }
   },true);
@@ -240,7 +253,7 @@
   },true);
 
   document.addEventListener('focusout',function(e){
-    if(isChatField(e.target))setTimeout(unlock,100);
+    if(isChatField(e.target))setTimeout(function(){if(!isChatField(document.activeElement))unlock();},100);
   },true);
 
   if(window.visualViewport){
