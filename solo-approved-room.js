@@ -89,6 +89,8 @@
   function renderApprovedSolo(){
     var screen=document.getElementById('screen');
     if(!screen)return;
+    // Keep the same video element when startup is requested again.
+    if(screen.querySelector('.ktsolo-room'))return;
 
     var net=(document.getElementById('hudEarnNet')||{}).textContent||'0원';
     var roses=(document.getElementById('hudEarnRoses')||{}).textContent||'🌹 0송이';
@@ -168,7 +170,7 @@
     }catch(e){}
   }
 
-  window.startBroadcast=async function(){
+  async function startSoloBroadcast(){
     var solo=isSolo();
     if(solo){
       renderApprovedSolo();
@@ -189,5 +191,15 @@
       [80,250,700,1500].forEach(function(ms){setTimeout(ktSoloKeepCameraWide,ms);});
     }
     return result;
+  }
+  var soloStartInFlight=null;
+  window.startBroadcast=function(){
+    if(!isSolo())return startSoloBroadcast.apply(this,arguments);
+    if(soloStartInFlight)return soloStartInFlight;
+    var pending=startSoloBroadcast.apply(this,arguments);
+    soloStartInFlight=pending;
+    pending.then(function(){if(soloStartInFlight===pending)soloStartInFlight=null;},
+      function(){if(soloStartInFlight===pending)soloStartInFlight=null;});
+    return pending;
   };
 })();
