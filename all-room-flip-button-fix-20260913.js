@@ -11,13 +11,10 @@
       if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return false;
 
       var oldStream=(window.state&&state.stream)?state.stream:null;
+      var videoEnabled=!oldStream||!oldStream.getVideoTracks||oldStream.getVideoTracks().some(function(t){return t.enabled!==false;});
       var audioTracks=[];
       if(oldStream&&oldStream.getAudioTracks){
         audioTracks=oldStream.getAudioTracks().filter(function(t){return t.readyState==='live';});
-      }
-
-      if(oldStream&&oldStream.getVideoTracks){
-        oldStream.getVideoTracks().forEach(function(t){try{t.stop();}catch(e){}});
       }
 
       var videoStream=null;
@@ -37,8 +34,9 @@
         });
       }
 
-      var tracks=[];
-      if(videoStream&&videoStream.getVideoTracks)tracks=tracks.concat(videoStream.getVideoTracks());
+      var tracks=videoStream&&videoStream.getVideoTracks?videoStream.getVideoTracks():[];
+      if(!tracks.length)throw new Error('no video track');
+      tracks.forEach(function(t){t.enabled=videoEnabled;});
       tracks=tracks.concat(audioTracks);
       var merged=new MediaStream(tracks);
 
@@ -47,16 +45,21 @@
         state.cameraFacing=next;
       }
 
-      var targetSelector=soloRoom
+      var targetSelector=soloNow
         ?'#screen .ktsolo-room #ktLiveVideo,#screen .ktsolo-room video'
-        :'#camera,.ktg13-room video,.ktsubscriber-room video,.ktsecret-room video,#ktLiveVideo';
+        :'#camera,.ktg13-host video,.ktg9-host video,.ktsubscriber-host video,.ktsecret-slot.host video,#ktLiveVideo';
       document.querySelectorAll(targetSelector).forEach(function(v){
+        if(v.srcObject&&v.srcObject!==oldStream)return;
         try{
           v.srcObject=merged;
           v.style.setProperty('transform',next==='user'?'scaleX(-1)':'none','important');
           var p=v.play();if(p&&p.catch)p.catch(function(){});
         }catch(e){}
       });
+
+      if(oldStream&&oldStream.getVideoTracks){
+        oldStream.getVideoTracks().forEach(function(t){try{t.stop();}catch(e){}});
+      }
 
       /* 1111: 1인 방송에서 뒤집기 후에도 카메라 화면은 방 전체를 꽉 채운다.
          다른 방 배치/버튼은 건드리지 않는다. */
@@ -90,7 +93,16 @@
       return false;
     }
   }
-  window.ktAllRoomsFlipCamera=flipCamera;
+  var flipPending=null;
+  window.ktAllRoomsFlipCamera=function(){
+    if(flipPending)return flipPending;
+    flipPending=flipCamera().then(function(ok){
+      if(!ok)try{alert('카메라를 전환하지 못했습니다. 기존 카메라와 권한을 확인해 주세요.');}catch(e){}
+      return ok;
+    }).finally(function(){flipPending=null;});
+    return flipPending;
+  };
+  if(typeof window.toggleCreatorCamera!=='function')window.toggleCreatorCamera=window.ktAllRoomsFlipCamera;
 
   function isFlip(el){
     if(!el)return false;

@@ -1180,7 +1180,7 @@ window.prepTap=async function(el,name){
     return;
   }
   if(name==='전환'){
-    if(window.openHostMatchArena)openHostMatchArena('1대1');
+    if(typeof window.toggleCreatorCamera==='function')await window.toggleCreatorCamera();
     return;
   }
   if(name==='설정'){ openLiveSettings(); return; }

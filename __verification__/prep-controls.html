@@ -1,0 +1,7 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><title>준비 화면 버튼 검증</title><style>body{background:#101118;color:white;font:18px system-ui;margin:30px}button{font:inherit;padding:15px;margin:10px}#result{background:#222;padding:20px;border-radius:15px}</style><h1>준비 화면 버튼 검증</h1><p>실제 카메라나 방송을 열지 않고 버튼 실행 횟수를 확인합니다.</p><div id="creator" class="creator show live-prep-open"><div class="live-prep"><button class="prep-item" onclick="prepTap(this,'전환')">↻ 전환</button><button class="prep-reward" onclick="prepTap(this,'코인 리워드')">★ 코인 리워드</button></div></div><p id="result">카메라 전환 0회 · 보상 열기 0회 · 매치 열기 0회</p><script>
+window.__ktGroup13ApprovedRoomInstalled=true;window.__ktGroup9ApprovedRoomInstalled=true;
+let cameraCount=0,rewardCount=0,matchCount=0;
+function display(){document.getElementById('result').textContent='카메라 전환 '+cameraCount+'회 · 보상 열기 '+rewardCount+'회 · 매치 열기 '+matchCount+'회';}
+window.toggleCreatorCamera=function(){cameraCount++;display();};
+window.prepTap=function(btn,name){if(name==='전환')window.toggleCreatorCamera();else if(name==='코인 리워드'){rewardCount++;display();}};
+</script><script src="../all-live-switches-ready-20260913.js"></script><script src="../live-prep-button-touch-rescue-20261002.js"></script></html>

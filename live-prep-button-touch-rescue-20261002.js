@@ -49,8 +49,9 @@
     try{window.prepTap(btn,name);}catch(_e){}
   }
 
-  document.addEventListener('pointerdown',rescue,true);
-  if(!window.PointerEvent)document.addEventListener('touchstart',rescue,true);
+  // A completed click owns one action, including touch and keyboard activation.
+  // Window capture already handles prep-item buttons; reward buttons use this fallback.
+  document.addEventListener('click',rescue,true);
 
   unlock();
   [80,220,500,900,1600].forEach(function(ms){setTimeout(unlock,ms);});

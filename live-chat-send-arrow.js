@@ -207,7 +207,7 @@
 (function(){
   if(document.querySelector('script[data-kt-guest-photo-cards]'))return;
   var s=document.createElement('script');
-  s.src='guest-request-photo-cards-20260914.js?v=20260921-centerreq-live-swipe1';
+  s.src='guest-request-photo-cards-20260914.js?v=20261013-request-controls1';
   s.async=false;
   s.setAttribute('data-kt-guest-photo-cards','1');
   document.head.appendChild(s);
