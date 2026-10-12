@@ -1,0 +1,27 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>K-Talk 친구 화면 미리보기</title>
+<style>body{margin:0;background:#0a0a11;color:white;font-family:system-ui}#screen{min-height:calc(100dvh - 78px)}nav{position:fixed;bottom:0;left:0;right:0;height:78px;display:flex;background:#06060a;z-index:50;border-top:1px solid #292331}nav button{flex:1;border:0;background:none;color:#fff;font-size:14px;font-weight:bold}#testbar{padding:12px;background:#251a2e;font-size:12px}#testbar button{margin-left:12px;padding:8px;border:0;border-radius:8px;background:#dc247c;color:#fff}#tests{padding:10px;color:#b4efc0;font-size:12px}</style>
+<div id="testbar">확인용 예시 · 실제 사람에게 팔로우·공유하지 않습니다.<button id="tests-run">동작 검사</button></div><div id="tests"></div><main id="screen"></main><nav><button onclick="home()">⌂ 홈</button><button onclick="friends()">👥 친구</button><button>＋ 방송하기</button><button>사용방법</button><button>프로필</button></nav>
+<script>
+var demoPeople=[{id:'live-a',name:'별빛 라이브',photo:'',live:true,following:false,followsMe:false,friend:false},{id:'friend-b',name:'음악 친구',photo:'',live:false,following:true,followsMe:true,friend:true},{id:'offline-c',name:'즐거운 하루',photo:'',live:false,following:false,followsMe:false,friend:false}];
+var saved=[],entry=[],shares=[],failSave=false;
+window.ktFriendsDirectoryData=async()=>structuredClone(demoPeople);
+window.ktFriendsChangeFollow=async(id,name,desired)=>{await new Promise(r=>setTimeout(r,60));if(failSave)return false;var p=demoPeople.find(x=>x.id===id);p.following=desired;p.friend=desired&&p.followsMe;saved.push({id,desired});return true;};
+window.ktEnterRemoteLive=async id=>{entry.push(id);document.getElementById('screen').innerHTML='<section class="kt-remote-live" style="padding:25px"><h2>방송 입장 연결 확인</h2><p>실제 방송이 아닌 검사입니다.</p><button onclick="friends()">친구 목록으로 돌아가기</button></section>';};
+Object.defineProperty(navigator,'share',{configurable:true,value:async data=>{shares.push(data);document.getElementById('tests').textContent='공유 연결 확인: '+data.url;}});
+window.friends=()=>{document.getElementById('screen').innerHTML='<section class="friends-page"><div class="friends-list"></div></section>';};
+window.home=()=>{document.getElementById('screen').innerHTML='<h2 style="padding:25px">동영상 홈 예시</h2>';};
+</script><script src="/friends-directory-20261012.js"></script><script>
+friends();const wait=ms=>new Promise(r=>setTimeout(r,ms));
+document.getElementById('tests-run').onclick=async function(){this.disabled=true;let results=[];function check(ok,label){results.push((ok?'PASS ':'FAIL ')+label);if(!ok)throw Error(label);}try{
+friends();await wait(160);check(document.querySelectorAll('.kt-friends-signal.live').length===1,'방송 중 빨간 카드');check(document.querySelectorAll('.kt-friends-signal.offline').length===2,'방송 안 함 파란 카드');check(document.querySelectorAll('.kt-friends-person').length===3,'세로 사람 목록');
+check(getComputedStyle(document.querySelector('.kt-friends-signal-art')).borderRadius==='20px','둥근 사각형');
+document.querySelector('[data-person-id="offline-c"] .kt-follow-action').click();await wait(110);check(document.querySelector('[data-person-id="offline-c"] .kt-follow-action').textContent.includes('팔로잉'),'팔로우 저장 후 상태');check(!document.querySelector('[data-person-id="offline-c"] .kt-follow-action').disabled,'저장 후 버튼 사용 가능');
+document.querySelector('[data-person-id="offline-c"] .kt-follow-action').click();await wait(110);check(!demoPeople[2].following,'팔로우 취소');
+failSave=true;document.querySelector('[data-person-id="offline-c"] .kt-follow-action').click();await wait(110);check(!document.querySelector('[data-person-id="offline-c"] .kt-follow-action').textContent.includes('팔로잉'),'실패 시 성공 표시 안 함');failSave=false;
+document.querySelector('.kt-friends-filter button:last-child').click();check(document.querySelectorAll('.kt-friends-person').length===1,'서로 팔로우한 친구 필터');document.querySelector('.kt-friends-filter button').click();
+const search=document.querySelector('.kt-friends-search');search.value='없는 사람';search.dispatchEvent(new Event('input'));check(document.querySelectorAll('.kt-friends-person').length===0,'이름 검색 빈 결과');search.value='';search.dispatchEvent(new Event('input'));
+Array.from(document.querySelectorAll('[data-person-id="live-a"] button')).find(b=>b.textContent==='공유·초대').click();await wait(20);check(shares[0].url.includes('kt_live_host=live-a'),'특정 방송 공유 주소');
+document.querySelector('.kt-friends-signal.live').click();await wait(20);check(entry.length===1&&entry[0]==='live-a','빨간 카드 기존 입장 호출');friends();await wait(160);check(document.querySelector('.kt-friends-directory'),'친구 목록 복귀');
+document.getElementById('tests').textContent=results.join(' · ');document.getElementById('tests').dataset.passed='true';
+}catch(e){document.getElementById('tests').textContent=results.join(' · ')+' / '+e.message;document.getElementById('tests').dataset.passed='false';}};
+</script></html>

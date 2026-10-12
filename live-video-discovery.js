@@ -636,6 +636,40 @@
 
   window.ktRefreshVideoLivePeek=render;
   window.ktDiscoveryActiveRooms=activeRooms;
+
+  /* Friends directory uses the same account identity and follow records as discovery. */
+  async function friendsRows(path){
+    var r=await fetch(BASE+path,{headers:apiHeaders(),cache:'no-store'});
+    if(!r.ok)throw new Error('friends-list-unavailable');
+    var a=await r.json();return Array.isArray(a)?a:[];
+  }
+  window.ktFriendsDirectoryData=async function(){
+    var own=me(),lists=await Promise.all([
+      activeRooms(),
+      friendsRows('ktalk_user_follows?select=following_id,following_name&follower_id=eq.'+enc(own.id)+'&order=updated_at.desc&limit=100'),
+      friendsRows('ktalk_user_follows?select=follower_id,follower_name&following_id=eq.'+enc(own.id)+'&limit=100'),
+      friendsRows('ktalk_live_rooms?select=host_id,host_name,host_photo,updated_at&order=updated_at.desc&limit=100')
+    ]);
+    var map=new Map(),incoming=new Set();
+    function put(id,name,photo){
+      id=String(id||'');if(!id||id===own.id)return null;
+      if(!map.has(id))map.set(id,{id:id,name:String(name||'K-Talk 회원'),photo:String(photo||''),live:false,following:false,followsMe:false,friend:false});
+      var p=map.get(id);if(name)p.name=String(name);if(photo)p.photo=String(photo);return p;
+    }
+    lists[3].forEach(function(r){put(r.host_id,r.host_name,r.host_photo);});
+    lists[1].forEach(function(r){var p=put(r.following_id,r.following_name,'');if(p)p.following=true;});
+    lists[2].forEach(function(r){incoming.add(String(r.follower_id));put(r.follower_id,r.follower_name,'');});
+    lists[0].forEach(function(r){var p=put(r.host_id,r.host_name,r.host_photo);if(p){p.live=true;p.title=String(r.title||r.room_name||'방송 중');}});
+    return Array.from(map.values()).map(function(p){p.followsMe=incoming.has(p.id);p.friend=p.following&&p.followsMe;return p;})
+      .sort(function(a,b){return Number(b.live)-Number(a.live)||Number(b.friend)-Number(a.friend)||Number(b.following)-Number(a.following)||a.name.localeCompare(b.name,'ko');});
+  };
+  window.ktFriendsChangeFollow=async function(id,name,desired){
+    id=String(id||'');if(!id||id===me().id||id.length>80)return false;
+    var st=await followState(id),ok=desired?await saveFollow(id,name,!!st.notify):await removeFollow(id);
+    if(!ok)return false;
+    try{var rows=await friendsRows('ktalk_user_follows?select=following_id&follower_id=eq.'+enc(me().id)+'&following_id=eq.'+enc(id)+'&limit=1');return desired?rows.length>0:rows.length===0;}catch(e){return false;}
+  };
+
   var mo=new MutationObserver(function(){scheduleRender(400);});
   var screen=document.getElementById('screen');if(screen)mo.observe(screen,{childList:true,subtree:true});
   if(screen)screen.addEventListener('scroll',function(){scheduleRender(350);},true);
