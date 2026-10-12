@@ -114,3 +114,12 @@ The owner subsequently explicitly authorized the 9-person room to use smaller ce
 # Owner correction: restore 9-room three-column layout (2026-10-12)
 
 The owner rejected the four-column 9-room layout because people looked too small, and explicitly requested three cells per row. This supersedes the four-column review direction above. Restore three columns and three rows for the existing nine seats, without changing video-area height, full-cell cover framing, controls, chat, communications, or any other room. This candidate does not authorize production deployment; request owner release approval after reporting checks. The secret-room size request remains pending and is not implemented in this change.
+
+
+# Owner approval: 9-room saved and relocked (5051; 2026-10-12)
+
+After production release, the owner thanked the assistant and explicitly requested locking the current 9-person room. Approved recoverable runtime commit: `43e76baa295619b2cab511ab08d676a6f798ed4e`; runtime tree: `6f6968d876c1472ea8eea63927f9640ca78f836c`; production deployment: `dpl_4tpR185Kuv9CMGwXFvHM6ZehrR5e` at `k-talk-live-final.vercel.app`.
+
+Preserve three columns and three rows, nine total seats, current video-area height, full-cell host cover framing without the old scale(.78), current borders, host/viewer behavior, chat, controls, camera/microphone, room entry and communications. This supersedes the rejected four-column 9-room direction. Do not alter this state directly or via shared files without explicit owner authorization for the specific change. Other room locks remain independent, especially the approved 13-room 5052 state. The outstanding secret-room request is separate and does not authorize changing this 9-room state.
+
+5051 is a maintenance change policy and recoverable source record, not a runtime password or disabled control. This request authorizes documentation only, no runtime edits or additional deployment. The owner accepted the released state; do not represent that as independent physical-device testing by the assistant.
