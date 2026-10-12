@@ -11,8 +11,6 @@
     var s=document.createElement('style');
     s.id='ktFiveRoomHostMiniNoWaveStyle20260921';
     s.textContent=''
-      /* Owner requested: reduce the person by 30%; preserve framing, mirroring and seat geometry. */
-      +"#screen#screen :is(.ktsolo-main,.ktg13-host,.ktg9-host,.ktsubscriber-host,.ktsecret-slot.host,.ktsecret-host,.kt-sgfh-cell.host,.kgh-cell.host)>video{scale:.7!important;transform-origin:center center!important}"
       /* 파장만 제거 */
       +'#screen .ktsolo-wave,#screen .ktg13-wave,#screen .ktsubscriber-wave,#screen .ktsecret-wave,#screen .kt-room-live-wave{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}'
       +'#screen .ktg13-main::after{content:none!important;display:none!important;visibility:hidden!important;opacity:0!important}'
