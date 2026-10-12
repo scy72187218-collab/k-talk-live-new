@@ -510,6 +510,22 @@
   window.ktEnterRemoteLive=async function(hostId){
     hostId=String(hostId||'').trim();if(!hostId)return;
     if(hostId===deviceId()&&hostActive){showActivity('현재 내가 방송 중인 방입니다.');return;}
+    /* Solo guest was removed by the owner. Resolve the selected LIVE room
+       before creating any viewer screen, presence or media selection event. */
+    var entryRooms=window.__ktLiveEntryRooms20261011;
+    var entryRoom=entryRooms&&entryRooms.rooms&&entryRooms.rooms[hostId];
+    var lastEntry=window.__ktLastLiveRoom;
+    if(!entryRoom&&lastEntry&&String(lastEntry.host_id||'')===hostId)entryRoom=lastEntry;
+    if(!entryRoom)entryRoom=liveRoomCache20260924[hostId]||null;
+    if(!entryRoom){
+      try{
+        var entryRows=await req('ktalk_live_rooms?select=host_id,room_type,room_name,title&host_id=eq.'+enc(hostId)+'&active=eq.true&order=started_at.desc&limit=1');
+        entryRoom=entryRows&&entryRows[0];
+      }catch(_entryError){return;}
+      if(!entryRoom)return;
+    }
+    if(entryRoom.room_type==='solo'||(!entryRoom.room_type&&/1\s*인/.test(String(entryRoom.room_name||entryRoom.title||''))))return;
+
     if(viewerCtx){
       /* 빨간 LIVE 재입장 시 이전 방 서버 정리를 기다리지 않는다.
          화면과 새 영상 연결을 먼저 열고, 이전 viewer 정리는 뒤에서 처리한다. */
@@ -529,7 +545,7 @@
 
     /* Communication only: start the host-video path first.
        Room metadata/presence bookkeeping must never delay or cancel media. */
-    var cached=cachedRemoteRoom20260924(hostId);
+    var cached=entryRoom;
     renderRemote(cached);
     window.__ktRemoteHostId=hostId;
     window.__ktCurrentRemoteHostId=hostId;
