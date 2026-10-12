@@ -485,7 +485,7 @@
         if(!soloStyle){
           soloStyle=document.createElement('style');
           soloStyle.id='ktSoloViewerHostMatch20261012';
-          soloStyle.textContent='.kt-remote-live[data-kt-solo-viewer="1"] .kt-remote-top{left:7px;right:7px;top:4px;min-height:64px;border-radius:16px;background:rgba(10,10,14,.75);padding:7px 10px}.kt-remote-live[data-kt-solo-viewer="1"] .kt-remote-meta b{font-size:17px;font-weight:950}.kt-remote-live[data-kt-solo-viewer="1"] .kt-remote-meta span{font-size:11px}.kt-remote-live[data-kt-solo-viewer="1"] #ktRemoteLiveVideo{object-fit:cover;width:100%;height:100%}';
+          soloStyle.textContent='.kt-remote-live[data-kt-solo-viewer="1"] .kt-remote-top{left:7px;right:7px;top:4px;min-height:64px;border-radius:16px;background:rgba(10,10,14,.75);padding:7px 10px}.kt-remote-live[data-kt-solo-viewer="1"] .kt-remote-meta b{font-size:17px;font-weight:950}.kt-remote-live[data-kt-solo-viewer="1"] .kt-remote-meta span{font-size:11px}.kt-remote-live[data-kt-solo-viewer="1"] #ktRemoteLiveVideo{object-fit:cover;width:100%;height:100%;transform:scale(.5);transform-origin:center center}';
           document.head.appendChild(soloStyle);
         }
       }
