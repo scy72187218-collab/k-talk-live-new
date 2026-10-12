@@ -174,7 +174,13 @@
       renderApprovedSolo();
       if(window.ktRevealPreparedHostRoom)window.ktRevealPreparedHostRoom();
       try{if(window.state)state.cameraFacing='user';}catch(e){}
-      try{if(window.ensureLiveCamera)await window.ensureLiveCamera('user');}catch(e){}
+      try{
+        var stream=window.state&&state.stream;
+        var videoLive=stream&&stream.getVideoTracks&&stream.getVideoTracks().some(function(t){return t.readyState==='live';});
+        var audioLive=stream&&stream.getAudioTracks&&stream.getAudioTracks().some(function(t){return t.readyState==='live';});
+        /* Keep an already prepared camera and microphone attached during solo startup. */
+        if((!videoLive||!audioLive)&&window.ensureLiveCamera)await window.ensureLiveCamera('user');
+      }catch(e){}
       try{await ktSoloKeepCameraWide();}catch(e){}
     }
     var result=await oldStartBroadcast.apply(this,arguments);

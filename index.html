@@ -806,7 +806,7 @@ window.openRoomPrep=function(name,max){
     }
     var liveVideo=document.getElementById('ktLiveVideo');
     if(ok&&liveVideo&&window.state&&state.stream){
-      liveVideo.srcObject=state.stream;
+      if(liveRoomType!=='solo'||liveVideo.srcObject!==state.stream)liveVideo.srcObject=state.stream;
       try{await liveVideo.play();}catch(e){}
       applySelectedEffectToLive();
     }else if(liveVideo){
