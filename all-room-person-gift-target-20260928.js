@@ -40,7 +40,7 @@
     if(n)return clean(n);
     var el=tile.querySelector&&tile.querySelector('.kt-allguest-name,.kt-guest-name,.kgh-label,.ktsecret-guest-name,label');
     if(el&&String(el.textContent||'').trim())return clean(el.textContent);
-    return tile.classList.contains('host')?'호스트':'게스트';
+    return kindOf(tile)==='host'?'호스트':'게스트';
   }
   function kindOf(tile){
     if(!tile)return '';
@@ -110,7 +110,14 @@
     panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');panel.setAttribute('aria-label','사람 메뉴');
     panel.style.cssText='box-sizing:border-box;width:100%;max-width:560px;background:#202024;color:white;border-radius:24px 24px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom));max-height:65dvh;overflow:auto';
     var title=document.createElement('h2');title.style.cssText='margin:0 0 16px;font:700 20px system-ui';
-    title.textContent=own?'내 방송 메뉴':nameOf(tile);panel.appendChild(title);
+    title.textContent=own?'내 방송 메뉴':nameOf(tile);
+    title.style.display='flex';title.style.alignItems='center';title.style.gap='12px';
+    var portrait=document.createElement('span');portrait.textContent='👤';
+    portrait.style.cssText='width:48px;height:48px;flex:0 0 48px;border-radius:50%;overflow:hidden;background:#36363d;display:grid;place-items:center';
+    var image=tile.querySelector('img'),video=tile.querySelector('video'),url=image&&(image.currentSrc||image.src)||video&&video.poster||'';
+    if(url){var pic=document.createElement('img');pic.src=url;pic.alt='';pic.style.cssText='width:100%;height:100%;object-fit:cover';portrait.replaceChildren(pic);}
+    else if(video&&video.readyState>=2){try{var canvas=document.createElement('canvas');canvas.width=48;canvas.height=48;canvas.style.cssText='width:100%;height:100%;object-fit:cover';var w=video.videoWidth,h=video.videoHeight,side=Math.min(w,h);canvas.getContext('2d').drawImage(video,(w-side)/2,(h-side)/2,side,side,0,0,48,48);portrait.replaceChildren(canvas);}catch(e){}}
+    title.prepend(portrait);panel.appendChild(title);
     function button(text,action){
       var b=document.createElement('button');b.type='button';b.textContent=text;
       b.style.cssText='font:700 16px system-ui;border:0;border-radius:16px;padding:20px;margin:4px;background:#333338;color:white;min-height:64px';
