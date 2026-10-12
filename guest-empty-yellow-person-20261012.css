@@ -1,0 +1,16 @@
+/* Empty guest placeholders only. Subscriber blue icons and all media/transport remain unchanged. */
+#screen :is(.ktg13-guest,.ktg9-guest):not(:has(video,img,canvas)){position:relative;}
+#screen :is(.ktg13-guest,.ktg9-guest):not(:has(video,img,canvas))::before{
+  content:"";position:absolute;left:50%;top:50%;width:24px;height:24px;
+  transform:translate(-50%,-75%);background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22%23ffd43b%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%227.2%22%20r%3D%224.2%22%2F%3E%3Cpath%20d%3D%22M4.4%2020c.35-4.15%203.05-6.7%207.6-6.7s7.25%202.55%207.6%206.7H4.4z%22%2F%3E%3C%2Fsvg%3E") center/contain no-repeat;
+  pointer-events:none;
+}
+#screen :is(.ktg13-guest,.ktg9-guest):not(:has(video,img,canvas))>span:not([class]){
+  transform:translateY(14px);
+}
+#screen .ktsecret-guest:not(:has(video,img,canvas)) .ktsecret-guest-wait>b,
+#screen .kt-sgfh-cell[data-g]:not(:has(video,img,canvas)) .kt-sgfh-wait>b{
+  width:24px!important;height:24px!important;border:0!important;border-radius:0!important;
+  font-size:0!important;background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22%23ffd43b%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%227.2%22%20r%3D%224.2%22%2F%3E%3Cpath%20d%3D%22M4.4%2020c.35-4.15%203.05-6.7%207.6-6.7s7.25%202.55%207.6%206.7H4.4z%22%2F%3E%3C%2Fsvg%3E") center/contain no-repeat!important;
+  pointer-events:none;
+}
