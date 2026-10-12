@@ -476,7 +476,20 @@
       publishRemoteRoomLayout(room);return;
     }
     if(room.room_type==='subscriber'&&current&&current.getAttribute('data-kt-host-id')===host&&current.querySelector('[data-kt-subscriber-viewer="1"]')){publishRemoteRoomLayout(room);return;}
-    s.innerHTML='<section class="kt-remote-live"><video id="ktRemoteLiveVideo" autoplay playsinline></video><div class="kt-remote-shade"></div><div class="kt-remote-top"><button class="kt-remote-back" onclick="ktLeaveRemoteLive()">‹</button><div class="kt-remote-meta"><b><i class="kt-live-dot"></i>'+esc(room.host_name||'K-Talk')+'</b><span>'+esc(room.title||room.room_name||'라이브')+' · '+esc(room.room_name||'방송')+'</span></div><div id="ktRemoteViewerCount" class="kt-remote-viewers">👁 1명</div></div><div id="ktRemoteLiveStatus" class="kt-remote-status">방송 영상 연결 중…</div></section>';
+    s.innerHTML='<section class="kt-remote-live"'+(room.room_type==='solo'?' data-kt-solo-viewer="1"':'')+'><video id="ktRemoteLiveVideo" autoplay playsinline></video><div class="kt-remote-shade"></div><div class="kt-remote-top"><button class="kt-remote-back" onclick="ktLeaveRemoteLive()">‹</button><div class="kt-remote-meta"><b><i class="kt-live-dot"></i>'+esc(room.host_name||'K-Talk')+'</b><span>'+esc(room.title||room.room_name||'라이브')+' · '+esc(room.room_name||'방송')+'</span></div><div id="ktRemoteViewerCount" class="kt-remote-viewers">👁 1명</div></div><div id="ktRemoteLiveStatus" class="kt-remote-status">방송 영상 연결 중…</div></section>';
+    /* Solo viewer visual alignment only: keep the existing video and signaling. */
+    if(room.room_type==='solo'){
+      var soloRoot=s.querySelector('.kt-remote-live[data-kt-solo-viewer="1"]');
+      if(soloRoot){
+        var soloStyle=document.getElementById('ktSoloViewerHostMatch20261012');
+        if(!soloStyle){
+          soloStyle=document.createElement('style');
+          soloStyle.id='ktSoloViewerHostMatch20261012';
+          soloStyle.textContent='.kt-remote-live[data-kt-solo-viewer="1"] .kt-remote-top{left:7px;right:7px;top:4px;min-height:64px;border-radius:16px;background:rgba(10,10,14,.75);padding:7px 10px}.kt-remote-live[data-kt-solo-viewer="1"] .kt-remote-meta b{font-size:17px;font-weight:950}.kt-remote-live[data-kt-solo-viewer="1"] .kt-remote-meta span{font-size:11px}.kt-remote-live[data-kt-solo-viewer="1"] #ktRemoteLiveVideo{object-fit:cover;width:100%;height:100%}';
+          document.head.appendChild(soloStyle);
+        }
+      }
+    }
     publishRemoteRoomLayout(room);
     try{ktAttachRemoteHostStreamEverywhere20261009(window.__ktRemoteHostStream||null);}catch(e){}
   }
