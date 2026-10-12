@@ -138,3 +138,8 @@ The owner supplied a phone screenshot showing the solo video occupying the right
 # Owner-authorized solo 40 percent reduction review (2026-10-12)
 
 The owner requested reducing the solo video, first answering 30 then correcting to 40. The final request is a 40% reduction in displayed width and height. Add only `scale:.6!important` to the existing solo video rule in `earnings-size-secret-sync-v2.js`, preserving left:0 and centered transform origin from the offset repair, existing camera mirror behavior and full source framing inside the video element. Independent CSS scale leaves controls, labels and chat at their original dimensions and positions. The reduced video occupies 60% width and height with surrounding space, as disclosed to the owner. Preserve every other room and all communication/camera lifecycle logic. Syntax and source-scope checks passed; actual phone framing is unverified. This is a review candidate; no production deployment until explicit owner approval.
+
+
+# Owner requested solo reduction rollback (2026-10-12)
+
+The owner rejected the 40% reduced solo host display after supplying a phone screenshot and explicitly requested restoring the previous state. Remove only scale:.6 from the solo video rule by restoring earnings-size-secret-sync-v2.js to d1bd7c1fe50b314b60f817691a7903f599b35719. Preserve the left:0 offset repair and full-cell cover framing, subscriber reduction, locked 9-room and 13-room, all other controls and communications. This supersedes the rejected solo 40% reduction above and authorizes its production rollback.
