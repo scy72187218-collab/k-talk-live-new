@@ -134,6 +134,7 @@
     if(!pending.length){removeRail();return;}
     var rail=document.getElementById('ktGuestPhotoRequestRail');if(!rail){rail=document.createElement('div');rail.id='ktGuestPhotoRequestRail';room.appendChild(rail);}
     var infos=await Promise.all(pending.map(function(x){return getPhoto(x.vid,x.name);}));
+    rail.__ktPending=pending;
     rail.innerHTML='';
     pending.forEach(function(x,i){var p=infos[i]||{},btn=document.createElement('button');btn.type='button';btn.className='kt-guest-photo-request';btn.setAttribute('aria-label',(x.name||'게스트')+' 참여 신청');
       var photo=String(p.photo||'');btn.innerHTML=(photo&&(/^data:image/.test(photo)||/^https?:/.test(photo))?'<img src="'+esc(photo)+'" alt="">':'<span class="fallback">👤</span>')+'<span class="name">'+esc(x.name||p.name||'게스트')+' 신청</span><span class="dot"></span>';
@@ -144,11 +145,10 @@
       rail.__ktDirectTouchBound=true;
       rail.addEventListener('touchstart',function(e){
         var b=e.target&&e.target.closest?e.target.closest('.kt-guest-photo-request'):null;if(!b)return;
-        var idx=[].indexOf.call(rail.querySelectorAll('.kt-guest-photo-request'),b),x=pending[idx];if(!x)return;
+        var idx=[].indexOf.call(rail.querySelectorAll('.kt-guest-photo-request'),b),x=(rail.__ktPending||[])[idx];if(!x)return;
         e.preventDefault();e.stopPropagation();openChoice(x);
       },{passive:false});
     }
-  }
   }
 
   async function tick(){
