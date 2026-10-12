@@ -585,13 +585,6 @@
     if(!hid||typeof window.ktEnterRemoteLive!=='function')return;
     try{
       var lr=window.__ktLastLiveRoom||{};
-      // The tapped solo LIVE label wins over metadata cached for another feed card.
-      if(/1\s*인|solo/i.test(String(btn.textContent||'')+' '+String(btn.getAttribute('aria-label')||''))){
-        lr=Object.assign({},String(lr.host_id||'')===hid?lr:{},{host_id:hid,room_type:'solo',room_name:'1인 방송',title:'1인 방송'});
-        window.__ktLastLiveRoom=lr;
-        window.__ktRemoteRoomType='solo';
-        window.__ktRemoteRoomName='1인 방송';
-      }
       var roomTxt=[lr.room_type,lr.room_name,lr.title].join(' ');
       if(String(lr.host_id||'')===hid&&/group9|9\s*명/i.test(String(roomTxt))){
         window.__ktForceNineViewerShellHost20261003=hid;

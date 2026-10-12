@@ -864,13 +864,6 @@
   function ensurePrejoinRoomGrid(){
     var root=document.querySelector('.kt-remote-live');
     if(!root)return;
-    // Solo viewers never use the legacy default nine-seat waiting grid.
-    var selectedKind=String(root.getAttribute('data-kt-room-type')||'');
-    var selectedName=String(root.getAttribute('data-kt-room-name')||'');
-    if(selectedKind==='solo'||/1\s*인|solo/i.test(selectedName)){
-      if(root.querySelector('.kt-prejoin-room-grid'))removePrejoinRoomGrid();
-      return;
-    }
     if(root.querySelector('.kt-approved-guest-grid'))return;
     // The saved nine-room shell already owns the host video. Legacy prejoin
     // must not move it into a second grid that cleanup will later remove.

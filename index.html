@@ -806,7 +806,7 @@ window.openRoomPrep=function(name,max){
     }
     var liveVideo=document.getElementById('ktLiveVideo');
     if(ok&&liveVideo&&window.state&&state.stream){
-      if(liveRoomType!=='solo'||liveVideo.srcObject!==state.stream)liveVideo.srcObject=state.stream;
+      liveVideo.srcObject=state.stream;
       try{await liveVideo.play();}catch(e){}
       applySelectedEffectToLive();
     }else if(liveVideo){
@@ -1061,7 +1061,7 @@ window.openRoomPrep=function(name,max){
   line-height:1.05!important;
 }
 </style>
-<script src="solo-approved-room.js?v=20261012-solo-top-undo-restore5"></script>
+<script src="solo-approved-room.js?v=20261012-rollback-solo-oct11-2000"></script>
 <script src="solo-earn-undo-lower-20261002.js?v=20261002-earn-72-1111"></script>
 <script src="solo-chat-under-wave-20260920.js?v=20260920-above-tools2"></script>
 <script src="subscriber-approved-room.js?v=20261012-one-shared-renderer1"></script>
@@ -1091,15 +1091,15 @@ window.openRoomPrep=function(name,max){
 
 
 <script src="communication-fetch-coalescer-20260922.js?v=20260922-comm1"></script>
-<script src="live-presence.js?v=20261012-solo-full-area3"></script>
+<script src="live-presence.js?v=20261012-rollback-solo-oct11-2000"></script>
 <script src="room-enter-exit-rejoin-cleanup-20260924.js?v=20261005-silent-reconnect1150617"></script>
-<script src="live-video-discovery.js?v=20261011-outside-room-label1"></script>
-<script src="live-guest-request-flow-20260918.js?v=20261011-remove-legacy13-grid1"></script>
+<script src="live-video-discovery.js?v=20261012-rollback-solo-oct11-2000"></script>
+<script src="live-guest-request-flow-20260918.js?v=20261012-rollback-solo-oct11-2000"></script>
 <script src="live-peer-fallback-20260921.js?v=20261012-subscriber-viewer-stable1"></script>
 <script src="remote-host-id-bridge-20260922.js?v=20260922-hostbridge2"></script>
 <script src="webrtc-ice-turn-stability-20260921.js?v=20261008-transport-only"></script>
 <script src="direct-realtime-webrtc-20260922.js?v=20261012-subscriber-restore-1400"></script>
-<script src="instant-first-frame-five-rooms-20261006.js?v=20261006-instant-first-frame7777"></script>
+<script src="instant-first-frame-five-rooms-20261006.js?v=20261012-rollback-solo-oct11-2000"></script>
 <script src="video-upload-auth-fix-20261006.js?v=20261006-upload403-7777"></script>
 <script src="approved-guest-direct-bridge-20260922.js?v=20261006-fast-host-current-1325"></script>
 <script src="livekit-sfu-bridge-20260924.js?v=20261004-guest-fast-entry1"></script>
@@ -1182,7 +1182,7 @@ window.openRoomPrep=function(name,max){
 <script src="remove-room-side-quick-controls-20260928.js?v=20260928-clean2"></script>
 <link rel="stylesheet" href="room-box-icons-20261011.css?v=20261011-blue-yellow1">
 <link rel="stylesheet" href="room-led-unified-pending-20261011.css?v=20261011-led15-pending1">
-<link rel="stylesheet" href="solo-side-two-controls-20261011.css?v=20261011-solo-side-two1">
+<link rel="stylesheet" href="solo-side-two-controls-20261011.css?v=20261012-rollback-solo-oct11-2000">
 <script src="canonical-three-buttons-all-rooms-20261006.js?v=20261011-guest13-three-buttons1"></script>
 <script src="ktalk-final-room-access-rules-20260928.js?v=20261004-entry-anylevel1?v=20261003-group15-access1150617"></script>
 <script src="host-face-like-reward.js?v=20260928-like5000x5-final1"></script>

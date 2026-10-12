@@ -431,19 +431,9 @@
   });
 
   function renderRemote(room){
-    var solo=room.room_type==='solo'||(!room.room_type&&/1\s*인/.test(String(room.room_name||room.title||'')));
-    var existing=document.querySelector('#screen .kt-remote-live');
-    if(solo&&existing&&existing.getAttribute('data-kt-host-id')===String(room.host_id||'')&&existing.querySelector('[data-kt-solo-viewer="1"]'))return;
     ensureStyle();document.documentElement.classList.add('kt-remote-viewing');
     var s=document.getElementById('screen');if(!s)return;
     s.innerHTML='<section class="kt-remote-live"><video id="ktRemoteLiveVideo" autoplay playsinline></video><div class="kt-remote-shade"></div><div class="kt-remote-top"><button class="kt-remote-back" onclick="ktLeaveRemoteLive()">‹</button><div class="kt-remote-meta"><b><i class="kt-live-dot"></i>'+esc(room.host_name||'K-Talk')+'</b><span>'+esc(room.title||room.room_name||'라이브')+' · '+esc(room.room_name||'방송')+'</span></div><div id="ktRemoteViewerCount" class="kt-remote-viewers">👁 1명</div></div><div id="ktRemoteLiveStatus" class="kt-remote-status">방송 영상 연결 중…</div></section>';
-    if(solo){
-      var root=s.querySelector('.kt-remote-live');
-      root.setAttribute('data-kt-host-id',String(room.host_id||''));
-      root.setAttribute('data-kt-room-type','solo');
-      root.setAttribute('data-kt-room-name',String(room.room_name||'1인 방송'));
-      if(window.ktRenderSoloRemoteRoom20261012)window.ktRenderSoloRemoteRoom20261012();
-    }
   }
 
   /* 원격 9명 방이 재연결 과정에서 두 번 붙는 경우 첫 방만 유지한다. */

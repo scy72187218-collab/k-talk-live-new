@@ -38,11 +38,7 @@
   function paint(stream){
     if(!liveStream(stream))return false;
     var targets=[];
-    function add(v){
-      /* A solo host must keep its local camera; remote first-frame streams are viewer-only here. */
-      if(v&&v.closest&&v.closest('#screen .ktsolo-room')&&!v.closest('#screen .kt-remote-live'))return;
-      if(v&&targets.indexOf(v)<0)targets.push(v);
-    }
+    function add(v){if(v&&targets.indexOf(v)<0)targets.push(v);}
     add(document.getElementById('ktRemoteLiveVideo'));
     add(document.getElementById('ktRemoteHostPreview'));
     try{
