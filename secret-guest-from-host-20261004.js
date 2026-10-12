@@ -48,6 +48,7 @@
     s.textContent=''
       +'#screen .kt-sgfh{position:fixed!important;inset:0!important;background:#000!important;color:#fff!important;z-index:2147482000!important;overflow:hidden!important;font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif!important}'
       +'#screen .kt-sgfh *{box-sizing:border-box!important}'
+      +'#screen .kt-remote-live[data-kt-sgfh-built="1"] .kt-remote-bottom{display:none!important}'
       +'#screen .kt-sgfh-room{height:100dvh!important;display:flex!important;flex-direction:column!important;gap:4px!important;padding:4px 7px calc(64px + env(safe-area-inset-bottom))!important;background:#000!important}'
       +'#screen .kt-sgfh-head{flex:0 0 58px!important;border-radius:16px!important;background:linear-gradient(180deg,#17171a,#0d0d10)!important;display:grid!important;grid-template-columns:1fr auto 1fr!important;align-items:center!important;padding:5px 10px!important}'
       +'#screen .kt-sgfh-left{display:flex!important;align-items:center!important;gap:7px!important;min-width:0!important}'
