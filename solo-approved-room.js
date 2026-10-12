@@ -150,14 +150,49 @@
     try{if(window.ktRenderTreasure)ktRenderTreasure();}catch(e){}
   }
 
-  var soloWideTrack=null;
   async function ktSoloKeepCameraWide(){
     try{
-      if(!window.state||!isSolo())return;
-      /* Reuse the active camera: reopening it during startup interrupts preview and transport. */
+      if(!window.state)return;
+
+      /* 기존 가로 스트림을 그대로 확대해서 쓰지 않고 1인방만 세로 카메라를 새로 요청 */
+      var current=state.stream;
+      var needsPortrait=true;
+      try{
+        var oldTrack=current&&current.getVideoTracks&&current.getVideoTracks()[0];
+        var st=oldTrack&&oldTrack.getSettings?oldTrack.getSettings():{};
+        var w=Number(st.width||0),h=Number(st.height||0);
+        if(w&&h&&h>w)needsPortrait=false;
+      }catch(e){}
+
+      if(needsPortrait&&navigator.mediaDevices&&navigator.mediaDevices.getUserMedia){
+        try{
+          var fresh=await navigator.mediaDevices.getUserMedia({
+            video:{
+              facingMode:{ideal:'user'},
+              width:{ideal:720},
+              height:{ideal:1280},
+              aspectRatio:{ideal:0.5625},
+              frameRate:{ideal:30,max:30}
+            },
+            audio:{
+              echoCancellation:true,
+              noiseSuppression:true,
+              autoGainControl:true,
+              sampleRate:{ideal:48000},
+              channelCount:{ideal:1}
+            }
+          });
+          if(fresh&&fresh.getVideoTracks&&fresh.getVideoTracks().length){
+            try{if(current)current.getTracks().forEach(function(x){x.stop();});}catch(e){}
+            state.stream=fresh;
+          }else{
+            try{fresh&&fresh.getTracks().forEach(function(x){x.stop();});}catch(e){}
+          }
+        }catch(e){}
+      }
+
       var t=state.stream&&state.stream.getVideoTracks&&state.stream.getVideoTracks()[0];
-      if(!t||t.readyState!=='live'||t===soloWideTrack)return;
-      soloWideTrack=t;
+      if(!t)return;
       try{
         var caps=t.getCapabilities?t.getCapabilities()||{}:{};
         if(caps.zoom&&typeof caps.zoom.min==='number'&&t.applyConstraints){
@@ -171,15 +206,13 @@
   window.startBroadcast=async function(){
     var solo=isSolo();
     if(solo){
-      renderApprovedSolo();
-      if(window.ktRevealPreparedHostRoom)window.ktRevealPreparedHostRoom();
       try{if(window.state)state.cameraFacing='user';}catch(e){}
       try{if(window.ensureLiveCamera)await window.ensureLiveCamera('user');}catch(e){}
       try{await ktSoloKeepCameraWide();}catch(e){}
     }
     var result=await oldStartBroadcast.apply(this,arguments);
-    if(solo&&isSolo()){
-      if(!document.querySelector('#screen .ktsolo-room'))renderApprovedSolo();
+    if(solo){
+      setTimeout(renderApprovedSolo,0);
       [80,250,700,1500].forEach(function(ms){setTimeout(ktSoloKeepCameraWide,ms);});
     }
     return result;
