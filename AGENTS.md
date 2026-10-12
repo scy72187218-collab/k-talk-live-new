@@ -81,3 +81,8 @@ Preserve the current subscriber host screen and approved four-column, four-row v
 ## Secret room separately locked (5054)
 
 Preserve the current secret host and viewer screens with one host and five guest seats. Preserve current video dimensions, framing, backgrounds, headers, chat, buttons, camera/microphone, attendance and earnings where currently present, guest approval, gifts, access rules and communications. Do not modify this room directly or through shared files without explicit owner authorization for the specific change. Existing runtime controls remain usable. Saving this lock authorizes policy recording only, not additional runtime changes or deployment.
+
+
+# Solo startup state saved and relocked by owner (2026-10-12)
+
+The owner requested saving the current solo-room state after the narrowly scoped startup reattachment fixes. Recoverable approved runtime commit: `c756a600eccd523c28150d7653afc83b43da5ec5` (includes prior solo host remote-stream exclusion commit `aa2d83fd32a7a2899cb508cbfb7c3e1a14ecaa79`). Preserve the solo-only guards that reuse the prepared live camera/microphone, avoid reassigning the same stream during solo startup, and exclude solo host video from remote viewer first-frame painting. Preserve current video framing, person size, border removal, layout, controls and communications. Solo maintenance lock 5155 is reaffirmed independently of every other room lock. Further changes require explicit owner authorization for the specific change. The owner accepted saving this state; this does not assert startup is entirely flicker-free. This records a maintenance policy only, not a runtime password or permission to make further runtime changes.
