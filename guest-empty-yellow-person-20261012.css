@@ -14,3 +14,8 @@
   font-size:0!important;background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22%23ffd43b%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%227.2%22%20r%3D%224.2%22%2F%3E%3Cpath%20d%3D%22M4.4%2020c.35-4.15%203.05-6.7%207.6-6.7s7.25%202.55%207.6%206.7H4.4z%22%2F%3E%3C%2Fsvg%3E") center/contain no-repeat!important;
   pointer-events:none;
 }
+
+/* Nine-room viewer only: put the plain-text guest label below the centered person. */
+#screen .kt-remote-live .ktg13-room[data-kt-room="9"][data-kt-viewer-host-copy="1"] .ktg13-guest:not(:has(video,img,canvas)){
+  box-sizing:border-box!important;padding-top:28px!important;
+}
