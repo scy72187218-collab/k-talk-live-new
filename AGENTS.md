@@ -128,3 +128,8 @@ Preserve three columns and three rows, nine total seats, current video-area heig
 # Scoped subscriber size review authorized (2026-10-12)
 
 The owner clarified the requested room is the 15-person subscriber room and explicitly requested implementing a slight size reduction. This review reduces only `.ktsubscriber-people` width and height to 90% inside the unchanged stage, centered. Preserve existing host and viewer seat count, column and row rules, host spans, full-cell video fit, controls, chat, camera, microphone, access rules and communications. Do not alter locked 9-room 5051 or 13-room 5052, or implement the independent secret-room request in this candidate. The runtime renderer gains one scoped CSS rule only. Syntax/source checks passed; actual phone appearance remains unverified. Production release requires a fresh explicit owner approval.
+
+
+# Owner-authorized solo video offset repair review (2026-10-12)
+
+The owner supplied a phone screenshot showing the solo video occupying the right half with a black left half and explicitly requested repair. This narrowly supersedes solo lock 5155 only for the video offset fix. In `earnings-size-secret-sync-v2.js`, change only the `.ktsolo-room .ktsolo-main #ktLiveVideo` rule: left 50% to 0 and remove translateX(-50%) while retaining scaleX(-1), existing full-size cover framing and all other declarations. This avoids dependence on a translation that other camera/mirror rules can replace. Preserve all other rooms, approved 9-room/13-room layouts, subscriber sizing, controls, chat, communications and camera acquisition. Syntax and source-scope checks passed; actual phone appearance remains pending. Do not deploy until explicitly authorized.
