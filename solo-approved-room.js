@@ -86,6 +86,28 @@
     }catch(e){}
   }
 
+  /* Only solo host: remove video outline and the two requested side controls. */
+  function ktSoloHideBorderAndTwoControls(){
+    try{
+      var room=document.querySelector('#screen .ktsolo-room');
+      if(!room)return;
+      if(!document.getElementById('ktSoloCleanVideo20261012')){
+        var st=document.createElement('style');
+        st.id='ktSoloCleanVideo20261012';
+        st.textContent='#screen .ktsolo-room .ktsolo-main,#screen .ktsolo-room .ktsolo-main #ktLiveVideo{border:0!important;outline:0!important;box-shadow:none!important}';
+        document.head.appendChild(st);
+      }
+      [].slice.call(room.querySelectorAll('button')).forEach(function(b){
+        var label=String(b.textContent||'').replace(/\\s+/g,'');
+        if((label.indexOf('뒤집기')>=0||label.indexOf('좋아요')>=0)&&
+           (b.closest('.ktsolo-right')||b.closest('.ktsolo-main'))){
+          b.style.setProperty('display','none','important');
+        }
+      });
+    }catch(e){}
+  }
+  setInterval(ktSoloHideBorderAndTwoControls,800);
+
   function renderApprovedSolo(){
     var screen=document.getElementById('screen');
     if(!screen)return;
