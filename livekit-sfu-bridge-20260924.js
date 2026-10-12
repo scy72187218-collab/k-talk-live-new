@@ -9,7 +9,7 @@
   var TOKEN_URL='https://zupwbfmacwzexyvznlzq.supabase.co/functions/v1/ktalk-livekit-token';
   var SDK_URL='https://cdn.jsdelivr.net/npm/livekit-client@2.22.3/dist/livekit-client.umd.min.js';
 
-  var room=null,currentHostId='',currentRole='',currentRunId='',connecting=false,reconnectRetryTimer=null;
+  var room=null,currentHostId='',currentRole='',currentRunId='',connecting=false,reconnectRetryTimer=null,reconnectHoldUntil=0;
   var publishedVideoId='',publishedAudioId='',lastConnectAt=0;
   var approvedHostId='',watchHostId='',audioEls={},guestVideoById={};
   var sdkPromise=null;
