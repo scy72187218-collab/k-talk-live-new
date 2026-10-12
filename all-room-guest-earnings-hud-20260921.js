@@ -199,54 +199,9 @@
     window.ktGuestAddEarnedRoses=wrapped;
   }
 
-  /* Position only the existing earnings display, above the bottom Share/More icons.
-     No room markup, camera, password, button behavior or earnings calculations change. */
-  function alignEarningsAboveBottomIcons(){
-    try{
-      var screen=document.getElementById('screen');
-      if(!screen)return;
-      var root=screen.querySelector('.kt-remote-live,.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room');
-      if(!root)return;
-      var bars=[].slice.call(root.querySelectorAll('.ktsolo-tools,.ktg13-tools,.ktsubscriber-tools,.ktsecret-tools,.kt-remote-bottom,.ktg9-tools'));
-      var bar=bars.find(function(x){return x.getClientRects().length&&x.getBoundingClientRect().height>10;});
-      var more=null;
-      if(bar)more=[].slice.call(bar.querySelectorAll('button')).find(function(b){
-        return /더보기/.test(String(b.textContent||'')+' '+String(b.getAttribute('aria-label')||''));
-      });
-      if(!more){
-        more=[].slice.call(root.querySelectorAll('button')).find(function(b){
-          return b.getClientRects().length&&/더보기/.test(String(b.textContent||''));
-        });
-      }
-      if(!more)return;
-      var rect=more.getBoundingClientRect();
-      if(rect.top<45||rect.top>window.innerHeight||rect.width<5)return;
-      var hud=root.querySelector('.kt-allroom-guest-earn,#ktGuestEarnHud,.ktsolo-earn,.ktg13-earn,.ktsubscriber-earn,.ktsecret-earn-row');
-      if(!hud)return;
-      var hostWrapper=hud.matches('.ktsolo-earn,.ktg13-earn,.ktsubscriber-earn,.ktsecret-earn-row');
-      var height=Math.min(65,Math.max(40,hud.getBoundingClientRect().height||48));
-      var targetTop=Math.max(8,Math.round(rect.top-height-6));
-      hud.style.setProperty('position','fixed','important');
-      hud.style.setProperty('top',targetTop+'px','important');
-      hud.style.setProperty('bottom','auto','important');
-      hud.style.setProperty('left','auto','important');
-      hud.style.setProperty('right',Math.max(5,Math.round(window.innerWidth-rect.right))+'px','important');
-      hud.style.setProperty('z-index','2147483000','important');
-      if(hostWrapper){
-        hud.style.setProperty('width','100px','important');
-        hud.style.setProperty('max-width','100px','important');
-        hud.style.setProperty('height','auto','important');
-        hud.style.setProperty('min-height','0','important');
-        hud.style.setProperty('transform','none','important');
-        hud.style.setProperty('margin','0','important');
-      }
-    }catch(e){}
-  }
-
   function keep(){
     wrapEarnFunction();
     render();
-    alignEarningsAboveBottomIcons();
   }
 
   keep();
