@@ -124,6 +124,7 @@
       +'.ktsolo-att{justify-self:center;height:31px;min-width:98px;padding:0 4px;border-radius:19px;border:2px solid #ff2bbd;background-color:#130714;background-image:radial-gradient(circle,#ff35ce 1.5px,transparent 2px);background-size:8px 8px;color:#ffd52f;font-size:13px;font-weight:950;box-shadow:0 0 8px #ff2bbd,0 0 18px #ff2bbd66;display:flex;align-items:center;justify-content:center;gap:2px;white-space:nowrap}.ktsolo-att img{width:15px;height:15px;object-fit:contain;filter:drop-shadow(0 0 5px #41b8ff)}'
       +'.ktsolo-air{flex:0 0 36px;display:flex;align-items:center;padding:0 8px;font-size:14px;font-weight:950}.ktsolo-air .on{color:#ff315f;margin-right:7px}'
       +'.ktsolo-led{flex:0 0 58px;position:relative;border:2px solid #ff28c4;border-radius:22px;background-color:#120712;background-image:radial-gradient(circle,#ff35ce 2px,transparent 2.7px);background-size:13px 13px;overflow:hidden;box-shadow:0 0 9px #ff28c4,0 0 22px #ff28c466}.ktsolo-led-track{position:absolute;left:0;top:0;height:100%;display:flex;align-items:center;white-space:nowrap;will-change:transform;animation:ktsoloMarquee 12s linear infinite;font-size:24px;font-weight:950;color:#ffd62d;text-shadow:0 0 7px #ff8b00}.ktsolo-led-track span{display:inline-block;padding-right:80px}.ktsolo-led-track b{color:#ff59c9}@keyframes ktsoloMarquee{from{transform:translateX(45%)}to{transform:translateX(-100%)}}'
+      +'#screen .ktsolo-room .ktsolo-main #ktLiveVideo{object-fit:contain!important}'
       +'.ktsolo-main{position:relative;flex:1 1 0;min-height:0;overflow:hidden;border:0!important;border-radius:0!important;outline:0!important;box-shadow:none!important;background:#111}.ktsolo-main #ktLiveVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%;transform:scaleX(-1);transform-origin:50% 50%;background:#111;filter:brightness(1.08) contrast(.95) saturate(1.02);z-index:1;border:0;border-radius:0;box-shadow:none}.ktsolo-shade{position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(0,0,0,.06) 65%,rgba(0,0,0,.55) 100%);pointer-events:none;z-index:2}'
       +'.ktsolo-right{position:absolute;right:8px;bottom:158px;z-index:9;display:grid;gap:6px}.ktsolo-right button{width:44px;height:44px;border-radius:50%;border:1px solid #ffffff38;background:#101014d9;color:#fff;font-size:16px;font-weight:950}.ktsolo-right .like{height:50px;border-radius:16px;border-color:#ff65b788;background:#321024d9}.ktsolo-right small{display:block;font-size:8px;margin-top:1px}'
       +'.ktsolo-room .kt-inside-mic,.ktsolo-room .kt-person-mic,.ktsolo-room .kt-host-mic-toggle,.ktsolo-room [aria-label*="마이크"],.ktsolo-room [title*="마이크"]{display:none!important}'
@@ -160,11 +161,12 @@
     var v=document.getElementById('ktLiveVideo');
     try{
       if(v&&window.state&&state.stream){
-        v.srcObject=state.stream;
+        if(v.srcObject!==state.stream)v.srcObject=state.stream;
         var p=v.play();
         if(p&&p.catch)p.catch(function(){});
       }
     }catch(e){}
+    ktSoloHideBorderAndTwoControls();
     renderChat();
     ktSoloRemoveSlashNText20260927();
     setTimeout(ktSoloRemoveSlashNText20260927,80);
@@ -176,43 +178,7 @@
     try{
       if(!window.state)return;
 
-      /* 기존 가로 스트림을 그대로 확대해서 쓰지 않고 1인방만 세로 카메라를 새로 요청 */
-      var current=state.stream;
-      var needsPortrait=true;
-      try{
-        var oldTrack=current&&current.getVideoTracks&&current.getVideoTracks()[0];
-        var st=oldTrack&&oldTrack.getSettings?oldTrack.getSettings():{};
-        var w=Number(st.width||0),h=Number(st.height||0);
-        if(w&&h&&h>w)needsPortrait=false;
-      }catch(e){}
-
-      if(needsPortrait&&navigator.mediaDevices&&navigator.mediaDevices.getUserMedia){
-        try{
-          var fresh=await navigator.mediaDevices.getUserMedia({
-            video:{
-              facingMode:{ideal:'user'},
-              width:{ideal:720},
-              height:{ideal:1280},
-              aspectRatio:{ideal:0.5625},
-              frameRate:{ideal:30,max:30}
-            },
-            audio:{
-              echoCancellation:true,
-              noiseSuppression:true,
-              autoGainControl:true,
-              sampleRate:{ideal:48000},
-              channelCount:{ideal:1}
-            }
-          });
-          if(fresh&&fresh.getVideoTracks&&fresh.getVideoTracks().length){
-            try{if(current)current.getTracks().forEach(function(x){x.stop();});}catch(e){}
-            state.stream=fresh;
-          }else{
-            try{fresh&&fresh.getTracks().forEach(function(x){x.stop();});}catch(e){}
-          }
-        }catch(e){}
-      }
-
+      /* Reuse the prepared stream: reopening camera/mic here interrupts startup. */
       var t=state.stream&&state.stream.getVideoTracks&&state.stream.getVideoTracks()[0];
       if(!t)return;
       try{
@@ -229,13 +195,17 @@
     var solo=isSolo();
     if(solo){
       try{if(window.state)state.cameraFacing='user';}catch(e){}
-      try{if(window.ensureLiveCamera)await window.ensureLiveCamera('user');}catch(e){}
+      try{
+        var stream=window.state&&state.stream;
+        var videoLive=stream&&stream.getVideoTracks&&stream.getVideoTracks().some(function(t){return t.readyState==='live';});
+        var audioLive=stream&&stream.getAudioTracks&&stream.getAudioTracks().some(function(t){return t.readyState==='live';});
+        if((!videoLive||!audioLive)&&window.ensureLiveCamera)await window.ensureLiveCamera('user');
+      }catch(e){}
       try{await ktSoloKeepCameraWide();}catch(e){}
     }
     var result=await oldStartBroadcast.apply(this,arguments);
     if(solo){
       setTimeout(renderApprovedSolo,0);
-      [80,250,700,1500].forEach(function(ms){setTimeout(ktSoloKeepCameraWide,ms);});
     }
     return result;
   };
