@@ -129,8 +129,6 @@
   }
   function ktKeepHostQuality9999(stream){
     try{
-      /* Keep the prepared solo camera's portrait framing and avoid capture restarts. */
-      if(!document.documentElement.classList.contains('kt-remote-viewing')&&((window.state&&window.state.liveRoomType==='solo')||document.querySelector('#screen .ktsolo-room')))return stream;
       var t=stream&&stream.getVideoTracks&&stream.getVideoTracks()[0];
       if(!t||t.readyState!=='live')return stream;
       try{t.contentHint='detail';}catch(e){}
@@ -2984,8 +2982,7 @@
       /* 13-room entry emits immediate and metadata-ready selections for the same tap.
          Reuse the pending watch token instead of replacing the host's negotiating peer. */
       var pending13=document.querySelector('#screen .kt-remote-live .ktg13-room[data-kt-remote13="1"][data-kt-room="13"]');
-      var pendingSolo=document.querySelector('#screen .kt-remote-live[data-kt-room-type="solo"],#screen .kt-remote-live[data-kt-room-name*="1인"]');
-      if((pending13||pendingSolo)&&current===hid&&lastRemoteHost===hid&&viewerWatchToken&&!viewerConnected&&
+      if(pending13&&current===hid&&lastRemoteHost===hid&&viewerWatchToken&&!viewerConnected&&
           Date.now()-lastWatchAt<3000&&(!viewerPc||['new','connecting'].indexOf(String(viewerPc.connectionState||''))>-1)){
         ensureViewerWatch(true);
         attachRemoteStreamNow();

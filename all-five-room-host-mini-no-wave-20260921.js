@@ -21,7 +21,7 @@
       +'#screen .ktsubscriber-people{grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:repeat(4,minmax(0,1fr))!important}'
       +'#screen .ktsubscriber-host{grid-column:auto!important;grid-row:auto!important;border-color:transparent!important}'
       +'#screen .ktsecret-slot.host{border-color:transparent!important}'
-      +'#screen .ktsolo-main{border:1px solid transparent!important}'
+      +'#screen .ktsolo-main{border:1px solid #ff42c9!important}'
       /* 장미 0/수량 배지 약 50% */
       +'#screen .kt-rose-count-badge{left:4px!important;top:4px!important;height:12px!important;min-width:22px!important;padding:0 3px!important;gap:1px!important;border-radius:999px!important;font-size:6.5px!important;line-height:1!important;border-width:1px!important}'
       +'#screen .kt-rose-count-badge:before{font-size:6px!important}'

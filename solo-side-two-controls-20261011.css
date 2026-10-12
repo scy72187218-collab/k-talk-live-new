@@ -1,2 +1,1 @@
-/* Owner requested only the solo room right-side undo and like buttons removed. */
-#screen#screen .ktsolo-room .ktsolo-right :is(button.like,button.kt-room-camera-flip,button.kt-solo-camera-flip,button.kt-three-quick-flip,button[onclick*="flipCamera"],button[onclick*="FlipCamera"],button[onclick*="addHostLike"]){display:none!important;}
+/* Solo controls restored to the 2026-10-11 14:00 KST snapshot. */
