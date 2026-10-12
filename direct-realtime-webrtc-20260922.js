@@ -129,6 +129,8 @@
   }
   function ktKeepHostQuality9999(stream){
     try{
+      /* Keep the prepared solo camera's portrait framing and avoid capture restarts. */
+      if(document.querySelector('#screen .ktsolo-room')&&!document.documentElement.classList.contains('kt-remote-viewing'))return stream;
       var t=stream&&stream.getVideoTracks&&stream.getVideoTracks()[0];
       if(!t||t.readyState!=='live')return stream;
       try{t.contentHint='detail';}catch(e){}
