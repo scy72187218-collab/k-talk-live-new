@@ -236,10 +236,16 @@
       if(!t)return;
       try{
         var caps=t.getCapabilities?t.getCapabilities()||{}:{};
-        if(caps.zoom&&typeof caps.zoom.min==='number'&&t.applyConstraints){
-          var min=Number(caps.zoom.min);
-          if(isFinite(min))await t.applyConstraints({advanced:[{zoom:min}]});
+        if(!t.applyConstraints)return;
+        var constraints=t.getConstraints?t.getConstraints()||{}:{};
+        var zoom=caps.zoom&&Number(caps.zoom.min);
+        if(caps.resizeMode&&caps.resizeMode.indexOf('none')>=0){
+          // Use native camera output instead of cropping it to a forced portrait ratio.
+          delete constraints.width;delete constraints.height;delete constraints.aspectRatio;
+          constraints.resizeMode={exact:'none'};
         }
+        if(caps.zoom&&isFinite(zoom))constraints.advanced=[{zoom:zoom}];
+        if(constraints.resizeMode||caps.zoom)await t.applyConstraints(constraints);
       }catch(e){}
     }catch(e){}
   }
