@@ -181,8 +181,15 @@
 
   // Host and viewer share renderApprovedSubscriber; only role-specific controls differ.
   function renderSubscriberViewer(){
-    var root=document.querySelector('#screen .kt-remote-live[data-kt-room-type="subscriber"]');
+    var root=document.querySelector('#screen .kt-remote-live');
     if(!root)return;
+    var roomType=String(root.getAttribute('data-kt-room-type')||'');
+    var roomName=String(root.getAttribute('data-kt-room-name')||'');
+    // Older live entries carry the subscriber name but omit the room type.
+    if(roomType!=='subscriber'){
+      if(roomType||roomName.indexOf('구독자')<0)return;
+      root.setAttribute('data-kt-room-type','subscriber');
+    }
     var room=root.querySelector('[data-kt-subscriber-viewer="1"]');
     if(!room){
       var video=root.querySelector('#ktRemoteLiveVideo');
