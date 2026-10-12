@@ -99,7 +99,7 @@
       }
       [].slice.call(room.querySelectorAll('button')).forEach(function(b){
         var label=String(b.textContent||'').replace(/\\s+/g,'');
-        if((label.indexOf('뒤집기')>=0||label.indexOf('되돌리기')>=0||label.indexOf('좋아요')>=0)&&b.closest('.ktsolo-room')){
+        if((label.indexOf('뒤집기')>=0||label.indexOf('되돌리기')>=0||label.indexOf('좋아요')>=0)&&b.closest('.ktsolo-right')){
           b.style.setProperty('display','none','important');
         }
       });
@@ -236,16 +236,10 @@
       if(!t)return;
       try{
         var caps=t.getCapabilities?t.getCapabilities()||{}:{};
-        if(!t.applyConstraints)return;
-        var constraints=t.getConstraints?t.getConstraints()||{}:{};
-        var zoom=caps.zoom&&Number(caps.zoom.min);
-        if(caps.resizeMode&&caps.resizeMode.indexOf('none')>=0){
-          // Use native camera output instead of cropping it to a forced portrait ratio.
-          delete constraints.width;delete constraints.height;delete constraints.aspectRatio;
-          constraints.resizeMode={exact:'none'};
+        if(caps.zoom&&typeof caps.zoom.min==='number'&&t.applyConstraints){
+          var min=Number(caps.zoom.min);
+          if(isFinite(min))await t.applyConstraints({advanced:[{zoom:min}]});
         }
-        if(caps.zoom&&isFinite(zoom))constraints.advanced=[{zoom:zoom}];
-        if(constraints.resizeMode||caps.zoom)await t.applyConstraints(constraints);
       }catch(e){}
     }catch(e){}
   }
