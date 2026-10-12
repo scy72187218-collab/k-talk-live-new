@@ -639,17 +639,20 @@
 
   /* Friends directory uses the same account identity and follow records as discovery. */
   async function friendsRows(path){
-    var r=await fetch(BASE+path,{headers:apiHeaders(),cache:'no-store'});
-    if(!r.ok)throw new Error('friends-list-unavailable');
-    var a=await r.json();return Array.isArray(a)?a:[];
+    var ctl=new AbortController(),timer=setTimeout(function(){ctl.abort();},5000);
+    try{var r=await fetch(BASE+path,{headers:apiHeaders(),cache:'no-store',signal:ctl.signal});
+      if(!r.ok)throw new Error('friends-list-unavailable');
+      var a=await r.json();return Array.isArray(a)?a:[];
+    }finally{clearTimeout(timer);}
   }
   window.ktFriendsDirectoryData=async function(){
-    var own=me(),lists=await Promise.all([
+    var own=me(),timeout=0,lists;
+    try{lists=await Promise.race([new Promise(function(resolve,reject){timeout=setTimeout(function(){reject(new Error('friends-list-timeout'));},7000);}),Promise.all([
       activeRooms(),
       friendsRows('ktalk_user_follows?select=following_id,following_name&follower_id=eq.'+enc(own.id)+'&order=updated_at.desc&limit=100'),
       friendsRows('ktalk_user_follows?select=follower_id,follower_name&following_id=eq.'+enc(own.id)+'&limit=100'),
       friendsRows('ktalk_live_rooms?select=host_id,host_name,host_photo,updated_at&order=updated_at.desc&limit=100')
-    ]);
+    ])]);}finally{clearTimeout(timeout);}
     var map=new Map(),incoming=new Set();
     function put(id,name,photo){
       id=String(id||'');if(!id||id===own.id)return null;
