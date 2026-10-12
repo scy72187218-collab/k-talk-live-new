@@ -64,7 +64,7 @@
   /* 같은 카메라 스트림을 가능하면 선명한 Full HD(1920x1080, 30fps)로 유지하고, 미지원 기기만 HD(1280x720)로 낮춘다. */
   async function preferHd(){
     /* Solo startup already prepared the camera; do not force landscape capture again. */
-    if(document.querySelector('#screen .ktsolo-room')&&!document.documentElement.classList.contains('kt-remote-viewing'))return true;
+    if(!document.documentElement.classList.contains('kt-remote-viewing')&&((window.state&&window.state.liveRoomType==='solo')||document.querySelector('#screen .ktsolo-room')))return true;
     var track=null;
     try{
       var s=window.state&&state.stream;
