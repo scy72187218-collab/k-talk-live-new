@@ -13,7 +13,7 @@
       var guest=room.querySelector('.ktg13-main .ktg13-guest');
       var v=guest&&guest.querySelector('video');
       if(!v)return;
-      v.style.setProperty('object-fit','cover','important');
+      v.style.setProperty('object-fit','contain','important');
       v.style.setProperty('object-position','center 68%','important');
     }catch(e){}
   }

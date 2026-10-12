@@ -58,7 +58,7 @@
         v.style.setProperty('inset','0','important');
         v.style.setProperty('width','100%','important');
         v.style.setProperty('height','100%','important');
-        v.style.setProperty('object-fit','cover','important');
+        v.style.setProperty('object-fit','contain','important');
         v.style.setProperty('object-position','center','important');
         v.style.setProperty('background','#000','important');
       });
