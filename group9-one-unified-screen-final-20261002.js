@@ -26,7 +26,7 @@
   function styleGrid(g){
     if(!g)return;
     g.style.setProperty('display','grid','important');
-    g.style.setProperty('grid-template-columns','repeat(3,minmax(0,1fr))','important');
+    g.style.setProperty('grid-template-columns','repeat(4,minmax(0,1fr))','important');
     g.style.setProperty('grid-template-rows','repeat(3,minmax(0,1fr))','important');
     g.style.setProperty('gap','3px','important');
     g.style.setProperty('width','calc(100% - 20px)','important');

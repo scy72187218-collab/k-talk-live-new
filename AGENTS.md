@@ -102,3 +102,10 @@ The owner explicitly requested saving and locking the secret-room guest screen a
 Preserve the secret guest's existing custom bottom chat input and buttons. Keep the common `.kt-remote-bottom` hidden only within `#screen .kt-remote-live[data-kt-sgfh-built="1"]`, so the two bottom rows do not overlap. Preserve the one-host/five-guest layout, yellow empty-seat person placeholders, all custom chat send and participation handlers, media, host screen and access rules. Do not change this saved behavior without explicit owner authorization for the specific change. All other room locks, including subscriber guest 5056, remain independently protected.
 
 5057 is a maintenance change lock and recoverable source reference, not a runtime password or access restriction. This request authorizes documentation only, not further runtime modifications or deployment. The correction was deployed and source/syntax checked; final phone display was not independently verified.
+
+
+# Owner phone approval and scoped 9-room review (2026-10-12)
+
+The owner approved the 13-person host room shown in their 09:04 phone screenshot and requested preserving it under maintenance lock 5052. Recoverable runtime source: 8c88fd512ec561fb272be95d60c1c63fc5850e6b (same runtime tree as production 4062265ec13d65ca99b2594afb88978d3f2c35c4). Preserve its current framing, full-cell host video, seats, layout and all controls. Other existing room locks remain independent.
+
+The owner subsequently explicitly authorized the 9-person room to use smaller cells like the 13-person room. This review changes only the 9-room grid columns from three to four, keeping nine seats, three rows and the current overall grid height, plus removes the old host scale(.78) rule in favor of the full-cell cover/none rule used by the approved 13-room host. Do not change other rooms, chat, controls, media acquisition, signaling or room entry. This candidate is for review; production release requires a new explicit owner approval after review. Source checks do not establish actual phone video framing.
