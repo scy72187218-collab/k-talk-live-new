@@ -31,4 +31,25 @@ field.value='검사 메시지';document.querySelector('form').requestSubmit();ch
 tap(guests[2]);check('빈 칸 메뉴 제외',!document.getElementById('ktPersonMenu20261012'));
 document.getElementById('results').textContent=out.join('\n');
 };
+</script><script src="../person-menu-extras-20261013.js"></script><script>
+localStorage.setItem('kt_live_device_id','demo-host');
+var input=document.querySelector('form input');input.id='ktg13ChatInput';
+window.ktGroup13SendChat=function(){document.querySelector('form').requestSubmit();return true;};
+var extraRun=document.createElement('button');extraRun.textContent='추가 기능 검사';document.querySelector('header').append(extraRun);
+extraRun.onclick=async function(){
+var out=[],check=(s,ok)=>out.push((ok?'통과 ':'실패 ')+s),wait=()=>new Promise(r=>setTimeout(r,30)),tap=el=>el.click();
+var tile=document.querySelector('.ktg9-host'),r=tile.getBoundingClientRect(),before=[r.x,r.y,r.width,r.height].join();
+tap(tile);await wait();
+check('이모지 네 종류',document.querySelectorAll('[aria-label="채팅 이모지"] button').length===4);
+input.value='작성 중인 글';
+for(var name of ['박수','좋아요','하트','웃음']){var b=document.querySelector('[aria-label="'+name+' 채팅 보내기"]'),emoji=b.textContent;tap(b);await wait();check(name+' 채팅 연결',document.getElementById('messages').textContent.includes(emoji));}
+check('작성 중인 글 보존',input.value==='작성 중인 글');
+var original=window.ktGroup13SendChat;window.ktGroup13SendChat=()=>false;tap(document.querySelector('[aria-label="박수 채팅 보내기"]'));await wait();check('전송 실패 표시',document.querySelector('[role="status"]').textContent.includes('보내지 못'));check('실패 후 작성 글 보존',input.value==='작성 중인 글');window.ktGroup13SendChat=original;
+tap(Array.from(document.querySelectorAll('#ktPersonMenu20261012 button')).find(x=>x.textContent==='👥 초대'));
+var link=document.querySelector('[aria-label="방송 초대 링크"]');check('해당 방송 초대 링크',link&&new URL(link.value).searchParams.get('kt_live_host')==='demo-host');
+check('공유는 별도 선택',!!Array.from(document.querySelectorAll('#ktPersonMenu20261012 button')).find(x=>x.textContent==='링크 공유'));
+r=tile.getBoundingClientRect();check('추가 메뉴에서도 칸 위치 유지',before===[r.x,r.y,r.width,r.height].join());
+document.getElementById('results').textContent=out.join('\n');
+};
 </script></html>
+
