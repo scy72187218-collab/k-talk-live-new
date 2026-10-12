@@ -466,18 +466,12 @@
     root.setAttribute('data-kt-room-type',String(room.room_type||''));
     root.setAttribute('data-kt-room-name',String(room.room_name||''));
   }
-  /* Owner removed solo guest entry. Shared viewers remain for the other rooms. */
-  function soloGuestRemoved20261012(room){
-    if(!room)return false;
-    var type=String(room.room_type||'');
-    return type==='solo'||(!type&&/1\s*인/.test(String(room.room_name||room.title||'')));
-  }
   function renderRemote(room){
-    if(soloGuestRemoved20261012(room))return;
     ensureStyle();document.documentElement.classList.add('kt-remote-viewing');
     var s=document.getElementById('screen');if(!s)return;
     var current=s.querySelector('.kt-remote-live');
     var host=String(room.host_id||window.__ktCurrentRemoteHostId||'');
+    if((room.room_type==='solo'||(!room.room_type&&/1\s*인/.test(String(room.room_name||room.title||''))))&&current&&current.getAttribute('data-kt-host-id')===host&&current.querySelector('[data-kt-solo-viewer="1"]')){publishRemoteRoomLayout(room);return;}
     var thirteen=room.room_type==='group13'||(/^(?:general|group)?$/.test(String(room.room_type||''))&&/13\s*명/.test(String(room.room_name||'')));
     if(thirteen&&current&&current.getAttribute('data-kt-host-id')===host&&current.querySelector('.ktg13-room[data-kt-remote13="1"]')){
       publishRemoteRoomLayout(room);return;
@@ -622,7 +616,6 @@
       var lastEntryRoom=window.__ktLastLiveRoom;
       if(lastEntryRoom&&String(lastEntryRoom.host_id||'')===hostId)entryRoom=lastEntryRoom;
     }
-    if(soloGuestRemoved20261012(entryRoom))return;
 
     if(viewerCtx){
       /* 새 방송 입장은 이전 방 서버 정리를 기다리지 않는다.
@@ -683,10 +676,6 @@
       if(!room||Date.now()-new Date(room.updated_at).getTime()>STALE_MS){
         try{await window.ktLeaveRemoteLive(true);}catch(e){}
         renderLiveCards();
-        return;
-      }
-      if(soloGuestRemoved20261012(room)){
-        await window.ktLeaveRemoteLive();
         return;
       }
       // Restore the 2026-09-18 entry order for these two rooms: actual server
