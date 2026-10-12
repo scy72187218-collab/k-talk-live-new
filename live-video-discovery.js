@@ -635,6 +635,7 @@
   window.addEventListener('online',ktForceLiveSignalRefresh,true);
 
   window.ktRefreshVideoLivePeek=render;
+  window.ktDiscoveryActiveRooms=activeRooms;
   var mo=new MutationObserver(function(){scheduleRender(400);});
   var screen=document.getElementById('screen');if(screen)mo.observe(screen,{childList:true,subtree:true});
   if(screen)screen.addEventListener('scroll',function(){scheduleRender(350);},true);

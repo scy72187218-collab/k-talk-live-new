@@ -1,0 +1,22 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>K-Talk 넘겨 보기 동작 검사</title>
+<style>body{margin:0;background:#08080d;color:#fff;font-family:system-ui}header{height:78px;padding:8px 14px;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:12px}header button{padding:10px;border:0;border-radius:10px;background:#ff268b;color:white;font-weight:bold}#result{font-size:12px;max-width:65%}.kt-public-feed-scroller{height:calc(100dvh - 78px);overflow-y:auto;scroll-snap-type:y mandatory}.sample{position:relative;height:100%;overflow:hidden}.sample video{width:100%;height:100%;object-fit:cover}.caption{position:absolute;left:20px;bottom:60px;font-size:24px;font-weight:900}.label{position:absolute;top:25px;left:20px;background:#0009;padding:8px;border-radius:12px}</style>
+<header><span id="result">검사용 예시 화면 · 실제 방송 아님</span><button id="run">동작 검사</button></header><main id="screen"><div class="kt-public-feed-scroller"><section class="sample"><video class="kt-public-video" muted playsinline loop></video><span class="label">동영상 1 / 검사용 화면</span><div class="caption">동영상과 방송을<br>위아래로 넘겨 보세요 ↑</div></section><section class="sample"><video class="kt-public-video" muted playsinline loop></video><span class="label">동영상 2 / 검사용 화면</span><div class="caption">다음 화면은 LIVE 카드입니다 ↑</div></section><section class="sample"><video class="kt-public-video" muted playsinline loop></video><span class="label">동영상 3 / 검사용 화면</span></section></div></main>
+<script>
+window.ktDiscoveryActiveRooms=async()=>[{host_id:'test-live',host_name:'K-Talk 예시 방송자',title:'함께 이야기해요',room_name:'9명 방송'}];
+window.entryCount=0;window.ktEnterRemoteLive=async()=>{entryCount++;document.getElementById('screen').innerHTML='<section class="kt-remote-live" style="padding:35px"><h2>기존 방송 입장으로 연결됨</h2><p>검사용 화면입니다. 실제 방송에 참여하지 않습니다.</p></section>';};
+const videos=Array.from(document.querySelectorAll('video'));
+videos.forEach((v,i)=>{const c=document.createElement('canvas');c.width=390;c.height=700;const ctx=c.getContext('2d');function paint(){const g=ctx.createLinearGradient(0,0,390,700);g.addColorStop(0,['#633477','#215767','#6f4056'][i]);g.addColorStop(1,'#0c0b18');ctx.fillStyle=g;ctx.fillRect(0,0,390,700);ctx.fillStyle='#ffffff15';ctx.beginPath();ctx.arc(195,280+Math.sin(Date.now()/900)*25,110,0,7);ctx.fill();ctx.fillStyle='#fff';ctx.font='bold 36px sans-serif';ctx.textAlign='center';ctx.fillText('K-Talk LIVE',195,280);ctx.font='18px sans-serif';ctx.fillText('넘겨 보기 예시 '+(i+1),195,330);}paint();setInterval(paint,80);v.srcObject=c.captureStream(12);});
+</script><script src="/mixed-video-live-feed-20261012.js"></script>
+<script>
+const delay=ms=>new Promise(r=>setTimeout(r,ms));
+document.getElementById('run').onclick=async function(){this.disabled=true;const results=[];function check(ok,label){results.push((ok?'PASS ':'FAIL ')+label);if(!ok)throw new Error(label);}try{
+await delay(350);const sc=document.querySelector('.kt-public-feed-scroller');check(sc.children.length===4,'동영상 3개 + 라이브 1개');check(sc.children[2].classList.contains('kt-mixed-live-card'),'동영상 사이 LIVE 배치');
+sc.scrollTop=0;sc.dispatchEvent(new Event('scroll'));await videos[0].play();await delay(50);check(!videos[0].paused,'현재 영상 재생');
+sc.scrollTop=sc.clientHeight;sc.dispatchEvent(new Event('scroll'));await videos[1].play();await delay(50);check(videos[0].paused&&!videos[1].paused,'넘기면 이전 영상 정지');
+sc.scrollTop=sc.clientHeight*2;sc.dispatchEvent(new Event('scroll'));await delay(50);check(videos.every(v=>v.paused),'LIVE 카드에서는 동영상 정지');
+await videos[0].play();await delay(50);check(videos[0].paused,'이전 재생기가 재시도해도 차단');
+document.querySelector('.kt-mixed-live-enter').click();await delay(80);check(entryCount===1,'기존 방송 입장 한 번 호출');check(videos.every(v=>v.paused),'입장 후 제거된 영상 정지');
+window.dispatchEvent(new Event('pagehide'));check(videos.every(v=>v.paused),'앱 이동 시 정지');
+document.getElementById('result').textContent=results.join(' · ');document.getElementById('result').dataset.passed='true';
+}catch(e){document.getElementById('result').textContent=results.join(' · ')+' / '+e.message;document.getElementById('result').dataset.passed='false';}};
+</script></html>

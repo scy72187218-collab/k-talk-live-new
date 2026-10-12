@@ -143,3 +143,8 @@ The owner requested reducing the solo video, first answering 30 then correcting 
 # Owner requested solo reduction rollback (2026-10-12)
 
 The owner rejected the 40% reduced solo host display after supplying a phone screenshot and explicitly requested restoring the previous state. Remove only scale:.6 from the solo video rule by restoring earnings-size-secret-sync-v2.js to d1bd7c1fe50b314b60f817691a7903f599b35719. Preserve the left:0 offset repair and full-cell cover framing, subscriber reduction, locked 9-room and 13-room, all other controls and communications. This supersedes the rejected solo 40% reduction above and authorizes its production rollback.
+
+
+# Owner-authorized mixed video and live discovery review (2026-10-12)
+
+The owner requested a feed resembling the supplied reference: swipe through videos and live broadcasts, then enter a chosen live room; previous playback must stop on navigation. This candidate adds home-feed-only live discovery cards using the existing activeRooms provider and ktEnterRemoteLive entry function. Cards use existing host metadata/photos and do not claim to display a live video stream before entry. Password/subscription/approval checks and room renderers remain unchanged. New public-video playback guards pause off-screen/removed feed videos and on pagehide/hidden state. No camera/microphone tracks are stopped. Existing room locks and video framing remain preserved. The isolated __verification__/mixed-feed.html uses synthetic video streams and mock room entry for testing only, not real broadcasting. Production deployment requires explicit owner approval after preview review; do not claim actual phone or remote stream verification from these checks.
