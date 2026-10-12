@@ -466,7 +466,14 @@
     root.setAttribute('data-kt-room-type',String(room.room_type||''));
     root.setAttribute('data-kt-room-name',String(room.room_name||''));
   }
+  /* Owner removed solo guest entry. Shared viewers remain for the other rooms. */
+  function soloGuestRemoved20261012(room){
+    if(!room)return false;
+    var type=String(room.room_type||'');
+    return type==='solo'||(!type&&/1\s*인/.test(String(room.room_name||room.title||'')));
+  }
   function renderRemote(room){
+    if(soloGuestRemoved20261012(room))return;
     ensureStyle();document.documentElement.classList.add('kt-remote-viewing');
     var s=document.getElementById('screen');if(!s)return;
     var current=s.querySelector('.kt-remote-live');
@@ -610,6 +617,13 @@
     hostId=String(hostId||'');if(!hostId)return;
 
     if(hostId===deviceId()&&hostActive){showActivity('현재 내가 방송 중인 방입니다.');return;}
+    var entryRoom=liveRoomCache20260924[hostId]||null;
+    if(!entryRoom){
+      var lastEntryRoom=window.__ktLastLiveRoom;
+      if(lastEntryRoom&&String(lastEntryRoom.host_id||'')===hostId)entryRoom=lastEntryRoom;
+    }
+    if(soloGuestRemoved20261012(entryRoom))return;
+
     if(viewerCtx){
       /* 새 방송 입장은 이전 방 서버 정리를 기다리지 않는다.
          로컬 연결만 즉시 닫고 서버 정리는 뒤에서 처리한다. */
@@ -669,6 +683,10 @@
       if(!room||Date.now()-new Date(room.updated_at).getTime()>STALE_MS){
         try{await window.ktLeaveRemoteLive(true);}catch(e){}
         renderLiveCards();
+        return;
+      }
+      if(soloGuestRemoved20261012(room)){
+        await window.ktLeaveRemoteLive();
         return;
       }
       // Restore the 2026-09-18 entry order for these two rooms: actual server
