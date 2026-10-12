@@ -19,6 +19,8 @@
       var sameHost=!cached.host_id||String(cached.host_id||'')===String(hostId||'');
       var cachedTxt=sameHost?[cached.room_type,cached.room_name,cached.title].join(' '):'';
       var all=String(txt+' '+cachedTxt);
+      if(/1\s*인|solo/i.test(txt))return false;
+      if(sameHost&&String(cached.room_type||'')==='solo')return false;
 
       if(/subscriber|구독|password|secret|비밀/i.test(all))return false;
       if(/9\s*명|group9/i.test(all))return true;
