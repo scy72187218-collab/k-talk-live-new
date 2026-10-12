@@ -108,8 +108,8 @@
   }
   setInterval(ktSoloHideBorderAndTwoControls,800);
 
-  function renderApprovedSolo(){
-    var screen=document.getElementById('screen');
+  function renderApprovedSolo(viewerTarget){
+    var screen=viewerTarget||document.getElementById('screen');
     if(!screen)return;
 
     var net=(document.getElementById('hudEarnNet')||{}).textContent||'0원';
@@ -158,6 +158,7 @@
         +'<div class="ktsolo-tools"><button class="ktsolo-tool" onclick="return window.ktBottomCameraToggle?ktBottomCameraToggle(this):false"><i>📷</i><span>카메라</span></button><button class="ktsolo-tool" onclick="return window.ktBottomMicToggle?ktBottomMicToggle(this):false"><i>🎤</i><span>마이크</span></button><button class="ktsolo-tool" onclick="shareApp()"><i>👥</i><span>친구</span></button><button class="ktsolo-tool" onclick="ktSoloOpenMessage()"><i>💬</i><span>메시지</span></button><button class="ktsolo-tool" onclick="return window.ktBottomMovieOpen?ktBottomMovieOpen():false"><i>🎬</i><span>영화</span></button><button class="ktsolo-tool" onclick="shareApp()"><i>↗</i><span>공유</span></button><button class="ktsolo-tool" onclick="ktSoloEffect()"><i>🪄</i><span>효과</span></button><button class="ktsolo-tool" onclick="ktSoloMore()"><i>•••</i><span>더보기</span></button></div>'
       +'</section>';
 
+    if(viewerTarget)return;
     var v=document.getElementById('ktLiveVideo');
     try{
       if(v&&window.state&&state.stream){
@@ -173,6 +174,59 @@
     setTimeout(ktSoloRemoveSlashNText20260927,300);
     try{if(window.ktRenderTreasure)ktRenderTreasure();}catch(e){}
   }
+
+
+  /* Share the solo shell; retain the guest video node and all guest input handlers. */
+  function renderSoloViewer(){
+    var root=document.querySelector('#screen .kt-remote-live');
+    if(!root)return;
+    var kind=String(root.getAttribute('data-kt-room-type')||'');
+    var name=String(root.getAttribute('data-kt-room-name')||'');
+    if(kind!=='solo'&&(kind||!/1\s*인/.test(name)))return;
+    var room=root.querySelector('[data-kt-solo-viewer="1"]');
+    if(!room){
+      var video=root.querySelector('#ktRemoteLiveVideo');
+      if(!video)return;
+      var target=document.createElement('div');
+      renderApprovedSolo(target);
+      room=target.querySelector('.ktsolo-room');
+      var style=target.querySelector('#ktSoloApprovedStyle');
+      if(!room||!style)return;
+      room.classList.replace('ktsolo-room','kt-solo-viewer-room');
+      room.setAttribute('data-kt-solo-viewer','1');
+      style.id='ktSoloSharedViewerStyle20261012';
+      style.textContent=style.textContent.replace(/\.ktsolo-room/g,'.kt-solo-viewer-room').replace(/#ktLiveVideo/g,'#ktRemoteLiveVideo');
+      style.textContent+='#screen .kt-solo-viewer-room #ktRemoteLiveVideo{object-fit:contain!important;transform:none!important;border:0!important;outline:0!important;box-shadow:none!important}'
+        +'#screen .kt-remote-live:has([data-kt-solo-viewer="1"]){padding:0!important;overflow:hidden!important}'
+        +'#screen .kt-remote-live:has([data-kt-solo-viewer="1"])>.kt-remote-top,#screen .kt-remote-live:has([data-kt-solo-viewer="1"])>.kt-remote-shade{display:none!important}'
+        +'#screen .kt-remote-live:has([data-kt-solo-viewer="1"])>.kt-remote-status{top:42%;pointer-events:none}'
+        +'#screen .kt-solo-viewer-room .ktsolo-tools{display:block!important;height:55px!important}'
+        +'#screen .kt-solo-viewer-room .ktsolo-tools>.kt-remote-bottom{position:absolute!important;inset:0!important;width:100%!important}'
+        +'#screen .kt-solo-viewer-room .ktsolo-chat>.kt-remote-chat{position:static!important;width:100%!important;max-height:inherit!important}'
+        +'#screen .kt-solo-viewer-room .ktsolo-right .like{display:none!important}';
+      room.querySelector('#ktLiveVideo').replaceWith(video);
+      room.querySelector('.ktsolo-back').setAttribute('onclick','if(window.ktLeaveRemoteLive)ktLeaveRemoteLive()');
+      room.querySelector('.ktsolo-att').setAttribute('onclick','if(window.ktRemoteAttendance)ktRemoteAttendance()');
+      // Host-only local input/earnings identifiers must never capture guest updates.
+      room.querySelector('.ktsolo-tools').replaceChildren();
+      room.querySelector('.ktsolo-earn').remove();
+      room.querySelector('#ktsoloChatList').removeAttribute('id');
+      room.querySelector('#ktLiveClock').removeAttribute('id');
+      room.querySelector('#hostLikeCount').removeAttribute('id');
+      root.prepend(style,room);
+    }
+    var footer=root.querySelector('.kt-remote-bottom');
+    if(footer&&!room.contains(footer))room.querySelector('.ktsolo-tools').appendChild(footer);
+    var chat=root.querySelector('.kt-remote-chat');
+    if(chat&&!room.contains(chat))room.querySelector('.ktsolo-chat').appendChild(chat);
+  }
+  window.ktRenderSoloRemoteRoom20261012=renderSoloViewer;
+  var soloViewerQueued=false;
+  new MutationObserver(function(){
+    if(soloViewerQueued)return;
+    soloViewerQueued=true;
+    setTimeout(function(){soloViewerQueued=false;renderSoloViewer();},0);
+  }).observe(document.getElementById('screen')||document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['data-kt-room-type','data-kt-room-name']});
 
   async function ktSoloKeepCameraWide(){
     try{
