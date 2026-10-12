@@ -682,7 +682,7 @@
               v.autoplay=true;
               v.playsInline=true;
               v.muted=true;
-              v.style.setProperty('object-fit',v.closest('.ktsolo-room,.ktg13-room[data-kt-room="9"],.ktg13-room[data-kt-room="13"],.ktsubscriber-room,.ktsecret-room,.kt-sgfh-room,.kt-guest-hostlike-room[data-kt-room="9"]')?'contain':'cover','important');
+              v.style.setProperty('object-fit','cover','important');
               v.style.setProperty('object-position','center center','important');
               ktApplyVideoRotation(v,peer.__ktRemoteVideoRotation||0,true);
               v.style.setProperty('width','100%','important');
@@ -995,7 +995,7 @@
     if(main.srcObject!==stream)main.srcObject=stream;
     main.muted=true;main.autoplay=true;main.playsInline=true;
     try{
-      main.style.setProperty('object-fit',main.closest('.ktsolo-room,.ktg13-room[data-kt-room="9"],.ktg13-room[data-kt-room="13"],.ktsubscriber-room,.ktsecret-room,.kt-sgfh-room,.kt-guest-hostlike-room[data-kt-room="9"]')?'contain':'cover','important');
+      main.style.setProperty('object-fit','cover','important');
       main.style.setProperty('object-position','center center','important');
       ktApplyVideoRotation(main,ktDeviceVideoRotation180(),true);
       main.dataset.ktStableGuestStyle='1';

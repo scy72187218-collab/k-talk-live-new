@@ -74,7 +74,7 @@
             sv.style.setProperty('max-height','none','important');
             sv.style.setProperty('margin','0','important');
             sv.style.setProperty('padding','0','important');
-            sv.style.setProperty('object-fit','contain','important');
+            sv.style.setProperty('object-fit','cover','important');
             sv.style.setProperty('object-position','50% 50%','important');
             sv.style.setProperty('border','0','important');
               sv.style.setProperty('border-radius','0','important');

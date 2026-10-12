@@ -11,8 +11,6 @@
     var s=document.createElement('style');
     s.id='ktFiveRoomHostMiniNoWaveStyle20260921';
     s.textContent=''
-      /* Restore uncropped camera fitting (70b02d03 / 1db025a3); keep seats and transforms unchanged. */
-      +'#screen#screen :is(#ktLiveVideo,#ktRemoteLiveVideo,.ktsolo-main video,.ktg13-room[data-kt-room="9"] video,.ktg13-room[data-kt-room="13"] video,.ktsubscriber-room video,.ktsecret-room video,.kt-sgfh-cell video,.kt-guest-hostlike-room[data-kt-room="9"] video){object-fit:contain!important}'
       /* 파장만 제거 */
       +'#screen .ktsolo-wave,#screen .ktg13-wave,#screen .ktsubscriber-wave,#screen .ktsecret-wave,#screen .kt-room-live-wave{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}'
       +'#screen .ktg13-main::after{content:none!important;display:none!important;visibility:hidden!important;opacity:0!important}'
