@@ -2967,7 +2967,12 @@
       }catch(_e){}
 
       // A stream from the previous selected member is never a first frame for a new host.
-      if(current!==hid){existing=null;existingLive=false;}
+      if(current!==hid){
+        existing=null;existingLive=false;
+        window.__ktRemoteHostStream=null;
+        window.__ktLastApprovedGuestHostStream=null;
+        window.__ktEntryHostStream20260925=null;
+      }
 
       /* Re-selecting the same host must keep the live frame and transport. */
       if(current&&hid===current&&existingLive){
