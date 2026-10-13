@@ -1,0 +1,6 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><title>버튼 반복 처리 검증</title><style>body{font:18px system-ui;background:#141424;color:white;padding:24px}button{padding:10px;margin:4px;background:#643c76;color:white;border:1px solid #9b71a9;border-radius:10px}.on{background:#b32e77}</style><h1>버튼 반복 처리 검증</h1><p>스위치의 표시와 동작을 유지하면서 같은 스타일을 계속 다시 쓰지 않는지 확인합니다.</p><div id="buttons"></div><p id="status">측정 준비</p><script>
+for(let i=0;i<20;i++){const b=document.createElement('button');b.className='kt-switch';b.textContent='스위치 '+(i+1);b.setAttribute('aria-pressed','false');document.getElementById('buttons').appendChild(b);}
+window.toggleLiveSetting=function(b){b.classList.toggle('on');b.setAttribute('aria-pressed',b.classList.contains('on')?'true':'false');};
+let changes=0;new MutationObserver(rs=>{changes+=rs.filter(r=>r.attributeName==='style').length;}).observe(document.documentElement,{subtree:true,attributes:true,attributeFilter:['style']});
+setTimeout(()=>{changes=0;setInterval(()=>{document.getElementById('status').textContent='초기 설정 후 반복 스타일 변경: '+changes+'회';},300);},150);
+</script><script src="../all-switches-runtime-final-20261002.js"></script></html>

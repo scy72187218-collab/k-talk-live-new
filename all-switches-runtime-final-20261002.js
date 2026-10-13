@@ -31,25 +31,38 @@
     '.kt-tv-movie-more'
   ].join(',');
 
+  var normalizedStyles={};
+  function styleOnce(el,name,value){
+    var key=name+'|'+value;
+    if(!Object.prototype.hasOwnProperty.call(normalizedStyles,key)){
+      var probe=document.createElement('span').style;
+      probe.setProperty(name,value);
+      normalizedStyles[key]=probe.getPropertyValue(name);
+    }
+    var expected=normalizedStyles[key];if(!expected)return;
+    if(el.style.getPropertyValue(name)===expected&&el.style.getPropertyPriority(name)==='important')return;
+    el.style.setProperty(name,value,'important');
+  }
+
   function enableOne(el){
     if(!el)return;
     try{
       if(el.disabled)el.disabled=false;
       if(el.getAttribute('aria-disabled')==='true')el.setAttribute('aria-disabled','false');
-      el.style.setProperty('pointer-events','auto','important');
-      el.style.setProperty('touch-action','manipulation','important');
-      el.style.setProperty('-webkit-tap-highlight-color','transparent','important');
-      el.style.setProperty('user-select','none','important');
+      styleOnce(el,'pointer-events','auto');
+      styleOnce(el,'touch-action','manipulation');
+      styleOnce(el,'-webkit-tap-highlight-color','transparent');
+      styleOnce(el,'user-select','none');
     }catch(e){}
   }
 
   function enableAll(){
-    try{localStorage.setItem('ktalk_work_controls_unlocked','1');}catch(e){}
+    try{if(localStorage.getItem('ktalk_work_controls_unlocked')!=='1')localStorage.setItem('ktalk_work_controls_unlocked','1');}catch(e){}
     try{document.querySelectorAll(selector).forEach(enableOne);}catch(e){}
     try{
       var sh=document.getElementById('sheet');
-      if(sh&&!sh.classList.contains('show'))sh.style.setProperty('pointer-events','none','important');
-      else if(sh)sh.style.removeProperty('pointer-events');
+      if(sh&&!sh.classList.contains('show'))styleOnce(sh,'pointer-events','none');
+      else if(sh&&sh.style.getPropertyValue('pointer-events'))sh.style.removeProperty('pointer-events');
     }catch(e){}
   }
 
