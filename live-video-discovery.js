@@ -364,6 +364,10 @@
     }
 
     rooms=Array.isArray(rooms)?rooms.slice(0,15):[];
+    if(old){
+      var ranks={};Array.prototype.forEach.call(old.querySelectorAll('[data-host]'),function(el,i){ranks[String(el.getAttribute('data-host')||'')]=i;});
+      rooms.sort(function(a,b){var ar=ranks[String(a.host_id||'')],br=ranks[String(b.host_id||'')];return (ar===undefined?1000:ar)-(br===undefined?1000:br)||String(a.host_id||'').localeCompare(String(b.host_id||''));});
+    }
     if(!rooms.length){
       if(old)old.remove();
       try{document.body.classList.remove('kt-follow-status-open');}catch(e){}
@@ -375,8 +379,7 @@
         String(r.host_id||''),
         String(r.host_name||''),
         String(r.host_photo||''),
-        liveRoomLabel(r),
-        String(r.updated_at||'')
+        liveRoomLabel(r)
       ].join(':');
     }).join('|');
 
