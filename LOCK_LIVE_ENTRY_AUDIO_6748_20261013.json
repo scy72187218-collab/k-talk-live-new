@@ -1,0 +1,43 @@
+{
+  "maintenance_id": "6748",
+  "date": "2026-10-13",
+  "scope": "Live entry race/frame ownership and navigation music stop; reviewed candidate only",
+  "runtime_commit": "6ee3d7ccb6986c8277ff71e0ffa327f381e69e9d",
+  "branch": "codex/live-entry-audio-6748-6ee3d7c",
+  "runtime_password": false,
+  "production_deployed": false,
+  "physical_phone_verified": false,
+  "files": {
+    "live-peer-fallback-20260921.js": "cef4eae191a936598356609b2bf96c390b7f9382",
+    "instant-first-frame-five-rooms-20261006.js": "87c4b313f1fe20340777f9b1b667b80cf27328ee",
+    "direct-realtime-webrtc-20260922.js": "3c73bee18f9518f4fed53fdd6571890633c66d3d",
+    "live-video-discovery.js": "df04a6f0d94758fdba3abe12aac5030646a0f030",
+    "friends-directory-20261012.js": "35f4fa84cbc97f22061c4865b5c5bf7c3e47590f",
+    "mixed-video-live-feed-20261012.js": "eff24c970e7be546c3f91cdf5fee20f3e9101aee",
+    "live-entry-feedback-20261013.js": "145ed8778a7caa903ad276cc3d9452d0b6a898f6",
+    "page-media-lifecycle-20261013.js": "71bd56693e30242030dbd4701c6cdeeea7fad79b",
+    "index.html": "f282471e78f5ce8ea89490633271be0d4fa1d5c9"
+  },
+  "verification": {
+    "regression_scripts": 4,
+    "synthetic_browser_video_entries_ms": [
+      2802,
+      3601,
+      4001
+    ],
+    "video_size": "640x360",
+    "music_navigation_stop": true,
+    "late_music_resume_blocked": true
+  },
+  "preserve": [
+    "All existing room layouts and person/video sizes",
+    "Chat, gifts, access conditions, existing media tracks",
+    "Other independently locked room states"
+  ],
+  "limits": [
+    "Browser transport test uses synthetic canvas video and controlled room metadata",
+    "Real user broadcasts and physical phone/network combinations were not tested",
+    "This lock does not claim all settings, moderator controls, payments or settlement are complete"
+  ],
+  "future_changes": "Change this scoped candidate only on explicit owner authorization; this is a maintenance record, not a runtime access gate."
+}
