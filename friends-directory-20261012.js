@@ -21,7 +21,7 @@
     if(entering&&enteringId===p.id)return;
     if(typeof window.ktEnterRemoteLive!=='function')return note('방송 연결을 준비 중입니다. 잠시 후 다시 눌러 주세요.');
     entering=true;enteringId=p.id;var entry=++entrySequence;
-    try{if(window.ktStopPageMedia)window.ktStopPageMedia();document.querySelectorAll('.kt-public-video,#homeVideo').forEach(function(v){v.pause();});var ok=await window.ktEnterRemoteLive(p.id);if(ok===false&&entry===entrySequence)note('방송 상태를 확인하지 못했습니다. 다시 눌러 주세요.');}catch(e){if(entry===entrySequence)note('방송 입장을 다시 시도해 주세요.');}finally{if(entry===entrySequence){entering=false;enteringId='';}}
+    try{if(window.ktStopPageMedia)window.ktStopPageMedia();document.querySelectorAll('.kt-public-video,#homeVideo').forEach(function(v){v.pause();});var ok=await (window.ktPreviewRemoteLive||window.ktEnterRemoteLive)(p.id);if(ok===false&&entry===entrySequence)note('방송 상태를 확인하지 못했습니다. 다시 눌러 주세요.');}catch(e){if(entry===entrySequence)note('방송 입장을 다시 시도해 주세요.');}finally{if(entry===entrySequence){entering=false;enteringId='';}}
   }
   async function follow(p,b){
     if(pending.has(p.id))return;pending.add(p.id);b.disabled=true;note('');
