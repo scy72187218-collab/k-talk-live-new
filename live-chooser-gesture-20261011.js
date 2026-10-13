@@ -23,7 +23,7 @@
     return true;
   }
   function liveControl(target){
-    if(target&&target.closest&&target.closest('.bottom .plus,.kt-bottom .livebtn'))return true;
+    // Plus opens the existing video creator; only the Live tab opens live preparation.
     var el=target&&target.closest?target.closest('.creator-bottom .modes span,.creator-bottom .modes button,.creator-bottom .creator-foot span,.creator-bottom .creator-foot button'):null;
     return el&&String(el.textContent||'').replace(/\s+/g,'')==='라이브';
   }
