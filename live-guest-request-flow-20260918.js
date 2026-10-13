@@ -891,7 +891,9 @@
     var kind=String(root.getAttribute('data-kt-room-type')||'');
     var name=String(root.getAttribute('data-kt-room-name')||'');
     if(root.querySelector('[data-kt-remote13="1"]')||kind==='group13'||(/^(?:general|group)?$/.test(kind)&&/13\s*명/.test(name)))return;
-    var total=is16?16:9;
+    /* Never invent nine guest seats for a solo, secret or unknown broadcast. */
+    if(kind!=='group9'&&!(/^(?:general|group)?$/.test(kind)&&/9\s*명/.test(name)))return;
+    var total=9;
 
     var oldGrid=root.querySelector('.kt-prejoin-room-grid');
     if(oldGrid){
