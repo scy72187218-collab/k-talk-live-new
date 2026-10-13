@@ -1,0 +1,33 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>방송 영상 연결 검증</title>
+<style>body{background:#111;color:white;font:17px system-ui;padding:20px}video{width:360px;max-width:100%;background:#222}button{padding:12px;margin:8px}pre{white-space:pre-wrap}</style>
+<h1>실제 영상 연결 서버 검증</h1><p>검증용 그림 영상만 송출합니다. 카메라·마이크·공개 방송 등록은 사용하지 않습니다.</p>
+<button id="start">검증 시작</button><button id="stop">검증 종료</button><pre id="status">대기</pre><div id="screen"></div>
+<script>
+const args=new URLSearchParams(location.search),role=args.get('role')==='host'?'host':'viewer',test=args.get('test')||'6748';
+if(!/^[a-zA-Z0-9_-]{1,40}$/.test(test))throw Error('invalid test');
+const host='verify_sfu_'+test,device=role==='host'?host:'verify_viewer_'+test;
+// Fixture-only identity storage; never modifies the account/device storage of the app.
+Object.defineProperty(window,'localStorage',{value:{getItem:k=>k==='kt_live_device_id'?device:null,setItem(){},removeItem(){}}});
+Object.defineProperty(window,'sessionStorage',{value:{getItem(){return null},setItem(){},removeItem(){}}});
+window.state={stream:null};let clock=null,watch=null;
+document.getElementById('start').onclick=async()=>{
+ document.getElementById('start').disabled=true;
+ const root=document.getElementById('screen');
+ if(role==='host'){
+   root.innerHTML='<section class="ktsolo-room"><video autoplay muted playsinline></video></section>';
+   const c=document.createElement('canvas');c.width=640;c.height=360;const ctx=c.getContext('2d');
+   const draw=()=>{ctx.fillStyle='#064e3b';ctx.fillRect(0,0,640,360);ctx.fillStyle='white';ctx.font='32px sans-serif';ctx.fillText('K-Talk 통신 검증',50,130);ctx.fillText(new Date().toISOString().slice(11,23),50,210);};draw();clock=setInterval(draw,80);
+   state.stream=c.captureStream(12);root.querySelector('video').srcObject=state.stream;
+ }else{
+   root.innerHTML='<section class="kt-remote-live"><section class="ktg13-room" data-kt-remote13="1"><video id="ktRemoteLiveVideo" autoplay muted playsinline></video></section></section>';
+   window.__ktRemoteHostId=host;
+ }
+ window.addEventListener('kt-livekit-state',e=>{
+   const s=e.detail||{};document.getElementById('status').textContent=JSON.stringify({role:s.role,connected:s.connected,connecting:s.connecting,error:s.lastError||''},null,2);
+ });
+ const script=document.createElement('script');script.src='../livekit-sfu-bridge-20260924.js?v=20261013-viewer-role';
+ script.onload=()=>{if(role==='viewer')window.dispatchEvent(new CustomEvent('kt-remote-host-selected',{detail:{host_id:host}}));};document.head.appendChild(script);
+ if(role==='viewer')watch=setInterval(()=>{const v=document.getElementById('ktRemoteLiveVideo');if(v&&v.readyState>=2&&v.videoWidth>0&&!v.paused){document.getElementById('status').textContent='실제 서버 영상 수신 성공 · '+v.videoWidth+'×'+v.videoHeight+' · '+v.currentTime.toFixed(1)+'초';}},250);
+};
+document.getElementById('stop').onclick=()=>{window.dispatchEvent(new CustomEvent('kt-broadcast-ended'));if(state.stream)state.stream.getTracks().forEach(t=>t.stop());clearInterval(clock);clearInterval(watch);document.getElementById('status').textContent='검증 종료';};
+</script></html>

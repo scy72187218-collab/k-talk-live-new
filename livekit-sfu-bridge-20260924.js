@@ -46,7 +46,15 @@
     return 'K-Talk';
   }
   function roomEl(){
-    return document.querySelector('#screen .ktsolo-room,#screen .ktg9-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room');
+    /* Shared viewer renderers contain the same room classes as hosts.
+       A room nested in the remote viewer must never publish as this device. */
+    var candidates=document.querySelectorAll('#screen .ktsolo-room,#screen .ktg9-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room');
+    for(var i=0;i<candidates.length;i++){
+      var candidate=candidates[i];
+      if(candidate.closest&&candidate.closest('.kt-remote-live'))continue;
+      return candidate;
+    }
+    return null;
   }
   function isHostRole(){
     try{
