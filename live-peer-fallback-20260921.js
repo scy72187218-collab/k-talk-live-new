@@ -196,7 +196,7 @@
     try{clearInterval(c.touch);}catch(e){}
     try{c.pc.close();}catch(e){}
     try{
-      fetch(API+'?t='+Date.now(),{
+      fetch((c.api||API)+'?t='+Date.now(),{
         method:'POST',cache:'no-store',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'end',session_id:c.sessionId})
       }).catch(function(){});
@@ -211,7 +211,7 @@
     clearInterval(c.touch);
     try{c.pc.close();}catch(e){}
     try{
-      fetch(API+'?t='+Date.now(),{
+      fetch((c.api||API)+'?t='+Date.now(),{
         method:'POST',cache:'no-store',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'end',session_id:c.sessionId})
       });
@@ -229,7 +229,7 @@
     if(!viewer||viewer.answered)return;
     var c=viewer;
     try{
-      var j=await jfetch(API+'?session_id='+enc(c.sessionId)+'&t='+Date.now(),null,1800);
+      var j=await jfetch((c.api||API)+'?session_id='+enc(c.sessionId)+'&t='+Date.now(),null,1800);
       var x=j&&j.session;
       if(!x||!x.active){
         if(!c.missingSince)c.missingSince=Date.now();
@@ -251,7 +251,7 @@
         var answer=await c.pc.createAnswer();
         await c.pc.setLocalDescription(answer);
         await waitIce(c.pc,700);
-        await jfetch(API+'?t='+Date.now(),{
+        await jfetch((c.api||API)+'?t='+Date.now(),{
           method:'POST',headers:{'Content-Type':'application/json'},
           body:JSON.stringify({action:'answer',session_id:c.sessionId,answer_sdp:c.pc.localDescription.sdp})
         },2200);
@@ -276,20 +276,21 @@
       if(!renderRemote(room))return false;
     }
 
+    var peerApi=room.signal_origin==='https://k-talk-live-final.vercel.app'?room.signal_origin+API:API;
     var viewerId='viewer_'+deviceId();
-    var created=await jfetch(API+'?t='+Date.now(),{
+    var created=await jfetch(peerApi+'?t='+Date.now(),{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({action:'create',host_id:hostId,viewer_id:viewerId})
     },2200);
     var sid=created&&created.id;
     if(!sid)throw new Error('memory session');
     if(!entryCurrent(hostId,epoch,nav)){
-      fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'end',session_id:sid})}).catch(function(){});
+      fetch(peerApi,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'end',session_id:sid})}).catch(function(){});
       return false;
     }
 
     var pc=new RTCPeerConnection(ktIceConfig20260921());
-    viewer={hostId:hostId,viewerId:viewerId,viewerName:profileName(),sessionId:sid,pc:pc,answered:false,poll:null,touch:null,missingSince:0,disconnectTimer:null};
+    viewer={api:peerApi,hostId:hostId,viewerId:viewerId,viewerName:profileName(),sessionId:sid,pc:pc,answered:false,poll:null,touch:null,missingSince:0,disconnectTimer:null};
     interactionPost('join',hostId,viewerId,viewer.viewerName);
 
     pc.ontrack=function(ev){
@@ -354,7 +355,7 @@
     viewer.poll=setInterval(pollViewer,700);
     viewer.touch=setInterval(function(){
       if(!viewer)return;
-      fetch(API+'?t='+Date.now(),{
+      fetch(peerApi+'?t='+Date.now(),{
         method:'POST',cache:'no-store',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({action:'touch',session_id:sid})
       }).catch(function(){});

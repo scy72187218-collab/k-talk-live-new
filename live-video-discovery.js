@@ -42,23 +42,20 @@
   }
 
   async function beaconActiveRooms(){
-    try{
-      var r=await fetch('/api/live-beacon-memory?t='+Date.now(),{cache:'no-store'});
-      if(!r.ok)return [];
-      var j=await r.json();
-      var rows=Array.isArray(j&&j.rooms)?j.rooms:[];
-      return rows.map(function(x){
-        return {
-          host_id:String(x.host_id||''),
-          host_name:String(x.host_name||'K-Talk 방송자'),
-          title:String(x.title||x.room_name||'방송 중'),
-          room_type:String(x.room_type||''),
-          room_name:String(x.room_name||'방송'),
-          host_photo:'',
-          updated_at:String(x.updated_at||new Date().toISOString())
-        };
-      }).filter(function(x){return !!x.host_id;});
-    }catch(e){return [];}
+    var production='https://k-talk-live-final.vercel.app';
+    var origins=location.origin===production?['']:['',production];
+    var groups=await Promise.all(origins.map(async function(origin){
+      var ctrl=new AbortController(),timer=setTimeout(function(){ctrl.abort();},2200);
+      try{
+        var r=await fetch(origin+'/api/live-beacon-memory?t='+Date.now(),{cache:'no-store',signal:ctrl.signal});
+        if(!r.ok)return [];var j=await r.json();
+        return (Array.isArray(j&&j.rooms)?j.rooms:[]).map(function(x){return {
+          host_id:String(x.host_id||''),host_name:String(x.host_name||'K-Talk 방송자'),
+          title:String(x.title||x.room_name||'방송 중'),room_type:String(x.room_type||''),
+          room_name:String(x.room_name||'방송'),host_photo:'',updated_at:String(x.updated_at||new Date().toISOString()),signal_origin:origin
+        };}).filter(function(x){return !!x.host_id;});
+      }catch(e){return [];}finally{clearTimeout(timer);}
+    }));return [].concat.apply([],groups);
   }
 
   async function activeRoomsCore(){

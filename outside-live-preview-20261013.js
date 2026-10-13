@@ -6,17 +6,18 @@
   function endPeer(p){
     if(!p)return;p.closed=true;clearInterval(p.poll);clearInterval(p.touch);
     try{if(p.pc)p.pc.close();}catch(e){}
-    if(p.sid)fetch('/api/live-peer-memory',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'end',session_id:p.sid})}).catch(function(){});
+    if(p.sid)fetch((p.origin||'')+'/api/live-peer-memory',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'end',session_id:p.sid})}).catch(function(){});
   }
-  async function signal(path,body){
+  async function signal(path,body,origin){
     var ctrl=new AbortController(),timer=setTimeout(function(){ctrl.abort();},2500);
-    try{var r=await fetch('/api/live-peer-memory'+path,{cache:'no-store',signal:ctrl.signal,method:body?'POST':'GET',headers:body?{'Content-Type':'application/json'}:undefined,body:body?JSON.stringify(body):undefined});if(!r.ok)throw Error('preview_signal_'+r.status);return await r.json();}finally{clearTimeout(timer);}
+    try{var r=await fetch((origin||'')+'/api/live-peer-memory'+path,{cache:'no-store',signal:ctrl.signal,method:body?'POST':'GET',headers:body?{'Content-Type':'application/json'}:undefined,body:body?JSON.stringify(body):undefined});if(!r.ok)throw Error('preview_signal_'+r.status);return await r.json();}finally{clearTimeout(timer);}
   }
-  async function connectDirectPreview(id,video,note,request){
-    var p={sid:'',pc:null,closed:false,busy:false,answered:false};peer=p;
+  async function connectDirectPreview(id,video,note,request,origin){
+    var p={sid:'',pc:null,closed:false,busy:false,answered:false,origin:origin==='https://k-talk-live-final.vercel.app'?origin:''};peer=p;
+    function call(path,body){return signal(path,body,p.origin);}
     function current(){return !p.closed&&peer===p&&host===id&&sequence===request;}
     try{
-      var created=await signal('',{action:'create',host_id:id,viewer_id:'preview_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8)});
+      var created=await call('',{action:'create',host_id:id,viewer_id:'preview_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8)});
       p.sid=created&&created.id;if(!p.sid)throw Error('preview_session');
       if(!current()){endPeer(p);return;}
       p.pc=new RTCPeerConnection(window.ktGetRtcConfig?window.ktGetRtcConfig():{iceServers:[{urls:'stun:stun.l.google.com:19302'}]});
@@ -30,18 +31,18 @@
       async function poll(){
         if(!current()||p.busy||p.answered)return;p.busy=true;
         try{
-          var j=await signal('?session_id='+encodeURIComponent(p.sid)+'&t='+Date.now()),s=j&&j.session;
+          var j=await call('?session_id='+encodeURIComponent(p.sid)+'&t='+Date.now()),s=j&&j.session;
           if(!current()||!s)return;
           if(s.offer_sdp&&s.offer_sdp!=='pending'&&s.offer_sdp!=='fallback_pending'){
             await p.pc.setRemoteDescription({type:'offer',sdp:s.offer_sdp});
             await p.pc.setLocalDescription(await p.pc.createAnswer());
             if(p.pc.iceGatheringState!=='complete')await new Promise(function(resolve){var t=setTimeout(resolve,700);p.pc.addEventListener('icegatheringstatechange',function ready(){if(p.pc.iceGatheringState==='complete'){clearTimeout(t);p.pc.removeEventListener('icegatheringstatechange',ready);resolve();}});});
             if(!current())return;
-            await signal('',{action:'answer',session_id:p.sid,answer_sdp:p.pc.localDescription.sdp});p.answered=true;
+            await call('',{action:'answer',session_id:p.sid,answer_sdp:p.pc.localDescription.sdp});p.answered=true;
           }
         }catch(e){if(current())note.textContent='방송 영상 연결을 다시 확인하고 있습니다…';}finally{p.busy=false;}
       }
-      p.poll=setInterval(poll,500);p.touch=setInterval(function(){if(current())signal('',{action:'touch',session_id:p.sid}).catch(function(){});},7000);poll();
+      p.poll=setInterval(poll,500);p.touch=setInterval(function(){if(current())call('',{action:'touch',session_id:p.sid}).catch(function(){});},7000);poll();
     }catch(e){endPeer(p);if(host===id&&sequence===request)note.textContent='영상 연결을 확인하지 못했습니다. 닫은 뒤 다시 시도해 주세요.';}
   }
   function close(keepTransport){
@@ -78,7 +79,7 @@
       title.textContent='● LIVE · '+String(room.host_name||'방송자');
       var restricted=/password|secret|비밀|subscriber|구독/i.test([room.room_type,room.room_name].join(' '));
       note.textContent=restricted?'입장 조건을 확인한 뒤 방송을 볼 수 있습니다.':'방송 영상을 연결하고 있습니다…';
-      if(!restricted){window.dispatchEvent(new CustomEvent('kt-live-preview-selected',{detail:{host_id:id}}));connectDirectPreview(id,video,note,request);}
+      if(!restricted){window.dispatchEvent(new CustomEvent('kt-live-preview-selected',{detail:{host_id:id}}));connectDirectPreview(id,video,note,request,room.signal_origin);}
       return true;
     }catch(e){if(request===sequence&&box)note.textContent='방송 목록을 다시 확인해 주세요.';return false;}
   };
