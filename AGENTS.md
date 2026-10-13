@@ -143,3 +143,8 @@ The owner requested reducing the solo video, first answering 30 then correcting 
 # Owner requested solo reduction rollback (2026-10-12)
 
 The owner rejected the 40% reduced solo host display after supplying a phone screenshot and explicitly requested restoring the previous state. Remove only scale:.6 from the solo video rule by restoring earnings-size-secret-sync-v2.js to d1bd7c1fe50b314b60f817691a7903f599b35719. Preserve the left:0 offset repair and full-cell cover framing, subscriber reduction, locked 9-room and 13-room, all other controls and communications. This supersedes the rejected solo 40% reduction above and authorizes its production rollback.
+
+
+# Shared handoff and official URL (owner request, 2026-10-13)
+
+Before any work, read CURRENT_STATE.md. Use only https://k-talk-live-final.vercel.app/ in user-facing navigation. Never treat experimental branches as production. Preserve every independent room lock; do not unlock or bypass them. Inspect the actual production deployment and latest branch head before changes. Delete old files only after verifying they are unused; preserve recoverable Git history and lock snapshots. Update CURRENT_STATE.md with deployed versus pending work after changes.
