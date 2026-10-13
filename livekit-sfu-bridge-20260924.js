@@ -533,6 +533,10 @@
       var r=new LK.Room({
         adaptiveStream:true,
         dynacast:true,
+        /* Configure ICE before the first offer for browser compatibility.
+           LiveKit's dual-peer path avoids updating immutable RTC settings
+           after offer-with-join has already initialized the connection. */
+        singlePeerConnection:false,
         disconnectOnPageLeave:false,
         stopLocalTrackOnUnpublish:false
       });
