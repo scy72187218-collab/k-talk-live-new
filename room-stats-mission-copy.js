@@ -58,6 +58,7 @@
     return row;
   }
 
+  window.ktCreateSharedRoomStats20261013=makeRow;
   function addAfter(room,anchorSelector){
     if(!room)return;
     var anchor=room.querySelector(anchorSelector);

@@ -47,6 +47,7 @@
       b.onclick=function(e){try{e.preventDefault();e.stopPropagation();}catch(_e){} act(x[2],b);}; d.appendChild(b);
     }); return d;
   }
+  window.ktCreateSharedRoomActions20261013=make;
   function roots(){
     var a=[]; function add(x){if(x&&x.isConnected&&a.indexOf(x)<0)a.push(x);}
     document.querySelectorAll('#screen .ktsolo-room,#screen .ktgroup9-room,#screen .ktg9-room,#screen .ktgroup13-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room,#screen .kt-guest-hostlike-room,#screen .kt-prejoin-room,#screen .kt-approved-guest-room,#screen .kt-guest-room').forEach(add);
