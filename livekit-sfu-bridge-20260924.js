@@ -13,6 +13,7 @@
   var publishedVideoId='',publishedAudioId='',lastConnectAt=0;
   var approvedHostId='',watchHostId='',audioEls={},guestVideoById={};
   var sdkPromise=null;
+  var remoteVideoTrackByStream=new WeakMap(),attachedVideoTrack=new WeakMap();
 
   window.__ktLiveKitSfuState20260924={
     enabled:true,connected:false,connecting:false,url:'',hostId:'',role:'',lastError:''
@@ -187,7 +188,10 @@
   function mediaStreamFor(track){
     try{
       var mt=track&&track.mediaStreamTrack;
-      return mt?new MediaStream([mt]):null;
+      if(!mt)return null;
+      var stream=new MediaStream([mt]);
+      remoteVideoTrackByStream.set(stream,track);
+      return stream;
     }catch(e){return null;}
   }
   function hasLiveVideo(v){
@@ -199,7 +203,16 @@
   function setVideo(v,stream){
     if(!v||!stream)return false;
     try{
-      if(v.srcObject!==stream)v.srcObject=stream;
+      var track=remoteVideoTrackByStream.get(stream);
+      if(track&&typeof track.attach==='function'){
+        var previous=attachedVideoTrack.get(v);
+        var stillAttached=previous===track&&v.srcObject&&v.srcObject.getVideoTracks&&v.srcObject.getVideoTracks().indexOf(track.mediaStreamTrack)>=0;
+        if(!stillAttached){
+          if(previous&&previous!==track&&typeof previous.detach==='function')previous.detach(v);
+          track.attach(v);
+          attachedVideoTrack.set(v,track);
+        }
+      }else if(v.srcObject!==stream)v.srcObject=stream;
       v.autoplay=true;v.playsInline=true;v.muted=true;v.defaultMuted=true;
       v.setAttribute('autoplay','');v.setAttribute('playsinline','');v.setAttribute('muted','');
       var p=v.play();if(p&&p.catch)p.catch(function(){});
