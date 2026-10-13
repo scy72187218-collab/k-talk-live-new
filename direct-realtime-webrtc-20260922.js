@@ -16,7 +16,7 @@
   var pendingRequests={},approvedGuests={},hostGuestPeers={},guestPc=null,guestSession='',guestApprovedHost='',guestApproved=false,guestStream=null,guestIce={};
   var guestPrewarmTimer=null;
   var pendingHostGuestOffers={},pendingHostGuestIce={},pendingGuestPhotos20260926={};
-  var requestOn=false,lastRemoteHost='',lastHostRole='',lastWatchAt=0;
+  var requestOn=false,lastRemoteHost='',lastHostRole='',lastWatchAt=0,previewHostId='';
   var sharedApprovalPollBusy=false,leaveAnnouncedHost='',guestAliveLastSent=0,hostGuestAliveAt={},remoteHostMissingSince=0;
   var signalSeen={},viewerOfferInFlight='',lastHostReadyAt=0,lastGuestRequestAt=0,guestApprovedAt=0;
   var guestMediaAckTimer=null,guestMediaAckSession='',guestMediaRecoveryCount=0,guestMediaReadyAt=0;
@@ -97,6 +97,7 @@
   function isHostRole(){
     try{
       var local=roomEl(),visible=false;
+      if(previewHostId)return false;
 
       /* Viewer 9-room intentionally uses the same .ktg13-room layout as host.
          Never classify a room inside .kt-remote-live (or kt-remote-viewing)
@@ -238,8 +239,8 @@
   }
 
   function remoteHostId(){
-    var id='';
-    try{id=String(window.__ktRemoteHostId||'');}catch(e){}
+    var id=previewHostId;
+    if(!id)try{id=String(window.__ktRemoteHostId||'');}catch(e){}
     if(!id)try{id=String(sessionStorage.getItem('kt_remote_host_id')||'');}catch(e){}
     return id;
   }
@@ -576,6 +577,7 @@
   };
 
   async function syncSharedApprovalSignals(){
+    if(previewHostId)return;
     if(sharedApprovalPollBusy)return;
     var host=isHostRole(),hid=host?DEVICE:remoteHostId();
     if(!hid)return;
@@ -2526,6 +2528,7 @@
   }
 
   function handleSignal(ev,p){
+    if(previewHostId&&/^guest_/.test(String(ev||'')))return;
     /* video_watch must stay retryable.
        The first watch can arrive a few ms before the host camera stream is ready.
        hostOfferToViewer already safely reuses/resends the same watch token, so
@@ -2890,6 +2893,11 @@
   document.addEventListener('click',directRequestClick,true);
 
   function roleTick(){
+    try{
+      var previewVideo=document.getElementById('ktRemoteHostPreview');
+      if(previewHostId&&previewVideo)previewVideo.setAttribute('data-kt-receive-state',JSON.stringify({host:previewHostId,channel:activeHostId,joined:joined,pc:viewerPc&&viewerPc.connectionState||'',ice:viewerPc&&viewerPc.iceConnectionState||'',phase:window.__ktDirectRtcPhase||'',connected:viewerConnected}));
+    }catch(e){}
+
     var host=isHostRole(),hid=host?DEVICE:remoteHostId();
     var role=host?'host':(hid?'viewer':'');
     if(!hid){
@@ -3026,7 +3034,19 @@
   }
   window.ktStartRemoteHostVideoNow20261003=ktStartRemoteHostVideoNow20261003;
 
+  window.addEventListener('kt-live-preview-selected',function(e){
+    var hid=String(e&&e.detail&&e.detail.host_id||'').trim();if(!hid)return;
+    previewHostId=hid;requestOn=false;guestApproved=false;guestApprovedHost='';
+    roleTick();
+  });
+  window.addEventListener('kt-live-preview-closed',function(e){
+    var hid=String(e&&e.detail&&e.detail.host_id||'').trim();
+    if(hid!==previewHostId)return;previewHostId='';
+    if(!document.querySelector('.kt-remote-live'))window.ktDirectRemoteLeaveNow20260924(hid);
+  });
   window.addEventListener('kt-remote-host-selected',function(e){
+    previewHostId='';
+
     try{
       var hid=String(e&&e.detail&&e.detail.host_id||'').trim();
       if(!hid)return;
