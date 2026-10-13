@@ -416,7 +416,7 @@
         try{e.preventDefault();e.stopPropagation();}catch(err){}
         var id=String(btn.getAttribute('data-host')||'').trim();
         if(id&&typeof window.ktEnterRemoteLive==='function'){
-          window.ktEnterRemoteLive(id);
+          (window.ktPreviewRemoteLive||window.ktEnterRemoteLive)(id);
         }
       };
     });
@@ -435,7 +435,7 @@
     if(!hid||typeof window.ktEnterRemoteLive!=='function')return;
     __ktFollowHostTapAt=now;
     try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
-    try{window.ktEnterRemoteLive(hid);}catch(_e){}
+    try{(window.ktPreviewRemoteLive||window.ktEnterRemoteLive)(hid);}catch(_e){}
   }
   document.addEventListener('click',enterFollowHostNow,true);
 
@@ -560,8 +560,8 @@
       +'<button type="button" class="ktvl-live" data-host="'+esc(hostId)+'" aria-label="'+esc(liveRoomLabel(r)+' 방송 입장')+'"><span>● LIVE</span><span class="kt-live-room-label">'+esc(liveRoomLabel(r))+'</span></button>';
     var person=b.querySelector('.ktvl-person');
     var live=b.querySelector('.ktvl-live');
-    if(person)person.onclick=function(e){e.preventDefault();e.stopPropagation();if(window.ktEnterRemoteLive)window.ktEnterRemoteLive(hostId);};
-    if(live)live.onclick=function(e){e.preventDefault();e.stopPropagation();if(window.ktEnterRemoteLive)window.ktEnterRemoteLive(hostId);};
+    if(person)person.onclick=function(e){e.preventDefault();e.stopPropagation();if(window.ktEnterRemoteLive)(window.ktPreviewRemoteLive||window.ktEnterRemoteLive)(hostId);};
+    if(live)live.onclick=function(e){e.preventDefault();e.stopPropagation();if(window.ktEnterRemoteLive)(window.ktPreviewRemoteLive||window.ktEnterRemoteLive)(hostId);};
     host.appendChild(b);
     paintSocialState(hostId);
   }
@@ -607,7 +607,7 @@
     }catch(_e){}
     __ktLivePeekTapAt=now;
     try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
-    try{window.ktEnterRemoteLive(hid);}catch(_e){}
+    try{(window.ktPreviewRemoteLive||window.ktEnterRemoteLive)(hid);}catch(_e){}
   }
   function clearPublicLiveStripInRoom(){
     try{

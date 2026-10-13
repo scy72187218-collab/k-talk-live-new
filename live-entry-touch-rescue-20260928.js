@@ -52,7 +52,7 @@
     }
     lastHost=id;lastAt=now;
     try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
-    try{window.ktEnterRemoteLive(id);}catch(_e){}
+    try{(window.ktPreviewRemoteLive||window.ktEnterRemoteLive)(id);}catch(_e){}
   }
 
   /* One completed click for touch, mouse and keyboard. */
@@ -63,4 +63,3 @@
   st.textContent='.ktvl-live,.kt-follow-person.live,.kt-friend-bubble.live,.kt-friend-contact-actions .livebtn,.kt-live-card,.kt-live-list-enter,[onclick*="ktFriendEnterLive"],[onclick*="ktEnterRemoteLive"]{pointer-events:auto!important;touch-action:manipulation!important;position:relative!important;z-index:2147483000!important}';
   (document.head||document.documentElement).appendChild(st);
 })();
-

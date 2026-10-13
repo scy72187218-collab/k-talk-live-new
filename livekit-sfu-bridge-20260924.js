@@ -539,7 +539,9 @@
     setState({connecting:true,connected:false,hostId:hostId,role:currentRole,lastError:''});
     try{
       var LK=await ensureSdk();
-      if(room){try{await room.disconnect(false);}catch(e){}}
+      var previousRoom=room;
+      room=null;
+      if(previousRoom){try{await previousRoom.disconnect(false);}catch(e){}}
       clearRoomRefs();
       var identity=(currentRole==='host')?DEVICE:viewerId();
       var auth=await tokenFor(hostId,identity,runId);
@@ -765,6 +767,15 @@
     removeApprovedGuestSlot20260924(id);
     ensureApprovedRosterSlots20260924();
     reattachRemoteTracks();
+  });
+  window.addEventListener('kt-live-preview-selected',function(e){
+    var h=String(e&&e.detail&&e.detail.host_id||'').trim();if(!h)return;
+    if(currentHostId&&currentHostId!==h)disconnectRoom();
+    approvedHostId='';watchHostId=h;hostTick();
+  });
+  window.addEventListener('kt-live-preview-closed',function(e){
+    if(document.querySelector('.kt-remote-live'))return;
+    if(String(e&&e.detail&&e.detail.host_id||'')===watchHostId){watchHostId='';approvedHostId='';disconnectRoom();}
   });
   window.addEventListener('kt-remote-host-selected',function(e){
     var h=String(e&&e.detail&&e.detail.host_id||'').trim();
