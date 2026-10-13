@@ -57,6 +57,27 @@
   document.addEventListener('playing',check,true);
   document.addEventListener('loadeddata',check,true);
   window.addEventListener('pagehide',remove);
+  /* Own selection before access checks and transport wrappers await anything. */
+  var intentSequence=0;
+  function installEntryIntent(){
+    var old=window.ktEnterRemoteLive;
+    if(typeof old!=='function'||old.__ktEntryIntent20261013)return;
+    var wrapped=function(id){
+      id=String(id||'').trim();if(!id)return false;
+      var intent={id:id,nav:Number(window.__ktPageNavigationEpoch20261013||0),seq:++intentSequence,pending:true};
+      window.__ktLiveEntryIntent20261013=intent;
+      var cached=window.__ktLastLiveRoom;
+      begin(id,cached&&String(cached.host_id||'')===id?cached:null);
+      var out;
+      try{out=old.apply(this,arguments);}catch(e){intent.pending=false;throw e;}
+      return Promise.resolve(out).finally(function(){intent.pending=false;});
+    };
+    Object.keys(old).forEach(function(k){try{wrapped[k]=old[k];}catch(e){}});
+    wrapped.__ktEntryIntent20261013=true;
+    window.ktEnterRemoteLive=wrapped;
+  }
+  installEntryIntent();
+  setInterval(installEntryIntent,500);
   var screen=document.getElementById('screen');
   if(screen)new MutationObserver(check).observe(screen,{childList:true,subtree:true});
 })();

@@ -23,7 +23,7 @@
     var old=window.ktEnterRemoteLive;
     if(typeof old!=='function'||old.__ktRemoteHostIdBridge)return;
     var fn=function(hostId){
-      remember(hostId);
+      /* The entry owner sets identity and announces it only after its room is ready. */
       var r=old.apply(this,arguments);
       if(r&&typeof r.then==='function'){
         return r.catch(function(err){
@@ -38,6 +38,7 @@
       }
       return r;
     };
+    Object.keys(old).forEach(function(k){try{fn[k]=old[k];}catch(e){}});
     fn.__ktRemoteHostIdBridge=true;
     window.ktEnterRemoteLive=fn;
   }

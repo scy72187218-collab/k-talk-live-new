@@ -64,6 +64,7 @@
           manualLeave=false;
           return enter.apply(this,arguments);
         };
+        Object.keys(enter).forEach(function(k){try{wrappedEnter[k]=enter[k];}catch(e){}});
         wrappedEnter.__ktNineStayWrapped=true;
         wrappedEnter.__ktNineStayOriginal=enter;
         window.ktEnterRemoteLive=wrappedEnter;
@@ -83,6 +84,7 @@
           scheduleReconnect();
           return false;
         };
+        Object.keys(leave).forEach(function(k){try{wrappedLeave[k]=leave[k];}catch(e){}});
         wrappedLeave.__ktNineStayWrapped=true;
         wrappedLeave.__ktNineStayOriginal=leave;
         window.ktLeaveRemoteLive=wrappedLeave;

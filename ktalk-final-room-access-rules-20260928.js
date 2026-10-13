@@ -351,6 +351,7 @@
         }
         return oldEnter.apply(this,arguments);
       };
+      Object.keys(oldEnter).forEach(function(k){try{ent[k]=oldEnter[k];}catch(e){}});
       ent.__ktFinalAccessRules=true;
       window.ktEnterRemoteLive=ent;
     }

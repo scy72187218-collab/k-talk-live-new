@@ -864,6 +864,8 @@
   function ensurePrejoinRoomGrid(){
     var root=document.querySelector('.kt-remote-live');
     if(!root)return;
+    /* A solo broadcast has no guest grid; retain its own host video. */
+    if(String(root.getAttribute('data-kt-room-type')||'')==='solo')return;
     if(root.querySelector('.kt-approved-guest-grid'))return;
     // The saved nine-room shell already owns the host video. Legacy prejoin
     // must not move it into a second grid that cleanup will later remove.

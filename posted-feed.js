@@ -487,6 +487,8 @@
     }catch(e){return false;}
   }
   function renderFeedNow(a){
+    var intent=window.__ktLiveEntryIntent20261013;
+    if(intent&&intent.pending&&intent.nav===Number(window.__ktPageNavigationEpoch20261013||0))return false;
     // Home-feed work must not replace a live room opened while it was pending.
     if(screen.querySelector('.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room,.kt-remote-live'))return false;
     if(!Array.isArray(a)||!a.length)return false;

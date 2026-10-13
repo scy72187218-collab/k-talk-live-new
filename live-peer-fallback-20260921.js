@@ -427,6 +427,8 @@
 
   window.ktEnterRemoteLive=async function(hostId){
     hostId=String(hostId||'').trim();if(!hostId)return false;
+    var intent=window.__ktLiveEntryIntent20261013;
+    if(intent&&intent.nav===Number(window.__ktPageNavigationEpoch20261013||0)&&intent.id!==hostId)return false;
     if(enterBusy&&String(window.__ktRemoteHostId||'')===hostId)return true;
     var epoch=++entryEpoch,nav=Number(window.__ktPageNavigationEpoch20261013||0);
     var previous=String(window.__ktRemoteHostId||'');
@@ -510,5 +512,3 @@
   setInterval(hostPoll,1500);
   setTimeout(hostPoll,120);
 })();
-
-
