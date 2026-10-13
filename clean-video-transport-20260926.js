@@ -843,7 +843,7 @@
 
     targets.forEach(function(v){
       try{
-        if(v.srcObject!==stream)v.srcObject=stream;
+        if(!sameVideoSource20260926(v.srcObject,stream))v.srcObject=stream;
         v.autoplay=true;
         v.playsInline=true;
         /* Keep remote host muted so mobile autoplay cannot be blocked. */

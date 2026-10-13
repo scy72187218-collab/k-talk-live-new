@@ -246,7 +246,12 @@
     if(main&&!mainIsSelf&&(!self||main.srcObject!==self))add(main);
     targets.forEach(function(v){setVideo(v,stream);});
     if(targets.length){
-      try{window.__ktRemoteHostStream=stream;}catch(e){}
+      try{
+        var previous=window.__ktRemoteHostStream;
+        var oldTrack=previous&&previous.getVideoTracks&&previous.getVideoTracks()[0];
+        var nextTrack=stream.getVideoTracks&&stream.getVideoTracks()[0];
+        if(!oldTrack||!nextTrack||oldTrack.id!==nextTrack.id)window.__ktRemoteHostStream=stream;
+      }catch(e){}
       var st=document.getElementById('ktRemoteLiveStatus');if(st)st.style.display='none';
     }
   }
