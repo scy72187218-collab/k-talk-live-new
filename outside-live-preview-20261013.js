@@ -55,12 +55,12 @@
     id=String(id||'').trim();if(!id)return false;
     close(false);var request=sequence;host=id;
     if(window.ktStopPageMedia)window.ktStopPageMedia();
-    box=document.createElement('section');box.id='ktOutsideLivePreview';box.setAttribute('aria-label','방송 미리보기');
+    box=document.createElement('section');box.id='ktOutsideLivePreview';box.dataset.ktHostId=id;box.setAttribute('aria-label','방송 미리보기');
     box.style.cssText='position:fixed;inset:0;z-index:2147483500;background:#08080d;color:white;display:flex;flex-direction:column;padding:16px;box-sizing:border-box';
     var top=document.createElement('div');top.style.cssText='display:flex;justify-content:space-between;align-items:center';
     var title=document.createElement('b');title.textContent='● LIVE · 방송 미리보기';top.appendChild(title);
     var back=document.createElement('button');back.textContent='닫기';back.onclick=function(){close(false);};top.appendChild(back);box.appendChild(top);
-    var video=document.createElement('video');video.id='ktRemoteHostPreview';video.autoplay=true;video.playsInline=true;video.muted=false;video.style.cssText='width:100%;flex:1;min-height:0;object-fit:contain;background:#111';box.appendChild(video);
+    var video=document.createElement('video');video.id='ktRemoteHostPreview';video.autoplay=true;video.playsInline=true;video.muted=false;video.style.cssText='width:100%;flex:1;min-height:0;object-fit:contain;background:#111';var videoWrap=document.createElement('div');videoWrap.className='kt-outside-video-wrap';videoWrap.style.cssText='position:relative;display:flex;flex:1;min-height:0';videoWrap.appendChild(video);box.appendChild(videoWrap);
     var note=document.createElement('p');note.textContent='방송 상태를 확인하고 있습니다…';box.appendChild(note);
     video.onloadeddata=function(){note.textContent='바깥에서 시청 중 · 입장 후 사람 버튼으로 참여 신청할 수 있습니다.';};
     var enter=document.createElement('button');enter.type='button';enter.textContent='방송 입장하기';enter.style.cssText='border:0;border-radius:16px;padding:18px;background:#ec286c;color:white;font-size:18px;font-weight:bold';box.appendChild(enter);

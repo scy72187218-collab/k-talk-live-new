@@ -9,6 +9,7 @@
   var BASE='https://'+REF+'.supabase.co/rest/v1/';
   var states={};
   var polling=false;
+  var stateHost='';
   var CHOICES=[
     {id:'female1',icon:'👩🏻',label:'여성 캐릭터 1',bg:'linear-gradient(145deg,#ffd9ea,#f4b6d0)'},
     {id:'female2',icon:'👩🏽',label:'여성 캐릭터 2',bg:'linear-gradient(145deg,#ffe5c6,#d9b48f)'},
@@ -41,10 +42,19 @@
   }
   function profilePhoto(){
     var p=profile();
-    return String(p.photo||'');
+    return safePhoto(p.photo||p.avatar_url||p.avatar||'');
+  }
+  function safePhoto(value){
+    var photo=String(value||'');
+    return /^(https?:\/\/|data:image\/(png|jpe?g|webp|gif);base64,)/i.test(photo)?photo:'';
+  }
+  function syncHost(){
+    var host=currentHost();
+    if(host!==stateHost){states={};stateHost=host;}
+    return host;
   }
   function choiceId(){
-    try{return localStorage.getItem('kt_camera_off_choice_20260928')||'female1';}catch(e){return 'female1';}
+    try{return localStorage.getItem('kt_camera_off_choice_20260928')||'profile';}catch(e){return 'profile';}
   }
   function choiceById(id){
     for(var i=0;i<CHOICES.length;i++)if(CHOICES[i].id===id)return CHOICES[i];
@@ -53,9 +63,11 @@
   function isHostLocal(){
     return !!document.querySelector(
       '#screen .ktsolo-room,#screen .ktg13-room,#screen .ktg9-room,#screen .ktsubscriber-room,#screen .ktsecret-room'
-    )&&!document.documentElement.classList.contains('kt-remote-viewing');
+    )&&!document.querySelector('#screen .kt-remote-live')&&!document.documentElement.classList.contains('kt-remote-viewing');
   }
   function currentHost(){
+    var preview=document.getElementById('ktOutsideLivePreview');
+    if(preview&&preview.dataset.ktHostId)return preview.dataset.ktHostId;
     if(isHostLocal())return deviceId();
     var h='';
     try{h=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||sessionStorage.getItem('kt_remote_host_id')||'').trim();}catch(e){}
@@ -70,8 +82,9 @@
       return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
     });
     var picked=choiceById(choice||choiceId());
-    if(isSelf&&choice==='profile'&&photo){
-      return '<img src="'+photo.replace(/"/g,'&quot;')+'" alt="'+safeName+' 프로필"><small>'+safeName+'</small>';
+    photo=safePhoto(photo);
+    if((!choice||choice==='profile')&&photo){
+      return '<img src="'+photo.replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'" alt="'+safeName+' 프로필"><small>'+safeName+'</small>';
     }
     return '<div class="kt-camera-off-face" style="background:'+picked.bg+'">'+picked.icon+'</div><small>'+picked.label+'</small>';
   }
@@ -105,7 +118,8 @@
       '#screen .ktsecret-room .ktsecret-host,'+
       '#screen .kt-guest-hostlike-room .kgh-cell.host,'+
       '#screen .kt-approved-guest-grid .kt-approved-guest-cell.host,'+
-      '#screen .kt-guest-room-grid .kt-guest-room-cell.host'
+      '#screen .kt-guest-room-grid .kt-guest-room-cell.host,'+
+      '#ktOutsideLivePreview .kt-outside-video-wrap'
     ));
     document.querySelectorAll(
       '#screen [data-kt-guest-viewer-id],'+
@@ -124,6 +138,7 @@
   }
 
   function render(){
+    syncHost();
     style();
     var map=tileMap(),self=selfParticipant(),photo=profilePhoto(),name=profileName();
 
@@ -138,7 +153,8 @@
           old.className='kt-camera-off-avatar-20260928';
           tile.appendChild(old);
         }
-        old.innerHTML=avatarHtml(st.name||name,(id===self?photo:''),id===self,st.choice||'female1');
+        var html=avatarHtml(st.name||name,(id===self?photo:st.photo),id===self,st.choice||'profile');
+        if(old.innerHTML!==html)old.innerHTML=html;
       }else if(old){
         old.remove();
       }
@@ -146,10 +162,10 @@
   }
 
   async function sendState(off,choice){
-    var host=currentHost(),participant=selfParticipant();
+    var host=syncHost(),participant=selfParticipant();
     if(!host||!participant)return;
     choice=choice||choiceId();
-    states[participant]={off:!!off,name:profileName(),choice:choice,at:Date.now()};
+    states[participant]={off:!!off,name:profileName(),photo:profilePhoto(),choice:choice,at:Date.now()};
     render();
     try{
       await fetch(BASE+'ktalk_live_messages',{
@@ -159,7 +175,7 @@
           host_id:host,
           sender_id:'camera:'+participant,
           sender_name:profileName(),
-          message:JSON.stringify({participant:participant,off:!!off,name:profileName(),choice:choice,at:Date.now()}),
+          message:JSON.stringify({participant:participant,off:!!off,name:profileName(),photo:profilePhoto(),choice:choice,at:Date.now()}),
           message_type:'camera_state'
         })
       });
@@ -177,7 +193,7 @@
     p.id='ktCameraOffChoicePicker20260928';
     p.className='kt-camera-off-choice-picker-20260928';
     var current=choiceId();
-    CHOICES.forEach(function(ch){
+    [{id:'profile',icon:'👤',label:'내 프로필'}].concat(CHOICES).forEach(function(ch){
       var b=document.createElement('button');
       b.type='button';
       b.className=ch.id===current?'on':'';
@@ -206,7 +222,7 @@
 
   async function poll(){
     if(polling)return;
-    var host=currentHost();if(!host)return;
+    var host=syncHost();if(!host)return;
     polling=true;
     try{
       var rows=await fetch(
@@ -214,7 +230,7 @@
         '&message_type=eq.camera_state&order=created_at.desc&limit=80',
         {cache:'no-store',headers:headers()}
       );
-      if(rows&&rows.ok){
+      if(rows&&rows.ok&&currentHost()===host){
         var list=await rows.json(),latest={};
         (list||[]).forEach(function(row){
           try{
@@ -222,7 +238,7 @@
             var id=String(d.participant||'');
             if(!id||latest[id])return;
             latest[id]=1;
-            states[id]={off:!!d.off,name:String(d.name||row.sender_name||'회원'),choice:String(d.choice||'female1'),at:Number(d.at||0)};
+            states[id]={off:!!d.off,name:String(d.name||row.sender_name||'회원'),photo:safePhoto(d.photo),choice:String(d.choice||'profile'),at:Number(d.at||0)};
           }catch(e){}
         });
       }
