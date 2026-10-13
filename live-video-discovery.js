@@ -346,6 +346,16 @@
     return esc(first);
   }
 
+  function placeLiveStripAboveNavigation(strip){
+    var nav=document.querySelector('nav.bottom');
+    if(!strip||!nav)return;
+    var nr=nav.getBoundingClientRect(),sr=strip.getBoundingClientRect();
+    if(nr.height>0&&nr.top>0&&sr.bottom>nr.top-8){
+      var bottom=parseFloat(getComputedStyle(strip).bottom)||0;
+      strip.style.setProperty('bottom',(bottom+sr.bottom-nr.top+8)+'px','important');
+    }
+  }
+
   async function renderFollowStatus(rooms){
     var old=document.getElementById('ktFollowLiveStrip');
 
@@ -373,6 +383,7 @@
     }).join('|');
 
     if(old&&old.getAttribute('data-kt-signature')===signature){
+      placeLiveStripAboveNavigation(old);
       try{document.body.classList.add('kt-follow-status-open');}catch(e){}
       return;
     }
@@ -397,6 +408,7 @@
     }).join('');
 
     document.body.appendChild(strip);
+    placeLiveStripAboveNavigation(strip);
     document.body.classList.add('kt-follow-status-open');
 
     strip.querySelectorAll('.kt-follow-person.live').forEach(function(btn){
@@ -681,5 +693,3 @@
   setInterval(function(){clearPublicLiveStripInRoom();scheduleRender(0);},700);
   scheduleRender(600);
 })();
-
-
