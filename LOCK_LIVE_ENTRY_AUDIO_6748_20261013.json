@@ -2,7 +2,7 @@
   "maintenance_id": "6748",
   "date": "2026-10-13",
   "scope": "Live entry race/frame ownership and navigation music stop; reviewed candidate only",
-  "runtime_commit": "6ee3d7ccb6986c8277ff71e0ffa327f381e69e9d",
+  "runtime_commit": "88d6d0128d04c9786040d48c058c7f405070931f",
   "branch": "codex/live-entry-audio-6748-6ee3d7c",
   "runtime_password": false,
   "production_deployed": false,
@@ -16,10 +16,11 @@
     "mixed-video-live-feed-20261012.js": "eff24c970e7be546c3f91cdf5fee20f3e9101aee",
     "live-entry-feedback-20261013.js": "145ed8778a7caa903ad276cc3d9452d0b6a898f6",
     "page-media-lifecycle-20261013.js": "71bd56693e30242030dbd4701c6cdeeea7fad79b",
-    "index.html": "f282471e78f5ce8ea89490633271be0d4fa1d5c9"
+    "index.html": "a7e0b8f51c9f951a7a99d0d29e245f4f95b12cd2",
+    "all-switches-runtime-final-20261002.js": "a8d1fd2712be1213926da871614c8fc74b88286f"
   },
   "verification": {
-    "regression_scripts": 4,
+    "regression_scripts": 5,
     "synthetic_browser_video_entries_ms": [
       2802,
       3601,
@@ -39,5 +40,6 @@
     "Real user broadcasts and physical phone/network combinations were not tested",
     "This lock does not claim all settings, moderator controls, payments or settlement are complete"
   ],
-  "future_changes": "Change this scoped candidate only on explicit owner authorization; this is a maintenance record, not a runtime access gate."
+  "future_changes": "Change this scoped candidate only on explicit owner authorization; this is a maintenance record, not a runtime access gate.",
+  "actual_phone_validation": "pending; production-host video was not received in cross-environment preview test"
 }
