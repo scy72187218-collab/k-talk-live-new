@@ -940,7 +940,7 @@
         var cur=v.srcObject||null;
         var currentTrack=cur&&cur.getVideoTracks&&cur.getVideoTracks()[0];
         var incomingTrack=stream.getVideoTracks&&stream.getVideoTracks()[0];
-        if(currentTrack&&incomingTrack&&currentTrack.id!==incomingTrack.id&&currentTrack.readyState==='live'&&!currentTrack.muted&&v.readyState>=2&&v.videoWidth>0)return;
+        if(currentTrack&&incomingTrack&&currentTrack!==incomingTrack&&currentTrack.readyState==='live'&&!currentTrack.muted&&v.readyState>=2&&v.videoWidth>0)return;
         if(!cur||!sameVideoSource20260926(cur,stream)){
           v.srcObject=stream;
         }

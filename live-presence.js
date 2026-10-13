@@ -423,7 +423,9 @@
       ];
       document.querySelectorAll(sels.join(',')).forEach(function(v){
         try{
-          if(v.srcObject!==stream)v.srcObject=stream;
+          var cur=v.srcObject,ct=cur&&cur.getVideoTracks&&cur.getVideoTracks()[0],nt=stream.getVideoTracks&&stream.getVideoTracks()[0];
+          if(ct&&nt&&ct!==nt&&ct.readyState==='live'&&!ct.muted&&v.readyState>=2&&v.videoWidth>0)return;
+          if(!ct||!nt||ct.id!==nt.id)v.srcObject=stream;
           v.autoplay=true;v.playsInline=true;v.muted=true;v.defaultMuted=true;
           var p=v.play();if(p&&p.catch)p.catch(function(){});
         }catch(e){}
