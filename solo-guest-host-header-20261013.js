@@ -11,7 +11,7 @@
  var room=window.__ktLastLiveRoom||{},start=String(room.host_id||'')===String(root.getAttribute('data-kt-host-id')||'')?Date.parse(room.started_at||''):NaN;
  var clock='00:00:00',pane=document.createElement('section');pane.className='kt-solo-guest-header';
  pane.innerHTML='<div class="ktsgv-head"><div class="kt-host-unified-column"><div class="ktsgv-left"><button class="ktsgv-back" onclick="if(window.ktLeaveRemoteLive)ktLeaveRemoteLive()">‹</button><div class="ktsgv-title"><i>●</i> 1인 방송</div></div><div class="ktsgv-air"><span class="on">● ON AIR</span><span data-solo-viewer-clock>'+esc(clock)+'</span></div></div><div class="ktsgv-brand">K-Talk LIVE</div></div>'+'<div class="ktsgv-led"><div class="ktsgv-led-track"><span>💗 ✨ <b>K-Talk LIVE</b> 환영합니다 ✨ 💗</span><span>💗 ✨ <b>K-Talk LIVE</b> 환영합니다 ✨ 💗</span></div></div>';
- var row=window.ktCreateSharedRoomStats20261013();pane.appendChild(row);
+ var row=window.ktCreateSharedRoomStats20261013();var viewerNumber=row.querySelector('.kt-room-viewers-copy b');if(viewerNumber)viewerNumber.textContent='0';pane.appendChild(row);
  var actions=window.ktCreateSharedRoomActions20261013();pane.appendChild(actions);
  var buttons=actions.querySelectorAll('button');
  buttons[0].onclick=function(){if(window.ktLeaveRemoteLive)window.ktLeaveRemoteLive();};
