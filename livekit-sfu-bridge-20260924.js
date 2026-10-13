@@ -223,11 +223,15 @@
       ));
     }catch(e){}
     if(main&&!mainIsSelf&&(!self||main.srcObject!==self))add(main);
+    /* Host video can arrive before the guest room tiles are mounted.
+       Keep the remote stream available immediately so the existing guest
+       source-lock can attach it as soon as the host tile appears. */
+    try{window.__ktRemoteHostStream=stream;}catch(e){}
     targets.forEach(function(v){setVideo(v,stream);});
     if(targets.length){
-      try{window.__ktRemoteHostStream=stream;}catch(e){}
       var st=document.getElementById('ktRemoteLiveStatus');if(st)st.style.display='none';
     }
+    try{if(window.ktFixGuestRoomVideoSources20260926)window.ktFixGuestRoomVideoSources20260926();}catch(e){}
   }
   function exactGuestVideo(identity){
     var esc=identity;
