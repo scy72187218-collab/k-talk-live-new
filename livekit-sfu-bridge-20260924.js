@@ -203,6 +203,9 @@
   function setVideo(v,stream){
     if(!v||!stream)return false;
     try{
+      var currentTrack=v.srcObject&&v.srcObject.getVideoTracks&&v.srcObject.getVideoTracks()[0];
+      var incomingTrack=stream.getVideoTracks&&stream.getVideoTracks()[0];
+      if(currentTrack&&incomingTrack&&currentTrack.id!==incomingTrack.id&&currentTrack.readyState==='live'&&!currentTrack.muted&&v.readyState>=2&&v.videoWidth>0)return true;
       var track=remoteVideoTrackByStream.get(stream);
       if(track&&typeof track.attach==='function'){
         var previous=attachedVideoTrack.get(v);
