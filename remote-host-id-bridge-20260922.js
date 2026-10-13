@@ -52,6 +52,7 @@
       clear();
       return r;
     };
+    Object.keys(old).forEach(function(k){try{fn[k]=old[k];}catch(e){}});
     fn.__ktRemoteHostIdBridge=true;
     window.ktLeaveRemoteLive=fn;
   }

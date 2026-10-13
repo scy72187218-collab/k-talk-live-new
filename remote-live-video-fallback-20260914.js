@@ -113,6 +113,7 @@
     var old=window.ktLeaveRemoteLive;
     if(typeof old!=='function'||old.__ktVideoFallbackWrapped)return;
     var fn=async function(){currentHost='';retryCount=0;lastFallbackAt=0;await closeFallback();return old.apply(this,arguments);};
+    Object.keys(old).forEach(function(k){try{fn[k]=old[k];}catch(e){}});
     fn.__ktVideoFallbackWrapped=true;
     window.ktLeaveRemoteLive=fn;
   }
