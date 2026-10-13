@@ -20,7 +20,7 @@
       var u=new URL(raw,location.href);
       if(!TARGETS[u.pathname])return '';
       u.searchParams.delete('t');
-      return method+' '+u.pathname+'?'+u.searchParams.toString();
+      return method+' '+u.origin+u.pathname+'?'+u.searchParams.toString();
     }catch(e){return '';}
   }
 
