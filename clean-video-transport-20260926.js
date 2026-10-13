@@ -2517,6 +2517,10 @@
   document.addEventListener('click',directRequestClick,true);
 
   function roleTick(){
+    try{
+      var previewVideo=document.getElementById('ktRemoteHostPreview');
+      if(previewHostId&&previewVideo)previewVideo.setAttribute('data-kt-receive-state',JSON.stringify({host:previewHostId,channel:activeHostId,joined:joined,pc:viewerPc&&viewerPc.connectionState||'',ice:viewerPc&&viewerPc.iceConnectionState||'',phase:window.__ktDirectRtcPhase||'',connected:viewerConnected}));
+    }catch(e){}
     var host=isHostRole(),hid=host?DEVICE:remoteHostId();
     var role=host?'host':(hid?'viewer':'');
     if(!hid){

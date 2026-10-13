@@ -11,6 +11,14 @@
 
   var USED_PREFIX='ktalk_daily_fortune_ladder_used:';
   var REWARD_PREFIX='ktalk_daily_fortune_ladder_roses:';
+  var LUCKY_PREFIX='ktalk_last_fortune_lucky_numbers:';
+  function lastLuckyNumbers(){
+    try{var a=JSON.parse(localStorage.getItem(LUCKY_PREFIX+accountKey())||'null');
+      return Array.isArray(a)&&a.length===6&&new Set(a).size===6&&a.every(function(n){return Number.isInteger(n)&&n>=1&&n<=45;})?a:null;
+    }catch(e){return null;}
+  }
+  function saveLuckyNumbers(a){try{localStorage.setItem(LUCKY_PREFIX+accountKey(),JSON.stringify(a));}catch(e){}}
+  function savedLuckyHtml(){var a=lastLuckyNumbers();return a?'<div class="rowbox" id="ktSavedLuckyNumbers"><b>✨ 마지막으로 뽑은 행운 숫자</b><br><span style="font-size:17px;font-weight:950;letter-spacing:3px">'+a.join(' · ')+'</span><br><small>다시 뽑을 때까지 이 번호를 유지합니다.</small></div>':'';}
 
   function todayKey(){
     var d=new Date();
@@ -230,6 +238,7 @@
       +'<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin:6px 0 12px">'
       +outcomeLabels().map(function(x,i){return '<div style="padding:7px 1px;border-radius:9px;background:#181820;text-align:center;font-size:9px;font-weight:900">'+(i+1)+'번<br>'+x+'</div>';}).join('')
       +'</div>'
+      +savedLuckyHtml()
       +(used?'<div class="rowbox"><b>오늘 참여 완료</b><br>내일 다시 참여할 수 있습니다.</div>':'')
       +'<div class="rowbox" style="margin-top:10px;border-color:#65d6ff;background:rgba(40,160,255,.08)"><b>📡 하이네통신</b><br>인터넷 · CCTV · LAN · 키폰 · 네트워크 설치<br><strong>🤖 AI 24시간 상담 · 예상견적 안내</strong><br><button type="button" onclick="window.open(\'https://nextnet-it-solutions-24-7-ai-consultant.ai.studio\',\'_blank\',\'noopener\')" style="margin-top:8px;width:100%;height:42px;border:0;border-radius:10px;background:#1e8fff;color:#fff;font-weight:950">하이네통신 바로가기</button></div>';
   }
@@ -280,6 +289,7 @@
         var reward=weightedReward20261005();
         var fortune=fortunes[Math.floor(Math.random()*fortunes.length)]||fortunes[0];
         var lucky=luckyNumbers20260928();
+        saveLuckyNumbers(lucky);
         var result=reward?('🌹 장미 '+reward+'송이 당첨!'):'꽝! 오늘은 좋은 운세를 받아가세요.';
         if(reward)addRoses(reward);
         setTimeout(function(){
