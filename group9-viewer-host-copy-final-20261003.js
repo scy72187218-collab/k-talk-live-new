@@ -8,33 +8,10 @@
   var broadcastEnded8888=false;
 
   function isNine(){
-    try{
-      var root=document.querySelector('#screen .kt-remote-live');
-      var actual=root&&root.getAttribute('data-kt-room-type');
-      var actualName=root&&root.getAttribute('data-kt-room-name');
-      // Never replace a selected solo viewer with the nine-room shell on later ticks.
-      if(String(actual||'')==='solo'||/1\s*인|solo/i.test(String(actualName||'')))return false;
-      if(/^(subscriber|password|secret)$/.test(String(actual||'')))return false;
-      if(/subscriber|구독|password|secret|비밀/i.test(String(window.__ktRemoteRoomType||'')+' '+String(window.__ktRemoteRoomName||'')))return false;
-      var last=window.__ktLastLiveRoom||{}, st=window.state||{};
-      var roomType=String(last.room_type||window.__ktRemoteRoomType||st.liveRoomType||'').toLowerCase();
-      var roomName=String(last.room_name||window.__ktRemoteRoomName||st.liveRoomName||'');
-      var title=String(last.title||'');
-      var txt=[roomType,roomName,title].join(' ');
-
-      /* Secret/password rooms must never be claimed by the 9-room viewer shell. */
-      if(/password|secret|비밀방|비밀\s*방/i.test(txt))return false;
-
-      var forced=String(window.__ktForceNineViewerShellHost20261003||'').trim();
-      var current=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||'').trim();
-      if(forced&&(!current||forced===current)){
-        if(/password|secret|비밀방|비밀\s*방/i.test(txt))return false;
-        return true;
-      }
-
-      return /group9|9\s*명/i.test(txt);
-    }catch(e){return false;}
+    var root=document.querySelector('#screen .kt-remote-live');
+    return !!(root&&root.getAttribute('data-kt-room-type')==='group9');
   }
+
   function style(){
     if(document.getElementById('ktG9ViewerHostCopyStyle20261003'))return;
     var s=document.createElement('style');

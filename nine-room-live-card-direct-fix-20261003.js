@@ -12,27 +12,13 @@
   }
 
   function isNine(hostId){
-    try{
-      var card=findCard(hostId);
-      var txt=card?String(card.textContent||''):'';
-      var cached=window.__ktLastLiveRoom||{};
-      var sameHost=!cached.host_id||String(cached.host_id||'')===String(hostId||'');
-      var cachedTxt=sameHost?[cached.room_type,cached.room_name,cached.title].join(' '):'';
-      var all=String(txt+' '+cachedTxt);
-      if(/1\s*인|solo/i.test(txt))return false;
-      if(sameHost&&String(cached.room_type||'')==='solo')return false;
-
-      if(/subscriber|구독|password|secret|비밀/i.test(all))return false;
-      if(/9\s*명|group9/i.test(all))return true;
-
-      /* Unknown metadata waits for the actual room; never guess nine on entry. */
-      if(/1\s*인|solo|13\s*명|group13|15\s*명|group15|subscriber|구독|secret|비밀/i.test(all))return false;
-      return false;
-    }catch(e){return false;}
+    var root=document.querySelector('#screen .kt-remote-live');
+    return !!(root&&String(root.getAttribute('data-kt-host-id')||'')===String(hostId||'')&&root.getAttribute('data-kt-room-type')==='group9');
   }
 
   function showNine(hostId){
     try{
+      if(!isNine(hostId))return;
       if(/subscriber|구독|password|secret|비밀/i.test(String(window.__ktRemoteRoomType||'')+' '+String(window.__ktRemoteRoomName||'')))return;
       if(String(window.__ktForceNineViewerShellHost20261003||'')!==String(hostId||''))return;
       if(typeof window.ktShowNineViewerShellImmediately20261003==='function'){
@@ -52,14 +38,7 @@
       var nine=isNine(hostId);
       if(nine){
         try{
-          var cached=window.__ktLastLiveRoom||{};
           window.__ktForceNineViewerShellHost20261003=String(hostId||'');
-          window.__ktLastLiveRoom=Object.assign({},cached,{
-            host_id:String(hostId||''),
-            room_type:'group9',
-            room_name:'9명 방송',
-            title:String(cached.title||cached.room_name||'9명 방송')
-          });
         }catch(e){}
       }else{
         window.__ktForceNineViewerShellHost20261003='';
@@ -73,6 +52,7 @@
       return out;
     }
 
+    Object.keys(original).forEach(function(k){try{wrapped[k]=original[k];}catch(e){}});
     wrapped.__ktNineLiveCardDirectWrapped20261003V2=true;
     wrapped.__ktNineLiveCardDirectOriginal20261003=original;
     window.ktEnterRemoteLive=wrapped;
