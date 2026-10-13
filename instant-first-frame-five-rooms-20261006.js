@@ -1,79 +1,40 @@
-/* K-Talk 2026-10-06: instant first-frame handoff for all five remote rooms.
-   Scope only: when entering 1/9/13/subscriber/secret room, reuse an already
-   playing host MediaStream as the first visible frame. Existing direct WebRTC
-   continues normally in the background and can replace this stream later. */
+/* Selected-host first-frame handoff only; never reuse another member's stream. */
 (function(){
   if(window.__ktInstantFirstFrameFiveRooms20261006)return;
   window.__ktInstantFirstFrameFiveRooms20261006=true;
-
-  function liveStream(s){
-    try{
-      return !!(s&&s.getVideoTracks&&s.getVideoTracks().some(function(t){
-        return t&&t.readyState==='live';
-      }));
-    }catch(e){return false;}
+  var handoff=null,generation=0;
+  function liveStream(s){try{return !!(s&&s.getVideoTracks&&s.getVideoTracks().some(function(t){return t&&t.readyState==='live';}));}catch(e){return false;}}
+  function rootFor(id){
+    var root=document.querySelector('#screen .kt-remote-live');
+    return root&&root.getAttribute('data-kt-host-id')===String(id)?root:null;
   }
-
-  function visibleVideoStream(){
-    try{
-      var vids=[].slice.call(document.querySelectorAll('video'));
-      var best=null,bestArea=0;
-      for(var i=0;i<vids.length;i++){
-        var v=vids[i];
-        if(!v||v.id==='camera'||v.id==='ktLiveVideo')continue;
-        if(v.closest&&v.closest('#screen .kt-remote-live'))continue;
-        var s=v.srcObject||null;
-        if(!liveStream(s))continue;
-        var r=v.getBoundingClientRect();
-        if(r.width<8||r.height<8)continue;
-        var cs=getComputedStyle(v);
-        if(cs.display==='none'||cs.visibility==='hidden'||Number(cs.opacity)===0)continue;
-        var area=r.width*r.height;
-        if(area>bestArea){bestArea=area;best=s;}
-      }
-      return best;
-    }catch(e){return null;}
+  function current(id){return String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||'')===String(id);}
+  function visibleVideoStream(id){
+    var root=rootFor(id);if(!root||!current(id))return null;
+    var list=root.querySelectorAll('#ktRemoteLiveVideo,#ktRemoteHostPreview,.ktg13-host video,.ktg9-host video,.ktsubscriber-host video,.ktsecret-slot.host video,.kgh-cell.host video,.kt-approved-guest-cell.host video');
+    for(var i=0;i<list.length;i++){
+      var v=list[i],r=v.getBoundingClientRect();
+      if(r.width>0&&r.height>0&&v.readyState>=2&&liveStream(v.srcObject))return v.srcObject;
+    }
+    return null;
   }
-
-  function paint(stream){
-    if(!liveStream(stream))return false;
-    var targets=[];
-    function add(v){if(v&&targets.indexOf(v)<0)targets.push(v);}
-    add(document.getElementById('ktRemoteLiveVideo'));
-    add(document.getElementById('ktRemoteHostPreview'));
-    try{
-      document.querySelectorAll(
-        '#screen .ktsolo-room video,'+
-        '#screen .ktg9-room .host video,'+
-        '#screen .ktg13-room .ktg13-host video,'+
-        '#screen .ktsubscriber-room .ktsubscriber-host video,'+
-        '#screen .ktsecret-room .ktsecret-host video,'+
-        '#screen .kt-guest-hostlike-room .kgh-cell.host video,'+
-        '#screen .kt-approved-guest-grid .kt-approved-guest-cell.host video,'+
-        '#screen .kt-prejoin-room-grid .kt-prejoin-room-cell.host video,'+
-        '#screen .kt-guest-room-grid .kt-guest-room-cell.host video'
-      ).forEach(add);
-    }catch(e){}
-
+  function paint(h){
+    if(!h||handoff!==h||h.generation!==generation||Date.now()>h.until||!current(h.id)||h.nav!==Number(window.__ktPageNavigationEpoch20261013||0))return false;
+    var root=rootFor(h.id);if(!root||!liveStream(h.stream))return false;
+    var targets=root.querySelectorAll('#ktRemoteLiveVideo,#ktRemoteHostPreview,.ktg13-host video,.ktg9-host video,.ktsubscriber-host video,.ktsecret-slot.host video,.kgh-cell.host video,.kt-approved-guest-cell.host video');
     targets.forEach(function(v){
+      if(v.srcObject&&v.srcObject!==h.stream&&liveStream(v.srcObject))return;
       try{
-        if(v.srcObject!==stream)v.srcObject=stream;
+        if(v.srcObject!==h.stream)v.srcObject=h.stream;
         v.autoplay=true;v.playsInline=true;v.muted=true;v.defaultMuted=true;
-        v.setAttribute('autoplay','');v.setAttribute('playsinline','');v.setAttribute('muted','');
         var p=v.play();if(p&&p.catch)p.catch(function(){});
       }catch(e){}
     });
-
-    try{
-      window.__ktEntryHostStream20260925=stream;
-      window.__ktRemoteHostStream=stream;
-      window.__ktLastApprovedGuestHostStream=stream;
-    }catch(e){}
     return targets.length>0;
   }
-
   function hideBlackSoloEntry(){
     try{
+      if(document.documentElement.classList.contains('kt-remote-viewing')||document.querySelector('#screen .kt-remote-live'))return;
       var st=window.state||{};
       var txt=[st.liveRoomType,st.liveRoomName,st.prepRoomType,st.prepRoomName].join(' ');
       if(!/solo|1\s*인/.test(String(txt)))return;
@@ -85,7 +46,7 @@
         });
       }
       var v=document.getElementById('ktLiveVideo')||document.querySelector('#screen .ktsolo-room video');
-      var s=(window.state&&state.stream)||window.__ktEntryHostStream20260925||null;
+      var s=(window.state&&state.stream)||null;
       if(v&&liveStream(s)){
         if(v.srcObject!==s)v.srcObject=s;
         v.autoplay=true;v.playsInline=true;v.muted=true;
@@ -95,53 +56,30 @@
   }
 
   function install(){
-    var old=window.ktEnterRemoteLive;
-    if(typeof old!=='function')return false;
+    var old=window.ktEnterRemoteLive;if(typeof old!=='function')return false;
     if(old.__ktInstantFirstFrameFiveRooms20261006)return true;
-
     var wrapped=function(hostId){
-      var stream=visibleVideoStream()||window.__ktEntryHostStream20260925||null;
-      if(liveStream(stream)){
-        try{
-          window.__ktEntryHostStream20260925=stream;
-          window.__ktRemoteHostStream=stream;
-          window.__ktLastApprovedGuestHostStream=stream;
-        }catch(e){}
-        try{
-          if(typeof window.ktStartRemoteHostVideoNow20261003==='function'){
-            window.ktStartRemoteHostVideoNow20261003(hostId,stream);
-          }
-        }catch(e){}
-      }
-
+      hostId=String(hostId||'');
+      var stream=visibleVideoStream(hostId),token=++generation;
+      handoff=null;
       var out=old.apply(this,arguments);
-      hideBlackSoloEntry();
-
       if(liveStream(stream)){
-        [0,8,20,45,80,140,240].forEach(function(ms){
-          setTimeout(function(){paint(stream);},ms);
-        });
+        var h={id:hostId,stream:stream,generation:token,nav:Number(window.__ktPageNavigationEpoch20261013||0),until:Date.now()+1500};
+        handoff=h;
+        Promise.resolve(out).then(function(ok){
+          if(ok===false||handoff!==h)return;
+          [0,20,80,180].forEach(function(ms){setTimeout(function(){paint(h);},ms);});
+        }).catch(function(){});
       }
       return out;
     };
+    Object.keys(old).forEach(function(k){try{wrapped[k]=old[k];}catch(e){}});
     wrapped.__ktInstantFirstFrameFiveRooms20261006=true;
     wrapped.__ktInstantFirstFrameFiveRoomsOriginal20261006=old;
-    window.ktEnterRemoteLive=wrapped;
-    return true;
+    window.ktEnterRemoteLive=wrapped;return true;
   }
-
-  var n=0,t=setInterval(function(){
-    n++;
-    if(install()&&n>8)clearInterval(t);
-    if(n>200)clearInterval(t);
-  },25);
-
-  try{
-    new MutationObserver(function(){
-      var s=window.__ktEntryHostStream20260925||null;
-      if(liveStream(s))paint(s);
-      hideBlackSoloEntry();
-      install();
-    }).observe(document.getElementById('screen')||document.documentElement,{childList:true,subtree:true});
-  }catch(e){}
+  var n=0,t=setInterval(function(){n++;if((install()&&n>8)||n>200)clearInterval(t);},25);
+  var screen=document.getElementById('screen');
+  if(screen)new MutationObserver(function(){paint(handoff);hideBlackSoloEntry();install();}).observe(screen,{childList:true,subtree:true});
+  window.addEventListener('pagehide',function(){generation++;handoff=null;});
 })();

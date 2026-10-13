@@ -1,0 +1,38 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><title>방송 입장 연결 검증</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0;background:#131323;color:#fff;font:16px system-ui;padding:20px}button{background:#dd286a;color:white;border:0;border-radius:12px;padding:14px;margin:8px;font:inherit}#screen{position:relative;height:420px;border:1px solid #555;border-radius:20px;overflow:hidden;background:#17223b}video{width:100%;height:100%;object-fit:contain}#verificationStatus{white-space:pre-wrap;padding:14px;background:#262438;border-radius:12px}.kt-remote-top{position:absolute;top:10px;left:10px}.kt-remote-status{position:absolute;bottom:20px;left:20px;background:#252038;padding:10px;border-radius:10px}.kt-remote-live,.ktsolo-room{height:100%}</style><h1>방송 입장 · 영상 프레임 검증</h1><p>실제 회원의 카메라·마이크를 사용하지 않는 검증용 영상입니다. 공개 방송 목록에는 등록하지 않습니다.</p><div id="actions"></div><div id="screen"></div><p id="verificationStatus">준비 중</p><script>
+const params=new URLSearchParams(location.search),role=params.get('role')||'viewer';
+const HOST="verify_entry_6748_mv5xuphs";
+const DEVICE=role==='host'?HOST:HOST+'_viewer';
+Object.defineProperty(window,'localStorage',{value:{getItem:k=>k==='kt_live_device_id'?DEVICE:null,setItem(){},removeItem(){}}});
+window.state={stream:null};let drawing=0,canvas=null;
+const nativeFetch=window.fetch.bind(window);
+const room={host_id:HOST,host_name:'검증용 방송',room_type:'solo',room_name:'1인 방송',title:'합성 영상 연결 검사'};
+window.fetch=function(url,opt){const u=String(url);if(u.includes('/api/live-beacon-memory'))return Promise.resolve(new Response(JSON.stringify({rooms:[room]}),{headers:{'Content-Type':'application/json'}}));if(u.includes('/api/live-interaction-memory'))return Promise.resolve(new Response(JSON.stringify({ok:true,messages:[]})));return nativeFetch(url,opt);};
+function list(){document.getElementById('screen').innerHTML='<p style="padding:30px">검증용 방송 목록</p>';window.__ktRemoteHostId='';}
+window.friends=list;window.ktLeaveRemoteLive=list;window.openBroadcastList=list;
+function add(label,fn){const b=document.createElement('button');b.textContent=label;b.onclick=fn;document.getElementById('actions').appendChild(b);}
+if(role==='host'){
+  document.getElementById('screen').innerHTML='<div class="ktsolo-room"><video id="ktLiveVideo" autoplay muted playsinline></video></div>';
+  add('검증 영상 송출 시작',async()=>{
+    if(window.state.stream)return;
+    canvas=document.createElement('canvas');canvas.width=640;canvas.height=360;const ctx=canvas.getContext('2d');let n=0;
+    function draw(){ctx.fillStyle=n%2?'#166c96':'#224486';ctx.fillRect(0,0,640,360);ctx.fillStyle='#ffffff';ctx.font='32px sans-serif';ctx.fillText('K-Talk LIVE 연결 검사',60,120);ctx.fillText('실제 카메라 사용 없음',60,180);ctx.fillText('FRAME '+n++,60,250);}
+    draw();drawing=setInterval(draw,70);window.state.stream=canvas.captureStream(15);const v=document.getElementById('ktLiveVideo');v.srcObject=window.state.stream;await v.play();document.getElementById('verificationStatus').textContent='합성 영상 송출 준비 완료';
+  });
+  add('검증 송출 종료',async()=>{
+    clearInterval(drawing);if(window.state.stream)window.state.stream.getTracks().forEach(t=>t.stop());window.state.stream=null;
+    const r=await nativeFetch('../api/live-peer-memory?host_id='+encodeURIComponent(HOST));const j=await r.json();
+    await Promise.all((j.sessions||[]).map(s=>nativeFetch('../api/live-peer-memory',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'end',session_id:s.id})})));
+    document.getElementById('verificationStatus').textContent='검증 송출 및 임시 연결 종료';
+  });
+}else{
+  list();
+  add('빨간 방송 버튼 입장',async()=>{
+    window.__ktLiveEntryRooms20261011={at:Date.now(),rooms:{[HOST]:room}};
+    const started=performance.now();document.getElementById('verificationStatus').textContent='입장 요청';
+    await window.ktEnterRemoteLive(HOST);
+    const timer=setInterval(()=>{const v=document.getElementById('ktRemoteLiveVideo');if(v&&v.readyState>=2&&v.videoWidth>0){clearInterval(timer);document.getElementById('verificationStatus').textContent='영상 프레임 수신 완료 · '+v.videoWidth+'×'+v.videoHeight+' · '+Math.round(performance.now()-started)+'ms';}},100);
+    setTimeout(()=>clearInterval(timer),30000);
+  });
+  add('목록으로 이동',()=>window.ktLeaveRemoteLive());
+}
+</script><script src="../live-peer-fallback-20260921.js"></script><script src="../instant-first-frame-five-rooms-20261006.js"></script><script src="../live-entry-feedback-20261013.js"></script><script src="../page-media-lifecycle-20261013.js"></script></html>

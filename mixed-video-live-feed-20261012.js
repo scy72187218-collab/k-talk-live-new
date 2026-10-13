@@ -3,7 +3,7 @@
   'use strict';
   if(window.__ktMixedVideoLiveFeed20261012)return;
   window.__ktMixedVideoLiveFeed20261012=true;
-  var rooms=[],busy=false,entering=false,refreshTimer=0,refreshGeneration=0;
+  var rooms=[],busy=false,entering=false,enteringId='',entrySequence=0,refreshTimer=0,refreshGeneration=0;
   var ownedSelector='.kt-public-video,#homeVideo,#ktPublicFirstPaintVideo';
   var roomSelector='#screen .ktsolo-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room,#screen .kt-remote-live';
   function scroller(){return document.querySelector('#screen .kt-public-feed-scroller,#screen .kt-hard-video-scroller');}
@@ -49,14 +49,15 @@
     btn.addEventListener('click',function(){enter(room,btn);});info.appendChild(btn);info.appendChild(text('small','kt-mixed-live-hint','↑ 위아래로 넘겨 다른 동영상과 방송 보기'));c.appendChild(info);return c;
   }
   async function enter(room,btn){
-    if(entering)return;
+    if(entering&&enteringId===String(room.host_id))return;
     if(typeof window.ktEnterRemoteLive!=='function'){btn.textContent='잠시 후 다시 눌러 주세요';return;}
-    entering=true;silence();btn.disabled=true;
+    entering=true;enteringId=String(room.host_id);var entry=++entrySequence;silence();if(window.ktStopPageMedia)window.ktStopPageMedia();btn.disabled=true;
     try{
       // Preserve password/subscription/approval checks in the existing entry flow.
-      await window.ktEnterRemoteLive(String(room.host_id));
+      var ok=await window.ktEnterRemoteLive(String(room.host_id));
+      if(ok===false&&entry===entrySequence)btn.textContent='방송 상태를 다시 확인해 주세요';
     }catch(e){btn.textContent='입장을 다시 시도해 주세요';}
-    finally{entering=false;if(btn.isConnected)btn.disabled=false;enforce();}
+    finally{if(entry===entrySequence){entering=false;enteringId='';}if(btn.isConnected)btn.disabled=false;enforce();}
   }
   function merge(list){
     var sc=scroller();if(!sc||document.querySelector(roomSelector))return;

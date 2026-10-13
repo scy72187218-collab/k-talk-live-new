@@ -3,7 +3,7 @@
   'use strict';
   if(window.__ktFriendsDirectory20261012)return;
   window.__ktFriendsDirectory20261012=true;
-  var people=[],view='all',query='',generation=0,busy=false,entering=false,pending=new Set();
+  var people=[],view='all',query='',generation=0,busy=false,entering=false,enteringId='',entrySequence=0,pending=new Set();
   var liveSelector='.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room,.kt-remote-live';
   function page(){return document.querySelector('#screen .kt-friends-directory');}
   function el(tag,cls,value){var n=document.createElement(tag);n.className=cls;if(value!==undefined)n.textContent=value;return n;}
@@ -18,10 +18,10 @@
   function avatar(p,cls){var a=el('span',cls,(p.name||'K').charAt(0));if(/^https:\/\//i.test(p.photo||'')){var i=el('img','');i.src=p.photo;i.alt='';i.loading='lazy';i.onerror=function(){i.remove();};a.textContent='';a.appendChild(i);}return a;}
   async function enter(p){
     if(!p.live)return details(p);
-    if(entering)return;
+    if(entering&&enteringId===p.id)return;
     if(typeof window.ktEnterRemoteLive!=='function')return note('방송 연결을 준비 중입니다. 잠시 후 다시 눌러 주세요.');
-    entering=true;
-    try{document.querySelectorAll('.kt-public-video,#homeVideo').forEach(function(v){v.pause();});await window.ktEnterRemoteLive(p.id);}catch(e){note('방송 입장을 다시 시도해 주세요.');}finally{entering=false;}
+    entering=true;enteringId=p.id;var entry=++entrySequence;
+    try{if(window.ktStopPageMedia)window.ktStopPageMedia();document.querySelectorAll('.kt-public-video,#homeVideo').forEach(function(v){v.pause();});var ok=await window.ktEnterRemoteLive(p.id);if(ok===false&&entry===entrySequence)note('방송 상태를 확인하지 못했습니다. 다시 눌러 주세요.');}catch(e){if(entry===entrySequence)note('방송 입장을 다시 시도해 주세요.');}finally{if(entry===entrySequence){entering=false;enteringId='';}}
   }
   async function follow(p,b){
     if(pending.has(p.id))return;pending.add(p.id);b.disabled=true;note('');

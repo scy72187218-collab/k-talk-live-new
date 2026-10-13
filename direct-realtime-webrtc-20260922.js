@@ -1091,6 +1091,7 @@
     window.__ktDirectRtcPhase='offer';
     var pc=new RTCPeerConnection(rtcConfig());viewerPc=pc;
     pc.ontrack=function(ev){
+      if(viewerPc!==pc||viewerSession!==session||String(remoteHostId()||'')!==hid){try{closePc(pc);}catch(e){}return;}
       try{window.__ktUseMemoryGuestVideo20260922=false;}catch(e){}
       pc.__ktGotRemoteTrack20260923=true;
       viewerConnected=true;
@@ -2964,6 +2965,9 @@
         existing=existing||window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream||window.__ktEntryHostStream20260925||null;
         existingLive=!!(existing&&existing.getVideoTracks&&existing.getVideoTracks().some(function(t){return t&&t.readyState==='live';}));
       }catch(_e){}
+
+      // A stream from the previous selected member is never a first frame for a new host.
+      if(current!==hid){existing=null;existingLive=false;}
 
       /* Re-selecting the same host must keep the live frame and transport. */
       if(current&&hid===current&&existingLive){

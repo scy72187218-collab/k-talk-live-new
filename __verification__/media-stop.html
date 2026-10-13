@@ -1,0 +1,16 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><title>음악 페이지 이동 정지 검증</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{background:#111323;color:white;font:18px system-ui;padding:24px}button{background:#842e91;border:1px solid #b55fbc;border-radius:14px;padding:14px;margin:8px;color:white;font:inherit}#screen{padding:24px;background:#23233a;border-radius:18px;min-height:140px}#result{white-space:pre-wrap;line-height:1.8}</style><h1>음악 페이지 이동 정지 검증</h1><p>짧은 합성 음원을 사용합니다. 음악 사이트나 회원 방송에 요청하지 않습니다.</p><button onclick="startMusic()">검증 음악 재생</button><button onclick="queueLate()">늦은 자동 재생 예약</button><button onclick="window.friends()">다른 페이지 이동</button><div id="screen">음악 화면</div><p id="result">재생 대기</p><script>
+let current=null,late='';
+function report(label){document.getElementById('result').textContent=label+'\n음악 정지 상태: '+(current?current.paused:'재생 없음')+(late?'\n'+late:'');}
+function wav(){
+  const b=new ArrayBuffer(44+3200),v=new DataView(b);function str(off,s){for(let i=0;i<s.length;i++)v.setUint8(off+i,s.charCodeAt(i));}
+  str(0,'RIFF');v.setUint32(4,3236,true);str(8,'WAVE');str(12,'fmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,8000,true);v.setUint32(28,16000,true);v.setUint16(32,2,true);v.setUint16(34,16,true);str(36,'data');v.setUint32(40,3200,true);
+  for(let i=0;i<1600;i++)v.setInt16(44+i*2,Math.sin(i*2*Math.PI*440/8000)*1500,true);
+  return URL.createObjectURL(new Blob([b],{type:'audio/wav'}));
+}
+async function startMusic(){
+  if(current)current.pause();late='';current=new Audio(wav());current.loop=true;current.volume=.15;window.ktCreatorMusicAudio=current;
+  try{await current.play();report('음악 재생 중');}catch(e){report('음악 재생 시작 실패: '+e.name);}
+}
+function queueLate(){const old=current;if(!old)return;report('늦은 자동 재생 예약됨');setTimeout(async()=>{try{await old.play();late='늦은 자동 재생: '+(old.paused?'정지 유지':'재생됨');}catch(e){late='늦은 자동 재생: 차단됨 ('+e.name+')';}report('이동 후 재생 상태 확인');},2500);}
+window.friends=function(){document.getElementById('screen').textContent='다른 페이지로 이동했습니다.';report('페이지 이동 완료');};
+</script><script src="../page-media-lifecycle-20261013.js"></script></html>

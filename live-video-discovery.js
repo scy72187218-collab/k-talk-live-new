@@ -141,7 +141,12 @@
     if(now-activeRoomsCheckedAt<500)return stableActiveRooms.slice();
     activeRoomsCheckedAt=now;
     activeRoomsBusy=activeRoomsCore();
-    try{return await activeRoomsBusy;}
+    try{
+      var list=await activeRoomsBusy,entryRooms={};
+      list.forEach(function(r){if(r&&r.host_id)entryRooms[String(r.host_id)]=Object.assign({},r);});
+      window.__ktLiveEntryRooms20261011={at:stableActiveAt||Date.now(),rooms:entryRooms};
+      return list;
+    }
     finally{activeRoomsBusy=null;}
   }
 
