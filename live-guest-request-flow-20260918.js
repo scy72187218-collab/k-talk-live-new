@@ -864,6 +864,8 @@
   function ensurePrejoinRoomGrid(){
     var root=document.querySelector('.kt-remote-live');
     if(!root)return;
+    /* Solo viewers retain one video; never move it into the legacy nine-seat grid. */
+    if(root.getAttribute('data-kt-room-type')==='solo'||/1\s*인|solo/i.test(root.getAttribute('data-kt-room-name')||''))return;
     if(root.querySelector('.kt-approved-guest-grid'))return;
     // The saved nine-room shell already owns the host video. Legacy prejoin
     // must not move it into a second grid that cleanup will later remove.
