@@ -52,6 +52,7 @@
           host_id:String(x.host_id||''),
           host_name:String(x.host_name||'K-Talk 방송자'),
           title:String(x.title||x.room_name||'방송 중'),
+          room_type:String(x.room_type||''),
           room_name:String(x.room_name||'방송'),
           host_photo:'',
           updated_at:String(x.updated_at||new Date().toISOString())

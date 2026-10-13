@@ -487,6 +487,7 @@
     }catch(e){return false;}
   }
   function renderFeedNow(a){
+    if(screen.querySelector('.kt-friends-directory'))return false;
     var intent=window.__ktLiveEntryIntent20261013;
     if(intent&&intent.pending&&intent.nav===Number(window.__ktPageNavigationEpoch20261013||0))return false;
     // Home-feed work must not replace a live room opened while it was pending.
@@ -600,6 +601,7 @@
     return feedRefreshInFlight;
   }
   async function show(fallback){
+    if(screen.querySelector('.kt-friends-directory'))return;
     if(screen.querySelector('.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room,.kt-remote-live'))return;
     var fast=cachedFeed();
     if(fast.length){
@@ -652,8 +654,9 @@
     return a;
   };
   window.ktShowSharedServerFeed=function(){return show(oldHome);};
-  window.home=function(){try{if(window.activate)activate('home');}catch(e){}return show(oldHome);};
-  window.media=function(type){try{if(window.activate)activate(type);}catch(e){}return show(function(){if(oldMedia)oldMedia(type);});};
+  function leaveFriendsForFeed(){var p=screen.querySelector('.kt-friends-directory');if(p)p.remove();}
+  window.home=function(){leaveFriendsForFeed();try{if(window.activate)activate('home');}catch(e){}return show(oldHome);};
+  window.media=function(type){leaveFriendsForFeed();try{if(window.activate)activate(type);}catch(e){}return show(function(){if(oldMedia)oldMedia(type);});};
 
   /* 2026-09-26 clean first-video path:
      index.html starts exactly one video element. This file takes over that SAME
