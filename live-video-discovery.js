@@ -425,8 +425,7 @@
     try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
     try{window.ktEnterRemoteLive(hid);}catch(_e){}
   }
-  document.addEventListener('pointerdown',enterFollowHostNow,true);
-  if(!window.PointerEvent)document.addEventListener('touchstart',enterFollowHostNow,true);
+  document.addEventListener('click',enterFollowHostNow,true);
 
   function visibleVideoNode(v){
     if(!v||!v.isConnected)return false;
@@ -584,9 +583,6 @@
       return;
     }
     var hid=String(btn.getAttribute('data-host')||'').trim();
-    if(!hid){
-      try{hid=String(window.__ktLastLiveRoom&&window.__ktLastLiveRoom.host_id||'').trim();}catch(_e){}
-    }
     if(!hid||typeof window.ktEnterRemoteLive!=='function')return;
     try{
       var lr=window.__ktLastLiveRoom||{};
@@ -615,8 +611,7 @@
       }
     }catch(e){}
   }
-  document.addEventListener('pointerdown',enterRedLiveNow,true);
-  if(!window.PointerEvent)document.addEventListener('touchstart',enterRedLiveNow,true);
+  document.addEventListener('click',enterRedLiveNow,true);
 
   function ktForceLiveSignalRefresh(){
     try{
@@ -686,3 +681,5 @@
   setInterval(function(){clearPublicLiveStripInRoom();scheduleRender(0);},700);
   scheduleRender(600);
 })();
+
+

@@ -163,7 +163,24 @@
     return '';
   }
 
-  document.addEventListener('pointerdown',function(e){
+  /* Approved room buttons call these names directly from their click handlers. */
+  var busy={};
+  function toggle(kind,btn,action){
+    if(!localHostRoom(btn)||busy[kind])return false;
+    busy[kind]=true;
+    Promise.resolve().then(function(){return action(btn);}).finally(function(){busy[kind]=false;});
+    return false;
+  }
+  window.ktBottomCameraToggle=function(btn){return toggle('camera',btn,camera);};
+  window.ktBottomMicToggle=function(btn){return toggle('mic',btn,mic);};
+  window.ktBottomMovieOpen=function(){
+    var screen=document.getElementById('screen');
+    var room=screen&&screen.querySelector('.ktsolo-room,.ktg9-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room');
+    if(room&&localHostRoom(room))movie();
+    return false;
+  };
+
+  document.addEventListener('click',function(e){
     var btn=e.target&&e.target.closest?e.target.closest('button'):null;
     if(!btn||!localHostRoom(btn))return;
     var k=kind(btn);
@@ -174,8 +191,9 @@
          btn.closest('.kt-host-admin-media-20260928')))return;
 
     try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
-    if(k==='camera')camera(btn);
-    else if(k==='mic')mic(btn);
+    if(k==='camera')window.ktBottomCameraToggle(btn);
+    else if(k==='mic')window.ktBottomMicToggle(btn);
     else movie();
   },true);
 })();
+

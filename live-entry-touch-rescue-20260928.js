@@ -20,10 +20,6 @@
       var p=el.closest&&el.closest('[data-host]');
       if(p)return String(p.getAttribute('data-host')||'').trim();
     }catch(e){}
-    try{
-      var x=window.__ktLastLiveRoom;
-      if(x&&x.host_id)return String(x.host_id).trim();
-    }catch(e){}
     return '';
   }
 
@@ -40,22 +36,7 @@
     ):null;
     if(t)return t;
 
-    /* 위에 다른 요소가 잠깐 겹쳐 있어도 실제 빨간 LIVE 자리의 버튼을 찾아낸다. */
-    try{
-      var p=(e.touches&&e.touches[0])||(e.changedTouches&&e.changedTouches[0])||e;
-      var x=Number(p.clientX),y=Number(p.clientY);
-      if(isFinite(x)&&isFinite(y)){
-        var list=[].slice.call(document.querySelectorAll(
-          '.ktvl-live,.kt-follow-person.live,.kt-friend-bubble.live,.kt-friend-contact-actions .livebtn,.kt-live-card,.kt-live-list-enter,[onclick*="ktFriendEnterLive"],[onclick*="ktEnterRemoteLive"]'
-        ));
-        for(var i=list.length-1;i>=0;i--){
-          var el=list[i],cs=getComputedStyle(el),r=el.getBoundingClientRect();
-          if(cs.display==='none'||cs.visibility==='hidden'||Number(cs.opacity)===0)continue;
-          if(r.width<3||r.height<3)continue;
-          if(x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom)return el;
-        }
-      }
-    }catch(_e){}
+    /* Entry belongs only to the clicked LIVE control, never a hidden control. */
     return null;
   }
 
@@ -74,12 +55,7 @@
     try{window.ktEnterRemoteLive(id);}catch(_e){}
   }
 
-  /* 기기/브라우저마다 pointer 이벤트가 다르게 빠지는 경우가 있어
-     pointerdown + touchstart + touchend + click을 모두 캡처한다.
-     go() 내부 650ms 중복방지로 한 번만 입장한다. */
-  document.addEventListener('pointerdown',go,true);
-  document.addEventListener('touchstart',go,true);
-  document.addEventListener('touchend',go,true);
+  /* One completed click for touch, mouse and keyboard. */
   document.addEventListener('click',go,true);
 
   var st=document.createElement('style');
@@ -87,3 +63,4 @@
   st.textContent='.ktvl-live,.kt-follow-person.live,.kt-friend-bubble.live,.kt-friend-contact-actions .livebtn,.kt-live-card,.kt-live-list-enter,[onclick*="ktFriendEnterLive"],[onclick*="ktEnterRemoteLive"]{pointer-events:auto!important;touch-action:manipulation!important;position:relative!important;z-index:2147483000!important}';
   (document.head||document.documentElement).appendChild(st);
 })();
+

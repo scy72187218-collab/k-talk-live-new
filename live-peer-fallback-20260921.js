@@ -151,6 +151,9 @@
       var current=s.querySelector('.kt-remote-live');
       var host=String((room&&room.host_id)||window.__ktCurrentRemoteHostId||'');
       var thirteen=room.room_type==='group13'||(/^(?:general|group)?$/.test(String(room.room_type||''))&&/13\s*명/.test(String(room.room_name||'')));
+      /* Re-entry into the same broadcast keeps its playing video in every room. */
+      if(current&&current.getAttribute('data-kt-host-id')===host&&
+          current.getAttribute('data-kt-room-type')===String(room.room_type||''))return true;
       if(thirteen&&current&&current.getAttribute('data-kt-host-id')===host&&
           current.querySelector('.ktg13-room[data-kt-remote13="1"]'))return true;
       if(room.room_type==='subscriber'&&current&&current.getAttribute('data-kt-host-id')===host&&current.querySelector('[data-kt-subscriber-viewer="1"]'))return true;
@@ -507,3 +510,5 @@
   setInterval(hostPoll,1500);
   setTimeout(hostPoll,120);
 })();
+
+
