@@ -156,9 +156,13 @@
           if(typeof window.ktMarkPremiumGiftClip20260928==='function')
             window.ktMarkPremiumGiftClip20260928(String(data.name||'큰 선물'),cost,String(row.sender_name||'회원'));
         }catch(e){}
-        if(typeof window.showPremiumGiftFx==='function'){
+        if(typeof window.ktPresentReceivedGift3D20261014==='function'){
+          window.ktPresentReceivedGift3D20261014(String(data.name||'큰 선물'),cost,String(row.sender_name||'회원'));
+        }else if(typeof window.showPremiumGiftFx==='function'){
           window.showPremiumGiftFx(String(data.name||'큰 선물'),cost,String(row.sender_name||'회원'));
         }
+      }else if(typeof window.ktPresentReceivedGift3D20261014==='function'){
+        window.ktPresentReceivedGift3D20261014(String(data.name||'선물'),cost,String(row.sender_name||'회원'));
       }else if(typeof window.showSmallGiftFx==='function'){
         window.showSmallGiftFx(String(data.name||'선물'),cost,String(row.sender_name||'회원'));
       }
@@ -186,7 +190,9 @@
           if(cost<=0)return;
           try{if(typeof window.ktRecordReceivedRose==='function')window.ktRecordReceivedRose(String(row.sender_name||'호스트'),cost,String(data.name||'선물'),'guest');}catch(e){}
           try{if(typeof window.ktGuestAddEarnedRoses==='function')window.ktGuestAddEarnedRoses(cost);}catch(e){}
-          if(cost>=1000&&typeof window.showPremiumGiftFx==='function'){
+          if(typeof window.ktPresentReceivedGift3D20261014==='function'){
+            window.ktPresentReceivedGift3D20261014(String(data.name||'선물'),cost,String(row.sender_name||'호스트'));
+          }else if(cost>=1000&&typeof window.showPremiumGiftFx==='function'){
             window.showPremiumGiftFx(String(data.name||'큰 선물'),cost,String(row.sender_name||'호스트'));
           }else if(typeof window.showSmallGiftFx==='function'){
             window.showSmallGiftFx(String(data.name||'선물'),cost,String(row.sender_name||'호스트'));

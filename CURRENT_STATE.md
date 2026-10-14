@@ -155,3 +155,7 @@ Mock serialization test: cloned guest host-layout sends normal gift to actual ho
 
 ## Earnings policy display and large detail 2026-10-14
 Owner confirms lower-right earnings/rate display. Replace stale agency65% with70% in host13/subscriber/guest HUD and stale general30% help text with general35%, subscriber40%, agency70%, business40%. Readable tap dialog shows policy table general35/40/45 and subscriber40/45/50, mission benefits1day and highest applicable nonstacking. Existing current earnings shown separately. Does not invent verified agency/business memberships or mission awards; actual payout/mission eligibility backend integration remains unverified and unchanged. No retrospective ledger adjustment, layout, camera, connection, attendance, approval changes.
+
+
+## Received gift visual direct dispatch 2026-10-14
+Owner reports host sees gift text only. Add dedicated positive-cost received-gift 3D presentation entry and use directly from host/recipient guest receipt path, avoiding dependence on replaceable legacy effect wrappers. Unknown names also render generic box instead of text-only fallback. Premium clip marking/rewards/chat/sender routing unchanged. Mock small/premium/unknown-name dispatch and invalid cost checks pass; existing canvas lifecycle test passes. Actual phone receipt unverified. No paid gift generated, no past gift replay. Old already-open clients require new code after broadcast end.
