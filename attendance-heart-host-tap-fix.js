@@ -147,7 +147,7 @@
     var s=document.createElement('style');
     s.id='ktAttendanceRoomCountStyle';
     s.textContent=''
-      +'.kt-attendance-room-count{display:none!important}'
+      +'.kt-attendance-room-count{display:inline-flex!important;align-items:center!important;justify-content:center!important;visibility:visible!important;opacity:1!important}'
       +'.ktsolo-att .kt-attendance-room-count{min-width:18px!important;height:18px!important;line-height:18px!important;font-size:10px!important;padding:0 4px!important;margin-left:2px!important}'
       +'.ktsolo-att,.ktg13-attend,.ktsubscriber-att,.ktsecret-att,.kt-live-attendance,[data-kt-attendance]{position:relative!important}'
       +'.kt-attendance-heart-badge{position:absolute!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:2px!important;min-width:38px!important;height:24px!important;padding:0 6px!important;margin:0!important;border-radius:999px!important;background:rgba(52,12,38,.96)!important;border:1px solid rgba(255,91,185,.72)!important;color:#fff!important;font-size:10px!important;font-weight:950!important;line-height:24px!important;box-shadow:0 0 8px rgba(255,67,174,.42)!important;white-space:nowrap!important;pointer-events:none!important;z-index:2147482002!important}'
