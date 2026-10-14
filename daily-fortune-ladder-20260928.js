@@ -315,7 +315,8 @@
   function makeButton(){
     var b=document.createElement('button');
     b.type='button';
-    b.className='room-switch kt-daily-fortune-room-switch';
+    b.className='kt-daily-fortune-room-switch';
+    b.style.cssText='min-height:48px;padding:6px;border:1px solid #ffffff33;border-radius:11px;background:#241c35;color:#fff;font:900 11px system-ui;touch-action:manipulation;pointer-events:auto;position:relative;z-index:41';
     b.innerHTML='<span style="font-size:15px">🎯</span><b style="display:block">오늘의 운세</b><small style="display:block;font-size:8px">하루 1번 무료</small>';
     b.onclick=function(e){
       try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
@@ -324,6 +325,18 @@
     };
     return b;
   }
+
+  var lastFortuneRelease=0;
+  function fortuneEntry(e){
+    var b=e.target&&e.target.closest?e.target.closest('.kt-daily-fortune-room-switch'):null;if(!b)return;
+    e.preventDefault();e.stopImmediatePropagation();
+    var now=Date.now();if(e.type==='click'&&now-lastFortuneRelease<900)return;
+    if(e.type!=='click')lastFortuneRelease=now;
+    window.ktOpenDailyFortuneLadder20260928();
+  }
+  window.addEventListener('pointerup',fortuneEntry,{capture:true,passive:false});
+  if(!window.PointerEvent)window.addEventListener('touchend',fortuneEntry,{capture:true,passive:false});
+  window.addEventListener('click',fortuneEntry,true);
 
   function install(){
     var row=document.querySelector('.live-prep .room-switch-row');
