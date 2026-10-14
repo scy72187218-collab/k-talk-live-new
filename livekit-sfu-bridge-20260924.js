@@ -536,6 +536,7 @@
       var auth=await tokenFor(hostId,identity,runId);
       var r=new LK.Room({
         adaptiveStream:true,
+        singlePeerConnection:false,
         dynacast:true,
         disconnectOnPageLeave:false,
         stopLocalTrackOnUnpublish:false
