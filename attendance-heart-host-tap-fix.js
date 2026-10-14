@@ -184,6 +184,12 @@
     if(heart.textContent!=='💗 '+String(n))heart.textContent='💗 '+String(n);heart.setAttribute('aria-label','출석 체크 '+n+'회');
     heart.style.setProperty('position','static','important');heart.style.setProperty('transform','none','important');heart.style.setProperty('margin-left','4px','important');
     if(btn.nextElementSibling!==heart)btn.insertAdjacentElement('afterend',heart);
+    /* Keep the visible heart immediately beside attendance, even when
+       another room script redraws the button. */
+    heart.style.setProperty('display','inline-flex','important');
+    heart.style.setProperty('visibility','visible','important');
+    heart.style.setProperty('opacity','1','important');
+    heart.style.setProperty('flex-shrink','0','important');
   }
 
   function attendance(btn){
