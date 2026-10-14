@@ -159,3 +159,7 @@ Owner confirms lower-right earnings/rate display. Replace stale agency65% with70
 
 ## Received gift visual direct dispatch 2026-10-14
 Owner reports host sees gift text only. Add dedicated positive-cost received-gift 3D presentation entry and use directly from host/recipient guest receipt path, avoiding dependence on replaceable legacy effect wrappers. Unknown names also render generic box instead of text-only fallback. Premium clip marking/rewards/chat/sender routing unchanged. Mock small/premium/unknown-name dispatch and invalid cost checks pass; existing canvas lifecycle test passes. Actual phone receipt unverified. No paid gift generated, no past gift replay. Old already-open clients require new code after broadcast end.
+
+
+## 13/subscriber chat headroom 2026-10-14
+Owner screenshot host13/subscriber chat ends too low. 13 host/remote chat uses left72% and upper boundary of guest cells intersecting that width; excludes isolated bottom-right13th tile so left empty final row can show chat without covering that tile. 9room full-grid boundary unchanged. Subscriber chat112px from72 (+40px/two lines), same bottom anchor; reparent within room to escape leftinfo clipping. No cell dimensions, stream, attendance, earning, approval, message fetching changed. Geometry mock boundary and subscriber bottom/height/reparent checks pass; syntax pass; actual handset display unverified.

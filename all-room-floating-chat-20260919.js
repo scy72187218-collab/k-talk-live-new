@@ -128,10 +128,10 @@
      다른 방/버튼/게스트칸은 건드리지 않음. */
   function placeNineChat(){placeThirteenHostChat();}
 
-  function guestBottom(grid){
+  function guestBottom(grid,rightEdge){
     var cells=grid.querySelectorAll?grid.querySelectorAll('.ktg13-host,.ktg13-guest'):[];
     var bottom=0;
-    cells.forEach(function(cell){var r=cell.getBoundingClientRect();if(r.width&&r.height)bottom=Math.max(bottom,r.bottom);});
+    cells.forEach(function(cell){var r=cell.getBoundingClientRect();if(r.width&&r.height&&(rightEdge==null||r.left<rightEdge))bottom=Math.max(bottom,r.bottom);});
     return bottom||grid.getBoundingClientRect().bottom;
   }
 
@@ -146,9 +146,11 @@
       var rr=room.getBoundingClientRect(),br=bar.getBoundingClientRect(),gr=grid.getBoundingClientRect();
       if(!rr.width||!br.height)return;
       if(chat.parentElement&&chat.parentElement!==root)root.appendChild(chat);
-      var top=Math.round(guestBottom(grid)+4),height=Math.max(0,Math.round(br.top-4)-top);
+      var is13=room.getAttribute('data-kt-room')==='13';
+      var chatWidth=Math.max(0,is13?Math.floor(rr.width*.72):Math.round(rr.width)-16);
+      var top=Math.round(guestBottom(grid,is13?rr.left+8+chatWidth:undefined)+4),height=Math.max(0,Math.round(br.top-4)-top);
       var values={position:'fixed',left:Math.round(rr.left+8)+'px',right:'auto',top:top+'px',bottom:'auto',
-        width:Math.max(0,Math.round(rr.width)-16)+'px',height:height+'px','min-height':height+'px','max-height':height+'px',
+        width:chatWidth+'px',height:height+'px','min-height':height+'px','max-height':height+'px',
         'box-sizing':'border-box',padding:'0 4px',margin:'0',display:'flex','flex-direction':'column','justify-content':'flex-end',
         overflow:'hidden',background:'transparent',border:'0',transform:'none','z-index':'500','pointer-events':'none'};
       Object.keys(values).forEach(function(key){if(chat.style.getPropertyValue(key)!==values[key])chat.style.setProperty(key,values[key],'important');});
@@ -167,12 +169,14 @@
       var rr=room.getBoundingClientRect(),tr=tools.getBoundingClientRect(),gr=grid.getBoundingClientRect();
       if(!rr.width||!tr.height)return;
       if(chat.parentElement&&chat.parentElement!==room)room.appendChild(chat);
-      var top=Math.round(guestBottom(grid)+4);
+      var is13=room.getAttribute('data-kt-room')==='13';
+      var chatWidth=Math.max(0,is13?Math.floor(rr.width*.72):Math.round(rr.width)-16);
+      var top=Math.round(guestBottom(grid,is13?rr.left+8+chatWidth:undefined)+4);
       var height=Math.max(0,Math.round(tr.top-4)-top);
       var values={
         position:'fixed',left:Math.round(rr.left+8)+'px',right:'auto',
         top:top+'px',bottom:'auto',
-        width:Math.max(0,Math.round(rr.width)-16)+'px',
+        width:chatWidth+'px',
         height:height+'px','min-height':height+'px','max-height':height+'px',
         'box-sizing':'border-box',padding:'0 4px',margin:'0',
         display:'flex','flex-direction':'column','justify-content':'flex-end',
@@ -196,7 +200,8 @@
       /* 구독자방 채팅만: 매치/친구/메시지/장미 버튼줄 바로 위에서 시작 */
       var mr=match.getBoundingClientRect();
       var rr=room.getBoundingClientRect();
-      var h=72;
+      var h=112;
+      if(chat.parentElement!==room)room.appendChild(chat);
       var top=Math.round(mr.top-h-4);
       if(!isFinite(top))return;
 
