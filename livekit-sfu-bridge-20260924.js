@@ -9,6 +9,7 @@
   var TOKEN_URL='https://zupwbfmacwzexyvznlzq.supabase.co/functions/v1/ktalk-livekit-token';
   var SDK_URL='https://cdn.jsdelivr.net/npm/livekit-client@2.22.3/dist/livekit-client.umd.min.js';
 
+  var hostTickBusy=false,hostFailureCount=0,hostRetryAt=0;
   var room=null,currentHostId='',currentRole='',currentRunId='',connecting=false,reconnectRetryTimer=null,reconnectHoldUntil=0;
   var publishedVideoId='',publishedAudioId='',lastConnectAt=0;
   var approvedHostId='',watchHostId='',audioEls={},guestVideoById={};
@@ -492,7 +493,7 @@
     publishedVideoId='';publishedAudioId='';
   }
   async function disconnectRoom(){
-    var old=room;room=null;connecting=false;reconnectHoldUntil=0;
+    var old=room;room=null;connecting=false;reconnectHoldUntil=0;hostRetryAt=0;hostFailureCount=0;
     if(reconnectRetryTimer){clearTimeout(reconnectRetryTimer);reconnectRetryTimer=null;}
     setState({connected:false,connecting:false});
     clearRoomRefs();
@@ -519,6 +520,8 @@
       currentRole=role||currentRole||'viewer';
       return room;
     }
+    if(room&&currentHostId===hostId&&role==='host'&&room.state==='reconnecting')return room;
+    if(role==='host'&&currentHostId===hostId&&Date.now()<hostRetryAt)return room;
     if(connecting&&currentHostId===hostId){
       currentRunId=runId;
       currentRole=role||currentRole||'viewer';
@@ -563,9 +566,10 @@
           setState({connecting:true});
         }
       });
+      if(LK.RoomEvent.SignalReconnecting)r.on(LK.RoomEvent.SignalReconnecting,function(){if(room===r&&currentRole==='host'){reconnectHoldUntil=Math.max(reconnectHoldUntil,Date.now()+18000);setState({connecting:true});}});
       if(LK.RoomEvent.Reconnected)r.on(LK.RoomEvent.Reconnected,function(){
         if(room===r){
-          reconnectHoldUntil=0;
+          reconnectHoldUntil=0;hostFailureCount=0;hostRetryAt=0;
           if(reconnectRetryTimer){clearTimeout(reconnectRetryTimer);reconnectRetryTimer=null;}
           setState({connected:true,connecting:false});
         }
@@ -576,8 +580,9 @@
           /* 호스트 송출은 기존 안정 대기를 유지한다.
              시청자/게스트는 18초를 기다리지 않고 빠르게 재연결한다. */
           var guestFast=(currentRole!=='host');
-          var hold=guestFast?300:18000;
-          var retry=guestFast?400:18200;
+          var hold=guestFast?300:Math.min(30000,1000*Math.pow(2,Math.min(hostFailureCount++,5)));
+          var retry=guestFast?400:hold+200;
+          if(!guestFast)hostRetryAt=Date.now()+hold;
           reconnectHoldUntil=Date.now()+hold;
           connecting=false;
           setState({connected:false,connecting:true});
@@ -595,6 +600,7 @@
       await r.connect(auth.url,auth.token,{autoSubscribe:true});
       if(room!==r){try{await r.disconnect(false);}catch(e){}return room;}
       connecting=false;
+      if(currentRole==='host'){hostFailureCount=0;hostRetryAt=0;}
       setState({url:auth.url,connected:true,connecting:false,hostId:hostId,role:currentRole,runId:runId});
       try{
         r.remoteParticipants.forEach(function(p){
@@ -606,6 +612,7 @@
       return r;
     }catch(e){
       connecting=false;
+      if(currentRole==='host'){hostFailureCount++;hostRetryAt=Date.now()+Math.min(30000,1000*Math.pow(2,Math.min(hostFailureCount-1,5)));}
       setState({connected:false,connecting:false,lastError:String(e&&e.message||e)});
       try{console.warn('K-Talk LIVE video connection: '+String(e&&e.message||e));}catch(_logError){}
       return null;
@@ -643,12 +650,16 @@
       watchHostId=approvedHostId;
     }
     if(isHostRole()){
-      var hostRun=String(window.__ktHostRunId20260924||'').trim()||'stable';
-      var s=hostStream();
-      if(s){
-        var r=await ensureRoom(DEVICE,'host',hostRun);
-        if(r){await publishSharedStream(s);reattachRemoteTracks();}
-      }
+      if(hostTickBusy)return;
+      hostTickBusy=true;
+      try{
+        var hostRun=String(window.__ktHostRunId20260924||'').trim()||'stable';
+        var s=hostStream();
+        if(s){
+          var r=await ensureRoom(DEVICE,'host',hostRun);
+          if(r){await publishSharedStream(s);reattachRemoteTracks();}
+        }
+      }finally{hostTickBusy=false;}
       return;
     }
     var remoteRun=String(window.__ktRemoteHostRunId20260924||'').trim()||'stable';
