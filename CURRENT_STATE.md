@@ -42,3 +42,7 @@ Camera quality candidate b35d00eb59f43a9d651715454eaa168b5821b21d on codex/camer
 
 ## Match overlay control visibility correction2026-10-14
 Owner supplies match screenshot: common undo/treasure/match row and underlying camera/mic/friends/message/movie/share/more obstruct match. Hide only underlying live-room action/footer controls while #sheet.show.match-arena-sheet is open; restore automatically on exit. Raise match sheet above old controls. No media/stream changes, no layout geometry changes, no match scoring or benefit changes. Camera/mic malfunction and longer-running connection/crash report remain under investigation. Main2be5d986 includes independent follow-up fixes after3122; preserve them. Do not merge unapproved camera-quality review branch.
+
+
+## Broadcast likes reset 2026-10-14
+Owner requests clock-side broadcast likes to reset to zero at end and new broadcast, not accumulate by room type. all-room-clock-like now stores by host run identity, ignores legacy room-type totals and old visible badge counts, and zeros on broadcast end. Tests cover old total ignored, same-run retain, new-run zero and end zero. Does not alter attendance, rose balances, lifetime profile likes or reward percentages. Physical phone UI pending. Owner confirms camera/mic report was before refreshing; previous host-button repair is already production and needs new-page actual verification.

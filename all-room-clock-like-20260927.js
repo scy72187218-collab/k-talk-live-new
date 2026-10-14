@@ -8,8 +8,10 @@
   var count=0;
   var originalAddHostLike=null;
   var activeKey='';
+  var broadcastEnded=false;
+  var runKey='',roomKeys=new WeakMap(),roomSequence=0;
 
-  function likeStoreKey(){
+  function roomTypeKey(){
     var r=room();
     if(!r)return 'ktalk_live_like:unknown';
     if(r.classList.contains('ktsolo-room'))return 'ktalk_live_like:solo';
@@ -19,6 +21,25 @@
     if(r.classList.contains('ktg9-room'))return 'ktalk_live_like:group9';
     return 'ktalk_live_like:room';
   }
+
+  function likeStoreKey(){
+    var r=room();if(!r||broadcastEnded)return 'ktalk_live_like:unknown';
+    var run=runKey||String(window.__ktHostRunId20260924||'');
+    if(!run){if(!roomKeys.has(r))roomKeys.set(r,'page-'+Date.now()+'-'+(++roomSequence));run=roomKeys.get(r);}
+    return roomTypeKey()+':broadcast:'+run;
+  }
+  function resetBroadcastLikes(e){
+    var d=e&&e.detail||{};
+    if(d.role&&d.role!=='host')return;
+    if(document.documentElement.classList.contains('kt-remote-viewing'))return;
+    var next=String(d.run_id||d.started_at||window.__ktHostRunId20260924||'');
+    if(next&&next===runKey)return;
+    broadcastEnded=false;runKey=next;activeKey='';count=0;
+    document.querySelectorAll('.kt-clock-like-20260927 span').forEach(function(el){if(el.textContent!=='0')el.textContent='0';});
+  }
+  window.addEventListener('kt-host-session-ready',resetBroadcastLikes);
+  window.addEventListener('kt-host-session-reset',resetBroadcastLikes);
+  window.addEventListener('kt-broadcast-ended',function(){broadcastEnded=true;runKey='';activeKey='';count=0;roomKeys=new WeakMap();document.querySelectorAll('.kt-clock-like-20260927 span').forEach(function(el){if(el.textContent!=='0')el.textContent='0';});});
 
   function loadCount(){
     var key=likeStoreKey();
@@ -30,7 +51,7 @@
       var visible=0;
       var badge=room()&&room().querySelector('.kt-clock-like-20260927 span');
       if(badge)visible=parseInt(badge.textContent||'0',10)||0;
-      count=Math.max(count,saved,backup,visible);
+      count=Math.max(count,saved,backup);
       if(count>saved||count>backup)saveCount();
     }catch(e){}
   }
