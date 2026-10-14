@@ -66,7 +66,11 @@
       +'#sheet.kt-gift-force .kt-gift-recipient-copy-20261006 b{display:block!important;color:#fff!important;font-size:14px!important;font-weight:950!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}'
       +'#sheet.kt-gift-force .ktgf-main>section{max-height:34dvh!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important;scroll-snap-type:y proximity!important;padding-right:2px!important}'
       +'#sheet.kt-gift-force .ktgf-card{scroll-snap-align:start!important}'
-      +'#sheet.kt-gift-force .ktgf-main>section::-webkit-scrollbar{width:4px!important}'
+      +'#sheet.kt-gift-force .ktgf,#sheet.kt-gift-force .ktgf *{scrollbar-width:auto!important}'
+      +'#sheet.kt-gift-force .ktgf::-webkit-scrollbar,#sheet.kt-gift-force .ktgf *::-webkit-scrollbar{width:2px!important;height:2px!important}'
+      +'#sheet.kt-gift-force .ktgf::-webkit-scrollbar-thumb,#sheet.kt-gift-force .ktgf *::-webkit-scrollbar-thumb{background:#8e456f88!important;border-radius:999px!important}'
+      +'#sheet.kt-gift-force .ktgf::-webkit-scrollbar-track,#sheet.kt-gift-force .ktgf *::-webkit-scrollbar-track{background:transparent!important}'
+      +'@supports not selector(::-webkit-scrollbar){#sheet.kt-gift-force .ktgf,#sheet.kt-gift-force .ktgf *{scrollbar-width:thin!important;scrollbar-color:#8e456f88 transparent!important}}'
       +'#sheet.kt-gift-force .ktgf-main>section::-webkit-scrollbar-thumb{background:#8e456f!important;border-radius:999px!important}'
       +'@media(max-width:410px){#sheet.kt-gift-force .kt-gift-recipient-bar-20261006{margin:4px 2px 1px!important;padding:6px 8px!important;gap:7px!important}#sheet.kt-gift-force .kt-gift-recipient-face-20261006{width:34px!important;height:34px!important;flex-basis:34px!important}#sheet.kt-gift-force .kt-gift-recipient-copy-20261006 b{font-size:11px!important}#sheet.kt-gift-force .kt-gift-recipient-copy-20261006 small{font-size:7px!important}#sheet.kt-gift-force .ktgf-main>section{max-height:31dvh!important}}';
     (document.head||document.documentElement).appendChild(s);
