@@ -17,6 +17,7 @@
   var audioCtx=null;
   var audioDest=null;
   var moreRequestedUntil=0;
+  var catalogFilmId='';
   var queueFiles=[],queueIndex=-1,queueActive=false,queueGeneration=0;
 
   function number(v){var n=parseInt(v,10);return isFinite(n)?n:0;}
@@ -143,6 +144,7 @@
     s.textContent+='html body #screen .kt-movie-theater.kt-movie-theater :is(.ktsolo-tools,.ktg13-tools,.ktg9-tools,.ktgroup9-tools,.ktgroup13-tools,.ktsubscriber-tools,.ktsecret-tools,.kt-host-admin-media-20260928){display:none!important;visibility:hidden!important;pointer-events:none!important}'+
       'html body #screen .kt-remote-live:has(.kt-movie-viewer) :is(.kt-remote-bottom,.kt-sgfh-bottom) button:not(.send):not([data-b="send"]):not([aria-label="채팅 보내기"]),html body #screen .kt-remote-live.kt-movie-viewer :is(.kt-remote-bottom,.kt-sgfh-bottom) button:not(.send):not([data-b="send"]):not([aria-label="채팅 보내기"]){display:none!important;visibility:hidden!important;pointer-events:none!important}';
     s.textContent+='.kt-movie-queue{max-height:48dvh;overflow:auto}.kt-movie-queue-row{display:flex;align-items:center;gap:6px;padding:8px 0;border-bottom:1px solid #ffffff18}.kt-movie-queue-row span{flex:1;min-width:0;overflow-wrap:anywhere}.kt-movie-queue-row button,.kt-movie-queue-start{border:1px solid #ffffff30;background:#25252d;color:#fff;border-radius:8px;padding:9px}.kt-movie-queue-start{width:100%;margin-top:12px}#sheet.show:has(.kt-movie-queue){z-index:2147483645!important}';
+    s.textContent+='.kt-licensed-film{padding:12px;margin:10px 0;border:1px solid #ffffff25;border-radius:12px}.kt-licensed-film b{display:block}.kt-licensed-film p{margin:6px 0;font-size:12px}.kt-licensed-film a{display:inline-block;color:#8dd9ff;font-size:11px;margin-right:10px}.kt-licensed-film button{display:block;width:100%;padding:12px;margin-top:10px;border:1px solid #ffffff30;border-radius:10px;background:#292938;color:#fff}.kt-movie-tv.kt-catalog-playing>video,.kt-movie-tv.kt-catalog-playing>.kt-movie-empty{display:none!important}.kt-licensed-movie-frame{position:absolute;left:0;top:36px;width:100%;height:calc(100% - 36px);border:0;background:#000}#sheet.show:has(.kt-licensed-movie-catalog){z-index:2147483645!important}';
     document.head.appendChild(s);
   }
 
@@ -162,6 +164,31 @@
     paintTheater(sharedStream);
     if(!theaterGuest&&typeof window.ktNotifyMovieTheaterMode==='function')window.ktNotifyMovieTheaterMode(true);
   }
+  function catalogFilm(id){return (window.ktLicensedMovieCatalog||[]).find(function(f){return f.id===id;})||null;}
+  function applyCatalogFrame(id){
+    var film=catalogFilm(id),panel=theaterRoom&&theaterRoom.querySelector('.kt-movie-tv');if(!panel)return;
+    var frame=panel.querySelector('.kt-licensed-movie-frame');
+    if(!film){if(frame)frame.remove();panel.classList.remove('kt-catalog-playing');return;}
+    panel.classList.add('kt-catalog-playing');
+    var empty=panel.querySelector('.kt-movie-empty');if(empty)empty.hidden=true;
+    if(frame&&frame.dataset.filmId===id)return;
+    if(frame)frame.remove();
+    frame=document.createElement('iframe');frame.className='kt-licensed-movie-frame';frame.dataset.filmId=id;
+    frame.title=film.originalTitle+' — '+film.creator;
+    frame.src='https://www.youtube.com/embed/'+film.youtubeId+'?playsinline=1&autoplay=0&rel=0&enablejsapi=1&origin='+encodeURIComponent(location.origin);
+    frame.allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen';
+    frame.allowFullscreen=true;frame.referrerPolicy='strict-origin-when-cross-origin';
+    panel.appendChild(frame);
+    var title=panel.querySelector('.kt-movie-tv-bar b');if(title)title.textContent=film.title;
+  }
+  window.ktGetMovieCatalogMode=function(){return {film_id:catalogFilmId};};
+  window.ktPlayLicensedCatalogFilm=async function(id){
+    if(!catalogFilm(id))return;
+    queueActive=false;queueGeneration++;await stopShare();
+    catalogFilmId=id;enterTheater();applyCatalogFrame(id);
+    if(typeof window.ktNotifyMovieTheaterMode==='function')window.ktNotifyMovieTheaterMode(true);
+    if(window.closeSheet)window.closeSheet();
+  };
   function paintHostFace(){
     if(!theaterRoom)return;
     var tile=theaterRoom.querySelector('.ktg13-host,.ktg9-host,.ktsubscriber-host,.ktsecret-slot.host,.ktsecret-host')||(theaterRoom.classList.contains('ktsolo-room')?theaterRoom.querySelector('.ktsolo-main'):null);
@@ -170,7 +197,7 @@
     if(!sharedStream&&!theaterGuest){if(overlay)overlay.remove();tile.classList.remove('kt-movie-face-only');return;}
     if(!overlay){overlay=document.createElement('div');overlay.className='kt-movie-host-face';tile.appendChild(overlay);}
     tile.classList.add('kt-movie-face-only');
-    var cameraStream=!theaterGuest?originalStream:null;
+    var cameraStream=!theaterGuest?originalStream:(catalogFilmId?(tile.querySelector('video')||{}).srcObject:null);
     if(cameraStream&&cameraStream.getVideoTracks&&cameraStream.getVideoTracks().some(function(t){return t.readyState==='live'&&t.enabled!==false;})){
       var video=overlay.querySelector('video');
       if(!video){overlay.textContent='';video=document.createElement('video');video.autoplay=true;video.muted=true;video.playsInline=true;overlay.appendChild(video);}
@@ -187,6 +214,7 @@
   function paintTheater(stream){
     if(!theaterRoom)return;
     paintHostFace();
+    if(catalogFilmId&&catalogFilm(catalogFilmId)){applyCatalogFrame(catalogFilmId);return;}
     if(theaterGuest){var source=theaterRoom.querySelector('video:not(.kt-movie-player)');stream=source&&source.srcObject||null;}
     var v=theaterRoom.querySelector('.kt-movie-tv video'),empty=theaterRoom.querySelector('.kt-movie-empty');
     if(v&&v.srcObject!==stream)v.srcObject=stream||null;
@@ -201,16 +229,19 @@
     theaterRoom.classList.remove('kt-movie-theater','kt-movie-viewer');
     theaterRoom.querySelectorAll('.kt-movie-people-area,.kt-movie-chat-area').forEach(function(el){el.classList.remove('kt-movie-people-area','kt-movie-chat-area');});
     var p=theaterRoom.querySelector('.kt-movie-tv');if(p)p.remove();
-    theaterRoom=null;
+    theaterRoom=null;catalogFilmId='';
   }
-  window.ktSetViewerMovieTheater=function(on,host){
-    if(viewerMode===!!on&&viewerModeHost===host)return;
+  window.ktSetViewerMovieTheater=function(on,host,mode){
+    var nextFilm=on&&mode&&catalogFilm(mode.film_id)?mode.film_id:'';
+    if(viewerMode===!!on&&viewerModeHost===host&&catalogFilmId===nextFilm)return;
+    var same=viewerMode===!!on&&viewerModeHost===host;
     viewerMode=!!on;viewerModeHost=host;
-    if(theaterGuest)exitTheater();
-    if(!on)return;
+    if(theaterGuest&&!same)exitTheater();
+    catalogFilmId=nextFilm;
+    if(!on){if(theaterGuest)exitTheater();return;}
     var remote=document.querySelector('#screen .kt-remote-live');if(!remote)return;
     var root=remote.querySelector('.ktsolo-room,.ktg13-room,.ktg9-room,.ktsubscriber-room,.ktsecret-room')||remote;
-    enterTheater(root);
+    enterTheater(root);applyCatalogFrame(catalogFilmId);
   };
   setInterval(function(){if(theaterRoom&&!theaterGuest)paintHostFace();if(theaterGuest&&theaterRoom){if(!theaterRoom.isConnected){exitTheater();viewerMode=false;return;}paintTheater(null);}},500);
   window.addEventListener('kt-remote-host-left',function(){if(theaterGuest)exitTheater();viewerMode=false;viewerModeHost='';});
@@ -235,7 +266,7 @@
     stopSourceOnly();
     originalStream=null;paintTheater(null);
   }
-  window.ktStopHostTvMovieShare=function(){queueActive=false;queueGeneration++;stopShare();};
+  window.ktStopHostTvMovieShare=function(){catalogFilmId='';if(theaterRoom)applyCatalogFrame('');queueActive=false;queueGeneration++;if(window.ktNotifyMovieTheaterMode&&theaterRoom)window.ktNotifyMovieTheaterMode(true);return stopShare();};
 
   async function activateStream(stream){
     if(!stream||!liveTrack(stream,'video'))throw new Error('공유할 영상이 없습니다.');
@@ -245,6 +276,7 @@
     try{if(window.state)state.stream=stream;}catch(e){}
     await replaceSenders(stream);
     showSharedPreview(stream);
+    if(typeof window.ktNotifyMovieTheaterMode==='function')window.ktNotifyMovieTheaterMode(true);
     if(typeof window.closeSheet==='function')window.closeSheet();
     var vt=liveTrack(stream,'video');
     if(vt)vt.addEventListener('ended',function(){if(sharedStream===stream&&!queueActive)stopShare();},{once:true});
@@ -297,6 +329,7 @@
   async function playQueueFile(index){
     if(!canUse()){deny();return;}
     if(index>=queueFiles.length){queueActive=false;queueIndex=-1;await stopShare();queueCaption();return;}
+    catalogFilmId='';if(theaterRoom)applyCatalogFrame('');
     var generation=++queueGeneration;queueActive=true;queueIndex=index;
     await stopShare();if(generation!==queueGeneration||!queueActive)return;
     try{
@@ -346,6 +379,7 @@
 
   window.ktHostMediaShareScreen=async function(){
     if(!canUse()){deny();return;}
+    catalogFilmId='';if(theaterRoom)applyCatalogFrame('');
     queueActive=false;queueGeneration++;
     if(!navigator.mediaDevices||typeof navigator.mediaDevices.getDisplayMedia!=='function'){
       alert('이 기기 브라우저에서는 화면 공유를 직접 지원하지 않습니다. 동영상 선택 기능을 이용해 주세요.');return;
@@ -384,6 +418,7 @@
     enterTheater();
     var html=''
       +'<div class="kt-tv-movie-actions">'
+      +'<button type="button" onclick="ktOpenLicensedMovieCatalog()">🎞 영화 목록<br>이번 주 추천</button>'
       +'<button type="button" onclick="ktHostMediaPickVideo()">🎬 내 동영상·영화<br>틀기</button>'
       +'<button type="button" onclick="ktHostMediaShowQueue()">📋 재생 목록<br>순서 편집</button>'
       +'<button type="button" onclick="ktHostMediaShareScreen()">📱 화면<br>공유</button>'
@@ -391,11 +426,16 @@
       +'<button type="button" onclick="ktStopHostTvMovieShare()">⏹ 공유<br>중지</button>'
       +'</div>'
       +'<div class="kt-tv-movie-note"><b>이용 기준</b><br>호스트·운영진: 레벨 20부터 · 구독자: 레벨 제한 없음<br><br><b>동영상·영화 선택</b><br>휴대폰이나 컴퓨터에 저장된 동영상·영화 파일을 선택해 재생합니다.<br><br><b>방송 콘텐츠</b><br>본인이 소유하거나 방송 허가를 받은 영상·화면만 공유해 주세요.</div>';
-    if(!canUse())html='<div class="kt-tv-movie-note"><b>현재 계정은 영상 공유 이용 조건을 충족하지 않습니다.</b><br>호스트·운영진 레벨 20 이상 또는 유료 구독이 필요합니다.</div>'+html;
+    if(!canUse())html='<div class="kt-tv-movie-note"><b>내 파일·화면 공유는 이용 조건 확인이 필요합니다.</b><br>호스트·운영진 레벨 20 이상 또는 유료 구독이 필요합니다. 공개 영화 목록은 누구나 무료로 볼 수 있습니다.</div>'+html;
     showSheet('📺 TV · 영화 · 화면공유',html);
   };
 
   window.ktBottomMovieOpen=function(){window.ktOpenHostTvMovie();return false;};
+
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden||!theaterRoom)return;
+    var frame=theaterRoom.querySelector('.kt-licensed-movie-frame');if(frame&&frame.contentWindow)frame.contentWindow.postMessage(JSON.stringify({event:'command',func:'pauseVideo',args:[]}), 'https://www.youtube.com');
+  });
 
   function addMoreEntry(){
     if(Date.now()>moreRequestedUntil||!isLocalLiveRoom())return;

@@ -88,7 +88,8 @@
   var movieModeQueue=Promise.resolve();
   window.ktNotifyMovieTheaterMode=function(on){
     if(document.documentElement.classList.contains('kt-remote-viewing')||!document.querySelector('#screen .ktsolo-room,#screen .ktg13-room,#screen .ktg9-room,#screen .ktsubscriber-room,#screen .ktsecret-room'))return Promise.resolve(false);
-    var host=deviceId(),message=JSON.stringify({on:!!on,run:String(window.__ktHostRunId20260924||'')});
+    var extra=typeof window.ktGetMovieCatalogMode==='function'?window.ktGetMovieCatalogMode():{};
+    var host=deviceId(),message=JSON.stringify({on:!!on,run:String(window.__ktHostRunId20260924||''),film_id:on?String(extra.film_id||''):''});
     movieModeQueue=movieModeQueue.then(function(){return postMessage(host,host,'호스트',message,'movie_mode');}).catch(function(){return false;});
     return movieModeQueue;
   };
@@ -103,9 +104,9 @@
     }catch(e){}
     if(host!==remote.hostId)return;
     modes.sort(function(a,b){return Date.parse(b.created_at)-Date.parse(a.created_at);});
-    var on=false;
-    try{on=!!(modes[0]&&JSON.parse(modes[0].message).on);}catch(e){}
-    if(typeof window.ktSetViewerMovieTheater==='function')window.ktSetViewerMovieTheater(on,host);
+    var on=false,mode={};
+    try{mode=modes[0]?JSON.parse(modes[0].message):{};on=!!mode.on;}catch(e){}
+    if(typeof window.ktSetViewerMovieTheater==='function')window.ktSetViewerMovieTheater(on,host,mode);
   }
 
   function systemType(t){t=String(t||'');return t==='system'||(t==='attendance'||t.indexOf('attendance:')===0)||t==='like'||t.indexOf('gift:')===0;}
