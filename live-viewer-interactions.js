@@ -9,6 +9,7 @@
   var MEM_BEACON='/api/live-beacon-memory';
   var remote={hostId:'',viewerId:'',viewerName:'',roomStart:'',timer:null,lastLikeAt:0};
   var hostTimer=null,hostRoomStart='',attendancePending=false;
+  var lastHostLikeBySender={};
   var guestClockStarts={};
   function epoch(v){var n=typeof v==='number'?v:Date.parse(v||'');return Number.isFinite(n)&&n>0?n:0;}
   function clockText(start,now){var sec=Math.max(0,Math.floor((now-start)/1000));return [Math.floor(sec/3600),Math.floor(sec/60)%60,sec%60].map(function(n){return String(n).padStart(2,'0');}).join(':');}
@@ -113,7 +114,7 @@
     var done=false;try{done=localStorage.getItem(attendanceKey())==='1';}catch(e){}
     var b=root.querySelector('#ktRemoteAttendance');
     var nine=root.getAttribute('data-kt-room-type')==='group9'||!!root.querySelector('[data-kt-room="9"]');
-    if(nine&&b&&!root.querySelector('.kt-attendance-heart-badge')){var heart=document.createElement('span');heart.className='kt-attendance-heart-badge';heart.setAttribute('aria-label','출석 인원');heart.style.setProperty('position','static','important');heart.style.setProperty('transform','none','important');heart.style.setProperty('margin-left','4px','important');b.insertAdjacentElement('afterend',heart);}
+    if(nine&&b&&!root.querySelector('.kt-attendance-heart-badge')){var heart=document.createElement('span');heart.className='kt-attendance-heart-badge';heart.setAttribute('aria-label','출석 인원');heart.style.setProperty('position','static','important');heart.style.setProperty('transform','none','important');heart.style.setProperty('margin-left','4px','important');heart.style.setProperty('flex','0 0 auto','important');var pair=document.createElement('span');pair.className='kt-guest-attendance-inline';pair.style.cssText='display:inline-flex;align-items:center;gap:4px;min-width:0';b.insertAdjacentElement('beforebegin',pair);pair.appendChild(b);pair.appendChild(heart);}
     var n=Math.max(0,parseInt(count!=null?count:(b&&b.dataset.count||'0'),10)||0);
     if(b){b.dataset.count=String(n);b.classList.toggle('done',done);var text=(done?'✓ 출석 완료':'🌹 출석체크')+(nine?'':' '+n);if(b.textContent!==text)b.textContent=text;b.disabled=done;}
     root.querySelectorAll('.kt-attendance-heart-badge').forEach(function(el){var text='💗 '+n+'명';if(el.textContent!==text)el.textContent=text;});
@@ -133,7 +134,7 @@
       if(anchor){at.style.setProperty('position','static','important');at.style.setProperty('height','29px','important');at.style.setProperty('font-size','10px','important');anchor.appendChild(at);}else root.appendChild(at);
     }
     var sharedButton=root.querySelector('#ktRemoteAttendance'),header=root.querySelector('.ktsgv-left,.ktg13-title-row,.ktsubscriber-left,.kt-sgfh-left,.ktg13-head');
-    if(sharedButton&&sharedButton.classList.contains('kt-remote-attendance')&&header&&sharedButton.parentElement!==header){header.appendChild(sharedButton);sharedButton.style.setProperty('position','static','important');sharedButton.style.setProperty('height','29px','important');sharedButton.style.setProperty('font-size','10px','important');}
+    if(sharedButton&&sharedButton.classList.contains('kt-remote-attendance')&&header&&sharedButton.parentElement!==header&&!sharedButton.closest('.kt-guest-attendance-inline')){header.appendChild(sharedButton);sharedButton.style.setProperty('position','static','important');sharedButton.style.setProperty('height','29px','important');sharedButton.style.setProperty('font-size','10px','important');}
     markAttendance();
     if(!document.getElementById('ktRemoteChatList')){var chat=document.createElement('div');chat.id='ktRemoteChatList';chat.className='kt-remote-chat';root.appendChild(chat);}
     if(!document.getElementById('ktRemoteBottom')){var bar=document.createElement('div');bar.id='ktRemoteBottom';bar.className='kt-remote-bottom';bar.innerHTML='<input id="ktRemoteChatInput" maxlength="100" placeholder="입력하세요…" aria-label="라이브 채팅 입력">'+'<button type="button" class="kt-remote-action send" onclick="ktRemoteSendChat()" aria-label="채팅 보내기">➤</button>'+'<button type="button" class="kt-remote-action gift" onclick="ktRemoteOpenGifts()" aria-label="선물">🎁</button>'+'<button type="button" class="kt-remote-action share" onclick="ktRemoteShare()" aria-label="공유">↗</button>';root.appendChild(bar);var input=bar.querySelector('#ktRemoteChatInput');if(input)input.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();window.ktRemoteSendChat();}});}
@@ -287,7 +288,7 @@
         }
         markProcessed(m);return;
       }
-      if(type==='like'){addLikeToHost();speakIfNeeded(m.message);markProcessed(m);return;}
+      if(type==='like'){var sender=String(m.sender_id||''),stamp=Date.parse(m.created_at||'')||0,prior=lastHostLikeBySender[sender]||0;if(!stamp||!prior||Math.abs(stamp-prior)>500){addLikeToHost();speakIfNeeded(m.message);lastHostLikeBySender[sender]=stamp;}markProcessed(m);return;}
       if(type.indexOf('gift:')===0){var n=parseInt(type.slice(5),10)||0;if(n>0){try{if(typeof window.addMyEarnedRoses==='function')window.addMyEarnedRoses(n);}catch(e){}}speakIfNeeded(m.message);markProcessed(m);return;}
       if(type==='chat'){speakIfNeeded((m.sender_name?String(m.sender_name)+'님, ':'')+String(m.message||''));markProcessed(m);return;}
     });

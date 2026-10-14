@@ -172,6 +172,7 @@
   document.addEventListener('click',function(e){
     var t=e.target;if(!t||!t.closest||t.closest('button,input,textarea,select,a,#sheet'))return;
     var chat=t.closest('#ktRemoteChatList,.ktg13-chat,.ktsolo-chat,.ktsubscriber-chat,.ktsecret-chat,.kt-sgfh-chat');
+    if(!chat){var background=t.closest('#screen .kt-remote-live,#screen .ktsolo-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room');if(background&&t===background)chat=background;}
     if(!chat||t!==chat)return;
     if(chat.closest('.kt-remote-live')){if(typeof window.ktRemoteLike==='function')window.ktRemoteLike();return;}
     if(typeof window.addHostLike==='function')window.addHostLike(1);
