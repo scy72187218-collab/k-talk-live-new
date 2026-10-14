@@ -198,6 +198,18 @@
     return nums;
   }
 
+  var LUCKY_PREFIX='ktalk_daily_fortune_last_numbers:';
+  function saveLuckyNumbers(numbers){
+    try{localStorage.setItem(LUCKY_PREFIX+accountKey(),JSON.stringify({numbers:numbers,date:todayKey()}));}catch(e){}
+  }
+  function lastLuckyHtml(){
+    try{
+      var saved=JSON.parse(localStorage.getItem(LUCKY_PREFIX+accountKey())||'null');
+      if(!saved||!Array.isArray(saved.numbers)||saved.numbers.length!==6||new Set(saved.numbers).size!==6||!saved.numbers.every(function(n){return Number.isInteger(n)&&n>=1&&n<=45;}))return '';
+      return '<div class="rowbox" style="border-color:#ffe071"><b>✨ 최근 뽑은 행운 숫자</b><br><span style="font-size:20px;font-weight:950;letter-spacing:2px">'+saved.numbers.join(' · ')+'</span><br><small>다음 추첨에서 새 번호를 뽑을 때까지 유지됩니다. 재미로 보는 운세용 숫자입니다.</small></div>';
+    }catch(e){return '';}
+  }
+
   function outcomeLabels(){
     return ['🌹 1개','🌹 2개','🌹 3개','🌹 4개','🌹 5개','꽝'];
   }
@@ -222,6 +234,7 @@
     var d=window.__ktFortuneLadderData20260928;
     return ''
       +'<div class="rowbox" style="text-align:center"><b>🎯 오늘의 운세 · 장미따먹기</b><br>무료 이벤트 · 하루에 한 번 참여할 수 있습니다.</div>'
+      +lastLuckyHtml()
       +'<div class="rowbox"><b>번호 하나를 골라주세요</b><br>고른 번호에서 사다리가 실제로 내려가서 마지막 결과에 도착합니다.</div>'+'<div class="rowbox" style="border-color:#ffd84f;background:rgba(255,216,79,.08)"><b>🎁 주간 행운 추첨</b><br>하루에 한 번 무료로 참여할 수 있습니다.<br>사다리타기에 참여하면 <strong>주간 행운 추첨에 자동 응모</strong>됩니다.<br><strong>행운 숫자 6개를 맞힐 필요 없습니다.</strong><br>일주일에 한 번 그 주 참여자 중에서 1등·2등·3등을 추첨합니다.<br>1등 이벤트 장미 100개 · 2등 50개 · 3등 30개<br><small>오늘의 행운 숫자 6개는 재미로 보는 숫자입니다. 이벤트 장미는 현금 환전 불가입니다.</small></div>'
       +'<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin:8px 0">'
       +[1,2,3,4,5,6].map(function(n){return '<button type="button" '+(used?'disabled':'')+' onclick="ktPlayDailyFortuneLadder20260928('+n+',this)" style="height:42px;border:1px solid #ffffff33;border-radius:10px;background:#1a1a22;color:#fff;font-weight:950">'+n+'번</button>';}).join('')
@@ -280,6 +293,7 @@
         var reward=weightedReward20261005();
         var fortune=fortunes[Math.floor(Math.random()*fortunes.length)]||fortunes[0];
         var lucky=luckyNumbers20260928();
+        saveLuckyNumbers(lucky);
         var result=reward?('🌹 장미 '+reward+'송이 당첨!'):'꽝! 오늘은 좋은 운세를 받아가세요.';
         if(reward)addRoses(reward);
         setTimeout(function(){
