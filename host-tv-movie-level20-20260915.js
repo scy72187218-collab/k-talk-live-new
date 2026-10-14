@@ -17,6 +17,7 @@
   var audioCtx=null;
   var audioDest=null;
   var moreRequestedUntil=0;
+  var queueFiles=[],queueIndex=-1,queueActive=false,queueGeneration=0;
 
   function number(v){var n=parseInt(v,10);return isFinite(n)?n:0;}
   function currentLevel(){
@@ -141,6 +142,7 @@
     s.textContent+='#sheet.show:has(.kt-tv-movie-actions),#sheet.show:has(.kt-tv-movie-note){z-index:2147483645!important}';
     s.textContent+='html body #screen .kt-movie-theater.kt-movie-theater :is(.ktsolo-tools,.ktg13-tools,.ktg9-tools,.ktgroup9-tools,.ktgroup13-tools,.ktsubscriber-tools,.ktsecret-tools,.kt-host-admin-media-20260928){display:none!important;visibility:hidden!important;pointer-events:none!important}'+
       'html body #screen .kt-remote-live:has(.kt-movie-viewer) :is(.kt-remote-bottom,.kt-sgfh-bottom) button:not(.send):not([data-b="send"]):not([aria-label="채팅 보내기"]),html body #screen .kt-remote-live.kt-movie-viewer :is(.kt-remote-bottom,.kt-sgfh-bottom) button:not(.send):not([data-b="send"]):not([aria-label="채팅 보내기"]){display:none!important;visibility:hidden!important;pointer-events:none!important}';
+    s.textContent+='.kt-movie-queue{max-height:48dvh;overflow:auto}.kt-movie-queue-row{display:flex;align-items:center;gap:6px;padding:8px 0;border-bottom:1px solid #ffffff18}.kt-movie-queue-row span{flex:1;min-width:0;overflow-wrap:anywhere}.kt-movie-queue-row button,.kt-movie-queue-start{border:1px solid #ffffff30;background:#25252d;color:#fff;border-radius:8px;padding:9px}.kt-movie-queue-start{width:100%;margin-top:12px}#sheet.show:has(.kt-movie-queue){z-index:2147483645!important}';
     document.head.appendChild(s);
   }
 
@@ -156,7 +158,7 @@
     root.appendChild(panel);
     panel.querySelector('[data-movie-select]').onclick=function(){window.ktOpenHostTvMovie();};
     if(theaterGuest)panel.querySelector('[data-movie-select]').hidden=true;
-    panel.querySelector('[data-movie-close]').onclick=async function(){if(!theaterGuest)await stopShare();exitTheater();};
+    panel.querySelector('[data-movie-close]').onclick=async function(){if(!theaterGuest){queueActive=false;queueGeneration++;await stopShare();}exitTheater();};
     paintTheater(sharedStream);
     if(!theaterGuest&&typeof window.ktNotifyMovieTheaterMode==='function')window.ktNotifyMovieTheaterMode(true);
   }
@@ -216,7 +218,7 @@
 
   function stopSourceOnly(){
     if(drawRaf){cancelAnimationFrame(drawRaf);drawRaf=0;}
-    if(sourceVideo){try{sourceVideo.pause();}catch(e){}try{sourceVideo.removeAttribute('src');sourceVideo.load();}catch(e){}try{sourceVideo.remove();}catch(e){}sourceVideo=null;}
+    if(sourceVideo){sourceVideo.onended=null;try{sourceVideo.pause();}catch(e){}try{sourceVideo.removeAttribute('src');sourceVideo.load();}catch(e){}try{sourceVideo.remove();}catch(e){}sourceVideo=null;}
     if(sourceUrl){try{URL.revokeObjectURL(sourceUrl);}catch(e){}sourceUrl='';}
     if(sourceCanvas){try{sourceCanvas.remove();}catch(e){}sourceCanvas=null;}
     if(audioCtx){try{audioCtx.close();}catch(e){}audioCtx=null;audioDest=null;}
@@ -233,7 +235,7 @@
     stopSourceOnly();
     originalStream=null;paintTheater(null);
   }
-  window.ktStopHostTvMovieShare=function(){stopShare();};
+  window.ktStopHostTvMovieShare=function(){queueActive=false;queueGeneration++;stopShare();};
 
   async function activateStream(stream){
     if(!stream||!liveTrack(stream,'video'))throw new Error('공유할 영상이 없습니다.');
@@ -245,7 +247,7 @@
     showSharedPreview(stream);
     if(typeof window.closeSheet==='function')window.closeSheet();
     var vt=liveTrack(stream,'video');
-    if(vt)vt.addEventListener('ended',function(){if(sharedStream===stream)stopShare();},{once:true});
+    if(vt)vt.addEventListener('ended',function(){if(sharedStream===stream&&!queueActive)stopShare();},{once:true});
   }
 
   function buildFileStream(video){
@@ -278,31 +280,73 @@
     });
   }
 
+  function queueOrder(files){
+    return [].slice.call(files||[]).sort(function(a,b){return String(a.name).localeCompare(String(b.name),'ko',{numeric:true});});
+  }
+  function queueMove(index,direction){
+    var next=index+direction;if(next<0||next>=queueFiles.length)return;
+    var current=queueIndex>=0?queueFiles[queueIndex]:null;
+    var file=queueFiles.splice(index,1)[0];queueFiles.splice(next,0,file);
+    if(current)queueIndex=queueFiles.indexOf(current);
+  }
+  function queueCaption(){
+    if(!theaterRoom)return;
+    var title=theaterRoom.querySelector('.kt-movie-tv-bar b');
+    if(title)title.textContent=queueActive&&queueIndex>=0?'📺 '+(queueIndex+1)+' / '+queueFiles.length:'📺 함께 보는 영화';
+  }
+  async function playQueueFile(index){
+    if(!canUse()){deny();return;}
+    if(index>=queueFiles.length){queueActive=false;queueIndex=-1;await stopShare();queueCaption();return;}
+    var generation=++queueGeneration;queueActive=true;queueIndex=index;
+    await stopShare();if(generation!==queueGeneration||!queueActive)return;
+    try{
+      var file=queueFiles[index],v=document.createElement('video');sourceVideo=v;
+      v.playsInline=true;v.autoplay=true;v.controls=false;v.loop=false;v.preload='auto';v.volume=1;
+      v.style.cssText='position:fixed;width:2px;height:2px;left:-10px;bottom:-10px;opacity:.001;pointer-events:none';
+      sourceUrl=URL.createObjectURL(file);v.src=sourceUrl;document.body.appendChild(v);
+      await new Promise(function(resolve,reject){v.onloadedmetadata=resolve;v.onerror=function(){reject(new Error('video_load_failed'));};});
+      if(generation!==queueGeneration||!queueActive)return;
+      await v.play();
+      if(generation!==queueGeneration||!queueActive)return;
+      var stream=await buildFileStream(v);await activateStream(stream);queueCaption();
+      v.onended=function(){if(queueActive&&generation===queueGeneration)playQueueFile(queueIndex+1);};
+    }catch(e){
+      if(generation!==queueGeneration)return;
+      queueActive=false;await stopShare();queueCaption();
+      if(window.showSheet)window.showSheet('동영상 재생 안내','<div class="rowbox">이 파일을 재생하지 못했습니다. 재생 목록에서 다음 파일을 선택해 주세요.</div>');
+    }
+  }
+  window.ktHostMediaShowQueue=function(){
+    if(!canUse()){deny();return;}
+    if(!window.showSheet)return;
+    window.showSheet('내 동영상 · 순서대로 재생','');
+    var body=document.getElementById('sheetBody');if(!body)return;
+    var note=document.createElement('p');note.textContent='번호 순서대로 자동 재생됩니다. 위·아래 버튼으로 순서를 바꿀 수 있습니다.';body.appendChild(note);
+    var list=document.createElement('div');list.className='kt-movie-queue';body.appendChild(list);
+    queueFiles.forEach(function(file,index){
+      var row=document.createElement('div');row.className='kt-movie-queue-row';
+      var name=document.createElement('span');name.textContent=(index+1)+'. '+file.name;row.appendChild(name);
+      [-1,1].forEach(function(direction){var move=document.createElement('button');move.type='button';move.textContent=direction<0?'↑':'↓';move.setAttribute('aria-label',direction<0?'위로 이동':'아래로 이동');move.disabled=(index+direction<0||index+direction>=queueFiles.length);move.onclick=function(){queueMove(index,direction);window.ktHostMediaShowQueue();};row.appendChild(move);});
+      var play=document.createElement('button');play.type='button';play.textContent='재생';play.onclick=function(){playQueueFile(index);};row.appendChild(play);
+      list.appendChild(row);
+    });
+    var start=document.createElement('button');start.type='button';start.className='kt-movie-queue-start';start.textContent='▶ 1번부터 연속 재생';start.disabled=!queueFiles.length;start.onclick=function(){enterTheater();playQueueFile(0);};body.appendChild(start);
+    if(!queueFiles.length){note.textContent='먼저 내 동영상·영화에서 여러 파일을 선택해 주세요.';}
+  };
   window.ktHostMediaPickVideo=function(){
     if(!canUse()){deny();return;}
-    var input=document.createElement('input');
-    input.type='file';input.accept='video/*';input.style.display='none';
+    var input=document.createElement('input');input.type='file';input.accept='video/*';input.multiple=true;input.style.display='none';
     input.onchange=async function(){
-      var file=input.files&&input.files[0];input.remove();if(!file)return;
-      try{
-        await stopShare();
-        var v=document.createElement('video');sourceVideo=v;
-        v.playsInline=true;v.autoplay=true;v.controls=false;v.loop=false;v.preload='auto';v.volume=1;
-        v.style.cssText='position:fixed;width:2px;height:2px;left:-10px;bottom:-10px;opacity:.001;pointer-events:none';
-        sourceUrl=URL.createObjectURL(file);v.src=sourceUrl;document.body.appendChild(v);
-        await new Promise(function(resolve,reject){v.onloadedmetadata=resolve;v.onerror=reject;});
-        await v.play();
-        var stream=await buildFileStream(v);
-        await activateStream(stream);
-        v.onended=function(){if(sharedStream===stream)stopShare();};
-        alert('📺 선택한 동영상이 방송 영상으로 재생됩니다.');
-      }catch(e){alert('이 동영상을 방송으로 재생하지 못했습니다. 다른 파일로 다시 시도해 주세요.');}
+      var files=queueOrder(input.files);input.remove();if(!files.length)return;
+      queueActive=false;queueGeneration++;await stopShare();queueFiles=files;queueIndex=-1;
+      window.ktHostMediaShowQueue();
     };
     document.body.appendChild(input);input.click();
   };
 
   window.ktHostMediaShareScreen=async function(){
     if(!canUse()){deny();return;}
+    queueActive=false;queueGeneration++;
     if(!navigator.mediaDevices||typeof navigator.mediaDevices.getDisplayMedia!=='function'){
       alert('이 기기 브라우저에서는 화면 공유를 직접 지원하지 않습니다. 동영상 선택 기능을 이용해 주세요.');return;
     }
@@ -341,6 +385,7 @@
     var html=''
       +'<div class="kt-tv-movie-actions">'
       +'<button type="button" onclick="ktHostMediaPickVideo()">🎬 내 동영상·영화<br>틀기</button>'
+      +'<button type="button" onclick="ktHostMediaShowQueue()">📋 재생 목록<br>순서 편집</button>'
       +'<button type="button" onclick="ktHostMediaShareScreen()">📱 화면<br>공유</button>'
       +'<button type="button" onclick="ktHostMediaConnectTv()">📺 TV<br>연결</button>'
       +'<button type="button" onclick="ktStopHostTvMovieShare()">⏹ 공유<br>중지</button>'
