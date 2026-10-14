@@ -130,28 +130,34 @@
       +'.kt-tv-movie-note{margin-top:10px;padding:10px;border-radius:12px;background:#0c0d12;color:#d8d8df;font-size:10px;line-height:1.55}'
       +'.kt-remote-tv-btn{width:34px;height:34px;border:1px solid #ffffff32;border-radius:50%;background:#111a;color:#fff;font-size:16px;display:grid;place-items:center}';
     s.textContent+='.kt-movie-theater>.kt-movie-tv{display:block!important;position:fixed!important;left:8px!important;right:8px!important;top:8px!important;height:calc(52dvh + 32px)!important;z-index:80!important;background:#050507;border-radius:14px;overflow:hidden;border:1px solid #ffffff30}.kt-movie-tv-bar{height:36px;display:flex;align-items:center;gap:8px;padding:5px 10px;color:#fff;font-size:13px}.kt-movie-tv-bar button{border:1px solid #ffffff30;background:#202027;color:#fff;border-radius:8px;padding:5px 9px}.kt-movie-tv-bar b{margin-right:auto}.kt-movie-tv video{position:absolute!important;inset:36px 0 0!important;width:100%!important;height:calc(100% - 36px)!important;object-fit:contain!important;transform:none!important;background:#000!important}.kt-movie-empty{position:absolute;inset:36px 0 0;display:grid;place-items:center;color:#aaa;font-size:13px;text-align:center;padding:15px}.kt-movie-empty[hidden]{display:none!important}'+
-      '.kt-movie-theater>:not(.kt-movie-tv):not(.ktsolo-main):not(.ktg13-main):not(.ktg9-main):not(.ktsubscriber-main):not(.ktsecret-main):not(.ktsolo-chat):not(.ktg13-chat):not(.ktg9-chat):not(.ktsubscriber-chat):not(.ktsecret-chat):not(.ktsolo-tools):not(.ktg13-tools):not(.ktg9-tools):not(.ktsubscriber-tools):not(.ktsecret-tools){display:none!important}'+
+      '.kt-movie-theater:not(.kt-movie-viewer)>:not(.kt-movie-tv):not(.ktsolo-main):not(.ktg13-main):not(.ktg9-main):not(.ktsubscriber-main):not(.ktsecret-main):not(.ktsolo-chat):not(.ktg13-chat):not(.ktg9-chat):not(.ktsubscriber-chat):not(.ktsecret-chat):not(.ktsolo-tools):not(.ktg13-tools):not(.ktg9-tools):not(.ktsubscriber-tools):not(.ktsecret-tools){display:none!important}'+
       '.kt-movie-theater>:is(.ktsolo-chat,.ktg13-chat,.ktg9-chat,.ktsubscriber-chat,.ktsecret-chat){position:fixed!important;left:8px!important;right:8px!important;top:calc(52dvh + 44px)!important;bottom:auto!important;height:12dvh!important;max-height:12dvh!important;z-index:81!important;overflow:auto!important;transform:none!important;background:#08080c!important}'+
       '.kt-movie-theater>:is(.ktsolo-main,.ktg13-main,.ktg9-main,.ktsubscriber-main,.ktsecret-main){position:fixed!important;left:8px!important;right:8px!important;top:calc(64dvh + 50px)!important;bottom:82px!important;width:auto!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:auto!important;z-index:80!important;transform:none!important;margin:0!important}'+
       '.kt-movie-theater>:is(.ktsolo-tools,.ktg13-tools,.ktg9-tools,.ktsubscriber-tools,.ktsecret-tools){position:fixed!important;left:8px!important;right:8px!important;bottom:5px!important;top:auto!important;height:68px!important;z-index:82!important;transform:none!important}';
+    s.textContent+='.kt-movie-theater>:is(.kt-sgfh-main,.kt-remote-prejoin-grid){position:fixed!important;left:8px!important;right:8px!important;top:calc(64dvh + 50px)!important;bottom:82px!important;height:auto!important;min-height:0!important;overflow:auto!important;z-index:80!important}.kt-movie-theater>.kt-sgfh-chat,.kt-movie-theater>.kt-remote-chat{position:fixed!important;left:8px!important;right:8px!important;top:calc(52dvh + 44px)!important;bottom:auto!important;height:12dvh!important;z-index:81!important;overflow:auto!important}.kt-movie-theater>.kt-sgfh-bottom,.kt-movie-theater>.kt-remote-bottom{position:fixed!important;left:8px!important;right:8px!important;bottom:5px!important;z-index:82!important}.kt-movie-theater>:is(.kt-sgfh-main,.kt-sgfh-chat,.kt-sgfh-bottom,.kt-remote-chat,.kt-remote-bottom,.kt-remote-prejoin-grid){display:block!important}';
+    s.textContent+='.kt-movie-viewer .kt-movie-people-area{position:fixed!important;left:8px!important;right:8px!important;top:calc(64dvh + 50px)!important;bottom:82px!important;width:calc(100% - 16px)!important;height:calc(36dvh - 132px)!important;min-height:0!important;max-height:none!important;z-index:80!important;overflow:auto!important;transform:none!important;object-fit:contain!important}.kt-movie-viewer .kt-movie-chat-area{position:fixed!important;left:8px!important;right:8px!important;top:calc(52dvh + 44px)!important;bottom:auto!important;height:12dvh!important;max-height:12dvh!important;z-index:81!important;overflow:auto!important;transform:none!important}';
     document.head.appendChild(s);
   }
 
-  var theaterRoom=null;
-  function enterTheater(){
-    var root=document.querySelector('#screen .ktsolo-room,#screen .ktg13-room,#screen .ktg9-room,#screen .ktsubscriber-room,#screen .ktsecret-room');
-    if(!root||root.closest('.kt-remote-live'))return;
-    theaterRoom=root;root.classList.add('kt-movie-theater');
+  var theaterRoom=null,theaterGuest=false,viewerMode=false,viewerModeHost='';
+  function enterTheater(viewerRoot){
+    var root=viewerRoot||document.querySelector('#screen .ktsolo-room,#screen .ktg13-room,#screen .ktg9-room,#screen .ktsubscriber-room,#screen .ktsecret-room');
+    if(!root||(!viewerRoot&&root.closest('.kt-remote-live')))return;
+    theaterGuest=!!viewerRoot;theaterRoom=root;root.classList.add('kt-movie-theater');
+    if(theaterGuest){root.classList.add('kt-movie-viewer');var area=root.querySelector('.ktsolo-main,.ktg13-main,.ktg9-main,.ktsubscriber-main,.ktsecret-main,.kt-sgfh-main,.kt-remote-prejoin-grid')||root.querySelector('video');if(area)area.classList.add('kt-movie-people-area');var chat=root.querySelector('.kt-remote-chat,.kt-sgfh-chat,.ktsolo-chat,.ktg13-chat,.ktsubscriber-chat,.ktsecret-chat');if(chat)chat.classList.add('kt-movie-chat-area');}
     if(root.querySelector('.kt-movie-tv'))return;
     var panel=document.createElement('section');panel.className='kt-movie-tv';
-    panel.innerHTML='<div class="kt-movie-tv-bar"><b>📺 함께 보는 영화</b><button type="button" data-movie-select>영상 선택</button><button type="button" data-movie-close>닫기</button></div><video autoplay playsinline muted></video><div class="kt-movie-empty">영상을 선택하면 이 큰 화면에서 재생됩니다.</div>';
+    panel.innerHTML='<div class="kt-movie-tv-bar"><b>📺 함께 보는 영화</b><button type="button" data-movie-select>영상 선택</button><button type="button" data-movie-close>닫기</button></div><video class="kt-movie-player" autoplay playsinline muted></video><div class="kt-movie-empty">영상을 선택하면 이 큰 화면에서 재생됩니다.</div>';
     root.appendChild(panel);
     panel.querySelector('[data-movie-select]').onclick=function(){window.ktOpenHostTvMovie();};
-    panel.querySelector('[data-movie-close]').onclick=async function(){await stopShare();exitTheater();};
+    if(theaterGuest)panel.querySelector('[data-movie-select]').hidden=true;
+    panel.querySelector('[data-movie-close]').onclick=async function(){if(!theaterGuest)await stopShare();exitTheater();};
     paintTheater(sharedStream);
+    if(!theaterGuest&&typeof window.ktNotifyMovieTheaterMode==='function')window.ktNotifyMovieTheaterMode(true);
   }
   function paintTheater(stream){
     if(!theaterRoom)return;
+    if(theaterGuest){var source=theaterRoom.querySelector('video:not(.kt-movie-player)');stream=source&&source.srcObject||null;}
     var v=theaterRoom.querySelector('.kt-movie-tv video'),empty=theaterRoom.querySelector('.kt-movie-empty');
     if(v&&v.srcObject!==stream)v.srcObject=stream||null;
     if(empty)empty.hidden=!!stream;
@@ -159,10 +165,23 @@
   }
   function exitTheater(){
     if(!theaterRoom)return;
-    theaterRoom.classList.remove('kt-movie-theater');
+    if(!theaterGuest&&typeof window.ktNotifyMovieTheaterMode==='function')window.ktNotifyMovieTheaterMode(false);
+    theaterRoom.classList.remove('kt-movie-theater','kt-movie-viewer');
+    theaterRoom.querySelectorAll('.kt-movie-people-area,.kt-movie-chat-area').forEach(function(el){el.classList.remove('kt-movie-people-area','kt-movie-chat-area');});
     var p=theaterRoom.querySelector('.kt-movie-tv');if(p)p.remove();
     theaterRoom=null;
   }
+  window.ktSetViewerMovieTheater=function(on,host){
+    if(viewerMode===!!on&&viewerModeHost===host)return;
+    viewerMode=!!on;viewerModeHost=host;
+    if(theaterGuest)exitTheater();
+    if(!on)return;
+    var remote=document.querySelector('#screen .kt-remote-live');if(!remote)return;
+    var root=remote.querySelector('.ktsolo-room,.ktg13-room,.ktg9-room,.ktsubscriber-room,.ktsecret-room')||remote;
+    enterTheater(root);
+  };
+  setInterval(function(){if(theaterGuest&&theaterRoom){if(!theaterRoom.isConnected){exitTheater();viewerMode=false;return;}paintTheater(null);}},500);
+  window.addEventListener('kt-remote-host-left',function(){if(theaterGuest)exitTheater();viewerMode=false;viewerModeHost='';});
   window.addEventListener('kt-broadcast-ended',exitTheater);
 
   function stopSourceOnly(){

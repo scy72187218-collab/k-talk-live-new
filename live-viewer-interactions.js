@@ -85,6 +85,29 @@
     return ok;
   }
 
+  var movieModeQueue=Promise.resolve();
+  window.ktNotifyMovieTheaterMode=function(on){
+    if(document.documentElement.classList.contains('kt-remote-viewing')||!document.querySelector('#screen .ktsolo-room,#screen .ktg13-room,#screen .ktg9-room,#screen .ktsubscriber-room,#screen .ktsecret-room'))return Promise.resolve(false);
+    var host=deviceId(),message=JSON.stringify({on:!!on,run:String(window.__ktHostRunId20260924||'')});
+    movieModeQueue=movieModeQueue.then(function(){return postMessage(host,host,'호스트',message,'movie_mode');}).catch(function(){return false;});
+    return movieModeQueue;
+  };
+  async function refreshMovieMode(rows){
+    var host=remote.hostId,start=remote.roomStart;
+    var modes=(rows||[]).filter(function(m){return m.message_type==='movie_mode'&&String(m.sender_id)===host;});
+    try{
+      var path='ktalk_live_messages?select=sender_id,message,message_type,created_at&host_id=eq.'+enc(host)+'&sender_id=eq.'+enc(host)+'&message_type=eq.movie_mode';
+      if(start)path+='&created_at=gte.'+enc(start);
+      var latest=await req(path+'&order=created_at.desc&limit=1');
+      if(Array.isArray(latest))modes=modes.concat(latest);
+    }catch(e){}
+    if(host!==remote.hostId)return;
+    modes.sort(function(a,b){return Date.parse(b.created_at)-Date.parse(a.created_at);});
+    var on=false;
+    try{on=!!(modes[0]&&JSON.parse(modes[0].message).on);}catch(e){}
+    if(typeof window.ktSetViewerMovieTheater==='function')window.ktSetViewerMovieTheater(on,host);
+  }
+
   function systemType(t){t=String(t||'');return t==='system'||(t==='attendance'||t.indexOf('attendance:')===0)||t==='like'||t.indexOf('gift:')===0;}
   function ensureStyle(){
     if(document.getElementById('ktLiveViewerInteractionStyle'))return;
@@ -192,15 +215,16 @@
     all.sort(function(a,b){return (Date.parse(a&&a.created_at)||0)-(Date.parse(b&&b.created_at)||0);});
     return all.slice(-80);
   }
-  function paintRemoteMessages(rows){var box=document.getElementById('ktRemoteChatList');if(!box)return;var list=(rows||[]).slice(-80);box.innerHTML=list.map(function(m){var sys=systemType(m.message_type);return '<div class="kt-remote-chat-line'+(sys?' system':'')+'"><b>'+(sys?'●':esc(m.sender_name||'게스트'))+'</b><span>'+esc(m.message||'')+'</span></div>';}).join('');box.scrollTop=box.scrollHeight;}
+  function paintRemoteMessages(rows){var box=document.getElementById('ktRemoteChatList');if(!box)return;var list=(rows||[]).filter(function(m){return m.message_type!=='movie_mode';}).slice(-80);box.innerHTML=list.map(function(m){var sys=systemType(m.message_type);return '<div class="kt-remote-chat-line'+(sys?' system':'')+'"><b>'+(sys?'●':esc(m.sender_name||'게스트'))+'</b><span>'+esc(m.message||'')+'</span></div>';}).join('');box.scrollTop=box.scrollHeight;}
   async function refreshRemote(){
     if(!remote.hostId||!document.querySelector('.kt-remote-live'))return;
     ensureRemoteUi();
     var rows=await fetchMessages(remote.hostId,remote.roomStart);
     mergeAttendanceRows(rows);markAttendance();
     paintRemoteMessages(rows);
+    await refreshMovieMode(rows);
   }
-  function clearRemote(){clearInterval(remote.timer);remote={hostId:'',viewerId:'',viewerName:'',roomStart:'',timer:null,lastLikeAt:0};}
+  function clearRemote(){if(typeof window.ktSetViewerMovieTheater==='function')window.ktSetViewerMovieTheater(false,remote.hostId);clearInterval(remote.timer);remote={hostId:'',viewerId:'',viewerName:'',roomStart:'',timer:null,lastLikeAt:0};}
   async function startRemote(hostId){clearRemote();var p=profile(),room=await activeRoom(hostId);remote.hostId=String(hostId||'');remote.viewerId='viewer_'+deviceId();remote.viewerName=p.name||'게스트';remote.roomStart=room&&room.started_at?room.started_at:'';var start=epoch(remote.roomStart);if(start&&!guestClockStarts[remote.hostId])guestClockStarts[remote.hostId]=start;ensureRemoteUi();await refreshRemote();remote.timer=setInterval(refreshRemote,1300);}
 
   window.ktRemoteAttendance=function(){
@@ -297,7 +321,7 @@
     }catch(e){}
   }
   function processHostEvents(rows){
-    (rows||[]).forEach(function(m){if(wasProcessed(m))return;var type=String(m.message_type||'');
+    (rows||[]).forEach(function(m){if(wasProcessed(m))return;var type=String(m.message_type||'');if(type==='movie_mode'){markProcessed(m);return;}
       if(attendanceType(type)){
         var akey='kt_host_attendee_done:'+deviceId()+':'+(hostRoomStart||'live')+':'+(type==='attendance'?String(m.sender_id||'guest'):type);var done=false;try{done=localStorage.getItem(akey)==='1';}catch(e){}
         if(!done){
