@@ -1,3 +1,5 @@
+# CHANGE PROTECTION: Read LOCK_COMPLETED_WORK_20261014.md before any edits. Owner requires a new explicit scoped request before changing protected behavior. Existing PINs must remain intact.
+
 # K-Talk LIVE shared current state
 
 Updated2026-10-14. User-facing URL: https://k-talk-live-final.vercel.app/
