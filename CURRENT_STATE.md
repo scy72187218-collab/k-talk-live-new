@@ -2,8 +2,8 @@
 
 Updated2026-10-14. User-facing URL: https://k-talk-live-final.vercel.app/
 
-Approved runtime commit: 1f3792d4edb143ebf423bceff3d2343da091ecc3
-Production deployment: dpl_47YDjy1xxfyD14m9zCCgW9hz7rz4
+Latest deployed runtime commit: 45a51056906ab3769e86f57da16ec2965bc21c3d
+Latest runtime production deployment: dpl_Ac3U2cBRiUTzg3JDC6vUnSvQjXX5
 
 Owner confirms all five rooms display normally and requests freezing current host and guest behavior under maintenance lock5061. Read AGENTS.md and LOCK_ALL_FIVE_ROOMS_5061_20261014.json before any changes. No runtime modifications are authorized by this lock-recording request. Preserve prior independent locks/passwords.
 
@@ -28,3 +28,8 @@ Owner requests bottom gift sheet aligned below chat, selected recipient face/nam
 
 ## Photo/chat likes and9-room attendance heart
 Owner added explicit request during gift verification. Photo target menu also records one existing remote like; blank chat container routes existing like handler, excluding inputs/controls/messages. Host-photo double counting guarded across existing handlers. Nine guest attendance heart uses existing attendance aggregate; host visible counter is reconstructed from attendance messages independently of processed reward events. No reward/payout logic change. Source checks and blank-chat interaction tests passed; production UI verification pending.
+
+
+## Final verified gift/like/attendance state2026-10-14
+Runtime45a51056906ab3769e86f57da16ec2965bc21c3d is deployed READY on official alias. At390x844 actual group9 hostkt_muuyyz3u_dhwqu808: attendance button and heart side by side, existing attendance1 displayed as 💗1명. Photo opens recipient menu; menu gift-box opens bottom panel with recipient 태권1 and face. Chat bottom472.640625 equals gift panel top472.640625; panel bottom844. Host video cell rect unchanged across opening. Actions hidden while open and visible on close; chat returns bottom839. Empty chat-side background native tap triggered like message delivery; photo also triggered like delivery. Primary/memory duplicate like deliveries suppressed within500ms for host counter. Paid sending and physical host-counter increment were not tested. Secret entry remains mutual-follow/invitation gated, no bypass. Prior four-room timers/attendance/gift checks remain recorded above. Preserve current approved scope under5062; all other5061 locks remain.
+Evidence locally outputs/scope5062/official-final-gift-layout.png and official-final-attendance-heart.png. Never deploy stale local work folder; current source is GitHub main.

@@ -169,3 +169,7 @@ Owner requests person photo -> recipient menu -> gift box -> choose gift -> clos
 
 # Additional owner scope: photo and empty chat likes; 9-room attendance heart (2026-10-14)
 Owner requests photo taps and empty chat background taps count likes, alongside existing recipient-menu opening; exclude text inputs, message lines, buttons and sheets. Fix 9-room attendance heart next to check-in so unique attendance is reflected even when reward events have already been processed. Only these interactions/counter displays are authorized. Do not alter media, sizes, timers, approval, entry, access or payout rules. Existing locks remain in force.
+
+
+# Current scope5062 saved after owner-requested gift/like/attendance corrections
+Preserve runtime45a51056906ab3769e86f57da16ec2965bc21c3d and its person-menu -> gift-box flow, bottom anchored gift sheet with recipientface/name, temporary hiding/restoration of three actions, unchanged person geometry, photo/blank chat likes and nine attendance heart. Read updated5062 lock and CURRENT_STATE.md. All other5061 protections remain. Documentation of successful guest UI is not proof of physical host counters, paid sending or secret invited-account UI.
