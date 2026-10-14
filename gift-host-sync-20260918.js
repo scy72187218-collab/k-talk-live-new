@@ -48,11 +48,16 @@
     var t=await r.text();return t?JSON.parse(t):null;
   }
   function isHostRoom(){
-    return !!document.querySelector('.ktsolo-room,.ktg13-room,.ktg9-room,.ktsubscriber-room,.ktsecret-room');
+    if(document.querySelector('#screen .kt-remote-live,#screen .kt-guest-hostlike-room,#screen .kt-approved-guest-grid,#screen .kt-guest-room-grid'))return false;
+    var local=document.querySelector('#screen .ktsolo-room,#screen .ktg13-room,#screen .ktg9-room,#screen .ktsubscriber-room,#screen .ktsecret-room');
+    return !!(local&&!local.closest('.kt-remote-live,.kt-guest-hostlike-room,.kt-approved-guest-grid,.kt-guest-room-grid'));
   }
   async function targetHost(){
     if(isHostRoom())return deviceId();
     var h='';
+    var root=document.querySelector('#screen .kt-remote-live');
+    if(root)h=String(root.getAttribute('data-kt-host-id')||root.getAttribute('data-host-id')||'').trim();
+    if(h)return h;
     try{h=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||sessionStorage.getItem('kt_remote_host_id')||'').trim();}catch(e){}
     if(h)return h;
     if(!document.querySelector('.kt-remote-live,.kt-guest-hostlike-room,.kt-prejoin-room-grid,.kt-approved-guest-grid,.kt-guest-room-grid'))return '';
