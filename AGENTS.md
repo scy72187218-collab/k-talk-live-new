@@ -157,3 +157,7 @@ The owner reports all five room types display normally and explicitly locks thei
 
 # Owner scoped repair5062 (2026-10-14)
 The owner authorizes ONLY all guest-room elapsed broadcast timers, attendance synchronization in all five room types, and guest gift-box opening, plus production deployment. Preserve lock5061 for all other behavior, video sizing, transport, layout, approval, finances and access. Guest attendance controls are explicitly included by this new all-room request. Preserve the host-start elapsed time; do not substitute wall-clock or join time. Re-lock these repaired behaviors after verification; no broader unlock.
+
+
+# Repaired guest controls saved and re-locked5062
+Preserve runtime6cdbcf2a15a95d561bc914f92a9b3a1a5825243a. Read LOCK_GUEST_CONTROLS_5062_20261014.json for verification and limits. Owner's request to lock completed work applies to these timer, attendance and gift-opening repairs. No further changes without explicit scoped owner authorization. All other5061 locks/passwords remain. Four room guest controls were actually verified; secret invited-account UI and host-side physical counters remain unverified. Do not claim otherwise.

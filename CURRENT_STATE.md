@@ -16,3 +16,7 @@ Preserve viewing -> participation -> friends button -> host approval. No auto ap
 
 ## Scoped release5062 (2026-10-14)
 Owner explicitly requests deployment of guest elapsed broadcast timers in all rooms, all-room attendance synchronization, and guest gift-box opening. Runtime base a68b0a228bd393d360fba357a103047e3fbd6faa. Fix repeated gift wrapper growth and idempotent gift observer updates; bind guest timers to host session start, not join or wall clock; route guest attendance through existing remote message path and update host display. Video transport, sizing, approval, access and financial rules unchanged. Source checks and repeated-wrapper/timer/dedup tests passed. Real production UI verification follows deployment; do not claim all-room physical verification from these tests.
+
+
+## Production verification and relock5062
+Runtime6cdbcf2a15a95d561bc914f92a9b3a1a5825243a, deploymentdpl_C2x7yvha1QPpB6XrRQV6vtEZdWxV READY on official alias. See LOCK_GUEST_CONTROLS_5062_20261014.json. Actual guest timer advancement, attendance0->1 and gift-box opening verified in solo,9,13,subscriber. Secret entry blocked by mutual-follow/invite rule; did not bypass. Secret internal UI still requires invited-account verification. Host-side physical display and actual paid sending not tested. Current repaired scope re-locked under5062, all other5061 protections intact.
