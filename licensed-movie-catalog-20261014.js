@@ -25,12 +25,15 @@
     var order=weekly(Date.now()).concat(films.filter(function(f){return featured.indexOf(f.id)<0;}));
     order.forEach(function(f){
       var row=document.createElement('section');row.className='kt-licensed-film';
+      var poster=document.createElement('button');poster.type='button';poster.className='kt-film-poster';poster.setAttribute('aria-label',f.title+' 보기');
+      var image=document.createElement('img');image.src='https://i.ytimg.com/vi/'+f.youtubeId+'/hqdefault.jpg';image.alt=f.title;image.loading='lazy';poster.appendChild(image);poster.onclick=function(){if(window.ktPlayLicensedCatalogFilm)window.ktPlayLicensedCatalogFilm(f.id);};row.appendChild(poster);
       var name=document.createElement('b');name.textContent=f.title+' · '+f.originalTitle+(featured.indexOf(f.id)>=0?' · 이번 주 추천':'');row.appendChild(name);
       var genre=document.createElement('p');genre.textContent=f.genre;row.appendChild(genre);
       var credit=document.createElement('p');credit.textContent=(f.credit||('© '+f.creator))+' · '+f.license;row.appendChild(credit);
       [['공식 YouTube','https://www.youtube.com/watch?v='+f.youtubeId],['작품·제작사',f.sourceUrl],['이용 조건',f.rightsUrl],['라이선스',f.licenseUrl]].forEach(function(item){var a=document.createElement('a');a.textContent=item[0];a.href=item[1];a.target='_blank';a.rel='noopener noreferrer';row.appendChild(a);});
       var play=document.createElement('button');play.type='button';play.textContent='▶ 이 영화 보기';play.onclick=function(){if(window.ktPlayLicensedCatalogFilm)window.ktPlayLicensedCatalogFilm(f.id);};row.appendChild(play);panel.appendChild(row);
     });
+    var style=document.createElement('style');style.textContent='.kt-licensed-movie-catalog{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.kt-licensed-movie-catalog>p{grid-column:1/-1}.kt-licensed-movie-catalog .kt-licensed-film{min-width:0;margin:0;padding:8px}.kt-licensed-film .kt-film-poster{width:100%;padding:0;margin:0 0 8px;overflow:hidden;border-radius:9px;background:#08080c}.kt-film-poster img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}.kt-licensed-film b{font-size:13px;overflow-wrap:anywhere}.kt-licensed-film a{font-size:10px}@media(min-width:700px){.kt-licensed-movie-catalog{grid-template-columns:repeat(3,minmax(0,1fr))}}';panel.prepend(style);
     body.appendChild(panel);
   };
 })();

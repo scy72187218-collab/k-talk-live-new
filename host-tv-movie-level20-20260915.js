@@ -160,10 +160,28 @@
     root.appendChild(panel);
     panel.querySelector('[data-movie-select]').onclick=function(){window.ktOpenHostTvMovie();};
     if(theaterGuest)panel.querySelector('[data-movie-select]').hidden=true;
-    panel.querySelector('[data-movie-close]').onclick=async function(){if(!theaterGuest){queueActive=false;queueGeneration++;await stopShare();}exitTheater();};
+    panel.querySelector('[data-movie-close]').onclick=closeMovieTheater;
     paintTheater(sharedStream);
     if(!theaterGuest&&typeof window.ktNotifyMovieTheaterMode==='function')window.ktNotifyMovieTheaterMode(true);
   }
+  function closeMovieTheater(){
+    var host=!theaterGuest;
+    if(host){queueActive=false;queueGeneration++;catalogFilmId='';}
+    exitTheater();
+    if(host)return stopShare();
+  }
+  var lastMovieBarTouch=0;
+  function movieBarAction(e){
+    var button=e.target&&e.target.closest?e.target.closest('[data-movie-select],[data-movie-close]'):null;
+    if(!button||!button.closest('.kt-movie-tv')||button.hidden)return;
+    var now=Date.now(),release=e.type!=='click';
+    e.preventDefault();e.stopImmediatePropagation();
+    if(now-lastMovieBarTouch<600)return;
+    if(release)lastMovieBarTouch=now;
+    if(button.hasAttribute('data-movie-close'))closeMovieTheater();
+    else window.ktOpenHostTvMovie();
+  }
+  ['pointerup','touchend','click'].forEach(function(type){window.addEventListener(type,movieBarAction,{capture:true,passive:false});});
   function catalogFilm(id){return (window.ktLicensedMovieCatalog||[]).find(function(f){return f.id===id;})||null;}
   function applyCatalogFrame(id){
     var film=catalogFilm(id),panel=theaterRoom&&theaterRoom.querySelector('.kt-movie-tv');if(!panel)return;
