@@ -552,7 +552,7 @@
       if(previousRoom){try{var closing=previousRoom.disconnect(false);if(closing&&closing.catch)closing.catch(function(){});}catch(e){}}
       clearRoomRefs();
       var r=new LK.Room({
-        adaptiveStream:true,
+        adaptiveStream:{pixelDensity:'screen',pauseVideoInBackground:true},
         singlePeerConnection:false,
         dynacast:true,
         disconnectOnPageLeave:false,
@@ -659,6 +659,7 @@
         var lv=new LK.LocalVideoTrack(vt);
         var options={source:LK.Track.Source.Camera,simulcast:true};
         if(currentRole==='guest')options.videoEncoding={maxBitrate:1500000,maxFramerate:24};
+        else if(currentRole==='host')options.videoEncoding={maxBitrate:2500000,maxFramerate:30};
         await vp.publishTrack(lv,options);
         publishedVideoId=vt.id;
       }

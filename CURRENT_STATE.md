@@ -185,3 +185,7 @@ Owner redLIVE entry black/slow and approved guest slow asks15person readiness. R
 
 ## Owner-authorized entry connection speed2026-10-15
 Scope only transport startup, preserve locks/UI/approval. SFU previously awaited SDK then previousRoom disconnect then token. Start SDK+token concurrently, use captured identity, don't await obsolete room disconnect after auth ready. Connection generation invalidates old pending attempts on new target/explicit disconnect; stale success/error cannot replace selectedhost/reset latest connecting state. Mock SDK/token simultaneous start, slowA ignored afterBselection, Bconnectonce pass; syntax pass. Actual handset entry latency remains unmeasured; no15phone certification. All unrelated protectedscopes unchanged.
+
+
+## Owner viewer clarity2026-10-15
+Owner reports local hostclear remoteviewerblurry. Scoped transport quality only: host publish mainencoding explicitmax2.5Mbps30fps vsimplicitSDKdefault; guest existing1.5Mbps24fps unchanged. AdaptiveStream pixelDensity screen considers actualdevicepixels (SDKdefaultmay1/2), backgroundpause preserved; simulcast/dynacast retained for congestion/multiparty adaptation. Does not reacquire camera, changecapture/framing/mirror/layout orforce highlayer for every15tile. Verified LiveKit2.22.3 AdaptiveStreamSettings and TrackPublishOptions primarydocs. Mock host/guest publishoptions andsimulcast assertions pass; syntaxpass. No measuredactualnetworkbitrate/resolution orhandsetqualitycertified; sourcecapture/networkmaystilllimit quality.
