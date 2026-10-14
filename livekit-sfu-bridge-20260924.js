@@ -13,7 +13,7 @@
   var room=null,currentHostId='',currentRole='',currentRunId='',connecting=false,reconnectRetryTimer=null,reconnectHoldUntil=0;
   var publishedVideoId='',publishedAudioId='',lastConnectAt=0;
   var approvedHostId='',watchHostId='',audioEls={},audioTracks={},guestVideoById={};
-  var sdkPromise=null;
+  var sdkPromise=null,connectGeneration20261015=0;
   var sdkStreams=new WeakMap(),streamTracks=new WeakMap(),videoTracks=new WeakMap();
 
   window.__ktLiveKitSfuState20260924={
@@ -502,6 +502,7 @@
     publishedVideoId='';publishedAudioId='';
   }
   async function disconnectRoom(){
+    connectGeneration20261015++;
     var old=room;room=null;connecting=false;reconnectHoldUntil=0;hostRetryAt=0;hostFailureCount=0;
     if(reconnectRetryTimer){clearTimeout(reconnectRetryTimer);reconnectRetryTimer=null;}
     setState({connected:false,connecting:false});
@@ -539,13 +540,17 @@
     if(Date.now()-lastConnectAt<350&&currentHostId===hostId)return room;
     lastConnectAt=Date.now();connecting=true;currentHostId=hostId;currentRunId=runId;currentRole=role||'viewer';
     setState({connecting:true,connected:false,hostId:hostId,role:currentRole,lastError:''});
+    var attemptGeneration=++connectGeneration20261015;
+    var attemptRole=currentRole;
+    var identity=(attemptRole==='host')?DEVICE:viewerId();
     try{
-      var LK=await ensureSdk();
+      // SDK load and token request are independent; start both on the entry tap.
+      var ready=await Promise.all([ensureSdk(),tokenFor(hostId,identity,runId)]);
+      if(attemptGeneration!==connectGeneration20261015||currentHostId!==hostId)return null;
+      var LK=ready[0],auth=ready[1];
       var previousRoom=room;room=null;
-      if(previousRoom){try{await previousRoom.disconnect(false);}catch(e){}}
+      if(previousRoom){try{var closing=previousRoom.disconnect(false);if(closing&&closing.catch)closing.catch(function(){});}catch(e){}}
       clearRoomRefs();
-      var identity=(currentRole==='host')?DEVICE:viewerId();
-      var auth=await tokenFor(hostId,identity,runId);
       var r=new LK.Room({
         adaptiveStream:true,
         singlePeerConnection:false,
@@ -607,7 +612,7 @@
       });
       try{r.prepareConnection(auth.url,auth.token);}catch(e){}
       await r.connect(auth.url,auth.token,{autoSubscribe:true});
-      if(room!==r){try{await r.disconnect(false);}catch(e){}return room;}
+      if(room!==r||attemptGeneration!==connectGeneration20261015){try{await r.disconnect(false);}catch(e){}return room;}
       connecting=false;
       if(currentRole==='host'){hostFailureCount=0;hostRetryAt=0;}
       setState({url:auth.url,connected:true,connecting:false,hostId:hostId,role:currentRole,runId:runId});
@@ -620,6 +625,7 @@
       }catch(e){}
       return r;
     }catch(e){
+      if(attemptGeneration!==connectGeneration20261015)return null;
       connecting=false;
       if(currentRole==='host'){hostFailureCount++;hostRetryAt=Date.now()+Math.min(30000,1000*Math.pow(2,Math.min(hostFailureCount-1,5)));}
       setState({connected:false,connecting:false,lastError:String(e&&e.message||e)});
