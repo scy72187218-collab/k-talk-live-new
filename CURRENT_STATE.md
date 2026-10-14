@@ -193,3 +193,7 @@ Owner reports local hostclear remoteviewerblurry. Scoped transport quality only:
 
 ## Host startup clarity layers2026-10-15
 Owner clarifies initiallyblurry thenimproves, asksfasterclarity. Keepadaptive and congestioncontrol; hostonly additional simulcast layers explicit540p900kbps24fps and360p350kbps20fps insteadSDKdefault360/180. Main2.5Mbps30 unchanged, guest1.5Mbps24/defaultlayersunchanged. Does not forcehighlayer orremovebandwidthadaptation; aimsreduceblurryfallback duringramp, notguarantee fastercongestionramp. Source dimensions/SDK may scale/filterlayers; actualhandset initialtime unmeasured. Official2.22.3 TrackPublishOptions documents additionallayers; RemoteTrackPublication source showssetVideoQualitycannot override smalleradaptivedimensions so noineffectiveforcedqualityhack. Mockhostlayersonly/guestunchanged +syntaxpass. Higherfallback budgetmaycostmorebandwidth underweaknetworks; preservepriorcommitrollback.
+
+
+## Approved guest horizontal direction2026-10-15
+Owner explicitly confirms approvedguest left/right mirrored, hostcorrect. Remove mirror from approvedguest CSS and directpeer ontrack, local approvedself rendering/orientation guard. SFU guest-only attachment helper sets standard/WebKit transformnone; hostattachmentcalls unchanged. Preservehost rotations, sizing/crop, mediaquality/startup, approval/privacy. Mock gueststandard/WebKitnone +hostcallunchanged andsyntaxpass. Actualhandset direction notverified; camera source alreadyburned-in mirroring cannotfix byCSS ifpresent.

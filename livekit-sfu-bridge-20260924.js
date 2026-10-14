@@ -435,6 +435,11 @@
     delete guestVideoById[identity];
   }
 
+  function setGuestVideoDirection20261015(video,stream){
+    var ok=setVideo(video,stream);
+    if(video){video.style.setProperty('transform','none','important');video.style.setProperty('-webkit-transform','none','important');}
+    return ok;
+  }
   function attachGuestVideo(identity,stream){
     if(!stream)return;
     /* Never reuse the host stream as an approved guest picture. */
@@ -447,12 +452,12 @@
       try{if(!window.__ktApprovedGuestIds20260924||!window.__ktApprovedGuestIds20260924[identity])return;}catch(e){return;}
     }
     var known=guestVideoById[identity];
-    if(known&&document.contains(known)){setVideo(known,stream);return;}
+    if(known&&document.contains(known)){setGuestVideoDirection20261015(known,stream);return;}
     var exact=exactGuestVideo(identity);
     if(exact){
       clearDuplicateGuestTargets(identity,exact);
       guestVideoById[identity]=exact;
-      setVideo(exact,stream);
+      setGuestVideoDirection20261015(exact,stream);
       return;
     }
     var candidates=[];
@@ -472,7 +477,7 @@
     if(target){
       clearDuplicateGuestTargets(identity,target);
       guestVideoById[identity]=target;
-      setVideo(target,stream);
+      setGuestVideoDirection20261015(target,stream);
     }
   }
   function reattachRemoteTracks(){
