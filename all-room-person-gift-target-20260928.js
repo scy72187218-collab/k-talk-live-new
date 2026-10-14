@@ -152,6 +152,7 @@
     }catch(e){return false;}
   }
 
+  var lastPersonLikeAt=0,lastPersonLikeTile=null,lastPersonLikeType='';
   function personTap(e){
     var target=e&&e.target;
     var tile=tileOf(target);if(!tile||excludedUi(target))return false;
@@ -166,7 +167,12 @@
       if(e&&e.stopPropagation)e.stopPropagation();
       if(e&&e.stopImmediatePropagation)e.stopImmediatePropagation();
     }catch(_e){}
-    if(isRemoteViewer()){if(typeof window.ktRemoteLike==='function')window.ktRemoteLike();}else if(kind==='guest'&&typeof window.addHostLike==='function')window.addHostLike(1);
+    var now=Date.now(),duplicate=lastPersonLikeTile===tile&&now-lastPersonLikeAt<900&&e.type!==lastPersonLikeType&&(lastPersonLikeType==='pointerdown'||lastPersonLikeType==='touchstart');
+    if(!duplicate){
+      lastPersonLikeAt=now;lastPersonLikeTile=tile;lastPersonLikeType=e.type;
+      if(isRemoteViewer()){if(typeof window.ktRemoteLike==='function')window.ktRemoteLike();}
+      else if((kind==='guest'||tile.matches('.ktsubscriber-host'))&&typeof window.addHostLike==='function'){window.__ktHostPhotoLikeTapAt=now;window.addHostLike(1);}
+    }
     return openGiftFor(tile);
   }
 

@@ -192,9 +192,10 @@
   // Only empty chat background is a like surface; text, input and controls remain untouched.
   document.addEventListener('click',function(e){
     var t=e.target;if(!t||!t.closest||t.closest('button,input,textarea,select,a,#sheet'))return;
-    var chat=t.closest('#ktRemoteChatList,.ktg13-chat,.ktsolo-chat,.ktsubscriber-chat,.ktsecret-chat,.kt-sgfh-chat');
+    var chat=t.closest('#ktRemoteChatList,.ktg13-chat,.ktg9-chat,.ktsolo-chat,.ktsubscriber-chat,.ktsecret-chat,.kt-sgfh-chat');
     if(!chat){var background=t.closest('#screen .kt-remote-live,#screen .ktsolo-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room');if(background&&t===background)chat=background;}
-    if(!chat||t!==chat)return;
+    if(!chat||(t!==chat&&!t.matches('.ktsubscriber-chat-hint,.ktsolo-chat-hint,.ktg13-chat-hint,.ktsecret-chat-hint,.ktg9-chat-hint')))return;
+    if(e.cancelable)e.preventDefault();e.stopPropagation();
     if(chat.closest('.kt-remote-live')){if(typeof window.ktRemoteLike==='function')window.ktRemoteLike();return;}
     if(typeof window.addHostLike==='function')window.addHostLike(1);
   },true);
