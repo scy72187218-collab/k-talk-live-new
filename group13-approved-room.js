@@ -206,7 +206,7 @@
         +'<div class="ktg13-tools">'
           +'<button class="ktg13-tool" onclick="return window.ktBottomCameraToggle?ktBottomCameraToggle(this):false"><i>📷</i><span>카메라</span></button>'
           +'<button class="ktg13-tool" onclick="return window.ktBottomMicToggle?ktBottomMicToggle(this):false"><i>🎤</i><span>마이크</span></button>'
-          +'<button class="ktg13-tool" onclick="ktGroup13Friends()"><i>👥</i><span>친구</span></button>'
+          +'<button class="ktg13-tool" onclick="ktGroup13Friends()"><i><svg xmlns="http://www.w3.org/2000/svg" width="28" height="24" viewBox="0 0 32 28" aria-hidden="true" focusable="false" style="display:block;width:28px;height:24px;margin:auto"><circle cx="9" cy="7" r="5" fill="#279DFF"/><path d="M0 26v-5a9 9 0 0 1 18 0v5Z" fill="#279DFF"/><circle cx="23" cy="7" r="5" fill="#FFD43B"/><path d="M14 26v-5a9 9 0 0 1 18 0v5Z" fill="#FFD43B"/></svg></i><span>친구</span></button>'
           +'<button class="ktg13-tool" onclick="ktGroup13OpenMessage()"><i>💬</i><span>메시지</span></button>'
           +'<button class="ktg13-tool" onclick="return window.ktBottomMovieOpen?ktBottomMovieOpen():false"><i>🎬</i><span>영화</span></button>'
           +'<button class="ktg13-tool" onclick="shareApp()"><i>↗</i><span>공유</span></button>'
