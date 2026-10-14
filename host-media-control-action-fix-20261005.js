@@ -90,56 +90,50 @@
     }catch(e){}
   }
 
-  async function camera(btn){
-    var s=stream(),tracks=s&&s.getVideoTracks?s.getVideoTracks():[];
-    var live=tracks.filter(function(t){return t&&t.readyState==='live';});
-    if(!live.length){
-      try{
-        if(typeof window.ensureLiveCamera==='function'){
-          await window.ensureLiveCamera((window.state&&state.cameraFacing)||'user');
-          s=stream();live=s&&s.getVideoTracks?s.getVideoTracks().filter(function(t){return t.readyState==='live';}):[];
-          live.forEach(function(t){t.enabled=true;});
-          setState(btn,'camera',live.length>0);
-          paintCamera(localHostRoom(btn),live.length>0);
-          try{if(typeof window.ktCameraOffAvatarState20260928==='function')window.ktCameraOffAvatarState20260928(false);}catch(e){}
-        }
-      }catch(e){}
-      return;
-    }
-    var on=live.some(function(t){return t.enabled!==false;});
-    live.forEach(function(t){t.enabled=!on;});
-    setState(btn,'camera',!on);
-    paintCamera(localHostRoom(btn),!on);
-    try{if(typeof window.ktCameraOffAvatarState20260928==='function')window.ktCameraOffAvatarState20260928(on);}catch(e){}
+  function mediaFailure(btn,k,error){
+    var name=error&&error.name||'';
+    var text=name==='NotAllowedError'?'카메라·마이크 권한을 허용해 주세요.':name==='NotFoundError'?'연결된 카메라·마이크를 찾을 수 없습니다.':name==='NotReadableError'?'다른 앱에서 카메라·마이크를 사용 중인지 확인해 주세요.':'카메라·마이크를 연결하지 못했습니다. 다시 눌러 주세요.';
+    btn.setAttribute('title',text);btn.setAttribute('aria-label',text);
+    if(typeof window.showToast==='function')window.showToast(text);else window.alert(text);
   }
-
+  async function acquire(kind){
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error('media_unavailable');
+    var captured=await navigator.mediaDevices.getUserMedia(kind==='camera'?{
+      video:{facingMode:(window.state&&window.state.cameraFacing)||'user',width:{ideal:1920},height:{ideal:1080},frameRate:{ideal:30,max:30}},audio:false
+    }:{audio:{echoCancellation:true,noiseSuppression:false,autoGainControl:false},video:false});
+    var base=stream();
+    if(!base)base=captured;
+    else {base.getTracks().forEach(function(t){if(t.readyState==='ended'&&base.removeTrack)base.removeTrack(t);});captured.getTracks().forEach(function(t){base.addTrack(t);});}
+    if(window.state)window.state.stream=base;
+    return base;
+  }
+  async function camera(btn){
+    if(btn.__ktMediaBusy)return;btn.__ktMediaBusy=true;
+    try{
+      var s=stream(),live=s&&s.getVideoTracks?s.getVideoTracks().filter(function(t){return t.readyState==='live';}):[];
+      var on;
+      if(!live.length){
+        s=await acquire('camera');live=s.getVideoTracks().filter(function(t){return t.readyState==='live';});on=true;
+        if(!live.length)throw new Error('camera_missing');
+      }else on=!live.some(function(t){return t.enabled!==false;});
+      live.forEach(function(t){t.enabled=on;});
+      setState(btn,'camera',on);paintCamera(localHostRoom(btn),on);
+      if(typeof window.ktCameraOffAvatarState20260928==='function')window.ktCameraOffAvatarState20260928(!on);
+    }catch(e){mediaFailure(btn,'camera',e);}finally{btn.__ktMediaBusy=false;}
+  }
   async function mic(btn){
-    var s=stream(),tracks=s&&s.getAudioTracks?s.getAudioTracks():[];
-    var live=tracks.filter(function(t){return t&&t.readyState==='live';});
-    if(!live.length){
-      try{
-        var a=await navigator.mediaDevices.getUserMedia({
-          audio:{echoCancellation:true,noiseSuppression:false,autoGainControl:false},
-          video:false
-        });
-        var at=a.getAudioTracks&&a.getAudioTracks()[0];
-        s=stream();
-        if(at&&s&&s.addTrack){
-          s.addTrack(at);
-          at.enabled=true;
-          live=[at];
-        }else if(at){
-          try{at.stop();}catch(e){}
-        }
-      }catch(e){}
-      setState(btn,'mic',live.length>0);
-      try{if(window.state)state.mic=live.length>0;}catch(e){}
-      return;
-    }
-    var on=live.some(function(t){return t.enabled!==false;});
-    live.forEach(function(t){t.enabled=!on;});
-    try{if(window.state)state.mic=!on;}catch(e){}
-    setState(btn,'mic',!on);
+    if(btn.__ktMediaBusy)return;btn.__ktMediaBusy=true;
+    try{
+      var s=stream(),live=s&&s.getAudioTracks?s.getAudioTracks().filter(function(t){return t.readyState==='live';}):[];
+      var on;
+      if(!live.length){
+        s=await acquire('mic');live=s.getAudioTracks().filter(function(t){return t.readyState==='live';});on=true;
+        if(!live.length)throw new Error('microphone_missing');
+      }else on=!live.some(function(t){return t.enabled!==false;});
+      live.forEach(function(t){t.enabled=on;});
+      if(window.state)window.state.mic=on;
+      setState(btn,'mic',on);
+    }catch(e){mediaFailure(btn,'mic',e);}finally{btn.__ktMediaBusy=false;}
   }
 
   function movie(){
