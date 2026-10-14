@@ -29,10 +29,5 @@
     if(!name)try{name=String((window.__ktApprovedGuestNames20260924||{})[id]||'게스트');}catch(_e){name='게스트';}
     say('in:'+id,(name||'게스트')+'님이 들어왔습니다.');
   });
-  window.addEventListener('kt-any-guest-left',function(e){
-    var d=e&&e.detail||{},id=String(d.viewer_id||'guest');
-    var name=String(d.name||'').trim();
-    if(!name)try{name=String((window.__ktApprovedGuestNames20260924||{})[id]||'게스트');}catch(_e){name='게스트';}
-    say('out:'+id,(name||'게스트')+'님이 나갔습니다.');
-  });
+  /* Owner request: keep departure processing/chat, omit exit speech. */
 })();

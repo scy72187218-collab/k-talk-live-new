@@ -85,8 +85,12 @@
     return String(text==null?'':text).replace(/\s+/g,' ').trim().slice(0,280);
   }
 
+  function isViewerExitSpeech20261015(text){
+    return /(?:님(?:이|께서)?\s*(?:방송(?:을|에서)?\s*)?|^방송(?:을|에서)?\s*)(?:나갔습니다|퇴장했습니다)[.!。]?\s*$/.test(String(text||''));
+  }
   function speakNow(text){
     text=normalize(text);
+    if(isViewerExitSpeech20261015(text)){speaking=false;setTimeout(drain,0);return false;}
     var giftKey=/선물/.test(text)&&/[0-9]/.test(text)?text.replace(/님이/g,'님').replace(/선물했습니다|선물하셨습니다|선물/g,'').replace(/[^가-힣a-zA-Z0-9]/g,''):'';
     if(giftKey&&(giftReadCounts20261014[giftKey]||0)>=3){speaking=false;setTimeout(drain,0);return false;}
     if(playbackActive())return false;
@@ -116,6 +120,7 @@
   }
 
   window.ktSpeak=function(text){
+    if(isViewerExitSpeech20261015(normalize(text)))return false;
     try{if(window.state&&state.aiVoiceOn===false)return false;}catch(e){}
     if(playbackActive())return false;
     text=normalize(text);
