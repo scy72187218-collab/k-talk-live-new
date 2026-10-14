@@ -21,3 +21,9 @@ License https://creativecommons.org/licenses/by/3.0/ ; all three oEmbed author B
 https://developers.google.com/youtube/iframe_api_reference
 https://developers.google.com/youtube/terms/developer-policies
 Do not charge/gate public catalog, hide player controls, or capture/rebroadcast videos. Each device has its own official player; film selection is shared, playback timeline is not synchronized. Provider availability, region restrictions and embedding permission may change. Verify before replacing entries; do not add Conan/Hani/Netflix titles based on personal subscription or download. Weekly recommendations rotate existing confirmed pool, not a new-film acquisition promise.
+
+
+## Additional newer open shorts 2026-10-14
+- Wing It! (2023): https://studio.blender.org/films/wing-it/ — official page embeds https://www.youtube.com/watch?v=u9lj-c29dxI ; official licensing https://studio.blender.org/projects/wing-it/pages/licensing/ (CC BY4.0, credit (CC) Blender Foundation | studio.blender.org).
+- Charge (2022): https://studio.blender.org/films/charge/ — official page embeds https://www.youtube.com/watch?v=UXqq0ZvbOnk ; official general reuse information https://studio.blender.org/remixing/ . Presented only as official free YouTube playback, no specific CC version inferred for this film.
+Both YouTube oEmbed responses confirmed Blender Studio and embed player available on2026-10-14. No files downloaded, recaptured or rebroadcast. Release year shown; do not call these2026 theatrical premieres.
