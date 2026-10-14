@@ -1,0 +1,6 @@
+/* Owner scope: remove attendance and adjacent attendance-heart UI from guest rooms only. */
+#screen :is(.kt-remote-live,.kt-guest-hostlike-room,.kt-approved-guest-grid,.kt-guest-room-grid) :is(
+#ktRemoteAttendance,.kt-remote-attendance,.kt-sgfh-att,.ktsolo-att,.ktg13-attend,.ktsubscriber-att,.ktsecret-att,.kt-live-attendance,[data-kt-attendance],.kt-s2-att-small,.kt-s2-att-large,.kt-sa-att,
+.kt-attendance-room-count,.kt-attendance-heart-badge,.kt-guest-attendance-inline
+
+){display:none!important;visibility:hidden!important;pointer-events:none!important}

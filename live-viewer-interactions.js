@@ -162,17 +162,7 @@
     var name=String(root.getAttribute('data-kt-room-name')||'');
     var thirteen=!!root.querySelector('[data-kt-remote13="1"]')||kind==='group13'||(/^(?:general|group)?$/.test(kind)&&/13\s*명/.test(name));
     var solo=kind==='solo'||/1\s*인|solo/i.test(name);
-    var existing=root.querySelector('.kt-sgfh-att,.ktg13-attend,.ktsubscriber-att,.ktsolo-att');
-    if(existing&&!root.querySelector('#ktRemoteAttendance')){existing.id='ktRemoteAttendance';existing.onclick=function(){window.ktRemoteAttendance();};}
-    if(!root.querySelector('#ktRemoteAttendance')){
-      var at=document.createElement('button');at.id='ktRemoteAttendance';at.type='button';at.className='kt-remote-attendance';at.textContent='🌹 출석체크';
-      at.onclick=function(){window.ktRemoteAttendance();};
-      var anchor=root.querySelector('.ktsgv-left,.ktg13-title-row,.ktsubscriber-left,.kt-sgfh-left,.ktg13-head');
-      if(anchor){at.style.setProperty('position','static','important');at.style.setProperty('height','29px','important');at.style.setProperty('font-size','10px','important');anchor.appendChild(at);}else root.appendChild(at);
-    }
-    var sharedButton=root.querySelector('#ktRemoteAttendance'),header=root.querySelector('.ktsgv-left,.ktg13-title-row,.ktsubscriber-left,.kt-sgfh-left,.ktg13-head');
-    if(sharedButton&&sharedButton.classList.contains('kt-remote-attendance')&&header&&sharedButton.parentElement!==header&&!sharedButton.closest('.kt-guest-attendance-inline')){header.appendChild(sharedButton);sharedButton.style.setProperty('position','static','important');sharedButton.style.setProperty('height','29px','important');sharedButton.style.setProperty('font-size','10px','important');}
-    markAttendance();
+    // Guest attendance/heart controls removed at owner's request; host controls stay.
     if(!document.getElementById('ktRemoteChatList')){var chat=document.createElement('div');chat.id='ktRemoteChatList';chat.className='kt-remote-chat';root.appendChild(chat);}
     if(!document.getElementById('ktRemoteBottom')){var bar=document.createElement('div');bar.id='ktRemoteBottom';bar.className='kt-remote-bottom';bar.innerHTML='<input id="ktRemoteChatInput" maxlength="100" placeholder="입력하세요…" aria-label="라이브 채팅 입력">'+'<button type="button" class="kt-remote-action send" onclick="ktRemoteSendChat()" aria-label="채팅 보내기">➤</button>'+'<button type="button" class="kt-remote-action gift" onclick="ktRemoteOpenGifts()" aria-label="선물">🎁</button>'+'<button type="button" class="kt-remote-action share" onclick="ktRemoteShare()" aria-label="공유">↗</button>';root.appendChild(bar);var input=bar.querySelector('#ktRemoteChatInput');if(input)input.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();window.ktRemoteSendChat();}});}
     return true;
