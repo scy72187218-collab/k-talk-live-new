@@ -313,12 +313,12 @@
     enterTheater();
     var html=''
       +'<div class="kt-tv-movie-actions">'
-      +'<button type="button" onclick="ktHostMediaPickVideo()">🎬 내 동영상<br>틀기</button>'
+      +'<button type="button" onclick="ktHostMediaPickVideo()">🎬 내 동영상·영화<br>틀기</button>'
       +'<button type="button" onclick="ktHostMediaShareScreen()">📱 화면<br>공유</button>'
       +'<button type="button" onclick="ktHostMediaConnectTv()">📺 TV<br>연결</button>'
       +'<button type="button" onclick="ktStopHostTvMovieShare()">⏹ 공유<br>중지</button>'
       +'</div>'
-      +'<div class="kt-tv-movie-note"><b>이용 기준</b><br>호스트·운영진: 레벨 20부터 · 구독자: 레벨 제한 없음<br><br><b>방송 콘텐츠</b><br>본인이 소유하거나 방송 허가를 받은 영상·화면만 공유해 주세요.</div>';
+      +'<div class="kt-tv-movie-note"><b>이용 기준</b><br>호스트·운영진: 레벨 20부터 · 구독자: 레벨 제한 없음<br><br><b>동영상·영화 선택</b><br>휴대폰이나 컴퓨터에 저장된 동영상·영화 파일을 선택해 재생합니다.<br><br><b>방송 콘텐츠</b><br>본인이 소유하거나 방송 허가를 받은 영상·화면만 공유해 주세요.</div>';
     if(!canUse())html='<div class="kt-tv-movie-note"><b>현재 계정은 영상 공유 이용 조건을 충족하지 않습니다.</b><br>호스트·운영진 레벨 20 이상 또는 유료 구독이 필요합니다.</div>'+html;
     showSheet('📺 TV · 영화 · 화면공유',html);
   };
