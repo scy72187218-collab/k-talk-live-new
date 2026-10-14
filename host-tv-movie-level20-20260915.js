@@ -132,7 +132,7 @@
       +'.kt-tv-movie-note{margin-top:10px;padding:10px;border-radius:12px;background:#0c0d12;color:#d8d8df;font-size:10px;line-height:1.55}'
       +'.kt-remote-tv-btn{width:34px;height:34px;border:1px solid #ffffff32;border-radius:50%;background:#111a;color:#fff;font-size:16px;display:grid;place-items:center}';
     s.textContent+='.kt-movie-theater>.kt-movie-tv{display:block!important;position:fixed!important;left:8px!important;right:8px!important;top:8px!important;height:calc(52dvh + 32px)!important;z-index:80!important;background:#050507;border-radius:14px;overflow:hidden;border:1px solid #ffffff30}.kt-movie-tv-bar{height:36px;display:flex;align-items:center;gap:8px;padding:5px 10px;color:#fff;font-size:13px}.kt-movie-tv-bar button{border:1px solid #ffffff30;background:#202027;color:#fff;border-radius:8px;padding:5px 9px}.kt-movie-tv-bar b{margin-right:auto}.kt-movie-tv video{position:absolute!important;inset:36px 0 0!important;width:100%!important;height:calc(100% - 36px)!important;object-fit:contain!important;transform:none!important;background:#000!important}.kt-movie-empty{position:absolute;inset:36px 0 0;display:grid;place-items:center;color:#aaa;font-size:13px;text-align:center;padding:15px}.kt-movie-empty[hidden]{display:none!important}'+
-      '.kt-movie-theater:not(.kt-movie-viewer)>:not(.kt-movie-tv):not(.ktsolo-main):not(.ktg13-main):not(.ktg9-main):not(.ktsubscriber-main):not(.ktsecret-main):not(.ktsolo-chat):not(.ktg13-chat):not(.ktg9-chat):not(.ktsubscriber-chat):not(.ktsecret-chat):not(.ktsolo-tools):not(.ktg13-tools):not(.ktg9-tools):not(.ktsubscriber-tools):not(.ktsecret-tools){display:none!important}'+
+      '.kt-movie-theater:not(.kt-movie-viewer)>:is(.ktsolo-head,.ktg13-head,.ktsubscriber-head,.ktsecret-head,.ktg13-led,.ktsolo-led,.ktsubscriber-led,.ktsecret-led,.kt-fresh-three-1111,.ktg13-stats,.ktsolo-stats,.ktsubscriber-stats,.ktsecret-stats,.ktg13-gifts){display:none!important}'+
       '.kt-movie-theater>:is(.ktsolo-chat,.ktg13-chat,.ktg9-chat,.ktsubscriber-chat,.ktsecret-chat){position:fixed!important;left:8px!important;right:8px!important;top:calc(52dvh + 44px)!important;bottom:auto!important;height:12dvh!important;max-height:12dvh!important;z-index:81!important;overflow:auto!important;transform:none!important;background:#08080c!important}'+
       '.kt-movie-theater>:is(.ktsolo-main,.ktg13-main,.ktg9-main,.ktsubscriber-main,.ktsecret-main){position:fixed!important;left:8px!important;right:8px!important;top:calc(64dvh + 50px)!important;bottom:82px!important;width:auto!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:auto!important;z-index:80!important;transform:none!important;margin:0!important}'+
       '.kt-movie-theater>:is(.ktsolo-tools,.ktg13-tools,.ktg9-tools,.ktsubscriber-tools,.ktsecret-tools){position:fixed!important;left:8px!important;right:8px!important;bottom:5px!important;top:auto!important;height:68px!important;z-index:82!important;transform:none!important}';
@@ -160,8 +160,31 @@
     paintTheater(sharedStream);
     if(!theaterGuest&&typeof window.ktNotifyMovieTheaterMode==='function')window.ktNotifyMovieTheaterMode(true);
   }
+  function paintHostFace(){
+    if(!theaterRoom)return;
+    var tile=theaterRoom.querySelector('.ktg13-host,.ktg9-host,.ktsubscriber-host,.ktsecret-slot.host,.ktsecret-host')||(theaterRoom.classList.contains('ktsolo-room')?theaterRoom.querySelector('.ktsolo-main'):null);
+    if(!tile)return;
+    var overlay=tile.querySelector('.kt-movie-host-face');
+    if(!sharedStream&&!theaterGuest){if(overlay)overlay.remove();tile.classList.remove('kt-movie-face-only');return;}
+    if(!overlay){overlay=document.createElement('div');overlay.className='kt-movie-host-face';tile.appendChild(overlay);}
+    tile.classList.add('kt-movie-face-only');
+    var cameraStream=!theaterGuest?originalStream:null;
+    if(cameraStream&&cameraStream.getVideoTracks&&cameraStream.getVideoTracks().some(function(t){return t.readyState==='live'&&t.enabled!==false;})){
+      var video=overlay.querySelector('video');
+      if(!video){overlay.textContent='';video=document.createElement('video');video.autoplay=true;video.muted=true;video.playsInline=true;overlay.appendChild(video);}
+      if(video.srcObject!==cameraStream){video.srcObject=cameraStream;var p=video.play();if(p&&p.catch)p.catch(function(){});}
+    }else if(!overlay.querySelector('img')&&!overlay.dataset.fallback){
+      var image=tile.querySelector('img:not(.kt-movie-face-image)'),source=tile.querySelector('video:not(.kt-movie-player)');
+      var url=image&&(image.currentSrc||image.src)||source&&source.poster||'';
+      overlay.textContent='';
+      if(url){var photo=document.createElement('img');photo.className='kt-movie-face-image';photo.src=url;photo.alt='호스트 프로필';overlay.appendChild(photo);}
+      else{overlay.textContent='👤';}
+      overlay.dataset.fallback='1';
+    }
+  }
   function paintTheater(stream){
     if(!theaterRoom)return;
+    paintHostFace();
     if(theaterGuest){var source=theaterRoom.querySelector('video:not(.kt-movie-player)');stream=source&&source.srcObject||null;}
     var v=theaterRoom.querySelector('.kt-movie-tv video'),empty=theaterRoom.querySelector('.kt-movie-empty');
     if(v&&v.srcObject!==stream)v.srcObject=stream||null;
@@ -171,6 +194,8 @@
   function exitTheater(){
     if(!theaterRoom)return;
     if(!theaterGuest&&typeof window.ktNotifyMovieTheaterMode==='function')window.ktNotifyMovieTheaterMode(false);
+    theaterRoom.querySelectorAll('.kt-movie-host-face').forEach(function(el){el.remove();});
+    theaterRoom.querySelectorAll('.kt-movie-face-only').forEach(function(el){el.classList.remove('kt-movie-face-only');});
     theaterRoom.classList.remove('kt-movie-theater','kt-movie-viewer');
     theaterRoom.querySelectorAll('.kt-movie-people-area,.kt-movie-chat-area').forEach(function(el){el.classList.remove('kt-movie-people-area','kt-movie-chat-area');});
     var p=theaterRoom.querySelector('.kt-movie-tv');if(p)p.remove();
@@ -185,7 +210,7 @@
     var root=remote.querySelector('.ktsolo-room,.ktg13-room,.ktg9-room,.ktsubscriber-room,.ktsecret-room')||remote;
     enterTheater(root);
   };
-  setInterval(function(){if(theaterGuest&&theaterRoom){if(!theaterRoom.isConnected){exitTheater();viewerMode=false;return;}paintTheater(null);}},500);
+  setInterval(function(){if(theaterRoom&&!theaterGuest)paintHostFace();if(theaterGuest&&theaterRoom){if(!theaterRoom.isConnected){exitTheater();viewerMode=false;return;}paintTheater(null);}},500);
   window.addEventListener('kt-remote-host-left',function(){if(theaterGuest)exitTheater();viewerMode=false;viewerModeHost='';});
   window.addEventListener('kt-broadcast-ended',exitTheater);
 
