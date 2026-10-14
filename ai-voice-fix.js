@@ -274,6 +274,7 @@
 /* 방송목록 연동 파일이 빠진 경우에만 최신 파일을 다시 연결. */
 (function(){
   function load(src,attr){
+    if(src.indexOf('live-presence.js')===0&&document.querySelector('script[src*="live-presence.js"]'))return;
     if(document.querySelector('script['+attr+']'))return;
     var s=document.createElement('script');
     s.src=src;

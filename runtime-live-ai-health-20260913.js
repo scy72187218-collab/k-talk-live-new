@@ -17,6 +17,7 @@
   function load(src,guard,done){
     try{
       if(guard&&window[guard]){if(done)done();return;}
+      if(src.indexOf('live-presence.js')===0&&hasScript('live-presence.js')){waitGuard(guard,done,0);return;}
       if(hasScript(src)){waitGuard(guard,done,0);return;}
       var s=document.createElement('script');
       s.src=src+'?v=20260915-requestedonly1';
