@@ -7,6 +7,7 @@
   var queue=[];
   var speaking=false;
   var spokenOnce=Object.create(null);
+  var giftReadCounts20261014=Object.create(null);
 
   function isLiveOrCreatorMedia(media){
     if(!media)return false;
@@ -72,6 +73,8 @@
 
   function speakNow(text){
     text=normalize(text);
+    var giftKey=/선물/.test(text)&&/[0-9]/.test(text)?text.replace(/님이/g,'님').replace(/선물했습니다|선물하셨습니다|선물/g,'').replace(/[^가-힣a-zA-Z0-9]/g,''):'';
+    if(giftKey&&(giftReadCounts20261014[giftKey]||0)>=3){speaking=false;setTimeout(drain,0);return false;}
     if(playbackActive())return false;
     if(!text||!synth||typeof window.SpeechSynthesisUtterance!=='function')return false;
     try{
@@ -87,6 +90,7 @@
       u.onend=function(){speaking=false;drain();};
       u.onerror=function(){speaking=false;setTimeout(drain,80);};
       synth.speak(u);
+      if(giftKey)giftReadCounts20261014[giftKey]=(giftReadCounts20261014[giftKey]||0)+1;
       return true;
     }catch(e){speaking=false;return false;}
   }
