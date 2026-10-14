@@ -68,6 +68,7 @@
       return false;
     }catch(e){return false;}
   }
+  function viewerExplicitlyExited20261015(){try{return localStorage.getItem('kt_explicit_guest_exit:'+DEVICE)==='1';}catch(e){return false;}}
   function liveStream(s){
     try{return !!(s&&s.getTracks&&s.getTracks().some(function(t){return t&&t.readyState==='live';}));}catch(e){return false;}
   }
@@ -377,6 +378,7 @@
     }catch(e){}
   }
   function ensureApprovedRosterSlots20260924(){
+    if(!isHostRole()&&viewerExplicitlyExited20261015())return {ids:[],names:{}};
     var roster=approvedRoster20260924();
     var self=viewerId();
 
@@ -517,6 +519,7 @@
   async function ensureRoom(hostId,role,runId){
     hostId=String(hostId||'').trim();runId=String(runId||'').trim()||'stable';
     if(!hostId)return null;
+    if(role!=='host'&&viewerExplicitlyExited20261015())return null;
 
     /* Communication speed lock:
        the actual SFU room name is already stable per host. A late run-id update
@@ -650,6 +653,7 @@
     guestPublishTasks.set(owner,entry);return entry.promise;
   }
   async function publishSharedStreamNow(stream){
+    if(currentRole!=='host'&&viewerExplicitlyExited20261015())return;
     if(!room||room.state!=='connected'||!liveStream(stream))return;
     var LK=window.LivekitClient;if(!LK)return;
     var vp=room.localParticipant;
@@ -686,6 +690,7 @@
     }catch(e){}
   }
   async function hostTick(){
+    if(!isHostRole()&&viewerExplicitlyExited20261015())return;
     if(!isHostRole()){
       var remoteRoot=document.querySelector('#screen .kt-remote-live');
       var selected=remoteRoot&&String(remoteRoot.getAttribute('data-kt-host-id')||remoteRoot.getAttribute('data-host-id')||'').trim();
@@ -725,6 +730,7 @@
   }
 
   window.addEventListener('kt-guest-approval-received',function(e){
+    if(viewerExplicitlyExited20261015())return;
     approvedHostId=String(e&&e.detail&&e.detail.host_id||'').trim();
     if(!approvedHostId)return;
     watchHostId=approvedHostId;
@@ -765,6 +771,7 @@
     });
   });
   window.addEventListener('kt-approved-guest-stream-ready',function(e){
+    if(viewerExplicitlyExited20261015())return;
     var h=String(e&&e.detail&&e.detail.host_id||approvedHostId||remoteHostId()||'').trim();
     if(h){approvedHostId=h;watchHostId=h;}
     try{
@@ -777,6 +784,7 @@
     [25,80,160].forEach(function(ms){setTimeout(hostTick,ms);});
   });
   window.addEventListener('kt-guest-camera-prewarmed',function(e){
+    if(viewerExplicitlyExited20261015())return;
     var h=String(e&&e.detail&&e.detail.host_id||remoteHostId()||'').trim();
     if(h)watchHostId=h;
     /* Keep the viewer already connected to the SFU before approval so approval
@@ -812,6 +820,8 @@
     reattachRemoteTracks();
   });
   window.addEventListener('kt-remote-host-selected',function(e){
+    if(e&&e.detail&&e.detail.immediate){try{localStorage.removeItem('kt_explicit_guest_exit:'+DEVICE);}catch(z){}}
+    else if(viewerExplicitlyExited20261015())return;
     var h=String(e&&e.detail&&e.detail.host_id||'').trim();
     if(!h)return;
 

@@ -523,7 +523,7 @@
     var c=viewerCtx;
     try{
       var rows=await req('ktalk_live_rooms?select=id,host_id,active,updated_at&host_id=eq.'+enc(c.hostId)+'&active=eq.true&order=started_at.desc&limit=1');
-      if(entryGeneration!==remoteEntryGeneration20261015)return;
+      if(viewerCtx!==c)return;
       var room=rows&&rows[0];
       if(!room||Date.now()-new Date(room.updated_at).getTime()>STALE_MS){
         /* A brief LIVE-row/heartbeat miss must never eject a viewer while the
@@ -607,7 +607,14 @@
     finally{viewerSignalBusy=false;}
   }
 
+  function remoteVideoHealthy20261015(c){
+    try{
+      var s=window.__ktLiveKitSfuState20260924||{},v=document.getElementById('ktRemoteLiveVideo');
+      return !!(c&&s.connected&&String(s.hostId||'')===String(c.hostId||'')&&v&&v.readyState>=2&&v.videoWidth>0);
+    }catch(e){return false;}
+  }
   async function ktReconnectRemoteViewer20260921(c){
+    if(remoteVideoHealthy20261015(c))return;
     if(!c||viewerCtx!==c)return;
     var hostId=String(c.hostId||'');
     if(!hostId)return;
@@ -615,12 +622,12 @@
     var reconnectGeneration=remoteEntryGeneration20261015;
     setTimeout(function(){
       if(reconnectGeneration!==remoteEntryGeneration20261015)return;
-      try{if(window.ktEnterRemoteLive)window.ktEnterRemoteLive(hostId);}catch(e){}
+      try{if(window.ktEnterRemoteLive)window.ktEnterRemoteLive(hostId,{preserveView:true});}catch(e){}
     },350);
   }
 
   var remoteEntryGeneration20261015=0;
-  window.ktEnterRemoteLive=async function(hostId){
+  window.ktEnterRemoteLive=async function(hostId,entryOptions){
     var entryGeneration=++remoteEntryGeneration20261015;
     hostId=String(hostId||'');if(!hostId)return;
 
@@ -665,7 +672,7 @@
 
     /* Draw the room in the same synchronous entry action. */
     var cached=cachedRemoteRoom20260924(hostId);
-    renderRemote(cached);
+    if(!(entryOptions&&entryOptions.preserveView&&document.querySelector('#screen .kt-remote-live')))renderRemote(cached);
     try{
       var nineTxt=[cached&&cached.room_type,cached&&cached.room_name,cached&&cached.title].join(' ');
       var forcedNine=String(window.__ktForceNineViewerShellHost20261003||'')===hostId;
@@ -791,6 +798,8 @@
   }
 
   window.ktCloseRemotePresenceInApp20260923=async function(){
+    remoteEntryGeneration20261015++;
+    try{localStorage.setItem('kt_explicit_guest_exit:'+deviceId(),'1');window.dispatchEvent(new CustomEvent('kt-explicit-remote-exit'));}catch(e){}
     var c=viewerCtx;ktNotifyRemoteExit20260924(c);viewerCtx=null;
     window.__ktRemoteHostStream=null;
     window.__ktRemoteHostId='';
@@ -808,6 +817,7 @@
 
   window.ktLeaveRemoteLive=async function(silent){
     remoteEntryGeneration20261015++;
+    if(!silent)try{localStorage.setItem('kt_explicit_guest_exit:'+deviceId(),'1');window.dispatchEvent(new CustomEvent('kt-explicit-remote-exit'));}catch(e){}
     var c=viewerCtx;ktNotifyRemoteExit20260924(c);viewerCtx=null;window.__ktRemoteHostStream=null;window.__ktRemoteHostId='';window.__ktCurrentRemoteHostId='';try{sessionStorage.removeItem('kt_remote_host_id');}catch(e){}document.documentElement.classList.remove('kt-remote-viewing');
     if(c){
       clearInterval(c.signalTimer);clearInterval(c.heartbeat);clearInterval(c.activityTimer);try{c.pc.close();}catch(e){}

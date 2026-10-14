@@ -1527,6 +1527,7 @@
 
   }
 
+  window.addEventListener('kt-explicit-remote-exit',function(){var work=leaveApprovedGuestNow();if(work&&work.catch)work.catch(function(){});});
   function bindGuestLeaveCleanup(){
     var old=window.ktLeaveRemoteLive;
     if(typeof old!=='function'||old.__ktGuestLeaveCleanup)return;

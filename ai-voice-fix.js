@@ -7,7 +7,21 @@
   var queue=[];
   var speaking=false;
   var spokenOnce=Object.create(null);
-  var giftReadCounts20261014=Object.create(null);
+  var giftReadCounts20261014=Object.create(null),lastVoiceRun20261015='';
+  function resetLiveSpeech20261015(){
+    queue=[];speaking=false;spokenOnce=Object.create(null);giftReadCounts20261014=Object.create(null);
+    giftSpokenIds=Object.create(null);
+    window.__ktLiveSpeechSince20261015=Date.now();
+    try{if(synth&&synth.cancel)synth.cancel();}catch(e){}
+    window.dispatchEvent(new CustomEvent('kt-live-speech-reset'));
+  }
+  window.addEventListener('kt-broadcast-ended',resetLiveSpeech20261015);
+  window.addEventListener('kt-host-session-ready',function(e){
+    var d=e&&e.detail||{};if(d.role!=='host')return;
+    var key=String(d.host_id||'')+'|'+String(d.run_id||'');
+    if(key===lastVoiceRun20261015)return;lastVoiceRun20261015=key;resetLiveSpeech20261015();
+  });
+  window.__ktLiveSpeechSince20261015=Date.now();
 
   function isLiveOrCreatorMedia(media){
     if(!media)return false;

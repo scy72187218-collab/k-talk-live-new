@@ -34,6 +34,8 @@
 
   function lineText(el){
     if(!el)return '';
+    var stamp=Date.parse(el.getAttribute&&el.getAttribute('data-kt-created-at')||'')||0;
+    if(stamp&&stamp<(window.__ktLiveSpeechSince20261015||0))return '';
     var name=clean((el.querySelector('b,strong')||{}).textContent||'');
     var msg=clean((el.querySelector('span')||{}).textContent||'');
     if(!msg){
@@ -121,6 +123,10 @@
     }catch(e){}
   }
 
+  window.addEventListener('kt-live-speech-reset',function(){
+    recentEventSpeech=Object.create(null);
+    document.querySelectorAll('.ktsolo-chat,.ktsubscriber-chat,.ktg13-chat,.ktsecret-chat,.ktg9-chat').forEach(function(box){snapshots.set(box,getLines(box).map(function(x){return x.key;}));});
+  });
   installChatWatchers(document);
   try{
     var pageMo=new MutationObserver(function(ms){

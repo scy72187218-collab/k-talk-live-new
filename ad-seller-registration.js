@@ -143,7 +143,7 @@
 (function(){
   if(document.querySelector('script[data-kt-live-presence]'))return;
   var s=document.createElement('script');
-  s.src='live-presence.js?v=20261015-explicit-exit1';
+  s.src='live-presence.js?v=20261015-exit-stability2';
   s.async=false;
   s.setAttribute('data-kt-live-presence','1');
   s.onload=function(){

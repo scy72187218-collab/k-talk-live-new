@@ -409,7 +409,7 @@
 
     var html=list.map(function(m){
       var sys=systemType(m.message_type);
-      return '<div class="'+box.line+'"><b>'+(sys?'●':esc(m.sender_name||'게스트'))+'</b><span>'+esc(m.message||'')+'</span></div>';
+      return '<div class="'+box.line+'" data-kt-created-at="'+esc(m.created_at||'')+'"><b>'+(sys?'●':esc(m.sender_name||'게스트'))+'</b><span>'+esc(m.message||'')+'</span></div>';
     }).join('');
 
     window.__ktHostChatStableHtml=html;
