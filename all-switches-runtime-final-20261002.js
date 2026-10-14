@@ -14,6 +14,7 @@
     '.creator-bottom .modes span',
     '.creator-bottom .modes button',
     '.creator-bottom .creator-foot span',
+    '.creator-bottom .creator-foot button',
     '.kt-total-admin-row',
     '.kt-owner-monitor button',
     '.kt-bottom-media-replaced',
