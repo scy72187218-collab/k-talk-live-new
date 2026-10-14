@@ -1,0 +1,14 @@
+{
+  "approvedRuntimeCommit": "b63cc2110ce21300543b0714a2c8acea489ae05d",
+  "ownerRequest": "영화하고 배치는 따로 또 잠궈 주세요.",
+  "date": "2026-10-14",
+  "maintenanceLock": true,
+  "runtimePassword": false,
+  "independent": true,
+  "scope": "Movie/video functionality",
+  "protectedFiles": [
+    "host-tv-movie-level20-20260915.js",
+    "all-room-person-gift-target-20260928.js"
+  ],
+  "sharedFileRule": "Preserve movie sections in shared files; attendance and camera/mic remain separately authorized."
+}
