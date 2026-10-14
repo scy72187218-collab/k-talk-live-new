@@ -13,6 +13,7 @@
   var publishedVideoId='',publishedAudioId='',lastConnectAt=0;
   var approvedHostId='',watchHostId='',audioEls={},guestVideoById={};
   var sdkPromise=null;
+  var sdkStreams=new WeakMap(),streamTracks=new WeakMap(),videoTracks=new WeakMap();
 
   window.__ktLiveKitSfuState20260924={
     enabled:true,connected:false,connecting:false,url:'',hostId:'',role:'',lastError:''
@@ -21,6 +22,7 @@
   function setState(p){
     try{
       Object.keys(p||{}).forEach(function(k){window.__ktLiveKitSfuState20260924[k]=p[k];});
+      document.documentElement.setAttribute('data-kt-sfu-state',JSON.stringify({hostId:window.__ktLiveKitSfuState20260924.hostId,role:window.__ktLiveKitSfuState20260924.role,connected:window.__ktLiveKitSfuState20260924.connected,connecting:window.__ktLiveKitSfuState20260924.connecting,error:window.__ktLiveKitSfuState20260924.lastError||''}));
       window.dispatchEvent(new CustomEvent('kt-livekit-state',{detail:Object.assign({},window.__ktLiveKitSfuState20260924)}));
     }catch(e){}
   }
@@ -179,7 +181,9 @@
   function mediaStreamFor(track){
     try{
       var mt=track&&track.mediaStreamTrack;
-      return mt?new MediaStream([mt]):null;
+      if(!mt)return null;
+      var cached=sdkStreams.get(track);if(cached)return cached;
+      var stream=new MediaStream([mt]);sdkStreams.set(track,stream);streamTracks.set(stream,track);return stream;
     }catch(e){return null;}
   }
   function hasLiveVideo(v){
@@ -191,7 +195,10 @@
   function setVideo(v,stream){
     if(!v||!stream)return false;
     try{
-      if(v.srcObject!==stream)v.srcObject=stream;
+      var sdk=streamTracks.get(stream),previous=videoTracks.get(v);
+      if(sdk){
+        if(previous!==sdk){if(previous&&previous.detach)previous.detach(v);sdk.attach(v);videoTracks.set(v,sdk);}
+      }else if(v.srcObject!==stream)v.srcObject=stream;
       v.autoplay=true;v.playsInline=true;v.muted=true;v.defaultMuted=true;
       v.setAttribute('autoplay','');v.setAttribute('playsinline','');v.setAttribute('muted','');
       var p=v.play();if(p&&p.catch)p.catch(function(){});
@@ -522,7 +529,8 @@
     setState({connecting:true,connected:false,hostId:hostId,role:currentRole,lastError:''});
     try{
       var LK=await ensureSdk();
-      if(room){try{await room.disconnect(false);}catch(e){}}
+      var previousRoom=room;room=null;
+      if(previousRoom){try{await previousRoom.disconnect(false);}catch(e){}}
       clearRoomRefs();
       var identity=(currentRole==='host')?DEVICE:viewerId();
       var auth=await tokenFor(hostId,identity,runId);

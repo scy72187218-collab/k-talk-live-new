@@ -149,7 +149,6 @@
       },{passive:false});
     }
   }
-  }
 
   async function tick(){
     wrapGuestRequest();
