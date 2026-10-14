@@ -83,11 +83,38 @@
     s.textContent=''
       +'.kt-person-gift-target-20260928{outline:2px solid #ffd75a!important;outline-offset:-2px!important;box-shadow:inset 0 0 18px #ffd75a44,0 0 10px #ffd75a55!important}'
       +'.kt-person-gift-target-20260928:after{content:"🎁 선물 대상"!important;display:block!important;position:absolute!important;right:4px!important;top:4px!important;z-index:140!important;padding:3px 6px!important;border-radius:9px!important;background:rgba(20,13,0,.9)!important;border:1px solid #ffd75a!important;color:#ffe56e!important;font-size:8px!important;font-weight:950!important;pointer-events:none!important}';
+    s.textContent+='.kt-host-movie-menu-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:10px}.kt-host-movie-menu-actions>button{min-height:58px;border:1px solid #ffffff25;border-radius:12px;background:#232329;color:#fff;font-weight:800}';
     document.head.appendChild(s);
   }
 
   var openTimer=0,lastOpenAt=0,lastTile=null;
+  function openHostMovieMenu(tile){
+    var root=tile.closest('.kt-movie-theater');
+    if(!root||!isLocalHostRoom()||kindOf(tile)!=='host')return false;
+    var now=Date.now();if(now-lastOpenAt<300&&lastTile===tile)return true;
+    lastOpenAt=now;lastTile=tile;
+    if(typeof window.showSheet!=='function')return false;
+    var panel=document.createElement('div');panel.className='kt-person-gift-menu';
+    panel.innerHTML='<div class="kt-person-gift-menu-head"><div class="kt-person-gift-menu-face">👤</div><b>내 방송 도구</b><button type="button" data-close>닫기</button></div><div class="kt-host-movie-menu-actions"></div>';
+    var image=tile.querySelector('img'),face=panel.querySelector('.kt-person-gift-menu-face');
+    if(image){var photo=document.createElement('img');photo.src=image.currentSrc||image.src;photo.alt='내 사진';face.textContent='';face.appendChild(photo);}
+    var actions=panel.querySelector('.kt-host-movie-menu-actions');
+    var bar=root.querySelector('.ktsolo-tools,.ktg13-tools,.ktg9-tools,.ktsubscriber-tools,.ktsecret-tools');
+    if(bar)bar.querySelectorAll('button').forEach(function(original){
+      var button=document.createElement('button');button.type='button';button.textContent=String(original.textContent||'').trim();
+      button.onclick=function(){if(window.closeSheet)window.closeSheet();original.click();};
+      actions.appendChild(button);
+    });
+    var gift=document.createElement('button');gift.type='button';gift.textContent='🎁 선물 상자';gift.onclick=function(){if(window.openGifts)window.openGifts();};actions.appendChild(gift);
+    window.showSheet('내 방송 도구','');
+    var body=document.getElementById('sheetBody'),sheet=document.getElementById('sheet');if(!body||!sheet)return false;
+    sheet.classList.add('kt-person-gift-menu-open');body.appendChild(panel);
+    panel.querySelector('[data-close]').onclick=function(){sheet.classList.remove('kt-person-gift-menu-open');if(window.closeSheet)window.closeSheet();};
+    return true;
+  }
+
   function openGiftFor(tile){
+    if(kindOf(tile)==='host'&&isLocalHostRoom()&&tile.closest('.kt-movie-theater'))return openHostMovieMenu(tile);
     if(!choose(tile))return false;
     var now=Date.now();
     if(now-lastOpenAt<300&&lastTile===tile)return true;

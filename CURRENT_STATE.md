@@ -66,3 +66,7 @@ Official UI actual movie clicks remained no-op. DOM showed undefined ktBottomMov
 
 ## Owner movie/video footer hiding2026-10-14
 Owner explicitly requests bottom camera/mic/friends/messages/movie/share/more absent while movie or video theater is open (host and guest); photo recipient gift flow remains. Hide only toolbar containers under temporary movie class; for viewer mixed composer rows hide action buttons but preserve text input/send. Removal of temporary theater class restores original controls. CSS only; no photo/menu/gift handlers, transport, sizing, eligibility or finance changes. Actual movie open had been observed in official9room; physical viewer UI remains unverified.
+
+
+## Movie host self-photo tools2026-10-14
+Owner requests host self photo contains hidden footer tools during movie/video. While local host tile is inside temporary movie theater only, self-photo tap opens tools menu referencing existing hidden bottom buttons via original click plus gift-box entry. Other person recipient menus and self-gift exclusion outside movie remain unchanged. No new media implementation or permissions, no other-room layout changes. Syntax checked; physical host photo menu verification pending. Footer hiding commit7f0d1e13 production READY.
