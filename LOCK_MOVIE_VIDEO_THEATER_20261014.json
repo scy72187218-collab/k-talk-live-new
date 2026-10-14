@@ -1,0 +1,20 @@
+{
+  "scope": "All five room movie/video theater",
+  "approvedRuntimeCommit": "2bb6077ebeaf6e69d20fa83f821fe6750ceee1b6",
+  "approvedDate": "2026-10-14",
+  "ownerConfirmation": "네 열렸습니다 감사합니다 이것도 잠가 주세요.",
+  "maintenanceLock": true,
+  "runtimePassword": false,
+  "protectedFiles": [
+    "host-media-control-action-fix-20261005.js",
+    "host-tv-movie-level20-20260915.js",
+    "all-room-person-gift-target-20260928.js",
+    "live-viewer-interactions.js"
+  ],
+  "verification": {
+    "ownerPhoneMovieButtonOpen": true,
+    "allFiveRoomPhysicalPlaybackVerified": false,
+    "tvCastingVerified": false
+  },
+  "rule": "Preserve approved movie scope; further changes require explicit owner scoped authorization. Preserve all prior independent locks."
+}
