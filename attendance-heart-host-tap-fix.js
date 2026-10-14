@@ -4,7 +4,7 @@
   window.__ktAttendanceHeartHostTapFixInstalled=true;
 
   var roomSelector='.ktsolo-room,.ktg13-room,.ktg9-room,.ktsubscriber-room,.ktsecret-room';
-  var attendanceSelector='.ktsolo-att,.ktg13-attend,.ktsubscriber-att,.ktsecret-att,.kt-live-attendance,[data-kt-attendance],.kt-s2-att-small,.kt-s2-att-large,.kt-sa-att';
+  var attendanceSelector='#ktRemoteAttendance,.kt-sgfh-att,.ktsolo-att,.ktg13-attend,.ktsubscriber-att,.ktsecret-att,.kt-live-attendance,[data-kt-attendance],.kt-s2-att-small,.kt-s2-att-large,.kt-sa-att';
   var sideLikeSelector='.ktsolo-right .like,.ktg9-right .like,.ktg13-right-quick .ktg13-like,.ktg13-right-quick .like,.ktsubscriber-right .like,.ktsecret-right .like';
   var hostSelector='.ktsolo-room .ktsolo-main,.ktg9-room .ktg9-host,.ktg13-room .ktg13-host,.ktsubscriber-room .ktsubscriber-host,.ktsecret-room .ktsecret-slot.host';
 
@@ -315,15 +315,16 @@
         if(txt.indexOf('출석체크')>-1)btn=cand;
       }
     }
-    if(!btn||!btn.closest(roomSelector))return;
+    if(!btn||(!btn.closest(roomSelector)&&!btn.closest('.kt-remote-live')))return;
     var now=Date.now();
-    if(e.type==='click'&&lastAttendanceTapType==='pointerup'&&lastAttendanceTapBtn===btn&&now-lastAttendanceTapAt<900){try{e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();}catch(err){}lastAttendanceTapType='click';return;}
+    if(e.type==='click'&&(lastAttendanceTapType==='pointerup'||lastAttendanceTapType==='touchend')&&lastAttendanceTapBtn===btn&&now-lastAttendanceTapAt<900){try{e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();}catch(err){}lastAttendanceTapType='click';return;}
     lastAttendanceTapBtn=btn;lastAttendanceTapAt=now;lastAttendanceTapType=e.type;
     try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(err){}
     if(btn.closest('.kt-remote-live')){if(typeof window.ktRemoteAttendance==='function')window.ktRemoteAttendance();return;}
     attendance(btn);
   }
   window.addEventListener('pointerup',hostAttendanceHit,true);
+  if(!window.PointerEvent)window.addEventListener('touchend',hostAttendanceHit,{capture:true,passive:false});
   window.addEventListener('click',hostAttendanceHit,true);
 
   /* 오른쪽 좋아요 버튼은 기존 기능은 그대로 두고 상단 하트 숫자만 +1 한다. */

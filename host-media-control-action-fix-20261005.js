@@ -94,7 +94,7 @@
     var name=error&&error.name||'';
     var text=name==='NotAllowedError'?'카메라·마이크 권한을 허용해 주세요.':name==='NotFoundError'?'연결된 카메라·마이크를 찾을 수 없습니다.':name==='NotReadableError'?'다른 앱에서 카메라·마이크를 사용 중인지 확인해 주세요.':'카메라·마이크를 연결하지 못했습니다. 다시 눌러 주세요.';
     btn.setAttribute('title',text);btn.setAttribute('aria-label',text);
-    if(typeof window.showToast==='function')window.showToast(text);else window.alert(text);
+    if(typeof window.showSheet==='function')window.showSheet('카메라·마이크 연결 안내','<div class="rowbox">'+text+'</div>');else if(typeof window.showToast==='function')window.showToast(text);else window.alert(text);
   }
   async function acquire(kind){
     if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error('media_unavailable');
@@ -167,14 +167,16 @@
   window.ktBottomMicToggle=function(btn){if(localHostRoom(btn))mic(btn);return false;};
   window.ktBottomMovieOpen=function(){movie();return false;};
 
+  var lastMediaReleaseBtn=null,lastMediaReleaseAt=0;
   function movieRelease(e){
     if(e.type==='pointerup'&&e.button!=null&&e.button!==0)return;
     var btn=e.target&&e.target.closest?e.target.closest('button'):null;
-    if(!btn||kind(btn)!=='movie'||!localHostRoom(btn))return;
+    if(!btn||!kind(btn)||!localHostRoom(btn))return;
     if(!btn.closest('.ktsolo-tools,.ktg13-tools,.ktg9-tools,.ktsubscriber-tools,.ktsecret-tools,.kt-host-admin-media-20260928'))return;
     if(e.cancelable)e.preventDefault();
     e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
-    movie();
+    lastMediaReleaseBtn=btn;lastMediaReleaseAt=Date.now();
+    var k=kind(btn);if(k==='camera')camera(btn);else if(k==='mic')mic(btn);else movie();
   }
   window.addEventListener('pointerup',movieRelease,true);
   if(!window.PointerEvent)window.addEventListener('touchend',movieRelease,{capture:true,passive:false});
@@ -190,6 +192,7 @@
          btn.closest('.kt-host-admin-media-20260928,.ktsolo-tools,.ktg13-tools,.ktg9-tools,.ktsubscriber-tools,.ktsecret-tools')))return;
 
     try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
+    if(lastMediaReleaseBtn===btn&&Date.now()-lastMediaReleaseAt<900)return;
     if(k==='camera')camera(btn);
     else if(k==='mic')mic(btn);
     else movie();
