@@ -145,6 +145,7 @@
       'html body #screen .kt-remote-live:has(.kt-movie-viewer) :is(.kt-remote-bottom,.kt-sgfh-bottom) button:not(.send):not([data-b="send"]):not([aria-label="채팅 보내기"]),html body #screen .kt-remote-live.kt-movie-viewer :is(.kt-remote-bottom,.kt-sgfh-bottom) button:not(.send):not([data-b="send"]):not([aria-label="채팅 보내기"]){display:none!important;visibility:hidden!important;pointer-events:none!important}';
     s.textContent+='.kt-movie-queue{max-height:48dvh;overflow:auto}.kt-movie-queue-row{display:flex;align-items:center;gap:6px;padding:8px 0;border-bottom:1px solid #ffffff18}.kt-movie-queue-row span{flex:1;min-width:0;overflow-wrap:anywhere}.kt-movie-queue-row button,.kt-movie-queue-start{border:1px solid #ffffff30;background:#25252d;color:#fff;border-radius:8px;padding:9px}.kt-movie-queue-start{width:100%;margin-top:12px}#sheet.show:has(.kt-movie-queue){z-index:2147483645!important}';
     s.textContent+='.kt-licensed-film{padding:12px;margin:10px 0;border:1px solid #ffffff25;border-radius:12px}.kt-licensed-film b{display:block}.kt-licensed-film p{margin:6px 0;font-size:12px}.kt-licensed-film a{display:inline-block;color:#8dd9ff;font-size:11px;margin-right:10px}.kt-licensed-film button{display:block;width:100%;padding:12px;margin-top:10px;border:1px solid #ffffff30;border-radius:10px;background:#292938;color:#fff}.kt-movie-tv.kt-catalog-playing>video,.kt-movie-tv.kt-catalog-playing>.kt-movie-empty{display:none!important}.kt-licensed-movie-frame{position:absolute;left:0;top:36px;width:100%;height:calc(100% - 36px);border:0;background:#000}#sheet.show:has(.kt-licensed-movie-catalog){z-index:2147483645!important}';
+    s.textContent+='.kt-movie-tv-bar{position:relative;z-index:2;gap:4px;padding:3px 5px}.kt-movie-tv-bar b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.kt-movie-tv-bar button{flex:0 0 auto;touch-action:manipulation;font-size:11px;padding:5px 6px}';
     document.head.appendChild(s);
   }
 
@@ -156,8 +157,9 @@
     if(theaterGuest){root.classList.add('kt-movie-viewer');var area=root.querySelector('.ktsolo-main,.ktg13-main,.ktg9-main,.ktsubscriber-main,.ktsecret-main,.kt-sgfh-main,.kt-remote-prejoin-grid')||root.querySelector('video');if(area)area.classList.add('kt-movie-people-area');var chat=root.querySelector('.kt-remote-chat,.kt-sgfh-chat,.ktsolo-chat,.ktg13-chat,.ktsubscriber-chat,.ktsecret-chat');if(chat)chat.classList.add('kt-movie-chat-area');}
     if(root.querySelector('.kt-movie-tv'))return;
     var panel=document.createElement('section');panel.className='kt-movie-tv';
-    panel.innerHTML='<div class="kt-movie-tv-bar"><b>📺 함께 보는 영화</b><button type="button" data-movie-select>영상 선택</button><button type="button" data-movie-close>닫기</button></div><video class="kt-movie-player" autoplay playsinline muted></video><div class="kt-movie-empty">영상을 선택하면 이 큰 화면에서 재생됩니다.</div>';
+    panel.innerHTML='<div class="kt-movie-tv-bar"><b>📺 함께 보는 영화</b><button type="button" data-movie-catalog aria-label="영화 목록으로 돌아가기">← 영화 목록</button><button type="button" data-movie-select>영상 선택</button><button type="button" data-movie-close>닫기</button></div><video class="kt-movie-player" autoplay playsinline muted></video><div class="kt-movie-empty">영상을 선택하면 이 큰 화면에서 재생됩니다.</div>';
     root.appendChild(panel);
+    panel.querySelector('[data-movie-catalog]').onclick=function(){if(window.ktOpenLicensedMovieCatalog)window.ktOpenLicensedMovieCatalog();};
     panel.querySelector('[data-movie-select]').onclick=function(){window.ktOpenHostTvMovie();};
     if(theaterGuest)panel.querySelector('[data-movie-select]').hidden=true;
     panel.querySelector('[data-movie-close]').onclick=closeMovieTheater;
@@ -172,13 +174,14 @@
   }
   var lastMovieBarTouch=0;
   function movieBarAction(e){
-    var button=e.target&&e.target.closest?e.target.closest('[data-movie-select],[data-movie-close]'):null;
+    var button=e.target&&e.target.closest?e.target.closest('[data-movie-select],[data-movie-close],[data-movie-catalog]'):null;
     if(!button||!button.closest('.kt-movie-tv')||button.hidden)return;
     var now=Date.now(),release=e.type!=='click';
     e.preventDefault();e.stopImmediatePropagation();
     if(now-lastMovieBarTouch<600)return;
     if(release)lastMovieBarTouch=now;
     if(button.hasAttribute('data-movie-close'))closeMovieTheater();
+    else if(button.hasAttribute('data-movie-catalog')){if(window.ktOpenLicensedMovieCatalog)window.ktOpenLicensedMovieCatalog();}
     else window.ktOpenHostTvMovie();
   }
   ['pointerup','touchend','click'].forEach(function(type){window.addEventListener(type,movieBarAction,{capture:true,passive:false});});

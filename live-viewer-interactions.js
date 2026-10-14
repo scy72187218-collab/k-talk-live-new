@@ -216,7 +216,7 @@
     all.sort(function(a,b){return (Date.parse(a&&a.created_at)||0)-(Date.parse(b&&b.created_at)||0);});
     return all.slice(-80);
   }
-  function paintRemoteMessages(rows){var box=document.getElementById('ktRemoteChatList');if(!box)return;var list=(rows||[]).filter(function(m){return m.message_type!=='movie_mode';}).slice(-80);box.innerHTML=list.map(function(m){var sys=systemType(m.message_type);return '<div class="kt-remote-chat-line'+(sys?' system':'')+'"><b>'+(sys?'●':esc(m.sender_name||'게스트'))+'</b><span>'+esc(m.message||'')+'</span></div>';}).join('');box.scrollTop=box.scrollHeight;}
+  function paintRemoteMessages(rows){var box=document.getElementById('ktRemoteChatList');if(!box)return;var list=(rows||[]).filter(function(m){return !(window.ktIsInternalLiveMessage&&window.ktIsInternalLiveMessage(m.message,m.message_type));}).slice(-80);box.innerHTML=list.map(function(m){var sys=systemType(m.message_type);return '<div class="kt-remote-chat-line'+(sys?' system':'')+'"><b>'+(sys?'●':esc(m.sender_name||'게스트'))+'</b><span>'+esc(m.message||'')+'</span></div>';}).join('');box.scrollTop=box.scrollHeight;}
   async function refreshRemote(){
     if(!remote.hostId||!document.querySelector('.kt-remote-live'))return;
     ensureRemoteUi();
@@ -289,7 +289,7 @@
   function processedKey(m){return 'kt_live_host_event_done:'+(m&&m.id!=null?String(m.id):'');}
   function wasProcessed(m){if(!m||m.id==null)return true;try{return localStorage.getItem(processedKey(m))==='1';}catch(e){return false;}}
   function markProcessed(m){if(!m||m.id==null)return;try{localStorage.setItem(processedKey(m),'1');}catch(e){}}
-  function speakIfNeeded(text){if(!text||window.__ktChatBenefitAIReaderInstalled)return;try{if(typeof window.ktSpeak==='function')window.ktSpeak(text);}catch(e){}}
+  function speakIfNeeded(text){if((window.ktIsInternalLiveMessage&&window.ktIsInternalLiveMessage(text))||!text||window.__ktChatBenefitAIReaderInstalled)return;try{if(typeof window.ktSpeak==='function')window.ktSpeak(text);}catch(e){}}
   function addLikeToHost(){try{if(typeof window.addHostLike==='function'){window.addHostLike(1);return;}}catch(e){}['hostLikeCount','ktg13LikeCount'].forEach(function(id){var n=document.getElementById(id);if(n)n.textContent=String((parseInt(n.textContent||'0',10)||0)+1);});}
   function currentHostRoom(){
     return document.querySelector('#screen .ktsolo-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room');
@@ -367,6 +367,8 @@
 
   function paintHostMessages(box,rows){
     if(!box||!box.el)return;
+    rows=(rows||[]).filter(function(m){return !(window.ktIsInternalLiveMessage&&window.ktIsInternalLiveMessage(m.message,m.message_type));});
+    hostChatStableBuffer=hostChatStableBuffer.filter(function(m){return !(window.ktIsInternalLiveMessage&&window.ktIsInternalLiveMessage(m.message,m.message_type));});
 
     /* Keep a stable visible history. A temporary empty/partial fetch must not
        erase a chat line that just appeared. New lines stack from the bottom

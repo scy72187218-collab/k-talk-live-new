@@ -100,7 +100,7 @@
       if(!r.ok)return [];
       var j=await r.json();
       var rows=Array.isArray(j&&j.messages)?j.messages:[];
-      return rows.filter(function(m){return String(m&&m.message_type||'')==='chat';})
+      return rows.filter(function(m){return String(m&&m.message_type||'')==='chat'&&!(window.ktIsInternalLiveMessage&&window.ktIsInternalLiveMessage(m.message,m.message_type));})
                  .sort(function(a,b){return (Date.parse(a&&a.created_at)||0)-(Date.parse(b&&b.created_at)||0);})
                  .slice(-80);
     }catch(e){return [];}

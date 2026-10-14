@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-14",
+  "approvedRuntime": "109082227a6987ba45688df9b73b1e2b8f138cc1",
+  "scope": "movie close only",
+  "ownerEvidence": "Owner reports close works and explicitly requests save/lock",
+  "preserve": [
+    "immediate theater exit",
+    "movie playback removal and original host source restoration",
+    "no broadcast disconnect",
+    "guest local close",
+    "pointer/touch/click dedup"
+  ],
+  "verification": "Browser tab17 select/close observed; owner phone report accepted. Agent physical phone verification not performed.",
+  "maintenanceOnly": true
+}

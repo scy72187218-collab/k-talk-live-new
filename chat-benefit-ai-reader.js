@@ -12,7 +12,7 @@
   var recentEventSpeech=Object.create(null);
   function speak(text,eventKey){
     text=clean(text);
-    if(!text)return;
+    if(!text||(window.ktIsInternalLiveMessage&&window.ktIsInternalLiveMessage(text)))return;
     if(eventKey){
       var now=Date.now(),last=recentEventSpeech[eventKey]||0;
       if(now-last<120000)return;
@@ -41,6 +41,7 @@
       if(name&&all.indexOf(name)===0)msg=clean(all.slice(name.length));
       else msg=all;
     }
+    if(window.ktIsInternalLiveMessage&&window.ktIsInternalLiveMessage(msg))return '';
     if(!msg||/채팅.*표시|메시지가.*표시|입력하면/.test(msg))return '';
 
     if(el.classList&&el.classList.contains('ktGuestPendingLine')){

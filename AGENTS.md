@@ -185,3 +185,7 @@ Owner confirms on their phone: movie button opened successfully, thanks assistan
 
 # Owner separate movie functionality and layout locks2026-10-14
 Owner explicitly requests separate locks for movie functionality and movie layout. Both approved baseline runtime b63cc2110ce21300543b0714a2c8acea489ae05d. See LOCK_MOVIE_FUNCTION_20261014.json and LOCK_MOVIE_LAYOUT_20261014.json. Preserve movie open/touch/eligibility/source/share/close and self-photo tools independently from movie-only TV/chat/compact people geometry, hidden action/footer rows and lower host/guest fill. No changes without owner scoped authorization. This lock is documentation only, not runtime access restriction. Current separate authorized investigation concerns attendance and camera/microphone; do not alter movie or layout as collateral work. Prior physical phone movie-open confirmation stands; other verification limits remain.
+
+
+# Owner saved movie close behavior2026-10-14
+Owner reports close works and requests saving/locking. Read LOCK_MOVIE_CLOSE_20261014.json. Preserve approved close behavior independently: movie-only removal, playback stop/camera restoration and live connection retained, guest local close and tap dedup. Explicit owner request authorizes catalog-return arrow and internal movie message display/speech filtering only. No broader room/layout/approval/financial changes. Lock is maintenance policy, not runtime authentication. Do not claim phone validation from browser/source checks.
