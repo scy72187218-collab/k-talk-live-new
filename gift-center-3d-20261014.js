@@ -124,12 +124,21 @@
     if(!root){queue=[];return;}
     var node=document.createElement('div');node.className='kt-gift-center-3d';node.setAttribute('aria-hidden','true');
     var canvas=document.createElement('canvas'),size=Math.min(440,window.innerWidth*.85),ratio=Math.min(window.devicePixelRatio||1,1.5);canvas.width=Math.round(size*ratio);canvas.height=canvas.width;canvas.style.width=size+'px';canvas.style.height=size+'px';node.appendChild(canvas);
+    var giftIndex=(window.ktalkGifts||[]).findIndex(function(g){return String(g[0])===job.name;}),originalIcon=null;
+    if(giftIndex>=0&&giftIndex<50){
+      originalIcon=document.createElement('div');originalIcon.style.cssText='width:'+size+'px;height:'+size+'px;filter:drop-shadow(0 0 18px #ffca7b99);';
+      var x,y,view,src,w,h;
+      if(giftIndex<25){x=[175,310,445,580,715][giftIndex%5];y=[205,475,742,1008,1272][Math.floor(giftIndex/5)];view=x+' '+y+' 125 130';src='gift-source.svg?v=1';w=864;h=1536;}
+      else{var j=giftIndex-25;view=(j%5)*75+' '+Math.floor(j/5)*78+' 75 78';src='gift-premium-photo-source.jpg?v=20260902-fixed2';w=375;h=390;}
+      originalIcon.innerHTML='<svg width="100%" height="100%" viewBox="'+view+'" preserveAspectRatio="xMidYMid meet"><image href="'+src+'" width="'+w+'" height="'+h+'"/></svg>';
+      canvas.style.display='none';node.appendChild(originalIcon);
+    }
     var label=document.createElement('div');label.className='kt-gift-3d-label';var title=document.createElement('b');title.textContent=job.name;label.appendChild(title);var from=document.createElement('small');from.textContent=(job.sender||'회원')+'님 · '+Number(job.cost).toLocaleString('ko-KR')+'개';label.appendChild(from);node.appendChild(label);
     var ctx=canvas.getContext('2d',{alpha:true});if(!ctx){job.fallback();next();return;}ctx.scale(ratio,ratio);document.body.appendChild(node);
     var reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches,model=build(job.name),duration=reduced?2400:(job.cost>=1000?9000:3200),start=performance.now(),last=0;
     active={node:node,raf:0,timer:0};var current=active;
     function finish(){if(active!==current)return;clear();next();}
-    function frame(now){if(active!==current)return;if(!root.isConnected||document.hidden){queue=[];clear();return;}var elapsed=now-start;if(elapsed>=duration){finish();return;}try{if(now-last>=33){last=now;var opacity=Math.min(1,elapsed/350,(duration-elapsed)/500);draw(ctx,model,elapsed/1000,size,Math.max(0,opacity),reduced);label.style.opacity=String(Math.max(0,opacity));}current.raf=requestAnimationFrame(frame);}catch(error){clear();try{job.fallback();}catch(ignore){}next();}}
+    function frame(now){if(active!==current)return;if(!root.isConnected||document.hidden){queue=[];clear();return;}var elapsed=now-start;if(elapsed>=duration){finish();return;}try{if(now-last>=33){last=now;var opacity=Math.min(1,elapsed/350,(duration-elapsed)/500);if(originalIcon){originalIcon.style.opacity=String(Math.max(0,opacity));originalIcon.style.transform=reduced?'none':'translateY('+Math.sin(elapsed/500)*6+'px) scale('+(1+Math.sin(elapsed/350)*.025)+')';}else draw(ctx,model,elapsed/1000,size,Math.max(0,opacity),reduced);label.style.opacity=String(Math.max(0,opacity));}current.raf=requestAnimationFrame(frame);}catch(error){clear();try{job.fallback();}catch(ignore){}next();}}
     current.raf=requestAnimationFrame(frame);current.timer=setTimeout(finish,duration+300);
   }
   function present(name,cost,sender,fallback){

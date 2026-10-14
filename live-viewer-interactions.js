@@ -10,6 +10,7 @@
   var remote={hostId:'',viewerId:'',viewerName:'',roomStart:'',timer:null,lastLikeAt:0};
   var hostTimer=null,hostRoomStart='',attendancePending=false;
   var lastHostLikeBySender={};
+  var giftVisitSince20261014=Date.now();
   var attendanceContexts={},attendanceSendQueue=Promise.resolve();
   var guestClockStarts={};
   function epoch(v){var n=typeof v==='number'?v:Date.parse(v||'');return Number.isFinite(n)&&n>0?n:0;}
@@ -330,6 +331,7 @@
         if(n>0){
           try{if(typeof window.addMyEarnedRoses==='function')window.addMyEarnedRoses(n);}catch(e){}
           try{
+            if(!m.created_at||Date.parse(m.created_at)<giftVisitSince20261014){markProcessed(m);return;}
             var text=String(m.message||''),name='선물';
             var names=(window.ktalkGifts||[]).map(function(g){return String(g[0]);}).sort(function(a,b){return b.length-a.length;});
             name=names.find(function(v){return text.indexOf('님이 '+v+' ')>=0;})||(/장미/.test(text)?'장미':'선물');
@@ -424,7 +426,7 @@
   }
 
   async function refreshHostOnce(){
-    var box=currentHostBox();if(!box)return;
+    var box=currentHostBox();if(!box){giftVisitSince20261014=Date.now();return;}
     var hid=deviceId(),room=await activeRoom(hid);if(!room)return;
     var nextStart=room.started_at||'';
     if(hostRoomStart&&nextStart&&hostRoomStart!==nextStart)hostChatStableBuffer=[];

@@ -42,6 +42,8 @@
       else msg=all;
     }
     if(window.ktIsInternalLiveMessage&&window.ktIsInternalLiveMessage(msg))return '';
+    // Gift receipt pipeline owns speech; rendering history must never replay it.
+    if(/^[🎁🌹]\s*.+님이 .+선물했습니다\.?$/.test(msg))return '';
     var giftRead=window.__ktRecentGiftSpeech20261014||{};
     if(giftRead[clean(msg)]&&Date.now()-giftRead[clean(msg)]<15000)return '';
     if(!msg||/채팅.*표시|메시지가.*표시|입력하면/.test(msg))return '';
