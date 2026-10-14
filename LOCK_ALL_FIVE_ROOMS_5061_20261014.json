@@ -1,0 +1,22 @@
+{
+  "lock_id": "5061",
+  "locked": true,
+  "date": "2026-10-14",
+  "runtime_commit": "1f3792d4edb143ebf423bceff3d2343da091ecc3",
+  "production_deployment": "dpl_47YDjy1xxfyD14m9zCCgW9hz7rz4",
+  "official_url": "https://k-talk-live-final.vercel.app/",
+  "rooms": [
+    "solo",
+    "group9",
+    "group13",
+    "subscriber",
+    "secret"
+  ],
+  "scope": "Preserve all current host and guest layouts, camera framing and dimensions, media connections, chat, buttons, access and approval rules. No collateral modifications through shared files.",
+  "policy": "Owner supplied maintenance change-lock identifier 5061. Further changes require explicit owner authorization for the specific change. This is not a runtime login password; existing runtime controls and room access remain usable. Preserve all existing security passwords and independent locks.",
+  "participation_flow": "broadcast viewing -> participation -> friends button -> host approval",
+  "verification": {
+    "owner": "Owner reports all five room types now display normally.",
+    "agent": "Official solo viewer connected, video180x320 readyState4 and playback advanced15.205377 to37.439414 seconds. Other four physical room playback and complete approval flow not independently tested."
+  }
+}

@@ -1,37 +1,14 @@
-# K-Talk LIVE 공통 인계 기록
+# K-Talk LIVE shared current state
 
-최종 확인: 2026-10-14 (한국 시간)
+Updated2026-10-14. User-facing URL: https://k-talk-live-final.vercel.app/
 
-## 모두가 사용하는 주소
-https://k-talk-live-final.vercel.app/
-사용자에게 검사용 주소를 안내하거나 열어두지 않는다. 검사 자체가 필요하면 내부에서 수행하고 공식 주소와 혼동시키지 않는다.
+Approved runtime commit: 1f3792d4edb143ebf423bceff3d2343da091ecc3
+Production deployment: dpl_47YDjy1xxfyD14m9zCCgW9hz7rz4
 
-## 현재 운영 상태
-확인한 운영 실행 코드 커밋: dc1c7b9b843f434ce6716a230ee583fd0051ba57
-상단 수정 운영 배포: dpl_CgWriD6csUC5yQFa9CxvwLtixF5g (후속 문서 변경 배포에서도 실행 코드는 동일)
-이 문서 추가 시 기본 브랜치의 live-guest-request-flow-20260918.js를 위 운영 파일과 일치시켰다. 다른 실행 파일은 변경하지 않는다.
-운영에 반영된 수정: 1인방 시청 영상이 예전 9칸 생성 코드로 이동하지 않도록 solo/1인 방 이름에서 해당 함수를 종료한다.
-소스 검사 및 배포 파일 확인은 통과했다. 실제 휴대폰에서 모든 문제가 해결됐다는 의미는 아니다.
+Owner confirms all five rooms display normally and requests freezing current host and guest behavior under maintenance lock5061. Read AGENTS.md and LOCK_ALL_FIVE_ROOMS_5061_20261014.json before any changes. No runtime modifications are authorized by this lock-recording request. Preserve prior independent locks/passwords.
 
-## 반드시 지킬 약속
-- AGENTS.md와 기존 방별 잠금 기록을 먼저 읽는다. 잠금은 풀거나 우회하지 않는다.
-- 사용자 요청 범위만 수정한다. 기존 카메라 크기·채팅·통신·다른 방을 함께 변경하지 않는다.
-- 다른 AI가 작업 중일 수 있다. 브랜치의 실제 최신 커밋을 확인하고 expected_sha로 갱신한다.
-- 실제 배포 커밋을 확인한 뒤 작업한다. 오래된 로컬 work 폴더를 그대로 배포하지 않는다.
-- 전체 실험 브랜치를 합치거나 검증되지 않은 코드를 한꺼번에 배포하지 않는다.
-- 배포 완료와 실제 기기 검증 완료를 구분한다. 사용자가 멈추라고 하면 작업을 중단한다.
+Completed: solo viewer header reuses host header without attendance/two hearts; creator-target rescue isolation; SFU SDK video Track.attach, previous-room disconnect race fix, singlePeerConnection:false browser compatibility; guest request photo script extra-brace fix and actual loader cache refresh.
 
-## 2026-10-14 완료된 상단 변경
-현재 운영0369cf5f 버전의 통신 수정은 보존한 채, 1인방 게스트 상단에 호스트 상단 구조와 공용 랭킹/미션/액션 행을 재사용했다. 출석 체크와 출석·시간 옆 하트는 제외했다. 다른 방, 호스트 렌더러, 입장/승인/통신 코드는 수정하지 않았다.
-공식 주소에서 실제 solo 호스트 kt_muk3dryw_5vxcty4t 입장 후 header1개와 잘못된 guestCells0개를 확인했고 하단 방송 참여 신청 버튼도 유지됐다. 이 검사에서 영상은0x0 ready0으로 연결 중이었다. 영상 재생 성공이나 전체 승인 순서 실기 검증을 주장하지 않는다.
-단위 검사: solo 상단 생성·출석/하트 제외·다른 방 no-op·기존 video/chat 삭제 대상 제외·leave/treasure/match 호출 연결 PASS. 어제 실험 브랜치를 통째로 합치지 않았다.
+Verification: official solo viewer connected=true,error empty, video180x320 readyState4 paused=false, currentTime advanced15.205377 to37.439414; screenshot shows actual camera scene. Owner reports all five rooms normal. Agent has not independently verified all five physical rooms or complete stage approval flow.
 
-## 미완료 사항
-실제 영상 연결 및 전체 참여/친구/호스트 승인 순서의 기기 검증은 남아 있다. 방송 시청 → 방송 참여 → 친구 버튼 → 호스트 승인 순서를 바꾸지 않는다.
-영상 깜빡임·크기 변화 및 방 전환은 실제 기기 재검증 필요. 출석 하트 문제 역시 해결 완료로 보고하지 않는다.
-
-## 오래된 작업 취급
-codex/live-entry-audio-6748-6ee3d7c는 여러 실험이 포함된 미검증 브랜치다. 운영 배포 금지.
-검사용 배포나 브랜치가 존재하는 것 자체가 코드를 중복 실행시키지는 않는다. 실제 index.html의 로드 및 참조를 확인한 후에만 파일을 제거한다.
-잠금 스냅샷, Git 복구 이력, 금융·통신·기존 방 코드를 오래됐다는 이유로 삭제하지 않는다.
-이 기록은 정리 시작점이다. 모든 과거 파일·브랜치·Vercel 검사용 배포를 삭제했다고 해석하지 않는다.
+Preserve viewing -> participation -> friends button -> host approval. No auto approval. Never deploy stale local work folder or experimental branches. Inspect actual main and production, update refs with expected_sha. Old deployments do not duplicate runtime. Keep recoverable history; delete files only after proving unused. Financial rules remain separately locked and untouched. Do not claim all outstanding historical issues fixed.
