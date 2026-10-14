@@ -28,6 +28,9 @@
   }
 
   function target(e){
+    /* Creating a room must never be interpreted as entering a live card below it. */
+    if(e.target&&e.target.closest&&e.target.closest('#creator,.bottom .plus,.kt-bottom .livebtn'))return null;
+    if(document.querySelector('#creator.show'))return null;
     var t=e.target&&e.target.closest?e.target.closest(
       '.ktvl-live,'+
       '.kt-friend-bubble.live,'+
@@ -84,6 +87,6 @@
 
   var st=document.createElement('style');
   st.id='ktLiveEntryTouchRescueStyle20260928';
-  st.textContent='.ktvl-live,.kt-follow-person.live,.kt-friend-bubble.live,.kt-friend-contact-actions .livebtn,.kt-live-card,.kt-live-list-enter,[onclick*="ktFriendEnterLive"],[onclick*="ktEnterRemoteLive"]{pointer-events:auto!important;touch-action:manipulation!important;position:relative!important;z-index:2147483000!important}';
+  st.textContent='body:has(#creator.show) #ktFollowLiveStrip,body:has(#creator.show) #ktVideoLivePeek{display:none!important;pointer-events:none!important}.ktvl-live,.kt-follow-person.live,.kt-friend-bubble.live,.kt-friend-contact-actions .livebtn,.kt-live-card,.kt-live-list-enter,[onclick*="ktFriendEnterLive"],[onclick*="ktEnterRemoteLive"]{pointer-events:auto!important;touch-action:manipulation!important;position:relative!important;z-index:2147483000!important}';
   (document.head||document.documentElement).appendChild(st);
 })();
