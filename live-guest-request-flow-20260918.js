@@ -324,7 +324,7 @@
     viewerGuest.mediaOpening=true;
     try{
       viewerGuest.stream=await navigator.mediaDevices.getUserMedia({
-        video:{facingMode:{ideal:'user'},width:{ideal:640,max:640},height:{ideal:480,max:480},aspectRatio:{ideal:1.333333},frameRate:{ideal:15,max:18}},
+        video:{facingMode:{ideal:'user'},width:{ideal:960,max:1280},height:{ideal:720,max:960},aspectRatio:{ideal:1.333333},frameRate:{ideal:24,max:30}},
         audio:true
       });
       window.__ktApprovedGuestSelfStream=viewerGuest.stream;
@@ -1086,7 +1086,7 @@
       viewerGuest.mediaOpening=true;
       try{
         stream=await navigator.mediaDevices.getUserMedia({
-          video:{facingMode:{ideal:'user'},width:{ideal:640,max:640},height:{ideal:480,max:480},aspectRatio:{ideal:1.333333},frameRate:{ideal:15,max:18}},
+          video:{facingMode:{ideal:'user'},width:{ideal:960,max:1280},height:{ideal:720,max:960},aspectRatio:{ideal:1.333333},frameRate:{ideal:24,max:30}},
           audio:true
         });
       }catch(e){

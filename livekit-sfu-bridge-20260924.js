@@ -198,7 +198,8 @@
     try{
       var sdk=streamTracks.get(stream),previous=videoTracks.get(v);
       if(sdk){
-        if(previous!==sdk){if(previous&&previous.detach)previous.detach(v);sdk.attach(v);videoTracks.set(v,sdk);}
+        var attached=v.srcObject&&v.srcObject.getVideoTracks&&v.srcObject.getVideoTracks().some(function(t){return t===sdk.mediaStreamTrack;});
+        if(previous!==sdk||!attached){if(previous&&previous!==sdk&&previous.detach)previous.detach(v);sdk.attach(v);videoTracks.set(v,sdk);}
       }else if(v.srcObject!==stream)v.srcObject=stream;
       v.autoplay=true;v.playsInline=true;v.muted=true;v.defaultMuted=true;
       v.setAttribute('autoplay','');v.setAttribute('playsinline','');v.setAttribute('muted','');
@@ -213,6 +214,12 @@
     add(document.getElementById('ktRemoteHostPreview'));
     try{
       document.querySelectorAll(
+        '.kt-remote-live .ktg13-host>video,'+
+        '.kt-remote-live .ktg9-host>video,'+
+        '.kt-remote-live .ktsubscriber-host>video,'+
+        '.kt-remote-live .ktsecret-slot.host>video,'+
+        '.kt-remote-live .ktsecret-host>video,'+
+        '.kt-remote-live .ktsolo-main>video,'+
         '.kt-guest-hostlike-room .kgh-cell.host video,'+
         '.kt-approved-guest-grid .kt-approved-guest-cell.host video,'+
         '.kt-prejoin-room-grid .kt-prejoin-room-cell.host video,'+
@@ -618,7 +625,18 @@
       return null;
     }
   }
-  async function publishSharedStream(stream){
+  var guestPublishTasks=new WeakMap();
+  function publishSharedStream(stream){
+    if(currentRole!=='guest'||!room)return publishSharedStreamNow(stream);
+    var owner=room,prior=guestPublishTasks.get(owner);
+    if(prior&&prior.stream===stream)return prior.promise;
+    var entry={stream:stream,promise:null};
+    entry.promise=Promise.resolve(prior&&prior.promise).catch(function(){}).then(function(){
+      if(room===owner&&currentRole==='guest')return publishSharedStreamNow(stream);
+    }).finally(function(){if(guestPublishTasks.get(owner)===entry)guestPublishTasks.delete(owner);});
+    guestPublishTasks.set(owner,entry);return entry.promise;
+  }
+  async function publishSharedStreamNow(stream){
     if(!room||room.state!=='connected'||!liveStream(stream))return;
     var LK=window.LivekitClient;if(!LK)return;
     var vp=room.localParticipant;
@@ -631,7 +649,9 @@
           }catch(e){}
         }
         var lv=new LK.LocalVideoTrack(vt);
-        await vp.publishTrack(lv,{source:LK.Track.Source.Camera,simulcast:(currentRole==='host')});
+        var options={source:LK.Track.Source.Camera,simulcast:true};
+        if(currentRole==='guest')options.videoEncoding={maxBitrate:1500000,maxFramerate:24};
+        await vp.publishTrack(lv,options);
         publishedVideoId=vt.id;
       }
     }catch(e){}
