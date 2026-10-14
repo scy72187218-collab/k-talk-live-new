@@ -179,7 +179,7 @@
 (function(){
   if(document.querySelector('script[data-kt-sub-benefits-summary]'))return;
   var s=document.createElement('script');
-  s.src='subscriber-benefits-summary.js?v=20260911-benefits1';
+  s.src='subscriber-benefits-summary.js?v=20261014-single-movie-loader1';
   s.async=false;
   s.setAttribute('data-kt-sub-benefits-summary','1');
   document.head.appendChild(s);

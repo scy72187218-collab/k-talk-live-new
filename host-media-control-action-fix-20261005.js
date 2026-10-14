@@ -161,6 +161,10 @@
     return '';
   }
 
+  window.ktBottomCameraToggle=function(btn){if(localHostRoom(btn))camera(btn);return false;};
+  window.ktBottomMicToggle=function(btn){if(localHostRoom(btn))mic(btn);return false;};
+  window.ktBottomMovieOpen=function(){movie();return false;};
+
   document.addEventListener('click',function(e){
     var btn=e.target&&e.target.closest?e.target.closest('button'):null;
     if(!btn||!localHostRoom(btn))return;

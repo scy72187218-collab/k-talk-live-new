@@ -1,9 +1,10 @@
 /* K-Talk 호스트·운영진 TV/영화 공유 전용.
-   호스트·운영진은 레벨 21부터, 유료 구독자는 레벨 제한 없이 사용.
+   호스트·운영진은 레벨 20부터, 유료 구독자는 레벨 제한 없이 사용.
    본인이 소유하거나 방송 허가를 받은 영상/화면만 공유하도록 안내한다.
    기존 방/선물/버튼 배치는 변경하지 않고 '더보기' 안에 항목만 추가한다. */
 (function(){
-  if(window.__ktHostTvMovieLevel20_20260915)return;
+  if(window.__ktHostTvMovieTheater20261014)return;
+  window.__ktHostTvMovieTheater20261014=true;
   window.__ktHostTvMovieLevel20_20260915=true;
 
   var senderRefs=window.__ktHostMediaSenderRefs=window.__ktHostMediaSenderRefs||[];
@@ -52,10 +53,11 @@
   }
   function canUse(){
     if(isSubscriber())return true;
-    return isHostOrOperator()&&currentLevel()>=21;
+    return isHostOrOperator()&&currentLevel()>=20;
   }
   function deny(){
-    alert('📺 영화·TV·유튜브 공유는 호스트·운영진은 레벨 21부터 이용할 수 있고, 구독자는 레벨 제한 없이 모두 이용할 수 있습니다.');
+    var text='영화 공유는 호스트·운영진 레벨 20부터, 유료 구독자는 레벨 제한 없이 이용할 수 있습니다.';
+    if(typeof window.showSheet==='function')window.showSheet('영화 공유 이용 안내','<div class="rowbox">'+text+'</div>');else alert(text);
   }
   function isLocalLiveRoom(){
     return !!document.querySelector('.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room')&&!document.querySelector('.kt-remote-live');
@@ -136,6 +138,7 @@
       '.kt-movie-theater>:is(.ktsolo-tools,.ktg13-tools,.ktg9-tools,.ktsubscriber-tools,.ktsecret-tools){position:fixed!important;left:8px!important;right:8px!important;bottom:5px!important;top:auto!important;height:68px!important;z-index:82!important;transform:none!important}';
     s.textContent+='.kt-movie-theater>:is(.kt-sgfh-main,.kt-remote-prejoin-grid){position:fixed!important;left:8px!important;right:8px!important;top:calc(64dvh + 50px)!important;bottom:82px!important;height:auto!important;min-height:0!important;overflow:auto!important;z-index:80!important}.kt-movie-theater>.kt-sgfh-chat,.kt-movie-theater>.kt-remote-chat{position:fixed!important;left:8px!important;right:8px!important;top:calc(52dvh + 44px)!important;bottom:auto!important;height:12dvh!important;z-index:81!important;overflow:auto!important}.kt-movie-theater>.kt-sgfh-bottom,.kt-movie-theater>.kt-remote-bottom{position:fixed!important;left:8px!important;right:8px!important;bottom:5px!important;z-index:82!important}.kt-movie-theater>:is(.kt-sgfh-main,.kt-sgfh-chat,.kt-sgfh-bottom,.kt-remote-chat,.kt-remote-bottom,.kt-remote-prejoin-grid){display:block!important}';
     s.textContent+='.kt-movie-viewer .kt-movie-people-area{position:fixed!important;left:8px!important;right:8px!important;top:calc(64dvh + 50px)!important;bottom:82px!important;width:calc(100% - 16px)!important;height:calc(36dvh - 132px)!important;min-height:0!important;max-height:none!important;z-index:80!important;overflow:auto!important;transform:none!important;object-fit:contain!important}.kt-movie-viewer .kt-movie-chat-area{position:fixed!important;left:8px!important;right:8px!important;top:calc(52dvh + 44px)!important;bottom:auto!important;height:12dvh!important;max-height:12dvh!important;z-index:81!important;overflow:auto!important;transform:none!important}';
+    s.textContent+='#sheet.show:has(.kt-tv-movie-actions),#sheet.show:has(.kt-tv-movie-note){z-index:2147483645!important}';
     document.head.appendChild(s);
   }
 
@@ -306,7 +309,6 @@
   };
 
   window.ktOpenHostTvMovie=function(){
-    if(!canUse()){deny();return;}
     if(typeof window.showSheet!=='function')return;
     enterTheater();
     var html=''
@@ -316,9 +318,12 @@
       +'<button type="button" onclick="ktHostMediaConnectTv()">📺 TV<br>연결</button>'
       +'<button type="button" onclick="ktStopHostTvMovieShare()">⏹ 공유<br>중지</button>'
       +'</div>'
-      +'<div class="kt-tv-movie-note"><b>이용 기준</b><br>호스트·운영진: 레벨 21부터 · 구독자: 레벨 제한 없음<br><br><b>방송 콘텐츠</b><br>본인이 소유하거나 방송 허가를 받은 영상·화면만 공유해 주세요.</div>';
+      +'<div class="kt-tv-movie-note"><b>이용 기준</b><br>호스트·운영진: 레벨 20부터 · 구독자: 레벨 제한 없음<br><br><b>방송 콘텐츠</b><br>본인이 소유하거나 방송 허가를 받은 영상·화면만 공유해 주세요.</div>';
+    if(!canUse())html='<div class="kt-tv-movie-note"><b>현재 계정은 영상 공유 이용 조건을 충족하지 않습니다.</b><br>호스트·운영진 레벨 20 이상 또는 유료 구독이 필요합니다.</div>'+html;
     showSheet('📺 TV · 영화 · 화면공유',html);
   };
+
+  window.ktBottomMovieOpen=function(){window.ktOpenHostTvMovie();return false;};
 
   function addMoreEntry(){
     if(Date.now()>moreRequestedUntil||!isLocalLiveRoom())return;
@@ -326,7 +331,7 @@
     if(!body||body.querySelector('[data-kt-tv-movie-more]'))return;
     var b=document.createElement('button');
     b.type='button';b.className='kt-tv-movie-more';b.setAttribute('data-kt-tv-movie-more','1');
-    b.innerHTML='📺 TV · 영화 · 화면공유<small>호스트·운영진 레벨 21부터 · 구독자는 모두 이용</small>';
+    b.innerHTML='📺 TV · 영화 · 화면공유<small>호스트·운영진 레벨 20부터 · 구독자는 모두 이용</small>';
     b.onclick=function(){window.ktOpenHostTvMovie();};
     body.appendChild(b);
   }
