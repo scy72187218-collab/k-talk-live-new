@@ -41,7 +41,28 @@
   }
   function profilePhoto(){
     var p=profile();
-    return String(p.photo||'');
+    try{return localStorage.getItem(photoStorageKey())||String(p.photo||'');}catch(e){return String(p.photo||'');}
+  }
+  function photoStorageKey(){return 'kt_camera_off_custom_photo:'+((typeof window.ktProfileStorageKey==='function'&&window.ktProfileStorageKey())||'local');}
+  function safePhoto(url){url=String(url||'');return /^https:\/\//i.test(url)||(/^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(url)&&url.length<=16000)?url:'';}
+  function pickerStatus(text){var p=document.getElementById('ktCameraOffChoicePicker20260928'),s=p&&p.querySelector('[data-photo-status]');if(s)s.textContent=text;}
+  function savePhoto(photo){
+    if(!safePhoto(photo)){pickerStatus('사진을 준비하지 못했습니다. 다른 사진을 골라 주세요.');return;}
+    try{localStorage.setItem(photoStorageKey(),photo);localStorage.setItem('kt_camera_off_choice_20260928','profile');}catch(e){pickerStatus('사진을 저장할 공간이 부족합니다.');return;}
+    sendState(true,'profile');closePicker();
+  }
+  function preparePhoto(url){
+    var image=new Image();image.onload=function(){
+      try{var canvas=document.createElement('canvas'),size=192,encoded='';
+        do{canvas.width=size;canvas.height=size;var ctx=canvas.getContext('2d'),scale=Math.max(size/image.width,size/image.height);ctx.drawImage(image,(size-image.width*scale)/2,(size-image.height*scale)/2,image.width*scale,image.height*scale);encoded=canvas.toDataURL('image/jpeg',.65);size-=32;}while(encoded.length>16000&&size>=64);
+        savePhoto(encoded);
+      }catch(e){if(/^https:\/\//i.test(url))savePhoto(url);else pickerStatus('사진을 읽지 못했습니다. 다른 사진을 골라 주세요.');}
+    };image.onerror=function(){pickerStatus('사진을 읽지 못했습니다.');};image.src=url;
+  }
+  function pickPhoto(){
+    var input=document.createElement('input');input.type='file';input.accept='image/*';
+    input.onchange=function(){var f=input.files&&input.files[0];if(!f)return;if(!/^image\//i.test(f.type||'')||f.size>20*1024*1024){pickerStatus('20MB 이하의 사진 파일을 골라 주세요.');return;}var reader=new FileReader();reader.onload=function(){preparePhoto(String(reader.result||''));};reader.onerror=function(){pickerStatus('사진을 읽지 못했습니다.');};reader.readAsDataURL(f);};
+    input.click();
   }
   function choiceId(){
     try{return localStorage.getItem('kt_camera_off_choice_20260928')||'female1';}catch(e){return 'female1';}
@@ -70,7 +91,7 @@
       return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
     });
     var picked=choiceById(choice||choiceId());
-    if(isSelf&&choice==='profile'&&photo){
+    if(choice==='profile'&&safePhoto(photo)){
       return '<img src="'+photo.replace(/"/g,'&quot;')+'" alt="'+safeName+' 프로필"><small>'+safeName+'</small>';
     }
     return '<div class="kt-camera-off-face" style="background:'+picked.bg+'">'+picked.icon+'</div><small>'+picked.label+'</small>';
@@ -90,6 +111,7 @@
       +'.kt-camera-off-choice-picker-20260928 button{min-width:0!important;height:72px!important;border:1px solid rgba(255,255,255,.16)!important;border-radius:13px!important;background:#1c1c22!important;color:#fff!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:4px!important;font-weight:900!important;touch-action:manipulation!important}'
       +'.kt-camera-off-choice-picker-20260928 button b{font-size:29px!important;line-height:1!important}.kt-camera-off-choice-picker-20260928 button small{font-size:7px!important;line-height:1.1!important;text-align:center!important;color:#fff!important}'
       +'.kt-camera-off-choice-picker-20260928 button.on{border-color:#ffd75a!important;box-shadow:0 0 12px #ffd75a55!important;background:#29231a!important}';
+    s.textContent+='.kt-camera-off-choice-picker-20260928{grid-template-columns:repeat(3,minmax(0,1fr))!important;max-height:70dvh!important;overflow:auto!important}.kt-camera-off-picker-head{grid-column:1/-1;display:flex;align-items:center;gap:8px}.kt-camera-off-picker-head button{height:38px!important;padding:0 10px!important}.kt-camera-off-picker-head b{font-size:12px!important}';
     document.head.appendChild(s);
   }
 
@@ -138,7 +160,7 @@
           old.className='kt-camera-off-avatar-20260928';
           tile.appendChild(old);
         }
-        old.innerHTML=avatarHtml(st.name||name,(id===self?photo:''),id===self,st.choice||'female1');
+        var html=avatarHtml(st.name||name,(id===self?photo:st.photo||''),id===self,st.choice||'female1');if(old.innerHTML!==html)old.innerHTML=html;
       }else if(old){
         old.remove();
       }
@@ -149,7 +171,7 @@
     var host=currentHost(),participant=selfParticipant();
     if(!host||!participant)return;
     choice=choice||choiceId();
-    states[participant]={off:!!off,name:profileName(),choice:choice,at:Date.now()};
+    states[participant]={off:!!off,name:profileName(),choice:choice,photo:off&&choice==='profile'?safePhoto(profilePhoto()):'',at:Date.now()};
     render();
     try{
       await fetch(BASE+'ktalk_live_messages',{
@@ -159,7 +181,7 @@
           host_id:host,
           sender_id:'camera:'+participant,
           sender_name:profileName(),
-          message:JSON.stringify({participant:participant,off:!!off,name:profileName(),choice:choice,at:Date.now()}),
+          message:JSON.stringify({participant:participant,off:!!off,name:profileName(),choice:choice,photo:off&&choice==='profile'?safePhoto(profilePhoto()):'',at:Date.now()}),
           message_type:'camera_state'
         })
       });
@@ -176,6 +198,12 @@
     var p=document.createElement('div');
     p.id='ktCameraOffChoicePicker20260928';
     p.className='kt-camera-off-choice-picker-20260928';
+    var header=document.createElement('div');header.className='kt-camera-off-picker-head';
+    var back=document.createElement('button');back.type='button';back.textContent='← 돌아가기';back.onclick=closePicker;header.appendChild(back);
+    var title=document.createElement('b');title.textContent='카메라 대신 표시할 사진';header.appendChild(title);p.appendChild(header);
+    var status=document.createElement('small');status.setAttribute('data-photo-status','');status.style.gridColumn='1 / -1';p.appendChild(status);
+    var own=document.createElement('button');own.type='button';own.textContent='내 프로필 사진';own.onclick=function(){var photo=String(profile().photo||'');if(!photo){pickerStatus('등록된 프로필 사진이 없습니다. 사진첩에서 골라 주세요.');return;}preparePhoto(photo);};p.appendChild(own);
+    var gallery=document.createElement('button');gallery.type='button';gallery.textContent='사진첩에서 고르기';gallery.onclick=pickPhoto;p.appendChild(gallery);
     var current=choiceId();
     CHOICES.forEach(function(ch){
       var b=document.createElement('button');
@@ -196,6 +224,7 @@
   }
 
   window.ktCameraOffChoicePicker20260928=openPicker;
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closePicker();});
 
   window.ktCameraOffAvatarState20260928=async function(off){
     var choice=choiceId();
@@ -222,7 +251,7 @@
             var id=String(d.participant||'');
             if(!id||latest[id])return;
             latest[id]=1;
-            states[id]={off:!!d.off,name:String(d.name||row.sender_name||'회원'),choice:String(d.choice||'female1'),at:Number(d.at||0)};
+            states[id]={off:!!d.off,name:String(d.name||row.sender_name||'회원'),choice:String(d.choice||'female1'),photo:safePhoto(d.photo||''),at:Number(d.at||0)};
           }catch(e){}
         });
       }
