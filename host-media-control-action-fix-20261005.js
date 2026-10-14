@@ -167,7 +167,7 @@
     return '';
   }
 
-  document.addEventListener('pointerdown',function(e){
+  document.addEventListener('click',function(e){
     var btn=e.target&&e.target.closest?e.target.closest('button'):null;
     if(!btn||!localHostRoom(btn))return;
     var k=kind(btn);
@@ -175,7 +175,7 @@
 
     /* Only take over the three existing host media buttons. */
     if(!(btn.classList.contains('kt-bottom-media-replaced')||
-         btn.closest('.kt-host-admin-media-20260928')))return;
+         btn.closest('.kt-host-admin-media-20260928,.ktsolo-tools,.ktg13-tools,.ktg9-tools,.ktsubscriber-tools,.ktsecret-tools')))return;
 
     try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
     if(k==='camera')camera(btn);
