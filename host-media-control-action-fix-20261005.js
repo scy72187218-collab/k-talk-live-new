@@ -19,8 +19,12 @@
 
   function stream(){
     try{
-      var s=window.state&&state.stream;
+      var s=window.state&&window.state.stream;
       if(s&&s.getTracks)return s;
+      var v=document.getElementById('camera');
+      if(v&&v.srcObject&&v.srcObject.getTracks)return v.srcObject;
+      v=document.querySelector('#screen .ktsolo-main video,#screen .ktg13-host video,#screen .ktg9-host video,#screen .ktsubscriber-host video,#screen .ktsecret-slot.host video');
+      if(v&&v.srcObject&&v.srcObject.getTracks)return v.srcObject;
     }catch(e){}
     return null;
   }
