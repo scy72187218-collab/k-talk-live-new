@@ -197,3 +197,7 @@ Owner clarifies initiallyblurry thenimproves, asksfasterclarity. Keepadaptive an
 
 ## Approved guest horizontal direction2026-10-15
 Owner explicitly confirms approvedguest left/right mirrored, hostcorrect. Remove mirror from approvedguest CSS and directpeer ontrack, local approvedself rendering/orientation guard. SFU guest-only attachment helper sets standard/WebKit transformnone; hostattachmentcalls unchanged. Preservehost rotations, sizing/crop, mediaquality/startup, approval/privacy. Mock gueststandard/WebKitnone +hostcallunchanged andsyntaxpass. Actualhandset direction notverified; camera source alreadyburned-in mirroring cannotfix byCSS ifpresent.
+
+
+## Multi-viewer direct signaling concurrency2026-10-15
+Owner clarifies 2nd-5th spectators seehostvideo late, notapprovedguest media. hostProcessSignals sequentialforloop awaited eachoffer/ICE220ms/PATCH before nextviewer. Replace with max4 asynchronous workers sharingcursor; per-viewerscoped PC preserves identity, existinghostSignalBusy avoids overlapping polls. 5thstartswhenanyworkeravailable evenif1stslow. Existing SFU/approval/UI/mediaquality untouched. Mock actualhostProcessSignals5sessions: first4offerstartparallel, resolve2before1 starts5, each5unique PATCHonce; syntaxpass. Realphonesstartup latency unmeasured and SFUvsdirect path notcertified. Scope communication authorizedbyowner.

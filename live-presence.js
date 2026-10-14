@@ -254,8 +254,10 @@
     hostSignalBusy=true;
     try{
       var rows=await req('ktalk_webrtc_sessions?select=id,host_id,viewer_id,offer_sdp,answer_sdp,active,updated_at&host_id=eq.'+enc(hostId)+'&active=eq.true&order=created_at.asc&limit=30');
-      for(var i=0;i<(rows||[]).length;i++){
-        var x=rows[i],entry=hostPeers[x.id];
+      var pending=rows||[],cursor=0;
+      async function processViewerSession(x){
+        if(!hostActive)return;
+        var entry=hostPeers[x.id];
         if(!entry&&x.offer_sdp==='pending'){
           var pc=new RTCPeerConnection(ktIceConfig20260921());hostPeers[x.id]={pc:pc,remoteSet:false};entry=hostPeers[x.id];
           stream.getTracks().forEach(function(t){try{pc.addTrack(t,stream);}catch(e){}});
@@ -268,6 +270,14 @@
           try{await entry.pc.setRemoteDescription({type:'answer',sdp:x.answer_sdp});entry.remoteSet=true;}catch(e){}
         }
       }
+      async function worker(){
+        while(cursor<pending.length&&hostActive){
+          var row=pending[cursor++];
+          await processViewerSession(row);
+        }
+      }
+      // Independent viewers prepare concurrently, capped to protect the host phone.
+      await Promise.all(Array.from({length:Math.min(4,pending.length)},function(){return worker();}));
     }catch(e){}
     finally{hostSignalBusy=false;}
   }
