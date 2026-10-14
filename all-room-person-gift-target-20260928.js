@@ -35,7 +35,7 @@
   }
   function nameOf(tile){
     if(!tile)return '회원';
-    if(tile.id==='ktRemoteLiveVideo'){var r=window.__ktLastLiveRoom||{};return String(r.host_name||'호스트');}
+    if(kindOf(tile)==='host'){var r=window.__ktLastLiveRoom||{},root=tile.closest('.kt-remote-live'),id=root&&root.getAttribute('data-kt-host-id');if(id&&String(r.host_id||'')===String(id)&&r.host_name)return clean(r.host_name);var hostLabel=tile.querySelector('.kt-allhost-name,.kt-hg-name,.ktg13-host-name,.kt-sgfh-host-name,label');return clean(hostLabel&&hostLabel.textContent||'호스트');}
     var d=tile.dataset||{};
     var n=d.nickname||d.displayName||d.guestName||d.viewerName||d.name||'';
     if(n)return clean(n);
@@ -74,10 +74,6 @@
       window.ktGuestGiftTarget=null;
     }
 
-    try{
-      if(typeof window.showSmallGiftFx==='function')
-        window.showSmallGiftFx('🎁 선물 대상: '+nameOf(tile),'','K-Talk');
-    }catch(e){}
     return true;
   }
 
