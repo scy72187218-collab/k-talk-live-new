@@ -92,6 +92,7 @@
       +'.kt-remote-chat-line{display:flex;align-items:baseline;gap:6px;margin-top:5px;min-width:0;color:#fff;font-size:12px;font-weight:850;line-height:1.28;text-shadow:0 1px 3px #000,0 0 7px #000}.kt-remote-chat-line b{flex:0 0 auto;color:#70d7ff;font-size:12px;font-weight:950;max-width:38%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.kt-remote-chat-line span{min-width:0;color:#fff;overflow-wrap:anywhere}.kt-remote-chat-line.system b{color:#ffd75e}.kt-remote-chat-line.system span{color:#ffe99a;font-weight:900}'
       +'.kt-remote-attendance{position:absolute;z-index:10;right:12px;top:62px;height:34px;padding:0 12px;border:2px solid #ff2bbd;border-radius:18px;background:#130714;color:#ffd52f;font-size:12px;font-weight:950;box-shadow:0 0 9px #ff2bbd;touch-action:manipulation}.kt-remote-attendance.done{border-color:#55d98b;color:#baffcf;box-shadow:0 0 8px #39c976}'
       +'.kt-remote-bottom{position:absolute;left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom));z-index:8;display:flex;align-items:center;gap:7px}.kt-remote-bottom input{flex:1 1 auto;min-width:0;height:44px;border:1px solid rgba(255,255,255,.16);border-radius:23px;background:rgba(28,28,34,.88);color:#fff;padding:0 14px;font-size:14px;font-weight:750;outline:none;backdrop-filter:blur(5px)}.kt-remote-bottom input::placeholder{color:#c9c9ce}.kt-remote-action{width:44px;height:44px;flex:0 0 44px;border:1px solid rgba(255,255,255,.17);border-radius:50%;background:rgba(23,23,29,.9);color:#fff;font-size:20px;display:grid;place-items:center;touch-action:manipulation}.kt-remote-action.heart{background:rgba(77,16,50,.92);color:#ff65ad}.kt-remote-action.gift{background:rgba(62,37,11,.92)}.kt-remote-action.share{font-size:19px}'
+      +'#ktRemoteChatList{pointer-events:auto!important}'
       +'.kt-remote-heart-pop{position:absolute;right:18px;bottom:126px;z-index:9;font-size:31px;pointer-events:none;animation:ktRemoteHeartFloat 1.15s ease-out forwards}@keyframes ktRemoteHeartFloat{0%{opacity:0;transform:translateY(15px) scale(.7)}20%{opacity:1}100%{opacity:0;transform:translateY(-95px) scale(1.25)}}'
       +'@media(max-width:390px){.kt-remote-chat{left:9px;right:54px;bottom:60px;max-height:66px}.kt-remote-attendance{right:8px;top:58px;height:31px;font-size:11px;padding:0 9px}.kt-remote-bottom{left:6px;right:6px;gap:5px}.kt-remote-bottom input{height:42px;padding:0 12px;font-size:13px}.kt-remote-action{width:40px;height:40px;flex-basis:40px;font-size:18px}.kt-remote-chat-line,.kt-remote-chat-line b{font-size:11px}}';
     document.head.appendChild(s);
@@ -111,8 +112,10 @@
     var root=document.querySelector('#screen .kt-remote-live');if(!root)return;
     var done=false;try{done=localStorage.getItem(attendanceKey())==='1';}catch(e){}
     var b=root.querySelector('#ktRemoteAttendance');
+    var nine=root.getAttribute('data-kt-room-type')==='group9'||!!root.querySelector('[data-kt-room="9"]');
+    if(nine&&b&&!root.querySelector('.kt-attendance-heart-badge')){var heart=document.createElement('span');heart.className='kt-attendance-heart-badge';heart.setAttribute('aria-label','출석 인원');heart.style.setProperty('position','static','important');heart.style.setProperty('transform','none','important');heart.style.setProperty('margin-left','4px','important');b.insertAdjacentElement('afterend',heart);}
     var n=Math.max(0,parseInt(count!=null?count:(b&&b.dataset.count||'0'),10)||0);
-    if(b){b.dataset.count=String(n);b.classList.toggle('done',done);var text=(done?'✓ 출석 완료 ':'🌹 출석체크 ')+n;if(b.textContent!==text)b.textContent=text;b.disabled=done;}
+    if(b){b.dataset.count=String(n);b.classList.toggle('done',done);var text=(done?'✓ 출석 완료':'🌹 출석체크')+(nine?'':' '+n);if(b.textContent!==text)b.textContent=text;b.disabled=done;}
     root.querySelectorAll('.kt-attendance-heart-badge').forEach(function(el){var text='💗 '+n+'명';if(el.textContent!==text)el.textContent=text;});
   }
   function ensureRemoteUi(){
@@ -370,6 +373,9 @@
     hostRoomStart=nextStart||hostRoomStart;
     var rows=await fetchMessages(hid,hostRoomStart);
     processHostEvents(rows);
+    // Reconstruct the display from attendance records even if reward events were already processed.
+    var attendanceRoom=currentHostRoom();
+    if(attendanceRoom){try{var key='ktalk_room_attendance_count:'+todayKey()+':'+hostRoomKey(attendanceRoom);var total=Math.max(Number(localStorage.getItem(key)||0),attendanceCount(rows));localStorage.setItem(key,String(total));attendanceRoom.querySelectorAll('.kt-attendance-heart-badge').forEach(function(el){el.textContent='💗 '+total+'명';el.setAttribute('aria-label','출석 인원 '+total+'명');});attendanceRoom.querySelectorAll('#ktAttendanceTopCount,.kt-attendance-room-count').forEach(function(el){el.textContent=String(total);});}catch(e){}}
     paintHostMessages(box,rows);
   }
   async function sendHostChat(text){text=String(text||'').trim();if(!text)return;var hid=deviceId(),room=await activeRoom(hid);if(!room)return;var p=profile();await postMessage(hid,hid,p.name||'호스트',text,'chat');setTimeout(refreshHost,80);}

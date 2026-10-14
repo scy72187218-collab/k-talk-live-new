@@ -24,3 +24,7 @@ Runtime6cdbcf2a15a95d561bc914f92a9b3a1a5825243a, deploymentdpl_C2x7yvha1QPpB6XrR
 
 ## Gift layout correction2026-10-14
 Owner requests bottom gift sheet aligned below chat, selected recipient face/name, actions temporarily invisible only while gifts open, and other-person photo -> gift menu -> gift box flow. Scoped files: gift-pretty, gift-recipient-picker-scroll, all-room-person-gift-target, index cache versions. No media acquisition/transport/sizing, attendance, timers, approval, access or financial rule changes. Candidate syntax and current-host/selected-guest/stale-target tests passed; actual UI verification pending release.
+
+
+## Photo/chat likes and9-room attendance heart
+Owner added explicit request during gift verification. Photo target menu also records one existing remote like; blank chat container routes existing like handler, excluding inputs/controls/messages. Host-photo double counting guarded across existing handlers. Nine guest attendance heart uses existing attendance aggregate; host visible counter is reconstructed from attendance messages independently of processed reward events. No reward/payout logic change. Source checks and blank-chat interaction tests passed; production UI verification pending.

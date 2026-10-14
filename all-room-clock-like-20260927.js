@@ -168,6 +168,14 @@
     }catch(_e){}
   },true);
 
+  // Only empty chat background is a like surface; text, input and controls remain untouched.
+  document.addEventListener('click',function(e){
+    var t=e.target;if(!t||!t.closest||t.closest('button,input,textarea,select,a,#sheet'))return;
+    var chat=t.closest('#ktRemoteChatList,.ktg13-chat,.ktsolo-chat,.ktsubscriber-chat,.ktsecret-chat,.kt-sgfh-chat');
+    if(!chat||t!==chat)return;
+    if(chat.closest('.kt-remote-live')){if(typeof window.ktRemoteLike==='function')window.ktRemoteLike();return;}
+    if(typeof window.addHostLike==='function')window.addHostLike(1);
+  },true);
   ensure();
   [60,160,350,700,1200,2200].forEach(function(ms){setTimeout(ensure,ms);});
   setInterval(ensure,700);

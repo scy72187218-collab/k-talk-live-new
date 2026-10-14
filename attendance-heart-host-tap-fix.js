@@ -392,6 +392,7 @@
     if(!host)return;
     var room=host.closest(roomSelector);
     if(!room)return;
+    var likeNow=Date.now();if(likeNow-Number(window.__ktHostPhotoLikeTapAt||0)<350)return;window.__ktHostPhotoLikeTapAt=likeNow;
     try{
       if(typeof window.addHostLike==='function'){
         window.addHostLike(1);

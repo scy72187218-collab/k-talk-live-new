@@ -139,6 +139,7 @@
       if(e&&e.stopPropagation)e.stopPropagation();
       if(e&&e.stopImmediatePropagation)e.stopImmediatePropagation();
     }catch(_e){}
+    if(isRemoteViewer()){if(typeof window.ktRemoteLike==='function')window.ktRemoteLike();}else if(kind==='guest'&&typeof window.addHostLike==='function')window.addHostLike(1);
     return openGiftFor(tile);
   }
 

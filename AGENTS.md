@@ -165,3 +165,7 @@ Preserve runtime6cdbcf2a15a95d561bc914f92a9b3a1a5825243a. Read LOCK_GUEST_CONTRO
 
 # Owner scoped gift layout and person menu correction (2026-10-14)
 Owner requests person photo -> recipient menu -> gift box -> choose gift -> close; bottom gift panel below chat while other people remain visible; hide undo/treasure/match only while gift panel open and restore on close; recipient face/name always shown for current recipient. This authorizes only gift menu/layout/recipient display changes. Preserve all5061/5062 locked transport, timers, attendance, sizing, approval, access and payout behavior. No paid gift sending was authorized for agent testing.
+
+
+# Additional owner scope: photo and empty chat likes; 9-room attendance heart (2026-10-14)
+Owner requests photo taps and empty chat background taps count likes, alongside existing recipient-menu opening; exclude text inputs, message lines, buttons and sheets. Fix 9-room attendance heart next to check-in so unique attendance is reflected even when reward events have already been processed. Only these interactions/counter displays are authorized. Do not alter media, sizes, timers, approval, entry, access or payout rules. Existing locks remain in force.
