@@ -212,6 +212,8 @@
     }catch(e){return false;}
   }
   function attachHostVideo(stream){
+    window.__ktSfuPreferredHostStream20261015=stream;
+    window.__ktSfuPreferredHostId20261015=currentHostId;
     var targets=[];
     function add(v){if(v&&targets.indexOf(v)<0)targets.push(v);}
     add(document.getElementById('ktRemoteHostPreview'));
@@ -509,6 +511,7 @@
     publishedVideoId='';publishedAudioId='';
   }
   async function disconnectRoom(){
+    window.__ktSfuPreferredHostStream20261015=null;window.__ktSfuPreferredHostId20261015='';
     connectGeneration20261015++;
     var old=room;room=null;connecting=false;reconnectHoldUntil=0;hostRetryAt=0;hostFailureCount=0;
     if(reconnectRetryTimer){clearTimeout(reconnectRetryTimer);reconnectRetryTimer=null;}
@@ -607,6 +610,9 @@
           if(!guestFast)hostRetryAt=Date.now()+hold;
           reconnectHoldUntil=Date.now()+hold;
           connecting=false;
+          window.__ktSfuPreferredHostStream20261015=null;window.__ktSfuPreferredHostId20261015='';
+          var backup=window.__ktDirectHostStream20261015;
+          try{if(backup&&String(window.__ktDirectHostId20261015||'')===currentHostId&&window.ktAttachRemoteHostStreamEverywhere20261009)window.ktAttachRemoteHostStreamEverywhere20261009(backup);}catch(e){}
           setState({connected:false,connecting:true});
           if(reconnectRetryTimer)clearTimeout(reconnectRetryTimer);
           reconnectRetryTimer=setTimeout(function(){
@@ -689,7 +695,34 @@
       }
     }catch(e){}
   }
+  var hostWakeLock20261015=null,hostWakePending20261015=false,hostWakeRetryAt20261015=0;
+  function hostNeedsWake20261015(){
+    return !document.hidden&&!window.__ktHostEndLock&&isHostRole()&&liveStream(hostStream());
+  }
+  function releaseHostWake20261015(){
+    var lock=hostWakeLock20261015;hostWakeLock20261015=null;
+    if(lock)try{var done=lock.release();if(done&&done.catch)done.catch(function(){});}catch(e){}
+  }
+  async function maintainHostWake20261015(){
+    if(!hostNeedsWake20261015()){releaseHostWake20261015();return;}
+    if(hostWakeLock20261015||hostWakePending20261015||Date.now()<hostWakeRetryAt20261015||!navigator.wakeLock)return;
+    hostWakePending20261015=true;
+    try{
+      var lock=await navigator.wakeLock.request('screen');
+      if(!hostNeedsWake20261015()){await lock.release();return;}
+      hostWakeLock20261015=lock;
+      lock.addEventListener('release',function(){
+        if(hostWakeLock20261015===lock){hostWakeLock20261015=null;hostWakeRetryAt20261015=Date.now()+30000;}
+      });
+    }catch(e){hostWakeRetryAt20261015=Date.now()+30000;}
+    finally{hostWakePending20261015=false;}
+  }
+  document.addEventListener('visibilitychange',function(){if(!document.hidden){hostWakeRetryAt20261015=0;maintainHostWake20261015();}});
+  window.addEventListener('kt-broadcast-ended',releaseHostWake20261015);
+  window.addEventListener('pagehide',releaseHostWake20261015);
+
   async function hostTick(){
+    maintainHostWake20261015();
     if(!isHostRole()&&viewerExplicitlyExited20261015())return;
     if(!isHostRole()){
       var remoteRoot=document.querySelector('#screen .kt-remote-live');
