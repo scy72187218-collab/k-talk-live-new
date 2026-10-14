@@ -70,3 +70,7 @@ Owner explicitly requests bottom camera/mic/friends/messages/movie/share/more ab
 
 ## Movie host self-photo tools2026-10-14
 Owner requests host self photo contains hidden footer tools during movie/video. While local host tile is inside temporary movie theater only, self-photo tap opens tools menu referencing existing hidden bottom buttons via original click plus gift-box entry. Other person recipient menus and self-gift exclusion outside movie remain unchanged. No new media implementation or permissions, no other-room layout changes. Syntax checked; physical host photo menu verification pending. Footer hiding commit7f0d1e13 production READY.
+
+
+## Phone movie touch release correction2026-10-14
+Owner reports all phone movie buttons still no-open. Earlier official browser movie opened on Enter but not pointer click; do not equate that with phone verification. Add local host footer movie-only pointerup path (touchend fallback without PointerEvent), keeping existing click/keyboard path; throttle shared movie invocation500ms to deduplicate generated click. No acquisition, camera/mic behavior, movie eligibility, guest access or layout changes. Test pointer release without click opens once; subsequent click dedup; remote viewer excluded passes. Actual phone retest pending.
