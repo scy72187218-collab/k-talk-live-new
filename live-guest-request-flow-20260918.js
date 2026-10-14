@@ -10,7 +10,8 @@
   var ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]};
   var hostPoll=null,viewerPoll=null,hostGuestPeers={},requestNames={},hostGuestMissingSince={};
   var viewerGuest={pc:null,stream:null,sessionId:'',hostId:'',approvedKey:'',viewTimer:null,prejoinHostStream:null,connectStartedAt:0,approvalMissingSince:0,mediaDenied:false,mediaOpening:false,prewarmTimer:null};
-  var viewerRootMissingSince=0;
+  var viewerRootMissingSince=0,guestExitGeneration20261015=0;
+  function explicitlyLeft20261015(){try{return localStorage.getItem('kt_explicit_guest_exit:'+deviceId())==='1';}catch(e){return false;}}
   try{
     window.__ktLegacyGuestUplinkState20260923='idle';
     window.__ktLegacyGuestUplinkStateAt20260923=Date.now();
@@ -250,7 +251,7 @@
     +'.kt-guest-float{position:fixed!important;z-index:100000!important;pointer-events:none!important;min-width:86px!important;height:36px!important;border:1px solid #62d8ff!important;border-radius:18px!important;background:#06121cf2!important;color:#fff!important;padding:0 10px!important;display:grid!important;place-items:center!important;font-size:9px!important;font-weight:950!important;box-shadow:0 0 14px #38cfff88!important}'
     +'@media(max-width:390px){.ktg13-request-rail{left:42%!important}.ktg13-request-chip{min-width:78px!important;height:32px!important;font-size:8px!important}}';document.head.appendChild(s);}
 
-  async function currentViewerHost(){try{var rows=await req('ktalk_live_viewers?select=host_id,viewer_id,active,updated_at&viewer_id=eq.'+enc(viewerId())+'&active=eq.true&order=updated_at.desc&limit=1');var h=rows&&rows[0]?String(rows[0].host_id||''):'';if(h){window.__ktRemoteHostId=h;try{sessionStorage.setItem('kt_remote_host_id',h);}catch(e){}}return h;}catch(e){return '';}}
+  async function currentViewerHost(){if(explicitlyLeft20261015())return '';try{var rows=await req('ktalk_live_viewers?select=host_id,viewer_id,active,updated_at&viewer_id=eq.'+enc(viewerId())+'&active=eq.true&order=updated_at.desc&limit=1');var h=rows&&rows[0]?String(rows[0].host_id||''):'';if(explicitlyLeft20261015())return '';if(h){window.__ktRemoteHostId=h;try{sessionStorage.setItem('kt_remote_host_id',h);}catch(e){}}return h;}catch(e){return '';}}
   async function activeHostRoom(){
     try{
       var rows=await req('ktalk_live_rooms?select=host_id,started_at,room_type,room_name,active,updated_at&host_id=eq.'+enc(deviceId())+'&active=eq.true&order=started_at.desc&limit=1');
@@ -1328,6 +1329,8 @@
   }
 
   async function viewerTick(){
+    if(explicitlyLeft20261015())return;
+    var exitGeneration=guestExitGeneration20261015;
     ensureStyle();bindRequestButton();
     if(!document.querySelector('.kt-remote-live')){
       if(!viewerRootMissingSince)viewerRootMissingSince=Date.now();
@@ -1349,9 +1352,11 @@
     }
     viewerRootMissingSince=0;
     var hostId=await currentViewerHost();
+    if(exitGeneration!==guestExitGeneration20261015||explicitlyLeft20261015())return;
     if(!hostId){ensurePrejoinRoomGrid();return;}
     syncViewerApprovedRoster(hostId);
     var vid=viewerId(),ap=await latestApproval(hostId,vid);
+    if(exitGeneration!==guestExitGeneration20261015||explicitlyLeft20261015())return;
     if(ap){
       syncViewerApprovedRoster(hostId);
       viewerGuest.approvalMissingSince=0;
@@ -1471,8 +1476,23 @@
     var hostId=viewerGuest.hostId||'';
     var vid=viewerId();
     var sid=viewerGuest.sessionId||'';
+    var wasApproved=!!(viewerGuest.approvedKey||((window.__ktApprovedGuestIds20260924||{})[vid]===true));
+    guestExitGeneration20261015++;
+    if(viewerGuest.pc){try{viewerGuest.pc.close();}catch(e){}viewerGuest.pc=null;}
+    viewerGuest.sessionId='';
+    viewerGuest.connectStartedAt=0;
+    stopLocalGuestViewGuard();
+    viewerGuest.prejoinHostStream=null;
+    if(viewerGuest.stream){
+      try{viewerGuest.stream.getTracks().forEach(function(t){t.stop();});}catch(e){}
+      viewerGuest.stream=null;
+    }
+    viewerGuest.hostId='';
+    viewerGuest.approvedKey='';
+    try{delete (window.__ktApprovedGuestIds20260924||{})[vid];window.__ktApprovedGuestSelfStream=null;window.__ktLocalGuestCameraStream20260926=null;}catch(e){}
 
-    if(hostId&&(viewerGuest.approvedKey||((window.__ktApprovedGuestIds20260924||{})[vid]===true))){
+
+    if(hostId&&wasApproved){
       signalApprovedGuestLeftNow20261002(hostId,vid);
     }
 
@@ -1504,17 +1524,7 @@
       }
     }catch(e){}
 
-    if(viewerGuest.pc){try{viewerGuest.pc.close();}catch(e){}viewerGuest.pc=null;}
-    viewerGuest.sessionId='';
-    viewerGuest.connectStartedAt=0;
-    stopLocalGuestViewGuard();
-    viewerGuest.prejoinHostStream=null;
-    if(viewerGuest.stream){
-      try{viewerGuest.stream.getTracks().forEach(function(t){t.stop();});}catch(e){}
-      viewerGuest.stream=null;
-    }
-    viewerGuest.hostId='';
-    viewerGuest.approvedKey='';
+
   }
 
   function bindGuestLeaveCleanup(){
@@ -1522,6 +1532,7 @@
     if(typeof old!=='function'||old.__ktGuestLeaveCleanup)return;
     var wrapped=function(){
       var args=arguments,self=this;
+      if(!args[0])try{localStorage.setItem('kt_explicit_guest_exit:'+deviceId(),'1');}catch(e){}
       try{
         var cleaning=leaveApprovedGuestNow();
         if(cleaning&&cleaning.catch)cleaning.catch(function(){});
@@ -1532,6 +1543,7 @@
     window.ktLeaveRemoteLive=wrapped;
   }
 
+  window.addEventListener('kt-remote-host-selected',function(e){if(e&&e.detail&&e.detail.immediate){try{localStorage.removeItem('kt_explicit_guest_exit:'+deviceId());}catch(x){}}});
   function start(){if(started)return;started=true;bindGuestLeaveCleanup();setInterval(bindGuestLeaveCleanup,800);ensureStyle();bindRequestButton();hostPoll=setInterval(hostTick,400);viewerPoll=setInterval(viewerTick,350);setTimeout(hostTick,80);setTimeout(viewerTick,120);var dedupeTimer=null,obs=new MutationObserver(function(){bindRequestButton();clearTimeout(dedupeTimer);dedupeTimer=setTimeout(removeDuplicateGroupRoom,30);});obs.observe(document.documentElement,{childList:true,subtree:true});}
   window.addEventListener('kt-guest-approval-received',function(){setTimeout(viewerTick,10);setTimeout(viewerTick,120);setTimeout(viewerTick,420);});
   window.addEventListener('kt-host-session-reset',function(e){

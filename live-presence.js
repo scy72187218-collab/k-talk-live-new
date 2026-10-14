@@ -523,6 +523,7 @@
     var c=viewerCtx;
     try{
       var rows=await req('ktalk_live_rooms?select=id,host_id,active,updated_at&host_id=eq.'+enc(c.hostId)+'&active=eq.true&order=started_at.desc&limit=1');
+      if(entryGeneration!==remoteEntryGeneration20261015)return;
       var room=rows&&rows[0];
       if(!room||Date.now()-new Date(room.updated_at).getTime()>STALE_MS){
         /* A brief LIVE-row/heartbeat miss must never eject a viewer while the
@@ -611,12 +612,16 @@
     var hostId=String(c.hostId||'');
     if(!hostId)return;
     try{await window.ktLeaveRemoteLive(true);}catch(e){}
+    var reconnectGeneration=remoteEntryGeneration20261015;
     setTimeout(function(){
+      if(reconnectGeneration!==remoteEntryGeneration20261015)return;
       try{if(window.ktEnterRemoteLive)window.ktEnterRemoteLive(hostId);}catch(e){}
     },350);
   }
 
+  var remoteEntryGeneration20261015=0;
   window.ktEnterRemoteLive=async function(hostId){
+    var entryGeneration=++remoteEntryGeneration20261015;
     hostId=String(hostId||'');if(!hostId)return;
 
     if(hostId===deviceId()&&hostActive){showActivity('현재 내가 방송 중인 방입니다.');return;}
@@ -723,6 +728,11 @@
       try{if(viewerReady&&viewerReady.catch)viewerReady.catch(function(){});}catch(_e){}
       try{if(oldSessionClosed&&oldSessionClosed.catch)oldSessionClosed.catch(function(){});}catch(_e){}
       var sessions=await req('ktalk_webrtc_sessions',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify({host_id:hostId,viewer_id:viewerId,offer_sdp:'pending',answer_sdp:null,active:true,updated_at:nowIso()})});
+      if(entryGeneration!==remoteEntryGeneration20261015){
+        var staleId=sessions&&sessions[0]&&sessions[0].id;
+        if(staleId)req('ktalk_webrtc_sessions?id=eq.'+enc(staleId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})}).catch(function(){});
+        return;
+      }
       var sessionId=sessions&&sessions[0]?sessions[0].id:'';if(!sessionId)throw new Error('session');
       var pc=new RTCPeerConnection(ktIceConfig20260921());
       viewerCtx={hostId:hostId,viewerId:viewerId,viewerName:p.name||'게스트',sessionId:sessionId,pc:pc,answered:false,signalTimer:null,heartbeat:null,activityTimer:null,lastMsg:'',roomMissingSince:0,signalMissingSince:0,disconnectTimer:null};
@@ -745,6 +755,7 @@
       }catch(_e){}
       showActivity(viewerCtx.viewerName+'님이 들어왔습니다.');
     }catch(e){
+      if(entryGeneration!==remoteEntryGeneration20261015)return;
       /* 느린 기기/순간 네트워크 오류에서는 방 화면을 바로 닫지 않는다.
          빨간 LIVE를 눌렀을 때 먼저 열린 방을 유지하고 최대 2번만 재시도한다. */
       try{
@@ -757,7 +768,7 @@
         window.__ktRemoteEnterRetry[hostId]=n+1;
         setTimeout(function(){
           try{
-            if(document.documentElement.classList.contains('kt-remote-viewing')&&!viewerCtx){
+            if(entryGeneration===remoteEntryGeneration20261015&&document.documentElement.classList.contains('kt-remote-viewing')&&!viewerCtx){
               window.ktEnterRemoteLive(hostId);
             }
           }catch(_e){}
@@ -796,6 +807,7 @@
   };
 
   window.ktLeaveRemoteLive=async function(silent){
+    remoteEntryGeneration20261015++;
     var c=viewerCtx;ktNotifyRemoteExit20260924(c);viewerCtx=null;window.__ktRemoteHostStream=null;window.__ktRemoteHostId='';window.__ktCurrentRemoteHostId='';try{sessionStorage.removeItem('kt_remote_host_id');}catch(e){}document.documentElement.classList.remove('kt-remote-viewing');
     if(c){
       clearInterval(c.signalTimer);clearInterval(c.heartbeat);clearInterval(c.activityTimer);try{c.pc.close();}catch(e){}
