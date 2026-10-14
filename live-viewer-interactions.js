@@ -325,7 +325,26 @@
         markProcessed(m);return;
       }
       if(type==='like'){var sender=String(m.sender_id||''),stamp=Date.parse(m.created_at||'')||0,prior=lastHostLikeBySender[sender]||0;if(!stamp||!prior||Math.abs(stamp-prior)>500){addLikeToHost();speakIfNeeded(m.message);lastHostLikeBySender[sender]=stamp;}markProcessed(m);return;}
-      if(type.indexOf('gift:')===0){var n=parseInt(type.slice(5),10)||0;if(n>0){try{if(typeof window.addMyEarnedRoses==='function')window.addMyEarnedRoses(n);}catch(e){}}speakIfNeeded(m.message);markProcessed(m);return;}
+      if(type.indexOf('gift:')===0){
+        var n=parseInt(type.slice(5),10)||0;
+        if(n>0){
+          try{if(typeof window.addMyEarnedRoses==='function')window.addMyEarnedRoses(n);}catch(e){}
+          try{
+            var text=String(m.message||''),name='선물';
+            var names=(window.ktalkGifts||[]).map(function(g){return String(g[0]);}).sort(function(a,b){return b.length-a.length;});
+            name=names.find(function(v){return text.indexOf('님이 '+v+' ')>=0;})||(/장미/.test(text)?'장미':'선물');
+            if(typeof window.ktPresentReceivedGift3D20261014==='function')window.ktPresentReceivedGift3D20261014(name,n,String(m.sender_name||'회원'));
+            else if(typeof window.showSmallGiftFx==='function')window.showSmallGiftFx(name,n,String(m.sender_name||'회원'));
+            if(n>=1000&&typeof window.ktMarkPremiumGiftClip20260928==='function')window.ktMarkPremiumGiftClip20260928(name,n,String(m.sender_name||'회원'));
+            if(typeof window.ktSpeakGift20261014==='function'){
+              window.__ktRecentGiftSpeech20261014=window.__ktRecentGiftSpeech20261014||{};
+              window.__ktRecentGiftSpeech20261014[text.replace(/\s+/g,' ').trim()]=Date.now();
+              window.ktSpeakGift20261014(String(m.sender_name||'회원')+'님이 '+name+' '+n+'개를 선물했습니다.',String(m.id||m.created_at||''));
+            }else speakIfNeeded(m.message);
+          }catch(e){}
+        }
+        markProcessed(m);return;
+      }
       if(type==='chat'){speakIfNeeded((m.sender_name?String(m.sender_name)+'님, ':'')+String(m.message||''));markProcessed(m);return;}
     });
   }
@@ -404,7 +423,7 @@
     }
   }
 
-  async function refreshHost(){
+  async function refreshHostOnce(){
     var box=currentHostBox();if(!box)return;
     var hid=deviceId(),room=await activeRoom(hid);if(!room)return;
     var nextStart=room.started_at||'';
@@ -417,6 +436,8 @@
     if(attendanceRoom){try{var key='ktalk_room_attendance_count:'+todayKey()+':'+hostRoomKey(attendanceRoom);var total=Math.max(Number(localStorage.getItem(key)||0),attendanceCount(rows));localStorage.setItem(key,String(total));attendanceRoom.querySelectorAll('.kt-attendance-heart-badge').forEach(function(el){el.textContent='💗 '+total;el.setAttribute('aria-label','출석 체크 '+total+'회');});attendanceRoom.querySelectorAll('#ktAttendanceTopCount,.kt-attendance-room-count').forEach(function(el){el.textContent=String(total);});}catch(e){}}
     paintHostMessages(box,rows);
   }
+  var hostRefreshPending=false;
+  async function refreshHost(){if(hostRefreshPending)return;hostRefreshPending=true;try{await refreshHostOnce();}finally{hostRefreshPending=false;}}
   async function sendHostChat(text){text=String(text||'').trim();if(!text)return;var hid=deviceId(),room=await activeRoom(hid);if(!room)return;var p=profile();await postMessage(hid,hid,p.name||'호스트',text,'chat');setTimeout(refreshHost,80);}
   function wrapHostSend(name,inputId){var old=window[name];if(typeof old!=='function'||old.__ktDbChatWrapped)return;var fn=function(){var input=document.getElementById(inputId),text=input?String(input.value||'').trim():'';var r=old.apply(this,arguments);if(text)sendHostChat(text);return r;};fn.__ktDbChatWrapped=true;window[name]=fn;}
   function ensureHostSendWraps(){wrapHostSend('ktSoloSendChat','ktsoloChatInput');wrapHostSend('ktSubscriberSendChat','ktsubscriberChatInput');wrapHostSend('ktSecretSendChat','ktsecretChatInput');wrapHostSend('ktGroup13SendChat','ktg13ChatInput');}
@@ -428,5 +449,5 @@
   }
 
   ensureStyle();installHostChatKeepAlive();ensureHostSendWraps();installPublicWraps();
-  hostTimer=setInterval(function(){ensureHostSendWraps();installPublicWraps();refreshHost();},1200);
+  hostTimer=setInterval(function(){ensureHostSendWraps();installPublicWraps();refreshHost();},400);
 })();

@@ -112,6 +112,16 @@
     return true;
   };
 
+  var giftSpokenIds=Object.create(null);
+  window.ktSpeakGift20261014=function(text,eventId){
+    try{if(window.state&&state.aiVoiceOn===false)return false;}catch(e){}
+    if(playbackActive()||!synth||typeof window.SpeechSynthesisUtterance!=='function')return false;
+    text=normalize(text);if(!text)return false;
+    if(eventId&&giftSpokenIds[eventId])return true;
+    if(eventId)giftSpokenIds[eventId]=1;
+    // Keep the current utterance intact; gifts go before queued ordinary chat.
+    queue.unshift(text);if(queue.length>8)queue.length=8;drain();return true;
+  };
   window.ktTestAIVoice=function(){
     try{if(window.state)state.aiVoiceOn=true;}catch(e){}
     try{localStorage.setItem('ktalk_ai_voice','on');}catch(e){}
