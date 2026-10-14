@@ -111,7 +111,7 @@
       +'<div class="kt-ge-top"><span>🔒 내 수익 · 본인만 표시</span><b>'+money(roses)+'</b></div>'
       +'<div class="kt-ge-detail">'
         +'<span>🌹 '+roses.toLocaleString('ko-KR')+'송이</span><span>'+r.label+'</span>'
-        +'<span class="full">구독자회원 40% · 소속사 65%</span>'
+        +'<span class="full">구독자회원 40% · 소속사 70%</span>'
         +'<span class="note">소속사 가입은 소속사가 결정</span>'
       +'</div>';
   }
