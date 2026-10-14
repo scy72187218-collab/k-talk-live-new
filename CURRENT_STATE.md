@@ -20,3 +20,7 @@ Owner explicitly requests deployment of guest elapsed broadcast timers in all ro
 
 ## Production verification and relock5062
 Runtime6cdbcf2a15a95d561bc914f92a9b3a1a5825243a, deploymentdpl_C2x7yvha1QPpB6XrRQV6vtEZdWxV READY on official alias. See LOCK_GUEST_CONTROLS_5062_20261014.json. Actual guest timer advancement, attendance0->1 and gift-box opening verified in solo,9,13,subscriber. Secret entry blocked by mutual-follow/invite rule; did not bypass. Secret internal UI still requires invited-account verification. Host-side physical display and actual paid sending not tested. Current repaired scope re-locked under5062, all other5061 protections intact.
+
+
+## Gift layout correction2026-10-14
+Owner requests bottom gift sheet aligned below chat, selected recipient face/name, actions temporarily invisible only while gifts open, and other-person photo -> gift menu -> gift box flow. Scoped files: gift-pretty, gift-recipient-picker-scroll, all-room-person-gift-target, index cache versions. No media acquisition/transport/sizing, attendance, timers, approval, access or financial rule changes. Candidate syntax and current-host/selected-guest/stale-target tests passed; actual UI verification pending release.

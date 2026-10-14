@@ -25,7 +25,7 @@
       '.ktg13-host,.ktg13-guest,.ktg9-host,.ktg9-guest,'+
       '.ktsubscriber-host,.ktsubscriber-guest,'+
       '.ktsecret-slot,.ktsecret-host,.ktsecret-guest-slot,'+
-      '.ktsolo-main,.kgh-cell,.kt-approved-guest-cell,.kt-guest-room-cell'
+      '.ktsolo-main,.kgh-cell,.kt-approved-guest-cell,.kt-guest-room-cell,#ktRemoteLiveVideo'
     ):null;
   }
   function viewerId(tile){
@@ -35,6 +35,7 @@
   }
   function nameOf(tile){
     if(!tile)return '회원';
+    if(tile.id==='ktRemoteLiveVideo'){var r=window.__ktLastLiveRoom||{};return String(r.host_name||'호스트');}
     var d=tile.dataset||{};
     var n=d.nickname||d.displayName||d.guestName||d.viewerName||d.name||'';
     if(n)return clean(n);
@@ -44,6 +45,7 @@
   }
   function kindOf(tile){
     if(!tile)return '';
+    if(tile.id==='ktRemoteLiveVideo')return 'host';
     if(tile.classList.contains('host')||tile.matches('.ktg13-host,.ktg9-host,.ktsubscriber-host,.ktsolo-main,.ktsecret-host,.ktsecret-slot.host'))return 'host';
     return 'guest';
   }
@@ -95,15 +97,24 @@
     if(now-lastOpenAt<300&&lastTile===tile)return true;
     lastOpenAt=now;lastTile=tile;
     clearTimeout(openTimer);
-    try{
-      if(typeof window.openGifts==='function'){
-        window.openGifts();
-        return true;
-      }
-    }catch(e){}
-    openTimer=setTimeout(function(){
-      try{if(typeof window.openGifts==='function')window.openGifts();}catch(e){}
-    },0);
+    if(typeof window.showSheet!=='function')return false;
+    var panel=document.createElement('div');panel.className='kt-person-gift-menu';
+    panel.innerHTML='<div class="kt-person-gift-menu-head"><div class="kt-person-gift-menu-face"></div><b></b><button type="button" data-close>닫기</button></div><button type="button" class="kt-person-gift-menu-open">🎁 선물 상자</button>';
+    panel.querySelector('b').textContent=nameOf(tile);
+    var face=panel.querySelector('.kt-person-gift-menu-face'),source=tile.matches('video')?tile:tile.querySelector('video'),image=tile.querySelector('img.kt-allhost-photo,img.kt-guest-profile-photo,img[class*="profile"],img[class*="avatar"]');
+    if(image){var img=document.createElement('img');img.src=image.currentSrc||image.src;img.alt='선물 받을 사람';face.appendChild(img);}
+    else if(source&&source.srcObject){var v=document.createElement('video');v.autoplay=true;v.muted=true;v.playsInline=true;v.srcObject=source.srcObject;face.appendChild(v);}
+    else if(source&&source.poster){var photo=document.createElement('img');photo.src=source.poster;photo.alt='선물 받을 사람';face.appendChild(photo);}
+    else face.textContent='👤';
+    window.showSheet('', '');
+    var body=document.getElementById('sheetBody'),sheet=document.getElementById('sheet');
+    if(!body||!sheet)return false;
+    sheet.classList.remove('kt-gift-force');sheet.classList.add('kt-person-gift-menu-open');
+    body.appendChild(panel);
+    panel.querySelector('[data-close]').onclick=function(){sheet.classList.remove('kt-person-gift-menu-open');if(window.closeSheet)window.closeSheet();};
+    panel.querySelector('.kt-person-gift-menu-open').onclick=function(){sheet.classList.remove('kt-person-gift-menu-open');if(window.openGifts)window.openGifts();};
+    var preview=face.querySelector('video');if(preview){var play=preview.play();if(play&&play.catch)play.catch(function(){});}
+
     return true;
   }
 

@@ -161,3 +161,7 @@ The owner authorizes ONLY all guest-room elapsed broadcast timers, attendance sy
 
 # Repaired guest controls saved and re-locked5062
 Preserve runtime6cdbcf2a15a95d561bc914f92a9b3a1a5825243a. Read LOCK_GUEST_CONTROLS_5062_20261014.json for verification and limits. Owner's request to lock completed work applies to these timer, attendance and gift-opening repairs. No further changes without explicit scoped owner authorization. All other5061 locks/passwords remain. Four room guest controls were actually verified; secret invited-account UI and host-side physical counters remain unverified. Do not claim otherwise.
+
+
+# Owner scoped gift layout and person menu correction (2026-10-14)
+Owner requests person photo -> recipient menu -> gift box -> choose gift -> close; bottom gift panel below chat while other people remain visible; hide undo/treasure/match only while gift panel open and restore on close; recipient face/name always shown for current recipient. This authorizes only gift menu/layout/recipient display changes. Preserve all5061/5062 locked transport, timers, attendance, sizing, approval, access and payout behavior. No paid gift sending was authorized for agent testing.
