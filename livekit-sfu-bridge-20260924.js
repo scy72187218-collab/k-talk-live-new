@@ -659,7 +659,14 @@
         var lv=new LK.LocalVideoTrack(vt);
         var options={source:LK.Track.Source.Camera,simulcast:true};
         if(currentRole==='guest')options.videoEncoding={maxBitrate:1500000,maxFramerate:24};
-        else if(currentRole==='host')options.videoEncoding={maxBitrate:2500000,maxFramerate:30};
+        else if(currentRole==='host'){
+          options.videoEncoding={maxBitrate:2500000,maxFramerate:30};
+          // Sharper fallback layers during the initial bandwidth ramp.
+          options.videoSimulcastLayers=[
+            {width:960,height:540,encoding:{maxBitrate:900000,maxFramerate:24}},
+            {width:640,height:360,encoding:{maxBitrate:350000,maxFramerate:20}}
+          ];
+        }
         await vp.publishTrack(lv,options);
         publishedVideoId=vt.id;
       }
