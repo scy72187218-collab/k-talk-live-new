@@ -153,3 +153,7 @@ Before any work, read CURRENT_STATE.md. Use only https://k-talk-live-final.verce
 # Owner approved all five rooms and locked current state (5061; 2026-10-14)
 
 The owner reports all five room types display normally and explicitly locks their current state under maintenance identifier 5061. Read LOCK_ALL_FIVE_ROOMS_5061_20261014.json. Approved runtime commit: 1f3792d4edb143ebf423bceff3d2343da091ecc3. Preserve current host AND guest layouts, video sizing/framing, SFU track attachment and compatible connection settings, chat, controls, access and approval rules, directly and through shared files. Do not alter this state without explicit owner authorization for the specific change. Keep viewing -> participation -> friends -> host approval. Existing passwords and independent locks remain intact. 5061 is a maintenance lock, not a room entry password or disabled runtime control. Owner reports all five rooms normal; agent independently observed moving solo host video only. Do not inflate verification claims.
+
+
+# Owner scoped repair5062 (2026-10-14)
+The owner authorizes ONLY all guest-room elapsed broadcast timers, attendance synchronization in all five room types, and guest gift-box opening, plus production deployment. Preserve lock5061 for all other behavior, video sizing, transport, layout, approval, finances and access. Guest attendance controls are explicitly included by this new all-room request. Preserve the host-start elapsed time; do not substitute wall-clock or join time. Re-lock these repaired behaviors after verification; no broader unlock.

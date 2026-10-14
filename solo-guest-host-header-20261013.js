@@ -18,7 +18,7 @@
  buttons[1].onclick=function(){if(window.openTreasure)window.openTreasure();else if(window.openTreasureBox)window.openTreasureBox();};
  buttons[2].onclick=function(){if(window.openMatch)window.openMatch();else if(window.openMatchArena)window.openMatchArena('1대1');};
  var count=root.querySelector('#ktRemoteViewerCount');if(count){count.hidden=true;pane.appendChild(count);}
- root.querySelectorAll(':scope > .kt-remote-top,:scope > #ktRemoteAttendance,:scope > .kt-prejoin-room-led,:scope > .kt-prejoin-room-stats,:scope > .kt-room-stats-copy,:scope > .kt-fresh-three-1111').forEach(function(el){el.remove();});
+ root.querySelectorAll(':scope > .kt-remote-top,:scope > .kt-prejoin-room-led,:scope > .kt-prejoin-room-stats,:scope > .kt-room-stats-copy,:scope > .kt-fresh-three-1111').forEach(function(el){el.remove();});
  if(Number.isFinite(start))pane.setAttribute('data-start',String(start));
  root.insertBefore(pane,root.firstChild);root.setAttribute('data-kt-solo-guest-header','1');
  }
@@ -34,7 +34,7 @@
  .kt-solo-guest-header .kt-room-stats-copy{margin:4px 0!important}
  `;document.head.appendChild(st);
  var timer;new MutationObserver(function(){clearTimeout(timer);timer=setTimeout(install,60);}).observe(document.getElementById('screen'),{childList:true,subtree:true});
- window.addEventListener('kt-remote-host-selected',install);setInterval(function(){install();var root=document.querySelector('#screen .kt-remote-live[data-kt-solo-guest-header]');if(!root)return;var out=root.querySelector('[data-solo-viewer-clock]'),source=root.querySelector('#ktLiveClock');if(out&&source&&out.textContent!==source.textContent)out.textContent=source.textContent;
- var pane=root.querySelector('.kt-solo-guest-header'),start=Number(pane&&pane.getAttribute('data-start'));if(out&&!source&&start>0){var sec=Math.max(0,Math.floor((Date.now()-start)/1000));out.textContent=[Math.floor(sec/3600),Math.floor(sec/60)%60,sec%60].map(function(n){return String(n).padStart(2,'0');}).join(':');}
+ window.addEventListener('kt-remote-host-selected',install);setInterval(function(){install();var root=document.querySelector('#screen .kt-remote-live[data-kt-solo-guest-header]');if(!root)return;var out=root.querySelector('[data-solo-viewer-clock]'),source=root.querySelector('#ktLiveClock');var shared=window.ktGuestBroadcastClockText5062&&window.ktGuestBroadcastClockText5062();if(shared){if(out&&out.textContent!==shared)out.textContent=shared;source=null;}if(out&&source&&out.textContent!==source.textContent)out.textContent=source.textContent;
+ var pane=root.querySelector('.kt-solo-guest-header'),start=Number(pane&&pane.getAttribute('data-start'));if(out&&!source&&!shared&&start>0){var sec=Math.max(0,Math.floor((Date.now()-start)/1000));out.textContent=[Math.floor(sec/3600),Math.floor(sec/60)%60,sec%60].map(function(n){return String(n).padStart(2,'0');}).join(':');}
  var count=root.querySelector('#ktRemoteViewerCount'),shown=root.querySelector('.kt-room-viewers-copy b');if(count&&shown){var n=String(count.textContent||'').match(/\d+/);shown.textContent=n?n[0]:'0';}},1000);install();
 })();

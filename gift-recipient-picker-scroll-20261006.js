@@ -62,13 +62,14 @@
       var root=document.querySelector('#sheet.kt-gift-force .ktgf');
       if(!root)return;
       var old=root.querySelector('.kt-gift-recipient-bar-20261006');
+      var t=selectedTarget();
+      if(!t){if(old)old.remove();return;}
+      var key=[t.kind,t.viewerId||'',targetName()].join('|');
+      if(old&&old.getAttribute('data-recipient-key')===key)return;
       if(old)old.remove();
 
-      var t=selectedTarget();
-      if(!t)return;
-
       var bar=document.createElement('div');
-      bar.className='kt-gift-recipient-bar-20261006';
+      bar.className='kt-gift-recipient-bar-20261006';bar.setAttribute('data-recipient-key',key);
 
       var face=document.createElement('div');
       face.className='kt-gift-recipient-face-20261006';
@@ -114,6 +115,7 @@
       [0,20,80].forEach(function(ms){setTimeout(function(){style();mountRecipient();resetGiftScroll();},ms);});
       return r;
     };
+    Object.keys(old).forEach(function(key){if(key.indexOf('__kt')===0)wrapped[key]=old[key];});
     wrapped.__ktRecipientPickerScroll20261006=true;
     wrapped.__ktRecipientPickerScrollOld=old;
     window.openGifts=wrapped;

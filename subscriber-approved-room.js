@@ -217,7 +217,7 @@
     if(!root.querySelector('#ktSubscriberGuestOnlyCleanup20261012')){
       var cleanup=document.createElement('style');
       cleanup.id='ktSubscriberGuestOnlyCleanup20261012';
-      cleanup.textContent='#screen .kt-remote-live[data-kt-room-type="subscriber"] #ktRemoteAttendance{display:none!important}#screen .kt-remote-live[data-kt-room-type="subscriber"] .ktsubscriber-info{grid-template-columns:minmax(0,1fr)!important}';
+      cleanup.textContent='#screen .kt-remote-live[data-kt-room-type="subscriber"] .ktsubscriber-info{grid-template-columns:minmax(0,1fr)!important}';
       root.appendChild(cleanup);
     }
     // Preserve the original guest chat and join controls, including their handlers.

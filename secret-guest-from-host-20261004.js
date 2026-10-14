@@ -186,8 +186,8 @@
   function syncClock(){
     var c=document.querySelector('#screen .kt-remote-live[data-kt-sgfh-built="1"] .kt-sgfh-clock');
     if(!c)return;
-    var d=new Date();
-    c.textContent=[d.getHours(),d.getMinutes(),d.getSeconds()].map(function(n){return String(n).padStart(2,'0');}).join(':');
+    var text=window.ktGuestBroadcastClockText5062&&window.ktGuestBroadcastClockText5062();
+    if(text&&c.textContent!==text)c.textContent=text;
   }
 
   function ensure(){

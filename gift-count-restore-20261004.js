@@ -20,7 +20,7 @@
       s.id=id;
       (document.head||document.documentElement).appendChild(s);
     }
-    s.textContent=''
+    var css=''
       +'.ktgf-card strong{'
       +'display:block!important;visibility:visible!important;opacity:1!important;'
       +'position:static!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;'
@@ -31,8 +31,10 @@
       +'overflow:visible!important;text-overflow:clip!important;transform:none!important;'
       +'}'
       +'@media(max-width:410px){.ktgf-card strong{font-size:8.8px!important;line-height:10px!important;min-height:10px!important;margin-top:0!important}}';
+    if(s.textContent!==css)s.textContent=css;
   }
 
+  function put(el,key,value){if(el.style.getPropertyValue(key)!==value||el.style.getPropertyPriority(key)!=='important')el.style.setProperty(key,value,'important');}
   function restore(){
     style();
     document.querySelectorAll('.ktgf-card,.kt-gift-final-card').forEach(function(card){
@@ -45,26 +47,26 @@
       }
       var live=(window.ktalkGifts&&window.ktalkGifts[i])?parseInt(window.ktalkGifts[i][1],10):NaN;
       var amount=isFinite(live)?live:counts[i];
-      strong.textContent=Number(amount).toLocaleString('ko-KR')+'개';
+      var label=Number(amount).toLocaleString('ko-KR')+'개';if(strong.textContent!==label)strong.textContent=label;
       /* 다른 스타일이 뒤에서 덮어써도 수량은 반드시 보이게 고정 */
-      strong.style.setProperty('display','block','important');
-      strong.style.setProperty('visibility','visible','important');
-      strong.style.setProperty('opacity','1','important');
-      strong.style.setProperty('position','static','important');
-      strong.style.setProperty('height','10px','important');
-      strong.style.setProperty('min-height','10px','important');
-      strong.style.setProperty('max-height','10px','important');
-      strong.style.setProperty('margin','0','important');
-      strong.style.setProperty('padding','0','important');
-      strong.style.setProperty('font-size','8.8px','important');
-      strong.style.setProperty('line-height','10px','important');
-      strong.style.setProperty('font-weight','950','important');
-      strong.style.setProperty('color','#ffe06b','important');
-      strong.style.setProperty('text-align','center','important');
-      strong.style.setProperty('white-space','nowrap','important');
-      strong.style.setProperty('overflow','visible','important');
-      strong.style.setProperty('transform','none','important');
-      card.style.setProperty('overflow','visible','important');
+      put(strong,'display','block');
+      put(strong,'visibility','visible');
+      put(strong,'opacity','1');
+      put(strong,'position','static');
+      put(strong,'height','10px');
+      put(strong,'min-height','10px');
+      put(strong,'max-height','10px');
+      put(strong,'margin','0');
+      put(strong,'padding','0');
+      put(strong,'font-size','8.8px');
+      put(strong,'line-height','10px');
+      put(strong,'font-weight','950');
+      put(strong,'color','#ffe06b');
+      put(strong,'text-align','center');
+      put(strong,'white-space','nowrap');
+      put(strong,'overflow','visible');
+      put(strong,'transform','none');
+      put(card,'overflow','visible');
     });
   }
 
@@ -78,6 +80,7 @@
       setTimeout(restore,120);
       return r;
     };
+    Object.keys(old).forEach(function(key){if(key.indexOf('__kt')===0)wrapped[key]=old[key];});
     wrapped.__ktGiftCountRestoreWrapped=true;
     window.openGifts=wrapped;
   }

@@ -255,7 +255,7 @@
     try{
       document.querySelectorAll(attendanceSelector).forEach(function(btn){
         var room=btn.closest(roomSelector);
-        if(room)renderCount(btn,room);
+        if(room&&!btn.closest('.kt-remote-live'))renderCount(btn,room);
       });
     }catch(e){}
   }
@@ -361,6 +361,7 @@
     if(lastAttendanceTapBtn===btn&&now-lastAttendanceTapAt<500)return;
     lastAttendanceTapBtn=btn;lastAttendanceTapAt=now;
     try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(err){}
+    if(btn.closest('.kt-remote-live')){if(typeof window.ktRemoteAttendance==='function')window.ktRemoteAttendance();return;}
     attendance(btn);
   }
   window.addEventListener('pointerup',hostAttendanceHit,true);

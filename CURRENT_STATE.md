@@ -12,3 +12,7 @@ Completed: solo viewer header reuses host header without attendance/two hearts; 
 Verification: official solo viewer connected=true,error empty, video180x320 readyState4 paused=false, currentTime advanced15.205377 to37.439414; screenshot shows actual camera scene. Owner reports all five rooms normal. Agent has not independently verified all five physical rooms or complete stage approval flow.
 
 Preserve viewing -> participation -> friends button -> host approval. No auto approval. Never deploy stale local work folder or experimental branches. Inspect actual main and production, update refs with expected_sha. Old deployments do not duplicate runtime. Keep recoverable history; delete files only after proving unused. Financial rules remain separately locked and untouched. Do not claim all outstanding historical issues fixed.
+
+
+## Scoped release5062 (2026-10-14)
+Owner explicitly requests deployment of guest elapsed broadcast timers in all rooms, all-room attendance synchronization, and guest gift-box opening. Runtime base a68b0a228bd393d360fba357a103047e3fbd6faa. Fix repeated gift wrapper growth and idempotent gift observer updates; bind guest timers to host session start, not join or wall clock; route guest attendance through existing remote message path and update host display. Video transport, sizing, approval, access and financial rules unchanged. Source checks and repeated-wrapper/timer/dedup tests passed. Real production UI verification follows deployment; do not claim all-room physical verification from these tests.

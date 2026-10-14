@@ -332,7 +332,7 @@
     if(!isRemote13())return false;
     var root=document.querySelector('#screen .kt-remote-live');
     if(!root)return false;
-    var attendance=root.querySelector('#ktRemoteAttendance');if(attendance)attendance.remove();
+    // Attendance is now shared with all guest rooms (owner scope5062).
     var room=root.querySelector('.ktg13-room[data-kt-remote13="1"]');
     var video=root.querySelector('#ktRemoteLiveVideo');
     if(!video)return false;
@@ -371,6 +371,7 @@
     var sec=isFinite(begun)?Math.max(0,Math.floor((Date.now()-begun)/1000)):0;
     var clock=room.querySelector('.ktg13-air small span');
     var text=[Math.floor(sec/3600),Math.floor(sec/60)%60,sec%60].map(function(n){return String(n).padStart(2,'0');}).join(':');
+    text=(window.ktGuestBroadcastClockText5062&&window.ktGuestBroadcastClockText5062())||text;
     if(clock.textContent!==text)clock.textContent=text;
     var remoteCount=root.querySelector('#ktRemoteViewerCount');
     var viewers='시청자 '+(Number(r.viewer_count||r.viewers||(remoteCount&&String(remoteCount.textContent||'').replace(/\D/g,''))||0)||0)+'명 시청중';
