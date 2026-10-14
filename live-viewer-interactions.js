@@ -10,6 +10,7 @@
   var remote={hostId:'',viewerId:'',viewerName:'',roomStart:'',timer:null,lastLikeAt:0};
   var hostTimer=null,hostRoomStart='',attendancePending=false;
   var lastHostLikeBySender={};
+  var attendanceContexts={},attendanceSendQueue=Promise.resolve();
   var guestClockStarts={};
   function epoch(v){var n=typeof v==='number'?v:Date.parse(v||'');return Number.isFinite(n)&&n>0?n:0;}
   function clockText(start,now){var sec=Math.max(0,Math.floor((now-start)/1000));return [Math.floor(sec/3600),Math.floor(sec/60)%60,sec%60].map(function(n){return String(n).padStart(2,'0');}).join(':');}
@@ -84,7 +85,7 @@
     return ok;
   }
 
-  function systemType(t){t=String(t||'');return t==='system'||t==='attendance'||t==='like'||t.indexOf('gift:')===0;}
+  function systemType(t){t=String(t||'');return t==='system'||(t==='attendance'||t.indexOf('attendance:')===0)||t==='like'||t.indexOf('gift:')===0;}
   function ensureStyle(){
     if(document.getElementById('ktLiveViewerInteractionStyle'))return;
     var s=document.createElement('style');s.id='ktLiveViewerInteractionStyle';
@@ -99,25 +100,37 @@
     document.head.appendChild(s);
   }
 
-  function attendanceKey(){return 'kt_remote_attendance_once:'+remote.hostId+':'+(remote.roomStart||'live')+':'+remote.viewerId;}
-  function attendanceCount(rows){
-    var seen={};
-    (rows||[]).forEach(function(m){
-      if(String(m&&m.message_type||'')!=='attendance')return;
-      var id=String(m.sender_id||m.sender_name||'');
-      if(id)seen[id]=1;
-    });
-    return Object.keys(seen).length;
+  function attendanceType(type){return type==='attendance'||String(type).indexOf('attendance:')===0;}
+  function attendanceEventKey(m){
+    var type=String(m&&m.message_type||'');
+    if(!attendanceType(type))return '';
+    return type==='attendance'?'legacy:'+String(m.sender_id||m.sender_name||''):type;
   }
-  function markAttendance(count){
+  function attendanceCount(rows){var seen={};(rows||[]).forEach(function(m){var key=attendanceEventKey(m);if(key)seen[key]=1;});return Object.keys(seen).length;}
+  function attendanceContext(){
+    var key='kt_attendance_clicks_v2:'+remote.hostId+':'+(remote.roomStart||'live');
+    if(!attendanceContexts[key]){var seen={};try{seen=JSON.parse(localStorage.getItem(key)||'{}')||{};}catch(e){}
+      attendanceContexts[key]={key:key,hostId:remote.hostId,viewerId:remote.viewerId,viewerName:remote.viewerName,seen:seen,pending:{}};
+    }
+    return attendanceContexts[key];
+  }
+  function saveAttendanceContext(ctx){try{localStorage.setItem(ctx.key,JSON.stringify(ctx.seen));}catch(e){}}
+  function attendanceTotal(ctx){var all=Object.assign({},ctx.seen,ctx.pending);return Object.keys(all).length;}
+  function mergeAttendanceRows(rows){var ctx=attendanceContext();(rows||[]).forEach(function(m){var key=attendanceEventKey(m);if(key)ctx.seen[key]=1;});saveAttendanceContext(ctx);return attendanceTotal(ctx);}
+  function markAttendance(){
     var root=document.querySelector('#screen .kt-remote-live');if(!root)return;
-    var done=false;try{done=localStorage.getItem(attendanceKey())==='1';}catch(e){}
-    var b=root.querySelector('#ktRemoteAttendance');
-    var nine=root.getAttribute('data-kt-room-type')==='group9'||!!root.querySelector('[data-kt-room="9"]');
-    if(nine&&b&&!root.querySelector('.kt-attendance-heart-badge')){var heart=document.createElement('span');heart.className='kt-attendance-heart-badge';heart.setAttribute('aria-label','출석 인원');heart.style.setProperty('position','static','important');heart.style.setProperty('transform','none','important');heart.style.setProperty('margin-left','4px','important');heart.style.setProperty('flex','0 0 auto','important');var pair=document.createElement('span');pair.className='kt-guest-attendance-inline';pair.style.cssText='display:inline-flex;align-items:center;gap:4px;min-width:0';b.insertAdjacentElement('beforebegin',pair);pair.appendChild(b);pair.appendChild(heart);}
-    var n=Math.max(0,parseInt(count!=null?count:(b&&b.dataset.count||'0'),10)||0);
-    if(b){b.dataset.count=String(n);b.classList.toggle('done',done);var text=(done?'✓ 출석 완료':'🌹 출석체크')+(nine?'':' '+n);if(b.textContent!==text)b.textContent=text;b.disabled=done;}
-    root.querySelectorAll('.kt-attendance-heart-badge').forEach(function(el){var text='💗 '+n+'명';if(el.textContent!==text)el.textContent=text;});
+    var b=root.querySelector('#ktRemoteAttendance');if(!b)return;
+    var ctx=attendanceContext(),n=attendanceTotal(ctx);
+    var heart=root.querySelector('.kt-attendance-heart-badge');
+    if(!heart){heart=document.createElement('span');heart.className='kt-attendance-heart-badge';heart.style.setProperty('position','static','important');heart.style.setProperty('transform','none','important');heart.style.setProperty('margin-left','4px','important');heart.style.setProperty('flex','0 0 auto','important');}
+    var pair=b.closest('.kt-guest-attendance-inline');
+    if(!pair){pair=document.createElement('span');pair.className='kt-guest-attendance-inline';pair.style.cssText='display:inline-flex;align-items:center;gap:4px;min-width:0';b.insertAdjacentElement('beforebegin',pair);pair.appendChild(b);}
+    if(heart.parentElement!==pair)pair.appendChild(heart);
+    b.dataset.count=String(n);b.disabled=false;b.classList.remove('done');
+    if(b.textContent!=='🌹 출석체크')b.textContent='🌹 출석체크';
+    b.setAttribute('aria-label','출석체크 · 누를 때마다 장미 1송이');
+    var text='💗 '+n;if(heart.textContent!==text)heart.textContent=text;
+    heart.setAttribute('aria-label','출석 체크 '+n+'회');
   }
   function ensureRemoteUi(){
     ensureStyle();var root=document.querySelector('.kt-remote-live');if(!root)return false;
@@ -184,18 +197,26 @@
     if(!remote.hostId||!document.querySelector('.kt-remote-live'))return;
     ensureRemoteUi();
     var rows=await fetchMessages(remote.hostId,remote.roomStart);
-    markAttendance(attendanceCount(rows));
+    mergeAttendanceRows(rows);markAttendance();
     paintRemoteMessages(rows);
   }
   function clearRemote(){clearInterval(remote.timer);remote={hostId:'',viewerId:'',viewerName:'',roomStart:'',timer:null,lastLikeAt:0};}
   async function startRemote(hostId){clearRemote();var p=profile(),room=await activeRoom(hostId);remote.hostId=String(hostId||'');remote.viewerId='viewer_'+deviceId();remote.viewerName=p.name||'게스트';remote.roomStart=room&&room.started_at?room.started_at:'';var start=epoch(remote.roomStart);if(start&&!guestClockStarts[remote.hostId])guestClockStarts[remote.hostId]=start;ensureRemoteUi();await refreshRemote();remote.timer=setInterval(refreshRemote,1300);}
 
-  window.ktRemoteAttendance=async function(){
-    if(!remote.hostId||attendancePending)return;var done=false;try{done=localStorage.getItem(attendanceKey())==='1';}catch(e){}if(done){markAttendance();return;}
-    attendancePending=true;
-    var msg='🌹 '+remote.viewerName+'님이 출석했습니다. 호스트에게 장미 1송이가 들어왔습니다.';
-    var ok=await postMessage(remote.hostId,remote.viewerId,remote.viewerName,msg,'attendance');
-    if(ok){try{localStorage.setItem(attendanceKey(),'1');}catch(e){}markAttendance();await refreshRemote();}attendancePending=false;
+  window.ktRemoteAttendance=function(){
+    if(!remote.hostId)return Promise.resolve(false);
+    var ctx=attendanceContext(),id='attendance:'+(window.crypto&&crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,12));
+    ctx.pending[id]=1;markAttendance();
+    var job=attendanceSendQueue.then(async function(){
+      var msg='🌹 '+ctx.viewerName+'님이 출석 체크를 눌렀습니다. 호스트에게 장미 1송이가 들어왔습니다.';
+      var ok=false;try{ok=await postMessage(ctx.hostId,ctx.viewerId,ctx.viewerName,msg,id);}catch(e){}
+      if(ok){ctx.seen[id]=1;saveAttendanceContext(ctx);}
+      delete ctx.pending[id];
+      if(ctx===attendanceContext()){markAttendance();if(!ok){var button=document.getElementById('ktRemoteAttendance');if(button){button.textContent='전송 실패 · 다시 눌러주세요';button.setAttribute('aria-label','출석 전송 실패 · 다시 눌러주세요');}}}
+      return ok;
+    });
+    attendanceSendQueue=job.catch(function(){return false;});
+    return job;
   };
   window.ktRemoteSendChat=async function(){
     var hostId=String(remote.hostId||'');
@@ -267,7 +288,7 @@
       var n=Math.max(0,parseInt(localStorage.getItem(key)||'0',10)||0)+1;
       localStorage.setItem(key,String(n));
       var btn=room.querySelector('.ktsolo-att,.ktg13-attend,.ktsubscriber-att,.ktsecret-att,.kt-live-attendance,[data-kt-attendance]');
-      room.querySelectorAll('.kt-attendance-heart-badge').forEach(function(el){el.textContent='💗 '+n+'명';el.setAttribute('aria-label','출석 인원 '+n+'명');});
+      room.querySelectorAll('.kt-attendance-heart-badge').forEach(function(el){el.textContent='💗 '+n;el.setAttribute('aria-label','출석 체크 '+n+'회');});
       if(btn){
         var badge=btn.querySelector('.kt-attendance-room-count');
         if(!badge){badge=document.createElement('span');badge.className='kt-attendance-room-count';btn.appendChild(badge);}
@@ -277,8 +298,8 @@
   }
   function processHostEvents(rows){
     (rows||[]).forEach(function(m){if(wasProcessed(m))return;var type=String(m.message_type||'');
-      if(type==='attendance'){
-        var akey='kt_host_attendee_done:'+deviceId()+':'+(hostRoomStart||'live')+':'+String(m.sender_id||'guest');var done=false;try{done=localStorage.getItem(akey)==='1';}catch(e){}
+      if(attendanceType(type)){
+        var akey='kt_host_attendee_done:'+deviceId()+':'+(hostRoomStart||'live')+':'+(type==='attendance'?String(m.sender_id||'guest'):type);var done=false;try{done=localStorage.getItem(akey)==='1';}catch(e){}
         if(!done){
           try{if(typeof window.addMyEarnedRoses==='function')window.addMyEarnedRoses(1);}catch(e){}
           try{if(typeof window.ktRecordReceivedRose==='function')window.ktRecordReceivedRose(String(m.sender_name||'회원'),1,'출석 장미','host');}catch(e){}
@@ -376,7 +397,7 @@
     processHostEvents(rows);
     // Reconstruct the display from attendance records even if reward events were already processed.
     var attendanceRoom=currentHostRoom();
-    if(attendanceRoom){try{var key='ktalk_room_attendance_count:'+todayKey()+':'+hostRoomKey(attendanceRoom);var total=Math.max(Number(localStorage.getItem(key)||0),attendanceCount(rows));localStorage.setItem(key,String(total));attendanceRoom.querySelectorAll('.kt-attendance-heart-badge').forEach(function(el){el.textContent='💗 '+total+'명';el.setAttribute('aria-label','출석 인원 '+total+'명');});attendanceRoom.querySelectorAll('#ktAttendanceTopCount,.kt-attendance-room-count').forEach(function(el){el.textContent=String(total);});}catch(e){}}
+    if(attendanceRoom){try{var key='ktalk_room_attendance_count:'+todayKey()+':'+hostRoomKey(attendanceRoom);var total=Math.max(Number(localStorage.getItem(key)||0),attendanceCount(rows));localStorage.setItem(key,String(total));attendanceRoom.querySelectorAll('.kt-attendance-heart-badge').forEach(function(el){el.textContent='💗 '+total;el.setAttribute('aria-label','출석 체크 '+total+'회');});attendanceRoom.querySelectorAll('#ktAttendanceTopCount,.kt-attendance-room-count').forEach(function(el){el.textContent=String(total);});}catch(e){}}
     paintHostMessages(box,rows);
   }
   async function sendHostChat(text){text=String(text||'').trim();if(!text)return;var hid=deviceId(),room=await activeRoom(hid);if(!room)return;var p=profile();await postMessage(hid,hid,p.name||'호스트',text,'chat');setTimeout(refreshHost,80);}

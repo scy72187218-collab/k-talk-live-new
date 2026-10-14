@@ -31,7 +31,7 @@
     btn.id='ktRemoteChatSend';
     btn.classList.add('kt-remote-action','send');
     btn.setAttribute('aria-label','채팅 올리기');
-    btn.innerHTML=planeSvg;
+    if(btn.getAttribute('data-kt-send-plane')!=='1'||!btn.querySelector('svg')){btn.innerHTML=planeSvg;btn.setAttribute('data-kt-send-plane','1');}
     if(!btn.onclick){
       btn.onclick=function(){
         if(typeof window.ktRemoteSendChat==='function')window.ktRemoteSendChat();

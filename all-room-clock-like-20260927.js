@@ -69,7 +69,7 @@
   function paint(){
     loadCount();
     document.querySelectorAll('.kt-clock-like-20260927 span').forEach(function(el){
-      el.textContent=String(count);
+      if(el.textContent!==String(count))el.textContent=String(count);
     });
   }
 

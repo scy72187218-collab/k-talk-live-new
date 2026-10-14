@@ -173,3 +173,7 @@ Owner requests photo taps and empty chat background taps count likes, alongside 
 
 # Current scope5062 saved after owner-requested gift/like/attendance corrections
 Preserve runtime45a51056906ab3769e86f57da16ec2965bc21c3d and its person-menu -> gift-box flow, bottom anchored gift sheet with recipientface/name, temporary hiding/restoration of three actions, unchanged person geometry, photo/blank chat likes and nine attendance heart. Read updated5062 lock and CURRENT_STATE.md. All other5061 protections remain. Documentation of successful guest UI is not proof of physical host counters, paid sending or secret invited-account UI.
+
+
+# Owner scoped repeated attendance and crash investigation (2026-10-14)
+Owner explicitly changes attendance to repeatable: every press increments attendance heart and existing host rose reward by1. This supersedes previous once-per-person restrictions only for attendance. Use unique attendance event tokens, deduplicate primary/memory delivery and retries, reflect pending presses immediately and roll back failures; keep hearts beside check-in in every room. Owner also reports host and viewer refresh/crash screens after minutes. Remove only self-triggering identical DOM writes in chat send icon and counters; no transport changes or unverified broad fixes. Camera quality candidate codex/camera-quality-review-20261014 remains unapproved and MUST NOT be merged with this work. Preserve all other locks, sizing, media/approval/access and payout rates.

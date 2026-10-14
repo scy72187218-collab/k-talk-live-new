@@ -169,7 +169,7 @@
       badge.setAttribute('aria-label','출석 인원');
       btn.appendChild(badge);
     }
-    badge.textContent=String(n);
+    if(badge.textContent!==String(n))badge.textContent=String(n);
 
     /* 출석체크 전용 하트: 좋아요 하트와 완전히 별개.
        호스트 좋아요 하트 바로 위에 숫자와 함께 표시한다. */
@@ -179,67 +179,20 @@
       heart.className='kt-attendance-heart-badge';
       heart.setAttribute('aria-label','출석체크 하트');
     }
-    heart.textContent='💗 '+String(n);
+    if(heart.textContent!=='💗 '+String(n))heart.textContent='💗 '+String(n);
 
-    var host13=room.matches('.ktg13-room[data-kt-approved13="1"][data-kt-room="13"]');
-    if(btn.closest('.kt-host-unified-title')||(host13&&btn.closest('.ktg13-title-row'))){
-      heart.textContent='💗 '+String(n)+'명';
-      heart.setAttribute('aria-label','출석 인원 '+n+'명');
-      if(btn.nextElementSibling!==heart)btn.insertAdjacentElement('afterend',heart);
-      return;
-    }
-
-    try{
-      btn.classList.remove('kt-attendance-inline-top');
-
-      var like=room.querySelector(sideLikeSelector);
-      var anchor=like&&like.parentElement?like.parentElement:null;
-
-      if(anchor&&like){
-        var cs=getComputedStyle(anchor);
-        if(cs.position==='static')anchor.style.setProperty('position','relative','important');
-        if(heart.parentElement!==anchor)anchor.appendChild(heart);
-
-        /* 좋아요 버튼 위치는 그대로 두고, 출석 하트만 바로 위에 띄운다. */
-        var top=Math.max(-28,(like.offsetTop||0)-27);
-        var left=Math.max(0,(like.offsetLeft||0)+Math.round(((like.offsetWidth||44)-42)/2));
-        heart.style.setProperty('top',top+'px','important');
-        heart.style.setProperty('left',left+'px','important');
-        heart.style.setProperty('right','auto','important');
-        heart.style.setProperty('bottom','auto','important');
-      }else{
-        /* 오른쪽 좋아요 줄이 숨겨진 레이아웃은 호스트 영상 오른쪽 위에만 표시한다. */
-        var host=room.querySelector(
-          '.ktsolo-main,.ktg9-host,.ktg13-host,.ktsubscriber-host,.ktsecret-slot.host'
-        );
-        if(host){
-          var hs=getComputedStyle(host);
-          if(hs.position==='static')host.style.setProperty('position','relative','important');
-          if(heart.parentElement!==host)host.appendChild(heart);
-          heart.style.setProperty('top','6px','important');
-          heart.style.setProperty('right','6px','important');
-          heart.style.setProperty('left','auto','important');
-          heart.style.setProperty('bottom','auto','important');
-        }
-      }
-    }catch(e){}
+    if(heart.textContent!=='💗 '+String(n))heart.textContent='💗 '+String(n);heart.setAttribute('aria-label','출석 체크 '+n+'회');
+    heart.style.setProperty('position','static','important');heart.style.setProperty('transform','none','important');heart.style.setProperty('margin-left','4px','important');
+    if(btn.nextElementSibling!==heart)btn.insertAdjacentElement('afterend',heart);
   }
 
   function attendance(btn){
     var room=btn&&btn.closest?btn.closest(roomSelector):null;
     if(!room)return;
-    var key=doneKey(room);
-    var done=false;
-    try{done=localStorage.getItem(key)==='1';}catch(e){}
-    if(!done){
-      try{localStorage.setItem(key,'1');}catch(e){}
-      setCount(room,getCount(room)+1);
-      setGlobalHeartCount(globalHeartCount()+1);
-      addRoseOne();
-    }else if(getCount(room)<1){
-      setCount(room,1);
-      if(globalHeartCount()<1)setGlobalHeartCount(1);
-    }
+    setCount(room,getCount(room)+1);
+    setGlobalHeartCount(globalHeartCount()+1);
+    // Existing local host display path; remote rewards are handled by unique attendance events.
+    addRoseOne();
     speakAttendanceDone();
     try{window.dispatchEvent(new CustomEvent('kt-attendance-heart-updated',{detail:{count:window.ktAttendanceHeartCount(),at:Date.now()}}));}catch(e){};
     try{
@@ -338,13 +291,13 @@
         var key=likeKey(room);
         window.__ktLiveClockLikes=window.__ktLiveClockLikes||{solo:0,group9:0,group13:0,subscriber:0,secret:0};
         var count=ensureTopHeart(room,key);
-        if(count)count.textContent=String(Number(window.__ktLiveClockLikes[key]||0));
+        if(count&&count.textContent!==String(Number(window.__ktLiveClockLikes[key]||0)))count.textContent=String(Number(window.__ktLiveClockLikes[key]||0));
       });
     }catch(e){}
   }
 
   /* 호스트 출석 버튼은 레이아웃마다 클래스가 달라도 '출석체크' 문구까지 확인해 한 번만 처리한다. */
-  var lastAttendanceTapAt=0,lastAttendanceTapBtn=null;
+  var lastAttendanceTapAt=0,lastAttendanceTapBtn=null,lastAttendanceTapType='';
   function hostAttendanceHit(e){
     var t=e.target;
     if(!t||!t.closest)return;
@@ -358,8 +311,8 @@
     }
     if(!btn||!btn.closest(roomSelector))return;
     var now=Date.now();
-    if(lastAttendanceTapBtn===btn&&now-lastAttendanceTapAt<500)return;
-    lastAttendanceTapBtn=btn;lastAttendanceTapAt=now;
+    if(e.type==='click'&&lastAttendanceTapType==='pointerup'&&lastAttendanceTapBtn===btn&&now-lastAttendanceTapAt<900){try{e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();}catch(err){}lastAttendanceTapType='click';return;}
+    lastAttendanceTapBtn=btn;lastAttendanceTapAt=now;lastAttendanceTapType=e.type;
     try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(err){}
     if(btn.closest('.kt-remote-live')){if(typeof window.ktRemoteAttendance==='function')window.ktRemoteAttendance();return;}
     attendance(btn);
