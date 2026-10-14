@@ -75,6 +75,11 @@ window.ktRenderAttendance=function(){
   var sub=btn.querySelector('.kt-attendance-sub');
   if(label)label.textContent=done?'출석 완료':'출석체크';
   if(sub)sub.textContent=done?'오늘 보상 받음':'하트 1개 · 30원';
+  /* Keep the adjacent heart reward indicator in sync with attendance. */
+  var count=ktAttendanceHeartCount();
+  btn.setAttribute('data-attendance-hearts',String(count));
+  var heart=btn.parentElement&&btn.parentElement.querySelector('[data-attendance-heart-count],.kt-attendance-heart-count,.kt-heart-count');
+  if(heart){heart.textContent=String(count);heart.setAttribute('aria-label','하트 '+count+'개');}
 };
 
 window.ktAttendanceCheck=function(){
