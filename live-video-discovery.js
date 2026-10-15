@@ -41,11 +41,23 @@
     return h;
   }
 
+  async function discoveryJson20261015(url,options,timeout){
+    var controller=typeof AbortController!=='undefined'?new AbortController():null,timer;
+    var opts=Object.assign({},options||{});if(controller)opts.signal=controller.signal;
+    try{
+      return await Promise.race([
+        (async function(){var r=await fetch(url,opts);if(!r.ok)return null;return await r.json();})(),
+        new Promise(function(_,reject){timer=setTimeout(function(){
+          if(controller)controller.abort();
+          reject(new Error('live_discovery_timeout'));
+        },timeout);})
+      ]);
+    }finally{clearTimeout(timer);}
+  }
+
   async function beaconActiveRooms(){
     try{
-      var r=await fetch('/api/live-beacon-memory?t='+Date.now(),{cache:'no-store'});
-      if(!r.ok)return [];
-      var j=await r.json();
+      var j=await discoveryJson20261015('/api/live-beacon-memory?t='+Date.now(),{cache:'no-store'},2500);
       var rows=Array.isArray(j&&j.rooms)?j.rooms:[];
       return rows.map(function(x){
         return {
@@ -86,16 +98,8 @@
     var beaconPromise=beaconActiveRooms();
     var rows=[];
     try{
-      var ctrl=typeof AbortController!=='undefined'?new AbortController():null;
-      var timer=ctrl?setTimeout(function(){ctrl.abort();},1800):null;
-      var opt={headers:{apikey:KEY,Authorization:'Bearer '+KEY}};
-      if(ctrl)opt.signal=ctrl.signal;
-      var r=await fetch(BASE+'ktalk_live_rooms?select=host_id,host_name,title,room_type,room_name,host_photo,updated_at&active=eq.true&updated_at=gte.'+enc(cut)+'&order=started_at.desc&limit=50',opt);
-      if(timer)clearTimeout(timer);
-      if(r.ok){
-        rows=await r.json();
-        rows=Array.isArray(rows)?rows:[];
-      }
+      rows=await discoveryJson20261015(BASE+'ktalk_live_rooms?select=host_id,host_name,title,room_type,room_name,host_photo,updated_at&active=eq.true&updated_at=gte.'+enc(cut)+'&order=started_at.desc&limit=50',{headers:{apikey:KEY,Authorization:'Bearer '+KEY}},1800);
+      rows=Array.isArray(rows)?rows:[];
     }catch(e){}
 
     var fallback=await beaconPromise;
@@ -144,6 +148,8 @@
     try{return await activeRoomsBusy;}
     finally{activeRoomsBusy=null;}
   }
+
+  window.ktListLiveFeedRooms20261015=activeRooms;
 
   async function followedUsers(){
     var m=me();

@@ -228,6 +228,7 @@
   }
 
   function activeByPosition(){
+    if(window.ktIsLiveFeedPreviewVisible20261015&&window.ktIsLiveFeedPreviewVisible20261015()){pauseAllPlayback();return;}
     if(document.hidden){pauseAllPlayback();return;}
     var sc=feedScroller();
     if(!sc){

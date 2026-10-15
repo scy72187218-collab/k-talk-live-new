@@ -48,7 +48,7 @@
   load('participant-photo-wave-only-20260915.js','__ktParticipantPhotoWaveOnly20260915');
   load('gift-balance-box-20260915.js','__ktGiftBalanceBox20260915');
   load('group13-approved-room.js?v=20261011-immediate-host-room1','__ktGroup13ApprovedRoomInstalled');
-  load('feed-swipe-playback-fix.js','__ktFeedSwipePlaybackFixInstalled',function(){
+  load('feed-swipe-playback-fix.js?v=20261015-live-feed-preview1','__ktFeedSwipePlaybackFixInstalled',function(){
     load('broadcast-video-resume-fix.js','__ktBroadcastVideoResumeFixInstalled');
   });
   load('live-room-instant-video-fix-20260915.js?v=20261011-immediate-host-room1','__ktLiveRoomInstantVideoFixInstalled');

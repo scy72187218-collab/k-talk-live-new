@@ -212,17 +212,61 @@
       if(card)window.ktPrewarmSfuViewer20261015(card.getAttribute('data-host'),true);
     }catch(z){}
   },true);});
-  async function fetchTokenFor20261015(hostId,identity,runId){
+  async function fetchTokenFor20261015(hostId,identity,runId,signal){
     var q='?room='+encodeURIComponent(cleanRoom(hostId,runId))+
       '&identity='+encodeURIComponent(identity)+
       '&name='+encodeURIComponent(profileName())+
       '&t='+Date.now();
-    var r=await fetch(TOKEN_URL+q,{cache:'no-store'});
+    var options={cache:'no-store'};if(signal)options.signal=signal;
+    var r=await fetch(TOKEN_URL+q,options);
     if(!r.ok)throw new Error('livekit_token_'+r.status);
     var j=await r.json();
     if(!j||!j.ok||!j.token||!j.url)throw new Error(String(j&&j.error||'livekit_token_or_url_invalid'));
     return j;
   }
+  /* Independent receive-only feed preview: never reuse or mutate the live-room owner. */
+  window.ktOpenLiveFeedPreview20261015=function(hostId,callbacks){
+    hostId=String(hostId||'').trim();callbacks=callbacks||{};
+    var stopped=false,previewRoom=null,deadline=null,controller=typeof AbortController!=='undefined'?new AbortController():null;
+    var handle={stop:function(){
+      if(stopped)return;stopped=true;clearTimeout(deadline);if(controller)controller.abort();
+      if(previewRoom)try{var p=previewRoom.disconnect(false);if(p&&p.catch)p.catch(function(){});}catch(e){}
+    },ready:null};
+    function emit(name){if(!stopped&&typeof callbacks[name]==='function')callbacks[name].apply(null,[].slice.call(arguments,1));}
+    handle.ready=(async function(){
+      try{
+        var identity='viewer_'+DEVICE+'_preview_'+Math.random().toString(36).slice(2,10);
+        var timeout=new Promise(function(_,reject){deadline=setTimeout(function(){reject(new Error('preview_timeout'));},15000);});
+        var work=(async function(){
+          var ready=await Promise.all([ensureSdk(),fetchTokenFor20261015(hostId,identity,'stable',controller&&controller.signal)]);
+          if(stopped)return;
+          var LK=ready[0],auth=ready[1];
+          previewRoom=new LK.Room({adaptiveStream:true,dynacast:false,disconnectOnPageLeave:false});
+          function subscribed(track,pub,person){
+            if(!stopped&&track&&track.kind==='video')emit('track',track,pub,person);
+          }
+          previewRoom.on(LK.RoomEvent.TrackSubscribed,subscribed);
+          previewRoom.on(LK.RoomEvent.TrackUnsubscribed,function(track,pub,person){emit('removed',track,pub,person);});
+          previewRoom.on(LK.RoomEvent.Disconnected,function(){emit('status','연결이 끊겼습니다. 다시 보기를 눌러 주세요.');});
+          previewRoom.on(LK.RoomEvent.Reconnecting,function(){emit('status','방송을 다시 연결하고 있습니다.');});
+          previewRoom.on(LK.RoomEvent.Reconnected,function(){emit('status','');});
+          function subscribePerson(person){person.trackPublications.forEach(function(pub){
+            if(pub.kind==='video'&&pub.setSubscribed)pub.setSubscribed(true);
+            if(pub.track)subscribed(pub.track,pub,person);
+          });}
+          previewRoom.on(LK.RoomEvent.TrackPublished,function(pub){if(!stopped&&pub.kind==='video'&&pub.setSubscribed)pub.setSubscribed(true);});
+          await previewRoom.connect(auth.url,auth.token,{autoSubscribe:false});
+          if(stopped){await previewRoom.disconnect(false);return;}
+          previewRoom.remoteParticipants.forEach(subscribePerson);
+          emit('status','');
+        })();
+        await Promise.race([work,timeout]);
+        clearTimeout(deadline);
+      }catch(e){emit('error',e);handle.stop();}
+    })();
+    return handle;
+  };
+
   function stopAudio(identity){
     var a=audioEls[identity];
     if(a){try{a.remove();}catch(e){}delete audioEls[identity];}delete audioTracks[identity];
