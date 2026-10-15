@@ -40,7 +40,7 @@
     if(!v)return;
     var t='';
     if(Number(deg)===180)t+='rotate(180deg) ';
-    if(mirror)t+='scaleX(-1)';
+    t+='scaleX(-1)';
     if(!t)t='none';
     try{
       v.style.setProperty('transform',t.trim(),'important');

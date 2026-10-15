@@ -512,7 +512,7 @@
 
   function setGuestVideoDirection20261015(video,stream){
     var ok=setVideo(video,stream);
-    if(video){video.style.setProperty('transform','none','important');video.style.setProperty('-webkit-transform','none','important');}
+    if(video){video.style.setProperty('transform','scaleX(-1)','important');video.style.setProperty('-webkit-transform','scaleX(-1)','important');}
     return ok;
   }
   function attachGuestVideo(identity,stream){

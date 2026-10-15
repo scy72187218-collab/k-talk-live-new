@@ -334,3 +334,7 @@ Owner confirms improved quality; requests reducing about two seconds before firs
 
 ## 2026-10-15 all-room single-tap earnings enlargement
 Owner requests every host/guest earnings HUD opens larger on one tap. Existing modal extended to secret guest and common guest classes; HUD pointer events enabled, keyboard focus/button labels added without exposing other accounts. Pointerup handles a stationary tap immediately, following click is deduplicated, drag/scroll cancelled. Larger 18px dialog/22px current display text; existing commission rules/calculation/privacy unchanged. Close/backdrop/Escape retained. Mock event tests only; actual phone tap verification pending.
+
+
+## 2026-10-15 owner clarifies desired mirrored direction
+Owner explicitly answered both displays already match but their desired hand direction is opposite. Supersedes earlier inference that natural/unmirrored display was desired. All live host, self and remote guest camera tiles now display mirrored consistently. Source-lock, SFU guest attach, fallback host and legacy rotation writers agree; guard expanded to guest tiles. Host neutral tone and solo HD/prewarm settings unchanged. Guard CSS no longer transforms file media; inline applies only MediaStreams and movie-sharing excluded. No capture/track flipping or seat/approval/financial changes. Mock consistency coverage only; phone hand-direction acceptance pending.

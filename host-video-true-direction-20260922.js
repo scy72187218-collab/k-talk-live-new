@@ -1,12 +1,12 @@
 /* K-Talk host video true-direction guard (2026-09-22)
    Communications display only.
-   Host video is never horizontally mirrored on 9-room host view or guest-side host view.
-   Guest/self video, room layout, controls, chat, gifts and countdowns are untouched. */
+   Owner-confirmed mirrored display on all live camera tiles, host and viewers alike.
+   Host tone remains neutral. Movie media, layout, controls, chat and gifts are untouched. */
 (function(){
   if(window.__ktHostVideoTrueDirection20260922)return;
   window.__ktHostVideoTrueDirection20260922=true;
 
-  var SEL=[
+  var HOST_SEL=[
     '#screen .ktg13-room .ktg13-host > video',
     '#screen .ktsolo-room .ktsolo-host > video',
     '#screen .ktsolo-room .ktsolo-main > video',
@@ -20,12 +20,19 @@
     '.kt-guest-room-grid .kt-guest-room-cell.host > video',
     '#ktRemoteHostPreview'
   ].join(',');
+  var SEL=HOST_SEL+','+[
+    '#screen .ktg13-guest>video','#screen .ktg9-guest>video',
+    '#screen .ktsubscriber-guest>video','#screen .ktsecret-slot>video',
+    '#screen .kgh-cell>video','#screen .kt-approved-guest-cell>video',
+    '#screen .kt-prejoin-room-cell>video','#screen .kt-guest-room-cell>video',
+    '#screen .kt-sub6666-cell>video'
+  ].join(',');
 
   function ensureDirectionLockStyle(){
     if(document.getElementById('ktHostVideoDirectionHardLock20260923'))return;
     var s=document.createElement('style');
     s.id='ktHostVideoDirectionHardLock20260923';
-    s.textContent=SEL+'{transform:none!important;-webkit-transform:none!important;transform-origin:50% 50%!important;}';
+    s.textContent=SEL+'{transform-origin:50% 50%!important;}';
     document.head.appendChild(s);
   }
 
@@ -33,10 +40,10 @@
     if(document.documentElement.classList.contains('kt-host-media-sharing'))return;
     if(!v||!v.srcObject||!v.srcObject.getVideoTracks||!v.srcObject.getVideoTracks().length)return;
     try{
-      if(v.style.getPropertyValue('filter')!=='none')v.style.setProperty('filter','none','important');
-      if(v.style.getPropertyValue('-webkit-filter')!=='none')v.style.setProperty('-webkit-filter','none','important');
-      if(v.style.getPropertyValue('transform')!=='none')v.style.setProperty('transform','none','important');
-      if(v.style.getPropertyValue('-webkit-transform')!=='none')v.style.setProperty('-webkit-transform','none','important');
+      if(v.matches(HOST_SEL)&&v.style.getPropertyValue('filter')!=='none')v.style.setProperty('filter','none','important');
+      if(v.matches(HOST_SEL)&&v.style.getPropertyValue('-webkit-filter')!=='none')v.style.setProperty('-webkit-filter','none','important');
+      if(v.style.getPropertyValue('transform')!=='scaleX(-1)')v.style.setProperty('transform','scaleX(-1)','important');
+      if(v.style.getPropertyValue('-webkit-transform')!=='scaleX(-1)')v.style.setProperty('-webkit-transform','scaleX(-1)','important');
     }catch(e){}
   }
 
