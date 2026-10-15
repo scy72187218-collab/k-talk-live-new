@@ -503,7 +503,26 @@
       setGuestVideoDirection20261015(target,stream);
     }
   }
+
+  var lastVideoDiagnostic20261015=0,lastPublishError20261015='';
+  function updateVideoDiagnostics20261015(){
+    if(Date.now()-lastVideoDiagnostic20261015<1000)return;
+    lastVideoDiagnostic20261015=Date.now();
+    var root=document.querySelector('#screen .kt-remote-live')||roomEl();if(!root)return;
+    var rows=[];
+    try{if(room)room.remoteParticipants.forEach(function(p){
+      p.trackPublications.forEach(function(pub){
+        if(pub.kind!=='video')return;
+        var id=String(p.identity||''),host=id===currentHostId,v=host?document.getElementById('ktRemoteLiveVideo'):exactGuestVideo(id);
+        rows.push({id:id,host:host,subscribed:!!pub.isSubscribed,track:!!pub.track,muted:!!pub.isMuted,streamState:pub.track?String(pub.track.streamState||''):'',target:!!v,ready:v?v.readyState:0,width:v?v.videoWidth:0});
+      });
+    });}catch(e){}
+    var data=JSON.stringify({approved:approvedRoster20260924().ids.length,localVideoPublished:!!publishedVideoId,publishError:lastPublishError20261015,videos:rows});
+    if(root.getAttribute('data-kt-sfu-video-diagnostics')!==data)root.setAttribute('data-kt-sfu-video-diagnostics',data);
+  }
+
   function reattachRemoteTracks(){
+    updateVideoDiagnostics20261015();
     ensureApprovedRosterSlots20260924();
     if(!room||room.state!=='connected')return;
     try{
@@ -702,9 +721,9 @@
           ];
         }
         await vp.publishTrack(lv,options);
-        publishedVideoId=vt.id;
+        publishedVideoId=vt.id;lastPublishError20261015='';
       }
-    }catch(e){}
+    }catch(e){lastPublishError20261015='video_publish_failed:'+String(e&&e.name||'Error');}
     try{
       var at=stream.getAudioTracks&&stream.getAudioTracks()[0];
       if(at&&at.readyState==='live'&&publishedAudioId!==at.id){
