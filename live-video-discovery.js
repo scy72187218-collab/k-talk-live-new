@@ -98,7 +98,7 @@
     var beaconPromise=beaconActiveRooms();
     var rows=[];
     try{
-      rows=await discoveryJson20261015(BASE+'ktalk_live_rooms?select=host_id,host_name,title,room_type,room_name,host_photo,updated_at&active=eq.true&updated_at=gte.'+enc(cut)+'&order=started_at.desc&limit=50',{headers:{apikey:KEY,Authorization:'Bearer '+KEY}},1800);
+      rows=await discoveryJson20261015(BASE+'ktalk_live_rooms?select=host_id,host_name,title,room_type,room_name,host_photo,listing_details:ktalk_listing_summary,updated_at&active=eq.true&updated_at=gte.'+enc(cut)+'&order=started_at.desc&limit=50',{headers:{apikey:KEY,Authorization:'Bearer '+KEY}},1800);
       rows=Array.isArray(rows)?rows:[];
     }catch(e){}
 

@@ -90,7 +90,9 @@
     follow.disabled=true;
     buttons.appendChild(join);buttons.appendChild(follow);bottom.appendChild(title);bottom.appendChild(message);bottom.appendChild(buttons);
     card.__ktFollowPerson={id:String(room.host_id),name:card.dataset.hostName,photo:String(room.host_photo||'')};
-    card.appendChild(poster);card.appendChild(grid);card.appendChild(top);card.appendChild(bottom);return card;
+    card.appendChild(poster);card.appendChild(grid);card.appendChild(top);card.appendChild(bottom);
+    if(window.ktDecorateBroadcastListing20261015)window.ktDecorateBroadcastListing20261015(card,room);
+    return card;
   }
   function style(){
     if(document.getElementById('ktLiveFeedPreviewStyle20261015'))return;
@@ -117,6 +119,7 @@
         var heading=existing&&existing.querySelector('.ktlf-heading'),caption=existing&&existing.querySelector('.ktlf-bottom strong');
         if(heading&&heading.textContent!==text){heading.textContent=text;heading.setAttribute('title',text);}
         if(caption&&caption.textContent!==text)caption.textContent=text;
+        if(existing&&window.ktDecorateBroadcastListing20261015)window.ktDecorateBroadcastListing20261015(existing,room);
         return;
       }
       var card=createCard(room),anchor=originals[Math.min(i*2,originals.length-1)];

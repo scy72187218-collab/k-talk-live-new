@@ -1,0 +1,99 @@
+/* Host-entered, optional public listing presentation. Existing capture, admission and gift sending stay separate. */
+(function(){
+ if(window.__ktBroadcastListingTools20261015)return;window.__ktBroadcastListingTools20261015=true;
+ var BASE='https://zupwbfmacwzexyvznlzq.supabase.co/rest/v1/',KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1cHdiZm1hY3d6ZXh5dnpubHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjEwNzYsImV4cCI6MjEwNDAzNzA3Nn0.j9mKhX3f5kaILYhRisyng5SE8xIV06TG89XLXg-rtXo',labels={general:'일반 방송',level20:'레벨 20 이상',subscriber:'구독자 방송'};
+ var rooms={},publishing=false,lastSent='',lastAt=0,wasHost=false,selectedFilter='all';
+ function el(tag,text,cls){var n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;}
+ function account(){try{if(window.ktProfileAccountKey){var key=String(window.ktProfileAccountKey()||'');if(key)return key;}}catch(e){}try{return localStorage.getItem('kt_live_device_id')||'local';}catch(e){return 'local';}}
+ function tier(){
+  var st=window.state||{},p={};try{p=window.ktProfileLoad?window.ktProfileLoad()||{}:{};}catch(e){}
+  var member='';try{member=localStorage.getItem('ktalk_member_type')||'';}catch(e){}
+  if(member==='subscriber'||st.memberType==='subscriber'||st.subscribed===true||st.subscriptionActive===true)return 'subscriber';
+  var level=Number(p.level||p.userLevel||st.level||st.userLevel||st.memberLevel||0);
+  if(!level)try{level=Number(localStorage.getItem('ktalk_level')||localStorage.getItem('ktalk_user_level')||localStorage.getItem('ktalk_member_level')||0);}catch(e){}
+  if(window.ktEffectiveLevel)level=window.ktEffectiveLevel(level);
+  return level>=20?'level20':'general';
+ }
+ function allowed(category){var t=tier();return category==='general'||t==='subscriber'||category==='level20'&&t==='level20';}
+ function clean(raw,host){
+  raw=raw&&typeof raw==='object'?raw:{};
+  var c=['general','level20','subscriber'].indexOf(raw.category)>=0?raw.category:'general';if(host&&!allowed(c))c=tier();
+  var cap=c==='subscriber'?5:c==='level20'?2:0;
+  var d={category:c,gifts:Array.from(new Set(Array.isArray(raw.gifts)?raw.gifts:[])).filter(function(x){return Number.isInteger(x)&&x>=0&&x<50;}).slice(0,cap)};
+  if(c==='subscriber'){
+   d.product_name=String(raw.product_name||'').slice(0,80);
+   ['product_image','icon_image'].forEach(function(k){var s=String(raw[k]||'');if((/^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(s)&&s.length<=(k==='product_image'?190000:130000))||(!host&&/^\/api\/broadcast-listing-image\?room=[0-9a-f-]{36}&kind=(product_image|icon_image)&v=[0-9a-f]{32}$/i.test(s)))d[k]=s;});
+   if(raw.public_contact===true){d.public_contact=true;d.phone=String(raw.phone||'').slice(0,80);d.bank=String(raw.bank||'').slice(0,120);}
+  }
+  return d;
+ }
+ function draft(){try{var s=localStorage.getItem('kt_listing_draft:'+account());return clean(s?JSON.parse(s):{category:tier()},true);}catch(e){return clean({category:tier()},true);}}
+ function save(d){try{localStorage.setItem('kt_listing_draft:'+account(),JSON.stringify(clean(d,true)));}catch(e){window.alert('이 기기에 설정을 저장하지 못했습니다. 저장 공간과 브라우저 설정을 확인해 주세요.');return false;}lastSent='';install();return true;}
+ function close(){var n=document.getElementById('ktListingEditor');if(n)n.remove();}
+ function dialog(title){close();var shade=el('div',undefined,'kt-listing-editor');shade.id='ktListingEditor';var box=el('section');box.setAttribute('role','dialog');box.setAttribute('aria-modal','true');box.setAttribute('aria-label',title);var head=el('div',undefined,'kt-listing-editor-head');head.appendChild(el('b',title));var x=el('button','닫기');x.type='button';x.onclick=close;head.appendChild(x);box.appendChild(head);shade.appendChild(box);shade.onclick=function(e){if(e.target===shade)close();};document.body.appendChild(shade);return box;}
+ function field(box,label,value,max){var l=el('label',label),input=el('input');input.value=value||'';input.maxLength=max||120;input.setAttribute('aria-label',label);l.appendChild(input);box.appendChild(l);return input;}
+ function commitButton(box,fn){var b=el('button','저장', 'kt-listing-save');b.type='button';b.onclick=fn;box.appendChild(b);}
+ function editTitle(){var input=document.getElementById('liveTitle');if(!input)return;var box=dialog('방송 제목 쓰기');var v=field(box,'바깥 방송 목록에 표시할 제목',input.value,120);v.placeholder='예: 노래방7080 · 소통 방송';commitButton(box,function(){input.value=v.value.trim();input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}));close();install();});v.focus();}
+ function giftIcon(i){
+  var n=el('span',undefined,'kt-listing-gift-icon');var x,y,view,src,w,h;
+  if(i<25){x=[175,310,445,580,715][i%5];y=[205,475,742,1008,1272][Math.floor(i/5)];view=x+' '+y+' 125 130';src='gift-source.svg?v=1';w=864;h=1536;}
+  else{var j=i-25;view=(j%5)*75+' '+Math.floor(j/5)*78+' 75 78';src='gift-premium-photo-source.jpg?v=20260902-fixed2';w=375;h=390;}
+  n.innerHTML='<svg width="100%" height="100%" viewBox="'+view+'" preserveAspectRatio="xMidYMid meet"><image href="'+src+'" width="'+w+'" height="'+h+'"/></svg>';return n;
+ }
+ function editGifts(){var d=draft(),cap=d.category==='subscriber'?5:d.category==='level20'?2:0;if(!cap)return;
+  var box=dialog('선물 아이콘 고르기 · 최대 '+cap+'개'),note=el('p','아이콘을 누른 시청자는 선물 화면으로 들어갑니다. 자동으로 결제하거나 선물을 보내지 않습니다.');box.appendChild(note);var grid=el('div',undefined,'kt-listing-gift-grid');box.appendChild(grid);
+  (window.ktalkGifts||[]).slice(0,50).forEach(function(g,i){var l=el('label'),check=el('input');check.type='checkbox';check.checked=d.gifts.indexOf(i)>=0;check.onchange=function(){var picked=Array.from(grid.querySelectorAll('input:checked'));if(picked.length>cap){check.checked=false;note.textContent='선물은 최대 '+cap+'개까지 고를 수 있습니다.';}};check.dataset.gift=String(i);l.appendChild(check);l.appendChild(giftIcon(i));l.appendChild(el('span',String(g[0])));grid.appendChild(l);});
+  commitButton(box,function(){d.gifts=Array.from(grid.querySelectorAll('input:checked')).map(function(n){return Number(n.dataset.gift);});if(save(d))close();});
+ }
+ async function picture(file,max){
+  if(!file||!/^image\/(jpeg|png|webp|gif)$/.test(file.type)||file.size>10*1024*1024)throw Error('10MB 이하의 JPG·PNG·WebP 사진을 선택해 주세요.');
+  var url=URL.createObjectURL(file);try{var img=new Image();await new Promise(function(resolve,reject){img.onload=resolve;img.onerror=reject;img.src=url;});var scale=Math.min(1,720/img.width,720/img.height),canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.width*scale));canvas.height=Math.max(1,Math.round(img.height*scale));var context=canvas.getContext('2d');context.fillStyle='#fff';context.fillRect(0,0,canvas.width,canvas.height);context.drawImage(img,0,0,canvas.width,canvas.height);for(var q=.8;q>=.2;q-=.1){var result=canvas.toDataURL('image/jpeg',q);if(result.length<=max)return result;}throw Error('사진 용량이 큽니다. 더 작은 사진을 선택해 주세요.');}finally{URL.revokeObjectURL(url);}
+ }
+ function editProduct(){var d=draft();if(d.category!=='subscriber'||tier()!=='subscriber')return;var box=dialog('상품·연락처 올리기');box.appendChild(el('p','직접 입력하고 저장한 내용은 방송 시작 후 모든 시청자에게 공개됩니다. 공개할 정보만 입력해 주세요.'));
+  var name=field(box,'상품 이름',d.product_name,80),phone=field(box,'공개 전화번호',d.phone,80),bank=field(box,'공개 계좌번호 · 은행명',d.bank,120),pending=0;
+  var notice=el('p','');box.appendChild(notice);
+  ['product_image','icon_image'].forEach(function(k){var label=el('label',k==='product_image'?'상품 사진 올리기':'작은 아이콘 사진 올리기'),file=el('input');file.type='file';file.accept='image/jpeg,image/png,image/webp,image/gif';label.appendChild(file);var preview=el('img');preview.alt=k==='product_image'?'상품 사진':'아이콘 사진';preview.hidden=!d[k];if(d[k])preview.src=d[k];label.appendChild(preview);var remove=el('button','사진 지우기');remove.type='button';remove.onclick=function(){delete d[k];preview.hidden=true;file.value='';};label.appendChild(remove);file.onchange=async function(){if(!file.files[0])return;pending++;try{d[k]=await picture(file.files[0],k==='product_image'?190000:130000);preview.src=d[k];preview.hidden=false;notice.textContent='사진을 준비했습니다. 저장을 눌러 주세요.';}catch(e){notice.textContent=String(e.message||e);}finally{pending--;}};box.appendChild(label);});
+  var consent=el('label'),check=el('input');check.type='checkbox';check.checked=d.public_contact===true;consent.appendChild(check);consent.appendChild(el('span','입력한 전화번호·계좌번호를 시청자에게 공개합니다.'));box.appendChild(consent);
+  commitButton(box,function(){if(pending){notice.textContent='사진 준비가 끝난 뒤 저장해 주세요.';return;}if((phone.value.trim()||bank.value.trim())&&!check.checked){notice.textContent='전화번호·계좌번호를 공개하려면 공개 안내를 확인해 주세요.';return;}d.product_name=name.value;d.phone=phone.value;d.bank=bank.value;d.public_contact=check.checked;save(d);close();});
+ }
+ function install(){var prep=document.querySelector('.live-prep'),topic=prep&&prep.querySelector('.prep-topic');if(!topic)return;
+  var wrap=prep.querySelector('.kt-listing-tools');if(!wrap){wrap=el('section',undefined,'kt-listing-tools');topic.insertAdjacentElement('afterend',wrap);}
+  var d=draft(),sig=tier()+'|'+d.category+'|'+d.gifts.join(',');if(wrap.dataset.signature===sig)return;wrap.dataset.signature=sig;wrap.replaceChildren();
+  wrap.appendChild(el('b','방송 목록 종류'));var categories=el('div',undefined,'kt-listing-type-buttons');Object.keys(labels).forEach(function(c){var b=el('button',labels[c]);b.type='button';b.disabled=!allowed(c);b.setAttribute('aria-pressed',String(d.category===c));b.onclick=function(){d.category=c;save(d);};categories.appendChild(b);});wrap.appendChild(categories);
+  var actions=el('div',undefined,'kt-listing-actions');[['✏️ 제목 쓰기',editTitle,false],['🎁 선물 고르기 ('+(d.category==='subscriber'?5:d.category==='level20'?2:0)+'개)',editGifts,d.category==='general'],['🖼️ 상품·연락처',editProduct,d.category!=='subscriber']].forEach(function(x){var b=el('button',x[0]);b.type='button';b.disabled=x[2];b.onclick=x[1];actions.appendChild(b);});wrap.appendChild(actions);wrap.appendChild(el('small','제목은 누구나 · 선물 2개는 레벨 20부터 · 구독자는 모든 설정 가능'));
+ }
+ function hostOpen(){return Array.from(document.querySelectorAll('#screen .ktsolo-room,#screen .ktg9-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room')).some(function(n){return n.getClientRects().length>0&&!n.closest('.kt-remote-live,.kt-guest-hostlike-room,.kt-approved-guest-grid,.kt-prejoin-room-grid,.kt-guest-room-grid');});}
+ async function publish(){
+  var active=hostOpen()&&!window.__ktHostEndLock;if(!active){wasHost=false;lastSent='';return;}if(!wasHost){wasHost=true;lastSent='';}if(publishing)return;
+  var id='';try{id=localStorage.getItem('kt_live_device_id')||'';}catch(e){}if(!id)return;
+  var d=draft(),encoded=JSON.stringify(d);if(encoded===lastSent||Date.now()-lastAt<5000)return;lastAt=Date.now();publishing=true;var ctrl=new AbortController(),timer=setTimeout(function(){ctrl.abort();},6000);
+  try{var r=await fetch(BASE+'ktalk_live_rooms?host_id=eq.'+encodeURIComponent(id)+'&active=eq.true&select=id',{method:'PATCH',headers:{apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json',Prefer:'return=representation'},body:JSON.stringify({listing_details:d}),signal:ctrl.signal});if(!r.ok)throw Error('listing_save');var rows=await r.json();if(rows&&rows.length)lastSent=encoded;}catch(e){}finally{clearTimeout(timer);publishing=false;}
+ }
+ function giftEntry(room){
+  if(typeof window.ktEnterRemoteLive!=='function')return;window.ktEnterRemoteLive(String(room.host_id));var started=Date.now(),timer=setInterval(function(){var root=document.querySelector('#screen .kt-remote-live');if(root&&String(root.getAttribute('data-kt-host-id')||root.getAttribute('data-host-id')||'')===String(room.host_id)){clearInterval(timer);window.ktGuestGiftTarget=null;window.ktGiftTarget20260928={kind:'host',viewerId:String(room.host_id),name:String(room.host_name||'방송자'),at:Date.now()};if(window.openGifts)window.openGifts();}else if(Date.now()-started>10000)clearInterval(timer);},150);
+ }
+ window.ktDecorateBroadcastListing20261015=function(node,room){
+  if(!node||!room)return;var d=clean(room.listing_details,false),sig=JSON.stringify(d);var old=node.querySelector('.kt-listing-public');if(old&&old.dataset.signature===sig)return;if(old)old.remove();
+  var wrap=el('div',undefined,'kt-listing-public');wrap.dataset.signature=sig;wrap.appendChild(el('span',labels[d.category],'kt-listing-category'));
+  if(d.icon_image){var icon=el('img');icon.src=d.icon_image;icon.alt='방송 아이콘';wrap.appendChild(icon);}
+  if(d.product_image||d.product_name){var product=el('button',undefined,'kt-listing-product');product.type='button';if(d.product_image){var image=el('img');image.src=d.product_image;image.alt=d.product_name||'상품 사진';product.appendChild(image);}product.appendChild(el('span',d.product_name||'상품 보기'));product.onclick=function(e){e.preventDefault();e.stopPropagation();var box=dialog(d.product_name||'상품 사진');if(d.product_image){var full=el('img');full.src=d.product_image;full.alt=d.product_name||'상품 사진';box.appendChild(full);}};wrap.appendChild(product);}
+  if(d.phone)wrap.appendChild(el('span','☎ '+d.phone));if(d.bank)wrap.appendChild(el('span',d.bank));
+  d.gifts.forEach(function(i){var g=(window.ktalkGifts||[])[i];if(!g)return;var b=el('button',undefined,'kt-listing-gift');b.type='button';b.setAttribute('aria-label',String(g[0])+' 선물 화면 열기');b.title=String(g[0]);b.appendChild(giftIcon(i));b.onclick=function(e){e.preventDefault();e.stopPropagation();giftEntry(room);};wrap.appendChild(b);});
+  var target=node.querySelector('.ktlf-bottom')||node.querySelector('.kt-live-list-info')||node;
+  var buttons=target.querySelector('.ktlf-buttons');if(buttons)target.insertBefore(wrap,buttons);else target.appendChild(wrap);
+ };
+ function renderKnownLists(){document.querySelectorAll('.kt-live-list-card').forEach(function(card){var b=card.querySelector('[data-host]'),r=b&&rooms[b.getAttribute('data-host')];if(r){card.dataset.listingCategory=clean(r.listing_details,false).category;window.ktDecorateBroadcastListing20261015(card,r);}});document.querySelectorAll('#ktLiveNowStrip .kt-live-card').forEach(function(card){var r=rooms[card.getAttribute('data-host')];if(r){var d=clean(r.listing_details,false);card.dataset.listingCategory=d.category;if(!card.querySelector('.kt-listing-category'))card.appendChild(el('span',labels[d.category],'kt-listing-category'));}});document.querySelectorAll('.kt-live-list-wrap,#ktLiveNowStrip').forEach(function(wrap){if(!wrap.querySelector('.kt-listing-list-tabs')){var tabs=el('div',undefined,'kt-listing-list-tabs');['all','general','level20','subscriber'].forEach(function(c){var b=el('button',c==='all'?'전체':labels[c]);b.type='button';b.onclick=function(){selectedFilter=c;applyFilter(wrap);};tabs.appendChild(b);});wrap.insertBefore(tabs,wrap.firstChild);}applyFilter(wrap);});}
+ var decorating=false;
+ async function decorateLists(){
+  if(!document.querySelector('.kt-live-list-wrap,#ktLiveNowStrip'))return;
+  renderKnownLists();
+  if(decorating||!window.ktListLiveFeedRooms20261015)return;decorating=true;
+  try{var list=await window.ktListLiveFeedRooms20261015();rooms={};list.forEach(function(r){rooms[String(r.host_id)]=r;});renderKnownLists();}catch(e){}finally{decorating=false;}
+ }
+ function applyFilter(wrap){wrap.querySelectorAll('.kt-live-list-card,.kt-live-card').forEach(function(card){card.hidden=selectedFilter!=='all'&&card.dataset.listingCategory!==selectedFilter;});}
+ function style(){var s=el('style');s.textContent='.kt-listing-tools{padding:10px;margin:8px 4px;border-radius:14px;background:#101018b8;color:#fff}.kt-listing-tools button,.kt-listing-list-tabs button{border:1px solid #ffffff35;border-radius:9px;background:#252530;color:#fff;padding:8px 5px;font-size:11px}.kt-listing-type-buttons,.kt-listing-actions{display:flex;gap:5px;margin:7px 0}.kt-listing-tools button{flex:1}.kt-listing-tools button[aria-pressed="true"]{background:#9f285f}.kt-listing-tools button:disabled{opacity:.4}.kt-listing-tools small{font-size:10px}.kt-listing-editor{position:fixed;inset:0;z-index:2147483000;background:#000a;display:grid;place-items:center;padding:16px}.kt-listing-editor section{width:min(480px,100%);max-height:85dvh;overflow:auto;border:1px solid #555;border-radius:18px;background:#15151d;color:#fff;padding:16px;font-size:14px}.kt-listing-editor-head{display:flex;justify-content:space-between;align-items:center}.kt-listing-editor button{padding:9px 12px;border:0;border-radius:10px;background:#383842;color:#fff}.kt-listing-editor label{display:block;margin:12px 0}.kt-listing-editor input:not([type="checkbox"]){display:block;width:100%;padding:10px;margin-top:6px;border:1px solid #666;border-radius:8px;background:#252530;color:#fff;font-size:16px}.kt-listing-editor img{max-width:100%;max-height:360px;object-fit:contain}.kt-listing-editor p{font-size:12px;line-height:1.5}.kt-listing-editor .kt-listing-save{width:100%;background:#d7276b;margin-top:12px}.kt-listing-gift-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.kt-listing-gift-grid label{display:flex;flex-direction:column;align-items:center;border:1px solid #555;padding:6px;border-radius:10px;font-size:10px}.kt-listing-gift-icon{display:inline-block;width:38px;height:38px}.kt-listing-public{display:flex;flex-wrap:wrap;gap:5px;align-items:center;padding:5px 0;font-size:11px}.kt-listing-public>img,.kt-listing-product img{width:36px;height:36px;object-fit:cover;border-radius:6px}.kt-listing-public>span{overflow-wrap:anywhere}.kt-listing-category{padding:3px 6px;border-radius:7px;background:#632754;color:#fff}.kt-listing-public button{padding:3px!important;background:#262631!important;border:1px solid #ffffff30!important;border-radius:9px!important;color:#fff;font-size:11px!important}.kt-listing-product{display:flex;align-items:center;gap:4px}.kt-listing-list-tabs{display:flex;gap:6px;margin:8px 0}.kt-live-list-card[hidden],.kt-live-card[hidden]{display:none!important}.creator.live-prep-open .live-prep{overflow-y:auto!important}.kt-listing-editor [hidden]{display:none!important}';document.head.appendChild(s);}
+ var renderQueued=false;
+ new MutationObserver(function(records){if(renderQueued)return;if(records.some(function(r){return Array.from(r.addedNodes).some(function(n){return n.nodeType===1&&(n.matches('.kt-live-list-card,.kt-live-list-wrap,.kt-live-card,#ktLiveNowStrip')||n.querySelector('.kt-live-list-card,.kt-live-card'));});})){renderQueued=true;Promise.resolve().then(function(){renderQueued=false;renderKnownLists();decorateLists();});}}).observe(document.getElementById('screen')||document.body,{childList:true,subtree:true});
+ document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});document.addEventListener('input',function(e){if(e.target&&e.target.id==='liveTitle')install();});
+ window.addEventListener('kt-broadcast-ended',function(){lastSent='';wasHost=false;});style();install();setInterval(function(){install();publish();decorateLists();},3000);
+})();
