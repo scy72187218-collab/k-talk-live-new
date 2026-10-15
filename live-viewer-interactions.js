@@ -380,6 +380,10 @@
           try{
             if(!m.created_at||Date.parse(m.created_at)<giftVisitSince20261014){markProcessed(m);return;}
             var text=String(m.message||''),name='선물';
+            var effectKey=String(m.sender_id||m.sender_name||'')+'|'+type+'|'+text,stamp=Date.parse(m.created_at)||0;
+            var prior=(window.__ktGiftReceiptEffectTimes20261015||{})[effectKey]||0;
+            if((prior&&Math.abs(stamp-prior)<1500)||completedGiftChat20261015(text,m.created_at)){markProcessed(m);return;}
+            window.__ktGiftReceiptEffectTimes20261015=window.__ktGiftReceiptEffectTimes20261015||{};window.__ktGiftReceiptEffectTimes20261015[effectKey]=stamp;
             var names=(window.ktalkGifts||[]).map(function(g){return String(g[0]);}).sort(function(a,b){return b.length-a.length;});
             name=names.find(function(v){return text.indexOf('님이 '+v+' ')>=0;})||(/장미/.test(text)?'장미':'선물');
             if(typeof window.ktPresentReceivedGift3D20261014==='function')window.ktPresentReceivedGift3D20261014(name,n,String(m.sender_name||'회원'));
@@ -496,7 +500,7 @@
   function installPublicWraps(){
     var enter=window.ktEnterRemoteLive;if(typeof enter==='function'&&!enter.__ktInteractionWrapped){var wrappedEnter=async function(hostId){var r=await enter.apply(this,arguments);if(document.querySelector('.kt-remote-live'))await startRemote(hostId);return r;};wrappedEnter.__ktInteractionWrapped=true;window.ktEnterRemoteLive=wrappedEnter;}
     var leave=window.ktLeaveRemoteLive;if(typeof leave==='function'&&!leave.__ktInteractionWrapped){var wrappedLeave=async function(){clearRemote();return leave.apply(this,arguments);};wrappedLeave.__ktInteractionWrapped=true;window.ktLeaveRemoteLive=wrappedLeave;}
-    var gift=window.giftSend;if(typeof gift==='function'&&!gift.__ktRemoteGiftWrapped){var wrappedGift=function(name,cost,sender){var activeHost=remote.hostId,viewerId=remote.viewerId,viewerName=remote.viewerName;var r=gift.apply(this,arguments);if(activeHost){var n=parseInt(String(cost||0).replace(/,/g,''),10)||0;postMessage(activeHost,viewerId,viewerName,'🎁 '+viewerName+'님이 '+String(name||'선물')+' '+n+'개를 선물했습니다.','gift:'+n).then(refreshRemote);}return r;};wrappedGift.__ktRemoteGiftWrapped=true;window.giftSend=wrappedGift;}
+    var gift=window.giftSend;if(typeof gift==='function'&&!gift.__ktRemoteGiftWrapped){var wrappedGift=function(name,cost,sender){var activeHost=remote.hostId,viewerId=remote.viewerId,viewerName=remote.viewerName;var outer=!window.__ktGiftSendDepth20261015;window.__ktGiftSendDepth20261015=(window.__ktGiftSendDepth20261015||0)+1;var r;try{r=gift.apply(this,arguments);}finally{window.__ktGiftSendDepth20261015--;}if(outer&&activeHost){var n=parseInt(String(cost||0).replace(/,/g,''),10)||0;postMessage(activeHost,viewerId,viewerName,'🎁 '+viewerName+'님이 '+String(name||'선물')+' '+n+'개를 선물했습니다.','gift:'+n).then(refreshRemote);}return r;};wrappedGift.__ktRemoteGiftWrapped=true;window.giftSend=wrappedGift;}
   }
 
   ensureStyle();installHostChatKeepAlive();ensureHostSendWraps();installPublicWraps();

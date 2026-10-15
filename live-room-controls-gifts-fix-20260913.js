@@ -5,6 +5,13 @@
 
   var lastPointerControl=null;
   var lastPointerAt=0;
+  var giftRelease20261015=null;
+  function giftOpener20261015(target){
+    var b=target&&target.closest?target.closest('button,[role="button"]'):null;if(!b)return null;
+    if(!b.closest('#screen .kt-remote-live,#screen .ktsolo-room,#screen .ktg13-room,#screen .ktg9-room,#screen .ktsubscriber-room,#screen .ktsecret-room,#sheet.kt-person-gift-menu-open'))return null;
+    var action=String(b.getAttribute('onclick')||'');
+    return /(?:openGifts|ktRemoteOpenGifts)\s*\(/.test(action)?b:null;
+  }
 
   function inLiveRoom(el){
     return !!(el&&el.closest&&el.closest('.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room'));
@@ -258,6 +265,14 @@
   }
 
   function handle(e){
+    if(e.type==='click'&&giftRelease20261015&&Date.now()-giftRelease20261015.at<600&&Math.abs((e.clientX||0)-giftRelease20261015.x)<24&&Math.abs((e.clientY||0)-giftRelease20261015.y)<24){giftRelease20261015=null;stopEvent(e);return;}
+    var giftButton=giftOpener20261015(e&&e.target);
+    if(giftButton){
+      stopEvent(e);
+      if(e.type==='pointerup')giftRelease20261015={at:Date.now(),x:e.clientX||0,y:e.clientY||0};
+      try{if(typeof window.ktRemoteOpenGifts==='function'&&giftButton.closest('.kt-remote-live'))window.ktRemoteOpenGifts();else if(typeof window.openGifts==='function')window.openGifts();}catch(err){}
+      return;
+    }
     var btn=controlFromEvent(e);
     if(!btn)return;
 
