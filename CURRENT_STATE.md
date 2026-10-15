@@ -370,3 +370,7 @@ Release browser check additionally found a persistent hidden creator preparation
 
 ## 2026-10-15 remove legacy lower LIVE strip over feed previews
 Owner screenshot identifies lower red broadcast list covering preview entry. Hide only legacy #ktFollowLiveStrip while public feed has new live cards, using scoped body class maintained by preview installer; restore normal absence/room state on navigation. Keep inline 라이브 시청 entry, bottom main navigation/방송하기, existing room controls and preview connection logic unchanged. Mock visibility class/insertion cleanup checks and syntax; deployment alone does not verify video first frame.
+
+
+## 2026-10-15 smaller feed entry and follow action
+Owner requests 라이브 시청 about half width and replacing 다시 보기 with 팔로우. Inline entry uses46% maximum width, smaller13px text/padding; follow uses existing ktBindPersonFollowMenu20261015 after card insertion and exact catalog host_id, self/status/toggle/reward paths unchanged. Binder late load retries on installer, bound once per card; no real follow sent during tests. Removed obsolete preview retry state and adapted connection message. No preview transport, room approval/access/layout/finances changes. Existing actual moving preview connection report remains under observation.
