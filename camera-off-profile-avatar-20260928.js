@@ -12,7 +12,7 @@
   var CHOICES=[
     {id:'female1',photo:'default-korean-woman-20261016.png',label:'한국 여성',bg:'linear-gradient(145deg,#ffd9ea,#f4b6d0)'},
     {id:'male1',photo:'default-korean-man-20261016.png',label:'한국 남성',bg:'linear-gradient(145deg,#d9e7ff,#a8c2ee)'},
-    {id:'stage',photo:'live-background-stage-20261016.svg',label:'배경 화면',bg:'linear-gradient(145deg,#17213d,#5c3f82)'}
+    {id:'stage',photo:'live-background-stage-20261016.jpg',label:'배경 화면',bg:'linear-gradient(145deg,#17213d,#5c3f82)'}
   ];
 
   function enc(v){return encodeURIComponent(String(v==null?'':v));}
@@ -164,7 +164,7 @@
           old.className='kt-camera-off-avatar-20260928';
           tile.appendChild(old);
         }
-        var scene=String(st.scene||'');if(['stage','sea','mountain','autumn'].indexOf(scene)>=0)old.style.setProperty('background','url(live-background-'+scene+'-20261016.svg) center / cover','important');else old.style.removeProperty('background');
+        var scene=String(st.scene||'');if(['stage','sea','mountain','autumn'].indexOf(scene)>=0)old.style.setProperty('background','url(live-background-'+scene+'-20261016.jpg) center / cover','important');else old.style.removeProperty('background');
         var html=avatarHtml(st.name||name,(id===self?photo:st.photo||''),id===self,st.choice||'female1');if(old.innerHTML!==html)old.innerHTML=html;
       }else if(old){
         old.remove();
@@ -210,8 +210,9 @@
     var status=document.createElement('small');status.setAttribute('data-photo-status','');status.style.gridColumn='1 / -1';p.appendChild(status);
     var own=document.createElement('button');own.type='button';own.textContent='내 프로필 사진';own.onclick=function(){var photo=String(profile().photo||'');if(!photo){pickerStatus('등록된 프로필 사진이 없습니다. 사진첩에서 골라 주세요.');return;}preparePhoto(photo);};p.appendChild(own);
     var gallery=document.createElement('button');gallery.type='button';gallery.textContent='사진첩에서 고르기';gallery.onclick=pickPhoto;p.appendChild(gallery);
+    var liveBg=document.createElement('button');liveBg.type='button';liveBg.textContent='카메라 켠 상태 뒷배경';liveBg.onclick=function(){closePicker();if(window.ktOpenLiveBackground20261016)window.ktOpenLiveBackground20261016();};p.appendChild(liveBg);
     var sceneTitle=document.createElement('b');sceneTitle.textContent='사진 뒤 배경';sceneTitle.style.gridColumn='1 / -1';p.appendChild(sceneTitle);
-    ['stage','sea','mountain','autumn'].forEach(function(id,i){var b=document.createElement('button');b.type='button';b.textContent=['무대','바다','산','가을'][i];b.style.setProperty('background','url(live-background-'+id+'-20261016.svg) center / cover','important');b.onclick=function(){try{localStorage.setItem('kt_camera_off_scene_20261016',id);}catch(e){}sendState(true,choiceId());closePicker();};p.appendChild(b);});
+    ['stage','sea','mountain','autumn'].forEach(function(id,i){var b=document.createElement('button');b.type='button';b.textContent=['무대','바다','산','가을'][i];b.style.setProperty('background','url(live-background-'+id+'-20261016.jpg) center / cover','important');b.onclick=function(){try{localStorage.setItem('kt_camera_off_scene_20261016',id);}catch(e){}sendState(true,choiceId());closePicker();};p.appendChild(b);});
     var clearScene=document.createElement('button');clearScene.type='button';clearScene.textContent='사진 배경 끄기';clearScene.onclick=function(){try{localStorage.removeItem('kt_camera_off_scene_20261016');}catch(e){}sendState(true,choiceId());closePicker();};p.appendChild(clearScene);
     var current=choiceId();
     CHOICES.forEach(function(ch){

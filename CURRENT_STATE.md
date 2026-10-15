@@ -420,3 +420,9 @@ Owner authorized optional layout for 9/13/subscriber: two large top slots and re
 
 ## 2026-10-16 camera-off photo application
 Owner approved one fictional AI-generated Korean adult woman and man portrait, replacing emoji duplicates. Attached mobile file input; immediate local display; reject stale camera-state overwrite; locate own approved stream tile. Four original SVG static background scenes (stage/sea/mountain/autumn) can display behind chosen avatar/profile photo with camera off. Owner explicitly excluded runtime AI segmentation or live camera background composition. No SFU bridge or camera-on processing changes. Photo picker preserves original photo except existing size/crop encoding. Physical phone gallery and multi-device display need owner verification; no paid tests performed.
+
+
+## 2026-10-16 real-photo live backgrounds (explicit owner re-authorization)
+Owner requested actual stage/sea/mountain/autumn photos, fixed behind moving live person, reversing prior exclusion of runtime segmentation. New explicit opt-in local video TrackProcessor composes one photo behind foreground; existing raw camera and audio retained. Small own-tile background button plus picker entry. First processed frame required before replacing sender output; load/image/first-frame timeouts, processing-failure/stall recovery, camera-off enabled mirroring, end cleanup. Source and SDK track tracked separately because mediaStreamTrack getter returns processed track. Original camera-off backgrounds now use real JPEGs too. No financial/access/approval or layout changes. Mock lifecycle tests do not establish physical device speed or end-to-end guest quality.
+
+Browser synthetic harness could not be reached by the in-app browser (localhost timeout); no claim of real-library or phone test success. Only source syntax and mocked processor lifecycle passed at release time.
