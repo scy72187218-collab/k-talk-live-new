@@ -3,6 +3,15 @@
   if(window.__ktLiveChooserGesture20261011)return;
   window.__ktLiveChooserGesture20261011=true;
   var opening=false, openedAt=0, roomGesture=false, roomGestureAt=0;
+  var enteredTitle20261015='';
+  function rememberTitle20261015(e){
+    var input=e.target;
+    if(!input||input.id!=='liveTitle')return;
+    enteredTitle20261015=String(input.value||'').trim();
+    input.dataset.autoRoom='0';
+  }
+  document.addEventListener('input',rememberTitle20261015,true);
+  document.addEventListener('change',rememberTitle20261015,true);
   function selectSpecialRoom(e){
     var el=e.target&&e.target.closest?e.target.closest('.live-prep .room-switch,.live-prep .kt-room9-general,.live-prep .kt-room-bottom5 button,.kt-creator-room-shortcuts button'):null;
     if(!el)return false;
@@ -19,7 +28,7 @@
     var creator=document.getElementById('creator');
     if(creator)creator.classList.add('show','live-prep-open');
     var title=document.getElementById('liveTitle');
-    if(title){title.value=name;title.dataset.autoRoom='1';}
+    if(title){title.value=enteredTitle20261015||name;title.dataset.autoRoom=enteredTitle20261015?'0':'1';}
     return true;
   }
   function liveControl(target){
@@ -59,6 +68,8 @@
       window.alert('방을 먼저 선택해 주세요.');return true;
     }
     window.ktApplyLiveChooserSelection();
+    var title=document.getElementById('liveTitle');
+    if(title&&enteredTitle20261015){title.value=enteredTitle20261015;title.dataset.autoRoom='0';}
     if(typeof window.ktStartLiveRoomNow==='function'){
       Promise.resolve(window.ktStartLiveRoomNow(choice.type,choice.name,choice.max)).catch(function(){});
     }
