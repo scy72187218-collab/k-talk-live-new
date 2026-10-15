@@ -113,7 +113,7 @@
 (function(){
   if(document.querySelector('script[data-kt-ai-voice-fix]'))return;
   var s=document.createElement('script');
-  s.src='ai-voice-fix.js?v=20261015-gift-thanks1';
+  s.src='ai-voice-fix.js?v=20261015-gift-completion1';
   s.async=false;
   s.setAttribute('data-kt-ai-voice-fix','1');
   document.head.appendChild(s);
@@ -171,7 +171,7 @@
 (function(){
   if(document.querySelector('script[data-kt-live-viewer-interactions]'))return;
   var s=document.createElement('script');
-  s.src='live-viewer-interactions.js?v=20261015-fresh-broadcast-chat1';
+  s.src='live-viewer-interactions.js?v=20261015-gift-completion1';
   s.async=false;
   s.setAttribute('data-kt-live-viewer-interactions','1');
   document.head.appendChild(s);

@@ -19,6 +19,28 @@
   window.addEventListener('kt-host-session-ready',function(e){var d=e.detail||{},start=epoch(d.started_at);if(d.role!=='host'&&d.host_id&&start)guestClockStarts[String(d.host_id)]=start;});
   setInterval(function(){var text=window.ktGuestBroadcastClockText5062(),root=document.querySelector('#screen .kt-remote-live');if(!root||!text)return;root.querySelectorAll('#ktLiveClock,[data-solo-viewer-clock],.ktg9-copy-clock,.kt-sgfh-clock,.ktg13-air small>span:not(.kt-clock-like-20260927):not(.kt-live-clock-heart)').forEach(function(el){if(el.textContent!==text)el.textContent=text;});},500);
   var hostChatStableBuffer=[];
+
+  var completedGiftChats20261015=Object.create(null);
+  try{completedGiftChats20261015=JSON.parse(localStorage.getItem('kt_gift_chat_completed:'+deviceId())||'{}')||{};}catch(e){}
+  function giftChatKey20261015(text){
+    return String(text||'').replace(/님이|님께서|님/g,'').replace(/선물했습니다|선물하셨습니다|선물을\s*보냈습니다|선물/g,'').replace(/개를/g,'개').replace(/[^가-힣a-zA-Z0-9]/g,'').toLowerCase();
+  }
+  function completedGiftChat20261015(message,createdAt){
+    var key=giftChatKey20261015(message),done=completedGiftChats20261015[key]||0,stamp=epoch(createdAt);
+    return !!(done&&(!stamp||stamp<=done));
+  }
+  window.ktGiftChatIsCompleted20261015=completedGiftChat20261015;
+  window.addEventListener('kt-gift-announcement-finished',function(e){
+    var d=e&&e.detail||{},key=giftChatKey20261015(d.text);if(!key)return;
+    completedGiftChats20261015[key]=Number(d.at||Date.now());
+    try{var saved={},keys=Object.keys(completedGiftChats20261015).sort(function(a,b){return completedGiftChats20261015[b]-completedGiftChats20261015[a];}).slice(0,100);keys.forEach(function(k){saved[k]=completedGiftChats20261015[k];});completedGiftChats20261015=saved;localStorage.setItem('kt_gift_chat_completed:'+deviceId(),JSON.stringify(saved));}catch(e){}
+    hostChatStableBuffer=hostChatStableBuffer.filter(function(m){return !completedGiftChat20261015(m.message,m.created_at);});
+    document.querySelectorAll('#screen [class*="-chat-line"]').forEach(function(line){
+      if(giftChatKey20261015(line.textContent)===key)line.remove();
+    });
+    var box=currentHostBox();window.__ktHostChatStableHtml=box&&box.el?box.el.innerHTML:'';
+  });
+
   window.__ktHostChatStableHtml=window.__ktHostChatStableHtml||'';
   var chatGeneration20261015=0,hostChatRun20261015='',hostChatFloor20261015=0;
   function clearHostChat20261015(){
@@ -366,7 +388,7 @@
             if(typeof window.ktSpeakGift20261014==='function'){
               window.__ktRecentGiftSpeech20261014=window.__ktRecentGiftSpeech20261014||{};
               window.__ktRecentGiftSpeech20261014[text.replace(/\s+/g,' ').trim()]=Date.now();
-              window.ktSpeakGift20261014(String(m.sender_name||'회원')+'님이 '+name+' '+n+'개를 선물했습니다.',String(m.id||m.created_at||''));
+              window.ktSpeakGift20261014(String(m.sender_name||'회원')+'님이 '+name+' '+n+'개를 선물했습니다.',String(m.id||m.created_at||''),m.created_at);
             }else speakIfNeeded(m.message);
           }catch(e){}
         }
@@ -403,8 +425,8 @@
 
   function paintHostMessages(box,rows){
     if(!box||!box.el)return;
-    rows=(rows||[]).filter(function(m){return !(window.ktIsInternalLiveMessage&&window.ktIsInternalLiveMessage(m.message,m.message_type));});
-    hostChatStableBuffer=hostChatStableBuffer.filter(function(m){return !(window.ktIsInternalLiveMessage&&window.ktIsInternalLiveMessage(m.message,m.message_type));});
+    rows=(rows||[]).filter(function(m){return !(window.ktIsInternalLiveMessage&&window.ktIsInternalLiveMessage(m.message,m.message_type))&&!completedGiftChat20261015(m.message,m.created_at);});
+    hostChatStableBuffer=hostChatStableBuffer.filter(function(m){return !(window.ktIsInternalLiveMessage&&window.ktIsInternalLiveMessage(m.message,m.message_type))&&!completedGiftChat20261015(m.message,m.created_at);});
 
     /* Keep a stable visible history. A temporary empty/partial fetch must not
        erase a chat line that just appeared. New lines stack from the bottom

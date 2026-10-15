@@ -125,7 +125,9 @@
 
   window.ktRecordReceivedRose=window.ktRecordReceivedRose||function(){};
 
-  function showGiftChatLine(sender,name,cost){
+  function showGiftChatLine(sender,name,cost,createdAt){
+    var speech=String(sender||'회원')+'님이 '+String(name||'선물')+' '+String(cost||1)+'개를 선물했습니다.';
+    if(window.ktGiftChatIsCompleted20261015&&window.ktGiftChatIsCompleted20261015(speech,createdAt))return;
     try{
       var box=document.querySelector('.ktsolo-chat,.ktg13-chat,.ktsubscriber-chat,.ktsecret-chat');
       if(!box)return;
@@ -151,6 +153,8 @@
       var cost=parseInt(data.cost||0,10)||0;
       if(cost<=0)return;
       try{if(typeof window.ktRecordReceivedRose==='function')window.ktRecordReceivedRose(String(row.sender_name||'회원'),cost,String(data.name||'선물'),'host');}catch(e){}
+      var speech=String(row.sender_name||'회원')+'님이 '+String(data.name||'선물')+' '+cost+'개를 선물했습니다.';
+      if(window.ktGiftChatIsCompleted20261015&&window.ktGiftChatIsCompleted20261015(speech,row.created_at))return;
       if(cost>=1000){
         try{
           if(typeof window.ktMarkPremiumGiftClip20260928==='function')
@@ -166,8 +170,8 @@
       }else if(typeof window.showSmallGiftFx==='function'){
         window.showSmallGiftFx(String(data.name||'선물'),cost,String(row.sender_name||'회원'));
       }
-      try{showGiftChatLine(String(row.sender_name||'회원'),String(data.name||'선물'),cost);}catch(e){}
-      try{if(typeof window.ktAnnounceEvent==='function')window.ktAnnounceEvent('gift',{sender:row.sender_name||'',name:data.name||'선물',count:cost});}catch(e){}
+      try{showGiftChatLine(String(row.sender_name||'회원'),String(data.name||'선물'),cost,row.created_at);}catch(e){}
+      try{if(typeof window.ktSpeakGift20261014==='function')window.ktSpeakGift20261014(String(row.sender_name||'회원')+'님이 '+String(data.name||'선물')+' '+cost+'개를 선물했습니다.','legacy:'+String(row.id||''),row.created_at);}catch(e){}
     }catch(e){}
   }
 
@@ -197,7 +201,7 @@
           }else if(typeof window.showSmallGiftFx==='function'){
             window.showSmallGiftFx(String(data.name||'선물'),cost,String(row.sender_name||'호스트'));
           }
-          try{if(typeof window.ktAnnounceEvent==='function')window.ktAnnounceEvent('gift',{sender:row.sender_name||'호스트',name:data.name||'선물',count:cost});}catch(e){}
+          try{if(typeof window.ktSpeakGift20261014==='function')window.ktSpeakGift20261014(String(row.sender_name||'호스트')+'님이 '+String(data.name||'선물')+' '+cost+'개를 선물했습니다.','legacy:'+String(row.id||''),row.created_at);}catch(e){}
         }catch(e){}
       });
     }catch(e){}

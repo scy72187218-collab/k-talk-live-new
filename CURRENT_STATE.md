@@ -270,3 +270,7 @@ Frame-counter compatibility follow-up: a browser exposing only zero decoded-fram
 
 ## 2026-10-15 third+ approved guest audience investigation
 Owner clarifies host sees approved guests, only spectators fail to see third+ guest video. Do not confuse with host legacy negotiation delay. Added scoped DOM diagnostics of SFU video subscription/track/target ready state and local publish success/error class (no tokens/names), throttled1s/unchanged attribute writes skipped. No media/control changes in this diagnostic step. Need actual spectator snapshot to identify missing publication versus target routing before further repair. User 9-room active. Existing15-slot pure allocator test does not establish end-to-end guest publication.
+
+
+## 2026-10-15 gift announcement completion
+Gift receipt speech has one dedicated route: three gift announcements followed by one thank-you. Generic chat readers ignore gift templates. Completed host gift chat lines are filtered from live polling and stable HTML restoration; completion cutoff is saved per device (latest 100 text keys) to suppress older receipts after reload, while later timestamps remain eligible. Legacy gift JSON uses the same speech route. No gift balances, payout, prices, approval or video layout changes. Mock speech verifies 3 + 1, one completion, delayed duplicate suppression; four edited scripts and loaders parse. Real phone audio still requires confirmation. Audience third guest publication investigation remains incomplete; diagnostic-only SFU change preserved.

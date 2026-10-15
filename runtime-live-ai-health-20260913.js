@@ -28,10 +28,10 @@
     }catch(e){if(done)done();}
   }
 
-  load('chat-benefit-ai-reader.js','__ktChatBenefitAIReaderInstalled',function(){
+  load('chat-benefit-ai-reader.js?v=20261015-gift-completion1','__ktChatBenefitAIReaderInstalled',function(){
     load('live-presence.js?v=20260918-live-off-stable1','__ktLivePresenceInstalled',function(){
       load('live-video-discovery.js?v=20260919-no-plus-bell1','__ktLiveVideoDiscoveryInstalled',function(){
-        load('live-viewer-interactions.js?v=20261011-chat-boundaries2','__ktLiveViewerInteractionInstalled');
+        load('live-viewer-interactions.js?v=20261015-gift-completion1','__ktLiveViewerInteractionInstalled');
       });
     });
   });

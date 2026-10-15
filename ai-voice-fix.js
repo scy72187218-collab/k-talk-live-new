@@ -10,7 +10,7 @@
   var giftReadCounts20261014=Object.create(null),lastVoiceRun20261015='';
   function resetLiveSpeech20261015(){
     queue=[];speaking=false;spokenOnce=Object.create(null);giftReadCounts20261014=Object.create(null);
-    giftSpokenIds=Object.create(null);
+    giftSpokenIds=Object.create(null);giftActiveTexts20261015=Object.create(null);window.__ktCompletedGiftSpeech20261015=Object.create(null);
     window.__ktLiveSpeechSince20261015=Date.now();
     try{if(synth&&synth.cancel)synth.cancel();}catch(e){}
     window.dispatchEvent(new CustomEvent('kt-live-speech-reset'));
@@ -64,6 +64,7 @@
 
   function stopForPlayback(){
     queue=[];
+    giftActiveTexts20261015=Object.create(null);
     speaking=false;
     try{if(synth&&synth.cancel)synth.cancel();}catch(e){}
   }
@@ -85,13 +86,17 @@
     return String(text==null?'':text).replace(/\s+/g,' ').trim().slice(0,280);
   }
 
+  function isGiftAnnouncement20261015(text){
+    return /(?:님이\s*)?.+\s+[0-9,]+개(?:를)?\s*선물(?:했습니다|하셨습니다|을\s*보냈습니다)[.!。]?\s*$/.test(String(text||''))||/^[🎁🌹].*[0-9,]+개\s*선물/.test(String(text||''));
+  }
+  window.ktIsGiftAnnouncement20261015=isGiftAnnouncement20261015;
   function isViewerExitSpeech20261015(text){
     return /(?:방송\s*(?:나감|퇴장)|님[이가께서,:\s]*(?:방송(?:을|에서)?\s*)?(?:나갔습니다|나가셨습니다|퇴장했습니다|퇴장하셨습니다))[.!。]?\s*$/.test(String(text||''));
   }
   function speakNow(text){
     var giftJob=text&&typeof text==='object'?text:null;
     text=normalize(giftJob?giftJob.text:text);
-    if(isViewerExitSpeech20261015(text)){speaking=false;setTimeout(drain,0);return false;}
+    if(isViewerExitSpeech20261015(text)||(!giftJob&&isGiftAnnouncement20261015(text))){speaking=false;setTimeout(drain,0);return false;}
     var giftKey=/선물/.test(text)&&/[0-9]/.test(text)?text.replace(/님이/g,'님').replace(/선물했습니다|선물하셨습니다|선물/g,'').replace(/[^가-힣a-zA-Z0-9]/g,''):'';
     if(giftJob)giftKey='event:'+giftJob.eventKey;
     if(giftKey&&(giftReadCounts20261014[giftKey]||0)>=3){speaking=false;setTimeout(drain,0);return false;}
@@ -110,10 +115,15 @@
       u.onend=function(){
         speaking=false;
         if(giftJob&&giftJob.remaining>1){giftJob.remaining--;queue.unshift(giftJob);}
-        else if(giftJob){queue.unshift('소중한 선물 주셔서 감사합니다. 좋은 데 쓰겠습니다.');}
+        else if(giftJob){
+          delete giftActiveTexts20261015[giftJob.text];
+          window.__ktCompletedGiftSpeech20261015[giftJob.text]=Date.now();
+          window.dispatchEvent(new CustomEvent('kt-gift-announcement-finished',{detail:{text:giftJob.text,eventId:giftJob.eventKey,at:Date.now()}}));
+          queue.unshift('소중한 선물 주셔서 감사합니다. 좋은 데 쓰겠습니다.');
+        }
         drain();
       };
-      u.onerror=function(){speaking=false;setTimeout(drain,80);};
+      u.onerror=function(){speaking=false;if(giftJob)delete giftActiveTexts20261015[giftJob.text];setTimeout(drain,80);};
       synth.speak(u);
       if(giftKey)giftReadCounts20261014[giftKey]=(giftReadCounts20261014[giftKey]||0)+1;
       return true;
@@ -121,13 +131,13 @@
   }
 
   function drain(){
-    if(playbackActive()){queue=[];speaking=false;return;}
+    if(playbackActive()){queue=[];giftActiveTexts20261015=Object.create(null);speaking=false;return;}
     if(speaking||!queue.length)return;
     speakNow(queue.shift());
   }
 
   window.ktSpeak=function(text){
-    if(isViewerExitSpeech20261015(normalize(text)))return false;
+    if(isViewerExitSpeech20261015(normalize(text))||isGiftAnnouncement20261015(normalize(text)))return false;
     try{if(window.state&&state.aiVoiceOn===false)return false;}catch(e){}
     if(playbackActive())return false;
     text=normalize(text);
@@ -142,22 +152,27 @@
     return true;
   };
 
-  var giftSpokenIds=Object.create(null),giftSpeechSerial20261015=0;
-  window.ktSpeakGift20261014=function(text,eventId){
+  var giftSpokenIds=Object.create(null),giftActiveTexts20261015=Object.create(null),giftSpeechSerial20261015=0;
+  window.__ktCompletedGiftSpeech20261015=Object.create(null);
+  window.ktSpeakGift20261014=function(text,eventId,createdAt){
     try{if(window.state&&state.aiVoiceOn===false)return false;}catch(e){}
     if(playbackActive()||!synth||typeof window.SpeechSynthesisUtterance!=='function')return false;
     text=normalize(text);if(!text)return false;
     if(eventId&&giftSpokenIds[eventId])return true;
     if(eventId)giftSpokenIds[eventId]=1;
+    if(createdAt&&window.ktGiftChatIsCompleted20261015&&window.ktGiftChatIsCompleted20261015(text,createdAt))return true;
+    var finished=window.__ktCompletedGiftSpeech20261015[text]||0,stamp=Date.parse(createdAt||'')||0;
+    if((finished&&stamp&&stamp<=finished)||giftActiveTexts20261015[text])return true;
+    giftActiveTexts20261015[text]=true;
     // Keep the current utterance intact; gifts go before queued ordinary chat.
     queue.unshift({text:text,eventKey:String(eventId||('local-'+(++giftSpeechSerial20261015))),remaining:3});
-    if(queue.length>8)queue.length=8;drain();return true;
+    if(queue.length>8)queue.splice(8).forEach(function(job){if(job&&typeof job==='object')delete giftActiveTexts20261015[job.text];});drain();return true;
   };
   window.ktTestAIVoice=function(){
     try{if(window.state)state.aiVoiceOn=true;}catch(e){}
     try{localStorage.setItem('ktalk_ai_voice','on');}catch(e){}
     try{if(synth&&synth.cancel)synth.cancel();}catch(e){}
-    speaking=false;queue=[];
+    speaking=false;queue=[];giftActiveTexts20261015=Object.create(null);
     var msg='K-Talk AI 음성 안내 테스트입니다.';
     delete spokenOnce[normalize(msg)];
     var ok=window.ktSpeak(msg);
