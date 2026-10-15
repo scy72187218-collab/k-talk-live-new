@@ -400,3 +400,7 @@ Owner confirms level1 at0;2–10 each+1000 (10at9000),11+5000 (14000),12and late
 
 ## 2026-10-16 preparation controls
 Removed duplicate title-dialog button; reused liveTitle directly above room choices. Compact preparation controls keep subscriber/secret room choices and the existing live start button accessible in a sticky bottom card. Broadcast goal DOM is retained but hidden in this compact preparation view. No room/media/admission or financial changes.
+
+
+## 2026-10-16 secret preparation password slot
+Owner requested replacing the preparation-only daily fortune slot with password settings. Hidden fortune only inside live-prep. Existing password input/save moved into room-switch-row and full width, removed password-induced fixed start positioning. Start remains separate; validation, storage and room access unchanged.

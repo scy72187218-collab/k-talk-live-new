@@ -52,14 +52,14 @@
     s.id='ktSecretPasswordStyle';
     s.textContent='\
       #ktSecretPasswordBox{display:none;margin:5px 0 2px;padding:7px 8px;border:1px solid rgba(255,190,60,.45);border-radius:13px;background:rgba(30,20,5,.52);color:#fff} \
-      #ktSecretPasswordBox.on{display:block;margin-bottom:58px!important} \
+      #ktSecretPasswordBox.on{display:block!important;grid-column:1 / -1;margin:4px 0!important} \
       #ktSecretPasswordBox label{display:block;margin-bottom:4px;color:#ffe16b;font-size:11px;font-weight:950} \
       #ktSecretPasswordRow{display:flex;gap:7px;align-items:center} \
       #ktSecretPassword{flex:1;min-width:0;height:34px;border-radius:11px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.09);color:#fff;font-size:16px;font-weight:900;letter-spacing:7px;text-align:center;outline:none} \
       #ktSecretPasswordSave{height:34px;padding:0 13px;border:0;border-radius:11px;background:linear-gradient(135deg,#ffb62f,#ff7a2f);color:#17100a;font-weight:950} \
       #ktSecretPasswordHelp{margin-top:3px;color:#ddd;font-size:9px} \
       #ktSecretPasswordError{display:none;margin-top:4px;color:#ff7c92;font-size:10px;font-weight:900} \
-      #ktSecretPasswordBox.on + .prep-start{position:fixed!important;left:12px!important;right:12px!important;bottom:8px!important;width:auto!important;z-index:9999!important;margin:0!important;padding:12px!important}';
+      .live-prep .kt-daily-fortune-room-switch{display:none!important}';
     document.head.appendChild(s);
   }
 
@@ -75,9 +75,9 @@
     if(!box){
       box=document.createElement('div');
       box.id='ktSecretPasswordBox';
-      box.innerHTML='<label>🔒 비밀방 비밀번호</label><div id="ktSecretPasswordRow"><input id="ktSecretPassword" type="password" inputmode="numeric" maxlength="4" placeholder="4자리" aria-label="비밀방 비밀번호 4자리"><button id="ktSecretPasswordSave" type="button">저장</button></div><div id="ktSecretPasswordHelp">비밀방에 들어올 때 사용할 숫자 4자리를 입력하세요.</div><div id="ktSecretPasswordError">비밀번호 4자리를 입력해 주세요.</div>';
-      var start=card.querySelector('.prep-start');
-      card.insertBefore(box,start||null);
+      box.innerHTML='<label for="ktSecretPassword">🔒 비밀번호 설정</label><div id="ktSecretPasswordRow"><input id="ktSecretPassword" type="password" inputmode="numeric" maxlength="4" placeholder="4자리" aria-label="비밀방 비밀번호 4자리"><button id="ktSecretPasswordSave" type="button">저장</button></div><div id="ktSecretPasswordHelp">비밀방에 들어올 때 사용할 숫자 4자리를 입력하세요.</div><div id="ktSecretPasswordError">비밀번호 4자리를 입력해 주세요.</div>';
+      var row=card.querySelector('.room-switch-row');
+      if(row)row.appendChild(box);else card.insertBefore(box,card.querySelector('.prep-start')||null);
       var input=box.querySelector('#ktSecretPassword');
       var saved=(window.state&&state.liveRoomPassword)||getSaved();
       if(saved)input.value=saved;
