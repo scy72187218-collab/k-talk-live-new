@@ -20,6 +20,27 @@
   setInterval(function(){var text=window.ktGuestBroadcastClockText5062(),root=document.querySelector('#screen .kt-remote-live');if(!root||!text)return;root.querySelectorAll('#ktLiveClock,[data-solo-viewer-clock],.ktg9-copy-clock,.kt-sgfh-clock,.ktg13-air small>span:not(.kt-clock-like-20260927):not(.kt-live-clock-heart)').forEach(function(el){if(el.textContent!==text)el.textContent=text;});},500);
   var hostChatStableBuffer=[];
   window.__ktHostChatStableHtml=window.__ktHostChatStableHtml||'';
+  var chatGeneration20261015=0,hostChatRun20261015='',hostChatFloor20261015=0;
+  function clearHostChat20261015(){
+    chatGeneration20261015++;hostChatStableBuffer=[];window.__ktHostChatStableHtml='';
+    document.querySelectorAll('#screen .ktg13-chat,#screen #ktsoloChatList,#screen #ktsubscriberChatList,#screen #ktsecretChatList,#screen #ktg13ChatList').forEach(function(el){el.innerHTML='';});
+  }
+  function chatCut20261015(serverStart,localStart){
+    var cut=Math.max(epoch(serverStart),epoch(localStart));return cut?new Date(cut).toISOString():'';
+  }
+  window.addEventListener('kt-broadcast-ended',function(){hostChatRun20261015='';hostChatFloor20261015=0;hostRoomStart='';clearHostChat20261015();});
+  window.addEventListener('kt-host-session-ready',function(e){
+    var d=e&&e.detail||{},key=String(d.run_id||''),start=epoch(d.started_at);
+    if(d.role==='host'&&key&&key!==hostChatRun20261015){
+      hostChatRun20261015=key;hostChatFloor20261015=start||Date.now();
+      hostRoomStart=new Date(hostChatFloor20261015).toISOString();
+      giftVisitSince20261014=Date.now();clearHostChat20261015();
+    }else if(d.role!=='host'&&remote.hostId===String(d.host_id||'')&&start){
+      var next=chatCut20261015(remote.roomStart,start);
+      if(next!==remote.roomStart){remote.roomStart=next;var box=document.getElementById('ktRemoteChatList');if(box)box.innerHTML='';}
+    }
+  });
+
 
   function headers(extra){var h={apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json'};Object.keys(extra||{}).forEach(function(k){h[k]=extra[k];});return h;}
   async function req(path,opt){
@@ -192,7 +213,9 @@
     }catch(e){}
 
     var seen={},all=[];
+    var cutoff=epoch(start);
     primary.concat(memory).forEach(function(m){
+      if(cutoff&&epoch(m&&m.created_at)<cutoff)return;
       var key=String(
         (m&&m.id!=null?m.id:'')+'|'+
         String(m&&m.sender_id||'')+'|'+
@@ -211,13 +234,15 @@
   async function refreshRemote(){
     if(!remote.hostId||!document.querySelector('.kt-remote-live'))return;
     ensureRemoteUi();
-    var rows=await fetchMessages(remote.hostId,remote.roomStart);
+    var context=remote,cut=remote.roomStart;
+    var rows=await fetchMessages(context.hostId,cut);
+    if(remote!==context||remote.roomStart!==cut)return;
     mergeAttendanceRows(rows);markAttendance();
     paintRemoteMessages(rows);
     await refreshMovieMode(rows);
   }
   function clearRemote(){if(typeof window.ktSetViewerMovieTheater==='function')window.ktSetViewerMovieTheater(false,remote.hostId);clearInterval(remote.timer);remote={hostId:'',viewerId:'',viewerName:'',roomStart:'',timer:null,lastLikeAt:0};}
-  async function startRemote(hostId){clearRemote();var p=profile(),room=await activeRoom(hostId);remote.hostId=String(hostId||'');remote.viewerId='viewer_'+deviceId();remote.viewerName=p.name||'게스트';remote.roomStart=room&&room.started_at?room.started_at:'';var start=epoch(remote.roomStart);if(start&&!guestClockStarts[remote.hostId])guestClockStarts[remote.hostId]=start;ensureRemoteUi();await refreshRemote();remote.timer=setInterval(refreshRemote,1300);}
+  async function startRemote(hostId){clearRemote();var p=profile(),room=await activeRoom(hostId);remote.hostId=String(hostId||'');remote.viewerId='viewer_'+deviceId();remote.viewerName=p.name||'게스트';remote.roomStart=chatCut20261015(room&&room.started_at,window.__ktRemoteHostSessionStartedAt20260924);var start=epoch(remote.roomStart);if(start&&!guestClockStarts[remote.hostId])guestClockStarts[remote.hostId]=start;ensureRemoteUi();await refreshRemote();remote.timer=setInterval(refreshRemote,1300);}
 
   window.ktRemoteAttendance=function(){
     if(!remote.hostId)return Promise.resolve(false);
@@ -405,7 +430,7 @@
 
     var full13=box.el.closest('.ktg13-room[data-kt-room="13"]');
     var list=hostChatStableBuffer.slice(-40);
-    if(!list.length)return;
+    if(!list.length){window.__ktHostChatStableHtml='';if(box.el.innerHTML)box.el.innerHTML='';return;}
 
     var html=list.map(function(m){
       var sys=systemType(m.message_type);
@@ -427,11 +452,13 @@
 
   async function refreshHostOnce(){
     var box=currentHostBox();if(!box){giftVisitSince20261014=Date.now();return;}
-    var hid=deviceId(),room=await activeRoom(hid);if(!room)return;
-    var nextStart=room.started_at||'';
-    if(hostRoomStart&&nextStart&&hostRoomStart!==nextStart)hostChatStableBuffer=[];
+    var generation=chatGeneration20261015;
+    var hid=deviceId(),room=await activeRoom(hid);if(!room||generation!==chatGeneration20261015)return;
+    var nextStart=chatCut20261015(room.started_at,hostChatFloor20261015||window.__ktHostRunStartedAt20260924);
+    if(hostRoomStart&&nextStart&&hostRoomStart!==nextStart){clearHostChat20261015();generation=chatGeneration20261015;}
     hostRoomStart=nextStart||hostRoomStart;
     var rows=await fetchMessages(hid,hostRoomStart);
+    if(generation!==chatGeneration20261015)return;
     processHostEvents(rows);
     // Reconstruct the display from attendance records even if reward events were already processed.
     var attendanceRoom=currentHostRoom();

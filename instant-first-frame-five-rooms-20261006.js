@@ -36,6 +36,9 @@
   }
 
   function paint(stream){
+    var preferred=window.__ktSfuPreferredHostStream20261015;
+    var host=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||'');
+    if(host&&String(window.__ktSfuPreferredHostId20261015||'')===host&&liveStream(preferred))stream=preferred;
     if(!liveStream(stream))return false;
     var targets=[];
     function add(v){if(v&&targets.indexOf(v)<0)targets.push(v);}
@@ -60,7 +63,7 @@
         if(v.srcObject!==stream)v.srcObject=stream;
         v.autoplay=true;v.playsInline=true;v.muted=true;v.defaultMuted=true;
         v.setAttribute('autoplay','');v.setAttribute('playsinline','');v.setAttribute('muted','');
-        var p=v.play();if(p&&p.catch)p.catch(function(){});
+        if(v.paused||v.readyState<2){var p=v.play();if(p&&p.catch)p.catch(function(){});}
       }catch(e){}
     });
 

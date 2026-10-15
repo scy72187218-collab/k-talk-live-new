@@ -894,6 +894,9 @@
 
   function attachRemoteStreamNow(stream){
     stream=stream||window.__ktRemoteHostStream||null;
+    var preferred=window.__ktSfuPreferredHostStream20261015,preferredHost=String(window.__ktSfuPreferredHostId20261015||'');
+    var selectedHost=String(remoteHostId()||activeHostId||'');
+    if(preferred&&preferredHost===selectedHost&&preferred.getVideoTracks&&preferred.getVideoTracks().some(function(t){return t.readyState==='live';}))stream=preferred;
     if(!stream)return false;
     /* Never paint this phone's own guest camera into the host cell. */
     if(isLocalGuestMedia20260926(stream)){
@@ -947,7 +950,7 @@
         v.setAttribute('autoplay','');
         v.setAttribute('playsinline','');
         v.setAttribute('muted','');
-        var p=v.play();if(p&&p.catch)p.catch(function(){});
+        if(v.paused||v.readyState<2){var p=v.play();if(p&&p.catch)p.catch(function(){});}
       }catch(e){}
     });
 
@@ -957,6 +960,10 @@
   }
   function showRemoteStream(stream){
     if(!stream||isLocalGuestMedia20260926(stream))return;
+    window.__ktDirectHostStream20261015=stream;window.__ktDirectHostId20261015=String(remoteHostId()||activeHostId||'');
+    var preferred=window.__ktSfuPreferredHostStream20261015,preferredHost=String(window.__ktSfuPreferredHostId20261015||'');
+    var selectedHost=String(remoteHostId()||activeHostId||'');
+    if(preferred&&preferredHost===selectedHost&&preferred.getVideoTracks&&preferred.getVideoTracks().some(function(t){return t.readyState==='live';}))stream=preferred;
     window.__ktRemoteHostStream=stream;
     window.__ktLastApprovedGuestHostStream=stream;
     attachRemoteStreamNow(stream);
