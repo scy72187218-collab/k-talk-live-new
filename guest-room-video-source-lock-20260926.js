@@ -47,6 +47,14 @@
     return null;
   }
   function fix(){
+    /* Guest self-camera only: preserve the natural left/right direction. */
+    try{
+      var self=document.querySelector('.kt-guest-hostlike-room .kgh-cell.self video');
+      if(self){
+        self.style.setProperty('transform','none','important');
+        self.style.setProperty('-webkit-transform','none','important');
+      }
+    }catch(e){}
     try{
       var root=document.querySelector('.kt-guest-hostlike-room');
       if(!root)return;
