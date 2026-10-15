@@ -358,6 +358,9 @@
       if(row){
         row.is_following=!!row.now_following;
         updateStats(row);
+        btn.classList.toggle('following',!!row.now_following);
+        btn.textContent=row.now_following?'✓ 팔로잉':'+ 팔로우';
+        btn.dataset.following=row.now_following?'1':'0';
         saveFollowedMember20260928(person,!!row.now_following);
         if(row.reward_granted)showRoseToast(person.name);
       }
@@ -367,6 +370,25 @@
     }
     btn.disabled=false;
   }
+
+  window.ktBindPersonFollowMenu20261015=async function(person,btn){
+    if(!person||!btn||!val(person.id))return false;
+    if(val(person.id)===currentViewerId()){btn.disabled=true;btn.textContent='내 프로필';return false;}
+    btn.disabled=true;btn.textContent='팔로우 확인 중…';
+    try{
+      var out=await rpc('ktalk_profile_follow_stats',{p_target_id:person.id});
+      var row=Array.isArray(out)?out[0]:out;
+      if(!btn.isConnected)return false;
+      var following=!!(row&&row.is_following);
+      btn.classList.toggle('following',following);btn.dataset.following=following?'1':'0';
+      btn.textContent=following?'✓ 팔로잉':'+ 팔로우';btn.disabled=false;
+      btn.onclick=function(e){if(e){e.preventDefault();e.stopPropagation();}return toggleFollow(person,btn);};
+      return true;
+    }catch(e){
+      if(btn.isConnected){btn.disabled=false;btn.textContent='팔로우 상태 다시 확인';btn.onclick=function(e){if(e){e.preventDefault();e.stopPropagation();}return window.ktBindPersonFollowMenu20261015(person,btn);};}
+      return false;
+    }
+  };
 
   async function openCard(person){
     if(!person)return;
