@@ -5,7 +5,7 @@
   var catalog=[],active=null,connection=null,refreshing=false,lastFetch=0,installTimer=0;
   var observer=null,watched=new WeakSet(),tracks=new Map(),retryAt=0;
   function scroller(){return document.querySelector('#screen .kt-public-feed-scroller,#screen .kt-hard-video-scroller');}
-  function inRoom(){return !!document.querySelector('#screen .kt-remote-live,#screen .ktsolo-room,#screen .ktg9-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room,.creator');}
+  function inRoom(){return !!document.querySelector('#screen .kt-remote-live,#screen .ktsolo-room,#screen .ktg9-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room')||Array.from(document.querySelectorAll('.creator')).some(function(el){return el.getClientRects().length>0&&getComputedStyle(el).display!=='none';});}
   function canPreview(room){
     var type=String(room.room_type||'').toLowerCase(),name=String(room.room_name||'');
     if(/secret|password|subscriber/.test(type)||/비밀|구독/.test(name))return false;

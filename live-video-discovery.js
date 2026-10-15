@@ -1,6 +1,6 @@
 /* K-Talk: 동영상 시청 중 현재 방송자와 팔로우 상태를 표시. 기존 화면/방송 UI는 건드리지 않음. */
 (function(){
-  if(window.__ktLiveVideoDiscoveryInstalled)return;
+  var discoveryAlreadyInstalled20261015=!!window.__ktLiveVideoDiscoveryInstalled;
   window.__ktLiveVideoDiscoveryInstalled=true;
 
   var BASE='https://zupwbfmacwzexyvznlzq.supabase.co/rest/v1/';
@@ -150,6 +150,7 @@
   }
 
   window.ktListLiveFeedRooms20261015=activeRooms;
+  if(discoveryAlreadyInstalled20261015)return;
 
   async function followedUsers(){
     var m=me();
