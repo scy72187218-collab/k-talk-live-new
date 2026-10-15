@@ -86,7 +86,7 @@
   }
 
   function isViewerExitSpeech20261015(text){
-    return /(?:님(?:이|께서)?\s*(?:방송(?:을|에서)?\s*)?|^방송(?:을|에서)?\s*)(?:나갔습니다|퇴장했습니다)[.!。]?\s*$/.test(String(text||''));
+    return /(?:방송\s*(?:나감|퇴장)|님[이가께서,:\s]*(?:방송(?:을|에서)?\s*)?(?:나갔습니다|나가셨습니다|퇴장했습니다|퇴장하셨습니다))[.!。]?\s*$/.test(String(text||''));
   }
   function speakNow(text){
     text=normalize(text);

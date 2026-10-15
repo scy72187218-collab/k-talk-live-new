@@ -1533,6 +1533,8 @@
     if(typeof old!=='function'||old.__ktGuestLeaveCleanup)return;
     var wrapped=function(){
       var args=arguments,self=this;
+      // A silent direct-viewer repair is not a guest departure.
+      if(args[0]===true)return old.apply(self,args);
       if(!args[0])try{localStorage.setItem('kt_explicit_guest_exit:'+deviceId(),'1');}catch(e){}
       try{
         var cleaning=leaveApprovedGuestNow();

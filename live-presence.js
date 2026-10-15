@@ -821,7 +821,7 @@
   window.ktLeaveRemoteLive=async function(silent){
     remoteEntryGeneration20261015++;
     if(!silent)try{localStorage.setItem('kt_explicit_guest_exit:'+deviceId(),'1');window.dispatchEvent(new CustomEvent('kt-explicit-remote-exit'));}catch(e){}
-    var c=viewerCtx;ktNotifyRemoteExit20260924(c);viewerCtx=null;window.__ktRemoteHostStream=null;window.__ktRemoteHostId='';window.__ktCurrentRemoteHostId='';try{sessionStorage.removeItem('kt_remote_host_id');}catch(e){}document.documentElement.classList.remove('kt-remote-viewing');
+    var c=viewerCtx;if(!silent)ktNotifyRemoteExit20260924(c);viewerCtx=null;window.__ktRemoteHostStream=null;window.__ktRemoteHostId='';window.__ktCurrentRemoteHostId='';try{sessionStorage.removeItem('kt_remote_host_id');}catch(e){}document.documentElement.classList.remove('kt-remote-viewing');
     if(c){
       clearInterval(c.signalTimer);clearInterval(c.heartbeat);clearInterval(c.activityTimer);try{c.pc.close();}catch(e){}
     }
