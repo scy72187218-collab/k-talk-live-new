@@ -404,3 +404,7 @@ Removed duplicate title-dialog button; reused liveTitle directly above room choi
 
 ## 2026-10-16 secret preparation password slot
 Owner requested replacing the preparation-only daily fortune slot with password settings. Hidden fortune only inside live-prep. Existing password input/save moved into room-switch-row and full width, removed password-induced fixed start positioning. Start remains separate; validation, storage and room access unchanged.
+
+
+## 2026-10-16 compact password correction
+Password input/save occupies row 2 column 3 beside secret room, rather than a full extra row. Help text hidden in preparation; validation remains. Preparation start fixed above safe-area with reserved bottom space so it remains accessible on short phone screens.

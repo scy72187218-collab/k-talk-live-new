@@ -52,14 +52,14 @@
     s.id='ktSecretPasswordStyle';
     s.textContent='\
       #ktSecretPasswordBox{display:none;margin:5px 0 2px;padding:7px 8px;border:1px solid rgba(255,190,60,.45);border-radius:13px;background:rgba(30,20,5,.52);color:#fff} \
-      #ktSecretPasswordBox.on{display:block!important;grid-column:1 / -1;margin:4px 0!important} \
+      #ktSecretPasswordBox.on{display:block!important;grid-column:3!important;grid-row:2!important;margin:0!important;padding:4px!important;min-width:0} \
       #ktSecretPasswordBox label{display:block;margin-bottom:4px;color:#ffe16b;font-size:11px;font-weight:950} \
       #ktSecretPasswordRow{display:flex;gap:7px;align-items:center} \
       #ktSecretPassword{flex:1;min-width:0;height:34px;border-radius:11px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.09);color:#fff;font-size:16px;font-weight:900;letter-spacing:7px;text-align:center;outline:none} \
       #ktSecretPasswordSave{height:34px;padding:0 13px;border:0;border-radius:11px;background:linear-gradient(135deg,#ffb62f,#ff7a2f);color:#17100a;font-weight:950} \
       #ktSecretPasswordHelp{margin-top:3px;color:#ddd;font-size:9px} \
       #ktSecretPasswordError{display:none;margin-top:4px;color:#ff7c92;font-size:10px;font-weight:900} \
-      .live-prep .kt-daily-fortune-room-switch{display:none!important}';
+      .live-prep .kt-daily-fortune-room-switch{display:none!important} #ktSecretPasswordBox label{font-size:10px!important;margin:0 0 3px!important;white-space:nowrap} #ktSecretPasswordRow{gap:3px!important} #ktSecretPassword{height:29px!important;width:45px!important;letter-spacing:1px!important;font-size:13px!important;padding:2px!important} #ktSecretPasswordSave{height:29px!important;padding:0 5px!important;font-size:11px!important} #ktSecretPasswordHelp{display:none!important} .live-prep.kt-listing-prep-compact .prep-start{position:fixed!important;left:12px!important;right:12px!important;bottom:calc(10px + env(safe-area-inset-bottom))!important;width:calc(100% - 24px)!important;z-index:10001!important;height:44px!important;min-height:44px!important;margin:0!important;background:linear-gradient(100deg,#ed286c,#a334ef)!important} .live-prep.kt-listing-prep-compact .prep-card{padding-bottom:64px!important} .live-prep.kt-listing-prep-compact{padding-bottom:64px!important}';
     document.head.appendChild(s);
   }
 
