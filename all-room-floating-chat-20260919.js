@@ -4,11 +4,11 @@
   if(window.__ktAllRoomFloatingChat20260919)return;
   window.__ktAllRoomFloatingChat20260919=true;
 
-  function sevenLineHeight(chat){
+  function fiveLineHeight(chat){
     var line=chat&&chat.querySelector('[class$="-chat-line"],.kt-remote-chat-line');
     var cs=getComputedStyle(line||chat),font=parseFloat(cs.fontSize)||12;
     var leading=parseFloat(cs.lineHeight)||font*1.28;
-    return Math.ceil((leading+5)*7+8);
+    return Math.ceil((leading+5)*5+8);
   }
   function install(){
     if(document.getElementById('ktAllRoomFloatingChatStyle'))return;
@@ -150,7 +150,7 @@
       if(chat.parentElement&&chat.parentElement!==root)root.appendChild(chat);
       var is13=room.getAttribute('data-kt-room')==='13';
       var chatWidth=Math.max(0,is13?Math.floor(rr.width*.72):Math.round(rr.width)-16);
-      var height=sevenLineHeight(chat),top=Math.max(rr.top,Math.round(br.top-4)-height);
+      var height=fiveLineHeight(chat),top=Math.max(rr.top,Math.round(br.top-4)-height);
       var values={position:'fixed',left:Math.round(rr.left+8)+'px',right:'auto',top:top+'px',bottom:'auto',
         width:chatWidth+'px',height:height+'px','min-height':height+'px','max-height':height+'px',
         'box-sizing':'border-box',padding:'0 4px',margin:'0',display:'flex','flex-direction':'column','justify-content':'flex-end',
@@ -173,7 +173,7 @@
       if(chat.parentElement&&chat.parentElement!==room)room.appendChild(chat);
       var is13=room.getAttribute('data-kt-room')==='13';
       var chatWidth=Math.max(0,is13?Math.floor(rr.width*.72):Math.round(rr.width)-16);
-      var height=sevenLineHeight(chat);
+      var height=fiveLineHeight(chat);
       var top=Math.max(rr.top,Math.round(tr.top-4)-height);
       var values={
         position:'fixed',left:Math.round(rr.left+8)+'px',right:'auto',
@@ -202,7 +202,7 @@
       /* 구독자방 채팅만: 매치/친구/메시지/장미 버튼줄 바로 위에서 시작 */
       var mr=match.getBoundingClientRect();
       var rr=room.getBoundingClientRect();
-      var h=sevenLineHeight(chat);
+      var h=fiveLineHeight(chat);
       if(chat.parentElement!==room)room.appendChild(chat);
       var top=Math.round(mr.top-h-4);
       if(!isFinite(top))return;
@@ -232,6 +232,21 @@
     }catch(e){}
   }
 
+  function placeSecretChat(){
+    try{
+      var chats=Array.from(document.querySelectorAll('#screen .ktsecret-room .ktsecret-chat,#screen .kt-sgfh-chat'));
+      var remote=document.querySelector('#screen .kt-remote-live');
+      if(remote&&remote.querySelector('.ktsecret-room,.kt-sgfh-room')){
+        var shared=remote.querySelector('#ktRemoteChatList');if(shared&&chats.indexOf(shared)<0)chats.push(shared);
+      }
+      chats.forEach(function(chat){
+        // The previous secret-room cap was180px; remove exactly two normal line pitches.
+        var height=Math.max(0,180-Math.ceil((fiveLineHeight(chat)-8)*2/5));
+        if(chat.style.getPropertyValue('max-height')!==height+'px')chat.style.setProperty('max-height',height+'px','important');
+      });
+    }catch(e){}
+  }
+
   window.__ktNineChatMatchTop20260919=true;
 
   function keepBottom(){
@@ -246,7 +261,7 @@
     });
     placeNineChat();
     placeThirteenHostChat();
-    placeSubscriberChat();
+    placeSubscriberChat();placeSecretChat();
   }
 
   install();
@@ -258,9 +273,9 @@
       window.__ktAllRoomFloatingChatTimer=setTimeout(keepBottom,25);
     }).observe(document.documentElement,{childList:true,subtree:true});
   }catch(e){}
-  window.addEventListener('resize',function(){setTimeout(function(){placeNineChat();placeThirteenHostChat();placeSubscriberChat();},30);});
-  window.addEventListener('orientationchange',function(){setTimeout(function(){placeNineChat();placeThirteenHostChat();placeSubscriberChat();},120);});
-  window.__ktNineChatExactFollowTimer20260919=setInterval(function(){placeNineChat();placeThirteenHostChat();placeSubscriberChat();},300);
+  window.addEventListener('resize',function(){setTimeout(function(){placeNineChat();placeThirteenHostChat();placeSubscriberChat();placeSecretChat();},30);});
+  window.addEventListener('orientationchange',function(){setTimeout(function(){placeNineChat();placeThirteenHostChat();placeSubscriberChat();placeSecretChat();},120);});
+  window.__ktNineChatExactFollowTimer20260919=setInterval(function(){placeNineChat();placeThirteenHostChat();placeSubscriberChat();placeSecretChat();},300);
 
   /* 2026-10-03: keep chat stable in every room.
      Do not periodically hide host chat; that fought other room scripts and caused flicker. */

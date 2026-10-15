@@ -346,3 +346,7 @@ Owner requests faster red LIVE entry for9/13/15subscriber/secret; preserve saved
 
 ## 2026-10-15 single rose compact, single announcement
 Owner explicitly requests one-rose gifts read once and image around one tenth current size. Exact gift name 장미 with cost1 now has one visual cycle1.8s and image width/height0.1x (other gifts keep original sizes/three cycles). Speech recognizes exact one-rose announcement, reads once with a short 감사합니다 in the same utterance and no second thank-you job. Other gifts retain three announcements plus existing thanks. Gift receipt IDs, replay/completion suppression, sending, rewards and balances unchanged. Mock tests only; no paid gift sent.
+
+
+## 2026-10-15 reduce four-room chat by two lines
+Owner narrows request to only two fewer chat lines in9/13/subscriber/secret, to reduce overlap with lower guests. Existing group/subscriber height formula changed7→5 normal lines while keeping bottom anchor and all video cells untouched. Secret host/viewer maximum cap subtracts two measured normal line pitches from prior180px; repeated placement idempotent. Local subscriber/secret message render cap7→5. Solo source/render cap and generic solo-viewer180px rule unchanged. No transport, mirror, quality, approval, gift or income changes. Isolated size/scoping tests only; physical phone overlap not independently verified.

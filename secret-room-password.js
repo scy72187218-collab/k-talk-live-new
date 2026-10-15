@@ -153,7 +153,7 @@
     var box=document.getElementById('ktsecretChatList');
     if(!box)return;
     var msgs=window.ktSecretChatMessages||[];
-    box.innerHTML=msgs.slice(-7).map(function(m){return '<div class="ktsecret-chat-line"><b>'+esc(m.name||'나')+'</b><span>'+esc(m.text||'')+'</span></div>';}).join('');
+    box.innerHTML=msgs.slice(-5).map(function(m){return '<div class="ktsecret-chat-line"><b>'+esc(m.name||'나')+'</b><span>'+esc(m.text||'')+'</span></div>';}).join('');
   }
 
   window.ktSecretSendChat=function(){
