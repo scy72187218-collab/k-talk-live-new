@@ -10,11 +10,9 @@
   var states={};
   var polling=false;
   var CHOICES=[
-    {id:'female1',icon:'👩🏻',label:'여성 캐릭터 1',bg:'linear-gradient(145deg,#ffd9ea,#f4b6d0)'},
-    {id:'female2',icon:'👩🏽',label:'여성 캐릭터 2',bg:'linear-gradient(145deg,#ffe5c6,#d9b48f)'},
-    {id:'male1',icon:'👨🏻',label:'남성 캐릭터 1',bg:'linear-gradient(145deg,#d9e7ff,#a8c2ee)'},
-    {id:'male2',icon:'👨🏽',label:'남성 캐릭터 2',bg:'linear-gradient(145deg,#d6d7ff,#a9abe8)'},
-    {id:'stage',icon:'🌃',label:'배경 화면',bg:'linear-gradient(145deg,#17213d,#5c3f82)'}
+    {id:'female1',photo:'default-korean-woman-20261016.png',label:'한국 여성',bg:'linear-gradient(145deg,#ffd9ea,#f4b6d0)'},
+    {id:'male1',photo:'default-korean-man-20261016.png',label:'한국 남성',bg:'linear-gradient(145deg,#d9e7ff,#a8c2ee)'},
+    {id:'stage',photo:'live-background-stage-20261016.svg',label:'배경 화면',bg:'linear-gradient(145deg,#17213d,#5c3f82)'}
   ];
 
   function enc(v){return encodeURIComponent(String(v==null?'':v));}
@@ -62,23 +60,27 @@
   function pickPhoto(){
     var input=document.createElement('input');input.type='file';input.accept='image/*';
     input.onchange=function(){var f=input.files&&input.files[0];if(!f)return;if(!/^image\//i.test(f.type||'')||f.size>20*1024*1024){pickerStatus('20MB 이하의 사진 파일을 골라 주세요.');return;}var reader=new FileReader();reader.onload=function(){preparePhoto(String(reader.result||''));};reader.onerror=function(){pickerStatus('사진을 읽지 못했습니다.');};reader.readAsDataURL(f);};
+    input.style.cssText='position:fixed;left:-9999px;width:1px;height:1px;opacity:0';document.body.appendChild(input);
+    input.addEventListener('change',function(){setTimeout(function(){input.remove();},0);},{once:true});input.addEventListener('cancel',function(){input.remove();},{once:true});
     input.click();
   }
+  function sceneId(){try{var id=localStorage.getItem('kt_camera_off_scene_20261016')||'';return ['stage','sea','mountain','autumn'].indexOf(id)>=0?id:'';}catch(e){return '';}}
   function choiceId(){
     try{return localStorage.getItem('kt_camera_off_choice_20260928')||'female1';}catch(e){return 'female1';}
   }
   function choiceById(id){
+    if(id==='female2')id='female1';if(id==='male2')id='male1';
     for(var i=0;i<CHOICES.length;i++)if(CHOICES[i].id===id)return CHOICES[i];
     return CHOICES[0];
   }
   function isHostLocal(){
     return !!document.querySelector(
       '#screen .ktsolo-room,#screen .ktg13-room,#screen .ktg9-room,#screen .ktsubscriber-room,#screen .ktsecret-room'
-    )&&!document.documentElement.classList.contains('kt-remote-viewing');
+    )&&!document.querySelector('#screen .kt-remote-live')&&!document.documentElement.classList.contains('kt-remote-viewing');
   }
   function currentHost(){
     if(isHostLocal())return deviceId();
-    var h='';
+    var root=document.querySelector('#screen .kt-remote-live');var h=root&&root.getAttribute('data-kt-host-id')||'';if(h)return h;
     try{h=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||sessionStorage.getItem('kt_remote_host_id')||'').trim();}catch(e){}
     return h;
   }
@@ -94,6 +96,7 @@
     if(choice==='profile'&&safePhoto(photo)){
       return '<img src="'+photo.replace(/"/g,'&quot;')+'" alt="'+safeName+' 프로필"><small>'+safeName+'</small>';
     }
+    if(picked.photo)return '<img src="'+picked.photo+'" alt="'+picked.label+'"><small>'+picked.label+'</small>';
     return '<div class="kt-camera-off-face" style="background:'+picked.bg+'">'+picked.icon+'</div><small>'+picked.label+'</small>';
   }
 
@@ -137,11 +140,12 @@
       var d=el.dataset||{};
       add(String(d.ktGuestViewerId||d.ktDirectGuest||d.ktPeerViewer||''),el);
     });
-    add(selfViewerId(),document.querySelector(
+    var selfStream=window.__ktApprovedGuestSelfStream;if(selfStream){document.querySelectorAll('#screen video').forEach(function(v){if(v.srcObject===selfStream){var t=v.closest('.ktg13-guest,.ktsubscriber-guest,.ktsecret-slot,.kgh-cell,.kt-approved-guest-cell,.kt-guest-room-cell');if(t)add(selfViewerId(),t);}});}
+    var selfTile=document.querySelector(
       '#screen .kt-guest-hostlike-room .kgh-cell.self,'+
       '#screen .kt-approved-guest-grid .kt-approved-guest-cell.self,'+
       '#screen .kt-guest-room-grid .kt-guest-room-cell.self'
-    ));
+    );if(selfTile)add(selfViewerId(),selfTile);
     return out;
   }
 
@@ -160,6 +164,7 @@
           old.className='kt-camera-off-avatar-20260928';
           tile.appendChild(old);
         }
+        var scene=String(st.scene||'');if(['stage','sea','mountain','autumn'].indexOf(scene)>=0)old.style.setProperty('background','url(live-background-'+scene+'-20261016.svg) center / cover','important');else old.style.removeProperty('background');
         var html=avatarHtml(st.name||name,(id===self?photo:st.photo||''),id===self,st.choice||'female1');if(old.innerHTML!==html)old.innerHTML=html;
       }else if(old){
         old.remove();
@@ -169,10 +174,11 @@
 
   async function sendState(off,choice){
     var host=currentHost(),participant=selfParticipant();
-    if(!host||!participant)return;
+    if(!participant)return;
     choice=choice||choiceId();
-    states[participant]={off:!!off,name:profileName(),choice:choice,photo:off&&choice==='profile'?safePhoto(profilePhoto()):'',at:Date.now()};
+    states[participant]={off:!!off,name:profileName(),choice:choice,scene:sceneId(),photo:off&&choice==='profile'?safePhoto(profilePhoto()):'',at:Date.now()};
     render();
+    if(!host)return;
     try{
       await fetch(BASE+'ktalk_live_messages',{
         method:'POST',
@@ -181,7 +187,7 @@
           host_id:host,
           sender_id:'camera:'+participant,
           sender_name:profileName(),
-          message:JSON.stringify({participant:participant,off:!!off,name:profileName(),choice:choice,photo:off&&choice==='profile'?safePhoto(profilePhoto()):'',at:Date.now()}),
+          message:JSON.stringify({participant:participant,off:!!off,name:profileName(),choice:choice,scene:sceneId(),photo:off&&choice==='profile'?safePhoto(profilePhoto()):'',at:Date.now()}),
           message_type:'camera_state'
         })
       });
@@ -204,12 +210,15 @@
     var status=document.createElement('small');status.setAttribute('data-photo-status','');status.style.gridColumn='1 / -1';p.appendChild(status);
     var own=document.createElement('button');own.type='button';own.textContent='내 프로필 사진';own.onclick=function(){var photo=String(profile().photo||'');if(!photo){pickerStatus('등록된 프로필 사진이 없습니다. 사진첩에서 골라 주세요.');return;}preparePhoto(photo);};p.appendChild(own);
     var gallery=document.createElement('button');gallery.type='button';gallery.textContent='사진첩에서 고르기';gallery.onclick=pickPhoto;p.appendChild(gallery);
+    var sceneTitle=document.createElement('b');sceneTitle.textContent='사진 뒤 배경';sceneTitle.style.gridColumn='1 / -1';p.appendChild(sceneTitle);
+    ['stage','sea','mountain','autumn'].forEach(function(id,i){var b=document.createElement('button');b.type='button';b.textContent=['무대','바다','산','가을'][i];b.style.setProperty('background','url(live-background-'+id+'-20261016.svg) center / cover','important');b.onclick=function(){try{localStorage.setItem('kt_camera_off_scene_20261016',id);}catch(e){}sendState(true,choiceId());closePicker();};p.appendChild(b);});
+    var clearScene=document.createElement('button');clearScene.type='button';clearScene.textContent='사진 배경 끄기';clearScene.onclick=function(){try{localStorage.removeItem('kt_camera_off_scene_20261016');}catch(e){}sendState(true,choiceId());closePicker();};p.appendChild(clearScene);
     var current=choiceId();
     CHOICES.forEach(function(ch){
       var b=document.createElement('button');
       b.type='button';
       b.className=ch.id===current?'on':'';
-      b.innerHTML='<b>'+ch.icon+'</b><small>'+ch.label+'</small>';
+      b.innerHTML='<img src="'+ch.photo+'" alt="'+ch.label+'" style="width:44px;height:44px;object-fit:cover;border-radius:50%"><small>'+ch.label+'</small>';
       b.onclick=function(e){
         try{e.preventDefault();e.stopPropagation();}catch(_e){}
         try{localStorage.setItem('kt_camera_off_choice_20260928',ch.id);}catch(_e){}
@@ -251,7 +260,8 @@
             var id=String(d.participant||'');
             if(!id||latest[id])return;
             latest[id]=1;
-            states[id]={off:!!d.off,name:String(d.name||row.sender_name||'회원'),choice:String(d.choice||'female1'),photo:safePhoto(d.photo||''),at:Number(d.at||0)};
+            if(states[id]&&Number(states[id].at||0)>Number(d.at||0))return;
+            states[id]={off:!!d.off,name:String(d.name||row.sender_name||'회원'),choice:String(d.choice||'female1'),scene:String(d.scene||''),photo:safePhoto(d.photo||''),at:Number(d.at||0)};
           }catch(e){}
         });
       }

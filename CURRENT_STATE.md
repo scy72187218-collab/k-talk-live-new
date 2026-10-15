@@ -416,3 +416,7 @@ Use existing owner-account exemption for listing tier and contact/room level-sub
 
 ## 2026-10-16 optional two-large stage
 Owner authorized optional layout for 9/13/subscriber: two large top slots and remaining original seats below. Existing nodes/streams retained; explicit coordinates follow seat orders when swapping. Own-photo layout controls restricted to host/operator state; ordinary approved guests retain existing tap-move flow. Restore exact prior inline styles on default-layout toggle. Layout and seat order remain this browser's presentation, not a new synchronized room protocol. Secret/solo unchanged. Phone verification not claimed.
+
+
+## 2026-10-16 camera-off photo application
+Owner approved one fictional AI-generated Korean adult woman and man portrait, replacing emoji duplicates. Attached mobile file input; immediate local display; reject stale camera-state overwrite; locate own approved stream tile. Four original SVG static background scenes (stage/sea/mountain/autumn) can display behind chosen avatar/profile photo with camera off. Owner explicitly excluded runtime AI segmentation or live camera background composition. No SFU bridge or camera-on processing changes. Photo picker preserves original photo except existing size/crop encoding. Physical phone gallery and multi-device display need owner verification; no paid tests performed.
