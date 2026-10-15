@@ -208,9 +208,15 @@
       // Repair only a persistently black target; never restart healthy playback.
       if(sdk&&!document.hidden&&room&&room.state==='connected'){
         var health=videoRecovery20261015.get(v),now=Date.now();
-        if(!health||health.sdk!==sdk){health={sdk:sdk,since:now,last:0,attempts:0};videoRecovery20261015.set(v,health);}
-        if(v.readyState>=2&&v.videoWidth>0){health.since=now;health.attempts=0;}
-        else if(!sdk.isMuted&&sdk.mediaStreamTrack&&sdk.mediaStreamTrack.readyState==='live'&&now-health.since>=6000&&now-health.last>=10000&&health.attempts<3){
+        var frames=null;
+        try{var quality=v.getVideoPlaybackQuality&&v.getVideoPlaybackQuality();if(quality&&Number.isFinite(quality.totalVideoFrames))frames=quality.totalVideoFrames;else if(Number.isFinite(v.webkitDecodedFrameCount))frames=v.webkitDecodedFrameCount;}catch(e){}
+        var progress=frames===null?Number(v.currentTime||0):frames;
+        if(!health||health.sdk!==sdk){health={sdk:sdk,since:now,last:0,attempts:0,progress:progress};videoRecovery20261015.set(v,health);}
+        var ready=v.readyState>=2&&v.videoWidth>0;
+        if(ready&&progress!==health.progress){health.since=now;health.attempts=0;}
+        health.progress=progress;
+        var wait=ready?8000:6000;
+        if(!sdk.isMuted&&sdk.mediaStreamTrack&&sdk.mediaStreamTrack.readyState==='live'&&now-health.since>=wait&&now-health.last>=10000&&health.attempts<3){
           health.last=now;health.attempts++;
           if(sdk.detach)sdk.detach(v);
           sdk.attach(v);videoTracks.set(v,sdk);
