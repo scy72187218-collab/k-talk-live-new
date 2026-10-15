@@ -30,8 +30,11 @@
   }
 
   function apply(v){
+    if(document.documentElement.classList.contains('kt-host-media-sharing'))return;
     if(!v||!v.srcObject||!v.srcObject.getVideoTracks||!v.srcObject.getVideoTracks().length)return;
     try{
+      if(v.style.getPropertyValue('filter')!=='none')v.style.setProperty('filter','none','important');
+      if(v.style.getPropertyValue('-webkit-filter')!=='none')v.style.setProperty('-webkit-filter','none','important');
       if(v.style.getPropertyValue('transform')!=='none')v.style.setProperty('transform','none','important');
       if(v.style.getPropertyValue('-webkit-transform')!=='none')v.style.setProperty('-webkit-transform','none','important');
     }catch(e){}

@@ -533,6 +533,17 @@
       });
     }catch(e){}
   }
+  var largeHostQuality20261015=new WeakSet();
+  function preferLargeHostQuality20261015(publication){
+    if(!publication||largeHostQuality20261015.has(publication)||document.hidden)return;
+    if(!document.querySelector('#screen .kt-remote-live[data-kt-solo-guest-header]'))return;
+    if(typeof publication.setVideoDimensions!=='function')return;
+    try{
+      var dims=publication.dimensions||{},portrait=Number(dims.height)>Number(dims.width);
+      publication.setVideoDimensions(portrait?{width:720,height:1280}:{width:1280,height:720});
+      largeHostQuality20261015.add(publication);
+    }catch(e){}
+  }
   function onRemoteTrack(track,publication,participant){
     var identity=String(participant&&participant.identity||'');
     if(!identity||identity===viewerId()||identity===DEVICE)return;
@@ -540,7 +551,7 @@
     if(track.kind!=='video')return;
     var s=mediaStreamFor(track);if(!s)return;
     var knownHost=String(currentHostId||remoteHostId()||watchHostId||approvedHostId||'').trim();
-    if(identity===knownHost)attachHostVideo(s);
+    if(identity===knownHost){attachHostVideo(s);preferLargeHostQuality20261015(publication);}
     else attachGuestVideo(identity,s);
   }
   function clearRoomRefs(){
