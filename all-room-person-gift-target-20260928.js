@@ -156,6 +156,8 @@
   function personTap(e){
     var target=e&&e.target;
     var tile=tileOf(target);if(!tile||excludedUi(target))return false;
+    // Keep short taps as before; an eligible long press belongs to seat dragging.
+    if((e.type==='pointerdown'||e.type==='touchstart')&&window.ktCanDragSeat20261015&&window.ktCanDragSeat20261015(tile))return false;
 
     /* 사진 위에 닉네임/레벨/작은 오버레이가 있어도 같은 사람 칸이면 인정.
        빈 게스트 칸은 viewer id가 없어 choose()에서 자동 제외된다. */
