@@ -122,6 +122,7 @@
         }
       });
     }
+    twoLarge(ra);
     clearSelected();
     toast('자리를 이동했습니다');
   }
@@ -297,10 +298,54 @@
   }
   ['click','touchstart','pointerdown'].forEach(function(ev){document.addEventListener(ev,resumeAudio,{passive:true});});
 
+
+  var layoutSnapshots=new WeakMap();
+  function canChangeLayout(){var st=window.state||{};return !!(st.isHost||st.hosting||st.liveStarted||st.isAdmin||st.isOperator||st.operator||st.role==='admin'||st.role==='operator');}
+  function stageOf(root){return root.querySelector('.ktg13-main,.ktsubscriber-people');}
+  function twoLarge(root){
+    if(root.dataset.ktTwoLarge!=='1')return;
+    var stage=stageOf(root),list=tiles(root);if(!stage)return;
+    stage.style.setProperty('grid-template-columns','repeat(4,minmax(0,1fr))','important');
+    stage.style.setProperty('grid-template-rows','repeat('+(2+Math.ceil(Math.max(0,list.length-2)/4))+',minmax(0,1fr))','important');
+    list.forEach(function(t,i){var n=parseInt(t.dataset.ktSeatOrder,10);if(!isFinite(n))n=i;
+      t.style.setProperty('grid-column',n<2?(n===0?'1 / span 2':'3 / span 2'):String((n-2)%4+1),'important');
+      t.style.setProperty('grid-row',n<2?'1 / span 2':String(3+Math.floor((n-2)/4)),'important');
+    });
+  }
+  function toggleLayout(root){
+    if(!canChangeLayout())return;
+    var stage=stageOf(root);if(!stage)return;
+    if(root.dataset.ktTwoLarge==='1'){
+      var snap=layoutSnapshots.get(root);if(snap)snap.forEach(function(x){x.node.setAttribute('style',x.style);});
+      delete root.dataset.ktTwoLarge;layoutSnapshots.delete(root);
+    }else{
+      layoutSnapshots.set(root,[stage].concat(tiles(root)).map(function(n){return {node:n,style:n.getAttribute('style')||''};}));
+      root.dataset.ktTwoLarge='1';ensureOrders(root);twoLarge(root);
+    }
+    var b=root.querySelector('.kt-seat-layout-choice');if(b)b.textContent=root.dataset.ktTwoLarge==='1'?'방 모양 · 기본으로':'방 모양 · 큰 두 칸';
+  }
+  function installSeatControls(root){
+    if(!root.matches('.ktg13-room,.ktg9-room,.ktsubscriber-room'))return;
+    var host=root.querySelector('.ktg13-host,.ktsubscriber-host');var remote=root.closest('.kt-remote-live');if(remote){var device='';try{device=localStorage.getItem('kt_live_device_id')||'';}catch(e){}host=tiles(root).find(function(t){return Array.from(t.querySelectorAll('video')).some(function(v){return v.srcObject&&v.srcObject===window.__ktApprovedGuestSelfStream;})||device&&Object.keys(t.dataset).some(function(k){return /viewer|participant|userId/i.test(k)&&String(t.dataset[k])==='viewer_'+device;});});}if(!host)return;
+    var box=host.querySelector('.kt-seat-own-controls');
+    if(!canChangeLayout()){if(box)box.remove();return;}
+    if(!box){
+      box=document.createElement('div');box.className='kt-seat-own-controls';
+      box.style.cssText='position:absolute;right:3px;top:25px;z-index:40;display:flex;flex-direction:column;gap:3px;max-width:95%';
+      var layout=document.createElement('button');layout.type='button';layout.className='kt-seat-layout-choice';layout.textContent='방 모양 · 큰 두 칸';
+      var move=document.createElement('button');move.type='button';move.textContent='자리 이동';
+      [layout,move].forEach(function(b){b.style.cssText='border:1px solid #ffffff66;border-radius:7px;background:#141019bb;color:white;padding:5px;font-size:10px;font-weight:900';box.appendChild(b);});
+      layout.onclick=function(e){e.stopPropagation();toggleLayout(root);};
+      move.onclick=function(e){e.stopPropagation();window.ktBeginSeatTapMove20261015(host);};
+      host.appendChild(box);
+    }
+    twoLarge(root);
+  }
+
   function init(){
     ensureStyle();
     if(tapModeRoot&&(!tapModeRoot.isConnected||!isAdminOrHost()))endTapMove();
-    document.querySelectorAll('.ktg13-room,.ktg9-room,.ktsubscriber-room,.ktsecret-room').forEach(function(root){ensureOrders(root);root.classList.toggle('kt-seat-drag-enabled-20261015',isAdminOrHost());});
+    document.querySelectorAll('.ktg13-room,.ktg9-room,.ktsubscriber-room,.ktsecret-room').forEach(function(root){ensureOrders(root);installSeatControls(root);root.classList.toggle('kt-seat-drag-enabled-20261015',isAdminOrHost());});
     scanAudio();
   }
 

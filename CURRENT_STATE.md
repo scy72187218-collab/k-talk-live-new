@@ -412,3 +412,7 @@ Password input/save occupies row 2 column 3 beside secret room, rather than a fu
 
 ## 2026-10-16 owner access settings
 Use existing owner-account exemption for listing tier and contact/room level-subscription gates. Does not mark owner as paid subscriber, change subscription plans, discounts, balances, gift payments, secret passwords, or guest approval. Existing name-based owner recognition remains legacy behavior; no new server entitlement model.
+
+
+## 2026-10-16 optional two-large stage
+Owner authorized optional layout for 9/13/subscriber: two large top slots and remaining original seats below. Existing nodes/streams retained; explicit coordinates follow seat orders when swapping. Own-photo layout controls restricted to host/operator state; ordinary approved guests retain existing tap-move flow. Restore exact prior inline styles on default-layout toggle. Layout and seat order remain this browser's presentation, not a new synchronized room protocol. Secret/solo unchanged. Phone verification not claimed.
