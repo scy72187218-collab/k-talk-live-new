@@ -1074,6 +1074,7 @@
 
   async function viewerHandleOffer(p){
     if(String(p.viewer_id||'')!==viewerId())return;
+    if(useSfuViewer20261015())return;
     var hid=remoteHostId();if(!hid||String(p.host_id||'')!==hid)return;
     var session=String(p.session_id||''),sdp=String(p.offer_sdp||'');if(!session||!sdp)return;
     if(viewerSession===session&&viewerPc&&viewerPc.currentRemoteDescription){
@@ -1247,8 +1248,35 @@
     }
   }
 
+
+  var sfuViewerHealthySince20261015=0,releasedViewerWatch20261015={};
+  function sfuViewerVideoHealthy20261015(){
+    try{
+      var hid=remoteHostId(),state=window.__ktLiveKitSfuState20260924||{},stream=window.__ktSfuPreferredHostStream20261015;
+      if(!hid||!state.connected||String(state.hostId||'')!==hid||String(window.__ktSfuPreferredHostId20261015||'')!==hid||!stream)return false;
+      var live=stream.getVideoTracks().filter(function(t){return t.readyState==='live'&&!t.muted;});
+      if(!live.length)return false;
+      return Array.from(document.querySelectorAll('#ktRemoteLiveVideo,#ktRemoteHostPreview,.kt-remote-live .ktg13-host video,.kt-remote-live .ktsubscriber-host video,.kt-remote-live .ktsecret-slot.host video')).some(function(v){
+        return v.readyState>=2&&v.videoWidth>0&&v.srcObject&&v.srcObject.getVideoTracks&&v.srcObject.getVideoTracks().some(function(t){return live.indexOf(t)>=0;});
+      });
+    }catch(e){return false;}
+  }
+  function useSfuViewer20261015(){
+    if(!sfuViewerVideoHealthy20261015()){sfuViewerHealthySince20261015=0;return false;}
+    var now=Date.now();if(!sfuViewerHealthySince20261015)sfuViewerHealthySince20261015=now;
+    if(viewerPc&&now-sfuViewerHealthySince20261015>=2000){
+      var old=viewerPc,token=viewerWatchToken,hid=remoteHostId();
+      viewerPc=null;viewerSession='';viewerConnected=false;viewerWatchToken='';viewerAnswerSdp='';
+      clearViewerConnectTimer();
+      if(token)sendCriticalMedia20260926('video_unwatch',{host_id:hid,viewer_id:viewerId(),watch_token:token,at:now},hid);
+      closePc(old);
+    }
+    return true;
+  }
+
   function ensureViewerWatch(force){
     var hid=remoteHostId();if(!hid||isHostRole())return;
+    if(useSfuViewer20261015())return;
     if(!viewerWatchToken)viewerWatchToken=sid('watch');
     var now=Date.now();
     if(!force&&viewerConnected)return;
@@ -1263,7 +1291,7 @@
        peer instead of queueing/restarting viewers one by one. */
     [35,90,180,450,900,1800].forEach(function(ms){
       setTimeout(function(){
-        if(viewerConnected||remoteHostId()!==hid)return;
+        if(viewerConnected||remoteHostId()!==hid||sfuViewerVideoHealthy20261015())return;
         sendCriticalMedia20260926('video_watch',watch,hid);
       },ms);
     });
@@ -2609,9 +2637,17 @@
       }
       return;
     }
+    if(ev==='video_unwatch'&&isHostRole()&&String(p.host_id||'')===DEVICE){
+      var releaseId=String(p.viewer_id||''),releaseToken=String(p.watch_token||''),entry=hostViewPeers[releaseId];
+      if(releaseId&&releaseToken&&entry&&entry.watchToken===releaseToken){
+        releasedViewerWatch20261015[releaseId]=releaseToken;
+        delete hostViewPeers[releaseId];closePc(entry.pc);
+      }
+      return;
+    }
     if(ev==='video_watch'&&isHostRole()&&String(p.host_id||'')===DEVICE){
       var watchViewer=String(p.viewer_id||''),watchToken=String(p.watch_token||'');
-      if(!watchViewer)return;
+      if(!watchViewer||releasedViewerWatch20261015[watchViewer]===watchToken)return;
       hostOfferToViewer(watchViewer,watchToken);
       /* A viewer can enter before the host camera stream becomes live.
          Remember that viewer independently and retry only until its host
@@ -2917,7 +2953,7 @@
     }
     remoteHostMissingSince=0;
     if(host&&lastHostRole!=='host'){
-      hostRunId=sid('run');hostRunStartedAt=Date.now();sharedRuntimeStartedAt=hostRunStartedAt-1000;sharedRoomCutCache={};
+      hostRunId=sid('run');hostRunStartedAt=Date.now();sharedRuntimeStartedAt=hostRunStartedAt-1000;sharedRoomCutCache={};releasedViewerWatch20261015={};
       try{window.__ktApprovedGuestIds20260924={};}catch(e){}
       publishRunContext(DEVICE,hostRunId,hostRunStartedAt,'host');
       Object.keys(approvedGuests).forEach(function(id){try{clearApprovedGuestFromHost(id);}catch(e){}});

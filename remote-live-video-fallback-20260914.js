@@ -22,7 +22,18 @@
   function deviceId(){var id='';try{id=localStorage.getItem('kt_live_device_id')||'';}catch(e){}if(!id){id='kt_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,10);try{localStorage.setItem('kt_live_device_id',id);}catch(e){}}return id;}
   function canReconnect(){return !document.hidden&&navigator.onLine!==false&&!!document.querySelector('.kt-remote-live');}
   function videoWorking(){var v=document.getElementById('ktRemoteLiveVideo');if(!v)return false;try{var s=v.srcObject,tracks=s&&s.getVideoTracks?s.getVideoTracks():[];return !!(v.videoWidth>0&&v.readyState>=2&&tracks.some(function(t){return t.readyState==='live'&&!t.muted;}));}catch(e){return false;}}
-  function mirrorRemote(){var v=document.getElementById('ktRemoteLiveVideo');if(!v)return;try{v.style.setProperty('transform','scaleX(-1)','important');v.style.setProperty('transform-origin','center center','important');}catch(e){}}
+  function mirrorRemote(){
+    var v=document.getElementById('ktRemoteLiveVideo');if(!v)return;
+    try{
+      var self=window.__ktApprovedGuestSelfStream;
+      var guestTile=v.closest&&v.closest('.ktg13-guest,.ktg9-guest,.ktsubscriber-guest,.ktsecret-slot:not(.host),.kgh-cell.self,.kt-approved-guest-cell.self,.kt-prejoin-room-cell.self,.kt-guest-room-cell.self');
+      var isSelf=!!(self&&v.srcObject&&self.getVideoTracks&&v.srcObject.getVideoTracks&&self.getVideoTracks().some(function(t){return v.srcObject.getVideoTracks().indexOf(t)>=0;}));
+      var transform=guestTile||isSelf?'none':'scaleX(-1)';
+      v.style.setProperty('transform',transform,'important');
+      v.style.setProperty('-webkit-transform',transform,'important');
+      v.style.setProperty('transform-origin','center center','important');
+    }catch(e){}
+  }
   function waitIce(pc,ms){return new Promise(function(resolve){if(pc.iceGatheringState==='complete')return resolve();var done=false,t=setTimeout(finish,ms||7000);function finish(){if(done)return;done=true;clearTimeout(t);try{pc.removeEventListener('icegatheringstatechange',on);}catch(e){}resolve();}function on(){if(pc.iceGatheringState==='complete')finish();}pc.addEventListener('icegatheringstatechange',on);});}
 
   async function closeFallback(){
