@@ -14,7 +14,7 @@
   var publishedVideoId='',publishedAudioId='',lastConnectAt=0;
   var approvedHostId='',watchHostId='',audioEls={},audioTracks={},guestVideoById={};
   var sdkPromise=null,connectGeneration20261015=0;
-  var sdkStreams=new WeakMap(),streamTracks=new WeakMap(),videoTracks=new WeakMap();
+  var sdkStreams=new WeakMap(),streamTracks=new WeakMap(),videoTracks=new WeakMap(),videoRecovery20261015=new WeakMap();
 
   window.__ktLiveKitSfuState20260924={
     enabled:true,connected:false,connecting:false,url:'',hostId:'',role:'',lastError:''
@@ -186,7 +186,8 @@
     try{
       var mt=track&&track.mediaStreamTrack;
       if(!mt)return null;
-      var cached=sdkStreams.get(track);if(cached)return cached;
+      var cached=sdkStreams.get(track);
+      if(cached&&cached.getTracks().some(function(t){return t===mt;}))return cached;
       var stream=new MediaStream([mt]);sdkStreams.set(track,stream);streamTracks.set(stream,track);return stream;
     }catch(e){return null;}
   }
@@ -204,6 +205,18 @@
         var attached=v.srcObject&&v.srcObject.getVideoTracks&&v.srcObject.getVideoTracks().some(function(t){return t===sdk.mediaStreamTrack;});
         if(previous!==sdk||!attached){if(previous&&previous!==sdk&&previous.detach)previous.detach(v);sdk.attach(v);videoTracks.set(v,sdk);}
       }else if(v.srcObject!==stream)v.srcObject=stream;
+      // Repair only a persistently black target; never restart healthy playback.
+      if(sdk&&!document.hidden&&room&&room.state==='connected'){
+        var health=videoRecovery20261015.get(v),now=Date.now();
+        if(!health||health.sdk!==sdk){health={sdk:sdk,since:now,last:0,attempts:0};videoRecovery20261015.set(v,health);}
+        if(v.readyState>=2&&v.videoWidth>0){health.since=now;health.attempts=0;}
+        else if(!sdk.isMuted&&sdk.mediaStreamTrack&&sdk.mediaStreamTrack.readyState==='live'&&now-health.since>=6000&&now-health.last>=10000&&health.attempts<3){
+          health.last=now;health.attempts++;
+          if(sdk.detach)sdk.detach(v);
+          sdk.attach(v);videoTracks.set(v,sdk);
+          v.setAttribute('data-kt-video-recovery',String(health.attempts));
+        }
+      }
       v.autoplay=true;v.playsInline=true;v.muted=true;v.defaultMuted=true;
       v.setAttribute('autoplay','');v.setAttribute('playsinline','');v.setAttribute('muted','');
       if(v.paused||v.readyState<2){var p=v.play();if(p&&p.catch)p.catch(function(){});}
