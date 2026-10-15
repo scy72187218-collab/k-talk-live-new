@@ -301,7 +301,7 @@
   };
   window.ktRemoteLike=async function(){if(!remote.hostId)return;var now=Date.now();if(now-remote.lastLikeAt<700)return;remote.lastLikeAt=now;var root=document.querySelector('.kt-remote-live');if(root){var h=document.createElement('div');h.className='kt-remote-heart-pop';h.textContent='♥';root.appendChild(h);setTimeout(function(){if(h.parentNode)h.remove();},1250);}await postMessage(remote.hostId,remote.viewerId,remote.viewerName,'💗 '+remote.viewerName+'님이 좋아요를 눌렀습니다.','like');refreshRemote();};
   window.ktRemoteOpenGifts=function(){try{if(window.state)state.currentViewRoomTitle=remote.hostId||state.currentViewRoomTitle;}catch(e){}if(window.openGifts)window.openGifts();};
-  window.ktRemoteSendOneRose=async function(){if(!remote.hostId)return;var ok=await postMessage(remote.hostId,remote.viewerId,remote.viewerName,'🌹 '+remote.viewerName+'님이 장미 1송이를 선물했습니다.','gift:1');if(ok)await refreshRemote();};
+  window.ktRemoteSendOneRose=async function(){if(!remote.hostId)return;var receipt=window.ktNewLevelGiftReceipt20261015?window.ktNewLevelGiftReceipt20261015():'',levelAccount=window.ktLevelAccountKey20261015?window.ktLevelAccountKey20261015():'';var type=receipt?'gift:1:level:'+receipt:'gift:1';var ok=await postMessage(remote.hostId,remote.viewerId,remote.viewerName,'🌹 '+remote.viewerName+'님이 장미 1송이를 선물했습니다.',type);if(ok){if(receipt&&window.ktLevelCreditGiftReceipt20261015)window.ktLevelCreditGiftReceipt20261015({id:receipt,account:levelAccount,direction:'sent',count:1,createdAt:new Date().toISOString()});await refreshRemote();}};
   document.addEventListener('click',function(e){var b=e.target&&e.target.closest?e.target.closest('#ktRemoteBottom button'):null;if(!b)return;var label=(String(b.getAttribute('aria-label')||'')+' '+String(b.textContent||'')).replace(/\s+/g,'');if(label.indexOf('🌹')===-1&&label.indexOf('장미')===-1)return;e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();window.ktRemoteSendOneRose();},true);
   window.ktRemoteShare=async function(){try{if(navigator.share){await navigator.share({title:'K-Talk LIVE',text:'K-Talk 라이브 방송',url:location.href});return;}if(navigator.clipboard){await navigator.clipboard.writeText(location.href);alert('K-Talk 주소를 복사했습니다.');return;}if(window.shareApp)window.shareApp();}catch(e){}};
 
@@ -375,6 +375,8 @@
       if(type==='like'){var sender=String(m.sender_id||''),stamp=Date.parse(m.created_at||'')||0,prior=lastHostLikeBySender[sender]||0;if(!stamp||!prior||Math.abs(stamp-prior)>500){addLikeToHost();speakIfNeeded(m.message);lastHostLikeBySender[sender]=stamp;}markProcessed(m);return;}
       if(type.indexOf('gift:')===0){
         var n=parseInt(type.slice(5),10)||0;
+        var levelReceipt=type.match(/:level:(level_[a-z0-9]+_[a-z0-9]+)$/);
+        if(levelReceipt&&n>0&&window.ktLevelCreditGiftReceipt20261015)window.ktLevelCreditGiftReceipt20261015({id:levelReceipt[1],direction:'received',count:n,createdAt:m.created_at});
         if(n>0){
           try{if(typeof window.addMyEarnedRoses==='function')window.addMyEarnedRoses(n);}catch(e){}
           try{

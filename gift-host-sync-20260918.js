@@ -70,6 +70,8 @@
   window.ktSyncGiftToHost=async function(name,cost,sender){
     var c=parseInt(cost||0,10)||0;
     if(c<=0)return;
+    var levelReceipt=window.ktNewLevelGiftReceipt20261015?window.ktNewLevelGiftReceipt20261015():'',levelAccount=window.ktLevelAccountKey20261015?window.ktLevelAccountKey20261015():'';
+    function creditSent(){if(levelReceipt&&window.ktLevelCreditGiftReceipt20261015)window.ktLevelCreditGiftReceipt20261015({id:levelReceipt,account:levelAccount,direction:'sent',count:c,createdAt:new Date().toISOString()});}
 
     /* 사진으로 선택한 사람에게 직접 선물: 호스트↔게스트, 게스트↔게스트. */
     try{
@@ -83,6 +85,7 @@
           var payloadToGuest={
             name:String(name||'선물'),
             cost:c,
+            level_event_id:levelReceipt,
             targetViewerId:String(target.viewerId||''),
             targetName:String(target.name||'게스트')
           };
@@ -96,6 +99,7 @@
               message_type:(isHostRoom()?'host_gift:':'guest_gift:')+String(target.viewerId)
             })
           });
+          creditSent();
           return;
         }
       }
@@ -108,7 +112,7 @@
 
     var host=await targetHost();
     if(!host)return;
-    var payload={name:String(name||'선물'),cost:c};
+    var payload={name:String(name||'선물'),cost:c,level_event_id:levelReceipt};
     try{
       await req('ktalk_live_messages',{
         method:'POST',headers:{Prefer:'return=minimal'},
@@ -120,6 +124,7 @@
           message_type:'gift'
         })
       });
+      creditSent();
     }catch(e){}
   };
 
@@ -152,6 +157,7 @@
       var data=JSON.parse(String(row.message||'{}'));
       var cost=parseInt(data.cost||0,10)||0;
       if(cost<=0)return;
+      if(data.level_event_id&&window.ktLevelCreditGiftReceipt20261015)window.ktLevelCreditGiftReceipt20261015({id:data.level_event_id,direction:'received',count:cost,createdAt:row.created_at});
       try{if(typeof window.ktRecordReceivedRose==='function')window.ktRecordReceivedRose(String(row.sender_name||'회원'),cost,String(data.name||'선물'),'host');}catch(e){}
       var speech=String(row.sender_name||'회원')+'님이 '+String(data.name||'선물')+' '+cost+'개를 선물했습니다.';
       if(window.ktGiftChatIsCompleted20261015&&window.ktGiftChatIsCompleted20261015(speech,row.created_at))return;
@@ -192,6 +198,7 @@
           var data=JSON.parse(String(row.message||'{}'));
           var cost=parseInt(data.cost||0,10)||0;
           if(cost<=0)return;
+          if(data.level_event_id&&window.ktLevelCreditGiftReceipt20261015)window.ktLevelCreditGiftReceipt20261015({id:data.level_event_id,direction:'received',count:cost,createdAt:row.created_at});
           try{if(typeof window.ktRecordReceivedRose==='function')window.ktRecordReceivedRose(String(row.sender_name||'호스트'),cost,String(data.name||'선물'),'guest');}catch(e){}
           try{if(typeof window.ktGuestAddEarnedRoses==='function')window.ktGuestAddEarnedRoses(cost);}catch(e){}
           if(typeof window.ktPresentReceivedGift3D20261014==='function'){

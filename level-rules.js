@@ -150,11 +150,11 @@
     setTimeout(function(){window.ktForceOwnerLevel1000();},ms);
   });
 
-  /* 올라갈 목표 레벨 기준: 2~10은 5,000 / 11부터는 10,000 */
+  /* 목표 레벨 기준: 2~10은1,000 / 11은5,000 / 12부터15,000 */
   window.ktLevelUpCostForTarget=function(targetLevel){
     var lv=parseInt(targetLevel,10);
     if(!isFinite(lv)||lv<2)lv=2;
-    return lv<=10?5000:10000;
+    return lv<=10?1000:lv===11?5000:15000;
   };
 
   /* 현재 레벨에서 다음 1레벨 올리는 비용 */
@@ -237,7 +237,7 @@
       return;
     }
     var s=document.createElement('script');
-    s.src='live-viewer-interactions.js?v=20261011-chat-boundaries2';
+    s.src='live-viewer-interactions.js?v=20261015-rose-level-curve1';
     s.async=false;
     s.setAttribute('data-kt-live-viewer-interactions','1');
     document.head.appendChild(s);
