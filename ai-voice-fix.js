@@ -89,9 +89,11 @@
     return /(?:방송\s*(?:나감|퇴장)|님[이가께서,:\s]*(?:방송(?:을|에서)?\s*)?(?:나갔습니다|나가셨습니다|퇴장했습니다|퇴장하셨습니다))[.!。]?\s*$/.test(String(text||''));
   }
   function speakNow(text){
-    text=normalize(text);
+    var giftJob=text&&typeof text==='object'?text:null;
+    text=normalize(giftJob?giftJob.text:text);
     if(isViewerExitSpeech20261015(text)){speaking=false;setTimeout(drain,0);return false;}
     var giftKey=/선물/.test(text)&&/[0-9]/.test(text)?text.replace(/님이/g,'님').replace(/선물했습니다|선물하셨습니다|선물/g,'').replace(/[^가-힣a-zA-Z0-9]/g,''):'';
+    if(giftJob)giftKey='event:'+giftJob.eventKey;
     if(giftKey&&(giftReadCounts20261014[giftKey]||0)>=3){speaking=false;setTimeout(drain,0);return false;}
     if(playbackActive())return false;
     if(!text||!synth||typeof window.SpeechSynthesisUtterance!=='function')return false;
@@ -105,7 +107,11 @@
       var v=getKoVoice();
       if(v)u.voice=v;
       speaking=true;
-      u.onend=function(){speaking=false;drain();};
+      u.onend=function(){
+        speaking=false;
+        if(giftJob&&giftJob.remaining>1){giftJob.remaining--;queue.unshift(giftJob);}
+        drain();
+      };
       u.onerror=function(){speaking=false;setTimeout(drain,80);};
       synth.speak(u);
       if(giftKey)giftReadCounts20261014[giftKey]=(giftReadCounts20261014[giftKey]||0)+1;
@@ -135,7 +141,7 @@
     return true;
   };
 
-  var giftSpokenIds=Object.create(null);
+  var giftSpokenIds=Object.create(null),giftSpeechSerial20261015=0;
   window.ktSpeakGift20261014=function(text,eventId){
     try{if(window.state&&state.aiVoiceOn===false)return false;}catch(e){}
     if(playbackActive()||!synth||typeof window.SpeechSynthesisUtterance!=='function')return false;
@@ -143,7 +149,8 @@
     if(eventId&&giftSpokenIds[eventId])return true;
     if(eventId)giftSpokenIds[eventId]=1;
     // Keep the current utterance intact; gifts go before queued ordinary chat.
-    queue.unshift(text);if(queue.length>8)queue.length=8;drain();return true;
+    queue.unshift({text:text,eventKey:String(eventId||('local-'+(++giftSpeechSerial20261015))),remaining:3});
+    if(queue.length>8)queue.length=8;drain();return true;
   };
   window.ktTestAIVoice=function(){
     try{if(window.state)state.aiVoiceOn=true;}catch(e){}

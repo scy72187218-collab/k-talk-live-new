@@ -37,6 +37,8 @@
   }
 
   function stopEvent(e){
+    // Suppress a following click only when this handler actually handled the release.
+    if(e&&e.type==='pointerup'){lastPointerControl=controlFromEvent(e);lastPointerAt=Date.now();}
     try{e.preventDefault();}catch(x){}
     try{e.stopPropagation();}catch(x){}
     try{if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(x){}
@@ -265,10 +267,6 @@
       return;
     }
 
-    if(e.type==='pointerup'){
-      lastPointerControl=btn;
-      lastPointerAt=now;
-    }
 
     if(isQuickGift(btn)){
       stopEvent(e);press(btn);sendQuickGift(btn);return;

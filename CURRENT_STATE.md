@@ -233,3 +233,7 @@ Latestofficialtemporaryviewer8 enteredTaekwon1 viaredLIVE, observed connected re
 
 
 2026-10-15: Fresh browser revealed older dynamic AI voice/guest flow URLs could execute before static current scripts and win installation guards. Updated the dynamic loader URLs to current repair versions; cache-busted parent loaders. Exit voice template tests pass. Existing host tabs require a subsequent reload after broadcast to load changed JS. Handset exit audio verification pending.
+
+
+## 2026-10-15 owner scoped gift repetition and single-tap opening
+Owner requests original gift icon three visible passes and speech three times for each actual gift, with single-tap opening. Gift renderer now fades the same original icon in/out three times over 7.2 seconds (premium 9 seconds). Voice queues an atomic three-utterance job per event ID, ignores duplicate receipt, and allows a subsequent identical gift with a new event ID. Old history gate unchanged. No gift send/payment/reward/payout modifications. Fixed generic room control handler marking unhandled pointer releases as handled, which swallowed the next normal gift-button click. Actual handled controls retain release/click deduplication. Mock tests: three utterances, duplicate zero, next identical event three, gift first click preserved, handled-control dedup retained, three visual phases, syntax pass. Physical audio and paid gift not tested. Production/UI verification pending below.
