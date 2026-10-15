@@ -99,12 +99,12 @@
     if(isViewerExitSpeech20261015(text)||(!giftJob&&isGiftAnnouncement20261015(text))){speaking=false;setTimeout(drain,0);return false;}
     var giftKey=/선물/.test(text)&&/[0-9]/.test(text)?text.replace(/님이/g,'님').replace(/선물했습니다|선물하셨습니다|선물/g,'').replace(/[^가-힣a-zA-Z0-9]/g,''):'';
     if(giftJob)giftKey='event:'+giftJob.eventKey;
-    if(giftKey&&(giftReadCounts20261014[giftKey]||0)>=3){speaking=false;setTimeout(drain,0);return false;}
+    if(giftKey&&(giftReadCounts20261014[giftKey]||0)>=(giftJob&&giftJob.singleRose?1:3)){speaking=false;setTimeout(drain,0);return false;}
     if(playbackActive())return false;
     if(!text||!synth||typeof window.SpeechSynthesisUtterance!=='function')return false;
     try{
       if(synth.paused&&synth.resume)synth.resume();
-      var u=new SpeechSynthesisUtterance(text);
+      var u=new SpeechSynthesisUtterance(giftJob&&giftJob.singleRose?text+' 감사합니다.':text);
       u.lang='ko-KR';
       u.rate=0.98;
       u.pitch=1.02;
@@ -119,7 +119,7 @@
           delete giftActiveTexts20261015[giftJob.text];
           window.__ktCompletedGiftSpeech20261015[giftJob.text]=Date.now();
           window.dispatchEvent(new CustomEvent('kt-gift-announcement-finished',{detail:{text:giftJob.text,eventId:giftJob.eventKey,at:Date.now()}}));
-          queue.unshift('소중한 선물 주셔서 감사합니다. 좋은 데 쓰겠습니다.');
+          if(!giftJob.singleRose)queue.unshift('소중한 선물 주셔서 감사합니다. 좋은 데 쓰겠습니다.');
         }
         drain();
       };
@@ -165,7 +165,8 @@
     if((finished&&stamp&&stamp<=finished)||giftActiveTexts20261015[text])return true;
     giftActiveTexts20261015[text]=true;
     // Keep the current utterance intact; gifts go before queued ordinary chat.
-    queue.unshift({text:text,eventKey:String(eventId||('local-'+(++giftSpeechSerial20261015))),remaining:3});
+    var singleRose=/(?:님이|님께서)\s*장미\s+1\s*(?:개|송이)(?:를)?\s*선물/.test(text);
+    queue.unshift({text:text,eventKey:String(eventId||('local-'+(++giftSpeechSerial20261015))),remaining:singleRose?1:3,singleRose:singleRose});
     if(queue.length>8)queue.splice(8).forEach(function(job){if(job&&typeof job==='object')delete giftActiveTexts20261015[job.text];});drain();return true;
   };
   window.ktTestAIVoice=function(){
