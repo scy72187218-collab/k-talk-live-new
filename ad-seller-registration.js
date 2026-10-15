@@ -113,7 +113,7 @@
 (function(){
   if(document.querySelector('script[data-kt-ai-voice-fix]'))return;
   var s=document.createElement('script');
-  s.src='ai-voice-fix.js?v=20260910a';
+  s.src='ai-voice-fix.js?v=20261015-repair-not-exit1';
   s.async=false;
   s.setAttribute('data-kt-ai-voice-fix','1');
   document.head.appendChild(s);
@@ -181,7 +181,7 @@
 (function(){
   if(document.querySelector('script[data-kt-live-chat-send-arrow]'))return;
   var s=document.createElement('script');
-  s.src='live-chat-send-arrow.js?v=20261014-stable-dom1';
+  s.src='live-chat-send-arrow.js?v=20261015-current-dependencies1';
   s.async=false;
   s.setAttribute('data-kt-live-chat-send-arrow','1');
   document.head.appendChild(s);
