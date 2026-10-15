@@ -4,7 +4,10 @@
   'use strict';
   if(window.__ktGiftCenter3D20261014)return;
   window.__ktGiftCenter3D20261014=true;
-  var TAU=Math.PI*2,active=null,queue=[];
+  var TAU=Math.PI*2,active=null,queue=[],visualSeen20261015=Object.create(null),visualFinished20261015=Object.create(null);
+  function giftText20261015(job){return job.sender+'님이 '+job.name+' '+job.cost+'개를 선물했습니다.';}
+  function giftKey20261015(text){return String(text||'').replace(/님이|님께서|님/g,'').replace(/선물했습니다|선물하셨습니다|선물을\s*보냈습니다|선물/g,'').replace(/개를/g,'개').replace(/[^가-힣a-zA-Z0-9]/g,'').toLowerCase();}
+  function oldGift20261015(job,at){return !job.createdAt||job.createdAt<=at;}
   var gold='#efb83e',pink='#f15195',blue='#67caff',white='#e9f5ff',dark='#202744';
   function rotate(p,rx,ry,rz){
     var x=p[0],y=p[1],z=p[2],c=Math.cos(rx),s=Math.sin(rx),v=y*c-z*s;z=y*s+z*c;y=v;
@@ -136,16 +139,33 @@
     var label=document.createElement('div');label.className='kt-gift-3d-label';var title=document.createElement('b');title.textContent=job.name;label.appendChild(title);var from=document.createElement('small');from.textContent=(job.sender||'회원')+'님 · '+Number(job.cost).toLocaleString('ko-KR')+'개';label.appendChild(from);node.appendChild(label);
     var ctx=canvas.getContext('2d',{alpha:true});if(!ctx){job.fallback();next();return;}ctx.scale(ratio,ratio);document.body.appendChild(node);
     var reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches,model=build(job.name),cycleDuration=reduced?2400:(job.cost>=1000?3000:2400),duration=cycleDuration*3,start=performance.now(),last=0;
-    active={node:node,raf:0,timer:0};var current=active;
-    function finish(){if(active!==current)return;clear();next();}
+    active={node:node,raf:0,timer:0,job:job};var current=active;
+    function finish(){if(active!==current)return;visualFinished20261015[job.key]=Date.now();clear();next();}
     function frame(now){if(active!==current)return;if(!root.isConnected||document.hidden){queue=[];clear();return;}var elapsed=now-start;if(elapsed>=duration){finish();return;}try{if(now-last>=33){last=now;var cycleElapsed=elapsed%cycleDuration,pass=Math.min(3,Math.floor(elapsed/cycleDuration)+1);node.setAttribute('data-kt-gift-pass',String(pass));var opacity=Math.min(1,cycleElapsed/350,(cycleDuration-cycleElapsed)/500);if(originalIcon){originalIcon.style.opacity=String(Math.max(0,opacity));originalIcon.style.transform=reduced?'none':'translateY('+Math.sin(elapsed/500)*6+'px) scale('+(1+Math.sin(elapsed/350)*.025)+')';}else draw(ctx,model,elapsed/1000,size,Math.max(0,opacity),reduced);label.style.opacity=String(Math.max(0,opacity));}current.raf=requestAnimationFrame(frame);}catch(error){clear();try{job.fallback();}catch(ignore){}next();}}
     current.raf=requestAnimationFrame(frame);current.timer=setTimeout(finish,duration+300);
   }
-  function present(name,cost,sender,fallback){
+  function present(name,cost,sender,fallback,receipt){
     if(!(Number(cost)>0))return false;
-    var job={name:String(name||'선물'),cost:Number(cost),sender:String(sender||''),fallback:typeof fallback==='function'?fallback:function(){}};
+    receipt=receipt||{};
+    var job={name:String(name||'선물'),cost:Number(cost),sender:String(sender||''),fallback:typeof fallback==='function'?fallback:function(){},createdAt:Date.parse(receipt.createdAt||'')||0,eventId:String(receipt.eventId||'')};
+    job.key=giftKey20261015(giftText20261015(job));
+    if(job.eventId&&visualSeen20261015[job.eventId])return true;
+    if(job.createdAt&&window.ktGiftChatIsCompleted20261015&&window.ktGiftChatIsCompleted20261015(giftText20261015(job),receipt.createdAt))return true;
+    var finished=visualFinished20261015[job.key]||0;
+    if(finished&&(job.createdAt?oldGift20261015(job,finished):Date.now()-finished<1500))return true;
+    function duplicate(other){return other&&other.key===job.key&&(!job.createdAt||!other.createdAt||Math.abs(job.createdAt-other.createdAt)<1500);}
+    if((active&&duplicate(active.job))||queue.some(duplicate))return true;
+    if(job.eventId)visualSeen20261015[job.eventId]=true;
     if(queue.length>=6)queue.shift();queue.push(job);next();return true;
   }
+  window.addEventListener('kt-gift-announcement-finished',function(e){
+    var d=e&&e.detail||{},key=giftKey20261015(d.text),at=Number(d.at||Date.now());
+    if(!key)return;
+    visualFinished20261015[key]=at;
+    queue=queue.filter(function(job){return job.key!==key||!oldGift20261015(job,at);});
+    if(active&&active.job.key===key&&oldGift20261015(active.job,at)&&Number(active.node.getAttribute('data-kt-gift-pass')||0)>=3){clear();next();}
+  });
+  window.addEventListener('kt-broadcast-ended',function(){queue=[];clear();visualSeen20261015=Object.create(null);visualFinished20261015=Object.create(null);});
   window.ktPresentReceivedGift3D20261014=present;
   function hook(key){
     var original=window[key];if(typeof original!=='function'||original.__ktGiftCenter3D)return;

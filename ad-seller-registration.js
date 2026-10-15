@@ -171,7 +171,7 @@
 (function(){
   if(document.querySelector('script[data-kt-live-viewer-interactions]'))return;
   var s=document.createElement('script');
-  s.src='live-viewer-interactions.js?v=20261015-single-gift-delivery1';
+  s.src='live-viewer-interactions.js?v=20261015-gift-visual-finish1';
   s.async=false;
   s.setAttribute('data-kt-live-viewer-interactions','1');
   document.head.appendChild(s);

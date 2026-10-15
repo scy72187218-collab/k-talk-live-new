@@ -386,7 +386,7 @@
             window.__ktGiftReceiptEffectTimes20261015=window.__ktGiftReceiptEffectTimes20261015||{};window.__ktGiftReceiptEffectTimes20261015[effectKey]=stamp;
             var names=(window.ktalkGifts||[]).map(function(g){return String(g[0]);}).sort(function(a,b){return b.length-a.length;});
             name=names.find(function(v){return text.indexOf('님이 '+v+' ')>=0;})||(/장미/.test(text)?'장미':'선물');
-            if(typeof window.ktPresentReceivedGift3D20261014==='function')window.ktPresentReceivedGift3D20261014(name,n,String(m.sender_name||'회원'));
+            if(typeof window.ktPresentReceivedGift3D20261014==='function')window.ktPresentReceivedGift3D20261014(name,n,String(m.sender_name||'회원'),null,{eventId:String(m.id||''),createdAt:m.created_at});
             else if(typeof window.showSmallGiftFx==='function')window.showSmallGiftFx(name,n,String(m.sender_name||'회원'));
             if(n>=1000&&typeof window.ktMarkPremiumGiftClip20260928==='function')window.ktMarkPremiumGiftClip20260928(name,n,String(m.sender_name||'회원'));
             if(typeof window.ktSpeakGift20261014==='function'){

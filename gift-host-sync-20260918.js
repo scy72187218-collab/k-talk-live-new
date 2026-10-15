@@ -161,12 +161,12 @@
             window.ktMarkPremiumGiftClip20260928(String(data.name||'큰 선물'),cost,String(row.sender_name||'회원'));
         }catch(e){}
         if(typeof window.ktPresentReceivedGift3D20261014==='function'){
-          window.ktPresentReceivedGift3D20261014(String(data.name||'큰 선물'),cost,String(row.sender_name||'회원'));
+          window.ktPresentReceivedGift3D20261014(String(data.name||'큰 선물'),cost,String(row.sender_name||'회원'),null,{eventId:'legacy:'+String(row.id||''),createdAt:row.created_at});
         }else if(typeof window.showPremiumGiftFx==='function'){
           window.showPremiumGiftFx(String(data.name||'큰 선물'),cost,String(row.sender_name||'회원'));
         }
       }else if(typeof window.ktPresentReceivedGift3D20261014==='function'){
-        window.ktPresentReceivedGift3D20261014(String(data.name||'선물'),cost,String(row.sender_name||'회원'));
+        window.ktPresentReceivedGift3D20261014(String(data.name||'선물'),cost,String(row.sender_name||'회원'),null,{eventId:'legacy:'+String(row.id||''),createdAt:row.created_at});
       }else if(typeof window.showSmallGiftFx==='function'){
         window.showSmallGiftFx(String(data.name||'선물'),cost,String(row.sender_name||'회원'));
       }
@@ -195,7 +195,7 @@
           try{if(typeof window.ktRecordReceivedRose==='function')window.ktRecordReceivedRose(String(row.sender_name||'호스트'),cost,String(data.name||'선물'),'guest');}catch(e){}
           try{if(typeof window.ktGuestAddEarnedRoses==='function')window.ktGuestAddEarnedRoses(cost);}catch(e){}
           if(typeof window.ktPresentReceivedGift3D20261014==='function'){
-            window.ktPresentReceivedGift3D20261014(String(data.name||'선물'),cost,String(row.sender_name||'호스트'));
+            window.ktPresentReceivedGift3D20261014(String(data.name||'선물'),cost,String(row.sender_name||'호스트'),null,{eventId:'legacy:'+String(row.id||''),createdAt:row.created_at});
           }else if(cost>=1000&&typeof window.showPremiumGiftFx==='function'){
             window.showPremiumGiftFx(String(data.name||'큰 선물'),cost,String(row.sender_name||'호스트'));
           }else if(typeof window.showSmallGiftFx==='function'){
