@@ -209,7 +209,7 @@
       if(sdk&&!document.hidden&&room&&room.state==='connected'){
         var health=videoRecovery20261015.get(v),now=Date.now();
         var frames=null;
-        try{var quality=v.getVideoPlaybackQuality&&v.getVideoPlaybackQuality();if(quality&&Number.isFinite(quality.totalVideoFrames))frames=quality.totalVideoFrames;else if(Number.isFinite(v.webkitDecodedFrameCount))frames=v.webkitDecodedFrameCount;}catch(e){}
+        try{var quality=v.getVideoPlaybackQuality&&v.getVideoPlaybackQuality();if(quality&&Number.isFinite(quality.totalVideoFrames)&&quality.totalVideoFrames>0)frames=quality.totalVideoFrames;else if(Number.isFinite(v.webkitDecodedFrameCount)&&v.webkitDecodedFrameCount>0)frames=v.webkitDecodedFrameCount;}catch(e){}
         var progress=frames===null?Number(v.currentTime||0):frames;
         if(!health||health.sdk!==sdk){health={sdk:sdk,since:now,last:0,attempts:0,progress:progress};videoRecovery20261015.set(v,health);}
         var ready=v.readyState>=2&&v.videoWidth>0;
