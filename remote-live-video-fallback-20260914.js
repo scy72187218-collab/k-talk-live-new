@@ -28,7 +28,7 @@
       var self=window.__ktApprovedGuestSelfStream;
       var guestTile=v.closest&&v.closest('.ktg13-guest,.ktg9-guest,.ktsubscriber-guest,.ktsecret-slot:not(.host),.kgh-cell.self,.kt-approved-guest-cell.self,.kt-prejoin-room-cell.self,.kt-guest-room-cell.self');
       var isSelf=!!(self&&v.srcObject&&self.getVideoTracks&&v.srcObject.getVideoTracks&&self.getVideoTracks().some(function(t){return v.srcObject.getVideoTracks().indexOf(t)>=0;}));
-      var transform=guestTile||isSelf?'none':'scaleX(-1)';
+      var transform='none';
       v.style.setProperty('transform',transform,'important');
       v.style.setProperty('-webkit-transform',transform,'important');
       v.style.setProperty('transform-origin','center center','important');

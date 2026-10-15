@@ -47,13 +47,13 @@
     return null;
   }
   function fix(){
-    /* Guest self-camera only: preserve the natural left/right direction. */
+    /* All live camera tiles use the same natural direction as the transmitted track. */
     try{
-      var self=document.querySelector('.kt-guest-hostlike-room .kgh-cell.self video');
-      if(self){
-        self.style.setProperty('transform','none','important');
-        self.style.setProperty('-webkit-transform','none','important');
-      }
+      document.querySelectorAll('#screen #ktRemoteLiveVideo,#screen .ktsolo-main>video,#screen .ktg13-host>video,#screen .ktg9-host>video,#screen .ktsubscriber-host>video,#screen .ktsecret-host>video,#screen .ktg13-guest>video,#screen .ktg9-guest>video,#screen .ktsubscriber-guest>video,#screen .ktsecret-slot>video,#screen .kgh-cell>video,#screen .kt-approved-guest-cell>video,#screen .kt-prejoin-room-cell>video,#screen .kt-guest-room-cell>video,#screen .kt-sub6666-cell>video').forEach(function(video){
+        if(!video.srcObject||!video.srcObject.getVideoTracks)return;
+        if(video.style.getPropertyValue('transform')!=='none')video.style.setProperty('transform','none','important');
+        if(video.style.getPropertyValue('-webkit-transform')!=='none')video.style.setProperty('-webkit-transform','none','important');
+      });
     }catch(e){}
     try{
       var root=document.querySelector('.kt-guest-hostlike-room');

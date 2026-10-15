@@ -137,7 +137,7 @@
 (function(){
   if(document.querySelector('script[data-kt-remote-video-fallback]'))return;
   var s=document.createElement('script');
-  s.src='remote-live-video-fallback-20260914.js?v=20261015-sfu-viewer-dedup1';
+  s.src='remote-live-video-fallback-20260914.js?v=20261015-shared-camera-direction1';
   s.async=false;
   s.setAttribute('data-kt-remote-video-fallback','1');
   document.head.appendChild(s);
