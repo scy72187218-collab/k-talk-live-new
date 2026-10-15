@@ -366,3 +366,7 @@ Owner supplies reference: real LIVE broadcasts between vertically swiped ordinar
 Browser release check found an older dynamic discovery loader could install before the new static script. Static updated discovery now loads before music/ad dynamic loaders so the read-only feed catalog API is installed reliably even when legacy versions are cached. No broadcast active in test list; actual moving preview still pending.
 
 Release browser check additionally found a persistent hidden creator preparation element outside #screen; preview now ignores hidden preparation elements. New catalog export is installed before legacy UI's already-installed return, so an earlier cached dynamic discovery script cannot prevent the new bounded preview catalog. Browser verification is required after this correction.
+
+
+## 2026-10-15 remove legacy lower LIVE strip over feed previews
+Owner screenshot identifies lower red broadcast list covering preview entry. Hide only legacy #ktFollowLiveStrip while public feed has new live cards, using scoped body class maintained by preview installer; restore normal absence/room state on navigation. Keep inline 라이브 시청 entry, bottom main navigation/방송하기, existing room controls and preview connection logic unchanged. Mock visibility class/insertion cleanup checks and syntax; deployment alone does not verify video first frame.
