@@ -408,3 +408,7 @@ Owner requested replacing the preparation-only daily fortune slot with password 
 
 ## 2026-10-16 compact password correction
 Password input/save occupies row 2 column 3 beside secret room, rather than a full extra row. Help text hidden in preparation; validation remains. Preparation start fixed above safe-area with reserved bottom space so it remains accessible on short phone screens.
+
+
+## 2026-10-16 owner access settings
+Use existing owner-account exemption for listing tier and contact/room level-subscription gates. Does not mark owner as paid subscriber, change subscription plans, discounts, balances, gift payments, secret passwords, or guest approval. Existing name-based owner recognition remains legacy behavior; no new server entitlement model.

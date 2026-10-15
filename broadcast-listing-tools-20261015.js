@@ -6,6 +6,8 @@
  function el(tag,text,cls){var n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;}
  function account(){try{if(window.ktProfileAccountKey){var key=String(window.ktProfileAccountKey()||'');if(key)return key;}}catch(e){}try{return localStorage.getItem('kt_live_device_id')||'local';}catch(e){return 'local';}}
  function tier(){
+  try{if(window.ktIsOwnerLevelExempt&&window.ktIsOwnerLevelExempt())return 'subscriber';}catch(e){}
+
   var st=window.state||{},p={};try{p=window.ktProfileLoad?window.ktProfileLoad()||{}:{};}catch(e){}
   var member='';try{member=localStorage.getItem('ktalk_member_type')||'';}catch(e){}
   if(member==='subscriber'||st.memberType==='subscriber'||st.subscribed===true||st.subscriptionActive===true)return 'subscriber';

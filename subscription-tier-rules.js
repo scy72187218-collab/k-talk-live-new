@@ -50,6 +50,7 @@
 
   window.ktIsPaidSubscriber=function(){return !!window.ktGetSubscriptionPlan();};
   window.ktCanPostContactInfo=function(){
+    if(window.ktIsOwnerLevelExempt&&window.ktIsOwnerLevelExempt())return true;
     var plan=window.ktGetSubscriptionPlan();
     return !!(plan&&plan.contactPost);
   };
@@ -75,10 +76,12 @@
   var oldCanEnter=window.ktCanEnterRoomByLevel;
   var oldCanCreate=window.ktCanCreateRoomByLevel;
   window.ktCanEnterRoomByLevel=function(roomType,level,isSubscriber){
+    if(window.ktIsOwnerLevelExempt&&window.ktIsOwnerLevelExempt())return true;
     if(isSubscriber===true||window.ktIsPaidSubscriber())return true;
     return typeof oldCanEnter==='function'?oldCanEnter(roomType,level,isSubscriber):true;
   };
   window.ktCanCreateRoomByLevel=function(roomType,level){
+    if(window.ktIsOwnerLevelExempt&&window.ktIsOwnerLevelExempt())return true;
     if(window.ktIsPaidSubscriber())return true;
     return typeof oldCanCreate==='function'?oldCanCreate(roomType,level):true;
   };
