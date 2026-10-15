@@ -31,7 +31,7 @@
     var box=document.getElementById('ktsoloChatList');
     if(!box)return;
     var msgs=window.ktSoloChatMessages||[];
-    box.innerHTML=msgs.slice(-5).map(function(m){
+    box.innerHTML=msgs.slice(-7).map(function(m){
       return '<div class="ktsolo-chat-line"><b>'+esc(m.name||'나')+'</b><span>'+esc(m.text||'')+'</span></div>';
     }).join('');
     box.scrollTop=box.scrollHeight;

@@ -22,7 +22,8 @@
       var tr=tools.getBoundingClientRect();
       if(!rr.width||!tr.width)return;
 
-      var h=Math.min(180,Math.max(130,Math.round((rr.height||window.innerHeight)*0.16)));
+      var line=chat.querySelector('.ktsolo-chat-line'),cs=getComputedStyle(line||chat);
+      var h=Math.ceil(((parseFloat(cs.lineHeight)||((parseFloat(cs.fontSize)||12)*1.28))+5)*7+8);
       var gap=4;
       var top=Math.round(tr.top-h-gap);
       var left=Math.round(rr.left+10);

@@ -43,7 +43,7 @@
       box.innerHTML='<div class="ktsubscriber-chat-hint">채팅을 입력하면 아래에서 위로 올라옵니다</div>';
       return;
     }
-    box.innerHTML=msgs.slice(-4).map(function(m){
+    box.innerHTML=msgs.slice(-7).map(function(m){
       return '<div class="ktsubscriber-chat-line"><b>'+esc(m.name||'나')+'</b><span>'+esc(m.text||'')+'</span></div>';
     }).join('');
     box.scrollTop=box.scrollHeight;

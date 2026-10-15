@@ -4,6 +4,12 @@
   if(window.__ktAllRoomFloatingChat20260919)return;
   window.__ktAllRoomFloatingChat20260919=true;
 
+  function sevenLineHeight(chat){
+    var line=chat&&chat.querySelector('[class$="-chat-line"],.kt-remote-chat-line');
+    var cs=getComputedStyle(line||chat),font=parseFloat(cs.fontSize)||12;
+    var leading=parseFloat(cs.lineHeight)||font*1.28;
+    return Math.ceil((leading+5)*7+8);
+  }
   function install(){
     if(document.getElementById('ktAllRoomFloatingChatStyle'))return;
     var s=document.createElement('style');
@@ -23,6 +29,7 @@
 }
 .ktsolo-chat-line,.ktg13-chat-line,.ktsubscriber-chat-line,.ktsecret-chat-line,
 .kgh-chatbox>div{
+  flex:0 0 auto!important;
   text-shadow:0 1px 3px #000,0 0 5px #000!important;
 }
 .ktsolo-chat-line:last-child,.ktg13-chat-line:last-child,
@@ -39,6 +46,8 @@
 #screen .ktg13-room .ktg13-chat-line,
 #screen .kt-remote-live .kt-remote-chat-line{flex:0 0 auto!important;min-height:min-content!important;overflow-wrap:anywhere!important}
 #screen .ktg13-room[data-kt-room="13"] .ktg13-chat-line span{min-width:0!important;overflow-wrap:anywhere!important}
+
+#screen .kt-remote-live .kt-remote-chat,#screen .ktsecret-room .ktsecret-chat,#screen .kt-sgfh-chat{max-height:180px!important}
 
 /* 1인방/비밀방은 현재 정상 위치를 그대로 유지하고 떠 보이는 표시만 적용 */
 .ktsolo-chat,.ktsecret-chat{
@@ -97,7 +106,7 @@
 }
 .kt-guest-hostlike-room .kgh-chatbox{
   align-self:flex-end!important;
-  max-height:60px!important;
+  max-height:180px!important;
   overflow:hidden!important;
 }
 
@@ -128,13 +137,6 @@
      다른 방/버튼/게스트칸은 건드리지 않음. */
   function placeNineChat(){placeThirteenHostChat();}
 
-  function guestBottom(grid,rightEdge){
-    var cells=grid.querySelectorAll?grid.querySelectorAll('.ktg13-host,.ktg13-guest'):[];
-    var bottom=0;
-    cells.forEach(function(cell){var r=cell.getBoundingClientRect();if(r.width&&r.height&&(rightEdge==null||r.left<rightEdge))bottom=Math.max(bottom,r.bottom);});
-    return bottom||grid.getBoundingClientRect().bottom;
-  }
-
   function placeThirteenGuestChat(){
     try{
       var root=document.querySelector('#screen .kt-remote-live');
@@ -143,12 +145,12 @@
       var chat=root.querySelector('#ktRemoteChatList'),bar=root.querySelector('#ktRemoteBottom');
       var grid=room&&room.querySelector('.ktg13-main');
       if(!room||!chat||!bar||!grid)return;
-      var rr=room.getBoundingClientRect(),br=bar.getBoundingClientRect(),gr=grid.getBoundingClientRect();
+      var rr=room.getBoundingClientRect(),br=bar.getBoundingClientRect();
       if(!rr.width||!br.height)return;
       if(chat.parentElement&&chat.parentElement!==root)root.appendChild(chat);
       var is13=room.getAttribute('data-kt-room')==='13';
       var chatWidth=Math.max(0,is13?Math.floor(rr.width*.72):Math.round(rr.width)-16);
-      var top=Math.round(guestBottom(grid,is13?rr.left+8+chatWidth:undefined)+4),height=Math.max(0,Math.round(br.top-4)-top);
+      var height=sevenLineHeight(chat),top=Math.max(rr.top,Math.round(br.top-4)-height);
       var values={position:'fixed',left:Math.round(rr.left+8)+'px',right:'auto',top:top+'px',bottom:'auto',
         width:chatWidth+'px',height:height+'px','min-height':height+'px','max-height':height+'px',
         'box-sizing':'border-box',padding:'0 4px',margin:'0',display:'flex','flex-direction':'column','justify-content':'flex-end',
@@ -166,13 +168,13 @@
       var tools=room.querySelector('.ktg13-tools');
       var grid=room.querySelector('.ktg13-main');
       if(!chat||!tools||!grid)return;
-      var rr=room.getBoundingClientRect(),tr=tools.getBoundingClientRect(),gr=grid.getBoundingClientRect();
+      var rr=room.getBoundingClientRect(),tr=tools.getBoundingClientRect();
       if(!rr.width||!tr.height)return;
       if(chat.parentElement&&chat.parentElement!==room)room.appendChild(chat);
       var is13=room.getAttribute('data-kt-room')==='13';
       var chatWidth=Math.max(0,is13?Math.floor(rr.width*.72):Math.round(rr.width)-16);
-      var top=Math.round(guestBottom(grid,is13?rr.left+8+chatWidth:undefined)+4);
-      var height=Math.max(0,Math.round(tr.top-4)-top);
+      var height=sevenLineHeight(chat);
+      var top=Math.max(rr.top,Math.round(tr.top-4)-height);
       var values={
         position:'fixed',left:Math.round(rr.left+8)+'px',right:'auto',
         top:top+'px',bottom:'auto',
@@ -200,7 +202,7 @@
       /* 구독자방 채팅만: 매치/친구/메시지/장미 버튼줄 바로 위에서 시작 */
       var mr=match.getBoundingClientRect();
       var rr=room.getBoundingClientRect();
-      var h=112;
+      var h=sevenLineHeight(chat);
       if(chat.parentElement!==room)room.appendChild(chat);
       var top=Math.round(mr.top-h-4);
       if(!isFinite(top))return;
@@ -262,7 +264,6 @@
 
   /* 2026-10-03: keep chat stable in every room.
      Do not periodically hide host chat; that fought other room scripts and caused flicker. */
-  var __ktHostChatHiddenOnly20261003=false;
   function ktKeepChatStable20261003(){
     var sel='#screen .ktsolo-room .ktsolo-chat,#screen .ktg13-room .ktg13-chat,#screen .ktsubscriber-room .ktsubscriber-chat,#screen .ktsecret-room .ktsecret-chat,#screen .ktsecret-room .ktsecret-chat-compose,#screen .kt-remote-live .kt-remote-chat,#screen .kt-guest-hostlike-room .kgh-chatbox';
     document.querySelectorAll(sel).forEach(function(el){

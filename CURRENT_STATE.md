@@ -314,3 +314,7 @@ Owner authorizes solo fullscreen camera with overlaid UI; solo LED hidden by def
 
 ## 2026-10-15 remove six obstructing solo overlay items
 Owner screenshot shows undo/treasure/match and daily ranking/mission/viewer row covering face. Explicitly authorizes removing six. Hide those two rows only in local solo and actual solo-viewer header; no removal from other rooms, no handler/media/LED/financial changes. Scoped CSS syntax checked; phone verification pending. Source retained so functions are not deleted.
+
+
+## 2026-10-15 spectator reentry and seven-line chat
+Owner reports camera is clear after reopening, but after leave/video loss reentry remains black; requested six to seven chat lines. Explicit disconnect now invalidates pending same-host connection flight and connection throttle. Old room subscription callbacks cannot attach tracks or remove current audio after a replacement room is created. Same active entry still uses one connection flight. Existing capture/publish bitrate, approval, gift/finance and seat layout unchanged. Host/viewer chat height expanded to seven normal text lines; local solo/secret/subscriber renderers retain seven messages. Removed verified orphan guestBottom helper, obsolete hidden-chat flag and unused grid rectangles in that changed module. Other cleanup candidates retained pending external-entry/reachability evidence. Syntax and isolated race tests passed; real phone reentry/quality and the initial error-page flash remain unverified because available browser tabs are crashed. No claim of 15-person hardware validation.

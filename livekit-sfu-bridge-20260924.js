@@ -551,6 +551,7 @@
   async function disconnectRoom(){
     window.__ktSfuPreferredHostStream20261015=null;window.__ktSfuPreferredHostId20261015='';
     connectGeneration20261015++;
+    roomConnectFlight20261015=null;lastConnectAt=0;
     var old=room;room=null;connecting=false;reconnectHoldUntil=0;hostRetryAt=0;hostFailureCount=0;
     if(reconnectRetryTimer){clearTimeout(reconnectRetryTimer);reconnectRetryTimer=null;}
     setState({connected:false,connecting:false});
@@ -619,8 +620,12 @@
         stopLocalTrackOnUnpublish:false
       });
       room=r;
-      r.on(LK.RoomEvent.TrackSubscribed,onRemoteTrack);
+      r.on(LK.RoomEvent.TrackSubscribed,function(track,publication,participant){
+        if(room!==r||attemptGeneration!==connectGeneration20261015)return;
+        onRemoteTrack(track,publication,participant);
+      });
       r.on(LK.RoomEvent.TrackUnsubscribed,function(track,publication,participant){
+        if(room!==r||attemptGeneration!==connectGeneration20261015)return;
         var id=String(participant&&participant.identity||'');if(track.kind==='audio')stopAudio(id);
       });
       if(LK.RoomEvent.ParticipantConnected)r.on(LK.RoomEvent.ParticipantConnected,function(){
