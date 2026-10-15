@@ -37,7 +37,7 @@
   load('secret-camera-mic-stable.js?v=20260913-stable1');
   load('subscriber-right-controls-fix.js?v=20260913-float1');
   load('level-rules.js?v=20260913-level-open1');
-  load('treasure-global-room.js?v=20261015-treasure-rules-v2');
+  load('treasure-global-room.js?v=20261015-led-notices1');
   load('message-recipient-picker.js?v=20260911-message1');
   load('host-face-like-reward.js?v=20260911-hostlike1');
   /* Live presence is loaded once by ad-seller-registration. */

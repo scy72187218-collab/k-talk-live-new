@@ -2,7 +2,7 @@
 (function(){
   function loadTreasureCore(){
     var s=document.createElement('script');
-    s.src='treasure-global-room-core.js?v=20261015-treasure-rules-v2';
+    s.src='treasure-global-room-core.js?v=20261015-led-notices1';
     s.async=false;
     document.head.appendChild(s);
   }

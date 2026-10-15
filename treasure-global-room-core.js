@@ -135,6 +135,7 @@
       var path='ktalk_treasure_events?select=id,local_id,host_id,host_name,room_title,room_type,amount,placed_at,unlock_at,claim_close_at,promotion_until,rules_version,active,settled&or=(active.eq.true,promotion_until.gt.'+enc(new Date().toISOString())+')&order=placed_at.desc&limit=8';
       var rows=await req(path);
       latestEvents=Array.isArray(rows)?rows:[];
+      window.dispatchEvent(new CustomEvent('kt-live-treasure-events',{detail:{events:latestEvents}}));
     }catch(e){latestEvents=[];}
     return latestEvents;
   }
@@ -175,7 +176,7 @@
     });
     if(!ev){if(old)old.remove();return;}
     var box=head||document.body;
-    if(head)head.style.setProperty('position','relative','important');
+    if(head&&getComputedStyle(head).position==='static')head.style.setProperty('position','relative','important');
     if(brand){brand.style.setProperty('visibility','hidden','important');brand.setAttribute('data-kt-treasure-brand-hidden','1');}
     var b=old;
     if(!b){b=document.createElement('button');b.type='button';b.id='ktGlobalTreasureHeaderBadge';}
