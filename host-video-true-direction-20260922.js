@@ -9,6 +9,9 @@
   var SEL=[
     '#screen .ktg13-room .ktg13-host > video',
     '#screen .ktsolo-room .ktsolo-host > video',
+    '#screen .ktsolo-room .ktsolo-main > video',
+    '#screen #ktRemoteLiveVideo',
+    '#screen .ktsecret-room .ktsecret-slot.host > video',
     '#screen .ktsubscriber-room .ktsubscriber-host > video',
     '#screen .ktsecret-room .ktsecret-host > video',
     '.kt-guest-hostlike-room .kgh-cell.host > video',
@@ -22,16 +25,15 @@
     if(document.getElementById('ktHostVideoDirectionHardLock20260923'))return;
     var s=document.createElement('style');
     s.id='ktHostVideoDirectionHardLock20260923';
-    s.textContent=SEL+'{transform:scaleX(-1)!important;-webkit-transform:scaleX(-1)!important;transform-origin:50% 50%!important;}';
+    s.textContent=SEL+'{transform:none!important;-webkit-transform:none!important;transform-origin:50% 50%!important;}';
     document.head.appendChild(s);
   }
 
   function apply(v){
-    if(!v)return;
+    if(!v||!v.srcObject||!v.srcObject.getVideoTracks||!v.srcObject.getVideoTracks().length)return;
     try{
-      v.style.setProperty('transform','scaleX(-1)','important');
-      v.style.setProperty('-webkit-transform','scaleX(-1)','important');
-      v.style.setProperty('transform-origin','50% 50%','important');
+      if(v.style.getPropertyValue('transform')!=='none')v.style.setProperty('transform','none','important');
+      if(v.style.getPropertyValue('-webkit-transform')!=='none')v.style.setProperty('-webkit-transform','none','important');
     }catch(e){}
   }
 

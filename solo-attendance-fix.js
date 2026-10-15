@@ -87,7 +87,7 @@ html.kt-compact-two-room body #ktSept2Live #myEarnHud #myEarnDetail{margin-top:1
     v.style.setProperty('max-height','none','important');
     v.style.setProperty('object-fit','cover','important');
     v.style.setProperty('object-position','50% 50%','important');
-    v.style.setProperty('transform','scaleX(-1)','important');
+    v.style.setProperty('transform','none','important');
     v.style.setProperty('border-radius','0','important');
     v.style.setProperty('transition','none','important');
     v.style.setProperty('animation','none','important');
