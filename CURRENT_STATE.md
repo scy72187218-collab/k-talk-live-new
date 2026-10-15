@@ -222,3 +222,7 @@ Owner confirms overnightphone screenoff/locked. Addhost-only ScreenWakeLock when
 
 ## Viewer exit speech off2026-10-15
 Owner explicitly wants no AI reading spectatorsleaving. Removeinstantguest-leftspeechlistener; sharedktSpeak andfinalspeechdrain rejectnarrow viewerexittemplates soDBchatobserver/queuedlegacyexitlines cannotread. Keep exitservercleanup/chatalerts, joins/gifts/broadcastendvoice unchanged. Templateunitchecksjoin/gift/endnotmuted andexitmutedpass; syntaxpass. Nootherfeaturesmodified.
+
+
+## Spectator helper must not interrupt playing video2026-10-15
+Ownerreiteratesviewonlyentryfast/stable, nootherchanges. remote-live-video-fallback wrapperstillawaitedcloseFallbackserverPATCH beforeprimaryentry/leave; removeawait, keepimmediatelocalclose andasyncservercleanup. FallbackPOSTpendinggeneration/startingguard preventsduplicate/stalePC afterleave/hostswitch; closesstalecreatedsessions. Latefallbackontrackdoesnotreplaceworkingcurrentvideo (unlesssamesource, thennoop); closesredundantfallback. Fallbacksignalpollsingle-flight andchecksctx/generationafterawait topreventconcurrentSDP application/stalepeer. Cachebustdynamicruntimehealthloaderandhelper. Mockservercleanupneverresolvesyetentry/leaveimmediatepass; syntaxpass. Doesnotclaimallphoneblackvideo fixed orstartupinstant; runtimehandsetverification outstanding. Nohostcapture/layout/gifts/earnings/approval changes; LiveKit18headroom remainsunconfiguredpendingowneraccount.

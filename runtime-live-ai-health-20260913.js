@@ -37,7 +37,7 @@
   });
 
   /* 원격 시청 영상이 검게 멈추거나 끊겼을 때만 재연결. */
-  load('remote-live-video-fallback-20260914.js','__ktRemoteLiveVideoFallback20260914');
+  load('remote-live-video-fallback-20260914.js?v=20261015-preserve-playing1','__ktRemoteLiveVideoFallback20260914');
 
   load('secret-return-down-20260914.js','__ktSecretReturnDown20260914');
   load('creator-room-shortcuts-solo-only-20260914.js','__ktCreatorRoomShortcutsSoloOnly20260914');
