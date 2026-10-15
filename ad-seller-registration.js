@@ -113,7 +113,7 @@
 (function(){
   if(document.querySelector('script[data-kt-ai-voice-fix]'))return;
   var s=document.createElement('script');
-  s.src='ai-voice-fix.js?v=20261015-gift-three1';
+  s.src='ai-voice-fix.js?v=20261015-gift-thanks1';
   s.async=false;
   s.setAttribute('data-kt-ai-voice-fix','1');
   document.head.appendChild(s);

@@ -110,6 +110,7 @@
       u.onend=function(){
         speaking=false;
         if(giftJob&&giftJob.remaining>1){giftJob.remaining--;queue.unshift(giftJob);}
+        else if(giftJob){queue.unshift('소중한 선물 주셔서 감사합니다. 좋은 데 쓰겠습니다.');}
         drain();
       };
       u.onerror=function(){speaking=false;setTimeout(drain,80);};
