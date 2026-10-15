@@ -159,8 +159,9 @@
     var root=screen&&screen.querySelector('.kt-remote-live,.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room,.ktg9-room');
     var head=root&&root.querySelector('.ktsolo-head,.ktg13-host-head,.ktg13-head,.ktsubscriber-head,.ktsecret-head,.ktg9-head,.kt-remote-top');
     var brand=head&&head.querySelector('.ktsolo-brand,.ktg13-brand,.ktsubscriber-brand,.ktsecret-brand,.ktg9-brand');
-    var available=latestEvents.filter(function(x){return x&&ms(x.unlock_at)>now();});
+    var available=latestEvents.filter(function(x){return x&&x.active!==false&&ms(x.claim_close_at)>now();});
     var ev=available.length?available[headerEventIndex20261015%available.length]:null;
+    var countdown=ev?Math.max(0,(ms(ev.unlock_at)>now()?ms(ev.unlock_at):ms(ev.claim_close_at))-now()):0;
     var old=document.getElementById('ktGlobalTreasureHeaderBadge');
     document.querySelectorAll('[data-kt-treasure-brand-hidden]').forEach(function(el){
       if(!ev||el!==brand){el.style.removeProperty('visibility');el.removeAttribute('data-kt-treasure-brand-hidden');}
@@ -174,8 +175,8 @@
     if(b.parentElement!==box)box.appendChild(b);
     b.className='kt-treasure-header-large'+(head?'':' is-global');
     b.dataset.eventId=ev.id;
-    b.setAttribute('aria-label',String(ev.host_name||'호스트')+' 방 보물상자 '+ev.amount+'개, 남은 시간 '+fmt(ms(ev.unlock_at)-now())+', 눌러서 입장');
-    var markup='<span class="ico" aria-hidden="true">🎁</span><span class="meta"><strong>보물상자 '+Math.max(0,parseInt(ev.amount,10)||0)+'개</strong><time>'+fmt(ms(ev.unlock_at)-now())+'</time><small>눌러서 상자 있는 방으로</small></span>'+(available.length>1?'<span data-kt-treasure-next="1" aria-label="다음 보물상자" style="padding:8px 3px;font-size:18px">›</span>':'');
+    b.setAttribute('aria-label',String(ev.host_name||'호스트')+' 방 보물상자 '+ev.amount+'개, 남은 시간 '+fmt(countdown)+', 눌러서 입장');
+    var markup='<span class="ico" aria-hidden="true">🎁</span><span class="meta"><strong>보물상자 '+Math.max(0,parseInt(ev.amount,10)||0)+'개</strong><time>'+fmt(countdown)+'</time><small>눌러서 상자 있는 방으로</small></span>'+(available.length>1?'<span data-kt-treasure-next="1" aria-label="다음 보물상자" style="padding:8px 3px;font-size:18px">›</span>':'');
     if(b.innerHTML!==markup)b.innerHTML=markup;
   }
   function paintOwnRoom(){paintHeaderTreasure20261015();}
@@ -187,7 +188,7 @@
     if(!ev){await fetchEvents();ev=eventById(id);}
     if(!ev)return;
     if(String(ev.host_id)===deviceId()){
-      alert('🎁 보물상자 '+ev.amount+'개 · 남은 시간 '+fmt(Math.max(0,ms(ev.unlock_at)-now())));
+      alert('🎁 보물상자 '+ev.amount+'개 · 남은 시간 '+fmt(Math.max(0,(ms(ev.unlock_at)>now()?ms(ev.unlock_at):ms(ev.claim_close_at))-now())));
       return;
     }
     viewerEventId=ev.id;

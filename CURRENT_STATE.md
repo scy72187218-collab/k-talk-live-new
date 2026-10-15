@@ -282,3 +282,7 @@ Legacy guest request flow now uses max(server room start, current host/remote ru
 
 ## 2026-10-15 large global treasure header
 Replace tiny face-overlaid host/view badges and stacked global alerts with one large header treasure badge in the K-Talk LIVE brand area. Same active event list used in all host room types, approved guests, regular viewers and other rooms; cross-room click keeps existing enterEvent navigation, same-host viewer keeps claimEvent. Large 38px chest and 23px tabular countdown; other active chests browsable with next arrow. No event publish/claim/reward RPC or amounts changed. Existing expiry at unlock maintained. Original brand visibility restores after expiry. Loader chain bumped including music-recording-fix. Syntax and extracted mock render checks cover all seven contexts/countdown/expiry; real device visual and paid event flow not independently tested. Guest3 audience investigation remains incomplete.
+
+
+## 2026-10-15 treasure immediate-unlock visibility correction
+Read-only DB confirms newly placed active events have unlock_at approximately placed_at, with claim_close_at three minutes later. Previous promotion/header predicate incorrectly removed them at unlock. Header now displays active events through claim_close_at, counting down to unlock when waiting and to claim_close when already open. Actual DB timestamp-shaped render test verifies visible immediately, ticking timer, removal only at claim close. Reward/claim/publish RPCs unchanged. Prior note “expiry at unlock maintained” superseded. Phone verification still pending.
