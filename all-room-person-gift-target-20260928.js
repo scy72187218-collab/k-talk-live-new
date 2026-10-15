@@ -136,6 +136,10 @@
     body.appendChild(panel);
     panel.querySelector('[data-close]').onclick=function(){sheet.classList.remove('kt-person-gift-menu-open');if(window.closeSheet)window.closeSheet();};
     panel.querySelector('.kt-person-gift-menu-open').onclick=function(){sheet.classList.remove('kt-person-gift-menu-open');if(window.openGifts)window.openGifts();};
+    if(window.ktCanDragSeat20261015&&window.ktCanDragSeat20261015(tile)&&window.ktBeginSeatTapMove20261015){
+      var move=document.createElement('button');move.type='button';move.textContent='↔ 자리 이동';move.className='kt-person-gift-menu-open';
+      move.onclick=function(){sheet.classList.remove('kt-person-gift-menu-open');if(window.closeSheet)window.closeSheet();window.ktBeginSeatTapMove20261015(tile);};panel.appendChild(move);
+    }
     var preview=face.querySelector('video');if(preview){var play=preview.play();if(play&&play.catch)play.catch(function(){});}
 
     return true;
@@ -156,6 +160,7 @@
   function personTap(e){
     var target=e&&e.target;
     var tile=tileOf(target);if(!tile||excludedUi(target))return false;
+    if(window.ktSeatTapModeActive20261015&&window.ktSeatTapModeActive20261015(tile))return false;
     // Keep short taps as before; an eligible long press belongs to seat dragging.
     if((e.type==='pointerdown'||e.type==='touchstart')&&window.ktCanDragSeat20261015&&window.ktCanDragSeat20261015(tile))return false;
 

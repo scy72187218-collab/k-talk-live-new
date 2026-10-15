@@ -261,7 +261,8 @@
       var sdk=streamTracks.get(stream),previous=videoTracks.get(v);
       if(sdk){
         var attached=v.srcObject&&v.srcObject.getVideoTracks&&v.srcObject.getVideoTracks().some(function(t){return t===sdk.mediaStreamTrack;});
-        if(previous!==sdk||!attached){if(previous&&previous!==sdk&&previous.detach)previous.detach(v);sdk.attach(v);videoTracks.set(v,sdk);}
+        var observed=!Array.isArray(sdk.attachedElements)||sdk.attachedElements.indexOf(v)>=0;
+        if(previous!==sdk||!attached||!observed){if(previous&&previous!==sdk&&previous.detach)previous.detach(v);sdk.attach(v);videoTracks.set(v,sdk);}
       }else if(v.srcObject!==stream)v.srcObject=stream;
       // Repair only a persistently black target; never restart healthy playback.
       if(sdk&&!document.hidden&&room&&room.state==='connected'){
@@ -779,14 +780,21 @@
     }).finally(function(){if(guestPublishTasks.get(owner)===entry)guestPublishTasks.delete(owner);});
     guestPublishTasks.set(owner,entry);return entry.promise;
   }
+  function hasLocalPublication20261015(participant,trackId){
+    var found=false;
+    try{participant.trackPublications.forEach(function(pub){
+      if(pub.track&&pub.track.mediaStreamTrack&&pub.track.mediaStreamTrack.id===trackId)found=true;
+    });}catch(e){}
+    return found;
+  }
   async function publishSharedStreamNow(stream){
     if(currentRole!=='host'&&viewerExplicitlyExited20261015())return;
     if(!room||room.state!=='connected'||!liveStream(stream))return;
     var LK=window.LivekitClient;if(!LK)return;
-    var vp=room.localParticipant;
+    var owner=room,generation=connectGeneration20261015,vp=owner.localParticipant;
     try{
       var vt=stream.getVideoTracks&&stream.getVideoTracks()[0];
-      if(vt&&vt.readyState==='live'&&publishedVideoId!==vt.id){
+      if(vt&&vt.readyState==='live'&&!hasLocalPublication20261015(vp,vt.id)){
         if(publishedVideoId){
           try{
             vp.trackPublications.forEach(function(pub){if(pub.track&&pub.track.mediaStreamTrack&&pub.track.mediaStreamTrack.id===publishedVideoId)vp.unpublishTrack(pub.track,false);});
@@ -804,14 +812,17 @@
           ];
         }
         await vp.publishTrack(lv,options);
+        if(room!==owner||generation!==connectGeneration20261015)return;
         publishedVideoId=vt.id;lastPublishError20261015='';
       }
-    }catch(e){lastPublishError20261015='video_publish_failed:'+String(e&&e.name||'Error');}
+    }catch(e){if(room===owner&&generation===connectGeneration20261015)lastPublishError20261015='video_publish_failed:'+String(e&&e.name||'Error');}
+    if(room!==owner||generation!==connectGeneration20261015)return;
     try{
       var at=stream.getAudioTracks&&stream.getAudioTracks()[0];
-      if(at&&at.readyState==='live'&&publishedAudioId!==at.id){
+      if(at&&at.readyState==='live'&&!hasLocalPublication20261015(vp,at.id)){
         var la=new LK.LocalAudioTrack(at);
         await vp.publishTrack(la,{source:LK.Track.Source.Microphone,audioPreset:(LK.AudioPresets&&LK.AudioPresets.musicHighQualityStereo)?LK.AudioPresets.musicHighQualityStereo:undefined});
+        if(room!==owner||generation!==connectGeneration20261015)return;
         publishedAudioId=at.id;
       }
     }catch(e){}

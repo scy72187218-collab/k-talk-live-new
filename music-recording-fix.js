@@ -32,7 +32,7 @@
   load('room-person-layout-no-number.js?v=20260911-nonumber3');
   load('group9-approved-room.js?v=20260919-nine-touchgift1');
   load('group9-general-button.js?v=20260911-general9-3');
-  load('group9-13-camera-buttons.js?v=20260913-camera-all1');
+  load('group9-13-camera-buttons.js?v=20261015-seat-two-tap1');
   load('secret-right-controls-fix.js?v=20260913-float1');
   load('secret-camera-mic-stable.js?v=20260913-stable1');
   load('subscriber-right-controls-fix.js?v=20260913-float1');

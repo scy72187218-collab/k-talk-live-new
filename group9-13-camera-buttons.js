@@ -129,7 +129,7 @@
 (function(){
   if(document.querySelector('script[data-kt-inside-av="1"]'))return;
   var s=document.createElement('script');
-  s.src='room-inside-camera-mic.js?v=20260913-inside2';
+  s.src='room-inside-camera-mic.js?v=20261015-seat-two-tap1';
   s.async=false;
   s.setAttribute('data-kt-inside-av','1');
   document.head.appendChild(s);

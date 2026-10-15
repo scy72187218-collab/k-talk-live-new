@@ -369,8 +369,9 @@
       tile.classList.toggle('kt-av-self-only',!manager&&own);
       var move=box.querySelector('.kt-inside-move-seat');
       if(move){
-        move.style.setProperty('display',manager?'grid':'none','important');
-        move.disabled=!manager;
+        var canMove=manager||!!(window.ktCanDragSeat20261015&&window.ktCanDragSeat20261015(tile));
+        move.style.setProperty('display',canMove?'grid':'none','important');
+        move.disabled=!canMove;
       }
       var key=box.querySelector('.kt-inside-manager-key');
       if(manager){
@@ -395,7 +396,7 @@
     if(!tile)return;
     var manager=isManager();
     if(btn.classList.contains('kt-inside-move-seat')){
-      if(manager)return;
+      if(manager||(window.ktCanDragSeat20261015&&window.ktCanDragSeat20261015(tile)))return;
       try{e.preventDefault();e.stopImmediatePropagation();}catch(err){}
       return;
     }
@@ -418,7 +419,7 @@
       var r=oldGuide.apply(this,arguments);
       setTimeout(function(){
         var t=document.querySelector('.kt-room-av-guide small');
-        if(t)t.textContent='9명방 · 13명방 · 구독자방 · 비밀방에서 호스트·운영진은 🔑 관리 권한으로 게스트 카메라·마이크 잠금/해제와 자리 이동을 관리합니다. 게스트는 본인 화면의 카메라·마이크만 켜고 끌 수 있으며 자리 이동은 할 수 없습니다. 게스트가 열어 둔 마이크는 호스트·운영진에게 들립니다.';
+        if(t)t.textContent='9명방 · 13명방 · 구독자방 · 비밀방에서 호스트·운영진은 🔑 관리 권한으로 게스트 카메라·마이크 잠금/해제와 자리 이동을 관리합니다. 게스트는 본인 화면의 카메라·마이크를 켜고 끌 수 있습니다. 호스트와 승인받은 게스트는 자리 이동 표시를 누른 뒤 옮길 사람과 목적지를 차례로 누르면 됩니다. 게스트가 열어 둔 마이크는 호스트·운영진에게 들립니다.';
       },0);
       return r;
     };
