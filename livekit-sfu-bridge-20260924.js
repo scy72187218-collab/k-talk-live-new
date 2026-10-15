@@ -557,7 +557,18 @@
     clearRoomRefs();
     if(old){try{await old.disconnect(false);}catch(e){}}
   }
-  async function ensureRoom(hostId,role,runId){
+  var roomConnectFlight20261015=null;
+  function ensureRoom(hostId,role,runId){
+    var key=String(hostId||'').trim();
+    if(roomConnectFlight20261015&&roomConnectFlight20261015.hostId===key)return roomConnectFlight20261015.promise;
+    var flight={hostId:key,promise:null};
+    flight.promise=ensureRoomNow20261015(hostId,role,runId).finally(function(){
+      if(roomConnectFlight20261015===flight)roomConnectFlight20261015=null;
+    });
+    roomConnectFlight20261015=flight;
+    return flight.promise;
+  }
+  async function ensureRoomNow20261015(hostId,role,runId){
     hostId=String(hostId||'').trim();runId=String(runId||'').trim()||'stable';
     if(!hostId)return null;
     if(role!=='host'&&viewerExplicitlyExited20261015())return null;
