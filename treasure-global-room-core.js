@@ -64,6 +64,7 @@
       +'.kt-global-treasure-viewbadge .ico{font-size:31px!important}.kt-global-treasure-viewbadge strong{color:#ffe052!important}.kt-global-treasure-viewbadge.ready{animation:ktTreasurePulse .8s ease-in-out infinite alternate!important}'
       +'.kt-global-treasure-led{cursor:pointer!important}'
       +'@media(max-width:390px){.kt-global-treasure-alert{top:68px;font-size:12px;padding:6px 9px}.kt-global-treasure-hostbadge{width:51px!important;min-height:54px!important;right:4px!important;left:auto!important;top:4px!important}.kt-global-treasure-viewbadge{width:60px!important;min-height:66px!important;right:7px!important}}';
+    s.textContent+='#ktHostTreasureRightBadge20260927,#ktLiveTreasureZone,#ktViewerTreasureZone{visibility:hidden!important;pointer-events:none!important}';
     s.textContent+=''+
       '#ktGlobalTreasureHeaderBadge.kt-treasure-header-large{position:absolute!important;right:5px!important;left:auto!important;top:50%!important;transform:translateY(-50%)!important;width:46%!important;max-width:230px!important;min-height:58px!important;box-sizing:border-box!important;z-index:100!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:7px!important;padding:5px 7px!important;border:2px solid #ffd45b!important;border-radius:15px!important;background:linear-gradient(145deg,#482b08,#160d04)!important;color:#fff!important;box-shadow:0 0 12px #ffb00088!important;touch-action:manipulation!important;cursor:pointer!important}'+
       '#ktGlobalTreasureHeaderBadge .ico{font-size:38px!important;line-height:1!important;flex:none!important}#ktGlobalTreasureHeaderBadge .meta{display:flex!important;flex-direction:column!important;align-items:center!important;gap:2px!important;min-width:0!important}#ktGlobalTreasureHeaderBadge strong{font:950 12px/1.15 system-ui!important;color:#ffe27a!important;white-space:nowrap!important}#ktGlobalTreasureHeaderBadge time{font:950 23px/1 system-ui!important;font-variant-numeric:tabular-nums!important;color:#fff!important;white-space:nowrap!important}#ktGlobalTreasureHeaderBadge small{font:800 8px/1.15 system-ui!important;white-space:nowrap!important;color:#ffe9b0!important}'+
@@ -98,6 +99,11 @@
   }
 
   function installPublishWraps(){
+    var open=window.openTreasure;
+    if(typeof open==='function'&&!open.__ktTreasureRuleHelp20261015){
+      var wrappedOpen=function(){var r=open.apply(this,arguments);setTimeout(function(){var help=document.querySelector('.kt-treasure-help span');if(help)help.textContent='모든 방에 30분 동안 홍보됩니다. 3분 뒤 열리고, 해당 방에 입장한 사람만 30초 안에 눌러 참여할 수 있습니다. 수량은 무작위로 나누고 남은 수량은 호스트에게 돌아갑니다.';},0);return r;};
+      wrappedOpen.__ktTreasureRuleHelp20261015=true;window.openTreasure=wrappedOpen;
+    }
     var place=window.placeTreasureChest;
     if(typeof place==='function'&&!place.__ktGlobalTreasureWrapped){
       var wrapped=function(){
@@ -126,7 +132,7 @@
 
   async function fetchEvents(){
     try{
-      var path='ktalk_treasure_events?select=id,local_id,host_id,host_name,room_title,room_type,amount,placed_at,unlock_at,claim_close_at,active,settled&active=eq.true&order=placed_at.desc&limit=8';
+      var path='ktalk_treasure_events?select=id,local_id,host_id,host_name,room_title,room_type,amount,placed_at,unlock_at,claim_close_at,promotion_until,rules_version,active,settled&or=(active.eq.true,promotion_until.gt.'+enc(new Date().toISOString())+')&order=placed_at.desc&limit=8';
       var rows=await req(path);
       latestEvents=Array.isArray(rows)?rows:[];
     }catch(e){latestEvents=[];}
@@ -159,9 +165,10 @@
     var root=screen&&screen.querySelector('.kt-remote-live,.ktsolo-room,.ktg13-room,.ktsubscriber-room,.ktsecret-room,.ktg9-room');
     var head=root&&root.querySelector('.ktsolo-head,.ktg13-host-head,.ktg13-head,.ktsubscriber-head,.ktsecret-head,.ktg9-head,.kt-remote-top');
     var brand=head&&head.querySelector('.ktsolo-brand,.ktg13-brand,.ktsubscriber-brand,.ktsecret-brand,.ktg9-brand');
-    var available=latestEvents.filter(function(x){return x&&x.active!==false&&ms(x.claim_close_at)>now();});
+    var available=latestEvents.filter(function(x){return x&&ms(x.promotion_until||x.claim_close_at)>now();});
     var ev=available.length?available[headerEventIndex20261015%available.length]:null;
-    var countdown=ev?Math.max(0,(ms(ev.unlock_at)>now()?ms(ev.unlock_at):ms(ev.claim_close_at))-now()):0;
+    var phase=ev?(now()<ms(ev.unlock_at)?'대기':(now()<ms(ev.claim_close_at)?'참여':'홍보')):'';
+    var countdown=ev?Math.max(0,(phase==='대기'?ms(ev.unlock_at):(phase==='참여'?ms(ev.claim_close_at):ms(ev.promotion_until||ev.claim_close_at)))-now()):0;
     var old=document.getElementById('ktGlobalTreasureHeaderBadge');
     document.querySelectorAll('[data-kt-treasure-brand-hidden]').forEach(function(el){
       if(!ev||el!==brand){el.style.removeProperty('visibility');el.removeAttribute('data-kt-treasure-brand-hidden');}
@@ -174,9 +181,9 @@
     if(!b){b=document.createElement('button');b.type='button';b.id='ktGlobalTreasureHeaderBadge';}
     if(b.parentElement!==box)box.appendChild(b);
     b.className='kt-treasure-header-large'+(head?'':' is-global');
-    b.dataset.eventId=ev.id;
+    b.dataset.eventId=ev.id;b.dataset.hostId=ev.host_id;b.dataset.claimCloseAt=ev.claim_close_at;
     b.setAttribute('aria-label',String(ev.host_name||'호스트')+' 방 보물상자 '+ev.amount+'개, 남은 시간 '+fmt(countdown)+', 눌러서 입장');
-    var markup='<span class="ico" aria-hidden="true">🎁</span><span class="meta"><strong>보물상자 '+Math.max(0,parseInt(ev.amount,10)||0)+'개</strong><time>'+fmt(countdown)+'</time><small>눌러서 상자 있는 방으로</small></span>'+(available.length>1?'<span data-kt-treasure-next="1" aria-label="다음 보물상자" style="padding:8px 3px;font-size:18px">›</span>':'');
+    var markup='<span class="ico" aria-hidden="true">🎁</span><span class="meta"><strong>보물상자 '+Math.max(0,parseInt(ev.amount,10)||0)+'개</strong><time>'+phase+' '+fmt(countdown)+'</time><small>'+(phase==='홍보'?'참여 마감 · 방 구경하기':'눌러서 상자 있는 방으로')+'</small></span>'+(available.length>1?'<span data-kt-treasure-next="1" aria-label="다음 보물상자" style="padding:8px 3px;font-size:18px">›</span>':'');
     if(b.innerHTML!==markup)b.innerHTML=markup;
   }
   function paintOwnRoom(){paintHeaderTreasure20261015();}
@@ -208,7 +215,7 @@
     settling[ev.id]=true;
     try{
       await rpc('ktalk_settle_treasure',{p_event_id:ev.id});
-      var viewer='viewer_'+deviceId();
+      var viewer=String(ev.host_id)===deviceId()?deviceId():'viewer_'+deviceId();
       var out=await rpc('ktalk_treasure_my_reward',{p_event_id:ev.id,p_viewer_id:viewer});
       var row=Array.isArray(out)?out[0]:out;
       if(row&&row.settled){
@@ -227,10 +234,11 @@
 
   async function claimEvent(id){
     var ev=eventById(id);if(!ev){await fetchEvents();ev=eventById(id);}if(!ev)return;
-    if(now()>=ms(ev.claim_close_at)){alert('이 보물상자는 마감되었습니다.');return;}
+    var remote=document.querySelector('#screen .kt-remote-live'),selected=remote&&String(remote.getAttribute('data-kt-host-id')||remote.getAttribute('data-host-id')||window.__ktRemoteHostId||'');
+    if(selected!==String(ev.host_id)){await enterEvent(ev.id);return;}
+    if(now()>=ms(ev.claim_close_at)){alert('참여 시간이 끝났습니다. 남은 수량은 호스트에게 돌아갑니다.');return;}
     if(now()<ms(ev.unlock_at)){
-      try{localStorage.setItem('ktalk_treasure_waiting:'+ev.id,'1');}catch(e){}
-      alert('🎁 참여 대기 완료! 3분이 끝나면 당첨 확인이 열립니다.');
+      alert('🎁 '+fmt(ms(ev.unlock_at)-now())+' 뒤 열립니다. 열린 뒤 30초 안에 눌러 참여해 주세요.');
       return;
     }
     var p=profile(),viewer='viewer_'+deviceId();
@@ -244,7 +252,8 @@
         var delay=Math.max(600,ms(ev.claim_close_at)-now()+700);
         setTimeout(function(){settleAndReward(ev);},delay);
       }else if(row&&row.state==='waiting')alert('아직 보물상자가 열리지 않았습니다.');
-      else if(row&&row.state==='full')alert('보물상자 참여 인원이 다 찼습니다.');
+      else if(row&&row.state==='not_in_room')alert('보물상자가 있는 방에 입장한 뒤 다시 눌러 주세요.');
+      else if(row&&row.state==='full')alert('보물상자 수량이 모두 나눠졌습니다.');
       else alert('보물상자가 마감되었습니다.');
     }catch(e){}
   }
@@ -277,7 +286,7 @@
     await fetchEvents();
     latestEvents.forEach(function(ev){
       try{
-        if(now()>=ms(ev.unlock_at)&&now()<ms(ev.claim_close_at)&&
+        if(ev.rules_version!==2&&now()>=ms(ev.unlock_at)&&now()<ms(ev.claim_close_at)&&
            localStorage.getItem('ktalk_treasure_waiting:'+ev.id)==='1'&&
            localStorage.getItem('ktalk_treasure_joined:'+ev.id)!=='1'){
           localStorage.removeItem('ktalk_treasure_waiting:'+ev.id);
@@ -287,7 +296,7 @@
     });
     var expired=latestEvents.filter(function(ev){return ev&&now()>=ms(ev.claim_close_at);});
     expired.forEach(function(ev){settleAndReward(ev);});
-    latestEvents=latestEvents.filter(function(ev){return ev&&now()<ms(ev.claim_close_at);});
+    latestEvents=latestEvents.filter(function(ev){return ev&&now()<ms(ev.promotion_until||ev.claim_close_at);});
     paintHeaderTreasure20261015();
   }
 

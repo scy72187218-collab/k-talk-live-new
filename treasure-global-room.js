@@ -2,14 +2,14 @@
 (function(){
   function loadTreasureCore(){
     var s=document.createElement('script');
-    s.src='treasure-global-room-core.js?v=20261015-treasure-claim-close1';
+    s.src='treasure-global-room-core.js?v=20261015-treasure-rules-v2';
     s.async=false;
     document.head.appendChild(s);
   }
 
   function loadTreasureHostResults(){
     var s=document.createElement('script');
-    s.src='treasure-host-results.js?v=20260911-hostresults1';
+    s.src='treasure-host-results.js?v=20261015-treasure-rules-v2';
     s.async=false;
     document.head.appendChild(s);
   }
