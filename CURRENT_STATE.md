@@ -374,3 +374,7 @@ Owner screenshot identifies lower red broadcast list covering preview entry. Hid
 
 ## 2026-10-15 smaller feed entry and follow action
 Owner requests 라이브 시청 about half width and replacing 다시 보기 with 팔로우. Inline entry uses46% maximum width, smaller13px text/padding; follow uses existing ktBindPersonFollowMenu20261015 after card insertion and exact catalog host_id, self/status/toggle/reward paths unchanged. Binder late load retries on installer, bound once per card; no real follow sent during tests. Removed obsolete preview retry state and adapted connection message. No preview transport, room approval/access/layout/finances changes. Existing actual moving preview connection report remains under observation.
+
+
+## 2026-10-15 broadcast topic beside feed host name
+Owner requests descriptive title such as 노래 방송/소통 beside 태권1 at top. Live preview header now shows catalog title beside host name, readable wrapping/overflow protection, textContent only. Existing liveTitle preparation input retained when ktStartLiveRoomNow starts (blank/default still room-name fallback); no room type/count changes. Existing card title updates from subsequent catalog without replacing card/videos or reconnecting. No new metadata storage, approval, transport or financial changes. Existing bottom title retained. Mock title rendering/update/input preservation and syntax checked; actual phone title acceptance pending.

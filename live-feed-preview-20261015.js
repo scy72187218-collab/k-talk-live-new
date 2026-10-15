@@ -78,7 +78,9 @@
     var grid=document.createElement('div');grid.className='ktlf-grid';
     var top=document.createElement('div');top.className='ktlf-top';
     var badge=document.createElement('b');badge.textContent='● LIVE';var name=document.createElement('span');name.textContent=card.dataset.hostName;
-    top.appendChild(badge);top.appendChild(name);
+    name.className='ktlf-host-name';
+    var heading=document.createElement('span');heading.className='ktlf-heading';heading.textContent=String(room.title||room.room_name||'실시간 방송');heading.setAttribute('title',heading.textContent);
+    top.appendChild(badge);top.appendChild(name);top.appendChild(heading);
     var bottom=document.createElement('div');bottom.className='ktlf-bottom';
     var title=document.createElement('strong');title.textContent=String(room.title||room.room_name||'실시간 방송');
     var message=document.createElement('p');message.className='ktlf-status';message.textContent=canPreview(room)?'실시간 방송 미리보기':'입장 조건 확인 후 시청할 수 있습니다.';
@@ -95,6 +97,7 @@
     var s=document.createElement('style');s.id='ktLiveFeedPreviewStyle20261015';
     s.textContent='.kt-live-feed-preview{height:calc(100dvh - 78px);min-height:520px;position:relative;scroll-snap-align:start;overflow:hidden;background:#09090d;color:#fff}.kt-live-feed-preview .ktlf-poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.45}.kt-live-feed-preview .ktlf-grid{position:absolute;inset:0;display:grid;grid-template-columns:1fr;grid-template-rows:1fr;gap:4px}.kt-live-feed-preview .ktlf-grid.multiple{inset:75px 8px 170px;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:minmax(0,1fr);grid-template-rows:none}.kt-live-feed-preview .ktlf-cell{min-width:0;min-height:0;position:relative;overflow:hidden;background:#101015;border-radius:10px}.kt-live-feed-preview .ktlf-cell video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1);filter:none}.kt-live-feed-preview .ktlf-cell>span{position:absolute;left:6px;bottom:6px;max-width:90%;font-size:11px;text-shadow:0 1px 4px #000;background:#0008;border-radius:8px;padding:2px 5px}.kt-live-feed-preview .ktlf-top{position:absolute;top:18px;left:14px;right:14px;display:flex;align-items:center;gap:10px;text-shadow:0 1px 4px #000}.kt-live-feed-preview .ktlf-top b{background:#ed2057;padding:6px 10px;border-radius:8px;font-size:14px}.kt-live-feed-preview .ktlf-top span{font-weight:800}.kt-live-feed-preview .ktlf-bottom{position:absolute;left:14px;right:14px;bottom:22px;padding:20px 12px 12px;border-radius:18px;background:linear-gradient(transparent,#000c 35%);text-shadow:0 1px 4px #000}.kt-live-feed-preview .ktlf-status{font-size:13px;line-height:1.4;min-height:18px}.kt-live-feed-preview .ktlf-buttons{display:flex;gap:10px}.kt-live-feed-preview button{border:0;border-radius:999px;padding:12px 18px;font-size:15px;font-weight:800;color:#fff;touch-action:manipulation}.kt-live-feed-preview .ktlf-enter{background:#ed2057;flex:0 0 46%;max-width:46%;padding:9px 10px;font-size:13px}.kt-live-feed-preview .ktlf-follow{background:#333;padding:9px 12px;font-size:13px}.kt-live-feed-preview .ktlf-follow.following{background:#265746}.kt-live-feed-preview .ktlf-follow:disabled{opacity:.6}.kt-live-feed-preview [hidden]{display:none!important}';
     s.textContent+='body.kt-live-feed-cards #ktFollowLiveStrip{display:none!important}';
+    s.textContent+='.kt-live-feed-preview .ktlf-top b{flex-shrink:0}.kt-live-feed-preview .ktlf-host-name{flex:0 1 auto;max-width:28%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.kt-live-feed-preview .ktlf-top .ktlf-heading{flex:1;min-width:0;max-height:3em;overflow:hidden;overflow-wrap:anywhere;font-size:14px;line-height:1.4;padding:5px 8px;border-radius:9px;background:#0009;color:#ffe589}';
     document.head.appendChild(s);
   }
   function install(){
@@ -108,7 +111,14 @@
     Array.from(sc.querySelectorAll('[data-kt-live-feed-host]')).forEach(function(card){if(!ids.has(card.dataset.ktLiveFeedHost)){if(card===active)stop();card.remove();}});
     catalog.forEach(function(room,i){
       var id=String(room.host_id),exists=Array.from(sc.querySelectorAll('[data-kt-live-feed-host]')).some(function(card){return card.dataset.ktLiveFeedHost===id;});
-      if(exists)return;
+      if(exists){
+        var existing=Array.from(sc.querySelectorAll('[data-kt-live-feed-host]')).find(function(card){return card.dataset.ktLiveFeedHost===id;});
+        var text=String(room.title||room.room_name||'실시간 방송');
+        var heading=existing&&existing.querySelector('.ktlf-heading'),caption=existing&&existing.querySelector('.ktlf-bottom strong');
+        if(heading&&heading.textContent!==text){heading.textContent=text;heading.setAttribute('title',text);}
+        if(caption&&caption.textContent!==text)caption.textContent=text;
+        return;
+      }
       var card=createCard(room),anchor=originals[Math.min(i*2,originals.length-1)];
       while(anchor.nextElementSibling&&anchor.nextElementSibling.hasAttribute('data-kt-live-feed-host'))anchor=anchor.nextElementSibling;
       anchor.insertAdjacentElement('afterend',card);
