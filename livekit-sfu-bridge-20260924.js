@@ -154,7 +154,59 @@
     });
     return sdkPromise;
   }
-  async function tokenFor(hostId,identity,runId){
+  var viewerTokenCache20261015=Object.create(null);
+  function tokenFor(hostId,identity,runId){
+    if(identity!==viewerId())return fetchTokenFor20261015(hostId,identity,runId);
+    var key=cleanRoom(hostId,runId)+'|'+identity,now=Date.now();
+    Object.keys(viewerTokenCache20261015).forEach(function(k){if(viewerTokenCache20261015[k].until<=now)delete viewerTokenCache20261015[k];});
+    var old=viewerTokenCache20261015[key];if(old)return old.promise;
+    var item={until:now+45000,promise:null};
+    item.promise=fetchTokenFor20261015(hostId,identity,runId).catch(function(e){if(viewerTokenCache20261015[key]===item)delete viewerTokenCache20261015[key];throw e;});
+    viewerTokenCache20261015[key]=item;
+    var keys=Object.keys(viewerTokenCache20261015);while(keys.length>3)delete viewerTokenCache20261015[keys.shift()];
+    return item.promise;
+  }
+  function newSfuRoom20261015(LK){
+    return new LK.Room({
+      adaptiveStream:{pixelDensity:'screen',pauseVideoInBackground:true},
+      singlePeerConnection:false,dynacast:true,disconnectOnPageLeave:false,stopLocalTrackOnUnpublish:false
+    });
+  }
+  var preparedViewerRoom20261015=null;
+  window.ktPrewarmSfuViewer20261015=function(hostId){
+    hostId=String(hostId||'').trim();
+    if(!hostId||document.hidden||isHostRole()||document.querySelector('#screen .kt-remote-live'))return Promise.resolve(null);
+    var old=preparedViewerRoom20261015;
+    if(old&&old.hostId===hostId&&Date.now()-old.at<40000)return old.promise;
+    if(old&&old.room){try{var close=old.room.disconnect(false);if(close&&close.catch)close.catch(function(){});}catch(e){}}
+    var entry={hostId:hostId,at:Date.now(),room:null,auth:null,promise:null};preparedViewerRoom20261015=entry;
+    entry.promise=Promise.all([ensureSdk(),tokenFor(hostId,viewerId(),'stable')]).then(function(values){
+      if(preparedViewerRoom20261015!==entry)return null;
+      entry.auth=values[1];entry.room=newSfuRoom20261015(values[0]);
+      // DNS/TLS/region preparation only: no connect, camera, microphone or approval.
+      var p=entry.room.prepareConnection(entry.auth.url,entry.auth.token);
+      if(p&&p.catch)p.catch(function(){});
+      return entry.room;
+    }).catch(function(){if(preparedViewerRoom20261015===entry)preparedViewerRoom20261015=null;return null;});
+    return entry.promise;
+  };
+  function prewarmVisibleViewer20261015(){
+    if(document.hidden||isHostRole()||document.querySelector('#screen .kt-remote-live'))return;
+    try{
+      var card=Array.from(document.querySelectorAll('.ktvl-live[data-host],.kt-live-card[data-host],.kt-live-list-enter[data-host]')).find(function(el){
+        var r=el.getBoundingClientRect(),cs=getComputedStyle(el);
+        return r.width>0&&r.height>0&&r.bottom>0&&r.top<window.innerHeight&&cs.visibility!=='hidden'&&cs.display!=='none';
+      });
+      if(card)window.ktPrewarmSfuViewer20261015(card.getAttribute('data-host'));
+    }catch(e){}
+  }
+  ['pointerdown','focusin'].forEach(function(name){document.addEventListener(name,function(e){
+    try{
+      var card=e.target&&e.target.closest&&e.target.closest('.ktvl-live[data-host],.kt-live-card[data-host],.kt-live-list-enter[data-host]');
+      if(card)window.ktPrewarmSfuViewer20261015(card.getAttribute('data-host'));
+    }catch(z){}
+  },true);});
+  async function fetchTokenFor20261015(hostId,identity,runId){
     var q='?room='+encodeURIComponent(cleanRoom(hostId,runId))+
       '&identity='+encodeURIComponent(identity)+
       '&name='+encodeURIComponent(profileName())+
@@ -623,13 +675,10 @@
       var previousRoom=room;room=null;
       if(previousRoom){try{var closing=previousRoom.disconnect(false);if(closing&&closing.catch)closing.catch(function(){});}catch(e){}}
       clearRoomRefs();
-      var r=new LK.Room({
-        adaptiveStream:{pixelDensity:'screen',pauseVideoInBackground:true},
-        singlePeerConnection:false,
-        dynacast:true,
-        disconnectOnPageLeave:false,
-        stopLocalTrackOnUnpublish:false
-      });
+      var prepared=preparedViewerRoom20261015;
+      var usePrepared=attemptRole!=='host'&&prepared&&prepared.hostId===hostId&&prepared.auth===auth&&prepared.room&&Date.now()-prepared.at<40000;
+      var r=usePrepared?prepared.room:newSfuRoom20261015(LK);
+      if(usePrepared)preparedViewerRoom20261015=null;
       room=r;
       r.on(LK.RoomEvent.TrackSubscribed,function(track,publication,participant){
         if(room!==r||attemptGeneration!==connectGeneration20261015)return;
@@ -705,6 +754,7 @@
       return r;
     }catch(e){
       if(attemptGeneration!==connectGeneration20261015)return null;
+      delete viewerTokenCache20261015[cleanRoom(hostId,runId)+'|'+identity];
       connecting=false;
       if(currentRole==='host'){hostFailureCount++;hostRetryAt=Date.now()+Math.min(30000,1000*Math.pow(2,Math.min(hostFailureCount-1,5)));}
       setState({connected:false,connecting:false,lastError:String(e&&e.message||e)});
@@ -787,6 +837,7 @@
   window.addEventListener('pagehide',releaseHostWake20261015);
 
   async function hostTick(){
+    prewarmVisibleViewer20261015();
     maintainHostWake20261015();
     if(!isHostRole()&&viewerExplicitlyExited20261015())return;
     if(!isHostRole()){
