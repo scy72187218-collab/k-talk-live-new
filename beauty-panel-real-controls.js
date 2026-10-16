@@ -40,6 +40,9 @@
     var sep=Math.max(0,warm-50)*0.0024;
     var hue=Math.min(0,(50-warm)*0.10);
     var blur=Math.max(0,(soft-1))*0.0045;
+    var creator=document.getElementById('creator');
+    var videoMode=creator&&!creator.classList.contains('live-prep-open');
+    if(videoMode&&soft>1){b+=.012;c-=.025;s-=.010;blur+=.28;}
     return 'brightness('+b.toFixed(3)+') contrast('+c.toFixed(3)+') saturate('+s.toFixed(3)+') sepia('+sep.toFixed(3)+') hue-rotate('+hue.toFixed(1)+'deg) blur('+blur.toFixed(2)+'px)';
   }
   function apply(){
@@ -152,6 +155,7 @@
       +'#sheet.kt-real-beauty-sheet .kt-real-beauty-actions{display:grid!important;grid-template-columns:1fr 1fr 1.25fr!important;gap:7px!important;margin-top:9px!important}'
       +'#sheet.kt-real-beauty-sheet .kt-real-beauty-actions button{height:40px!important;border:0!important;border-radius:12px!important;background:#29272f!important;color:#fff!important;font-size:12px!important;font-weight:900!important}'
       +'#sheet.kt-real-beauty-sheet .kt-real-beauty-actions .primary{background:linear-gradient(135deg,#7d4cff,#c63dff)!important}'
+      +'#creator.creator.camera-on:not(.live-prep-open):not(.creator-review) video#camera{top:7%!important;bottom:7%!important;height:86%!important;object-fit:cover!important;background:#08080c!important}#creator:not(.live-prep-open){background:#08080c!important}'
       +'#creator .creator-tools .creator-tool-text[aria-label="AI 보정"]{margin-bottom:12px!important;z-index:60!important;pointer-events:auto!important;touch-action:manipulation!important}';
     document.head.appendChild(st);
   }
@@ -190,9 +194,10 @@
         beautyRAF=requestAnimationFrame(draw);
         var sw=source.videoWidth||cam.videoWidth||1280,sh=source.videoHeight||cam.videoHeight||720;
         if(!sw||!sh)return;
-        var sc=Math.max(canvas.width/sw,canvas.height/sh);
+        var frameHeight=canvas.height*.86;
+        var sc=Math.max(canvas.width/sw,frameHeight/sh);
         var dw=sw*sc,dh=sh*sc,dx=(canvas.width-dw)/2,dy=(canvas.height-dh)/2;
-        ctx.save();ctx.clearRect(0,0,canvas.width,canvas.height);ctx.filter=filterString();
+        ctx.save();ctx.filter='none';ctx.fillStyle='#08080c';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.filter=filterString();
         if(raw){ctx.translate(canvas.width,0);ctx.scale(-1,1);}
         try{ctx.drawImage(source,dx,dy,dw,dh);}catch(e){}
         ctx.restore();
