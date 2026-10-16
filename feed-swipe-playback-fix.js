@@ -53,7 +53,7 @@
     var button=document.createElement('button');button.type='button';button.className='kt-feed-sound-toggle';
     button.style.cssText='position:absolute;right:14px;top:72px;z-index:70;border:1px solid #ffffff66;border-radius:20px;background:#101019b8;color:white;padding:10px 14px;font-size:14px;font-weight:800;touch-action:manipulation';
     function label(){var on=false;try{on=sessionStorage.getItem('kt_feed_sound_enabled_20261016')==='1';}catch(e){}
-      button.textContent=on?'🔊 소리 끄기':'🔇 소리 켜기';button.setAttribute('aria-label',on?'동영상 소리 끄기':'동영상 소리 켜기');}
+      button.style.display=on?'none':'';button.textContent=on?'🔊 소리 끄기':'🔇 소리 켜기';button.setAttribute('aria-label',on?'동영상 소리 끄기':'동영상 소리 켜기');}
     button.onclick=function(e){
       e.preventDefault();e.stopPropagation();
       var on=true;try{on=sessionStorage.getItem('kt_feed_sound_enabled_20261016')!=='1';sessionStorage.setItem('kt_feed_sound_enabled_20261016',on?'1':'0');sessionStorage.setItem('kt_video_muted',on?'0':'1');sessionStorage.setItem('kt_video_volume','1');}catch(err){}
@@ -61,7 +61,7 @@
       window.__ktPageMediaStopUntil=0;v.muted=!on;v.volume=1;
       document.querySelectorAll('.kt-public-video,#homeVideo').forEach(function(other){if(other!==v)other.pause();});
       try{var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(err){}
-      document.querySelectorAll('.kt-feed-sound-toggle').forEach(function(b){b.textContent=on?'🔊 소리 끄기':'🔇 소리 켜기';b.setAttribute('aria-label',on?'동영상 소리 끄기':'동영상 소리 켜기');});
+      document.querySelectorAll('.kt-feed-sound-toggle').forEach(function(b){b.style.display=on?'none':'';b.textContent=on?'🔊 소리 끄기':'🔇 소리 켜기';b.setAttribute('aria-label',on?'동영상 소리 끄기':'동영상 소리 켜기');});
     };
     label();section.appendChild(button);
   }
