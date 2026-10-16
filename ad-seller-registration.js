@@ -103,7 +103,7 @@
 (function(){
   if(document.querySelector('script[data-kt-wifi-status]'))return;
   var s=document.createElement('script');
-  s.src='wifi-status-indicator.js?v=20260910b';
+  s.src='wifi-status-indicator.js?v=20261016-prep-title1';
   s.async=false;
   s.setAttribute('data-kt-wifi-status','1');
   document.head.appendChild(s);
@@ -143,7 +143,7 @@
 (function(){
   if(document.querySelector('script[data-kt-live-presence]'))return;
   var s=document.createElement('script');
-  s.src='live-presence.js?v=20261015-repair-not-exit1';
+  s.src='live-presence.js?v=20261016-prep-title1';
   s.async=false;
   s.setAttribute('data-kt-live-presence','1');
   s.onload=function(){
@@ -191,7 +191,7 @@
 (function(){
   if(document.querySelector('script[data-kt-live-watchdog]'))return;
   var s=document.createElement('script');
-  s.src='live-presence-watchdog.js?v=20260921-live-steady-final1';
+  s.src='live-presence-watchdog.js?v=20261016-prep-title1';
   s.async=false;
   s.setAttribute('data-kt-live-watchdog','1');
   document.head.appendChild(s);

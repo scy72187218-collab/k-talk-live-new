@@ -119,12 +119,14 @@
       type='group9';name='9명 방송';
       try{var n=document.getElementById('liveTitle');title=n?String(n.value||'').trim():'';}catch(e){}
       if(!title||title==='오늘 라이브 제목을 입력하세요'||title==='13명 방송')title='9명 방송';
-      return {type:type,name:name,title:title};
+      if(window.ktBroadcastTitle20261016)title=window.ktBroadcastTitle20261016(name);
+    return {type:type,name:name,title:title};
     }
     try{type=String((window.state&&state.liveRoomType)||'solo');name=String((window.state&&state.liveRoomName)||'1인 방송');}catch(e){}
     if(type==='group')type='group13';
     try{var t=document.getElementById('liveTitle');title=t?String(t.value||'').trim():'';}catch(e){}
     if(!title||title==='오늘 라이브 제목을 입력하세요')title=name;
+    if(window.ktBroadcastTitle20261016)title=window.ktBroadcastTitle20261016(name);
     return {type:type,name:name,title:title};
   }
   function profile(){

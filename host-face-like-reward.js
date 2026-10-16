@@ -186,14 +186,14 @@
 (function(){
   if(!document.querySelector('script[data-kt-live-presence]')){
     var s=document.createElement('script');
-    s.src='live-presence.js?v=20260913-list1';
+    s.src='live-presence.js?v=20261016-prep-title1';
     s.async=false;
     s.setAttribute('data-kt-live-presence','1');
     document.head.appendChild(s);
   }
   if(!document.querySelector('script[data-kt-live-presence-watchdog]')){
     var w=document.createElement('script');
-    w.src='live-presence-watchdog.js?v=20260913-list1';
+    w.src='live-presence-watchdog.js?v=20261016-prep-title1';
     w.async=false;
     w.setAttribute('data-kt-live-presence-watchdog','1');
     document.head.appendChild(w);

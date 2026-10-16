@@ -327,10 +327,10 @@
   }
   function ensure(){
     if(!window.__ktLivePresenceInstalled){
-      load('live-presence.js?v=20260913-ai-link1','data-kt-ai-live-presence');
+      load('live-presence.js?v=20261016-prep-title1','data-kt-ai-live-presence');
     }
     if(!window.__ktLivePresenceWatchdogInstalled){
-      load('live-presence-watchdog.js?v=20260913-ai-link1','data-kt-ai-live-watchdog');
+      load('live-presence-watchdog.js?v=20261016-prep-title1','data-kt-ai-live-watchdog');
     }
   }
   ensure();

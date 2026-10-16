@@ -21,7 +21,7 @@
   load('solo-right-dedupe.js?v=20260909-solo-right2');
   load('fanclub-restore.js?v=20260910-fanclub1');
   load('video-gift-benefit.js?v=20260910-gift30-2');
-  load('wifi-status-indicator.js?v=20260910-nettoast1');
+  load('wifi-status-indicator.js?v=20261016-prep-title1');
   load('benefit-ai-reader.js?v=20260910-ai-reader1');
   load('vocal-enhancer.js?v=20260910-vocal1');
   load('interface-recording-audio-fix.js?v=20260919-firstaudio1');
@@ -36,12 +36,12 @@
   load('secret-right-controls-fix.js?v=20260913-float1');
   load('secret-camera-mic-stable.js?v=20260913-stable1');
   load('subscriber-right-controls-fix.js?v=20260913-float1');
-  load('level-rules.js?v=20261016-owner-access1');
+  load('level-rules.js?v=20261016-prep-title1');
   load('treasure-global-room.js?v=20261015-led-notices1');
   load('message-recipient-picker.js?v=20260911-message1');
   load('host-face-like-reward.js?v=20260911-hostlike1');
   /* Live presence is loaded once by ad-seller-registration. */
-  load('live-presence-watchdog.js?v=20260921-live-steady-final1');
+  load('live-presence-watchdog.js?v=20261016-prep-title1');
 })();
 
 /* 촬영 화면의 편집효과 바로 아래 V(더보기) 버튼만 제거. 다른 버튼/기능은 건드리지 않음. */

@@ -210,7 +210,7 @@
   function loadLivePresence(){
     if(document.querySelector('script[data-kt-live-presence]'))return;
     var a=document.createElement('script');
-    a.src='live-presence.js?v=20260912-live-order2';
+    a.src='live-presence.js?v=20261016-prep-title1';
     a.async=false;
     a.setAttribute('data-kt-live-presence','1');
     a.onload=function(){

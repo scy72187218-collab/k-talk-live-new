@@ -176,6 +176,7 @@
     if(type==='group')type='group13';
     try{var t=document.getElementById('liveTitle');title=t?String(t.value||'').trim():'';}catch(e){}
     if(!title||title==='오늘 라이브 제목을 입력하세요')title=name;
+    if(window.ktBroadcastTitle20261016)title=window.ktBroadcastTitle20261016(name);
     return {type:type,name:name,title:title};
   }
   function hasLiveLocalVideo(){

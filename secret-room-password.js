@@ -3,7 +3,6 @@
   if(window.__ktSecretPasswordInstalled)return;
   window.__ktSecretPasswordInstalled=true;
   window.ktSecretChatMessages=window.ktSecretChatMessages||[];
-  var secretSetupRequested=false;
   var DEFAULT_SECRET_PASSWORD='1111';
 
   function esc(v){
@@ -42,7 +41,7 @@
   function savePassword(v){
     v=String(v||'').replace(/\D/g,'').slice(0,4);
     try{localStorage.setItem('kt_secret_room_password',v);}catch(e){}
-    if(window.state)state.liveRoomPassword=v;
+    if(window.state){state.liveRoomPassword=v;state.roomPassword=v;}
     return v;
   }
 
@@ -68,10 +67,6 @@
     var card=document.querySelector('.prep-card');
     if(!card)return null;
     var box=document.getElementById('ktSecretPasswordBox');
-    if(!secretSetupRequested){
-      if(box&&box.parentNode)box.parentNode.removeChild(box);
-      return null;
-    }
     if(!box){
       box=document.createElement('div');
       box.id='ktSecretPasswordBox';
@@ -86,20 +81,23 @@
         var er=document.getElementById('ktSecretPasswordError');if(er)er.style.display='none';
       });
       box.querySelector('#ktSecretPasswordSave').addEventListener('click',function(){
-        var v=savePassword(input.value);
+        var v=String(input.value||'').replace(/\D/g,'').slice(0,4);
+        if(v.length===4)savePassword(v);
         var er=document.getElementById('ktSecretPasswordError');
         if(er)er.style.display=v.length===4?'none':'block';
         if(v.length===4){this.textContent='저장됨';setTimeout(function(){var b=document.getElementById('ktSecretPasswordSave');if(b)b.textContent='저장';},900);}
       });
     }
-    box.classList.toggle('on',isSecretRoom()&&isSecretPrepVisible(box));
+    box.classList.toggle('on',isSecretPrepVisible(box));
     return box;
   }
 
+  window.ktRefreshSecretPrepPassword20261016=function(){return updatePrep();};
   function updatePrep(){
     var box=ensurePasswordBox();
     if(!box)return;
-    var show=isSecretRoom()&&isSecretPrepVisible(box);
+    var show=isSecretPrepVisible(box);
+    box.style.setProperty('display',show?'block':'none','important');
     box.classList.toggle('on',show);
     if(show){
       var input=document.getElementById('ktSecretPassword');
@@ -112,7 +110,6 @@
   if(typeof oldSelect==='function'){
     window.selectPrepRoom=function(el,type,name,max){
       var r=oldSelect.apply(this,arguments);
-      secretSetupRequested=(type==='password');
       if(window.state&&type==='password'){
         state.liveRoomType='password';state.liveRoomName='비밀방';state.liveRoomMax=6;
         state.liveRoomPassword=getSaved();
@@ -127,7 +124,6 @@
   if(typeof oldOpenRoomPrep==='function'){
     window.openRoomPrep=function(name,max){
       var r=oldOpenRoomPrep.apply(this,arguments);
-      secretSetupRequested=String(name||'').indexOf('비밀')>-1;
       if(String(name||'').indexOf('비밀')>-1&&window.state){
         state.liveRoomType='password';state.liveRoomName='비밀방';state.liveRoomMax=6;
         state.liveRoomPassword=getSaved();
@@ -197,28 +193,12 @@
 
   window.ktSecretMore=function(){
     showSheet('더보기',
-      '<button class="act" onclick="closeSheet();setTimeout(function(){ktSecretChangePassword();},60)">🔑 비밀번호 바꾸기</button>'
-      +'<button class="act" onclick="closeSheet();if(window.openLiveSettings)openLiveSettings()">⚙ 설정</button>'
+      '<button class="act" onclick="closeSheet();if(window.openLiveSettings)openLiveSettings()">⚙ 설정</button>'
       +'<button class="act" onclick="closeSheet();if(window.endBroadcastEarnings)endBroadcastEarnings()" style="background:linear-gradient(135deg,#d9274c,#ff4669)">■ 방송 종료</button>'
     );
   };
 
-  window.ktSecretChangePassword=function(){
-    var current=(window.state&&state.liveRoomPassword)||getSaved();
-    var unlock=prompt('현재 비밀방 비밀번호 4자리','');
-    if(unlock===null)return;
-    unlock=String(unlock).replace(/\D/g,'').slice(0,4);
-    if(unlock!==String(current||'').replace(/\D/g,'').slice(0,4)){
-      alert('현재 비밀번호가 맞지 않습니다.');
-      return;
-    }
-    var v=prompt('새 비밀방 비밀번호 4자리','');
-    if(v===null)return;
-    v=savePassword(v);
-    if(v.length!==4){alert('숫자 4자리로 입력해 주세요.');return;}
-    if(window.state){state.liveRoomPassword=v;state.roomPassword=v;}
-    alert('✅ 비밀방 비밀번호를 바꿨습니다.');
-  };
+
 
   function startSecretClock(initial){
     if(window.__ktSecretClockTimer)clearInterval(window.__ktSecretClockTimer);
@@ -334,13 +314,13 @@
         updatePrep();
         var input=document.getElementById('ktSecretPassword');
         if(input&&!input.value)input.value=getSaved();
-        var v=savePassword(input?input.value:((window.state&&state.liveRoomPassword)||getSaved()));
-        if(window.state){state.liveRoomPassword=v;state.roomPassword=v;}
+        var v=String(input?input.value:((window.state&&state.liveRoomPassword)||getSaved())).replace(/\D/g,'').slice(0,4);
         if(v.length!==4){
           var er=document.getElementById('ktSecretPasswordError');if(er)er.style.display='block';
           if(input){input.focus();input.select();}
           return;
         }
+        savePassword(v);
         renderSecretRoom();
         if(window.ktRevealPreparedHostRoom)window.ktRevealPreparedHostRoom();
         try{if(window.state)state.cameraFacing='user';}catch(e){}

@@ -4,6 +4,13 @@
   window.__ktLiveChooserGesture20261011=true;
   var opening=false, openedAt=0, roomGesture=false, roomGestureAt=0;
   var enteredTitle20261015='';
+  window.ktBroadcastTitle20261016=function(fallback){
+    var input=document.getElementById('liveTitle');
+    var v=String(window.__ktBroadcastTitle20261016||enteredTitle20261015||(input&&input.value)||'').trim();
+    return v&&v!=='오늘 라이브 제목을 입력하세요'?v:String(fallback||'방송 중');
+  };
+  window.addEventListener('kt-broadcast-ended',function(){window.__ktBroadcastTitle20261016='';});
+
   function rememberTitle20261015(e){
     var input=e.target;
     if(!input||input.id!=='liveTitle')return;
@@ -70,8 +77,14 @@
     window.ktApplyLiveChooserSelection();
     var title=document.getElementById('liveTitle');
     if(title&&enteredTitle20261015){title.value=enteredTitle20261015;title.dataset.autoRoom='0';}
+    var custom=enteredTitle20261015||String(title&&title.value||'').trim();
+    if(!custom||custom==='오늘 라이브 제목을 입력하세요')custom=choice.name;
+    window.__ktBroadcastTitle20261016=custom;
+    if(window.state)state.currentLiveRoomTitle=custom;
     if(typeof window.ktStartLiveRoomNow==='function'){
-      Promise.resolve(window.ktStartLiveRoomNow(choice.type,choice.name,choice.max)).catch(function(){});
+      var done=window.ktStartLiveRoomNow(choice.type,choice.name,choice.max);
+      if(title){title.value=custom;title.dataset.autoRoom='0';}
+      Promise.resolve(done).then(function(){if(title){title.value=custom;title.dataset.autoRoom='0';}}).catch(function(){});
     }
     return true;
   }
@@ -83,6 +96,7 @@
     var creator=document.getElementById('creator');
     if(creator)creator.classList.add('show');
     window.openTikLivePrep();
+    if(window.ktRefreshSecretPrepPassword20261016)window.ktRefreshSecretPrepPassword20261016();
   }
   window.addEventListener('pointerdown',function(e){
     opening=false;roomGesture=false;
