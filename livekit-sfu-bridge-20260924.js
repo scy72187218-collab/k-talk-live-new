@@ -727,6 +727,7 @@
       var ready=await Promise.all([ensureSdk(),tokenFor(hostId,identity,runId)]);
       if(attemptGeneration!==connectGeneration20261015||currentHostId!==hostId)return null;
       var LK=ready[0],auth=ready[1];
+      try{document.documentElement.setAttribute('data-kt-sfu-server',new URL(auth.url).origin);}catch(e){}
       var previousRoom=room;room=null;
       if(previousRoom){try{var closing=previousRoom.disconnect(false);if(closing&&closing.catch)closing.catch(function(){});}catch(e){}}
       clearRoomRefs();
