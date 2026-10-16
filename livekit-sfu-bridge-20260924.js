@@ -831,8 +831,6 @@
     });}catch(e){}
     return found;
   }
-  var localPublishedVideo20261016=null,localPublishedSource20261016=null;
-  window.ktGetLocalPublishedVideo20261016=function(){return room&&room.state==='connected'&&(currentRole==='host'||currentRole==='guest')&&localPublishedSource20261016&&localPublishedSource20261016.readyState==='live'?{track:localPublishedVideo20261016,source:localPublishedSource20261016}:null;};
   async function publishSharedStreamNow(stream){
     if(currentRole!=='host'&&viewerExplicitlyExited20261015())return;
     if(!room||room.state!=='connected'||!liveStream(stream))return;
@@ -843,7 +841,7 @@
       if(vt&&vt.readyState==='live'&&!hasLocalPublication20261015(vp,vt.id)){
         if(publishedVideoId){
           try{
-            vp.trackPublications.forEach(function(pub){if(pub.track&&pub.track.mediaStreamTrack&&(pub.track.mediaStreamTrack.id===publishedVideoId||pub.track===localPublishedVideo20261016))vp.unpublishTrack(pub.track,false);});
+            vp.trackPublications.forEach(function(pub){if(pub.track&&pub.track.mediaStreamTrack&&pub.track.mediaStreamTrack.id===publishedVideoId)vp.unpublishTrack(pub.track,false);});
           }catch(e){}
         }
         var lv=new LK.LocalVideoTrack(vt);
@@ -858,8 +856,6 @@
           ];
         }
         await vp.publishTrack(lv,options);
-        localPublishedVideo20261016=lv;localPublishedSource20261016=vt;
-        if(window.ktApplyLiveBackgroundToTrack20261016)window.ktApplyLiveBackgroundToTrack20261016(lv,vt).catch(function(){});
         if(room!==owner||generation!==connectGeneration20261015)return;
         publishedVideoId=vt.id;lastPublishError20261015='';
       }

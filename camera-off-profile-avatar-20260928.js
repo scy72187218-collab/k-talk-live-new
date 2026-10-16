@@ -10,10 +10,52 @@
   var states={};
   var polling=false;
   var CHOICES=[
-    {id:'female1',photo:'default-korean-woman-20261016.png',label:'한국 여성',bg:'linear-gradient(145deg,#ffd9ea,#f4b6d0)'},
-    {id:'male1',photo:'default-korean-man-20261016.png',label:'한국 남성',bg:'linear-gradient(145deg,#d9e7ff,#a8c2ee)'},
-    {id:'stage',photo:'live-background-stage-20261016.jpg',label:'배경 화면',bg:'linear-gradient(145deg,#17213d,#5c3f82)'}
-  ];
+  {
+    "id": "female1",
+    "photo": "default-korean-woman-20261016.png",
+    "label": "한국 여성"
+  },
+  {
+    "id": "male1",
+    "photo": "default-korean-man-20261016.png",
+    "label": "한국 남성"
+  },
+  {
+    "id": "dog",
+    "photo": "default-animal-dog-20261016.png",
+    "label": "강아지"
+  },
+  {
+    "id": "cat",
+    "photo": "default-animal-cat-20261016.png",
+    "label": "고양이"
+  },
+  {
+    "id": "tiger",
+    "photo": "default-animal-tiger-20261016.png",
+    "label": "호랑이"
+  },
+  {
+    "id": "panda",
+    "photo": "default-animal-panda-20261016.png",
+    "label": "판다"
+  },
+  {
+    "id": "car",
+    "photo": "default-scene-car-20261016.png",
+    "label": "자동차"
+  },
+  {
+    "id": "castle",
+    "photo": "default-scene-castle-20261016.png",
+    "label": "성"
+  },
+  {
+    "id": "yacht",
+    "photo": "default-scene-yacht-20261016.png",
+    "label": "요트"
+  }
+];
 
   function enc(v){return encodeURIComponent(String(v==null?'':v));}
   function headers(extra){
@@ -64,7 +106,6 @@
     input.addEventListener('change',function(){setTimeout(function(){input.remove();},0);},{once:true});input.addEventListener('cancel',function(){input.remove();},{once:true});
     input.click();
   }
-  function sceneId(){try{var id=localStorage.getItem('kt_camera_off_scene_20261016')||'';return ['stage','sea','mountain','autumn'].indexOf(id)>=0?id:'';}catch(e){return '';}}
   function choiceId(){
     try{return localStorage.getItem('kt_camera_off_choice_20260928')||'female1';}catch(e){return 'female1';}
   }
@@ -115,6 +156,7 @@
       +'.kt-camera-off-choice-picker-20260928 button b{font-size:29px!important;line-height:1!important}.kt-camera-off-choice-picker-20260928 button small{font-size:7px!important;line-height:1.1!important;text-align:center!important;color:#fff!important}'
       +'.kt-camera-off-choice-picker-20260928 button.on{border-color:#ffd75a!important;box-shadow:0 0 12px #ffd75a55!important;background:#29231a!important}';
     s.textContent+='.kt-camera-off-choice-picker-20260928{grid-template-columns:repeat(3,minmax(0,1fr))!important;max-height:70dvh!important;overflow:auto!important}.kt-camera-off-picker-head{grid-column:1/-1;display:flex;align-items:center;gap:8px}.kt-camera-off-picker-head button{height:38px!important;padding:0 10px!important}.kt-camera-off-picker-head b{font-size:12px!important}';
+    s.textContent+=".kt-camera-off-choice-picker-20260928 button.kt-camera-off-preset{position:relative!important;height:100px!important;padding:0!important;display:block!important;overflow:hidden!important}.kt-camera-off-choice-picker-20260928 .kt-camera-off-preset-image{position:absolute!important;inset:0!important;display:block!important;width:100%!important;min-width:100%!important;height:100%!important;min-height:100%!important;max-height:none!important;object-fit:cover!important;object-position:center!important;border-radius:10px!important;flex:none!important;margin:0!important}.kt-camera-off-choice-picker-20260928 button.kt-camera-off-preset small{position:absolute!important;left:0!important;right:0!important;bottom:0!important;z-index:1!important;font-size:12px!important;line-height:18px!important;padding:2px!important;background:#0009!important}.kt-camera-off-avatar-20260928 img{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;aspect-ratio:auto!important;object-fit:cover!important;object-position:center!important;border-radius:0!important;border:0!important;box-shadow:none!important;max-width:none!important;max-height:none!important}.kt-camera-off-avatar-20260928 small{position:absolute!important;bottom:3px!important;left:3px!important;z-index:1!important}.kt-camera-off-avatar-20260928:after{content:none!important}";
     document.head.appendChild(s);
   }
 
@@ -164,7 +206,6 @@
           old.className='kt-camera-off-avatar-20260928';
           tile.appendChild(old);
         }
-        var scene=String(st.scene||'');if(['stage','sea','mountain','autumn'].indexOf(scene)>=0)old.style.setProperty('background','url(live-background-'+scene+'-20261016.jpg) center / cover','important');else old.style.removeProperty('background');
         var html=avatarHtml(st.name||name,(id===self?photo:st.photo||''),id===self,st.choice||'female1');if(old.innerHTML!==html)old.innerHTML=html;
       }else if(old){
         old.remove();
@@ -176,7 +217,7 @@
     var host=currentHost(),participant=selfParticipant();
     if(!participant)return;
     choice=choice||choiceId();
-    states[participant]={off:!!off,name:profileName(),choice:choice,scene:sceneId(),photo:off&&choice==='profile'?safePhoto(profilePhoto()):'',at:Date.now()};
+    states[participant]={off:!!off,name:profileName(),choice:choice,photo:off&&choice==='profile'?safePhoto(profilePhoto()):'',at:Date.now()};
     render();
     if(!host)return;
     try{
@@ -187,7 +228,7 @@
           host_id:host,
           sender_id:'camera:'+participant,
           sender_name:profileName(),
-          message:JSON.stringify({participant:participant,off:!!off,name:profileName(),choice:choice,scene:sceneId(),photo:off&&choice==='profile'?safePhoto(profilePhoto()):'',at:Date.now()}),
+          message:JSON.stringify({participant:participant,off:!!off,name:profileName(),choice:choice,photo:off&&choice==='profile'?safePhoto(profilePhoto()):'',at:Date.now()}),
           message_type:'camera_state'
         })
       });
@@ -210,16 +251,12 @@
     var status=document.createElement('small');status.setAttribute('data-photo-status','');status.style.gridColumn='1 / -1';p.appendChild(status);
     var own=document.createElement('button');own.type='button';own.textContent='내 프로필 사진';own.onclick=function(){var photo=String(profile().photo||'');if(!photo){pickerStatus('등록된 프로필 사진이 없습니다. 사진첩에서 골라 주세요.');return;}preparePhoto(photo);};p.appendChild(own);
     var gallery=document.createElement('button');gallery.type='button';gallery.textContent='사진첩에서 고르기';gallery.onclick=pickPhoto;p.appendChild(gallery);
-    var liveBg=document.createElement('button');liveBg.type='button';liveBg.textContent='카메라 켠 상태 뒷배경';liveBg.onclick=function(){closePicker();if(window.ktOpenLiveBackground20261016)window.ktOpenLiveBackground20261016();};p.appendChild(liveBg);
-    var sceneTitle=document.createElement('b');sceneTitle.textContent='사진 뒤 배경';sceneTitle.style.gridColumn='1 / -1';p.appendChild(sceneTitle);
-    ['stage','sea','mountain','autumn'].forEach(function(id,i){var b=document.createElement('button');b.type='button';b.textContent=['무대','바다','산','가을'][i];b.style.setProperty('background','url(live-background-'+id+'-20261016.jpg) center / cover','important');b.onclick=function(){try{localStorage.setItem('kt_camera_off_scene_20261016',id);}catch(e){}sendState(true,choiceId());closePicker();};p.appendChild(b);});
-    var clearScene=document.createElement('button');clearScene.type='button';clearScene.textContent='사진 배경 끄기';clearScene.onclick=function(){try{localStorage.removeItem('kt_camera_off_scene_20261016');}catch(e){}sendState(true,choiceId());closePicker();};p.appendChild(clearScene);
     var current=choiceId();
     CHOICES.forEach(function(ch){
       var b=document.createElement('button');
       b.type='button';
-      b.className=ch.id===current?'on':'';
-      b.innerHTML='<img src="'+ch.photo+'" alt="'+ch.label+'" style="width:44px;height:44px;object-fit:cover;border-radius:50%"><small>'+ch.label+'</small>';
+      b.className='kt-camera-off-preset'+(ch.id===current?' on':'');
+      b.innerHTML='<img src="'+ch.photo+'" alt="'+ch.label+'" class="kt-camera-off-preset-image" loading="lazy" decoding="async"><small>'+ch.label+'</small>';
       b.onclick=function(e){
         try{e.preventDefault();e.stopPropagation();}catch(_e){}
         try{localStorage.setItem('kt_camera_off_choice_20260928',ch.id);}catch(_e){}
@@ -262,7 +299,7 @@
             if(!id||latest[id])return;
             latest[id]=1;
             if(states[id]&&Number(states[id].at||0)>Number(d.at||0))return;
-            states[id]={off:!!d.off,name:String(d.name||row.sender_name||'회원'),choice:String(d.choice||'female1'),scene:String(d.scene||''),photo:safePhoto(d.photo||''),at:Number(d.at||0)};
+            states[id]={off:!!d.off,name:String(d.name||row.sender_name||'회원'),choice:String(d.choice||'female1'),photo:safePhoto(d.photo||''),at:Number(d.at||0)};
           }catch(e){}
         });
       }
