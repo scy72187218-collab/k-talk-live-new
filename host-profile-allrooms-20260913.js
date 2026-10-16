@@ -225,7 +225,7 @@
       headers:{apikey:c.key,Authorization:'Bearer '+c.key,'Content-Type':'application/json','x-ktalk-user-id':currentViewerId()},
       body:JSON.stringify(body||{})
     });
-    if(!r.ok)throw new Error('follow '+r.status);
+    if(!r.ok){var errorText=await r.text();throw new Error(errorText.indexOf('KT_FOLLOW_ROSE_INSUFFICIENT')>=0?'KT_FOLLOW_ROSE_INSUFFICIENT':'follow '+r.status);}
     var t=await r.text();
     return t?JSON.parse(t):null;
   }
@@ -306,7 +306,7 @@
   function showRoseToast(name){
     var old=document.querySelector('.kt-follow-rose-toast');if(old)old.remove();
     var d=document.createElement('div');d.className='kt-follow-rose-toast';
-    d.textContent='🌹 회사에서 '+(name||'상대방')+'님에게 장미 1송이를 지급했습니다.';
+    d.textContent='🌹 내 장미에서 '+(name||'상대방')+'님에게 장미 1송이를 보냈습니다.';
     document.body.appendChild(d);
     setTimeout(function(){if(d&&d.parentNode)d.remove();},2400);
   }
@@ -362,11 +362,11 @@
         btn.textContent=row.now_following?'✓ 팔로잉':'+ 팔로우';
         btn.dataset.following=row.now_following?'1':'0';
         saveFollowedMember20260928(person,!!row.now_following);
-        if(row.reward_granted)showRoseToast(person.name);
+        if(row.reward_granted){showRoseToast(person.name);if(window.ktRefreshGiftRoseBalance)window.ktRefreshGiftRoseBalance();}
       }
     }catch(e){
       btn.textContent=before;
-      try{alert('팔로우 연결을 다시 눌러 주세요.');}catch(x){}
+      try{alert(e&&e.message==='KT_FOLLOW_ROSE_INSUFFICIENT'?'첫 팔로우 인사에 보낼 장미 1송이가 필요합니다. 보유 장미를 확인해 주세요.':'팔로우 연결을 다시 눌러 주세요.');}catch(x){}
     }
     btn.disabled=false;
   }
@@ -408,7 +408,7 @@
           +'<div class="kt-live-profile-stat"><b>'+Number(person.likes||0).toLocaleString('ko-KR')+'</b><span>좋아요</span></div>'
         +'</div>'
         +'<button type="button" class="kt-live-profile-follow"'+(self?' data-self="1" disabled':'')+'>'+(self?'내 프로필':'팔로우')+'</button>'
-        +'<div class="kt-live-profile-note">처음 팔로우가 성립하면 회사에서 이 사람에게 🌹 장미 1송이를 1회 지급합니다.</div>'
+        +'<div class="kt-live-profile-note">첫 팔로우 인사로 내 장미에서 🌹 1송이를 보냅니다. 같은 사람에게는 한 번만 보냅니다.</div>'
         +'<div class="kt-live-profile-bio" style="display:'+(person.bio?'block':'none')+'">'+esc(person.bio)+'</div>'
       +'</div>';
     document.body.appendChild(pop);currentCard=pop;
@@ -478,8 +478,8 @@
     box.innerHTML=''
       +'<div class="kt-live-profile-guide-title">📘 사용 방법 · 보상 · 혜택</div>'
       +'<div class="kt-live-profile-guide-item"><b>사용 방법</b><span>① 방송 중 사람의 프로필 사진을 누릅니다.<br>② 프로필에서 <strong>팔로우</strong>를 누릅니다.<br>③ 팔로잉·팔로워·좋아요와 소개글을 확인할 수 있습니다.</span></div>'
-      +'<div class="kt-live-profile-guide-item"><b>🎁 첫 팔로우 보상</b><span>처음 팔로우가 새로 성립하면 회사가 <strong>팔로우 받은 사람</strong>에게 🌹 장미 1송이를 자동 지급합니다.</span><div class="kt-live-profile-guide-reward">지급 주체: 회사 · 받는 사람: 팔로우 받은 사람 · 수량: 장미 1송이 · 횟수: 최초 1회</div></div>'
-      +'<div class="kt-live-profile-guide-item"><b>✅ 혜택 기준</b><span>팔로우하면 상대의 팔로워 수와 내 팔로잉 수에 바로 반영됩니다. 같은 두 사람 사이의 장미 보상은 최초 1회만 적용되며, 언팔 후 다시 팔로우해도 중복 지급되지 않습니다.</span></div>'
+      +'<div class="kt-live-profile-guide-item"><b>🌹 첫 팔로우 인사</b><span>첫 팔로우 때 <strong>내가 보유한 장미</strong> 1송이를 상대에게 보냅니다.</span><div class="kt-live-profile-guide-reward">보내는 사람: 팔로우한 사람 · 받는 사람: 상대 · 본인 장미 1송이 · 최초 1회</div></div>'
+      +'<div class="kt-live-profile-guide-item"><b>✅ 혜택 기준</b><span>팔로우하면 상대의 팔로워 수와 내 팔로잉 수에 바로 반영됩니다. 같은 상대에게 보내는 인사 장미는 최초 1회만 적용되며, 언팔 후 다시 팔로우해도 다시 차감되지 않습니다.</span></div>'
       +'<div class="kt-live-profile-guide-item"><b>👤 내 프로필</b><span>내 프로필에서는 팔로우 버튼이 작동하지 않으며 팔로우 보상도 지급되지 않습니다.</span></div>';
     var bio=body.querySelector('.kt-live-profile-bio');
     if(bio)body.insertBefore(box,bio);else body.appendChild(box);

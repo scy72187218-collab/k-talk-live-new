@@ -454,3 +454,7 @@ Actual token issuance test was rejected by automatic approval review because exi
 
 ## 2026-10-17 scoped host connection diagnostics
 Owner resumed only host/viewer registration and multi-viewer black-screen investigation. Add bounded non-credential diagnostic flags to existing host heartbeat: registration active/starting/end-lock/local-video/remote-viewing; transport host/local-video/signaling joined and anonymous peer states/offer-answer booleans. Only allowlisted HTTP error status exposed; no SDP, candidates, keys, identities or media included. No UI, media constraints, audio/feed, approval or financial behavior changed. Production diagnostics are not a connection fix; actual phone verification remains pending.
+
+
+## 2026-10-17 Follow greeting and floating hearts
+User authorized first follow to send one owned rose from follower to target. Atomic transfer replaces free company mint; per-pair reward history retained, no repeat charge/refund on refollow. Insufficient funds abort transaction with UI message. Legacy return column retained. Existing header-based identity unchanged. Rollback-only fixtures passed transfer, refollow deduplication, insufficient balance rollback. Added bounded pointer-transparent floating heart feedback on photo/empty chat clicks; counting unchanged. JS syntax passed; physical phone visual verification pending. Public video/audio and room transports untouched.
