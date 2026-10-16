@@ -127,7 +127,35 @@
     return true;
   }
 
+  function openOwnSeatMenu(tile){
+    if(!isLocalHostRoom()||kindOf(tile)!=='host'||typeof window.showSheet!=='function')return false;
+    var now=Date.now();if(now-lastOpenAt<300&&lastTile===tile)return true;
+    lastOpenAt=now;lastTile=tile;
+    var panel=document.createElement('div');panel.className='kt-person-gift-menu';
+    panel.innerHTML='<div class="kt-person-gift-menu-head"><b>내 방송 · 자리 설정</b><button type="button" data-close>닫기</button></div><div class="kt-host-movie-menu-actions"></div>';
+    var actions=panel.querySelector('.kt-host-movie-menu-actions');
+    var move=document.createElement('button');move.type='button';move.textContent='자리 이동';
+    move.onclick=function(){
+      if(!window.ktCanDragSeat20261015||!window.ktCanDragSeat20261015(tile)||!window.ktBeginSeatTapMove20261015){
+        if(window.showToast)window.showToast('방송 연결 후 다시 눌러 주세요');return;
+      }
+      if(window.closeSheet)window.closeSheet();
+      window.ktBeginSeatTapMove20261015(tile);
+    };
+    if(tile.closest('.ktg13-room,.ktg9-room,.ktsubscriber-room,.ktsecret-room'))actions.appendChild(move);
+    var layout=tile.querySelector('.kt-seat-layout-choice');
+    if(layout){var button=document.createElement('button');button.type='button';button.textContent=layout.textContent;
+      button.onclick=function(){if(window.closeSheet)window.closeSheet();layout.click();};actions.appendChild(button);}
+    if(!actions.children.length)return false;
+    window.showSheet('내 방송 도구','');
+    var body=document.getElementById('sheetBody'),sheet=document.getElementById('sheet');if(!body||!sheet)return false;
+    sheet.classList.add('kt-person-gift-menu-open');body.appendChild(panel);
+    panel.querySelector('[data-close]').onclick=function(){sheet.classList.remove('kt-person-gift-menu-open');if(window.closeSheet)window.closeSheet();};
+    return true;
+  }
+
   function openGiftFor(tile){
+    if(kindOf(tile)==='host'&&isLocalHostRoom()&&!tile.closest('.kt-movie-theater'))return openOwnSeatMenu(tile);
     if(kindOf(tile)==='host'&&isLocalHostRoom()&&tile.closest('.kt-movie-theater'))return openHostMovieMenu(tile);
     if(!choose(tile))return false;
     var now=Date.now();
