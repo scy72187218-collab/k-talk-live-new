@@ -526,9 +526,18 @@
     if(!viewerCtx)return;
     var c=viewerCtx;
     try{
-      var rows=await req('ktalk_live_rooms?select=id,host_id,active,updated_at&host_id=eq.'+enc(c.hostId)+'&active=eq.true&order=started_at.desc&limit=1');
+      var rows=await req('ktalk_live_rooms?select=id,host_id,active,updated_at&host_id=eq.'+enc(c.hostId)+'&order=started_at.desc&limit=1');
       if(viewerCtx!==c)return;
       var room=rows&&rows[0];
+      /* Confirm explicit end twice; missing rows/heartbeat gaps still reconnect. */
+      if(room&&room.active===false){
+        if(!c.explicitEndSince20261016)c.explicitEndSince20261016=Date.now();
+        if(Date.now()-c.explicitEndSince20261016>=1500&&viewerCtx===c){
+          window.ktLeaveRemoteLive(false);
+        }
+        return;
+      }
+      c.explicitEndSince20261016=0;
       if(!room||Date.now()-new Date(room.updated_at).getTime()>STALE_MS){
         /* A brief LIVE-row/heartbeat miss must never eject a viewer while the
            actual room/video transport is still alive. Real broadcast-end is
