@@ -35,6 +35,7 @@
 
   function safePlay(v,wantSound){
     if(!v)return;
+    try{var choice=sessionStorage.getItem('kt_feed_sound_enabled_20261016');if(choice!==null)wantSound=choice==='1';}catch(e){}
     try{
       v.playsInline=true;
       v.setAttribute('playsinline','');
@@ -44,7 +45,8 @@
       v.muted=!wantSound;
       v.defaultMuted=!wantSound;
       var p=v.play();
-      if(p&&p.catch)p.catch(function(){
+      if(p&&p.catch)p.catch(function(err){
+        if(err&&err.name!=='NotAllowedError')return;
         try{
           /* 브라우저가 소리 자동재생을 막을 때 영상만 멈추지 않도록 무음으로 먼저 재생 */
           v.muted=true;v.defaultMuted=true;
@@ -64,7 +66,7 @@
 
   function unlock(v){
     unlocked=true;
-    try{sessionStorage.setItem('kt_video_sound_unlocked','1');}catch(e){}
+    try{sessionStorage.setItem('kt_video_sound_unlocked','1');sessionStorage.setItem('kt_feed_sound_enabled_20261016','1');}catch(e){}
     safePlay(v||current(),true);
   }
 
