@@ -15,7 +15,7 @@
          duplicate media requests can compete with the visible first frame. */
       var visible=document.getElementById('ktPublicFirstPaintVideo')||window.__ktPublicFirstPaintVideo20260924||null;
       if(!visible)return;
-      visible.muted=true;
+      visible.muted=sessionStorage.getItem('kt_feed_sound_enabled_20261016')!=='1';
       visible.defaultMuted=true;
       visible.playsInline=true;
       visible.preload='auto';
@@ -297,7 +297,7 @@
       if(!first||!lockUrl)return;
       first.dataset.ktFirstPublicStayLock20260926='1';
       first.loop=true;
-      first.muted=true;
+      first.muted=sessionStorage.getItem('kt_feed_sound_enabled_20261016')!=='1';
       first.defaultMuted=true;
       first.preload='auto';
       first.setAttribute('playsinline','');
@@ -527,7 +527,7 @@
       var first=screen.querySelector('.kt-public-video');
       if(first){
         first.preload='auto';
-        first.muted=true;
+        first.muted=sessionStorage.getItem('kt_feed_sound_enabled_20261016')!=='1';
         first.defaultMuted=true;
         first.setAttribute('playsinline','');
         first.setAttribute('webkit-playsinline','');
@@ -566,7 +566,7 @@
         var vids=[].slice.call(sc.querySelectorAll('.kt-public-video'));
         vids.slice(Math.max(1,vids.length-added)).forEach(function(v){
           v.preload='metadata';
-          v.muted=true;
+          v.muted=sessionStorage.getItem('kt_feed_sound_enabled_20261016')!=='1';
           v.defaultMuted=true;
           v.setAttribute('playsinline','');
         });
@@ -619,7 +619,7 @@
           boot.addEventListener('canplay',handoff);
           boot.addEventListener('playing',handoff);
           boot.addEventListener('error',handoff);
-          boot.muted=true;boot.defaultMuted=true;boot.preload='auto';
+          boot.muted=sessionStorage.getItem('kt_feed_sound_enabled_20261016')!=='1';boot.defaultMuted=true;boot.preload='auto';
           boot.setAttribute('fetchpriority','high');
           var bp=boot.play();if(bp&&bp.catch)bp.catch(function(){});
         }catch(e){}
