@@ -243,6 +243,13 @@
     if(!id)try{id=String(sessionStorage.getItem('kt_remote_host_id')||'');}catch(e){}
     return id;
   }
+  window.ktHostTransportDiagnostic20261017=function(){
+    var r=roomEl(),v=r&&r.querySelector('video'),s=(window.state&&window.state.stream)||(v&&v.srcObject);
+    return {host:!!r&&!document.documentElement.classList.contains('kt-remote-viewing'),localVideo:!!(s&&s.getVideoTracks&&s.getVideoTracks().some(function(t){return t.readyState==='live';})),signalJoined:!!joined,
+      peers:Object.keys(hostViewPeers).map(function(id){var e=hostViewPeers[id];return {
+        state:String(e.pc&&e.pc.connectionState||''),ice:String(e.pc&&e.pc.iceConnectionState||''),
+        offer:!!e.offer,answer:!!(e.pc&&e.pc.currentRemoteDescription)};}).slice(0,30)};
+  };
   function rtcConfig(){return window.ktGetRtcConfig?window.ktGetRtcConfig():{iceServers:[{urls:'stun:stun.cloudflare.com:3478'},{urls:'stun:stun.l.google.com:19302'}]};}
   async function ensureTurnBeforeGuestRtc20260926(){
     try{

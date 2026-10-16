@@ -164,6 +164,10 @@
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify({
           action:action,
+          diagnostics:{
+            registration:window.ktHostRegistrationDiagnostic20261017?window.ktHostRegistrationDiagnostic20261017():null,
+            transport:window.ktHostTransportDiagnostic20261017?window.ktHostTransportDiagnostic20261017():null
+          },
           host_id:hostId(),
           host_name:p.name,
           title:r.title,

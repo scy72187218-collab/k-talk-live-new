@@ -1,3 +1,15 @@
+function cleanDiagnostics(raw){
+  if(!raw||typeof raw!=='object')return null;
+  const r=raw.registration||{},t=raw.transport||{};
+  return {registration:{active:r.active===true,starting:r.starting===true,endLocked:r.endLocked===true,
+    localVideo:r.localVideo===true,remoteViewing:r.remoteViewing===true,
+    error:/^live (request|watchdog) [0-9]{3}$/.test(String(r.error||''))?r.error:''},
+    transport:{host:t.host===true,localVideo:t.localVideo===true,signalJoined:t.signalJoined===true,
+    peers:(Array.isArray(t.peers)?t.peers:[]).slice(0,30).map(p=>({
+      state:['new','connecting','connected','disconnected','failed','closed'].includes(p.state)?p.state:'',
+      ice:['new','checking','connected','completed','disconnected','failed','closed'].includes(p.ice)?p.ice:'',
+      offer:p.offer===true,answer:p.answer===true}))}};
+}
 /* Temporary LIVE signal fallback for database outages.
    Stores only short-lived LIVE beacon data in warm function memory. */
 const g=globalThis;
@@ -49,6 +61,7 @@ module.exports=async function handler(req,res){
           title:String(b.title||'방송 중').slice(0,160),
           room_type:String(b.room_type||'solo').slice(0,40),
           room_name:String(b.room_name||'방송').slice(0,80),
+          diagnostics:cleanDiagnostics(b.diagnostics),
           seen:Date.now()
         });
       }
@@ -70,7 +83,7 @@ module.exports=async function handler(req,res){
       rooms:Array.from(g.__ktLiveBeaconMemory.values()).map(x=>({
         host_id:x.host_id,run_id:x.run_id||'',run_started_at:Number(x.run_started_at||0),
         host_name:x.host_name,title:x.title,room_type:x.room_type,room_name:x.room_name,
-        updated_at:new Date(x.seen).toISOString()
+        updated_at:new Date(x.seen).toISOString(),diagnostics:x.diagnostics||null
       })),
       ended:Array.from(g.__ktLiveEndedMemory.values()).map(x=>({
         host_id:x.host_id,run_id:x.run_id||'',run_started_at:Number(x.run_started_at||0),

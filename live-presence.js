@@ -296,6 +296,11 @@
     }catch(e){}
   }
 
+  window.ktHostRegistrationDiagnostic20261017=function(){
+    return {active:!!hostActive,starting:!!hostStarting,endLocked:!!hostEndLock,
+      localVideo:hasLiveLocalVideo(),remoteViewing:document.documentElement.classList.contains('kt-remote-viewing'),
+      error:window.__ktHostRegistrationError20261017||''};
+  };
   async function startHostPresence(){
     if(hostEndLock||hostActive||hostStarting||!hasLiveLocalVideo())return;
     hostStarting=true;
@@ -305,6 +310,7 @@
       var rows=await req('ktalk_live_rooms',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify({host_id:hostId,host_name:p.name,title:r.title,room_type:r.type,room_name:r.name,active:true,started_at:stamp,updated_at:stamp,host_photo:p.photo||null})});
       hostRoomId=rows&&rows[0]?rows[0].id:'';
       if(!hostRoomId)throw new Error('host-room');
+      window.__ktHostRegistrationError20261017='';
       hostActive=true;lastActivityStamp='';hostRoomMissingSince=0;
       showActivity('🔴 방송이 시작되었습니다. 방송목록에 표시됩니다.');
       clearInterval(hostHeartbeat);clearInterval(hostSignalTimer);clearInterval(hostActivityTimer);
@@ -320,6 +326,7 @@
       renderLiveCards();
     }catch(e){
       hostActive=false;hostRoomId='';
+      window.__ktHostRegistrationError20261017=String(e&&e.message||'registration failed').slice(0,100);
     }finally{
       hostStarting=false;
     }
