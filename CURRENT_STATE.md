@@ -441,3 +441,7 @@ Manual title captured independently before start wrappers run; current broadcast
 
 ## 2026-10-16 preparation-only border styling
 Owner requested remove preparation Multi-guest button and change borders only. Removed prep button markup plus fallback removal on reinstalled prep. Scoped less-rounded teal outlines and gold selection border to compact preparation containers/buttons; existing backgrounds, labels, order and functionality unchanged. Actual guest seats/approval and live room layouts untouched.
+
+
+## 2026-10-16 modern preparation palette
+Owner approved replacing teal/gold border treatment with dark navy panels and purple/blue accents. Preparation-only thin subdued borders; selected room/listing buttons have restrained glow; live-start/password-save use coordinated gradient. Same controls, geometry, permission gates and behavior. No live room style changes.
