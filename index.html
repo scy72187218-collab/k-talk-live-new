@@ -152,14 +152,14 @@ body.kt-video-mode .bottom .plus b{width:56px!important;height:46px!important;fo
 <video id="cameraBg" autoplay playsinline muted aria-hidden="true"></video>
 <video id="camera" autoplay playsinline muted></video>
 <video id="ktCreatorPreview" class="kt-creator-preview" playsinline></video>
-<button id="ktCreatorSoundPlay" class="kt-creator-sound-play" onclick="playCreatorPreviewWithSound()">▶ 음악 재생</button>
+
 <input id="ktMyVideoInput" type="file" accept="video/*" hidden onchange="handleMyVideoPick(this)">
 <div id="ktCreatorPreviewFallback" class="kt-creator-preview-fallback"><b>촬영 완료</b><span>미리보기 대신 저장하거나 삭제할 수 있습니다.</span></div>
 <button id="ktCreatorStopTap" class="kt-creator-stop-tap" onclick="stopCreatorRecording()" aria-label="촬영 종료"><b>■</b><span>중지</span></button>
 <button id="ktCreatorConfirmTap" class="kt-creator-confirm-tap" onclick="confirmCreatorRecording()" aria-label="촬영 확인">✓<span>확인</span></button>
 <div class="kt-creator-review-actions"><button class="delete" onclick="deleteCreatorRecording()">🗑 삭제</button><button class="retake" onclick="deleteCreatorRecording();setTimeout(startCreatorRecording,150)">↻ 다시 촬영</button><button class="draft" onclick="saveCreatorDraft()">▣ 저장</button><button class="friend" onclick="shareCreatorRecording()">↗ 친구에게 보내기</button><button class="post" onclick="postCreatorRecording()">✓ 게시하기</button></div>
 <div class="shade"></div>
-<div class="creator-top"><button class="circle" onclick="closeCreator()">×</button><button class="sound" id="creatorSoundBtn" onclick="openSoundPanel()">♪ 사운드 추가</button><button class="circle creator-rotate" onclick="if(window.toggleCreatorCamera)toggleCreatorCamera()">↻</button></div>
+<div class="creator-top"><button class="circle" onclick="closeCreator()">×</button><button class="circle creator-rotate" onclick="if(window.toggleCreatorCamera)toggleCreatorCamera()">↻</button></div>
 
 <div class="creator-bottom"><div class="modes"><span class="on" onclick="selectCreatorDuration(this,600000)">10분</span><span onclick="selectCreatorDuration(this,60000)">60초</span><span onclick="selectCreatorDuration(this,15000)">15초</span><span onclick="openTikLivePrep()">라이브</span></div><div class="kt-creator-room-shortcuts"><button type="button" onclick="ktStartRoomNow('solo','1인 방송',1)">1인 방송</button>
 <button type="button" onclick="ktStartRoomNow('group13','13명 방송',13)">13명 방송</button><button type="button" onclick="ktStartRoomNow('group15','15명 방송',16)">15명 방송</button><button type="button" onclick="ktStartRoomNow('subscriber','구독자 방송',10)">구독자 방송</button><button type="button" onclick="ktStartRoomNow('password','비밀방',7)">비밀방</button></div><div class="recordrow"><button class="fx myvideo" onclick="openMyVideoPicker()" aria-label="내 동영상"><span>🎬</span><small>내 동영상</small></button><button class="record" onclick="startCreatorRecording()">촬영 시작</button></div><div class="creator-foot"><span class="on" onclick="setCreatorMode(this,'게시')">게시</span><span onclick="setCreatorMode(this,'창작하기')">창작하기</span><span onclick="openTikLivePrep()">라이브</span></div></div>
@@ -171,7 +171,7 @@ body.kt-video-mode .bottom .plus b{width:56px!important;height:46px!important;fo
 <script src="attendance-heart-host-tap-fix.js?v=20261014-touch-first-single1" data-kt-att-heart-fix="1"></script>
 <script src="live-internal-message-filter-20261014.js?v=20261014-camera-state-filter2"></script>
 <script src="chat-benefit-ai-reader.js?v=20261015-gift-completion1" data-kt-chat-benefit-ai-reader="1"></script>
-<script src="app.js?v=20261011-room-selection-pending1"></script>\n
+<script src="app.js?v=20261016-remove-creator-sounds1"></script>\n
 <script src="treasure-global-room.js?v=20261015-led-notices1"></script>
 
 <style id="ktGiftFinalInlineStyle">
@@ -1077,9 +1077,8 @@ window.openRoomPrep=function(name,max){
 <script src="subscriber-approved-room.js?v=20261015-chat-two-lines-less1"></script>
 <script src="posted-feed.js?v=20260927-rose-fallback2"></script>
 <script src="live-video-discovery.js?v=20261015-listing-details1"></script>
-<script src="music-recording-fix.js?v=20261016-prep-title1"></script>
-<script src="sound-free-vocals-20-20260915.js?v=20261006-android-playfix1515"></script>
-<script src="sound-direct-playback-20261006.js?v=20261006-one-tap-v2-1515"></script>
+<script src="music-recording-fix.js?v=20261016-remove-creator-sounds1"></script>
+<script src="sound-free-vocals-20-20260915.js?v=20261016-preserve-beauty-no-songs1"></script>
 <script src="creator-record-timer.js?v=20260907-recordtimer1"></script>
 <script src="secret-room-password.js?v=20261016-prep-title1"></script>
 <script src="group13-approved-room.js?v=20261014-current-rates1"></script>
