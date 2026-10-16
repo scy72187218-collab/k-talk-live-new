@@ -135,10 +135,10 @@
     });
     var picked=choiceById(choice||choiceId());
     if(choice==='profile'&&safePhoto(photo)){
-      return '<img src="'+photo.replace(/"/g,'&quot;')+'" alt="'+safeName+' 프로필"><small>'+safeName+'</small>';
+      return '<img src="'+photo.replace(/"/g,'&quot;')+'" alt="'+safeName+' 프로필">';
     }
-    if(picked.photo)return '<img src="'+picked.photo+'" alt="'+picked.label+'"><small>'+picked.label+'</small>';
-    return '<div class="kt-camera-off-face" style="background:'+picked.bg+'">'+picked.icon+'</div><small>'+picked.label+'</small>';
+    if(picked.photo)return '<img src="'+picked.photo+'" alt="'+picked.label+'">';
+    return '<div class="kt-camera-off-face" style="background:'+picked.bg+'">'+picked.icon+'</div>';
   }
 
   function style(){
