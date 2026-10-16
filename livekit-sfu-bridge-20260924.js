@@ -227,9 +227,9 @@
   /* Independent receive-only feed preview: never reuse or mutate the live-room owner. */
   window.ktOpenLiveFeedPreview20261015=function(hostId,callbacks){
     hostId=String(hostId||'').trim();callbacks=callbacks||{};
-    var stopped=false,previewRoom=null,deadline=null,controller=typeof AbortController!=='undefined'?new AbortController():null;
+    var stopped=false,previewRoom=null,deadline=null,firstVideoTimer=null,subscriptionTimer=null,controller=typeof AbortController!=='undefined'?new AbortController():null;
     var handle={stop:function(){
-      if(stopped)return;stopped=true;clearTimeout(deadline);if(controller)controller.abort();
+      if(stopped)return;stopped=true;clearTimeout(deadline);clearTimeout(firstVideoTimer);clearInterval(subscriptionTimer);if(controller)controller.abort();
       if(previewRoom)try{var p=previewRoom.disconnect(false);if(p&&p.catch)p.catch(function(){});}catch(e){}
     },ready:null};
     function emit(name){if(!stopped&&typeof callbacks[name]==='function')callbacks[name].apply(null,[].slice.call(arguments,1));}
@@ -241,23 +241,27 @@
           var ready=await Promise.all([ensureSdk(),fetchTokenFor20261015(hostId,identity,'stable',controller&&controller.signal)]);
           if(stopped)return;
           var LK=ready[0],auth=ready[1];
-          previewRoom=new LK.Room({adaptiveStream:true,dynacast:false,disconnectOnPageLeave:false});
+          previewRoom=new LK.Room({adaptiveStream:false,dynacast:false,disconnectOnPageLeave:false});
           function subscribed(track,pub,person){
-            if(!stopped&&track&&track.kind==='video')emit('track',track,pub,person);
+            if(!stopped&&track&&track.kind==='video'){clearTimeout(firstVideoTimer);emit('track',track,pub,person);}
           }
           previewRoom.on(LK.RoomEvent.TrackSubscribed,subscribed);
           previewRoom.on(LK.RoomEvent.TrackUnsubscribed,function(track,pub,person){emit('removed',track,pub,person);});
-          previewRoom.on(LK.RoomEvent.Disconnected,function(){emit('status','연결이 끊겼습니다. 다시 보기를 눌러 주세요.');});
+          previewRoom.on(LK.RoomEvent.Disconnected,function(){emit('error',new Error('preview_disconnected'));handle.stop();});
           previewRoom.on(LK.RoomEvent.Reconnecting,function(){emit('status','방송을 다시 연결하고 있습니다.');});
-          previewRoom.on(LK.RoomEvent.Reconnected,function(){emit('status','');});
+          previewRoom.on(LK.RoomEvent.Reconnected,function(){previewRoom.remoteParticipants.forEach(subscribePerson);emit('status','');});
           function subscribePerson(person){person.trackPublications.forEach(function(pub){
-            if(pub.kind==='video'&&pub.setSubscribed)pub.setSubscribed(true);
+            if(pub.kind==='video'&&pub.setSubscribed){if(pub.isSubscribed!==true)pub.setSubscribed(true);if(pub.setVideoQuality&&LK.VideoQuality)pub.setVideoQuality(person.identity===hostId?LK.VideoQuality.HIGH:LK.VideoQuality.LOW);}
             if(pub.track)subscribed(pub.track,pub,person);
           });}
+          previewRoom.on(LK.RoomEvent.ParticipantConnected,subscribePerson);
+          if(LK.RoomEvent.TrackSubscriptionFailed)previewRoom.on(LK.RoomEvent.TrackSubscriptionFailed,function(){emit('error',new Error('preview_subscription_failed'));handle.stop();});
           previewRoom.on(LK.RoomEvent.TrackPublished,function(pub){if(!stopped&&pub.kind==='video'&&pub.setSubscribed)pub.setSubscribed(true);});
           await previewRoom.connect(auth.url,auth.token,{autoSubscribe:false});
           if(stopped){await previewRoom.disconnect(false);return;}
           previewRoom.remoteParticipants.forEach(subscribePerson);
+          if(!Array.from(previewRoom.remoteParticipants.values()).some(function(person){return Array.from(person.trackPublications.values()).some(function(pub){return pub.kind==='video'&&pub.track;});}))firstVideoTimer=setTimeout(function(){emit('error',new Error('preview_video_wait'));handle.stop();},12000);
+          subscriptionTimer=setInterval(function(){if(!stopped&&previewRoom&&previewRoom.state==='connected')previewRoom.remoteParticipants.forEach(subscribePerson);},4000);
           emit('status','');
         })();
         await Promise.race([work,timeout]);

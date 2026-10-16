@@ -445,3 +445,8 @@ Owner requested remove preparation Multi-guest button and change borders only. R
 
 ## 2026-10-16 modern preparation palette
 Owner approved replacing teal/gold border treatment with dark navy panels and purple/blue accents. Preparation-only thin subdued borders; selected room/listing buttons have restrained glow; live-start/password-save use coordinated gradient. Same controls, geometry, permission gates and behavior. No live room style changes.
+
+
+## 2026-10-16 feed preview reconnect and subscriber gate
+Owner requested real live video in external feed and explicitly limited subscriber previews to subscribers. Existing paid-subscriber helper / prior owner exemption used; secret previews still denied. Recompute permission on catalog updates. Failed same-card previews now retry with 2/4/8/16/30-second backoff; latest authorization is checked before reconnect. Isolated receive-only SDK owner preserved, autoSubscribe false, video-only subscriptions, muted elements. Preview adaptive stream disabled to avoid visibility-pause deadlocks; host high layer/guests low; newly connected participants subscribed; publication reconciliation every 4s, first-video timeout and disconnect/subscription-failure cleanup. No capture, camera publishing, chat/approval or broadcast-room connection mutation. Existing frontend membership gate is not newly authoritative server authorization.
+Actual token issuance test was rejected by automatic approval review because existing endpoint grants publishing rights too; test stopped, no credential workaround. Edge Function inspected read-only and unchanged. Actual-device video reception is not yet verified.
