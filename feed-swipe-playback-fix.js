@@ -57,6 +57,7 @@
     button.onclick=function(e){
       e.preventDefault();e.stopPropagation();
       var on=true;try{on=sessionStorage.getItem('kt_feed_sound_enabled_20261016')!=='1';sessionStorage.setItem('kt_feed_sound_enabled_20261016',on?'1':'0');sessionStorage.setItem('kt_video_muted',on?'0':'1');sessionStorage.setItem('kt_video_volume','1');}catch(err){}
+      v=section.querySelector('.kt-public-video,#homeVideo')||v;
       window.__ktPageMediaStopUntil=0;v.muted=!on;v.volume=1;
       document.querySelectorAll('.kt-public-video,#homeVideo').forEach(function(other){if(other!==v)other.pause();});
       try{var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(err){}
@@ -226,7 +227,7 @@
     setupSoundMemory(v);
     v.addEventListener('loadeddata',function(){v.dataset.ktFeedRetry='0';clearTimeout(v.__ktFeedWatch);clearTimeout(v.__ktFeedRetryTimer);});
     v.addEventListener('canplay',function(){v.dataset.ktFeedRetry='0';clearTimeout(v.__ktFeedWatch);clearTimeout(v.__ktFeedRetryTimer);});
-    v.addEventListener('playing',function(){v.dataset.ktFeedRetry='0';clearTimeout(v.__ktFeedRetryTimer);});
+    v.addEventListener('playing',function(){restoreSound(v);v.dataset.ktFeedRetry='0';clearTimeout(v.__ktFeedRetryTimer);});
     v.addEventListener('error',function(){retryOrSkip(v);});
     v.addEventListener('stalled',function(){
       clearTimeout(v.__ktFeedStall);
