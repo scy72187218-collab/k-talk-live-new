@@ -31,6 +31,15 @@
     }catch(e){}
   }
 
+  /* Retire the removed toggle's saved mute choice once. */
+  try{
+    if(sessionStorage.getItem('kt_feed_sound_default_20261016')!=='1'){
+      sessionStorage.setItem('kt_feed_sound_default_20261016','1');
+      sessionStorage.setItem('kt_feed_sound_enabled_20261016','1');
+      sessionStorage.setItem('kt_video_muted','0');
+      sessionStorage.setItem('kt_video_volume','1');
+    }
+  }catch(e){}
   function restoreSound(v){
     if(!isPlaybackVideo(v))return;
     try{

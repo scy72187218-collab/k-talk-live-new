@@ -3,8 +3,8 @@
   if(window.__ktVideoFeedPlaybackFixInstalled)return;
   window.__ktVideoFeedPlaybackFixInstalled=true;
 
-  var unlocked=false;
-  try{unlocked=sessionStorage.getItem('kt_video_sound_unlocked')==='1';}catch(e){}
+  var unlocked=true;
+  try{unlocked=sessionStorage.getItem('kt_feed_sound_enabled_20261016')!=='0';}catch(e){}
   var observer=null;
 
   function videos(){
