@@ -1101,10 +1101,11 @@
     pc.ontrack=function(ev){
       try{window.__ktUseMemoryGuestVideo20260922=false;}catch(e){}
       pc.__ktGotRemoteTrack20260923=true;
-      viewerConnected=true;
+      /* ontrack precedes ICE/DTLS completion; keep first-answer retries alive. */
+      viewerConnected=pc.connectionState==='connected';
       window.__ktDirectRtcProgressAt=Date.now();
-      window.__ktDirectRtcPhase='connected';
-      clearViewerConnectTimer();
+      window.__ktDirectRtcPhase=viewerConnected?'connected':'track-received';
+      if(viewerConnected)clearViewerConnectTimer();
       showRemoteStream((ev.streams&&ev.streams[0])||new MediaStream([ev.track]));
 
       /* 새 영상이 화면에 붙은 뒤에만 이전 PeerConnection을 닫는다. */
@@ -1192,7 +1193,7 @@
       /* Communication speed only: repeat the SAME first answer briefly. */
       [40,120,280,560].forEach(function(ms){
         setTimeout(function(){
-          if(viewerPc!==pc||viewerSession!==session||viewerConnected)return;
+          if(viewerPc!==pc||viewerSession!==session||pc.connectionState==='connected'||pc.connectionState==='closed'||pc.connectionState==='failed')return;
           sendCriticalMedia20260926('video_answer',firstAnswer,hid);
         },ms);
       });
