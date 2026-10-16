@@ -24,7 +24,7 @@
   }
 
   function saveSound(v){
-    if(!isPlaybackVideo(v))return;
+    if(!isPlaybackVideo(v)||v.paused||document.hidden||!isVisiblePlayback(v))return;
     try{
       sessionStorage.setItem('kt_video_muted',v.muted?'1':'0');
       sessionStorage.setItem('kt_video_volume',String(typeof v.volume==='number'?v.volume:1));
@@ -36,17 +36,39 @@
     try{
       var muted=sessionStorage.getItem('kt_video_muted');
       var volume=sessionStorage.getItem('kt_video_volume');
-      if(muted!==null)v.muted=(muted==='1');
+      var enabled=sessionStorage.getItem('kt_feed_sound_enabled_20261016');
+      if(enabled!==null)v.muted=enabled!=='1';
+      else if(muted!==null)v.muted=(muted==='1');
       if(volume!==null){
         var n=Number(volume);
         if(isFinite(n))v.volume=Math.max(0,Math.min(1,n));
+        if(enabled==='1'&&v.volume===0)v.volume=1;
       }
     }catch(e){}
+  }
+
+  function installSoundButton(v){
+    var section=feedSection(v);if(!section)return;
+    if(section.querySelector('.kt-feed-sound-toggle'))return;
+    var button=document.createElement('button');button.type='button';button.className='kt-feed-sound-toggle';
+    button.style.cssText='position:absolute;right:14px;top:72px;z-index:70;border:1px solid #ffffff66;border-radius:20px;background:#101019b8;color:white;padding:10px 14px;font-size:14px;font-weight:800;touch-action:manipulation';
+    function label(){var on=false;try{on=sessionStorage.getItem('kt_feed_sound_enabled_20261016')==='1';}catch(e){}
+      button.textContent=on?'🔊 소리 끄기':'🔇 소리 켜기';button.setAttribute('aria-label',on?'동영상 소리 끄기':'동영상 소리 켜기');}
+    button.onclick=function(e){
+      e.preventDefault();e.stopPropagation();
+      var on=true;try{on=sessionStorage.getItem('kt_feed_sound_enabled_20261016')!=='1';sessionStorage.setItem('kt_feed_sound_enabled_20261016',on?'1':'0');sessionStorage.setItem('kt_video_muted',on?'0':'1');sessionStorage.setItem('kt_video_volume','1');}catch(err){}
+      window.__ktPageMediaStopUntil=0;v.muted=!on;v.volume=1;
+      document.querySelectorAll('.kt-public-video,#homeVideo').forEach(function(other){if(other!==v)other.pause();});
+      try{var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(err){}
+      document.querySelectorAll('.kt-feed-sound-toggle').forEach(function(b){b.textContent=on?'🔊 소리 끄기':'🔇 소리 켜기';b.setAttribute('aria-label',on?'동영상 소리 끄기':'동영상 소리 켜기');});
+    };
+    label();section.appendChild(button);
   }
 
   function setupSoundMemory(v){
     if(!isPlaybackVideo(v)||v.dataset.ktSoundMemory==='1')return;
     v.dataset.ktSoundMemory='1';
+    installSoundButton(v);
     restoreSound(v);
     v.addEventListener('volumechange',function(){saveSound(v);});
     v.addEventListener('play',function(){if(!v.muted)saveSound(v);});
