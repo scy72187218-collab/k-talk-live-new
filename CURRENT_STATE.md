@@ -437,3 +437,7 @@ Found transport output character cap had truncated earlier binary image uploads 
 ## 2026-10-16 preparation password always available and title preservation
 Owner requested small password input/save in unused slot immediately beside secret-room button, accessible before selecting secret. Reuse existing input/save/state/storage and four-digit validation; remove in-room password-change menu/prompt. Invalid save no longer replaces valid password. No admission/password bypass.
 Manual title captured independently before start wrappers run; current broadcast title getter used by room metadata writers (presence/watchdog/wifi/communication) so reset liveTitle DOM cannot overwrite public title with generic room label. Presence loader versions bumped without reordering scripts. Session-frozen title cleared at real broadcast end, manual draft retained. No camera, approval, money, room stage layout changes. Physical broadcast/title roundtrip not tested by creating a new live room.
+
+
+## 2026-10-16 preparation-only border styling
+Owner requested remove preparation Multi-guest button and change borders only. Removed prep button markup plus fallback removal on reinstalled prep. Scoped less-rounded teal outlines and gold selection border to compact preparation containers/buttons; existing backgrounds, labels, order and functionality unchanged. Actual guest seats/approval and live room layouts untouched.
