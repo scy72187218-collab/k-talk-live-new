@@ -256,7 +256,7 @@
       var b=document.createElement('button');
       b.type='button';
       b.className='kt-camera-off-preset'+(ch.id===current?' on':'');
-      b.innerHTML='<img src="'+ch.photo+'" alt="'+ch.label+'" class="kt-camera-off-preset-image" loading="lazy" decoding="async"><small>'+ch.label+'</small>';
+      b.innerHTML='<img src="'+ch.photo+'" alt="'+ch.label+'" class="kt-camera-off-preset-image" loading="eager" decoding="async"><small>'+ch.label+'</small>';
       b.onclick=function(e){
         try{e.preventDefault();e.stopPropagation();}catch(_e){}
         try{localStorage.setItem('kt_camera_off_choice_20260928',ch.id);}catch(_e){}
@@ -275,9 +275,10 @@
 
   window.ktCameraOffAvatarState20260928=async function(off){
     var choice=choiceId();
-    await sendState(!!off,choice);
-    if(off)setTimeout(openPicker,30);
+    // Open locally before waiting for the camera-state request.
+    if(off)openPicker();
     else closePicker();
+    await sendState(!!off,choice);
   };
 
   async function poll(){

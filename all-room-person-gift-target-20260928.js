@@ -142,7 +142,7 @@
       if(window.closeSheet)window.closeSheet();
       window.ktBeginSeatTapMove20261015(tile);
     };
-    if(tile.closest('.ktg13-room,.ktg9-room,.ktsubscriber-room,.ktsecret-room'))actions.appendChild(move);
+    if(tile.closest('.ktg13-room,.ktg9-room,.ktsubscriber-room,.ktsecret-room')){actions.appendChild(move);var hint=document.createElement('p');hint.textContent='터치로 자리 이동할 수 있습니다. 옮길 사람을 누른 뒤, 옮길 자리를 누르세요.';hint.style.cssText='margin:8px 0;padding:10px 12px;color:#ffe08a;font-size:14px;line-height:1.5;font-weight:700';panel.appendChild(hint);}
     var layout=tile.querySelector('.kt-seat-layout-choice');
     if(layout){var button=document.createElement('button');button.type='button';button.textContent=layout.textContent;
       button.onclick=function(){if(window.closeSheet)window.closeSheet();layout.click();};actions.appendChild(button);}
@@ -180,7 +180,7 @@
     panel.querySelector('.kt-person-gift-menu-open').onclick=function(){sheet.classList.remove('kt-person-gift-menu-open');if(window.openGifts)window.openGifts();};
     if(window.ktCanDragSeat20261015&&window.ktCanDragSeat20261015(tile)&&window.ktBeginSeatTapMove20261015){
       var move=document.createElement('button');move.type='button';move.textContent='↔ 자리 이동';move.className='kt-person-gift-menu-open';
-      move.onclick=function(){sheet.classList.remove('kt-person-gift-menu-open');if(window.closeSheet)window.closeSheet();window.ktBeginSeatTapMove20261015(tile);};panel.appendChild(move);
+      move.onclick=function(){sheet.classList.remove('kt-person-gift-menu-open');if(window.closeSheet)window.closeSheet();window.ktBeginSeatTapMove20261015(tile);};panel.appendChild(move);var hint=document.createElement('p');hint.textContent='터치로 자리 이동할 수 있습니다. 옮길 사람을 누른 뒤, 옮길 자리를 누르세요.';hint.style.cssText='margin:8px 0;padding:10px 12px;color:#ffe08a;font-size:14px;line-height:1.5;font-weight:700';panel.appendChild(hint);
     }
     addPersonFollow(tile,panel,face);
     var preview=face.querySelector('video');if(preview){var play=preview.play();if(play&&play.catch)play.catch(function(){});}
