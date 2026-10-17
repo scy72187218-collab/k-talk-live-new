@@ -2945,6 +2945,13 @@
   function roleTick(){
     var host=isHostRole(),hid=host?DEVICE:remoteHostId();
     var role=host?'host':(hid?'viewer':'');
+    var diagRoot=document.querySelector('#screen .kt-remote-live');
+    if(diagRoot){
+      var diag={'data-kt-signal-joined':joined?'1':'0','data-kt-video-phase':String(window.__ktDirectRtcPhase||'waiting'),
+        'data-kt-transport-role':role,'data-kt-watch-active':viewerWatchToken?'1':'0',
+        'data-kt-socket-state':String(ws?ws.readyState:-1)};
+      Object.keys(diag).forEach(function(k){if(diagRoot.getAttribute(k)!==diag[k])diagRoot.setAttribute(k,diag[k]);});
+    }
     if(!hid){
       if(!remoteHostMissingSince)remoteHostMissingSince=Date.now();
       /* 모바일 브라우저/네트워크 전환 때 host id가 한두 번 비는 현상은
