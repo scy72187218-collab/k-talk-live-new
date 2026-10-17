@@ -186,7 +186,7 @@
 (function(){
   if(!document.querySelector('script[data-kt-live-presence]')){
     var s=document.createElement('script');
-    s.src='live-presence.js?v=20261016-prep-title1';
+    s.src='live-presence.js?v=20261017-exit-reset1';
     s.async=false;
     s.setAttribute('data-kt-live-presence','1');
     document.head.appendChild(s);

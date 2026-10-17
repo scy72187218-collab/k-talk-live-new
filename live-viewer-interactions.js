@@ -263,6 +263,7 @@
     paintRemoteMessages(rows);
     await refreshMovieMode(rows);
   }
+  window.addEventListener('kt-explicit-remote-exit',function(){clearRemote();var chat=document.getElementById('ktRemoteChatList');if(chat)chat.textContent='';});
   function clearRemote(){if(typeof window.ktSetViewerMovieTheater==='function')window.ktSetViewerMovieTheater(false,remote.hostId);clearInterval(remote.timer);remote={hostId:'',viewerId:'',viewerName:'',roomStart:'',timer:null,lastLikeAt:0};}
   async function startRemote(hostId){
     clearRemote();
