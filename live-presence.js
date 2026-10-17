@@ -492,6 +492,11 @@
     var s=document.getElementById('screen');if(!s)return;
     var current=s.querySelector('.kt-remote-live');
     var host=String(room.host_id||window.__ktCurrentRemoteHostId||'');
+    if(room.room_type==='group9'&&current&&current.getAttribute('data-kt-host-id')===host&&current.querySelector('.ktg13-room[data-kt-viewer-host-copy="1"]')){
+      updateRemoteMeta20260924(room);publishRemoteRoomLayout(room);
+      try{ktAttachRemoteHostStreamEverywhere20261009(window.__ktRemoteHostStream||null);}catch(e){}
+      return;
+    }
     var thirteen=room.room_type==='group13'||(/^(?:general|group)?$/.test(String(room.room_type||''))&&/13\s*명/.test(String(room.room_name||'')));
     if(thirteen&&current&&current.getAttribute('data-kt-host-id')===host&&current.querySelector('.ktg13-room[data-kt-remote13="1"]')){
       publishRemoteRoomLayout(room);return;
