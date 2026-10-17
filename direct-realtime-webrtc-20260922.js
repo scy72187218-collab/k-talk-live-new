@@ -3045,6 +3045,17 @@
   setInterval(syncSharedApprovalSignals,100);
   setTimeout(syncSharedApprovalSignals,50);
 
+
+  function existingViewerFrameReady20261017(stream){
+    try{
+      if(!stream||!stream.getVideoTracks)return false;
+      if(!stream.getVideoTracks().some(function(t){return t.readyState==='live'&&!t.muted;}))return false;
+      return Array.from(document.querySelectorAll('#screen .kt-remote-live video')).some(function(v){
+        return v.srcObject===stream&&!v.paused&&v.readyState>=2&&v.videoWidth>0;
+      });
+    }catch(e){return false;}
+  }
+
   function ktStartRemoteHostVideoNow20261003(hid,existing){
     try{
       hid=String(hid||'').trim();
@@ -3054,7 +3065,7 @@
       var existingLive=false;
       try{
         existing=existing||window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream||window.__ktEntryHostStream20260925||null;
-        existingLive=!!(existing&&existing.getVideoTracks&&existing.getVideoTracks().some(function(t){return t&&t.readyState==='live';}));
+        existingLive=existingViewerFrameReady20261017(existing);
       }catch(_e){}
 
       /* Re-selecting the same host must keep the live frame and transport. */
