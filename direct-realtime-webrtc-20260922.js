@@ -745,9 +745,10 @@
     try{if(ws)ws.close();}catch(e){}
     ws=null;
   }
+  var reconnectAttempts20261017=0;
   function scheduleReconnect(){
     if(reconnectTimer)return;
-    reconnectTimer=setTimeout(function(){reconnectTimer=null;if(activeHostId)connect(activeHostId);},250);
+    reconnectTimer=setTimeout(function(){reconnectTimer=null;if(activeHostId)connect(activeHostId);},Math.min(8000,500*Math.pow(2,reconnectAttempts20261017++)));
   }
   function connect(hostId){
     hostId=String(hostId||'');if(!hostId)return;
@@ -756,7 +757,9 @@
     closeSocket();
     try{
       ws=new WebSocket('wss://'+REF+'.supabase.co/realtime/v1/websocket?apikey='+encodeURIComponent(KEY)+'&vsn=1.0.0');
+      var socket20261017=ws;
       ws.onopen=function(){
+        if(ws!==socket20261017)return;
         joinRef=String(seq++);
         ws.send(JSON.stringify({
           topic:topic,event:'phx_join',
@@ -770,19 +773,24 @@
         },20000);
       };
       ws.onmessage=function(ev){
+        if(ws!==socket20261017)return;
         var m=null;try{m=JSON.parse(ev.data);}catch(e){return;}
         if(!m||m.topic!==topic)return;
         if(m.event==='phx_reply'&&String(m.ref||'')===String(joinRef)){
           joined=!!(m.payload&&m.payload.status==='ok');
-          if(joined){flush();afterJoin();}
+          if(joined){reconnectAttempts20261017=0;flush();afterJoin();}
+          else{closeSocket();scheduleReconnect();}
           return;
+        }
+        if(m.event==='phx_error'||m.event==='phx_close'){
+          joined=false;closeSocket();scheduleReconnect();return;
         }
         if(m.event==='broadcast'){
           var p=m.payload||{};handleSignal(String(p.event||''),p.payload||{});
         }
       };
       ws.onerror=function(){};
-      ws.onclose=function(){joined=false;scheduleReconnect();};
+      ws.onclose=function(){if(ws!==socket20261017)return;joined=false;scheduleReconnect();};
     }catch(e){scheduleReconnect();}
   }
 
