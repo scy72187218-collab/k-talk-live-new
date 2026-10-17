@@ -718,7 +718,6 @@
     }catch(_e){}
     try{
       var rows=await req('ktalk_live_rooms?select=id,host_id,host_name,title,room_type,room_name,active,updated_at&host_id=eq.'+enc(hostId)+'&active=eq.true&order=started_at.desc&limit=1');
-      if(entryGeneration!==remoteEntryGeneration20261015)return;
       var room=rows&&rows[0];
       if(!room||Date.now()-new Date(room.updated_at).getTime()>STALE_MS){
         try{await window.ktLeaveRemoteLive(true);}catch(e){}
@@ -852,8 +851,6 @@
     /* 실제 퇴장은 서버 정리를 기다리지 않고 화면에서 먼저 즉시 빠진다.
        silent=true 내부 재연결은 기존처럼 화면 이동하지 않는다. */
     if(!silent){
-      var oldRoot=document.querySelector('#screen .kt-remote-live');
-      if(oldRoot){oldRoot.querySelectorAll('video,audio').forEach(function(v){try{v.pause();v.srcObject=null;v.removeAttribute('src');}catch(e){}});oldRoot.remove();}
       try{if(window.openBroadcastList)window.openBroadcastList();else if(window.friends)window.friends();}catch(e){}
       setTimeout(renderLiveCards,80);
     }

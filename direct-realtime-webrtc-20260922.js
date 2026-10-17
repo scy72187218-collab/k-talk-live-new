@@ -571,8 +571,6 @@
     try{closePc(viewerPc);}catch(e){}
     try{closePc(guestPc);}catch(e){}
     viewerPc=null;viewerSession='';viewerWatchToken='';viewerConnected=false;viewerIce={};
-    viewerOfferInFlight='';viewerAnswerSdp='';
-    try{window.__ktDirectHostStream20261015=null;window.__ktDirectHostId20261015='';window.__ktLastApprovedGuestHostStream=null;window.__ktEntryHostStream20260925=null;}catch(e){}
     guestPc=null;guestSession='';guestApproved=false;guestApprovedHost='';guestApprovedAt=0;guestIce={};
     requestOn=false;leaveAnnouncedHost='';guestAliveLastSent=0;
     remoteRunId='';remoteRunStartedAt=0;remoteHostMissingSince=0;
