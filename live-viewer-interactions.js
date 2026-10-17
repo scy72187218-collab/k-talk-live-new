@@ -264,7 +264,19 @@
     await refreshMovieMode(rows);
   }
   function clearRemote(){if(typeof window.ktSetViewerMovieTheater==='function')window.ktSetViewerMovieTheater(false,remote.hostId);clearInterval(remote.timer);remote={hostId:'',viewerId:'',viewerName:'',roomStart:'',timer:null,lastLikeAt:0};}
-  async function startRemote(hostId){clearRemote();var p=profile(),room=await activeRoom(hostId);remote.hostId=String(hostId||'');remote.viewerId='viewer_'+deviceId();remote.viewerName=p.name||'게스트';remote.roomStart=chatCut20261015(room&&room.started_at,window.__ktRemoteHostSessionStartedAt20260924);var start=epoch(remote.roomStart);if(start&&!guestClockStarts[remote.hostId])guestClockStarts[remote.hostId]=start;ensureRemoteUi();await refreshRemote();remote.timer=setInterval(refreshRemote,1300);}
+  async function startRemote(hostId){
+    clearRemote();
+    var p=profile(),context=remote;
+    context.hostId=String(hostId||'');context.viewerId='viewer_'+deviceId();context.viewerName=p.name||'게스트';
+    context.roomStart=chatCut20261015('',window.__ktRemoteHostSessionStartedAt20260924);
+    ensureRemoteUi();
+    context.timer=setInterval(refreshRemote,1300);
+    var room=null;try{room=await activeRoom(hostId);}catch(e){}
+    if(remote!==context)return;
+    context.roomStart=chatCut20261015(room&&room.started_at,window.__ktRemoteHostSessionStartedAt20260924);
+    var start=epoch(context.roomStart);if(start&&!guestClockStarts[context.hostId])guestClockStarts[context.hostId]=start;
+    ensureRemoteUi();refreshRemote();
+  }
 
   window.ktRemoteAttendance=function(){
     if(!remote.hostId)return Promise.resolve(false);
@@ -513,7 +525,18 @@
   function ensureHostSendWraps(){wrapHostSend('ktSoloSendChat','ktsoloChatInput');wrapHostSend('ktSubscriberSendChat','ktsubscriberChatInput');wrapHostSend('ktSecretSendChat','ktsecretChatInput');wrapHostSend('ktGroup13SendChat','ktg13ChatInput');}
 
   function installPublicWraps(){
-    var enter=window.ktEnterRemoteLive;if(typeof enter==='function'&&!enter.__ktInteractionWrapped){var wrappedEnter=async function(hostId){var r=await enter.apply(this,arguments);if(document.querySelector('.kt-remote-live'))await startRemote(hostId);return r;};wrappedEnter.__ktInteractionWrapped=true;window.ktEnterRemoteLive=wrappedEnter;}
+    var enter=window.ktEnterRemoteLive;if(typeof enter==='function'&&!enter.__ktInteractionWrapped){var wrappedEnter=async function(hostId){
+      var out=enter.apply(this,arguments),started=false,root=document.querySelector('.kt-remote-live');
+      if(root&&String(root.getAttribute('data-kt-host-id')||window.__ktRemoteHostId||'')===String(hostId||'')){
+        started=true;startRemote(hostId).catch(function(){});
+      }
+      var r=await out;
+      root=document.querySelector('.kt-remote-live');
+      if(root&&String(root.getAttribute('data-kt-host-id')||window.__ktRemoteHostId||'')===String(hostId||'')){
+        if(!started)startRemote(hostId).catch(function(){});else ensureRemoteUi();
+      }
+      return r;
+    };wrappedEnter.__ktInteractionWrapped=true;window.ktEnterRemoteLive=wrappedEnter;}
     var leave=window.ktLeaveRemoteLive;if(typeof leave==='function'&&!leave.__ktInteractionWrapped){var wrappedLeave=async function(){clearRemote();return leave.apply(this,arguments);};wrappedLeave.__ktInteractionWrapped=true;window.ktLeaveRemoteLive=wrappedLeave;}
     var gift=window.giftSend;if(typeof gift==='function'&&!gift.__ktRemoteGiftWrapped){var wrappedGift=function(name,cost,sender){var activeHost=remote.hostId,viewerId=remote.viewerId,viewerName=remote.viewerName;var outer=!window.__ktGiftSendDepth20261015;window.__ktGiftSendDepth20261015=(window.__ktGiftSendDepth20261015||0)+1;var r;try{r=gift.apply(this,arguments);}finally{window.__ktGiftSendDepth20261015--;}if(outer&&activeHost){var n=parseInt(String(cost||0).replace(/,/g,''),10)||0;postMessage(activeHost,viewerId,viewerName,'🎁 '+viewerName+'님이 '+String(name||'선물')+' '+n+'개를 선물했습니다.','gift:'+n).then(refreshRemote);}return r;};wrappedGift.__ktRemoteGiftWrapped=true;window.giftSend=wrappedGift;}
   }
