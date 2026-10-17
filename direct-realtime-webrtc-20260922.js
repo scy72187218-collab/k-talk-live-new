@@ -1087,32 +1087,6 @@
     }catch(e){closePc(pc);delete hostViewPeers[vid];}
   }
 
-
-  function promoteViewerFrame20261017(pc,stream,previousPc){
-    if(!previousPc||previousPc===pc){showRemoteStream(stream);return;}
-    var probe=document.createElement('video'),started=Date.now(),timer=null,done=false;
-    probe.muted=true;probe.defaultMuted=true;probe.autoplay=true;probe.playsInline=true;
-    probe.setAttribute('aria-hidden','true');
-    probe.style.cssText='position:fixed;left:-4px;top:-4px;width:1px;height:1px;opacity:0;pointer-events:none';
-    probe.srcObject=stream;document.body.appendChild(probe);
-    function cleanup(){if(done)return;done=true;if(timer)clearTimeout(timer);try{probe.pause();probe.srcObject=null;probe.remove();}catch(e){}}
-    function check(){
-      if(done)return;
-      if(viewerPc!==pc||!remoteHostId()||['failed','closed'].indexOf(String(pc.connectionState||''))>=0){cleanup();return;}
-      if(pc.connectionState==='connected'&&probe.readyState>=2&&probe.videoWidth>0){
-        showRemoteStream(stream);
-        cleanup();
-        // The replacement has decoded a frame; only now release the old transport.
-        setTimeout(function(){if(viewerPc===pc)closePc(previousPc);},350);
-        return;
-      }
-      if(Date.now()-started>=10000){cleanup();return;} // Keep the working old picture on timeout.
-      timer=setTimeout(check,50);
-    }
-    try{var play=probe.play();if(play&&play.catch)play.catch(function(){});}catch(e){}
-    check();
-  }
-
   async function viewerHandleOffer(p){
     if(String(p.viewer_id||'')!==viewerId())return;
     if(useSfuViewer20261015())return;
@@ -1147,9 +1121,12 @@
       window.__ktDirectRtcProgressAt=Date.now();
       window.__ktDirectRtcPhase=viewerConnected?'connected':'track-received';
       if(viewerConnected)clearViewerConnectTimer();
-      var incoming=(ev.streams&&ev.streams[0])||new MediaStream([ev.track]);
-      if(previousUsable)promoteViewerFrame20261017(pc,incoming,previousPc);
-      else showRemoteStream(incoming);
+      showRemoteStream((ev.streams&&ev.streams[0])||new MediaStream([ev.track]));
+
+      /* 새 영상이 화면에 붙은 뒤에만 이전 PeerConnection을 닫는다. */
+      if(previousPc&&previousPc!==pc){
+        setTimeout(function(){try{closePc(previousPc);}catch(e){}},350);
+      }
     };
     pc.onicecandidate=function(ev){
       if(ev.candidate)sendCriticalMedia20260926('video_ice',{host_id:hid,viewer_id:viewerId(),session_id:session,from:'viewer',candidate:ev.candidate.toJSON?ev.candidate.toJSON():ev.candidate},hid);

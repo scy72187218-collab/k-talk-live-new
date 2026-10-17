@@ -494,3 +494,7 @@ Owner reports worsened host loading and lingering comments after supposed exit. 
 
 ## 2026-10-17 owner requested restore working video baseline
 Owner rejects later speed/exit adjustments because no host faces appear and requests previous well-visible state. Restore only five runtime files (direct transport,presence,viewer interactions,loader,index) exactly from5d5a288e3148ad6965c0cef48c52d40193323bd9, the decoded-frame-preservation release followed by video100158701 showing host faces on several phones and owner improvement feedback. Reverses later early-control, retained-track guard and exit changes. Earlier films/follows/hearts/channel recovery remain. No new speed experiment included. Chat persistence reported; server history not deleted. Production readiness does not prove handset recovery; owner must reload viewer clients.
+
+
+## 2026-10-17 owner requests earlier rollback after no-video report
+Owner video104003315 still shows no host video on viewer phones after prior restoration to5d5a. Explicitly requests earlier version. Restore five runtime files exactly from b901774e0c2f704d49a44f0b2d29a4e19fd80948 (channel recovery release, before decoded-frame probe and nine metadata guard). Removes all subsequent frame-preservation/speed/early-controls/exit experiments; preserves preexisting catalog/follow/like behavior. No new fix included. This is a source restoration only; phone video recovery has NOT been confirmed. All viewer and host clients may need refreshed code before result can be assessed.
