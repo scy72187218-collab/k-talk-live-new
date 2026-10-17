@@ -153,7 +153,7 @@
     if(typeof window.ktSetViewerMovieTheater==='function')window.ktSetViewerMovieTheater(on,host,mode);
   }
 
-  function systemType(t){t=String(t||'');return t==='system'||(t==='attendance'||t.indexOf('attendance:')===0)||t==='like'||t.indexOf('gift:')===0;}
+  function systemType(t){t=String(t||'');return t==='system'||(t==='attendance'||t.indexOf('attendance:')===0)||(t==='like'||t.indexOf('like:')===0)||t.indexOf('gift:')===0;}
   function ensureStyle(){
     if(document.getElementById('ktLiveViewerInteractionStyle'))return;
     var s=document.createElement('style');s.id='ktLiveViewerInteractionStyle';
@@ -217,7 +217,7 @@
     var primary=[],memory=[];
     var path='ktalk_live_messages?select=id,sender_id,sender_name,message,message_type,created_at&host_id=eq.'+enc(hostId);
     if(start)path+='&created_at=gte.'+enc(start);
-    path+='&order=created_at.asc&limit=80';
+    path+='&order=created_at.desc&limit=300';
 
     try{
       var rows=await req(path);
@@ -250,7 +250,7 @@
       all.push(m);
     });
     all.sort(function(a,b){return (Date.parse(a&&a.created_at)||0)-(Date.parse(b&&b.created_at)||0);});
-    return all.slice(-80);
+    return all.slice(-300);
   }
   function paintRemoteMessages(rows){var box=document.getElementById('ktRemoteChatList');if(!box)return;var list=(rows||[]).filter(function(m){return !(window.ktIsInternalLiveMessage&&window.ktIsInternalLiveMessage(m.message,m.message_type));}).slice(-80);box.innerHTML=list.map(function(m){var sys=systemType(m.message_type);return '<div class="kt-remote-chat-line'+(sys?' system':'')+'"><b>'+(sys?'●':esc(m.sender_name||'게스트'))+'</b><span>'+esc(m.message||'')+'</span></div>';}).join('');box.scrollTop=box.scrollHeight;}
   async function refreshRemote(){
@@ -299,7 +299,14 @@
     await refreshRemote();
     return ok;
   };
-  window.ktRemoteLike=async function(){if(!remote.hostId)return;var now=Date.now();if(now-remote.lastLikeAt<700)return;remote.lastLikeAt=now;var root=document.querySelector('.kt-remote-live');if(root){var h=document.createElement('div');h.className='kt-remote-heart-pop';h.textContent='♥';root.appendChild(h);setTimeout(function(){if(h.parentNode)h.remove();},1250);}await postMessage(remote.hostId,remote.viewerId,remote.viewerName,'💗 '+remote.viewerName+'님이 좋아요를 눌렀습니다.','like');refreshRemote();};
+  window.ktRemoteLike=async function(){
+    if(!remote.hostId)return false;
+    var ctx=remote,id='like:'+(window.crypto&&crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,12));
+    if(window.ktFloatLikeHeart20261017)window.ktFloatLikeHeart20261017();
+    var ok=await postMessage(ctx.hostId,ctx.viewerId,ctx.viewerName,'💗 '+ctx.viewerName+'님이 좋아요를 눌렀습니다.',id);
+    if(remote===ctx)refreshRemote();
+    return ok;
+  };
   window.ktRemoteOpenGifts=function(){try{if(window.state)state.currentViewRoomTitle=remote.hostId||state.currentViewRoomTitle;}catch(e){}if(window.openGifts)window.openGifts();};
   window.ktRemoteSendOneRose=async function(){if(!remote.hostId)return;var receipt=window.ktNewLevelGiftReceipt20261015?window.ktNewLevelGiftReceipt20261015():'',levelAccount=window.ktLevelAccountKey20261015?window.ktLevelAccountKey20261015():'';var type=receipt?'gift:1:level:'+receipt:'gift:1';var ok=await postMessage(remote.hostId,remote.viewerId,remote.viewerName,'🌹 '+remote.viewerName+'님이 장미 1송이를 선물했습니다.',type);if(ok){if(receipt&&window.ktLevelCreditGiftReceipt20261015)window.ktLevelCreditGiftReceipt20261015({id:receipt,account:levelAccount,direction:'sent',count:1,createdAt:new Date().toISOString()});await refreshRemote();}};
   document.addEventListener('click',function(e){var b=e.target&&e.target.closest?e.target.closest('#ktRemoteBottom button'):null;if(!b)return;var label=(String(b.getAttribute('aria-label')||'')+' '+String(b.textContent||'')).replace(/\s+/g,'');if(label.indexOf('🌹')===-1&&label.indexOf('장미')===-1)return;e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();window.ktRemoteSendOneRose();},true);
@@ -370,6 +377,12 @@
           try{localStorage.setItem(akey,'1');}catch(e){}
           speakIfNeeded(m.message);
         }
+        markProcessed(m);return;
+      }
+      if(type.indexOf('like:')===0){
+        var key='kt_host_like_event:'+deviceId()+':'+(hostRoomStart||'live')+':'+type,done=false;
+        try{done=localStorage.getItem(key)==='1';}catch(e){}
+        if(!done){addLikeToHost();try{localStorage.setItem(key,'1');}catch(e){}}
         markProcessed(m);return;
       }
       if(type==='like'){var sender=String(m.sender_id||''),stamp=Date.parse(m.created_at||'')||0,prior=lastHostLikeBySender[sender]||0;if(!stamp||!prior||Math.abs(stamp-prior)>500){addLikeToHost();speakIfNeeded(m.message);lastHostLikeBySender[sender]=stamp;}markProcessed(m);return;}

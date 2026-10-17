@@ -221,7 +221,7 @@
     if(!duplicate){
       lastPersonLikeAt=now;lastPersonLikeTile=tile;lastPersonLikeType=e.type;
       if(isRemoteViewer()){if(typeof window.ktRemoteLike==='function')window.ktRemoteLike();}
-      else if((kind==='guest'||tile.matches('.ktsubscriber-host'))&&typeof window.addHostLike==='function'){window.__ktHostPhotoLikeTapAt=now;window.addHostLike(1);}
+      else if(typeof window.addHostLike==='function'){window.__ktHostPhotoLikeTapAt=now;window.addHostLike(1);}
     }
     return openGiftFor(tile);
   }

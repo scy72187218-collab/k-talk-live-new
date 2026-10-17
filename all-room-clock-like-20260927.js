@@ -7,7 +7,6 @@
 
 
   // Visual feedback only: existing like handlers keep ownership of counting.
-  var lastHeartTap=0;
   function floatHeart(){
     var screen=document.getElementById('screen');
     if(!screen)return;
@@ -27,15 +26,7 @@
     el.addEventListener('animationend',function(){el.remove();},{once:true});
     setTimeout(function(){el.remove();},2000);
   }
-  document.addEventListener('click',function(e){
-    var t=e.target;if(!t||!t.closest||t.closest('button,input,textarea,select,a,#sheet'))return;
-    var photo=t.closest('.kt-allhost-photo,.kt-allhost-fallback,.kt-hg-photo,.kt-hg-fallback,.kt-remote-host-photo,.ktg13-host,.ktsubscriber-host,.ktsecret-host,.ktg9-host,#ktLiveVideo,[data-kt-host-photo],.kt-guest-profile-photo,.kt-guest-profile-fallback');
-    var chat=t.closest('#ktRemoteChatList,.ktg13-chat,.ktg9-chat,.ktsolo-chat,.ktsubscriber-chat,.ktsecret-chat,.kt-sgfh-chat');
-    if(!chat){var bg=t.closest('#screen .kt-remote-live,#screen .ktsolo-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room');if(bg&&t===bg)chat=bg;}
-    var blank=chat&&(t===chat||t.matches('.ktsubscriber-chat-hint,.ktsolo-chat-hint,.ktg13-chat-hint,.ktsecret-chat-hint,.ktg9-chat-hint'));
-    if(!(photo||blank)||!document.querySelector('#screen .kt-remote-live,#screen .ktg13-room,#screen .ktg9-room,#screen .ktsolo-room,#screen .ktsubscriber-room,#screen .ktsecret-room'))return;
-    if(Date.now()-lastHeartTap<70)return;lastHeartTap=Date.now();floatHeart();
-  },true);
+  window.ktFloatLikeHeart20261017=floatHeart;
 
   var count=0;
   var originalAddHostLike=null;
@@ -142,6 +133,7 @@
     count+=step;
     saveCount();
     paint();
+    floatHeart();
     return r;
   }
 
@@ -190,37 +182,7 @@
     clock.insertAdjacentElement('afterend',b);
   }
 
-  /* 호스트 사진을 누를 때마다 시계 옆 하트 숫자 +1. 게스트 화면은 제외. */
-  document.addEventListener('touchend',function(e){
-    try{
-      if(document.documentElement.classList.contains('kt-remote-viewing')||document.querySelector('.kt-remote-live,.kt-guest-hostlike-room,.kt-prejoin-room-grid'))return;
-      var rr=room(),v=e.target&&e.target.closest?e.target.closest('video,.ktg13-host,.ktsubscriber-host,.ktsecret-host,.ktg9-host,[data-kt-host-photo]'):null;
-      if(!v||!rr)return;
-      var first=rr.querySelector('video');if(v.tagName==='VIDEO'&&first&&v!==first)return;
-      var now=Date.now();if(now-Number(window.__ktHostPhotoLikeTapAt||0)<500)return;window.__ktHostPhotoLikeTapAt=now;
-      if(typeof window.addHostLike==='function')window.addHostLike(1);else{loadCount();count+=1;saveCount();paint();}
-      setTimeout(ensure,0);
-    }catch(_e){}
-  },{capture:true,passive:true});
-
-  document.addEventListener('click',function(e){
-    try{
-      if(document.documentElement.classList.contains('kt-remote-viewing')||document.querySelector('.kt-remote-live,.kt-guest-hostlike-room,.kt-prejoin-room-grid'))return;
-      var t=e.target&&e.target.closest?e.target.closest('.kt-allhost-photo,.kt-allhost-fallback,.ktg13-host,.ktg13-host video,.ktg13-host img,.ktg13-host .kt-profile-photo,.ktsubscriber-host,.ktsubscriber-host video,.ktsubscriber-host img,.ktsecret-host,.ktsecret-host video,.ktsecret-host img,.ktg9-host,.ktg9-host video,.ktg9-host img,#ktLiveVideo,[data-kt-host-photo]'):null;
-      /* 실제 호스트 화면은 방마다 호스트 칸 클래스가 달라도 첫 카메라 영상이 호스트다. */
-      if(!t&&e.target&&e.target.closest){
-        var v=e.target.closest('video');
-        var rr=room();
-        if(v&&rr&&v===rr.querySelector('video'))t=v;
-      }
-      if(!t)return;
-      var now=Date.now();if(now-Number(window.__ktHostPhotoLikeTapAt||0)<350)return;window.__ktHostPhotoLikeTapAt=now;
-      if(typeof window.addHostLike==='function')window.addHostLike(1);
-      else{loadCount();count+=1;saveCount();paint();}
-      setTimeout(ensure,0);
-    }catch(_e){}
-  },true);
-
+  // Person taps are handled once by the shared person-menu handler.
   // Only empty chat background is a like surface; text, input and controls remain untouched.
   document.addEventListener('click',function(e){
     var t=e.target;if(!t||!t.closest||t.closest('button,input,textarea,select,a,#sheet'))return;
