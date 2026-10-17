@@ -1282,13 +1282,14 @@
     return true;
   }
 
+  var watchBurstHost20261017='',watchBurstToken20261017='';
   function ensureViewerWatch(force){
     var hid=remoteHostId();if(!hid||isHostRole())return;
     if(useSfuViewer20261015())return;
     if(!viewerWatchToken)viewerWatchToken=sid('watch');
     var now=Date.now();
     if(!force&&viewerConnected)return;
-    if(!force&&now-lastWatchAt<90)return;
+    if(!force&&now-lastWatchAt<1000)return;
     lastWatchAt=now;
     var watch={host_id:hid,viewer_id:viewerId(),watch_token:viewerWatchToken,at:now};
     sendCriticalMedia20260926('video_watch',watch,hid);
@@ -1297,9 +1298,11 @@
        Each phone asks for its own host video immediately and independently.
        Short repeats use the SAME watch token, so the host reuses that phone's
        peer instead of queueing/restarting viewers one by one. */
+    if(watchBurstHost20261017===hid&&watchBurstToken20261017===viewerWatchToken)return;
+    watchBurstHost20261017=hid;watchBurstToken20261017=viewerWatchToken;
     [35,90,180,450,900,1800].forEach(function(ms){
       setTimeout(function(){
-        if(viewerConnected||remoteHostId()!==hid||sfuViewerVideoHealthy20261015())return;
+        if(viewerConnected||remoteHostId()!==hid||viewerWatchToken!==watch.watch_token||sfuViewerVideoHealthy20261015())return;
         sendCriticalMedia20260926('video_watch',watch,hid);
       },ms);
     });
