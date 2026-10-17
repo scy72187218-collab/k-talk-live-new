@@ -498,3 +498,7 @@ Owner rejects later speed/exit adjustments because no host faces appear and requ
 
 ## 2026-10-17 owner requests earlier rollback after no-video report
 Owner video104003315 still shows no host video on viewer phones after prior restoration to5d5a. Explicitly requests earlier version. Restore five runtime files exactly from b901774e0c2f704d49a44f0b2d29a4e19fd80948 (channel recovery release, before decoded-frame probe and nine metadata guard). Removes all subsequent frame-preservation/speed/early-controls/exit experiments; preserves preexisting catalog/follow/like behavior. No new fix included. This is a source restoration only; phone video recovery has NOT been confirmed. All viewer and host clients may need refreshed code before result can be assessed.
+
+
+## 2026-10-17 restore last positive-feedback release
+Owner requests version where faces eventually appeared before later speed experiments. Selected6324d26af6a8b0730061cb75a80b28877e43015b, deployment45mXKHZKc3vZiDhAn2x3GP55hwxr, preceding owner101848624 'getting better' and subsequent explicit video speed request. Prior restores5d5a andb901 not same release and no phone recovery confirmed. Restore five runtime files exactly from6324; no new experiment or server history deletion. Includes early bottom controls and decoded-frame preservation, excludes later retained-track/exit experiments. Latest112942355 still black on viewers; root cause beyond code restoration remains unconfirmed. Do not claim restored code guarantees recovered live video; actual phone verification required.
