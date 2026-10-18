@@ -619,7 +619,9 @@
     try{
       if(!room||room.state!=='connected'||currentHostId!==String(hostId||'')||
          !(window.__ktApprovedGuestIds20260924||{})[identity])return false;
-      var participant=String(identity||'')===DEVICE?room.localParticipant:room.remoteParticipants.get(String(identity||''));
+      // Guest publications use viewer_<device>, not the bare host/device id.
+      var self=String(identity||'')===viewerId();
+      var participant=self?room.localParticipant:room.remoteParticipants.get(String(identity||''));
       if(!participant)return false;
       var active=false;
       participant.trackPublications.forEach(function(pub){
@@ -1136,4 +1138,5 @@
   setTimeout(hostTick,180);
   setTimeout(hostTick,700);
 })();
+
 

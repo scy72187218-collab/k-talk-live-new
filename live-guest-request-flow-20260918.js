@@ -1059,6 +1059,21 @@
   async function startViewerGuestUplink(hostId,vid,approvalId){
     approvalId=approvalId||'approved';
 
+    // Reuse this phone's live camera before considering another capture.
+    // SFU publication may still be in flight when approval reaches this path.
+    var localCandidates=[viewerGuest.stream,window.__ktLocalGuestCameraStream20260926,window.__ktApprovedGuestSelfStream];
+    var remoteVideo=window.__ktRemoteHostStream||window.__ktLastApprovedGuestHostStream||null;
+    var remoteIds=[];
+    try{remoteIds=remoteVideo&&remoteVideo.getVideoTracks?remoteVideo.getVideoTracks().map(function(t){return t.id;}):[];}catch(e){}
+    viewerGuest.stream=null;
+    for(var ci=0;ci<localCandidates.length;ci++){
+      var candidate=localCandidates[ci];
+      if(!ktGuestStreamLive(candidate)||candidate===remoteVideo)continue;
+      var isRemote=false;
+      try{isRemote=candidate.getVideoTracks().some(function(t){return remoteIds.indexOf(t.id)>-1;});}catch(e){}
+      if(!isRemote){viewerGuest.stream=candidate;break;}
+    }
+
     try{
       var ds=String(window.__ktDirectGuestUplinkState20260923||'');
       var da=Number(window.__ktDirectGuestUplinkStateAt20260923||0);
@@ -1618,5 +1633,6 @@
     clearInterval(hostPoll);clearInterval(viewerPoll);endViewerGuestSession(true);stopLocalGuestViewGuard();removePrejoinRoomGrid();Object.keys(hostGuestPeers).forEach(function(k){try{hostGuestPeers[k].close();}catch(e){}});hostGuestPeers={};if(viewerGuest.pc){try{viewerGuest.pc.close();}catch(e){}}if(viewerGuest.stream){try{viewerGuest.stream.getTracks().forEach(function(t){t.stop();});}catch(e){}}
   });
 })();
+
 
 
