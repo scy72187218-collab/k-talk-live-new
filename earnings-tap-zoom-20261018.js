@@ -3,21 +3,30 @@
   if(window.__ktEarningsZoom20261018)return;
   window.__ktEarningsZoom20261018=true;
   var selector='#myEarnHud,#ktSubscriberEarnHud,.ktsubscriber-earnhud,#ktGuestEarnHud,#ktAllRoomGuestEarnHud20260921,.kgh-earn';
-  var overlay=null,source=null,timer=0,previousFocus=null;
+  var overlay=null,source=null,timer=0,previousFocus=null,sourceId='';
   function close(){
     clearInterval(timer);timer=0;
-    if(overlay)overlay.remove();overlay=null;source=null;
+    if(overlay)overlay.remove();overlay=null;source=null;sourceId='';
     if(previousFocus&&previousFocus.isConnected&&previousFocus.focus)previousFocus.focus();
     previousFocus=null;
   }
   function refresh(){
-    if(!source||!source.isConnected){close();return;}
+    if(!overlay)return;
+    // Room renderers replace the small HUD. Keep the dialog and reconnect its text source.
+    if(!source||!source.isConnected){
+      var replacement=sourceId?document.getElementById(sourceId):null;
+      if(!replacement){
+        replacement=Array.prototype.find.call(document.querySelectorAll(selector),function(el){return el.closest('#screen')&&el.getClientRects().length>0;});
+      }
+      if(!replacement||!replacement.closest('#screen')||replacement.getClientRects().length===0)return;
+      source=replacement;
+    }
     var text=String(source.innerText||source.textContent||'').trim();
     var display=overlay.querySelector('[data-earnings-value]');
     if(display.textContent!==text)display.textContent=text;
   }
   function open(hud){
-    close();source=hud;previousFocus=document.activeElement;
+    close();source=hud;sourceId=hud.id||'';previousFocus=document.activeElement;
     overlay=document.createElement('div');overlay.id='ktEarningsZoom20261018';
     overlay.style.cssText='position:fixed;inset:0;z-index:2147483647;background:#000b;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box';
     var panel=document.createElement('section');

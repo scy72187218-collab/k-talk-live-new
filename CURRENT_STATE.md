@@ -511,3 +511,7 @@ Validation: JS syntax checks passed; event-routing fixture confirms 90 photo eve
 
 ## Owner requested earnings tap enlargement (2026-10-18)
 Host and guest existing visible personal earnings HUD opens a separate large-text dialog on one tap. Display reads current HUD text only, refreshes while open, closes with Close/backdrop/Escape or broadcast end/source removal, and restores focus. No balance fetch/recalculation or payout changes. Loader precedes inert-photo capture so earnings taps remain explicit controls. Original HUD sizing/position, camera, layout and transport untouched. Syntax and isolated DOM/event tests passed for open, live text refresh, single overlay, Escape/end cleanup; physical phones not independently verified.
+
+
+## Earnings enlargement persistence repair (2026-10-18)
+User reported dialog flashing/disappearing. The initial refresh closed when its source HUD DOM node was detached. Keep the same dialog and last visible value while the room replaces/removes the small HUD; reacquire the current visible self HUD and refresh its text without rebuilding the dialog. User Close/backdrop/Escape and broadcast-end/host-left cleanup retained. Isolated regression reproduces detached HUD for ten refresh ticks, replacement HUD updates same dialog; syntax and existing open/close tests pass. No phone verification claimed. Only earnings dialog and cache version changed.
