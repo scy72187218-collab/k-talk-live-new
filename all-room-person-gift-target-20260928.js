@@ -31,7 +31,7 @@
   function viewerId(tile){
     if(!tile)return '';
     var d=tile.dataset||{};
-    return String(d.ktGuestViewerId||d.ktDirectGuest||d.ktPeerViewer||d.viewerId||d.userId||d.participantId||'').trim();
+    return String(d.ktGuestViewerId||d.ktDirectGuest||d.ktPeerViewer||d.ktLivekitGuest||d.viewerId||d.userId||d.participantId||'').trim();
   }
   function nameOf(tile){
     if(!tile)return '회원';
@@ -183,6 +183,16 @@
       move.onclick=function(){sheet.classList.remove('kt-person-gift-menu-open');if(window.closeSheet)window.closeSheet();window.ktBeginSeatTapMove20261015(tile);};panel.appendChild(move);var hint=document.createElement('p');hint.textContent='터치로 자리 이동할 수 있습니다. 옮길 사람을 누른 뒤, 옮길 자리를 누르세요.';hint.style.cssText='margin:8px 0;padding:10px 12px;color:#ffe08a;font-size:14px;line-height:1.5;font-weight:700';panel.appendChild(hint);
     }
     addPersonFollow(tile,panel,face);
+    if(isLocalHostRoom()&&kindOf(tile)==='guest'){
+      var controls=document.createElement('div');controls.className='kt-host-movie-menu-actions';
+      tile.querySelectorAll('.kt-inside-camera,.kt-inside-mic').forEach(function(original){
+        var button=document.createElement('button');button.type='button';
+        button.textContent=original.getAttribute('aria-label')||original.title||original.textContent;
+        button.onclick=function(){if(window.closeSheet)window.closeSheet();original.click();};
+        controls.appendChild(button);
+      });
+      if(controls.children.length)panel.appendChild(controls);
+    }
     var preview=face.querySelector('video');if(preview){var play=preview.play();if(play&&play.catch)play.catch(function(){});}
 
     return true;
@@ -204,6 +214,8 @@
     var target=e&&e.target;
     var tile=tileOf(target);if(!tile||excludedUi(target))return false;
     if(window.ktSeatTapModeActive20261015&&window.ktSeatTapModeActive20261015(tile))return false;
+    // The host retains participant tools; spectators keep photo taps inert.
+    if(isLocalHostRoom()&&kindOf(tile)==='guest')openGiftFor(tile);
     if(e.cancelable)e.preventDefault();
     e.stopPropagation();
     if(e.stopImmediatePropagation)e.stopImmediatePropagation();

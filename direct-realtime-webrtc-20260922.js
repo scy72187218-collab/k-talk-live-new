@@ -1431,6 +1431,10 @@
     var slot=null,matches=[];
     try{
       matches=[].slice.call(document.querySelectorAll(
+        '.ktg9-guest[data-kt-peer-viewer="'+CSS.escape(vid)+'"],'+
+        '.ktg9-guest[data-kt-livekit-guest="'+CSS.escape(vid)+'"],'+
+        '.ktg13-guest[data-kt-peer-viewer="'+CSS.escape(vid)+'"],'+
+        '.ktg13-guest[data-kt-livekit-guest="'+CSS.escape(vid)+'"],'+
         '.ktg9-guest[data-kt-direct-guest="'+CSS.escape(vid)+'"],'+
         '.ktg9-guest[data-kt-guest-viewer-id="'+CSS.escape(vid)+'"],'+
         '.ktg13-guest[data-kt-direct-guest="'+CSS.escape(vid)+'"],'+
@@ -1447,7 +1451,7 @@
         '#screen .ktg9-room .ktg9-guest,#screen .ktg13-room .ktg13-guest'
       ));
       for(var i=0;i<all.length;i++){
-        if(!all[i].dataset.ktDirectGuest&&!all[i].dataset.ktGuestViewerId){slot=all[i];break;}
+        if(!guestSlotIdentity20261018(all[i])&&!all[i].querySelector('video')){slot=all[i];break;}
       }
     }
     if(!slot)return null;
@@ -1547,6 +1551,10 @@
     }catch(e){return false;}
   }
 
+  function guestSlotIdentity20261018(slot){
+    var d=slot.dataset||{};
+    return String(d.ktDirectGuest||d.ktGuestViewerId||d.ktPeerViewer||d.ktLivekitGuest||d.viewerId||'');
+  }
   function approveDirectGuest(vid,name){
     vid=String(vid||'').trim();
     if(!vid)return false;
@@ -1554,7 +1562,8 @@
     if(!approvedGuests[vid]){
       try{
         var free=[].slice.call(document.querySelectorAll('#screen .ktg13-room .ktg13-guest')).some(function(slot){
-          return !slot.dataset.ktDirectGuest&&!slot.dataset.ktGuestViewerId;
+          var occupant=guestSlotIdentity20261018(slot);
+          return occupant===vid||(!occupant&&!slot.querySelector('video'));
         });
         if(!free)return false;
       }catch(e){}
@@ -3168,5 +3177,6 @@
   s.textContent='#ktDirectGuestRequestRail{position:fixed!important;left:50%!important;right:auto!important;top:50%!important;bottom:auto!important;transform:translate(-50%,-50%)!important;max-width:88vw!important;z-index:2147483640!important}';
   document.head.appendChild(s);
 }catch(e){}})();
+
 
 
