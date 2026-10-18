@@ -5,6 +5,7 @@
 
   var BASE='',KEY='',photoCache={},timer=null,lastPending=[],lastPendingAt=0;
   var MEM_INTERACT='/api/live-interaction-memory',MEM_BEACON='/api/live-beacon-memory';
+  var renderGeneration=0,departedAt={},runtimeFloor=Date.now();
 
   function enc(v){return encodeURIComponent(String(v==null?'':v));}
   function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
@@ -35,7 +36,7 @@
     if(table==='ktalk_live_rooms'&&method==='GET'){
       var r=await fetch(MEM_BEACON+'?t='+Date.now(),{cache:'no-store'}),j=await r.json(),rows=Array.isArray(j&&j.rooms)?j.rooms:[];
       var hid=qeq(sp,'host_id');if(hid)rows=rows.filter(function(x){return String(x.host_id||'')===hid;});
-      return rows.map(function(x){return {host_id:x.host_id,started_at:new Date(Date.now()-30*60*1000).toISOString(),active:true,updated_at:x.updated_at};});
+      return rows.map(function(x){return {host_id:x.host_id,started_at:new Date(Number(x.run_started_at)||runtimeFloor).toISOString(),active:true,updated_at:x.updated_at};});
     }
     if(table==='ktalk_live_messages'&&method==='POST'){
       await fetch(MEM_INTERACT+'?t='+Date.now(),{method:'POST',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'message',host_id:String(body.host_id||''),sender_id:String(body.sender_id||''),sender_name:String(body.sender_name||'게스트'),message:String(body.message||''),message_type:String(body.message_type||'chat')})});
@@ -44,6 +45,8 @@
     if(table==='ktalk_live_messages'&&method==='GET'){
       var hid=qeq(sp,'host_id'),r=await fetch(MEM_INTERACT+'?action=messages&host_id='+enc(hid)+'&t='+Date.now(),{cache:'no-store'}),j=await r.json();
       var rows=Array.isArray(j&&j.messages)?j.messages:[];
+      var floor=Date.parse(String(sp.get('created_at')||'').replace(/^gte\./,''))||0;
+      rows=rows.filter(function(m){return (Date.parse(m.created_at)||0)>=floor;});
       rows.sort(function(a,b){return (Date.parse(b.created_at)||0)-(Date.parse(a.created_at)||0);});
       return rows;
     }
@@ -131,13 +134,18 @@
   }
 
   async function render(pending){
+    var generation=++renderGeneration;
     pending=pending.filter(function(x){return !(window.__ktApprovedGuestIds20260924||{})[x.vid];});
     ensureStyle();var room=document.querySelector('.ktg13-room,.ktsubscriber-room,.ktsecret-room,.ktg9-room,[data-kt-room="9"],[data-kt-room="13"]');if(!room){removeRail();return;}
     if(!pending.length){removeRail();return;}
     var rail=document.getElementById('ktGuestPhotoRequestRail');if(!rail){rail=document.createElement('div');rail.id='ktGuestPhotoRequestRail';room.appendChild(rail);}
     var infos=await Promise.all(pending.map(function(x){return getPhoto(x.vid,x.name);}));
+    if(generation!==renderGeneration||!rail.isConnected||document.documentElement.classList.contains('kt-remote-viewing'))return;
+    var infoById={};pending.forEach(function(x,i){infoById[x.vid]=infos[i];});
+    pending=pending.filter(function(x){return !(window.__ktApprovedGuestIds20260924||{})[x.vid]&&(!departedAt[x.vid]||Number(x.at||0)>Number(departedAt[x.vid]));});
+    if(!pending.length){removeRail();return;}
     rail.innerHTML='';
-    pending.forEach(function(x,i){var p=infos[i]||{},btn=document.createElement('button');btn.type='button';btn.className='kt-guest-photo-request';btn.dataset.viewerId=x.vid;btn.dataset.viewerName=x.name||'게스트';btn.setAttribute('aria-label',(x.name||'게스트')+' 참여 승인');
+    pending.forEach(function(x,i){var p=infoById[x.vid]||{},btn=document.createElement('button');btn.type='button';btn.className='kt-guest-photo-request';btn.dataset.viewerId=x.vid;btn.dataset.viewerName=x.name||'게스트';btn.setAttribute('aria-label',(x.name||'게스트')+' 참여 승인');
       var photo=String(p.photo||'');btn.innerHTML=(photo&&(/^data:image/.test(photo)||/^https?:/.test(photo))?'<img src="'+esc(photo)+'" alt="">':'<span class="fallback">👤</span>')+'<span class="name">'+esc(x.name||p.name||'게스트')+' 승인</span><span class="dot"></span>';
       btn.onclick=function(e){e.preventDefault();e.stopPropagation();closeChoice();if(typeof window.ktApproveGuest==='function')window.ktApproveGuest(x.vid,x.name,null);};rail.appendChild(btn);
       var more=document.createElement('button');more.type='button';more.className='kt-guest-request-options';more.textContent='⋯';more.setAttribute('aria-label',(x.name||'게스트')+' 신청 거부 또는 차단');more.onclick=function(e){e.preventDefault();e.stopPropagation();openChoice(x);};rail.appendChild(more);
@@ -164,16 +172,19 @@
         room=rr&&rr[0]?rr[0]:null;
       }catch(z){}
       var path='ktalk_live_messages?select=sender_id,sender_name,message_type,created_at&host_id=eq.'+enc(hid);
-      if(room&&room.started_at)path+='&created_at=gte.'+enc(room.started_at);
+      var floor=Math.max(Date.parse(room&&room.started_at)||0,Number(window.__ktHostRunStartedAt20260924)||runtimeFloor);
+      path+='&created_at=gte.'+enc(new Date(floor).toISOString());
       path+='&order=created_at.desc&limit=120';
-      var rows=await req(path),latest={};(rows||[]).forEach(function(m){var t=String(m.message_type||''),vid='';
+      var rows=await req(path),latest={};(rows||[]).filter(function(m){return (Date.parse(m.created_at)||0)>=floor;}).forEach(function(m){var t=String(m.message_type||''),vid='';
+        if(t.indexOf('guest_left:')===0){vid=t.slice(11);if(vid&&!latest[vid])latest[vid]={state:'left'};}
         if(t.indexOf('guest_request:')===0){vid=t.slice(14);if(vid&&!latest[vid])latest[vid]={state:'request',name:String(m.sender_name||'게스트')};}
         else if(t.indexOf('guest_approved:')===0){vid=t.slice(15);if(vid&&!latest[vid])latest[vid]={state:'approved',name:String(m.sender_name||'게스트')};}
         else if(t.indexOf('guest_cancelled:')===0){vid=t.slice(16);if(vid&&!latest[vid])latest[vid]={state:'cancelled',name:String(m.sender_name||'게스트')};}
         else if(t.indexOf('guest_rejected:')===0){vid=t.slice(15);if(vid&&!latest[vid])latest[vid]={state:'rejected',name:String(m.sender_name||'게스트')};}
         else if(t.indexOf('guest_blocked:')===0){vid=t.slice(14);if(vid&&!latest[vid])latest[vid]={state:'blocked',name:String(m.sender_name||'게스트')};}
       });
-      var blocked=blockedMap(),pending=[];Object.keys(latest).forEach(function(vid){if(latest[vid].state==='request'&&!blocked[vid])pending.push({vid:vid,name:latest[vid].name||'게스트'});});
+      var requestTimes={};(rows||[]).forEach(function(m){if(String(m.message_type||'').indexOf('guest_request:')===0){var vid=String(m.message_type).slice(14);requestTimes[vid]=Math.max(requestTimes[vid]||0,Date.parse(m.created_at)||0);}});
+      var blocked=blockedMap(),pending=[];Object.keys(latest).forEach(function(vid){var at=requestTimes[vid]||0;if(latest[vid].state==='request'&&!blocked[vid]&&at>Number(departedAt[vid]||0)&&Date.now()-at<90000)pending.push({vid:vid,name:latest[vid].name||'게스트',at:at});});
       lastPending=pending.slice();lastPendingAt=Date.now();
       await render(pending);
     }catch(e){
@@ -183,6 +194,14 @@
   }
 
   ensureStyle();timer=setInterval(tick,900);setTimeout(tick,180);setInterval(wrapGuestRequest,700);
+  window.addEventListener('kt-any-guest-left',function(e){
+    var vid=String(e&&e.detail&&e.detail.viewer_id||'');if(!vid)return;
+    departedAt[vid]=Date.now();renderGeneration++;
+    lastPending=lastPending.filter(function(x){return x.vid!==vid;});
+    render(lastPending).catch(function(){});
+  });
+  window.addEventListener('kt-host-session-reset',function(){runtimeFloor=Date.now();renderGeneration++;lastPending=[];lastPendingAt=0;departedAt={};removeRail();});
   window.addEventListener('pagehide',function(){clearInterval(timer);});
 })();
+
 
