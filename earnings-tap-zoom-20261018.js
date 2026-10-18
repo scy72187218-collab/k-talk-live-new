@@ -3,9 +3,10 @@
   if(window.__ktEarningsZoom20261018)return;
   window.__ktEarningsZoom20261018=true;
   var selector='#myEarnHud,#ktSubscriberEarnHud,.ktsubscriber-earnhud,#ktGuestEarnHud,#ktAllRoomGuestEarnHud20260921,.kgh-earn';
-  var overlay=null,source=null,timer=0,previousFocus=null,sourceId='';
+  var overlay=null,source=null,timer=0,previousFocus=null,sourceId='',closeTimer=0,lastPointerOpenAt=0;
   function close(){
     clearInterval(timer);timer=0;
+    clearTimeout(closeTimer);closeTimer=0;
     if(overlay)overlay.remove();overlay=null;source=null;sourceId='';
     if(previousFocus&&previousFocus.isConnected&&previousFocus.focus)previousFocus.focus();
     previousFocus=null;
@@ -38,13 +39,19 @@
     panel.appendChild(title);panel.appendChild(value);panel.appendChild(button);overlay.appendChild(panel);document.body.appendChild(overlay);
     overlay.addEventListener('click',function(e){if(e.target===overlay)close();});
     overlay.addEventListener('keydown',function(e){if(e.key==='Tab'){e.preventDefault();button.focus();}});
-    refresh();timer=setInterval(refresh,500);button.focus();
+    refresh();timer=setInterval(refresh,500);closeTimer=setTimeout(close,3000);button.focus();
   }
-  window.addEventListener('click',function(e){
+  function earningsTap(e){
     var hud=e.target&&e.target.closest&&e.target.closest(selector);
     if(!hud||!hud.closest('#screen')||hud.getClientRects().length===0)return;
-    if(e.cancelable)e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();open(hud);
-  },true);
+    if(e.button>0)return;
+    if(e.cancelable)e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+    // Consume the whole touch gesture before older HUD toggle handlers can run.
+    if(e.type==='pointerup'){lastPointerOpenAt=Date.now();open(hud);}
+    else if(e.type==='click'&&Date.now()-lastPointerOpenAt>800)open(hud);
+  }
+  ['pointerdown','pointerup','click'].forEach(function(type){window.addEventListener(type,earningsTap,true);});
+  ['touchstart','touchend'].forEach(function(type){window.addEventListener(type,earningsTap,{capture:true,passive:false});});
   window.addEventListener('keydown',function(e){if(overlay&&e.key==='Escape'){e.preventDefault();close();}});
   window.addEventListener('kt-broadcast-ended',close);
   window.addEventListener('kt-remote-host-left',close);

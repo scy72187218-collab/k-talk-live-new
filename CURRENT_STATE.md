@@ -515,3 +515,7 @@ Host and guest existing visible personal earnings HUD opens a separate large-tex
 
 ## Earnings enlargement persistence repair (2026-10-18)
 User reported dialog flashing/disappearing. The initial refresh closed when its source HUD DOM node was detached. Keep the same dialog and last visible value while the room replaces/removes the small HUD; reacquire the current visible self HUD and refresh its text without rebuilding the dialog. User Close/backdrop/Escape and broadcast-end/host-left cleanup retained. Isolated regression reproduces detached HUD for ten refresh ticks, replacement HUD updates same dialog; syntax and existing open/close tests pass. No phone verification claimed. Only earnings dialog and cache version changed.
+
+
+## Owner clarifies earnings display duration (2026-10-18)
+Owner wants enlarged earnings visible for about three seconds, then disappear once. Add a single 3000ms close deadline per physical tap; refresh does not reset the deadline. Capture pointer/touch gesture before legacy HUD toggle handlers and deduplicate compatibility click after pointerup. Keep HUD replacement persistence. Isolated regression confirms pointerup/touchend/click produce the same dialog, exactly one 3000ms deadline and cleanup; syntax passes. Physical phone flashing has not been independently reproduced/verified. No financial, media or room-layout changes.
