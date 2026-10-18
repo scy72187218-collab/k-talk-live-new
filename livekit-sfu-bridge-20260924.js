@@ -611,6 +611,22 @@
     }
   }
 
+  /* Read-only health query for fallback cleanup. Approval is still required;
+     this never creates a participant or revives a guest who explicitly left. */
+  window.ktSfuGuestMediaActive20261018=function(hostId,identity){
+    try{
+      if(!room||room.state!=='connected'||currentHostId!==String(hostId||'')||
+         !(window.__ktApprovedGuestIds20260924||{})[identity])return false;
+      var participant=String(identity||'')===DEVICE?room.localParticipant:room.remoteParticipants.get(String(identity||''));
+      if(!participant)return false;
+      var active=false;
+      participant.trackPublications.forEach(function(pub){
+        var mt=pub.track&&pub.track.mediaStreamTrack;
+        if(pub.kind==='video'&&mt&&mt.readyState==='live'&&!pub.isMuted)active=true;
+      });
+      return active;
+    }catch(e){return false;}
+  };
   var lastVideoDiagnostic20261015=0,lastPublishError20261015='';
   function updateVideoDiagnostics20261015(){
     if(Date.now()-lastVideoDiagnostic20261015<1000)return;

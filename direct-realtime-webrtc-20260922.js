@@ -660,6 +660,13 @@
              direct heartbeat 하나가 늦었다는 이유만으로 호스트 슬롯을 지우지 않는다.
              실제 guest_left/cancel 신호는 위에서 그대로 즉시 정리한다. */
           if(useLegacyApprovedGuestUplink())return;
+          /* A missing fallback heartbeat cannot evict a guest whose SFU media
+             is still active. Explicit guest_left handling remains unchanged. */
+          if(typeof window.ktSfuGuestMediaActive20261018==='function'&&
+             window.ktSfuGuestMediaActive20261018(DEVICE,vid)){
+            hostGuestAliveAt[vid]=now;
+            return;
+          }
 
           if(now-seen>45000){
             var entry=hostGuestPeers[vid]||null;
@@ -1380,7 +1387,7 @@
     }
     rail.innerHTML='';
     ids.forEach(function(id){
-      var x=pendingRequests[id],b=document.createElement('button');b.type='button';b.dataset.viewerId=id;b.dataset.viewerName=String(x.name||'게스트');b.textContent='👤 '+String(x.name||'게스트')+' 올리기';
+      var x=pendingRequests[id],b=document.createElement('button');b.type='button';b.dataset.viewerId=id;b.dataset.viewerName=String(x.name||'게스트');b.textContent='👤 '+String(x.name||'게스트')+' 승인';
       /* Use one approval handler for pointerdown/touch/click.
          It sends the realtime approval first and defers the legacy durable path. */
       b.onclick=forceApprovalTap;
@@ -1604,7 +1611,7 @@
     return approveDirectGuest(vid,name)!==false;
   };
 
-  var __ktApprovalTapAt=0;
+  var __ktApprovalTapAt=0,__ktApprovalTapViewer='';
   function approvalTargetData(btn){
     if(!btn)return null;
     var vid=String((btn.dataset&&btn.dataset.viewerId)||'').trim();
@@ -1633,6 +1640,7 @@
   function forceApprovalTap(e){
     var btn=e.target&&e.target.closest?e.target.closest(
       '#ktDirectGuestRequestRail button,'+
+      '#ktGuestPhotoRequestRail .kt-guest-photo-request,'+
       '.ktg13-request-chip,'+
       '#ktGuestHostChoice button.approve,'+
       '#ktGuestRealtimeChoice button.approve'
@@ -1641,13 +1649,14 @@
     var data=approvalTargetData(btn);
     if(!data)return;
     var now=Date.now();
-    if(now-__ktApprovalTapAt<450){
+    if(data.vid===__ktApprovalTapViewer&&now-__ktApprovalTapAt<450){
       try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
       return;
     }
-    __ktApprovalTapAt=now;
+    __ktApprovalTapAt=now;__ktApprovalTapViewer=data.vid;
     try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
     /* Direct realtime approval must be the first action of the tap. */
+    if(approvedGuests[data.vid])return;
     approveDirectGuest(data.vid,data.name);
     setTimeout(function(){
       try{
@@ -1665,6 +1674,7 @@
   }
   document.addEventListener('pointerdown',forceApprovalTap,true);
   document.addEventListener('touchstart',forceApprovalTap,{capture:true,passive:false});
+  document.addEventListener('click',forceApprovalTap,true);
 
   async function startGuestCamera(hid){
     if(!guestApproved||guestApprovedHost!==hid)return;
@@ -3152,3 +3162,4 @@
   s.textContent='#ktDirectGuestRequestRail{position:fixed!important;left:50%!important;right:auto!important;top:50%!important;bottom:auto!important;transform:translate(-50%,-50%)!important;max-width:88vw!important;z-index:2147483640!important}';
   document.head.appendChild(s);
 }catch(e){}})();
+

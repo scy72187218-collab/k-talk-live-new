@@ -107,7 +107,7 @@
     box.dataset.viewerId=String(x.vid||'');
     box.dataset.viewerName=String(x.name||'게스트');
     box.innerHTML='<span class="kt-choice-name">👤 '+esc(x.name||'게스트')+'</span>'
-      +'<button type="button" class="approve">올리기</button>'
+      +'<button type="button" class="approve">승인</button>'
       +'<button type="button" class="reject">거부하기</button>'
       +'<button type="button" class="block">차단하기</button>';
     box.querySelector('.approve').onclick=function(e){if(e){e.preventDefault();e.stopPropagation();}approve(x);};
@@ -176,3 +176,4 @@
   timer=setInterval(tick,700);setTimeout(tick,120);
   window.addEventListener('pagehide',function(){clearInterval(timer);});
 })();
+

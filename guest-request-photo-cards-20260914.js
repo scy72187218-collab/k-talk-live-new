@@ -108,6 +108,7 @@
       +'.kt-guest-photo-request .fallback{font-size:25px!important;line-height:1!important}'
       +'.kt-guest-photo-request .name{position:absolute!important;right:58px!important;top:50%!important;transform:translateY(-50%)!important;max-width:105px!important;padding:4px 7px!important;border-radius:9px!important;background:rgba(7,10,15,.94)!important;border:1px solid #4fcff088!important;color:#fff!important;font-size:9px!important;font-weight:950!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;box-shadow:0 2px 10px #0008!important}'
       +'.kt-guest-photo-request .dot{position:absolute!important;right:-2px!important;bottom:-2px!important;width:14px!important;height:14px!important;border-radius:50%!important;background:#39e575!important;border:2px solid #071018!important}'
+      +'#ktGuestPhotoRequestRail .kt-guest-request-options{flex:0 0 24px!important;width:24px!important;height:30px!important;padding:0!important;border:1px solid #ffffff40!important;border-radius:8px!important;background:#17191f!important;color:#fff!important;font-size:18px!important;touch-action:manipulation!important}'
       +'#ktGuestPhotoChoice{position:absolute!important;left:50%!important;right:auto!important;top:calc(46% + 67px)!important;transform:translateX(-50%)!important;z-index:2147483001!important;display:flex!important;gap:5px!important;align-items:center!important;padding:6px!important;border-radius:12px!important;background:rgba(7,9,13,.98)!important;border:1px solid #454954!important;box-shadow:0 4px 18px #000b!important;pointer-events:auto!important}'
       +'#ktGuestPhotoChoice button{height:31px!important;padding:0 9px!important;border-radius:9px!important;border:1px solid #444!important;background:#17191f!important;color:#fff!important;font-size:9px!important;font-weight:950!important}'
       +'#ktGuestPhotoChoice .approve{border-color:#52dfff!important;background:#073342!important}#ktGuestPhotoChoice .block{border-color:#ff657e!important;background:#43131c!important}'
@@ -122,7 +123,7 @@
     if(oldLine){try{oldLine.click();return;}catch(e){}}
     closeChoice();var room=document.querySelector('.ktg13-room,.ktsubscriber-room,.ktsecret-room,.ktg9-room,[data-kt-room="9"],[data-kt-room="13"]');if(!room)return;
     var b=document.createElement('div');b.id='ktGuestPhotoChoice';
-    b.innerHTML='<button type="button" class="approve">올리기</button><button type="button" class="reject">거부하기</button><button type="button" class="block">차단하기</button>';
+    b.innerHTML='<button type="button" class="approve">승인</button><button type="button" class="reject">거부하기</button><button type="button" class="block">차단하기</button>';
     b.querySelector('.approve').onclick=function(e){e.preventDefault();e.stopPropagation();closeChoice();if(typeof window.ktApproveGuest==='function')window.ktApproveGuest(x.vid,x.name,null);};
     b.querySelector('.reject').onclick=async function(e){e.preventDefault();e.stopPropagation();closeChoice();await postState('guest_rejected',x,'❌ '+x.name+'님 참여 신청을 거부했습니다.');setTimeout(tick,180);};
     b.querySelector('.block').onclick=async function(e){e.preventDefault();e.stopPropagation();closeChoice();setBlocked(x.vid,x.name);await postState('guest_blocked',x,'⛔ '+x.name+'님 참여 신청을 차단했습니다.');setTimeout(tick,180);};
@@ -130,22 +131,24 @@
   }
 
   async function render(pending){
+    pending=pending.filter(function(x){return !(window.__ktApprovedGuestIds20260924||{})[x.vid];});
     ensureStyle();var room=document.querySelector('.ktg13-room,.ktsubscriber-room,.ktsecret-room,.ktg9-room,[data-kt-room="9"],[data-kt-room="13"]');if(!room){removeRail();return;}
     if(!pending.length){removeRail();return;}
     var rail=document.getElementById('ktGuestPhotoRequestRail');if(!rail){rail=document.createElement('div');rail.id='ktGuestPhotoRequestRail';room.appendChild(rail);}
     var infos=await Promise.all(pending.map(function(x){return getPhoto(x.vid,x.name);}));
     rail.innerHTML='';
-    pending.forEach(function(x,i){var p=infos[i]||{},btn=document.createElement('button');btn.type='button';btn.className='kt-guest-photo-request';btn.setAttribute('aria-label',(x.name||'게스트')+' 참여 신청');
-      var photo=String(p.photo||'');btn.innerHTML=(photo&&(/^data:image/.test(photo)||/^https?:/.test(photo))?'<img src="'+esc(photo)+'" alt="">':'<span class="fallback">👤</span>')+'<span class="name">'+esc(x.name||p.name||'게스트')+' 신청</span><span class="dot"></span>';
-      btn.onclick=function(e){e.preventDefault();e.stopPropagation();openChoice(x);};rail.appendChild(btn);
+    pending.forEach(function(x,i){var p=infos[i]||{},btn=document.createElement('button');btn.type='button';btn.className='kt-guest-photo-request';btn.dataset.viewerId=x.vid;btn.dataset.viewerName=x.name||'게스트';btn.setAttribute('aria-label',(x.name||'게스트')+' 참여 승인');
+      var photo=String(p.photo||'');btn.innerHTML=(photo&&(/^data:image/.test(photo)||/^https?:/.test(photo))?'<img src="'+esc(photo)+'" alt="">':'<span class="fallback">👤</span>')+'<span class="name">'+esc(x.name||p.name||'게스트')+' 승인</span><span class="dot"></span>';
+      btn.onclick=function(e){e.preventDefault();e.stopPropagation();closeChoice();if(typeof window.ktApproveGuest==='function')window.ktApproveGuest(x.vid,x.name,null);};rail.appendChild(btn);
+      var more=document.createElement('button');more.type='button';more.className='kt-guest-request-options';more.textContent='⋯';more.setAttribute('aria-label',(x.name||'게스트')+' 신청 거부 또는 차단');more.onclick=function(e){e.preventDefault();e.stopPropagation();openChoice(x);};rail.appendChild(more);
     });
     /* 모바일에서 신청 사진 터치가 다른 오버레이에 먹히지 않게 직접 처리 */
     if(!rail.__ktDirectTouchBound){
       rail.__ktDirectTouchBound=true;
       rail.addEventListener('touchstart',function(e){
         var b=e.target&&e.target.closest?e.target.closest('.kt-guest-photo-request'):null;if(!b)return;
-        var idx=[].indexOf.call(rail.querySelectorAll('.kt-guest-photo-request'),b),x=pending[idx];if(!x)return;
-        e.preventDefault();e.stopPropagation();openChoice(x);
+        var x={vid:String(b.dataset.viewerId||''),name:String(b.dataset.viewerName||'게스트')};if(!x.vid)return;
+        e.preventDefault();e.stopPropagation();closeChoice();if(typeof window.ktApproveGuest==='function')window.ktApproveGuest(x.vid,x.name,null);
       },{passive:false});
     }
   }
@@ -182,3 +185,4 @@
   ensureStyle();timer=setInterval(tick,900);setTimeout(tick,180);setInterval(wrapGuestRequest,700);
   window.addEventListener('pagehide',function(){clearInterval(timer);});
 })();
+

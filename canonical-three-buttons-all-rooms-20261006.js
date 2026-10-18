@@ -13,6 +13,11 @@
       +'#screen .'+CLS+'{flex:0 0 34px!important;height:34px!important;min-height:34px!important;width:100%!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px!important;margin:0 0 3px!important;padding:0!important;box-sizing:border-box!important;position:relative!important;z-index:95!important}'
       +'#screen .'+CLS+'>button{height:34px!important;min-width:0!important;margin:0!important;padding:0 4px!important;border:1px solid #ffffff20!important;border-radius:10px!important;background:#111114!important;color:#fff!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:4px!important;font:950 11px/1 system-ui,-apple-system,"Noto Sans KR",sans-serif!important;white-space:nowrap!important;touch-action:manipulation!important}'
       +'#screen .'+CLS+' b{font-size:15px!important;line-height:1!important}';
+    /* Keep the normal room geometry, but never paint floating room controls
+       or pending-request rails over an open message/action dialog. */
+    var overlays=['.sheet.show','[role="dialog"]:not([hidden])','#ktGuestPhotoChoice','#ktGuestHostChoice','#ktGuestRealtimeChoice'];
+    var covered=['#screen .'+CLS,'#ktDirectGuestRequestRail','#ktGuestPhotoRequestRail','#ktg13RequestRail'];
+    s.textContent+=overlays.map(function(overlay){return covered.map(function(target){return 'body:has('+overlay+') '+target;}).join(',');}).join(',')+'{visibility:hidden!important;pointer-events:none!important}';
     s.textContent+='#sheet.match-arena-sheet.show{z-index:2147483645!important}'+
       'body:has(#sheet.match-arena-sheet.show) #screen :is(.kt-fresh-three-1111,.kt-sgfh-actions,.kt-room-second-stats-row-20260927,.ktg13-quick,.kt-all-five-utm-hard1111,.kt-g9-host-top3-restore-20261005,.kt-g9-host-utm-20261005,.ktsolo-tools,.ktg13-tools,.ktg9-tools,.ktgroup9-tools,.ktgroup13-tools,.ktsubscriber-tools,.ktsecret-tools,.kt-remote-bottom,.kt-sgfh-bottom,.kt-host-admin-media-20260928){visibility:hidden!important;pointer-events:none!important}';
     (document.head||document.documentElement).appendChild(s);
@@ -98,3 +103,4 @@
   setInterval(run,1200);
   try{new MutationObserver(function(){clearTimeout(window.__ktFreshThreeTimer1111);window.__ktFreshThreeTimer1111=setTimeout(run,20);}).observe(document.getElementById('screen')||document.documentElement,{childList:true,subtree:true});}catch(e){}
 })();
+

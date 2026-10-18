@@ -334,7 +334,7 @@
       window.__ktApprovedGuestSelfStream=viewerGuest.stream;
       if(viewerGuest.prewarmTimer)clearTimeout(viewerGuest.prewarmTimer);
       viewerGuest.prewarmTimer=setTimeout(function(){
-        if(viewerGuest.approvedKey||viewerGuest.pc)return;
+        if(viewerGuest.approvedKey||viewerGuest.pc||(window.__ktApprovedGuestIds20260924||{})[viewerId()])return;
         try{if(viewerGuest.stream)viewerGuest.stream.getTracks().forEach(function(t){t.stop();});}catch(e){}
         viewerGuest.stream=null;viewerGuest.prewarmTimer=null;
       },45000);
@@ -442,7 +442,7 @@
   function removeDuplicateGroupRoom(){var screen=document.getElementById('screen');if(!screen)return;var rooms=[].slice.call(screen.querySelectorAll('.ktg13-room'));if(rooms.length>1)rooms.slice(1).forEach(function(x){x.remove();});['.ktg13-head','.ktg13-led','.ktg13-stats','.ktg13-main','.ktg13-mid','.ktg13-gifts','.ktg13-tools'].forEach(function(sel){var parts=[].slice.call(screen.querySelectorAll(sel));if(parts.length>1)parts.slice(1).forEach(function(x){x.remove();});});var root=screen.querySelector('.kt-remote-live');if(root&&root.querySelector('.kt-approved-guest-grid')&&!root.querySelector('[data-kt-remote13="1"]')){root.querySelectorAll('.kt-prejoin-room-led,.kt-prejoin-room-stats,.kt-prejoin-room-grid').forEach(function(x){try{x.remove();}catch(e){}});root.classList.remove('kt-prejoin-room-view');}}
 
   function slotIndex(slot){var all=[].slice.call(document.querySelectorAll('.ktg13-guest'));return Math.max(0,all.indexOf(slot));}
-  function decorateSlot(slot,vid,name){if(!slot)return;slot.dataset.ktGuestViewerId=vid;slot.classList.add('kt-guest-approved');slot.innerHTML='<video autoplay playsinline></video><small>게스트 연결 중...</small><span class="kt-guest-name">👤 '+esc(name||'게스트')+'</span>';try{localStorage.setItem('kt_guest_slot:'+deviceId()+':'+vid,String(slotIndex(slot)));}catch(e){}}
+  function decorateSlot(slot,vid,name){if(!slot)return;var same=String(slot.dataset.ktGuestViewerId||slot.dataset.ktDirectGuest||'')===String(vid||'');slot.dataset.ktGuestViewerId=vid;slot.classList.add('kt-guest-approved');if(!same||!slot.querySelector('video'))slot.innerHTML='<video autoplay playsinline></video><small>게스트 연결 중...</small><span class="kt-guest-name">👤 '+esc(name||'게스트')+'</span>';try{localStorage.setItem('kt_guest_slot:'+deviceId()+':'+vid,String(slotIndex(slot)));}catch(e){}}
   function releaseGuestSlot(slot,vid){if(!slot)return;if(vid&&slot.dataset.ktGuestViewerId&&slot.dataset.ktGuestViewerId!==vid)return;var oldVid=slot.dataset.ktGuestViewerId||vid||'';slot.classList.remove('kt-guest-approved');delete slot.dataset.ktGuestViewerId;slot.innerHTML='<span>게스트</span>';if(oldVid)try{localStorage.removeItem('kt_guest_slot:'+deviceId()+':'+oldVid);}catch(e){}}
   function guestSlots(){return [].slice.call(document.querySelectorAll('.ktg13-guest,.ktg9-guest,.ktsubscriber-guest,.ktsecret-guest,.kt-approved-guest-cell,.kt-guest-room-cell,[class*="guest-cell"],[class*="guest-slot"]')).filter(function(x){return !x.classList.contains('host')&&!x.classList.contains('self')&&!x.closest('.kt-remote-live');});}
   function findOrRestoreSlot(vid,name){var slot=document.querySelector('[data-kt-guest-viewer-id="'+css(vid)+'"]');if(slot)return slot;var all=guestSlots(),idx=-1;try{idx=parseInt(localStorage.getItem('kt_guest_slot:'+deviceId()+':'+vid)||'-1',10);}catch(e){}if(idx>=0&&all[idx]&&!all[idx].dataset.ktGuestViewerId){decorateSlot(all[idx],vid,name);return all[idx];}return null;}
@@ -1063,7 +1063,8 @@
       var ds=String(window.__ktDirectGuestUplinkState20260923||'');
       var da=Number(window.__ktDirectGuestUplinkStateAt20260923||0);
       var shared=viewerGuest.stream||window.__ktApprovedGuestSelfStream||null;
-      if((ds==='connected'||(ds==='connecting'&&Date.now()-da<2500))&&ktGuestStreamLive(shared)){
+      var sfuActive=typeof window.ktSfuGuestMediaActive20261018==='function'&&window.ktSfuGuestMediaActive20261018(hostId,vid);
+      if((sfuActive||ds==='connected'||(ds==='connecting'&&Date.now()-da<2500))&&ktGuestStreamLive(shared)){
         viewerGuest.stream=shared;
         viewerGuest.hostId=hostId;
         viewerGuest.approvedKey=approvalId;
@@ -1617,3 +1618,4 @@
     clearInterval(hostPoll);clearInterval(viewerPoll);endViewerGuestSession(true);stopLocalGuestViewGuard();removePrejoinRoomGrid();Object.keys(hostGuestPeers).forEach(function(k){try{hostGuestPeers[k].close();}catch(e){}});hostGuestPeers={};if(viewerGuest.pc){try{viewerGuest.pc.close();}catch(e){}}if(viewerGuest.stream){try{viewerGuest.stream.getTracks().forEach(function(t){t.stop();});}catch(e){}}
   });
 })();
+
