@@ -1705,6 +1705,7 @@
 
   async function startGuestCamera(hid){
     if(!guestApproved||guestApprovedHost!==hid)return;
+    var lifecycle=remoteLifecycleGeneration20261018;
     try{adoptExistingSelfCamera20260926();}catch(e){}
 
     /* 빠른 Realtime 경로를 우선 사용하고, 느린 DB 경로는 실패 시 보조로 둔다.
@@ -1735,8 +1736,16 @@
     }
     /* 신청 순간 미리 연 카메라를 그대로 재사용한다. 없을 때만 한 번 연다. */
     if(!live){
-      try{guestStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'user'}},audio:true});}
-      catch(e){try{guestStream=await navigator.mediaDevices.getUserMedia({video:true,audio:false});}catch(z){return;}}
+      var captured=null;
+      try{captured=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'user'}},audio:true});}
+      catch(e){
+        if(lifecycle!==remoteLifecycleGeneration20261018||!guestApproved||guestApprovedHost!==hid)return;
+        try{captured=await navigator.mediaDevices.getUserMedia({video:true,audio:false});}catch(z){return;}
+      }
+      if(lifecycle!==remoteLifecycleGeneration20261018||!guestApproved||guestApprovedHost!==hid){
+        try{captured.getTracks().forEach(function(t){t.stop();});}catch(e){}return;
+      }
+      guestStream=captured;
       try{rememberTrustedGuestCamera20260926(guestStream);}catch(e){}
     }
     try{
@@ -2892,6 +2901,7 @@
   }
 
   async function prepareGuestCameraFromJoinTap20260923(){
+    var lifecycle=remoteLifecycleGeneration20261018;
     try{adoptExistingSelfCamera20260926();}catch(e){}
     var live=false;
     try{live=!!(guestStream&&guestStream.getVideoTracks().some(function(t){return t.readyState==='live';}));}catch(e){}
@@ -2904,14 +2914,19 @@
       return true;
     }
     try{
-      guestStream=await navigator.mediaDevices.getUserMedia({
+      var captured=await navigator.mediaDevices.getUserMedia({
         video:{facingMode:{ideal:'user'},width:{ideal:1920,max:1920},height:{ideal:1080,max:1080},frameRate:{ideal:30,max:30}},
         audio:true
       });
     }catch(e){
-      try{guestStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});}
+      if(lifecycle!==remoteLifecycleGeneration20261018||(!requestOn&&!guestApproved))return false;
+      try{captured=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});}
       catch(z){return false;}
     }
+    if(lifecycle!==remoteLifecycleGeneration20261018||(!requestOn&&!guestApproved)){
+      try{captured.getTracks().forEach(function(t){t.stop();});}catch(e){}return false;
+    }
+    guestStream=captured;
     try{
       rememberTrustedGuestCamera20260926(guestStream);
       window.__ktApprovedGuestSelfStream=guestStream;
@@ -3201,6 +3216,7 @@
   s.textContent='#ktDirectGuestRequestRail{position:fixed!important;left:50%!important;right:auto!important;top:50%!important;bottom:auto!important;transform:translate(-50%,-50%)!important;max-width:88vw!important;z-index:2147483640!important}';
   document.head.appendChild(s);
 }catch(e){}})();
+
 
 
 
