@@ -172,25 +172,19 @@
     var b=document.createElement('button');
     b.type='button';
     b.className='kt-clock-like-20260927';
-    b.setAttribute('aria-label','좋아요');
+    b.setAttribute('aria-label','좋아요 수');
     b.innerHTML='<b>♥</b><span>'+count+'</span>';
-    b.addEventListener('click',function(e){
-      try{e.preventDefault();e.stopPropagation();}catch(_e){}
-      if(typeof window.addHostLike==='function')window.addHostLike(1);
-      else{loadCount();count+=1;saveCount();paint();}
-    });
     clock.insertAdjacentElement('afterend',b);
   }
 
-  // Person taps are handled once by the shared person-menu handler.
+  // Photo/video taps do not count likes.
   // Only empty chat background is a like surface; text, input and controls remain untouched.
   document.addEventListener('click',function(e){
     var t=e.target;if(!t||!t.closest||t.closest('button,input,textarea,select,a,#sheet'))return;
     var chat=t.closest('#ktRemoteChatList,.ktg13-chat,.ktg9-chat,.ktsolo-chat,.ktsubscriber-chat,.ktsecret-chat,.kt-sgfh-chat');
-    if(!chat){var background=t.closest('#screen .kt-remote-live,#screen .ktsolo-room,#screen .ktg13-room,#screen .ktsubscriber-room,#screen .ktsecret-room');if(background&&t===background)chat=background;}
     if(!chat||(t!==chat&&!t.matches('.ktsubscriber-chat-hint,.ktsolo-chat-hint,.ktg13-chat-hint,.ktsecret-chat-hint,.ktg9-chat-hint')))return;
-    if(e.cancelable)e.preventDefault();e.stopPropagation();
-    if(chat.closest('.kt-remote-live')){if(typeof window.ktRemoteLike==='function')window.ktRemoteLike();return;}
+    if(e.cancelable)e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+    if(document.documentElement.classList.contains('kt-remote-viewing')||chat.closest('.kt-remote-live,.kt-guest-hostlike-room,.kt-prejoin-room-grid,.kt-approved-guest-grid,.kt-guest-room-grid')){if(typeof window.ktRemoteLike==='function')window.ktRemoteLike();return;}
     if(typeof window.addHostLike==='function')window.addHostLike(1);
   },true);
   ensure();

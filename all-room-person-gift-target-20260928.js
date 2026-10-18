@@ -1,4 +1,4 @@
-/* K-Talk: 모든 방 사람 사진/영상 터치 -> 선물 대상 선택.
+/* K-Talk: 모든 방 사람 사진/영상 직접 터치 동작 해제.
    호스트↔게스트, 게스트↔게스트. 자기 자신은 선택 제외.
    화면 확대/통신/채팅/기존 배치는 변경하지 않음. */
 (function(){
@@ -199,35 +199,19 @@
     }catch(e){return false;}
   }
 
-  var lastPersonLikeAt=0,lastPersonLikeTile=null,lastPersonLikeType='';
+  // Photo/video taps are inert. Seat selection is allowed only after its explicit control.
   function personTap(e){
     var target=e&&e.target;
     var tile=tileOf(target);if(!tile||excludedUi(target))return false;
     if(window.ktSeatTapModeActive20261015&&window.ktSeatTapModeActive20261015(tile))return false;
-    // Keep short taps as before; an eligible long press belongs to seat dragging.
-    if((e.type==='pointerdown'||e.type==='touchstart')&&window.ktCanDragSeat20261015&&window.ktCanDragSeat20261015(tile))return false;
-
-    /* 사진 위에 닉네임/레벨/작은 오버레이가 있어도 같은 사람 칸이면 인정.
-       빈 게스트 칸은 viewer id가 없어 choose()에서 자동 제외된다. */
-    var kind=kindOf(tile);
-    if(kind==='guest'&&!viewerId(tile))return false;
-
-    try{
-      if(e&&e.cancelable)e.preventDefault();
-      if(e&&e.stopPropagation)e.stopPropagation();
-      if(e&&e.stopImmediatePropagation)e.stopImmediatePropagation();
-    }catch(_e){}
-    var now=Date.now(),duplicate=lastPersonLikeTile===tile&&now-lastPersonLikeAt<900&&e.type!==lastPersonLikeType&&(lastPersonLikeType==='pointerdown'||lastPersonLikeType==='touchstart');
-    if(!duplicate){
-      lastPersonLikeAt=now;lastPersonLikeTile=tile;lastPersonLikeType=e.type;
-      if(isRemoteViewer()){if(typeof window.ktRemoteLike==='function')window.ktRemoteLike();}
-      else if(typeof window.addHostLike==='function'){window.__ktHostPhotoLikeTapAt=now;window.addHostLike(1);}
-    }
-    return openGiftFor(tile);
+    if(e.cancelable)e.preventDefault();
+    e.stopPropagation();
+    if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+    return true;
   }
 
   style();
-  document.addEventListener('pointerdown',personTap,true);
-  document.addEventListener('touchstart',personTap,{capture:true,passive:false});
-  document.addEventListener('click',personTap,true);
+  window.addEventListener('pointerdown',personTap,true);
+  window.addEventListener('touchstart',personTap,{capture:true,passive:false});
+  window.addEventListener('click',personTap,true);
 })();
