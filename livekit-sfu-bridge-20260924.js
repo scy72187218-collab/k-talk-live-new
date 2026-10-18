@@ -106,6 +106,26 @@
     }catch(e){}
     return null;
   }
+  var rosterTopic20261018='ktalk-approved-roster-v1',lastRosterData20261018='',lastRosterSent20261018=0;
+  window.ktPublishApprovedRosterSfu20261018=function(payload){
+    if(!isHostRole()||!room||room.state!=='connected'||String(payload&&payload.host_id||'')!==DEVICE)return false;
+    var items=(Array.isArray(payload.items)?payload.items:[]).slice(0,15).map(function(x){return {viewer_id:String(x.viewer_id||'').slice(0,140),name:String(x.name||'게스트').slice(0,80)};});
+    var digest=JSON.stringify(items),now=Date.now();
+    if(digest===lastRosterData20261018&&now-lastRosterSent20261018<1000)return true;
+    var data=new TextEncoder().encode(JSON.stringify({host_id:DEVICE,at:Number(payload.at||now),items:items}));
+    if(data.length>12000)return false;
+    lastRosterData20261018=digest;lastRosterSent20261018=now;
+    try{var sent=room.localParticipant.publishData(data,{reliable:true,topic:rosterTopic20261018});if(sent&&sent.catch)sent.catch(function(){lastRosterSent20261018=0;});return true;}catch(e){lastRosterSent20261018=0;return false;}
+  };
+  function receiveHostRoster20261018(owner,payload,participant,topic){
+    if(room!==owner||isHostRole()||topic!==rosterTopic20261018||!participant||String(participant.identity||'')!==currentHostId)return;
+    try{
+      if(!payload||payload.length>12000)return;
+      var p=JSON.parse(new TextDecoder().decode(payload));
+      if(String(p.host_id||'')!==currentHostId||!Array.isArray(p.items)||p.items.length>15)return;
+      window.dispatchEvent(new CustomEvent('kt-sfu-host-roster',{detail:p}));
+    }catch(e){}
+  }
   function remoteHostId(){
     var h='';
     try{h=String(window.__ktRemoteHostId||window.__ktCurrentRemoteHostId||'').trim();}catch(e){}
@@ -757,6 +777,7 @@
       var r=usePrepared?prepared.room:newSfuRoom20261015(LK);
       if(usePrepared)delete preparedViewerRooms20261015[hostId];
       room=r;
+      if(LK.RoomEvent.DataReceived)r.on(LK.RoomEvent.DataReceived,function(payload,participant,kind,topic){receiveHostRoster20261018(r,payload,participant,topic);});
       r.on(LK.RoomEvent.TrackSubscribed,function(track,publication,participant){
         if(room!==r||attemptGeneration!==connectGeneration20261015)return;
         onRemoteTrack(track,publication,participant);
@@ -766,6 +787,7 @@
         var id=String(participant&&participant.identity||'');if(track.kind==='audio')stopAudio(id);
       });
       if(LK.RoomEvent.ParticipantConnected)r.on(LK.RoomEvent.ParticipantConnected,function(){
+        if(room===r&&isHostRole())try{window.dispatchEvent(new CustomEvent('kt-sfu-roster-needed'));}catch(e){}
         reattachRemoteTracks();
         [10,35,90,180].forEach(function(ms){setTimeout(reattachRemoteTracks,ms);});
       });
@@ -1139,6 +1161,7 @@
   setTimeout(hostTick,180);
   setTimeout(hostTick,700);
 })();
+
 
 
 

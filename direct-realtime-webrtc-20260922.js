@@ -846,6 +846,7 @@
       };
       /* One authoritative roster packet covers every approved subscriber (up to the room limit),
          instead of adding per-person sync code as A/B/C... grow. */
+      try{if(window.ktPublishApprovedRosterSfu20261018)window.ktPublishApprovedRosterSfu20261018(payload);}catch(e){}
       send('guest_roster',payload);
     }catch(e){}
   }
@@ -912,6 +913,15 @@
     }catch(e){}
   }
 
+  window.addEventListener('kt-sfu-host-roster',function(e){
+    var p=e&&e.detail;if(!p||String(p.host_id||'')!==String(remoteHostId()||''))return;
+    if(lastRosterHost20261018===String(p.host_id||'')&&Number(p.at||0)<lastRosterAt20261018)return;
+    applyApprovedRoster20260928(p);
+    if(!guestApproved&&window.ktGuestParticipationIntent20261018(p.host_id)&&Array.isArray(p.items)&&p.items.some(function(x){return String(x.viewer_id||'')===viewerId();})){
+      onGuestApproved({host_id:p.host_id,viewer_id:viewerId(),at:p.at});
+    }
+  });
+  window.addEventListener('kt-sfu-roster-needed',function(){if(isHostRole())broadcastApprovedRoster20260928();});
   function afterJoin(){
     if(isHostRole()){
       if(!hostRunId){hostRunId=sid('run');hostRunStartedAt=Date.now();}
@@ -3216,6 +3226,7 @@
   s.textContent='#ktDirectGuestRequestRail{position:fixed!important;left:50%!important;right:auto!important;top:50%!important;bottom:auto!important;transform:translate(-50%,-50%)!important;max-width:88vw!important;z-index:2147483640!important}';
   document.head.appendChild(s);
 }catch(e){}})();
+
 
 
 
