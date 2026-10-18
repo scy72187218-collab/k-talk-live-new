@@ -594,6 +594,7 @@
     if(sharedApprovalPollBusy)return;
     var host=isHostRole(),hid=host?DEVICE:remoteHostId();
     if(!hid)return;
+    if(!host&&window.ktHasCurrentHostRoster20261019&&window.ktHasCurrentHostRoster20261019(hid))return;
     var lifecycle=remoteLifecycleGeneration20261018;
     sharedApprovalPollBusy=true;
     try{
@@ -607,6 +608,7 @@
          이 브라우저가 열린 시점 이후 신호만 인정해서 오래된 승인을 자동 복구하지 않는다. */
       var roomCut=await sharedCurrentRoomCutoff(hid);
       if(lifecycle!==remoteLifecycleGeneration20261018||host!==isHostRole()||(!host&&remoteHostId()!==hid))return;
+      if(!host&&window.ktHasCurrentHostRoster20261019&&window.ktHasCurrentHostRoster20261019(hid))return;
       var runCut=host?Number(hostRunStartedAt||0):Number(remoteRunStartedAt||0);
       var effectiveCut=Math.max(Number(roomCut||0),Number(runCut||0));
       rows=rows.filter(function(m){return sharedMsgTime(m)>=effectiveCut;});
@@ -852,6 +854,10 @@
   }
 
   var lastRosterHost20261018='',lastRosterAt20261018=0,lastRosterIds20261018={};
+  var lastRosterReceived20261019=0;
+  window.ktHasCurrentHostRoster20261019=function(hostId){
+    return String(hostId||'')===String(remoteHostId()||'')&&lastRosterHost20261018===String(hostId||'')&&lastRosterReceived20261019>0&&Date.now()-lastRosterReceived20261019<5000;
+  };
   function applyApprovedRoster20260928(p){
     if(isHostRole())return;
     try{
@@ -903,6 +909,7 @@
       window.__ktApprovedGuestIds20260924=old;
       window.__ktApprovedGuestNames20260924=oldNames;
       lastRosterHost20261018=hid;lastRosterAt20261018=rosterAt||Date.now();lastRosterIds20261018=next;
+      lastRosterReceived20261019=Date.now();
 
       try{window.dispatchEvent(new CustomEvent('kt-three-person-sync-now',{detail:{host_id:hid,at:Date.now()}}));}catch(e){}
       try{
@@ -3226,6 +3233,7 @@
   s.textContent='#ktDirectGuestRequestRail{position:fixed!important;left:50%!important;right:auto!important;top:50%!important;bottom:auto!important;transform:translate(-50%,-50%)!important;max-width:88vw!important;z-index:2147483640!important}';
   document.head.appendChild(s);
 }catch(e){}})();
+
 
 
 

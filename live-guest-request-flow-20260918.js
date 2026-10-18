@@ -1308,6 +1308,7 @@
   var __ktViewerRosterHost='';
   async function syncViewerApprovedRoster(hostId){
     if(!hostId)return;
+    if(window.ktHasCurrentHostRoster20261019&&window.ktHasCurrentHostRoster20261019(hostId))return;
     var generation=approvalGeneration20261015;
     var now=Date.now();
     if(now-__ktViewerRosterAt<300)return;
@@ -1326,6 +1327,8 @@
       if(generation!==approvalGeneration20261015)return;
       var roomRows=await req('ktalk_live_rooms?select=started_at&host_id=eq.'+enc(hostId)+'&active=eq.true&order=started_at.desc&limit=1')||[];
       if(generation!==approvalGeneration20261015)return;
+      // A roster received while this fallback query was in flight wins.
+      if(window.ktHasCurrentHostRoster20261019&&window.ktHasCurrentHostRoster20261019(hostId))return;
       var cutoff=approvalCut20261015(roomRows[0]&&roomRows[0].started_at,Math.max(approvalRunFloor20261015,Number(window.__ktRemoteHostSessionStartedAt20260924||0)));
       if(!cutoff)return;
       var seen={},all=[];
@@ -1658,6 +1661,7 @@
     clearInterval(hostPoll);clearInterval(viewerPoll);endViewerGuestSession(true);stopLocalGuestViewGuard();removePrejoinRoomGrid();Object.keys(hostGuestPeers).forEach(function(k){try{hostGuestPeers[k].close();}catch(e){}});hostGuestPeers={};if(viewerGuest.pc){try{viewerGuest.pc.close();}catch(e){}}if(viewerGuest.stream){try{viewerGuest.stream.getTracks().forEach(function(t){t.stop();});}catch(e){}}
   });
 })();
+
 
 
 
