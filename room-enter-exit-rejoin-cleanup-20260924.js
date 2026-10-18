@@ -14,8 +14,8 @@
     return h;
   }
 
-  function cleanupNow(){
-    var hid=currentHost();
+  function cleanupNow(hostId){
+    var hid=typeof hostId==='string'?hostId:currentHost();
     if(hid){
       try{
         if(typeof window.ktDirectGuestLeaveNow20260923==='function'){
@@ -85,9 +85,13 @@
       if(silent)return old.apply(this,arguments);
 
       var wasRemote=inRemoteRoom();
+      var hid=currentHost();
+      // Let the leave function capture its context and cancel pending entry
+      // before navigation can remove the room or clear its host identity.
+      var result=old.apply(this,arguments);
+      cleanupNow(hid);
       if(wasRemote)fastReturnNow();
-      cleanupNow();
-      return old.apply(this,arguments);
+      return result;
     };
     fn.__ktRoomRejoinCleanupWrapped=true;
     window[name]=fn;
@@ -114,10 +118,14 @@
       var isExit=!!(b.matches&&b.matches('.ktg13-back,.ktsolo-back,.ktsubscriber-back,.ktsecret-back'))||
         t.indexOf('나가기')>-1||t.indexOf('퇴장')>-1||t.indexOf('뒤로')>-1;
       if(!isExit)return;
-      fastReturnNow();
-      setTimeout(cleanupNow,0);
+      if(typeof window.ktLeaveRemoteLive==='function'){
+        e.preventDefault();e.stopImmediatePropagation();
+        var result=window.ktLeaveRemoteLive();
+        if(result&&result.catch)result.catch(function(){});
+      }
     }catch(_e){}
   },true);
 
   window.addEventListener('pagehide',cleanupNow);
 })();
+

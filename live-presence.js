@@ -588,17 +588,25 @@
       }
       c.roomMissingSince=0;
       await req('ktalk_live_viewers?host_id=eq.'+enc(c.hostId)+'&viewer_id=eq.'+enc(c.viewerId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:true,updated_at:nowIso()})});
+      if(viewerCtx!==c){
+        // A heartbeat sent before exit may finish after the inactive write.
+        if(String(window.__ktRemoteHostId||'')!==c.hostId)req('ktalk_live_viewers?host_id=eq.'+enc(c.hostId)+'&viewer_id=eq.'+enc(c.viewerId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})}).catch(function(){});
+        return;
+      }
       var cut=new Date(Date.now()-STALE_MS).toISOString();
       var viewers=await req('ktalk_live_viewers?select=viewer_id&host_id=eq.'+enc(c.hostId)+'&active=eq.true&updated_at=gte.'+enc(cut)+'&limit=300');
+      if(viewerCtx!==c)return;
       var badge=document.getElementById('ktRemoteViewerCount');if(badge)badge.textContent='👁 '+Math.max(1,(viewers||[]).length)+'명';
     }catch(e){}
   }
 
   async function remotePollActivity(){
     if(!viewerCtx)return;
+    var c=viewerCtx;
     try{
-      var rows=await req('ktalk_live_messages?select=id,message,created_at&host_id=eq.'+enc(viewerCtx.hostId)+'&message_type=eq.system&order=created_at.desc&limit=5');
-      if(rows&&rows.length){var n=rows[0];if(viewerCtx.lastMsg&&viewerCtx.lastMsg!==n.created_at)showActivity(n.message);viewerCtx.lastMsg=n.created_at;}
+      var rows=await req('ktalk_live_messages?select=id,message,created_at&host_id=eq.'+enc(c.hostId)+'&message_type=eq.system&order=created_at.desc&limit=5');
+      if(viewerCtx!==c)return;
+      if(rows&&rows.length){var n=rows[0];if(c.lastMsg&&c.lastMsg!==n.created_at)showActivity(n.message);c.lastMsg=n.created_at;}
     }catch(e){}
   }
 
@@ -708,7 +716,7 @@
         [20,70,160,320].forEach(function(ms){
           setTimeout(function(){
             try{
-              if(String(window.__ktRemoteHostId||hostId)===hostId&&typeof window.ktShowNineViewerShellImmediately20261003==='function'){
+              if(entryGeneration===remoteEntryGeneration20261015&&String(window.__ktRemoteHostId||'')===hostId&&typeof window.ktShowNineViewerShellImmediately20261003==='function'){
                 window.ktShowNineViewerShellImmediately20261003();
               }
             }catch(e){}
@@ -718,6 +726,8 @@
     }catch(_e){}
     try{
       var rows=await req('ktalk_live_rooms?select=id,host_id,host_name,title,room_type,room_name,active,updated_at&host_id=eq.'+enc(hostId)+'&active=eq.true&order=started_at.desc&limit=1');
+      // Exit/new entry invalidates metadata that was requested before it.
+      if(entryGeneration!==remoteEntryGeneration20261015)return;
       var room=rows&&rows[0];
       if(!room||Date.now()-new Date(room.updated_at).getTime()>STALE_MS){
         try{await window.ktLeaveRemoteLive(true);}catch(e){}
@@ -758,6 +768,9 @@
          이전 세션 정리 응답이 늦어도 새 영상 세션 생성은 기다리지 않는다.
          정리는 뒤에서 계속 진행하고 영상 연결을 먼저 시작한다. */
       try{if(viewerReady&&viewerReady.catch)viewerReady.catch(function(){});}catch(_e){}
+      Promise.resolve(viewerReady).then(function(){
+        if(entryGeneration!==remoteEntryGeneration20261015&&String(window.__ktRemoteHostId||'')!==hostId)return req('ktalk_live_viewers?host_id=eq.'+enc(hostId)+'&viewer_id=eq.'+enc(viewerId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({active:false,updated_at:nowIso()})});
+      }).catch(function(){});
       try{if(oldSessionClosed&&oldSessionClosed.catch)oldSessionClosed.catch(function(){});}catch(_e){}
       var sessions=await req('ktalk_webrtc_sessions',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify({host_id:hostId,viewer_id:viewerId,offer_sdp:'pending',answer_sdp:null,active:true,updated_at:nowIso()})});
       if(entryGeneration!==remoteEntryGeneration20261015){
@@ -934,3 +947,4 @@
   },5000);
   setTimeout(renderLiveCards,900);
 })();
+

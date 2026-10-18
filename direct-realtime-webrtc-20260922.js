@@ -565,6 +565,7 @@
      the 12s missing-host grace period. This prevents an old black/stale guest
      session from being reused when the same phone enters the room again. */
   window.ktDirectRemoteLeaveNow20260924=function(hostId){
+    remoteLifecycleGeneration20261018++;
     var hid=String(hostId||guestApprovedHost||remoteHostId()||lastRemoteHost||activeHostId||'').trim();
     try{if(hid)announceGuestLeave(hid);}catch(e){}
     clearViewerConnectTimer();
@@ -582,20 +583,24 @@
     return true;
   };
 
+  var remoteLifecycleGeneration20261018=0;
   async function syncSharedApprovalSignals(){
     if(sharedApprovalPollBusy)return;
     var host=isHostRole(),hid=host?DEVICE:remoteHostId();
     if(!hid)return;
+    var lifecycle=remoteLifecycleGeneration20261018;
     sharedApprovalPollBusy=true;
     try{
       var r=await fetch('/api/live-interaction-memory?action=messages&host_id='+encodeURIComponent(hid)+'&t='+Date.now(),{cache:'no-store'});
       if(!r.ok)return;
       var j=await r.json(),rows=Array.isArray(j&&j.messages)?j.messages:[];
+      if(lifecycle!==remoteLifecycleGeneration20261018||host!==isHostRole()||(!host&&remoteHostId()!==hid))return;
       /* 이전 방송의 참여 신청/승인 기록이 30분 캐시에 남아 있으면
          새 방송에서 사용자가 신청하지 않았는데도 게스트 영상이 자동 복원될 수 있다.
          현재 활성 방송 시작 이후 신호만 인정한다. DB 조회가 잠시 실패하면
          이 브라우저가 열린 시점 이후 신호만 인정해서 오래된 승인을 자동 복구하지 않는다. */
       var roomCut=await sharedCurrentRoomCutoff(hid);
+      if(lifecycle!==remoteLifecycleGeneration20261018||host!==isHostRole()||(!host&&remoteHostId()!==hid))return;
       var runCut=host?Number(hostRunStartedAt||0):Number(remoteRunStartedAt||0);
       var effectiveCut=Math.max(Number(roomCut||0),Number(runCut||0));
       rows=rows.filter(function(m){return sharedMsgTime(m)>=effectiveCut;});
@@ -3120,6 +3125,7 @@
   window.ktStartRemoteHostVideoNow20261003=ktStartRemoteHostVideoNow20261003;
 
   window.addEventListener('kt-remote-host-selected',function(e){
+    if(e&&e.detail&&e.detail.immediate)remoteLifecycleGeneration20261018++;
     try{
       var hid=String(e&&e.detail&&e.detail.host_id||'').trim();
       if(!hid)return;
@@ -3162,4 +3168,5 @@
   s.textContent='#ktDirectGuestRequestRail{position:fixed!important;left:50%!important;right:auto!important;top:50%!important;bottom:auto!important;transform:translate(-50%,-50%)!important;max-width:88vw!important;z-index:2147483640!important}';
   document.head.appendChild(s);
 }catch(e){}})();
+
 
