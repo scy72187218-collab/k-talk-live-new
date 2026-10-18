@@ -151,6 +151,17 @@
       var is13=room.getAttribute('data-kt-room')==='13';
       var chatWidth=Math.max(0,is13?Math.floor(rr.width*.72):Math.round(rr.width)-16);
       var height=fiveLineHeight(chat),top=Math.max(rr.top,Math.round(br.top-4)-height);
+      /* Spectators may read up to the bottom guest row. Keep approved guest
+         and host chat sizing unchanged, and never cover the people grid. */
+      var selfId='';try{selfId=String(localStorage.getItem('kt_live_device_id')||'');}catch(e){}
+      var approved=window.__ktApprovedGuestIds20260924||{};
+      if(!approved[selfId]&&!approved['viewer_'+selfId]){
+        var gr=grid.getBoundingClientRect(),bottom=Math.round(br.top-4);
+        if(gr.height>0&&isFinite(gr.bottom)&&isFinite(bottom)){
+          top=Math.max(rr.top,Math.round(gr.bottom+4));
+          height=Math.max(0,bottom-top);
+        }
+      }
       var values={position:'fixed',left:Math.round(rr.left+8)+'px',right:'auto',top:top+'px',bottom:'auto',
         width:chatWidth+'px',height:height+'px','min-height':height+'px','max-height':height+'px',
         'box-sizing':'border-box',padding:'0 4px',margin:'0',display:'flex','flex-direction':'column','justify-content':'flex-end',
