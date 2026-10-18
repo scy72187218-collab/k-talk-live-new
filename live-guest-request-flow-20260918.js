@@ -333,7 +333,7 @@
     if(liveVideo||viewerGuest.mediaOpening||viewerGuest.mediaDenied)return viewerGuest.stream||null;
     viewerGuest.mediaOpening=true;
     try{
-      var captured=await navigator.mediaDevices.getUserMedia({
+      var captured=await (window.ktAcquireGuestCamera20261019||navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices))({
         video:{facingMode:{ideal:'user'},width:{ideal:960,max:1280},height:{ideal:720,max:960},aspectRatio:{ideal:1.333333},frameRate:{ideal:24,max:30}},
         audio:true
       });
@@ -352,7 +352,7 @@
       if(denied==='notallowederror'||denied==='permissiondeniederror'||denied==='securityerror')viewerGuest.mediaDenied=true;
       if(lifecycle!==guestExitGeneration20261015||explicitlyLeft20261015())return null;
       try{
-        captured=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});
+        captured=await (window.ktAcquireGuestCamera20261019||navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices))({video:{facingMode:'user'},audio:false});
         if(!adoptGuestCapture20261018(captured,lifecycle))return null;
         viewerGuest.stream=captured;
         window.__ktApprovedGuestSelfStream=viewerGuest.stream;
@@ -378,7 +378,7 @@
       }
       if(!hostId)return;
       var p=profile(),vid=viewerId(),cancel=!!(b&&b.classList.contains('kt-requested'));
-      if(cancel)guestExitGeneration20261015++;
+      if(cancel){guestExitGeneration20261015++;if(window.ktResetGuestCapture20261019)window.ktResetGuestCapture20261019();}
       var ok=cancel
         ?await postGuestMessage(hostId,'guest_cancelled:'+vid,'↩ '+(p.name||'게스트')+'님이 방송 참여 신청을 취소했습니다.',vid,p.name||'게스트')
         :await postGuestMessage(hostId,'guest_request:'+vid,'👥 '+(p.name||'게스트')+'님이 방송 참여를 신청했습니다.',vid,p.name||'게스트');
@@ -1131,7 +1131,7 @@
       if(viewerGuest.mediaDenied||viewerGuest.mediaOpening)return;
       viewerGuest.mediaOpening=true;
       try{
-        stream=await navigator.mediaDevices.getUserMedia({
+        stream=await (window.ktAcquireGuestCamera20261019||navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices))({
           video:{facingMode:{ideal:'user'},width:{ideal:960,max:1280},height:{ideal:720,max:960},aspectRatio:{ideal:1.333333},frameRate:{ideal:24,max:30}},
           audio:true
         });
@@ -1144,7 +1144,7 @@
           return;
         }
         try{
-          stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});
+          stream=await (window.ktAcquireGuestCamera20261019||navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices))({video:{facingMode:'user'},audio:false});
           capturedNew=true;
         }catch(z){
           var denied2=String((z&&z.name)||'').toLowerCase();
@@ -1544,6 +1544,7 @@
     var sid=viewerGuest.sessionId||'';
     var wasApproved=!!(viewerGuest.approvedKey||((window.__ktApprovedGuestIds20260924||{})[vid]===true));
     guestExitGeneration20261015++;
+    if(window.ktResetGuestCapture20261019)window.ktResetGuestCapture20261019();
     approvalGeneration20261015++;
     if(viewerGuest.pc){try{viewerGuest.pc.close();}catch(e){}viewerGuest.pc=null;}
     viewerGuest.sessionId='';
@@ -1618,6 +1619,7 @@
   window.addEventListener('kt-guest-approval-received',function(){setTimeout(viewerTick,10);setTimeout(viewerTick,120);setTimeout(viewerTick,420);});
   function clearApprovalRun20261015(d){
     approvalGeneration20261015++;guestExitGeneration20261015++;
+    if(window.ktResetGuestCapture20261019)window.ktResetGuestCapture20261019();
     approvalRunFloor20261015=Number(d.started_at||Date.now());
     if(d.role==='host'||String(d.host_id||'')===deviceId())hostApprovalFloor20261015=approvalRunFloor20261015;
     __ktViewerRosterSig='';__ktViewerRosterAt=0;__ktViewerRosterHost='';

@@ -567,3 +567,10 @@ Owner supplies080500942 video: participant visibility differs per phone and some
 
 
 
+
+
+## 2026-10-19 — Nine-room shared guest camera acquisition
+
+Two existing request/approval transports now share one in-flight getUserMedia acquisition in nine-person rooms. Reuse only a live local camera; exclude remote host tracks. Exit/cancel invalidates the acquisition flight while existing lifecycle guards stop late captures. Other rooms retain their capture behavior. No camera constraints, UI, approval rules, database, media server, or billing changes.
+
+Validation: actual direct-request plus legacy-prewarm functions return the same capture with one device request; local reuse, remote exclusion, exit/rejoin, other-room isolation, syntax, and existing late-capture-after-exit regressions passed. Real phone confirmation still required; preceding live diagnostic showed four approved guests, one flowing video, one muted video and two without publications.

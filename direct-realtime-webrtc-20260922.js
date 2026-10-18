@@ -572,6 +572,7 @@
      session from being reused when the same phone enters the room again. */
   window.ktDirectRemoteLeaveNow20260924=function(hostId){
     remoteLifecycleGeneration20261018++;
+    if(window.ktResetGuestCapture20261019)window.ktResetGuestCapture20261019();
     var hid=String(hostId||guestApprovedHost||remoteHostId()||lastRemoteHost||activeHostId||'').trim();
     try{if(hid)announceGuestLeave(hid);}catch(e){}
     clearViewerConnectTimer();
@@ -1754,10 +1755,10 @@
     /* 신청 순간 미리 연 카메라를 그대로 재사용한다. 없을 때만 한 번 연다. */
     if(!live){
       var captured=null;
-      try{captured=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'user'}},audio:true});}
+      try{captured=await (window.ktAcquireGuestCamera20261019||navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices))({video:{facingMode:{ideal:'user'}},audio:true});}
       catch(e){
         if(lifecycle!==remoteLifecycleGeneration20261018||!guestApproved||guestApprovedHost!==hid)return;
-        try{captured=await navigator.mediaDevices.getUserMedia({video:true,audio:false});}catch(z){return;}
+        try{captured=await (window.ktAcquireGuestCamera20261019||navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices))({video:true,audio:false});}catch(z){return;}
       }
       if(lifecycle!==remoteLifecycleGeneration20261018||!guestApproved||guestApprovedHost!==hid){
         try{captured.getTracks().forEach(function(t){t.stop();});}catch(e){}return;
@@ -2931,13 +2932,13 @@
       return true;
     }
     try{
-      var captured=await navigator.mediaDevices.getUserMedia({
+      var captured=await (window.ktAcquireGuestCamera20261019||navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices))({
         video:{facingMode:{ideal:'user'},width:{ideal:1920,max:1920},height:{ideal:1080,max:1080},frameRate:{ideal:30,max:30}},
         audio:true
       });
     }catch(e){
       if(lifecycle!==remoteLifecycleGeneration20261018||(!requestOn&&!guestApproved))return false;
-      try{captured=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});}
+      try{captured=await (window.ktAcquireGuestCamera20261019||navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices))({video:{facingMode:'user'},audio:false});}
       catch(z){return false;}
     }
     if(lifecycle!==remoteLifecycleGeneration20261018||(!requestOn&&!guestApproved)){
