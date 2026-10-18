@@ -1393,6 +1393,10 @@
     var hostId=await currentViewerHost();
     if(exitGeneration!==guestExitGeneration20261015||explicitlyLeft20261015())return;
     if(!hostId){ensurePrejoinRoomGrid();return;}
+    // Historical DB approval cannot publish a fresh spectator's camera.
+    if(!viewerGuest.approvedKey&&typeof window.ktGuestParticipationIntent20261018==='function'&&!window.ktGuestParticipationIntent20261018(hostId)){
+      ensurePrejoinRoomGrid();return;
+    }
     syncViewerApprovedRoster(hostId);
     var vid=viewerId(),ap=await latestApproval(hostId,vid);
     if(exitGeneration!==guestExitGeneration20261015||explicitlyLeft20261015())return;
@@ -1517,6 +1521,7 @@
     var sid=viewerGuest.sessionId||'';
     var wasApproved=!!(viewerGuest.approvedKey||((window.__ktApprovedGuestIds20260924||{})[vid]===true));
     guestExitGeneration20261015++;
+    approvalGeneration20261015++;
     if(viewerGuest.pc){try{viewerGuest.pc.close();}catch(e){}viewerGuest.pc=null;}
     viewerGuest.sessionId='';
     viewerGuest.connectStartedAt=0;
@@ -1633,6 +1638,7 @@
     clearInterval(hostPoll);clearInterval(viewerPoll);endViewerGuestSession(true);stopLocalGuestViewGuard();removePrejoinRoomGrid();Object.keys(hostGuestPeers).forEach(function(k){try{hostGuestPeers[k].close();}catch(e){}});hostGuestPeers={};if(viewerGuest.pc){try{viewerGuest.pc.close();}catch(e){}}if(viewerGuest.stream){try{viewerGuest.stream.getTracks().forEach(function(t){t.stop();});}catch(e){}}
   });
 })();
+
 
 
 

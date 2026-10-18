@@ -243,6 +243,12 @@
     if(!id)try{id=String(sessionStorage.getItem('kt_remote_host_id')||'');}catch(e){}
     return id;
   }
+  window.ktGuestParticipationIntent20261018=function(hostId){
+    try{if(localStorage.getItem('kt_explicit_guest_exit:'+DEVICE)==='1')return false;}catch(e){}
+    if(String(hostId||'')!==String(remoteHostId()||''))return false;
+    var button=document.getElementById('ktRemoteGuestRequest');
+    return !!(requestOn||guestApproved||(button&&button.classList.contains('kt-requested')));
+  };
   window.ktHostTransportDiagnostic20261017=function(){
     var r=roomEl(),v=r&&r.querySelector('video'),s=(window.state&&window.state.stream)||(v&&v.srcObject);
     return {host:!!r&&!document.documentElement.classList.contains('kt-remote-viewing'),localVideo:!!(s&&s.getVideoTracks&&s.getVideoTracks().some(function(t){return t.readyState==='live';})),signalJoined:!!joined,
@@ -717,7 +723,9 @@
         var names=window.__ktApprovedGuestNames20260924||{};
         Object.keys(states).forEach(function(id){
           var x=states[id];
-          var active=!!(x.request&&x.approved>=x.request&&x.approved>x.end);
+          var active=!!(x.request>x.end&&x.approved>=x.request&&x.approved>x.end);
+          if(lastRosterHost20261018===hid&&!lastRosterIds20261018[id]&&x.approved<=lastRosterAt20261018)active=false;
+          if(id===vid&&!window.ktGuestParticipationIntent20261018(hid))active=false;
           if(active){
             var was=roster[id]===true;
             roster[id]=true;
@@ -842,18 +850,22 @@
     }catch(e){}
   }
 
+  var lastRosterHost20261018='',lastRosterAt20261018=0,lastRosterIds20261018={};
   function applyApprovedRoster20260928(p){
     if(isHostRole())return;
     try{
       var hid=String(p&&p.host_id||'').trim();
       var current=String(remoteHostId()||lastRemoteHost||activeHostId||'').trim();
       if(!hid||!current||hid!==current)return;
+      var rosterAt=Number(p.at||0);
+      if(lastRosterHost20261018===hid&&rosterAt&&rosterAt<lastRosterAt20261018)return;
 
       var list=Array.isArray(p&&p.items)?p.items:[];
       var next={},names={},photos={};
       list.forEach(function(x){
         var id=String(x&&x.viewer_id||'').trim();
         if(!id)return;
+        if(id===viewerId()&&!window.ktGuestParticipationIntent20261018(hid))return;
         next[id]=true;
         names[id]=String(x&&x.name||'게스트');
         var frame=String(x&&x.frame||'');
@@ -889,6 +901,7 @@
 
       window.__ktApprovedGuestIds20260924=old;
       window.__ktApprovedGuestNames20260924=oldNames;
+      lastRosterHost20261018=hid;lastRosterAt20261018=rosterAt||Date.now();lastRosterIds20261018=next;
 
       try{window.dispatchEvent(new CustomEvent('kt-three-person-sync-now',{detail:{host_id:hid,at:Date.now()}}));}catch(e){}
       try{
@@ -2387,6 +2400,8 @@
 
   function onGuestApproved(p){
     if(String(p.viewer_id||'')!==viewerId())return;
+    if(!window.ktGuestParticipationIntent20261018(String(p.host_id||'')))return;
+    try{if(localStorage.getItem('kt_explicit_guest_exit:'+DEVICE)==='1')return;}catch(e){}
 
     /* 승인 수신 전용 보강:
        게스트 화면에서 호스트 ID가 잠깐 비어도 승인 신호에 들어있는 host_id로 즉시 복구한다.
@@ -2801,6 +2816,15 @@
       return;
     }
     if(ev==='guest_approved'){
+      var signalId=String(p.viewer_id||'').trim();
+      if(isHostRole()){
+        if(String(p.host_id||'')!==DEVICE||!approvedGuests[signalId])return;
+      }else{
+        if(String(p.host_id||'')!==String(remoteHostId()||''))return;
+        if(lastRosterHost20261018===String(p.host_id||'')&&!lastRosterIds20261018[signalId]&&Number(p.at||0)<=lastRosterAt20261018)return;
+        if(signalId===viewerId()&&!window.ktGuestParticipationIntent20261018(String(p.host_id||'')))return;
+        try{if(localStorage.getItem('kt_explicit_guest_exit:'+DEVICE)==='1')return;}catch(e){}
+      }
       try{
         var aid=String(p.viewer_id||'').trim();
         if(aid){
@@ -3177,6 +3201,7 @@
   s.textContent='#ktDirectGuestRequestRail{position:fixed!important;left:50%!important;right:auto!important;top:50%!important;bottom:auto!important;transform:translate(-50%,-50%)!important;max-width:88vw!important;z-index:2147483640!important}';
   document.head.appendChild(s);
 }catch(e){}})();
+
 
 
 

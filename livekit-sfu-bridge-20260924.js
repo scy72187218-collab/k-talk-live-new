@@ -441,6 +441,7 @@
   }
   function createGuestVideoTarget(identity){
     if(isHostRole())return null;
+    if(!(window.__ktApprovedGuestIds20260924||{})[identity])return null;
     var current=exactGuestVideo(identity);if(current)return current;
     var cells=[];
     try{
@@ -580,9 +581,9 @@
       if(hostRef&&sameVideoSource20260926(stream,hostRef))return;
       if(currentHostId&&String(identity||'')===String(currentHostId))return;
     }catch(e){}
-    if(isHostRole()){
-      try{if(!window.__ktApprovedGuestIds20260924||!window.__ktApprovedGuestIds20260924[identity])return;}catch(e){return;}
-    }
+    // A lingering SFU publication is not participation approval. Apply this
+    // to spectators too, otherwise reattach recreates a tile after guest-left.
+    try{if(!(window.__ktApprovedGuestIds20260924||{})[identity])return;}catch(e){return;}
     var known=guestVideoById[identity];
     if(known&&document.contains(known)){setGuestVideoDirection20261015(known,stream);return;}
     var exact=exactGuestVideo(identity);
@@ -1138,5 +1139,6 @@
   setTimeout(hostTick,180);
   setTimeout(hostTick,700);
 })();
+
 
 
