@@ -14,7 +14,7 @@
       var v=guest&&guest.querySelector('video');
       if(!v)return;
       v.style.setProperty('object-fit','cover','important');
-      v.style.setProperty('object-position','center 68%','important');
+      v.style.setProperty('object-position','center center','important');
     }catch(e){}
   }
 
